@@ -863,9 +863,28 @@ async def api_discussion_reply(request):
     return JSONResponse({"status": "added", "total_entries": len(entries), "entries": [dict(e) for e in entries]})
 
 
-@mcp.custom_route("/api/memory", methods=["GET"])
+@mcp.custom_route("/api/memory", methods=["GET", "POST"])
 async def api_memory_list(request):
     conn = get_db()
+    if request.method == "POST":
+        body = await request.json()
+        ts = now()
+        key = body["key"]
+        existing = conn.execute("SELECT id FROM shared_memory WHERE key = ?", (key,)).fetchone()
+        if existing:
+            conn.execute(
+                "UPDATE shared_memory SET value=?, category=?, tags=?, updated_by=?, updated_at=? WHERE key=?",
+                (body["value"], body.get("category", "general"), body.get("tags", ""), body.get("instance", "kommandant"), ts, key)
+            )
+        else:
+            conn.execute(
+                "INSERT INTO shared_memory (key, value, category, tags, updated_by, created_at, updated_at) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?)",
+                (key, body["value"], body.get("category", "general"), body.get("tags", ""), body.get("instance", "kommandant"), ts, ts)
+            )
+        conn.commit()
+        conn.close()
+        return JSONResponse({"status": "saved", "key": key})
     rows = conn.execute(
         "SELECT * FROM shared_memory ORDER BY updated_at DESC"
     ).fetchall()
