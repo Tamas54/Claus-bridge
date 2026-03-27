@@ -15,11 +15,7 @@ from datetime import datetime, timezone
 from fastmcp import FastMCP
 
 # --- Server Setup ---
-mcp = FastMCP(
-    "Claus Bridge",
-    description="Kommunikációs híd Claus CLI és Claus Web instance-ok között. "
-                "Üzenetküldés, shared memory, task management, discussions, session logs.",
-)
+mcp = FastMCP("Claus Bridge")
 
 DB_PATH = os.environ.get("BRIDGE_DB_PATH", "bridge.db")
 
