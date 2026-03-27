@@ -19,8 +19,6 @@ mcp = FastMCP(
     "Claus Bridge",
     description="Kommunikációs híd Claus CLI és Claus Web instance-ok között. "
                 "Üzenetküldés, shared memory, task management, discussions, session logs.",
-    host="0.0.0.0",
-    port=int(os.environ.get("PORT", 8003))
 )
 
 DB_PATH = os.environ.get("BRIDGE_DB_PATH", "bridge.db")
@@ -747,4 +745,8 @@ h1 { color: #60a5fa; } h2 { color: #94a3b8; } code { background: #1e293b; paddin
 init_db()
 
 if __name__ == "__main__":
-    mcp.run(transport="sse")
+    mcp.run(
+        transport="streamable-http",
+        host="0.0.0.0",
+        port=int(os.environ.get("PORT", 8003))
+    )
