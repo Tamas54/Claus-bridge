@@ -1,0 +1,1676 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>CLAUS BRIDGE — PARANCSNOKI KÖZPONT</title>
+<style>
+@font-face {
+  font-family: 'Stencil';
+  src: local('Stencil Std'), local('Stencil');
+}
+
+:root {
+  --bg-deep: #060a10;
+  --bg-base: #0a0e14;
+  --bg-surface: #0f1923;
+  --bg-elevated: #151f2e;
+  --bg-hover: #1a2738;
+  --border-dim: #1a2738;
+  --border-active: #00b4d855;
+  --text-primary: #e0e6ed;
+  --text-secondary: #7a8a9e;
+  --text-muted: #4a5568;
+  --ice: #00b4d8;
+  --ice-dim: #00b4d833;
+  --ice-glow: #00b4d866;
+  --phosphor: #39ff14;
+  --phosphor-dim: #39ff1433;
+  --electric: #4cc9f0;
+  --electric-dim: #4cc9f033;
+  --gold: #ffd60a;
+  --gold-dim: #ffd60a33;
+  --red: #ff3b3b;
+  --red-dim: #ff3b3b33;
+  --orange: #ff8c00;
+  --orange-dim: #ff8c0033;
+  --green: #22c55e;
+  --green-dim: #22c55e33;
+  --yellow: #eab308;
+  --yellow-dim: #eab30833;
+  --gray: #64748b;
+  --chamfer: polygon(12px 0%, calc(100% - 12px) 0%, 100% 12px, 100% calc(100% - 12px), calc(100% - 12px) 100%, 12px 100%, 0% calc(100% - 12px), 0% 12px);
+  --chamfer-sm: polygon(8px 0%, calc(100% - 8px) 0%, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0% calc(100% - 8px), 0% 8px);
+  --chamfer-top: polygon(12px 0%, calc(100% - 12px) 0%, 100% 12px, 100% 100%, 0% 100%, 0% 12px);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  height: 100%;
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  overflow-x: hidden;
+}
+
+/* Scan-line overlay */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.03) 2px,
+    rgba(0, 0, 0, 0.03) 4px
+  );
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* Noise grain overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  opacity: 0.015;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9998;
+}
+
+/* ===== HEADER ===== */
+.header {
+  background: linear-gradient(180deg, var(--bg-surface) 0%, var(--bg-deep) 100%);
+  border-bottom: 1px solid var(--border-dim);
+  padding: 1rem 1.5rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.header-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--ice);
+  text-shadow: 0 0 20px var(--ice-glow), 0 0 40px var(--ice-dim);
+  white-space: nowrap;
+}
+
+.header-title .separator {
+  color: var(--text-muted);
+  margin: 0 0.3em;
+}
+
+.header-title .subtitle {
+  color: var(--gold);
+  font-size: 0.85em;
+  text-shadow: 0 0 15px var(--gold-dim);
+}
+
+.header-identity {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--gold);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+
+.header-identity::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  background: var(--gold);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--gold);
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; box-shadow: 0 0 8px var(--gold); }
+  50% { opacity: 0.6; box-shadow: 0 0 16px var(--gold); }
+}
+
+/* ===== TABS ===== */
+.tab-bar {
+  background: var(--bg-base);
+  border-bottom: 1px solid var(--border-dim);
+  display: flex;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.tab-bar::-webkit-scrollbar { display: none; }
+
+.tab-bar-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  width: 100%;
+  padding: 0 1rem;
+}
+
+.tab {
+  padding: 0.75rem 1.25rem;
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+  white-space: nowrap;
+  position: relative;
+  user-select: none;
+}
+
+.tab:hover {
+  color: var(--text-primary);
+  background: var(--bg-surface);
+}
+
+.tab.active {
+  color: var(--ice);
+  border-bottom-color: var(--ice);
+  text-shadow: 0 0 10px var(--ice-dim);
+}
+
+.tab-badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  min-width: 16px;
+  height: 16px;
+  background: var(--red);
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  box-shadow: 0 0 8px var(--red-dim);
+  animation: badge-pulse 2s ease-in-out infinite;
+}
+
+@keyframes badge-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+/* ===== MAIN CONTENT ===== */
+.main {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  min-height: calc(100vh - 140px);
+}
+
+.panel {
+  display: none;
+  animation: panel-in 0.3s ease-out;
+}
+
+.panel.active { display: block; }
+
+@keyframes panel-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== CARDS ===== */
+.card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-dim);
+  clip-path: var(--chamfer);
+  padding: 1.25rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+  border-color: var(--border-active);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.card-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.card-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+/* ===== STATUS GRID ===== */
+.status-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.instance-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-dim);
+  clip-path: var(--chamfer);
+  padding: 1.25rem;
+}
+
+.instance-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.status-dot.online {
+  background: var(--green);
+  box-shadow: 0 0 10px var(--green);
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+.status-dot.offline {
+  background: var(--red);
+  box-shadow: 0 0 6px var(--red-dim);
+}
+
+.instance-name {
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+}
+
+.instance-name.cli { color: var(--phosphor); }
+.instance-name.web { color: var(--electric); }
+.instance-name.kmd { color: var(--gold); }
+
+.instance-info {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+/* ===== MESSAGES ===== */
+.msg-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.msg-item {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-dim);
+  border-left: 3px solid var(--text-muted);
+  padding: 1rem 1.25rem;
+  transition: all 0.2s;
+}
+
+.msg-item:hover {
+  background: var(--bg-elevated);
+}
+
+.msg-item.sender-cli-claus { border-left-color: var(--phosphor); }
+.msg-item.sender-web-claus { border-left-color: var(--electric); }
+.msg-item.sender-kommandant { border-left-color: var(--gold); }
+
+.msg-item.priority-critical {
+  border-color: var(--red);
+  border-left-color: var(--red);
+  animation: critical-pulse 3s ease-in-out infinite;
+}
+
+@keyframes critical-pulse {
+  0%, 100% { box-shadow: inset 0 0 0 0 transparent; }
+  50% { box-shadow: inset 0 0 15px var(--red-dim); }
+}
+
+.msg-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.msg-sender {
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+}
+
+.msg-sender.cli-claus { color: var(--phosphor); }
+.msg-sender.web-claus { color: var(--electric); }
+.msg-sender.kommandant { color: var(--gold); }
+
+.msg-arrow {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+
+.msg-recipient {
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+}
+
+.msg-time {
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  margin-left: auto;
+}
+
+.msg-subject {
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.35rem;
+  font-size: 0.9rem;
+}
+
+.msg-body {
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.msg-body::-webkit-scrollbar { width: 4px; }
+.msg-body::-webkit-scrollbar-track { background: transparent; }
+.msg-body::-webkit-scrollbar-thumb { background: var(--border-dim); border-radius: 2px; }
+
+/* ===== BADGES ===== */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-radius: 3px;
+}
+
+.badge-critical { background: var(--red-dim); color: var(--red); }
+.badge-urgent { background: var(--orange-dim); color: var(--orange); }
+.badge-high { background: var(--orange-dim); color: var(--orange); }
+.badge-normal { background: var(--ice-dim); color: var(--ice); }
+.badge-low { background: var(--bg-elevated); color: var(--text-muted); }
+.badge-info { background: var(--bg-elevated); color: var(--text-secondary); }
+
+.badge-open { background: var(--ice-dim); color: var(--ice); }
+.badge-resolved { background: var(--green-dim); color: var(--green); }
+.badge-pending { background: var(--yellow-dim); color: var(--yellow); }
+.badge-in_progress, .badge-in-progress { background: var(--ice-dim); color: var(--ice); }
+.badge-completed { background: var(--green-dim); color: var(--green); }
+.badge-cancelled { background: var(--bg-elevated); color: var(--text-muted); }
+
+.badge-decision { background: var(--gold-dim); color: var(--gold); }
+.badge-general { background: var(--ice-dim); color: var(--ice); }
+.badge-project { background: var(--phosphor-dim); color: var(--phosphor); }
+.badge-learning { background: var(--electric-dim); color: var(--electric); }
+.badge-config { background: var(--orange-dim); color: var(--orange); }
+
+/* ===== FORMS ===== */
+.form-section {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-dim);
+  clip-path: var(--chamfer);
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.form-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ice);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.form-title::before {
+  content: '';
+  width: 3px;
+  height: 1em;
+  background: var(--ice);
+  box-shadow: 0 0 6px var(--ice-dim);
+}
+
+.form-row {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  flex: 1;
+  min-width: 150px;
+}
+
+.form-group.full { flex-basis: 100%; }
+
+.form-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+input, select, textarea {
+  background: var(--bg-deep);
+  border: 1px solid var(--border-dim);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.85rem;
+  padding: 0.6rem 0.75rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--ice);
+  box-shadow: 0 0 0 1px var(--ice-dim);
+}
+
+textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' stroke='%237a8a9e' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  padding-right: 2rem;
+}
+
+.btn {
+  background: var(--ice-dim);
+  border: 1px solid var(--ice);
+  color: var(--ice);
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.6rem 1.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  clip-path: var(--chamfer-sm);
+}
+
+.btn:hover {
+  background: var(--ice);
+  color: var(--bg-deep);
+  box-shadow: 0 0 15px var(--ice-dim);
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn-gold {
+  background: var(--gold-dim);
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+.btn-gold:hover {
+  background: var(--gold);
+  color: var(--bg-deep);
+  box-shadow: 0 0 15px var(--gold-dim);
+}
+
+.btn-sm {
+  font-size: 0.7rem;
+  padding: 0.4rem 1rem;
+}
+
+/* ===== DISCUSSIONS ===== */
+.disc-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.disc-item {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-dim);
+  padding: 1rem 1.25rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.disc-item:hover {
+  background: var(--bg-elevated);
+  border-color: var(--border-active);
+}
+
+.disc-item.expanded {
+  border-color: var(--ice);
+  cursor: default;
+}
+
+.disc-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.disc-topic {
+  font-weight: 700;
+  font-size: 0.9rem;
+  flex: 1;
+}
+
+.disc-meta {
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  display: flex;
+  gap: 0.75rem;
+}
+
+.disc-entries {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-dim);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.disc-entry {
+  padding: 0.75rem 1rem;
+  background: var(--bg-deep);
+  border-left: 3px solid var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.disc-entry.instance-cli-claus { border-left-color: var(--phosphor); }
+.disc-entry.instance-web-claus { border-left-color: var(--electric); }
+.disc-entry.instance-kommandant { border-left-color: var(--gold); }
+
+.disc-entry-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.35rem;
+  font-size: 0.75rem;
+}
+
+.disc-entry-content {
+  color: var(--text-secondary);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.disc-reply-form {
+  margin-top: 0.75rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.disc-reply-form textarea {
+  flex: 1;
+  min-height: 50px;
+}
+
+/* ===== MEMORY ===== */
+.mem-filter {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.mem-filter-btn {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-dim);
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.4rem 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.mem-filter-btn:hover, .mem-filter-btn.active {
+  border-color: var(--ice);
+  color: var(--ice);
+  background: var(--ice-dim);
+}
+
+.mem-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1rem;
+}
+
+.mem-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-dim);
+  padding: 1rem 1.25rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.mem-card:hover {
+  border-color: var(--border-active);
+  background: var(--bg-elevated);
+}
+
+.mem-card.expanded {
+  grid-column: 1 / -1;
+  border-color: var(--ice);
+}
+
+.mem-key {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+  word-break: break-all;
+}
+
+.mem-tags {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
+}
+
+.mem-tag {
+  background: var(--bg-deep);
+  color: var(--text-muted);
+  font-size: 0.65rem;
+  padding: 1px 6px;
+  border-radius: 2px;
+}
+
+.mem-value {
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 100px;
+  overflow: hidden;
+  position: relative;
+}
+
+.mem-card.expanded .mem-value {
+  max-height: none;
+}
+
+.mem-value-fade {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+  background: linear-gradient(transparent, var(--bg-surface));
+}
+
+.mem-card.expanded .mem-value-fade { display: none; }
+
+.mem-card:hover .mem-value-fade {
+  background: linear-gradient(transparent, var(--bg-elevated));
+}
+
+.mem-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+/* ===== TASKS ===== */
+.task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.task-item {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-dim);
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  transition: all 0.2s;
+}
+
+.task-item:hover {
+  background: var(--bg-elevated);
+}
+
+.task-priority-bar {
+  width: 4px;
+  min-height: 40px;
+  align-self: stretch;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.task-priority-bar.critical { background: var(--red); box-shadow: 0 0 8px var(--red-dim); }
+.task-priority-bar.high { background: var(--orange); }
+.task-priority-bar.normal { background: var(--ice); }
+.task-priority-bar.low { background: var(--text-muted); }
+
+.task-content { flex: 1; }
+
+.task-title {
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin-bottom: 0.25rem;
+}
+
+.task-desc {
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  margin-bottom: 0.5rem;
+}
+
+.task-meta {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+/* ===== SESSIONS ===== */
+.session-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.session-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-dim);
+  padding: 1rem 1.25rem;
+}
+
+.session-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.8rem;
+}
+
+.session-summary {
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+/* ===== SECTION TITLES ===== */
+.section-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.section-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--border-dim), transparent);
+}
+
+/* ===== TOAST ===== */
+.toast-container {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.toast {
+  background: var(--bg-elevated);
+  border: 1px solid var(--ice);
+  padding: 0.75rem 1rem;
+  font-size: 0.8rem;
+  color: var(--text-primary);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 15px var(--ice-dim);
+  animation: toast-in 0.3s ease-out, toast-out 0.3s ease-in 4s forwards;
+  max-width: 360px;
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateX(50px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes toast-out {
+  from { opacity: 1; }
+  to { opacity: 0; transform: translateY(-10px); }
+}
+
+/* ===== FOOTER ===== */
+.footer {
+  text-align: center;
+  padding: 2rem 1rem 1rem;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-style: italic;
+  letter-spacing: 0.1em;
+}
+
+/* ===== RADAR ANIMATION (Overview) ===== */
+.radar-container {
+  position: relative;
+  width: 100%;
+  max-width: 200px;
+  aspect-ratio: 1;
+  margin: 0 auto 1rem;
+}
+
+.radar-circle {
+  position: absolute;
+  border: 1px solid var(--ice-dim);
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.radar-circle:nth-child(1) { width: 100%; height: 100%; }
+.radar-circle:nth-child(2) { width: 66%; height: 66%; }
+.radar-circle:nth-child(3) { width: 33%; height: 33%; }
+
+.radar-sweep {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 50%;
+  height: 2px;
+  transform-origin: left center;
+  background: linear-gradient(90deg, var(--ice), transparent);
+  animation: radar-spin 4s linear infinite;
+  box-shadow: 0 0 10px var(--ice-dim);
+}
+
+@keyframes radar-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.radar-blip {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  animation: blip-fade 4s ease-in-out infinite;
+}
+
+@keyframes blip-fade {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .header { padding: 0.75rem 1rem; }
+  .header-title { font-size: 0.8rem; letter-spacing: 0.15em; }
+  .header-title .subtitle { display: none; }
+  .header-identity { font-size: 0.75rem; }
+  .main { padding: 1rem; }
+  .status-grid { grid-template-columns: 1fr 1fr; }
+  .mem-grid { grid-template-columns: 1fr; }
+  .form-row { flex-direction: column; }
+  .form-group { min-width: auto; }
+  .msg-time { margin-left: 0; flex-basis: 100%; }
+  .tab { padding: 0.6rem 0.9rem; font-size: 0.7rem; }
+}
+
+@media (max-width: 480px) {
+  .status-grid { grid-template-columns: 1fr; }
+  .header-inner { flex-direction: column; gap: 0.5rem; }
+  .disc-reply-form { flex-direction: column; }
+}
+
+/* ===== MODAL ===== */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.modal-overlay.active { display: flex; }
+
+.modal {
+  background: var(--bg-surface);
+  border: 1px solid var(--ice);
+  clip-path: var(--chamfer);
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 560px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 0 40px var(--ice-dim);
+}
+
+.modal-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ice);
+  margin-bottom: 1.25rem;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+/* ===== EMPTY STATE ===== */
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+/* ===== LOADING ===== */
+.loading-bar {
+  height: 2px;
+  background: var(--ice);
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 10001;
+  animation: loading-sweep 1.5s ease-in-out infinite;
+  display: none;
+}
+
+.loading-bar.active { display: block; }
+
+@keyframes loading-sweep {
+  0% { width: 0; left: 0; }
+  50% { width: 60%; left: 20%; }
+  100% { width: 0; left: 100%; }
+}
+</style>
+</head>
+<body>
+
+<div class="loading-bar" id="loadingBar"></div>
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-inner">
+    <div class="header-title">
+      CLAUS BRIDGE<span class="separator">&mdash;</span><span class="subtitle">PARANCSNOKI KÖZPONT</span>
+    </div>
+    <div class="header-identity">KOMMANDANT ONLINE</div>
+  </div>
+</header>
+
+<!-- TABS -->
+<nav class="tab-bar">
+  <div class="tab-bar-inner">
+    <div class="tab active" data-tab="overview">ÁTTEKINTÉS</div>
+    <div class="tab" data-tab="messages">ÜZENETEK<span class="tab-badge" id="msgBadge" style="display:none"></span></div>
+    <div class="tab" data-tab="discussions">VITÁK</div>
+    <div class="tab" data-tab="memory">MEMÓRIA</div>
+    <div class="tab" data-tab="tasks">FELADATOK</div>
+  </div>
+</nav>
+
+<!-- ===== OVERVIEW ===== -->
+<main class="main">
+<section class="panel active" id="panel-overview">
+  <div class="status-grid" id="statusGrid"></div>
+
+  <div style="display:flex;align-items:center;justify-content:center;margin-bottom:1rem;">
+    <div class="radar-container">
+      <div class="radar-circle"></div>
+      <div class="radar-circle"></div>
+      <div class="radar-circle"></div>
+      <div class="radar-sweep"></div>
+      <div class="radar-blip" id="blipCli" style="top:30%;left:65%"></div>
+      <div class="radar-blip" id="blipWeb" style="top:60%;left:35%"></div>
+    </div>
+  </div>
+
+  <div class="section-title">UTOLSÓ MUNKAMENETEK</div>
+  <div id="sessionList" class="session-list"></div>
+</section>
+
+<!-- ===== MESSAGES ===== -->
+<section class="panel" id="panel-messages">
+  <div class="form-section">
+    <div class="form-title">ÚJ ÜZENET</div>
+    <form id="msgForm" onsubmit="return sendMessage(event)">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Feladó</label>
+          <input type="text" value="KOMMANDANT" disabled style="color:var(--gold);font-weight:700">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Címzett</label>
+          <select id="msgRecipient" required>
+            <option value="cli-claus">CLI-Claus</option>
+            <option value="web-claus">Web-Claus</option>
+            <option value="all">Mindenki</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Prioritás</label>
+          <select id="msgPriority">
+            <option value="normal">Normal</option>
+            <option value="urgent">Urgent</option>
+            <option value="critical">Critical</option>
+            <option value="info">Info</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group full">
+          <label class="form-label">Tárgy</label>
+          <input type="text" id="msgSubject" required placeholder="Üzenet tárgya...">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group full">
+          <label class="form-label">Üzenet</label>
+          <textarea id="msgBody" required placeholder="Írd meg az üzeneted..."></textarea>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:flex-end">
+        <button type="submit" class="btn btn-gold">KÜLDÉS</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="section-title">ÜZENETEK</div>
+  <div id="msgList" class="msg-list"></div>
+</section>
+
+<!-- ===== DISCUSSIONS ===== -->
+<section class="panel" id="panel-discussions">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+    <div class="section-title" style="margin-bottom:0">VITÁK</div>
+    <button class="btn btn-sm" onclick="openNewDiscussion()">ÚJ VITA</button>
+  </div>
+  <div id="discList" class="disc-list"></div>
+</section>
+
+<!-- ===== MEMORY ===== -->
+<section class="panel" id="panel-memory">
+  <div class="section-title">KÖZÖS MEMÓRIA</div>
+  <div class="mem-filter" id="memFilter"></div>
+  <div id="memGrid" class="mem-grid"></div>
+</section>
+
+<!-- ===== TASKS ===== -->
+<section class="panel" id="panel-tasks">
+  <div class="form-section">
+    <div class="form-title">ÚJ FELADAT</div>
+    <form id="taskForm" onsubmit="return createTask(event)">
+      <div class="form-row">
+        <div class="form-group" style="flex:2">
+          <label class="form-label">Cím</label>
+          <input type="text" id="taskTitle" required placeholder="Feladat megnevezése...">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Felelős</label>
+          <select id="taskAssign" required>
+            <option value="cli-claus">CLI-Claus</option>
+            <option value="web-claus">Web-Claus</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Prioritás</label>
+          <select id="taskPriority">
+            <option value="normal">Normal</option>
+            <option value="high">High</option>
+            <option value="critical">Critical</option>
+            <option value="low">Low</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group full">
+          <label class="form-label">Leírás</label>
+          <textarea id="taskDesc" placeholder="Részletes leírás..."></textarea>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:flex-end">
+        <button type="submit" class="btn btn-gold">FELADAT LÉTREHOZÁSA</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="section-title">FELADATOK</div>
+  <div id="taskList" class="task-list"></div>
+</section>
+</main>
+
+<footer class="footer">Die Zahnräder greifen ineinander!</footer>
+
+<!-- NEW DISCUSSION MODAL -->
+<div class="modal-overlay" id="discModal">
+  <div class="modal">
+    <div class="modal-title">ÚJ VITA INDÍTÁSA</div>
+    <form id="discForm" onsubmit="return startDiscussion(event)">
+      <div class="form-group full" style="margin-bottom:0.75rem">
+        <label class="form-label">Téma</label>
+        <input type="text" id="discTopic" required placeholder="Miről szól a vita?">
+      </div>
+      <div class="form-group full" style="margin-bottom:0.75rem">
+        <label class="form-label">Kontextus</label>
+        <textarea id="discContext" placeholder="Háttér, előzmények..."></textarea>
+      </div>
+      <div class="form-group full" style="margin-bottom:0.75rem">
+        <label class="form-label">Nyitó álláspont</label>
+        <textarea id="discPosition" required placeholder="Az első hozzászólásod..."></textarea>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-sm" onclick="closeModal('discModal')" style="background:var(--bg-deep);border-color:var(--text-muted);color:var(--text-muted)">MÉGSE</button>
+        <button type="submit" class="btn btn-gold btn-sm">VITA INDÍTÁSA</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+// ===== STATE =====
+let currentTab = localStorage.getItem('claus-tab') || 'overview';
+let prevMessageIds = new Set();
+let expandedDisc = null;
+let expandedMem = null;
+let memFilter = 'all';
+
+// ===== UTILS =====
+function relTime(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  const now = Date.now();
+  const diff = Math.floor((now - d.getTime()) / 1000);
+  if (diff < 0) return 'most';
+  if (diff < 60) return `${diff}mp`;
+  if (diff < 3600) return `${Math.floor(diff / 60)} perce`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)} órája`;
+  if (diff < 172800) return 'tegnap';
+  return `${Math.floor(diff / 86400)} napja`;
+}
+
+function esc(s) {
+  if (!s) return '';
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+function senderClass(s) {
+  return s ? s.replace(/[^a-z-]/g, '') : '';
+}
+
+function isOnline(lastSeen) {
+  if (!lastSeen) return false;
+  return (Date.now() - new Date(lastSeen).getTime()) < 300000;
+}
+
+async function api(path, opts) {
+  const resp = await fetch(path, opts);
+  return resp.json();
+}
+
+function toast(msg) {
+  const c = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 4500);
+}
+
+function showLoading() { document.getElementById('loadingBar').classList.add('active'); }
+function hideLoading() { document.getElementById('loadingBar').classList.remove('active'); }
+
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+function openNewDiscussion() { document.getElementById('discModal').classList.add('active'); }
+
+// ===== TABS =====
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    currentTab = tab.dataset.tab;
+    localStorage.setItem('claus-tab', currentTab);
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('panel-' + currentTab).classList.add('active');
+    refresh();
+  });
+});
+
+// Restore tab
+function restoreTab() {
+  document.querySelectorAll('.tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.tab === currentTab);
+  });
+  document.querySelectorAll('.panel').forEach(p => {
+    p.classList.toggle('active', p.id === 'panel-' + currentTab);
+  });
+}
+
+// ===== OVERVIEW =====
+async function loadOverview() {
+  const data = await api('/api/status');
+
+  // Status grid
+  const instances = Object.entries(data.instances || {});
+  const cards = [];
+
+  // Instance cards
+  for (const [name, info] of instances) {
+    const on = isOnline(info.last_seen);
+    const cls = name === 'cli-claus' ? 'cli' : name === 'web-claus' ? 'web' : 'kmd';
+    cards.push(`
+      <div class="instance-card">
+        <div class="instance-header">
+          <div class="status-dot ${on ? 'online' : 'offline'}"></div>
+          <span class="instance-name ${cls}">${esc(name.toUpperCase())}</span>
+        </div>
+        <div class="instance-info">${on ? 'Online' : 'Offline'} &mdash; ${relTime(info.last_seen)}</div>
+        <div class="instance-info" style="margin-top:0.35rem;color:var(--text-secondary)">${esc((info.session_info || '').slice(0, 120))}</div>
+      </div>
+    `);
+  }
+
+  // Stat cards
+  const stats = [
+    { label: 'ÜZENETEK', value: data.total_messages, color: 'var(--ice)' },
+    { label: 'OLVASATLAN', value: Object.values(data.unread).reduce((a, b) => a + b, 0), color: data.unread['kommandant'] > 0 ? 'var(--gold)' : 'var(--text-secondary)' },
+    { label: 'NYITOTT VITÁK', value: data.open_discussions, color: 'var(--electric)' },
+    { label: 'FELADATOK', value: data.open_tasks, color: 'var(--phosphor)' },
+    { label: 'MEMÓRIA', value: data.total_memory_entries, color: 'var(--text-secondary)' }
+  ];
+
+  for (const s of stats) {
+    cards.push(`
+      <div class="card">
+        <div class="card-header"><span class="card-title">${s.label}</span></div>
+        <div class="card-value" style="color:${s.color}">${s.value}</div>
+      </div>
+    `);
+  }
+
+  document.getElementById('statusGrid').innerHTML = cards.join('');
+
+  // Radar blips
+  const cliOn = data.instances?.['cli-claus'] && isOnline(data.instances['cli-claus'].last_seen);
+  const webOn = data.instances?.['web-claus'] && isOnline(data.instances['web-claus'].last_seen);
+  document.getElementById('blipCli').style.background = cliOn ? 'var(--phosphor)' : 'var(--red)';
+  document.getElementById('blipCli').style.boxShadow = cliOn ? '0 0 8px var(--phosphor)' : '0 0 4px var(--red-dim)';
+  document.getElementById('blipWeb').style.background = webOn ? 'var(--electric)' : 'var(--red)';
+  document.getElementById('blipWeb').style.boxShadow = webOn ? '0 0 8px var(--electric)' : '0 0 4px var(--red-dim)';
+
+  // Sessions
+  const sessions = data.recent_sessions || [];
+  document.getElementById('sessionList').innerHTML = sessions.length ? sessions.map(s => `
+    <div class="session-card">
+      <div class="session-header">
+        <span class="instance-name ${s.instance === 'cli-claus' ? 'cli' : s.instance === 'web-claus' ? 'web' : 'kmd'}">${esc(s.instance)}</span>
+        <span style="color:var(--text-muted)">&mdash; ${relTime(s.timestamp)}</span>
+      </div>
+      <div class="session-summary">${esc(s.summary)}</div>
+    </div>
+  `).join('') : '<div class="empty-state">Nincs rögzített munkamenet.</div>';
+
+  // Unread badge
+  const unread = data.unread?.kommandant || 0;
+  const badge = document.getElementById('msgBadge');
+  if (unread > 0) {
+    badge.textContent = unread;
+    badge.style.display = 'flex';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+// ===== MESSAGES =====
+async function loadMessages() {
+  const msgs = await api('/api/messages?limit=80');
+
+  // Check for new messages
+  const newIds = new Set(msgs.map(m => m.id));
+  if (prevMessageIds.size > 0) {
+    for (const m of msgs) {
+      if (!prevMessageIds.has(m.id)) {
+        toast(`Új üzenet: ${m.sender} → ${m.recipient}: ${m.subject}`);
+      }
+    }
+  }
+  prevMessageIds = newIds;
+
+  document.getElementById('msgList').innerHTML = msgs.length ? msgs.map(m => `
+    <div class="msg-item sender-${senderClass(m.sender)} ${m.priority === 'critical' ? 'priority-critical' : ''}">
+      <div class="msg-meta">
+        <span class="msg-sender ${senderClass(m.sender)}">${esc(m.sender)}</span>
+        <span class="msg-arrow">&rarr;</span>
+        <span class="msg-recipient">${esc(m.recipient)}</span>
+        ${m.priority !== 'normal' ? `<span class="badge badge-${m.priority}">${m.priority}</span>` : ''}
+        <span class="msg-time">${relTime(m.timestamp)}</span>
+      </div>
+      <div class="msg-subject">${esc(m.subject)}</div>
+      <div class="msg-body">${esc(m.message)}</div>
+    </div>
+  `).join('') : '<div class="empty-state">Még nincsenek üzenetek.</div>';
+}
+
+async function sendMessage(e) {
+  e.preventDefault();
+  const recipient = document.getElementById('msgRecipient').value;
+  const subject = document.getElementById('msgSubject').value;
+  const message = document.getElementById('msgBody').value;
+  const priority = document.getElementById('msgPriority').value;
+
+  const recipients = recipient === 'all' ? ['cli-claus', 'web-claus'] : [recipient];
+
+  for (const r of recipients) {
+    await api('/api/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sender: 'kommandant', recipient: r, subject, message, priority })
+    });
+  }
+
+  document.getElementById('msgForm').reset();
+  toast('Üzenet elküldve!');
+  loadMessages();
+  return false;
+}
+
+// ===== DISCUSSIONS =====
+async function loadDiscussions() {
+  const discs = await api('/api/discussions');
+
+  if (!discs.length) {
+    document.getElementById('discList').innerHTML = '<div class="empty-state">Még nincsenek viták.</div>';
+    return;
+  }
+
+  let html = '';
+  for (const d of discs) {
+    const isExp = expandedDisc === d.id;
+    html += `<div class="disc-item ${isExp ? 'expanded' : ''}" onclick="${isExp ? '' : `expandDisc(${d.id})`}">`;
+    html += `<div class="disc-header">`;
+    html += `<span class="badge badge-${d.status}">${d.status}</span>`;
+    html += `<span class="disc-topic">${esc(d.topic)}</span>`;
+    html += `<div class="disc-meta">`;
+    html += `<span>${d.entry_count} hozzászólás</span>`;
+    html += `<span>${esc(d.created_by)}</span>`;
+    html += `<span>${relTime(d.created_at)}</span>`;
+    html += `</div></div>`;
+
+    if (isExp) {
+      const detail = await api(`/api/discussions/${d.id}`);
+      html += `<div class="disc-entries">`;
+      for (const e of detail.entries || []) {
+        html += `<div class="disc-entry instance-${senderClass(e.instance)}">`;
+        html += `<div class="disc-entry-meta">`;
+        html += `<span class="instance-name ${e.instance === 'cli-claus' ? 'cli' : e.instance === 'web-claus' ? 'web' : 'kmd'}">${esc(e.instance)}</span>`;
+        html += `<span style="color:var(--text-muted)">${relTime(e.timestamp)}</span>`;
+        html += `</div>`;
+        html += `<div class="disc-entry-content">${esc(e.content)}</div>`;
+        html += `</div>`;
+      }
+      if (d.status === 'open') {
+        html += `<div class="disc-reply-form">`;
+        html += `<textarea id="replyText-${d.id}" placeholder="Hozzászólás..." onkeydown="if(event.ctrlKey&&event.key==='Enter'){replyDisc(${d.id});return false;}"></textarea>`;
+        html += `<button class="btn btn-gold btn-sm" onclick="replyDisc(${d.id})" style="align-self:flex-end">VÁLASZ</button>`;
+        html += `</div>`;
+      }
+      html += `</div>`;
+    }
+    html += `</div>`;
+  }
+
+  document.getElementById('discList').innerHTML = html;
+}
+
+async function expandDisc(id) {
+  expandedDisc = expandedDisc === id ? null : id;
+  await loadDiscussions();
+}
+
+async function replyDisc(id) {
+  const el = document.getElementById('replyText-' + id);
+  const content = el.value.trim();
+  if (!content) return;
+
+  await api(`/api/discussions/${id}/reply`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ content, instance: 'kommandant' })
+  });
+
+  toast('Hozzászólás elküldve!');
+  await loadDiscussions();
+}
+
+async function startDiscussion(e) {
+  e.preventDefault();
+  const topic = document.getElementById('discTopic').value;
+  const context = document.getElementById('discContext').value;
+  const position = document.getElementById('discPosition').value;
+
+  await api('/api/discussions', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ topic, context, initial_position: position, instance: 'kommandant' })
+  });
+
+  closeModal('discModal');
+  document.getElementById('discForm').reset();
+  toast('Vita elindítva!');
+  loadDiscussions();
+  return false;
+}
+
+// ===== MEMORY =====
+async function loadMemory() {
+  const mems = await api('/api/memory');
+
+  // Filter buttons
+  const cats = ['all', ...new Set(mems.map(m => m.category).filter(Boolean))];
+  document.getElementById('memFilter').innerHTML = cats.map(c => `
+    <button class="mem-filter-btn ${memFilter === c ? 'active' : ''}" onclick="setMemFilter('${c}')">${c === 'all' ? 'ÖSSZES' : c.toUpperCase()}</button>
+  `).join('');
+
+  const filtered = memFilter === 'all' ? mems : mems.filter(m => m.category === memFilter);
+
+  document.getElementById('memGrid').innerHTML = filtered.length ? filtered.map(m => {
+    const isExp = expandedMem === m.key;
+    const tags = (m.tags || '').split(',').filter(Boolean);
+    return `
+      <div class="mem-card ${isExp ? 'expanded' : ''}" onclick="toggleMem('${esc(m.key)}')">
+        <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.35rem">
+          <span class="badge badge-${m.category || 'general'}">${m.category || 'general'}</span>
+        </div>
+        <div class="mem-key">${esc(m.key)}</div>
+        ${tags.length ? `<div class="mem-tags">${tags.map(t => `<span class="mem-tag">${esc(t.trim())}</span>`).join('')}</div>` : ''}
+        <div class="mem-value">${esc(m.value)}${!isExp ? '<div class="mem-value-fade"></div>' : ''}</div>
+        <div class="mem-footer">
+          <span>${esc(m.updated_by)}</span>
+          <span>${relTime(m.updated_at)}</span>
+        </div>
+      </div>
+    `;
+  }).join('') : '<div class="empty-state">Nincs memória bejegyzés.</div>';
+}
+
+function setMemFilter(cat) {
+  memFilter = cat;
+  loadMemory();
+}
+
+function toggleMem(key) {
+  expandedMem = expandedMem === key ? null : key;
+  loadMemory();
+}
+
+// ===== TASKS =====
+async function loadTasks() {
+  const tasks = await api('/api/tasks');
+
+  document.getElementById('taskList').innerHTML = tasks.length ? tasks.map(t => `
+    <div class="task-item">
+      <div class="task-priority-bar ${t.priority}"></div>
+      <div class="task-content">
+        <div class="task-title">${esc(t.title)}</div>
+        ${t.description ? `<div class="task-desc">${esc(t.description)}</div>` : ''}
+        <div class="task-meta">
+          <span class="badge badge-${(t.status||'').replace('_','-')}">${t.status}</span>
+          <span class="badge badge-${t.priority}">${t.priority}</span>
+          <span>&rarr; ${esc(t.assigned_to)}</span>
+          <span>by ${esc(t.assigned_by)}</span>
+          <span>${relTime(t.created_at)}</span>
+          ${t.deadline ? `<span style="color:var(--orange)">DL: ${t.deadline}</span>` : ''}
+        </div>
+      </div>
+    </div>
+  `).join('') : '<div class="empty-state">Nincsenek feladatok.</div>';
+}
+
+async function createTask(e) {
+  e.preventDefault();
+  await api('/api/tasks', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      title: document.getElementById('taskTitle').value,
+      assigned_to: document.getElementById('taskAssign').value,
+      description: document.getElementById('taskDesc').value,
+      priority: document.getElementById('taskPriority').value,
+      assigned_by: 'kommandant'
+    })
+  });
+
+  document.getElementById('taskForm').reset();
+  toast('Feladat létrehozva!');
+  loadTasks();
+  return false;
+}
+
+// ===== REFRESH =====
+async function refresh() {
+  showLoading();
+  try {
+    switch (currentTab) {
+      case 'overview': await loadOverview(); break;
+      case 'messages': await loadMessages(); break;
+      case 'discussions': await loadDiscussions(); break;
+      case 'memory': await loadMemory(); break;
+      case 'tasks': await loadTasks(); break;
+    }
+    // Always update badge
+    if (currentTab !== 'overview') {
+      const st = await api('/api/status');
+      const unread = st.unread?.kommandant || 0;
+      const badge = document.getElementById('msgBadge');
+      if (unread > 0) { badge.textContent = unread; badge.style.display = 'flex'; }
+      else { badge.style.display = 'none'; }
+    }
+  } catch (e) {
+    console.error('Refresh error:', e);
+  }
+  hideLoading();
+}
+
+// ===== INIT =====
+restoreTab();
+refresh();
+setInterval(refresh, 30000);
+
+// Close modal on backdrop click
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('active'); });
+});
+</script>
+</body>
+</html>

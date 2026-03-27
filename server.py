@@ -659,6 +659,7 @@ async def get_status() -> str:
     heartbeats_rows = conn.execute("SELECT * FROM heartbeats").fetchall()
     unread_cli = conn.execute("SELECT COUNT(*) as c FROM messages WHERE recipient='cli-claus' AND status='unread'").fetchone()["c"]
     unread_web = conn.execute("SELECT COUNT(*) as c FROM messages WHERE recipient='web-claus' AND status='unread'").fetchone()["c"]
+    unread_kmd = conn.execute("SELECT COUNT(*) as c FROM messages WHERE recipient='kommandant' AND status='unread'").fetchone()["c"]
     open_tasks = conn.execute("SELECT COUNT(*) as c FROM tasks WHERE status IN ('pending', 'in_progress')").fetchone()["c"]
     open_discussions = conn.execute("SELECT COUNT(*) as c FROM discussions WHERE status='open'").fetchone()["c"]
     total_messages = conn.execute("SELECT COUNT(*) as c FROM messages").fetchone()["c"]
@@ -669,7 +670,7 @@ async def get_status() -> str:
     conn.close()
     return json.dumps({
         "instances": {h["instance"]: {"last_seen": h["last_seen"], "session_info": h["session_info"]} for h in heartbeats_rows},
-        "unread": {"cli-claus": unread_cli, "web-claus": unread_web},
+        "unread": {"cli-claus": unread_cli, "web-claus": unread_web, "kommandant": unread_kmd},
         "open_tasks": open_tasks,
         "open_discussions": open_discussions,
         "total_messages": total_messages,
@@ -682,7 +683,9 @@ async def get_status() -> str:
 # LANDING PAGE
 # ============================================================
 
-from starlette.responses import HTMLResponse
+from starlette.responses import HTMLResponse, JSONResponse
+from starlette.requests import Request
+import pathlib
 
 @mcp.custom_route("/", methods=["GET"])
 async def landing(request):
@@ -731,6 +734,184 @@ h1 { color: #60a5fa; } h2 { color: #94a3b8; } code { background: #1e293b; paddin
 <p style="margin-top:2rem;color:#64748b;">20 tools | SQLite + FTS5 | Railway SSE transport<br>
 <i>Die Zahnräder greifen ineinander!</i></p>
 </body></html>"""
+    return HTMLResponse(html)
+
+
+# ============================================================
+# REST API FOR KOMMANDANT DASHBOARD
+# ============================================================
+
+@mcp.custom_route("/api/status", methods=["GET"])
+async def api_status(request):
+    conn = get_db()
+    heartbeats_rows = conn.execute("SELECT * FROM heartbeats").fetchall()
+    unread_cli = conn.execute("SELECT COUNT(*) as c FROM messages WHERE recipient='cli-claus' AND status='unread'").fetchone()["c"]
+    unread_web = conn.execute("SELECT COUNT(*) as c FROM messages WHERE recipient='web-claus' AND status='unread'").fetchone()["c"]
+    unread_kmd = conn.execute("SELECT COUNT(*) as c FROM messages WHERE recipient='kommandant' AND status='unread'").fetchone()["c"]
+    open_tasks = conn.execute("SELECT COUNT(*) as c FROM tasks WHERE status IN ('pending', 'in_progress')").fetchone()["c"]
+    open_discussions = conn.execute("SELECT COUNT(*) as c FROM discussions WHERE status='open'").fetchone()["c"]
+    total_messages = conn.execute("SELECT COUNT(*) as c FROM messages").fetchone()["c"]
+    total_memory = conn.execute("SELECT COUNT(*) as c FROM shared_memory").fetchone()["c"]
+    last_session = conn.execute("SELECT instance, summary, timestamp FROM session_logs ORDER BY timestamp DESC LIMIT 3").fetchall()
+    conn.close()
+    return JSONResponse({
+        "instances": {h["instance"]: {"last_seen": h["last_seen"], "session_info": h["session_info"]} for h in heartbeats_rows},
+        "unread": {"cli-claus": unread_cli, "web-claus": unread_web, "kommandant": unread_kmd},
+        "open_tasks": open_tasks,
+        "open_discussions": open_discussions,
+        "total_messages": total_messages,
+        "total_memory_entries": total_memory,
+        "recent_sessions": [dict(s) for s in last_session]
+    })
+
+
+@mcp.custom_route("/api/messages", methods=["GET", "POST"])
+async def api_messages(request):
+    conn = get_db()
+    if request.method == "POST":
+        body = await request.json()
+        thread_id = None
+        reply_to = body.get("reply_to")
+        if reply_to:
+            row = conn.execute("SELECT thread_id, id FROM messages WHERE id = ?", (reply_to,)).fetchone()
+            if row:
+                thread_id = row["thread_id"] or row["id"]
+        cur = conn.execute(
+            "INSERT INTO messages (timestamp, sender, recipient, subject, message, priority, thread_id, reply_to) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            (now(), body["sender"], body["recipient"], body["subject"], body["message"],
+             body.get("priority", "normal"), thread_id, reply_to)
+        )
+        msg_id = cur.lastrowid
+        if not thread_id:
+            conn.execute("UPDATE messages SET thread_id = ? WHERE id = ?", (msg_id, msg_id))
+        conn.commit()
+        conn.close()
+        return JSONResponse({"status": "sent", "message_id": msg_id})
+    else:
+        limit = int(request.query_params.get("limit", "50"))
+        rows = conn.execute("SELECT * FROM messages ORDER BY timestamp DESC LIMIT ?", (limit,)).fetchall()
+        conn.close()
+        return JSONResponse([dict(r) for r in rows])
+
+
+@mcp.custom_route("/api/discussions", methods=["GET", "POST"])
+async def api_discussions(request):
+    conn = get_db()
+    if request.method == "POST":
+        body = await request.json()
+        ts = now()
+        cur = conn.execute(
+            "INSERT INTO discussions (topic, context, status, created_by, created_at) VALUES (?, ?, 'open', ?, ?)",
+            (body["topic"], body.get("context", ""), body.get("instance", "kommandant"), ts)
+        )
+        disc_id = cur.lastrowid
+        conn.execute(
+            "INSERT INTO discussion_entries (discussion_id, instance, content, timestamp) VALUES (?, ?, ?, ?)",
+            (disc_id, body.get("instance", "kommandant"), body["initial_position"], ts)
+        )
+        conn.commit()
+        conn.close()
+        return JSONResponse({"status": "created", "discussion_id": disc_id})
+    else:
+        status = request.query_params.get("status")
+        query = "SELECT d.*, COUNT(e.id) as entry_count FROM discussions d LEFT JOIN discussion_entries e ON d.id = e.discussion_id"
+        params = []
+        if status:
+            query += " WHERE d.status = ?"
+            params.append(status)
+        query += " GROUP BY d.id ORDER BY d.created_at DESC"
+        rows = conn.execute(query, params).fetchall()
+        conn.close()
+        return JSONResponse([dict(r) for r in rows])
+
+
+@mcp.custom_route("/api/discussions/{discussion_id}", methods=["GET"])
+async def api_discussion_detail(request):
+    disc_id = request.path_params["discussion_id"]
+    conn = get_db()
+    disc = conn.execute("SELECT * FROM discussions WHERE id = ?", (disc_id,)).fetchone()
+    if not disc:
+        conn.close()
+        return JSONResponse({"error": "Not found"}, status_code=404)
+    entries = conn.execute(
+        "SELECT * FROM discussion_entries WHERE discussion_id = ? ORDER BY timestamp ASC",
+        (disc_id,)
+    ).fetchall()
+    conn.close()
+    result = dict(disc)
+    result["entries"] = [dict(e) for e in entries]
+    return JSONResponse(result)
+
+
+@mcp.custom_route("/api/discussions/{discussion_id}/reply", methods=["POST"])
+async def api_discussion_reply(request):
+    disc_id = request.path_params["discussion_id"]
+    body = await request.json()
+    conn = get_db()
+    ts = now()
+    conn.execute(
+        "INSERT INTO discussion_entries (discussion_id, instance, content, timestamp) VALUES (?, ?, ?, ?)",
+        (disc_id, body.get("instance", "kommandant"), body["content"], ts)
+    )
+    conn.commit()
+    entries = conn.execute(
+        "SELECT * FROM discussion_entries WHERE discussion_id = ? ORDER BY timestamp ASC",
+        (disc_id,)
+    ).fetchall()
+    conn.close()
+    return JSONResponse({"status": "added", "total_entries": len(entries), "entries": [dict(e) for e in entries]})
+
+
+@mcp.custom_route("/api/memory", methods=["GET"])
+async def api_memory_list(request):
+    conn = get_db()
+    rows = conn.execute(
+        "SELECT * FROM shared_memory ORDER BY updated_at DESC"
+    ).fetchall()
+    conn.close()
+    return JSONResponse([dict(r) for r in rows])
+
+
+@mcp.custom_route("/api/memory/{key}", methods=["GET"])
+async def api_memory_detail(request):
+    key = request.path_params["key"]
+    conn = get_db()
+    row = conn.execute("SELECT * FROM shared_memory WHERE key = ?", (key,)).fetchone()
+    conn.close()
+    if row:
+        return JSONResponse(dict(row))
+    return JSONResponse({"error": "Not found"}, status_code=404)
+
+
+@mcp.custom_route("/api/tasks", methods=["GET", "POST"])
+async def api_tasks(request):
+    conn = get_db()
+    if request.method == "POST":
+        body = await request.json()
+        ts = now()
+        cur = conn.execute(
+            "INSERT INTO tasks (title, description, assigned_to, assigned_by, priority, status, deadline, created_at, updated_at) "
+            "VALUES (?, ?, ?, ?, ?, 'pending', ?, ?, ?)",
+            (body["title"], body.get("description", ""), body["assigned_to"],
+             body.get("assigned_by", "kommandant"), body.get("priority", "normal"),
+             body.get("deadline"), ts, ts)
+        )
+        conn.commit()
+        conn.close()
+        return JSONResponse({"status": "created", "task_id": cur.lastrowid})
+    else:
+        rows = conn.execute(
+            "SELECT * FROM tasks ORDER BY CASE priority WHEN 'critical' THEN 0 WHEN 'high' THEN 1 WHEN 'normal' THEN 2 ELSE 3 END, created_at DESC"
+        ).fetchall()
+        conn.close()
+        return JSONResponse([dict(r) for r in rows])
+
+
+@mcp.custom_route("/dashboard", methods=["GET"])
+async def dashboard(request):
+    html_path = pathlib.Path(__file__).parent / "dashboard.html"
+    html = html_path.read_text(encoding="utf-8")
     return HTMLResponse(html)
 
 
