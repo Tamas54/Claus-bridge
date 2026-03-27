@@ -1132,9 +1132,9 @@ select {
         <div class="form-group">
           <label class="form-label">Címzett</label>
           <select id="msgRecipient" required>
+            <option value="all" selected>Mindenki</option>
             <option value="cli-claus">CLI-Claus</option>
             <option value="web-claus">Web-Claus</option>
-            <option value="all">Mindenki</option>
           </select>
         </div>
         <div class="form-group">
@@ -1198,6 +1198,7 @@ select {
         <div class="form-group">
           <label class="form-label">Felelős</label>
           <select id="taskAssign" required>
+            <option value="all" selected>Mindenki</option>
             <option value="cli-claus">CLI-Claus</option>
             <option value="web-claus">Web-Claus</option>
           </select>
@@ -1619,17 +1620,19 @@ async function loadTasks() {
 
 async function createTask(e) {
   e.preventDefault();
-  await api('/api/tasks', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      title: document.getElementById('taskTitle').value,
-      assigned_to: document.getElementById('taskAssign').value,
-      description: document.getElementById('taskDesc').value,
-      priority: document.getElementById('taskPriority').value,
-      assigned_by: 'kommandant'
-    })
-  });
+  const assignTo = document.getElementById('taskAssign').value;
+  const title = document.getElementById('taskTitle').value;
+  const description = document.getElementById('taskDesc').value;
+  const priority = document.getElementById('taskPriority').value;
+
+  const targets = assignTo === 'all' ? ['cli-claus', 'web-claus'] : [assignTo];
+  for (const t of targets) {
+    await api('/api/tasks', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title, assigned_to: t, description, priority, assigned_by: 'kommandant' })
+    });
+  }
 
   document.getElementById('taskForm').reset();
   toast('Feladat létrehozva!');
