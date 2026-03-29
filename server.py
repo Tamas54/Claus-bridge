@@ -1147,19 +1147,24 @@ WEB_SEARCH_TOOL_DEF = {
 
 async def _web_search(query: str) -> str:
     """Execute a web search via DuckDuckGo HTML."""
-    import httpx
+    import httpx, re
     try:
-        async with httpx.AsyncClient(timeout=15) as client:
+        async with httpx.AsyncClient(timeout=15, follow_redirects=True) as client:
             resp = await client.get(
                 "https://html.duckduckgo.com/html/",
                 params={"q": query},
-                headers={"User-Agent": "Mozilla/5.0"},
+                headers={"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36"},
             )
-            # Extract text snippets from results
-            import re
-            snippets = re.findall(r'class="result__snippet">(.*?)</a>', resp.text, re.DOTALL)
-            texts = [re.sub(r'<[^>]+>', '', s).strip() for s in snippets[:5]]
-            return "\n".join(f"- {t}" for t in texts if t) or "No results found."
+            # Extract titles and snippets
+            titles = re.findall(r'class="result__a"[^>]*>(.*?)</a>', resp.text, re.DOTALL)
+            snippets = re.findall(r'class="result__snippet"[^>]*>(.*?)<', resp.text, re.DOTALL)
+            results = []
+            for i, (title, snippet) in enumerate(zip(titles[:6], snippets[:6])):
+                t = re.sub(r'<[^>]+>', '', title).strip()
+                s = re.sub(r'<[^>]+>', '', snippet).strip()
+                if t or s:
+                    results.append(f"[{i+1}] {t}: {s}")
+            return "\n".join(results) or "No results found."
     except Exception as e:
         return f"Search error: {e}"
 
@@ -1242,13 +1247,27 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
             ]
             content = await _run_agent_with_tools(model_id, messages)
 
+            # Fallback: if tool-based run returned empty, retry without tools
+            if not content or not content.strip():
+                logger.warning("AI task #%d %s: tool run empty, retrying without tools", task_id, agent_name)
+                import httpx
+                async with httpx.AsyncClient(timeout=180) as client:
+                    resp = await client.post(
+                        f"{SILICONFLOW_BASE_URL}/chat/completions",
+                        headers={"Authorization": f"Bearer {SILICONFLOW_API_KEY}", "Content-Type": "application/json"},
+                        json={"model": model_id, "messages": messages, "temperature": 0.5, "max_tokens": 2000},
+                    )
+                    data = json.loads(resp.text)
+                    if isinstance(data, dict) and data.get("choices"):
+                        content = data["choices"][0].get("message", {}).get("content", "")
+
             ts = now()
             conn.execute(
                 "INSERT INTO ai_task_results (task_id, agent, role, content, timestamp) VALUES (?, ?, ?, ?, ?)",
-                (task_id, agent_name, role_desc, content, ts)
+                (task_id, agent_name, role_desc, content or "(no response)", ts)
             )
             conn.commit()
-            logger.info("AI task #%d: %s completed", task_id, agent_name)
+            logger.info("AI task #%d: %s completed (%d chars)", task_id, agent_name, len(content or ""))
         except Exception as e:
             ts = now()
             conn.execute(
