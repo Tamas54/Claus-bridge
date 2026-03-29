@@ -1332,13 +1332,13 @@ async def _run_agent_with_tools(model_id: str, messages: list, max_rounds: int =
 
 
 async def _execute_ai_task(task_id: int, title: str, description: str, context: str, assigned_by: str):
-    """Background execution of a multi-agent AI task."""
+    """Background execution of a multi-agent AI task. Agents run in PARALLEL."""
     conn = get_db()
     conn.execute("UPDATE ai_tasks SET status = 'running' WHERE id = ?", (task_id,))
     conn.commit()
 
     roles = {
-        "kimi": ("moonshotai/Kimi-K2.5", "Kutató és elemző. Web search-öt is használhatsz. Alapos, részletes munkát végzel."),
+        "kimi": ("moonshotai/Kimi-K2.5", "Kutató és elemző. Alapos, részletes munkát végzel."),
         "deepseek": ("deepseek-ai/DeepSeek-V3.2", "Kritikus elemző és ellenőr. Logikai hibákat keresel, ellenérveket fogalmazol."),
         "glm5": ("zai-org/GLM-5", "Végrehajtó és kóder. Konkrét megoldásokat, kódot, strukturált outputot adsz. Ha kell, implementálsz."),
     }
@@ -1347,36 +1347,56 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
     if context:
         task_prompt += f"\n\nKONTEXTUS:\n{context}"
 
-    for agent_name, (model_id, role_desc) in roles.items():
+    async def _run_single_agent(agent_name, model_id, role_desc):
+        """Run one agent — called in parallel."""
+        import httpx
         try:
+            # Direct call without tools (more reliable than tool-call flow)
             system = (
                 f"Te a Claus multi-agent rendszer '{agent_name}' al-agentje vagy. "
                 f"Szereped: {role_desc} "
-                f"Magyarul válaszolj, lényegre törően de alaposan. "
-                f"Ha szükséges, használd a web_search tool-t aktuális információkért."
+                f"Magyarul válaszolj, lényegre törően de alaposan."
             )
-            messages = [
-                {"role": "system", "content": system},
-                {"role": "user", "content": task_prompt},
-            ]
-            content = await _run_agent_with_tools(model_id, messages)
+            async with httpx.AsyncClient(timeout=180) as client:
+                resp = await client.post(
+                    f"{SILICONFLOW_BASE_URL}/chat/completions",
+                    headers={"Authorization": f"Bearer {SILICONFLOW_API_KEY}", "Content-Type": "application/json"},
+                    json={
+                        "model": model_id,
+                        "messages": [
+                            {"role": "system", "content": system},
+                            {"role": "user", "content": task_prompt},
+                        ],
+                        "temperature": 0.5,
+                        "max_tokens": 3000,
+                    },
+                )
+                data = json.loads(resp.text)
 
-            # Detect broken tool-call text markers (model returned tool calls as text, not JSON)
+            content = ""
+            if isinstance(data, dict) and data.get("choices"):
+                content = data["choices"][0].get("message", {}).get("content", "")
+
+            # Strip broken tool-call markers if any
             tool_markers = ["<|tool_call", "<｜DSML｜", "function_calls>", "tool_calls_section"]
-            is_broken = not content or not content.strip() or any(m in (content or "") for m in tool_markers)
+            if any(m in (content or "") for m in tool_markers):
+                content = ""
 
-            if is_broken:
-                logger.warning("AI task #%d %s: broken/empty response, retrying without tools", task_id, agent_name)
-                import httpx
-                clean_messages = [
-                    {"role": "system", "content": f"Te a Claus rendszer '{agent_name}' al-agentje vagy. {role_desc} Magyarul válaszolj, alaposan és részletesen. NE használj tool-okat, NE generálj function call szöveget. Közvetlenül válaszolj."},
-                    {"role": "user", "content": task_prompt},
-                ]
+            if not content or not content.strip():
+                logger.warning("AI task #%d %s: empty, retrying", task_id, agent_name)
                 async with httpx.AsyncClient(timeout=180) as client:
                     resp = await client.post(
                         f"{SILICONFLOW_BASE_URL}/chat/completions",
                         headers={"Authorization": f"Bearer {SILICONFLOW_API_KEY}", "Content-Type": "application/json"},
-                        json={"model": model_id, "messages": clean_messages, "temperature": 0.5, "max_tokens": 2000},
+                        json={
+                            "model": model_id,
+                            "messages": [
+                                {"role": "system", "content": f"{role_desc} Magyarul válaszolj, közvetlenül, részletesen."},
+                                {"role": "user", "content": task_prompt},
+                            ],
+                            "temperature": 0.7,
+                            "max_tokens": 3000,
+                        },
                     )
                     data = json.loads(resp.text)
                     if isinstance(data, dict) and data.get("choices"):
@@ -1388,7 +1408,7 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
                 (task_id, agent_name, role_desc, content or "(no response)", ts)
             )
             conn.commit()
-            logger.info("AI task #%d: %s completed (%d chars)", task_id, agent_name, len(content or ""))
+            logger.info("AI task #%d: %s done (%d chars)", task_id, agent_name, len(content or ""))
         except Exception as e:
             ts = now()
             conn.execute(
@@ -1396,7 +1416,12 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
                 (task_id, agent_name, role_desc, f"ERROR: {e}", ts)
             )
             conn.commit()
-            logger.error("AI task #%d agent %s failed: %s", task_id, agent_name, e)
+            logger.error("AI task #%d %s failed: %s", task_id, agent_name, e)
+
+    # Run all agents IN PARALLEL
+    await asyncio.gather(
+        *[_run_single_agent(name, mid, rdesc) for name, (mid, rdesc) in roles.items()]
+    )
 
     # Synthesis by Kimi
     try:
