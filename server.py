@@ -1348,15 +1348,17 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
         task_prompt += f"\n\nKONTEXTUS:\n{context}"
 
     async def _run_single_agent(agent_name, model_id, role_desc):
-        """Run one agent — called in parallel."""
-        import httpx
+        """Run one agent with hybrid tool-call support — called in parallel."""
+        import httpx, re
         try:
-            # Direct call without tools (more reliable than tool-call flow)
             system = (
                 f"Te a Claus multi-agent rendszer '{agent_name}' al-agentje vagy. "
                 f"Szereped: {role_desc} "
-                f"Magyarul válaszolj, lényegre törően de alaposan."
+                f"Magyarul válaszolj, lényegre törően de alaposan. "
+                f"Ha aktuális információra van szükséged, használd a web_search tool-t."
             )
+
+            # Step 1: Call WITH tools
             async with httpx.AsyncClient(timeout=180) as client:
                 resp = await client.post(
                     f"{SILICONFLOW_BASE_URL}/chat/completions",
@@ -1369,21 +1371,44 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
                         ],
                         "temperature": 0.5,
                         "max_tokens": 3000,
+                        "tools": [WEB_SEARCH_TOOL_DEF],
                     },
                 )
                 data = json.loads(resp.text)
 
             content = ""
-            if isinstance(data, dict) and data.get("choices"):
-                content = data["choices"][0].get("message", {}).get("content", "")
+            search_results = ""
+            if not isinstance(data, dict) or not data.get("choices"):
+                logger.error("AI task #%d %s: bad API response", task_id, agent_name)
+            else:
+                msg = data["choices"][0].get("message", {})
+                content = msg.get("content", "") or ""
+                tool_calls = msg.get("tool_calls")
 
-            # Strip broken tool-call markers if any
-            tool_markers = ["<|tool_call", "<｜DSML｜", "function_calls>", "tool_calls_section"]
-            if any(m in (content or "") for m in tool_markers):
-                content = ""
+                # Case A: Proper JSON tool_calls — execute web search
+                if tool_calls:
+                    for tc in tool_calls:
+                        fn = tc.get("function", {})
+                        if fn.get("name") == "web_search":
+                            query = json.loads(fn.get("arguments", "{}")).get("query", "")
+                            if query:
+                                sr = await _web_search(query)
+                                search_results += f"\n[Web search: {query}]\n{sr}\n"
+                                logger.info("AI task #%d %s: web_search '%s'", task_id, agent_name, query[:60])
 
-            if not content or not content.strip():
-                logger.warning("AI task #%d %s: empty, retrying", task_id, agent_name)
+                # Case B: Text-based tool calls — parse search query from text
+                tool_markers = ["<|tool_call", "<｜DSML｜", "function_calls>", "tool_calls_section"]
+                if not tool_calls and any(m in content for m in tool_markers):
+                    # Extract query from text markers
+                    queries = re.findall(r'"query"[:\s]*"([^"]+)"', content)
+                    for query in queries[:2]:
+                        sr = await _web_search(query)
+                        search_results += f"\n[Web search: {query}]\n{sr}\n"
+                        logger.info("AI task #%d %s: parsed web_search '%s'", task_id, agent_name, query[:60])
+                    content = ""  # Clear broken text
+
+            # Step 2: If we got search results, call again WITH those results as context
+            if search_results:
                 async with httpx.AsyncClient(timeout=180) as client:
                     resp = await client.post(
                         f"{SILICONFLOW_BASE_URL}/chat/completions",
@@ -1391,16 +1416,37 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
                         json={
                             "model": model_id,
                             "messages": [
-                                {"role": "system", "content": f"{role_desc} Magyarul válaszolj, közvetlenül, részletesen."},
+                                {"role": "system", "content": f"{role_desc} Magyarul válaszolj, alaposan. Az alábbi web keresési eredményeket használd fel."},
+                                {"role": "user", "content": f"{task_prompt}\n\nWEB KERESÉSI EREDMÉNYEK:\n{search_results}"},
+                            ],
+                            "temperature": 0.5,
+                            "max_tokens": 3000,
+                        },
+                    )
+                    data2 = json.loads(resp.text)
+                    if isinstance(data2, dict) and data2.get("choices"):
+                        content = data2["choices"][0].get("message", {}).get("content", "")
+
+            # Step 3: Fallback if still empty
+            if not content or not content.strip():
+                logger.warning("AI task #%d %s: empty after tools, final fallback", task_id, agent_name)
+                async with httpx.AsyncClient(timeout=180) as client:
+                    resp = await client.post(
+                        f"{SILICONFLOW_BASE_URL}/chat/completions",
+                        headers={"Authorization": f"Bearer {SILICONFLOW_API_KEY}", "Content-Type": "application/json"},
+                        json={
+                            "model": model_id,
+                            "messages": [
+                                {"role": "system", "content": f"{role_desc} Magyarul válaszolj, részletesen. NE használj tool-okat."},
                                 {"role": "user", "content": task_prompt},
                             ],
                             "temperature": 0.7,
                             "max_tokens": 3000,
                         },
                     )
-                    data = json.loads(resp.text)
-                    if isinstance(data, dict) and data.get("choices"):
-                        content = data["choices"][0].get("message", {}).get("content", "")
+                    data3 = json.loads(resp.text)
+                    if isinstance(data3, dict) and data3.get("choices"):
+                        content = data3["choices"][0].get("message", {}).get("content", "")
 
             ts = now()
             conn.execute(
