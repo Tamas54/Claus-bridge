@@ -1247,15 +1247,22 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
             ]
             content = await _run_agent_with_tools(model_id, messages)
 
-            # Fallback: if tool-based run returned empty, retry without tools
-            if not content or not content.strip():
-                logger.warning("AI task #%d %s: tool run empty, retrying without tools", task_id, agent_name)
+            # Detect broken tool-call text markers (model returned tool calls as text, not JSON)
+            tool_markers = ["<|tool_call", "<｜DSML｜", "function_calls>", "tool_calls_section"]
+            is_broken = not content or not content.strip() or any(m in (content or "") for m in tool_markers)
+
+            if is_broken:
+                logger.warning("AI task #%d %s: broken/empty response, retrying without tools", task_id, agent_name)
                 import httpx
+                clean_messages = [
+                    {"role": "system", "content": f"Te a Claus rendszer '{agent_name}' al-agentje vagy. {role_desc} Magyarul válaszolj, alaposan és részletesen. NE használj tool-okat, NE generálj function call szöveget. Közvetlenül válaszolj."},
+                    {"role": "user", "content": task_prompt},
+                ]
                 async with httpx.AsyncClient(timeout=180) as client:
                     resp = await client.post(
                         f"{SILICONFLOW_BASE_URL}/chat/completions",
                         headers={"Authorization": f"Bearer {SILICONFLOW_API_KEY}", "Content-Type": "application/json"},
-                        json={"model": model_id, "messages": messages, "temperature": 0.5, "max_tokens": 2000},
+                        json={"model": model_id, "messages": clean_messages, "temperature": 0.5, "max_tokens": 2000},
                     )
                     data = json.loads(resp.text)
                     if isinstance(data, dict) and data.get("choices"):
