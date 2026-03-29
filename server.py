@@ -11,8 +11,16 @@ import os
 import json
 import sqlite3
 import time
-from datetime import datetime, timezone
+import base64
+import asyncio
+import logging
+import threading
+from datetime import datetime, timezone, timedelta
+from email.mime.text import MIMEText
+from email.utils import parseaddr
 from fastmcp import FastMCP
+
+logger = logging.getLogger("claus-bridge")
 
 # --- Server Setup ---
 mcp = FastMCP("Claus Bridge")
@@ -935,10 +943,509 @@ async def dashboard(request):
 
 
 # ============================================================
+# GOOGLE API — Gmail + Calendar Capture
+# ============================================================
+
+GOOGLE_TOKEN_JSON = os.environ.get("GOOGLE_TOKEN_JSON", "")
+GOOGLE_SCOPES = [
+    "https://www.googleapis.com/auth/gmail.modify",
+    "https://www.googleapis.com/auth/gmail.send",
+    "https://www.googleapis.com/auth/calendar.readonly",
+]
+TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
+TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID", "")
+
+# Capture config (env vars)
+GMAIL_POLL_INTERVAL = int(os.environ.get("GMAIL_POLL_INTERVAL", "300"))
+CALENDAR_POLL_INTERVAL = int(os.environ.get("CALENDAR_POLL_INTERVAL", "900"))
+CALENDAR_REMINDER_MINUTES = int(os.environ.get("CALENDAR_REMINDER_MINUTES", "30"))
+MORNING_BRIEFING_HOUR = int(os.environ.get("MORNING_BRIEFING_HOUR", "7"))
+IGNORE_SENDERS = [s.strip().lower() for s in os.environ.get("IGNORE_SENDERS", "newsletter,noreply,no-reply,marketing").split(",") if s.strip()]
+URGENT_SENDERS = [s.strip().lower() for s in os.environ.get("URGENT_SENDERS", "").split(",") if s.strip()]
+URGENT_KEYWORDS = [k.strip().lower() for k in os.environ.get("URGENT_KEYWORDS", "urgent,sürgős,asap,critical,azonnal,fontos").split(",") if k.strip()]
+
+# Runtime state for capture polling
+_capture_state = {
+    "gmail_history_id": None,
+    "calendar_reminded": set(),
+    "last_briefing_date": None,
+    "gmail_service": None,
+    "calendar_service": None,
+    "capture_running": False,
+}
+
+
+def _init_google_services():
+    """Initialize Google API services from token JSON env var."""
+    if not GOOGLE_TOKEN_JSON:
+        logger.info("GOOGLE_TOKEN_JSON not set — capture disabled")
+        return False
+    try:
+        from google.oauth2.credentials import Credentials
+        from google.auth.transport.requests import Request
+        from googleapiclient.discovery import build
+
+        token_data = json.loads(GOOGLE_TOKEN_JSON)
+        creds = Credentials.from_authorized_user_info(token_data, GOOGLE_SCOPES)
+
+        if creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+            # Update env var in memory with refreshed token
+            logger.info("Google token refreshed")
+
+        _capture_state["gmail_service"] = build("gmail", "v1", credentials=creds, cache_discovery=False)
+        _capture_state["calendar_service"] = build("calendar", "v3", credentials=creds, cache_discovery=False)
+
+        profile = _capture_state["gmail_service"].users().getProfile(userId="me").execute()
+        logger.info("Google services initialized: %s", profile.get("emailAddress"))
+        return True
+    except Exception as e:
+        logger.error("Google init failed: %s", e)
+        return False
+
+
+def _categorize_email(sender: str, subject: str) -> str:
+    """Categorize email: urgent / important / normal / ignore."""
+    sender_lower = sender.lower()
+    subject_lower = subject.lower()
+
+    for pattern in IGNORE_SENDERS:
+        if pattern in sender_lower:
+            return "ignore"
+
+    for pattern in URGENT_SENDERS:
+        if pattern in sender_lower:
+            return "urgent"
+
+    for kw in URGENT_KEYWORDS:
+        if kw in subject_lower:
+            return "urgent"
+
+    return "normal"
+
+
+async def _telegram_push(text: str):
+    """Send push notification to Telegram."""
+    if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
+        return
+    try:
+        import httpx
+        async with httpx.AsyncClient(timeout=15) as client:
+            await client.post(
+                f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage",
+                json={
+                    "chat_id": TELEGRAM_CHAT_ID,
+                    "text": text[:4000],
+                    "parse_mode": "HTML",
+                    "disable_web_page_preview": True,
+                },
+            )
+    except Exception as e:
+        logger.error("Telegram push failed: %s", e)
+
+
+def _bridge_capture_event(subject: str, message: str, priority: str = "normal"):
+    """Write a capture event directly into the Bridge DB."""
+    conn = get_db()
+    ts = now()
+    cur = conn.execute(
+        "INSERT INTO messages (timestamp, sender, recipient, subject, message, priority, thread_id, reply_to) "
+        "VALUES (?, ?, ?, ?, ?, ?, NULL, NULL)",
+        (ts, "capture-daemon", "kommandant", subject, message, priority)
+    )
+    msg_id = cur.lastrowid
+    conn.execute("UPDATE messages SET thread_id = ? WHERE id = ?", (msg_id, msg_id))
+    conn.commit()
+    conn.close()
+
+
+# ============================================================
+# CAPTURE MCP TOOLS
+# ============================================================
+
+@mcp.tool()
+async def capture_gmail_poll(max_results: int = 10) -> str:
+    """Poll Gmail for new unread emails. Returns categorized capture events.
+
+    Args:
+        max_results: Max emails to fetch (default 10)
+    """
+    svc = _capture_state.get("gmail_service")
+    if not svc:
+        return json.dumps({"error": "Gmail not initialized. Set GOOGLE_TOKEN_JSON env var."})
+
+    try:
+        history_id = _capture_state.get("gmail_history_id")
+
+        if history_id is None:
+            # Initial fetch — recent unread
+            results = svc.users().messages().list(
+                userId="me", q="is:unread category:primary", maxResults=max_results
+            ).execute()
+            msg_stubs = results.get("messages", [])
+        else:
+            # Incremental via History API
+            try:
+                history = svc.users().history().list(
+                    userId="me", startHistoryId=history_id,
+                    historyTypes=["messageAdded"], labelId="INBOX"
+                ).execute()
+                msg_stubs = []
+                seen = set()
+                for record in history.get("history", []):
+                    for added in record.get("messagesAdded", []):
+                        m = added.get("message", {})
+                        mid = m.get("id")
+                        if mid and mid not in seen and "INBOX" in m.get("labelIds", []):
+                            msg_stubs.append({"id": mid})
+                            seen.add(mid)
+            except Exception:
+                # History expired, fall back to initial
+                results = svc.users().messages().list(
+                    userId="me", q="is:unread category:primary", maxResults=max_results
+                ).execute()
+                msg_stubs = results.get("messages", [])
+
+        # Update history watermark
+        profile = svc.users().getProfile(userId="me").execute()
+        _capture_state["gmail_history_id"] = int(profile.get("historyId", 0))
+
+        events = []
+        for stub in msg_stubs[:max_results]:
+            try:
+                msg = svc.users().messages().get(
+                    userId="me", id=stub["id"], format="metadata",
+                    metadataHeaders=["From", "Subject", "Date"]
+                ).execute()
+                headers = {h["name"]: h["value"] for h in msg.get("payload", {}).get("headers", [])}
+                sender_raw = headers.get("From", "unknown")
+                subject = headers.get("Subject", "(no subject)")
+                date_str = headers.get("Date", "")
+                snippet = msg.get("snippet", "")
+                sender_name, sender_email = parseaddr(sender_raw)
+                priority = _categorize_email(sender_raw, subject)
+
+                if priority == "ignore":
+                    continue
+
+                event = {
+                    "message_id": stub["id"],
+                    "subject": subject,
+                    "sender": sender_name or sender_email,
+                    "sender_email": sender_email,
+                    "snippet": snippet,
+                    "date": date_str,
+                    "priority": priority,
+                }
+                events.append(event)
+
+                # Write to Bridge DB
+                _bridge_capture_event(
+                    f"📧 Gmail: {subject}",
+                    f"From: {sender_name or sender_email} <{sender_email}>\nSubject: {subject}\nDate: {date_str}\n\n{snippet}",
+                    priority
+                )
+
+                # Telegram push for urgent/important
+                if priority in ("urgent", "important"):
+                    await _telegram_push(
+                        f"🟠 <b>GMAIL</b> — {subject}\n\n"
+                        f"<b>From:</b> {sender_name or sender_email}\n"
+                        f"{snippet}"
+                    )
+            except Exception as e:
+                logger.error("Failed to process message %s: %s", stub.get("id"), e)
+
+        return json.dumps({"count": len(events), "events": events}, ensure_ascii=False)
+
+    except Exception as e:
+        return json.dumps({"error": str(e)})
+
+
+@mcp.tool()
+async def capture_calendar_poll() -> str:
+    """Poll Google Calendar for upcoming events (reminders + briefing).
+
+    Returns reminders for events starting within the configured reminder window,
+    and a morning briefing if it's briefing time.
+    """
+    svc = _capture_state.get("calendar_service")
+    if not svc:
+        return json.dumps({"error": "Calendar not initialized. Set GOOGLE_TOKEN_JSON env var."})
+
+    try:
+        events_out = []
+        utc_now = datetime.now(timezone.utc)
+
+        # --- Reminders ---
+        reminder_window = utc_now + timedelta(minutes=CALENDAR_REMINDER_MINUTES)
+        result = svc.events().list(
+            calendarId="primary",
+            timeMin=utc_now.isoformat(),
+            timeMax=reminder_window.isoformat(),
+            singleEvents=True, orderBy="startTime", maxResults=10
+        ).execute()
+
+        reminded = _capture_state.get("calendar_reminded", set())
+
+        for item in result.get("items", []):
+            event_id = item.get("id", "")
+            if event_id in reminded:
+                continue
+
+            start_info = item.get("start", {})
+            dt_str = start_info.get("dateTime", start_info.get("date", ""))
+            if "T" in dt_str:
+                start_dt = datetime.fromisoformat(dt_str).astimezone(timezone.utc)
+                minutes_until = max(0, int((start_dt - utc_now).total_seconds() / 60))
+            else:
+                minutes_until = -1  # all-day
+
+            summary = item.get("summary", "(no title)")
+            location = item.get("location", "")
+            meet_link = item.get("hangoutLink", "")
+            attendees = [a.get("email", "") for a in item.get("attendees", [])[:5]]
+
+            event_out = {
+                "type": "reminder",
+                "event_id": event_id,
+                "summary": summary,
+                "start": dt_str,
+                "minutes_until": minutes_until,
+                "location": location,
+                "meet_link": meet_link,
+                "attendees": attendees,
+            }
+            events_out.append(event_out)
+            reminded.add(event_id)
+
+            # Bridge + Telegram
+            priority = "urgent" if minutes_until <= 10 else "important"
+            lines = [f"Esemény: {summary}", f"Kezdés: {dt_str} ({minutes_until} perc múlva)"]
+            if location: lines.append(f"Helyszín: {location}")
+            if meet_link: lines.append(f"Link: {meet_link}")
+
+            _bridge_capture_event(f"📅 {minutes_until} perc múlva: {summary}", "\n".join(lines), priority)
+            await _telegram_push(
+                f"⏰ <b>NAPTÁR</b> — {minutes_until} perc múlva\n\n"
+                f"<b>{summary}</b>\n"
+                + (f"📍 {location}\n" if location else "")
+                + (f"🔗 <a href=\"{meet_link}\">Csatlakozás</a>" if meet_link else "")
+            )
+
+        _capture_state["calendar_reminded"] = reminded
+
+        # --- Morning briefing ---
+        local_now = datetime.now()
+        today_str = local_now.strftime("%Y-%m-%d")
+
+        if local_now.hour == MORNING_BRIEFING_HOUR and _capture_state.get("last_briefing_date") != today_str:
+            start_of_day = utc_now.replace(hour=0, minute=0, second=0, microsecond=0)
+            end_of_day = start_of_day + timedelta(days=1)
+
+            day_result = svc.events().list(
+                calendarId="primary",
+                timeMin=start_of_day.isoformat(),
+                timeMax=end_of_day.isoformat(),
+                singleEvents=True, orderBy="startTime", maxResults=20
+            ).execute()
+
+            day_items = day_result.get("items", [])
+            _capture_state["last_briefing_date"] = today_str
+
+            if day_items:
+                event_lines = []
+                for item in day_items:
+                    s = item.get("start", {})
+                    t = s.get("dateTime", s.get("date", "?"))
+                    if "T" in t: t = t[11:16]
+                    event_lines.append(f"  {t} — {item.get('summary', '?')}")
+
+                briefing_body = f"Mai nap: {len(day_items)} esemény:\n\n" + "\n".join(event_lines)
+            else:
+                briefing_body = "Tiszta nap — nincsenek események a naptárban."
+
+            events_out.append({"type": "briefing", "date": today_str, "event_count": len(day_items)})
+            _bridge_capture_event(f"🌅 Reggeli briefing — {today_str}", briefing_body, "normal")
+            await _telegram_push(f"🌅 <b>Reggeli briefing</b> — {today_str}\n\n{briefing_body}")
+
+        return json.dumps({"count": len(events_out), "events": events_out}, ensure_ascii=False)
+
+    except Exception as e:
+        return json.dumps({"error": str(e)})
+
+
+@mcp.tool()
+async def capture_send_email(to: str, subject: str, body: str, body_type: str = "plain") -> str:
+    """Send an email via Gmail API.
+
+    Args:
+        to: Recipient email address
+        subject: Email subject
+        body: Email body content
+        body_type: 'plain' or 'html' (default: plain)
+    """
+    svc = _capture_state.get("gmail_service")
+    if not svc:
+        return json.dumps({"error": "Gmail not initialized. Set GOOGLE_TOKEN_JSON env var."})
+
+    try:
+        msg = MIMEText(body, body_type)
+        msg["to"] = to
+        msg["subject"] = subject
+
+        raw = base64.urlsafe_b64encode(msg.as_bytes()).decode()
+        result = svc.users().messages().send(userId="me", body={"raw": raw}).execute()
+        return json.dumps({"status": "sent", "message_id": result.get("id")})
+    except Exception as e:
+        return json.dumps({"error": str(e)})
+
+
+@mcp.tool()
+async def capture_inbox(limit: int = 10, query: str = "is:unread category:primary") -> str:
+    """Read Gmail inbox messages without triggering capture events. For browsing email.
+
+    Args:
+        limit: Max messages (default 10)
+        query: Gmail search query (default: unread primary)
+    """
+    svc = _capture_state.get("gmail_service")
+    if not svc:
+        return json.dumps({"error": "Gmail not initialized."})
+
+    try:
+        results = svc.users().messages().list(userId="me", q=query, maxResults=limit).execute()
+        messages = []
+        for stub in results.get("messages", []):
+            msg = svc.users().messages().get(
+                userId="me", id=stub["id"], format="metadata",
+                metadataHeaders=["From", "Subject", "Date"]
+            ).execute()
+            headers = {h["name"]: h["value"] for h in msg.get("payload", {}).get("headers", [])}
+            sender_name, sender_email = parseaddr(headers.get("From", ""))
+            messages.append({
+                "id": stub["id"],
+                "subject": headers.get("Subject", ""),
+                "from": sender_name or sender_email,
+                "from_email": sender_email,
+                "date": headers.get("Date", ""),
+                "snippet": msg.get("snippet", ""),
+            })
+        return json.dumps({"count": len(messages), "messages": messages}, ensure_ascii=False)
+    except Exception as e:
+        return json.dumps({"error": str(e)})
+
+
+@mcp.tool()
+async def capture_status() -> str:
+    """Get capture daemon status — is Gmail/Calendar connected, last poll info."""
+    gmail_ok = _capture_state.get("gmail_service") is not None
+    cal_ok = _capture_state.get("calendar_service") is not None
+    return json.dumps({
+        "gmail_connected": gmail_ok,
+        "calendar_connected": cal_ok,
+        "gmail_history_id": _capture_state.get("gmail_history_id"),
+        "capture_loop_running": _capture_state.get("capture_running", False),
+        "calendar_reminded_count": len(_capture_state.get("calendar_reminded", set())),
+        "last_briefing_date": _capture_state.get("last_briefing_date"),
+        "config": {
+            "gmail_poll_interval": GMAIL_POLL_INTERVAL,
+            "calendar_poll_interval": CALENDAR_POLL_INTERVAL,
+            "calendar_reminder_minutes": CALENDAR_REMINDER_MINUTES,
+            "morning_briefing_hour": MORNING_BRIEFING_HOUR,
+        }
+    })
+
+
+# ============================================================
+# AUTO-POLLING BACKGROUND LOOP
+# ============================================================
+
+async def _capture_loop():
+    """Background loop that auto-polls Gmail and Calendar."""
+    if not _capture_state.get("gmail_service"):
+        logger.info("Capture loop not started — Google services not initialized")
+        return
+
+    _capture_state["capture_running"] = True
+    logger.info("Capture loop started: Gmail=%ds, Calendar=%ds", GMAIL_POLL_INTERVAL, CALENDAR_POLL_INTERVAL)
+
+    _bridge_capture_event(
+        "🟢 Capture Daemon elindult (Railway)",
+        f"Gmail polling: {GMAIL_POLL_INTERVAL}s\nCalendar polling: {CALENDAR_POLL_INTERVAL}s\nCalendar reminder: {CALENDAR_REMINDER_MINUTES} perccel előtte",
+        "info"
+    )
+
+    gmail_counter = 0
+    calendar_counter = 0
+    tick = 60  # check every 60 seconds
+
+    while _capture_state.get("capture_running"):
+        try:
+            gmail_counter += tick
+            calendar_counter += tick
+
+            if gmail_counter >= GMAIL_POLL_INTERVAL:
+                gmail_counter = 0
+                await capture_gmail_poll()
+
+            if calendar_counter >= CALENDAR_POLL_INTERVAL:
+                calendar_counter = 0
+                await capture_calendar_poll()
+
+        except Exception as e:
+            logger.error("Capture loop error: %s", e)
+
+        await asyncio.sleep(tick)
+
+
+def _start_capture_background():
+    """Start capture loop in a background thread with its own event loop."""
+    def _run():
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        loop.run_until_complete(_capture_loop())
+
+    if _capture_state.get("gmail_service"):
+        t = threading.Thread(target=_run, daemon=True)
+        t.start()
+        logger.info("Capture background thread started")
+
+
+# ============================================================
 # STARTUP
 # ============================================================
 
+def _migrate_db_to_volume():
+    """If BRIDGE_DB_PATH points to a volume (e.g. /data/bridge.db) but the file
+    doesn't exist yet, copy the old working-directory bridge.db there."""
+    import shutil
+    volume_db = DB_PATH  # e.g. /data/bridge.db
+    old_db = os.path.join(os.path.dirname(__file__), "bridge.db")
+
+    if volume_db == old_db or volume_db == "bridge.db":
+        return  # no migration needed, same path
+
+    if os.path.exists(volume_db):
+        logger.info("Volume DB already exists: %s", volume_db)
+        return
+
+    # Ensure volume directory exists
+    volume_dir = os.path.dirname(volume_db)
+    if volume_dir:
+        os.makedirs(volume_dir, exist_ok=True)
+
+    if os.path.exists(old_db):
+        shutil.copy2(old_db, volume_db)
+        logger.info("Migrated DB: %s -> %s", old_db, volume_db)
+    else:
+        logger.info("No old DB found at %s, starting fresh at %s", old_db, volume_db)
+
+
+_migrate_db_to_volume()
 init_db()
+_init_google_services()
+_start_capture_background()
 
 if __name__ == "__main__":
     mcp.run(
