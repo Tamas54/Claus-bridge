@@ -1004,6 +1004,7 @@ SILICONFLOW_BASE_URL = "https://api.siliconflow.com/v1"
 SILICONFLOW_MODELS = {
     "kimi": "moonshotai/Kimi-K2.5",
     "deepseek": "deepseek-ai/DeepSeek-V3.2",
+    "glm5": "zai-org/GLM-5",
 }
 
 # Auto-discussion: sub-agents join discussions automatically
@@ -1065,13 +1066,13 @@ async def _ai_auto_discuss(discussion_id: int, topic: str, thread_so_far: str):
 
 @mcp.tool()
 async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature: float = 0.7, max_tokens: int = 2000) -> str:
-    """Query a SiliconFlow AI sub-agent (Kimi-K2.5 or DeepSeek V3.2).
+    """Query a SiliconFlow AI sub-agent (Kimi-K2.5, DeepSeek V3.2, or GLM-5).
 
     Use for research, analysis, translation, summarization, or second opinions.
     These models run on SiliconFlow cloud — no local resources needed.
 
     Args:
-        model: 'kimi' (256k context, vision) or 'deepseek' (fast reasoning) or full model ID
+        model: 'kimi' (256k context, vision) or 'deepseek' (fast reasoning) or 'glm5' (205k, coding+agentic) or full model ID
         prompt: The user message / question
         system_prompt: Optional system instruction (default: Claus sub-agent)
         temperature: Creativity 0.0-1.0 (default 0.7)
@@ -1339,6 +1340,7 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
     roles = {
         "kimi": ("moonshotai/Kimi-K2.5", "Kutató és elemző. Web search-öt is használhatsz. Alapos, részletes munkát végzel."),
         "deepseek": ("deepseek-ai/DeepSeek-V3.2", "Kritikus elemző és ellenőr. Logikai hibákat keresel, ellenérveket fogalmazol."),
+        "glm5": ("zai-org/GLM-5", "Végrehajtó és kóder. Konkrét megoldásokat, kódot, strukturált outputot adsz. Ha kell, implementálsz."),
     }
 
     task_prompt = f"FELADAT: {title}\n\nLEÍRÁS: {description}"
@@ -1563,6 +1565,59 @@ async def api_ai_tasks(request):
         result.append({**dict(t), "results": [dict(r) for r in results]})
     conn.close()
     return JSONResponse(result)
+
+
+@mcp.custom_route("/api/ai_tasks/{task_id}/export", methods=["GET"])
+async def api_ai_task_export(request):
+    """Export AI task results as a .docx document."""
+    task_id = request.path_params["task_id"]
+    conn = get_db()
+    task = conn.execute("SELECT * FROM ai_tasks WHERE id = ?", (task_id,)).fetchone()
+    if not task:
+        conn.close()
+        return JSONResponse({"error": "Task not found"}, status_code=404)
+
+    results = conn.execute(
+        "SELECT agent, role, content, timestamp FROM ai_task_results WHERE task_id = ? ORDER BY id",
+        (task_id,)
+    ).fetchall()
+    conn.close()
+
+    try:
+        from docx import Document as DocxDocument
+        from docx.shared import Pt, RGBColor
+        from io import BytesIO
+
+        doc = DocxDocument()
+        doc.add_heading(task["title"], level=1)
+        doc.add_paragraph(f'Feladat: {task["description"]}')
+        doc.add_paragraph(f'Kiadta: {task["assigned_by"]} | Dátum: {task["created_at"][:10]} | Státusz: {task["status"]}')
+        doc.add_paragraph("—" * 40)
+
+        agent_names = {"kimi": "Kimi-K2.5 (Kutató)", "deepseek": "DeepSeek V3.2 (Kritikus)", "glm5": "GLM-5 (Végrehajtó)", "szintézis": "Koordinátori Szintézis"}
+        for r in results:
+            name = agent_names.get(r["agent"], r["agent"].upper())
+            doc.add_heading(name, level=2)
+            for para_text in (r["content"] or "(nincs tartalom)").split("\n"):
+                if para_text.strip():
+                    doc.add_paragraph(para_text.strip())
+
+        doc.add_paragraph("—" * 40)
+        doc.add_paragraph("Készítette: Claus Multi-Agent Rendszer (Kimi-K2.5 + DeepSeek V3.2 + GLM-5)")
+
+        buf = BytesIO()
+        doc.save(buf)
+        buf.seek(0)
+
+        from starlette.responses import Response
+        filename = f"claus_ai_task_{task_id}.docx"
+        return Response(
+            content=buf.getvalue(),
+            media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+        )
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=500)
 
 
 # ============================================================

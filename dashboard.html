@@ -1708,8 +1708,8 @@ async function loadAiTasks() {
     const statusColor = t.status === 'completed' ? 'var(--green)' : t.status === 'running' ? 'var(--gold)' : 'var(--text-muted)';
     const statusIcon = t.status === 'completed' ? '✓' : t.status === 'running' ? '⟳' : '◦';
     const resultsHtml = (t.results || []).map(r => {
-      const agentColor = r.agent === 'kimi' ? 'var(--electric)' : r.agent === 'deepseek' ? 'var(--phosphor)' : 'var(--gold)';
-      const icon = r.agent === 'kimi' ? '🌙' : r.agent === 'deepseek' ? '🔬' : '⚡';
+      const agentColor = r.agent === 'kimi' ? 'var(--electric)' : r.agent === 'deepseek' ? 'var(--phosphor)' : r.agent === 'glm5' ? 'var(--orange)' : 'var(--gold)';
+      const icon = r.agent === 'kimi' ? '🌙' : r.agent === 'deepseek' ? '🔬' : r.agent === 'glm5' ? '🔧' : '⚡';
       return `
         <div style="margin:0.5rem 0; padding:0.75rem; background:var(--bg-deep); border-radius:6px; border-left:3px solid ${agentColor}">
           <div style="font-size:0.75rem; color:${agentColor}; font-weight:600; margin-bottom:0.4rem">
@@ -1726,6 +1726,7 @@ async function loadAiTasks() {
           <div style="font-size:0.95rem; font-weight:600; color:var(--text-primary)">${statusIcon} ${esc(t.title)}</div>
           <div style="display:flex;gap:0.5rem;align-items:center">
             <span class="badge" style="background:${statusColor}22;color:${statusColor};border:1px solid ${statusColor}44">${t.status}</span>
+            ${t.status === 'completed' ? `<a href="/api/ai_tasks/${t.id}/export" class="badge" style="background:var(--ice-dim);color:var(--ice);border:1px solid var(--ice);text-decoration:none;cursor:pointer" download>📄 DOCX</a>` : ''}
             <span style="font-size:0.7rem;color:var(--text-muted)">${relTime(t.created_at)}</span>
           </div>
         </div>
