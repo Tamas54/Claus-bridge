@@ -1351,9 +1351,11 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
         """Run one agent with hybrid tool-call support — called in parallel."""
         import httpx, re
         try:
+            today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
             system = (
                 f"Te a Claus multi-agent rendszer '{agent_name}' al-agentje vagy. "
                 f"Szereped: {role_desc} "
+                f"A mai dátum: {today}. "
                 f"Magyarul válaszolj, lényegre törően de alaposan. "
                 f"Ha aktuális információra van szükséged, használd a web_search tool-t."
             )
