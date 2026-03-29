@@ -993,7 +993,7 @@ async def _ai_auto_discuss(discussion_id: int, topic: str, thread_so_far: str):
     for agent_name, model_id in SILICONFLOW_MODELS.items():
         try:
             import httpx
-            async with httpx.AsyncClient(timeout=45) as client:
+            async with httpx.AsyncClient(timeout=120) as client:
                 resp = await client.post(
                     f"{SILICONFLOW_BASE_URL}/chat/completions",
                     headers={
@@ -1059,7 +1059,7 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
 
     try:
         import httpx
-        async with httpx.AsyncClient(timeout=60) as client:
+        async with httpx.AsyncClient(timeout=180) as client:
             resp = await client.post(
                 f"{SILICONFLOW_BASE_URL}/chat/completions",
                 headers={
