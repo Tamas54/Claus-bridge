@@ -15,6 +15,7 @@ import base64
 import asyncio
 import logging
 import threading
+import pathlib
 from datetime import datetime, timezone, timedelta
 from email.mime.text import MIMEText
 from email.utils import parseaddr
@@ -164,6 +165,17 @@ def init_db():
             instance TEXT PRIMARY KEY,
             last_seen TEXT NOT NULL,
             session_info TEXT DEFAULT ''
+        );
+
+        -- Uploaded files for AI processing
+        CREATE TABLE IF NOT EXISTS uploads (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            filename TEXT NOT NULL,
+            mime_type TEXT NOT NULL,
+            content_text TEXT DEFAULT '',
+            content_base64 TEXT DEFAULT '',
+            uploaded_by TEXT NOT NULL,
+            uploaded_at TEXT NOT NULL
         );
 
         -- AI Tasks (multi-agent task execution)
@@ -1128,6 +1140,106 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
 
 
 # ============================================================
+# FILE UPLOAD & PARSING
+# ============================================================
+
+UPLOAD_DIR = pathlib.Path(os.environ.get("BRIDGE_UPLOAD_DIR", "/data/uploads"))
+UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+
+
+def _parse_file_to_text(filepath: pathlib.Path, mime_type: str) -> str:
+    """Extract text content from uploaded files."""
+    ext = filepath.suffix.lower()
+    try:
+        if ext == ".docx":
+            from docx import Document
+            doc = Document(str(filepath))
+            return "\n".join(p.text for p in doc.paragraphs)
+        elif ext == ".pdf":
+            from PyPDF2 import PdfReader
+            reader = PdfReader(str(filepath))
+            return "\n".join(page.extract_text() or "" for page in reader.pages[:50])
+        elif ext in (".txt", ".md", ".csv", ".json", ".xml", ".html", ".py", ".js", ".ts"):
+            return filepath.read_text(encoding="utf-8", errors="replace")[:50000]
+        else:
+            return ""
+    except Exception as e:
+        logger.error("File parse error %s: %s", filepath.name, e)
+        return f"(File parse error: {e})"
+
+
+def _is_image(mime_type: str) -> bool:
+    return mime_type.startswith("image/")
+
+
+@mcp.tool()
+async def upload_file(filename: str, content_base64: str, mime_type: str = "", uploaded_by: str = "unknown") -> str:
+    """Upload a file to the Bridge for AI processing.
+
+    Send files from Telegram, Claude app, or CLI for Kimi/DeepSeek to analyze.
+    Supports: docx, pdf, txt, md, csv, images (png, jpg, gif, webp).
+
+    Args:
+        filename: Original filename (e.g. 'report.pdf')
+        content_base64: File content as base64-encoded string
+        mime_type: MIME type (auto-detected if empty)
+        uploaded_by: Who uploaded (cli-claus, web-claus, kommandant)
+    """
+    try:
+        file_bytes = base64.b64decode(content_base64)
+    except Exception:
+        return json.dumps({"error": "Invalid base64 content"})
+
+    # Auto-detect mime
+    ext = pathlib.Path(filename).suffix.lower()
+    if not mime_type:
+        mime_map = {
+            ".pdf": "application/pdf", ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            ".txt": "text/plain", ".md": "text/markdown", ".csv": "text/csv",
+            ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg",
+            ".gif": "image/gif", ".webp": "image/webp",
+        }
+        mime_type = mime_map.get(ext, "application/octet-stream")
+
+    # Save to disk
+    filepath = UPLOAD_DIR / f"{int(time.time())}_{filename}"
+    filepath.write_bytes(file_bytes)
+
+    # Parse text content
+    content_text = _parse_file_to_text(filepath, mime_type) if not _is_image(mime_type) else ""
+
+    # Store in DB
+    conn = get_db()
+    ts = now()
+    b64_for_db = content_base64 if _is_image(mime_type) else ""
+    cur = conn.execute(
+        "INSERT INTO uploads (filename, mime_type, content_text, content_base64, uploaded_by, uploaded_at) VALUES (?, ?, ?, ?, ?, ?)",
+        (filename, mime_type, content_text[:50000], b64_for_db[:500000], uploaded_by, ts)
+    )
+    file_id = cur.lastrowid
+    conn.commit()
+    conn.close()
+
+    return json.dumps({
+        "status": "uploaded",
+        "file_id": file_id,
+        "filename": filename,
+        "mime_type": mime_type,
+        "text_length": len(content_text),
+        "is_image": _is_image(mime_type),
+        "hint": "Use ai_task with context referencing file_id to process this file",
+    })
+
+
+@mcp.custom_route("/api/uploads", methods=["GET"])
+async def api_uploads(request):
+    conn = get_db()
+    uploads = conn.execute("SELECT id, filename, mime_type, uploaded_by, uploaded_at, length(content_text) as text_len FROM uploads ORDER BY id DESC LIMIT 20").fetchall()
+    conn.close()
+    return JSONResponse([dict(u) for u in uploads])
+
+
+# ============================================================
 # AI TASK EXECUTION (multi-agent with web search)
 # ============================================================
 
@@ -1316,7 +1428,7 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
 
 
 @mcp.tool()
-async def ai_task(title: str, description: str, context: str = "", assigned_by: str = "unknown") -> str:
+async def ai_task(title: str, description: str, context: str = "", file_id: int = 0, assigned_by: str = "unknown") -> str:
     """Create and execute a multi-agent AI task. Kimi and DeepSeek work on it with web search, then a synthesis is generated.
 
     Use for research, document analysis, fact-checking, or any task that benefits from multiple AI perspectives.
@@ -1326,8 +1438,19 @@ async def ai_task(title: str, description: str, context: str = "", assigned_by: 
         title: Short task title
         description: Detailed task description / instructions
         context: Optional document text or background context
+        file_id: Optional uploaded file ID (from upload_file) to include as context
         assigned_by: Who created the task (cli-claus, web-claus, kommandant)
     """
+    # Pull in uploaded file content if file_id provided
+    if file_id:
+        conn = get_db()
+        f = conn.execute("SELECT filename, mime_type, content_text, content_base64 FROM uploads WHERE id = ?", (file_id,)).fetchone()
+        conn.close()
+        if f:
+            if f["content_text"]:
+                context = f"[Feltöltött fájl: {f['filename']}]\n\n{f['content_text']}\n\n{context}"
+            elif f["content_base64"]:
+                context = f"[Feltöltött kép: {f['filename']} — base64 kép az agentek számára elérhető]\n\n{context}"
     if not SILICONFLOW_API_KEY:
         return json.dumps({"error": "SILICONFLOW_API_KEY not set"})
 
@@ -1351,6 +1474,47 @@ async def ai_task(title: str, description: str, context: str = "", assigned_by: 
     return json.dumps({"status": "task_created", "task_id": task_id, "message": "Kimi + DeepSeek dolgoznak rajta. Eredmény a dashboardon."})
 
 
+@mcp.custom_route("/api/upload", methods=["POST"])
+async def api_upload(request):
+    body = await request.json()
+    filename = body.get("filename", "unknown")
+    content_base64 = body.get("content_base64", "")
+    mime_type = body.get("mime_type", "")
+    uploaded_by = body.get("uploaded_by", "kommandant")
+
+    try:
+        file_bytes = base64.b64decode(content_base64)
+    except Exception:
+        return JSONResponse({"error": "Invalid base64"}, status_code=400)
+
+    ext = pathlib.Path(filename).suffix.lower()
+    if not mime_type:
+        mime_map = {
+            ".pdf": "application/pdf", ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            ".txt": "text/plain", ".md": "text/markdown", ".csv": "text/csv",
+            ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg",
+            ".gif": "image/gif", ".webp": "image/webp",
+        }
+        mime_type = mime_map.get(ext, "application/octet-stream")
+
+    filepath = UPLOAD_DIR / f"{int(time.time())}_{filename}"
+    filepath.write_bytes(file_bytes)
+
+    content_text = _parse_file_to_text(filepath, mime_type) if not _is_image(mime_type) else ""
+    b64_for_db = content_base64 if _is_image(mime_type) else ""
+
+    conn = get_db()
+    ts = now()
+    cur = conn.execute(
+        "INSERT INTO uploads (filename, mime_type, content_text, content_base64, uploaded_by, uploaded_at) VALUES (?, ?, ?, ?, ?, ?)",
+        (filename, mime_type, content_text[:50000], b64_for_db[:500000], uploaded_by, ts)
+    )
+    file_id = cur.lastrowid
+    conn.commit()
+    conn.close()
+    return JSONResponse({"status": "uploaded", "file_id": file_id, "filename": filename, "text_length": len(content_text)})
+
+
 @mcp.custom_route("/api/ai_tasks", methods=["GET", "POST"])
 async def api_ai_tasks(request):
     if request.method == "POST":
@@ -1358,7 +1522,16 @@ async def api_ai_tasks(request):
         title = body.get("title", "")
         description = body.get("description", "")
         context = body.get("context", "")
+        file_id = body.get("file_id", 0)
         assigned_by = body.get("assigned_by", "kommandant")
+
+        # Pull in uploaded file if file_id given
+        if file_id:
+            conn2 = get_db()
+            f = conn2.execute("SELECT filename, content_text FROM uploads WHERE id = ?", (file_id,)).fetchone()
+            conn2.close()
+            if f and f["content_text"]:
+                context = f"[Feltöltött fájl: {f['filename']}]\n\n{f['content_text']}\n\n{context}"
 
         conn = get_db()
         ts = now()

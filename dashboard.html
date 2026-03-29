@@ -1261,6 +1261,12 @@ select {
           <textarea id="aiTaskContext" placeholder="Szöveg, dokumentum tartalom, háttérinformáció..." style="min-height:60px"></textarea>
         </div>
       </div>
+      <div class="form-row">
+        <div class="form-group" style="flex:2">
+          <label class="form-label">Fájl csatolása (docx, pdf, txt, kép)</label>
+          <input type="file" id="aiTaskFile" accept=".docx,.pdf,.txt,.md,.csv,.png,.jpg,.jpeg,.gif,.webp" style="font-size:0.8rem">
+        </div>
+      </div>
       <div style="display:flex;justify-content:flex-end">
         <button type="submit" class="btn btn-gold">AGENTEK INDÍTÁSA</button>
       </div>
@@ -1734,13 +1740,35 @@ async function createAiTask(e) {
   e.preventDefault();
   const title = document.getElementById('aiTaskTitle').value;
   const desc = document.getElementById('aiTaskDesc').value;
-  const ctx = document.getElementById('aiTaskContext').value;
+  let ctx = document.getElementById('aiTaskContext').value;
   const by = document.getElementById('aiTaskBy').value;
+  const fileInput = document.getElementById('aiTaskFile');
+  let fileId = 0;
+
+  // Upload file first if present
+  if (fileInput.files.length > 0) {
+    const file = fileInput.files[0];
+    toast('Fájl feltöltése...');
+    const b64 = await new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result.split(',')[1]);
+      reader.readAsDataURL(file);
+    });
+    const uploadResp = await api('/api/upload', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ filename: file.name, content_base64: b64, mime_type: file.type, uploaded_by: by })
+    });
+    if (uploadResp.file_id) {
+      fileId = uploadResp.file_id;
+      toast('Fájl feltöltve: ' + file.name);
+    }
+  }
 
   await api('/api/ai_tasks', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ title, description: desc, context: ctx, assigned_by: by })
+    body: JSON.stringify({ title, description: desc, context: ctx, file_id: fileId, assigned_by: by })
   });
 
   document.getElementById('aiTaskForm').reset();
