@@ -1008,6 +1008,29 @@ def _init_google_services():
         return False
 
 
+def _extract_attachments(payload: dict) -> list:
+    """Extract attachment metadata from Gmail message payload (format='full')."""
+    attachments = []
+    _walk_parts(payload.get("parts", []), attachments)
+    return attachments
+
+
+def _walk_parts(parts: list, out: list):
+    """Recursively walk MIME parts to find attachments."""
+    for part in parts:
+        filename = part.get("filename", "")
+        if filename:
+            body = part.get("body", {})
+            out.append({
+                "filename": filename,
+                "mime_type": part.get("mimeType", "application/octet-stream"),
+                "size": body.get("size", 0),
+                "attachment_id": body.get("attachmentId", ""),
+            })
+        if part.get("parts"):
+            _walk_parts(part["parts"], out)
+
+
 def _categorize_email(sender: str, subject: str) -> str:
     """Categorize email: urgent / important / normal / ignore."""
     sender_lower = sender.lower()
@@ -1046,6 +1069,38 @@ async def _telegram_push(text: str):
             )
     except Exception as e:
         logger.error("Telegram push failed: %s", e)
+
+
+async def _telegram_push_document(message_id: str, attachment: dict, caption: str = ""):
+    """Download Gmail attachment and send to Telegram as document."""
+    svc = _capture_state.get("gmail_service")
+    if not svc or not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
+        return
+    try:
+        att_id = attachment.get("attachment_id", "")
+        if not att_id:
+            return
+        att_data = svc.users().messages().attachments().get(
+            userId="me", messageId=message_id, id=att_id
+        ).execute()
+        file_bytes = base64.urlsafe_b64decode(att_data["data"])
+        import httpx
+        async with httpx.AsyncClient(timeout=30) as client:
+            resp = await client.post(
+                f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendDocument",
+                data={
+                    "chat_id": TELEGRAM_CHAT_ID,
+                    "caption": caption[:1024] if caption else "",
+                    "parse_mode": "HTML",
+                },
+                files={
+                    "document": (attachment["filename"], file_bytes, attachment["mime_type"]),
+                },
+            )
+            if resp.status_code != 200:
+                logger.error("Telegram sendDocument failed: %s", resp.text[:200])
+    except Exception as e:
+        logger.error("Telegram document push failed: %s", e)
 
 
 def _bridge_capture_event(subject: str, message: str, priority: str = "normal"):
@@ -1118,10 +1173,10 @@ async def capture_gmail_poll(max_results: int = 10) -> str:
         for stub in msg_stubs[:max_results]:
             try:
                 msg = svc.users().messages().get(
-                    userId="me", id=stub["id"], format="metadata",
-                    metadataHeaders=["From", "Subject", "Date"]
+                    userId="me", id=stub["id"], format="full"
                 ).execute()
-                headers = {h["name"]: h["value"] for h in msg.get("payload", {}).get("headers", [])}
+                payload = msg.get("payload", {})
+                headers = {h["name"]: h["value"] for h in payload.get("headers", [])}
                 sender_raw = headers.get("From", "unknown")
                 subject = headers.get("Subject", "(no subject)")
                 date_str = headers.get("Date", "")
@@ -1132,6 +1187,11 @@ async def capture_gmail_poll(max_results: int = 10) -> str:
                 if priority == "ignore":
                     continue
 
+                # Extract attachments
+                attachments = _extract_attachments(payload)
+                att_info = [{"filename": a["filename"], "mime_type": a["mime_type"],
+                             "size": a["size"]} for a in attachments]
+
                 event = {
                     "message_id": stub["id"],
                     "subject": subject,
@@ -1140,13 +1200,20 @@ async def capture_gmail_poll(max_results: int = 10) -> str:
                     "snippet": snippet,
                     "date": date_str,
                     "priority": priority,
+                    "attachments": att_info,
                 }
                 events.append(event)
+
+                # Format attachment line for Bridge/Telegram
+                att_line = ""
+                if attachments:
+                    att_names = ", ".join(a["filename"] for a in attachments)
+                    att_line = f"\n📎 Csatolmányok ({len(attachments)}): {att_names}"
 
                 # Write to Bridge DB
                 _bridge_capture_event(
                     f"📧 Gmail: {subject}",
-                    f"From: {sender_name or sender_email} <{sender_email}>\nSubject: {subject}\nDate: {date_str}\n\n{snippet}",
+                    f"From: {sender_name or sender_email} <{sender_email}>\nSubject: {subject}\nDate: {date_str}\n\n{snippet}{att_line}",
                     priority
                 )
 
@@ -1156,7 +1223,14 @@ async def capture_gmail_poll(max_results: int = 10) -> str:
                         f"🟠 <b>GMAIL</b> — {subject}\n\n"
                         f"<b>From:</b> {sender_name or sender_email}\n"
                         f"{snippet}"
+                        + (f"\n\n📎 <b>Csatolmányok:</b> {', '.join(a['filename'] for a in attachments)}" if attachments else "")
                     )
+                    # Forward attachments to Telegram
+                    for att in attachments:
+                        await _telegram_push_document(
+                            stub["id"], att,
+                            caption=f"📎 <b>{att['filename']}</b>\n{subject}"
+                        )
             except Exception as e:
                 logger.error("Failed to process message %s: %s", stub.get("id"), e)
 
@@ -1322,11 +1396,14 @@ async def capture_inbox(limit: int = 10, query: str = "is:unread category:primar
         messages = []
         for stub in results.get("messages", []):
             msg = svc.users().messages().get(
-                userId="me", id=stub["id"], format="metadata",
-                metadataHeaders=["From", "Subject", "Date"]
+                userId="me", id=stub["id"], format="full"
             ).execute()
-            headers = {h["name"]: h["value"] for h in msg.get("payload", {}).get("headers", [])}
+            payload = msg.get("payload", {})
+            headers = {h["name"]: h["value"] for h in payload.get("headers", [])}
             sender_name, sender_email = parseaddr(headers.get("From", ""))
+            attachments = _extract_attachments(payload)
+            att_info = [{"filename": a["filename"], "mime_type": a["mime_type"],
+                         "size": a["size"]} for a in attachments]
             messages.append({
                 "id": stub["id"],
                 "subject": headers.get("Subject", ""),
@@ -1334,6 +1411,7 @@ async def capture_inbox(limit: int = 10, query: str = "is:unread category:primar
                 "from_email": sender_email,
                 "date": headers.get("Date", ""),
                 "snippet": msg.get("snippet", ""),
+                "attachments": att_info,
             })
         return json.dumps({"count": len(messages), "messages": messages}, ensure_ascii=False)
     except Exception as e:
