@@ -165,6 +165,29 @@ def init_db():
             last_seen TEXT NOT NULL,
             session_info TEXT DEFAULT ''
         );
+
+        -- AI Tasks (multi-agent task execution)
+        CREATE TABLE IF NOT EXISTS ai_tasks (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            description TEXT NOT NULL,
+            context TEXT DEFAULT '',
+            assigned_by TEXT NOT NULL,
+            status TEXT DEFAULT 'pending',
+            created_at TEXT NOT NULL,
+            completed_at TEXT
+        );
+
+        CREATE TABLE IF NOT EXISTS ai_task_results (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            task_id INTEGER NOT NULL,
+            agent TEXT NOT NULL,
+            role TEXT DEFAULT '',
+            content TEXT NOT NULL,
+            sources TEXT DEFAULT '',
+            timestamp TEXT NOT NULL,
+            FOREIGN KEY (task_id) REFERENCES ai_tasks(id)
+        );
     """)
     conn.commit()
     conn.close()
@@ -1102,6 +1125,245 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
 
     except Exception as e:
         return json.dumps({"error": f"{type(e).__name__}: {e}"})
+
+
+# ============================================================
+# AI TASK EXECUTION (multi-agent with web search)
+# ============================================================
+
+WEB_SEARCH_TOOL_DEF = {
+    "type": "function",
+    "function": {
+        "name": "web_search",
+        "description": "Search the web for current information",
+        "parameters": {
+            "type": "object",
+            "properties": {"query": {"type": "string", "description": "Search query"}},
+            "required": ["query"],
+        },
+    },
+}
+
+
+async def _web_search(query: str) -> str:
+    """Execute a web search via DuckDuckGo HTML."""
+    import httpx
+    try:
+        async with httpx.AsyncClient(timeout=15) as client:
+            resp = await client.get(
+                "https://html.duckduckgo.com/html/",
+                params={"q": query},
+                headers={"User-Agent": "Mozilla/5.0"},
+            )
+            # Extract text snippets from results
+            import re
+            snippets = re.findall(r'class="result__snippet">(.*?)</a>', resp.text, re.DOTALL)
+            texts = [re.sub(r'<[^>]+>', '', s).strip() for s in snippets[:5]]
+            return "\n".join(f"- {t}" for t in texts if t) or "No results found."
+    except Exception as e:
+        return f"Search error: {e}"
+
+
+async def _run_agent_with_tools(model_id: str, messages: list, max_rounds: int = 3) -> str:
+    """Run an AI agent with optional tool calls (web_search). Returns final text."""
+    import httpx
+    for _ in range(max_rounds):
+        async with httpx.AsyncClient(timeout=180) as client:
+            resp = await client.post(
+                f"{SILICONFLOW_BASE_URL}/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {SILICONFLOW_API_KEY}",
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "model": model_id,
+                    "messages": messages,
+                    "temperature": 0.5,
+                    "max_tokens": 2000,
+                    "tools": [WEB_SEARCH_TOOL_DEF],
+                },
+            )
+        data = json.loads(resp.text)
+        if not isinstance(data, dict) or "error" in data:
+            return f"API error: {data}"
+
+        choice = data.get("choices", [{}])[0]
+        msg = choice.get("message", {})
+
+        # If no tool calls, return the text
+        tool_calls = msg.get("tool_calls")
+        if not tool_calls:
+            return msg.get("content", "")
+
+        # Execute tool calls
+        messages.append(msg)
+        for tc in tool_calls:
+            fn = tc.get("function", {})
+            if fn.get("name") == "web_search":
+                args = json.loads(fn.get("arguments", "{}"))
+                result = await _web_search(args.get("query", ""))
+                messages.append({
+                    "role": "tool",
+                    "tool_call_id": tc["id"],
+                    "content": result,
+                })
+                logger.info("AI web_search: %s", args.get("query", "")[:80])
+
+    # Max rounds reached, return last content
+    return msg.get("content", "(max tool rounds reached)")
+
+
+async def _execute_ai_task(task_id: int, title: str, description: str, context: str, assigned_by: str):
+    """Background execution of a multi-agent AI task."""
+    conn = get_db()
+    conn.execute("UPDATE ai_tasks SET status = 'running' WHERE id = ?", (task_id,))
+    conn.commit()
+
+    roles = {
+        "kimi": ("moonshotai/Kimi-K2.5", "Kutató és elemző. Web search-öt is használhatsz. Alapos, részletes munkát végzel."),
+        "deepseek": ("deepseek-ai/DeepSeek-V3.2", "Kritikus elemző és ellenőr. Logikai hibákat keresel, ellenérveket fogalmazol."),
+    }
+
+    task_prompt = f"FELADAT: {title}\n\nLEÍRÁS: {description}"
+    if context:
+        task_prompt += f"\n\nKONTEXTUS:\n{context}"
+
+    for agent_name, (model_id, role_desc) in roles.items():
+        try:
+            system = (
+                f"Te a Claus multi-agent rendszer '{agent_name}' al-agentje vagy. "
+                f"Szereped: {role_desc} "
+                f"Magyarul válaszolj, lényegre törően de alaposan. "
+                f"Ha szükséges, használd a web_search tool-t aktuális információkért."
+            )
+            messages = [
+                {"role": "system", "content": system},
+                {"role": "user", "content": task_prompt},
+            ]
+            content = await _run_agent_with_tools(model_id, messages)
+
+            ts = now()
+            conn.execute(
+                "INSERT INTO ai_task_results (task_id, agent, role, content, timestamp) VALUES (?, ?, ?, ?, ?)",
+                (task_id, agent_name, role_desc, content, ts)
+            )
+            conn.commit()
+            logger.info("AI task #%d: %s completed", task_id, agent_name)
+        except Exception as e:
+            ts = now()
+            conn.execute(
+                "INSERT INTO ai_task_results (task_id, agent, role, content, timestamp) VALUES (?, ?, ?, ?, ?)",
+                (task_id, agent_name, role_desc, f"ERROR: {e}", ts)
+            )
+            conn.commit()
+            logger.error("AI task #%d agent %s failed: %s", task_id, agent_name, e)
+
+    # Synthesis by Kimi
+    try:
+        results = conn.execute(
+            "SELECT agent, content FROM ai_task_results WHERE task_id = ? ORDER BY id", (task_id,)
+        ).fetchall()
+        parts = "\n\n".join(f"[{r['agent']}]:\n{r['content']}" for r in results)
+        system = (
+            "Te a koordinátor vagy. Az al-agentek elvégezték a feladatot. "
+            "Készíts tömör szintézist az eredményeikből: mi az egyetértés, hol térnek el, és mi a végső ajánlás. "
+            "Magyarul, strukturáltan."
+        )
+        messages = [
+            {"role": "system", "content": system},
+            {"role": "user", "content": f"FELADAT: {title}\n\nAGENT EREDMÉNYEK:\n{parts}"},
+        ]
+        synthesis = await _run_agent_with_tools("moonshotai/Kimi-K2.5", messages)
+        ts = now()
+        conn.execute(
+            "INSERT INTO ai_task_results (task_id, agent, role, content, timestamp) VALUES (?, ?, ?, ?, ?)",
+            (task_id, "szintézis", "Koordinátori összefoglaló", synthesis, ts)
+        )
+        conn.commit()
+    except Exception as e:
+        logger.error("AI task #%d synthesis failed: %s", task_id, e)
+
+    conn.execute("UPDATE ai_tasks SET status = 'completed', completed_at = ? WHERE id = ?", (now(), task_id))
+    conn.commit()
+    conn.close()
+    logger.info("AI task #%d completed", task_id)
+
+
+@mcp.tool()
+async def ai_task(title: str, description: str, context: str = "", assigned_by: str = "unknown") -> str:
+    """Create and execute a multi-agent AI task. Kimi and DeepSeek work on it with web search, then a synthesis is generated.
+
+    Use for research, document analysis, fact-checking, or any task that benefits from multiple AI perspectives.
+    Results appear on the Bridge dashboard.
+
+    Args:
+        title: Short task title
+        description: Detailed task description / instructions
+        context: Optional document text or background context
+        assigned_by: Who created the task (cli-claus, web-claus, kommandant)
+    """
+    if not SILICONFLOW_API_KEY:
+        return json.dumps({"error": "SILICONFLOW_API_KEY not set"})
+
+    conn = get_db()
+    ts = now()
+    cur = conn.execute(
+        "INSERT INTO ai_tasks (title, description, context, assigned_by, status, created_at) VALUES (?, ?, ?, ?, 'pending', ?)",
+        (title, description, context[:10000], assigned_by, ts)
+    )
+    task_id = cur.lastrowid
+    conn.commit()
+    conn.close()
+
+    # Execute in background thread
+    def _run():
+        loop = asyncio.new_event_loop()
+        loop.run_until_complete(_execute_ai_task(task_id, title, description, context[:10000], assigned_by))
+        loop.close()
+    threading.Thread(target=_run, daemon=True).start()
+
+    return json.dumps({"status": "task_created", "task_id": task_id, "message": "Kimi + DeepSeek dolgoznak rajta. Eredmény a dashboardon."})
+
+
+@mcp.custom_route("/api/ai_tasks", methods=["GET", "POST"])
+async def api_ai_tasks(request):
+    if request.method == "POST":
+        body = await request.json()
+        title = body.get("title", "")
+        description = body.get("description", "")
+        context = body.get("context", "")
+        assigned_by = body.get("assigned_by", "kommandant")
+
+        conn = get_db()
+        ts = now()
+        cur = conn.execute(
+            "INSERT INTO ai_tasks (title, description, context, assigned_by, status, created_at) VALUES (?, ?, ?, ?, 'pending', ?)",
+            (title, description, context[:10000], assigned_by, ts)
+        )
+        task_id = cur.lastrowid
+        conn.commit()
+        conn.close()
+
+        # Execute in background
+        def _run():
+            loop = asyncio.new_event_loop()
+            loop.run_until_complete(_execute_ai_task(task_id, title, description, context[:10000], assigned_by))
+            loop.close()
+        threading.Thread(target=_run, daemon=True).start()
+
+        return JSONResponse({"status": "created", "task_id": task_id})
+
+    conn = get_db()
+    tasks = conn.execute("SELECT * FROM ai_tasks ORDER BY id DESC LIMIT 20").fetchall()
+    result = []
+    for t in tasks:
+        results = conn.execute(
+            "SELECT agent, role, content, timestamp FROM ai_task_results WHERE task_id = ? ORDER BY id",
+            (t["id"],)
+        ).fetchall()
+        result.append({**dict(t), "results": [dict(r) for r in results]})
+    conn.close()
+    return JSONResponse(result)
 
 
 # ============================================================

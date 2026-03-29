@@ -1096,6 +1096,7 @@ select {
     <div class="tab" data-tab="discussions">VITÁK</div>
     <div class="tab" data-tab="memory">MEMÓRIA</div>
     <div class="tab" data-tab="tasks">FELADATOK</div>
+    <div class="tab" data-tab="aitasks">AI FELADATOK<span class="tab-badge" id="aiBadge" style="display:none"></span></div>
   </div>
 </nav>
 
@@ -1227,6 +1228,47 @@ select {
 
   <div class="section-title">FELADATOK</div>
   <div id="taskList" class="task-list"></div>
+</section>
+
+<!-- ===== AI TASKS ===== -->
+<section class="panel" id="panel-aitasks">
+  <div class="form-section">
+    <div class="form-title">ÚJ AI FELADAT</div>
+    <form id="aiTaskForm" onsubmit="return createAiTask(event)">
+      <div class="form-row">
+        <div class="form-group" style="flex:2">
+          <label class="form-label">Feladat címe</label>
+          <input type="text" id="aiTaskTitle" required placeholder="Mit csináljanak az agentek?">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Kiadta</label>
+          <select id="aiTaskBy">
+            <option value="kommandant" selected>Kommandant</option>
+            <option value="cli-claus">CLI-Claus</option>
+            <option value="web-claus">Web-Claus</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group full">
+          <label class="form-label">Részletes leírás / utasítás</label>
+          <textarea id="aiTaskDesc" required placeholder="Részletes feladatleírás az agenteknek..." style="min-height:80px"></textarea>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group full">
+          <label class="form-label">Kontextus / dokumentum (opcionális)</label>
+          <textarea id="aiTaskContext" placeholder="Szöveg, dokumentum tartalom, háttérinformáció..." style="min-height:60px"></textarea>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:flex-end">
+        <button type="submit" class="btn btn-gold">AGENTEK INDÍTÁSA</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="section-title">AI FELADAT EREDMÉNYEK</div>
+  <div id="aiTaskList"></div>
 </section>
 </main>
 
@@ -1640,6 +1682,73 @@ async function createTask(e) {
   return false;
 }
 
+// ===== AI TASKS =====
+async function loadAiTasks() {
+  const tasks = await api('/api/ai_tasks');
+  const container = document.getElementById('aiTaskList');
+
+  // Update badge for running tasks
+  const running = tasks.filter(t => t.status === 'running').length;
+  const badge = document.getElementById('aiBadge');
+  if (running > 0) { badge.textContent = running; badge.style.display = 'flex'; }
+  else { badge.style.display = 'none'; }
+
+  if (!tasks.length) {
+    container.innerHTML = '<div class="empty-state">Nincs AI feladat. Adj ki egyet az agenteknek!</div>';
+    return;
+  }
+
+  container.innerHTML = tasks.map(t => {
+    const statusColor = t.status === 'completed' ? 'var(--green)' : t.status === 'running' ? 'var(--gold)' : 'var(--text-muted)';
+    const statusIcon = t.status === 'completed' ? '✓' : t.status === 'running' ? '⟳' : '◦';
+    const resultsHtml = (t.results || []).map(r => {
+      const agentColor = r.agent === 'kimi' ? 'var(--electric)' : r.agent === 'deepseek' ? 'var(--phosphor)' : 'var(--gold)';
+      const icon = r.agent === 'kimi' ? '🌙' : r.agent === 'deepseek' ? '🔬' : '⚡';
+      return `
+        <div style="margin:0.5rem 0; padding:0.75rem; background:var(--bg-deep); border-radius:6px; border-left:3px solid ${agentColor}">
+          <div style="font-size:0.75rem; color:${agentColor}; font-weight:600; margin-bottom:0.4rem">
+            ${icon} ${esc(r.agent.toUpperCase())} <span style="color:var(--text-muted);font-weight:400">${esc(r.role)}</span>
+            <span style="float:right;color:var(--text-muted)">${relTime(r.timestamp)}</span>
+          </div>
+          <div style="font-size:0.8rem; color:var(--text-primary); white-space:pre-wrap; line-height:1.5">${esc(r.content)}</div>
+        </div>`;
+    }).join('');
+
+    return `
+      <div style="margin-bottom:1.2rem; padding:1rem; background:var(--bg-surface); border-radius:8px; border:1px solid var(--border-dim)">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem">
+          <div style="font-size:0.95rem; font-weight:600; color:var(--text-primary)">${statusIcon} ${esc(t.title)}</div>
+          <div style="display:flex;gap:0.5rem;align-items:center">
+            <span class="badge" style="background:${statusColor}22;color:${statusColor};border:1px solid ${statusColor}44">${t.status}</span>
+            <span style="font-size:0.7rem;color:var(--text-muted)">${relTime(t.created_at)}</span>
+          </div>
+        </div>
+        <div style="font-size:0.8rem; color:var(--text-secondary); margin-bottom:0.5rem">${esc(t.description).slice(0, 200)}${t.description.length > 200 ? '...' : ''}</div>
+        <div style="font-size:0.7rem; color:var(--text-muted); margin-bottom:0.5rem">Kiadta: ${esc(t.assigned_by)}</div>
+        ${resultsHtml || '<div style="color:var(--text-muted);font-size:0.8rem;padding:0.5rem">Agentek dolgoznak...</div>'}
+      </div>`;
+  }).join('');
+}
+
+async function createAiTask(e) {
+  e.preventDefault();
+  const title = document.getElementById('aiTaskTitle').value;
+  const desc = document.getElementById('aiTaskDesc').value;
+  const ctx = document.getElementById('aiTaskContext').value;
+  const by = document.getElementById('aiTaskBy').value;
+
+  await api('/api/ai_tasks', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ title, description: desc, context: ctx, assigned_by: by })
+  });
+
+  document.getElementById('aiTaskForm').reset();
+  toast('AI feladat elindítva! Kimi + DeepSeek dolgoznak.');
+  loadAiTasks();
+  return false;
+}
+
 // ===== REFRESH =====
 async function refresh() {
   showLoading();
@@ -1650,6 +1759,7 @@ async function refresh() {
       case 'discussions': await loadDiscussions(); break;
       case 'memory': await loadMemory(); break;
       case 'tasks': await loadTasks(); break;
+      case 'aitasks': await loadAiTasks(); break;
     }
     // Always update badge
     if (currentTab !== 'overview') {
