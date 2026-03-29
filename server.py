@@ -506,6 +506,11 @@ async def start_discussion(topic: str, initial_position: str, context: str = "",
     )
     conn.commit()
     conn.close()
+
+    # Auto-trigger AI sub-agents
+    thread_text = f"[{instance}]: {initial_position}"
+    asyncio.ensure_future(_ai_auto_discuss(disc_id, topic, thread_text))
+
     return json.dumps({"status": "discussion_started", "discussion_id": disc_id})
 
 
@@ -530,13 +535,25 @@ async def add_to_discussion(discussion_id: int, content: str, instance: str = "u
         "SELECT instance, content, timestamp FROM discussion_entries WHERE discussion_id = ? ORDER BY timestamp",
         (discussion_id,)
     ).fetchall()
+
+    # Get topic for AI context
+    disc = conn.execute("SELECT topic FROM discussions WHERE id = ?", (discussion_id,)).fetchone()
     conn.close()
-    return json.dumps({
+
+    result = json.dumps({
         "status": "added",
         "discussion_id": discussion_id,
         "total_entries": len(entries),
         "thread": [dict(e) for e in entries]
     }, ensure_ascii=False)
+
+    # Auto-trigger AI sub-agents (only when Claude or Kommandant adds, not when AIs add)
+    if instance not in SILICONFLOW_MODELS:
+        thread_text = "\n".join(f"[{e['instance']}]: {e['content']}" for e in entries)
+        topic = disc["topic"] if disc else f"Discussion #{discussion_id}"
+        asyncio.ensure_future(_ai_auto_discuss(discussion_id, topic, thread_text))
+
+    return result
 
 
 @mcp.tool()
@@ -953,6 +970,62 @@ SILICONFLOW_MODELS = {
     "kimi": "moonshotai/Kimi-K2.5",
     "deepseek": "deepseek-ai/DeepSeek-V3.2",
 }
+
+# Auto-discussion: sub-agents join discussions automatically
+AI_DISCUSSION_ENABLED = os.environ.get("AI_DISCUSSION_ENABLED", "true").lower() == "true"
+
+
+async def _ai_auto_discuss(discussion_id: int, topic: str, thread_so_far: str):
+    """Automatically query Kimi and DeepSeek to contribute to a discussion."""
+    if not AI_DISCUSSION_ENABLED or not SILICONFLOW_API_KEY:
+        return
+
+    conn = get_db()
+    system = (
+        "Te a Claus multi-agent rendszer al-agentje vagy, egy aktív vitában veszel részt. "
+        "A rendszert Claude Opus koordinálja, a Kommandant (Tamás) asszisztenseként. "
+        "Röviden, lényegre törően szólj hozzá (max 3-4 mondat). "
+        "Ha nincs érdemi mondanivalód, írd hogy 'Nincs hozzáfűznivalóm.' "
+        "Magyarul válaszolj."
+    )
+    prompt = f"Vita témája: {topic}\n\nEddigi hozzászólások:\n{thread_so_far}\n\nMi a véleményed? Szólj hozzá."
+
+    for agent_name, model_id in SILICONFLOW_MODELS.items():
+        try:
+            import httpx
+            async with httpx.AsyncClient(timeout=45) as client:
+                resp = await client.post(
+                    f"{SILICONFLOW_BASE_URL}/chat/completions",
+                    headers={
+                        "Authorization": f"Bearer {SILICONFLOW_API_KEY}",
+                        "Content-Type": "application/json",
+                    },
+                    json={
+                        "model": model_id,
+                        "messages": [
+                            {"role": "system", "content": system},
+                            {"role": "user", "content": prompt},
+                        ],
+                        "temperature": 0.7,
+                        "max_tokens": 500,
+                    },
+                )
+                data = json.loads(resp.text)
+
+            if isinstance(data, dict) and data.get("choices"):
+                content = data["choices"][0].get("message", {}).get("content", "")
+                if content and "nincs hozzáfűznivalóm" not in content.lower():
+                    ts = now()
+                    conn.execute(
+                        "INSERT INTO discussion_entries (discussion_id, instance, content, timestamp) VALUES (?, ?, ?, ?)",
+                        (discussion_id, agent_name, content, ts)
+                    )
+                    conn.commit()
+                    logger.info("AI %s contributed to discussion #%d", agent_name, discussion_id)
+        except Exception as e:
+            logger.error("AI auto-discuss failed for %s: %s", agent_name, e)
+
+    conn.close()
 
 
 @mcp.tool()
