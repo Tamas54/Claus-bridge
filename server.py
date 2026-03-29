@@ -985,7 +985,11 @@ def _init_google_services():
         from google.auth.transport.requests import Request
         from googleapiclient.discovery import build
 
-        token_data = json.loads(GOOGLE_TOKEN_JSON)
+        # Support both raw JSON and base64-encoded JSON
+        try:
+            token_data = json.loads(GOOGLE_TOKEN_JSON)
+        except json.JSONDecodeError:
+            token_data = json.loads(base64.b64decode(GOOGLE_TOKEN_JSON).decode())
         creds = Credentials.from_authorized_user_info(token_data, GOOGLE_SCOPES)
 
         if creds.expired and creds.refresh_token:
