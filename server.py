@@ -1000,13 +1000,22 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
                     "max_tokens": max_tokens,
                 },
             )
-            data = resp.json()
+            raw = resp.text
+            data = json.loads(raw) if isinstance(raw, str) else raw
+
+        if not isinstance(data, dict):
+            return json.dumps({"error": f"Unexpected response type: {type(data).__name__}", "raw": str(data)[:500]})
 
         if "error" in data:
             return json.dumps({"error": data["error"]})
 
-        choice = data.get("choices", [{}])[0]
-        content = choice.get("message", {}).get("content", "")
+        choices = data.get("choices", [])
+        if not choices:
+            return json.dumps({"error": "No choices in response", "raw": str(data)[:500]})
+
+        choice = choices[0]
+        msg = choice.get("message", {}) if isinstance(choice, dict) else {}
+        content = msg.get("content", "") if isinstance(msg, dict) else str(msg)
         usage = data.get("usage", {})
 
         return json.dumps({
@@ -1019,7 +1028,7 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
         }, ensure_ascii=False)
 
     except Exception as e:
-        return json.dumps({"error": str(e)})
+        return json.dumps({"error": f"{type(e).__name__}: {e}"})
 
 
 # ============================================================
