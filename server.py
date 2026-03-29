@@ -943,6 +943,86 @@ async def dashboard(request):
 
 
 # ============================================================
+# SILICONFLOW AI SUB-AGENTS (Kimi-K2.5, DeepSeek V3.2, etc.)
+# ============================================================
+
+SILICONFLOW_API_KEY = os.environ.get("SILICONFLOW_API_KEY", "")
+SILICONFLOW_BASE_URL = "https://api.siliconflow.com/v1"
+
+SILICONFLOW_MODELS = {
+    "kimi": "moonshotai/Kimi-K2.5",
+    "deepseek": "deepseek-ai/DeepSeek-V3.2",
+}
+
+
+@mcp.tool()
+async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature: float = 0.7, max_tokens: int = 2000) -> str:
+    """Query a SiliconFlow AI sub-agent (Kimi-K2.5 or DeepSeek V3.2).
+
+    Use for research, analysis, translation, summarization, or second opinions.
+    These models run on SiliconFlow cloud — no local resources needed.
+
+    Args:
+        model: 'kimi' (256k context, vision) or 'deepseek' (fast reasoning) or full model ID
+        prompt: The user message / question
+        system_prompt: Optional system instruction (default: Claus sub-agent)
+        temperature: Creativity 0.0-1.0 (default 0.7)
+        max_tokens: Max response length (default 2000)
+    """
+    if not SILICONFLOW_API_KEY:
+        return json.dumps({"error": "SILICONFLOW_API_KEY not set"})
+
+    model_id = SILICONFLOW_MODELS.get(model, model)
+
+    if not system_prompt:
+        system_prompt = (
+            "Te a Claus multi-agent rendszer al-agentje vagy. "
+            "A rendszert Claude Opus koordinálja. "
+            "Lényegre törően, magyarul válaszolj, hacsak nem kérnek mást."
+        )
+
+    messages = [{"role": "system", "content": system_prompt}]
+    messages.append({"role": "user", "content": prompt})
+
+    try:
+        import httpx
+        async with httpx.AsyncClient(timeout=60) as client:
+            resp = await client.post(
+                f"{SILICONFLOW_BASE_URL}/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {SILICONFLOW_API_KEY}",
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "model": model_id,
+                    "messages": messages,
+                    "temperature": temperature,
+                    "max_tokens": max_tokens,
+                },
+            )
+            data = resp.json()
+
+        if "error" in data:
+            return json.dumps({"error": data["error"]})
+
+        choice = data.get("choices", [{}])[0]
+        content = choice.get("message", {}).get("content", "")
+        usage = data.get("usage", {})
+
+        return json.dumps({
+            "model": model_id,
+            "response": content,
+            "tokens": {
+                "prompt": usage.get("prompt_tokens", 0),
+                "completion": usage.get("completion_tokens", 0),
+            },
+        }, ensure_ascii=False)
+
+    except Exception as e:
+        return json.dumps({"error": str(e)})
+
+
+# ============================================================
 # GOOGLE API — Gmail + Calendar Capture
 # ============================================================
 
