@@ -18,6 +18,9 @@ import threading
 import pathlib
 from datetime import datetime, timezone, timedelta
 from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
+from email import encoders
 from email.utils import parseaddr
 from fastmcp import FastMCP
 
@@ -1000,6 +1003,7 @@ async def dashboard(request):
 
 SILICONFLOW_API_KEY = os.environ.get("SILICONFLOW_API_KEY", "")
 SILICONFLOW_BASE_URL = "https://api.siliconflow.com/v1"
+SILICONFLOW_TIMEOUT = 220
 
 SILICONFLOW_MODELS = {
     "kimi": "moonshotai/Kimi-K2.5",
@@ -1026,41 +1030,56 @@ async def _ai_auto_discuss(discussion_id: int, topic: str, thread_so_far: str):
     )
     prompt = f"Vita témája: {topic}\n\nEddigi hozzászólások:\n{thread_so_far}\n\nMi a véleményed? Szólj hozzá."
 
-    for agent_name, model_id in SILICONFLOW_MODELS.items():
-        try:
-            import httpx
-            async with httpx.AsyncClient(timeout=120) as client:
-                resp = await client.post(
-                    f"{SILICONFLOW_BASE_URL}/chat/completions",
-                    headers={
-                        "Authorization": f"Bearer {SILICONFLOW_API_KEY}",
-                        "Content-Type": "application/json",
-                    },
-                    json={
-                        "model": model_id,
-                        "messages": [
-                            {"role": "system", "content": system},
-                            {"role": "user", "content": prompt},
-                        ],
-                        "temperature": 0.7,
-                        "max_tokens": 500,
-                    },
-                )
-                data = json.loads(resp.text)
+    import httpx
 
-            if isinstance(data, dict) and data.get("choices"):
-                content = data["choices"][0].get("message", {}).get("content", "")
-                if content and "nincs hozzáfűznivalóm" not in content.lower():
-                    ts = now()
-                    conn.execute(
-                        "INSERT INTO discussion_entries (discussion_id, instance, content, timestamp) VALUES (?, ?, ?, ?)",
-                        (discussion_id, agent_name, content, ts)
+    async def _discuss_agent(agent_name, model_id):
+        """Run one discussion agent with 1 retry on timeout."""
+        for attempt in range(2):
+            try:
+                async with httpx.AsyncClient(timeout=SILICONFLOW_TIMEOUT) as client:
+                    resp = await client.post(
+                        f"{SILICONFLOW_BASE_URL}/chat/completions",
+                        headers={
+                            "Authorization": f"Bearer {SILICONFLOW_API_KEY}",
+                            "Content-Type": "application/json",
+                        },
+                        json={
+                            "model": model_id,
+                            "messages": [
+                                {"role": "system", "content": system},
+                                {"role": "user", "content": prompt},
+                            ],
+                            "temperature": 0.7,
+                            "max_tokens": 500,
+                        },
                     )
-                    conn.commit()
-                    logger.info("AI %s contributed to discussion #%d", agent_name, discussion_id)
-        except Exception as e:
-            logger.error("AI auto-discuss failed for %s: %s", agent_name, e)
+                    data = json.loads(resp.text)
 
+                if isinstance(data, dict) and data.get("choices"):
+                    content = data["choices"][0].get("message", {}).get("content", "")
+                    if content and "nincs hozzáfűznivalóm" not in content.lower():
+                        ts = now()
+                        conn.execute(
+                            "INSERT INTO discussion_entries (discussion_id, instance, content, timestamp) VALUES (?, ?, ?, ?)",
+                            (discussion_id, agent_name, content, ts)
+                        )
+                        conn.commit()
+                        logger.info("AI %s contributed to discussion #%d", agent_name, discussion_id)
+                return
+            except (httpx.TimeoutException, httpx.ConnectError) as e:
+                if attempt == 0:
+                    logger.warning("AI auto-discuss %s timeout (attempt 1), retrying: %s", agent_name, e)
+                    await asyncio.sleep(2)
+                else:
+                    logger.error("AI auto-discuss %s failed after retry: %s", agent_name, e)
+            except Exception as e:
+                logger.error("AI auto-discuss failed for %s: %s", agent_name, e)
+                return
+
+    await asyncio.gather(
+        *[_discuss_agent(name, mid) for name, mid in SILICONFLOW_MODELS.items()],
+        return_exceptions=True,
+    )
     conn.close()
 
 
@@ -1095,7 +1114,7 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
 
     try:
         import httpx
-        async with httpx.AsyncClient(timeout=180) as client:
+        async with httpx.AsyncClient(timeout=SILICONFLOW_TIMEOUT) as client:
             resp = await client.post(
                 f"{SILICONFLOW_BASE_URL}/chat/completions",
                 headers={
@@ -1286,7 +1305,7 @@ async def _run_agent_with_tools(model_id: str, messages: list, max_rounds: int =
     """Run an AI agent with optional tool calls (web_search). Returns final text."""
     import httpx
     for _ in range(max_rounds):
-        async with httpx.AsyncClient(timeout=180) as client:
+        async with httpx.AsyncClient(timeout=SILICONFLOW_TIMEOUT) as client:
             resp = await client.post(
                 f"{SILICONFLOW_BASE_URL}/chat/completions",
                 headers={
@@ -1348,24 +1367,31 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
         task_prompt += f"\n\nKONTEXTUS:\n{context}"
 
     async def _run_single_agent(agent_name, model_id, role_desc):
-        """Run one agent with hybrid tool-call support — called in parallel."""
+        """Run one agent with hybrid tool-call support — called in parallel. Retries once on timeout."""
         import httpx, re
-        try:
-            today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-            system = (
-                f"Te a Claus multi-agent rendszer '{agent_name}' al-agentje vagy. "
-                f"Szereped: {role_desc} "
-                f"A mai dátum: {today}. "
-                f"Magyarul válaszolj, lényegre törően de alaposan. "
-                f"Ha aktuális információra van szükséged, használd a web_search tool-t."
-            )
 
-            # Step 1: Call WITH tools
-            async with httpx.AsyncClient(timeout=180) as client:
-                resp = await client.post(
-                    f"{SILICONFLOW_BASE_URL}/chat/completions",
-                    headers={"Authorization": f"Bearer {SILICONFLOW_API_KEY}", "Content-Type": "application/json"},
-                    json={
+        async def _api_call(client, payload):
+            resp = await client.post(
+                f"{SILICONFLOW_BASE_URL}/chat/completions",
+                headers={"Authorization": f"Bearer {SILICONFLOW_API_KEY}", "Content-Type": "application/json"},
+                json=payload,
+            )
+            return json.loads(resp.text)
+
+        for attempt in range(2):
+            try:
+                today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+                system = (
+                    f"Te a Claus multi-agent rendszer '{agent_name}' al-agentje vagy. "
+                    f"Szereped: {role_desc} "
+                    f"A mai dátum: {today}. "
+                    f"Magyarul válaszolj, lényegre törően de alaposan. "
+                    f"Ha aktuális információra van szükséged, használd a web_search tool-t."
+                )
+
+                # Step 1: Call WITH tools
+                async with httpx.AsyncClient(timeout=SILICONFLOW_TIMEOUT) as client:
+                    data = await _api_call(client, {
                         "model": model_id,
                         "messages": [
                             {"role": "system", "content": system},
@@ -1374,48 +1400,42 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
                         "temperature": 0.5,
                         "max_tokens": 3000,
                         "tools": [WEB_SEARCH_TOOL_DEF],
-                    },
-                )
-                data = json.loads(resp.text)
+                    })
 
-            content = ""
-            search_results = ""
-            if not isinstance(data, dict) or not data.get("choices"):
-                logger.error("AI task #%d %s: bad API response", task_id, agent_name)
-            else:
-                msg = data["choices"][0].get("message", {})
-                content = msg.get("content", "") or ""
-                tool_calls = msg.get("tool_calls")
+                content = ""
+                search_results = ""
+                if not isinstance(data, dict) or not data.get("choices"):
+                    logger.error("AI task #%d %s: bad API response", task_id, agent_name)
+                else:
+                    msg = data["choices"][0].get("message", {})
+                    content = msg.get("content", "") or ""
+                    tool_calls = msg.get("tool_calls")
 
-                # Case A: Proper JSON tool_calls — execute web search
-                if tool_calls:
-                    for tc in tool_calls:
-                        fn = tc.get("function", {})
-                        if fn.get("name") == "web_search":
-                            query = json.loads(fn.get("arguments", "{}")).get("query", "")
-                            if query:
-                                sr = await _web_search(query)
-                                search_results += f"\n[Web search: {query}]\n{sr}\n"
-                                logger.info("AI task #%d %s: web_search '%s'", task_id, agent_name, query[:60])
+                    # Case A: Proper JSON tool_calls — execute web search
+                    if tool_calls:
+                        for tc in tool_calls:
+                            fn = tc.get("function", {})
+                            if fn.get("name") == "web_search":
+                                query = json.loads(fn.get("arguments", "{}")).get("query", "")
+                                if query:
+                                    sr = await _web_search(query)
+                                    search_results += f"\n[Web search: {query}]\n{sr}\n"
+                                    logger.info("AI task #%d %s: web_search '%s'", task_id, agent_name, query[:60])
 
-                # Case B: Text-based tool calls — parse search query from text
-                tool_markers = ["<|tool_call", "<｜DSML｜", "function_calls>", "tool_calls_section"]
-                if not tool_calls and any(m in content for m in tool_markers):
-                    # Extract query from text markers
-                    queries = re.findall(r'"query"[:\s]*"([^"]+)"', content)
-                    for query in queries[:2]:
-                        sr = await _web_search(query)
-                        search_results += f"\n[Web search: {query}]\n{sr}\n"
-                        logger.info("AI task #%d %s: parsed web_search '%s'", task_id, agent_name, query[:60])
-                    content = ""  # Clear broken text
+                    # Case B: Text-based tool calls — parse search query from text
+                    tool_markers = ["<|tool_call", "<｜DSML｜", "function_calls>", "tool_calls_section"]
+                    if not tool_calls and any(m in content for m in tool_markers):
+                        queries = re.findall(r'"query"[:\s]*"([^"]+)"', content)
+                        for query in queries[:2]:
+                            sr = await _web_search(query)
+                            search_results += f"\n[Web search: {query}]\n{sr}\n"
+                            logger.info("AI task #%d %s: parsed web_search '%s'", task_id, agent_name, query[:60])
+                        content = ""  # Clear broken text
 
-            # Step 2: If we got search results, call again WITH those results as context
-            if search_results:
-                async with httpx.AsyncClient(timeout=180) as client:
-                    resp = await client.post(
-                        f"{SILICONFLOW_BASE_URL}/chat/completions",
-                        headers={"Authorization": f"Bearer {SILICONFLOW_API_KEY}", "Content-Type": "application/json"},
-                        json={
+                # Step 2: If we got search results, call again WITH those results as context
+                if search_results:
+                    async with httpx.AsyncClient(timeout=SILICONFLOW_TIMEOUT) as client:
+                        data2 = await _api_call(client, {
                             "model": model_id,
                             "messages": [
                                 {"role": "system", "content": f"{role_desc} Magyarul válaszolj, alaposan. Az alábbi web keresési eredményeket használd fel."},
@@ -1423,20 +1443,15 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
                             ],
                             "temperature": 0.5,
                             "max_tokens": 3000,
-                        },
-                    )
-                    data2 = json.loads(resp.text)
-                    if isinstance(data2, dict) and data2.get("choices"):
-                        content = data2["choices"][0].get("message", {}).get("content", "")
+                        })
+                        if isinstance(data2, dict) and data2.get("choices"):
+                            content = data2["choices"][0].get("message", {}).get("content", "")
 
-            # Step 3: Fallback if still empty
-            if not content or not content.strip():
-                logger.warning("AI task #%d %s: empty after tools, final fallback", task_id, agent_name)
-                async with httpx.AsyncClient(timeout=180) as client:
-                    resp = await client.post(
-                        f"{SILICONFLOW_BASE_URL}/chat/completions",
-                        headers={"Authorization": f"Bearer {SILICONFLOW_API_KEY}", "Content-Type": "application/json"},
-                        json={
+                # Step 3: Fallback if still empty
+                if not content or not content.strip():
+                    logger.warning("AI task #%d %s: empty after tools, final fallback", task_id, agent_name)
+                    async with httpx.AsyncClient(timeout=SILICONFLOW_TIMEOUT) as client:
+                        data3 = await _api_call(client, {
                             "model": model_id,
                             "messages": [
                                 {"role": "system", "content": f"{role_desc} Magyarul válaszolj, részletesen. NE használj tool-okat."},
@@ -1444,27 +1459,40 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
                             ],
                             "temperature": 0.7,
                             "max_tokens": 3000,
-                        },
-                    )
-                    data3 = json.loads(resp.text)
-                    if isinstance(data3, dict) and data3.get("choices"):
-                        content = data3["choices"][0].get("message", {}).get("content", "")
+                        })
+                        if isinstance(data3, dict) and data3.get("choices"):
+                            content = data3["choices"][0].get("message", {}).get("content", "")
 
-            ts = now()
-            conn.execute(
-                "INSERT INTO ai_task_results (task_id, agent, role, content, timestamp) VALUES (?, ?, ?, ?, ?)",
-                (task_id, agent_name, role_desc, content or "(no response)", ts)
-            )
-            conn.commit()
-            logger.info("AI task #%d: %s done (%d chars)", task_id, agent_name, len(content or ""))
-        except Exception as e:
-            ts = now()
-            conn.execute(
-                "INSERT INTO ai_task_results (task_id, agent, role, content, timestamp) VALUES (?, ?, ?, ?, ?)",
-                (task_id, agent_name, role_desc, f"ERROR: {e}", ts)
-            )
-            conn.commit()
-            logger.error("AI task #%d %s failed: %s", task_id, agent_name, e)
+                ts = now()
+                conn.execute(
+                    "INSERT INTO ai_task_results (task_id, agent, role, content, timestamp) VALUES (?, ?, ?, ?, ?)",
+                    (task_id, agent_name, role_desc, content or "(no response)", ts)
+                )
+                conn.commit()
+                logger.info("AI task #%d: %s done (%d chars)", task_id, agent_name, len(content or ""))
+                return  # Success — exit retry loop
+
+            except (httpx.TimeoutException, httpx.ConnectError) as e:
+                if attempt == 0:
+                    logger.warning("AI task #%d %s: timeout (attempt 1), retrying in 3s: %s", task_id, agent_name, e)
+                    await asyncio.sleep(3)
+                else:
+                    ts = now()
+                    conn.execute(
+                        "INSERT INTO ai_task_results (task_id, agent, role, content, timestamp) VALUES (?, ?, ?, ?, ?)",
+                        (task_id, agent_name, role_desc, f"TIMEOUT after retry: {e}", ts)
+                    )
+                    conn.commit()
+                    logger.error("AI task #%d %s: timeout after retry: %s", task_id, agent_name, e)
+            except Exception as e:
+                ts = now()
+                conn.execute(
+                    "INSERT INTO ai_task_results (task_id, agent, role, content, timestamp) VALUES (?, ?, ?, ?, ?)",
+                    (task_id, agent_name, role_desc, f"ERROR: {e}", ts)
+                )
+                conn.commit()
+                logger.error("AI task #%d %s failed: %s", task_id, agent_name, e)
+                return  # Non-timeout errors don't retry
 
     # Run all agents IN PARALLEL
     await asyncio.gather(
@@ -2105,27 +2133,67 @@ async def capture_calendar_poll() -> str:
 
 
 @mcp.tool()
-async def capture_send_email(to: str, subject: str, body: str, body_type: str = "plain") -> str:
-    """Send an email via Gmail API.
+async def capture_send_email(
+    to: str, subject: str, body: str, body_type: str = "plain",
+    file_id: int = 0, attachment_base64: str = "", attachment_filename: str = "", attachment_mime: str = ""
+) -> str:
+    """Send an email via Gmail API, optionally with an attachment.
 
     Args:
         to: Recipient email address
         subject: Email subject
         body: Email body content
         body_type: 'plain' or 'html' (default: plain)
+        file_id: Optional — uploaded file ID from upload_file to attach
+        attachment_base64: Optional — raw base64-encoded file content to attach
+        attachment_filename: Filename for the attachment (required if attachment_base64 is used)
+        attachment_mime: MIME type for attachment (e.g. 'application/vnd.openxmlformats-officedocument.wordprocessingml.document')
     """
     svc = _capture_state.get("gmail_service")
     if not svc:
         return json.dumps({"error": "Gmail not initialized. Set GOOGLE_TOKEN_JSON env var."})
 
     try:
-        msg = MIMEText(body, body_type)
-        msg["to"] = to
-        msg["subject"] = subject
+        # Resolve attachment from uploads table if file_id given
+        att_data = None
+        att_name = attachment_filename
+        att_mime = attachment_mime
+        if file_id:
+            conn = get_db()
+            f = conn.execute("SELECT filename, mime_type, content_base64 FROM uploads WHERE id = ?", (file_id,)).fetchone()
+            conn.close()
+            if not f or not f["content_base64"]:
+                return json.dumps({"error": f"Upload #{file_id} not found or has no binary content"})
+            att_data = base64.b64decode(f["content_base64"])
+            att_name = att_name or f["filename"]
+            att_mime = att_mime or f["mime_type"] or "application/octet-stream"
+        elif attachment_base64:
+            if not att_name:
+                return json.dumps({"error": "attachment_filename is required when using attachment_base64"})
+            att_data = base64.b64decode(attachment_base64)
+            att_mime = att_mime or "application/octet-stream"
+
+        if att_data:
+            msg = MIMEMultipart()
+            msg["to"] = to
+            msg["subject"] = subject
+            msg.attach(MIMEText(body, body_type))
+
+            maintype, _, subtype = att_mime.partition("/")
+            part = MIMEBase(maintype or "application", subtype or "octet-stream")
+            part.set_payload(att_data)
+            encoders.encode_base64(part)
+            part.add_header("Content-Disposition", "attachment", filename=att_name)
+            msg.attach(part)
+        else:
+            msg = MIMEText(body, body_type)
+            msg["to"] = to
+            msg["subject"] = subject
 
         raw = base64.urlsafe_b64encode(msg.as_bytes()).decode()
         result = svc.users().messages().send(userId="me", body={"raw": raw}).execute()
-        return json.dumps({"status": "sent", "message_id": result.get("id")})
+        return json.dumps({"status": "sent", "message_id": result.get("id"),
+                           "attachment": att_name if att_data else None})
     except Exception as e:
         return json.dumps({"error": str(e)})
 
