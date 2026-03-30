@@ -1618,6 +1618,84 @@ async def api_upload(request):
     return JSONResponse({"status": "uploaded", "file_id": file_id, "filename": filename, "text_length": len(content_text)})
 
 
+@mcp.custom_route("/api/send_email", methods=["POST"])
+async def api_send_email(request):
+    """Send email with optional file attachment via multipart form upload.
+
+    Form fields: to, subject, body, body_type (optional, default: plain)
+    File field: file (optional attachment)
+    Or: file_id (use previously uploaded file from uploads table)
+    """
+    content_type = request.headers.get("content-type", "")
+
+    if "multipart/form-data" in content_type:
+        form = await request.form()
+        to = form.get("to", "")
+        subject = form.get("subject", "")
+        body = form.get("body", "")
+        body_type = form.get("body_type", "plain")
+        file_id = int(form.get("file_id", "0") or "0")
+        uploaded_file = form.get("file")
+    else:
+        data = await request.json()
+        to = data.get("to", "")
+        subject = data.get("subject", "")
+        body = data.get("body", "")
+        body_type = data.get("body_type", "plain")
+        file_id = int(data.get("file_id", 0) or 0)
+        uploaded_file = None
+
+    if not to or not subject:
+        return JSONResponse({"error": "to and subject are required"}, status_code=400)
+
+    svc = _capture_state.get("gmail_service")
+    if not svc:
+        return JSONResponse({"error": "Gmail not initialized"}, status_code=503)
+
+    try:
+        att_data = None
+        att_name = None
+        att_mime = "application/octet-stream"
+
+        # Option 1: multipart file upload
+        if uploaded_file and hasattr(uploaded_file, "read"):
+            att_data = await uploaded_file.read()
+            att_name = uploaded_file.filename
+            att_mime = uploaded_file.content_type or att_mime
+        # Option 2: file_id from uploads table
+        elif file_id:
+            conn = get_db()
+            f = conn.execute("SELECT filename, mime_type, content_base64 FROM uploads WHERE id = ?", (file_id,)).fetchone()
+            conn.close()
+            if not f or not f["content_base64"]:
+                return JSONResponse({"error": f"Upload #{file_id} not found or has no binary content"}, status_code=404)
+            att_data = base64.b64decode(f["content_base64"])
+            att_name = f["filename"]
+            att_mime = f["mime_type"] or att_mime
+
+        if att_data:
+            msg = MIMEMultipart()
+            msg["to"] = to
+            msg["subject"] = subject
+            msg.attach(MIMEText(body, body_type))
+            maintype, _, subtype = att_mime.partition("/")
+            part = MIMEBase(maintype or "application", subtype or "octet-stream")
+            part.set_payload(att_data)
+            encoders.encode_base64(part)
+            part.add_header("Content-Disposition", "attachment", filename=att_name)
+            msg.attach(part)
+        else:
+            msg = MIMEText(body, body_type)
+            msg["to"] = to
+            msg["subject"] = subject
+
+        raw = base64.urlsafe_b64encode(msg.as_bytes()).decode()
+        result = svc.users().messages().send(userId="me", body={"raw": raw}).execute()
+        return JSONResponse({"status": "sent", "message_id": result.get("id"), "attachment": att_name})
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=500)
+
+
 @mcp.custom_route("/api/ai_tasks", methods=["GET", "POST"])
 async def api_ai_tasks(request):
     if request.method == "POST":
