@@ -1877,7 +1877,7 @@ GOOGLE_TOKEN_JSON = os.environ.get("GOOGLE_TOKEN_JSON", "")
 GOOGLE_SCOPES = [
     "https://www.googleapis.com/auth/gmail.modify",
     "https://www.googleapis.com/auth/gmail.send",
-    "https://www.googleapis.com/auth/calendar.readonly",
+    "https://www.googleapis.com/auth/calendar.events",
 ]
 TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
 TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID", "")
@@ -2281,6 +2281,61 @@ async def capture_calendar_poll() -> str:
 
 
 @mcp.tool()
+async def create_calendar_event(
+    summary: str, start: str, end: str = "", description: str = "",
+    location: str = "", calendar_id: str = "primary"
+) -> str:
+    """Create a Google Calendar event.
+
+    Args:
+        summary: Event title
+        start: Start time in ISO 8601 format (e.g. '2026-03-31T14:00:00+02:00' or '2026-03-31' for all-day)
+        end: End time in ISO 8601 (default: 1 hour after start, or next day for all-day)
+        description: Optional event description
+        location: Optional location
+        calendar_id: Calendar ID (default: primary)
+    """
+    svc = _capture_state.get("calendar_service")
+    if not svc:
+        return json.dumps({"error": "Calendar not initialized. Set GOOGLE_TOKEN_JSON env var."})
+
+    try:
+        is_all_day = "T" not in start
+
+        if is_all_day:
+            event_body = {
+                "summary": summary,
+                "start": {"date": start},
+                "end": {"date": end or (datetime.fromisoformat(start) + timedelta(days=1)).strftime("%Y-%m-%d")},
+            }
+        else:
+            start_dt = datetime.fromisoformat(start)
+            if not end:
+                end = (start_dt + timedelta(hours=1)).isoformat()
+            event_body = {
+                "summary": summary,
+                "start": {"dateTime": start},
+                "end": {"dateTime": end},
+            }
+
+        if description:
+            event_body["description"] = description
+        if location:
+            event_body["location"] = location
+
+        result = svc.events().insert(calendarId=calendar_id, body=event_body).execute()
+        return json.dumps({
+            "status": "created",
+            "event_id": result.get("id"),
+            "link": result.get("htmlLink"),
+            "summary": summary,
+            "start": start,
+        }, ensure_ascii=False)
+    except Exception as e:
+        return json.dumps({"error": str(e)})
+
+
+@mcp.tool()
 async def capture_send_email(
     to: str, subject: str, body: str, body_type: str = "plain",
     file_id: int = 0, attachment_base64: str = "", attachment_filename: str = "", attachment_mime: str = ""
@@ -2381,6 +2436,85 @@ async def capture_inbox(limit: int = 10, query: str = "is:unread category:primar
                 "attachments": att_info,
             })
         return json.dumps({"count": len(messages), "messages": messages}, ensure_ascii=False)
+    except Exception as e:
+        return json.dumps({"error": str(e)})
+
+
+@mcp.tool()
+async def read_gmail_attachment(message_id: str, attachment_index: int = 0) -> str:
+    """Download and read a Gmail attachment's content as text.
+
+    First use capture_inbox to find the message_id and see attachment list,
+    then call this with the message_id and attachment index (0-based).
+
+    Supports: .docx, .pdf, .txt, .csv, .md, .doc and other text formats.
+    Images return metadata only (filename, size, mime_type).
+
+    Args:
+        message_id: Gmail message ID (from capture_inbox results)
+        attachment_index: Which attachment to read (0 = first, default)
+    """
+    svc = _capture_state.get("gmail_service")
+    if not svc:
+        return json.dumps({"error": "Gmail not initialized."})
+
+    try:
+        msg = svc.users().messages().get(userId="me", id=message_id, format="full").execute()
+        attachments = _extract_attachments(msg.get("payload", {}))
+
+        if not attachments:
+            return json.dumps({"error": "No attachments in this message"})
+        if attachment_index >= len(attachments):
+            return json.dumps({"error": f"Attachment index {attachment_index} out of range (message has {len(attachments)} attachments)"})
+
+        att = attachments[attachment_index]
+        att_id = att.get("attachment_id", "")
+        if not att_id:
+            return json.dumps({"error": "Attachment has no downloadable ID"})
+
+        att_data = svc.users().messages().attachments().get(
+            userId="me", messageId=message_id, id=att_id
+        ).execute()
+        file_bytes = base64.urlsafe_b64decode(att_data["data"])
+
+        filename = att["filename"]
+        mime_type = att["mime_type"]
+
+        if _is_image(mime_type):
+            return json.dumps({
+                "filename": filename,
+                "mime_type": mime_type,
+                "size": len(file_bytes),
+                "content": "(image — use upload_file to store for AI vision analysis)",
+            }, ensure_ascii=False)
+
+        # Write to temp file for parsing
+        tmp_path = UPLOAD_DIR / f"att_{int(time.time())}_{filename}"
+        tmp_path.write_bytes(file_bytes)
+        text_content = _parse_file_to_text(tmp_path, mime_type)
+
+        # For .doc files (old Word format), try antiword or basic extraction
+        if not text_content and filename.lower().endswith(".doc"):
+            try:
+                import subprocess
+                result = subprocess.run(["antiword", str(tmp_path)], capture_output=True, text=True, timeout=10)
+                if result.returncode == 0:
+                    text_content = result.stdout
+            except Exception:
+                text_content = "(Old .doc format — antiword not available, content cannot be extracted)"
+
+        tmp_path.unlink(missing_ok=True)
+
+        if not text_content:
+            text_content = f"(Cannot extract text from {mime_type} — unsupported format)"
+
+        return json.dumps({
+            "filename": filename,
+            "mime_type": mime_type,
+            "size": len(file_bytes),
+            "content": text_content[:50000],
+        }, ensure_ascii=False)
+
     except Exception as e:
         return json.dumps({"error": str(e)})
 
