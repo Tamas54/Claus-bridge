@@ -629,6 +629,76 @@ async def resolve_discussion(discussion_id: int, resolution: str, instance: str 
 
 
 @mcp.tool()
+async def read_discussion(discussion_id: int) -> str:
+    """Read all entries in a discussion without adding a new entry.
+
+    Args:
+        discussion_id: Discussion ID to read
+    """
+    conn = get_db()
+    disc = conn.execute("SELECT * FROM discussions WHERE id = ?", (discussion_id,)).fetchone()
+    if not disc:
+        conn.close()
+        return json.dumps({"error": f"Discussion {discussion_id} not found"})
+
+    entries = conn.execute(
+        "SELECT instance, content, timestamp FROM discussion_entries WHERE discussion_id = ? ORDER BY timestamp",
+        (discussion_id,)
+    ).fetchall()
+    conn.close()
+
+    return json.dumps({
+        "discussion_id": discussion_id,
+        "topic": disc["topic"],
+        "context": disc["context"],
+        "status": disc["status"],
+        "resolution": disc["resolution"],
+        "entry_count": len(entries),
+        "entries": [dict(e) for e in entries],
+    }, ensure_ascii=False)
+
+
+@mcp.tool()
+async def read_ai_task_results(task_id: int = 0, limit: int = 10) -> str:
+    """Read AI task results. If task_id given, returns that task's agent outputs. Otherwise lists recent tasks.
+
+    Args:
+        task_id: Specific task ID to read results for (0 = list recent tasks)
+        limit: Max tasks to list when task_id is 0
+    """
+    conn = get_db()
+
+    if task_id:
+        task = conn.execute("SELECT * FROM ai_tasks WHERE id = ?", (task_id,)).fetchone()
+        if not task:
+            conn.close()
+            return json.dumps({"error": f"AI task #{task_id} not found"})
+        results = conn.execute(
+            "SELECT agent, role, content, timestamp FROM ai_task_results WHERE task_id = ? ORDER BY id",
+            (task_id,)
+        ).fetchall()
+        conn.close()
+        return json.dumps({
+            "task_id": task_id,
+            "title": task["title"],
+            "description": task["description"],
+            "status": task["status"],
+            "created_at": task["created_at"],
+            "completed_at": task["completed_at"],
+            "results": [dict(r) for r in results],
+        }, ensure_ascii=False)
+
+    tasks = conn.execute("SELECT * FROM ai_tasks ORDER BY id DESC LIMIT ?", (limit,)).fetchall()
+    conn.close()
+    return json.dumps([{
+        "task_id": t["id"],
+        "title": t["title"],
+        "status": t["status"],
+        "created_at": t["created_at"],
+    } for t in tasks], ensure_ascii=False)
+
+
+@mcp.tool()
 async def list_discussions(status: str = None, limit: int = 20) -> str:
     """List discussions, optionally filtered by status.
 
