@@ -2806,6 +2806,145 @@ def _start_capture_background():
 
 
 # ============================================================
+# TELEGRAM BOT POLLING — Kommandant ír, Bridge fogadja
+# ============================================================
+
+_telegram_state = {"last_update_id": 0}
+
+TELEGRAM_POLL_INTERVAL = 5  # seconds
+
+
+async def _handle_telegram_message(text: str, chat_id: str):
+    """Process an incoming Telegram message from Kommandant."""
+    # 1. Store in Bridge DB
+    conn = get_db()
+    cur = conn.execute(
+        "INSERT INTO messages (timestamp, sender, recipient, subject, message, priority) "
+        "VALUES (?, 'kommandant', 'bridge', ?, ?, 'normal')",
+        (now(), f"Telegram: {text[:60]}", text)
+    )
+    msg_id = cur.lastrowid
+    conn.execute("UPDATE messages SET thread_id = ? WHERE id = ?", (msg_id, msg_id))
+    conn.commit()
+    conn.close()
+    logger.info("Telegram message stored in Bridge: #%d", msg_id)
+
+    # 2. Check for agent mentions
+    text_lower = text.lower()
+    mentioned = [a for a in ("kimi", "deepseek", "glm5") if f"@{a}" in text_lower]
+
+    if mentioned and PYRAMID_ENABLED and SILICONFLOW_API_KEY:
+        # Call agents and reply on Telegram
+        import httpx
+        for agent_id in mentioned:
+            try:
+                system_prompt = build_agent_context(agent_id=agent_id, inbox_summary=_get_inbox_summary())
+                model_id = SILICONFLOW_MODELS.get(agent_id, agent_id)
+                async with httpx.AsyncClient(timeout=SILICONFLOW_TIMEOUT) as client:
+                    resp = await client.post(
+                        f"{SILICONFLOW_BASE_URL}/chat/completions",
+                        headers={"Authorization": f"Bearer {SILICONFLOW_API_KEY}", "Content-Type": "application/json"},
+                        json={"model": model_id, "messages": [
+                            {"role": "system", "content": system_prompt},
+                            {"role": "user", "content": f"Kommandant üzenete Telegramról:\n\n{text}"},
+                        ], "temperature": 0.7, "max_tokens": 1500},
+                    )
+                    data = json.loads(resp.text)
+                content = data.get("choices", [{}])[0].get("message", {}).get("content", "(nincs válasz)")
+
+                # Reply on Telegram
+                await _telegram_push(f"<b>{agent_id.upper()}</b>\n\n{content}")
+
+                # Store reply in Bridge DB
+                conn2 = get_db()
+                conn2.execute(
+                    "INSERT INTO messages (timestamp, sender, recipient, subject, message, priority, thread_id, reply_to) "
+                    "VALUES (?, ?, 'kommandant', ?, ?, 'normal', ?, ?)",
+                    (now(), agent_id, f"Re: @{agent_id} válasz", content, msg_id, msg_id)
+                )
+                conn2.commit()
+                conn2.close()
+
+                # Pyramid governance
+                if PYRAMID_ENABLED:
+                    try:
+                        pyramid_store_result(content=content, agent_id=agent_id, task_title=f"telegram:{text[:60]}")
+                    except Exception:
+                        pass
+
+                logger.info("Agent %s replied to Telegram message #%d", agent_id, msg_id)
+            except Exception as e:
+                logger.error("Agent %s Telegram reply failed: %s", agent_id, e)
+                await _telegram_push(f"<b>{agent_id.upper()}</b> — hiba: {e}")
+
+
+async def _telegram_poll_loop():
+    """Poll Telegram Bot API for incoming messages from Kommandant."""
+    if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
+        logger.info("Telegram polling not started — token or chat_id missing")
+        return
+
+    import httpx
+    logger.info("Telegram polling started (interval=%ds)", TELEGRAM_POLL_INTERVAL)
+
+    # Get initial offset
+    try:
+        async with httpx.AsyncClient(timeout=15) as client:
+            resp = await client.get(
+                f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/getUpdates",
+                params={"limit": 1, "offset": -1},
+            )
+            data = resp.json()
+            if data.get("ok") and data.get("result"):
+                _telegram_state["last_update_id"] = data["result"][-1]["update_id"]
+    except Exception as e:
+        logger.warning("Telegram initial offset failed: %s", e)
+
+    while True:
+        try:
+            async with httpx.AsyncClient(timeout=35) as client:
+                resp = await client.get(
+                    f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/getUpdates",
+                    params={
+                        "offset": _telegram_state["last_update_id"] + 1,
+                        "timeout": 25,
+                        "allowed_updates": '["message"]',
+                    },
+                )
+                data = resp.json()
+
+            if data.get("ok") and data.get("result"):
+                for update in data["result"]:
+                    _telegram_state["last_update_id"] = update["update_id"]
+                    msg = update.get("message", {})
+                    text = msg.get("text", "")
+                    chat_id = str(msg.get("chat", {}).get("id", ""))
+
+                    # Only accept messages from Kommandant's chat
+                    if chat_id == TELEGRAM_CHAT_ID and text:
+                        await _handle_telegram_message(text, chat_id)
+
+        except Exception as e:
+            logger.error("Telegram poll error: %s", e)
+            await asyncio.sleep(5)
+
+        await asyncio.sleep(TELEGRAM_POLL_INTERVAL)
+
+
+def _start_telegram_polling():
+    """Start Telegram polling in a background thread."""
+    def _run():
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        loop.run_until_complete(_telegram_poll_loop())
+
+    if TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID:
+        t = threading.Thread(target=_run, daemon=True)
+        t.start()
+        logger.info("Telegram polling background thread started")
+
+
+# ============================================================
 # STARTUP
 # ============================================================
 
@@ -2839,6 +2978,7 @@ _migrate_db_to_volume()
 init_db()
 _init_google_services()
 _start_capture_background()
+_start_telegram_polling()
 
 if __name__ == "__main__":
     mcp.run(
