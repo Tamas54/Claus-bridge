@@ -1250,12 +1250,54 @@ select {
           </select>
         </div>
       </div>
+
+      <!-- Mode selector -->
       <div class="form-row">
         <div class="form-group full">
-          <label class="form-label">Részletes leírás / utasítás</label>
-          <textarea id="aiTaskDesc" required placeholder="Részletes feladatleírás az agenteknek..." style="min-height:80px"></textarea>
+          <label class="form-label">Mód</label>
+          <div style="display:flex;gap:0.5rem">
+            <label style="display:flex;align-items:center;gap:0.3rem;cursor:pointer;padding:0.4rem 0.8rem;border:1px solid var(--border-dim);border-radius:4px" id="modeBroadcastLabel">
+              <input type="radio" name="aiMode" value="broadcast" checked onchange="toggleAiMode()"> Broadcast (mindenki ugyanazt kapja)
+            </label>
+            <label style="display:flex;align-items:center;gap:0.3rem;cursor:pointer;padding:0.4rem 0.8rem;border:1px solid var(--border-dim);border-radius:4px" id="modeDispatchLabel">
+              <input type="radio" name="aiMode" value="dispatch" onchange="toggleAiMode()"> Dispatch (eltérő feladat agentenként)
+            </label>
+          </div>
         </div>
       </div>
+
+      <!-- Broadcast mode fields -->
+      <div id="broadcastFields">
+        <div class="form-row">
+          <div class="form-group full">
+            <label class="form-label">Részletes leírás / utasítás</label>
+            <textarea id="aiTaskDesc" placeholder="Részletes feladatleírás az agenteknek..." style="min-height:80px"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dispatch mode fields -->
+      <div id="dispatchFields" style="display:none">
+        <div class="form-row">
+          <div class="form-group full" style="border-left:3px solid var(--electric);padding-left:0.8rem;margin-bottom:0.5rem">
+            <label class="form-label" style="color:var(--electric)">KIMI — Kutató</label>
+            <textarea id="dispKimi" placeholder="Kimi feladata... (hagyd üresen ha nem kell)" style="min-height:50px"></textarea>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group full" style="border-left:3px solid var(--phosphor);padding-left:0.8rem;margin-bottom:0.5rem">
+            <label class="form-label" style="color:var(--phosphor)">DEEPSEEK — Elemző</label>
+            <textarea id="dispDeepseek" placeholder="DeepSeek feladata..." style="min-height:50px"></textarea>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group full" style="border-left:3px solid var(--gold);padding-left:0.8rem;margin-bottom:0.5rem">
+            <label class="form-label" style="color:var(--gold)">GLM-5 — Kóder/elemző</label>
+            <textarea id="dispGlm5" placeholder="GLM-5 feladata..." style="min-height:50px"></textarea>
+          </div>
+        </div>
+      </div>
+
       <div class="form-row">
         <div class="form-group full">
           <label class="form-label">Kontextus / dokumentum (opcionális)</label>
@@ -1751,10 +1793,16 @@ async function loadAiTasks() {
   }).join('');
 }
 
+function toggleAiMode() {
+  const mode = document.querySelector('input[name="aiMode"]:checked').value;
+  document.getElementById('broadcastFields').style.display = mode === 'broadcast' ? 'block' : 'none';
+  document.getElementById('dispatchFields').style.display = mode === 'dispatch' ? 'block' : 'none';
+}
+
 async function createAiTask(e) {
   e.preventDefault();
   const title = document.getElementById('aiTaskTitle').value;
-  const desc = document.getElementById('aiTaskDesc').value;
+  const mode = document.querySelector('input[name="aiMode"]:checked').value;
   let ctx = document.getElementById('aiTaskContext').value;
   const by = document.getElementById('aiTaskBy').value;
   const fileInput = document.getElementById('aiTaskFile');
@@ -1780,14 +1828,37 @@ async function createAiTask(e) {
     }
   }
 
+  const payload = { title, context: ctx, file_id: fileId, assigned_by: by };
+
+  if (mode === 'dispatch') {
+    // Dispatch mode — per-agent tasks
+    const agentTasks = {};
+    const kimiTask = document.getElementById('dispKimi').value.trim();
+    const dsTask = document.getElementById('dispDeepseek').value.trim();
+    const glmTask = document.getElementById('dispGlm5').value.trim();
+    if (kimiTask) agentTasks.kimi = { prompt: kimiTask, max_tokens: 3000, temperature: 0.6 };
+    if (dsTask) agentTasks.deepseek = { prompt: dsTask, max_tokens: 3000, temperature: 0.6 };
+    if (glmTask) agentTasks.glm5 = { prompt: glmTask, max_tokens: 3000, temperature: 0.7 };
+    if (Object.keys(agentTasks).length === 0) { toast('Legalább egy agentnek adj feladatot!'); return false; }
+    payload.agent_tasks = JSON.stringify(agentTasks);
+    payload.description = `Dispatch: ${Object.keys(agentTasks).join(', ')}`;
+  } else {
+    // Broadcast mode — same task for all
+    const desc = document.getElementById('aiTaskDesc').value;
+    if (!desc.trim()) { toast('Add meg a feladat leírását!'); return false; }
+    payload.description = desc;
+  }
+
   await api('/api/ai_tasks', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ title, description: desc, context: ctx, file_id: fileId, assigned_by: by })
+    body: JSON.stringify(payload)
   });
 
   document.getElementById('aiTaskForm').reset();
-  toast('AI feladat elindítva! Kimi + DeepSeek dolgoznak.');
+  toggleAiMode();
+  const agents = mode === 'dispatch' ? 'Dispatch mód' : 'Kimi + DeepSeek + GLM-5';
+  toast(`AI feladat elindítva! ${agents}`);
   loadAiTasks();
   return false;
 }

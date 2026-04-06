@@ -17,10 +17,11 @@
     },
     "kimi": {
         "model": "moonshotai/Kimi-K2.5",
-        "provider": "SiliconFlow (később Moonshot API is az Agent Swarm-hoz)",
+        "provider": "SiliconFlow",
         "persona": "Felderítő/kutató. Alapos, széles látókörű, sok forrást szintetizál.",
         "role": "Deep research, széles kutatás, több forrás szintézise.",
-        "strengths": "256K kontextus, vision, Agent Swarm (Moonshot API-n), kutatás, összefoglalás.",
+        "strengths": "256K kontextus, vision, kutatás, összefoglalás.",
+        "note": "SiliconFlow-on fut. Moonshot API (Agent Swarm) tervezett, de még NINCS bekötve.",
         "status": "aktív"
     },
     "deepseek": {
