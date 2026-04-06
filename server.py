@@ -2838,6 +2838,7 @@ async def _handle_telegram_message(text: str, chat_id: str):
     if mentioned and PYRAMID_ENABLED and SILICONFLOW_API_KEY:
         # Call agents and reply on Telegram
         import httpx
+        from html import escape as html_escape
         for agent_id in mentioned:
             try:
                 system_prompt = build_agent_context(agent_id=agent_id, inbox_summary=_get_inbox_summary())
@@ -2852,12 +2853,22 @@ async def _handle_telegram_message(text: str, chat_id: str):
                         ], "temperature": 0.7, "max_tokens": 1500},
                     )
                     data = json.loads(resp.text)
-                content = data.get("choices", [{}])[0].get("message", {}).get("content", "(nincs válasz)")
 
-                # Reply on Telegram
-                await _telegram_push(f"<b>{agent_id.upper()}</b>\n\n{content}")
+                # Check for API error
+                if "error" in data:
+                    await _telegram_push(f"<b>{agent_id.upper()}</b> — API hiba: {html_escape(str(data['error']))}")
+                    continue
 
-                # Store reply in Bridge DB
+                content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
+                if not content or not content.strip():
+                    await _telegram_push(f"<b>{agent_id.upper()}</b> — üres válasz")
+                    continue
+
+                # Reply on Telegram — escape HTML in agent response, send as plain text
+                safe_content = html_escape(content[:3800])
+                await _telegram_push(f"<b>{agent_id.upper()}</b>\n\n{safe_content}")
+
+                # Store reply in Bridge DB (raw, not escaped)
                 conn2 = get_db()
                 conn2.execute(
                     "INSERT INTO messages (timestamp, sender, recipient, subject, message, priority, thread_id, reply_to) "
@@ -2874,10 +2885,10 @@ async def _handle_telegram_message(text: str, chat_id: str):
                     except Exception:
                         pass
 
-                logger.info("Agent %s replied to Telegram message #%d", agent_id, msg_id)
+                logger.info("Agent %s replied to Telegram message #%d (%d chars)", agent_id, msg_id, len(content))
             except Exception as e:
                 logger.error("Agent %s Telegram reply failed: %s", agent_id, e)
-                await _telegram_push(f"<b>{agent_id.upper()}</b> — hiba: {e}")
+                await _telegram_push(f"<b>{agent_id.upper()}</b> — hiba: {html_escape(str(e)[:500])}")
 
 
 async def _telegram_poll_loop():
