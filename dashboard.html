@@ -1097,6 +1097,7 @@ select {
     <div class="tab" data-tab="memory">MEMÓRIA</div>
     <div class="tab" data-tab="tasks">FELADATOK</div>
     <div class="tab" data-tab="aitasks">AI FELADATOK<span class="tab-badge" id="aiBadge" style="display:none"></span></div>
+    <div class="tab" data-tab="pyramid">&#x1F53A; PYRAMID</div>
   </div>
 </nav>
 
@@ -1275,6 +1276,19 @@ select {
 
   <div class="section-title">AI FELADAT EREDMÉNYEK</div>
   <div id="aiTaskList"></div>
+</section>
+
+<!-- ===== PYRAMID ===== -->
+<section class="panel" id="panel-pyramid">
+  <div class="section-title">PYRAMID AGENTEK</div>
+  <div id="pyramidAgents" class="status-grid"></div>
+
+  <div class="section-title" style="margin-top:1.5rem">KÖZÖS TUDÁSBÁZIS (Shared Memory)</div>
+  <div id="pyramidShared"></div>
+
+  <div id="pyramidDisabled" style="display:none;text-align:center;padding:2rem;color:var(--text-muted)">
+    Pyramid modul nincs engedélyezve.
+  </div>
 </section>
 </main>
 
@@ -1778,6 +1792,50 @@ async function createAiTask(e) {
   return false;
 }
 
+// ===== PYRAMID =====
+async function loadPyramid() {
+  const data = await api('/api/pyramid');
+  if (!data.enabled) {
+    document.getElementById('pyramidDisabled').style.display = 'block';
+    document.getElementById('pyramidAgents').style.display = 'none';
+    document.getElementById('pyramidShared').style.display = 'none';
+    return;
+  }
+
+  // Agent cards
+  const agentColors = { kimi: 'var(--electric)', deepseek: 'var(--phosphor)', glm5: 'var(--gold)', qwen3_coder: 'var(--orange)' };
+  const grid = document.getElementById('pyramidAgents');
+  grid.innerHTML = Object.entries(data.agents).map(([id, a]) => {
+    const color = agentColors[id] || 'var(--ice)';
+    const statusIcon = a.status === 'aktív' ? '<span style="color:var(--green)">&#x25CF;</span>' : '<span style="color:var(--text-muted)">&#x25CB;</span>';
+    return `<div class="status-card" style="border-left:3px solid ${color}">
+      <div class="status-label">${statusIcon} ${id.toUpperCase()}</div>
+      <div style="font-size:0.75rem;color:var(--text-secondary);margin:0.3rem 0">${a.persona || ''}</div>
+      <div style="font-size:0.7rem;color:var(--text-muted)">Szerep: ${a.role}</div>
+      <div style="font-size:0.7rem;color:var(--text-muted);margin-top:0.3rem">RAG: ${a.rag_entries} bejegyzés${a.rag_last ? ' | Utolsó: ' + new Date(a.rag_last).toLocaleString('hu') : ''}</div>
+      <div style="font-size:0.65rem;color:var(--text-muted);margin-top:0.2rem">${a.model}</div>
+    </div>`;
+  }).join('');
+
+  // Shared memory
+  const sharedDiv = document.getElementById('pyramidShared');
+  if (data.shared_memory.count === 0) {
+    sharedDiv.innerHTML = '<div style="color:var(--text-muted);text-align:center;padding:1rem">Nincs bejegyzés a közös tudásbázisban.</div>';
+  } else {
+    sharedDiv.innerHTML = `<div style="color:var(--text-secondary);margin-bottom:0.5rem">${data.shared_memory.count} bejegyzés</div>` +
+      data.shared_memory.recent.map(m => {
+        const endorsers = (m.endorsed_by || []).join(', ');
+        const scoreBar = `<span style="display:inline-block;width:${Math.round(m.relevance_score*60)}px;height:4px;background:var(--ice);border-radius:2px;vertical-align:middle"></span>`;
+        return `<div class="msg-card" style="margin-bottom:0.5rem">
+          <div class="msg-header"><span class="msg-sender">${m.added_by}</span> <span class="msg-time">${new Date(m.timestamp).toLocaleString('hu')}</span></div>
+          <div class="msg-subject">[${m.category}]</div>
+          <div class="msg-body">${(m.content||'').substring(0,300)}</div>
+          <div style="font-size:0.65rem;color:var(--text-muted);margin-top:0.3rem">Relevancia: ${scoreBar} ${(m.relevance_score*100).toFixed(0)}%${endorsers ? ' | Endorsers: '+endorsers : ''}</div>
+        </div>`;
+      }).join('');
+  }
+}
+
 // ===== REFRESH =====
 async function refresh() {
   showLoading();
@@ -1789,6 +1847,7 @@ async function refresh() {
       case 'memory': await loadMemory(); break;
       case 'tasks': await loadTasks(); break;
       case 'aitasks': await loadAiTasks(); break;
+      case 'pyramid': await loadPyramid(); break;
     }
     // Always update badge
     if (currentTab !== 'overview') {

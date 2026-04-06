@@ -24,6 +24,15 @@ from email import encoders
 from email.utils import parseaddr
 from fastmcp import FastMCP
 
+# Pyramid module — agentic context, memory, governance
+try:
+    from pyramid.context_builder import build_agent_context
+    from pyramid.governance import store_result as pyramid_store_result
+    from pyramid.agents import AGENT_REGISTRY as PYRAMID_AGENTS
+    PYRAMID_ENABLED = True
+except ImportError:
+    PYRAMID_ENABLED = False
+
 logger = logging.getLogger("claus-bridge")
 
 # --- Server Setup ---
@@ -38,6 +47,27 @@ def get_db():
     conn.execute("PRAGMA journal_mode=WAL")
     conn.execute("PRAGMA foreign_keys=ON")
     return conn
+
+
+def _get_inbox_summary(max_items: int = 8) -> str:
+    """Legfrissebb capture-daemon üzenetek (email + calendar) a Bridge DB-ből — Pyramid kontextushoz."""
+    try:
+        conn = get_db()
+        rows = conn.execute(
+            "SELECT subject, message, timestamp, priority FROM messages "
+            "WHERE sender = 'capture-daemon' ORDER BY timestamp DESC LIMIT ?",
+            (max_items,)
+        ).fetchall()
+        conn.close()
+        if not rows:
+            return ""
+        lines = []
+        for r in rows:
+            prio = {"urgent": "\U0001f534", "important": "\U0001f7e0", "normal": "\U0001f535"}.get(r["priority"], "\u26aa")
+            lines.append(f"{prio} [{r['timestamp'][:16]}] {r['subject']}")
+        return "\n".join(lines)
+    except Exception:
+        return ""
 
 
 def init_db():
@@ -920,12 +950,69 @@ async def api_messages(request):
             conn.execute("UPDATE messages SET thread_id = ? WHERE id = ?", (msg_id, msg_id))
         conn.commit()
         conn.close()
+
+        # Auto-detect agent mentions (@kimi, @deepseek, @glm5) — trigger agent response
+        if PYRAMID_ENABLED:
+            msg_text = body.get("message", "").lower()
+            mentioned = [a for a in ("kimi", "deepseek", "glm5") if f"@{a}" in msg_text]
+            if mentioned:
+                _trigger_agent_replies(msg_id, body["sender"], body["message"], mentioned)
+
         return JSONResponse({"status": "sent", "message_id": msg_id})
     else:
         limit = int(request.query_params.get("limit", "50"))
         rows = conn.execute("SELECT * FROM messages ORDER BY timestamp DESC LIMIT ?", (limit,)).fetchall()
         conn.close()
         return JSONResponse([dict(r) for r in rows])
+
+
+def _trigger_agent_replies(original_msg_id: int, sender: str, message: str, agents: list):
+    """Background: mentioned agents respond to a message via Pyramid context + SiliconFlow."""
+    import httpx
+
+    async def _reply(agent_id):
+        try:
+            system_prompt = build_agent_context(agent_id=agent_id, inbox_summary=_get_inbox_summary()) if PYRAMID_ENABLED else ""
+            model_id = SILICONFLOW_MODELS.get(agent_id, agent_id)
+            async with httpx.AsyncClient(timeout=SILICONFLOW_TIMEOUT) as client:
+                resp = await client.post(
+                    f"{SILICONFLOW_BASE_URL}/chat/completions",
+                    headers={"Authorization": f"Bearer {SILICONFLOW_API_KEY}", "Content-Type": "application/json"},
+                    json={"model": model_id, "messages": [
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": f"{sender} üzenete:\n\n{message}"},
+                    ], "temperature": 0.7, "max_tokens": 1500},
+                )
+                data = json.loads(resp.text)
+            content = data.get("choices", [{}])[0].get("message", {}).get("content", "(nincs válasz)")
+            # Store reply as Bridge message
+            conn = get_db()
+            cur = conn.execute(
+                "INSERT INTO messages (timestamp, sender, recipient, subject, message, priority, thread_id, reply_to) "
+                "VALUES (?, ?, ?, ?, ?, 'normal', ?, ?)",
+                (now(), agent_id, sender, f"Re: @{agent_id} válasz", content, original_msg_id, original_msg_id)
+            )
+            conn.commit()
+            conn.close()
+            # Pyramid governance
+            if PYRAMID_ENABLED:
+                try:
+                    pyramid_store_result(content=content, agent_id=agent_id, task_title=f"mention:{message[:60]}")
+                except Exception:
+                    pass
+            logger.info("Agent %s replied to message #%d", agent_id, original_msg_id)
+        except Exception as e:
+            logger.error("Agent %s mention-reply failed: %s", agent_id, e)
+
+    async def _run_all():
+        await asyncio.gather(*[_reply(a) for a in agents])
+
+    def _bg():
+        loop = asyncio.new_event_loop()
+        loop.run_until_complete(_run_all())
+        loop.close()
+
+    threading.Thread(target=_bg, daemon=True).start()
 
 
 @mcp.custom_route("/api/discussions", methods=["GET", "POST"])
@@ -1067,6 +1154,41 @@ async def dashboard(request):
     return HTMLResponse(html)
 
 
+@mcp.custom_route("/api/pyramid", methods=["GET"])
+async def api_pyramid(request):
+    """Pyramid rendszer állapota — shared memory, agent RAG-ok, csapat infó."""
+    if not PYRAMID_ENABLED:
+        return JSONResponse({"enabled": False})
+    from pyramid.agents import AGENT_REGISTRY, load_profile
+    from pyramid.memory_shared import load_shared_memory
+    from pyramid.memory_rag import load_agent_rag
+
+    team = load_profile("team")
+    shared = load_shared_memory()
+
+    agents = {}
+    for agent_id, config in AGENT_REGISTRY.items():
+        rag = load_agent_rag(agent_id)
+        agent_info = team.get(agent_id, {})
+        agents[agent_id] = {
+            "model": config["model_id"],
+            "persona": agent_info.get("persona", ""),
+            "role": agent_info.get("role", ""),
+            "status": agent_info.get("status", "aktív"),
+            "rag_entries": len(rag),
+            "rag_last": rag[-1]["timestamp"] if rag else None,
+        }
+
+    return JSONResponse({
+        "enabled": True,
+        "agents": agents,
+        "shared_memory": {
+            "count": len(shared),
+            "recent": shared[-10:][::-1] if shared else [],
+        },
+    })
+
+
 # ============================================================
 # SILICONFLOW AI SUB-AGENTS (Kimi-K2.5, DeepSeek V3.2, etc.)
 # ============================================================
@@ -1172,7 +1294,10 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
 
     model_id = SILICONFLOW_MODELS.get(model, model)
 
-    if not system_prompt:
+    # Pyramid context: if agent is known and no custom system_prompt, use full Pyramid context
+    if PYRAMID_ENABLED and model in PYRAMID_AGENTS and not system_prompt:
+        system_prompt = build_agent_context(agent_id=model, inbox_summary=_get_inbox_summary())
+    elif not system_prompt:
         system_prompt = (
             "Te a Claus multi-agent rendszer al-agentje vagy. "
             "A rendszert Claude Opus koordinálja. "
@@ -1216,6 +1341,13 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
         content = msg.get("content", "") if isinstance(msg, dict) else str(msg)
         usage = data.get("usage", {})
 
+        # Pyramid governance: store result in RAG / shared memory
+        if PYRAMID_ENABLED and model in PYRAMID_AGENTS and content:
+            try:
+                pyramid_store_result(content=content, agent_id=model, task_title=f"ai_query:{prompt[:80]}")
+            except Exception as eg:
+                logger.warning("Pyramid governance error: %s", eg)
+
         return json.dumps({
             "model": model_id,
             "response": content,
@@ -1223,6 +1355,7 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
                 "prompt": usage.get("prompt_tokens", 0),
                 "completion": usage.get("completion_tokens", 0),
             },
+            "pyramid": PYRAMID_ENABLED and model in PYRAMID_AGENTS,
         }, ensure_ascii=False)
 
     except Exception as e:
@@ -1451,13 +1584,24 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
         for attempt in range(2):
             try:
                 today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-                system = (
-                    f"Te a Claus multi-agent rendszer '{agent_name}' al-agentje vagy. "
-                    f"Szereped: {role_desc} "
-                    f"A mai dátum: {today}. "
-                    f"Magyarul válaszolj, lényegre törően de alaposan. "
-                    f"Ha aktuális információra van szükséged, használd a web_search tool-t."
-                )
+                # Pyramid context if available, otherwise fallback
+                if PYRAMID_ENABLED and agent_name in PYRAMID_AGENTS:
+                    system = build_agent_context(
+                        agent_id=agent_name,
+                        custom_system_prompt=(
+                            f"A mai dátum: {today}. "
+                            f"Ha aktuális információra van szükséged, használd a web_search tool-t."
+                        ),
+                        inbox_summary=_get_inbox_summary(),
+                    )
+                else:
+                    system = (
+                        f"Te a Claus multi-agent rendszer '{agent_name}' al-agentje vagy. "
+                        f"Szereped: {role_desc} "
+                        f"A mai dátum: {today}. "
+                        f"Magyarul válaszolj, lényegre törően de alaposan. "
+                        f"Ha aktuális információra van szükséged, használd a web_search tool-t."
+                    )
 
                 # Step 1: Call WITH tools
                 async with httpx.AsyncClient(timeout=SILICONFLOW_TIMEOUT) as client:
@@ -1539,6 +1683,12 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
                     (task_id, agent_name, role_desc, content or "(no response)", ts)
                 )
                 conn.commit()
+                # Pyramid governance: store in RAG / shared memory
+                if PYRAMID_ENABLED and agent_name in PYRAMID_AGENTS and content:
+                    try:
+                        pyramid_store_result(content=content, agent_id=agent_name, task_title=title)
+                    except Exception:
+                        pass
                 logger.info("AI task #%d: %s done (%d chars)", task_id, agent_name, len(content or ""))
                 return  # Success — exit retry loop
 
@@ -1601,11 +1751,12 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
 
 
 @mcp.tool()
-async def ai_task(title: str, description: str, context: str = "", file_id: int = 0, assigned_by: str = "unknown") -> str:
-    """Create and execute a multi-agent AI task. Kimi and DeepSeek work on it with web search, then a synthesis is generated.
+async def ai_task(title: str, description: str, context: str = "", file_id: int = 0, assigned_by: str = "unknown", agent_tasks: str = "") -> str:
+    """Create and execute a multi-agent AI task. Kimi, DeepSeek, and GLM-5 work on it, then a synthesis is generated.
 
-    Use for research, document analysis, fact-checking, or any task that benefits from multiple AI perspectives.
-    Results appear on the Bridge dashboard.
+    Two modes:
+    1. **Broadcast** (default): All agents get the same task.
+    2. **Dispatch** (agent_tasks): Each agent gets a DIFFERENT task — parallel execution.
 
     Args:
         title: Short task title
@@ -1613,6 +1764,8 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
         context: Optional document text or background context
         file_id: Optional uploaded file ID (from upload_file) to include as context
         assigned_by: Who created the task (cli-claus, web-claus, kommandant)
+        agent_tasks: Optional JSON — per-agent tasks for parallel dispatch mode. Format:
+            {"kimi": {"prompt": "...", "max_tokens": 3000}, "deepseek": {"prompt": "..."}}
     """
     # Pull in uploaded file content if file_id provided
     if file_id:
@@ -1627,6 +1780,14 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
     if not SILICONFLOW_API_KEY:
         return json.dumps({"error": "SILICONFLOW_API_KEY not set"})
 
+    # Parse agent_tasks JSON if provided
+    parsed_agent_tasks = None
+    if agent_tasks:
+        try:
+            parsed_agent_tasks = json.loads(agent_tasks) if isinstance(agent_tasks, str) else agent_tasks
+        except (json.JSONDecodeError, TypeError):
+            return json.dumps({"error": "agent_tasks must be valid JSON"})
+
     conn = get_db()
     ts = now()
     cur = conn.execute(
@@ -1637,14 +1798,63 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
     conn.commit()
     conn.close()
 
-    # Execute in background thread
-    def _run():
-        loop = asyncio.new_event_loop()
-        loop.run_until_complete(_execute_ai_task(task_id, title, description, context[:10000], assigned_by))
-        loop.close()
-    threading.Thread(target=_run, daemon=True).start()
+    if parsed_agent_tasks and PYRAMID_ENABLED:
+        # DISPATCH MODE: each agent gets a different task
+        from pyramid.task_dispatcher import dispatch_parallel_tasks
 
-    return json.dumps({"status": "task_created", "task_id": task_id, "message": "Kimi + DeepSeek dolgoznak rajta. Eredmény a dashboardon."})
+        async def _call_agent(model, prompt, system_prompt, max_tokens, temperature):
+            """Wrapper for dispatch_parallel_tasks to call SiliconFlow."""
+            import httpx
+            model_id = SILICONFLOW_MODELS.get(model, model)
+            async with httpx.AsyncClient(timeout=SILICONFLOW_TIMEOUT) as client:
+                resp = await client.post(
+                    f"{SILICONFLOW_BASE_URL}/chat/completions",
+                    headers={"Authorization": f"Bearer {SILICONFLOW_API_KEY}", "Content-Type": "application/json"},
+                    json={"model": model_id, "messages": [
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": prompt},
+                    ], "temperature": temperature, "max_tokens": max_tokens},
+                )
+                data = json.loads(resp.text)
+            content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
+            usage = data.get("usage", {})
+            return {"response": content, "tokens": {"prompt": usage.get("prompt_tokens", 0), "completion": usage.get("completion_tokens", 0)}}
+
+        def _run_dispatch():
+            loop = asyncio.new_event_loop()
+            try:
+                results = loop.run_until_complete(dispatch_parallel_tasks(
+                    agent_tasks=parsed_agent_tasks,
+                    task_title=title,
+                    call_agent_func=_call_agent,
+                ))
+                # Store results in DB
+                conn2 = get_db()
+                for agent_id, result in results.items():
+                    content = result.get("response", "(no response)") if isinstance(result, dict) else str(result)
+                    conn2.execute(
+                        "INSERT INTO ai_task_results (task_id, agent, role, content, timestamp) VALUES (?, ?, ?, ?, ?)",
+                        (task_id, agent_id, "Pyramid dispatch", content, now())
+                    )
+                conn2.execute("UPDATE ai_tasks SET status = 'completed', completed_at = ? WHERE id = ?", (now(), task_id))
+                conn2.commit()
+                conn2.close()
+                logger.info("AI task #%d dispatch completed: %s", task_id, list(results.keys()))
+            finally:
+                loop.close()
+
+        threading.Thread(target=_run_dispatch, daemon=True).start()
+        agents = list(parsed_agent_tasks.keys())
+        return json.dumps({"status": "task_dispatched", "task_id": task_id, "mode": "pyramid_dispatch", "agents": agents})
+    else:
+        # BROADCAST MODE: all agents get the same task (legacy)
+        def _run():
+            loop = asyncio.new_event_loop()
+            loop.run_until_complete(_execute_ai_task(task_id, title, description, context[:10000], assigned_by))
+            loop.close()
+        threading.Thread(target=_run, daemon=True).start()
+
+        return json.dumps({"status": "task_created", "task_id": task_id, "message": "Kimi + DeepSeek + GLM-5 dolgoznak rajta. Eredmény a dashboardon."})
 
 
 @mcp.custom_route("/api/upload", methods=["POST"])

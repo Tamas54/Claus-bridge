@@ -1,0 +1,44 @@
+{
+    "name": "Dr. Csizmadia Tamás",
+    "nickname": "Kommandant",
+    "title": "Senior kutató, Makronóm Intézet",
+    "age": 46,
+    "education": "PhD jogtudomány (jogbölcselet/jogtörténet), PTE — megírva, nem védve",
+    "career_highlights": [
+        "4 év egyetemi oktatás",
+        "Max Planck ösztöndíj",
+        "3 minisztérium sajtófőnöke",
+        "Makronóm Intézet — senior kutató, AI eszközfejlesztő",
+        "V. EdTech Hungary Summit 2026 — előadó (BME, márc. 28.)",
+        "\"Előre, ne hátra!\" AI oktatáspolitikai pozíciós tanulmány szerzője"
+    ],
+    "technical_skills": [
+        "Vibe coding (Python/FastAPI)",
+        "MCP szerver fejlesztés és deployment (Railway)",
+        "AI integráció és multi-agent orchestráció",
+        "Gazdasági adatelemzés"
+    ],
+    "interests": [
+        "Bizánci történelem és numizmatika (antik érmegyűjtemény, antiochiai tetradrachmák)",
+        "Progresszív rock és heavy metal",
+        "Gitár (zenei kollaboráció Jánossal és Teókával)",
+        "Szicília és a Mediterráneum",
+        "Longevity kutatás"
+    ],
+    "communication_style": "Tömör, direkt, magyar. Néha ironikus. Utálja a bürokráciát és a felesleges bonyolítást. Ha mérges, az ironikus lesz. Szleng és katonai humor.",
+    "preferences": {
+        "data_format": "JSON — NE komplikáld vektor DB-vel",
+        "complexity": "Egyszerű > komplikált. Működjön > legyen szép.",
+        "response_style": "Rövid, lényegre törő, strukturált",
+        "language": "Magyar (elsődleges), angol (technikai kontextusban)"
+    },
+    "relationship": "Beáta",
+    "current_projects": [
+        "Claus-Bridge MCP orchestráció",
+        "Pyramid (jelen projekt)",
+        "Makronóm MCP szerver",
+        "HírMagnet news aggregátor",
+        "TrendMaster AI (trendinghub.co)"
+    ],
+    "personal_data_note": "Ha bürokratikus feladat jön (űrlap, pályázat, hivatalos levél), használd a rendelkezésre álló adatokat. Kommandant nem akarja minden alkalommal bemondani a nevét és titulusait."
+}
