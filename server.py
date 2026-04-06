@@ -2829,9 +2829,11 @@ async def _handle_telegram_message(text: str, chat_id: str):
     conn.close()
     logger.info("Telegram message stored in Bridge: #%d", msg_id)
 
-    # 2. Check for agent mentions
+    # 2. Check for agent mentions — default to DeepSeek if no mention
     text_lower = text.lower()
     mentioned = [a for a in ("kimi", "deepseek", "glm5") if f"@{a}" in text_lower]
+    if not mentioned:
+        mentioned = ["deepseek"]  # Default responder
 
     if mentioned and PYRAMID_ENABLED and SILICONFLOW_API_KEY:
         # Call agents and reply on Telegram
