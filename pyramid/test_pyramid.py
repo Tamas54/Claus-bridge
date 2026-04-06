@@ -181,18 +181,15 @@ def test_full_context_with_memory():
 
 
 def cleanup_test_data():
-    """Teszt adatok törlése."""
-    import pathlib
-    shared_path = pathlib.Path(__file__).parent.parent / "data" / "pyramid_shared_memory.json"
-    rag_dir = pathlib.Path(__file__).parent.parent / "data" / "pyramid_rag"
-
-    if shared_path.exists():
-        shared_path.unlink()
-        print("  Shared memory törölve")
-
-    for f in rag_dir.glob("*_rag.json"):
-        f.unlink()
-        print(f"  RAG törölve: {f.name}")
+    """Teszt adatok törlése a SQLite DB-ből."""
+    import sqlite3
+    db_path = os.environ.get("BRIDGE_DB_PATH", "bridge.db")
+    conn = sqlite3.connect(db_path)
+    conn.execute("DELETE FROM pyramid_shared_memory")
+    conn.execute("DELETE FROM pyramid_agent_rag")
+    conn.commit()
+    conn.close()
+    print("  Pyramid SQLite táblák törölve")
 
 
 if __name__ == "__main__":
