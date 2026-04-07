@@ -36,7 +36,7 @@ except ImportError:
 # Permission layer — multi-instance access control (YoungeReka etc.)
 from permissions import (
     check_permission, filter_messages, filter_memory_results,
-    PermissionDeniedError, Access, is_core_instance
+    PermissionDeniedError, Access, is_core_instance, get_profile
 )
 from youngereka_profile import register_youngereka
 
@@ -1426,6 +1426,12 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
             "Lényegre törően, magyarul válaszolj, hacsak nem kérnek mást."
         )
 
+    # Inject caller persona if available (e.g. YoungeReka)
+    if caller and not is_core_instance(caller):
+        profile = get_profile(caller)
+        if profile and profile.persona_system_prompt:
+            system_prompt += f"\n\n--- HÍVÓ FÉL ---\n{profile.persona_system_prompt}"
+
     messages = [{"role": "system", "content": system_prompt}]
     messages.append({"role": "user", "content": prompt})
 
@@ -1724,6 +1730,12 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
                         f"Magyarul válaszolj, lényegre törően de alaposan. "
                         f"Ha aktuális információra van szükséged, használd a web_search tool-t."
                     )
+
+                # Inject caller persona if available
+                if assigned_by and not is_core_instance(assigned_by):
+                    profile = get_profile(assigned_by)
+                    if profile and profile.persona_system_prompt:
+                        system += f"\n\n--- HÍVÓ FÉL ---\n{profile.persona_system_prompt}"
 
                 # Step 1: Call WITH tools
                 async with httpx.AsyncClient(timeout=SILICONFLOW_TIMEOUT) as client:
