@@ -1129,7 +1129,7 @@ select {
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">Feladó</label>
-          <input type="text" value="KOMMANDANT" disabled style="color:var(--gold);font-weight:700">
+          <input type="text" id="senderDisplay" value="KOMMANDANT" disabled style="color:var(--gold);font-weight:700">
         </div>
         <div class="form-group">
           <label class="form-label">Címzett</label>
@@ -1362,6 +1362,28 @@ select {
 </div>
 
 <script>
+// ===== USER IDENTITY =====
+const urlParams = new URLSearchParams(window.location.search);
+const currentUser = urlParams.get('user') === 'reka' ? 'YoungeReka' : 'kommandant';
+const isReka = currentUser === 'YoungeReka';
+const displayName = isReka ? 'RÉKA' : 'KOMMANDANT';
+
+// Apply Réka theme
+if (isReka) {
+  document.documentElement.style.setProperty('--gold', '#e879f9');
+  document.documentElement.style.setProperty('--gold-dim', '#e879f933');
+  document.querySelector('.header-title .subtitle').textContent = 'RÉKA PARANCSNOKI FELÜLETE';
+  document.querySelector('.header-identity').textContent = 'RÉKA ONLINE';
+  // Hide Pyramid tab for Réka
+  document.querySelector('[data-tab="pyramid"]').style.display = 'none';
+  // Update sender display
+  const sd = document.getElementById('senderDisplay');
+  if (sd) sd.value = 'RÉKA';
+  // Update AI task "Kiadta" dropdown
+  const ab = document.getElementById('aiTaskBy');
+  if (ab) { ab.innerHTML = '<option value="YoungeReka" selected>Réka</option>'; }
+}
+
 // ===== STATE =====
 let currentTab = localStorage.getItem('claus-tab') || 'overview';
 let prevMessageIds = new Set();
@@ -1560,7 +1582,7 @@ async function sendMessage(e) {
     await api('/api/messages', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ sender: 'kommandant', recipient: r, subject, message, priority })
+      body: JSON.stringify({ sender: currentUser, recipient: r, subject, message, priority })
     });
   }
 
@@ -1631,7 +1653,7 @@ async function replyDisc(id) {
   await api(`/api/discussions/${id}/reply`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ content, instance: 'kommandant' })
+    body: JSON.stringify({ content, instance: currentUser })
   });
 
   toast('Hozzászólás elküldve!');
@@ -1647,7 +1669,7 @@ async function startDiscussion(e) {
   await api('/api/discussions', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ topic, context, initial_position: position, instance: 'kommandant' })
+    body: JSON.stringify({ topic, context, initial_position: position, instance: currentUser })
   });
 
   closeModal('discModal');
@@ -1734,7 +1756,7 @@ async function createTask(e) {
     await api('/api/tasks', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title, assigned_to: t, description, priority, assigned_by: 'kommandant' })
+      body: JSON.stringify({ title, assigned_to: t, description, priority, assigned_by: currentUser })
     });
   }
 
