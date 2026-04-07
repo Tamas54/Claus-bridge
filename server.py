@@ -33,6 +33,13 @@ try:
 except ImportError:
     PYRAMID_ENABLED = False
 
+# Permission layer — multi-instance access control (YoungeReka etc.)
+from permissions import (
+    check_permission, filter_messages, filter_memory_results,
+    PermissionDeniedError, Access, is_core_instance
+)
+from youngereka_profile import register_youngereka
+
 logger = logging.getLogger("claus-bridge")
 
 # --- Server Setup ---
@@ -243,6 +250,21 @@ def now():
 
 
 # ============================================================
+# PERMISSION HELPERS
+# ============================================================
+
+def _enforce(caller: str, tool_name: str, **kwargs) -> str | None:
+    """Check permission. Returns error JSON if denied, None if allowed."""
+    if not caller or is_core_instance(caller):
+        return None
+    try:
+        access = check_permission(caller, tool_name, **kwargs)
+        return None
+    except PermissionDeniedError as e:
+        return json.dumps({"error": str(e), "status": "denied"})
+
+
+# ============================================================
 # MESSAGING TOOLS (1-5)
 # ============================================================
 
@@ -252,13 +274,16 @@ async def send_message(sender: str, recipient: str, subject: str, message: str,
     """Send a message to the other Claus instance.
 
     Args:
-        sender: Who sends it — 'cli-claus' or 'web-claus'
-        recipient: Who receives it — 'cli-claus' or 'web-claus'
+        sender: Who sends it — 'cli-claus', 'web-claus', or instance ID
+        recipient: Who receives it — 'cli-claus', 'web-claus', or instance ID
         subject: Message subject line
         message: Full message content
         priority: info / normal / urgent / critical
         reply_to: Optional message ID to reply to (creates thread)
     """
+    denied = _enforce(sender, "send_message", recipient=recipient)
+    if denied:
+        return denied
     conn = get_db()
     thread_id = None
     if reply_to:
@@ -281,7 +306,8 @@ async def send_message(sender: str, recipient: str, subject: str, message: str,
 
 @mcp.tool()
 async def read_messages(recipient: str = None, limit: int = 20, since: str = None,
-                        unread_only: bool = False, thread_id: int = None) -> str:
+                        unread_only: bool = False, thread_id: int = None,
+                        caller: str = "") -> str:
     """Read messages, optionally filtered.
 
     Args:
@@ -290,7 +316,11 @@ async def read_messages(recipient: str = None, limit: int = 20, since: str = Non
         since: ISO timestamp — only messages after this time
         unread_only: If true, only return unread messages
         thread_id: Filter by thread ID to see a conversation
+        caller: Instance ID for permission check
     """
+    denied = _enforce(caller, "read_messages")
+    if denied:
+        return denied
     conn = get_db()
     query = "SELECT * FROM messages WHERE 1=1"
     params = []
@@ -313,6 +343,11 @@ async def read_messages(recipient: str = None, limit: int = 20, since: str = Non
     rows = conn.execute(query, params).fetchall()
     messages = [dict(r) for r in rows]
     conn.close()
+
+    # Apply message filtering for non-core instances
+    if caller and not is_core_instance(caller):
+        messages = filter_messages(caller, messages)
+
     return json.dumps(messages, ensure_ascii=False)
 
 
@@ -321,8 +356,11 @@ async def read_new(instance: str) -> str:
     """Read all unread messages for a specific instance and mark them as read.
 
     Args:
-        instance: 'cli-claus' or 'web-claus'
+        instance: Instance ID (e.g. 'cli-claus', 'web-claus', 'YoungeReka')
     """
+    denied = _enforce(instance, "read_new")
+    if denied:
+        return denied
     conn = get_db()
     rows = conn.execute(
         "SELECT * FROM messages WHERE recipient = ? AND status = 'unread' ORDER BY timestamp ASC",
@@ -339,34 +377,52 @@ async def read_new(instance: str) -> str:
         conn.commit()
 
     conn.close()
+
+    # Apply message filtering for non-core instances
+    if instance and not is_core_instance(instance):
+        messages = filter_messages(instance, messages)
+
     return json.dumps({"count": len(messages), "messages": messages}, ensure_ascii=False)
 
 
 @mcp.tool()
-async def search_messages(query: str, limit: int = 20) -> str:
+async def search_messages(query: str, limit: int = 20, caller: str = "") -> str:
     """Full-text search across all messages.
 
     Args:
         query: Search query (supports FTS5 syntax: AND, OR, NOT, "exact phrase")
         limit: Max results (default 20)
+        caller: Instance ID for permission check
     """
+    denied = _enforce(caller, "search_messages")
+    if denied:
+        return denied
     conn = get_db()
     rows = conn.execute(
         "SELECT m.* FROM messages m JOIN messages_fts f ON m.id = f.rowid "
         "WHERE messages_fts MATCH ? ORDER BY rank LIMIT ?",
         (query, limit)
     ).fetchall()
+    messages = [dict(r) for r in rows]
     conn.close()
-    return json.dumps([dict(r) for r in rows], ensure_ascii=False)
+
+    if caller and not is_core_instance(caller):
+        messages = filter_messages(caller, messages)
+
+    return json.dumps(messages, ensure_ascii=False)
 
 
 @mcp.tool()
-async def mark_read(message_id: int) -> str:
+async def mark_read(message_id: int, caller: str = "") -> str:
     """Mark a specific message as read.
 
     Args:
         message_id: The message ID to mark as read
+        caller: Instance ID for permission check
     """
+    denied = _enforce(caller, "mark_read")
+    if denied:
+        return denied
     conn = get_db()
     conn.execute("UPDATE messages SET status = 'read' WHERE id = ?", (message_id,))
     conn.commit()
@@ -388,8 +444,11 @@ async def write_memory(key: str, value: str, category: str = "general",
         value: Content to store
         category: general / decision / project / learning / config
         tags: Comma-separated tags for searchability
-        instance: Who wrote it — 'cli-claus' or 'web-claus'
+        instance: Who wrote it
     """
+    denied = _enforce(instance, "write_memory")
+    if denied:
+        return denied
     conn = get_db()
     ts = now()
     existing = conn.execute("SELECT id FROM shared_memory WHERE key = ?", (key,)).fetchone()
@@ -411,13 +470,17 @@ async def write_memory(key: str, value: str, category: str = "general",
 
 
 @mcp.tool()
-async def read_memory(key: str = None, category: str = None) -> str:
+async def read_memory(key: str = None, category: str = None, caller: str = "") -> str:
     """Read shared memory entries by key or category.
 
     Args:
         key: Exact key to look up (returns single entry)
         category: Filter by category (returns all matching)
+        caller: Instance ID for permission check
     """
+    denied = _enforce(caller, "read_memory")
+    if denied:
+        return denied
     conn = get_db()
     if key:
         row = conn.execute("SELECT * FROM shared_memory WHERE key = ?", (key,)).fetchone()
@@ -434,13 +497,17 @@ async def read_memory(key: str = None, category: str = None) -> str:
 
 
 @mcp.tool()
-async def search_memory(query: str, limit: int = 20) -> str:
+async def search_memory(query: str, limit: int = 20, caller: str = "") -> str:
     """Full-text search across shared memory.
 
     Args:
         query: Search query (FTS5 syntax)
         limit: Max results
+        caller: Instance ID for permission check
     """
+    denied = _enforce(caller, "search_memory")
+    if denied:
+        return denied
     conn = get_db()
     rows = conn.execute(
         "SELECT m.* FROM shared_memory m JOIN memory_fts f ON m.id = f.rowid "
@@ -452,12 +519,16 @@ async def search_memory(query: str, limit: int = 20) -> str:
 
 
 @mcp.tool()
-async def list_memory(category: str = None) -> str:
+async def list_memory(category: str = None, caller: str = "") -> str:
     """List all shared memory keys, optionally filtered by category.
 
     Args:
         category: Optional filter — general / decision / project / learning / config
+        caller: Instance ID for permission check
     """
+    denied = _enforce(caller, "list_memory")
+    if denied:
+        return denied
     conn = get_db()
     if category:
         rows = conn.execute(
@@ -484,12 +555,15 @@ async def create_task(title: str, assigned_to: str, assigned_by: str,
 
     Args:
         title: Task title
-        assigned_to: 'cli-claus' or 'web-claus'
+        assigned_to: Assignee instance ID
         assigned_by: Who created it
         description: Detailed description
         priority: low / normal / high / critical
         deadline: Optional ISO date
     """
+    denied = _enforce(assigned_by, "create_task")
+    if denied:
+        return denied
     conn = get_db()
     ts = now()
     cur = conn.execute(
@@ -504,14 +578,19 @@ async def create_task(title: str, assigned_to: str, assigned_by: str,
 
 
 @mcp.tool()
-async def update_task(task_id: int, status: str = None, description: str = None) -> str:
+async def update_task(task_id: int, status: str = None, description: str = None,
+                      caller: str = "") -> str:
     """Update a task's status or description.
 
     Args:
         task_id: Task ID
         status: pending / in_progress / completed / cancelled
         description: Updated description (append notes)
+        caller: Instance ID for permission check
     """
+    denied = _enforce(caller, "update_task")
+    if denied:
+        return denied
     conn = get_db()
     ts = now()
     if status:
@@ -524,13 +603,17 @@ async def update_task(task_id: int, status: str = None, description: str = None)
 
 
 @mcp.tool()
-async def list_tasks(assigned_to: str = None, status: str = None) -> str:
+async def list_tasks(assigned_to: str = None, status: str = None, caller: str = "") -> str:
     """List tasks, optionally filtered.
 
     Args:
         assigned_to: Filter by assignee
         status: Filter by status (pending/in_progress/completed/cancelled)
+        caller: Instance ID for permission check
     """
+    denied = _enforce(caller, "list_tasks")
+    if denied:
+        return denied
     conn = get_db()
     query = "SELECT * FROM tasks WHERE 1=1"
     params = []
@@ -559,8 +642,11 @@ async def start_discussion(topic: str, initial_position: str, context: str = "",
         topic: What are we discussing? (e.g., 'Bridge MCP auth megoldás')
         initial_position: Your opening position/argument
         context: Background context for the discussion
-        instance: Who starts it — 'cli-claus' or 'web-claus'
+        instance: Who starts it
     """
+    denied = _enforce(instance, "start_discussion")
+    if denied:
+        return denied
     conn = get_db()
     ts = now()
     cur = conn.execute(
@@ -589,8 +675,11 @@ async def add_to_discussion(discussion_id: int, content: str, instance: str = "u
     Args:
         discussion_id: Discussion ID to contribute to
         content: Your thoughts, arguments, counterpoints
-        instance: 'cli-claus' or 'web-claus'
+        instance: Instance ID
     """
+    denied = _enforce(instance, "add_to_discussion")
+    if denied:
+        return denied
     conn = get_db()
     ts = now()
     conn.execute(
@@ -633,6 +722,9 @@ async def resolve_discussion(discussion_id: int, resolution: str, instance: str 
         resolution: The agreed decision/conclusion
         instance: Who resolves it
     """
+    denied = _enforce(instance, "resolve_discussion")
+    if denied:
+        return denied
     conn = get_db()
     ts = now()
 
@@ -659,12 +751,16 @@ async def resolve_discussion(discussion_id: int, resolution: str, instance: str 
 
 
 @mcp.tool()
-async def read_discussion(discussion_id: int) -> str:
+async def read_discussion(discussion_id: int, caller: str = "") -> str:
     """Read all entries in a discussion without adding a new entry.
 
     Args:
         discussion_id: Discussion ID to read
+        caller: Instance ID for permission check
     """
+    denied = _enforce(caller, "read_discussion")
+    if denied:
+        return denied
     conn = get_db()
     disc = conn.execute("SELECT * FROM discussions WHERE id = ?", (discussion_id,)).fetchone()
     if not disc:
@@ -689,13 +785,17 @@ async def read_discussion(discussion_id: int) -> str:
 
 
 @mcp.tool()
-async def read_ai_task_results(task_id: int = 0, limit: int = 10) -> str:
+async def read_ai_task_results(task_id: int = 0, limit: int = 10, caller: str = "") -> str:
     """Read AI task results. If task_id given, returns that task's agent outputs. Otherwise lists recent tasks.
 
     Args:
         task_id: Specific task ID to read results for (0 = list recent tasks)
         limit: Max tasks to list when task_id is 0
+        caller: Instance ID for permission check
     """
+    denied = _enforce(caller, "read_ai_task_results")
+    if denied:
+        return denied
     conn = get_db()
 
     if task_id:
@@ -729,13 +829,17 @@ async def read_ai_task_results(task_id: int = 0, limit: int = 10) -> str:
 
 
 @mcp.tool()
-async def list_discussions(status: str = None, limit: int = 20) -> str:
+async def list_discussions(status: str = None, limit: int = 20, caller: str = "") -> str:
     """List discussions, optionally filtered by status.
 
     Args:
         status: open / resolved (default: all)
         limit: Max results
+        caller: Instance ID for permission check
     """
+    denied = _enforce(caller, "list_discussions")
+    if denied:
+        return denied
     conn = get_db()
     query = "SELECT d.*, COUNT(e.id) as entry_count FROM discussions d LEFT JOIN discussion_entries e ON d.id = e.discussion_id"
     params = []
@@ -750,13 +854,17 @@ async def list_discussions(status: str = None, limit: int = 20) -> str:
 
 
 @mcp.tool()
-async def search_discussions(query: str, limit: int = 20) -> str:
+async def search_discussions(query: str, limit: int = 20, caller: str = "") -> str:
     """Full-text search across discussion topics and context.
 
     Args:
         query: Search query (FTS5 syntax)
         limit: Max results
+        caller: Instance ID for permission check
     """
+    denied = _enforce(caller, "search_discussions")
+    if denied:
+        return denied
     conn = get_db()
     rows = conn.execute(
         "SELECT d.*, COUNT(e.id) as entry_count FROM discussions d "
@@ -779,11 +887,14 @@ async def log_session(instance: str, summary: str, key_decisions: str = "",
     """Log a session summary. Call at the end of every session to maintain continuity.
 
     Args:
-        instance: 'cli-claus' or 'web-claus'
+        instance: Instance ID
         summary: What happened this session
         key_decisions: Important decisions made
         key_learnings: Things learned / gotchas discovered
     """
+    denied = _enforce(instance, "log_session")
+    if denied:
+        return denied
     conn = get_db()
     ts = now()
     cur = conn.execute(
@@ -800,9 +911,12 @@ async def heartbeat(instance: str, session_info: str = "") -> str:
     """Send a heartbeat to signal this instance is alive. Call at session start.
 
     Args:
-        instance: 'cli-claus' or 'web-claus'
+        instance: Instance ID
         session_info: Optional context about current session
     """
+    denied = _enforce(instance, "heartbeat")
+    if denied:
+        return denied
     conn = get_db()
     ts = now()
     conn.execute(
@@ -815,8 +929,11 @@ async def heartbeat(instance: str, session_info: str = "") -> str:
 
 
 @mcp.tool()
-async def get_status() -> str:
+async def get_status(caller: str = "") -> str:
     """Get system status: who's online, unread counts, open tasks, active discussions."""
+    denied = _enforce(caller, "get_status")
+    if denied:
+        return denied
     conn = get_db()
 
     heartbeats_rows = conn.execute("SELECT * FROM heartbeats").fetchall()
@@ -1276,7 +1393,8 @@ async def _ai_auto_discuss(discussion_id: int, topic: str, thread_so_far: str):
 
 
 @mcp.tool()
-async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature: float = 0.7, max_tokens: int = 2000) -> str:
+async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature: float = 0.7,
+                   max_tokens: int = 2000, caller: str = "") -> str:
     """Query a SiliconFlow AI sub-agent (Kimi-K2.5, DeepSeek V3.2, or GLM-5).
 
     Use for research, analysis, translation, summarization, or second opinions.
@@ -1288,7 +1406,11 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
         system_prompt: Optional system instruction (default: Claus sub-agent)
         temperature: Creativity 0.0-1.0 (default 0.7)
         max_tokens: Max response length (default 2000)
+        caller: Instance ID for permission check
     """
+    denied = _enforce(caller, "ai_query")
+    if denied:
+        return denied
     if not SILICONFLOW_API_KEY:
         return json.dumps({"error": "SILICONFLOW_API_KEY not set"})
 
@@ -2260,12 +2382,16 @@ def _bridge_capture_event(subject: str, message: str, priority: str = "normal"):
 # ============================================================
 
 @mcp.tool()
-async def capture_gmail_poll(max_results: int = 10) -> str:
+async def capture_gmail_poll(max_results: int = 10, caller: str = "") -> str:
     """Poll Gmail for new unread emails. Returns categorized capture events.
 
     Args:
         max_results: Max emails to fetch (default 10)
+        caller: Instance ID for permission check
     """
+    denied = _enforce(caller, "capture_gmail_poll")
+    if denied:
+        return denied
     svc = _capture_state.get("gmail_service")
     if not svc:
         return json.dumps({"error": "Gmail not initialized. Set GOOGLE_TOKEN_JSON env var."})
@@ -2378,12 +2504,15 @@ async def capture_gmail_poll(max_results: int = 10) -> str:
 
 
 @mcp.tool()
-async def capture_calendar_poll() -> str:
+async def capture_calendar_poll(caller: str = "") -> str:
     """Poll Google Calendar for upcoming events (reminders + briefing).
 
     Returns reminders for events starting within the configured reminder window,
     and a morning briefing if it's briefing time.
     """
+    denied = _enforce(caller, "capture_calendar_poll")
+    if denied:
+        return denied
     svc = _capture_state.get("calendar_service")
     if not svc:
         return json.dumps({"error": "Calendar not initialized. Set GOOGLE_TOKEN_JSON env var."})
@@ -2493,7 +2622,7 @@ async def capture_calendar_poll() -> str:
 @mcp.tool()
 async def create_calendar_event(
     summary: str, start: str, end: str = "", description: str = "",
-    location: str = "", calendar_id: str = "primary"
+    location: str = "", calendar_id: str = "primary", caller: str = ""
 ) -> str:
     """Create a Google Calendar event.
 
@@ -2504,7 +2633,11 @@ async def create_calendar_event(
         description: Optional event description
         location: Optional location
         calendar_id: Calendar ID (default: primary)
+        caller: Instance ID for permission check
     """
+    denied = _enforce(caller, "create_calendar_event")
+    if denied:
+        return denied
     svc = _capture_state.get("calendar_service")
     if not svc:
         return json.dumps({"error": "Calendar not initialized. Set GOOGLE_TOKEN_JSON env var."})
@@ -2548,7 +2681,8 @@ async def create_calendar_event(
 @mcp.tool()
 async def capture_send_email(
     to: str, subject: str, body: str, body_type: str = "plain",
-    file_id: int = 0, attachment_base64: str = "", attachment_filename: str = "", attachment_mime: str = ""
+    file_id: int = 0, attachment_base64: str = "", attachment_filename: str = "",
+    attachment_mime: str = "", caller: str = ""
 ) -> str:
     """Send an email via Gmail API, optionally with an attachment.
 
@@ -2560,8 +2694,12 @@ async def capture_send_email(
         file_id: Optional — uploaded file ID from upload_file to attach
         attachment_base64: Optional — raw base64-encoded file content to attach
         attachment_filename: Filename for the attachment (required if attachment_base64 is used)
-        attachment_mime: MIME type for attachment (e.g. 'application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+        attachment_mime: MIME type for attachment
+        caller: Instance ID for permission check
     """
+    denied = _enforce(caller, "capture_send_email")
+    if denied:
+        return denied
     svc = _capture_state.get("gmail_service")
     if not svc:
         return json.dumps({"error": "Gmail not initialized. Set GOOGLE_TOKEN_JSON env var."})
@@ -2612,13 +2750,18 @@ async def capture_send_email(
 
 
 @mcp.tool()
-async def capture_inbox(limit: int = 10, query: str = "is:unread category:primary") -> str:
+async def capture_inbox(limit: int = 10, query: str = "is:unread category:primary",
+                        caller: str = "") -> str:
     """Read Gmail inbox messages without triggering capture events. For browsing email.
 
     Args:
         limit: Max messages (default 10)
         query: Gmail search query (default: unread primary)
+        caller: Instance ID for permission check
     """
+    denied = _enforce(caller, "capture_inbox")
+    if denied:
+        return denied
     svc = _capture_state.get("gmail_service")
     if not svc:
         return json.dumps({"error": "Gmail not initialized."})
@@ -2651,7 +2794,8 @@ async def capture_inbox(limit: int = 10, query: str = "is:unread category:primar
 
 
 @mcp.tool()
-async def read_gmail_attachment(message_id: str, attachment_index: int = 0) -> str:
+async def read_gmail_attachment(message_id: str, attachment_index: int = 0,
+                                caller: str = "") -> str:
     """Download and read a Gmail attachment's content as text.
 
     First use capture_inbox to find the message_id and see attachment list,
@@ -2663,7 +2807,11 @@ async def read_gmail_attachment(message_id: str, attachment_index: int = 0) -> s
     Args:
         message_id: Gmail message ID (from capture_inbox results)
         attachment_index: Which attachment to read (0 = first, default)
+        caller: Instance ID for permission check
     """
+    denied = _enforce(caller, "read_gmail_attachment")
+    if denied:
+        return denied
     svc = _capture_state.get("gmail_service")
     if not svc:
         return json.dumps({"error": "Gmail not initialized."})
@@ -2730,8 +2878,11 @@ async def read_gmail_attachment(message_id: str, attachment_index: int = 0) -> s
 
 
 @mcp.tool()
-async def capture_status() -> str:
+async def capture_status(caller: str = "") -> str:
     """Get capture daemon status — is Gmail/Calendar connected, last poll info."""
+    denied = _enforce(caller, "capture_status")
+    if denied:
+        return denied
     gmail_ok = _capture_state.get("gmail_service") is not None
     cal_ok = _capture_state.get("calendar_service") is not None
     return json.dumps({
@@ -2992,6 +3143,10 @@ init_db()
 _init_google_services()
 _start_capture_background()
 _start_telegram_polling()
+
+# Register permission profiles
+register_youngereka()
+logger.info("Permission profiles registered: YoungeReka")
 
 if __name__ == "__main__":
     mcp.run(
