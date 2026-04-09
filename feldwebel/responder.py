@@ -210,39 +210,43 @@ async def respond(text: str, chat_id: str, agent_id: str = "deepseek") -> str:
         msg = choice.get("message", {})
         finish_reason = choice.get("finish_reason", "")
 
-        # If tool calls requested
-        if msg.get("tool_calls") and finish_reason == "tool_calls":
-            # Add assistant message with tool calls to conversation
-            messages.append(msg)
+        content = msg.get("content", "") or ""
+        tool_calls = msg.get("tool_calls")
 
-            # Execute each tool call
-            for tc in msg["tool_calls"]:
+        # Case A: Proper JSON tool_calls
+        if tool_calls and finish_reason == "tool_calls":
+            messages.append(msg)
+            for tc in tool_calls:
                 fn_name = tc.get("function", {}).get("name", "")
                 fn_args_raw = tc.get("function", {}).get("arguments", "{}")
                 tc_id = tc.get("id", "")
-
                 try:
                     fn_args = json.loads(fn_args_raw) if isinstance(fn_args_raw, str) else fn_args_raw
                 except json.JSONDecodeError:
                     fn_args = {}
-
                 logger.info("Tool call round %d: %s(%s)", round_num, fn_name, fn_args)
-
-                # Execute tool
                 result = await _execute_tool(fn_name, fn_args, ctx)
-
-                # Add tool result to messages
-                messages.append({
-                    "role": "tool",
-                    "tool_call_id": tc_id,
-                    "content": result,
-                })
-
-            # Continue loop — DeepSeek will process tool results
+                messages.append({"role": "tool", "tool_call_id": tc_id, "content": result})
             continue
 
+        # Case B: Text-based tool calls (DeepSeek DSML or Kimi markers)
+        import re
+        text_markers = ["<｜DSML｜", "<|tool_call", "function_calls>", "tool_calls_section"]
+        if not tool_calls and any(m in content for m in text_markers):
+            # Parse tool name and parameters from text
+            # DSML format: <｜DSML｜invoke name="tool_name"> <｜DSML｜parameter name="x" string="true">value</｜DSML｜parameter>
+            # Kimi format: <|tool_call_begin|>functions.web_search:2<|tool_call_argument_begin|>{"query": "..."}
+            parsed_tool = _parse_text_tool_call(content)
+            if parsed_tool:
+                fn_name, fn_args = parsed_tool
+                logger.info("Text tool call round %d: %s(%s)", round_num, fn_name, fn_args)
+                result = await _execute_tool(fn_name, fn_args, ctx)
+                messages.append({"role": "assistant", "content": f"(Tool végrehajtva: {fn_name})"})
+                messages.append({"role": "user", "content": f"Tool eredmény ({fn_name}):\n{result}\n\nFoglald össze az eredményt a Kommandantnak."})
+                continue
+
         # Text response — we're done
-        final_content = msg.get("content", "")
+        final_content = content
         break
 
     if not final_content:
@@ -599,6 +603,51 @@ async def _execute_tool(name: str, args: dict, ctx) -> str:
             return json.dumps({"error": str(e)})
 
     return json.dumps({"error": f"Ismeretlen tool: {name}"})
+
+
+# ── Text-based tool call parser ────────────────────────────────────
+
+
+def _parse_text_tool_call(content: str):
+    """
+    Parse text-based tool calls from DeepSeek DSML or Kimi markers.
+    Returns (tool_name, args_dict) or None.
+    """
+    import re
+
+    # DeepSeek DSML format:
+    # <｜DSML｜invoke name="calendar_create">
+    # <｜DSML｜parameter name="summary" string="true">Value</｜DSML｜parameter>
+    dsml_match = re.search(r'invoke name="([^"]+)"', content)
+    if dsml_match:
+        tool_name = dsml_match.group(1)
+        params = {}
+        for m in re.finditer(r'parameter name="([^"]+)"[^>]*>([^<]*)<', content):
+            params[m.group(1)] = m.group(2)
+        if params:
+            return tool_name, params
+
+    # Kimi format:
+    # <|tool_call_begin|>functions.web_search:2<|tool_call_argument_begin|>{"query": "..."}
+    kimi_match = re.search(r'functions\.(\w+).*?argument_begin\|>(\{[^}]+\})', content, re.DOTALL)
+    if kimi_match:
+        tool_name = kimi_match.group(1)
+        try:
+            params = json.loads(kimi_match.group(2))
+            return tool_name, params
+        except json.JSONDecodeError:
+            pass
+
+    # Generic: try to find any {"key": "value"} JSON in the text
+    json_match = re.search(r'\{[^{}]*"query"[^{}]*\}', content)
+    if json_match:
+        try:
+            params = json.loads(json_match.group())
+            return "web_search", params
+        except json.JSONDecodeError:
+            pass
+
+    return None
 
 
 # ── Helper functions ───────────────────────────────────────────────
