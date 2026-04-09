@@ -1616,25 +1616,63 @@ WEB_SEARCH_TOOL_DEF = {
 
 
 async def _web_search(query: str) -> str:
-    """Execute a web search via DuckDuckGo HTML."""
-    import httpx, re
+    """Deep web search: DuckDuckGo → top URLs → fetch actual page content."""
+    import httpx, re, urllib.parse
+
     try:
+        # Step 1: DuckDuckGo search — get snippets AND URLs
         async with httpx.AsyncClient(timeout=15, follow_redirects=True) as client:
             resp = await client.get(
                 "https://html.duckduckgo.com/html/",
                 params={"q": query},
                 headers={"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36"},
             )
-            # Extract titles and snippets
-            titles = re.findall(r'class="result__a"[^>]*>(.*?)</a>', resp.text, re.DOTALL)
-            snippets = re.findall(r'class="result__snippet"[^>]*>(.*?)<', resp.text, re.DOTALL)
-            results = []
-            for i, (title, snippet) in enumerate(zip(titles[:6], snippets[:6])):
-                t = re.sub(r'<[^>]+>', '', title).strip()
-                s = re.sub(r'<[^>]+>', '', snippet).strip()
-                if t or s:
-                    results.append(f"[{i+1}] {t}: {s}")
-            return "\n".join(results) or "No results found."
+
+        links = re.findall(r'class="result__a"[^>]*href="([^"]+)"[^>]*>(.*?)</a>', resp.text, re.DOTALL)
+        snippets = re.findall(r'class="result__snippet"[^>]*>(.*?)<', resp.text, re.DOTALL)
+
+        search_results = []
+        urls = []
+        for i, ((raw_url, title), snippet) in enumerate(zip(links[:5], snippets[:5])):
+            t = re.sub(r'<[^>]+>', '', title).strip()
+            s = re.sub(r'<[^>]+>', '', snippet).strip()
+            # Decode DuckDuckGo redirect URL
+            url = raw_url
+            if "uddg=" in url:
+                url = urllib.parse.unquote(url.split("uddg=")[1].split("&")[0])
+            urls.append(url)
+            search_results.append(f"[{i+1}] {t}\n    {s}")
+
+        if not search_results:
+            return "No results found."
+
+        # Step 2: Fetch top 2 page contents for real data
+        page_contents = []
+        for url in urls[:2]:
+            if not url.startswith("http"):
+                continue
+            try:
+                async with httpx.AsyncClient(timeout=10, follow_redirects=True) as client:
+                    resp = await client.get(url, headers={"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36"})
+                text = resp.text
+                # Strip scripts, styles, HTML tags
+                text = re.sub(r'<script[^>]*>.*?</script>', '', text, flags=re.DOTALL)
+                text = re.sub(r'<style[^>]*>.*?</style>', '', text, flags=re.DOTALL)
+                text = re.sub(r'<[^>]+>', ' ', text)
+                text = re.sub(r'\s+', ' ', text).strip()
+                if len(text) > 200:
+                    page_contents.append(f"[Forrás: {url[:80]}]\n{text[:2000]}")
+                    logger.info("Deep search fetched: %s (%d chars)", url[:60], len(text))
+            except Exception as e:
+                logger.debug("Page fetch failed %s: %s", url[:40], e)
+
+        # Combine: search results summary + full page contents
+        output = "KERESÉSI TALÁLATOK:\n" + "\n".join(search_results)
+        if page_contents:
+            output += "\n\nRÉSZLETES TARTALOM:\n" + "\n\n".join(page_contents)
+
+        return output
+
     except Exception as e:
         return f"Search error: {e}"
 
