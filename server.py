@@ -3385,11 +3385,18 @@ logger.info("Permission profiles registered: YoungeReka")
 
 # Initialize Feldwebel
 if FELDWEBEL_ENABLED:
-    # Inject tool functions into capture_state for Feldwebel access
+    # Inject ALL tool functions into capture_state for Feldwebel access
     _capture_state["_capture_inbox_func"] = capture_inbox
     _capture_state["_ai_query_func"] = ai_query
     _capture_state["_ai_task_func"] = ai_task
     _capture_state["_run_agent_with_tools"] = _run_agent_with_tools
+    _capture_state["_send_email_func"] = capture_send_email
+    _capture_state["_read_gmail_attachment_func"] = read_gmail_attachment
+    _capture_state["_create_calendar_func"] = create_calendar_event
+    _capture_state["_read_memory_func"] = read_memory
+    _capture_state["_search_memory_func"] = search_memory
+    _capture_state["_send_message_func"] = send_message
+    _capture_state["_search_discussions_func"] = search_discussions
     init_feldwebel(BridgeContext(
         telegram_push=_telegram_push,
         get_inbox_summary=_get_inbox_summary,

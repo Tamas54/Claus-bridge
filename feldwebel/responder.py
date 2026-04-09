@@ -23,133 +23,85 @@ WEEKDAYS_HU = ["hétfő", "kedd", "szerda", "csütörtök", "péntek", "szombat"
 # ── Tools definition for DeepSeek ──────────────────────────────────
 
 TOOLS = [
-    {
-        "type": "function",
-        "function": {
-            "name": "gmail_search",
-            "description": "Keress emaileket a Gmail-ben. Használd ha a Kommandant emailről kérdez, személyt keres, vagy levelet akar látni.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "query": {
-                        "type": "string",
-                        "description": "Gmail keresési query. Példák: from:Darvas, from:Tóth, subject:EdTech, newer_than:1d, is:unread"
-                    }
-                },
-                "required": ["query"]
-            }
-        }
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "gmail_poll",
-            "description": "Frissítsd a Gmail inbox-ot — új emailek lekérése és kategorizálása. Használd ha a Kommandant frissítést kér.",
-            "parameters": {
-                "type": "object",
-                "properties": {},
-            }
-        }
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "calendar_poll",
-            "description": "Naptár frissítése — mai események lekérése. Használd ha naptárról kérdez.",
-            "parameters": {
-                "type": "object",
-                "properties": {},
-            }
-        }
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "create_task",
-            "description": "Új feladat létrehozása a Bridge rendszerben.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "title": {
-                        "type": "string",
-                        "description": "A feladat leírása"
-                    }
-                },
-                "required": ["title"]
-            }
-        }
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "list_tasks",
-            "description": "Nyitott feladatok listázása a Bridge-ből.",
-            "parameters": {
-                "type": "object",
-                "properties": {},
-            }
-        }
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "ai_query",
-            "description": "Küldj feladatot EGY konkrét AI agentnek. Ők a 'rizsrakéták': Kimi (kutató, 256k context), DeepSeek (gyors elemző), GLM-5 (kódoló, 205k context). Használd ha a Kommandant egy konkrét agentet szólít meg vagy specifikus feladatot ad.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "model": {
-                        "type": "string",
-                        "description": "Agent neve: 'kimi', 'deepseek', vagy 'glm5'",
-                        "enum": ["kimi", "deepseek", "glm5"]
-                    },
-                    "prompt": {
-                        "type": "string",
-                        "description": "A feladat / kérdés amit az agentnek adsz"
-                    }
-                },
-                "required": ["model", "prompt"]
-            }
-        }
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "ai_task",
-            "description": "Küldj feladatot MIND A HÁROM AI agentnek párhuzamosan (Kimi + DeepSeek + GLM-5). Mindegyik dolgozik rajta, majd szintézis készül. Használd komplex feladatoknál, kutatásnál, elemzésnél.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "title": {
-                        "type": "string",
-                        "description": "Rövid feladat cím"
-                    },
-                    "description": {
-                        "type": "string",
-                        "description": "Részletes feladat leírás, instrukciók"
-                    }
-                },
-                "required": ["title", "description"]
-            }
-        }
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "read_task_results",
-            "description": "AI feladat eredményeinek lekérése. Használd ha a Kommandant kérdezi 'mi lett a feladattal', 'kész van már', 'mutasd az eredményt', vagy task ID-t említ.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "task_id": {
-                        "type": "integer",
-                        "description": "Az AI task ID száma (pl. 33)"
-                    }
-                },
-                "required": ["task_id"]
-            }
-        }
-    },
+    # ── Email ──
+    {"type": "function", "function": {
+        "name": "gmail_search", "description": "Keress emaileket a Gmail-ben. Személynév, tárgy, dátum alapján.",
+        "parameters": {"type": "object", "properties": {"query": {"type": "string", "description": "Gmail query: from:Darvas, subject:EdTech, newer_than:1d"}}, "required": ["query"]}}},
+    {"type": "function", "function": {
+        "name": "gmail_poll", "description": "Gmail inbox frissítése — új emailek lekérése.",
+        "parameters": {"type": "object", "properties": {}}}},
+    {"type": "function", "function": {
+        "name": "send_email", "description": "Email küldés. MINDIG kérj megerősítést a Kommandanttól küldés előtt!",
+        "parameters": {"type": "object", "properties": {
+            "to": {"type": "string", "description": "Címzett email cím"},
+            "subject": {"type": "string", "description": "Email tárgya"},
+            "body": {"type": "string", "description": "Email szövege. Aláírás: Üdvözlettel, Kende Tamás"},
+        }, "required": ["to", "subject", "body"]}}},
+    {"type": "function", "function": {
+        "name": "read_gmail_attachment", "description": "Email csatolmány tartalmának kiolvasása (docx, pdf, txt). Először gmail_search-csel keresd meg az email message_id-ját.",
+        "parameters": {"type": "object", "properties": {
+            "message_id": {"type": "string", "description": "Gmail message ID (gmail_search eredményéből)"},
+            "attachment_index": {"type": "integer", "description": "Hanyadik csatolmány (0 = első)", "default": 0},
+        }, "required": ["message_id"]}}},
+    # ── Naptár ──
+    {"type": "function", "function": {
+        "name": "calendar_poll", "description": "Naptár frissítése — mai események lekérése.",
+        "parameters": {"type": "object", "properties": {}}}},
+    {"type": "function", "function": {
+        "name": "calendar_create", "description": "Új naptáresemény létrehozása. MINDIG kérj megerősítést!",
+        "parameters": {"type": "object", "properties": {
+            "summary": {"type": "string", "description": "Esemény neve"},
+            "start_time": {"type": "string", "description": "Kezdés ISO formátumban: 2026-04-10T15:00:00"},
+            "end_time": {"type": "string", "description": "Befejezés ISO formátumban: 2026-04-10T16:00:00"},
+            "description": {"type": "string", "description": "Részletek (opcionális)", "default": ""},
+        }, "required": ["summary", "start_time", "end_time"]}}},
+    # ── Feladatok ──
+    {"type": "function", "function": {
+        "name": "create_task", "description": "Új Bridge feladat létrehozása.",
+        "parameters": {"type": "object", "properties": {"title": {"type": "string", "description": "Feladat leírása"}}, "required": ["title"]}}},
+    {"type": "function", "function": {
+        "name": "list_tasks", "description": "Nyitott feladatok listázása.",
+        "parameters": {"type": "object", "properties": {}}}},
+    # ── AI agentek ──
+    {"type": "function", "function": {
+        "name": "ai_query", "description": "Feladat EGY agentnek: kimi (kutató), deepseek (elemző), glm5 (kódoló). Web search képes!",
+        "parameters": {"type": "object", "properties": {
+            "model": {"type": "string", "description": "kimi / deepseek / glm5", "enum": ["kimi", "deepseek", "glm5"]},
+            "prompt": {"type": "string", "description": "Feladat / kérdés"},
+        }, "required": ["model", "prompt"]}}},
+    {"type": "function", "function": {
+        "name": "ai_task", "description": "Feladat MIND A 3 agentnek párhuzamosan. Komplex kutatáshoz, elemzéshez.",
+        "parameters": {"type": "object", "properties": {
+            "title": {"type": "string", "description": "Rövid cím"},
+            "description": {"type": "string", "description": "Részletes leírás"},
+        }, "required": ["title", "description"]}}},
+    {"type": "function", "function": {
+        "name": "read_task_results", "description": "AI feladat eredményeinek lekérése. 'Mi lett a feladattal?', 'kész van?'",
+        "parameters": {"type": "object", "properties": {"task_id": {"type": "integer", "description": "Task ID szám"}}, "required": ["task_id"]}}},
+    # ── Web ──
+    {"type": "function", "function": {
+        "name": "web_fetch", "description": "Weboldal tartalmának letöltése URL alapján. Ha linket kaptál és többet akarsz olvasni.",
+        "parameters": {"type": "object", "properties": {"url": {"type": "string", "description": "A letöltendő URL"}}, "required": ["url"]}}},
+    # ── Bridge memória és kommunikáció ──
+    {"type": "function", "function": {
+        "name": "read_memory", "description": "Bridge shared memory olvasása. Korábbi döntések, tudás, kontextus.",
+        "parameters": {"type": "object", "properties": {
+            "key": {"type": "string", "description": "Memória kulcs (opcionális)", "default": ""},
+            "category": {"type": "string", "description": "Kategória szűrés (opcionális)", "default": ""},
+        }}}},
+    {"type": "function", "function": {
+        "name": "search_memory", "description": "Keresés a Bridge shared memory-ban kulcsszó alapján.",
+        "parameters": {"type": "object", "properties": {"query": {"type": "string", "description": "Keresési kifejezés"}}, "required": ["query"]}}},
+    {"type": "function", "function": {
+        "name": "send_message", "description": "Bridge üzenet küldés másik instance-nak (web-claus, cli-claus, stb.).",
+        "parameters": {"type": "object", "properties": {
+            "recipient": {"type": "string", "description": "Címzett: web-claus, cli-claus, kommandant"},
+            "subject": {"type": "string", "description": "Tárgy"},
+            "message": {"type": "string", "description": "Üzenet szövege"},
+        }, "required": ["recipient", "subject", "message"]}}},
+    {"type": "function", "function": {
+        "name": "search_discussions", "description": "Keresés a Bridge diskussziókban. Korábbi viták, döntések.",
+        "parameters": {"type": "object", "properties": {"query": {"type": "string", "description": "Keresési kifejezés"}}, "required": ["query"]}}},
 ]
 
 # Tools that need confirmation before execution
@@ -528,6 +480,121 @@ async def _execute_tool(name: str, args: dict, ctx) -> str:
                     "agent_results": "\n\n---\n\n".join(parts)
                 }, ensure_ascii=False)
             return json.dumps({"task_id": task_id, "status": task["status"], "message": "Nincs eredmény"})
+        except Exception as e:
+            return json.dumps({"error": str(e)})
+
+    if name == "send_email":
+        to = args.get("to", "")
+        subject = args.get("subject", "")
+        body = args.get("body", "")
+        if not to or not subject or not body:
+            return json.dumps({"error": "to, subject, body mind szükséges"})
+        send_func = ctx.capture_state.get("_send_email_func")
+        if not send_func:
+            return json.dumps({"error": "Email küldés nem elérhető"})
+        try:
+            result = await send_func(to=to, subject=subject, body=body, caller="feldwebel")
+            return result
+        except Exception as e:
+            return json.dumps({"error": str(e)})
+
+    if name == "read_gmail_attachment":
+        message_id = args.get("message_id", "")
+        attachment_index = args.get("attachment_index", 0)
+        if not message_id:
+            return json.dumps({"error": "message_id szükséges (gmail_search-ből)"})
+        read_att_func = ctx.capture_state.get("_read_gmail_attachment_func")
+        if not read_att_func:
+            return json.dumps({"error": "Csatolmány olvasás nem elérhető"})
+        try:
+            result = await read_att_func(message_id=message_id, attachment_index=attachment_index, caller="feldwebel")
+            return result
+        except Exception as e:
+            return json.dumps({"error": str(e)})
+
+    if name == "calendar_create":
+        summary = args.get("summary", "")
+        start_time = args.get("start_time", "")
+        end_time = args.get("end_time", "")
+        description = args.get("description", "")
+        if not summary or not start_time or not end_time:
+            return json.dumps({"error": "summary, start_time, end_time szükséges"})
+        create_cal_func = ctx.capture_state.get("_create_calendar_func")
+        if not create_cal_func:
+            return json.dumps({"error": "Naptár létrehozás nem elérhető"})
+        try:
+            result = await create_cal_func(summary=summary, start_time=start_time, end_time=end_time, description=description, caller="feldwebel")
+            return result
+        except Exception as e:
+            return json.dumps({"error": str(e)})
+
+    if name == "web_fetch":
+        url = args.get("url", "")
+        if not url or not url.startswith("http"):
+            return json.dumps({"error": "Érvényes URL szükséges"})
+        import re
+        try:
+            async with httpx.AsyncClient(timeout=15, follow_redirects=True) as client:
+                resp = await client.get(url, headers={"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36"})
+            text = resp.text
+            text = re.sub(r'<script[^>]*>.*?</script>', '', text, flags=re.DOTALL)
+            text = re.sub(r'<style[^>]*>.*?</style>', '', text, flags=re.DOTALL)
+            text = re.sub(r'<[^>]+>', ' ', text)
+            text = re.sub(r'\s+', ' ', text).strip()
+            return json.dumps({"url": url, "content": text[:4000], "length": len(text)}, ensure_ascii=False)
+        except Exception as e:
+            return json.dumps({"error": str(e)})
+
+    if name == "read_memory":
+        key = args.get("key", "")
+        category = args.get("category", "")
+        read_mem_func = ctx.capture_state.get("_read_memory_func")
+        if not read_mem_func:
+            return json.dumps({"error": "Memory olvasás nem elérhető"})
+        try:
+            result = await read_mem_func(key=key, category=category, caller="feldwebel")
+            return result
+        except Exception as e:
+            return json.dumps({"error": str(e)})
+
+    if name == "search_memory":
+        query = args.get("query", "")
+        if not query:
+            return json.dumps({"error": "Keresési kifejezés szükséges"})
+        search_mem_func = ctx.capture_state.get("_search_memory_func")
+        if not search_mem_func:
+            return json.dumps({"error": "Memory keresés nem elérhető"})
+        try:
+            result = await search_mem_func(query=query, caller="feldwebel")
+            return result
+        except Exception as e:
+            return json.dumps({"error": str(e)})
+
+    if name == "send_message":
+        recipient = args.get("recipient", "")
+        subject = args.get("subject", "")
+        message = args.get("message", "")
+        if not recipient or not message:
+            return json.dumps({"error": "recipient és message szükséges"})
+        send_msg_func = ctx.capture_state.get("_send_message_func")
+        if not send_msg_func:
+            return json.dumps({"error": "Bridge üzenet küldés nem elérhető"})
+        try:
+            result = await send_msg_func(sender="feldwebel", recipient=recipient, subject=subject or "Feldwebel üzenet", message=message, caller="feldwebel")
+            return result
+        except Exception as e:
+            return json.dumps({"error": str(e)})
+
+    if name == "search_discussions":
+        query = args.get("query", "")
+        if not query:
+            return json.dumps({"error": "Keresési kifejezés szükséges"})
+        search_disc_func = ctx.capture_state.get("_search_discussions_func")
+        if not search_disc_func:
+            return json.dumps({"error": "Diskusszió keresés nem elérhető"})
+        try:
+            result = await search_disc_func(query=query, caller="feldwebel")
+            return result
         except Exception as e:
             return json.dumps({"error": str(e)})
 
