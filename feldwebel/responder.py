@@ -265,6 +265,15 @@ async def _search_emails_for_query(ctx, user_text: str) -> str:
 
     # Ask DeepSeek to extract the Gmail search query
     query = await _ai_extract_search_query(ctx, user_text)
+
+    # Fallback: if AI extraction fails, use first capitalized word as from: search
+    if not query:
+        words = [w.strip(".,!?:;\"'()") for w in user_text.split()]
+        names = [w for w in words if len(w) > 2 and w[0].isupper()]
+        if names:
+            query = f"from:{names[0]}"
+            logger.info("Gmail search fallback (name-based): %s", query)
+
     if not query:
         return ""
 
@@ -352,8 +361,20 @@ async def _ai_extract_search_query(ctx, user_text: str) -> str:
             )
             data = json.loads(resp.text)
         content = data.get("choices", [{}])[0].get("message", {}).get("content", "").strip()
-        # Sanitize — only keep the query, no extra text
-        if content and len(content) < 100 and not content.startswith("A ") and not content.startswith("Ez "):
+        # Clean up: remove markdown backticks, quotes, leading text
+        content = content.strip("`\"' \n")
+        # If DeepSeek added explanation, try to extract just the query part
+        if "\n" in content:
+            content = content.split("\n")[0].strip()
+        if ":" in content and ("from:" in content.lower() or "subject:" in content.lower()
+                               or "newer_than:" in content.lower()):
+            # Extract just the Gmail query part
+            for prefix in ["from:", "subject:", "newer_than:", "in:", "is:"]:
+                idx = content.lower().find(prefix)
+                if idx >= 0:
+                    content = content[idx:].strip()
+                    break
+        if content and len(content) < 150:
             logger.info("AI extracted Gmail query: '%s' from: '%s'", content, user_text[:50])
             return content
     except Exception as e:
