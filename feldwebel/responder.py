@@ -258,38 +258,17 @@ def _fetch_emails_from_db(ctx, limit: int = 15) -> str:
 
 
 async def _search_emails_for_query(ctx, user_text: str) -> str:
-    """Search Gmail for emails related to the user's query."""
+    """Search Gmail for emails related to the user's query.
+    Uses DeepSeek to extract the optimal Gmail search query."""
     if not ctx.capture_state.get("gmail_service"):
         return ""
 
-    # Extract potential search terms (names, keywords) from user text
-    stop_words = {"a", "az", "és", "is", "nem", "hogy", "egy", "van", "volt",
-                  "mi", "mit", "már", "még", "csak", "de", "ha", "vagy",
-                  "emailt", "emailje", "levele", "levelét", "emailjét", "e-mailt",
-                  "kaptam", "küldött", "írt", "írta", "érkezett", "levelet",
-                  "keresem", "keresd", "találd", "meg", "most", "tegnap", "ma",
-                  "volt", "irt", "kapott", "utolsó", "legutóbbi", "friss"}
-    words = [w.strip(".,!?:;\"'()") for w in user_text.split()
-             if len(w.strip(".,!?:;\"'()")) > 2]
-    search_terms = [w for w in words if w.lower() not in stop_words]
-
-    if not search_terms:
+    # Ask DeepSeek to extract the Gmail search query
+    query = await _ai_extract_search_query(ctx, user_text)
+    if not query:
         return ""
 
-    # Build Gmail search query — use from: for person names (capitalized words)
-    name_parts = [w for w in search_terms if w[0].isupper()]
-    other_parts = [w for w in search_terms if not w[0].isupper()]
-
-    if name_parts:
-        # Search by sender name
-        name_query = " ".join(name_parts[:3])
-        query = f"from:{name_query}"
-        if other_parts:
-            query += " " + " ".join(other_parts[:2])
-    else:
-        query = " ".join(search_terms[:4])
-
-    logger.info("Gmail search for Feldwebel: %s", query)
+    logger.info("Gmail search for Feldwebel (AI-extracted): %s", query)
 
     try:
         result_json = await ctx.capture_state["_capture_inbox_func"](
@@ -335,6 +314,51 @@ def _fetch_open_tasks(ctx) -> str:
         return "\n".join(lines)
     except Exception:
         return ""
+
+
+# ── AI-powered search query extraction ─────────────────────────────
+
+
+async def _ai_extract_search_query(ctx, user_text: str) -> str:
+    """Ask DeepSeek to extract a Gmail search query from user's Hungarian text.
+    Returns a Gmail query string like 'from:Tóth' or empty string."""
+    model_id = ctx.siliconflow_models.get("deepseek", "deepseek-ai/DeepSeek-V3.2")
+    try:
+        async with httpx.AsyncClient(timeout=15) as client:
+            resp = await client.post(
+                f"{ctx.siliconflow_base_url}/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {ctx.siliconflow_api_key}",
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "model": model_id,
+                    "messages": [
+                        {"role": "system", "content": (
+                            "Te egy Gmail keresési query generátor vagy. "
+                            "A felhasználó magyar nyelvű kérdéséből kinyered a Gmail keresési query-t. "
+                            "Szabályok:\n"
+                            "- Ha személynevet tartalmaz, használd: from:Vezetéknév (pl. 'Tóth Gy Laci emailje' → 'from:Tóth')\n"
+                            "- Becenevet, rövidítést alakítsd vezetéknévvé (Laci=László, Gy=György, stb.)\n"
+                            "- Ha tárgyra kérdez, használd: subject:kulcsszó\n"
+                            "- Ha időszakra kérdez: newer_than:1d, newer_than:7d, stb.\n"
+                            "- CSAK a Gmail query-t írd ki, semmi mást! Egy sor, semmi magyarázat."
+                        )},
+                        {"role": "user", "content": user_text},
+                    ],
+                    "temperature": 0.1,
+                    "max_tokens": 50,
+                },
+            )
+            data = json.loads(resp.text)
+        content = data.get("choices", [{}])[0].get("message", {}).get("content", "").strip()
+        # Sanitize — only keep the query, no extra text
+        if content and len(content) < 100 and not content.startswith("A ") and not content.startswith("Ez "):
+            logger.info("AI extracted Gmail query: '%s' from: '%s'", content, user_text[:50])
+            return content
+    except Exception as e:
+        logger.warning("AI query extraction failed: %s", e)
+    return ""
 
 
 # ── System prompt builder ──────────────────────────────────────────
