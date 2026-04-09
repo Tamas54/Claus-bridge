@@ -1670,12 +1670,31 @@ async def _run_agent_with_tools(model_id: str, messages: list, max_rounds: int =
         choice = data.get("choices", [{}])[0]
         msg = choice.get("message", {})
 
-        # If no tool calls, return the text
+        # Check for tool calls (JSON format)
         tool_calls = msg.get("tool_calls")
-        if not tool_calls:
-            return msg.get("content", "")
+        content = msg.get("content", "") or ""
 
-        # Execute tool calls
+        # Case B: Text-based tool calls (Kimi sometimes does this)
+        import re
+        text_markers = ["<|tool_call", "<｜DSML｜", "function_calls>", "tool_calls_section"]
+        if not tool_calls and any(m in content for m in text_markers):
+            queries = re.findall(r'"query"[:\s]*"([^"]+)"', content)
+            if queries:
+                search_results = ""
+                for query in queries[:2]:
+                    sr = await _web_search(query)
+                    search_results += f"\n[Web search: {query}]\n{sr}\n"
+                    logger.info("AI web_search (text-parsed) round %d: %s", round_num, query[:80])
+                # Re-call with search results as context
+                messages.append({"role": "assistant", "content": "(web keresés végrehajtva)"})
+                messages.append({"role": "user", "content": f"Web keresési eredmények:\n{search_results}\n\nVálaszolj az eredmények alapján."})
+                continue  # Next round will generate text response
+
+        # If no tool calls at all, return the text
+        if not tool_calls:
+            return content
+
+        # Execute JSON tool calls
         messages.append(msg)
         for tc in tool_calls:
             fn = tc.get("function", {})
