@@ -2255,7 +2255,9 @@ _capture_state = {
 
 def _init_google_services():
     """Initialize Google API services from token JSON env var."""
-    if not GOOGLE_TOKEN_JSON:
+    token_raw = GOOGLE_TOKEN_JSON
+    logger.info("GOOGLE_TOKEN_JSON env var length: %d", len(token_raw))
+    if not token_raw:
         logger.info("GOOGLE_TOKEN_JSON not set — capture disabled")
         return False
     try:
@@ -2265,15 +2267,17 @@ def _init_google_services():
 
         # Support both raw JSON and base64-encoded JSON
         try:
-            token_data = json.loads(GOOGLE_TOKEN_JSON)
+            token_data = json.loads(token_raw)
+            logger.info("Google token parsed as raw JSON")
         except json.JSONDecodeError:
-            token_data = json.loads(base64.b64decode(GOOGLE_TOKEN_JSON).decode())
+            token_data = json.loads(base64.b64decode(token_raw).decode())
+            logger.info("Google token parsed as base64")
         creds = Credentials.from_authorized_user_info(token_data, GOOGLE_SCOPES)
+        logger.info("Google creds created. expired=%s, has_refresh=%s", creds.expired, bool(creds.refresh_token))
 
         if creds.expired and creds.refresh_token:
             creds.refresh(Request())
-            # Update env var in memory with refreshed token
-            logger.info("Google token refreshed")
+            logger.info("Google token refreshed successfully")
 
         _capture_state["gmail_service"] = build("gmail", "v1", credentials=creds, cache_discovery=False)
         _capture_state["calendar_service"] = build("calendar", "v3", credentials=creds, cache_discovery=False)
@@ -2282,7 +2286,9 @@ def _init_google_services():
         logger.info("Google services initialized: %s", profile.get("emailAddress"))
         return True
     except Exception as e:
-        logger.error("Google init failed: %s", e)
+        logger.error("Google init failed: %s (type: %s)", e, type(e).__name__)
+        import traceback
+        logger.error("Google init traceback:\n%s", traceback.format_exc())
         return False
 
 
