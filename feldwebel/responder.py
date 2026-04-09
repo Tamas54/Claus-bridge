@@ -415,10 +415,12 @@ async def _execute_tool(name: str, args: dict, ctx) -> str:
         ai_task_func = ctx.capture_state.get("_ai_task_func")
         if ai_task_func:
             try:
-                agent_tasks = json.dumps({model: {"prompt": prompt, "max_tokens": 3000}})
+                now = datetime.now(timezone.utc)
+                date_info = f"\n\n[Mai dátum: {now.strftime('%Y.%m.%d')} ({WEEKDAYS_HU[now.weekday()]})]"
+                agent_tasks = json.dumps({model: {"prompt": prompt + date_info, "max_tokens": 3000}})
                 result_json = await ai_task_func(
                     title=f"Feldwebel → {model}: {prompt[:60]}",
-                    description=prompt,
+                    description=prompt + date_info,
                     assigned_by="feldwebel",
                     agent_tasks=agent_tasks,
                 )
@@ -469,8 +471,11 @@ async def _execute_tool(name: str, args: dict, ctx) -> str:
         if not ctx.capture_state.get("_ai_task_func"):
             return json.dumps({"error": "AI task nem elérhető"})
         try:
+            # Inject current date into description so agents know when they are
+            now = datetime.now(timezone.utc)
+            date_info = f"\n\n[Mai dátum: {now.strftime('%Y.%m.%d')} ({WEEKDAYS_HU[now.weekday()]}). Az adatoknak FRISSNEK kell lenniük!]"
             result_json = await ctx.capture_state["_ai_task_func"](
-                title=title, description=description, assigned_by="feldwebel"
+                title=title, description=description + date_info, assigned_by="feldwebel"
             )
             result = json.loads(result_json)
             task_id = result.get("task_id")
