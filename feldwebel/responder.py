@@ -24,7 +24,7 @@ Időzóna: CET (Budapest)
 Szereped:
 - Gyors, lényegre törő válaszok magyarul
 - Kontextusban vagy: LÁTOD az emaileket (feladó, tárgy, tartalom), a naptárat és a feladatokat
-- Ha a Kommandant kérdez egy emailről, keresd meg a kontextusban és válaszolj pontosan
+- Ha a Kommandant kérdez egy emailről, keresd meg a FRISS EMAILEK és KERESÉSI EREDMÉNYEK szekcióban
 - Ha a Kommandant parancsot ad (pl. "küld el email-t", "hozz létre taskot"), felismered és végrehajtod
 
 Ha a Kommandant emailre akar válaszolni:
@@ -32,11 +32,13 @@ Ha a Kommandant emailre akar válaszolni:
 - Kérd a megerősítését: "Küldhetem? Írd /send vagy módosítsd."
 - Aláírás: "Üdvözlettel, Kende Tamás"
 
-Szabályok:
+KRITIKUS SZABÁLYOK:
 - Magyar nyelv, hacsak nem kérnek mást
 - Tömör válaszok (max 3-5 mondat, kivéve ha elemzést kérnek)
-- Ha nem tudsz valamit, mondd meg — ne hallucináj
-- Az email kontextus amit kapsz VALÓS és FRISS — használd bátran"""
+- NE HAZUDJ és NE HALLUCINÁJ! Ha egy emailt nem találsz a kontextusban, mondd: "Nem találom a kapott emailek között. Lehet hogy régebbi vagy más mappában van."
+- NE TEGYÉL ÚGY mintha tool-okat futtatnál! Nem tudsz capture_gmail_poll-t, API-t, vagy bármilyen rendszerhívást végrehajtani. Csak a kontextusban kapott adatokból dolgozhatsz.
+- Ha a Kommandant ragaszkodik hogy létezik egy email amit nem látsz, mondd: "Sajnálom, a mostani lekérdezésben nem szerepel. Próbáld /brief paranccsal vagy kérdezz rá konkrétabban."
+- Az email kontextus amit kapsz VALÓS és FRISS, de NEM TELJES — csak az utolsó ~25 emailt és a keresési eredményeket látod."""
 
 
 WEEKDAYS_HU = ["hétfő", "kedd", "szerda", "csütörtök", "péntek", "szombat", "vasárnap"]
@@ -134,8 +136,8 @@ async def _gather_live_context(ctx, user_text: str) -> str:
     """
     sections = []
 
-    # Always: fresh emails from Gmail API (last 15)
-    email_ctx = await _fetch_recent_emails(ctx, limit=15)
+    # Always: fresh emails from Gmail API (last 25, no category filter)
+    email_ctx = await _fetch_recent_emails(ctx, limit=25)
     if email_ctx:
         sections.append(email_ctx)
 
@@ -144,11 +146,14 @@ async def _gather_live_context(ctx, user_text: str) -> str:
     if task_ctx:
         sections.append(task_ctx)
 
-    # If user mentions email-related keywords, do a targeted Gmail search too
+    # If user mentions email-related keywords or person names, do targeted Gmail search
     text_lower = user_text.lower()
-    email_keywords = ["email", "levél", "mail", "írj", "válasz", "reply", "küld", "forward"]
-    if any(kw in text_lower for kw in email_keywords):
-        # Try to extract a person's name for targeted search
+    email_keywords = ["email", "levél", "mail", "írj", "válasz", "reply", "küld",
+                      "forward", "írt", "küldött", "kaptam", "érkezett", "levelét"]
+    # Also search if the message looks like a question about a person
+    has_email_intent = any(kw in text_lower for kw in email_keywords)
+    has_question = "?" in user_text
+    if has_email_intent or has_question:
         search_ctx = await _search_emails_for_query(ctx, user_text)
         if search_ctx:
             sections.append(search_ctx)
@@ -156,16 +161,16 @@ async def _gather_live_context(ctx, user_text: str) -> str:
     return "\n\n".join(sections) if sections else ""
 
 
-async def _fetch_recent_emails(ctx, limit: int = 15) -> str:
+async def _fetch_recent_emails(ctx, limit: int = 25) -> str:
     """Fetch recent emails via Gmail API (capture_inbox tool)."""
     if not ctx.capture_state.get("gmail_service"):
         # Fallback: use Bridge DB
         return _fetch_emails_from_db(ctx, limit)
 
     try:
-        # Call capture_inbox directly (it's an MCP tool function)
+        # Call capture_inbox — no category filter, get ALL recent emails
         result_json = await ctx.capture_state["_capture_inbox_func"](
-            limit=limit, query="category:primary", caller="feldwebel"
+            limit=limit, query="newer_than:3d", caller="feldwebel"
         )
         data = json.loads(result_json)
         if "error" in data:
@@ -227,12 +232,12 @@ async def _search_emails_for_query(ctx, user_text: str) -> str:
         return ""
 
     # Extract potential search terms (names, keywords) from user text
-    # Remove common Hungarian words to get search-worthy terms
     stop_words = {"a", "az", "és", "is", "nem", "hogy", "egy", "van", "volt",
                   "mi", "mit", "már", "még", "csak", "de", "ha", "vagy",
-                  "emailt", "emailje", "levele", "levelét", "emailjét",
-                  "kaptam", "küldött", "írt", "írta", "érkezett",
-                  "keresem", "keresd", "találd", "meg", "most", "tegnap", "ma"}
+                  "emailt", "emailje", "levele", "levelét", "emailjét", "e-mailt",
+                  "kaptam", "küldött", "írt", "írta", "érkezett", "levelet",
+                  "keresem", "keresd", "találd", "meg", "most", "tegnap", "ma",
+                  "volt", "irt", "kapott", "utolsó", "legutóbbi", "friss"}
     words = [w.strip(".,!?:;\"'()") for w in user_text.split()
              if len(w.strip(".,!?:;\"'()")) > 2]
     search_terms = [w for w in words if w.lower() not in stop_words]
@@ -240,7 +245,19 @@ async def _search_emails_for_query(ctx, user_text: str) -> str:
     if not search_terms:
         return ""
 
-    query = " ".join(search_terms[:4])  # Max 4 terms for Gmail search
+    # Build Gmail search query — use from: for person names (capitalized words)
+    name_parts = [w for w in search_terms if w[0].isupper()]
+    other_parts = [w for w in search_terms if not w[0].isupper()]
+
+    if name_parts:
+        # Search by sender name
+        name_query = " ".join(name_parts[:3])
+        query = f"from:{name_query}"
+        if other_parts:
+            query += " " + " ".join(other_parts[:2])
+    else:
+        query = " ".join(search_terms[:4])
+
     logger.info("Gmail search for Feldwebel: %s", query)
 
     try:
