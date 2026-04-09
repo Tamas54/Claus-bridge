@@ -16,7 +16,10 @@ from feldwebel.history import add_message, get_history, trim_history
 
 logger = logging.getLogger("feldwebel.responder")
 
-FELDWEBEL_SYSTEM_PROMPT = """Te a Feldwebel vagy — a Kommandant személyes Telegram asszisztense a Claus-Bridge rendszeren belül.
+FELDWEBEL_SYSTEM_PROMPT_TEMPLATE = """Te a Feldwebel vagy — a Kommandant személyes Telegram asszisztense a Claus-Bridge rendszeren belül.
+
+Mai dátum: {date_str} ({weekday_hu})
+Időzóna: CET (Budapest)
 
 Szereped:
 - Gyors, lényegre törő válaszok magyarul
@@ -34,6 +37,18 @@ Szabályok:
 - Tömör válaszok (max 3-5 mondat, kivéve ha elemzést kérnek)
 - Ha nem tudsz valamit, mondd meg — ne hallucináj
 - Az email kontextus amit kapsz VALÓS és FRISS — használd bátran"""
+
+
+WEEKDAYS_HU = ["hétfő", "kedd", "szerda", "csütörtök", "péntek", "szombat", "vasárnap"]
+
+
+def _get_feldwebel_system_prompt() -> str:
+    """Build system prompt with current date injected."""
+    now = datetime.now(timezone.utc)
+    return FELDWEBEL_SYSTEM_PROMPT_TEMPLATE.format(
+        date_str=now.strftime("%Y.%m.%d"),
+        weekday_hu=WEEKDAYS_HU[now.weekday()],
+    )
 
 
 async def respond(text: str, chat_id: str, agent_id: str = "deepseek") -> str:
@@ -279,7 +294,7 @@ def _fetch_open_tasks(ctx) -> str:
 
 def _build_system_prompt(ctx, agent_id: str, live_context: str = "") -> str:
     """Build full system prompt: Feldwebel base + Pyramid + live data."""
-    parts = [FELDWEBEL_SYSTEM_PROMPT]
+    parts = [_get_feldwebel_system_prompt()]
 
     # Add Pyramid context if available
     try:
