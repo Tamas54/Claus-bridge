@@ -1968,13 +1968,73 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
         from pyramid.task_dispatcher import dispatch_parallel_tasks
 
         async def _call_agent(model, prompt, system_prompt, max_tokens, temperature):
-            """Wrapper for dispatch_parallel_tasks — uses _run_agent_with_tools for web search."""
+            """Wrapper with web search — handles both JSON and text-based tool calls."""
+            import httpx, re
             model_id = SILICONFLOW_MODELS.get(model, model)
-            messages = [
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": prompt},
-            ]
-            content = await _run_agent_with_tools(model_id, messages, max_rounds=3)
+
+            async def _api(client, payload):
+                resp = await client.post(
+                    f"{SILICONFLOW_BASE_URL}/chat/completions",
+                    headers={"Authorization": f"Bearer {SILICONFLOW_API_KEY}", "Content-Type": "application/json"},
+                    json=payload,
+                )
+                return json.loads(resp.text)
+
+            # Step 1: Call with tools
+            async with httpx.AsyncClient(timeout=SILICONFLOW_TIMEOUT) as client:
+                data = await _api(client, {
+                    "model": model_id,
+                    "messages": [
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": prompt},
+                    ],
+                    "temperature": temperature, "max_tokens": max_tokens,
+                    "tools": [WEB_SEARCH_TOOL_DEF],
+                })
+
+            if not isinstance(data, dict) or not data.get("choices"):
+                return {"response": f"API error: {data}", "tokens": {"prompt": 0, "completion": 0}}
+
+            msg = data["choices"][0].get("message", {})
+            content = msg.get("content", "") or ""
+            tool_calls = msg.get("tool_calls")
+            search_results = ""
+
+            # Case A: Proper JSON tool_calls
+            if tool_calls:
+                for tc in tool_calls:
+                    fn = tc.get("function", {})
+                    if fn.get("name") == "web_search":
+                        query = json.loads(fn.get("arguments", "{}")).get("query", "")
+                        if query:
+                            sr = await _web_search(query)
+                            search_results += f"\n[Web search: {query}]\n{sr}\n"
+                            logger.info("Dispatch %s: web_search '%s'", model, query[:60])
+
+            # Case B: Text-based tool calls (Kimi does this)
+            text_markers = ["<|tool_call", "<｜DSML｜", "function_calls>", "tool_calls_section"]
+            if not tool_calls and any(m in content for m in text_markers):
+                queries = re.findall(r'"query"[:\s]*"([^"]+)"', content)
+                for query in queries[:3]:
+                    sr = await _web_search(query)
+                    search_results += f"\n[Web search: {query}]\n{sr}\n"
+                    logger.info("Dispatch %s: parsed web_search '%s'", model, query[:60])
+                content = ""  # Clear broken marker text
+
+            # Step 2: If we got search results, call again WITH results
+            if search_results:
+                async with httpx.AsyncClient(timeout=SILICONFLOW_TIMEOUT) as client:
+                    data2 = await _api(client, {
+                        "model": model_id,
+                        "messages": [
+                            {"role": "system", "content": system_prompt},
+                            {"role": "user", "content": f"{prompt}\n\nWEB KERESÉSI EREDMÉNYEK:\n{search_results}"},
+                        ],
+                        "temperature": temperature, "max_tokens": max_tokens,
+                    })
+                if isinstance(data2, dict) and data2.get("choices"):
+                    content = data2["choices"][0].get("message", {}).get("content", "") or content
+
             return {"response": content, "tokens": {"prompt": 0, "completion": 0}}
 
         def _run_dispatch():
