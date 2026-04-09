@@ -59,6 +59,37 @@ async def respond(text: str, chat_id: str, agent_id: str = "deepseek") -> str:
     """
     ctx = get_ctx()
 
+    # 0. Check for pending action confirmation/cancellation
+    from feldwebel.actions import (
+        detect_action, has_pending_action, execute_pending,
+        cancel_pending, propose_action
+    )
+
+    if has_pending_action(chat_id):
+        action, _ = detect_action(text)
+        if action == "confirm":
+            result = await execute_pending(chat_id)
+            add_message(chat_id, "user", text)
+            if result:
+                add_message(chat_id, "assistant", result, agent_id)
+            return result
+        elif action == "cancel":
+            await cancel_pending(chat_id)
+            add_message(chat_id, "user", text)
+            add_message(chat_id, "assistant", "Törölve.", agent_id)
+            return "Törölve."
+        else:
+            # Not a confirmation — clear pending and continue normally
+            from feldwebel.actions import clear_pending_action
+            clear_pending_action(chat_id)
+
+    # 0b. Check for new actionable intent
+    action, params = detect_action(text)
+    if action and action not in ("confirm", "cancel"):
+        add_message(chat_id, "user", text)
+        await propose_action(action, params, chat_id)
+        return ""
+
     # 1. Store user message in history
     add_message(chat_id, "user", text)
 
