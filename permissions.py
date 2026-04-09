@@ -79,7 +79,7 @@ class PermissionProfile:
 # ============================================================
 
 # Alap instance-ok (Kommandant eredeti csapatai)
-CORE_INSTANCES = {"web-claus", "cli-claus", "kommandant"}
+CORE_INSTANCES = {"web-claus", "cli-claus", "kommandant", "feldwebel"}
 
 # Minden regisztrált instance profilja
 INSTANCE_PROFILES: dict[str, PermissionProfile] = {}
