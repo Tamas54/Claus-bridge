@@ -1,7 +1,9 @@
 """
-DeepSeek response engine with conversation history, Pyramid context,
-and real email/calendar/task access via Bridge tools.
+DeepSeek response engine with native tool use (function calling).
 The Feldwebel — operational assistant for the Kommandant.
+
+Architecture: DeepSeek decides when to call tools (gmail_search, gmail_poll,
+calendar_poll, send_email, create_task). Results are fed back for final response.
 """
 
 import json
@@ -16,99 +18,242 @@ from feldwebel.history import add_message, get_history, trim_history
 
 logger = logging.getLogger("feldwebel.responder")
 
-FELDWEBEL_SYSTEM_PROMPT_TEMPLATE = """Te a Feldwebel vagy — a Kommandant személyes Telegram asszisztense a Claus-Bridge rendszeren belül.
+WEEKDAYS_HU = ["hétfő", "kedd", "szerda", "csütörtök", "péntek", "szombat", "vasárnap"]
+
+# ── Tools definition for DeepSeek ──────────────────────────────────
+
+TOOLS = [
+    {
+        "type": "function",
+        "function": {
+            "name": "gmail_search",
+            "description": "Keress emaileket a Gmail-ben. Használd ha a Kommandant emailről kérdez, személyt keres, vagy levelet akar látni.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "query": {
+                        "type": "string",
+                        "description": "Gmail keresési query. Példák: from:Darvas, from:Tóth, subject:EdTech, newer_than:1d, is:unread"
+                    }
+                },
+                "required": ["query"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "gmail_poll",
+            "description": "Frissítsd a Gmail inbox-ot — új emailek lekérése és kategorizálása. Használd ha a Kommandant frissítést kér.",
+            "parameters": {
+                "type": "object",
+                "properties": {},
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "calendar_poll",
+            "description": "Naptár frissítése — mai események lekérése. Használd ha naptárról kérdez.",
+            "parameters": {
+                "type": "object",
+                "properties": {},
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "create_task",
+            "description": "Új feladat létrehozása a Bridge rendszerben.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "title": {
+                        "type": "string",
+                        "description": "A feladat leírása"
+                    }
+                },
+                "required": ["title"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "list_tasks",
+            "description": "Nyitott feladatok listázása a Bridge-ből.",
+            "parameters": {
+                "type": "object",
+                "properties": {},
+            }
+        }
+    },
+]
+
+# Tools that need confirmation before execution
+CONFIRM_TOOLS = {"send_email"}  # Future: add more dangerous actions
+
+
+# ── System prompt ──────────────────────────────────────────────────
+
+SYSTEM_PROMPT_TEMPLATE = """Te a Feldwebel vagy — a Kommandant személyes Telegram asszisztense a Claus-Bridge rendszeren belül.
 
 Mai dátum: {date_str} ({weekday_hu})
 Időzóna: CET (Budapest)
 
 Szereped:
 - Gyors, lényegre törő válaszok magyarul
-- Kontextusban vagy: LÁTOD az emaileket (feladó, tárgy, tartalom), a naptárat és a feladatokat
-- Ha a Kommandant kérdez egy emailről, keresd meg a FRISS EMAILEK és KERESÉSI EREDMÉNYEK szekcióban
-- Ha a Kommandant parancsot ad (pl. "küld el email-t", "hozz létre taskot"), felismered és végrehajtod
+- Tool-okat tudsz hívni: Gmail keresés, naptár, feladat kezelés
+- Ha a Kommandant személyt vagy emailt keres, MINDIG használd a gmail_search tool-t
+- Ha frissítést kér, használd a gmail_poll vagy calendar_poll tool-t
 
-Ha a Kommandant emailre akar válaszolni:
+Ha emailre kell válaszolni:
 - Írd meg a draft választ magyarul, a Kommandant stílusában (hivatalos de nem merev)
-- Kérd a megerősítését: "Küldhetem? Írd /send vagy módosítsd."
+- Kérd a megerősítését mielőtt bármit küldenél
 - Aláírás: "Üdvözlettel, Kende Tamás"
 
-KRITIKUS SZABÁLYOK:
+Szabályok:
 - Magyar nyelv, hacsak nem kérnek mást
 - Tömör válaszok (max 3-5 mondat, kivéve ha elemzést kérnek)
-- NE HAZUDJ és NE HALLUCINÁJ! Ha egy emailt nem találsz a kontextusban, mondd: "Nem találom a kapott emailek között. Lehet hogy régebbi vagy más mappában van."
-- NE TEGYÉL ÚGY mintha tool-okat futtatnál! Nem tudsz capture_gmail_poll-t, API-t, vagy bármilyen rendszerhívást végrehajtani. Csak a kontextusban kapott adatokból dolgozhatsz.
-- Ha a Kommandant ragaszkodik hogy létezik egy email amit nem látsz, mondd: "Sajnálom, a mostani lekérdezésben nem szerepel. Próbáld /brief paranccsal vagy kérdezz rá konkrétabban."
-- Az email kontextus amit kapsz VALÓS és FRISS, de NEM TELJES — csak az utolsó ~25 emailt és a keresési eredményeket látod."""
+- NE HAZUDJ — ha a tool nem ad eredményt, mondd meg
+- Email küldés SOHA nem automatikus — mindig kérj megerősítést"""
 
 
-WEEKDAYS_HU = ["hétfő", "kedd", "szerda", "csütörtök", "péntek", "szombat", "vasárnap"]
-
-
-def _get_feldwebel_system_prompt() -> str:
-    """Build system prompt with current date injected."""
+def _build_system_prompt(ctx) -> str:
+    """Build system prompt with current date + Pyramid context."""
     now = datetime.now(timezone.utc)
-    return FELDWEBEL_SYSTEM_PROMPT_TEMPLATE.format(
+    base = SYSTEM_PROMPT_TEMPLATE.format(
         date_str=now.strftime("%Y.%m.%d"),
         weekday_hu=WEEKDAYS_HU[now.weekday()],
     )
 
+    parts = [base]
+
+    # Add Pyramid context if available
+    try:
+        from pyramid.context_builder import build_agent_context
+        pyramid_ctx = build_agent_context(
+            agent_id="deepseek",
+            inbox_summary="",  # Tools handle email access now
+        )
+        parts.append(pyramid_ctx)
+    except (ImportError, Exception) as e:
+        logger.debug("Pyramid context unavailable: %s", e)
+
+    # Add open tasks (fast, from DB)
+    task_ctx = _fetch_open_tasks(ctx)
+    if task_ctx:
+        parts.append(task_ctx)
+
+    return "\n\n---\n\n".join(parts)
+
+
+# ── Main respond function (agent loop) ────────────────────────────
+
 
 async def respond(text: str, chat_id: str, agent_id: str = "deepseek") -> str:
     """
-    Generate a DeepSeek response with conversation history and live data.
+    Generate a DeepSeek response with native tool use.
+    Agent loop: DeepSeek calls tools → results fed back → final response.
     """
     ctx = get_ctx()
 
-    # 0. Check for pending action confirmation/cancellation
-    from feldwebel.actions import (
-        detect_action, has_pending_action, execute_pending,
-        cancel_pending, propose_action
-    )
-
-    if has_pending_action(chat_id):
-        action, _ = detect_action(text)
-        if action == "confirm":
-            result = await execute_pending(chat_id)
-            add_message(chat_id, "user", text)
-            if result:
-                add_message(chat_id, "assistant", result, agent_id)
-            return result
-        elif action == "cancel":
-            await cancel_pending(chat_id)
-            add_message(chat_id, "user", text)
-            add_message(chat_id, "assistant", "Törölve.", agent_id)
-            return "Törölve."
-        else:
-            # Not a confirmation — clear pending and continue normally
-            from feldwebel.actions import clear_pending_action
-            clear_pending_action(chat_id)
-
-    # 0b. Check for new actionable intent
-    action, params = detect_action(text)
-    if action and action not in ("confirm", "cancel"):
-        add_message(chat_id, "user", text)
-        await propose_action(action, params, chat_id)
-        return ""
-
-    # 1. Store user message in history
+    # Store user message in history
     add_message(chat_id, "user", text)
 
-    # 2. Gather live context (emails, tasks, calendar)
-    live_context = await _gather_live_context(ctx, text)
-
-    # 3. Build system prompt with Pyramid + live context
-    system_prompt = _build_system_prompt(ctx, agent_id, live_context)
-
-    # 4. Build messages array with history
+    # Build messages
+    system_prompt = _build_system_prompt(ctx)
     history = get_history(chat_id, limit=8)
     messages = [{"role": "system", "content": system_prompt}]
     for msg in history:
         messages.append({"role": msg["role"], "content": msg["content"]})
 
-    # 5. Call SiliconFlow API
     model_id = ctx.siliconflow_models.get(agent_id, "deepseek-ai/DeepSeek-V3.2")
 
+    # Agent loop — max 3 rounds of tool calls
+    final_content = ""
+    for round_num in range(3):
+        data = await _call_deepseek(ctx, model_id, messages, use_tools=(round_num < 2))
+        if not data:
+            break
+
+        choice = data.get("choices", [{}])[0]
+        msg = choice.get("message", {})
+        finish_reason = choice.get("finish_reason", "")
+
+        # If tool calls requested
+        if msg.get("tool_calls") and finish_reason == "tool_calls":
+            # Add assistant message with tool calls to conversation
+            messages.append(msg)
+
+            # Execute each tool call
+            for tc in msg["tool_calls"]:
+                fn_name = tc.get("function", {}).get("name", "")
+                fn_args_raw = tc.get("function", {}).get("arguments", "{}")
+                tc_id = tc.get("id", "")
+
+                try:
+                    fn_args = json.loads(fn_args_raw) if isinstance(fn_args_raw, str) else fn_args_raw
+                except json.JSONDecodeError:
+                    fn_args = {}
+
+                logger.info("Tool call round %d: %s(%s)", round_num, fn_name, fn_args)
+
+                # Execute tool
+                result = await _execute_tool(fn_name, fn_args, ctx)
+
+                # Add tool result to messages
+                messages.append({
+                    "role": "tool",
+                    "tool_call_id": tc_id,
+                    "content": result,
+                })
+
+            # Continue loop — DeepSeek will process tool results
+            continue
+
+        # Text response — we're done
+        final_content = msg.get("content", "")
+        break
+
+    if not final_content:
+        await ctx.telegram_push("<b>FELDWEBEL</b> — nem sikerült választ generálni")
+        return ""
+
+    # Store in history
+    add_message(chat_id, "assistant", final_content, agent_id)
+
+    # Push to Telegram
+    safe_content = html_escape(final_content[:3800])
+    await ctx.telegram_push(f"<b>FELDWEBEL</b>\n\n{safe_content}")
+
+    # Store in Bridge DB
+    _store_bridge_reply(ctx, text, final_content, agent_id)
+
+    # Trim old history
+    trim_history(chat_id, max_entries=30)
+
+    logger.info("Feldwebel responded (%d chars, tool-use)", len(final_content))
+    return final_content
+
+
+# ── DeepSeek API call ──────────────────────────────────────────────
+
+
+async def _call_deepseek(ctx, model_id: str, messages: list, use_tools: bool = True) -> dict:
+    """Call SiliconFlow DeepSeek API, optionally with tools."""
     try:
+        payload = {
+            "model": model_id,
+            "messages": messages,
+            "temperature": 0.7,
+            "max_tokens": 2000,
+        }
+        if use_tools:
+            payload["tools"] = TOOLS
+
         async with httpx.AsyncClient(timeout=ctx.siliconflow_timeout) as client:
             resp = await client.post(
                 f"{ctx.siliconflow_base_url}/chat/completions",
@@ -116,201 +261,104 @@ async def respond(text: str, chat_id: str, agent_id: str = "deepseek") -> str:
                     "Authorization": f"Bearer {ctx.siliconflow_api_key}",
                     "Content-Type": "application/json",
                 },
-                json={
-                    "model": model_id,
-                    "messages": messages,
-                    "temperature": 0.7,
-                    "max_tokens": 2000,
-                },
+                json=payload,
             )
             data = json.loads(resp.text)
-    except Exception as e:
-        logger.error("SiliconFlow API error: %s", e)
-        await ctx.telegram_push(f"<b>FELDWEBEL</b> — API hiba: {html_escape(str(e)[:500])}")
-        return ""
 
-    if "error" in data:
-        error_msg = str(data["error"])
-        logger.error("SiliconFlow returned error: %s", error_msg)
-        await ctx.telegram_push(f"<b>FELDWEBEL</b> — API hiba: {html_escape(error_msg[:500])}")
-        return ""
-
-    content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
-    if not content or not content.strip():
-        await ctx.telegram_push("<b>FELDWEBEL</b> — üres válasz")
-        return ""
-
-    # 6. Store assistant response in history
-    add_message(chat_id, "assistant", content, agent_id)
-
-    # 7. Push to Telegram
-    safe_content = html_escape(content[:3800])
-    await ctx.telegram_push(f"<b>FELDWEBEL</b>\n\n{safe_content}")
-
-    # 8. Store reply in Bridge DB
-    _store_bridge_reply(ctx, text, content, agent_id)
-
-    # 9. Trim old history
-    trim_history(chat_id, max_entries=30)
-
-    logger.info("Feldwebel responded (%d chars)", len(content))
-    return content
-
-
-# ── Live context gathering ─────────────────────────────────────────
-
-
-async def _gather_live_context(ctx, user_text: str) -> str:
-    """
-    Gather real-time data from Gmail, Calendar, Tasks based on what
-    the user is asking about. Always includes recent emails.
-    """
-    sections = []
-
-    # Always: fresh emails from Gmail API (last 25, no category filter)
-    email_ctx = await _fetch_recent_emails(ctx, limit=25)
-    if email_ctx:
-        sections.append(email_ctx)
-
-    # Always: open tasks
-    task_ctx = _fetch_open_tasks(ctx)
-    if task_ctx:
-        sections.append(task_ctx)
-
-    # If user mentions email-related keywords or person names, do targeted Gmail search
-    text_lower = user_text.lower()
-    email_keywords = ["email", "levél", "mail", "írj", "válasz", "reply", "küld",
-                      "forward", "írt", "küldött", "kaptam", "érkezett", "levelét"]
-    # Also search if the message looks like a question about a person
-    has_email_intent = any(kw in text_lower for kw in email_keywords)
-    has_question = "?" in user_text
-    if has_email_intent or has_question:
-        search_ctx = await _search_emails_for_query(ctx, user_text)
-        if search_ctx:
-            sections.append(search_ctx)
-
-    return "\n\n".join(sections) if sections else ""
-
-
-async def _fetch_recent_emails(ctx, limit: int = 25) -> str:
-    """Fetch recent emails via Gmail API (capture_inbox tool)."""
-    if not ctx.capture_state.get("gmail_service"):
-        # Fallback: use Bridge DB
-        return _fetch_emails_from_db(ctx, limit)
-
-    try:
-        # Call capture_inbox — no category filter, get ALL recent emails
-        result_json = await ctx.capture_state["_capture_inbox_func"](
-            limit=limit, query="newer_than:3d", caller="feldwebel"
-        )
-        data = json.loads(result_json)
         if "error" in data:
-            return _fetch_emails_from_db(ctx, limit)
+            logger.error("SiliconFlow error: %s", data["error"])
+            await ctx.telegram_push(f"<b>FELDWEBEL</b> — API hiba: {html_escape(str(data['error'])[:500])}")
+            return {}
+        return data
 
-        messages = data.get("messages", [])
-        if not messages:
-            return ""
+    except Exception as e:
+        logger.error("SiliconFlow API call failed: %s", e)
+        await ctx.telegram_push(f"<b>FELDWEBEL</b> — API hiba: {html_escape(str(e)[:500])}")
+        return {}
 
-        lines = [f"# FRISS EMAILEK ({len(messages)} db)"]
-        for m in messages:
-            sender = m.get("from", "?")
-            sender_email = m.get("from_email", "")
-            subject = m.get("subject", "(nincs tárgy)")
-            snippet = m.get("snippet", "")
-            date = m.get("date", "")
-            att = f" 📎{len(m['attachments'])} csatolmány" if m.get("attachments") else ""
-            lines.append(
-                f"- **{sender}** <{sender_email}> ({date[:16]})\n"
-                f"  Tárgy: {subject}\n"
-                f"  Tartalom: {snippet[:200]}{att}"
+
+# ── Tool execution ─────────────────────────────────────────────────
+
+
+async def _execute_tool(name: str, args: dict, ctx) -> str:
+    """Execute a tool and return the result as string."""
+
+    if name == "gmail_search":
+        query = args.get("query", "")
+        if not query:
+            return json.dumps({"error": "Nincs keresési query"})
+        if not ctx.capture_state.get("_capture_inbox_func"):
+            return json.dumps({"error": "Gmail nem elérhető"})
+        try:
+            result = await ctx.capture_state["_capture_inbox_func"](
+                limit=10, query=query, caller="feldwebel"
             )
-        return "\n".join(lines)
-    except Exception as e:
-        logger.warning("Gmail API fetch failed, using DB fallback: %s", e)
-        return _fetch_emails_from_db(ctx, limit)
+            return result
+        except Exception as e:
+            return json.dumps({"error": str(e)})
 
+    if name == "gmail_poll":
+        if not ctx.capture_gmail_poll:
+            return json.dumps({"error": "Gmail poll nem elérhető"})
+        try:
+            result = await ctx.capture_gmail_poll(caller="feldwebel")
+            return result
+        except Exception as e:
+            return json.dumps({"error": str(e)})
 
-def _fetch_emails_from_db(ctx, limit: int = 15) -> str:
-    """Fallback: fetch emails from Bridge DB capture-daemon entries."""
-    try:
-        conn = ctx.get_db()
-        rows = conn.execute(
-            "SELECT subject, message, priority, timestamp FROM messages "
-            "WHERE sender = 'capture-daemon' AND subject LIKE '%Gmail%' "
-            "ORDER BY timestamp DESC LIMIT ?",
-            (limit,)
-        ).fetchall()
-        conn.close()
+    if name == "calendar_poll":
+        if not ctx.capture_calendar_poll:
+            return json.dumps({"error": "Calendar poll nem elérhető"})
+        try:
+            result = await ctx.capture_calendar_poll(caller="feldwebel")
+            return result
+        except Exception as e:
+            return json.dumps({"error": str(e)})
 
-        if not rows:
-            return ""
-
-        lines = [f"# FRISS EMAILEK ({len(rows)} db, Bridge DB-ből)"]
-        for r in rows:
-            prio = {"urgent": "🔴", "important": "🟠", "normal": "🔵"}.get(r["priority"], "⚪")
-            subj = r["subject"].replace("Gmail: ", "").replace("Gmail — ", "")
-            msg_preview = r["message"][:200] if r["message"] else ""
-            lines.append(f"{prio} [{r['timestamp'][:16]}] {subj}\n   {msg_preview}")
-        return "\n".join(lines)
-    except Exception as e:
-        logger.warning("DB email fetch failed: %s", e)
-        return ""
-
-
-async def _search_emails_for_query(ctx, user_text: str) -> str:
-    """Search Gmail for emails related to the user's query.
-    Uses DeepSeek to extract the optimal Gmail search query."""
-    if not ctx.capture_state.get("gmail_service"):
-        return ""
-
-    # Ask DeepSeek to extract the Gmail search query
-    query = await _ai_extract_search_query(ctx, user_text)
-
-    # Fallback: if AI extraction fails, use first capitalized word as from: search
-    if not query:
-        words = [w.strip(".,!?:;\"'()") for w in user_text.split()]
-        names = [w for w in words if len(w) > 2 and w[0].isupper()]
-        if names:
-            query = f"from:{names[0]}"
-            logger.info("Gmail search fallback (name-based): %s", query)
-
-    if not query:
-        return ""
-
-    logger.info("Gmail search for Feldwebel (AI-extracted): %s", query)
-
-    try:
-        result_json = await ctx.capture_state["_capture_inbox_func"](
-            limit=5, query=query, caller="feldwebel"
-        )
-        data = json.loads(result_json)
-        messages = data.get("messages", [])
-        if not messages:
-            return ""
-
-        lines = [f"# KERESÉSI EREDMÉNYEK: \"{query}\" ({len(messages)} találat)"]
-        for m in messages:
-            sender = m.get("from", "?")
-            subject = m.get("subject", "(nincs tárgy)")
-            snippet = m.get("snippet", "")
-            msg_id = m.get("id", "")
-            lines.append(
-                f"- **{sender}** — {subject}\n"
-                f"  {snippet[:300]}\n"
-                f"  [message_id: {msg_id}]"
+    if name == "create_task":
+        title = args.get("title", "")
+        if not title:
+            return json.dumps({"error": "Nincs feladat megadva"})
+        try:
+            conn = ctx.get_db()
+            conn.execute(
+                "INSERT INTO tasks (title, assigned_to, assigned_by, status, priority, created_at) "
+                "VALUES (?, 'cli-claus', 'feldwebel', 'pending', 'normal', ?)",
+                (title, datetime.now(timezone.utc).isoformat())
             )
-        return "\n".join(lines)
-    except Exception as e:
-        logger.warning("Gmail search failed: %s", e)
-        return ""
+            conn.commit()
+            conn.close()
+            return json.dumps({"success": True, "title": title})
+        except Exception as e:
+            return json.dumps({"error": str(e)})
+
+    if name == "list_tasks":
+        try:
+            conn = ctx.get_db()
+            rows = conn.execute(
+                "SELECT id, title, status, priority, assigned_to FROM tasks "
+                "WHERE status IN ('pending', 'in_progress') "
+                "ORDER BY created_at DESC LIMIT 15"
+            ).fetchall()
+            conn.close()
+            tasks = [{"id": r["id"], "title": r["title"], "status": r["status"],
+                      "priority": r["priority"], "assigned_to": r["assigned_to"]} for r in rows]
+            return json.dumps({"tasks": tasks}, ensure_ascii=False)
+        except Exception as e:
+            return json.dumps({"error": str(e)})
+
+    return json.dumps({"error": f"Ismeretlen tool: {name}"})
+
+
+# ── Helper functions ───────────────────────────────────────────────
 
 
 def _fetch_open_tasks(ctx) -> str:
-    """Fetch open tasks from Bridge DB."""
+    """Fetch open tasks from Bridge DB for system prompt context."""
     try:
         conn = ctx.get_db()
         rows = conn.execute(
-            "SELECT id, title, status, priority, assigned_to FROM tasks "
+            "SELECT id, title, status, priority FROM tasks "
             "WHERE status IN ('pending', 'in_progress') "
             "ORDER BY created_at DESC LIMIT 10"
         ).fetchall()
@@ -325,91 +373,6 @@ def _fetch_open_tasks(ctx) -> str:
         return ""
 
 
-# ── AI-powered search query extraction ─────────────────────────────
-
-
-async def _ai_extract_search_query(ctx, user_text: str) -> str:
-    """Ask DeepSeek to extract a Gmail search query from user's Hungarian text.
-    Returns a Gmail query string like 'from:Tóth' or empty string."""
-    model_id = ctx.siliconflow_models.get("deepseek", "deepseek-ai/DeepSeek-V3.2")
-    try:
-        async with httpx.AsyncClient(timeout=15) as client:
-            resp = await client.post(
-                f"{ctx.siliconflow_base_url}/chat/completions",
-                headers={
-                    "Authorization": f"Bearer {ctx.siliconflow_api_key}",
-                    "Content-Type": "application/json",
-                },
-                json={
-                    "model": model_id,
-                    "messages": [
-                        {"role": "system", "content": (
-                            "Te egy Gmail keresési query generátor vagy. "
-                            "A felhasználó magyar nyelvű kérdéséből kinyered a Gmail keresési query-t. "
-                            "Szabályok:\n"
-                            "- Ha személynevet tartalmaz, használd: from:Vezetéknév (pl. 'Tóth Gy Laci emailje' → 'from:Tóth')\n"
-                            "- Becenevet, rövidítést alakítsd vezetéknévvé (Laci=László, Gy=György, stb.)\n"
-                            "- Ha tárgyra kérdez, használd: subject:kulcsszó\n"
-                            "- Ha időszakra kérdez: newer_than:1d, newer_than:7d, stb.\n"
-                            "- CSAK a Gmail query-t írd ki, semmi mást! Egy sor, semmi magyarázat."
-                        )},
-                        {"role": "user", "content": user_text},
-                    ],
-                    "temperature": 0.1,
-                    "max_tokens": 50,
-                },
-            )
-            data = json.loads(resp.text)
-        content = data.get("choices", [{}])[0].get("message", {}).get("content", "").strip()
-        # Clean up: remove markdown backticks, quotes, leading text
-        content = content.strip("`\"' \n")
-        # If DeepSeek added explanation, try to extract just the query part
-        if "\n" in content:
-            content = content.split("\n")[0].strip()
-        if ":" in content and ("from:" in content.lower() or "subject:" in content.lower()
-                               or "newer_than:" in content.lower()):
-            # Extract just the Gmail query part
-            for prefix in ["from:", "subject:", "newer_than:", "in:", "is:"]:
-                idx = content.lower().find(prefix)
-                if idx >= 0:
-                    content = content[idx:].strip()
-                    break
-        if content and len(content) < 150:
-            logger.info("AI extracted Gmail query: '%s' from: '%s'", content, user_text[:50])
-            return content
-    except Exception as e:
-        logger.warning("AI query extraction failed: %s", e)
-    return ""
-
-
-# ── System prompt builder ──────────────────────────────────────────
-
-
-def _build_system_prompt(ctx, agent_id: str, live_context: str = "") -> str:
-    """Build full system prompt: Feldwebel base + Pyramid + live data."""
-    parts = [_get_feldwebel_system_prompt()]
-
-    # Add Pyramid context if available
-    try:
-        from pyramid.context_builder import build_agent_context
-        pyramid_ctx = build_agent_context(
-            agent_id=agent_id,
-            inbox_summary="",  # We provide our own richer inbox below
-        )
-        parts.append(pyramid_ctx)
-    except (ImportError, Exception) as e:
-        logger.debug("Pyramid context unavailable: %s", e)
-
-    # Add live context (emails, tasks, calendar)
-    if live_context:
-        parts.append(f"# ÉLŐ ADATOK (friss, valós)\n\n{live_context}")
-
-    return "\n\n---\n\n".join(parts)
-
-
-# ── Bridge DB storage ──────────────────────────────────────────────
-
-
 def _store_bridge_reply(ctx, user_text: str, reply: str, agent_id: str):
     """Store Feldwebel reply in Bridge messages DB."""
     try:
@@ -419,13 +382,12 @@ def _store_bridge_reply(ctx, user_text: str, reply: str, agent_id: str):
             "ORDER BY id DESC LIMIT 1"
         ).fetchone()
         msg_id = row["id"] if row else None
-
         conn.execute(
             "INSERT INTO messages (timestamp, sender, recipient, subject, message, priority, thread_id, reply_to) "
             "VALUES (?, ?, 'kommandant', ?, ?, 'normal', ?, ?)",
             (datetime.now(timezone.utc).isoformat(),
              f"feldwebel-{agent_id}",
-             f"Re: Feldwebel válasz",
+             "Re: Feldwebel válasz",
              reply,
              msg_id, msg_id)
         )
