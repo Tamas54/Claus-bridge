@@ -410,15 +410,38 @@ async def _execute_tool(name: str, args: dict, ctx) -> str:
         prompt = args.get("prompt", "")
         if not prompt:
             return json.dumps({"error": "Nincs prompt megadva"})
-        if not ctx.capture_state.get("_ai_query_func"):
-            return json.dumps({"error": "AI query nem elérhető"})
-        try:
-            result = await ctx.capture_state["_ai_query_func"](
-                model=model, prompt=prompt, caller="feldwebel"
-            )
-            return result
-        except Exception as e:
-            return json.dumps({"error": str(e)})
+
+        # Use _run_agent_with_tools for web search capability
+        run_with_tools = ctx.capture_state.get("_run_agent_with_tools")
+        if run_with_tools:
+            try:
+                from pyramid.context_builder import build_agent_context
+                system_prompt = build_agent_context(agent_id=model, inbox_summary="")
+            except (ImportError, Exception):
+                system_prompt = "Te a Claus rendszer al-agentje vagy. Magyarul válaszolj."
+
+            model_map = ctx.siliconflow_models or {}
+            model_id = model_map.get(model, model)
+            messages = [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": prompt},
+            ]
+            try:
+                result = await run_with_tools(model_id, messages, max_rounds=3)
+                return json.dumps({"model": model_id, "response": result}, ensure_ascii=False)
+            except Exception as e:
+                return json.dumps({"error": str(e)})
+
+        # Fallback: use ai_query without web search
+        if ctx.capture_state.get("_ai_query_func"):
+            try:
+                return await ctx.capture_state["_ai_query_func"](
+                    model=model, prompt=prompt, caller="feldwebel"
+                )
+            except Exception as e:
+                return json.dumps({"error": str(e)})
+
+        return json.dumps({"error": "AI query nem elérhető"})
 
     if name == "ai_task":
         title = args.get("title", "")

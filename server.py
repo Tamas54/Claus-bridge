@@ -3275,6 +3275,7 @@ if FELDWEBEL_ENABLED:
     _capture_state["_capture_inbox_func"] = capture_inbox
     _capture_state["_ai_query_func"] = ai_query
     _capture_state["_ai_task_func"] = ai_task
+    _capture_state["_run_agent_with_tools"] = _run_agent_with_tools
     init_feldwebel(BridgeContext(
         telegram_push=_telegram_push,
         get_inbox_summary=_get_inbox_summary,
