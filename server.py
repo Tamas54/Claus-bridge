@@ -40,6 +40,13 @@ from permissions import (
 )
 from youngereka_profile import register_youngereka
 
+# Feldwebel — Telegram command system + smart triage + briefing
+try:
+    from feldwebel import init_feldwebel, BridgeContext
+    FELDWEBEL_ENABLED = True
+except ImportError:
+    FELDWEBEL_ENABLED = False
+
 logger = logging.getLogger("claus-bridge")
 
 # --- Server Setup ---
@@ -2992,14 +2999,21 @@ async def _handle_telegram_message(text: str, chat_id: str):
     conn.close()
     logger.info("Telegram message stored in Bridge: #%d", msg_id)
 
-    # 2. Check for agent mentions — default to DeepSeek if no mention
+    # 2. Feldwebel command routing (slash commands)
+    if FELDWEBEL_ENABLED:
+        try:
+            from feldwebel.commands import handle_command
+            if await handle_command(text, chat_id):
+                return  # Command was handled
+        except Exception as e:
+            logger.error("Feldwebel command error: %s", e)
+
+    # 3. Check for explicit agent mentions (@kimi, @glm5)
     text_lower = text.lower()
     mentioned = [a for a in ("kimi", "deepseek", "glm5") if f"@{a}" in text_lower]
-    if not mentioned:
-        mentioned = ["deepseek"]  # Default responder
 
     if mentioned and PYRAMID_ENABLED and SILICONFLOW_API_KEY:
-        # Call agents and reply on Telegram
+        # Call specific agents by mention (existing logic)
         import httpx
         from html import escape as html_escape
         for agent_id in mentioned:
@@ -3017,7 +3031,6 @@ async def _handle_telegram_message(text: str, chat_id: str):
                     )
                     data = json.loads(resp.text)
 
-                # Check for API error
                 if "error" in data:
                     await _telegram_push(f"<b>{agent_id.upper()}</b> — API hiba: {html_escape(str(data['error']))}")
                     continue
@@ -3027,11 +3040,9 @@ async def _handle_telegram_message(text: str, chat_id: str):
                     await _telegram_push(f"<b>{agent_id.upper()}</b> — üres válasz")
                     continue
 
-                # Reply on Telegram — escape HTML in agent response, send as plain text
                 safe_content = html_escape(content[:3800])
                 await _telegram_push(f"<b>{agent_id.upper()}</b>\n\n{safe_content}")
 
-                # Store reply in Bridge DB (raw, not escaped)
                 conn2 = get_db()
                 conn2.execute(
                     "INSERT INTO messages (timestamp, sender, recipient, subject, message, priority, thread_id, reply_to) "
@@ -3041,7 +3052,6 @@ async def _handle_telegram_message(text: str, chat_id: str):
                 conn2.commit()
                 conn2.close()
 
-                # Pyramid governance
                 if PYRAMID_ENABLED:
                     try:
                         pyramid_store_result(content=content, agent_id=agent_id, task_title=f"telegram:{text[:60]}")
@@ -3052,6 +3062,39 @@ async def _handle_telegram_message(text: str, chat_id: str):
             except Exception as e:
                 logger.error("Agent %s Telegram reply failed: %s", agent_id, e)
                 await _telegram_push(f"<b>{agent_id.upper()}</b> — hiba: {html_escape(str(e)[:500])}")
+        return  # Agent mention handled
+
+    # 4. Free text → Feldwebel responder (DeepSeek with conversation history)
+    if FELDWEBEL_ENABLED:
+        try:
+            from feldwebel.responder import respond
+            await respond(text, chat_id)
+            return
+        except Exception as e:
+            logger.error("Feldwebel responder error: %s", e)
+
+    # 5. Fallback: original DeepSeek call without history (if Feldwebel unavailable)
+    if PYRAMID_ENABLED and SILICONFLOW_API_KEY:
+        import httpx
+        from html import escape as html_escape
+        try:
+            system_prompt = build_agent_context(agent_id="deepseek", inbox_summary=_get_inbox_summary())
+            model_id = SILICONFLOW_MODELS.get("deepseek", "deepseek")
+            async with httpx.AsyncClient(timeout=SILICONFLOW_TIMEOUT) as client:
+                resp = await client.post(
+                    f"{SILICONFLOW_BASE_URL}/chat/completions",
+                    headers={"Authorization": f"Bearer {SILICONFLOW_API_KEY}", "Content-Type": "application/json"},
+                    json={"model": model_id, "messages": [
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": f"Kommandant üzenete Telegramról:\n\n{text}"},
+                    ], "temperature": 0.7, "max_tokens": 1500},
+                )
+                data = json.loads(resp.text)
+            content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
+            if content and content.strip():
+                await _telegram_push(f"<b>DEEPSEEK</b>\n\n{html_escape(content[:3800])}")
+        except Exception as e:
+            logger.error("Fallback DeepSeek failed: %s", e)
 
 
 async def _telegram_poll_loop():
@@ -3159,6 +3202,25 @@ _start_telegram_polling()
 # Register permission profiles
 register_youngereka()
 logger.info("Permission profiles registered: YoungeReka")
+
+# Initialize Feldwebel
+if FELDWEBEL_ENABLED:
+    init_feldwebel(BridgeContext(
+        telegram_push=_telegram_push,
+        get_inbox_summary=_get_inbox_summary,
+        get_db=get_db,
+        capture_state=_capture_state,
+        siliconflow_api_key=SILICONFLOW_API_KEY,
+        siliconflow_base_url=SILICONFLOW_BASE_URL,
+        siliconflow_timeout=SILICONFLOW_TIMEOUT,
+        siliconflow_models=SILICONFLOW_MODELS,
+        capture_send_email=capture_send_email,
+        capture_calendar_poll=capture_calendar_poll,
+        create_calendar_event=create_calendar_event,
+        list_tasks_func=list_tasks,
+        create_task_func=create_task,
+        telegram_chat_id=TELEGRAM_CHAT_ID or "",
+    ))
 
 if __name__ == "__main__":
     mcp.run(
