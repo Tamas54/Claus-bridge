@@ -2910,6 +2910,11 @@ async def capture_status(caller: str = "") -> str:
         return denied
     gmail_ok = _capture_state.get("gmail_service") is not None
     cal_ok = _capture_state.get("calendar_service") is not None
+    # If not connected, try to reinit and report the error
+    diag = None
+    if not gmail_ok:
+        diag = _diagnose_google_init()
+
     return json.dumps({
         "gmail_connected": gmail_ok,
         "calendar_connected": cal_ok,
@@ -2917,6 +2922,7 @@ async def capture_status(caller: str = "") -> str:
         "capture_loop_running": _capture_state.get("capture_running", False),
         "calendar_reminded_count": len(_capture_state.get("calendar_reminded", set())),
         "last_briefing_date": _capture_state.get("last_briefing_date"),
+        "google_diag": diag,
         "config": {
             "gmail_poll_interval": GMAIL_POLL_INTERVAL,
             "calendar_poll_interval": CALENDAR_POLL_INTERVAL,
@@ -2924,6 +2930,60 @@ async def capture_status(caller: str = "") -> str:
             "morning_briefing_hour": MORNING_BRIEFING_HOUR,
         }
     })
+
+
+def _diagnose_google_init() -> dict:
+    """Diagnose why Google services aren't working. Returns dict with details."""
+    import traceback
+    token_raw = GOOGLE_TOKEN_JSON
+    result = {"token_env_length": len(token_raw)}
+
+    if not token_raw:
+        result["error"] = "GOOGLE_TOKEN_JSON env var is empty or not set"
+        return result
+
+    # Try parse
+    try:
+        try:
+            token_data = json.loads(token_raw)
+            result["parse_method"] = "raw_json"
+        except json.JSONDecodeError:
+            token_data = json.loads(base64.b64decode(token_raw).decode())
+            result["parse_method"] = "base64"
+        result["has_refresh_token"] = bool(token_data.get("refresh_token"))
+        result["has_client_id"] = bool(token_data.get("client_id"))
+        result["expiry"] = token_data.get("expiry", "none")
+    except Exception as e:
+        result["parse_error"] = f"{type(e).__name__}: {e}"
+        return result
+
+    # Try create creds + refresh
+    try:
+        from google.oauth2.credentials import Credentials
+        from google.auth.transport.requests import Request
+        creds = Credentials.from_authorized_user_info(token_data, GOOGLE_SCOPES)
+        result["creds_expired"] = creds.expired
+        result["creds_valid"] = creds.valid
+        if creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+            result["refresh_success"] = True
+            result["new_expiry"] = creds.expiry.isoformat() if creds.expiry else "none"
+            # Actually init the services now!
+            from googleapiclient.discovery import build
+            _capture_state["gmail_service"] = build("gmail", "v1", credentials=creds, cache_discovery=False)
+            _capture_state["calendar_service"] = build("calendar", "v3", credentials=creds, cache_discovery=False)
+            profile = _capture_state["gmail_service"].users().getProfile(userId="me").execute()
+            result["reinit_success"] = True
+            result["email"] = profile.get("emailAddress")
+            # Start capture loop if not running
+            if not _capture_state.get("capture_running"):
+                _start_capture_background()
+                result["capture_restarted"] = True
+    except Exception as e:
+        result["refresh_error"] = f"{type(e).__name__}: {e}"
+        result["traceback"] = traceback.format_exc()[-500:]
+
+    return result
 
 
 # ============================================================
