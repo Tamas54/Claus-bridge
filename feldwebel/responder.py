@@ -90,6 +90,49 @@ TOOLS = [
             }
         }
     },
+    {
+        "type": "function",
+        "function": {
+            "name": "ai_query",
+            "description": "Küldj feladatot EGY konkrét AI agentnek. Ők a 'rizsrakéták': Kimi (kutató, 256k context), DeepSeek (gyors elemző), GLM-5 (kódoló, 205k context). Használd ha a Kommandant egy konkrét agentet szólít meg vagy specifikus feladatot ad.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "model": {
+                        "type": "string",
+                        "description": "Agent neve: 'kimi', 'deepseek', vagy 'glm5'",
+                        "enum": ["kimi", "deepseek", "glm5"]
+                    },
+                    "prompt": {
+                        "type": "string",
+                        "description": "A feladat / kérdés amit az agentnek adsz"
+                    }
+                },
+                "required": ["model", "prompt"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "ai_task",
+            "description": "Küldj feladatot MIND A HÁROM AI agentnek párhuzamosan (Kimi + DeepSeek + GLM-5). Mindegyik dolgozik rajta, majd szintézis készül. Használd komplex feladatoknál, kutatásnál, elemzésnél.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "title": {
+                        "type": "string",
+                        "description": "Rövid feladat cím"
+                    },
+                    "description": {
+                        "type": "string",
+                        "description": "Részletes feladat leírás, instrukciók"
+                    }
+                },
+                "required": ["title", "description"]
+            }
+        }
+    },
 ]
 
 # Tools that need confirmation before execution
@@ -105,9 +148,16 @@ Időzóna: CET (Budapest)
 
 Szereped:
 - Gyors, lényegre törő válaszok magyarul
-- Tool-okat tudsz hívni: Gmail keresés, naptár, feladat kezelés
+- Tool-okat tudsz hívni: Gmail keresés, naptár, feladat kezelés, AI agentek
 - Ha a Kommandant személyt vagy emailt keres, MINDIG használd a gmail_search tool-t
 - Ha frissítést kér, használd a gmail_poll vagy calendar_poll tool-t
+
+AI agentek (rizsrakéták):
+- **Kimi** (moonshotai/Kimi-K2.5): 256k kontextus, kutató/elemző. Használd kutatáshoz, hosszú dokumentumokhoz.
+- **DeepSeek** (deepseek-ai/DeepSeek-V3.2): gyors gondolkodás, kritikus/reviewer. Használd elemzéshez, véleményezéshez.
+- **GLM-5** (zai-org/GLM-5): 205k kontextus, kódoló/végrehajtó. Használd kódoláshoz, technikai feladatokhoz.
+- Ha a Kommandant konkrét agentet említ ("Kimi nézd meg", "kérdezd meg GLM-5-öt"), használd az ai_query tool-t.
+- Ha komplex feladat, ahol mind a 3 agent kellene, használd az ai_task tool-t.
 
 Ha emailre kell válaszolni:
 - Írd meg a draft választ magyarul, a Kommandant stílusában (hivatalos de nem merev)
@@ -344,6 +394,36 @@ async def _execute_tool(name: str, args: dict, ctx) -> str:
             tasks = [{"id": r["id"], "title": r["title"], "status": r["status"],
                       "priority": r["priority"], "assigned_to": r["assigned_to"]} for r in rows]
             return json.dumps({"tasks": tasks}, ensure_ascii=False)
+        except Exception as e:
+            return json.dumps({"error": str(e)})
+
+    if name == "ai_query":
+        model = args.get("model", "deepseek")
+        prompt = args.get("prompt", "")
+        if not prompt:
+            return json.dumps({"error": "Nincs prompt megadva"})
+        if not ctx.capture_state.get("_ai_query_func"):
+            return json.dumps({"error": "AI query nem elérhető"})
+        try:
+            result = await ctx.capture_state["_ai_query_func"](
+                model=model, prompt=prompt, caller="feldwebel"
+            )
+            return result
+        except Exception as e:
+            return json.dumps({"error": str(e)})
+
+    if name == "ai_task":
+        title = args.get("title", "")
+        description = args.get("description", "")
+        if not title or not description:
+            return json.dumps({"error": "Cím és leírás szükséges"})
+        if not ctx.capture_state.get("_ai_task_func"):
+            return json.dumps({"error": "AI task nem elérhető"})
+        try:
+            result = await ctx.capture_state["_ai_task_func"](
+                title=title, description=description, assigned_by="feldwebel"
+            )
+            return result
         except Exception as e:
             return json.dumps({"error": str(e)})
 
