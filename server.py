@@ -3205,6 +3205,8 @@ logger.info("Permission profiles registered: YoungeReka")
 
 # Initialize Feldwebel
 if FELDWEBEL_ENABLED:
+    # Inject capture_inbox into capture_state for Feldwebel email access
+    _capture_state["_capture_inbox_func"] = capture_inbox
     init_feldwebel(BridgeContext(
         telegram_push=_telegram_push,
         get_inbox_summary=_get_inbox_summary,
