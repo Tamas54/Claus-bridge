@@ -133,6 +133,23 @@ TOOLS = [
             }
         }
     },
+    {
+        "type": "function",
+        "function": {
+            "name": "read_task_results",
+            "description": "AI feladat eredményeinek lekérése. Használd ha a Kommandant kérdezi 'mi lett a feladattal', 'kész van már', 'mutasd az eredményt', vagy task ID-t említ.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "task_id": {
+                        "type": "integer",
+                        "description": "Az AI task ID száma (pl. 33)"
+                    }
+                },
+                "required": ["task_id"]
+            }
+        }
+    },
 ]
 
 # Tools that need confirmation before execution
@@ -471,49 +488,46 @@ async def _execute_tool(name: str, args: dict, ctx) -> str:
         if not ctx.capture_state.get("_ai_task_func"):
             return json.dumps({"error": "AI task nem elérhető"})
         try:
-            # Inject current date into description so agents know when they are
             now = datetime.now(timezone.utc)
             date_info = f"\n\n[Mai dátum: {now.strftime('%Y.%m.%d')} ({WEEKDAYS_HU[now.weekday()]}). Az adatoknak FRISSNEK kell lenniük!]"
             result_json = await ctx.capture_state["_ai_task_func"](
                 title=title, description=description + date_info, assigned_by="feldwebel"
             )
-            result = json.loads(result_json)
-            task_id = result.get("task_id")
-
-            if task_id:
-                # Notify user that agents are working
-                await ctx.telegram_push(
-                    f"⏳ <b>AI Task #{task_id} elindult</b> — agentek dolgoznak...\n"
-                    f"Cím: {html_escape(title[:80])}"
-                )
-                # Poll for completion (broadcast takes longer, up to 180s)
-                import asyncio
-                for _ in range(90):  # max 180s
-                    await asyncio.sleep(2)
-                    conn = ctx.get_db()
-                    status = conn.execute(
-                        "SELECT status FROM ai_tasks WHERE id = ?", (task_id,)
-                    ).fetchone()
-                    if status and status["status"] in ("completed", "failed"):
-                        # Collect all agent results
-                        rows = conn.execute(
-                            "SELECT agent, content FROM ai_task_results WHERE task_id = ? ORDER BY timestamp",
-                            (task_id,)
-                        ).fetchall()
-                        conn.close()
-                        if rows:
-                            parts = []
-                            for r in rows:
-                                parts.append(f"**{r['agent'].upper()}**:\n{r['content'][:2000]}")
-                            return json.dumps({
-                                "task_id": task_id,
-                                "status": status["status"],
-                                "agent_results": "\n\n---\n\n".join(parts)
-                            }, ensure_ascii=False)
-                        return json.dumps({"error": f"AI task #{task_id} {status['status']} but no results"})
-                    conn.close()
-                return json.dumps({"error": f"AI task #{task_id} timeout (180s) — nézd a dashboardon"})
+            # Return immediately — user can ask for results later with read_task_results
             return result_json
+        except Exception as e:
+            return json.dumps({"error": str(e)})
+
+    if name == "read_task_results":
+        task_id = args.get("task_id", 0)
+        if not task_id:
+            return json.dumps({"error": "task_id szükséges"})
+        try:
+            conn = ctx.get_db()
+            task = conn.execute(
+                "SELECT title, status FROM ai_tasks WHERE id = ?", (task_id,)
+            ).fetchone()
+            if not task:
+                conn.close()
+                return json.dumps({"error": f"Task #{task_id} nem található"})
+            if task["status"] in ("pending", "running"):
+                conn.close()
+                return json.dumps({"task_id": task_id, "status": task["status"],
+                                   "message": f"Task #{task_id} még fut, az agentek dolgoznak."})
+            rows = conn.execute(
+                "SELECT agent, content FROM ai_task_results WHERE task_id = ? ORDER BY timestamp",
+                (task_id,)
+            ).fetchall()
+            conn.close()
+            if rows:
+                parts = []
+                for r in rows:
+                    parts.append(f"**{r['agent'].upper()}**:\n{r['content'][:2000]}")
+                return json.dumps({
+                    "task_id": task_id, "title": task["title"], "status": task["status"],
+                    "agent_results": "\n\n---\n\n".join(parts)
+                }, ensure_ascii=False)
+            return json.dumps({"task_id": task_id, "status": task["status"], "message": "Nincs eredmény"})
         except Exception as e:
             return json.dumps({"error": str(e)})
 
