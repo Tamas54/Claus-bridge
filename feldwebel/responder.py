@@ -518,16 +518,16 @@ async def _execute_tool(name: str, args: dict, ctx) -> str:
 
     if name == "calendar_create":
         summary = args.get("summary", "")
-        start_time = args.get("start_time", "")
-        end_time = args.get("end_time", "")
+        start = args.get("start_time", "") or args.get("start", "")
+        end = args.get("end_time", "") or args.get("end", "")
         description = args.get("description", "")
-        if not summary or not start_time or not end_time:
-            return json.dumps({"error": "summary, start_time, end_time szükséges"})
+        if not summary or not start:
+            return json.dumps({"error": "summary és start_time szükséges"})
         create_cal_func = ctx.capture_state.get("_create_calendar_func")
         if not create_cal_func:
             return json.dumps({"error": "Naptár létrehozás nem elérhető"})
         try:
-            result = await create_cal_func(summary=summary, start_time=start_time, end_time=end_time, description=description, caller="feldwebel")
+            result = await create_cal_func(summary=summary, start=start, end=end, description=description, caller="feldwebel")
             return result
         except Exception as e:
             return json.dumps({"error": str(e)})
