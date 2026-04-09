@@ -411,33 +411,51 @@ async def _execute_tool(name: str, args: dict, ctx) -> str:
         if not prompt:
             return json.dumps({"error": "Nincs prompt megadva"})
 
-        # Use _run_agent_with_tools for web search capability
-        run_with_tools = ctx.capture_state.get("_run_agent_with_tools")
-        if run_with_tools:
+        # Route through ai_task for web search capability
+        ai_task_func = ctx.capture_state.get("_ai_task_func")
+        if ai_task_func:
             try:
-                from pyramid.context_builder import build_agent_context
-                system_prompt = build_agent_context(agent_id=model, inbox_summary="")
-            except (ImportError, Exception):
-                system_prompt = "Te a Claus rendszer al-agentje vagy. Magyarul válaszolj."
-
-            model_map = ctx.siliconflow_models or {}
-            model_id = model_map.get(model, model)
-            messages = [
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": prompt},
-            ]
-            try:
-                result = await run_with_tools(model_id, messages, max_rounds=3)
-                return json.dumps({"model": model_id, "response": result}, ensure_ascii=False)
-            except Exception as e:
-                return json.dumps({"error": str(e)})
-
-        # Fallback: use ai_query without web search
-        if ctx.capture_state.get("_ai_query_func"):
-            try:
-                return await ctx.capture_state["_ai_query_func"](
-                    model=model, prompt=prompt, caller="feldwebel"
+                agent_tasks = json.dumps({model: {"prompt": prompt, "max_tokens": 3000}})
+                result_json = await ai_task_func(
+                    title=f"Feldwebel → {model}: {prompt[:60]}",
+                    description=prompt,
+                    assigned_by="feldwebel",
+                    agent_tasks=agent_tasks,
                 )
+                result = json.loads(result_json)
+                task_id = result.get("task_id")
+
+                if task_id:
+                    # Poll for result (ai_task runs in background thread)
+                    import asyncio
+                    for _ in range(60):  # max 120s wait
+                        await asyncio.sleep(2)
+                        conn = ctx.get_db()
+                        row = conn.execute(
+                            "SELECT content FROM ai_task_results WHERE task_id = ? LIMIT 1",
+                            (task_id,)
+                        ).fetchone()
+                        status = conn.execute(
+                            "SELECT status FROM ai_tasks WHERE id = ?", (task_id,)
+                        ).fetchone()
+                        conn.close()
+                        if row:
+                            return json.dumps({
+                                "model": model, "response": row["content"],
+                                "task_id": task_id
+                            }, ensure_ascii=False)
+                        if status and status["status"] == "failed":
+                            return json.dumps({"error": f"AI task #{task_id} failed"})
+                    return json.dumps({"error": f"AI task #{task_id} timeout (120s)"})
+                return result_json
+            except Exception as e:
+                logger.error("ai_query via ai_task failed: %s", e)
+
+        # Fallback: direct ai_query (no web search)
+        ai_query_func = ctx.capture_state.get("_ai_query_func")
+        if ai_query_func:
+            try:
+                return await ai_query_func(model=model, prompt=prompt, caller="feldwebel")
             except Exception as e:
                 return json.dumps({"error": str(e)})
 
