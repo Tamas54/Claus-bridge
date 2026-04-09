@@ -1944,22 +1944,14 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
         from pyramid.task_dispatcher import dispatch_parallel_tasks
 
         async def _call_agent(model, prompt, system_prompt, max_tokens, temperature):
-            """Wrapper for dispatch_parallel_tasks to call SiliconFlow."""
-            import httpx
+            """Wrapper for dispatch_parallel_tasks — uses _run_agent_with_tools for web search."""
             model_id = SILICONFLOW_MODELS.get(model, model)
-            async with httpx.AsyncClient(timeout=SILICONFLOW_TIMEOUT) as client:
-                resp = await client.post(
-                    f"{SILICONFLOW_BASE_URL}/chat/completions",
-                    headers={"Authorization": f"Bearer {SILICONFLOW_API_KEY}", "Content-Type": "application/json"},
-                    json={"model": model_id, "messages": [
-                        {"role": "system", "content": system_prompt},
-                        {"role": "user", "content": prompt},
-                    ], "temperature": temperature, "max_tokens": max_tokens},
-                )
-                data = json.loads(resp.text)
-            content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
-            usage = data.get("usage", {})
-            return {"response": content, "tokens": {"prompt": usage.get("prompt_tokens", 0), "completion": usage.get("completion_tokens", 0)}}
+            messages = [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": prompt},
+            ]
+            content = await _run_agent_with_tools(model_id, messages, max_rounds=3)
+            return {"response": content, "tokens": {"prompt": 0, "completion": 0}}
 
         def _run_dispatch():
             loop = asyncio.new_event_loop()
