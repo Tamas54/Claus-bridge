@@ -199,10 +199,10 @@ async def respond(text: str, chat_id: str, agent_id: str = "deepseek") -> str:
 
     model_id = ctx.siliconflow_models.get(agent_id, "deepseek-ai/DeepSeek-V3.2")
 
-    # Agent loop — max 3 rounds of tool calls
+    # Agent loop — max 5 rounds of tool calls (last round forces text)
     final_content = ""
-    for round_num in range(3):
-        data = await _call_deepseek(ctx, model_id, messages, use_tools=(round_num < 2))
+    for round_num in range(5):
+        data = await _call_deepseek(ctx, model_id, messages, use_tools=(round_num < 4))
         if not data:
             break
 
