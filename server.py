@@ -1639,10 +1639,21 @@ async def _web_search(query: str) -> str:
         return f"Search error: {e}"
 
 
-async def _run_agent_with_tools(model_id: str, messages: list, max_rounds: int = 3) -> str:
+async def _run_agent_with_tools(model_id: str, messages: list, max_rounds: int = 4) -> str:
     """Run an AI agent with optional tool calls (web_search). Returns final text."""
     import httpx
-    for _ in range(max_rounds):
+    for round_num in range(max_rounds):
+        # Last round: no tools, force text response
+        use_tools = round_num < max_rounds - 1
+        payload = {
+            "model": model_id,
+            "messages": messages,
+            "temperature": 0.5,
+            "max_tokens": 2000,
+        }
+        if use_tools:
+            payload["tools"] = [WEB_SEARCH_TOOL_DEF]
+
         async with httpx.AsyncClient(timeout=SILICONFLOW_TIMEOUT) as client:
             resp = await client.post(
                 f"{SILICONFLOW_BASE_URL}/chat/completions",
@@ -1650,13 +1661,7 @@ async def _run_agent_with_tools(model_id: str, messages: list, max_rounds: int =
                     "Authorization": f"Bearer {SILICONFLOW_API_KEY}",
                     "Content-Type": "application/json",
                 },
-                json={
-                    "model": model_id,
-                    "messages": messages,
-                    "temperature": 0.5,
-                    "max_tokens": 2000,
-                    "tools": [WEB_SEARCH_TOOL_DEF],
-                },
+                json=payload,
             )
         data = json.loads(resp.text)
         if not isinstance(data, dict) or "error" in data:
@@ -1682,10 +1687,10 @@ async def _run_agent_with_tools(model_id: str, messages: list, max_rounds: int =
                     "tool_call_id": tc["id"],
                     "content": result,
                 })
-                logger.info("AI web_search: %s", args.get("query", "")[:80])
+                logger.info("AI web_search round %d: %s", round_num, args.get("query", "")[:80])
 
-    # Max rounds reached, return last content
-    return msg.get("content", "(max tool rounds reached)")
+    # Should not reach here (last round forces text), but just in case
+    return msg.get("content", "") or "(az agent nem adott választ a web keresés után)"
 
 
 async def _execute_ai_task(task_id: int, title: str, description: str, context: str, assigned_by: str):
