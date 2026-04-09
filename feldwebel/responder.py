@@ -469,10 +469,46 @@ async def _execute_tool(name: str, args: dict, ctx) -> str:
         if not ctx.capture_state.get("_ai_task_func"):
             return json.dumps({"error": "AI task nem elérhető"})
         try:
-            result = await ctx.capture_state["_ai_task_func"](
+            result_json = await ctx.capture_state["_ai_task_func"](
                 title=title, description=description, assigned_by="feldwebel"
             )
-            return result
+            result = json.loads(result_json)
+            task_id = result.get("task_id")
+
+            if task_id:
+                # Notify user that agents are working
+                await ctx.telegram_push(
+                    f"⏳ <b>AI Task #{task_id} elindult</b> — agentek dolgoznak...\n"
+                    f"Cím: {html_escape(title[:80])}"
+                )
+                # Poll for completion (broadcast takes longer, up to 180s)
+                import asyncio
+                for _ in range(90):  # max 180s
+                    await asyncio.sleep(2)
+                    conn = ctx.get_db()
+                    status = conn.execute(
+                        "SELECT status FROM ai_tasks WHERE id = ?", (task_id,)
+                    ).fetchone()
+                    if status and status["status"] in ("completed", "failed"):
+                        # Collect all agent results
+                        rows = conn.execute(
+                            "SELECT agent, content FROM ai_task_results WHERE task_id = ? ORDER BY timestamp",
+                            (task_id,)
+                        ).fetchall()
+                        conn.close()
+                        if rows:
+                            parts = []
+                            for r in rows:
+                                parts.append(f"**{r['agent'].upper()}**:\n{r['content'][:2000]}")
+                            return json.dumps({
+                                "task_id": task_id,
+                                "status": status["status"],
+                                "agent_results": "\n\n---\n\n".join(parts)
+                            }, ensure_ascii=False)
+                        return json.dumps({"error": f"AI task #{task_id} {status['status']} but no results"})
+                    conn.close()
+                return json.dumps({"error": f"AI task #{task_id} timeout (180s) — nézd a dashboardon"})
+            return result_json
         except Exception as e:
             return json.dumps({"error": str(e)})
 
