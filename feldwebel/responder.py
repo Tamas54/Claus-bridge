@@ -102,6 +102,23 @@ TOOLS = [
     {"type": "function", "function": {
         "name": "search_discussions", "description": "Keresés a Bridge diskussziókban. Korábbi viták, döntések.",
         "parameters": {"type": "object", "properties": {"query": {"type": "string", "description": "Keresési kifejezés"}}, "required": ["query"]}}},
+    # ── Recipe-k (Operation Zahnrad) ──
+    {"type": "function", "function": {
+        "name": "list_recipes", "description": "Elérhető recipe-k (workflow template-ek) listázása.",
+        "parameters": {"type": "object", "properties": {}}}},
+    {"type": "function", "function": {
+        "name": "execute_recipe", "description": "Recipe futtatása — workflow végrehajtás AI agenten keresztül.",
+        "parameters": {"type": "object", "properties": {
+            "name": {"type": "string", "description": "Recipe neve (pl. daily_briefing, weekly_macro_report)"},
+            "model": {"type": "string", "description": "Agent: kimi / deepseek / glm5", "default": "deepseek"},
+        }, "required": ["name"]}}},
+    {"type": "function", "function": {
+        "name": "create_recipe", "description": "Új recipe létrehozása — újrahasználható workflow template.",
+        "parameters": {"type": "object", "properties": {
+            "name": {"type": "string", "description": "Egyedi recipe név"},
+            "description": {"type": "string", "description": "Mit csinál a recipe"},
+            "prompt_template": {"type": "string", "description": "A workflow prompt szövege"},
+        }, "required": ["name", "description", "prompt_template"]}}},
 ]
 
 # Tools that need confirmation before execution
@@ -135,6 +152,14 @@ SZABÁLYOK az agentekhez:
 - "Adj ki feladatot Kiminek kutatásra" → ai_task(title="...", description="Kimi feladata: ...")
 - "Kérdezd meg GLM-5.1-et mi a véleménye" → ai_query(model="glm5", prompt="...")
 - "Mind a hárman elemezzétek" → ai_task(title="...", description="...")
+
+RECIPE-K (workflow template-ek):
+- A Bridge-en vannak előre definiált workflow-k ("recipe-k"), amiket bármelyik agent végrehajthat.
+- "Futtasd le a napi briefet" / "reggeli brief" / "daily briefing" → execute_recipe(name="daily_briefing")
+- "Heti makro riport" / "makrogazdasági összefoglaló" → execute_recipe(name="weekly_macro_report")
+- "Milyen recipe-k vannak?" / "workflow-k" → list_recipes()
+- "Csináljatok egy új recipe-t..." → create_recipe(name="...", description="...", prompt_template="...")
+- Ha a Kommandant egy ismétlődő feladatot kér és még nincs rá recipe → JAVASOLJ recipe létrehozást!
 
 Ha emailre kell válaszolni:
 - Írd meg a draft választ magyarul, a Kommandant stílusában (hivatalos de nem merev)
@@ -600,6 +625,91 @@ async def _execute_tool(name: str, args: dict, ctx) -> str:
             result = await search_disc_func(query=query, caller="feldwebel")
             return result
         except Exception as e:
+            return json.dumps({"error": str(e)})
+
+    # ── Recipe tools (Operation Zahnrad) ──
+    if name == "list_recipes":
+        try:
+            conn = ctx.get_db()
+            rows = conn.execute(
+                "SELECT name, description, required_tools FROM pyramid_recipes WHERE enabled = 1 ORDER BY name"
+            ).fetchall()
+            conn.close()
+            recipes = [{"name": r["name"], "description": r["description"],
+                        "tools": json.loads(r["required_tools"]) if r["required_tools"] else []} for r in rows]
+            return json.dumps({"recipes": recipes}, ensure_ascii=False)
+        except Exception as e:
+            return json.dumps({"error": str(e)})
+
+    if name == "execute_recipe":
+        recipe_name = args.get("name", "")
+        model = args.get("model", "deepseek")
+        if not recipe_name:
+            return json.dumps({"error": "Recipe neve szükséges"})
+        try:
+            conn = ctx.get_db()
+            row = conn.execute(
+                "SELECT prompt_template, required_tools, enabled FROM pyramid_recipes WHERE name = ?",
+                (recipe_name,)
+            ).fetchone()
+            conn.close()
+            if not row:
+                return json.dumps({"error": f"Recipe '{recipe_name}' nem található"})
+            if not row["enabled"]:
+                return json.dumps({"error": f"Recipe '{recipe_name}' le van tiltva"})
+            # Execute via ai_query (dispatch mode for web search support)
+            ai_task_func = ctx.capture_state.get("_ai_task_func")
+            if not ai_task_func:
+                return json.dumps({"error": "AI task nem elérhető"})
+            prompt = row["prompt_template"]
+            now = datetime.now(timezone.utc)
+            date_info = f"\n\n[Mai dátum: {now.strftime('%Y.%m.%d')} ({WEEKDAYS_HU[now.weekday()]})]"
+            agent_tasks = json.dumps({model: {"prompt": prompt + date_info, "max_tokens": 8000}})
+            result_json = await ai_task_func(
+                title=f"Recipe: {recipe_name}",
+                description=prompt + date_info,
+                assigned_by="feldwebel",
+                agent_tasks=agent_tasks,
+            )
+            result = json.loads(result_json)
+            task_id = result.get("task_id")
+            if task_id:
+                import asyncio
+                for _ in range(60):
+                    await asyncio.sleep(2)
+                    conn = ctx.get_db()
+                    row2 = conn.execute("SELECT content FROM ai_task_results WHERE task_id = ? LIMIT 1", (task_id,)).fetchone()
+                    status = conn.execute("SELECT status FROM ai_tasks WHERE id = ?", (task_id,)).fetchone()
+                    conn.close()
+                    if row2:
+                        return json.dumps({"recipe": recipe_name, "model": model, "result": row2["content"], "task_id": task_id}, ensure_ascii=False)
+                    if status and status["status"] == "failed":
+                        return json.dumps({"error": f"Recipe task #{task_id} failed"})
+                return json.dumps({"error": f"Recipe task #{task_id} timeout"})
+            return result_json
+        except Exception as e:
+            return json.dumps({"error": str(e)})
+
+    if name == "create_recipe":
+        rname = args.get("name", "")
+        desc = args.get("description", "")
+        prompt_tpl = args.get("prompt_template", "")
+        if not rname or not desc or not prompt_tpl:
+            return json.dumps({"error": "name, description, prompt_template mind szükséges"})
+        try:
+            conn = ctx.get_db()
+            ts = datetime.now(timezone.utc).isoformat()
+            conn.execute(
+                "INSERT INTO pyramid_recipes (name, description, required_tools, prompt_template, created_by, created_at, updated_at) "
+                "VALUES (?, ?, '[]', ?, 'feldwebel', ?, ?)",
+                (rname, desc, prompt_tpl, ts, ts),
+            )
+            conn.commit()
+            conn.close()
+            return json.dumps({"status": "created", "name": rname, "message": f"Recipe '{rname}' létrehozva!"}, ensure_ascii=False)
+        except Exception as e:
+            if "UNIQUE constraint" in str(e):
+                return json.dumps({"error": f"Recipe '{rname}' már létezik."})
             return json.dumps({"error": str(e)})
 
     return json.dumps({"error": f"Ismeretlen tool: {name}"})
