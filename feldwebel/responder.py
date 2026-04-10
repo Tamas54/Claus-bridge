@@ -11,10 +11,17 @@ import logging
 from datetime import datetime, timezone
 from html import escape as html_escape
 
+import os
+import re as _re
+import xml.etree.ElementTree as ET
+
 import httpx
 
 from feldwebel import get_ctx
 from feldwebel.history import add_message, get_history, trim_history
+
+# ── Economic data API keys ──
+FRED_API_KEY = os.environ.get("FRED_API_KEY", "")
 
 logger = logging.getLogger("feldwebel.responder")
 
@@ -150,6 +157,33 @@ TOOLS = [
             "file_id": {"type": "integer", "description": "Upload fájl ID (pl. #2)"},
             "prompt": {"type": "string", "description": "Kérdés a képről", "default": "Mit latsz a kepen? Ird le reszletesen, magyarul."},
         }, "required": ["file_id"]}}},
+    # ── Közgazdasági adatok (Makronóm) ──
+    {"type": "function", "function": {
+        "name": "mnb_rates", "description": "MNB hivatalos árfolyamok (EUR/HUF, USD/HUF, CHF/HUF stb.). Friss, mai adat.",
+        "parameters": {"type": "object", "properties": {
+            "currencies": {"type": "string", "description": "Szűrés: 'EUR,USD,CHF' (üres = mind a 32 deviza)", "default": ""},
+        }}}},
+    {"type": "function", "function": {
+        "name": "market_quote", "description": "Piaci adat Yahoo Finance-ből: részvény, deviza, áru, index, kötvényhozam, kripto. FRISS árak.",
+        "parameters": {"type": "object", "properties": {
+            "symbol": {"type": "string", "description": "Ticker: EURHUF=X, OTP.BD, ^BUX.BD, ^GSPC, GC=F (arany), BZ=F (Brent), BTC-USD, ^TNX (US 10Y)"},
+        }, "required": ["symbol"]}}},
+    {"type": "function", "function": {
+        "name": "fred_data", "description": "FRED makro idősorok: US kamatok, infláció, GDP, munkanélküliség, hozamok, M2, VIX, stb.",
+        "parameters": {"type": "object", "properties": {
+            "series_id": {"type": "string", "description": "FRED ID: UNRATE, DGS10, DGS2, T10Y2Y, CPIAUCSL, GDP, DFF, MORTGAGE30US, UMCSENT, M2SL, VIXCLS"},
+            "limit": {"type": "integer", "description": "Utolsó N adatpont", "default": 12},
+        }, "required": ["series_id"]}}},
+    {"type": "function", "function": {
+        "name": "policy_rates", "description": "Jegybanki alapkamatok — MNB, ECB, Fed, CNB, NBP, BNR, BoE, stb. BIS/DBnomics forrás.",
+        "parameters": {"type": "object", "properties": {
+            "countries": {"type": "string", "description": "BIS kódok: HU (MNB), XM (ECB), US (Fed), CZ, PL, RO, GB, JP, CH, TR", "default": "HU,XM,US,CZ,PL"},
+        }}}},
+    {"type": "function", "function": {
+        "name": "econ_calendar", "description": "Közelgő gazdasági adatközlések és jegybanki események (US + EU).",
+        "parameters": {"type": "object", "properties": {
+            "days_ahead": {"type": "integer", "description": "Hány napra előre (max 30)", "default": 7},
+        }}}},
 ]
 
 # Tools that need confirmation before execution
@@ -180,6 +214,13 @@ SZABÁLYOK az agentekhez:
 - **ai_query**: egyszerű kérdés egy agentnek (NEM tud webet keresni, csak a tudásából válaszol)
 - **ai_task**: kutatás, elemzés, aktuális adatok keresése — WEB SEARCH KÉPES! Az agentek DuckDuckGo-val keresnek.
 - Ha AKTUÁLIS/FRISS adatokat kell keresni (közvélemény-kutatás, árak, hírek) → MINDIG ai_task-ot használj, NE ai_query-t!
+- KÖZGAZDASÁGI ADATOKHOZ van 5 dedikált tool — EZEKET HASZNÁLD, NE ai_task-ot!
+  * mnb_rates — MNB hivatalos árfolyamok (EUR/HUF, USD/HUF stb.)
+  * market_quote — részvény, deviza, árupiaci árak Yahoo Finance-ből (EURHUF=X, OTP.BD, ^BUX.BD, GC=F, BZ=F, BTC-USD)
+  * fred_data — US makro: kamatok (DGS10, DFF), infláció (CPIAUCSL), GDP, munkanélküliség (UNRATE), VIX stb.
+  * policy_rates — jegybanki alapkamatok (MNB, ECB, Fed, CNB, NBP stb.)
+  * econ_calendar — közelgő adatközlések és jegybanki események
+- Ha a Kommandant árfolyamot, kamatot, piaci adatot kér → AZONNAL hívd a megfelelő közgazdasági tool-t!
 - "Adj ki feladatot Kiminek kutatásra" → ai_task(title="...", description="Kimi feladata: ...")
 - "Kérdezd meg GLM-5.1-et mi a véleménye" → ai_query(model="glm5", prompt="...")
 - "Mind a hárman elemezzétek" → ai_task(title="...", description="...")
@@ -959,6 +1000,181 @@ async def _execute_tool(name: str, args: dict, ctx) -> str:
             return json.dumps({"error": "Sem Telegram, sem email küldés nem sikerült"})
         except Exception as e:
             return json.dumps({"error": str(e)})
+
+    # ── Közgazdasági adat-toolok (Makronóm) ──────────────────────────
+
+    if name == "mnb_rates":
+        currencies_filter = [c.strip().upper() for c in args.get("currencies", "").split(",") if c.strip()]
+        try:
+            async with httpx.AsyncClient(timeout=15) as client:
+                resp = await client.get(
+                    "https://www.mnb.hu/arfolyamok.asmx/GetCurrentExchangeRates",
+                    headers={"User-Agent": "ClausBridge/1.0"},
+                )
+            root = ET.fromstring(resp.text)
+            # MNB returns SOAP envelope with embedded XML string
+            inner_xml = root.text or resp.text
+            # Parse the inner XML (MNBCurrentExchangeRates)
+            if "<MNBCurrentExchangeRates>" in inner_xml:
+                inner_root = ET.fromstring(inner_xml)
+            else:
+                inner_root = root
+            rates = []
+            date_str = ""
+            for day in inner_root.iter("Day"):
+                date_str = day.attrib.get("date", "")
+                for rate_elem in day.iter("Rate"):
+                    curr = rate_elem.attrib.get("curr", "")
+                    val = rate_elem.text or ""
+                    if val:
+                        val = val.replace(",", ".")
+                    if currencies_filter and curr not in currencies_filter:
+                        continue
+                    rates.append({"currency": curr, "rate": float(val) if val else 0})
+            return json.dumps({"source": "MNB", "date": date_str, "rates": rates}, ensure_ascii=False)
+        except Exception as e:
+            return json.dumps({"error": f"MNB API hiba: {e}"})
+
+    if name == "market_quote":
+        symbol = args.get("symbol", "").strip()
+        if not symbol:
+            return json.dumps({"error": "symbol szükséges (pl. EURHUF=X)"})
+        try:
+            url = f"https://query1.finance.yahoo.com/v8/finance/chart/{symbol}?interval=1d&range=5d"
+            async with httpx.AsyncClient(timeout=15, follow_redirects=True) as client:
+                resp = await client.get(url, headers={"User-Agent": "Mozilla/5.0"})
+            data = json.loads(resp.text)
+            result_data = data.get("chart", {}).get("result", [])
+            if not result_data:
+                err = data.get("chart", {}).get("error", {})
+                return json.dumps({"error": f"Yahoo Finance: {err.get('description', 'no data')}", "symbol": symbol})
+            meta = result_data[0].get("meta", {})
+            indicators = result_data[0].get("indicators", {}).get("quote", [{}])[0]
+            closes = indicators.get("close", [])
+            timestamps = result_data[0].get("timestamp", [])
+            price = meta.get("regularMarketPrice", 0)
+            prev_close = meta.get("previousClose") or meta.get("chartPreviousClose", 0)
+            change = round(price - prev_close, 4) if prev_close else 0
+            change_pct = round((change / prev_close) * 100, 2) if prev_close else 0
+            # Last 5 closes
+            recent = []
+            for i in range(max(0, len(closes) - 5), len(closes)):
+                if i < len(timestamps) and closes[i] is not None:
+                    from datetime import datetime as _dt
+                    d = _dt.utcfromtimestamp(timestamps[i]).strftime("%m-%d")
+                    recent.append({"date": d, "close": round(closes[i], 4)})
+            return json.dumps({
+                "symbol": symbol, "name": meta.get("shortName", symbol),
+                "price": price, "change": change, "change_pct": change_pct,
+                "currency": meta.get("currency", ""),
+                "recent_closes": recent,
+            }, ensure_ascii=False)
+        except Exception as e:
+            return json.dumps({"error": f"Yahoo Finance hiba: {e}", "symbol": symbol})
+
+    if name == "fred_data":
+        series_id = args.get("series_id", "").strip().upper()
+        limit = min(args.get("limit", 12), 100)
+        if not series_id:
+            return json.dumps({"error": "series_id szükséges (pl. UNRATE, DGS10)"})
+        if not FRED_API_KEY:
+            return json.dumps({"error": "FRED_API_KEY nincs beállítva a Railway env-ben"})
+        try:
+            url = (
+                f"https://api.stlouisfed.org/fred/series/observations"
+                f"?series_id={series_id}&api_key={FRED_API_KEY}&file_type=json"
+                f"&sort_order=desc&limit={limit}"
+            )
+            async with httpx.AsyncClient(timeout=15) as client:
+                resp = await client.get(url)
+            data = json.loads(resp.text)
+            if "error_code" in data:
+                return json.dumps({"error": data.get("error_message", "FRED error"), "series_id": series_id})
+            obs = data.get("observations", [])
+            points = [{"date": o["date"], "value": o["value"]} for o in obs if o.get("value") != "."]
+            # Also get series info
+            info_url = (
+                f"https://api.stlouisfed.org/fred/series"
+                f"?series_id={series_id}&api_key={FRED_API_KEY}&file_type=json"
+            )
+            async with httpx.AsyncClient(timeout=10) as client:
+                info_resp = await client.get(info_url)
+            info_data = json.loads(info_resp.text)
+            serieses = info_data.get("seriess", [{}])
+            title = serieses[0].get("title", series_id) if serieses else series_id
+            units = serieses[0].get("units", "") if serieses else ""
+            freq = serieses[0].get("frequency", "") if serieses else ""
+            return json.dumps({
+                "series_id": series_id, "title": title, "units": units,
+                "frequency": freq, "observations": points,
+            }, ensure_ascii=False)
+        except Exception as e:
+            return json.dumps({"error": f"FRED API hiba: {e}", "series_id": series_id})
+
+    if name == "policy_rates":
+        countries = [c.strip().upper() for c in args.get("countries", "HU,XM,US,CZ,PL").split(",") if c.strip()]
+        try:
+            results = {}
+            async with httpx.AsyncClient(timeout=20) as client:
+                for cc in countries[:8]:  # max 8 countries
+                    url = (
+                        f"https://api.db.nomics.world/v22/series/BIS/WS_CBPOL"
+                        f"?dimensions=%7B%22ref_area%22%3A%5B%22{cc}%22%5D%2C%22freq%22%3A%5B%22M%22%5D%7D"
+                        f"&limit=6&sort=period&order=desc"
+                    )
+                    resp = await client.get(url, headers={"User-Agent": "ClausBridge/1.0"})
+                    data = json.loads(resp.text)
+                    series_list = data.get("series", {}).get("docs", [])
+                    if series_list:
+                        s = series_list[0]
+                        periods = s.get("period", [])
+                        values = s.get("value", [])
+                        history = []
+                        for i in range(min(len(periods), len(values), 6)):
+                            if values[i] is not None:
+                                history.append({"period": periods[i], "rate": values[i]})
+                        if history:
+                            results[cc] = {
+                                "current_rate": history[0]["rate"],
+                                "as_of": history[0]["period"],
+                                "history": history,
+                            }
+            country_names = {"HU": "MNB", "XM": "ECB", "US": "Fed", "CZ": "CNB", "PL": "NBP",
+                            "RO": "BNR", "GB": "BoE", "JP": "BoJ", "CH": "SNB", "TR": "TCMB"}
+            summary = [f"{country_names.get(cc, cc)}: {r['current_rate']}% ({r['as_of']})"
+                       for cc, r in results.items()]
+            return json.dumps({"source": "BIS/DBnomics", "summary": summary, "rates": results}, ensure_ascii=False)
+        except Exception as e:
+            return json.dumps({"error": f"DBnomics API hiba: {e}"})
+
+    if name == "econ_calendar":
+        days = min(args.get("days_ahead", 7), 30)
+        events = []
+        try:
+            if FRED_API_KEY:
+                from datetime import timedelta
+                now_dt = datetime.now(timezone.utc)
+                start = now_dt.strftime("%Y-%m-%d")
+                end = (now_dt + timedelta(days=days)).strftime("%Y-%m-%d")
+                url = (
+                    f"https://api.stlouisfed.org/fred/releases/dates"
+                    f"?api_key={FRED_API_KEY}&file_type=json"
+                    f"&realtime_start={start}&realtime_end={end}"
+                    f"&include_release_dates_with_no_data=true&limit=50"
+                )
+                async with httpx.AsyncClient(timeout=15) as client:
+                    resp = await client.get(url)
+                data = json.loads(resp.text)
+                for rd in data.get("release_dates", []):
+                    events.append({
+                        "date": rd.get("date", ""),
+                        "release": rd.get("release_name", ""),
+                        "release_id": rd.get("release_id", ""),
+                        "source": "FRED",
+                    })
+            return json.dumps({"days_ahead": days, "events": events[:30]}, ensure_ascii=False)
+        except Exception as e:
+            return json.dumps({"error": f"Economic calendar hiba: {e}"})
 
     return json.dumps({"error": f"Ismeretlen tool: {name}"})
 

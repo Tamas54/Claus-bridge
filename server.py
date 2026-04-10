@@ -3674,6 +3674,8 @@ async def _handle_telegram_message(text: str, chat_id: str):
             return
         except Exception as e:
             logger.error("Feldwebel responder error: %s", e)
+            from html import escape as html_escape
+            await _telegram_push(f"<b>FELDWEBEL</b> — hiba: {html_escape(str(e)[:500])}")
 
     # 5. Fallback: original DeepSeek call without history (if Feldwebel unavailable)
     if PYRAMID_ENABLED and SILICONFLOW_API_KEY:
