@@ -3961,12 +3961,28 @@ def _cron_matches(schedule: str, dt: datetime) -> bool:
 
 
 async def _cron_loop():
-    """Runs every 60s, checks scheduled recipes and executes them."""
+    """Runs every 60s, checks scheduled recipes and executes them. Also cleans old uploads."""
     await asyncio.sleep(10)  # Let server fully start
     logger.info("Cron scheduler started")
+    _last_cleanup = ""
     while True:
         try:
             now_dt = datetime.now(timezone.utc)
+
+            # Daily cleanup: delete uploads older than 7 days (runs once at ~04:00 UTC)
+            today_str = now_dt.strftime("%Y-%m-%d")
+            if now_dt.hour == 4 and _last_cleanup != today_str:
+                _last_cleanup = today_str
+                try:
+                    cutoff = (now_dt - timedelta(days=7)).isoformat()
+                    conn = get_db()
+                    deleted = conn.execute("DELETE FROM uploads WHERE uploaded_at < ?", (cutoff,)).rowcount
+                    conn.commit()
+                    conn.close()
+                    if deleted:
+                        logger.info("Uploads cleanup: %d files older than 7 days deleted", deleted)
+                except Exception as e:
+                    logger.error("Uploads cleanup failed: %s", e)
             conn = get_db()
             recipes = conn.execute(
                 "SELECT id, name, cron_schedule, cron_model, cron_delivery, cron_last_run "
