@@ -7,12 +7,45 @@ from pyramid.agents import (
 from pyramid.memory_shared import get_shared_memory_summary
 from pyramid.memory_rag import get_agent_rag_summary
 
+import json
+import logging
+import os
+import sqlite3
+
+logger = logging.getLogger("pyramid.context_builder")
+
+DB_PATH = os.environ.get("BRIDGE_DB_PATH", "bridge.db")
+
+
+def _get_recipes_summary(max_items: int = 20) -> str:
+    """Fetch enabled recipes for agent context (Layer 8)."""
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        conn.row_factory = sqlite3.Row
+        rows = conn.execute(
+            "SELECT name, description, required_tools FROM pyramid_recipes WHERE enabled = 1 ORDER BY name LIMIT ?",
+            (max_items,)
+        ).fetchall()
+        conn.close()
+        if not rows:
+            return ""
+        lines = []
+        for r in rows:
+            tools = json.loads(r["required_tools"]) if r["required_tools"] else []
+            tools_str = f" (tools: {', '.join(tools)})" if tools else ""
+            lines.append(f"- {r['name']}: {r['description']}{tools_str}")
+        return "# ELÉRHETŐ RECIPE-K\nEzeket a workflow-kat a `execute_recipe` tool-lal futtathatod:\n" + "\n".join(lines)
+    except Exception as e:
+        logger.debug("Recipe summary unavailable: %s", e)
+        return ""
+
 
 def build_agent_context(
     agent_id: str,
     custom_system_prompt: str = None,
     include_shared_memory: bool = True,
     include_rag: bool = True,
+    include_recipes: bool = True,
     inbox_summary: str = None,
 ) -> str:
     """
@@ -26,7 +59,8 @@ def build_agent_context(
     5. Egyéni RAG (saját korábbi munkák)
     6. Inbox — friss emailek és naptár események (ha van)
     7. Custom system prompt (ha van felülírás)
-    8. Viselkedési szabályok
+    8. Elérhető recipe-k (workflow template-ek)
+    9. Viselkedési szabályok
     """
 
     sections = []
@@ -61,7 +95,13 @@ def build_agent_context(
     if custom_system_prompt:
         sections.append(f"# SPECIÁLIS INSTRUKCIÓ\n{custom_system_prompt}")
 
-    # 8. Viselkedési szabályok
+    # 8. Elérhető recipe-k
+    if include_recipes:
+        recipes = _get_recipes_summary()
+        if recipes:
+            sections.append(recipes)
+
+    # 9. Viselkedési szabályok
     sections.append("""# VISELKEDÉSI SZABÁLYOK
 - Magyarul válaszolj, hacsak nem kérnek mást.
 - Légy tömör és lényegretörő — a Kommandant utálja a felesleges szöveget.

@@ -64,7 +64,7 @@ TOOLS = [
         "parameters": {"type": "object", "properties": {}}}},
     # ── AI agentek ──
     {"type": "function", "function": {
-        "name": "ai_query", "description": "Feladat EGY agentnek: kimi (kutató), deepseek (elemző), glm5 (kódoló). Web search képes!",
+        "name": "ai_query", "description": "Feladat EGY agentnek: kimi (kutató), deepseek (elemző), glm5 (kódoló/MCP specialist). Web search képes!",
         "parameters": {"type": "object", "properties": {
             "model": {"type": "string", "description": "kimi / deepseek / glm5", "enum": ["kimi", "deepseek", "glm5"]},
             "prompt": {"type": "string", "description": "Feladat / kérdés"},
@@ -124,7 +124,7 @@ Szereped:
 FONTOS — AI agentek (rizsrakéták):
 - **Kimi** (model="kimi"): 256k kontextus, kutató/elemző
 - **DeepSeek** (model="deepseek"): gyors gondolkodás, kritikus
-- **GLM-5** (model="glm5"): 205k kontextus, kódoló
+- **GLM-5.1** (model="glm5"): 200k kontextus, 128k output, kódoló + MCP tool-use specialist
 
 SZABÁLYOK az agentekhez:
 - Ha a Kommandant azt mondja "adj ki feladatot", "kérdezd meg", "nézzen utána", "elemezze", vagy BÁRMILYEN agentet említ név szerint → AZONNAL hívd a megfelelő tool-t! NE keress Gmail-ben, NE válaszolj szövegben!
@@ -133,7 +133,7 @@ SZABÁLYOK az agentekhez:
 - **ai_task**: kutatás, elemzés, aktuális adatok keresése — WEB SEARCH KÉPES! Az agentek DuckDuckGo-val keresnek.
 - Ha AKTUÁLIS/FRISS adatokat kell keresni (közvélemény-kutatás, árak, hírek) → MINDIG ai_task-ot használj, NE ai_query-t!
 - "Adj ki feladatot Kiminek kutatásra" → ai_task(title="...", description="Kimi feladata: ...")
-- "Kérdezd meg GLM-5-öt mi a véleménye" → ai_query(model="glm5", prompt="...")
+- "Kérdezd meg GLM-5.1-et mi a véleménye" → ai_query(model="glm5", prompt="...")
 - "Mind a hárman elemezzétek" → ai_task(title="...", description="...")
 
 Ha emailre kell válaszolni:

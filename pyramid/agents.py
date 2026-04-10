@@ -9,19 +9,19 @@ AGENT_REGISTRY: Dict[str, Dict[str, Any]] = {
         "model_id": "moonshotai/Kimi-K2.5",
         "provider": "siliconflow",
         "default_temperature": 0.6,
-        "default_max_tokens": 3000,
+        "default_max_tokens": 8000,
     },
     "deepseek": {
         "model_id": "deepseek-ai/DeepSeek-V3.2",
         "provider": "siliconflow",
         "default_temperature": 0.6,
-        "default_max_tokens": 3000,
+        "default_max_tokens": 8000,
     },
     "glm5": {
-        "model_id": "zai-org/GLM-5",
+        "model_id": "zai-org/GLM-5.1",
         "provider": "siliconflow",
         "default_temperature": 0.7,
-        "default_max_tokens": 3000,
+        "default_max_tokens": 16000,
     },
     "qwen3_coder": {
         "model_id": "Qwen/Qwen3-Coder-480B-A35B-Instruct",
@@ -59,7 +59,7 @@ def get_bridge_info() -> str:
 def get_team_info() -> str:
     team = load_profile("team")
     if not team:
-        return "Csapat: Web-Claus, CLI-Claus, Kimi, DeepSeek, GLM-5."
+        return "Csapat: Web-Claus, CLI-Claus, Kimi, DeepSeek, GLM-5.1."
     return json.dumps(team, ensure_ascii=False, indent=2)
 
 

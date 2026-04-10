@@ -33,11 +33,11 @@
         "status": "aktív"
     },
     "glm5": {
-        "model": "zai-org/GLM-5",
+        "model": "zai-org/GLM-5.1",
         "provider": "SiliconFlow",
         "persona": "Sokoldalú munkatárs. Kódolás, elemzés, reasoning — mindenre jó. NE becsüld le!",
         "role": "Kódolás, elemzés, reasoning, agentic workflow, általános feladatok.",
-        "strengths": "205K kontextus, kódolás, agentic workflow, analízis, sokoldalúság.",
+        "strengths": "200K kontextus, 128K output, SWE-Bench Pro SOTA, MCP tool-use, kódolás, agentic workflow.",
         "status": "aktív"
     },
     "qwen3_coder": {

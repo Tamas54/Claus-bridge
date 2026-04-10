@@ -1292,8 +1292,8 @@ select {
         </div>
         <div class="form-row">
           <div class="form-group full" style="border-left:3px solid var(--gold);padding-left:0.8rem;margin-bottom:0.5rem">
-            <label class="form-label" style="color:var(--gold)">GLM-5 — Kóder/elemző</label>
-            <textarea id="dispGlm5" placeholder="GLM-5 feladata..." style="min-height:50px"></textarea>
+            <label class="form-label" style="color:var(--gold)">GLM-5.1 — Kóder/elemző</label>
+            <textarea id="dispGlm5" placeholder="GLM-5.1 feladata..." style="min-height:50px"></textarea>
           </div>
         </div>
       </div>
@@ -1858,9 +1858,9 @@ async function createAiTask(e) {
     const kimiTask = document.getElementById('dispKimi').value.trim();
     const dsTask = document.getElementById('dispDeepseek').value.trim();
     const glmTask = document.getElementById('dispGlm5').value.trim();
-    if (kimiTask) agentTasks.kimi = { prompt: kimiTask, max_tokens: 3000, temperature: 0.6 };
-    if (dsTask) agentTasks.deepseek = { prompt: dsTask, max_tokens: 3000, temperature: 0.6 };
-    if (glmTask) agentTasks.glm5 = { prompt: glmTask, max_tokens: 3000, temperature: 0.7 };
+    if (kimiTask) agentTasks.kimi = { prompt: kimiTask, max_tokens: 8000, temperature: 0.6 };
+    if (dsTask) agentTasks.deepseek = { prompt: dsTask, max_tokens: 8000, temperature: 0.6 };
+    if (glmTask) agentTasks.glm5 = { prompt: glmTask, max_tokens: 16000, temperature: 0.7 };
     if (Object.keys(agentTasks).length === 0) { toast('Legalább egy agentnek adj feladatot!'); return false; }
     payload.agent_tasks = JSON.stringify(agentTasks);
     payload.description = `Dispatch: ${Object.keys(agentTasks).join(', ')}`;
@@ -1879,7 +1879,7 @@ async function createAiTask(e) {
 
   document.getElementById('aiTaskForm').reset();
   toggleAiMode();
-  const agents = mode === 'dispatch' ? 'Dispatch mód' : 'Kimi + DeepSeek + GLM-5';
+  const agents = mode === 'dispatch' ? 'Dispatch mód' : 'Kimi + DeepSeek + GLM-5.1';
   toast(`AI feladat elindítva! ${agents}`);
   loadAiTasks();
   return false;

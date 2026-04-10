@@ -1,0 +1,4 @@
+{
+    "email_triage": {"enabled": true},
+    "recipes": {"enabled": true}
+}

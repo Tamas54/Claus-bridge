@@ -1324,7 +1324,7 @@ SILICONFLOW_TIMEOUT = 220
 SILICONFLOW_MODELS = {
     "kimi": "moonshotai/Kimi-K2.5",
     "deepseek": "deepseek-ai/DeepSeek-V3.2",
-    "glm5": "zai-org/GLM-5",
+    "glm5": "zai-org/GLM-5.1",
 }
 
 # Auto-discussion: sub-agents join discussions automatically
@@ -1401,14 +1401,14 @@ async def _ai_auto_discuss(discussion_id: int, topic: str, thread_so_far: str):
 
 @mcp.tool()
 async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature: float = 0.7,
-                   max_tokens: int = 2000, caller: str = "") -> str:
-    """Query a SiliconFlow AI sub-agent (Kimi-K2.5, DeepSeek V3.2, or GLM-5).
+                   max_tokens: int = 8000, caller: str = "") -> str:
+    """Query a SiliconFlow AI sub-agent (Kimi-K2.5, DeepSeek V3.2, or GLM-5.1).
 
     Use for research, analysis, translation, summarization, or second opinions.
     These models run on SiliconFlow cloud — no local resources needed.
 
     Args:
-        model: 'kimi' (256k context, vision) or 'deepseek' (fast reasoning) or 'glm5' (205k, coding+agentic) or full model ID
+        model: 'kimi' (256k context, vision) or 'deepseek' (fast reasoning) or 'glm5' (200k context, 128k output, coding+agentic) or full model ID
         prompt: The user message / question
         system_prompt: Optional system instruction (default: Claus sub-agent)
         temperature: Creativity 0.0-1.0 (default 0.7)
@@ -1757,16 +1757,16 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
     conn.commit()
 
     roles = {
-        "kimi": ("moonshotai/Kimi-K2.5", "Kutató és elemző. Alapos, részletes munkát végzel."),
-        "deepseek": ("deepseek-ai/DeepSeek-V3.2", "Kritikus elemző és ellenőr. Logikai hibákat keresel, ellenérveket fogalmazol."),
-        "glm5": ("zai-org/GLM-5", "Végrehajtó és kóder. Konkrét megoldásokat, kódot, strukturált outputot adsz. Ha kell, implementálsz."),
+        "kimi": ("moonshotai/Kimi-K2.5", "Kutató és elemző. Alapos, részletes munkát végzel.", 8000),
+        "deepseek": ("deepseek-ai/DeepSeek-V3.2", "Kritikus elemző és ellenőr. Logikai hibákat keresel, ellenérveket fogalmazol.", 8000),
+        "glm5": ("zai-org/GLM-5.1", "Végrehajtó és kóder. Konkrét megoldásokat, kódot, strukturált outputot adsz. Ha kell, implementálsz.", 16000),
     }
 
     task_prompt = f"FELADAT: {title}\n\nLEÍRÁS: {description}"
     if context:
         task_prompt += f"\n\nKONTEXTUS:\n{context}"
 
-    async def _run_single_agent(agent_name, model_id, role_desc):
+    async def _run_single_agent(agent_name, model_id, role_desc, agent_max_tokens=3000):
         """Run one agent with hybrid tool-call support — called in parallel. Retries once on timeout."""
         import httpx, re
 
@@ -1815,7 +1815,7 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
                             {"role": "user", "content": task_prompt},
                         ],
                         "temperature": 0.5,
-                        "max_tokens": 3000,
+                        "max_tokens": agent_max_tokens,
                         "tools": [WEB_SEARCH_TOOL_DEF],
                     })
 
@@ -1859,7 +1859,7 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
                                 {"role": "user", "content": f"{task_prompt}\n\nWEB KERESÉSI EREDMÉNYEK:\n{search_results}"},
                             ],
                             "temperature": 0.5,
-                            "max_tokens": 3000,
+                            "max_tokens": agent_max_tokens,
                         })
                         if isinstance(data2, dict) and data2.get("choices"):
                             content = data2["choices"][0].get("message", {}).get("content", "")
@@ -1875,7 +1875,7 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
                                 {"role": "user", "content": task_prompt},
                             ],
                             "temperature": 0.7,
-                            "max_tokens": 3000,
+                            "max_tokens": agent_max_tokens,
                         })
                         if isinstance(data3, dict) and data3.get("choices"):
                             content = data3["choices"][0].get("message", {}).get("content", "")
@@ -1919,7 +1919,7 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
 
     # Run all agents IN PARALLEL
     await asyncio.gather(
-        *[_run_single_agent(name, mid, rdesc) for name, (mid, rdesc) in roles.items()]
+        *[_run_single_agent(name, mid, rdesc, mt) for name, (mid, rdesc, mt) in roles.items()]
     )
 
     # Synthesis by Kimi
@@ -1955,7 +1955,7 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
 
 @mcp.tool()
 async def ai_task(title: str, description: str, context: str = "", file_id: int = 0, assigned_by: str = "unknown", agent_tasks: str = "") -> str:
-    """Create and execute a multi-agent AI task. Kimi, DeepSeek, and GLM-5 work on it, then a synthesis is generated.
+    """Create and execute a multi-agent AI task. Kimi, DeepSeek, and GLM-5.1 work on it, then a synthesis is generated.
 
     Two modes:
     1. **Broadcast** (default): All agents get the same task.
@@ -2109,7 +2109,7 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
             loop.close()
         threading.Thread(target=_run, daemon=True).start()
 
-        return json.dumps({"status": "task_created", "task_id": task_id, "message": "Kimi + DeepSeek + GLM-5 dolgoznak rajta. Eredmény a dashboardon."})
+        return json.dumps({"status": "task_created", "task_id": task_id, "message": "Kimi + DeepSeek + GLM-5.1 dolgoznak rajta. Eredmény a dashboardon."})
 
 
 @mcp.custom_route("/api/upload", methods=["POST"])
@@ -2308,7 +2308,7 @@ async def api_ai_task_export(request):
         doc.add_paragraph(f'Kiadta: {task["assigned_by"]} | Dátum: {task["created_at"][:10]} | Státusz: {task["status"]}')
         doc.add_paragraph("—" * 40)
 
-        agent_names = {"kimi": "Kimi-K2.5 (Kutató)", "deepseek": "DeepSeek V3.2 (Kritikus)", "glm5": "GLM-5 (Végrehajtó)", "szintézis": "Koordinátori Szintézis"}
+        agent_names = {"kimi": "Kimi-K2.5 (Kutató)", "deepseek": "DeepSeek V3.2 (Kritikus)", "glm5": "GLM-5.1 (Végrehajtó)", "szintézis": "Koordinátori Szintézis"}
         for r in results:
             name = agent_names.get(r["agent"], r["agent"].upper())
             doc.add_heading(name, level=2)
@@ -2317,7 +2317,7 @@ async def api_ai_task_export(request):
                     doc.add_paragraph(para_text.strip())
 
         doc.add_paragraph("—" * 40)
-        doc.add_paragraph("Készítette: Claus Multi-Agent Rendszer (Kimi-K2.5 + DeepSeek V3.2 + GLM-5)")
+        doc.add_paragraph("Készítette: Claus Multi-Agent Rendszer (Kimi-K2.5 + DeepSeek V3.2 + GLM-5.1)")
 
         buf = BytesIO()
         doc.save(buf)
@@ -3413,6 +3413,24 @@ if FELDWEBEL_ENABLED:
         create_task_func=create_task,
         telegram_chat_id=TELEGRAM_CHAT_ID or "",
     ))
+
+# Operation Zahnrad — Plugin Auto-Discovery
+try:
+    from plugins import discover_and_register
+    _plugin_deps = {
+        "get_db": get_db,
+        "siliconflow_api_key": SILICONFLOW_API_KEY,
+        "siliconflow_base_url": SILICONFLOW_BASE_URL,
+        "siliconflow_timeout": SILICONFLOW_TIMEOUT,
+        "siliconflow_models": SILICONFLOW_MODELS,
+    }
+    _loaded_plugins = discover_and_register(mcp, _plugin_deps)
+    if _loaded_plugins:
+        logger.info("Operation Zahnrad: %d plugin(s) loaded: %s", len(_loaded_plugins), ", ".join(_loaded_plugins))
+    else:
+        logger.info("Operation Zahnrad: No plugins found")
+except Exception as e:
+    logger.error("Operation Zahnrad plugin loading failed: %s", e)
 
 if __name__ == "__main__":
     mcp.run(
