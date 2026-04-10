@@ -3935,12 +3935,15 @@ async def _cron_loop():
 
 
 def _start_cron_scheduler():
-    try:
-        loop = asyncio.get_event_loop()
-        loop.create_task(_cron_loop())
-        logger.info("Cron scheduler task created")
-    except Exception as e:
-        logger.error("Cron scheduler start failed: %s", e)
+    """Start cron loop in a background thread with its own event loop."""
+    def _run():
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        loop.run_until_complete(_cron_loop())
+
+    t = threading.Thread(target=_run, daemon=True)
+    t.start()
+    logger.info("Cron scheduler background thread started")
 
 _start_cron_scheduler()
 
