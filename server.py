@@ -3779,17 +3779,33 @@ async def _telegram_poll_loop():
                             image_b64 = base64.b64encode(image_bytes).decode("ascii")
                             prompt = caption if caption else "Mit latsz a kepen? Ird le reszletesen, magyarul."
 
-                            await _telegram_push("📷 Kep fogadva, Kimi K2.5 elemzi...")
-                            analysis = await _analyze_image(image_b64, mime, prompt)
-                            await _telegram_push(f"📷 <b>KEP ELEMZES</b> (Kimi K2.5)\n\n{analysis[:3800]}")
-
-                            # Store in Bridge DB
+                            # Store image in uploads table (reusable for email, AI, etc.)
                             conn = get_db()
                             ts = now()
+                            ext = file_path.rsplit(".", 1)[-1] if "." in file_path else "jpg"
+                            filename = f"telegram_photo_{ts[:19].replace(':', '')}.{ext}"
+                            conn.execute(
+                                "INSERT INTO uploads (filename, mime_type, content_text, content_base64, uploaded_by, uploaded_at) "
+                                "VALUES (?, ?, '', ?, 'kommandant-telegram', ?)",
+                                (filename, mime, image_b64, ts),
+                            )
+                            upload_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
+                            conn.commit()
+                            conn.close()
+
+                            await _telegram_push(f"📷 Kep fogadva (#{upload_id}), Kimi K2.5 elemzi...")
+                            analysis = await _analyze_image(image_b64, mime, prompt)
+                            await _telegram_push(
+                                f"📷 <b>KEP ELEMZES</b> (Kimi K2.5)\n\n{analysis[:3600]}\n\n"
+                                f"<i>Fajl #{upload_id} — tovabbkuldheto emailben</i>"
+                            )
+
+                            # Store analysis in messages
+                            conn = get_db()
                             conn.execute(
                                 "INSERT INTO messages (timestamp, sender, recipient, subject, message, priority) "
                                 "VALUES (?, 'kommandant', 'bridge', ?, ?, 'normal')",
-                                (ts, f"Telegram foto: {caption or 'kep'}", f"[kep elemzes]\n{analysis[:2000]}"),
+                                (now(), f"Telegram foto #{upload_id}: {caption or 'kep'}", f"[kep elemzes]\n{analysis[:2000]}"),
                             )
                             conn.commit()
                             conn.close()
