@@ -1010,6 +1010,8 @@ async def _execute_tool(name: str, args: dict, ctx) -> str:
             return json.dumps({"error": str(e)})
 
     # ── Közgazdasági adat-toolok (Makronóm) ──────────────────────────
+    if name in ("mnb_rates", "market_quote", "fred_data", "policy_rates", "econ_calendar"):
+        logger.info("ECON TOOL CALLED: %s args=%s", name, args)
 
     if name == "mnb_rates":
         currencies_filter = [c.strip().upper() for c in args.get("currencies", "").split(",") if c.strip()]
@@ -1054,7 +1056,8 @@ async def _execute_tool(name: str, args: dict, ctx) -> str:
                 "huf_cross_rates": cross_rates,
             }, ensure_ascii=False)
         except Exception as e:
-            return json.dumps({"error": f"ECB API hiba: {e}"})
+            logger.error("mnb_rates tool error: %s: %s", type(e).__name__, e)
+            return json.dumps({"error": f"ECB API hiba: {type(e).__name__}: {e}"})
 
     if name == "market_quote":
         symbol = args.get("symbol", "").strip()
@@ -1091,7 +1094,8 @@ async def _execute_tool(name: str, args: dict, ctx) -> str:
                 "recent_closes": recent,
             }, ensure_ascii=False)
         except Exception as e:
-            return json.dumps({"error": f"Yahoo Finance hiba: {e}", "symbol": symbol})
+            logger.error("market_quote tool error: %s: %s", type(e).__name__, e)
+            return json.dumps({"error": f"Yahoo Finance hiba: {type(e).__name__}: {e}", "symbol": symbol})
 
     if name == "fred_data":
         series_id = args.get("series_id", "").strip().upper()
