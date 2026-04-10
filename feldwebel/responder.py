@@ -303,11 +303,11 @@ def _build_system_prompt(ctx) -> str:
 # ── Main respond function (agent loop) ────────────────────────────
 
 
-async def respond(text: str, chat_id: str, agent_id: str = "glm5") -> str:
+async def respond(text: str, chat_id: str, agent_id: str = "deepseek") -> str:
     """
     Generate a response with native tool use.
-    Agent loop: model calls tools → results fed back → final response.
-    Default: GLM-5.1 (200k context, tool-use specialist).
+    Agent loop: DeepSeek calls tools → results fed back → final response.
+    First round: tool_choice=required (forces tool use, no hallucination).
     """
     ctx = get_ctx()
 
@@ -324,9 +324,14 @@ async def respond(text: str, chat_id: str, agent_id: str = "glm5") -> str:
     model_id = ctx.siliconflow_models.get(agent_id, "deepseek-ai/DeepSeek-V3.2")
 
     # Agent loop — max 5 rounds of tool calls (last round forces text)
+    # Round 0: force_tool=True → DeepSeek MUST call a tool (no hallucination)
     final_content = ""
     for round_num in range(5):
-        data = await _call_deepseek(ctx, model_id, messages, use_tools=(round_num < 4))
+        data = await _call_deepseek(
+            ctx, model_id, messages,
+            use_tools=(round_num < 4),
+            force_tool=(round_num == 0),
+        )
         if not data:
             break
 
@@ -397,18 +402,19 @@ async def respond(text: str, chat_id: str, agent_id: str = "glm5") -> str:
 # ── DeepSeek API call ──────────────────────────────────────────────
 
 
-async def _call_deepseek(ctx, model_id: str, messages: list, use_tools: bool = True) -> dict:
+async def _call_deepseek(ctx, model_id: str, messages: list, use_tools: bool = True, force_tool: bool = False) -> dict:
     """Call SiliconFlow AI API, optionally with tools."""
     try:
-        is_glm = "GLM" in model_id.upper()
         payload = {
             "model": model_id,
             "messages": messages,
             "temperature": 0.7,
-            "max_tokens": 4000 if is_glm else 2000,
+            "max_tokens": 2000,
         }
         if use_tools:
             payload["tools"] = TOOLS
+            if force_tool:
+                payload["tool_choice"] = "required"
 
         async with httpx.AsyncClient(timeout=ctx.siliconflow_timeout) as client:
             resp = await client.post(
