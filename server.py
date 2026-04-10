@@ -3802,6 +3802,149 @@ try:
 except Exception as e:
     logger.error("Operation Zahnrad plugin loading failed: %s", e)
 
+# Operation Zahnrad — Cron Scheduler
+def _cron_matches(schedule: str, dt: datetime) -> bool:
+    """Simple crontab matcher: 'minute hour day month weekday'. Supports: number, *, ranges (1-5), lists (1,3,5)."""
+    parts = schedule.strip().split()
+    if len(parts) != 5:
+        return False
+    checks = [
+        (parts[0], dt.minute),
+        (parts[1], dt.hour),
+        (parts[2], dt.day),
+        (parts[3], dt.month),
+        (parts[4], dt.isoweekday() % 7),  # 0=sunday in crontab
+    ]
+    for pattern, value in checks:
+        if pattern == "*":
+            continue
+        if "-" in pattern:
+            lo, hi = pattern.split("-", 1)
+            if not (int(lo) <= value <= int(hi)):
+                return False
+        elif "," in pattern:
+            if value not in [int(x) for x in pattern.split(",")]:
+                return False
+        else:
+            if int(pattern) != value:
+                return False
+    return True
+
+
+async def _cron_loop():
+    """Runs every 60s, checks scheduled recipes and executes them."""
+    await asyncio.sleep(10)  # Let server fully start
+    logger.info("Cron scheduler started")
+    while True:
+        try:
+            now_dt = datetime.now(timezone.utc)
+            conn = get_db()
+            recipes = conn.execute(
+                "SELECT id, name, cron_schedule, cron_model, cron_delivery, cron_last_run "
+                "FROM pyramid_recipes WHERE cron_enabled = 1 AND cron_schedule IS NOT NULL AND enabled = 1"
+            ).fetchall()
+            conn.close()
+
+            for r in recipes:
+                if not _cron_matches(r["cron_schedule"], now_dt):
+                    continue
+                # Dedup: skip if already ran this minute
+                if r["cron_last_run"]:
+                    try:
+                        last = datetime.fromisoformat(r["cron_last_run"])
+                        if (last.year == now_dt.year and last.month == now_dt.month and
+                                last.day == now_dt.day and last.hour == now_dt.hour and
+                                last.minute == now_dt.minute):
+                            continue
+                    except (ValueError, TypeError):
+                        pass
+
+                logger.info("Cron trigger: %s (schedule=%s, model=%s)", r["name"], r["cron_schedule"], r["cron_model"])
+
+                # Mark last_run immediately to prevent double fire
+                conn = get_db()
+                conn.execute("UPDATE pyramid_recipes SET cron_last_run = ? WHERE id = ?", (now_dt.isoformat(), r["id"]))
+                conn.commit()
+                conn.close()
+
+                # Execute via ai_task dispatch (same path as execute_recipe)
+                try:
+                    recipe_conn = get_db()
+                    recipe_row = recipe_conn.execute(
+                        "SELECT prompt_template, required_tools FROM pyramid_recipes WHERE id = ?", (r["id"],)
+                    ).fetchone()
+                    recipe_conn.close()
+
+                    if not recipe_row:
+                        continue
+
+                    prompt = recipe_row["prompt_template"]
+                    req_tools = json.loads(recipe_row["required_tools"]) if recipe_row["required_tools"] else []
+                    if req_tools:
+                        prompt += f"\n\nELERHETO TOOL-OK: {', '.join(req_tools)}"
+                    today = now_dt.strftime("%Y-%m-%d")
+                    prompt += f"\n\n[Mai datum: {today}. Az adatoknak FRISSNEK kell lenniuk!]"
+
+                    model = r["cron_model"] or "glm5"
+                    if model == "all":
+                        result_json = await ai_task(
+                            title=f"Cron: {r['name']}",
+                            description=prompt,
+                            assigned_by="cron-scheduler",
+                        )
+                    else:
+                        max_tokens = 16000 if model == "glm5" else 8000
+                        agent_tasks = json.dumps({model: {"prompt": prompt, "max_tokens": max_tokens}})
+                        result_json = await ai_task(
+                            title=f"Cron: {r['name']}",
+                            description=prompt,
+                            assigned_by="cron-scheduler",
+                            agent_tasks=agent_tasks,
+                        )
+
+                    result = json.loads(result_json)
+                    task_id = result.get("task_id")
+
+                    # Poll for result (delivery needs actual content)
+                    if task_id and r["cron_delivery"] in ("telegram", "both"):
+                        for _ in range(90):
+                            await asyncio.sleep(2)
+                            conn = get_db()
+                            row2 = conn.execute(
+                                "SELECT content FROM ai_task_results WHERE task_id = ? ORDER BY id DESC LIMIT 1",
+                                (task_id,)
+                            ).fetchone()
+                            status = conn.execute("SELECT status FROM ai_tasks WHERE id = ?", (task_id,)).fetchone()
+                            conn.close()
+                            if row2:
+                                content = row2["content"] or ""
+                                msg = f"📋 <b>{r['name']}</b> (scheduled)\n\n{content[:3800]}"
+                                await _telegram_push(msg)
+                                logger.info("Cron delivered: %s → Telegram (task #%d)", r["name"], task_id)
+                                break
+                            if status and status["status"] in ("completed", "failed"):
+                                break
+
+                except Exception as e:
+                    logger.error("Cron execution failed for %s: %s", r["name"], e)
+
+        except Exception as e:
+            logger.error("Cron loop error: %s", e)
+
+        await asyncio.sleep(60)
+
+
+def _start_cron_scheduler():
+    try:
+        loop = asyncio.get_event_loop()
+        loop.create_task(_cron_loop())
+        logger.info("Cron scheduler task created")
+    except Exception as e:
+        logger.error("Cron scheduler start failed: %s", e)
+
+_start_cron_scheduler()
+
+
 if __name__ == "__main__":
     mcp.run(
         transport="streamable-http",

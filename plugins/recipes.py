@@ -27,8 +27,21 @@ CREATE TABLE IF NOT EXISTS pyramid_recipes (
     created_by TEXT DEFAULT 'kommandant',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    enabled BOOLEAN DEFAULT 1
+    enabled BOOLEAN DEFAULT 1,
+    cron_schedule TEXT DEFAULT NULL,
+    cron_model TEXT DEFAULT 'glm5',
+    cron_enabled BOOLEAN DEFAULT 0,
+    cron_delivery TEXT DEFAULT 'both',
+    cron_last_run TIMESTAMP DEFAULT NULL
 );
+"""
+
+_MIGRATE_SQL = """
+ALTER TABLE pyramid_recipes ADD COLUMN cron_schedule TEXT DEFAULT NULL;
+ALTER TABLE pyramid_recipes ADD COLUMN cron_model TEXT DEFAULT 'glm5';
+ALTER TABLE pyramid_recipes ADD COLUMN cron_enabled BOOLEAN DEFAULT 0;
+ALTER TABLE pyramid_recipes ADD COLUMN cron_delivery TEXT DEFAULT 'both';
+ALTER TABLE pyramid_recipes ADD COLUMN cron_last_run TIMESTAMP DEFAULT NULL;
 """
 
 
@@ -36,13 +49,40 @@ def _now():
     return datetime.now(timezone.utc).isoformat()
 
 
+def _apply_template(template: str, context: dict) -> str:
+    """Substitute {var} and {var:default} placeholders in template."""
+    import re
+    # Extract defaults: {var:default_value}
+    defaults = {}
+    def replace_defaults(match):
+        var_name, default_val = match.group(1), match.group(2)
+        defaults[var_name] = default_val
+        return "{" + var_name + "}"
+    template = re.sub(r'\{(\w+):([^}]+)\}', replace_defaults, template)
+    # Merge: context overrides defaults
+    merged = {**defaults, **context}
+    try:
+        return template.format(**merged)
+    except KeyError:
+        return template  # Missing vars → return as-is
+
+
 def register_tools(app, deps):
     """Register recipe CRUD + execute MCP tools."""
     get_db = deps["get_db"]
 
-    # Ensure table exists
+    # Ensure table exists + migrate if needed
     conn = get_db()
     conn.executescript(_INIT_SQL)
+    # Migrate: add cron columns if missing (safe to run multiple times)
+    for stmt in _MIGRATE_SQL.strip().split("\n"):
+        stmt = stmt.strip().rstrip(";")
+        if not stmt:
+            continue
+        try:
+            conn.execute(stmt)
+        except Exception:
+            pass  # Column already exists
     conn.commit()
     conn.close()
     logger.info("pyramid_recipes table ensured")
@@ -74,8 +114,9 @@ def register_tools(app, deps):
         ]
         for name_s, desc, tools, prompt, by in _seed_recipes:
             conn.execute(
-                "INSERT INTO pyramid_recipes (name, description, required_tools, prompt_template, created_by, created_at, updated_at) "
-                "VALUES (?, ?, ?, ?, ?, ?, ?)",
+                "INSERT INTO pyramid_recipes (name, description, required_tools, prompt_template, created_by, created_at, updated_at, "
+                "cron_schedule, cron_model, cron_enabled, cron_delivery) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?, NULL, 'glm5', 0, 'both')",
                 (name_s, desc, tools, prompt, by, ts, ts),
             )
         conn.commit()
@@ -138,26 +179,29 @@ def register_tools(app, deps):
             enabled_only: If true, only show enabled recipes (default: true)
         """
         conn = get_db()
+        q = ("SELECT id, name, description, required_tools, created_by, created_at, enabled, "
+             "cron_schedule, cron_model, cron_enabled, cron_delivery, cron_last_run FROM pyramid_recipes ")
         if enabled_only:
-            rows = conn.execute(
-                "SELECT id, name, description, required_tools, created_by, created_at, enabled "
-                "FROM pyramid_recipes WHERE enabled = 1 ORDER BY name"
-            ).fetchall()
+            rows = conn.execute(q + "WHERE enabled = 1 ORDER BY name").fetchall()
         else:
-            rows = conn.execute(
-                "SELECT id, name, description, required_tools, created_by, created_at, enabled "
-                "FROM pyramid_recipes ORDER BY name"
-            ).fetchall()
+            rows = conn.execute(q + "ORDER BY name").fetchall()
         conn.close()
 
         recipes = []
         for r in rows:
-            recipes.append({
+            entry = {
                 "id": r[0], "name": r[1], "description": r[2],
                 "required_tools": json.loads(r[3]) if r[3] else [],
                 "created_by": r[4], "created_at": r[5],
                 "enabled": bool(r[6]),
-            })
+            }
+            if r[7]:  # cron_schedule exists
+                entry["cron"] = {
+                    "schedule": r[7], "model": r[8] or "glm5",
+                    "enabled": bool(r[9]), "delivery": r[10] or "both",
+                    "last_run": r[11],
+                }
+            recipes.append(entry)
 
         return json.dumps({"count": len(recipes), "recipes": recipes}, ensure_ascii=False)
 
@@ -188,8 +232,17 @@ def register_tools(app, deps):
             return json.dumps({"error": f"Recipe '{name}' le van tiltva."})
 
         prompt = row[4]
+
+        # Template variables: if context is JSON dict, substitute {var} and {var:default}
         if context:
-            prompt += f"\n\nKONTEXTUS:\n{context}"
+            try:
+                ctx_dict = json.loads(context) if isinstance(context, str) else context
+                if isinstance(ctx_dict, dict):
+                    prompt = _apply_template(prompt, ctx_dict)
+                else:
+                    prompt += f"\n\nKONTEXTUS:\n{context}"
+            except (json.JSONDecodeError, TypeError):
+                prompt += f"\n\nKONTEXTUS:\n{context}"
 
         required_tools = json.loads(row[3]) if row[3] else []
         if required_tools:
@@ -308,8 +361,10 @@ def register_tools(app, deps):
 
     @app.tool()
     async def update_recipe(name: str, description: str = "", prompt_template: str = "",
-                            required_tools: str = "", enabled: bool = True) -> str:
-        """Update an existing recipe.
+                            required_tools: str = "", enabled: bool = True,
+                            cron_schedule: str = "", cron_model: str = "",
+                            cron_enabled: bool = False, cron_delivery: str = "") -> str:
+        """Update an existing recipe. Supports cron scheduling.
 
         Args:
             name: Recipe name to update
@@ -317,6 +372,10 @@ def register_tools(app, deps):
             prompt_template: New prompt template (empty = keep current)
             required_tools: New tool list as JSON (empty = keep current)
             enabled: Enable/disable the recipe
+            cron_schedule: Cron expression e.g. '0 7 * * *' (empty = keep current, 'none' = remove)
+            cron_model: Which agent for cron: kimi/deepseek/glm5/all (empty = keep current)
+            cron_enabled: Enable/disable cron scheduling
+            cron_delivery: Where to send results: dashboard/telegram/both (empty = keep current)
         """
         conn = get_db()
         row = conn.execute("SELECT id FROM pyramid_recipes WHERE name = ?", (name,)).fetchone()
@@ -344,6 +403,28 @@ def register_tools(app, deps):
 
         updates.append("enabled = ?")
         params.append(1 if enabled else 0)
+
+        # Cron fields
+        if cron_schedule == "none":
+            updates.append("cron_schedule = NULL")
+            updates.append("cron_enabled = 0")
+        elif cron_schedule:
+            parts = cron_schedule.strip().split()
+            if len(parts) != 5:
+                conn.close()
+                return json.dumps({"error": "cron_schedule: 5 mezo kell (perc ora nap honap hetnap), pl. '0 7 * * *'"})
+            updates.append("cron_schedule = ?")
+            params.append(cron_schedule.strip())
+        if cron_model:
+            updates.append("cron_model = ?")
+            params.append(cron_model)
+        # cron_enabled always set explicitly
+        updates.append("cron_enabled = ?")
+        params.append(1 if cron_enabled else 0)
+        if cron_delivery:
+            updates.append("cron_delivery = ?")
+            params.append(cron_delivery)
+
         updates.append("updated_at = ?")
         params.append(_now())
         params.append(name)
@@ -351,8 +432,13 @@ def register_tools(app, deps):
         conn.execute(f"UPDATE pyramid_recipes SET {', '.join(updates)} WHERE name = ?", params)
         conn.commit()
         conn.close()
-        logger.info("Recipe updated: %s (enabled=%s)", name, enabled)
-        return json.dumps({"status": "updated", "name": name, "enabled": enabled})
+
+        cron_info = ""
+        if cron_schedule and cron_schedule != "none" and cron_enabled:
+            cron_info = f", cron={cron_schedule} ({cron_model or 'glm5'})"
+        logger.info("Recipe updated: %s (enabled=%s%s)", name, enabled, cron_info)
+        return json.dumps({"status": "updated", "name": name, "enabled": enabled,
+                           "cron_enabled": cron_enabled, "cron_schedule": cron_schedule or None})
 
     @app.tool()
     async def delete_recipe(name: str) -> str:

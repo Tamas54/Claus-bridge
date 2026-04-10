@@ -119,6 +119,14 @@ TOOLS = [
             "description": {"type": "string", "description": "Mit csinál a recipe"},
             "prompt_template": {"type": "string", "description": "A workflow prompt szövege"},
         }, "required": ["name", "description", "prompt_template"]}}},
+    # ── Cron ütemezés ──
+    {"type": "function", "function": {
+        "name": "schedule_recipe", "description": "Recipe ütemezése — automatikus futtatás cron időzítéssel. Eredmény Telegramra jön.",
+        "parameters": {"type": "object", "properties": {
+            "name": {"type": "string", "description": "Recipe neve"},
+            "cron_schedule": {"type": "string", "description": "Cron: '0 7 * * *' (7:00 minden nap), '0 8 * * 1' (hétfő 8:00), '30 17 * * 1-5' (hétköznap 17:30). 'off' = kikapcsol"},
+            "model": {"type": "string", "description": "Agent: glm5 / deepseek / kimi / all", "default": "glm5"},
+        }, "required": ["name", "cron_schedule"]}}},
     # ── Fájl export ──
     {"type": "function", "function": {
         "name": "export_task", "description": "AI feladat exportálása fájlba. Telegramra küld, és opcionálisan emailben is csatolmányként.",
@@ -175,6 +183,12 @@ RECIPE-K (workflow template-ek) — FONTOS:
 - "Milyen recipe-k vannak?" → list_recipes()
 - "Csináljatok egy új recipe-t..." → create_recipe(name="...", description="...", prompt_template="...")
 - Ha a Kommandant egy ismétlődő feladatot kér és még nincs rá recipe → JAVASOLJ recipe létrehozást!
+
+ÜTEMEZÉS (cron):
+- "Futtasd a napi briefet minden reggel 7-kor" → schedule_recipe(name="daily_news_brief", cron_schedule="0 7 * * *")
+- "Heti makro riport hétfőn 8-kor" → schedule_recipe(name="weekly_macro_report", cron_schedule="0 8 * * 1", model="all")
+- "Kapcsold ki az ütemezést" → schedule_recipe(name="...", cron_schedule="off")
+- Az ütemezett recipe-k AUTOMATIKUSAN futnak és Telegramra küldik az eredményt
 
 FÁJL EXPORT (docx/xlsx/pptx):
 - "Küld el docx-ben" / "excelt kérek" / "pptx-et a task #45-ről" → export_task(task_id=45, format="pptx")
@@ -732,6 +746,45 @@ async def _execute_tool(name: str, args: dict, ctx) -> str:
         except Exception as e:
             if "UNIQUE constraint" in str(e):
                 return json.dumps({"error": f"Recipe '{rname}' már létezik."})
+            return json.dumps({"error": str(e)})
+
+    # ── Cron scheduling ──
+    if name == "schedule_recipe":
+        recipe_name = args.get("name", "")
+        cron_schedule = args.get("cron_schedule", "")
+        model = args.get("model", "glm5")
+        if not recipe_name or not cron_schedule:
+            return json.dumps({"error": "name és cron_schedule szükséges"})
+        try:
+            conn = ctx.get_db()
+            row = conn.execute("SELECT id, name FROM pyramid_recipes WHERE name = ?", (recipe_name,)).fetchone()
+            if not row:
+                conn.close()
+                return json.dumps({"error": f"Recipe '{recipe_name}' nem található"})
+
+            if cron_schedule.lower() == "off":
+                conn.execute("UPDATE pyramid_recipes SET cron_enabled = 0 WHERE name = ?", (recipe_name,))
+                conn.commit()
+                conn.close()
+                return json.dumps({"status": "disabled", "name": recipe_name, "message": f"'{recipe_name}' ütemezés kikapcsolva."})
+
+            parts = cron_schedule.strip().split()
+            if len(parts) != 5:
+                conn.close()
+                return json.dumps({"error": "Cron formátum: 'perc óra nap hónap hétnap', pl. '0 7 * * *'"})
+
+            conn.execute(
+                "UPDATE pyramid_recipes SET cron_schedule = ?, cron_model = ?, cron_enabled = 1, cron_delivery = 'both' WHERE name = ?",
+                (cron_schedule.strip(), model, recipe_name),
+            )
+            conn.commit()
+            conn.close()
+            return json.dumps({
+                "status": "scheduled", "name": recipe_name,
+                "cron_schedule": cron_schedule, "model": model,
+                "message": f"'{recipe_name}' ütemezve: {cron_schedule} ({model}). Eredmény Telegramra jön."
+            }, ensure_ascii=False)
+        except Exception as e:
             return json.dumps({"error": str(e)})
 
     # ── File export + Telegram send ──
