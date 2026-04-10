@@ -836,6 +836,25 @@ async def read_ai_task_results(task_id: int = 0, limit: int = 10, caller: str = 
 
 
 @mcp.tool()
+async def analyze_image(image_base64: str, mime_type: str = "image/jpeg",
+                        prompt: str = "Mit latsz a kepen? Ird le reszletesen, magyarul.",
+                        caller: str = "") -> str:
+    """Analyze an image using Kimi K2.5 vision model. Works with any image source.
+
+    Args:
+        image_base64: Base64-encoded image data
+        mime_type: Image MIME type (image/jpeg, image/png, image/webp)
+        prompt: What to analyze / question about the image
+        caller: Instance ID for permission check
+    """
+    denied = _enforce(caller, "analyze_image")
+    if denied:
+        return denied
+    result = await _analyze_image(image_base64, mime_type, prompt)
+    return json.dumps({"status": "analyzed", "analysis": result}, ensure_ascii=False)
+
+
+@mcp.tool()
 async def export_ai_task(task_id: int, format: str = "xlsx", caller: str = "") -> str:
     """Export AI task results as xlsx (spreadsheet) or pptx (presentation). Returns base64-encoded file.
 
@@ -2789,6 +2808,43 @@ def _categorize_email(sender: str, subject: str) -> str:
     return "normal"
 
 
+async def _analyze_image(image_base64: str, mime_type: str = "image/jpeg",
+                         prompt: str = "Mit latsz a kepen? Ird le reszletesen, magyarul.",
+                         model: str = "kimi") -> str:
+    """Central image analysis via vision model (Kimi K2.5). Usable from any channel."""
+    if not SILICONFLOW_API_KEY:
+        return "(Vision nem elerheto — SILICONFLOW_API_KEY hianzik)"
+
+    model_id = SILICONFLOW_MODELS.get(model, "moonshotai/Kimi-K2.5")
+    data_url = f"data:{mime_type};base64,{image_base64}"
+
+    try:
+        import httpx
+        async with httpx.AsyncClient(timeout=60) as client:
+            resp = await client.post(
+                f"{SILICONFLOW_BASE_URL}/chat/completions",
+                headers={"Authorization": f"Bearer {SILICONFLOW_API_KEY}", "Content-Type": "application/json"},
+                json={
+                    "model": model_id,
+                    "messages": [{"role": "user", "content": [
+                        {"type": "image_url", "image_url": {"url": data_url}},
+                        {"type": "text", "text": prompt},
+                    ]}],
+                    "temperature": 0.5,
+                    "max_tokens": 2000,
+                },
+            )
+        data = json.loads(resp.text)
+        if "error" in data or "code" in data:
+            logger.error("Vision API error: %s", data)
+            return f"(Vision hiba: {data.get('message', data.get('error', 'unknown'))})"
+        content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
+        return content or "(ures valasz a vision modeltol)"
+    except Exception as e:
+        logger.error("Vision analysis failed: %s", e)
+        return f"(Vision hiba: {e})"
+
+
 async def _telegram_push(text: str):
     """Send push notification to Telegram."""
     if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
@@ -3686,7 +3742,64 @@ async def _telegram_poll_loop():
                     chat_id = str(msg.get("chat", {}).get("id", ""))
 
                     # Only accept messages from Kommandant's chat
-                    if chat_id == TELEGRAM_CHAT_ID and text:
+                    if chat_id != TELEGRAM_CHAT_ID:
+                        continue
+
+                    # Handle photo messages
+                    photo = msg.get("photo")
+                    if photo:
+                        caption = msg.get("caption", "")
+                        try:
+                            # Get largest photo (last in array)
+                            file_id = photo[-1]["file_id"]
+                            async with httpx.AsyncClient(timeout=15) as dl_client:
+                                # Get file path
+                                file_resp = await dl_client.get(
+                                    f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/getFile",
+                                    params={"file_id": file_id},
+                                )
+                                file_data = file_resp.json()
+                                file_path = file_data.get("result", {}).get("file_path", "")
+                                if not file_path:
+                                    await _telegram_push("Nem sikerult a kepet letolteni.")
+                                    continue
+                                # Download file
+                                img_resp = await dl_client.get(
+                                    f"https://api.telegram.org/file/bot{TELEGRAM_BOT_TOKEN}/{file_path}"
+                                )
+                                image_bytes = img_resp.content
+
+                            # Detect mime type
+                            mime = "image/jpeg"
+                            if file_path.endswith(".png"):
+                                mime = "image/png"
+                            elif file_path.endswith(".webp"):
+                                mime = "image/webp"
+
+                            image_b64 = base64.b64encode(image_bytes).decode("ascii")
+                            prompt = caption if caption else "Mit latsz a kepen? Ird le reszletesen, magyarul."
+
+                            await _telegram_push("📷 Kep fogadva, Kimi K2.5 elemzi...")
+                            analysis = await _analyze_image(image_b64, mime, prompt)
+                            await _telegram_push(f"📷 <b>KEP ELEMZES</b> (Kimi K2.5)\n\n{analysis[:3800]}")
+
+                            # Store in Bridge DB
+                            conn = get_db()
+                            ts = now()
+                            conn.execute(
+                                "INSERT INTO messages (timestamp, sender, recipient, subject, message, priority) "
+                                "VALUES (?, 'kommandant', 'bridge', ?, ?, 'normal')",
+                                (ts, f"Telegram foto: {caption or 'kep'}", f"[kep elemzes]\n{analysis[:2000]}"),
+                            )
+                            conn.commit()
+                            conn.close()
+                            logger.info("Telegram photo analyzed: %s (%d bytes)", file_path, len(image_bytes))
+                        except Exception as e:
+                            logger.error("Telegram photo handling failed: %s", e)
+                            await _telegram_push(f"Kep feldolgozasi hiba: {str(e)[:200]}")
+                        continue
+
+                    if text:
                         await _handle_telegram_message(text, chat_id)
 
         except Exception as e:
