@@ -978,13 +978,25 @@ def _generate_xlsx(task, results) -> "BytesIO":
 
 
 def _ai_structure_slides(content: str, title: str) -> list:
-    """Ask DeepSeek to structure content into 4-6 presentation slides. Returns list of dicts."""
+    """Ask GLM-5.1 to structure content into exactly 5 presentation slides. Returns list of dicts."""
     import httpx
-    prompt = f"""Strukturald az alabbi tartalmat prezentacios slide-okra.
-Adj vissza KIZAROLAG egy JSON tombot, semmi mast. 4-6 slide legyen.
-Minden slide: {{"title": "Rovid cim", "bullets": ["Pont 1", "Pont 2", ...]}}
-Maximum 6 bullet point slide-onkent, minden bullet max 1-2 mondat.
-Az utolso slide legyen "Osszefoglalas" vagy "Kitekintes".
+    prompt = f"""Te egy prezentacio szerkeszto vagy. A tartalmat PONTOSAN 5 slide-ra kell bontanod.
+
+SZABALYOK:
+- PONTOSAN 5 slide (se tobb, se kevesebb)
+- Slide-onkent MAXIMUM 5 bullet point
+- Minden bullet MAXIMUM 15 szo (rovid, tomor!)
+- Ha tul sok tartalom van egy temara, csak a legfontosabbakat valaszd ki
+- Az 5. slide MINDIG "Osszefoglalas" legyen (1-2 fo kovetkez tetes)
+
+ELVÁRT FORMATUM (kizarolag ez, semmi mas):
+[
+  {{"title": "Slide cim", "bullets": ["Rovid pont 1", "Rovid pont 2"]}},
+  {{"title": "Masodik slide", "bullets": ["...", "..."]}},
+  {{"title": "Harmadik slide", "bullets": ["...", "..."]}},
+  {{"title": "Negyedik slide", "bullets": ["...", "..."]}},
+  {{"title": "Osszefoglalas", "bullets": ["Fo kovetkeztetes 1", "Fo kovetkeztetes 2"]}}
+]
 
 CIM: {title}
 
@@ -992,18 +1004,18 @@ TARTALOM:
 {content[:6000]}"""
 
     try:
-        with httpx.Client(timeout=30) as client:
+        with httpx.Client(timeout=45) as client:
             resp = client.post(
                 f"{SILICONFLOW_BASE_URL}/chat/completions",
                 headers={"Authorization": f"Bearer {SILICONFLOW_API_KEY}", "Content-Type": "application/json"},
                 json={
-                    "model": SILICONFLOW_MODELS.get("deepseek", "deepseek-ai/DeepSeek-V3.2"),
+                    "model": SILICONFLOW_MODELS.get("glm5", "zai-org/GLM-5.1"),
                     "messages": [
-                        {"role": "system", "content": "KIZAROLAG valid JSON tombot adj vissza. Semmi mast, se markdown, se magyarazat."},
+                        {"role": "system", "content": "KIZAROLAG valid JSON tombot adj vissza. Semmi mast, se markdown, se magyarazat, se kommentar."},
                         {"role": "user", "content": prompt},
                     ],
-                    "temperature": 0.2,
-                    "max_tokens": 3000,
+                    "temperature": 0.15,
+                    "max_tokens": 2000,
                 },
             )
         data = json.loads(resp.text)
@@ -1013,7 +1025,10 @@ TARTALOM:
             text = text.split("\n", 1)[1].rsplit("```", 1)[0].strip()
         slides = json.loads(text)
         if isinstance(slides, list) and all(isinstance(s, dict) for s in slides):
-            return slides
+            # Enforce max 5 bullets per slide, max 15 words per bullet
+            for s in slides:
+                s["bullets"] = s.get("bullets", [])[:5]
+            return slides[:6]  # safety cap
     except Exception as e:
         logger.warning("AI slide structuring failed: %s", e)
     return None
@@ -1077,24 +1092,27 @@ def _generate_pptx(task, results) -> "BytesIO":
         slides_data = _ai_structure_slides(main_content, task["title"])
 
         if slides_data:
-            # AI-structured slides
+            # AI-structured slides — GLM-5.1 organized
             for sd in slides_data:
                 s = prs.slides.add_slide(prs.slide_layouts[6])
                 _set_bg(s, DARK_BG)
                 slide_title = sd.get("title", "")
                 if slide_title:
-                    _text(s, 0.8, 0.3, 11.5, 0.8, slide_title, size=28, color=GOLD, bold=True)
-                bullets = sd.get("bullets", [])
+                    _text(s, 0.8, 0.3, 11.5, 0.9, slide_title, size=26, color=GOLD, bold=True)
+                bullets = sd.get("bullets", [])[:5]  # hard cap 5 per slide
                 if bullets:
-                    tf = _text(s, 0.8, 1.4, 11.5, 5.5, "", size=18, color=WHITE)
+                    tf = _text(s, 0.8, 1.4, 11.5, 5.5, "", size=16, color=WHITE)
                     tf.paragraphs[0].clear()
-                    for i, bullet in enumerate(bullets[:8]):
+                    for i, bullet in enumerate(bullets):
                         p = tf.paragraphs[0] if i == 0 else tf.add_paragraph()
                         clean = re.sub(r'\*{1,2}([^*]+)\*{1,2}', r'\1', str(bullet))
+                        # Truncate long bullets
+                        if len(clean) > 120:
+                            clean = clean[:117] + "..."
                         p.text = f"• {clean}" if not clean.startswith("•") else clean
-                        p.font.size = Pt(18)
+                        p.font.size = Pt(16)
                         p.font.color.rgb = WHITE
-                        p.space_after = Pt(10)
+                        p.space_after = Pt(8)
         else:
             # Fallback: single slide with all content
             s = prs.slides.add_slide(prs.slide_layouts[6])
