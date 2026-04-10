@@ -121,10 +121,11 @@ TOOLS = [
         }, "required": ["name", "description", "prompt_template"]}}},
     # ── Fájl export ──
     {"type": "function", "function": {
-        "name": "export_task", "description": "AI feladat eredményeinek exportálása és küldése Telegramra. Formátumok: docx, xlsx, pptx.",
+        "name": "export_task", "description": "AI feladat exportálása fájlba. Telegramra küld, és opcionálisan emailben is csatolmányként.",
         "parameters": {"type": "object", "properties": {
             "task_id": {"type": "integer", "description": "AI task ID száma"},
             "format": {"type": "string", "description": "Formátum: docx / xlsx / pptx", "enum": ["docx", "xlsx", "pptx"]},
+            "email_to": {"type": "string", "description": "Ha emailben is kell küldeni, ide írd a címet", "default": ""},
         }, "required": ["task_id", "format"]}}},
 ]
 
@@ -178,7 +179,9 @@ RECIPE-K (workflow template-ek) — FONTOS:
 FÁJL EXPORT (docx/xlsx/pptx):
 - "Küld el docx-ben" / "excelt kérek" / "pptx-et a task #45-ről" → export_task(task_id=45, format="pptx")
 - Ha a Kommandant nem ad task_id-t, kérdezd meg melyik taskra gondol, vagy használd az utolsó completed taskot
-- A fájl AUTOMATIKUSAN megérkezik Telegramon — nem kell semmit máshol letölteni
+- A fájl AUTOMATIKUSAN megérkezik Telegramon
+- Ha emailben is kell: export_task(task_id=45, format="docx", email_to="cim@example.com")
+- Email küldéshez MINDIG kérj megerősítést a Kommandanttól MIELŐTT meghívod a tool-t!
 
 Ha emailre kell válaszolni:
 - Írd meg a draft választ magyarul, a Kommandant stílusában (hivatalos de nem merev)
@@ -785,6 +788,7 @@ async def _execute_tool(name: str, args: dict, ctx) -> str:
 
             filename = f"claus_task_{task_id}.{fmt}"
             file_bytes = buf.getvalue()
+            actions = []
 
             # Send to Telegram
             send_file = ctx.capture_state.get("_telegram_send_file")
@@ -792,10 +796,30 @@ async def _execute_tool(name: str, args: dict, ctx) -> str:
                 caption = f"📎 <b>{task['title']}</b>\nTask #{task_id} | {fmt.upper()}"
                 sent = await send_file(file_bytes, filename, mime, caption)
                 if sent:
-                    return json.dumps({"status": "sent", "filename": filename, "size": len(file_bytes),
-                                       "message": f"{fmt.upper()} elküldve Telegramon!"})
-                return json.dumps({"error": "Telegram küldés sikertelen"})
-            return json.dumps({"error": "Telegram file küldés nem elérhető"})
+                    actions.append("Telegram")
+
+            # Send as email attachment if requested
+            email_to = args.get("email_to", "")
+            if email_to and "@" in email_to:
+                import base64 as b64mod
+                send_email_func = ctx.capture_state.get("_send_email_func")
+                if send_email_func:
+                    b64_content = b64mod.b64encode(file_bytes).decode("ascii")
+                    await send_email_func(
+                        to=email_to,
+                        subject=f"Claus AI Task #{task_id}: {task['title']}",
+                        body=f"Csatolva: {filename}\n\nKészítette: Claus Multi-Agent Rendszer",
+                        attachment_base64=b64_content,
+                        attachment_filename=filename,
+                        attachment_mime=mime,
+                        caller="feldwebel",
+                    )
+                    actions.append(f"email ({email_to})")
+
+            if actions:
+                return json.dumps({"status": "sent", "filename": filename, "size": len(file_bytes),
+                                   "message": f"{fmt.upper()} elküldve: {', '.join(actions)}"}, ensure_ascii=False)
+            return json.dumps({"error": "Sem Telegram, sem email küldés nem sikerült"})
         except Exception as e:
             return json.dumps({"error": str(e)})
 
