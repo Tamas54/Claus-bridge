@@ -836,6 +836,257 @@ async def read_ai_task_results(task_id: int = 0, limit: int = 10, caller: str = 
 
 
 @mcp.tool()
+async def export_ai_task(task_id: int, format: str = "xlsx", caller: str = "") -> str:
+    """Export AI task results as xlsx (spreadsheet) or pptx (presentation). Returns base64-encoded file.
+
+    Args:
+        task_id: AI task ID to export
+        format: 'xlsx' for Excel spreadsheet or 'pptx' for PowerPoint presentation
+        caller: Instance ID for permission check
+    """
+    denied = _enforce(caller, "export_ai_task")
+    if denied:
+        return denied
+    if format not in ("xlsx", "pptx"):
+        return json.dumps({"error": "format must be 'xlsx' or 'pptx'"})
+
+    conn = get_db()
+    task = conn.execute("SELECT * FROM ai_tasks WHERE id = ?", (task_id,)).fetchone()
+    if not task:
+        conn.close()
+        return json.dumps({"error": f"AI task #{task_id} not found"})
+    results = conn.execute(
+        "SELECT agent, role, content, timestamp FROM ai_task_results WHERE task_id = ? ORDER BY id",
+        (task_id,)
+    ).fetchall()
+    conn.close()
+
+    if not results:
+        return json.dumps({"error": f"AI task #{task_id} has no results yet"})
+
+    import base64
+    from io import BytesIO
+
+    try:
+        # Build the file via the HTTP endpoint logic
+        from starlette.testclient import TestClient
+        # Simpler: just call the internal generation directly
+        if format == "xlsx":
+            buf = _generate_xlsx(task, results)
+            mime = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        else:
+            buf = _generate_pptx(task, results)
+            mime = "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+
+        filename = f"claus_ai_task_{task_id}.{format}"
+        b64 = base64.b64encode(buf.getvalue()).decode("ascii")
+
+        return json.dumps({
+            "status": "exported",
+            "task_id": task_id,
+            "format": format,
+            "filename": filename,
+            "mime_type": mime,
+            "size_bytes": len(buf.getvalue()),
+            "content_base64": b64,
+        })
+    except Exception as e:
+        return json.dumps({"error": f"Export failed: {e}"})
+
+
+def _generate_xlsx(task, results) -> "BytesIO":
+    """Generate xlsx from AI task results."""
+    from openpyxl import Workbook
+    from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+    from io import BytesIO
+    import re
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Összefoglaló"
+
+    title_font = Font(name="Calibri", size=14, bold=True, color="1F4E79")
+    header_font = Font(name="Calibri", size=11, bold=True, color="FFFFFF")
+    header_fill = PatternFill(start_color="1F4E79", end_color="1F4E79", fill_type="solid")
+    thin_border = Border(
+        left=Side(style="thin"), right=Side(style="thin"),
+        top=Side(style="thin"), bottom=Side(style="thin"),
+    )
+
+    ws["A1"] = task["title"]
+    ws["A1"].font = title_font
+    ws.merge_cells("A1:D1")
+    ws["A2"] = f'Feladat: {task["description"][:200]}'
+    ws["A3"] = f'Kiadta: {task["assigned_by"]} | Dátum: {task["created_at"][:10]}'
+
+    row = 5
+    agent_names = {"kimi": "Kimi-K2.5", "deepseek": "DeepSeek V3.2", "glm5": "GLM-5.1", "szintézis": "Szintézis"}
+    for col, header_text in enumerate(["Agent", "Tartalom", "Időpont"], 1):
+        cell = ws.cell(row=row, column=col, value=header_text)
+        cell.font = header_font
+        cell.fill = header_fill
+        cell.border = thin_border
+
+    for r in results:
+        row += 1
+        ws.cell(row=row, column=1, value=agent_names.get(r["agent"], r["agent"])).border = thin_border
+        c = ws.cell(row=row, column=2, value=(r["content"] or "")[:32000])
+        c.border = thin_border
+        c.alignment = Alignment(wrap_text=True)
+        ws.cell(row=row, column=3, value=r["timestamp"][:19]).border = thin_border
+
+    ws.column_dimensions["A"].width = 20
+    ws.column_dimensions["B"].width = 100
+    ws.column_dimensions["C"].width = 20
+
+    # Sheet 2: extracted data
+    ws2 = wb.create_sheet("Adatok")
+    ws2["A1"] = "Kinyert adatok"
+    ws2["A1"].font = title_font
+    ws2.merge_cells("A1:C1")
+
+    data_row = 3
+    for col, ht in enumerate(["Mutató", "Érték", "Egység"], 1):
+        cell = ws2.cell(row=data_row, column=col, value=ht)
+        cell.font = header_font
+        cell.fill = header_fill
+        cell.border = thin_border
+
+    all_content = "\n".join(r["content"] or "" for r in results)
+    pattern = re.compile(r'\*{0,2}([A-Za-zÀ-ž/\s\-\.]+?)\*{0,2}[:\-—]\s*([\d\s]+[\.,]?\d*)\s*(%|USD|EUR|Ft|HUF|pont|bázispont|USD/barrel|USD/oz)?', re.UNICODE)
+    seen = set()
+    for match in pattern.finditer(all_content):
+        label = match.group(1).strip().strip("*").strip()
+        value_str = match.group(2).strip().replace(" ", "")
+        unit = match.group(3) or ""
+        if len(label) < 3 or len(label) > 60 or label in seen:
+            continue
+        seen.add(label)
+        data_row += 1
+        ws2.cell(row=data_row, column=1, value=label).border = thin_border
+        try:
+            ws2.cell(row=data_row, column=2, value=float(value_str.replace(",", "."))).border = thin_border
+        except ValueError:
+            ws2.cell(row=data_row, column=2, value=value_str).border = thin_border
+        ws2.cell(row=data_row, column=3, value=unit).border = thin_border
+
+    ws2.column_dimensions["A"].width = 35
+    ws2.column_dimensions["B"].width = 20
+    ws2.column_dimensions["C"].width = 15
+
+    buf = BytesIO()
+    wb.save(buf)
+    buf.seek(0)
+    return buf
+
+
+def _generate_pptx(task, results) -> "BytesIO":
+    """Generate pptx from AI task synthesis."""
+    from pptx import Presentation
+    from pptx.util import Inches, Pt
+    from pptx.dml.color import RGBColor
+    from pptx.enum.text import PP_ALIGN
+    from io import BytesIO
+    import re
+
+    prs = Presentation()
+    prs.slide_width = Inches(13.333)
+    prs.slide_height = Inches(7.5)
+
+    DARK_BG = RGBColor(0x1F, 0x2B, 0x3D)
+    GOLD = RGBColor(0xD4, 0xA5, 0x37)
+    WHITE = RGBColor(0xFF, 0xFF, 0xFF)
+    LIGHT_GRAY = RGBColor(0xBB, 0xBB, 0xBB)
+
+    def _set_bg(slide, color):
+        slide.background.fill.solid()
+        slide.background.fill.fore_color.rgb = color
+
+    def _text(slide, left, top, width, height, text, size=18, color=WHITE, bold=False, align=PP_ALIGN.LEFT):
+        txBox = slide.shapes.add_textbox(Inches(left), Inches(top), Inches(width), Inches(height))
+        tf = txBox.text_frame
+        tf.word_wrap = True
+        p = tf.paragraphs[0]
+        p.text = text
+        p.font.size = Pt(size)
+        p.font.color.rgb = color
+        p.font.bold = bold
+        p.alignment = align
+        return tf
+
+    # Title slide
+    s = prs.slides.add_slide(prs.slide_layouts[6])
+    _set_bg(s, DARK_BG)
+    _text(s, 1, 1.5, 11, 1.5, task["title"], size=36, color=GOLD, bold=True, align=PP_ALIGN.CENTER)
+    _text(s, 1, 3.5, 11, 0.8, f'Dátum: {task["created_at"][:10]}', size=18, color=LIGHT_GRAY, align=PP_ALIGN.CENTER)
+    _text(s, 1, 5.5, 11, 0.6, "Claus Multi-Agent Rendszer", size=14, color=LIGHT_GRAY, align=PP_ALIGN.CENTER)
+
+    # Find synthesis or single agent result
+    synthesis = None
+    for r in results:
+        if r["agent"] == "szintézis":
+            synthesis = r["content"] or ""
+    if not synthesis and results:
+        synthesis = results[-1]["content"] or ""
+
+    if synthesis:
+        sections = []
+        cur_title = ""
+        cur_body = []
+        for line in synthesis.split("\n"):
+            stripped = line.strip()
+            if not stripped:
+                continue
+            is_heading = False
+            if re.match(r'^#{1,3}\s', stripped):
+                is_heading = True
+                stripped = re.sub(r'^#+\s*', '', stripped).strip()
+            elif re.match(r'^\d+[\.\)]\s+[A-ZÁÉÍÓÖŐÚÜŰ]', stripped):
+                is_heading = True
+            elif stripped.startswith("**") and stripped.endswith("**") and len(stripped) < 80:
+                is_heading = True
+                stripped = stripped.strip("*").strip()
+            if is_heading:
+                if cur_title or cur_body:
+                    sections.append((cur_title, "\n".join(cur_body)))
+                cur_title = stripped
+                cur_body = []
+            else:
+                cur_body.append(stripped)
+        if cur_title or cur_body:
+            sections.append((cur_title, "\n".join(cur_body)))
+
+        for title, body in sections:
+            s = prs.slides.add_slide(prs.slide_layouts[6])
+            _set_bg(s, DARK_BG)
+            if title:
+                _text(s, 0.8, 0.4, 11.5, 0.8, title, size=28, color=GOLD, bold=True)
+            tf = _text(s, 0.8, 1.5 if title else 0.5, 11.5, 5.5, "", size=16, color=WHITE)
+            tf.paragraphs[0].clear()
+            for i, bline in enumerate(body[:2000].split("\n")):
+                p = tf.paragraphs[0] if i == 0 else tf.add_paragraph()
+                clean = re.sub(r'\*{1,2}([^*]+)\*{1,2}', r'\1', bline)
+                clean = re.sub(r'^\s*[-•]\s*', '• ', clean)
+                p.text = clean
+                p.font.size = Pt(16)
+                p.font.color.rgb = WHITE
+                p.space_after = Pt(6)
+
+    # Credits slide
+    s = prs.slides.add_slide(prs.slide_layouts[6])
+    _set_bg(s, DARK_BG)
+    agents_used = list(set(r["agent"] for r in results if r["agent"] != "szintézis"))
+    _text(s, 1, 2.5, 11, 1, "Claus Multi-Agent Rendszer", size=32, color=GOLD, bold=True, align=PP_ALIGN.CENTER)
+    _text(s, 1, 4, 11, 0.6, f"Agentek: {', '.join(agents_used)}", size=18, color=LIGHT_GRAY, align=PP_ALIGN.CENTER)
+    _text(s, 1, 4.8, 11, 0.6, f"Task #{task['id']} | {task['created_at'][:10]}", size=14, color=LIGHT_GRAY, align=PP_ALIGN.CENTER)
+
+    buf = BytesIO()
+    prs.save(buf)
+    buf.seek(0)
+    return buf
+
+
+@mcp.tool()
 async def list_discussions(status: str = None, limit: int = 20, caller: str = "") -> str:
     """List discussions, optionally filtered by status.
 
@@ -2329,6 +2580,56 @@ async def api_ai_task_export(request):
             content=buf.getvalue(),
             media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
             headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+        )
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=500)
+
+
+@mcp.custom_route("/api/ai_tasks/{task_id}/export_xlsx", methods=["GET"])
+async def api_ai_task_export_xlsx(request):
+    """Export AI task results as .xlsx via shared helper."""
+    task_id = request.path_params["task_id"]
+    conn = get_db()
+    task = conn.execute("SELECT * FROM ai_tasks WHERE id = ?", (task_id,)).fetchone()
+    if not task:
+        conn.close()
+        return JSONResponse({"error": "Task not found"}, status_code=404)
+    results = conn.execute(
+        "SELECT agent, role, content, timestamp FROM ai_task_results WHERE task_id = ? ORDER BY id", (task_id,)
+    ).fetchall()
+    conn.close()
+    try:
+        buf = _generate_xlsx(task, results)
+        from starlette.responses import Response
+        return Response(
+            content=buf.getvalue(),
+            media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            headers={"Content-Disposition": f'attachment; filename="claus_ai_task_{task_id}.xlsx"'},
+        )
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=500)
+
+
+@mcp.custom_route("/api/ai_tasks/{task_id}/export_pptx", methods=["GET"])
+async def api_ai_task_export_pptx(request):
+    """Export AI task synthesis as .pptx via shared helper."""
+    task_id = request.path_params["task_id"]
+    conn = get_db()
+    task = conn.execute("SELECT * FROM ai_tasks WHERE id = ?", (task_id,)).fetchone()
+    if not task:
+        conn.close()
+        return JSONResponse({"error": "Task not found"}, status_code=404)
+    results = conn.execute(
+        "SELECT agent, role, content, timestamp FROM ai_task_results WHERE task_id = ? ORDER BY id", (task_id,)
+    ).fetchall()
+    conn.close()
+    try:
+        buf = _generate_pptx(task, results)
+        from starlette.responses import Response
+        return Response(
+            content=buf.getvalue(),
+            media_type="application/vnd.openxmlformats-officedocument.presentationml.presentation",
+            headers={"Content-Disposition": f'attachment; filename="claus_ai_task_{task_id}.pptx"'},
         )
     except Exception as e:
         return JSONResponse({"error": str(e)}, status_code=500)
