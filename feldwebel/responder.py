@@ -379,7 +379,20 @@ async def respond(text: str, chat_id: str, agent_id: str = "deepseek") -> str:
         break
 
     if not final_content:
-        await ctx.telegram_push("<b>FELDWEBEL</b> — nem sikerült választ generálni")
+        # Debug: show what happened in each round
+        debug_parts = [f"Agent loop ended with no content (model={model_id})"]
+        # Show last few messages for debugging
+        for m in messages[-4:]:
+            role = m.get("role", "?")
+            c = (m.get("content") or "")[:150]
+            tc = m.get("tool_calls")
+            if tc:
+                debug_parts.append(f"  [{role}] tool_calls={json.dumps([t.get('function',{}).get('name','?') for t in tc])}")
+            else:
+                debug_parts.append(f"  [{role}] {c[:150]}")
+        debug_msg = "\n".join(debug_parts)
+        logger.error("Feldwebel empty response: %s", debug_msg)
+        await ctx.telegram_push(f"<b>FELDWEBEL DEBUG</b>\n<pre>{html_escape(debug_msg[:1500])}</pre>")
         return ""
 
     # Store in history
