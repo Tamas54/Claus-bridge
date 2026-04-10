@@ -977,8 +977,50 @@ def _generate_xlsx(task, results) -> "BytesIO":
     return buf
 
 
+def _ai_structure_slides(content: str, title: str) -> list:
+    """Ask DeepSeek to structure content into 4-6 presentation slides. Returns list of dicts."""
+    import httpx
+    prompt = f"""Strukturald az alabbi tartalmat prezentacios slide-okra.
+Adj vissza KIZAROLAG egy JSON tombot, semmi mast. 4-6 slide legyen.
+Minden slide: {{"title": "Rovid cim", "bullets": ["Pont 1", "Pont 2", ...]}}
+Maximum 6 bullet point slide-onkent, minden bullet max 1-2 mondat.
+Az utolso slide legyen "Osszefoglalas" vagy "Kitekintes".
+
+CIM: {title}
+
+TARTALOM:
+{content[:6000]}"""
+
+    try:
+        with httpx.Client(timeout=30) as client:
+            resp = client.post(
+                f"{SILICONFLOW_BASE_URL}/chat/completions",
+                headers={"Authorization": f"Bearer {SILICONFLOW_API_KEY}", "Content-Type": "application/json"},
+                json={
+                    "model": SILICONFLOW_MODELS.get("deepseek", "deepseek-ai/DeepSeek-V3.2"),
+                    "messages": [
+                        {"role": "system", "content": "KIZAROLAG valid JSON tombot adj vissza. Semmi mast, se markdown, se magyarazat."},
+                        {"role": "user", "content": prompt},
+                    ],
+                    "temperature": 0.2,
+                    "max_tokens": 3000,
+                },
+            )
+        data = json.loads(resp.text)
+        text = data.get("choices", [{}])[0].get("message", {}).get("content", "")
+        text = text.strip()
+        if text.startswith("```"):
+            text = text.split("\n", 1)[1].rsplit("```", 1)[0].strip()
+        slides = json.loads(text)
+        if isinstance(slides, list) and all(isinstance(s, dict) for s in slides):
+            return slides
+    except Exception as e:
+        logger.warning("AI slide structuring failed: %s", e)
+    return None
+
+
 def _generate_pptx(task, results) -> "BytesIO":
-    """Generate pptx from AI task synthesis."""
+    """Generate pptx — DeepSeek structures slides, then render."""
     from pptx import Presentation
     from pptx.util import Inches, Pt
     from pptx.dml.color import RGBColor
@@ -1015,66 +1057,68 @@ def _generate_pptx(task, results) -> "BytesIO":
     s = prs.slides.add_slide(prs.slide_layouts[6])
     _set_bg(s, DARK_BG)
     _text(s, 1, 1.5, 11, 1.5, task["title"], size=36, color=GOLD, bold=True, align=PP_ALIGN.CENTER)
-    _text(s, 1, 3.5, 11, 0.8, f'Dátum: {task["created_at"][:10]}', size=18, color=LIGHT_GRAY, align=PP_ALIGN.CENTER)
+    _text(s, 1, 3.5, 11, 0.8, f'Datum: {task["created_at"][:10]}', size=18, color=LIGHT_GRAY, align=PP_ALIGN.CENTER)
     _text(s, 1, 5.5, 11, 0.6, "Claus Multi-Agent Rendszer", size=14, color=LIGHT_GRAY, align=PP_ALIGN.CENTER)
 
     # Find synthesis or single agent result
-    synthesis = None
+    main_content = None
     for r in results:
-        if r["agent"] == "szintézis":
-            synthesis = r["content"] or ""
-    if not synthesis and results:
-        synthesis = results[-1]["content"] or ""
+        if r["agent"] == "szintezis":
+            main_content = r["content"] or ""
+    if not main_content:
+        for r in results:
+            if r["agent"] == "szintézis":
+                main_content = r["content"] or ""
+    if not main_content and results:
+        main_content = results[-1]["content"] or ""
 
-    if synthesis:
-        sections = []
-        cur_title = ""
-        cur_body = []
-        for line in synthesis.split("\n"):
-            stripped = line.strip()
-            if not stripped:
-                continue
-            is_heading = False
-            if re.match(r'^#{1,3}\s', stripped):
-                is_heading = True
-                stripped = re.sub(r'^#+\s*', '', stripped).strip()
-            elif re.match(r'^\d+[\.\)]\s+[A-ZÁÉÍÓÖŐÚÜŰ]', stripped):
-                is_heading = True
-            elif stripped.startswith("**") and stripped.endswith("**") and len(stripped) < 80:
-                is_heading = True
-                stripped = stripped.strip("*").strip()
-            if is_heading:
-                if cur_title or cur_body:
-                    sections.append((cur_title, "\n".join(cur_body)))
-                cur_title = stripped
-                cur_body = []
-            else:
-                cur_body.append(stripped)
-        if cur_title or cur_body:
-            sections.append((cur_title, "\n".join(cur_body)))
+    if main_content:
+        # Ask DeepSeek to structure the content into slides
+        slides_data = _ai_structure_slides(main_content, task["title"])
 
-        for title, body in sections:
+        if slides_data:
+            # AI-structured slides
+            for sd in slides_data:
+                s = prs.slides.add_slide(prs.slide_layouts[6])
+                _set_bg(s, DARK_BG)
+                slide_title = sd.get("title", "")
+                if slide_title:
+                    _text(s, 0.8, 0.3, 11.5, 0.8, slide_title, size=28, color=GOLD, bold=True)
+                bullets = sd.get("bullets", [])
+                if bullets:
+                    tf = _text(s, 0.8, 1.4, 11.5, 5.5, "", size=18, color=WHITE)
+                    tf.paragraphs[0].clear()
+                    for i, bullet in enumerate(bullets[:8]):
+                        p = tf.paragraphs[0] if i == 0 else tf.add_paragraph()
+                        clean = re.sub(r'\*{1,2}([^*]+)\*{1,2}', r'\1', str(bullet))
+                        p.text = f"• {clean}" if not clean.startswith("•") else clean
+                        p.font.size = Pt(18)
+                        p.font.color.rgb = WHITE
+                        p.space_after = Pt(10)
+        else:
+            # Fallback: single slide with all content
             s = prs.slides.add_slide(prs.slide_layouts[6])
             _set_bg(s, DARK_BG)
-            if title:
-                _text(s, 0.8, 0.4, 11.5, 0.8, title, size=28, color=GOLD, bold=True)
-            tf = _text(s, 0.8, 1.5 if title else 0.5, 11.5, 5.5, "", size=16, color=WHITE)
+            _text(s, 0.8, 0.3, 11.5, 0.8, "Eredmenyek", size=28, color=GOLD, bold=True)
+            tf = _text(s, 0.8, 1.4, 11.5, 5.5, "", size=14, color=WHITE)
             tf.paragraphs[0].clear()
-            for i, bline in enumerate(body[:2000].split("\n")):
+            for i, line in enumerate(main_content[:3000].split("\n")):
+                if not line.strip():
+                    continue
                 p = tf.paragraphs[0] if i == 0 else tf.add_paragraph()
-                clean = re.sub(r'\*{1,2}([^*]+)\*{1,2}', r'\1', bline)
-                clean = re.sub(r'^\s*[-•]\s*', '• ', clean)
+                clean = re.sub(r'\*{1,2}([^*]+)\*{1,2}', r'\1', line.strip())
+                clean = re.sub(r'^#+\s*', '', clean)
                 p.text = clean
-                p.font.size = Pt(16)
+                p.font.size = Pt(14)
                 p.font.color.rgb = WHITE
-                p.space_after = Pt(6)
+                p.space_after = Pt(4)
 
     # Credits slide
     s = prs.slides.add_slide(prs.slide_layouts[6])
     _set_bg(s, DARK_BG)
-    agents_used = list(set(r["agent"] for r in results if r["agent"] != "szintézis"))
+    agents_used = list(set(r["agent"] for r in results if r["agent"] not in ("szintézis", "szintezis")))
     _text(s, 1, 2.5, 11, 1, "Claus Multi-Agent Rendszer", size=32, color=GOLD, bold=True, align=PP_ALIGN.CENTER)
-    _text(s, 1, 4, 11, 0.6, f"Agentek: {', '.join(agents_used)}", size=18, color=LIGHT_GRAY, align=PP_ALIGN.CENTER)
+    _text(s, 1, 4, 11, 0.6, f"Agentek: {', '.join(agents_used) or 'N/A'}", size=18, color=LIGHT_GRAY, align=PP_ALIGN.CENTER)
     _text(s, 1, 4.8, 11, 0.6, f"Task #{task['id']} | {task['created_at'][:10]}", size=14, color=LIGHT_GRAY, align=PP_ALIGN.CENTER)
 
     buf = BytesIO()
