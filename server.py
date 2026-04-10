@@ -977,61 +977,67 @@ def _generate_xlsx(task, results) -> "BytesIO":
     return buf
 
 
-def _ai_structure_slides(content: str, title: str) -> list:
-    """Ask GLM-5.1 to structure content into exactly 5 presentation slides. Returns list of dicts."""
-    import httpx
-    prompt = f"""Te egy prezentacio szerkeszto vagy. A tartalmat PONTOSAN 5 slide-ra kell bontanod.
+def _parse_slides_from_markdown(content: str, task_title: str) -> list:
+    """Parse well-structured markdown into slide sections. No AI needed."""
+    import re
 
-SZABALYOK:
-- PONTOSAN 5 slide (se tobb, se kevesebb)
-- Slide-onkent MAXIMUM 5 bullet point
-- Minden bullet MAXIMUM 15 szo (rovid, tomor!)
-- Ha tul sok tartalom van egy temara, csak a legfontosabbakat valaszd ki
-- Az 5. slide MINDIG "Osszefoglalas" legyen (1-2 fo kovetkez tetes)
+    slides = []
+    current_title = ""
+    current_bullets = []
 
-ELVÁRT FORMATUM (kizarolag ez, semmi mas):
-[
-  {{"title": "Slide cim", "bullets": ["Rovid pont 1", "Rovid pont 2"]}},
-  {{"title": "Masodik slide", "bullets": ["...", "..."]}},
-  {{"title": "Harmadik slide", "bullets": ["...", "..."]}},
-  {{"title": "Negyedik slide", "bullets": ["...", "..."]}},
-  {{"title": "Osszefoglalas", "bullets": ["Fo kovetkeztetes 1", "Fo kovetkeztetes 2"]}}
-]
+    # Extract a human-readable title from content (first # heading or task title)
+    display_title = task_title
+    first_h1 = re.search(r'^#\s+(.+)$', content, re.MULTILINE)
+    if first_h1:
+        display_title = first_h1.group(1).strip()
 
-CIM: {title}
+    for line in content.split("\n"):
+        stripped = line.strip()
+        if not stripped:
+            continue
 
-TARTALOM:
-{content[:6000]}"""
+        # Detect section headings: ## 1. BELPOLITIKA, ## KÜLPOLITIKA, **HEADING**, etc.
+        is_section = False
+        section_title = ""
 
-    try:
-        with httpx.Client(timeout=45) as client:
-            resp = client.post(
-                f"{SILICONFLOW_BASE_URL}/chat/completions",
-                headers={"Authorization": f"Bearer {SILICONFLOW_API_KEY}", "Content-Type": "application/json"},
-                json={
-                    "model": SILICONFLOW_MODELS.get("glm5", "zai-org/GLM-5.1"),
-                    "messages": [
-                        {"role": "system", "content": "KIZAROLAG valid JSON tombot adj vissza. Semmi mast, se markdown, se magyarazat, se kommentar."},
-                        {"role": "user", "content": prompt},
-                    ],
-                    "temperature": 0.15,
-                    "max_tokens": 2000,
-                },
-            )
-        data = json.loads(resp.text)
-        text = data.get("choices", [{}])[0].get("message", {}).get("content", "")
-        text = text.strip()
-        if text.startswith("```"):
-            text = text.split("\n", 1)[1].rsplit("```", 1)[0].strip()
-        slides = json.loads(text)
-        if isinstance(slides, list) and all(isinstance(s, dict) for s in slides):
-            # Enforce max 5 bullets per slide, max 15 words per bullet
-            for s in slides:
-                s["bullets"] = s.get("bullets", [])[:5]
-            return slides[:6]  # safety cap
-    except Exception as e:
-        logger.warning("AI slide structuring failed: %s", e)
-    return None
+        if re.match(r'^#{2,3}\s', stripped):
+            is_section = True
+            section_title = re.sub(r'^#+\s*', '', stripped).strip()
+            # Remove leading number: "1. BELPOLITIKA" → "BELPOLITIKA"
+            section_title = re.sub(r'^\d+[\.\)]\s*', '', section_title).strip()
+        elif stripped.startswith("**") and stripped.endswith("**") and len(stripped) < 80:
+            is_section = True
+            section_title = stripped.strip("*").strip()
+
+        if is_section:
+            # Save previous section as a slide
+            if current_title and current_bullets:
+                slides.append({"title": current_title, "bullets": current_bullets[:6]})
+            current_title = section_title
+            current_bullets = []
+            continue
+
+        # Skip top-level # headings (used for display_title)
+        if re.match(r'^#\s', stripped):
+            continue
+
+        # Everything else is a bullet
+        # Clean: remove numbering, markdown bold, leading dashes
+        bullet = re.sub(r'^\d+[\.\)]\s*', '', stripped)
+        bullet = re.sub(r'\*{1,2}([^*]+)\*{1,2}', r'\1', bullet)
+        bullet = re.sub(r'^[-•]\s*', '', bullet).strip()
+
+        if bullet and len(bullet) > 3:
+            # Truncate very long bullets
+            if len(bullet) > 130:
+                bullet = bullet[:127] + "..."
+            current_bullets.append(bullet)
+
+    # Don't forget the last section
+    if current_title and current_bullets:
+        slides.append({"title": current_title, "bullets": current_bullets[:6]})
+
+    return slides, display_title
 
 
 def _generate_pptx(task, results) -> "BytesIO":
@@ -1068,68 +1074,42 @@ def _generate_pptx(task, results) -> "BytesIO":
         p.alignment = align
         return tf
 
-    # Title slide
-    s = prs.slides.add_slide(prs.slide_layouts[6])
-    _set_bg(s, DARK_BG)
-    _text(s, 1, 1.5, 11, 1.5, task["title"], size=36, color=GOLD, bold=True, align=PP_ALIGN.CENTER)
-    _text(s, 1, 3.5, 11, 0.8, f'Datum: {task["created_at"][:10]}', size=18, color=LIGHT_GRAY, align=PP_ALIGN.CENTER)
-    _text(s, 1, 5.5, 11, 0.6, "Claus Multi-Agent Rendszer", size=14, color=LIGHT_GRAY, align=PP_ALIGN.CENTER)
-
     # Find synthesis or single agent result
     main_content = None
     for r in results:
-        if r["agent"] == "szintezis":
+        if r["agent"] in ("szintézis", "szintezis"):
             main_content = r["content"] or ""
-    if not main_content:
-        for r in results:
-            if r["agent"] == "szintézis":
-                main_content = r["content"] or ""
     if not main_content and results:
         main_content = results[-1]["content"] or ""
 
-    if main_content:
-        # Ask DeepSeek to structure the content into slides
-        slides_data = _ai_structure_slides(main_content, task["title"])
+    # Parse slides from markdown structure
+    slides_data, display_title = _parse_slides_from_markdown(main_content or "", task["title"])
 
-        if slides_data:
-            # AI-structured slides — GLM-5.1 organized
-            for sd in slides_data:
-                s = prs.slides.add_slide(prs.slide_layouts[6])
-                _set_bg(s, DARK_BG)
-                slide_title = sd.get("title", "")
-                if slide_title:
-                    _text(s, 0.8, 0.3, 11.5, 0.9, slide_title, size=26, color=GOLD, bold=True)
-                bullets = sd.get("bullets", [])[:5]  # hard cap 5 per slide
-                if bullets:
-                    tf = _text(s, 0.8, 1.4, 11.5, 5.5, "", size=16, color=WHITE)
-                    tf.paragraphs[0].clear()
-                    for i, bullet in enumerate(bullets):
-                        p = tf.paragraphs[0] if i == 0 else tf.add_paragraph()
-                        clean = re.sub(r'\*{1,2}([^*]+)\*{1,2}', r'\1', str(bullet))
-                        # Truncate long bullets
-                        if len(clean) > 120:
-                            clean = clean[:117] + "..."
-                        p.text = f"• {clean}" if not clean.startswith("•") else clean
-                        p.font.size = Pt(16)
-                        p.font.color.rgb = WHITE
-                        p.space_after = Pt(8)
-        else:
-            # Fallback: single slide with all content
+    # Title slide — use extracted display title, not "Recipe: xyz"
+    s = prs.slides.add_slide(prs.slide_layouts[6])
+    _set_bg(s, DARK_BG)
+    _text(s, 1, 1.5, 11, 1.5, display_title, size=36, color=GOLD, bold=True, align=PP_ALIGN.CENTER)
+    _text(s, 1, 3.5, 11, 0.8, f'{task["created_at"][:10]}', size=18, color=LIGHT_GRAY, align=PP_ALIGN.CENTER)
+    _text(s, 1, 5.5, 11, 0.6, "Claus Multi-Agent Rendszer", size=14, color=LIGHT_GRAY, align=PP_ALIGN.CENTER)
+
+    if slides_data:
+        # Structured slides from markdown
+        for sd in slides_data:
             s = prs.slides.add_slide(prs.slide_layouts[6])
             _set_bg(s, DARK_BG)
-            _text(s, 0.8, 0.3, 11.5, 0.8, "Eredmenyek", size=28, color=GOLD, bold=True)
-            tf = _text(s, 0.8, 1.4, 11.5, 5.5, "", size=14, color=WHITE)
-            tf.paragraphs[0].clear()
-            for i, line in enumerate(main_content[:3000].split("\n")):
-                if not line.strip():
-                    continue
-                p = tf.paragraphs[0] if i == 0 else tf.add_paragraph()
-                clean = re.sub(r'\*{1,2}([^*]+)\*{1,2}', r'\1', line.strip())
-                clean = re.sub(r'^#+\s*', '', clean)
-                p.text = clean
-                p.font.size = Pt(14)
-                p.font.color.rgb = WHITE
-                p.space_after = Pt(4)
+            slide_title = sd.get("title", "")
+            if slide_title:
+                _text(s, 0.8, 0.3, 11.5, 0.9, slide_title, size=26, color=GOLD, bold=True)
+            bullets = sd.get("bullets", [])[:6]
+            if bullets:
+                tf = _text(s, 0.8, 1.4, 11.5, 5.5, "", size=16, color=WHITE)
+                tf.paragraphs[0].clear()
+                for i, bullet in enumerate(bullets):
+                    p = tf.paragraphs[0] if i == 0 else tf.add_paragraph()
+                    p.text = f"• {bullet}"
+                    p.font.size = Pt(16)
+                    p.font.color.rgb = WHITE
+                    p.space_after = Pt(8)
 
     # Credits slide
     s = prs.slides.add_slide(prs.slide_layouts[6])
