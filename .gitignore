@@ -1,3 +1,5 @@
 __pycache__/
 os
 CLAUDE.md
+.env
+*.db
