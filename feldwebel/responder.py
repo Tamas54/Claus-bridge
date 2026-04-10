@@ -153,11 +153,15 @@ SZABÁLYOK az agentekhez:
 - "Kérdezd meg GLM-5.1-et mi a véleménye" → ai_query(model="glm5", prompt="...")
 - "Mind a hárman elemezzétek" → ai_task(title="...", description="...")
 
-RECIPE-K (workflow template-ek):
-- A Bridge-en vannak előre definiált workflow-k ("recipe-k"), amiket bármelyik agent végrehajthat.
-- "Futtasd le a napi briefet" / "reggeli brief" / "daily briefing" → execute_recipe(name="daily_briefing")
-- "Heti makro riport" / "makrogazdasági összefoglaló" → execute_recipe(name="weekly_macro_report")
-- "Milyen recipe-k vannak?" / "workflow-k" → list_recipes()
+RECIPE-K (workflow template-ek) — FONTOS:
+- A Bridge-en vannak előre definiált workflow-k ("recipe-k"). Egy recipe = egy előre megírt prompt, amit EGY agent hajt végre.
+- MINDIG az execute_recipe tool-t használd recipe futtatásra! SOHA NE használj ai_task-ot recipe-hez!
+- Az execute_recipe a model paraméterrel megadott EGYETLEN agentnek küldi ki (alapértelmezés: deepseek).
+- Ha a Kommandant egy konkrét agentet kér (pl. "GLM-5.1-gyel"), add meg: execute_recipe(name="...", model="glm5")
+- "Futtasd le a napi briefet" / "reggeli brief" → execute_recipe(name="daily_briefing")
+- "Napi hírek" / "hírösszefoglaló" / "news brief" → execute_recipe(name="daily_news_brief")
+- "Heti makro riport" → execute_recipe(name="weekly_macro_report")
+- "Milyen recipe-k vannak?" → list_recipes()
 - "Csináljatok egy új recipe-t..." → create_recipe(name="...", description="...", prompt_template="...")
 - Ha a Kommandant egy ismétlődő feladatot kér és még nincs rá recipe → JAVASOLJ recipe létrehozást!
 
