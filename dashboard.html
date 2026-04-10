@@ -1804,7 +1804,7 @@ async function loadAiTasks() {
           <div style="font-size:0.95rem; font-weight:600; color:var(--text-primary)">${statusIcon} ${esc(t.title)}</div>
           <div style="display:flex;gap:0.5rem;align-items:center">
             <span class="badge" style="background:${statusColor}22;color:${statusColor};border:1px solid ${statusColor}44">${t.status}</span>
-            ${t.status === 'completed' ? `<a href="/api/ai_tasks/${t.id}/export" class="badge" style="background:var(--ice-dim);color:var(--ice);border:1px solid var(--ice);text-decoration:none;cursor:pointer" download>📄 DOCX</a>` : ''}
+            ${t.status === 'completed' ? `<a href="/api/ai_tasks/${t.id}/export" class="badge" style="background:var(--ice-dim);color:var(--ice);border:1px solid var(--ice);text-decoration:none;cursor:pointer" download>📄 DOCX</a><a href="/api/ai_tasks/${t.id}/export_xlsx" class="badge" style="background:#1a472a22;color:#4CAF50;border:1px solid #4CAF5044;text-decoration:none;cursor:pointer" download>📊 XLSX</a><a href="/api/ai_tasks/${t.id}/export_pptx" class="badge" style="background:#4a1a0022;color:#FF7043;border:1px solid #FF704344;text-decoration:none;cursor:pointer" download>📽 PPTX</a>` : ''}
             <span style="font-size:0.7rem;color:var(--text-muted)">${relTime(t.created_at)}</span>
           </div>
         </div>
