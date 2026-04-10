@@ -457,6 +457,10 @@ async def _call_deepseek(ctx, model_id: str, messages: list, use_tools: bool = T
 
 async def _execute_tool(name: str, args: dict, ctx) -> str:
     """Execute a tool and return the result as string."""
+    # IMPORTANT: import httpx here to avoid UnboundLocalError —
+    # analyze_upload handler has a conditional `import httpx` which makes
+    # Python treat httpx as local for the entire function scope.
+    import httpx
 
     if name == "gmail_search":
         query = args.get("query", "")
