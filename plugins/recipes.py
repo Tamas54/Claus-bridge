@@ -166,10 +166,13 @@ def register_tools(app, deps):
                              caller: str = "unknown") -> str:
         """Execute a recipe via ai_task — results appear on the dashboard, web search enabled.
 
+        Single-agent (default): model='kimi', 'deepseek', or 'glm5' — fast, one agent works.
+        Multi-agent: model='all' — all 3 agents work in parallel + synthesis. Slower but thorough.
+
         Args:
             name: Recipe name to execute
             context: Optional extra context to append to the prompt
-            model: Which agent to use: 'kimi', 'deepseek', or 'glm5' (default: deepseek)
+            model: 'kimi', 'deepseek', 'glm5' for single agent, or 'all' for multi-agent broadcast
             caller: Who triggered the execution
         """
         conn = get_db()
@@ -201,15 +204,27 @@ def register_tools(app, deps):
         if not ai_task_func:
             return json.dumps({"error": "ai_task nem elerheto"})
 
+        multi_agent = model == "all"
+
         try:
-            max_tokens = 16000 if model == "glm5" else 8000
-            agent_tasks = json.dumps({model: {"prompt": prompt, "max_tokens": max_tokens}})
-            result_json = await ai_task_func(
-                title=f"Recipe: {name}",
-                description=prompt,
-                assigned_by=caller or "recipe-system",
-                agent_tasks=agent_tasks,
-            )
+            if multi_agent:
+                # BROADCAST: all 3 agents + synthesis
+                result_json = await ai_task_func(
+                    title=f"Recipe: {name} (multi-agent)",
+                    description=prompt,
+                    assigned_by=caller or "recipe-system",
+                )
+            else:
+                # DISPATCH: single agent
+                max_tokens = 16000 if model == "glm5" else 8000
+                agent_tasks = json.dumps({model: {"prompt": prompt, "max_tokens": max_tokens}})
+                result_json = await ai_task_func(
+                    title=f"Recipe: {name}",
+                    description=prompt,
+                    assigned_by=caller or "recipe-system",
+                    agent_tasks=agent_tasks,
+                )
+
             result = json.loads(result_json)
             task_id = result.get("task_id")
 
@@ -218,45 +233,71 @@ def register_tools(app, deps):
 
             # Poll for results (ai_task runs in background thread)
             import asyncio
-            for _ in range(90):  # max 180s
+            max_wait = 300 if multi_agent else 180  # multi-agent gets more time
+            for _ in range(max_wait // 2):
                 await asyncio.sleep(2)
                 conn = get_db()
-                row2 = conn.execute(
-                    "SELECT content FROM ai_task_results WHERE task_id = ? AND agent = ? LIMIT 1",
-                    (task_id, model)
-                ).fetchone()
                 status = conn.execute(
                     "SELECT status FROM ai_tasks WHERE id = ?", (task_id,)
                 ).fetchone()
-                conn.close()
 
-                if row2:
-                    logger.info("Recipe executed: %s by %s via %s (task #%d)", name, caller, model, task_id)
-                    return json.dumps({
-                        "status": "executed",
-                        "recipe": name,
-                        "model": model,
-                        "task_id": task_id,
-                        "result": row2["content"],
-                    }, ensure_ascii=False)
-
-                if status and status["status"] in ("completed", "failed"):
-                    # Check if any result exists (maybe different agent name)
-                    conn = get_db()
-                    any_result = conn.execute(
-                        "SELECT agent, content FROM ai_task_results WHERE task_id = ? LIMIT 1",
+                if status and status["status"] == "completed":
+                    # Grab all results
+                    rows = conn.execute(
+                        "SELECT agent, content FROM ai_task_results WHERE task_id = ? ORDER BY id",
                         (task_id,)
-                    ).fetchone()
+                    ).fetchall()
                     conn.close()
-                    if any_result:
+
+                    if multi_agent:
+                        parts = {}
+                        for r in rows:
+                            parts[r["agent"]] = r["content"]
+                        logger.info("Recipe multi-agent: %s by %s (task #%d, %d agents)",
+                                    name, caller, task_id, len(parts))
                         return json.dumps({
                             "status": "executed",
                             "recipe": name,
-                            "model": any_result["agent"],
+                            "mode": "multi-agent",
                             "task_id": task_id,
-                            "result": any_result["content"],
+                            "agents": parts,
                         }, ensure_ascii=False)
-                    return json.dumps({"error": f"Recipe task #{task_id} {status['status']}, nincs eredmeny"})
+                    else:
+                        content = rows[0]["content"] if rows else "(nincs eredmeny)"
+                        agent = rows[0]["agent"] if rows else model
+                        logger.info("Recipe executed: %s by %s via %s (task #%d)",
+                                    name, caller, agent, task_id)
+                        return json.dumps({
+                            "status": "executed",
+                            "recipe": name,
+                            "model": agent,
+                            "task_id": task_id,
+                            "result": content,
+                        }, ensure_ascii=False)
+
+                if status and status["status"] == "failed":
+                    conn.close()
+                    return json.dumps({"error": f"Recipe task #{task_id} failed"})
+
+                # For single-agent, check if our agent's result is already in
+                if not multi_agent:
+                    row2 = conn.execute(
+                        "SELECT content FROM ai_task_results WHERE task_id = ? AND agent = ? LIMIT 1",
+                        (task_id, model)
+                    ).fetchone()
+                    conn.close()
+                    if row2:
+                        logger.info("Recipe executed: %s by %s via %s (task #%d)",
+                                    name, caller, model, task_id)
+                        return json.dumps({
+                            "status": "executed",
+                            "recipe": name,
+                            "model": model,
+                            "task_id": task_id,
+                            "result": row2["content"],
+                        }, ensure_ascii=False)
+                else:
+                    conn.close()
 
             return json.dumps({"status": "running", "task_id": task_id,
                                "message": f"Recipe task #{task_id} meg fut. Eredmeny a dashboardon."})

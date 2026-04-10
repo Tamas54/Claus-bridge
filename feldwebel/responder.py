@@ -156,8 +156,11 @@ SZABÁLYOK az agentekhez:
 RECIPE-K (workflow template-ek) — FONTOS:
 - A Bridge-en vannak előre definiált workflow-k ("recipe-k"). Egy recipe = egy előre megírt prompt, amit EGY agent hajt végre.
 - MINDIG az execute_recipe tool-t használd recipe futtatásra! SOHA NE használj ai_task-ot recipe-hez!
-- Az execute_recipe a model paraméterrel megadott EGYETLEN agentnek küldi ki (alapértelmezés: deepseek).
-- Ha a Kommandant egy konkrét agentet kér (pl. "GLM-5.1-gyel"), add meg: execute_recipe(name="...", model="glm5")
+- Egy agent: execute_recipe(name="...", model="glm5") — gyors, ~30mp
+- Mind a 3 agent: execute_recipe(name="...", model="all") — alapos de lassabb (~3-5 perc)
+- Ha a Kommandant konkrét agentet kér (pl. "GLM-5.1-gyel"): model="glm5"
+- Ha "mind a hárman" / "összes agent" / "alaposan": model="all"
+- Alapértelmezés: model="deepseek" (gyors, egy agent)
 - "Futtasd le a napi briefet" / "reggeli brief" → execute_recipe(name="daily_briefing")
 - "Napi hírek" / "hírösszefoglaló" / "news brief" → execute_recipe(name="daily_news_brief")
 - "Heti makro riport" → execute_recipe(name="weekly_macro_report")
