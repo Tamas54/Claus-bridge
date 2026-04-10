@@ -303,10 +303,11 @@ def _build_system_prompt(ctx) -> str:
 # ── Main respond function (agent loop) ────────────────────────────
 
 
-async def respond(text: str, chat_id: str, agent_id: str = "deepseek") -> str:
+async def respond(text: str, chat_id: str, agent_id: str = "glm5") -> str:
     """
-    Generate a DeepSeek response with native tool use.
-    Agent loop: DeepSeek calls tools → results fed back → final response.
+    Generate a response with native tool use.
+    Agent loop: model calls tools → results fed back → final response.
+    Default: GLM-5.1 (200k context, tool-use specialist).
     """
     ctx = get_ctx()
 
@@ -397,13 +398,14 @@ async def respond(text: str, chat_id: str, agent_id: str = "deepseek") -> str:
 
 
 async def _call_deepseek(ctx, model_id: str, messages: list, use_tools: bool = True) -> dict:
-    """Call SiliconFlow DeepSeek API, optionally with tools."""
+    """Call SiliconFlow AI API, optionally with tools."""
     try:
+        is_glm = "GLM" in model_id.upper()
         payload = {
             "model": model_id,
             "messages": messages,
             "temperature": 0.7,
-            "max_tokens": 2000,
+            "max_tokens": 4000 if is_glm else 2000,
         }
         if use_tools:
             payload["tools"] = TOOLS

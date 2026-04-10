@@ -3666,7 +3666,7 @@ async def _handle_telegram_message(text: str, chat_id: str):
                 await _telegram_push(f"<b>{agent_id.upper()}</b> — hiba: {html_escape(str(e)[:500])}")
         return  # Agent mention handled
 
-    # 4. Free text → Feldwebel responder (DeepSeek with conversation history)
+    # 4. Free text → Feldwebel responder (GLM-5.1 with conversation history + tool use)
     if FELDWEBEL_ENABLED:
         try:
             from feldwebel.responder import respond
@@ -3677,13 +3677,13 @@ async def _handle_telegram_message(text: str, chat_id: str):
             from html import escape as html_escape
             await _telegram_push(f"<b>FELDWEBEL</b> — hiba: {html_escape(str(e)[:500])}")
 
-    # 5. Fallback: original DeepSeek call without history (if Feldwebel unavailable)
+    # 5. Fallback: original GLM-5.1 call without history (if Feldwebel unavailable)
     if PYRAMID_ENABLED and SILICONFLOW_API_KEY:
         import httpx
         from html import escape as html_escape
         try:
-            system_prompt = build_agent_context(agent_id="deepseek", inbox_summary=_get_inbox_summary())
-            model_id = SILICONFLOW_MODELS.get("deepseek", "deepseek")
+            system_prompt = build_agent_context(agent_id="glm5", inbox_summary=_get_inbox_summary())
+            model_id = SILICONFLOW_MODELS.get("glm5", "zai-org/GLM-5.1")
             async with httpx.AsyncClient(timeout=SILICONFLOW_TIMEOUT) as client:
                 resp = await client.post(
                     f"{SILICONFLOW_BASE_URL}/chat/completions",
@@ -3696,9 +3696,9 @@ async def _handle_telegram_message(text: str, chat_id: str):
                 data = json.loads(resp.text)
             content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
             if content and content.strip():
-                await _telegram_push(f"<b>DEEPSEEK</b>\n\n{html_escape(content[:3800])}")
+                await _telegram_push(f"<b>GLM-5.1</b>\n\n{html_escape(content[:3800])}")
         except Exception as e:
-            logger.error("Fallback DeepSeek failed: %s", e)
+            logger.error("Fallback GLM-5.1 failed: %s", e)
 
 
 async def _telegram_poll_loop():
