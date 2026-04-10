@@ -135,6 +135,21 @@ TOOLS = [
             "format": {"type": "string", "description": "Formátum: docx / xlsx / pptx", "enum": ["docx", "xlsx", "pptx"]},
             "email_to": {"type": "string", "description": "Ha emailben is kell küldeni, ide írd a címet", "default": ""},
         }, "required": ["task_id", "format"]}}},
+    # ── Fájl továbbítás ──
+    {"type": "function", "function": {
+        "name": "send_file_email", "description": "Feltöltött fájl (fotó, dokumentum) továbbküldése emailben. Upload #ID szükséges.",
+        "parameters": {"type": "object", "properties": {
+            "file_id": {"type": "integer", "description": "Upload fájl ID (pl. #2)"},
+            "to": {"type": "string", "description": "Email cím"},
+            "subject": {"type": "string", "description": "Email tárgy", "default": "Claus — csatolt fájl"},
+        }, "required": ["file_id", "to"]}}},
+    # ── Kép elemzés ──
+    {"type": "function", "function": {
+        "name": "analyze_upload", "description": "Feltöltött kép elemzése Kimi K2.5 vision modellel. Upload #ID szükséges.",
+        "parameters": {"type": "object", "properties": {
+            "file_id": {"type": "integer", "description": "Upload fájl ID (pl. #2)"},
+            "prompt": {"type": "string", "description": "Kérdés a képről", "default": "Mit latsz a kepen? Ird le reszletesen, magyarul."},
+        }, "required": ["file_id"]}}},
 ]
 
 # Tools that need confirmation before execution
@@ -189,6 +204,12 @@ RECIPE-K (workflow template-ek) — FONTOS:
 - "Heti makro riport hétfőn 8-kor" → schedule_recipe(name="weekly_macro_report", cron_schedule="0 8 * * 1", model="all")
 - "Kapcsold ki az ütemezést" → schedule_recipe(name="...", cron_schedule="off")
 - Az ütemezett recipe-k AUTOMATIKUSAN futnak és Telegramra küldik az eredményt
+
+FOTÓK ÉS FÁJLOK:
+- A Kommandant Telegramon küldhet fotókat — azok upload #ID-val tárolódnak
+- "Elemezd a #2-es képet" → analyze_upload(file_id=2)
+- "Küldd el emailben a #2-es fotót a cim@email.com-ra" → send_file_email(file_id=2, to="cim@email.com")
+- Email küldéshez MINDIG kérj megerősítést!
 
 FÁJL EXPORT (docx/xlsx/pptx):
 - "Küld el docx-ben" / "excelt kérek" / "pptx-et a task #45-ről" → export_task(task_id=45, format="pptx")
@@ -784,6 +805,69 @@ async def _execute_tool(name: str, args: dict, ctx) -> str:
                 "cron_schedule": cron_schedule, "model": model,
                 "message": f"'{recipe_name}' ütemezve: {cron_schedule} ({model}). Eredmény Telegramra jön."
             }, ensure_ascii=False)
+        except Exception as e:
+            return json.dumps({"error": str(e)})
+
+    # ── Send uploaded file via email ──
+    if name == "send_file_email":
+        fid = args.get("file_id", 0)
+        to = args.get("to", "")
+        subject = args.get("subject", "Claus — csatolt fajl")
+        if not fid or not to:
+            return json.dumps({"error": "file_id és to szükséges"})
+        send_email_func = ctx.capture_state.get("_send_email_func")
+        if not send_email_func:
+            return json.dumps({"error": "Email küldés nem elérhető"})
+        try:
+            result = await send_email_func(
+                to=to, subject=subject,
+                body=f"Csatolva: fájl #{fid}\n\nKüldte: Claus Bridge",
+                file_id=fid, caller="feldwebel",
+            )
+            return result
+        except Exception as e:
+            return json.dumps({"error": str(e)})
+
+    # ── Analyze uploaded image ──
+    if name == "analyze_upload":
+        fid = args.get("file_id", 0)
+        prompt = args.get("prompt", "Mit latsz a kepen? Ird le reszletesen, magyarul.")
+        if not fid:
+            return json.dumps({"error": "file_id szükséges"})
+        try:
+            conn = ctx.get_db()
+            row = conn.execute("SELECT filename, mime_type, content_base64 FROM uploads WHERE id = ?", (fid,)).fetchone()
+            conn.close()
+            if not row:
+                return json.dumps({"error": f"Upload #{fid} nem található"})
+            if not row["content_base64"]:
+                return json.dumps({"error": f"Upload #{fid} nem tartalmaz képet"})
+            if not row["mime_type"].startswith("image/"):
+                return json.dumps({"error": f"Upload #{fid} nem kép ({row['mime_type']})"})
+            # Use the centralized vision helper via capture_state
+            import httpx
+            sf_key = ctx.siliconflow_api_key
+            sf_base = ctx.siliconflow_base_url
+            sf_models = ctx.siliconflow_models
+            model_id = sf_models.get("kimi", "moonshotai/Kimi-K2.5")
+            data_url = f"data:{row['mime_type']};base64,{row['content_base64']}"
+            async with httpx.AsyncClient(timeout=60) as client:
+                resp = await client.post(
+                    f"{sf_base}/chat/completions",
+                    headers={"Authorization": f"Bearer {sf_key}", "Content-Type": "application/json"},
+                    json={
+                        "model": model_id,
+                        "messages": [{"role": "user", "content": [
+                            {"type": "image_url", "image_url": {"url": data_url}},
+                            {"type": "text", "text": prompt},
+                        ]}],
+                        "temperature": 0.5,
+                        "max_tokens": 2000,
+                    },
+                )
+            data = json.loads(resp.text)
+            analysis = data.get("choices", [{}])[0].get("message", {}).get("content", "(ures valasz)")
+            return json.dumps({"status": "analyzed", "file_id": fid, "analysis": analysis}, ensure_ascii=False)
         except Exception as e:
             return json.dumps({"error": str(e)})
 

@@ -3777,7 +3777,6 @@ async def _telegram_poll_loop():
                                 mime = "image/webp"
 
                             image_b64 = base64.b64encode(image_bytes).decode("ascii")
-                            prompt = caption if caption else "Mit latsz a kepen? Ird le reszletesen, magyarul."
 
                             # Store image in uploads table (reusable for email, AI, etc.)
                             conn = get_db()
@@ -3792,24 +3791,23 @@ async def _telegram_poll_loop():
                             upload_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
                             conn.commit()
                             conn.close()
+                            logger.info("Telegram photo stored: #%d %s (%d bytes)", upload_id, file_path, len(image_bytes))
 
-                            await _telegram_push(f"📷 Kep fogadva (#{upload_id}), Kimi K2.5 elemzi...")
-                            analysis = await _analyze_image(image_b64, mime, prompt)
-                            await _telegram_push(
-                                f"📷 <b>KEP ELEMZES</b> (Kimi K2.5)\n\n{analysis[:3600]}\n\n"
-                                f"<i>Fajl #{upload_id} — tovabbkuldheto emailben</i>"
-                            )
-
-                            # Store analysis in messages
-                            conn = get_db()
-                            conn.execute(
-                                "INSERT INTO messages (timestamp, sender, recipient, subject, message, priority) "
-                                "VALUES (?, 'kommandant', 'bridge', ?, ?, 'normal')",
-                                (now(), f"Telegram foto #{upload_id}: {caption or 'kep'}", f"[kep elemzes]\n{analysis[:2000]}"),
-                            )
-                            conn.commit()
-                            conn.close()
-                            logger.info("Telegram photo analyzed: %s (%d bytes)", file_path, len(image_bytes))
+                            # Only analyze if caption requests it (e.g. "elemezd", "mi ez", any text)
+                            if caption:
+                                await _telegram_push(f"📷 Kep fogadva (#{upload_id}), Kimi K2.5 elemzi...")
+                                analysis = await _analyze_image(image_b64, mime, caption)
+                                await _telegram_push(
+                                    f"📷 <b>KEP ELEMZES</b> (Kimi K2.5)\n\n{analysis[:3600]}\n\n"
+                                    f"<i>Fajl #{upload_id} — tovabbkuldheto: \"kuldd el emailben a #{upload_id}-t\"</i>"
+                                )
+                            else:
+                                await _telegram_push(
+                                    f"📷 Kep fogadva: <b>#{upload_id}</b>\n"
+                                    f"• Elemzes: kuldd ujra caption-nel (pl. \"mi ez a kepen?\")\n"
+                                    f"• Tovabbkuldeni: \"kuldd el emailben a #{upload_id}-t\"\n"
+                                    f"• Vagy kerdezz: \"elemezd a #{upload_id}-es kepet\""
+                                )
                         except Exception as e:
                             logger.error("Telegram photo handling failed: %s", e)
                             await _telegram_push(f"Kep feldolgozasi hiba: {str(e)[:200]}")
