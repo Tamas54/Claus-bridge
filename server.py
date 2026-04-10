@@ -2841,6 +2841,32 @@ async def _telegram_push_document(message_id: str, attachment: dict, caption: st
         logger.error("Telegram document push failed: %s", e)
 
 
+async def _telegram_send_file(file_bytes: bytes, filename: str, mime_type: str, caption: str = ""):
+    """Send any file to Telegram as a document."""
+    if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
+        return False
+    try:
+        import httpx
+        async with httpx.AsyncClient(timeout=30) as client:
+            resp = await client.post(
+                f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendDocument",
+                data={
+                    "chat_id": TELEGRAM_CHAT_ID,
+                    "caption": caption[:1024] if caption else "",
+                    "parse_mode": "HTML",
+                },
+                files={
+                    "document": (filename, file_bytes, mime_type),
+                },
+            )
+            if resp.status_code == 200:
+                return True
+            logger.error("Telegram sendFile failed: %s", resp.text[:200])
+    except Exception as e:
+        logger.error("Telegram file send failed: %s", e)
+    return False
+
+
 def _bridge_capture_event(subject: str, message: str, priority: str = "normal"):
     """Write a capture event directly into the Bridge DB."""
     conn = get_db()
@@ -3737,6 +3763,9 @@ if FELDWEBEL_ENABLED:
     _capture_state["_search_memory_func"] = search_memory
     _capture_state["_send_message_func"] = send_message
     _capture_state["_search_discussions_func"] = search_discussions
+    _capture_state["_telegram_send_file"] = _telegram_send_file
+    _capture_state["_generate_xlsx"] = _generate_xlsx
+    _capture_state["_generate_pptx"] = _generate_pptx
     init_feldwebel(BridgeContext(
         telegram_push=_telegram_push,
         get_inbox_summary=_get_inbox_summary,

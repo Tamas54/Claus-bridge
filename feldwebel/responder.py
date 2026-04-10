@@ -119,6 +119,13 @@ TOOLS = [
             "description": {"type": "string", "description": "Mit csinál a recipe"},
             "prompt_template": {"type": "string", "description": "A workflow prompt szövege"},
         }, "required": ["name", "description", "prompt_template"]}}},
+    # ── Fájl export ──
+    {"type": "function", "function": {
+        "name": "export_task", "description": "AI feladat eredményeinek exportálása és küldése Telegramra. Formátumok: docx, xlsx, pptx.",
+        "parameters": {"type": "object", "properties": {
+            "task_id": {"type": "integer", "description": "AI task ID száma"},
+            "format": {"type": "string", "description": "Formátum: docx / xlsx / pptx", "enum": ["docx", "xlsx", "pptx"]},
+        }, "required": ["task_id", "format"]}}},
 ]
 
 # Tools that need confirmation before execution
@@ -167,6 +174,11 @@ RECIPE-K (workflow template-ek) — FONTOS:
 - "Milyen recipe-k vannak?" → list_recipes()
 - "Csináljatok egy új recipe-t..." → create_recipe(name="...", description="...", prompt_template="...")
 - Ha a Kommandant egy ismétlődő feladatot kér és még nincs rá recipe → JAVASOLJ recipe létrehozást!
+
+FÁJL EXPORT (docx/xlsx/pptx):
+- "Küld el docx-ben" / "excelt kérek" / "pptx-et a task #45-ről" → export_task(task_id=45, format="pptx")
+- Ha a Kommandant nem ad task_id-t, kérdezd meg melyik taskra gondol, vagy használd az utolsó completed taskot
+- A fájl AUTOMATIKUSAN megérkezik Telegramon — nem kell semmit máshol letölteni
 
 Ha emailre kell válaszolni:
 - Írd meg a draft választ magyarul, a Kommandant stílusában (hivatalos de nem merev)
@@ -717,6 +729,74 @@ async def _execute_tool(name: str, args: dict, ctx) -> str:
         except Exception as e:
             if "UNIQUE constraint" in str(e):
                 return json.dumps({"error": f"Recipe '{rname}' már létezik."})
+            return json.dumps({"error": str(e)})
+
+    # ── File export + Telegram send ──
+    if name == "export_task":
+        task_id = args.get("task_id", 0)
+        fmt = args.get("format", "docx")
+        if not task_id:
+            return json.dumps({"error": "task_id szükséges"})
+        if fmt not in ("docx", "xlsx", "pptx"):
+            return json.dumps({"error": "format: docx / xlsx / pptx"})
+        try:
+            conn = ctx.get_db()
+            task = conn.execute("SELECT * FROM ai_tasks WHERE id = ?", (task_id,)).fetchone()
+            if not task:
+                conn.close()
+                return json.dumps({"error": f"Task #{task_id} nem található"})
+            results = conn.execute(
+                "SELECT agent, role, content, timestamp FROM ai_task_results WHERE task_id = ? ORDER BY id",
+                (task_id,)
+            ).fetchall()
+            conn.close()
+            if not results:
+                return json.dumps({"error": f"Task #{task_id} nincs eredménye"})
+
+            # Generate file
+            if fmt == "xlsx":
+                gen_func = ctx.capture_state.get("_generate_xlsx")
+                if not gen_func:
+                    return json.dumps({"error": "xlsx generálás nem elérhető"})
+                buf = gen_func(task, results)
+                mime = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            elif fmt == "pptx":
+                gen_func = ctx.capture_state.get("_generate_pptx")
+                if not gen_func:
+                    return json.dumps({"error": "pptx generálás nem elérhető"})
+                buf = gen_func(task, results)
+                mime = "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+            else:  # docx
+                from docx import Document as DocxDocument
+                from io import BytesIO
+                doc = DocxDocument()
+                doc.add_heading(task["title"], level=1)
+                doc.add_paragraph(f'Kiadta: {task["assigned_by"]} | Dátum: {task["created_at"][:10]}')
+                agent_names = {"kimi": "Kimi-K2.5", "deepseek": "DeepSeek V3.2", "glm5": "GLM-5.1", "szintézis": "Szintézis"}
+                for r in results:
+                    doc.add_heading(agent_names.get(r["agent"], r["agent"]), level=2)
+                    for line in (r["content"] or "").split("\n"):
+                        if line.strip():
+                            doc.add_paragraph(line.strip())
+                buf = BytesIO()
+                doc.save(buf)
+                buf.seek(0)
+                mime = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+
+            filename = f"claus_task_{task_id}.{fmt}"
+            file_bytes = buf.getvalue()
+
+            # Send to Telegram
+            send_file = ctx.capture_state.get("_telegram_send_file")
+            if send_file:
+                caption = f"📎 <b>{task['title']}</b>\nTask #{task_id} | {fmt.upper()}"
+                sent = await send_file(file_bytes, filename, mime, caption)
+                if sent:
+                    return json.dumps({"status": "sent", "filename": filename, "size": len(file_bytes),
+                                       "message": f"{fmt.upper()} elküldve Telegramon!"})
+                return json.dumps({"error": "Telegram küldés sikertelen"})
+            return json.dumps({"error": "Telegram file küldés nem elérhető"})
+        except Exception as e:
             return json.dumps({"error": str(e)})
 
     return json.dumps({"error": f"Ismeretlen tool: {name}"})
