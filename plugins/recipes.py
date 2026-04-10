@@ -164,7 +164,7 @@ def register_tools(app, deps):
     @app.tool()
     async def execute_recipe(name: str, context: str = "", model: str = "deepseek",
                              caller: str = "unknown") -> str:
-        """Execute a recipe — sends the prompt_template to an AI agent via ai_query.
+        """Execute a recipe via ai_task — results appear on the dashboard, web search enabled.
 
         Args:
             name: Recipe name to execute
@@ -192,55 +192,74 @@ def register_tools(app, deps):
         if required_tools:
             prompt += f"\n\nELERHETO TOOL-OK: {', '.join(required_tools)}"
 
-        # Call ai_query via deps — but we need the actual function
-        # Use the SiliconFlow API directly for independence
-        sf_key = deps.get("siliconflow_api_key", "")
-        sf_base = deps.get("siliconflow_base_url", "https://api.siliconflow.com/v1")
-        sf_models = deps.get("siliconflow_models", {})
+        # Inject current date
+        today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        prompt += f"\n\n[Mai datum: {today}. Az adatoknak FRISSNEK kell lenniuk!]"
 
-        if not sf_key:
-            return json.dumps({"error": "SILICONFLOW_API_KEY not configured"})
+        # Route through ai_task for dashboard visibility + web search
+        ai_task_func = deps.get("ai_task_func")
+        if not ai_task_func:
+            return json.dumps({"error": "ai_task nem elerheto"})
 
-        model_id = sf_models.get(model, model)
-
-        import httpx
         try:
-            async with httpx.AsyncClient(timeout=deps.get("siliconflow_timeout", 220)) as client:
-                resp = await client.post(
-                    f"{sf_base}/chat/completions",
-                    headers={"Authorization": f"Bearer {sf_key}", "Content-Type": "application/json"},
-                    json={
-                        "model": model_id,
-                        "messages": [
-                            {"role": "system", "content": (
-                                "Te a Claus multi-agent rendszer al-agentje vagy. "
-                                "Egy recipe (workflow template) vegrehajtasat kaptad feladatul. "
-                                "Magyarul valaszolj, lenyegre toroen de alaposan."
-                            )},
-                            {"role": "user", "content": prompt},
-                        ],
-                        "temperature": 0.5,
-                        "max_tokens": 8000,
-                    },
-                )
-                data = json.loads(resp.text)
+            max_tokens = 16000 if model == "glm5" else 8000
+            agent_tasks = json.dumps({model: {"prompt": prompt, "max_tokens": max_tokens}})
+            result_json = await ai_task_func(
+                title=f"Recipe: {name}",
+                description=prompt,
+                assigned_by=caller or "recipe-system",
+                agent_tasks=agent_tasks,
+            )
+            result = json.loads(result_json)
+            task_id = result.get("task_id")
 
-            if "error" in data:
-                return json.dumps({"error": f"API error: {data['error']}"})
+            if not task_id:
+                return result_json
 
-            content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
-            usage = data.get("usage", {})
+            # Poll for results (ai_task runs in background thread)
+            import asyncio
+            for _ in range(90):  # max 180s
+                await asyncio.sleep(2)
+                conn = get_db()
+                row2 = conn.execute(
+                    "SELECT content FROM ai_task_results WHERE task_id = ? AND agent = ? LIMIT 1",
+                    (task_id, model)
+                ).fetchone()
+                status = conn.execute(
+                    "SELECT status FROM ai_tasks WHERE id = ?", (task_id,)
+                ).fetchone()
+                conn.close()
 
-            logger.info("Recipe executed: %s by %s via %s (%d tokens)",
-                        name, caller, model, usage.get("completion_tokens", 0))
+                if row2:
+                    logger.info("Recipe executed: %s by %s via %s (task #%d)", name, caller, model, task_id)
+                    return json.dumps({
+                        "status": "executed",
+                        "recipe": name,
+                        "model": model,
+                        "task_id": task_id,
+                        "result": row2["content"],
+                    }, ensure_ascii=False)
 
-            return json.dumps({
-                "status": "executed",
-                "recipe": name,
-                "model": model,
-                "result": content,
-                "tokens": {"prompt": usage.get("prompt_tokens", 0), "completion": usage.get("completion_tokens", 0)},
-            }, ensure_ascii=False)
+                if status and status["status"] in ("completed", "failed"):
+                    # Check if any result exists (maybe different agent name)
+                    conn = get_db()
+                    any_result = conn.execute(
+                        "SELECT agent, content FROM ai_task_results WHERE task_id = ? LIMIT 1",
+                        (task_id,)
+                    ).fetchone()
+                    conn.close()
+                    if any_result:
+                        return json.dumps({
+                            "status": "executed",
+                            "recipe": name,
+                            "model": any_result["agent"],
+                            "task_id": task_id,
+                            "result": any_result["content"],
+                        }, ensure_ascii=False)
+                    return json.dumps({"error": f"Recipe task #{task_id} {status['status']}, nincs eredmeny"})
+
+            return json.dumps({"status": "running", "task_id": task_id,
+                               "message": f"Recipe task #{task_id} meg fut. Eredmeny a dashboardon."})
 
         except Exception as e:
             logger.error("Recipe execution failed: %s — %s", name, e)

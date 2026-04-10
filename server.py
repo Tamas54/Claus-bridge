@@ -3423,6 +3423,7 @@ try:
         "siliconflow_base_url": SILICONFLOW_BASE_URL,
         "siliconflow_timeout": SILICONFLOW_TIMEOUT,
         "siliconflow_models": SILICONFLOW_MODELS,
+        "ai_task_func": ai_task,
     }
     _loaded_plugins = discover_and_register(mcp, _plugin_deps)
     if _loaded_plugins:
