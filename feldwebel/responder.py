@@ -159,9 +159,9 @@ TOOLS = [
         }, "required": ["file_id"]}}},
     # ── Közgazdasági adatok (Makronóm) ──
     {"type": "function", "function": {
-        "name": "mnb_rates", "description": "MNB hivatalos árfolyamok (EUR/HUF, USD/HUF, CHF/HUF stb.). Friss, mai adat.",
+        "name": "mnb_rates", "description": "ECB napi árfolyamok (EUR/HUF, USD/HUF, CHF/HUF stb.) + HUF keresztárfolyamok. Friss, mai adat.",
         "parameters": {"type": "object", "properties": {
-            "currencies": {"type": "string", "description": "Szűrés: 'EUR,USD,CHF' (üres = mind a 32 deviza)", "default": ""},
+            "currencies": {"type": "string", "description": "Szűrés: 'HUF,USD,CHF' (üres = fő devizák)", "default": ""},
         }}}},
     {"type": "function", "function": {
         "name": "market_quote", "description": "Piaci adat Yahoo Finance-ből: részvény, deviza, áru, index, kötvényhozam, kripto. FRISS árak.",
@@ -1006,34 +1006,47 @@ async def _execute_tool(name: str, args: dict, ctx) -> str:
     if name == "mnb_rates":
         currencies_filter = [c.strip().upper() for c in args.get("currencies", "").split(",") if c.strip()]
         try:
+            # ECB daily reference rates (EUR-based, includes HUF + 30 currencies)
             async with httpx.AsyncClient(timeout=15) as client:
                 resp = await client.get(
-                    "https://www.mnb.hu/arfolyamok.asmx/GetCurrentExchangeRates",
+                    "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml",
                     headers={"User-Agent": "ClausBridge/1.0"},
                 )
             root = ET.fromstring(resp.text)
-            # MNB returns SOAP envelope with embedded XML string
-            inner_xml = root.text or resp.text
-            # Parse the inner XML (MNBCurrentExchangeRates)
-            if "<MNBCurrentExchangeRates>" in inner_xml:
-                inner_root = ET.fromstring(inner_xml)
-            else:
-                inner_root = root
-            rates = []
+            ns = {"ecb": "http://www.ecb.int/vocabulary/2002-08-01/eurofxref"}
             date_str = ""
-            for day in inner_root.iter("Day"):
-                date_str = day.attrib.get("date", "")
-                for rate_elem in day.iter("Rate"):
-                    curr = rate_elem.attrib.get("curr", "")
-                    val = rate_elem.text or ""
-                    if val:
-                        val = val.replace(",", ".")
-                    if currencies_filter and curr not in currencies_filter:
-                        continue
-                    rates.append({"currency": curr, "rate": float(val) if val else 0})
-            return json.dumps({"source": "MNB", "date": date_str, "rates": rates}, ensure_ascii=False)
+            for tc in root.findall(".//ecb:Cube[@time]", ns):
+                date_str = tc.attrib["time"]
+            rates = []
+            eur_huf = None
+            for cube in root.findall(".//ecb:Cube[@currency]", ns):
+                curr = cube.attrib["currency"]
+                rate_val = float(cube.attrib["rate"])
+                if curr == "HUF":
+                    eur_huf = rate_val
+                if currencies_filter and curr not in currencies_filter:
+                    continue
+                rates.append({"currency": curr, "rate": rate_val})
+            # If no filter, just return key currencies
+            if not currencies_filter:
+                key_currencies = {"HUF", "USD", "CHF", "GBP", "CZK", "PLN", "RON", "JPY", "SEK", "NOK", "DKK", "CNY", "TRY"}
+                rates = [r for r in rates if r["currency"] in key_currencies]
+            # Add cross rates (USD/HUF, CHF/HUF etc.) if HUF is in data
+            cross_rates = []
+            if eur_huf:
+                for r in rates:
+                    if r["currency"] != "HUF":
+                        cross = round(eur_huf / r["rate"], 2)
+                        cross_rates.append({"pair": f"{r['currency']}/HUF", "rate": cross})
+            return json.dumps({
+                "source": "ECB daily reference rates",
+                "date": date_str,
+                "base": "EUR",
+                "rates": rates,
+                "huf_cross_rates": cross_rates,
+            }, ensure_ascii=False)
         except Exception as e:
-            return json.dumps({"error": f"MNB API hiba: {e}"})
+            return json.dumps({"error": f"ECB API hiba: {e}"})
 
     if name == "market_quote":
         symbol = args.get("symbol", "").strip()
@@ -1117,11 +1130,7 @@ async def _execute_tool(name: str, args: dict, ctx) -> str:
             results = {}
             async with httpx.AsyncClient(timeout=20) as client:
                 for cc in countries[:8]:  # max 8 countries
-                    url = (
-                        f"https://api.db.nomics.world/v22/series/BIS/WS_CBPOL"
-                        f"?dimensions=%7B%22ref_area%22%3A%5B%22{cc}%22%5D%2C%22freq%22%3A%5B%22M%22%5D%7D"
-                        f"&limit=6&sort=period&order=desc"
-                    )
+                    url = f"https://api.db.nomics.world/v22/series/BIS/WS_CBPOL/M.{cc}?observations=1&limit=1"
                     resp = await client.get(url, headers={"User-Agent": "ClausBridge/1.0"})
                     data = json.loads(resp.text)
                     series_list = data.get("series", {}).get("docs", [])
@@ -1129,9 +1138,11 @@ async def _execute_tool(name: str, args: dict, ctx) -> str:
                         s = series_list[0]
                         periods = s.get("period", [])
                         values = s.get("value", [])
+                        # Data is ascending — take last 6 entries
                         history = []
-                        for i in range(min(len(periods), len(values), 6)):
-                            if values[i] is not None:
+                        start_idx = max(0, len(periods) - 6)
+                        for i in range(len(periods) - 1, start_idx - 1, -1):
+                            if i < len(values) and values[i] is not None:
                                 history.append({"period": periods[i], "rate": values[i]})
                         if history:
                             results[cc] = {
