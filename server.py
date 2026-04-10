@@ -868,9 +868,6 @@ async def export_ai_task(task_id: int, format: str = "xlsx", caller: str = "") -
     from io import BytesIO
 
     try:
-        # Build the file via the HTTP endpoint logic
-        from starlette.testclient import TestClient
-        # Simpler: just call the internal generation directly
         if format == "xlsx":
             buf = _generate_xlsx(task, results)
             mime = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
