@@ -3141,7 +3141,14 @@ async def capture_calendar_poll(caller: str = "") -> str:
         _capture_state["calendar_reminded"] = reminded
 
         # --- Morning briefing ---
-        local_now = datetime.now()
+        # FIX: expliciten Budapest-i ido, kulonben Railway UTC konteneren a
+        # "7 AM" = 09:00 CEST (DST alatt) — reggel 7-nek szantuk, de 9-kor futott.
+        try:
+            from zoneinfo import ZoneInfo
+            local_now = datetime.now(ZoneInfo("Europe/Budapest"))
+        except ImportError:
+            # Py <3.9 fallback: hardcoded CEST offset
+            local_now = datetime.now(timezone(timedelta(hours=2)))
         today_str = local_now.strftime("%Y-%m-%d")
 
         if local_now.hour == MORNING_BRIEFING_HOUR and _capture_state.get("last_briefing_date") != today_str:
@@ -3922,6 +3929,8 @@ try:
         "siliconflow_timeout": SILICONFLOW_TIMEOUT,
         "siliconflow_models": SILICONFLOW_MODELS,
         "ai_task_func": ai_task,
+        # Operation Kabare: prefetch helper eleri a gmail/calendar service-t
+        "capture_state": _capture_state,
     }
     _loaded_plugins = discover_and_register(mcp, _plugin_deps)
     if _loaded_plugins:

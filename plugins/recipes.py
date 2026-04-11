@@ -252,6 +252,29 @@ def register_tools(app, deps):
         today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
         prompt += f"\n\n[Mai datum: {today}. Az adatoknak FRISSNEK kell lenniuk!]"
 
+        # ── Operation Kabare: pre-fetch real data in Python ──
+        # A sub-agentek csak web_search-t kapnak. Ha van prefetcher a recipe-hez,
+        # itt lehuzzuk a valodi adatokat (ECB, Yahoo, Calendar, Gmail, DB) es
+        # CONTEXT blokkkent injektaljuk. A prompt template koti, hogy csak ezt
+        # hasznalja — igy nem tud arfolyamot halucinalni.
+        try:
+            from plugins._recipe_prefetch import run_prefetch
+            factual_context = await run_prefetch(name, deps)
+            if factual_context:
+                prompt += (
+                    "\n\n=== FACTUAL CONTEXT (Python-ban lehuzott valos adatok) ===\n"
+                    f"{factual_context}\n"
+                    "=== END FACTUAL CONTEXT ===\n\n"
+                    "SZIGORU SZABALY: MINDEN szamadatnak (arfolyam, ar, index, idopont, "
+                    "nev, cim) a fenti FACTUAL CONTEXT blokkbol kell szarmaznia. "
+                    "TILOS fejbol szamot, adatot, forrast irni. Ha valami nincs a "
+                    "CONTEXT-ben, ird: 'adat nem elerheto'. SOHA ne talalj ki semmit."
+                )
+                logger.info("Recipe prefetch injected for: %s (%d chars)",
+                            name, len(factual_context))
+        except Exception as e:
+            logger.error("Recipe prefetch injection failed for %s: %s", name, e)
+
         # Route through ai_task for dashboard visibility + web search
         ai_task_func = deps.get("ai_task_func")
         if not ai_task_func:
