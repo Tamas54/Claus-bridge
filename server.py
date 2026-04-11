@@ -3970,13 +3970,24 @@ def _cron_matches(schedule: str, dt: datetime) -> bool:
 
 
 async def _cron_loop():
-    """Runs every 60s, checks scheduled recipes and executes them. Also cleans old uploads."""
+    """Runs every 60s, checks scheduled recipes and executes them. Also cleans old uploads.
+
+    Cron expressions are interpreted in Europe/Budapest time (CET/CEST), NOT UTC.
+    This matches the user's expectation: '0 7 * * *' means 7 AM Budapest time,
+    not 7 AM UTC which would be 9 AM Budapest during DST.
+    """
     await asyncio.sleep(10)  # Let server fully start
-    logger.info("Cron scheduler started")
+    logger.info("Cron scheduler started (Europe/Budapest interpretation)")
+    try:
+        from zoneinfo import ZoneInfo
+        BP_TZ = ZoneInfo("Europe/Budapest")
+    except ImportError:
+        BP_TZ = timezone(timedelta(hours=2))  # CEST fallback
     _last_cleanup = ""
     while True:
         try:
-            now_dt = datetime.now(timezone.utc)
+            now_dt = datetime.now(timezone.utc)           # UTC for DB timestamps
+            now_local = datetime.now(BP_TZ)               # Budapest for cron matching
 
             # Daily cleanup: delete uploads older than 7 days (runs once at ~04:00 UTC)
             today_str = now_dt.strftime("%Y-%m-%d")
@@ -4000,9 +4011,10 @@ async def _cron_loop():
             conn.close()
 
             for r in recipes:
-                if not _cron_matches(r["cron_schedule"], now_dt):
+                # Match cron against Budapest LOCAL time (user's timezone).
+                if not _cron_matches(r["cron_schedule"], now_local):
                     continue
-                # Dedup: skip if already ran this minute
+                # Dedup: skip if already ran this minute (compare in UTC)
                 if r["cron_last_run"]:
                     try:
                         last = datetime.fromisoformat(r["cron_last_run"])
@@ -4038,6 +4050,32 @@ async def _cron_loop():
                         prompt += f"\n\nELERHETO TOOL-OK: {', '.join(req_tools)}"
                     today = now_dt.strftime("%Y-%m-%d")
                     prompt += f"\n\n[Mai datum: {today}. Az adatoknak FRISSNEK kell lenniuk!]"
+
+                    # ── Operation Kabare: prefetch real data (same as execute_recipe) ──
+                    # A cron path korabban kikerulte a plugins/recipes.py execute_recipe-t,
+                    # es igy a FACTUAL CONTEXT prefetch sem futott. Ezert a cron-bol futo
+                    # recipe-k halucinaltak arfolyamot. Itt inline injektaljuk.
+                    try:
+                        from plugins._recipe_prefetch import run_prefetch
+                        prefetch_deps = {
+                            "get_db": get_db,
+                            "capture_state": _capture_state,
+                        }
+                        factual_context = await run_prefetch(r["name"], prefetch_deps)
+                        if factual_context:
+                            prompt += (
+                                "\n\n=== FACTUAL CONTEXT (Python-ban lehuzott valos adatok) ===\n"
+                                f"{factual_context}\n"
+                                "=== END FACTUAL CONTEXT ===\n\n"
+                                "SZIGORU SZABALY: MINDEN szamadatnak (arfolyam, ar, index, idopont, "
+                                "nev, cim) a fenti FACTUAL CONTEXT blokkbol kell szarmaznia. "
+                                "TILOS fejbol szamot, adatot, forrast irni. Ha valami nincs a "
+                                "CONTEXT-ben, ird: 'adat nem elerheto'. SOHA ne talalj ki semmit."
+                            )
+                            logger.info("Cron prefetch injected for: %s (%d chars)",
+                                        r["name"], len(factual_context))
+                    except Exception as e:
+                        logger.error("Cron prefetch injection failed for %s: %s", r["name"], e)
 
                     model = r["cron_model"] or "glm5"
                     if model == "all":
