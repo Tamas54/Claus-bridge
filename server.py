@@ -1659,6 +1659,8 @@ async def _ai_auto_discuss(discussion_id: int, topic: str, thread_so_far: str):
 
     async def _discuss_agent(agent_name, model_id):
         """Run one discussion agent with 1 retry on timeout."""
+        # K2.6 defaults thinking ON on SF — force OFF (latency unacceptable).
+        extra = {"thinking": {"type": "disabled"}} if agent_name == "kimi" else {}
         for attempt in range(2):
             try:
                 async with httpx.AsyncClient(timeout=SILICONFLOW_TIMEOUT) as client:
@@ -1676,6 +1678,7 @@ async def _ai_auto_discuss(discussion_id: int, topic: str, thread_so_far: str):
                             ],
                             "temperature": 0.7,
                             "max_tokens": 20000,
+                            **extra,
                         },
                     )
                     data = json.loads(resp.text)
@@ -1710,20 +1713,19 @@ async def _ai_auto_discuss(discussion_id: int, topic: str, thread_so_far: str):
 
 @mcp.tool()
 async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature: float = 0.7,
-                   max_tokens: int = 20000, caller: str = "", thinking: str = "auto") -> str:
+                   max_tokens: int = 20000, caller: str = "") -> str:
     """Query a SiliconFlow AI sub-agent (Kimi-K2.6, DeepSeek V3.2, or GLM-5.1).
 
     Use for research, analysis, translation, summarization, or second opinions.
     These models run on SiliconFlow cloud — no local resources needed.
 
     Args:
-        model: 'kimi' (256k context, vision, thinking) or 'deepseek' (fast reasoning) or 'glm5' (200k context, 128k output, coding+agentic) or full model ID
+        model: 'kimi' (256k context, vision) or 'deepseek' (fast reasoning) or 'glm5' (200k context, 128k output, coding+agentic) or full model ID
         prompt: The user message / question
         system_prompt: Optional system instruction (default: Claus sub-agent)
         temperature: Creativity 0.0-1.0 (default 0.7)
-        max_tokens: Max response length (default 20000 — covers reasoning_content for K2.6 thinking mode)
+        max_tokens: Max response length (default 20000)
         caller: Instance ID for permission check
-        thinking: K2.6 reasoning control — 'auto' (default: let SF decide; K2.6 default is ON), 'on', 'off'. Silently ignored for non-kimi models.
     """
     denied = _enforce(caller, "ai_query")
     if denied:
@@ -1758,8 +1760,10 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
         "temperature": temperature,
         "max_tokens": max_tokens,
     }
-    if model == "kimi" and thinking in ("on", "off"):
-        payload["thinking"] = {"type": "enabled" if thinking == "on" else "disabled"}
+    # K2.6 defaults thinking ON via SiliconFlow — SF latency is unworkable (~60s+),
+    # so force OFF for all Kimi calls on the SF path.
+    if model == "kimi":
+        payload["thinking"] = {"type": "disabled"}
 
     try:
         import httpx
@@ -1788,7 +1792,6 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
         choice = choices[0]
         msg = choice.get("message", {}) if isinstance(choice, dict) else {}
         content = msg.get("content", "") if isinstance(msg, dict) else str(msg)
-        reasoning = msg.get("reasoning_content", "") if isinstance(msg, dict) else ""
         usage = data.get("usage", {})
 
         # Pyramid governance: store result in RAG / shared memory
@@ -1798,7 +1801,7 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
             except Exception as eg:
                 logger.warning("Pyramid governance error: %s", eg)
 
-        result = {
+        return json.dumps({
             "model": model_id,
             "response": content,
             "tokens": {
@@ -1806,10 +1809,7 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
                 "completion": usage.get("completion_tokens", 0),
             },
             "pyramid": PYRAMID_ENABLED and model in PYRAMID_AGENTS,
-        }
-        if reasoning:
-            result["reasoning"] = reasoning
-        return json.dumps(result, ensure_ascii=False)
+        }, ensure_ascii=False)
 
     except Exception as e:
         return json.dumps({"error": f"{type(e).__name__}: {e}"})
@@ -2004,9 +2004,12 @@ async def _run_agent_with_tools(model_id: str, messages: list, max_rounds: int =
         payload = {
             "model": model_id,
             "messages": messages,
-            "temperature": 0.5,
+            "temperature": 0.6,
             "max_tokens": 2000,
         }
+        # Only synthesis call path — model_id is always K2.6 here. Force thinking OFF.
+        if "Kimi" in model_id:
+            payload["thinking"] = {"type": "disabled"}
         if use_tools:
             payload["tools"] = [WEB_SEARCH_TOOL_DEF]
 
@@ -2124,6 +2127,9 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
                     if profile and profile.persona_system_prompt:
                         system += f"\n\n--- HÍVÓ FÉL ---\n{profile.persona_system_prompt}"
 
+                # Kimi K2.6 default thinking is ON on SF — force OFF to keep latency sane.
+                kimi_thinking_off = {"thinking": {"type": "disabled"}} if agent_name == "kimi" else {}
+
                 # Step 1: Call WITH tools
                 async with httpx.AsyncClient(timeout=SILICONFLOW_TIMEOUT) as client:
                     data = await _api_call(client, {
@@ -2132,9 +2138,10 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
                             {"role": "system", "content": system},
                             {"role": "user", "content": task_prompt},
                         ],
-                        "temperature": 0.5,
+                        "temperature": 0.6,
                         "max_tokens": agent_max_tokens,
                         "tools": [WEB_SEARCH_TOOL_DEF],
+                        **kimi_thinking_off,
                     })
 
                 content = ""
@@ -2176,8 +2183,9 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
                                 {"role": "system", "content": f"{role_desc} Magyarul válaszolj, alaposan. Az alábbi web keresési eredményeket használd fel."},
                                 {"role": "user", "content": f"{task_prompt}\n\nWEB KERESÉSI EREDMÉNYEK:\n{search_results}"},
                             ],
-                            "temperature": 0.5,
+                            "temperature": 0.6,
                             "max_tokens": agent_max_tokens,
+                            **kimi_thinking_off,
                         })
                         if isinstance(data2, dict) and data2.get("choices"):
                             content = data2["choices"][0].get("message", {}).get("content", "")
