@@ -20,7 +20,7 @@ Kommunikációs és orchestrációs platform a Claus multi-agent rendszerhez.
      +------+------+------+------+
      |      |      |      |      |
    Kimi  DeepSeek GLM-5  Qwen3  ...
-   K2.5   V3.2          Coder
+   K2.6   V3.2          Coder
 ```
 
 ## Komponensek
@@ -28,7 +28,7 @@ Kommunikációs és orchestrációs platform a Claus multi-agent rendszerhez.
 - **MCP szerver** — FastMCP, Railway.app, SSE transport
 - **Messaging** — Claus-to-Claus kommunikáció, threading, FTS5 keresés
 - **Pyramid modul** — Multi-agent orchestráció: személyiségek, shared memory, per-agent RAG, governance
-- **AI sub-agentek** — SiliconFlow-on futó modellek (Kimi K2.5, DeepSeek V3.2, GLM-5)
+- **AI sub-agentek** — SiliconFlow-on futó modellek (Kimi K2.6, DeepSeek V3.2, GLM-5)
 - **Capture daemon** — Gmail + Calendar polling, Telegram push
 - **Dashboard** — Parancsnoki központ: üzenetek, viták, memória, AI feladatok, Pyramid
 

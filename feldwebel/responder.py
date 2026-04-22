@@ -152,7 +152,7 @@ TOOLS = [
         }, "required": ["file_id", "to"]}}},
     # ── Kép elemzés ──
     {"type": "function", "function": {
-        "name": "analyze_upload", "description": "Feltöltött kép elemzése Kimi K2.5 vision modellel. Upload #ID szükséges.",
+        "name": "analyze_upload", "description": "Feltöltött kép elemzése Kimi K2.6 vision modellel. Upload #ID szükséges.",
         "parameters": {"type": "object", "properties": {
             "file_id": {"type": "integer", "description": "Upload fájl ID (pl. #2)"},
             "prompt": {"type": "string", "description": "Kérdés a képről", "default": "Mit latsz a kepen? Ird le reszletesen, magyarul."},
@@ -915,7 +915,7 @@ async def _execute_tool(name: str, args: dict, ctx) -> str:
             sf_key = ctx.siliconflow_api_key
             sf_base = ctx.siliconflow_base_url
             sf_models = ctx.siliconflow_models
-            model_id = sf_models.get("kimi", "moonshotai/Kimi-K2.5")
+            model_id = sf_models.get("kimi", "moonshotai/Kimi-K2.6")
             data_url = f"data:{row['mime_type']};base64,{row['content_base64']}"
             async with httpx.AsyncClient(timeout=60) as client:
                 resp = await client.post(
@@ -978,7 +978,7 @@ async def _execute_tool(name: str, args: dict, ctx) -> str:
                 doc = DocxDocument()
                 doc.add_heading(task["title"], level=1)
                 doc.add_paragraph(f'Kiadta: {task["assigned_by"]} | Dátum: {task["created_at"][:10]}')
-                agent_names = {"kimi": "Kimi-K2.5", "deepseek": "DeepSeek V3.2", "glm5": "GLM-5.1", "szintézis": "Szintézis"}
+                agent_names = {"kimi": "Kimi-K2.6", "deepseek": "DeepSeek V3.2", "glm5": "GLM-5.1", "szintézis": "Szintézis"}
                 for r in results:
                     doc.add_heading(agent_names.get(r["agent"], r["agent"]), level=2)
                     for line in (r["content"] or "").split("\n"):

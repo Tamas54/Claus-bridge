@@ -839,7 +839,7 @@ async def read_ai_task_results(task_id: int = 0, limit: int = 10, caller: str = 
 async def analyze_image(image_base64: str, mime_type: str = "image/jpeg",
                         prompt: str = "Mit latsz a kepen? Ird le reszletesen, magyarul.",
                         caller: str = "") -> str:
-    """Analyze an image using Kimi K2.5 vision model. Works with any image source.
+    """Analyze an image using Kimi K2.6 vision model. Works with any image source.
 
     Args:
         image_base64: Base64-encoded image data
@@ -936,7 +936,7 @@ def _generate_xlsx(task, results) -> "BytesIO":
     ws["A3"] = f'Kiadta: {task["assigned_by"]} | Dátum: {task["created_at"][:10]}'
 
     row = 5
-    agent_names = {"kimi": "Kimi-K2.5", "deepseek": "DeepSeek V3.2", "glm5": "GLM-5.1", "szintézis": "Szintézis"}
+    agent_names = {"kimi": "Kimi-K2.6", "deepseek": "DeepSeek V3.2", "glm5": "GLM-5.1", "szintézis": "Szintézis"}
     for col, header_text in enumerate(["Agent", "Tartalom", "Időpont"], 1):
         cell = ws.cell(row=row, column=col, value=header_text)
         cell.font = header_font
@@ -1623,7 +1623,7 @@ async def api_pyramid(request):
 
 
 # ============================================================
-# SILICONFLOW AI SUB-AGENTS (Kimi-K2.5, DeepSeek V3.2, etc.)
+# SILICONFLOW AI SUB-AGENTS (Kimi-K2.6, DeepSeek V3.2, etc.)
 # ============================================================
 
 SILICONFLOW_API_KEY = os.environ.get("SILICONFLOW_API_KEY", "")
@@ -1631,7 +1631,7 @@ SILICONFLOW_BASE_URL = "https://api.siliconflow.com/v1"
 SILICONFLOW_TIMEOUT = 220
 
 SILICONFLOW_MODELS = {
-    "kimi": "moonshotai/Kimi-K2.5",
+    "kimi": "moonshotai/Kimi-K2.6",
     "deepseek": "deepseek-ai/DeepSeek-V3.2",
     "glm5": "zai-org/GLM-5.1",
 }
@@ -1675,7 +1675,7 @@ async def _ai_auto_discuss(discussion_id: int, topic: str, thread_so_far: str):
                                 {"role": "user", "content": prompt},
                             ],
                             "temperature": 0.7,
-                            "max_tokens": 500,
+                            "max_tokens": 20000,
                         },
                     )
                     data = json.loads(resp.text)
@@ -1710,19 +1710,20 @@ async def _ai_auto_discuss(discussion_id: int, topic: str, thread_so_far: str):
 
 @mcp.tool()
 async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature: float = 0.7,
-                   max_tokens: int = 8000, caller: str = "") -> str:
-    """Query a SiliconFlow AI sub-agent (Kimi-K2.5, DeepSeek V3.2, or GLM-5.1).
+                   max_tokens: int = 20000, caller: str = "", thinking: str = "auto") -> str:
+    """Query a SiliconFlow AI sub-agent (Kimi-K2.6, DeepSeek V3.2, or GLM-5.1).
 
     Use for research, analysis, translation, summarization, or second opinions.
     These models run on SiliconFlow cloud — no local resources needed.
 
     Args:
-        model: 'kimi' (256k context, vision) or 'deepseek' (fast reasoning) or 'glm5' (200k context, 128k output, coding+agentic) or full model ID
+        model: 'kimi' (256k context, vision, thinking) or 'deepseek' (fast reasoning) or 'glm5' (200k context, 128k output, coding+agentic) or full model ID
         prompt: The user message / question
         system_prompt: Optional system instruction (default: Claus sub-agent)
         temperature: Creativity 0.0-1.0 (default 0.7)
-        max_tokens: Max response length (default 2000)
+        max_tokens: Max response length (default 20000 — covers reasoning_content for K2.6 thinking mode)
         caller: Instance ID for permission check
+        thinking: K2.6 reasoning control — 'auto' (default: let SF decide; K2.6 default is ON), 'on', 'off'. Silently ignored for non-kimi models.
     """
     denied = _enforce(caller, "ai_query")
     if denied:
@@ -1751,6 +1752,15 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
     messages = [{"role": "system", "content": system_prompt}]
     messages.append({"role": "user", "content": prompt})
 
+    payload = {
+        "model": model_id,
+        "messages": messages,
+        "temperature": temperature,
+        "max_tokens": max_tokens,
+    }
+    if model == "kimi" and thinking in ("on", "off"):
+        payload["thinking"] = {"type": "enabled" if thinking == "on" else "disabled"}
+
     try:
         import httpx
         async with httpx.AsyncClient(timeout=SILICONFLOW_TIMEOUT) as client:
@@ -1760,12 +1770,7 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
                     "Authorization": f"Bearer {SILICONFLOW_API_KEY}",
                     "Content-Type": "application/json",
                 },
-                json={
-                    "model": model_id,
-                    "messages": messages,
-                    "temperature": temperature,
-                    "max_tokens": max_tokens,
-                },
+                json=payload,
             )
             raw = resp.text
             data = json.loads(raw) if isinstance(raw, str) else raw
@@ -1783,6 +1788,7 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
         choice = choices[0]
         msg = choice.get("message", {}) if isinstance(choice, dict) else {}
         content = msg.get("content", "") if isinstance(msg, dict) else str(msg)
+        reasoning = msg.get("reasoning_content", "") if isinstance(msg, dict) else ""
         usage = data.get("usage", {})
 
         # Pyramid governance: store result in RAG / shared memory
@@ -1792,7 +1798,7 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
             except Exception as eg:
                 logger.warning("Pyramid governance error: %s", eg)
 
-        return json.dumps({
+        result = {
             "model": model_id,
             "response": content,
             "tokens": {
@@ -1800,7 +1806,10 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
                 "completion": usage.get("completion_tokens", 0),
             },
             "pyramid": PYRAMID_ENABLED and model in PYRAMID_AGENTS,
-        }, ensure_ascii=False)
+        }
+        if reasoning:
+            result["reasoning"] = reasoning
+        return json.dumps(result, ensure_ascii=False)
 
     except Exception as e:
         return json.dumps({"error": f"{type(e).__name__}: {e}"})
@@ -2066,9 +2075,9 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
     conn.commit()
 
     roles = {
-        "kimi": ("moonshotai/Kimi-K2.5", "Kutató és elemző. Alapos, részletes munkát végzel.", 8000),
-        "deepseek": ("deepseek-ai/DeepSeek-V3.2", "Kritikus elemző és ellenőr. Logikai hibákat keresel, ellenérveket fogalmazol.", 8000),
-        "glm5": ("zai-org/GLM-5.1", "Végrehajtó és kóder. Konkrét megoldásokat, kódot, strukturált outputot adsz. Ha kell, implementálsz.", 16000),
+        "kimi": ("moonshotai/Kimi-K2.6", "Kutató és elemző. Alapos, részletes munkát végzel.", 20000),
+        "deepseek": ("deepseek-ai/DeepSeek-V3.2", "Kritikus elemző és ellenőr. Logikai hibákat keresel, ellenérveket fogalmazol.", 20000),
+        "glm5": ("zai-org/GLM-5.1", "Végrehajtó és kóder. Konkrét megoldásokat, kódot, strukturált outputot adsz. Ha kell, implementálsz.", 20000),
     }
 
     task_prompt = f"FELADAT: {title}\n\nLEÍRÁS: {description}"
@@ -2246,7 +2255,7 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
             {"role": "system", "content": system},
             {"role": "user", "content": f"FELADAT: {title}\n\nAGENT EREDMÉNYEK:\n{parts}"},
         ]
-        synthesis = await _run_agent_with_tools("moonshotai/Kimi-K2.5", messages)
+        synthesis = await _run_agent_with_tools("moonshotai/Kimi-K2.6", messages)
         ts = now()
         conn.execute(
             "INSERT INTO ai_task_results (task_id, agent, role, content, timestamp) VALUES (?, ?, ?, ?, ?)",
@@ -2617,7 +2626,7 @@ async def api_ai_task_export(request):
         doc.add_paragraph(f'Kiadta: {task["assigned_by"]} | Dátum: {task["created_at"][:10]} | Státusz: {task["status"]}')
         doc.add_paragraph("—" * 40)
 
-        agent_names = {"kimi": "Kimi-K2.5 (Kutató)", "deepseek": "DeepSeek V3.2 (Kritikus)", "glm5": "GLM-5.1 (Végrehajtó)", "szintézis": "Koordinátori Szintézis"}
+        agent_names = {"kimi": "Kimi-K2.6 (Kutató)", "deepseek": "DeepSeek V3.2 (Kritikus)", "glm5": "GLM-5.1 (Végrehajtó)", "szintézis": "Koordinátori Szintézis"}
         for r in results:
             name = agent_names.get(r["agent"], r["agent"].upper())
             doc.add_heading(name, level=2)
@@ -2626,7 +2635,7 @@ async def api_ai_task_export(request):
                     doc.add_paragraph(para_text.strip())
 
         doc.add_paragraph("—" * 40)
-        doc.add_paragraph("Készítette: Claus Multi-Agent Rendszer (Kimi-K2.5 + DeepSeek V3.2 + GLM-5.1)")
+        doc.add_paragraph("Készítette: Claus Multi-Agent Rendszer (Kimi-K2.6 + DeepSeek V3.2 + GLM-5.1)")
 
         buf = BytesIO()
         doc.save(buf)
@@ -2811,11 +2820,11 @@ def _categorize_email(sender: str, subject: str) -> str:
 async def _analyze_image(image_base64: str, mime_type: str = "image/jpeg",
                          prompt: str = "Mit latsz a kepen? Ird le reszletesen, magyarul.",
                          model: str = "kimi") -> str:
-    """Central image analysis via vision model (Kimi K2.5). Usable from any channel."""
+    """Central image analysis via vision model (Kimi K2.6). Usable from any channel."""
     if not SILICONFLOW_API_KEY:
         return "(Vision nem elerheto — SILICONFLOW_API_KEY hianzik)"
 
-    model_id = SILICONFLOW_MODELS.get(model, "moonshotai/Kimi-K2.5")
+    model_id = SILICONFLOW_MODELS.get(model, "moonshotai/Kimi-K2.6")
     data_url = f"data:{mime_type};base64,{image_base64}"
 
     try:
@@ -3804,10 +3813,10 @@ async def _telegram_poll_loop():
 
                             # Only analyze if caption requests it (e.g. "elemezd", "mi ez", any text)
                             if caption:
-                                await _telegram_push(f"📷 Kep fogadva (#{upload_id}), Kimi K2.5 elemzi...")
+                                await _telegram_push(f"📷 Kep fogadva (#{upload_id}), Kimi K2.6 elemzi...")
                                 analysis = await _analyze_image(image_b64, mime, caption)
                                 await _telegram_push(
-                                    f"📷 <b>KEP ELEMZES</b> (Kimi K2.5)\n\n{analysis[:3600]}\n\n"
+                                    f"📷 <b>KEP ELEMZES</b> (Kimi K2.6)\n\n{analysis[:3600]}\n\n"
                                     f"<i>Fajl #{upload_id} — tovabbkuldheto: \"kuldd el emailben a #{upload_id}-t\"</i>"
                                 )
                             else:

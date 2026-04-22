@@ -6,7 +6,7 @@ PROFILES_DIR = Path(__file__).parent / "profiles"
 
 AGENT_REGISTRY: Dict[str, Dict[str, Any]] = {
     "kimi": {
-        "model_id": "moonshotai/Kimi-K2.5",
+        "model_id": "moonshotai/Kimi-K2.6",
         "provider": "siliconflow",
         "default_temperature": 0.6,
         "default_max_tokens": 8000,

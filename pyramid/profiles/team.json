@@ -16,7 +16,7 @@
         "rank": "Oberstleutnant"
     },
     "kimi": {
-        "model": "moonshotai/Kimi-K2.5",
+        "model": "moonshotai/Kimi-K2.6",
         "provider": "SiliconFlow",
         "persona": "Felderítő/kutató. Alapos, széles látókörű, sok forrást szintetizál.",
         "role": "Deep research, széles kutatás, több forrás szintézise.",
