@@ -2336,6 +2336,9 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
             import httpx, re
             model_id = SILICONFLOW_MODELS.get(model, model)
 
+            # K2.6 defaults thinking ON on SF — force OFF (latency unacceptable on dispatch path).
+            kimi_thinking_off = {"thinking": {"type": "disabled"}} if model == "kimi" else {}
+
             async def _api(client, payload):
                 resp = await client.post(
                     f"{SILICONFLOW_BASE_URL}/chat/completions",
@@ -2354,6 +2357,7 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
                     ],
                     "temperature": temperature, "max_tokens": max_tokens,
                     "tools": [WEB_SEARCH_TOOL_DEF],
+                    **kimi_thinking_off,
                 })
 
             if not isinstance(data, dict) or not data.get("choices"):
@@ -2395,6 +2399,7 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
                             {"role": "user", "content": f"{prompt}\n\nWEB KERESÉSI EREDMÉNYEK:\n{search_results}"},
                         ],
                         "temperature": temperature, "max_tokens": max_tokens,
+                        **kimi_thinking_off,
                     })
                 if isinstance(data2, dict) and data2.get("choices"):
                     content = data2["choices"][0].get("message", {}).get("content", "") or content

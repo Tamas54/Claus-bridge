@@ -1,7 +1,10 @@
 import asyncio
+import logging
 from typing import Dict, Any
 from pyramid.context_builder import build_agent_context
 from pyramid.governance import store_result
+
+logger = logging.getLogger(__name__)
 
 
 async def dispatch_parallel_tasks(
@@ -48,18 +51,21 @@ async def dispatch_parallel_tasks(
 
         return agent_id, result
 
-    coroutines = [
-        run_single_agent(agent_id, task)
-        for agent_id, task in agent_tasks.items()
-    ]
+    agent_ids = list(agent_tasks.keys())
+    coroutines = [run_single_agent(agent_id, agent_tasks[agent_id]) for agent_id in agent_ids]
 
     results = await asyncio.gather(*coroutines, return_exceptions=True)
 
     output = {}
-    for item in results:
+    for agent_id, item in zip(agent_ids, results):
         if isinstance(item, Exception):
+            logger.error("Dispatch agent %s failed: %s: %s", agent_id, type(item).__name__, item)
+            output[agent_id] = {
+                "response": f"ERROR: {type(item).__name__}: {item}",
+                "tokens": {"prompt": 0, "completion": 0},
+            }
             continue
-        agent_id, result = item
-        output[agent_id] = result
+        aid, result = item
+        output[aid] = result
 
     return output
