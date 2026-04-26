@@ -1783,7 +1783,7 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
     # If deep_research, prepend the directive to the system prompt so the
     # model knows it must drive a multi-round search before synthesizing.
     if deep_research:
-        system_prompt = system_prompt + DEEP_RESEARCH_DIRECTIVE
+        system_prompt = system_prompt + DEEP_RESEARCH_DIRECTIVE + NO_TEXT_MARKER_DIRECTIVE
     # If output_format set, append the corresponding format directive.
     if output_format and output_format in OUTPUT_FORMAT_DIRECTIVES:
         system_prompt = system_prompt + OUTPUT_FORMAT_DIRECTIVES[output_format]
@@ -2745,6 +2745,19 @@ async def debug_web_search(query: str, caller: str = "") -> str:
     return json.dumps(out, ensure_ascii=False, indent=2)
 
 
+NO_TEXT_MARKER_DIRECTIVE = (
+    "\n\n## TOOL-CALL FORMÁTUM — KÖTELEZŐ JSON\n"
+    "Ha a `web_search` (vagy bármely más) tool-t hívod, KIZÁRÓLAG a hivatalos "
+    "JSON tool_calls formátumot használd (az API automatikusan kezeli). "
+    "TILOS bárhol a válaszodban a következő tokenek emit-elése:\n"
+    "  `<|tool_call`, `<|tool_calls_section`, `<｜DSML｜`, `function_calls>`, "
+    "`tool_calls_section_begin`, `tool_call_argument_begin`.\n"
+    "Ha végeztél a kutatással és van anyagod, PRÓZAI magyar nyelvű választ "
+    "adj — ne újabb tool-hívást szöveges markerben. A loop max 4 körös; ha "
+    "már 2-3 web_search lefutott, a következő körödet a SZINTÉZISRE szánd.\n"
+)
+
+
 SYNTHESIS_NO_TOOLS_DIRECTIVE = (
     "\n\n## SZINTÉZIS-FÁZIS — TOOLOK TILTVA\n"
     "Ez a koordinátori szintézis, NEM kutatási kör. NE adj ki tool_call-t "
@@ -3114,6 +3127,9 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
                 # the agent writes markdown the Bridge can render to a real file.
                 if output_format and output_format in OUTPUT_FORMAT_DIRECTIVES:
                     system += OUTPUT_FORMAT_DIRECTIVES[output_format]
+                # Sub-agent uses tools (web_search) — forbid text-marker tool_calls
+                # so Kimi K2.6 doesn't burn rounds emitting <|tool_calls_section_*|>
+                system += NO_TEXT_MARKER_DIRECTIVE
 
                 # Kimi K2.6 default thinking is ON on SF — force OFF to keep latency sane.
                 # DeepSeek V4-Pro default thinking ON too — clamp to medium effort.
@@ -3394,6 +3410,8 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
             # Append output_format directive if requested
             if output_format and output_format in OUTPUT_FORMAT_DIRECTIVES:
                 system_prompt += OUTPUT_FORMAT_DIRECTIVES[output_format]
+            # Forbid text-marker tool_call emission — JSON tool_calls only
+            system_prompt += NO_TEXT_MARKER_DIRECTIVE
 
             # K2.6 defaults thinking ON on SF — force OFF (latency unacceptable on dispatch path).
             # V4-Pro defaults thinking ON too — clamp to reasoning_effort=medium.
