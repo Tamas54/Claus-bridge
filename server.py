@@ -2434,66 +2434,180 @@ WEB_SEARCH_TOOL_DEF = {
 }
 
 
-async def _web_search(query: str) -> str:
-    """Deep web search: DuckDuckGo → top URLs → fetch actual page content."""
-    import httpx, re, urllib.parse
+DDG_USER_AGENTS = [
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_2) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Safari/605.1.15",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36 Edg/121.0.0.0",
+    "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:122.0) Gecko/20100101 Firefox/122.0",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0",
+]
 
+
+async def _brave_search(query: str, api_key: str) -> list:
+    """Fallback: Brave Search API (https://api.search.brave.com). Returns parsed result list."""
+    import httpx
     try:
-        # Step 1: DuckDuckGo search — get snippets AND URLs
+        async with httpx.AsyncClient(timeout=15, follow_redirects=True) as client:
+            r = await client.get(
+                "https://api.search.brave.com/res/v1/web/search",
+                params={"q": query, "count": "8"},
+                headers={"X-Subscription-Token": api_key, "Accept": "application/json"},
+            )
+        if r.status_code != 200:
+            logger.warning("Brave search status %d for %r: %s", r.status_code, query[:60], r.text[:200])
+            return []
+        data = r.json()
+        results = []
+        for item in (data.get("web", {}).get("results") or [])[:8]:
+            results.append({
+                "title": item.get("title", ""),
+                "url": item.get("url", ""),
+                "snippet": item.get("description", ""),
+            })
+        logger.info("Brave search %r → %d results", query[:60], len(results))
+        return results
+    except Exception as e:
+        logger.warning("Brave search failed for %r: %s", query[:60], e)
+        return []
+
+
+async def _web_search(query: str) -> str:
+    """Deep web search: DuckDuckGo (UA-rotated) → top URLs → fetch actual page content.
+
+    On DDG failure / empty results, falls back to Brave Search API if
+    BRAVE_SEARCH_API_KEY is set in the environment. Logs HTTP status and
+    result counts for every attempt so 429s and IP-blocks are visible
+    instead of presenting as silent "No results found" to the agent.
+    """
+    import httpx, re, urllib.parse, random
+
+    brave_key = os.environ.get("BRAVE_SEARCH_API_KEY", "").strip()
+
+    # Step 1: DDG attempt
+    ddg_status = "?"
+    ddg_body_len = 0
+    ddg_anomaly = False
+    search_results = []
+    urls = []
+    try:
+        ua = random.choice(DDG_USER_AGENTS)
         async with httpx.AsyncClient(timeout=15, follow_redirects=True) as client:
             resp = await client.get(
                 "https://html.duckduckgo.com/html/",
                 params={"q": query},
-                headers={"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36"},
+                headers={"User-Agent": ua},
             )
+        ddg_status = resp.status_code
+        ddg_body_len = len(resp.text or "")
+        body_lower = (resp.text or "").lower()
+        ddg_anomaly = ("anomaly" in body_lower) or ("captcha" in body_lower) or ("rate limit" in body_lower)
 
         links = re.findall(r'class="result__a"[^>]*href="([^"]+)"[^>]*>(.*?)</a>', resp.text, re.DOTALL)
         snippets = re.findall(r'class="result__snippet"[^>]*>(.*?)<', resp.text, re.DOTALL)
 
-        search_results = []
-        urls = []
         for i, ((raw_url, title), snippet) in enumerate(zip(links[:5], snippets[:5])):
             t = re.sub(r'<[^>]+>', '', title).strip()
             s = re.sub(r'<[^>]+>', '', snippet).strip()
-            # Decode DuckDuckGo redirect URL
             url = raw_url
             if "uddg=" in url:
                 url = urllib.parse.unquote(url.split("uddg=")[1].split("&")[0])
             urls.append(url)
             search_results.append(f"[{i+1}] {t}\n    {s}")
-
-        if not search_results:
-            return "No results found."
-
-        # Step 2: Fetch top 2 page contents for real data
-        page_contents = []
-        for url in urls[:2]:
-            if not url.startswith("http"):
-                continue
-            try:
-                async with httpx.AsyncClient(timeout=10, follow_redirects=True) as client:
-                    resp = await client.get(url, headers={"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36"})
-                text = resp.text
-                # Strip scripts, styles, HTML tags
-                text = re.sub(r'<script[^>]*>.*?</script>', '', text, flags=re.DOTALL)
-                text = re.sub(r'<style[^>]*>.*?</style>', '', text, flags=re.DOTALL)
-                text = re.sub(r'<[^>]+>', ' ', text)
-                text = re.sub(r'\s+', ' ', text).strip()
-                if len(text) > 200:
-                    page_contents.append(f"[Forrás: {url[:80]}]\n{text[:2000]}")
-                    logger.info("Deep search fetched: %s (%d chars)", url[:60], len(text))
-            except Exception as e:
-                logger.debug("Page fetch failed %s: %s", url[:40], e)
-
-        # Combine: search results summary + full page contents
-        output = "KERESÉSI TALÁLATOK:\n" + "\n".join(search_results)
-        if page_contents:
-            output += "\n\nRÉSZLETES TARTALOM:\n" + "\n\n".join(page_contents)
-
-        return output
-
     except Exception as e:
-        return f"Search error: {e}"
+        logger.warning("DDG fetch exception for %r: %s", query[:60], e)
+
+    logger.info(
+        "DDG search %r → status=%s body_len=%d results=%d anomaly=%s",
+        query[:60], ddg_status, ddg_body_len, len(search_results), ddg_anomaly,
+    )
+
+    # Step 2: Brave fallback if DDG was empty / blocked AND key configured
+    if not search_results and brave_key:
+        brave_hits = await _brave_search(query, brave_key)
+        if brave_hits:
+            urls = [h["url"] for h in brave_hits if h.get("url")]
+            search_results = [
+                f"[{i+1}] {h.get('title', '')}\n    {h.get('snippet', '')}"
+                for i, h in enumerate(brave_hits)
+            ]
+
+    if not search_results:
+        return f"No results found. (DDG status={ddg_status}, anomaly={ddg_anomaly}, Brave={'configured' if brave_key else 'not configured'})"
+
+    # Step 3: Fetch top 2 page contents for deeper data
+    page_contents = []
+    for url in urls[:2]:
+        if not url or not url.startswith("http"):
+            continue
+        try:
+            async with httpx.AsyncClient(timeout=10, follow_redirects=True) as client:
+                resp = await client.get(url, headers={"User-Agent": random.choice(DDG_USER_AGENTS)})
+            text = resp.text
+            text = re.sub(r'<script[^>]*>.*?</script>', '', text, flags=re.DOTALL)
+            text = re.sub(r'<style[^>]*>.*?</style>', '', text, flags=re.DOTALL)
+            text = re.sub(r'<[^>]+>', ' ', text)
+            text = re.sub(r'\s+', ' ', text).strip()
+            if len(text) > 200:
+                page_contents.append(f"[Forrás: {url[:80]}]\n{text[:2000]}")
+                logger.info("Page fetched: %s (%d chars)", url[:60], len(text))
+        except Exception as e:
+            logger.debug("Page fetch failed %s: %s", url[:40], e)
+
+    output = "KERESÉSI TALÁLATOK:\n" + "\n".join(search_results)
+    if page_contents:
+        output += "\n\nRÉSZLETES TARTALOM:\n" + "\n\n".join(page_contents)
+    return output
+
+
+SYNTHESIS_NO_TOOLS_DIRECTIVE = (
+    "\n\n## SZINTÉZIS-FÁZIS — TOOLOK TILTVA\n"
+    "Ez a koordinátori szintézis, NEM kutatási kör. NE adj ki tool_call-t "
+    "(sem JSON, sem szöveges marker formában). Konkrétan TILOS a következő "
+    "tokenek emit-elése: `<|tool_call`, `<｜DSML｜`, `function_calls>`, "
+    "`tool_calls_section`, `web_search`. Ha valamit nem tudsz az al-agentek "
+    "anyagából, mondd ki hogy hiányzik — ne próbálj keresni. Csak prózai, "
+    "magyar nyelvű szintézist adj.\n"
+)
+
+
+def _clean_synthesis_output(content: str) -> str:
+    """Strip leaked tool_call markup from a synthesis response.
+
+    Last-line defense against models (esp. Kimi K2.6 in synthesis mode)
+    that emit text-format tool_calls instead of plain prose. Removes both
+    the Kimi-style and DeepSeek-style markup blocks. If after cleaning the
+    content is empty, returns a placeholder so the DB row isn't NULL.
+    """
+    import re as _re
+    if not content:
+        return "(üres szintézis)"
+    cleaned = content
+    # Kimi tool_calls section: <|tool_calls_section_begin|>...<|tool_calls_section_end|>
+    cleaned = _re.sub(
+        r'<\|tool_calls_section_begin\|>.*?<\|tool_calls_section_end\|>',
+        '', cleaned, flags=_re.DOTALL,
+    )
+    # Individual tool_call wrappers
+    cleaned = _re.sub(
+        r'<\|tool_call_begin\|>.*?<\|tool_call_end\|>',
+        '', cleaned, flags=_re.DOTALL,
+    )
+    # DeepSeek DSML-style invokes
+    cleaned = _re.sub(
+        r'<｜DSML｜tool_calls>.*?</｜DSML｜tool_calls>',
+        '', cleaned, flags=_re.DOTALL,
+    )
+    cleaned = _re.sub(r'<｜DSML｜[^>]*>', '', cleaned)
+    # Generic <function_calls>...</function_calls>
+    cleaned = _re.sub(
+        r'<function_calls>.*?</function_calls>',
+        '', cleaned, flags=_re.DOTALL,
+    )
+    cleaned = cleaned.strip()
+    if not cleaned:
+        return "(a koordinátor csak tool_call markert adott — a Bridge eltávolította, érdemleges szintézis nincs)"
+    return cleaned
 
 
 DEEP_RESEARCH_DIRECTIVE = (
@@ -2964,12 +3078,14 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
             "Készíts tömör szintézist az eredményeikből: mi az egyetértés, hol térnek el, és mi a végső ajánlás. "
             "Magyarul, strukturáltan."
             + _temporal_directive("kimi")
+            + SYNTHESIS_NO_TOOLS_DIRECTIVE
         )
         messages = [
             {"role": "system", "content": system},
             {"role": "user", "content": f"FELADAT: {title}\n\nAGENT EREDMÉNYEK:\n{parts}"},
         ]
         synthesis = await _run_agent_with_tools("moonshotai/Kimi-K2.6", messages)
+        synthesis = _clean_synthesis_output(synthesis)
         ts = now()
         conn.execute(
             "INSERT INTO ai_task_results (task_id, agent, role, content, timestamp) VALUES (?, ?, ?, ?, ?)",
@@ -3206,12 +3322,14 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
                             "3) hol mondanak ellent (ha igen), 4) végső konklúzió / ajánlás a Kommandantnak. "
                             "Magyarul, lényegre törően. Ne ismételd meg az agentek szövegét hosszan, csak hivatkozz rájuk."
                             + _temporal_directive("kimi")
+                            + SYNTHESIS_NO_TOOLS_DIRECTIVE
                         )},
                         {"role": "user", "content": f"FELADAT CÍME: {title}\n\nLEÍRÁS: {description}\n\nAGENT EREDMÉNYEK:\n{synthesis_input}"},
                     ]
                     synthesis = loop.run_until_complete(
                         _run_agent_with_tools("moonshotai/Kimi-K2.6", synthesis_messages, max_rounds=2)
                     )
+                    synthesis = _clean_synthesis_output(synthesis)
                     if synthesis and synthesis.strip():
                         conn2.execute(
                             "INSERT INTO ai_task_results (task_id, agent, role, content, timestamp) VALUES (?, ?, ?, ?, ?)",
