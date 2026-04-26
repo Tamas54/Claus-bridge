@@ -25,7 +25,7 @@
         "status": "aktív"
     },
     "deepseek": {
-        "model": "deepseek-ai/DeepSeek-V3.2",
+        "model": "deepseek-ai/DeepSeek-V4-Pro",
         "provider": "SiliconFlow",
         "persona": "Gyorsreagálású elemző. Villámgyors, precíz.",
         "role": "Gyors reasoning, fordítás, összefoglalás, strukturált elemzés.",

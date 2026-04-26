@@ -171,7 +171,7 @@ def _get_message_section(ctx) -> str:
 async def _deepseek_format(ctx, raw: str, date_str: str) -> str:
     """Ask DeepSeek to format the raw briefing into a polished Hungarian summary."""
     try:
-        model_id = ctx.siliconflow_models.get("deepseek", "deepseek-ai/DeepSeek-V3.2")
+        model_id = ctx.siliconflow_models.get("deepseek", "deepseek-ai/DeepSeek-V4-Pro")
         prompt = (
             f"Formázd meg az alábbi napi briefinget tömören és áttekinthetően. "
             f"Dátum: {date_str}. Használj emoji-kat. Max 20 sor. "

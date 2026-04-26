@@ -1632,7 +1632,7 @@ SILICONFLOW_TIMEOUT = 220
 
 SILICONFLOW_MODELS = {
     "kimi": "moonshotai/Kimi-K2.6",
-    "deepseek": "deepseek-ai/DeepSeek-V3.2",
+    "deepseek": "deepseek-ai/DeepSeek-V4-Pro",
     "glm5": "zai-org/GLM-5.1",
 }
 
@@ -1660,7 +1660,14 @@ async def _ai_auto_discuss(discussion_id: int, topic: str, thread_so_far: str):
     async def _discuss_agent(agent_name, model_id):
         """Run one discussion agent with 1 retry on timeout."""
         # K2.6 defaults thinking ON on SF — force OFF (latency unacceptable).
-        extra = {"thinking": {"type": "disabled"}} if agent_name == "kimi" else {}
+        # V4-Pro defaults thinking ON too — clamp to reasoning_effort=medium
+        # (low rambles, high blows the SF 220s budget on long tasks).
+        if agent_name == "kimi":
+            extra = {"thinking": {"type": "disabled"}}
+        elif agent_name == "deepseek":
+            extra = {"reasoning_effort": "medium"}
+        else:
+            extra = {}
         for attempt in range(2):
             try:
                 async with httpx.AsyncClient(timeout=SILICONFLOW_TIMEOUT) as client:
@@ -1762,8 +1769,11 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
     }
     # K2.6 defaults thinking ON via SiliconFlow — SF latency is unworkable (~60s+),
     # so force OFF for all Kimi calls on the SF path.
+    # V4-Pro defaults thinking ON too — clamp to reasoning_effort=medium.
     if model == "kimi":
         payload["thinking"] = {"type": "disabled"}
+    elif model == "deepseek":
+        payload["reasoning_effort"] = "medium"
 
     try:
         import httpx
@@ -2079,7 +2089,7 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
 
     roles = {
         "kimi": ("moonshotai/Kimi-K2.6", "Kutató és elemző. Alapos, részletes munkát végzel.", 20000),
-        "deepseek": ("deepseek-ai/DeepSeek-V3.2", "Kritikus elemző és ellenőr. Logikai hibákat keresel, ellenérveket fogalmazol.", 20000),
+        "deepseek": ("deepseek-ai/DeepSeek-V4-Pro", "Kritikus elemző és ellenőr. Logikai hibákat keresel, ellenérveket fogalmazol.", 20000),
         "glm5": ("zai-org/GLM-5.1", "Végrehajtó és kóder. Konkrét megoldásokat, kódot, strukturált outputot adsz. Ha kell, implementálsz.", 20000),
     }
 
@@ -2128,7 +2138,13 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
                         system += f"\n\n--- HÍVÓ FÉL ---\n{profile.persona_system_prompt}"
 
                 # Kimi K2.6 default thinking is ON on SF — force OFF to keep latency sane.
-                kimi_thinking_off = {"thinking": {"type": "disabled"}} if agent_name == "kimi" else {}
+                # DeepSeek V4-Pro default thinking ON too — clamp to medium effort.
+                if agent_name == "kimi":
+                    agent_extra = {"thinking": {"type": "disabled"}}
+                elif agent_name == "deepseek":
+                    agent_extra = {"reasoning_effort": "medium"}
+                else:
+                    agent_extra = {}
 
                 # Step 1: Call WITH tools
                 async with httpx.AsyncClient(timeout=SILICONFLOW_TIMEOUT) as client:
@@ -2141,7 +2157,7 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
                         "temperature": 0.6,
                         "max_tokens": agent_max_tokens,
                         "tools": [WEB_SEARCH_TOOL_DEF],
-                        **kimi_thinking_off,
+                        **agent_extra,
                     })
 
                 content = ""
@@ -2185,7 +2201,7 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
                             ],
                             "temperature": 0.6,
                             "max_tokens": agent_max_tokens,
-                            **kimi_thinking_off,
+                            **agent_extra,
                         })
                         if isinstance(data2, dict) and data2.get("choices"):
                             content = data2["choices"][0].get("message", {}).get("content", "")
@@ -2337,7 +2353,13 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
             model_id = SILICONFLOW_MODELS.get(model, model)
 
             # K2.6 defaults thinking ON on SF — force OFF (latency unacceptable on dispatch path).
-            kimi_thinking_off = {"thinking": {"type": "disabled"}} if model == "kimi" else {}
+            # V4-Pro defaults thinking ON too — clamp to reasoning_effort=medium.
+            if model == "kimi":
+                agent_extra = {"thinking": {"type": "disabled"}}
+            elif model == "deepseek":
+                agent_extra = {"reasoning_effort": "medium"}
+            else:
+                agent_extra = {}
 
             async def _api(client, payload):
                 resp = await client.post(
@@ -2357,7 +2379,7 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
                     ],
                     "temperature": temperature, "max_tokens": max_tokens,
                     "tools": [WEB_SEARCH_TOOL_DEF],
-                    **kimi_thinking_off,
+                    **agent_extra,
                 })
 
             if not isinstance(data, dict) or not data.get("choices"):
@@ -2399,7 +2421,7 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
                             {"role": "user", "content": f"{prompt}\n\nWEB KERESÉSI EREDMÉNYEK:\n{search_results}"},
                         ],
                         "temperature": temperature, "max_tokens": max_tokens,
-                        **kimi_thinking_off,
+                        **agent_extra,
                     })
                 if isinstance(data2, dict) and data2.get("choices"):
                     content = data2["choices"][0].get("message", {}).get("content", "") or content
@@ -3712,7 +3734,7 @@ async def _handle_telegram_message(text: str, chat_id: str):
         from html import escape as html_escape
         try:
             system_prompt = build_agent_context(agent_id="deepseek", inbox_summary=_get_inbox_summary())
-            model_id = SILICONFLOW_MODELS.get("deepseek", "deepseek-ai/DeepSeek-V3.2")
+            model_id = SILICONFLOW_MODELS.get("deepseek", "deepseek-ai/DeepSeek-V4-Pro")
             async with httpx.AsyncClient(timeout=SILICONFLOW_TIMEOUT) as client:
                 resp = await client.post(
                     f"{SILICONFLOW_BASE_URL}/chat/completions",

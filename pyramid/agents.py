@@ -12,7 +12,7 @@ AGENT_REGISTRY: Dict[str, Dict[str, Any]] = {
         "default_max_tokens": 8000,
     },
     "deepseek": {
-        "model_id": "deepseek-ai/DeepSeek-V3.2",
+        "model_id": "deepseek-ai/DeepSeek-V4-Pro",
         "provider": "siliconflow",
         "default_temperature": 0.6,
         "default_max_tokens": 8000,

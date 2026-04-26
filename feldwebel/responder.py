@@ -321,7 +321,7 @@ async def respond(text: str, chat_id: str, agent_id: str = "deepseek") -> str:
     for msg in history:
         messages.append({"role": msg["role"], "content": msg["content"]})
 
-    model_id = ctx.siliconflow_models.get(agent_id, "deepseek-ai/DeepSeek-V3.2")
+    model_id = ctx.siliconflow_models.get(agent_id, "deepseek-ai/DeepSeek-V4-Pro")
 
     # Agent loop — max 5 rounds of tool calls (last round forces text)
     # Round 0: force_tool=True → DeepSeek MUST call a tool (no hallucination)

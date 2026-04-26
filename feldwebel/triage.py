@@ -39,7 +39,7 @@ Válasz (kizárólag valid JSON, semmi más):
   "summary_hu": "Max 2 mondat magyarul az email lényege",
   "suggested_action": "reply|archive|forward|flag|null"}}"""
 
-    model_id = ctx.siliconflow_models.get("deepseek", "deepseek-ai/DeepSeek-V3.2")
+    model_id = ctx.siliconflow_models.get("deepseek", "deepseek-ai/DeepSeek-V4-Pro")
 
     try:
         async with httpx.AsyncClient(timeout=30) as client:

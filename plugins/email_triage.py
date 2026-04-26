@@ -66,7 +66,7 @@ def register_tools(app, deps):
             f'  "suggested_action": "reply|archive|forward|flag|null"}}'
         )
 
-        model_id = sf_models.get("deepseek", "deepseek-ai/DeepSeek-V3.2")
+        model_id = sf_models.get("deepseek", "deepseek-ai/DeepSeek-V4-Pro")
 
         try:
             async with httpx.AsyncClient(timeout=30) as client:
