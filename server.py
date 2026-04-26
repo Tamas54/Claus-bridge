@@ -1817,7 +1817,7 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
                 agent_extra=agent_extra,
                 max_tokens=max_tokens,
                 temperature=temperature,
-                max_rounds=6,
+                max_rounds=4,
             )
             usage = {"prompt_tokens": 0, "completion_tokens": 0}
             if PYRAMID_ENABLED and model in PYRAMID_AGENTS and content:
@@ -2443,6 +2443,42 @@ DDG_USER_AGENTS = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0",
 ]
 
+# Global concurrency throttle: max 2 simultaneous DDG hits anywhere in the
+# Bridge. threading.Semaphore (not asyncio) so it works across the multiple
+# event loops that _run_dispatch and _execute_ai_task spawn in their threads.
+import threading as _threading
+_WEB_SEARCH_SEMAPHORE = _threading.Semaphore(2)
+
+# Query result cache: 10-min TTL, 100-entry cap (LRU on insert overflow).
+# When 3 dispatch agents fan out on overlapping topics they often issue the
+# same query — caching halves real DDG load with zero quality cost.
+_WEB_SEARCH_CACHE: dict = {}
+_WEB_SEARCH_CACHE_LOCK = _threading.Lock()
+_WEB_SEARCH_CACHE_TTL = 600  # seconds
+_WEB_SEARCH_CACHE_MAX = 100
+
+
+def _web_search_cache_get(query: str):
+    import time as _t
+    with _WEB_SEARCH_CACHE_LOCK:
+        entry = _WEB_SEARCH_CACHE.get(query)
+        if entry:
+            result, ts = entry
+            if _t.time() - ts < _WEB_SEARCH_CACHE_TTL:
+                return result
+            _WEB_SEARCH_CACHE.pop(query, None)
+    return None
+
+
+def _web_search_cache_put(query: str, result: str) -> None:
+    import time as _t
+    with _WEB_SEARCH_CACHE_LOCK:
+        if len(_WEB_SEARCH_CACHE) >= _WEB_SEARCH_CACHE_MAX:
+            # LRU eviction: drop the oldest entry by timestamp
+            oldest_q = min(_WEB_SEARCH_CACHE.items(), key=lambda kv: kv[1][1])[0]
+            _WEB_SEARCH_CACHE.pop(oldest_q, None)
+        _WEB_SEARCH_CACHE[query] = (result, _t.time())
+
 
 async def _brave_search(query: str, api_key: str) -> list:
     """Fallback: Brave Search API (https://api.search.brave.com). Returns parsed result list."""
@@ -2475,89 +2511,139 @@ async def _brave_search(query: str, api_key: str) -> list:
 async def _web_search(query: str) -> str:
     """Deep web search: DuckDuckGo (UA-rotated) → top URLs → fetch actual page content.
 
-    On DDG failure / empty results, falls back to Brave Search API if
-    BRAVE_SEARCH_API_KEY is set in the environment. Logs HTTP status and
-    result counts for every attempt so 429s and IP-blocks are visible
-    instead of presenting as silent "No results found" to the agent.
+    Hardened against DDG burst-throttling (the 202 anti-bot pattern observed
+    on Railway):
+      - Cache (10-min TTL, 100 entries) deduplicates queries from parallel agents
+      - threading.Semaphore(2) caps concurrent DDG hits across all event loops
+      - Random 300-800ms jitter inside the critical section spreads timing
+      - Brave Search API fallback if BRAVE_SEARCH_API_KEY is set and DDG empty
     """
-    import httpx, re, urllib.parse, random
+    import httpx, re, urllib.parse, random, asyncio as _asyncio
+
+    # Cache hit — skip the DDG call entirely
+    cached = _web_search_cache_get(query)
+    if cached is not None:
+        logger.info("DDG cache HIT: %r", query[:60])
+        return cached
 
     brave_key = os.environ.get("BRAVE_SEARCH_API_KEY", "").strip()
 
-    # Step 1: DDG attempt
-    ddg_status = "?"
-    ddg_body_len = 0
-    ddg_anomaly = False
-    search_results = []
-    urls = []
+    # Acquire semaphore (max 2 concurrent DDG hits Bridge-wide). Use to_thread
+    # so multiple event loops can share the same threading.Semaphore safely.
+    await _asyncio.to_thread(_WEB_SEARCH_SEMAPHORE.acquire)
     try:
-        ua = random.choice(DDG_USER_AGENTS)
-        async with httpx.AsyncClient(timeout=15, follow_redirects=True) as client:
-            resp = await client.get(
-                "https://html.duckduckgo.com/html/",
-                params={"q": query},
-                headers={"User-Agent": ua},
-            )
-        ddg_status = resp.status_code
-        ddg_body_len = len(resp.text or "")
-        body_lower = (resp.text or "").lower()
-        ddg_anomaly = ("anomaly" in body_lower) or ("captcha" in body_lower) or ("rate limit" in body_lower)
+        # Jitter to break up bursts even when serialized
+        await _asyncio.sleep(0.3 + random.random() * 0.5)
 
-        links = re.findall(r'class="result__a"[^>]*href="([^"]+)"[^>]*>(.*?)</a>', resp.text, re.DOTALL)
-        snippets = re.findall(r'class="result__snippet"[^>]*>(.*?)<', resp.text, re.DOTALL)
-
-        for i, ((raw_url, title), snippet) in enumerate(zip(links[:5], snippets[:5])):
-            t = re.sub(r'<[^>]+>', '', title).strip()
-            s = re.sub(r'<[^>]+>', '', snippet).strip()
-            url = raw_url
-            if "uddg=" in url:
-                url = urllib.parse.unquote(url.split("uddg=")[1].split("&")[0])
-            urls.append(url)
-            search_results.append(f"[{i+1}] {t}\n    {s}")
-    except Exception as e:
-        logger.warning("DDG fetch exception for %r: %s", query[:60], e)
-
-    logger.info(
-        "DDG search %r → status=%s body_len=%d results=%d anomaly=%s",
-        query[:60], ddg_status, ddg_body_len, len(search_results), ddg_anomaly,
-    )
-
-    # Step 2: Brave fallback if DDG was empty / blocked AND key configured
-    if not search_results and brave_key:
-        brave_hits = await _brave_search(query, brave_key)
-        if brave_hits:
-            urls = [h["url"] for h in brave_hits if h.get("url")]
-            search_results = [
-                f"[{i+1}] {h.get('title', '')}\n    {h.get('snippet', '')}"
-                for i, h in enumerate(brave_hits)
-            ]
-
-    if not search_results:
-        return f"No results found. (DDG status={ddg_status}, anomaly={ddg_anomaly}, Brave={'configured' if brave_key else 'not configured'})"
-
-    # Step 3: Fetch top 2 page contents for deeper data
-    page_contents = []
-    for url in urls[:2]:
-        if not url or not url.startswith("http"):
-            continue
+        # Step 1: DDG attempt
+        ddg_status = "?"
+        ddg_body_len = 0
+        ddg_anomaly = False
+        search_results = []
+        urls = []
         try:
-            async with httpx.AsyncClient(timeout=10, follow_redirects=True) as client:
-                resp = await client.get(url, headers={"User-Agent": random.choice(DDG_USER_AGENTS)})
-            text = resp.text
-            text = re.sub(r'<script[^>]*>.*?</script>', '', text, flags=re.DOTALL)
-            text = re.sub(r'<style[^>]*>.*?</style>', '', text, flags=re.DOTALL)
-            text = re.sub(r'<[^>]+>', ' ', text)
-            text = re.sub(r'\s+', ' ', text).strip()
-            if len(text) > 200:
-                page_contents.append(f"[Forrás: {url[:80]}]\n{text[:2000]}")
-                logger.info("Page fetched: %s (%d chars)", url[:60], len(text))
-        except Exception as e:
-            logger.debug("Page fetch failed %s: %s", url[:40], e)
+            ua = random.choice(DDG_USER_AGENTS)
+            async with httpx.AsyncClient(timeout=15, follow_redirects=True) as client:
+                resp = await client.get(
+                    "https://html.duckduckgo.com/html/",
+                    params={"q": query},
+                    headers={"User-Agent": ua},
+                )
+            ddg_status = resp.status_code
+            ddg_body_len = len(resp.text or "")
+            body_lower = (resp.text or "").lower()
+            ddg_anomaly = (
+                ("anomaly" in body_lower)
+                or ("captcha" in body_lower)
+                or ("rate limit" in body_lower)
+                or (resp.status_code == 202)  # observed DDG anti-burst pattern
+            )
 
-    output = "KERESÉSI TALÁLATOK:\n" + "\n".join(search_results)
-    if page_contents:
-        output += "\n\nRÉSZLETES TARTALOM:\n" + "\n\n".join(page_contents)
-    return output
+            links = re.findall(r'class="result__a"[^>]*href="([^"]+)"[^>]*>(.*?)</a>', resp.text or "", re.DOTALL)
+            snippets = re.findall(r'class="result__snippet"[^>]*>(.*?)<', resp.text or "", re.DOTALL)
+
+            for i, ((raw_url, title), snippet) in enumerate(zip(links[:5], snippets[:5])):
+                t = re.sub(r'<[^>]+>', '', title).strip()
+                s = re.sub(r'<[^>]+>', '', snippet).strip()
+                url = raw_url
+                if "uddg=" in url:
+                    url = urllib.parse.unquote(url.split("uddg=")[1].split("&")[0])
+                urls.append(url)
+                search_results.append(f"[{i+1}] {t}\n    {s}")
+        except Exception as e:
+            logger.warning("DDG fetch exception for %r: %s", query[:60], e)
+
+        logger.info(
+            "DDG search %r → status=%s body_len=%d results=%d anomaly=%s",
+            query[:60], ddg_status, ddg_body_len, len(search_results), ddg_anomaly,
+        )
+
+        # Step 1b: DDG retry once on 202/anomaly with another UA after a longer wait
+        if ddg_anomaly and not search_results:
+            await _asyncio.sleep(2.5 + random.random() * 1.5)
+            try:
+                ua = random.choice(DDG_USER_AGENTS)
+                async with httpx.AsyncClient(timeout=15, follow_redirects=True) as client:
+                    resp = await client.get(
+                        "https://html.duckduckgo.com/html/",
+                        params={"q": query},
+                        headers={"User-Agent": ua},
+                    )
+                links = re.findall(r'class="result__a"[^>]*href="([^"]+)"[^>]*>(.*?)</a>', resp.text or "", re.DOTALL)
+                snippets = re.findall(r'class="result__snippet"[^>]*>(.*?)<', resp.text or "", re.DOTALL)
+                for i, ((raw_url, title), snippet) in enumerate(zip(links[:5], snippets[:5])):
+                    t = re.sub(r'<[^>]+>', '', title).strip()
+                    s = re.sub(r'<[^>]+>', '', snippet).strip()
+                    url = raw_url
+                    if "uddg=" in url:
+                        url = urllib.parse.unquote(url.split("uddg=")[1].split("&")[0])
+                    urls.append(url)
+                    search_results.append(f"[{i+1}] {t}\n    {s}")
+                logger.info("DDG retry %r → status=%s results=%d", query[:60], resp.status_code, len(search_results))
+            except Exception as e:
+                logger.warning("DDG retry exception for %r: %s", query[:60], e)
+
+        # Step 2: Brave fallback if DDG was empty / blocked AND key configured
+        if not search_results and brave_key:
+            brave_hits = await _brave_search(query, brave_key)
+            if brave_hits:
+                urls = [h["url"] for h in brave_hits if h.get("url")]
+                search_results = [
+                    f"[{i+1}] {h.get('title', '')}\n    {h.get('snippet', '')}"
+                    for i, h in enumerate(brave_hits)
+                ]
+
+        if not search_results:
+            failure_msg = f"No results found. (DDG status={ddg_status}, anomaly={ddg_anomaly}, Brave={'configured' if brave_key else 'not configured'})"
+            _web_search_cache_put(query, failure_msg)  # cache failures briefly to avoid retry-storms
+            return failure_msg
+
+        # Step 3: Fetch top 2 page contents for deeper data
+        page_contents = []
+        for url in urls[:2]:
+            if not url or not url.startswith("http"):
+                continue
+            try:
+                async with httpx.AsyncClient(timeout=10, follow_redirects=True) as client:
+                    resp = await client.get(url, headers={"User-Agent": random.choice(DDG_USER_AGENTS)})
+                text = resp.text
+                text = re.sub(r'<script[^>]*>.*?</script>', '', text, flags=re.DOTALL)
+                text = re.sub(r'<style[^>]*>.*?</style>', '', text, flags=re.DOTALL)
+                text = re.sub(r'<[^>]+>', ' ', text)
+                text = re.sub(r'\s+', ' ', text).strip()
+                if len(text) > 200:
+                    page_contents.append(f"[Forrás: {url[:80]}]\n{text[:2000]}")
+                    logger.info("Page fetched: %s (%d chars)", url[:60], len(text))
+            except Exception as e:
+                logger.debug("Page fetch failed %s: %s", url[:40], e)
+
+        output = "KERESÉSI TALÁLATOK:\n" + "\n".join(search_results)
+        if page_contents:
+            output += "\n\nRÉSZLETES TARTALOM:\n" + "\n\n".join(page_contents)
+        _web_search_cache_put(query, output)
+        return output
+    finally:
+        _WEB_SEARCH_SEMAPHORE.release()
 
 
 @mcp.tool()
@@ -2733,7 +2819,8 @@ async def _deep_research_loop(
     agent_extra: dict,
     max_tokens: int = 8000,
     temperature: float = 0.6,
-    max_rounds: int = 6,
+    max_rounds: int = 4,
+    task_budget_s: float = 240.0,
 ) -> str:
     """Multi-round web_search loop with mandatory source citation.
 
@@ -2743,11 +2830,20 @@ async def _deep_research_loop(
     round (tools off) where the system prompt requires explicit `[forrás N]`
     citations and a `## Források` URL list.
 
+    Robustness:
+      - max_rounds=4 (was 6) — fewer query-bursts to DDG.
+      - task_budget_s=240 — total wall-time cap. If exceeded mid-round we
+        fast-forward to a forced synthesis with whatever sources we have.
+      - Per-round httpx.TimeoutException is caught and treated as
+        "force synthesis" instead of bubbling up and crashing the task.
+
     Returns the final assistant content.
     """
-    import httpx, re
+    import httpx, re, time as _t
 
     sources: list[str] = []  # collected URLs (for the final citation block)
+    last_content = ""        # last non-empty model reply (for the budget-exhaust path)
+    start_t = _t.time()
 
     async def _api_call(client, payload):
         resp = await client.post(
@@ -2758,7 +2854,13 @@ async def _deep_research_loop(
         return json.loads(resp.text)
 
     for round_num in range(max_rounds):
-        is_final = (round_num == max_rounds - 1)
+        # Budget guard — if we've burned the budget, skip to forced synthesis
+        elapsed = _t.time() - start_t
+        if elapsed > task_budget_s:
+            logger.warning("Deep research task_budget exceeded at round %d (%.1fs) — forcing synthesis", round_num, elapsed)
+            is_final = True
+        else:
+            is_final = (round_num == max_rounds - 1)
         payload = {
             "model": model_id,
             "messages": messages,
@@ -2786,16 +2888,24 @@ async def _deep_research_loop(
             async with httpx.AsyncClient(timeout=SILICONFLOW_TIMEOUT) as client:
                 data = await _api_call(client, payload)
         except (httpx.TimeoutException, httpx.ConnectError) as e:
-            logger.error("Deep research round %d timeout: %s", round_num, e)
-            break
+            logger.error("Deep research round %d httpx error: %s — treating as soft fail, continuing", round_num, e)
+            # Don't crash the whole task; if we have enough sources let the next
+            # round force-synthesize, otherwise return what we have.
+            if is_final or sources:
+                break
+            continue
 
         if not isinstance(data, dict) or not data.get("choices"):
             logger.error("Deep research round %d bad response: %s", round_num, str(data)[:200])
-            break
+            if is_final or sources:
+                break
+            continue
 
         choice = data["choices"][0]
         msg = choice.get("message", {})
         content = msg.get("content", "") or ""
+        if content.strip():
+            last_content = content
         if not content.strip():
             content = msg.get("reasoning_content", "") or ""
         tool_calls = msg.get("tool_calls")
@@ -2856,8 +2966,14 @@ async def _deep_research_loop(
                 content += "\n\n## Források\n" + "\n".join(f"[{i+1}] {u}" for i, u in enumerate(sources[:15]))
             return content
 
-    # Loop exhausted — return whatever the model last said + a forced source list
-    fallback = "(Deep research loop nem talált végleges választ a megengedett körökön belül.)"
+    # Loop exhausted (or soft-failed). Salvage whatever we can: the last
+    # non-empty content the model produced, plus the source list we collected.
+    if last_content.strip():
+        fallback = last_content.strip()
+        if sources and "## Források" not in fallback and "## Forrasok" not in fallback:
+            fallback += "\n\n## Források\n" + "\n".join(f"[{i+1}] {u}" for i, u in enumerate(sources[:15]))
+        return fallback
+    fallback = "(Deep research loop nem ért el végleges szintézist a megengedett körökön belül.)"
     if sources:
         fallback += "\n\n## Források\n" + "\n".join(f"[{i+1}] {u}" for i, u in enumerate(sources[:15]))
     return fallback
@@ -3030,7 +3146,7 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
                         agent_extra=agent_extra,
                         max_tokens=agent_max_tokens,
                         temperature=0.6,
-                        max_rounds=6,
+                        max_rounds=4,
                     )
                     ts = now()
                     conn.execute(
@@ -3309,7 +3425,7 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
                     agent_extra=agent_extra,
                     max_tokens=max_tokens,
                     temperature=temperature,
-                    max_rounds=6,
+                    max_rounds=4,
                 )
                 return {"response": content, "tokens": {"prompt": 0, "completion": 0}}
 
