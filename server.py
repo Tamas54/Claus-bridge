@@ -1725,19 +1725,28 @@ async def _ai_auto_discuss(discussion_id: int, topic: str, thread_so_far: str):
 
 @mcp.tool()
 async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature: float = 0.7,
-                   max_tokens: int = 20000, caller: str = "") -> str:
-    """Query a SiliconFlow AI sub-agent (Kimi-K2.6, DeepSeek V3.2, or GLM-5.1).
+                   max_tokens: int = 20000, caller: str = "",
+                   deep_research: bool = False, deep_thinking: bool = False) -> str:
+    """Query a SiliconFlow AI sub-agent (Kimi-K2.6, DeepSeek-V4-Pro, or GLM-5.1).
 
     Use for research, analysis, translation, summarization, or second opinions.
     These models run on SiliconFlow cloud — no local resources needed.
 
     Args:
-        model: 'kimi' (256k context, vision) or 'deepseek' (fast reasoning) or 'glm5' (200k context, 128k output, coding+agentic) or full model ID
+        model: 'kimi' (256k context, vision) or 'deepseek' (frontier reasoning, V4-Pro 1.6T MoE)
+            or 'glm5' (200k context, 128k output, coding+agentic) or full model ID
         prompt: The user message / question
         system_prompt: Optional system instruction (default: Claus sub-agent)
         temperature: Creativity 0.0-1.0 (default 0.7)
         max_tokens: Max response length (default 20000)
         caller: Instance ID for permission check
+        deep_research: Multi-round web_search loop with mandatory source citation.
+            Use for press review, market briefs, fact-checking, anything where
+            1-shot search isn't enough. Slower (~30-90s), uses real DDG.
+        deep_thinking: Enable reasoning mode — Kimi gets thinking=enabled,
+            DeepSeek gets reasoning_effort=high. Default behavior is thinking
+            OFF for Kimi (latency), reasoning_effort=medium for DeepSeek. Turn
+            this on for hard logic, math, multi-step deduction. ~3-5x slower.
     """
     denied = _enforce(caller, "ai_query")
     if denied:
@@ -1766,22 +1775,63 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
     # Strong temporal directive — prevents Kimi/V4 from overriding runtime date.
     system_prompt += _temporal_directive(model)
 
+    # If deep_research, prepend the directive to the system prompt so the
+    # model knows it must drive a multi-round search before synthesizing.
+    if deep_research:
+        system_prompt = system_prompt + DEEP_RESEARCH_DIRECTIVE
+
     messages = [{"role": "system", "content": system_prompt}]
     messages.append({"role": "user", "content": prompt})
+
+    # Agent extras: thinking/reasoning kapcsolók. deep_thinking=True felülírja
+    # a default clamping-et (Kimi thinking=disabled, DeepSeek reasoning=medium).
+    if deep_thinking:
+        if model == "kimi":
+            agent_extra = {"thinking": {"type": "enabled"}}
+        elif model == "deepseek":
+            agent_extra = {"reasoning_effort": "high"}
+        else:
+            agent_extra = {}
+    else:
+        if model == "kimi":
+            agent_extra = {"thinking": {"type": "disabled"}}
+        elif model == "deepseek":
+            agent_extra = {"reasoning_effort": "medium"}
+        else:
+            agent_extra = {}
+
+    # Deep research path — separate multi-round loop, returns final content.
+    if deep_research:
+        try:
+            content = await _deep_research_loop(
+                model_id=model_id,
+                messages=messages,
+                agent_extra=agent_extra,
+                max_tokens=max_tokens,
+                temperature=temperature,
+                max_rounds=6,
+            )
+            usage = {"prompt_tokens": 0, "completion_tokens": 0}
+            if PYRAMID_ENABLED and model in PYRAMID_AGENTS and content:
+                try:
+                    pyramid_store_result(content=content, agent_id=model, task_title=f"deep_research:{prompt[:80]}", force_shared=True)
+                except Exception as eg:
+                    logger.warning("Pyramid governance error: %s", eg)
+            return json.dumps({
+                "model": model_id, "response": content, "tokens": usage,
+                "pyramid": PYRAMID_ENABLED and model in PYRAMID_AGENTS,
+                "deep_research": True,
+            }, ensure_ascii=False)
+        except Exception as e:
+            return json.dumps({"error": f"deep_research failed: {e}"})
 
     payload = {
         "model": model_id,
         "messages": messages,
         "temperature": temperature,
         "max_tokens": max_tokens,
+        **agent_extra,
     }
-    # K2.6 defaults thinking ON via SiliconFlow — SF latency is unworkable (~60s+),
-    # so force OFF for all Kimi calls on the SF path.
-    # V4-Pro defaults thinking ON too — clamp to reasoning_effort=medium.
-    if model == "kimi":
-        payload["thinking"] = {"type": "disabled"}
-    elif model == "deepseek":
-        payload["reasoning_effort"] = "medium"
 
     try:
         import httpx
@@ -2013,6 +2063,160 @@ async def _web_search(query: str) -> str:
         return f"Search error: {e}"
 
 
+DEEP_RESEARCH_DIRECTIVE = (
+    "\n\n## DEEP RESEARCH MÓD — MULTI-ROUND KUTATÁS KÖTELEZŐ\n"
+    "Ez NEM egy 1-shot kérdés. Több körön keresztül a `web_search` tool-t többször "
+    "is használnod kell, hogy a témát ALAPOSAN kifedd:\n"
+    "1) Az első körben tervezz 3-5 különböző web_search query-t (fókuszok: tényadat, "
+    "vélemény, kontextus, ellenőrző-forrás).\n"
+    "2) Olvasd a találatokat, és ha valamelyik fontos dimenzió hiányzik vagy "
+    "ellentmondásos, indíts ÚJABB web_search-öt finomított query-vel.\n"
+    "3) Cross-checkeld a kulcsállításokat 2+ független forrásból.\n"
+    "4) MINDEN tényállításnál idézd a forrást — formátum: `[forrás N]` a mondat "
+    "végén, ahol N a források listájában szereplő sorszám.\n"
+    "5) A végső válasz STRUKTURÁLT legyen, és tartalmazzon egy `## Források` "
+    "szekciót, sorszámozva, minden sorhoz a teljes URL.\n\n"
+    "FONTOS: ha egy állítás nincs forrással alátámasztva, NE írd le. "
+    "Inkább mondd hogy 'nem találtam erre megbízható forrást'.\n"
+)
+
+
+async def _deep_research_loop(
+    model_id: str,
+    messages: list,
+    agent_extra: dict,
+    max_tokens: int = 8000,
+    temperature: float = 0.6,
+    max_rounds: int = 6,
+) -> str:
+    """Multi-round web_search loop with mandatory source citation.
+
+    Drives the model through several search-and-refine rounds, executes
+    every web_search tool_call (both JSON and text-marker formats), feeds
+    the results back into the conversation, and forces a final synthesis
+    round (tools off) where the system prompt requires explicit `[forrás N]`
+    citations and a `## Források` URL list.
+
+    Returns the final assistant content.
+    """
+    import httpx, re
+
+    sources: list[str] = []  # collected URLs (for the final citation block)
+
+    async def _api_call(client, payload):
+        resp = await client.post(
+            f"{SILICONFLOW_BASE_URL}/chat/completions",
+            headers={"Authorization": f"Bearer {SILICONFLOW_API_KEY}", "Content-Type": "application/json"},
+            json=payload,
+        )
+        return json.loads(resp.text)
+
+    for round_num in range(max_rounds):
+        is_final = (round_num == max_rounds - 1)
+        payload = {
+            "model": model_id,
+            "messages": messages,
+            "temperature": temperature,
+            "max_tokens": max_tokens,
+            **agent_extra,
+        }
+        if not is_final:
+            payload["tools"] = [WEB_SEARCH_TOOL_DEF]
+        else:
+            # Final round: force synthesis with citations.
+            messages = messages + [{
+                "role": "user",
+                "content": (
+                    "Most foglald össze az eddig összegyűjtött anyagot. "
+                    "Strukturált, tényszerű választ adj, MINDEN állításhoz idézd "
+                    "a forrást [forrás N] formátumban, és a végén adj egy "
+                    "`## Források` szekciót sorszámozott URL-listával. "
+                    "Ha valamire nincs forrás, mondd ki hogy nincs."
+                ),
+            }]
+            payload["messages"] = messages
+
+        try:
+            async with httpx.AsyncClient(timeout=SILICONFLOW_TIMEOUT) as client:
+                data = await _api_call(client, payload)
+        except (httpx.TimeoutException, httpx.ConnectError) as e:
+            logger.error("Deep research round %d timeout: %s", round_num, e)
+            break
+
+        if not isinstance(data, dict) or not data.get("choices"):
+            logger.error("Deep research round %d bad response: %s", round_num, str(data)[:200])
+            break
+
+        choice = data["choices"][0]
+        msg = choice.get("message", {})
+        content = msg.get("content", "") or ""
+        if not content.strip():
+            content = msg.get("reasoning_content", "") or ""
+        tool_calls = msg.get("tool_calls")
+        finish_reason = choice.get("finish_reason", "")
+
+        # Case A — proper JSON tool_calls
+        if tool_calls and finish_reason == "tool_calls":
+            messages = messages + [msg]
+            for tc in tool_calls:
+                fn = tc.get("function", {})
+                if fn.get("name") != "web_search":
+                    continue
+                args_raw = fn.get("arguments", "{}")
+                try:
+                    args = json.loads(args_raw) if isinstance(args_raw, str) else args_raw
+                except Exception:
+                    args = {}
+                q = args.get("query", "")
+                if not q:
+                    continue
+                logger.info("Deep research round %d query: %s", round_num, q[:80])
+                sr = await _web_search(q)
+                # Capture URLs for the citation footer fallback
+                for url in re.findall(r'https?://[^\s\)]+', sr):
+                    if url not in sources:
+                        sources.append(url)
+                messages.append({
+                    "role": "tool",
+                    "tool_call_id": tc.get("id", ""),
+                    "content": sr[:4000],
+                })
+            continue
+
+        # Case B — text-marker tool calls (Kimi / DeepSeek DSML / GLM5)
+        text_markers = ["<|tool_call", "<｜DSML｜", "function_calls>", "tool_calls_section"]
+        if not tool_calls and any(m in content for m in text_markers):
+            queries = re.findall(r'"query"[:\s]*"([^"]+)"', content)[:3]
+            if queries:
+                aggregated = ""
+                for q in queries:
+                    logger.info("Deep research round %d (text) query: %s", round_num, q[:80])
+                    sr = await _web_search(q)
+                    aggregated += f"\n[Web search: {q}]\n{sr}\n"
+                    for url in re.findall(r'https?://[^\s\)]+', sr):
+                        if url not in sources:
+                            sources.append(url)
+                # Wrap text-marker into the next user turn so the model can use the data
+                messages = messages + [
+                    {"role": "assistant", "content": "(web_search calls in progress)"},
+                    {"role": "user", "content": f"Web keresési eredmények:\n{aggregated}\n\nFolytasd a kutatást vagy szintetizálj."},
+                ]
+                continue
+
+        # No more tool calls — model wants to finalize. Return whatever we got.
+        if content.strip():
+            # Append a fallback citation footer if the model forgot the URL list
+            if sources and "## Források" not in content and "## Forrasok" not in content:
+                content += "\n\n## Források\n" + "\n".join(f"[{i+1}] {u}" for i, u in enumerate(sources[:15]))
+            return content
+
+    # Loop exhausted — return whatever the model last said + a forced source list
+    fallback = "(Deep research loop nem talált végleges választ a megengedett körökön belül.)"
+    if sources:
+        fallback += "\n\n## Források\n" + "\n".join(f"[{i+1}] {u}" for i, u in enumerate(sources[:15]))
+    return fallback
+
+
 async def _run_agent_with_tools(model_id: str, messages: list, max_rounds: int = 4) -> str:
     """Run an AI agent with optional tool calls (web_search). Returns final text."""
     import httpx
@@ -2089,7 +2293,8 @@ async def _run_agent_with_tools(model_id: str, messages: list, max_rounds: int =
     return msg.get("content", "") or "(az agent nem adott választ a web keresés után)"
 
 
-async def _execute_ai_task(task_id: int, title: str, description: str, context: str, assigned_by: str):
+async def _execute_ai_task(task_id: int, title: str, description: str, context: str, assigned_by: str,
+                            deep_research: bool = False, deep_thinking: bool = False):
     """Background execution of a multi-agent AI task. Agents run in PARALLEL."""
     conn = get_db()
     conn.execute("UPDATE ai_tasks SET status = 'running' WHERE id = ?", (task_id,))
@@ -2144,12 +2349,50 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
 
                 # Kimi K2.6 default thinking is ON on SF — force OFF to keep latency sane.
                 # DeepSeek V4-Pro default thinking ON too — clamp to medium effort.
-                if agent_name == "kimi":
-                    agent_extra = {"thinking": {"type": "disabled"}}
-                elif agent_name == "deepseek":
-                    agent_extra = {"reasoning_effort": "medium"}
+                # deep_thinking=True overrides: thinking ON for Kimi, reasoning=high for DeepSeek.
+                if deep_thinking:
+                    if agent_name == "kimi":
+                        agent_extra = {"thinking": {"type": "enabled"}}
+                    elif agent_name == "deepseek":
+                        agent_extra = {"reasoning_effort": "high"}
+                    else:
+                        agent_extra = {}
                 else:
-                    agent_extra = {}
+                    if agent_name == "kimi":
+                        agent_extra = {"thinking": {"type": "disabled"}}
+                    elif agent_name == "deepseek":
+                        agent_extra = {"reasoning_effort": "medium"}
+                    else:
+                        agent_extra = {}
+
+                # Deep research path: hand off to the multi-round loop and skip the
+                # legacy 3-step (single search + retry) flow entirely.
+                if deep_research:
+                    research_system = system + DEEP_RESEARCH_DIRECTIVE
+                    content = await _deep_research_loop(
+                        model_id=model_id,
+                        messages=[
+                            {"role": "system", "content": research_system},
+                            {"role": "user", "content": task_prompt},
+                        ],
+                        agent_extra=agent_extra,
+                        max_tokens=agent_max_tokens,
+                        temperature=0.6,
+                        max_rounds=6,
+                    )
+                    ts = now()
+                    conn.execute(
+                        "INSERT INTO ai_task_results (task_id, agent, role, content, timestamp) VALUES (?, ?, ?, ?, ?)",
+                        (task_id, agent_name, role_desc, content or "(no response)", ts)
+                    )
+                    conn.commit()
+                    if PYRAMID_ENABLED and agent_name in PYRAMID_AGENTS and content:
+                        try:
+                            pyramid_store_result(content=content, agent_id=agent_name, task_title=title, force_shared=True)
+                        except Exception:
+                            pass
+                    logger.info("AI task #%d: %s deep_research done (%d chars)", task_id, agent_name, len(content or ""))
+                    return
 
                 # Step 1: Call WITH tools
                 async with httpx.AsyncClient(timeout=SILICONFLOW_TIMEOUT) as client:
@@ -2302,7 +2545,8 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
 
 
 @mcp.tool()
-async def ai_task(title: str, description: str, context: str = "", file_id: int = 0, assigned_by: str = "unknown", agent_tasks: str = "") -> str:
+async def ai_task(title: str, description: str, context: str = "", file_id: int = 0, assigned_by: str = "unknown",
+                  agent_tasks: str = "", deep_research: bool = False, deep_thinking: bool = False) -> str:
     """Create and execute a multi-agent AI task. Kimi, DeepSeek, and GLM-5.1 work on it, then a synthesis is generated.
 
     Two modes:
@@ -2317,6 +2561,15 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
         assigned_by: Who created the task (cli-claus, web-claus, kommandant)
         agent_tasks: Optional JSON — per-agent tasks for parallel dispatch mode. Format:
             {"kimi": {"prompt": "...", "max_tokens": 3000}, "deepseek": {"prompt": "..."}}
+        deep_research: Multi-round web_search loop with mandatory `[forrás N]`
+            citations and a final `## Források` URL list. Use for press review,
+            equity briefs, fact-checking — anywhere 1-shot DDG is too thin.
+            Slower (~60-180s per agent), real DDG calls.
+        deep_thinking: Enable explicit reasoning mode — Kimi `thinking=enabled`,
+            DeepSeek `reasoning_effort=high`. Default is OFF/medium for latency.
+            Turn on for hard logic, multi-step deduction, mathematical proofs.
+            ~3-5x slower per agent. Combinable with deep_research (very slow,
+            but the highest-quality output the rizsrakéták can produce).
     """
     # Pull in uploaded file content if file_id provided
     if file_id:
@@ -2363,12 +2616,37 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
 
             # K2.6 defaults thinking ON on SF — force OFF (latency unacceptable on dispatch path).
             # V4-Pro defaults thinking ON too — clamp to reasoning_effort=medium.
-            if model == "kimi":
-                agent_extra = {"thinking": {"type": "disabled"}}
-            elif model == "deepseek":
-                agent_extra = {"reasoning_effort": "medium"}
+            # deep_thinking flips both back to maximum-reasoning mode.
+            if deep_thinking:
+                if model == "kimi":
+                    agent_extra = {"thinking": {"type": "enabled"}}
+                elif model == "deepseek":
+                    agent_extra = {"reasoning_effort": "high"}
+                else:
+                    agent_extra = {}
             else:
-                agent_extra = {}
+                if model == "kimi":
+                    agent_extra = {"thinking": {"type": "disabled"}}
+                elif model == "deepseek":
+                    agent_extra = {"reasoning_effort": "medium"}
+                else:
+                    agent_extra = {}
+
+            # Deep research path — multi-round loop, returns final content.
+            if deep_research:
+                research_system = system_prompt + DEEP_RESEARCH_DIRECTIVE
+                content = await _deep_research_loop(
+                    model_id=model_id,
+                    messages=[
+                        {"role": "system", "content": research_system},
+                        {"role": "user", "content": prompt},
+                    ],
+                    agent_extra=agent_extra,
+                    max_tokens=max_tokens,
+                    temperature=temperature,
+                    max_rounds=6,
+                )
+                return {"response": content, "tokens": {"prompt": 0, "completion": 0}}
 
             async def _api(client, payload):
                 resp = await client.post(
@@ -2502,7 +2780,10 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
         # BROADCAST MODE: all agents get the same task (legacy)
         def _run():
             loop = asyncio.new_event_loop()
-            loop.run_until_complete(_execute_ai_task(task_id, title, description, context[:10000], assigned_by))
+            loop.run_until_complete(_execute_ai_task(
+                task_id, title, description, context[:10000], assigned_by,
+                deep_research=deep_research, deep_thinking=deep_thinking,
+            ))
             loop.close()
         threading.Thread(target=_run, daemon=True).start()
 
