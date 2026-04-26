@@ -1726,7 +1726,8 @@ async def _ai_auto_discuss(discussion_id: int, topic: str, thread_so_far: str):
 @mcp.tool()
 async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature: float = 0.7,
                    max_tokens: int = 20000, caller: str = "",
-                   deep_research: bool = False, deep_thinking: bool = False) -> str:
+                   deep_research: bool = False, deep_thinking: bool = False,
+                   output_format: str = "") -> str:
     """Query a SiliconFlow AI sub-agent (Kimi-K2.6, DeepSeek-V4-Pro, or GLM-5.1).
 
     Use for research, analysis, translation, summarization, or second opinions.
@@ -1747,6 +1748,10 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
             DeepSeek gets reasoning_effort=high. Default behavior is thinking
             OFF for Kimi (latency), reasoning_effort=medium for DeepSeek. Turn
             this on for hard logic, math, multi-step deduction. ~3-5x slower.
+        output_format: Empty string for plain text response (default), or
+            "docx" / "xlsx" / "pptx" — the agent will write structured markdown
+            and the Bridge will render it into a real Office file. The returned
+            JSON gains a `file_id` field; download via /api/uploads/{file_id}.
     """
     denied = _enforce(caller, "ai_query")
     if denied:
@@ -1779,6 +1784,9 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
     # model knows it must drive a multi-round search before synthesizing.
     if deep_research:
         system_prompt = system_prompt + DEEP_RESEARCH_DIRECTIVE
+    # If output_format set, append the corresponding format directive.
+    if output_format and output_format in OUTPUT_FORMAT_DIRECTIVES:
+        system_prompt = system_prompt + OUTPUT_FORMAT_DIRECTIVES[output_format]
 
     messages = [{"role": "system", "content": system_prompt}]
     messages.append({"role": "user", "content": prompt})
@@ -1869,7 +1877,27 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
             except Exception as eg:
                 logger.warning("Pyramid governance error: %s", eg)
 
-        return json.dumps({
+        # output_format → render structured markdown to Office file
+        file_info = None
+        if output_format and output_format in OUTPUT_FORMAT_DIRECTIVES and content:
+            try:
+                title_for_file = prompt[:60].strip() or "ai_query"
+                if output_format == "docx":
+                    buf = _render_docx_from_markdown(content, title=title_for_file)
+                elif output_format == "xlsx":
+                    buf = _render_xlsx_from_markdown(content, title=title_for_file)
+                elif output_format == "pptx":
+                    buf = _render_pptx_from_markdown(content, title=title_for_file)
+                else:
+                    buf = None
+                if buf:
+                    fid = _persist_generated_file(0, model or "agent", output_format, buf, title_for_file)
+                    file_info = {"file_id": fid, "format": output_format}
+            except Exception as ef:
+                logger.error("ai_query output_format render failed: %s", ef)
+                file_info = {"error": f"render failed: {ef}"}
+
+        result_obj = {
             "model": model_id,
             "response": content,
             "tokens": {
@@ -1877,7 +1905,10 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
                 "completion": usage.get("completion_tokens", 0),
             },
             "pyramid": PYRAMID_ENABLED and model in PYRAMID_AGENTS,
-        }, ensure_ascii=False)
+        }
+        if file_info:
+            result_obj["file"] = file_info
+        return json.dumps(result_obj, ensure_ascii=False)
 
     except Exception as e:
         return json.dumps({"error": f"{type(e).__name__}: {e}"})
@@ -1898,11 +1929,48 @@ def _parse_file_to_text(filepath: pathlib.Path, mime_type: str) -> str:
         if ext == ".docx":
             from docx import Document
             doc = Document(str(filepath))
-            return "\n".join(p.text for p in doc.paragraphs)
+            parts = ["\n".join(p.text for p in doc.paragraphs)]
+            # Tables are often where the actual data lives in real .docx files
+            for ti, table in enumerate(doc.tables):
+                parts.append(f"\n[Táblázat #{ti+1}]")
+                for row in table.rows:
+                    parts.append(" | ".join(cell.text.strip() for cell in row.cells))
+            return "\n".join(parts)
         elif ext == ".pdf":
             from PyPDF2 import PdfReader
             reader = PdfReader(str(filepath))
             return "\n".join(page.extract_text() or "" for page in reader.pages[:50])
+        elif ext == ".xlsx":
+            from openpyxl import load_workbook
+            wb = load_workbook(str(filepath), data_only=True, read_only=True)
+            parts = []
+            for sheet_name in wb.sheetnames[:10]:  # cap at 10 sheets
+                ws = wb[sheet_name]
+                parts.append(f"\n## Munkafüzet: {sheet_name}")
+                row_count = 0
+                for row in ws.iter_rows(values_only=True):
+                    if row_count >= 200:  # cap rows per sheet
+                        parts.append("... (további sorok kihagyva)")
+                        break
+                    cells = [str(c) if c is not None else "" for c in row]
+                    if any(cells):
+                        parts.append(" | ".join(cells))
+                        row_count += 1
+            wb.close()
+            return "\n".join(parts)[:50000]
+        elif ext == ".pptx":
+            from pptx import Presentation
+            prs = Presentation(str(filepath))
+            parts = []
+            for si, slide in enumerate(prs.slides[:80]):
+                parts.append(f"\n## Dia #{si+1}")
+                for shape in slide.shapes:
+                    if hasattr(shape, "text") and shape.text:
+                        parts.append(shape.text)
+                    if hasattr(shape, "has_table") and shape.has_table:
+                        for row in shape.table.rows:
+                            parts.append(" | ".join(cell.text.strip() for cell in row.cells))
+            return "\n".join(parts)[:50000]
         elif ext in (".txt", ".md", ".csv", ".json", ".xml", ".html", ".py", ".js", ".ts"):
             return filepath.read_text(encoding="utf-8", errors="replace")[:50000]
         else:
@@ -1914,6 +1982,347 @@ def _parse_file_to_text(filepath: pathlib.Path, mime_type: str) -> str:
 
 def _is_image(mime_type: str) -> bool:
     return mime_type.startswith("image/")
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Output-format generation: agent writes structured markdown, Bridge renders
+# it into a real .docx / .xlsx / .pptx file. Each format gets a small system
+# directive that tells the agent EXACTLY how to structure its output so the
+# parser below can render it cleanly.
+# ─────────────────────────────────────────────────────────────────────────────
+
+OUTPUT_FORMAT_DIRECTIVES = {
+    "docx": (
+        "\n\n## OUTPUT FORMÁTUM: WORD DOKUMENTUM (.docx)\n"
+        "A válaszod egy strukturált Word-dokumentum lesz. Használd ezt a markdown-t:\n"
+        "- `# Cím` → fő dokumentum-cím (1 db, az elején)\n"
+        "- `## Fejezet` → első szintű fejezetcím\n"
+        "- `### Alfejezet` → második szintű\n"
+        "- Bekezdések normál szövegként\n"
+        "- `- pont` vagy `* pont` → bullet pont\n"
+        "- `1. pont` → számozott lista\n"
+        "- `**vastag**` és `*dőlt*` formázás\n"
+        "- Markdown-táblázat (`| col1 | col2 |\\n| --- | --- |\\n| a | b |`) → Word-táblázat\n"
+        "Csak a strukturált tartalom legyen a válaszodban — semmi keret, semmi 'íme a dokumentum:' bevezetés.\n"
+    ),
+    "xlsx": (
+        "\n\n## OUTPUT FORMÁTUM: EXCEL FÁJL (.xlsx)\n"
+        "A válaszod egy Excel-fájl lesz, EGY VAGY TÖBB MUNKAFÜZETTEL.\n"
+        "Pontos formátum:\n"
+        "- `## Sheet: <munkafüzet név>` jelöli minden új munkafüzet kezdetét.\n"
+        "- A munkafüzet alá írj egy markdown táblázatot:\n"
+        "  ```\n"
+        "  ## Sheet: Bevétel\n"
+        "  | Hónap | Bevétel | Megjegyzés |\n"
+        "  | --- | --- | --- |\n"
+        "  | Január | 1500000 | Q1 indulás |\n"
+        "  | Február | 2100000 | növekvő |\n"
+        "  ```\n"
+        "- A számokat NYERS formában add (1500000 nem '1 500 000 Ft'). A formázás a Bridge dolga.\n"
+        "- Több munkafüzet: ismételd a `## Sheet: Név` blokkot.\n"
+        "- Munkafüzet előtt 1-2 mondat magyarázat lehet, de ne tegyél bele markdown listát/cím vagy formázást a táblákon kívül.\n"
+        "Cél: a parsoló közvetlenül cellákat tud csinálni belőle.\n"
+    ),
+    "pptx": (
+        "\n\n## OUTPUT FORMÁTUM: POWERPOINT PREZENTÁCIÓ (.pptx)\n"
+        "A válaszod egy diasor lesz. Pontos formátum:\n"
+        "- `# Cím` az 1. dia (címlap)\n"
+        "- Minden további dia: `## Dia címe` után jön a tartalom\n"
+        "- Bullet pont: `- szöveg` vagy `* szöveg` (max 5-6 pont/dia)\n"
+        "- Tartsd a diákat tömören — egy gondolat / dia, nem hosszú esszék\n"
+        "- 8-15 dia ideális. Ne legyen 30+\n"
+        "- Markdown-táblázat egy diára → szöveges felsorolássá konvertálódik\n"
+        "Csak a strukturált tartalom — semmi 'íme a prezentáció:' bevezetés.\n"
+    ),
+}
+
+
+def _render_docx_from_markdown(content: str, title: str = "") -> "BytesIO":
+    """Render structured markdown → real Word document."""
+    from docx import Document
+    from docx.shared import Pt, RGBColor
+    from io import BytesIO
+    import re as _re
+
+    doc = Document()
+    # Default style: clean Calibri 11pt
+    style = doc.styles["Normal"]
+    style.font.name = "Calibri"
+    style.font.size = Pt(11)
+
+    if title:
+        h = doc.add_heading(title, level=0)
+
+    # Tokenize markdown by lines, handle tables specially
+    lines = content.split("\n")
+    i = 0
+    while i < len(lines):
+        line = lines[i].rstrip()
+
+        # Detect markdown table (header row + separator row of dashes)
+        if "|" in line and i + 1 < len(lines) and _re.match(r"^\s*\|?\s*-+", lines[i+1]):
+            header_cells = [c.strip() for c in line.strip().strip("|").split("|")]
+            i += 2  # skip header + separator
+            data_rows = []
+            while i < len(lines) and "|" in lines[i]:
+                row_cells = [c.strip() for c in lines[i].strip().strip("|").split("|")]
+                data_rows.append(row_cells)
+                i += 1
+            tbl = doc.add_table(rows=1 + len(data_rows), cols=len(header_cells))
+            tbl.style = "Light Grid Accent 1"
+            for ci, h in enumerate(header_cells):
+                tbl.rows[0].cells[ci].text = h
+            for ri, row in enumerate(data_rows):
+                for ci, val in enumerate(row[:len(header_cells)]):
+                    tbl.rows[ri + 1].cells[ci].text = val
+            continue
+
+        if line.startswith("# "):
+            doc.add_heading(line[2:].strip(), level=1)
+        elif line.startswith("## "):
+            doc.add_heading(line[3:].strip(), level=2)
+        elif line.startswith("### "):
+            doc.add_heading(line[4:].strip(), level=3)
+        elif _re.match(r"^[\-\*]\s+", line):
+            doc.add_paragraph(_re.sub(r"^[\-\*]\s+", "", line), style="List Bullet")
+        elif _re.match(r"^\d+\.\s+", line):
+            doc.add_paragraph(_re.sub(r"^\d+\.\s+", "", line), style="List Number")
+        elif line.strip():
+            # Plain paragraph with **bold** and *italic* inline
+            p = doc.add_paragraph()
+            for chunk, kind in _split_md_inline(line):
+                run = p.add_run(chunk)
+                if kind == "bold":
+                    run.bold = True
+                elif kind == "italic":
+                    run.italic = True
+        i += 1
+
+    buf = BytesIO()
+    doc.save(buf)
+    buf.seek(0)
+    return buf
+
+
+def _split_md_inline(text: str):
+    """Split a line into (text, style) chunks where style is None / 'bold' / 'italic'."""
+    import re as _re
+    pattern = _re.compile(r"(\*\*[^*]+\*\*|\*[^*]+\*)")
+    pos = 0
+    for m in pattern.finditer(text):
+        if m.start() > pos:
+            yield (text[pos:m.start()], None)
+        token = m.group(0)
+        if token.startswith("**"):
+            yield (token[2:-2], "bold")
+        else:
+            yield (token[1:-1], "italic")
+        pos = m.end()
+    if pos < len(text):
+        yield (text[pos:], None)
+
+
+def _render_xlsx_from_markdown(content: str, title: str = "") -> "BytesIO":
+    """Render markdown with `## Sheet: name` blocks → multi-sheet xlsx."""
+    from openpyxl import Workbook
+    from openpyxl.styles import Font, PatternFill, Alignment
+    from io import BytesIO
+    import re as _re
+
+    wb = Workbook()
+    wb.remove(wb.active)  # we'll create our own sheets
+
+    header_font = Font(name="Calibri", size=11, bold=True, color="FFFFFF")
+    header_fill = PatternFill(start_color="1F4E79", end_color="1F4E79", fill_type="solid")
+
+    # Find sheet blocks
+    sheet_pattern = _re.compile(r"^\s*##\s*Sheet:\s*(.+?)\s*$", _re.MULTILINE)
+    matches = list(sheet_pattern.finditer(content))
+    if not matches:
+        # No sheet markers — treat the whole content as one sheet
+        ws = wb.create_sheet(title or "Adatok")
+        _xlsx_dump_table(ws, content, header_font, header_fill)
+    else:
+        for idx, m in enumerate(matches):
+            sheet_name = m.group(1).strip()[:31] or f"Sheet{idx+1}"
+            block_start = m.end()
+            block_end = matches[idx + 1].start() if idx + 1 < len(matches) else len(content)
+            block = content[block_start:block_end]
+            ws = wb.create_sheet(sheet_name)
+            _xlsx_dump_table(ws, block, header_font, header_fill)
+
+    if not wb.sheetnames:
+        wb.create_sheet("Üres")  # avoid empty workbook error
+
+    buf = BytesIO()
+    wb.save(buf)
+    buf.seek(0)
+    return buf
+
+
+def _xlsx_dump_table(ws, block: str, header_font, header_fill):
+    """Find the first markdown table in `block` and dump it into `ws`."""
+    import re as _re
+    lines = block.split("\n")
+    # Find table boundaries
+    rows = []
+    for i, line in enumerate(lines):
+        if "|" not in line:
+            continue
+        if _re.match(r"^\s*\|?\s*-+", line):  # separator row
+            continue
+        cells = [c.strip() for c in line.strip().strip("|").split("|")]
+        if any(cells):
+            rows.append(cells)
+    if not rows:
+        # No table — dump raw text into column A
+        for i, line in enumerate(block.strip().split("\n"), start=1):
+            ws.cell(row=i, column=1, value=line[:32000])
+        return
+    # First row = header
+    header = rows[0]
+    for ci, val in enumerate(header, start=1):
+        cell = ws.cell(row=1, column=ci, value=val)
+        cell.font = header_font
+        cell.fill = header_fill
+    for ri, row in enumerate(rows[1:], start=2):
+        for ci, val in enumerate(row[:len(header)], start=1):
+            # Try numeric coercion
+            try:
+                if val.replace(".", "", 1).replace("-", "", 1).replace(",", "").isdigit():
+                    val_clean = val.replace(",", "")
+                    val_num = float(val_clean) if "." in val_clean else int(val_clean)
+                    ws.cell(row=ri, column=ci, value=val_num)
+                else:
+                    ws.cell(row=ri, column=ci, value=val[:32000])
+            except (ValueError, AttributeError):
+                ws.cell(row=ri, column=ci, value=val[:32000])
+    # Auto-width
+    for col_letter in [chr(ord("A") + i) for i in range(len(header))]:
+        ws.column_dimensions[col_letter].width = 18
+
+
+def _render_pptx_from_markdown(content: str, title: str = "") -> "BytesIO":
+    """Render markdown with `## Dia címe` blocks → pptx slides."""
+    from pptx import Presentation
+    from pptx.util import Inches, Pt
+    from pptx.dml.color import RGBColor
+    from io import BytesIO
+    import re as _re
+
+    prs = Presentation()
+    prs.slide_width = Inches(13.333)
+    prs.slide_height = Inches(7.5)
+
+    # Title slide
+    title_layout = prs.slide_layouts[0]
+    title_slide = prs.slides.add_slide(title_layout)
+    # Find the first H1 to use as title; fallback to passed title
+    h1_match = _re.search(r"^\s*#\s+(.+?)\s*$", content, _re.MULTILINE)
+    main_title = (h1_match.group(1) if h1_match else title) or "Claus Brief"
+    title_slide.shapes.title.text = main_title
+
+    # Find slides — H2 markers
+    slide_pattern = _re.compile(r"^\s*##\s+(.+?)\s*$", _re.MULTILINE)
+    matches = list(slide_pattern.finditer(content))
+    bullet_layout = prs.slide_layouts[1]
+    for idx, m in enumerate(matches):
+        slide_title = m.group(1).strip()
+        block_start = m.end()
+        block_end = matches[idx + 1].start() if idx + 1 < len(matches) else len(content)
+        block = content[block_start:block_end].strip()
+
+        slide = prs.slides.add_slide(bullet_layout)
+        slide.shapes.title.text = slide_title
+
+        # Body: collect bullet lines
+        bullets = []
+        for line in block.split("\n"):
+            line = line.strip()
+            if _re.match(r"^[\-\*]\s+", line):
+                bullets.append(_re.sub(r"^[\-\*]\s+", "", line))
+            elif _re.match(r"^\d+\.\s+", line):
+                bullets.append(_re.sub(r"^\d+\.\s+", "", line))
+            elif line and not line.startswith("|") and not line.startswith("---"):
+                bullets.append(line)
+        bullets = bullets[:8]  # cap
+
+        body = slide.placeholders[1]
+        tf = body.text_frame
+        tf.word_wrap = True
+        for bi, b in enumerate(bullets):
+            p = tf.paragraphs[0] if bi == 0 else tf.add_paragraph()
+            p.text = b[:300]
+            p.font.size = Pt(18)
+
+    buf = BytesIO()
+    prs.save(buf)
+    buf.seek(0)
+    return buf
+
+
+def _maybe_render_output_file(task_id: int, agent_name: str, content: str, output_format: str, title: str) -> None:
+    """Render `content` to a real Office file and append a `fájl` row to ai_task_results.
+
+    No-op if output_format is empty or content is missing. Used by both the
+    broadcast `_run_single_agent` and the dispatch `_run_dispatch` paths so
+    every successful agent output respects the requested format.
+    """
+    if not output_format or output_format not in OUTPUT_FORMAT_DIRECTIVES:
+        return
+    if not content or not content.strip():
+        return
+    try:
+        if output_format == "docx":
+            buf = _render_docx_from_markdown(content, title=title)
+        elif output_format == "xlsx":
+            buf = _render_xlsx_from_markdown(content, title=title)
+        elif output_format == "pptx":
+            buf = _render_pptx_from_markdown(content, title=title)
+        else:
+            return
+        fid = _persist_generated_file(task_id, agent_name, output_format, buf, title)
+        # Add a synthetic results row so the dashboard surfaces the file
+        conn = get_db()
+        conn.execute(
+            "INSERT INTO ai_task_results (task_id, agent, role, content, timestamp) VALUES (?, ?, ?, ?, ?)",
+            (
+                task_id, agent_name, f"📎 Generált fájl ({output_format})",
+                f"[FÁJL] file_id={fid}, formátum={output_format}\n→ /api/uploads/{fid}/download",
+                now(),
+            ),
+        )
+        conn.commit()
+        conn.close()
+        logger.info("Task #%d %s: rendered %s file_id=%d", task_id, agent_name, output_format, fid)
+    except Exception as e:
+        logger.error("Task #%d %s output_format render failed: %s", task_id, agent_name, e)
+
+
+def _persist_generated_file(task_id: int, agent_name: str, output_format: str, buf, title: str) -> int:
+    """Persist a generated file to the uploads table and return file_id."""
+    import base64
+    ext = output_format
+    mime_map = {
+        "docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "pptx": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    }
+    mime = mime_map.get(ext, "application/octet-stream")
+    safe_title = "".join(c if c.isalnum() or c in "-_ " else "_" for c in title)[:60].strip("_ ") or "task"
+    filename = f"task{task_id}_{agent_name}_{safe_title}.{ext}"
+    data = buf.getvalue()
+    b64 = base64.b64encode(data).decode("ascii")
+
+    conn = get_db()
+    cur = conn.execute(
+        "INSERT INTO uploads (filename, mime_type, content_text, content_base64, uploaded_by, uploaded_at) VALUES (?, ?, ?, ?, ?, ?)",
+        (filename, mime, "", b64, f"agent:{agent_name}", now())
+    )
+    file_id = cur.lastrowid
+    conn.commit()
+    conn.close()
+    return file_id
 
 
 @mcp.tool()
@@ -1981,6 +2390,30 @@ async def api_uploads(request):
     uploads = conn.execute("SELECT id, filename, mime_type, uploaded_by, uploaded_at, length(content_text) as text_len FROM uploads ORDER BY id DESC LIMIT 20").fetchall()
     conn.close()
     return JSONResponse([dict(u) for u in uploads])
+
+
+@mcp.custom_route("/api/uploads/{file_id:int}/download", methods=["GET"])
+async def api_upload_download(request):
+    """Download a file from the uploads table by id (decodes content_base64)."""
+    import base64
+    fid = int(request.path_params["file_id"])
+    conn = get_db()
+    row = conn.execute(
+        "SELECT filename, mime_type, content_base64 FROM uploads WHERE id = ?", (fid,)
+    ).fetchone()
+    conn.close()
+    if not row or not row["content_base64"]:
+        return JSONResponse({"error": f"upload #{fid} not found or empty"}, status_code=404)
+    try:
+        data = base64.b64decode(row["content_base64"])
+    except Exception as e:
+        return JSONResponse({"error": f"decode failed: {e}"}, status_code=500)
+    from starlette.responses import Response as StarletteResponse
+    return StarletteResponse(
+        content=data,
+        media_type=row["mime_type"] or "application/octet-stream",
+        headers={"Content-Disposition": f'attachment; filename="{row["filename"]}"'},
+    )
 
 
 # ============================================================
@@ -2294,7 +2727,8 @@ async def _run_agent_with_tools(model_id: str, messages: list, max_rounds: int =
 
 
 async def _execute_ai_task(task_id: int, title: str, description: str, context: str, assigned_by: str,
-                            deep_research: bool = False, deep_thinking: bool = False):
+                            deep_research: bool = False, deep_thinking: bool = False,
+                            output_format: str = ""):
     """Background execution of a multi-agent AI task. Agents run in PARALLEL."""
     conn = get_db()
     conn.execute("UPDATE ai_tasks SET status = 'running' WHERE id = ?", (task_id,))
@@ -2347,6 +2781,11 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
                     if profile and profile.persona_system_prompt:
                         system += f"\n\n--- HÍVÓ FÉL ---\n{profile.persona_system_prompt}"
 
+                # If output_format set, append the structured-output directive so
+                # the agent writes markdown the Bridge can render to a real file.
+                if output_format and output_format in OUTPUT_FORMAT_DIRECTIVES:
+                    system += OUTPUT_FORMAT_DIRECTIVES[output_format]
+
                 # Kimi K2.6 default thinking is ON on SF — force OFF to keep latency sane.
                 # DeepSeek V4-Pro default thinking ON too — clamp to medium effort.
                 # deep_thinking=True overrides: thinking ON for Kimi, reasoning=high for DeepSeek.
@@ -2386,6 +2825,7 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
                         (task_id, agent_name, role_desc, content or "(no response)", ts)
                     )
                     conn.commit()
+                    _maybe_render_output_file(task_id, agent_name, content, output_format, title)
                     if PYRAMID_ENABLED and agent_name in PYRAMID_AGENTS and content:
                         try:
                             pyramid_store_result(content=content, agent_id=agent_name, task_title=title, force_shared=True)
@@ -2482,6 +2922,7 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
                         pyramid_store_result(content=content, agent_id=agent_name, task_title=title, force_shared=True)
                     except Exception:
                         pass
+                _maybe_render_output_file(task_id, agent_name, content, output_format, title)
                 logger.info("AI task #%d: %s done (%d chars)", task_id, agent_name, len(content or ""))
                 return  # Success — exit retry loop
 
@@ -2546,7 +2987,8 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
 
 @mcp.tool()
 async def ai_task(title: str, description: str, context: str = "", file_id: int = 0, assigned_by: str = "unknown",
-                  agent_tasks: str = "", deep_research: bool = False, deep_thinking: bool = False) -> str:
+                  agent_tasks: str = "", deep_research: bool = False, deep_thinking: bool = False,
+                  output_format: str = "") -> str:
     """Create and execute a multi-agent AI task. Kimi, DeepSeek, and GLM-5.1 work on it, then a synthesis is generated.
 
     Two modes:
@@ -2570,6 +3012,11 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
             Turn on for hard logic, multi-step deduction, mathematical proofs.
             ~3-5x slower per agent. Combinable with deep_research (very slow,
             but the highest-quality output the rizsrakéták can produce).
+        output_format: Empty for normal text response (default), or
+            "docx" / "xlsx" / "pptx". Each agent then writes its content
+            in a structured markdown the Bridge renders into a real Office
+            file, attached to the task results as a downloadable upload.
+            Per-agent file: each agent gets its own file_id.
     """
     # Pull in uploaded file content if file_id provided
     if file_id:
@@ -2613,6 +3060,9 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
             # Inject the strong temporal directive — Kimi otherwise overrides the
             # runtime date with its training cutoff, poisoning the dispatch output.
             system_prompt = (system_prompt or "") + _temporal_directive(model)
+            # Append output_format directive if requested
+            if output_format and output_format in OUTPUT_FORMAT_DIRECTIVES:
+                system_prompt += OUTPUT_FORMAT_DIRECTIVES[output_format]
 
             # K2.6 defaults thinking ON on SF — force OFF (latency unacceptable on dispatch path).
             # V4-Pro defaults thinking ON too — clamp to reasoning_effort=medium.
@@ -2732,6 +3182,12 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
                         (task_id, agent_id, "Pyramid dispatch", content, now())
                     )
                 conn2.commit()
+                # Per-agent file rendering when output_format requested
+                if output_format and output_format in OUTPUT_FORMAT_DIRECTIVES:
+                    for agent_id, result in results.items():
+                        c = result.get("response", "") if isinstance(result, dict) else str(result)
+                        if c and not c.startswith("ERROR:"):
+                            _maybe_render_output_file(task_id, agent_id, c, output_format, title)
 
                 # Synthesis — Kimi K2.6 combines per-agent outputs into a final brief.
                 # Each agent received a DIFFERENT prompt in dispatch mode, so the synthesis
@@ -2783,6 +3239,7 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
             loop.run_until_complete(_execute_ai_task(
                 task_id, title, description, context[:10000], assigned_by,
                 deep_research=deep_research, deep_thinking=deep_thinking,
+                output_format=output_format,
             ))
             loop.close()
         threading.Thread(target=_run, daemon=True).start()
@@ -2920,6 +3377,9 @@ async def api_ai_tasks(request):
         assigned_by = body.get("assigned_by", "kommandant")
         deep_research = bool(body.get("deep_research", False))
         deep_thinking = bool(body.get("deep_thinking", False))
+        output_format = (body.get("output_format") or "").strip().lower()
+        if output_format not in ("", "docx", "xlsx", "pptx"):
+            output_format = ""
 
         # Pull in uploaded file if file_id given
         if file_id:
@@ -2945,11 +3405,16 @@ async def api_ai_tasks(request):
             loop.run_until_complete(_execute_ai_task(
                 task_id, title, description, context[:10000], assigned_by,
                 deep_research=deep_research, deep_thinking=deep_thinking,
+                output_format=output_format,
             ))
             loop.close()
         threading.Thread(target=_run, daemon=True).start()
 
-        return JSONResponse({"status": "created", "task_id": task_id, "deep_research": deep_research, "deep_thinking": deep_thinking})
+        return JSONResponse({
+            "status": "created", "task_id": task_id,
+            "deep_research": deep_research, "deep_thinking": deep_thinking,
+            "output_format": output_format or None,
+        })
 
     conn = get_db()
     tasks = conn.execute("SELECT * FROM ai_tasks ORDER BY id DESC LIMIT 20").fetchall()

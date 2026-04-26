@@ -1323,6 +1323,15 @@ select {
               <input type="checkbox" id="aiDeepThinking">
               <span><strong>Deep thinking</strong> — reasoning ON (3-5× lassabb, jobb minőség)</span>
             </label>
+            <label style="display:flex;align-items:center;gap:0.4rem">
+              <span>Output formátum:</span>
+              <select id="aiOutputFormat" style="background:var(--bg-deep);color:var(--text-primary);border:1px solid var(--border-dim);padding:0.2rem 0.4rem;border-radius:4px;font-size:0.8rem">
+                <option value="">— szöveg —</option>
+                <option value="docx">📄 docx</option>
+                <option value="xlsx">📊 xlsx</option>
+                <option value="pptx">📽 pptx</option>
+              </select>
+            </label>
           </div>
           <div id="aiModeWarning" style="display:none;color:var(--gold);font-size:0.7rem;margin-top:0.3rem">
             ⚠ Mind a kettő bekapcsolva — a feladat akár 3-5 percig is futhat agentenként.
@@ -1808,13 +1817,24 @@ async function loadAiTasks() {
     const resultsHtml = (t.results || []).map(r => {
       const agentColor = r.agent === 'kimi' ? 'var(--electric)' : r.agent === 'deepseek' ? 'var(--phosphor)' : r.agent === 'glm5' ? 'var(--orange)' : 'var(--gold)';
       const icon = r.agent === 'kimi' ? '🌙' : r.agent === 'deepseek' ? '🔬' : r.agent === 'glm5' ? '🔧' : '⚡';
+      // Generated-file row: render a download button instead of raw "[FÁJL] file_id=..." text
+      const fileMatch = r.content && r.content.match(/\[FÁJL\] file_id=(\d+),\s*formátum=(\w+)/);
+      let body;
+      if (fileMatch) {
+        const fid = fileMatch[1];
+        const fmt = fileMatch[2];
+        const fmtIcon = fmt === 'docx' ? '📄' : fmt === 'xlsx' ? '📊' : fmt === 'pptx' ? '📽' : '📎';
+        body = `<a href="/api/uploads/${fid}/download" class="badge" style="background:${agentColor}22;color:${agentColor};border:1px solid ${agentColor}44;text-decoration:none;cursor:pointer;display:inline-block;padding:0.4rem 0.8rem;font-size:0.85rem" download>${fmtIcon} Letöltés (${fmt}) — file #${fid}</a>`;
+      } else {
+        body = `<div style="font-size:0.8rem; color:var(--text-primary); white-space:pre-wrap; line-height:1.5">${esc(r.content)}</div>`;
+      }
       return `
         <div style="margin:0.5rem 0; padding:0.75rem; background:var(--bg-deep); border-radius:6px; border-left:3px solid ${agentColor}">
           <div style="font-size:0.75rem; color:${agentColor}; font-weight:600; margin-bottom:0.4rem">
             ${icon} ${esc(r.agent.toUpperCase())} <span style="color:var(--text-muted);font-weight:400">${esc(r.role)}</span>
             <span style="float:right;color:var(--text-muted)">${relTime(r.timestamp)}</span>
           </div>
-          <div style="font-size:0.8rem; color:var(--text-primary); white-space:pre-wrap; line-height:1.5">${esc(r.content)}</div>
+          ${body}
         </div>`;
     }).join('');
 
@@ -1886,10 +1906,12 @@ async function createAiTask(e) {
 
   const deepResearch = document.getElementById('aiDeepResearch').checked;
   const deepThinking = document.getElementById('aiDeepThinking').checked;
+  const outputFormat = document.getElementById('aiOutputFormat').value;
 
   const payload = {
     title, context: ctx, file_id: fileId, assigned_by: by,
     deep_research: deepResearch, deep_thinking: deepThinking,
+    output_format: outputFormat,
   };
 
   if (mode === 'dispatch') {
