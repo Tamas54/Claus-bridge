@@ -2560,6 +2560,105 @@ async def _web_search(query: str) -> str:
     return output
 
 
+@mcp.tool()
+async def debug_web_search(query: str, caller: str = "") -> str:
+    """Diagnostic web_search probe — runs the same DDG (+ Brave fallback) flow as
+    the production agents but returns raw HTTP metrics in JSON instead of
+    pre-digested search results. Use to diagnose IP-blocks, rate-limits, or
+    regex failures without needing Railway runtime logs.
+
+    Returns a JSON object with:
+      - ddg.status, ddg.body_len, ddg.anomaly_signal, ddg.results_count
+      - ddg.first_titles, ddg.user_agent_used, ddg.headers_subset
+      - brave.attempted, brave.status, brave.results_count (if BRAVE_SEARCH_API_KEY set)
+      - elapsed_ms, query
+    """
+    denied = _enforce(caller, "debug_web_search")
+    if denied:
+        return denied
+    import httpx, re, urllib.parse, random, time
+
+    out = {
+        "query": query,
+        "ddg": {},
+        "brave": {"attempted": False},
+        "elapsed_ms": 0,
+    }
+    t0 = time.time()
+
+    # DDG attempt — same UA pool as production _web_search
+    ddg_results_count = 0
+    try:
+        ua = random.choice(DDG_USER_AGENTS)
+        async with httpx.AsyncClient(timeout=15, follow_redirects=True) as client:
+            resp = await client.get(
+                "https://html.duckduckgo.com/html/",
+                params={"q": query},
+                headers={"User-Agent": ua},
+            )
+        body = resp.text or ""
+        body_lower = body.lower()
+        anomaly = (
+            ("anomaly" in body_lower)
+            or ("captcha" in body_lower)
+            or ("rate limit" in body_lower)
+            or ("blocked" in body_lower and "duckduckgo" in body_lower)
+        )
+        links = re.findall(r'class="result__a"[^>]*href="([^"]+)"[^>]*>(.*?)</a>', body, re.DOTALL)
+        snippets = re.findall(r'class="result__snippet"[^>]*>(.*?)<', body, re.DOTALL)
+        ddg_results_count = len(links)
+        first_titles = []
+        for raw_url, title in links[:3]:
+            t_clean = re.sub(r'<[^>]+>', '', title).strip()
+            first_titles.append(t_clean[:120])
+        out["ddg"] = {
+            "status": resp.status_code,
+            "body_len": len(body),
+            "user_agent_used": ua[:80],
+            "anomaly_signal": anomaly,
+            "results_count": ddg_results_count,
+            "snippets_count": len(snippets),
+            "first_titles": first_titles,
+            "body_first_200": body[:200],
+            "headers_subset": {
+                "content-type": resp.headers.get("content-type", ""),
+                "server": resp.headers.get("server", ""),
+                "x-frame-options": resp.headers.get("x-frame-options", ""),
+            },
+        }
+    except Exception as e:
+        out["ddg"] = {"exception": f"{type(e).__name__}: {e}"}
+
+    # Brave fallback if DDG failed and key configured
+    brave_key = os.environ.get("BRAVE_SEARCH_API_KEY", "").strip()
+    if not brave_key:
+        out["brave"]["status_msg"] = "BRAVE_SEARCH_API_KEY not set; fallback disabled"
+    elif ddg_results_count > 0:
+        out["brave"]["status_msg"] = "DDG returned results; Brave not attempted"
+    else:
+        out["brave"]["attempted"] = True
+        try:
+            async with httpx.AsyncClient(timeout=15, follow_redirects=True) as client:
+                r = await client.get(
+                    "https://api.search.brave.com/res/v1/web/search",
+                    params={"q": query, "count": "8"},
+                    headers={"X-Subscription-Token": brave_key, "Accept": "application/json"},
+                )
+            out["brave"]["status"] = r.status_code
+            if r.status_code == 200:
+                d = r.json()
+                results = (d.get("web", {}).get("results") or [])[:8]
+                out["brave"]["results_count"] = len(results)
+                out["brave"]["first_titles"] = [it.get("title", "")[:120] for it in results[:3]]
+            else:
+                out["brave"]["error_body"] = (r.text or "")[:300]
+        except Exception as e:
+            out["brave"]["exception"] = f"{type(e).__name__}: {e}"
+
+    out["elapsed_ms"] = int((time.time() - t0) * 1000)
+    return json.dumps(out, ensure_ascii=False, indent=2)
+
+
 SYNTHESIS_NO_TOOLS_DIRECTIVE = (
     "\n\n## SZINTÉZIS-FÁZIS — TOOLOK TILTVA\n"
     "Ez a koordinátori szintézis, NEM kutatási kör. NE adj ki tool_call-t "
