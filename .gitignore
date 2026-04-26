@@ -3,3 +3,4 @@ os
 CLAUDE.md
 .env
 *.db
+devlog*.md
