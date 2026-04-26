@@ -29,9 +29,13 @@ try:
     from pyramid.context_builder import build_agent_context
     from pyramid.governance import store_result as pyramid_store_result
     from pyramid.agents import AGENT_REGISTRY as PYRAMID_AGENTS
+    from pyramid.agents import temporal_directive as _temporal_directive
     PYRAMID_ENABLED = True
 except ImportError:
     PYRAMID_ENABLED = False
+    def _temporal_directive(agent_name: str = "") -> str:
+        from datetime import datetime, timezone
+        return f"\nA mai dátum: {datetime.now(timezone.utc).strftime('%Y-%m-%d')}.\n"
 
 # Permission layer — multi-instance access control (YoungeReka etc.)
 from permissions import (
@@ -1668,6 +1672,7 @@ async def _ai_auto_discuss(discussion_id: int, topic: str, thread_so_far: str):
             extra = {"reasoning_effort": "medium"}
         else:
             extra = {}
+        agent_system = system + _temporal_directive(agent_name)
         for attempt in range(2):
             try:
                 async with httpx.AsyncClient(timeout=SILICONFLOW_TIMEOUT) as client:
@@ -1680,7 +1685,7 @@ async def _ai_auto_discuss(discussion_id: int, topic: str, thread_so_far: str):
                         json={
                             "model": model_id,
                             "messages": [
-                                {"role": "system", "content": system},
+                                {"role": "system", "content": agent_system},
                                 {"role": "user", "content": prompt},
                             ],
                             "temperature": 0.7,
@@ -1757,6 +1762,9 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
         profile = get_profile(caller)
         if profile and profile.persona_system_prompt:
             system_prompt += f"\n\n--- HÍVÓ FÉL ---\n{profile.persona_system_prompt}"
+
+    # Strong temporal directive — prevents Kimi/V4 from overriding runtime date.
+    system_prompt += _temporal_directive(model)
 
     messages = [{"role": "system", "content": system_prompt}]
     messages.append({"role": "user", "content": prompt})
@@ -2111,24 +2119,20 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
 
         for attempt in range(2):
             try:
-                today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+                temporal = _temporal_directive(agent_name)
                 # Pyramid context if available, otherwise fallback
                 if PYRAMID_ENABLED and agent_name in PYRAMID_AGENTS:
                     system = build_agent_context(
                         agent_id=agent_name,
-                        custom_system_prompt=(
-                            f"A mai dátum: {today}. "
-                            f"Ha aktuális információra van szükséged, használd a web_search tool-t."
-                        ),
+                        custom_system_prompt=temporal,
                         inbox_summary=_get_inbox_summary(),
                     )
                 else:
                     system = (
                         f"Te a Claus multi-agent rendszer '{agent_name}' al-agentje vagy. "
                         f"Szereped: {role_desc} "
-                        f"A mai dátum: {today}. "
-                        f"Magyarul válaszolj, lényegre törően de alaposan. "
-                        f"Ha aktuális információra van szükséged, használd a web_search tool-t."
+                        f"Magyarul válaszolj, lényegre törően de alaposan."
+                        + temporal
                     )
 
                 # Inject caller persona if available
@@ -2274,6 +2278,7 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
             "Te a koordinátor vagy. Az al-agentek elvégezték a feladatot. "
             "Készíts tömör szintézist az eredményeikből: mi az egyetértés, hol térnek el, és mi a végső ajánlás. "
             "Magyarul, strukturáltan."
+            + _temporal_directive("kimi")
         )
         messages = [
             {"role": "system", "content": system},
@@ -2351,6 +2356,9 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
             """Wrapper with web search — handles both JSON and text-based tool calls."""
             import httpx, re
             model_id = SILICONFLOW_MODELS.get(model, model)
+            # Inject the strong temporal directive — Kimi otherwise overrides the
+            # runtime date with its training cutoff, poisoning the dispatch output.
+            system_prompt = (system_prompt or "") + _temporal_directive(model)
 
             # K2.6 defaults thinking ON on SF — force OFF (latency unacceptable on dispatch path).
             # V4-Pro defaults thinking ON too — clamp to reasoning_effort=medium.
@@ -2462,6 +2470,7 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
                             "Készíts strukturált szintézist: 1) röviden mit fedett le mindegyik agent, 2) hol egészítik ki egymást, "
                             "3) hol mondanak ellent (ha igen), 4) végső konklúzió / ajánlás a Kommandantnak. "
                             "Magyarul, lényegre törően. Ne ismételd meg az agentek szövegét hosszan, csak hivatkozz rájuk."
+                            + _temporal_directive("kimi")
                         )},
                         {"role": "user", "content": f"FELADAT CÍME: {title}\n\nLEÍRÁS: {description}\n\nAGENT EREDMÉNYEK:\n{synthesis_input}"},
                     ]

@@ -281,6 +281,15 @@ def _build_system_prompt(ctx) -> str:
 
     parts = [base]
 
+    # Strong temporal directive — Feldwebel runs on DeepSeek by default; without
+    # this block V4-Pro and Kimi will silently override the date with their
+    # training cutoff and start treating 2026 as "future".
+    try:
+        from pyramid.agents import temporal_directive
+        parts.append(temporal_directive("deepseek"))
+    except ImportError:
+        pass
+
     # Add Pyramid context if available
     try:
         from pyramid.context_builder import build_agent_context
