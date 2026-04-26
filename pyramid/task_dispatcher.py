@@ -46,7 +46,8 @@ async def dispatch_parallel_tasks(
             store_result(
                 content=result["response"],
                 agent_id=agent_id,
-                task_title=task_title
+                task_title=task_title,
+                force_shared=True,
             )
 
         return agent_id, result

@@ -5,7 +5,11 @@ from pyramid.agents import (
     get_agent_personality
 )
 from pyramid.memory_shared import get_shared_memory_summary
-from pyramid.memory_rag import get_agent_rag_summary
+from pyramid.memory_rag import (
+    get_agent_rag_summary,
+    get_smart_rag_summary,
+    get_combined_rag_summary,
+)
 
 import json
 import logging
@@ -47,6 +51,8 @@ def build_agent_context(
     include_rag: bool = True,
     include_recipes: bool = True,
     inbox_summary: str = None,
+    relevance_query: str = "",
+    cross_agent_rag: bool = False,
 ) -> str:
     """
     Összeállítja egy agent TELJES system promptját.
@@ -56,11 +62,13 @@ def build_agent_context(
     2. Ki a Kommandant (a főnököd)
     3. Mi a Bridge + ki kicsoda a csapatban
     4. Shared Memory (közös tudás)
-    5. Egyéni RAG (saját korábbi munkák)
-    6. Inbox — friss emailek és naptár események (ha van)
-    7. Custom system prompt (ha van felülírás)
-    8. Elérhető recipe-k (workflow template-ek)
-    9. Viselkedési szabályok
+    5. Egyéni RAG (saját korábbi munkák) — ha relevance_query, akkor smart sort
+    6. Cross-agent RAG (Kimi + DeepSeek + GLM5) — ha cross_agent_rag=True
+       (orchestrátoroknak: Feldwebel)
+    7. Inbox — friss emailek és naptár események (ha van)
+    8. Custom system prompt (ha van felülírás)
+    9. Elérhető recipe-k (workflow template-ek)
+    10. Viselkedési szabályok
     """
 
     sections = []
@@ -77,15 +85,21 @@ def build_agent_context(
 
     # 4. Shared Memory
     if include_shared_memory:
-        shared = get_shared_memory_summary(max_items=15)
+        shared = get_shared_memory_summary(max_items=20)
         if shared:
             sections.append(shared)
 
-    # 5. Egyéni RAG
+    # 5. Egyéni RAG (smart, ha van query)
     if include_rag:
-        rag = get_agent_rag_summary(agent_id, max_items=10)
+        rag = get_smart_rag_summary(agent_id, query=relevance_query, max_items=25)
         if rag:
             sections.append(rag)
+
+    # 6. Cross-agent RAG — orchestrátoroknak
+    if cross_agent_rag:
+        combined = get_combined_rag_summary(max_per_agent=12, query=relevance_query)
+        if combined:
+            sections.append(combined)
 
     # 6. Inbox (email + calendar)
     if inbox_summary:

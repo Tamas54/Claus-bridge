@@ -271,8 +271,13 @@ Szabályok:
 - Email küldés SOHA nem automatikus — mindig kérj megerősítést"""
 
 
-def _build_system_prompt(ctx) -> str:
-    """Build system prompt with current date + Pyramid context."""
+def _build_system_prompt(ctx, query: str = "") -> str:
+    """Build system prompt with current date + Pyramid context.
+
+    `query` is the latest user message — used to score RAG entries by
+    relevance so the system prompt surfaces past tasks related to what
+    the Kommandant just asked rather than only the chronologically latest.
+    """
     now = datetime.now(timezone.utc)
     base = SYSTEM_PROMPT_TEMPLATE.format(
         date_str=now.strftime("%Y.%m.%d"),
@@ -290,12 +295,16 @@ def _build_system_prompt(ctx) -> str:
     except ImportError:
         pass
 
-    # Add Pyramid context if available
+    # Pyramid context: cross_agent_rag=True so Feldwebel sees what ALL three
+    # rizsrakéták (Kimi/DeepSeek/GLM5) have worked on, not just DeepSeek's
+    # own slice. relevance_query lets RAG sort by what the user just asked.
     try:
         from pyramid.context_builder import build_agent_context
         pyramid_ctx = build_agent_context(
             agent_id="deepseek",
             inbox_summary="",  # Tools handle email access now
+            relevance_query=query,
+            cross_agent_rag=True,
         )
         parts.append(pyramid_ctx)
     except (ImportError, Exception) as e:
@@ -324,7 +333,7 @@ async def respond(text: str, chat_id: str, agent_id: str = "deepseek") -> str:
     add_message(chat_id, "user", text)
 
     # Build messages
-    system_prompt = _build_system_prompt(ctx)
+    system_prompt = _build_system_prompt(ctx, query=text)
     history = get_history(chat_id, limit=8)
     messages = [{"role": "system", "content": system_prompt}]
     for msg in history:

@@ -1409,7 +1409,7 @@ def _trigger_agent_replies(original_msg_id: int, sender: str, message: str, agen
 
     async def _reply(agent_id):
         try:
-            system_prompt = build_agent_context(agent_id=agent_id, inbox_summary=_get_inbox_summary()) if PYRAMID_ENABLED else ""
+            system_prompt = build_agent_context(agent_id=agent_id, inbox_summary=_get_inbox_summary(), relevance_query=message) if PYRAMID_ENABLED else ""
             model_id = SILICONFLOW_MODELS.get(agent_id, agent_id)
             async with httpx.AsyncClient(timeout=SILICONFLOW_TIMEOUT) as client:
                 resp = await client.post(
@@ -1434,7 +1434,7 @@ def _trigger_agent_replies(original_msg_id: int, sender: str, message: str, agen
             # Pyramid governance
             if PYRAMID_ENABLED:
                 try:
-                    pyramid_store_result(content=content, agent_id=agent_id, task_title=f"mention:{message[:60]}")
+                    pyramid_store_result(content=content, agent_id=agent_id, task_title=f"mention:{message[:60]}", force_shared=True)
                 except Exception:
                     pass
             logger.info("Agent %s replied to message #%d", agent_id, original_msg_id)
@@ -1749,7 +1749,7 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
 
     # Pyramid context: if agent is known and no custom system_prompt, use full Pyramid context
     if PYRAMID_ENABLED and model in PYRAMID_AGENTS and not system_prompt:
-        system_prompt = build_agent_context(agent_id=model, inbox_summary=_get_inbox_summary())
+        system_prompt = build_agent_context(agent_id=model, inbox_summary=_get_inbox_summary(), relevance_query=prompt)
     elif not system_prompt:
         system_prompt = (
             "Te a Claus multi-agent rendszer al-agentje vagy. "
@@ -1815,7 +1815,7 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
         # Pyramid governance: store result in RAG / shared memory
         if PYRAMID_ENABLED and model in PYRAMID_AGENTS and content:
             try:
-                pyramid_store_result(content=content, agent_id=model, task_title=f"ai_query:{prompt[:80]}")
+                pyramid_store_result(content=content, agent_id=model, task_title=f"ai_query:{prompt[:80]}", force_shared=True)
             except Exception as eg:
                 logger.warning("Pyramid governance error: %s", eg)
 
@@ -2126,6 +2126,7 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
                         agent_id=agent_name,
                         custom_system_prompt=temporal,
                         inbox_summary=_get_inbox_summary(),
+                        relevance_query=task_prompt,
                     )
                 else:
                     system = (
@@ -2235,7 +2236,7 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
                 # Pyramid governance: store in RAG / shared memory
                 if PYRAMID_ENABLED and agent_name in PYRAMID_AGENTS and content:
                     try:
-                        pyramid_store_result(content=content, agent_id=agent_name, task_title=title)
+                        pyramid_store_result(content=content, agent_id=agent_name, task_title=title, force_shared=True)
                     except Exception:
                         pass
                 logger.info("AI task #%d: %s done (%d chars)", task_id, agent_name, len(content or ""))
@@ -3714,7 +3715,7 @@ async def _handle_telegram_message(text: str, chat_id: str):
         from html import escape as html_escape
         for agent_id in mentioned:
             try:
-                system_prompt = build_agent_context(agent_id=agent_id, inbox_summary=_get_inbox_summary())
+                system_prompt = build_agent_context(agent_id=agent_id, inbox_summary=_get_inbox_summary(), relevance_query=text)
                 model_id = SILICONFLOW_MODELS.get(agent_id, agent_id)
                 async with httpx.AsyncClient(timeout=SILICONFLOW_TIMEOUT) as client:
                     resp = await client.post(
@@ -3750,7 +3751,7 @@ async def _handle_telegram_message(text: str, chat_id: str):
 
                 if PYRAMID_ENABLED:
                     try:
-                        pyramid_store_result(content=content, agent_id=agent_id, task_title=f"telegram:{text[:60]}")
+                        pyramid_store_result(content=content, agent_id=agent_id, task_title=f"telegram:{text[:60]}", force_shared=True)
                     except Exception:
                         pass
 

@@ -26,22 +26,27 @@ def classify_result(content: str, agent_id: str, task_title: str) -> str:
     return "rag"
 
 
-def store_result(content: str, agent_id: str, task_title: str, category: str = "result") -> str:
+def store_result(content: str, agent_id: str, task_title: str, category: str = "result", force_shared: bool = False) -> str:
     """
     Az eredményt a governance alapján eltárolja.
     Visszaadja a klasszifikációt ("rag" vagy "both").
+
+    force_shared: ha True, a content keyword-illesztés nélkül is shared memory-ba
+    kerül. Ezt a Bridge ai_task / ai_query path-jai használják, hogy a 3 rizsrakéta
+    eredménye együttesen elérhető legyen mindenki számára (cross-agent context).
     """
     classification = classify_result(content, agent_id, task_title)
+    is_shared = (classification == "both") or force_shared
 
     # Mindig megy a saját RAG-ba
     add_to_agent_rag(agent_id, content, task_title, category)
 
-    # Ha shared is kell
-    if classification == "both":
+    if is_shared:
+        # Title elé szúrva, hogy keresésnél azonnal beazonosítható legyen.
         add_to_shared_memory(
-            content=content[:2000],
+            content=f"[{task_title}] {content[:1900]}",
             category=category,
             added_by=agent_id
         )
 
-    return classification
+    return "both" if is_shared else classification

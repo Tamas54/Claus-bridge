@@ -90,7 +90,8 @@ def search_agent_rag(agent_id: str, query: str, max_results: int = 5) -> List[di
     return [entry for _, entry in scored[:max_results]]
 
 
-def get_agent_rag_summary(agent_id: str, max_items: int = 10) -> str:
+def get_agent_rag_summary(agent_id: str, max_items: int = 25) -> str:
+    """Recency-first RAG summary for a single agent."""
     conn = _get_db()
     rows = conn.execute(
         "SELECT * FROM pyramid_agent_rag WHERE agent_id = ? ORDER BY timestamp DESC LIMIT ?",
@@ -104,6 +105,73 @@ def get_agent_rag_summary(agent_id: str, max_items: int = 10) -> str:
     for r in rows:
         lines.append(f"- [{r['task_title']}] {r['content'][:200]}...")
     return "\n".join(lines)
+
+
+def get_smart_rag_summary(agent_id: str, query: str = "", max_items: int = 25) -> str:
+    """Hybrid RAG: query-relevant hits first, then recency fill.
+
+    If query is empty, equivalent to get_agent_rag_summary. With a query,
+    the most relevant N entries (by keyword match) come first, then the
+    remaining slots are filled with the latest entries that weren't
+    already included. Useful when the agent has hundreds of past entries
+    and only a small subset is relevant to the current task.
+    """
+    if not query or not query.strip():
+        return get_agent_rag_summary(agent_id, max_items=max_items)
+
+    relevant = search_agent_rag(agent_id, query, max_results=min(15, max_items))
+    seen_ids = {r["id"] for r in relevant}
+
+    conn = _get_db()
+    rows = conn.execute(
+        "SELECT * FROM pyramid_agent_rag WHERE agent_id = ? ORDER BY timestamp DESC LIMIT ?",
+        (agent_id, max_items * 2)
+    ).fetchall()
+    conn.close()
+    recent = [
+        {"id": r["entry_id"], "task_title": r["task_title"],
+         "category": r["category"], "content": r["content"], "timestamp": r["timestamp"]}
+        for r in rows if r["entry_id"] not in seen_ids
+    ]
+
+    combined = (relevant + recent)[:max_items]
+    if not combined:
+        return ""
+
+    lines = [f"## Saját korábbi munkáid ({agent_id} RAG, relevancia + frissesség sorrendben)"]
+    for r in combined:
+        lines.append(f"- [{r['task_title']}] {r['content'][:200]}...")
+    return "\n".join(lines)
+
+
+def get_combined_rag_summary(max_per_agent: int = 12, query: str = "") -> str:
+    """Multi-agent RAG view — Kimi + DeepSeek + GLM5 history in one block.
+
+    Used by orchestrators (Feldwebel, future cross-agent dashboards) so that
+    a single instance can see what the entire rizsrakéta flotta has worked
+    on without importing each agent's view separately.
+    """
+    sections = []
+    for agent in ("kimi", "deepseek", "glm5"):
+        if query and query.strip():
+            relevant = search_agent_rag(agent, query, max_results=min(8, max_per_agent))
+            seen = {r["id"] for r in relevant}
+            recent_rows = load_agent_rag(agent)
+            tail = [r for r in recent_rows if r["id"] not in seen][:max_per_agent - len(relevant)]
+            entries = relevant + tail
+        else:
+            entries = load_agent_rag(agent)[:max_per_agent]
+        if not entries:
+            continue
+        agent_block = [f"### {agent.upper()} korábbi munkái:"]
+        for r in entries:
+            agent_block.append(f"- [{r['task_title']}] {r['content'][:200]}...")
+        sections.append("\n".join(agent_block))
+
+    if not sections:
+        return ""
+    header = "## RIZSRAKÉTA RAG — közös al-agent munkanapló (Kimi + DeepSeek + GLM5)"
+    return header + "\n\n" + "\n\n".join(sections)
 
 
 def cleanup_agent_rag(agent_id: str, max_entries: int = 200):
