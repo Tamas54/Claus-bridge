@@ -424,6 +424,12 @@ async def _call_deepseek(ctx, model_id: str, messages: list, use_tools: bool = T
             "temperature": 0.7,
             "max_tokens": 2000,
         }
+        # K2.6 + V4-Pro default thinking ON on SF — clamp so the agent loop
+        # gets actual `content` (not just `reasoning_content`).
+        if "Kimi" in model_id:
+            payload["thinking"] = {"type": "disabled"}
+        elif "DeepSeek" in model_id:
+            payload["reasoning_effort"] = "medium"
         if use_tools:
             payload["tools"] = TOOLS
             if force_tool:
@@ -917,19 +923,22 @@ async def _execute_tool(name: str, args: dict, ctx) -> str:
             sf_models = ctx.siliconflow_models
             model_id = sf_models.get("kimi", "moonshotai/Kimi-K2.6")
             data_url = f"data:{row['mime_type']};base64,{row['content_base64']}"
+            vision_payload = {
+                "model": model_id,
+                "messages": [{"role": "user", "content": [
+                    {"type": "image_url", "image_url": {"url": data_url}},
+                    {"type": "text", "text": prompt},
+                ]}],
+                "temperature": 0.5,
+                "max_tokens": 2000,
+            }
+            if "Kimi" in model_id:
+                vision_payload["thinking"] = {"type": "disabled"}
             async with httpx.AsyncClient(timeout=60) as client:
                 resp = await client.post(
                     f"{sf_base}/chat/completions",
                     headers={"Authorization": f"Bearer {sf_key}", "Content-Type": "application/json"},
-                    json={
-                        "model": model_id,
-                        "messages": [{"role": "user", "content": [
-                            {"type": "image_url", "image_url": {"url": data_url}},
-                            {"type": "text", "text": prompt},
-                        ]}],
-                        "temperature": 0.5,
-                        "max_tokens": 2000,
-                    },
+                    json=vision_payload,
                 )
             data = json.loads(resp.text)
             analysis = data.get("choices", [{}])[0].get("message", {}).get("content", "(ures valasz)")

@@ -178,6 +178,20 @@ async def _deepseek_format(ctx, raw: str, date_str: str) -> str:
             f"Zárd ezzel: 'Jó reggelt, Kommandant! ☕'\n\n{raw}"
         )
 
+        payload = {
+            "model": model_id,
+            "messages": [
+                {"role": "system", "content": "Te egy briefing formázó vagy. Csak a formázott briefinget add vissza, semmi mást."},
+                {"role": "user", "content": prompt},
+            ],
+            "temperature": 0.3,
+            "max_tokens": 800,
+        }
+        if "Kimi" in model_id:
+            payload["thinking"] = {"type": "disabled"}
+        elif "DeepSeek" in model_id:
+            payload["reasoning_effort"] = "medium"
+
         async with httpx.AsyncClient(timeout=30) as client:
             resp = await client.post(
                 f"{ctx.siliconflow_base_url}/chat/completions",
@@ -185,15 +199,7 @@ async def _deepseek_format(ctx, raw: str, date_str: str) -> str:
                     "Authorization": f"Bearer {ctx.siliconflow_api_key}",
                     "Content-Type": "application/json",
                 },
-                json={
-                    "model": model_id,
-                    "messages": [
-                        {"role": "system", "content": "Te egy briefing formázó vagy. Csak a formázott briefinget add vissza, semmi mást."},
-                        {"role": "user", "content": prompt},
-                    ],
-                    "temperature": 0.3,
-                    "max_tokens": 800,
-                },
+                json=payload,
             )
             data = json.loads(resp.text)
 

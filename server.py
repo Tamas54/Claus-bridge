@@ -2444,6 +2444,40 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
                         "INSERT INTO ai_task_results (task_id, agent, role, content, timestamp) VALUES (?, ?, ?, ?, ?)",
                         (task_id, agent_id, "Pyramid dispatch", content, now())
                     )
+                conn2.commit()
+
+                # Synthesis — Kimi K2.6 combines per-agent outputs into a final brief.
+                # Each agent received a DIFFERENT prompt in dispatch mode, so the synthesis
+                # has to acknowledge the divergent fókuszok, not pretend agreement.
+                try:
+                    parts = []
+                    for agent_id, result in results.items():
+                        agent_prompt = parsed_agent_tasks.get(agent_id, {}).get("prompt", "")
+                        agent_resp = result.get("response", "") if isinstance(result, dict) else str(result)
+                        parts.append(f"=== [{agent_id}] FELADAT ===\n{agent_prompt}\n\n=== [{agent_id}] EREDMÉNY ===\n{agent_resp}")
+                    synthesis_input = "\n\n---\n\n".join(parts)
+                    synthesis_messages = [
+                        {"role": "system", "content": (
+                            "Te a koordinátor vagy. Az al-agentek ELTÉRŐ feladatokat kaptak, mindegyik a saját fókuszával dolgozott. "
+                            "Készíts strukturált szintézist: 1) röviden mit fedett le mindegyik agent, 2) hol egészítik ki egymást, "
+                            "3) hol mondanak ellent (ha igen), 4) végső konklúzió / ajánlás a Kommandantnak. "
+                            "Magyarul, lényegre törően. Ne ismételd meg az agentek szövegét hosszan, csak hivatkozz rájuk."
+                        )},
+                        {"role": "user", "content": f"FELADAT CÍME: {title}\n\nLEÍRÁS: {description}\n\nAGENT EREDMÉNYEK:\n{synthesis_input}"},
+                    ]
+                    synthesis = loop.run_until_complete(
+                        _run_agent_with_tools("moonshotai/Kimi-K2.6", synthesis_messages, max_rounds=2)
+                    )
+                    if synthesis and synthesis.strip():
+                        conn2.execute(
+                            "INSERT INTO ai_task_results (task_id, agent, role, content, timestamp) VALUES (?, ?, ?, ?, ?)",
+                            (task_id, "szintézis", "Koordinátori összefoglaló", synthesis, now())
+                        )
+                        conn2.commit()
+                        logger.info("AI task #%d synthesis written (%d chars)", task_id, len(synthesis))
+                except Exception as syn_e:
+                    logger.error("AI task #%d dispatch synthesis failed: %s", task_id, syn_e)
+
                 conn2.execute("UPDATE ai_tasks SET status = 'completed', completed_at = ? WHERE id = ?", (now(), task_id))
                 conn2.commit()
                 conn2.close()

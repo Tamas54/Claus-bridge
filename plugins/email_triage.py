@@ -68,20 +68,26 @@ def register_tools(app, deps):
 
         model_id = sf_models.get("deepseek", "deepseek-ai/DeepSeek-V4-Pro")
 
+        payload = {
+            "model": model_id,
+            "messages": [
+                {"role": "system", "content": "Te egy email triage rendszer vagy. KIZAROLAG valid JSON-t valaszolj, semmi mast."},
+                {"role": "user", "content": prompt},
+            ],
+            "temperature": 0.2,
+            "max_tokens": 400,
+        }
+        if "Kimi" in model_id:
+            payload["thinking"] = {"type": "disabled"}
+        elif "DeepSeek" in model_id:
+            payload["reasoning_effort"] = "medium"
+
         try:
             async with httpx.AsyncClient(timeout=30) as client:
                 resp = await client.post(
                     f"{sf_base}/chat/completions",
                     headers={"Authorization": f"Bearer {sf_key}", "Content-Type": "application/json"},
-                    json={
-                        "model": model_id,
-                        "messages": [
-                            {"role": "system", "content": "Te egy email triage rendszer vagy. KIZAROLAG valid JSON-t valaszolj, semmi mast."},
-                            {"role": "user", "content": prompt},
-                        ],
-                        "temperature": 0.2,
-                        "max_tokens": 400,
-                    },
+                    json=payload,
                 )
                 data = json.loads(resp.text)
 
