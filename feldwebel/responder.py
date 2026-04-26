@@ -340,6 +340,13 @@ async def respond(text: str, chat_id: str, agent_id: str = "deepseek") -> str:
         finish_reason = choice.get("finish_reason", "")
 
         content = msg.get("content", "") or ""
+        # Safety net: if a thinking-mode SF response delivered the actual
+        # answer in reasoning_content with empty content, fall back to it
+        # rather than treating the whole round as empty.
+        if not content.strip():
+            reasoning = msg.get("reasoning_content", "") or ""
+            if reasoning.strip():
+                content = reasoning
         tool_calls = msg.get("tool_calls")
 
         # Case A: Proper JSON tool_calls
@@ -424,12 +431,13 @@ async def _call_deepseek(ctx, model_id: str, messages: list, use_tools: bool = T
             "temperature": 0.7,
             "max_tokens": 2000,
         }
-        # K2.6 + V4-Pro default thinking ON on SF — clamp so the agent loop
-        # gets actual `content` (not just `reasoning_content`).
-        if "Kimi" in model_id:
+        # K2.6 + V4-Pro default thinking ON on SF — clamp HARD in the agent loop.
+        # reasoning_effort=medium proved insufficient for V4-Pro: with
+        # tool_choice="required" on round 0 the model reasoned but never committed
+        # to content OR a tool call (5 empty rounds). The agent loop is purely
+        # tool-driven, so thinking buys nothing here — disable it for both.
+        if "Kimi" in model_id or "DeepSeek" in model_id:
             payload["thinking"] = {"type": "disabled"}
-        elif "DeepSeek" in model_id:
-            payload["reasoning_effort"] = "medium"
         if use_tools:
             payload["tools"] = TOOLS
             if force_tool:
