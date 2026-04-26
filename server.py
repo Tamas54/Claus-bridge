@@ -2918,6 +2918,8 @@ async def api_ai_tasks(request):
         context = body.get("context", "")
         file_id = body.get("file_id", 0)
         assigned_by = body.get("assigned_by", "kommandant")
+        deep_research = bool(body.get("deep_research", False))
+        deep_thinking = bool(body.get("deep_thinking", False))
 
         # Pull in uploaded file if file_id given
         if file_id:
@@ -2940,11 +2942,14 @@ async def api_ai_tasks(request):
         # Execute in background
         def _run():
             loop = asyncio.new_event_loop()
-            loop.run_until_complete(_execute_ai_task(task_id, title, description, context[:10000], assigned_by))
+            loop.run_until_complete(_execute_ai_task(
+                task_id, title, description, context[:10000], assigned_by,
+                deep_research=deep_research, deep_thinking=deep_thinking,
+            ))
             loop.close()
         threading.Thread(target=_run, daemon=True).start()
 
-        return JSONResponse({"status": "created", "task_id": task_id})
+        return JSONResponse({"status": "created", "task_id": task_id, "deep_research": deep_research, "deep_thinking": deep_thinking})
 
     conn = get_db()
     tasks = conn.execute("SELECT * FROM ai_tasks ORDER BY id DESC LIMIT 20").fetchall()

@@ -1310,6 +1310,26 @@ select {
           <input type="file" id="aiTaskFile" accept=".docx,.pdf,.txt,.md,.csv,.png,.jpg,.jpeg,.gif,.webp" style="font-size:0.8rem">
         </div>
       </div>
+
+      <div class="form-row" style="border-top:1px dashed var(--border-dim);padding-top:0.6rem;margin-top:0.3rem">
+        <div class="form-group full">
+          <label class="form-label" style="color:var(--text-muted);font-size:0.75rem">SPECIÁLIS MÓDOK</label>
+          <div style="display:flex;gap:1.5rem;flex-wrap:wrap;align-items:center;font-size:0.85rem">
+            <label style="display:flex;align-items:center;gap:0.4rem;cursor:pointer">
+              <input type="checkbox" id="aiDeepResearch">
+              <span><strong>Deep research</strong> — multi-round web search hivatkozott szintézissel</span>
+            </label>
+            <label style="display:flex;align-items:center;gap:0.4rem;cursor:pointer">
+              <input type="checkbox" id="aiDeepThinking">
+              <span><strong>Deep thinking</strong> — reasoning ON (3-5× lassabb, jobb minőség)</span>
+            </label>
+          </div>
+          <div id="aiModeWarning" style="display:none;color:var(--gold);font-size:0.7rem;margin-top:0.3rem">
+            ⚠ Mind a kettő bekapcsolva — a feladat akár 3-5 percig is futhat agentenként.
+          </div>
+        </div>
+      </div>
+
       <div style="display:flex;justify-content:flex-end">
         <button type="submit" class="btn btn-gold">AGENTEK INDÍTÁSA</button>
       </div>
@@ -1821,6 +1841,20 @@ function toggleAiMode() {
   document.getElementById('dispatchFields').style.display = mode === 'dispatch' ? 'block' : 'none';
 }
 
+function updateAiModeWarning() {
+  const dr = document.getElementById('aiDeepResearch').checked;
+  const dt = document.getElementById('aiDeepThinking').checked;
+  document.getElementById('aiModeWarning').style.display = (dr && dt) ? 'block' : 'none';
+}
+document.addEventListener('DOMContentLoaded', () => {
+  const dr = document.getElementById('aiDeepResearch');
+  const dt = document.getElementById('aiDeepThinking');
+  if (dr && dt) {
+    dr.addEventListener('change', updateAiModeWarning);
+    dt.addEventListener('change', updateAiModeWarning);
+  }
+});
+
 async function createAiTask(e) {
   e.preventDefault();
   const title = document.getElementById('aiTaskTitle').value;
@@ -1850,7 +1884,13 @@ async function createAiTask(e) {
     }
   }
 
-  const payload = { title, context: ctx, file_id: fileId, assigned_by: by };
+  const deepResearch = document.getElementById('aiDeepResearch').checked;
+  const deepThinking = document.getElementById('aiDeepThinking').checked;
+
+  const payload = {
+    title, context: ctx, file_id: fileId, assigned_by: by,
+    deep_research: deepResearch, deep_thinking: deepThinking,
+  };
 
   if (mode === 'dispatch') {
     // Dispatch mode — per-agent tasks
