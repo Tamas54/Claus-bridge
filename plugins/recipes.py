@@ -32,7 +32,9 @@ CREATE TABLE IF NOT EXISTS pyramid_recipes (
     cron_model TEXT DEFAULT 'glm5',
     cron_enabled BOOLEAN DEFAULT 0,
     cron_delivery TEXT DEFAULT 'both',
-    cron_last_run TIMESTAMP DEFAULT NULL
+    cron_last_run TIMESTAMP DEFAULT NULL,
+    cron_deep_research INTEGER DEFAULT 0,
+    cron_deep_thinking INTEGER DEFAULT 0
 );
 """
 
@@ -42,6 +44,8 @@ ALTER TABLE pyramid_recipes ADD COLUMN cron_model TEXT DEFAULT 'glm5';
 ALTER TABLE pyramid_recipes ADD COLUMN cron_enabled BOOLEAN DEFAULT 0;
 ALTER TABLE pyramid_recipes ADD COLUMN cron_delivery TEXT DEFAULT 'both';
 ALTER TABLE pyramid_recipes ADD COLUMN cron_last_run TIMESTAMP DEFAULT NULL;
+ALTER TABLE pyramid_recipes ADD COLUMN cron_deep_research INTEGER DEFAULT 0;
+ALTER TABLE pyramid_recipes ADD COLUMN cron_deep_thinking INTEGER DEFAULT 0;
 """
 
 
@@ -207,7 +211,8 @@ def register_tools(app, deps):
 
     @app.tool()
     async def execute_recipe(name: str, context: str = "", model: str = "deepseek",
-                             caller: str = "unknown") -> str:
+                             caller: str = "unknown",
+                             deep_research: bool = False, deep_thinking: bool = False) -> str:
         """Execute a recipe via ai_task — results appear on the dashboard, web search enabled.
 
         Single-agent (default): model='kimi', 'deepseek', or 'glm5' — fast, one agent works.
@@ -218,6 +223,10 @@ def register_tools(app, deps):
             context: Optional extra context to append to the prompt
             model: 'kimi', 'deepseek', 'glm5' for single agent, or 'all' for multi-agent broadcast
             caller: Who triggered the execution
+            deep_research: Multi-round web_search loop with `[forrás N]` citations + URL list.
+                Use for press review / fact-checking. ~3-5x slower per agent.
+            deep_thinking: Enable explicit reasoning (Kimi thinking, V4-Pro effort=high).
+                Combinable with deep_research (very slow, very thorough).
         """
         conn = get_db()
         row = conn.execute(
@@ -289,6 +298,8 @@ def register_tools(app, deps):
                     title=f"Recipe: {name} (multi-agent)",
                     description=prompt,
                     assigned_by=caller or "recipe-system",
+                    deep_research=deep_research,
+                    deep_thinking=deep_thinking,
                 )
             else:
                 # DISPATCH: single agent
@@ -299,6 +310,8 @@ def register_tools(app, deps):
                     description=prompt,
                     assigned_by=caller or "recipe-system",
                     agent_tasks=agent_tasks,
+                    deep_research=deep_research,
+                    deep_thinking=deep_thinking,
                 )
 
             result = json.loads(result_json)

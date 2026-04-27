@@ -1640,6 +1640,11 @@ SILICONFLOW_MODELS = {
     "glm5": "zai-org/GLM-5.1",
 }
 
+# Egyetlen designált research-agent broadcast módban — `deep_research=True`
+# esetén csak ez fut multi-round web_search-loopban, a másik kettő normál
+# 1-shot _web_search-csel dolgozik. Ezzel elkerüljük a 3x-os DDG burst-ot.
+BROADCAST_RESEARCH_AGENT = "deepseek"
+
 # Auto-discussion: sub-agents join discussions automatically
 AI_DISCUSSION_ENABLED = os.environ.get("AI_DISCUSSION_ENABLED", "true").lower() == "true"
 
@@ -2992,8 +2997,15 @@ async def _deep_research_loop(
     return fallback
 
 
-async def _run_agent_with_tools(model_id: str, messages: list, max_rounds: int = 4) -> str:
-    """Run an AI agent with optional tool calls (web_search). Returns final text."""
+async def _run_agent_with_tools(model_id: str, messages: list, max_rounds: int = 4,
+                                max_tokens: int = 8000) -> str:
+    """Run an AI agent with optional tool calls (web_search). Returns final text.
+
+    Used primarily for the koordinátori synthesis after dispatch / broadcast.
+    Default max_tokens=8000 (was 2000) — synthesis-truncation caused empty /
+    reasoning-only outputs when 3 agents × 16-20k token results had to be
+    condensed.
+    """
     import httpx
     for round_num in range(max_rounds):
         # Last round: no tools, force text response
@@ -3002,7 +3014,7 @@ async def _run_agent_with_tools(model_id: str, messages: list, max_rounds: int =
             "model": model_id,
             "messages": messages,
             "temperature": 0.6,
-            "max_tokens": 2000,
+            "max_tokens": max_tokens,
         }
         # Only synthesis call path — model_id is always K2.6 here. Force thinking OFF.
         if "Kimi" in model_id:
@@ -3046,8 +3058,23 @@ async def _run_agent_with_tools(model_id: str, messages: list, max_rounds: int =
                 messages.append({"role": "user", "content": f"Web keresési eredmények:\n{search_results}\n\nVálaszolj az eredmények alapján."})
                 continue  # Next round will generate text response
 
-        # If no tool calls at all, return the text
+        # If no tool calls at all, return the text. Fall back to
+        # reasoning_content if Kimi/V4-Pro emitted only thinking and no
+        # final answer (happens when finish_reason=length on synthesis).
         if not tool_calls:
+            if not content.strip():
+                rc = msg.get("reasoning_content", "") or ""
+                fr = choice.get("finish_reason", "")
+                if rc.strip():
+                    logger.warning(
+                        "Synthesis empty content, using reasoning_content fallback (finish_reason=%s, %d chars)",
+                        fr, len(rc),
+                    )
+                    return rc
+                logger.error(
+                    "Synthesis returned empty content + empty reasoning (finish_reason=%s)",
+                    fr,
+                )
             return content
 
         # Execute JSON tool calls
@@ -3149,9 +3176,11 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
                     else:
                         agent_extra = {}
 
-                # Deep research path: hand off to the multi-round loop and skip the
-                # legacy 3-step (single search + retry) flow entirely.
-                if deep_research:
+                # Deep research path — broadcast módban is csak EGY designált
+                # research-agent (DeepSeek V4-Pro) fut multi-round loopban,
+                # a többi normál 1-shot _web_search-csel dolgozik. Ez egyezik
+                # a dispatch-mód policy-jával: nem 3x tölteni a DDG-t.
+                if deep_research and agent_name == BROADCAST_RESEARCH_AGENT:
                     research_system = system + DEEP_RESEARCH_DIRECTIVE
                     content = await _deep_research_loop(
                         model_id=model_id,
@@ -3304,10 +3333,20 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
             "SELECT agent, content FROM ai_task_results WHERE task_id = ? ORDER BY id", (task_id,)
         ).fetchall()
         parts = "\n\n".join(f"[{r['agent']}]:\n{r['content']}" for r in results)
+        research_note = ""
+        if deep_research:
+            research_note = (
+                f"\n\nFONTOS — RESEARCH-AGENT MEGJELÖLÉS: a `{BROADCAST_RESEARCH_AGENT}` "
+                "agent **deep_research módban** dolgozott, multi-round web_search-csel "
+                "és kötelező `[forrás N]` citation-okkal — az ő tényállításait OKVETLENÜL "
+                "idézd a forrás-hivatkozásával. A többi agent normál 1-shot keresést "
+                "csapott; tényütközés esetén a deep_research agent forrásait preferáld."
+            )
         system = (
             "Te a koordinátor vagy. Az al-agentek elvégezték a feladatot. "
             "Készíts tömör szintézist az eredményeikből: mi az egyetértés, hol térnek el, és mi a végső ajánlás. "
             "Magyarul, strukturáltan."
+            + research_note
             + _temporal_directive("kimi")
             + SYNTHESIS_NO_TOOLS_DIRECTIVE
         )
@@ -3400,6 +3439,35 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
         # DISPATCH MODE: each agent gets a different task
         from pyramid.task_dispatcher import dispatch_parallel_tasks
 
+        # Per-agent deep_research scoping. A globális deep_research=True NEM
+        # jelenti azt, hogy mind a 3 agent multi-round loopot futtat — az 3x
+        # túlterhelné a DDG-t (12 web_search kör), és visszahozná a 6-os csomag
+        # által megspórolt burst-throttlert. Default: csak EGY designált agent
+        # csinál deep_research-t (DeepSeek V4-Pro a "kritikus elemző"), a többi
+        # normál 1-shot _web_search-t. Felülbírálható per-agent kulccsal az
+        # `agent_tasks` JSON-ban: `{"kimi": {"prompt": "...", "deep_research": true}}`.
+        agent_research_flags: dict[str, bool] = {}
+        if deep_research:
+            if "deepseek" in parsed_agent_tasks:
+                default_research_agent = "deepseek"
+            elif "kimi" in parsed_agent_tasks:
+                default_research_agent = "kimi"
+            else:
+                default_research_agent = next(iter(parsed_agent_tasks.keys()))
+            for aid, atask in parsed_agent_tasks.items():
+                if isinstance(atask, dict) and "deep_research" in atask:
+                    agent_research_flags[aid] = bool(atask["deep_research"])
+                else:
+                    agent_research_flags[aid] = (aid == default_research_agent)
+        else:
+            for aid, atask in parsed_agent_tasks.items():
+                agent_research_flags[aid] = (
+                    bool(atask.get("deep_research", False)) if isinstance(atask, dict) else False
+                )
+        research_agents = [a for a, v in agent_research_flags.items() if v]
+        if research_agents:
+            logger.info("AI task #%d dispatch deep_research enabled for: %s", task_id, research_agents)
+
         async def _call_agent(model, prompt, system_prompt, max_tokens, temperature):
             """Wrapper with web search — handles both JSON and text-based tool calls."""
             import httpx, re
@@ -3432,7 +3500,8 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
                     agent_extra = {}
 
             # Deep research path — multi-round loop, returns final content.
-            if deep_research:
+            # Per-agent scoping: closure-ből veszi az agent_research_flags-t.
+            if agent_research_flags.get(model, False):
                 research_system = system_prompt + DEEP_RESEARCH_DIRECTIVE
                 content = await _deep_research_loop(
                     model_id=model_id,
@@ -3538,6 +3607,18 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
                         if c and not c.startswith("ERROR:"):
                             _maybe_render_output_file(task_id, agent_id, c, output_format, title)
 
+                # Single-agent dispatch (e.g. cron daily_news_brief with cron_model="glm5"):
+                # there is no "ELTÉRŐ feladat" to synthesize — the koordinátori prompt
+                # would be logically vacuous and Kimi tends to either echo the agent
+                # output or emit (üres szintézis). Skip synthesis entirely for n=1.
+                if len(parsed_agent_tasks) <= 1:
+                    logger.info("AI task #%d: single-agent dispatch — synthesis skipped", task_id)
+                    conn2.execute("UPDATE ai_tasks SET status = 'completed', completed_at = ? WHERE id = ?", (now(), task_id))
+                    conn2.commit()
+                    conn2.close()
+                    logger.info("AI task #%d dispatch completed: %s", task_id, list(results.keys()))
+                    return
+
                 # Synthesis — Kimi K2.6 combines per-agent outputs into a final brief.
                 # Each agent received a DIFFERENT prompt in dispatch mode, so the synthesis
                 # has to acknowledge the divergent fókuszok, not pretend agreement.
@@ -3546,14 +3627,26 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
                     for agent_id, result in results.items():
                         agent_prompt = parsed_agent_tasks.get(agent_id, {}).get("prompt", "")
                         agent_resp = result.get("response", "") if isinstance(result, dict) else str(result)
-                        parts.append(f"=== [{agent_id}] FELADAT ===\n{agent_prompt}\n\n=== [{agent_id}] EREDMÉNY ===\n{agent_resp}")
+                        research_tag = " (deep_research mode)" if agent_research_flags.get(agent_id) else ""
+                        parts.append(f"=== [{agent_id}]{research_tag} FELADAT ===\n{agent_prompt}\n\n=== [{agent_id}] EREDMÉNY ===\n{agent_resp}")
                     synthesis_input = "\n\n---\n\n".join(parts)
+                    research_note = ""
+                    if research_agents:
+                        research_note = (
+                            f"\n\nFONTOS — RESEARCH-AGENT MEGJELÖLÉS: a `{', '.join(research_agents)}` "
+                            "agent(ek) **deep_research módban** dolgoztak, multi-round web_search-csel "
+                            "és kötelező `[forrás N]` citation-okkal — az ő tényállításaikat OKVETLENÜL "
+                            "idézd a forrás-hivatkozásukkal. A többi agent normál 1-shot keresést "
+                            "csapott; ott a források vékonyabbak. Tényütközés esetén a deep_research "
+                            "agent forrásait preferáld."
+                        )
                     synthesis_messages = [
                         {"role": "system", "content": (
                             "Te a koordinátor vagy. Az al-agentek ELTÉRŐ feladatokat kaptak, mindegyik a saját fókuszával dolgozott. "
                             "Készíts strukturált szintézist: 1) röviden mit fedett le mindegyik agent, 2) hol egészítik ki egymást, "
                             "3) hol mondanak ellent (ha igen), 4) végső konklúzió / ajánlás a Kommandantnak. "
                             "Magyarul, lényegre törően. Ne ismételd meg az agentek szövegét hosszan, csak hivatkozz rájuk."
+                            + research_note
                             + _temporal_directive("kimi")
                             + SYNTHESIS_NO_TOOLS_DIRECTIVE
                         )},
@@ -5195,7 +5288,8 @@ async def _cron_loop():
                     logger.error("Uploads cleanup failed: %s", e)
             conn = get_db()
             recipes = conn.execute(
-                "SELECT id, name, cron_schedule, cron_model, cron_delivery, cron_last_run "
+                "SELECT id, name, cron_schedule, cron_model, cron_delivery, cron_last_run, "
+                "cron_deep_research, cron_deep_thinking "
                 "FROM pyramid_recipes WHERE cron_enabled = 1 AND cron_schedule IS NOT NULL AND enabled = 1"
             ).fetchall()
             conn.close()
@@ -5268,11 +5362,20 @@ async def _cron_loop():
                         logger.error("Cron prefetch injection failed for %s: %s", r["name"], e)
 
                     model = r["cron_model"] or "glm5"
+                    deep_research = bool(r["cron_deep_research"]) if "cron_deep_research" in r.keys() else False
+                    deep_thinking = bool(r["cron_deep_thinking"]) if "cron_deep_thinking" in r.keys() else False
+                    if deep_research or deep_thinking:
+                        logger.info(
+                            "Cron flags for %s: deep_research=%s deep_thinking=%s",
+                            r["name"], deep_research, deep_thinking,
+                        )
                     if model == "all":
                         result_json = await ai_task(
                             title=f"Cron: {r['name']}",
                             description=prompt,
                             assigned_by="cron-scheduler",
+                            deep_research=deep_research,
+                            deep_thinking=deep_thinking,
                         )
                     else:
                         max_tokens = 16000 if model == "glm5" else 8000
@@ -5282,6 +5385,8 @@ async def _cron_loop():
                             description=prompt,
                             assigned_by="cron-scheduler",
                             agent_tasks=agent_tasks,
+                            deep_research=deep_research,
+                            deep_thinking=deep_thinking,
                         )
 
                     result = json.loads(result_json)
