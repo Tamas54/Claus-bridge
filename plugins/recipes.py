@@ -184,7 +184,8 @@ def register_tools(app, deps):
         """
         conn = get_db()
         q = ("SELECT id, name, description, required_tools, created_by, created_at, enabled, "
-             "cron_schedule, cron_model, cron_enabled, cron_delivery, cron_last_run FROM pyramid_recipes ")
+             "cron_schedule, cron_model, cron_enabled, cron_delivery, cron_last_run, "
+             "cron_deep_research, cron_deep_thinking FROM pyramid_recipes ")
         if enabled_only:
             rows = conn.execute(q + "WHERE enabled = 1 ORDER BY name").fetchall()
         else:
@@ -204,6 +205,8 @@ def register_tools(app, deps):
                     "schedule": r[7], "model": r[8] or "glm5",
                     "enabled": bool(r[9]), "delivery": r[10] or "both",
                     "last_run": r[11],
+                    "deep_research": bool(r[12]) if len(r) > 12 else False,
+                    "deep_thinking": bool(r[13]) if len(r) > 13 else False,
                 }
             recipes.append(entry)
 
@@ -399,7 +402,8 @@ def register_tools(app, deps):
     async def update_recipe(name: str, description: str = "", prompt_template: str = "",
                             required_tools: str = "", enabled: bool = True,
                             cron_schedule: str = "", cron_model: str = "",
-                            cron_enabled: bool = False, cron_delivery: str = "") -> str:
+                            cron_enabled: bool = False, cron_delivery: str = "",
+                            cron_deep_research: bool = False, cron_deep_thinking: bool = False) -> str:
         """Update an existing recipe. Supports cron scheduling.
 
         Args:
@@ -412,6 +416,12 @@ def register_tools(app, deps):
             cron_model: Which agent for cron: kimi/deepseek/glm5/all (empty = keep current)
             cron_enabled: Enable/disable cron scheduling
             cron_delivery: Where to send results: dashboard/telegram/both (empty = keep current)
+            cron_deep_research: When the cron triggers, run with deep_research=True
+                (multi-round web_search for the designated research-agent only).
+                Default False. NOTE: this flag is always written explicitly (like
+                cron_enabled), so pass the desired final state on every update.
+            cron_deep_thinking: When the cron triggers, run with deep_thinking=True
+                (Kimi thinking ON, V4-Pro reasoning_effort=high). Default False.
         """
         conn = get_db()
         row = conn.execute("SELECT id FROM pyramid_recipes WHERE name = ?", (name,)).fetchone()
@@ -460,6 +470,12 @@ def register_tools(app, deps):
         if cron_delivery:
             updates.append("cron_delivery = ?")
             params.append(cron_delivery)
+        # cron_deep_research / cron_deep_thinking — always set explicitly,
+        # same convention as cron_enabled.
+        updates.append("cron_deep_research = ?")
+        params.append(1 if cron_deep_research else 0)
+        updates.append("cron_deep_thinking = ?")
+        params.append(1 if cron_deep_thinking else 0)
 
         updates.append("updated_at = ?")
         params.append(_now())
