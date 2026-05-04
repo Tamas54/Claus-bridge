@@ -1907,6 +1907,10 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
         except Exception as ne:
             logger.warning("news_context fetch failed (continuing without): %s", ne)
 
+    # Tell the agent it has 3 information tools (echolot_query, web_fetch, web_search)
+    # — by Kommandant's policy: every agent has free access, no cost concern.
+    system_prompt += SUBAGENT_TOOLS_DIRECTIVE
+
     # Strong temporal directive — prevents Kimi/V4 from overriding runtime date.
     system_prompt += _temporal_directive(model)
 
@@ -1968,6 +1972,7 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
         "messages": messages,
         "temperature": temperature,
         "max_tokens": max_tokens,
+        "tools": SUBAGENT_TOOL_DEFS,
         **agent_extra,
     }
 
@@ -1998,7 +2003,55 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
         choice = choices[0]
         msg = choice.get("message", {}) if isinstance(choice, dict) else {}
         content = msg.get("content", "") if isinstance(msg, dict) else str(msg)
+        tool_calls = msg.get("tool_calls") if isinstance(msg, dict) else None
         usage = data.get("usage", {})
+
+        # If the agent decided to call tools, dispatch them and re-call (1 round, no tools)
+        # to force a final text answer. Caps at 3 tool calls per round to bound cost.
+        if tool_calls:
+            messages = messages + [msg]
+            for tc in tool_calls[:3]:
+                fn = tc.get("function", {}) if isinstance(tc, dict) else {}
+                tool_name = fn.get("name", "")
+                if tool_name not in ("web_search", "echolot_query", "web_fetch"):
+                    continue
+                try:
+                    args = json.loads(fn.get("arguments", "{}"))
+                except Exception:
+                    args = {}
+                tool_result = await _dispatch_subagent_tool(tool_name, args)
+                summary = (args.get("query") or args.get("url") or args.get("spheres") or "")
+                logger.info("ai_query %s tool: %s '%s'", model, tool_name, str(summary)[:60])
+                messages.append({
+                    "role": "tool",
+                    "tool_call_id": tc.get("id", ""),
+                    "content": tool_result[:4000],
+                })
+
+            # Re-call without tools to force a synthesis response
+            payload2 = {
+                "model": model_id,
+                "messages": messages,
+                "temperature": temperature,
+                "max_tokens": max_tokens,
+                **agent_extra,
+            }
+            async with httpx.AsyncClient(timeout=SILICONFLOW_TIMEOUT) as client:
+                resp2 = await client.post(
+                    f"{SILICONFLOW_BASE_URL}/chat/completions",
+                    headers={"Authorization": f"Bearer {SILICONFLOW_API_KEY}",
+                             "Content-Type": "application/json"},
+                    json=payload2,
+                )
+            data2 = json.loads(resp2.text)
+            if isinstance(data2, dict) and data2.get("choices"):
+                msg2 = data2["choices"][0].get("message", {})
+                content2 = msg2.get("content", "") or ""
+                if content2.strip():
+                    content = content2
+                usage2 = data2.get("usage", {})
+                if usage2:
+                    usage = usage2
 
         # Pyramid governance: store result in RAG / shared memory
         if PYRAMID_ENABLED and model in PYRAMID_AGENTS and content:
