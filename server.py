@@ -44,6 +44,14 @@ from permissions import (
 )
 from youngereka_profile import register_youngereka
 
+# Echolot — multi-sphere news context (separate Railway instance, REST)
+try:
+    import _echolot_client as echolot_client
+    ECHOLOT_ENABLED = bool(os.getenv("ECHOLOT_URL"))
+except ImportError:
+    ECHOLOT_ENABLED = False
+    echolot_client = None  # type: ignore
+
 # Feldwebel — Telegram command system + smart triage + briefing
 try:
     from feldwebel import init_feldwebel, BridgeContext
@@ -273,6 +281,26 @@ def _enforce(caller: str, tool_name: str, **kwargs) -> str | None:
         return None
     except PermissionDeniedError as e:
         return json.dumps({"error": str(e), "status": "denied"})
+
+
+def _parse_news_context(spec: str):
+    """Coerce the MCP-string news_context into a dict spec for echolot_client.
+
+    Accepts a preset name ("general", "economy", "tech", "geopolitics") or a
+    JSON-encoded dict (any of the shapes documented in echolot_client).
+    Empty / falsy → None.
+    """
+    if not spec:
+        return None
+    s = spec.strip()
+    if not s:
+        return None
+    if s.startswith("{"):
+        try:
+            return json.loads(s)
+        except json.JSONDecodeError as e:
+            raise ValueError(f"news_context JSON invalid: {e}")
+    return s  # treated as preset name by resolve_news_context
 
 
 # ============================================================
@@ -1729,10 +1757,86 @@ async def _ai_auto_discuss(discussion_id: int, topic: str, thread_so_far: str):
 
 
 @mcp.tool()
+async def echolot_query(spheres: str = "", query: str = "", days: int = 7,
+                        limit: int = 30, source_type: str = "", language: str = "",
+                        format: str = "raw", caller: str = "") -> str:
+    """Friss hírkivonat az Echolot multi-sphere news graph-ról.
+
+    Az Echolot 315 globális forrást (RSS + Telegram) scrape-l 30 mp-enként és 63
+    sphere-be (HU + globális topikális + regionális + Echolot partisan) tageli őket.
+    Jó "képbehozó" háttérnek a sub-agent research ELŐTT.
+
+    Args:
+        spheres: Vesszővel elválasztott sphere lista, OR-szűrés.
+            Pl. "global_economy,regional_us,hu_economy" — gazdasági képbehozó.
+            Üresen hagyva: minden sphere a `query` ill. recency alapján.
+        query: Ha megadod, FTS5 keresést futtat (3+ karakteres tagek), különben
+            a legutóbbi cikkeket adja vissza recency-rendben.
+        days: Lookback ablak napokban (1..21). Default 7.
+        limit: 1..100, default 30.
+        source_type: "rss" | "telegram" | "" (mind).
+        language: ISO kód szűrő ("hu", "en", "de", "ru", "zh", "ja", "fr", "uk").
+        format: "raw" (default) — strukturált Markdown, sphere-grouped.
+                "json" — nyers JSON az Echolot-tól, ha programatikusan dolgozod fel.
+                "divergence" — across-sphere narrative compare (kell a `query`).
+        caller: Permission check ID (any agent may call, opt-in).
+
+    Returns:
+        format=raw → Markdown blokk (sphere-grouped)
+        format=json → JSON az Echolot eredeti válasza
+        format=divergence → Markdown sphere-grouped + "X sphere fedte le" összegzés
+    """
+    if not ECHOLOT_ENABLED or echolot_client is None:
+        return json.dumps({"error": "Echolot integration not enabled (ECHOLOT_URL missing)"})
+
+    sphere_list = [s.strip() for s in spheres.split(",") if s.strip()]
+
+    try:
+        if format == "divergence":
+            if not query.strip():
+                return json.dumps({"error": "format=divergence requires query"})
+            data = await echolot_client.narrative_divergence(
+                query=query, days=days, per_sphere_limit=max(1, min(20, limit // 5 or 5))
+            )
+            articles: list[dict] = []
+            for sph, items in (data.get("by_sphere") or {}).items():
+                for it in items:
+                    a = dict(it)
+                    a["sphere"] = sph
+                    articles.append(a)
+            label = f'narrative-divergence:"{query}" ({data.get("spheres_found", 0)} sphere)'
+            return echolot_client.format_news_block(articles, label=label, group_by_sphere=True)
+
+        if query.strip():
+            data = await echolot_client.search_news(
+                query=query, days=days, sphere=sphere_list[0] if sphere_list else "",
+                language=language, limit=limit,
+            )
+            label = f'search:"{query}"'
+        else:
+            data = await echolot_client.fetch_news(
+                spheres=sphere_list, days=days, limit=limit,
+                language=language, source_type=source_type,
+            )
+            label = "spheres:" + ",".join(sphere_list) if sphere_list else f"latest-{days}d"
+
+        if format == "json":
+            return json.dumps(data, ensure_ascii=False)
+
+        articles = list(data.get("articles") or [])
+        return echolot_client.format_news_block(articles, label=label, group_by_sphere=True)
+
+    except Exception as e:
+        logger.error("echolot_query failed: %s", e)
+        return json.dumps({"error": f"Echolot call failed: {e}"})
+
+
+@mcp.tool()
 async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature: float = 0.7,
                    max_tokens: int = 20000, caller: str = "",
                    deep_research: bool = False, deep_thinking: bool = False,
-                   output_format: str = "") -> str:
+                   output_format: str = "",
+                   news_context: str = "") -> str:
     """Query a SiliconFlow AI sub-agent (Kimi-K2.6, DeepSeek-V4-Pro, or GLM-5.1).
 
     Use for research, analysis, translation, summarization, or second opinions.
@@ -1757,6 +1861,17 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
             "docx" / "xlsx" / "pptx" — the agent will write structured markdown
             and the Bridge will render it into a real Office file. The returned
             JSON gains a `file_id` field; download via /api/uploads/{file_id}.
+        news_context: Opt-in friss hírkontextus az Echolot-ról. Üres = nincs.
+            Lehet:
+              - preset név: "general" | "economy" | "tech" | "geopolitics"
+              - JSON dict string, pl.
+                  '{"spheres":["global_ai","hu_tech"],"days":2,"limit":15}'
+                  '{"query":"trump tariffs","days":7}'
+                  '{"narrative":"iran nuclear","days":3,"per_sphere_limit":5}'
+                  '{"preset":"economy","days":3}'  (preset + override)
+            A friss híranyag 8 nyelven (eredeti) injektálódik a system_prompt-ba;
+            a sub-agent magyarul válaszol és forrást idéz. NEM default — explicit
+            opt-in, mert kódolási / matek / fordítási kérésnél context-pazarlás.
     """
     denied = _enforce(caller, "ai_query")
     if denied:
@@ -1781,6 +1896,16 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
         profile = get_profile(caller)
         if profile and profile.persona_system_prompt:
             system_prompt += f"\n\n--- HÍVÓ FÉL ---\n{profile.persona_system_prompt}"
+
+    # Echolot news_context — opt-in, fresh multi-sphere news block injected before agent runs.
+    if news_context and ECHOLOT_ENABLED and echolot_client is not None:
+        try:
+            spec = _parse_news_context(news_context)
+            articles, label = await echolot_client.resolve_news_context(spec)
+            block = echolot_client.format_news_block(articles, label=label, group_by_sphere=True)
+            system_prompt += echolot_client.MULTILANG_DIRECTIVE + block
+        except Exception as ne:
+            logger.warning("news_context fetch failed (continuing without): %s", ne)
 
     # Strong temporal directive — prevents Kimi/V4 from overriding runtime date.
     system_prompt += _temporal_directive(model)
@@ -3374,7 +3499,7 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
 @mcp.tool()
 async def ai_task(title: str, description: str, context: str = "", file_id: int = 0, assigned_by: str = "unknown",
                   agent_tasks: str = "", deep_research: bool = False, deep_thinking: bool = False,
-                  output_format: str = "") -> str:
+                  output_format: str = "", news_context: str = "") -> str:
     """Create and execute a multi-agent AI task. Kimi, DeepSeek, and GLM-5.1 work on it, then a synthesis is generated.
 
     Two modes:
@@ -3403,6 +3528,11 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
             in a structured markdown the Bridge renders into a real Office
             file, attached to the task results as a downloadable upload.
             Per-agent file: each agent gets its own file_id.
+        news_context: Opt-in friss hírkontextus az Echolot-ról. Ugyanaz a szintaxis
+            mint az ai_query-nél: preset név vagy JSON dict. Ha megadod, a friss
+            multi-sphere hírblokk a `context` ELÉ kerül, mind a 3 agent megkapja
+            a research / synthesis előtt. Hasznos: napi sajtószemle generálás,
+            piaci elemzés gazdasági képbehozóval, geopolitikai tematikus brief.
     """
     # Pull in uploaded file content if file_id provided
     if file_id:
@@ -3414,6 +3544,17 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
                 context = f"[Feltöltött fájl: {f['filename']}]\n\n{f['content_text']}\n\n{context}"
             elif f["content_base64"]:
                 context = f"[Feltöltött kép: {f['filename']} — base64 kép az agentek számára elérhető]\n\n{context}"
+
+    # Echolot news_context — opt-in, prepended to shared context so all agents get it.
+    if news_context and ECHOLOT_ENABLED and echolot_client is not None:
+        try:
+            spec = _parse_news_context(news_context)
+            articles, label = await echolot_client.resolve_news_context(spec)
+            block = echolot_client.format_news_block(articles, label=label, group_by_sphere=True)
+            context = (echolot_client.MULTILANG_DIRECTIVE + block + "\n\n" + (context or "")).strip()
+        except Exception as ne:
+            logger.warning("ai_task news_context fetch failed (continuing without): %s", ne)
+
     if not SILICONFLOW_API_KEY:
         return json.dumps({"error": "SILICONFLOW_API_KEY not set"})
 
