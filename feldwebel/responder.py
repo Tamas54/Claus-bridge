@@ -75,12 +75,14 @@ TOOLS = [
         "parameters": {"type": "object", "properties": {
             "model": {"type": "string", "description": "kimi / deepseek / glm5", "enum": ["kimi", "deepseek", "glm5"]},
             "prompt": {"type": "string", "description": "Feladat / kérdés"},
+            "news_context": {"type": "string", "description": "Opcionális friss hírkontextus az Echolot-ról: 'general' / 'economy' / 'tech' / 'geopolitics' preset, vagy üres ha nem kell.", "default": "", "enum": ["", "general", "economy", "tech", "geopolitics"]},
         }, "required": ["model", "prompt"]}}},
     {"type": "function", "function": {
         "name": "ai_task", "description": "Feladat MIND A 3 agentnek párhuzamosan. Komplex kutatáshoz, elemzéshez.",
         "parameters": {"type": "object", "properties": {
             "title": {"type": "string", "description": "Rövid cím"},
             "description": {"type": "string", "description": "Részletes leírás"},
+            "news_context": {"type": "string", "description": "Opcionális friss hírkontextus az Echolot-ról: 'general' / 'economy' / 'tech' / 'geopolitics' preset, vagy üres ha nem kell.", "default": "", "enum": ["", "general", "economy", "tech", "geopolitics"]},
         }, "required": ["title", "description"]}}},
     {"type": "function", "function": {
         "name": "read_task_results", "description": "AI feladat eredményeinek lekérése. 'Mi lett a feladattal?', 'kész van?'",
@@ -224,6 +226,21 @@ SZABÁLYOK az agentekhez:
 - "Adj ki feladatot Kiminek kutatásra" → ai_task(title="...", description="Kimi feladata: ...")
 - "Kérdezd meg GLM-5.1-et mi a véleménye" → ai_query(model="glm5", prompt="...")
 - "Mind a hárman elemezzétek" → ai_task(title="...", description="...")
+
+FRISS HÍRKONTEXTUS (Echolot) — opcionális paraméter:
+- Az ai_query és ai_task fogadja a `news_context` opcionális paramétert. Ha kitöltöd,
+  az adott agent(ek) automatikusan megkapnak egy friss multi-sphere hírblokkot
+  a system_prompt elejére, mielőtt válaszolnak.
+- Preset-ek: "general" (általános), "economy" (gazdaság), "tech" (tech/AI), "geopolitics" (geopolitika).
+- MIKOR HASZNÁLD: ha a Kommandant kérése **közvetlenül érintkezik** friss hírekkel
+  (gazdasági elemzés, AI-piac, tech-trend, geopolitikai helyzet, sajtószemle háttér).
+- MIKOR NE: kódolási kérdés, matek, fordítás, általános tudás — felesleges és pazarlás.
+- Példák:
+  * "Kérdezd meg Kimit, mi a friss AI-piaci helyzet" → ai_query(model="kimi", prompt="...", news_context="tech")
+  * "Mind a hárman elemezzétek a Forint mai gyengülését" → ai_task(title="...", description="...", news_context="economy")
+  * "Mi a Trump-vámok hatása az olajárra?" → ai_task(..., news_context="economy")
+  * "Magyarázd el a transformer architektúrát" → ai_query(..., news_context="") — NEM kell hír
+- Default: üres string ("") → nincs hírkontextus injektálva.
 
 RECIPE-K (workflow template-ek) — FONTOS:
 - A Bridge-en vannak előre definiált workflow-k ("recipe-k"). Egy recipe = egy előre megírt prompt, amit EGY agent hajt végre.
@@ -561,6 +578,7 @@ async def _execute_tool(name: str, args: dict, ctx) -> str:
     if name == "ai_query":
         model = args.get("model", "deepseek")
         prompt = args.get("prompt", "")
+        news_context = args.get("news_context", "") or ""
         if not prompt:
             return json.dumps({"error": "Nincs prompt megadva"})
 
@@ -576,6 +594,7 @@ async def _execute_tool(name: str, args: dict, ctx) -> str:
                     description=prompt + date_info,
                     assigned_by="feldwebel",
                     agent_tasks=agent_tasks,
+                    news_context=news_context,
                 )
                 result = json.loads(result_json)
                 task_id = result.get("task_id")
@@ -610,7 +629,8 @@ async def _execute_tool(name: str, args: dict, ctx) -> str:
         ai_query_func = ctx.capture_state.get("_ai_query_func")
         if ai_query_func:
             try:
-                return await ai_query_func(model=model, prompt=prompt, caller="feldwebel")
+                return await ai_query_func(model=model, prompt=prompt, caller="feldwebel",
+                                           news_context=news_context)
             except Exception as e:
                 return json.dumps({"error": str(e)})
 
@@ -619,6 +639,7 @@ async def _execute_tool(name: str, args: dict, ctx) -> str:
     if name == "ai_task":
         title = args.get("title", "")
         description = args.get("description", "")
+        news_context = args.get("news_context", "") or ""
         if not title or not description:
             return json.dumps({"error": "Cím és leírás szükséges"})
         if not ctx.capture_state.get("_ai_task_func"):
@@ -627,7 +648,8 @@ async def _execute_tool(name: str, args: dict, ctx) -> str:
             now = datetime.now(timezone.utc)
             date_info = f"\n\n[Mai dátum: {now.strftime('%Y.%m.%d')} ({WEEKDAYS_HU[now.weekday()]}). Az adatoknak FRISSNEK kell lenniük!]"
             result_json = await ctx.capture_state["_ai_task_func"](
-                title=title, description=description + date_info, assigned_by="feldwebel"
+                title=title, description=description + date_info, assigned_by="feldwebel",
+                news_context=news_context,
             )
             # Return immediately — user can ask for results later with read_task_results
             return result_json
