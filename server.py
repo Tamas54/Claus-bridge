@@ -2679,24 +2679,24 @@ SUBAGENT_TOOL_DEFS = [WEB_SEARCH_TOOL_DEF, ECHOLOT_QUERY_TOOL_DEF, WEB_FETCH_TOO
 
 
 SUBAGENT_TOOLS_DIRECTIVE = (
-    "\n\n## RENDELKEZÉSEDRE ÁLLÓ INFORMÁCIÓS ESZKÖZÖK (3 db, eltérő profillal)\n"
-    "1. **`echolot_query`** — gyors *mai átfogó kép*. Headline + lead szinten ad "
-    "vissza friss híreket 315 forrásból, 8 nyelven, 63 sphere-be tagelve. Akkor "
-    "használd, ha hangulatot mérsz, sphere-eket hasonlítasz, vagy a kérdés "
-    "frissesség-érzékeny ('mai', 'friss', 'most', 'ma reggel'). NEM mélyfúrás: "
-    "csak címek és lead-ek vannak. Egy körben többször is hívhatod, eltérő "
-    "sphere-tekkel. URL-eket is kapsz, melyiken érdemes mélyebben olvasni.\n"
-    "2. **`web_fetch`** — egyetlen URL teljes szövege (4000 karakterig). "
-    "Akkor használd, ha az `echolot_query` (vagy `web_search`) után **kiválasztottál** "
-    "1-2 konkrét cikket amit mélyen el akarsz olvasni. NE használd böngészésre.\n"
-    "3. **`web_search`** — globális mélykutatás DuckDuckGo-n. Akkor használd, "
-    "ha az Echolot nem fed le a témát (pl. történelmi adat, statisztika, "
-    "tudományos cikk), vagy a hír mélyebb hátterét keresed.\n\n"
-    "**Kanonikus minta** egy frissesség-érzékeny kérdéshez:\n"
-    "  (1) `echolot_query(...)` → áttekintés, sphere-ek nézőpontja, URL-ek\n"
-    "  (2) `web_fetch(url=...)` a 1-3 legfontosabb cikkre → teljes szöveg\n"
-    "  (3) Ha valami konkrét állítást ellenőrizni kell → `web_search`\n"
-    "  (4) Szintézis forrás-idézéssel.\n"
+    "\n\n## INFORMÁCIÓS ESZKÖZÖK\n"
+    "Három tool áll rendelkezésedre, eltérő profilú. Magad döntsd el mit, mikor, "
+    "hányszor — ezek okos eszközök, ne korlátozd magad.\n\n"
+    "- **`echolot_query`** — friss hírek 315 forrásból (RSS + Telegram), 8 nyelven, "
+    "63 sphere-be tagelve (HU + globális topikális + regionális + partisan). "
+    "Headline + lead szintű — címet, vezérét és URL-t ad, NEM teljes cikktestet. "
+    "Tipikus profilja: 'gyors mai/friss kép X témáról' vagy 'hogy keretezi különböző "
+    "sphere ugyanazt'. Lookback 1-21 nap. Egy hívás = egy filter — eltérő sphere-csoportokra "
+    "külön hívhatod.\n"
+    "- **`web_fetch`** — egy konkrét URL teljes szövege (HTML strippelve, 4000 karakterig). "
+    "Akkor jó, ha kiválasztottál egy cikket az echolot_query / web_search találataiból "
+    "amit teljesen el akarsz olvasni.\n"
+    "- **`web_search`** — globális DuckDuckGo (+ Brave fallback). Akkor jó, ha "
+    "részletes források, statisztika, hosszú cikk, vagy nem hír-jellegű információ "
+    "kell (történelmi adat, tudomány, dokumentumok).\n\n"
+    "Egy kérdésen több tool-hívást is futtathatsz — a feladat legjobb teljesítése a cél, "
+    "nem a takarékosság. Ha az első hívás eredménye nem találó, finomítsd a paramétereket "
+    "és próbáld újra.\n"
 )
 
 
@@ -3597,21 +3597,54 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
                             logger.info("AI task #%d %s: parsed web_search '%s'", task_id, agent_name, query[:60])
                         content = ""  # Clear broken text
 
-                # Step 2: If we got search results, call again WITH those results as context
+                # Step 2: If we got tool results, give the agent ANOTHER tool round
+                # (it may want to refine — e.g. echolot_query gave noisy data, agent
+                # wants a targeted web_search). Then Step 3 forces synthesis no-tools.
                 if search_results:
                     async with httpx.AsyncClient(timeout=SILICONFLOW_TIMEOUT) as client:
                         data2 = await _api_call(client, {
                             "model": model_id,
                             "messages": [
-                                {"role": "system", "content": f"{role_desc} Magyarul válaszolj, alaposan. Az alábbi web keresési eredményeket használd fel."},
-                                {"role": "user", "content": f"{task_prompt}\n\nWEB KERESÉSI EREDMÉNYEK:\n{search_results}"},
+                                {"role": "system", "content": f"{system}\n\nAz előző tool-hívások eredménye a kérdés végén található. A feladatod: ha az eddigi anyag elég, adj forrásolt magyar választ; ha még valamit muszáj megerősíteni vagy új információt szerezned, hívj újabb tool-t — magad döntöd mi a helyes lépés."},
+                                {"role": "user", "content": f"{task_prompt}\n\nELŐZŐ TOOL EREDMÉNYEK:\n{search_results}"},
                             ],
                             "temperature": 0.6,
                             "max_tokens": agent_max_tokens,
+                            "tools": SUBAGENT_TOOL_DEFS,
                             **agent_extra,
                         })
                         if isinstance(data2, dict) and data2.get("choices"):
-                            content = data2["choices"][0].get("message", {}).get("content", "")
+                            msg2 = data2["choices"][0].get("message", {})
+                            content = msg2.get("content", "") or ""
+                            tool_calls2 = msg2.get("tool_calls")
+                            if tool_calls2:
+                                for tc in tool_calls2:
+                                    fn = tc.get("function", {})
+                                    tool_name = fn.get("name", "")
+                                    if tool_name not in ("web_search", "echolot_query", "web_fetch"):
+                                        continue
+                                    try:
+                                        args = json.loads(fn.get("arguments", "{}"))
+                                    except Exception:
+                                        args = {}
+                                    sr = await _dispatch_subagent_tool(tool_name, args)
+                                    summary = (args.get("query") or args.get("url") or args.get("spheres") or "")
+                                    search_results += f"\n[{tool_name} round-2: {summary}]\n{sr}\n"
+                                    logger.info("AI task #%d %s round-2: %s '%s'", task_id, agent_name, tool_name, str(summary)[:60])
+                                # Force final synthesis after Step 2 tool calls
+                                async with httpx.AsyncClient(timeout=SILICONFLOW_TIMEOUT) as client3:
+                                    data3 = await _api_call(client3, {
+                                        "model": model_id,
+                                        "messages": [
+                                            {"role": "system", "content": f"{role_desc} Magyarul válaszolj, alaposan. Az eredmények alapján szintetizálj, NE adj több tool-hívást. Idézz konkrét forrást [forrás_neve, dátum] formátumban."},
+                                            {"role": "user", "content": f"{task_prompt}\n\nÖSSZES TOOL EREDMÉNY (2 kör):\n{search_results}"},
+                                        ],
+                                        "temperature": 0.6,
+                                        "max_tokens": agent_max_tokens,
+                                        **agent_extra,
+                                    })
+                                if isinstance(data3, dict) and data3.get("choices"):
+                                    content = data3["choices"][0].get("message", {}).get("content", "") or content
 
                 # Step 3: Fallback if still empty
                 if not content or not content.strip():
@@ -3932,20 +3965,52 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
                     logger.info("Dispatch %s: parsed web_search '%s'", model, query[:60])
                 content = ""  # Clear broken marker text
 
-            # Step 2: If we got search results, call again WITH results
+            # Step 2: If we got tool results, give the agent ANOTHER tool round
+            # (it may want to refine — e.g. echolot_query gave noisy data, agent
+            # wants a targeted web_search). Then Step 3 forces synthesis no-tools.
             if search_results:
                 async with httpx.AsyncClient(timeout=SILICONFLOW_TIMEOUT) as client:
                     data2 = await _api(client, {
                         "model": model_id,
                         "messages": [
-                            {"role": "system", "content": system_prompt},
-                            {"role": "user", "content": f"{prompt}\n\nWEB KERESÉSI EREDMÉNYEK:\n{search_results}"},
+                            {"role": "system", "content": f"{system_prompt}\n\nAz előző tool-hívások eredménye a kérdés végén található. A feladatod: ha az eddigi anyag elég, adj forrásolt magyar választ; ha még valamit muszáj megerősíteni vagy új információt szerezned, hívj újabb tool-t — magad döntöd mi a helyes lépés."},
+                            {"role": "user", "content": f"{prompt}\n\nELŐZŐ TOOL EREDMÉNYEK:\n{search_results}"},
                         ],
                         "temperature": temperature, "max_tokens": max_tokens,
+                        "tools": SUBAGENT_TOOL_DEFS,
                         **agent_extra,
                     })
                 if isinstance(data2, dict) and data2.get("choices"):
-                    content = data2["choices"][0].get("message", {}).get("content", "") or content
+                    msg2 = data2["choices"][0].get("message", {})
+                    content = msg2.get("content", "") or content
+                    tool_calls2 = msg2.get("tool_calls")
+                    if tool_calls2:
+                        for tc in tool_calls2[:3]:
+                            fn = tc.get("function", {})
+                            tool_name = fn.get("name", "")
+                            if tool_name not in ("web_search", "echolot_query", "web_fetch"):
+                                continue
+                            try:
+                                args = json.loads(fn.get("arguments", "{}"))
+                            except Exception:
+                                args = {}
+                            sr = await _dispatch_subagent_tool(tool_name, args)
+                            summary = (args.get("query") or args.get("url") or args.get("spheres") or "")
+                            search_results += f"\n[{tool_name} round-2: {summary}]\n{sr}\n"
+                            logger.info("Dispatch %s round-2: %s '%s'", model, tool_name, str(summary)[:60])
+                        # Step 3: force synthesis no-tools after the second tool round
+                        async with httpx.AsyncClient(timeout=SILICONFLOW_TIMEOUT) as client3:
+                            data3 = await _api(client3, {
+                                "model": model_id,
+                                "messages": [
+                                    {"role": "system", "content": f"{system_prompt}\n\nElég volt a tool-hívásokból. Most szintetizálj prózában, magyarul, és minden konkrét állításnál idézz forrást [forrás_neve, dátum] formátumban."},
+                                    {"role": "user", "content": f"{prompt}\n\nÖSSZES TOOL EREDMÉNY (2 kör):\n{search_results}"},
+                                ],
+                                "temperature": temperature, "max_tokens": max_tokens,
+                                **agent_extra,
+                            })
+                        if isinstance(data3, dict) and data3.get("choices"):
+                            content = data3["choices"][0].get("message", {}).get("content", "") or content
 
             return {"response": content, "tokens": {"prompt": 0, "completion": 0}}
 
