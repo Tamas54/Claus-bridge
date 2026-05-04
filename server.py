@@ -2554,7 +2554,11 @@ WEB_SEARCH_TOOL_DEF = {
     "type": "function",
     "function": {
         "name": "web_search",
-        "description": "Search the web for current information",
+        "description": (
+            "Deep-research web search via DuckDuckGo (+ Brave fallback). Use for "
+            "detailed sourcing, statistics, fact-checking, long-form articles, "
+            "anything needing depth. Returns a list of result snippets with URLs."
+        ),
         "parameters": {
             "type": "object",
             "properties": {"query": {"type": "string", "description": "Search query"}},
@@ -2562,6 +2566,153 @@ WEB_SEARCH_TOOL_DEF = {
         },
     },
 }
+
+ECHOLOT_QUERY_TOOL_DEF = {
+    "type": "function",
+    "function": {
+        "name": "echolot_query",
+        "description": (
+            "Quick situational-awareness over fresh news from 315 sources across "
+            "63 spheres (HU + global topical + regional + partisan). Returns "
+            "TITLES + LEADS only (no full article body), multilingual, "
+            "sphere-grouped. Best for 'what's the picture today on X', sphere "
+            "comparison, sentiment scan over the last 1-21 days. NOT for deep "
+            "dives — for full article content fetch a specific URL via web_fetch. "
+            "Can be called multiple times in one round with different sphere sets."
+        ),
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "spheres": {
+                    "type": "string",
+                    "description": (
+                        "Comma-separated sphere list (OR-filter). Examples: "
+                        "'global_economy,regional_us', 'hu_press', "
+                        "'global_anchor,global_analysis,regional_chinese'. "
+                        "Empty = all spheres."
+                    ),
+                },
+                "query": {
+                    "type": "string",
+                    "description": "FTS5 keyword search (3+ char terms). Empty = recency-ordered.",
+                },
+                "days": {"type": "integer", "description": "Lookback days, 1-21 (default 7)"},
+                "limit": {"type": "integer", "description": "Article cap, 1-100 (default 25)"},
+            },
+        },
+    },
+}
+
+WEB_FETCH_TOOL_DEF = {
+    "type": "function",
+    "function": {
+        "name": "web_fetch",
+        "description": (
+            "Fetch the full text of a single URL (HTML stripped, scripts/styles "
+            "removed, capped at 4000 chars). Use after echolot_query or "
+            "web_search when you've identified ONE specific article worth deep "
+            "reading. Don't use for multi-page browsing — call once per URL."
+        ),
+        "parameters": {
+            "type": "object",
+            "properties": {"url": {"type": "string", "description": "Full URL (must start with http/https)"}},
+            "required": ["url"],
+        },
+    },
+}
+
+# Tools sub-agents (Kimi/DeepSeek-V4/GLM5) get during multi-round research.
+SUBAGENT_TOOL_DEFS = [WEB_SEARCH_TOOL_DEF, ECHOLOT_QUERY_TOOL_DEF, WEB_FETCH_TOOL_DEF]
+
+
+SUBAGENT_TOOLS_DIRECTIVE = (
+    "\n\n## RENDELKEZÉSEDRE ÁLLÓ INFORMÁCIÓS ESZKÖZÖK (3 db, eltérő profillal)\n"
+    "1. **`echolot_query`** — gyors *mai átfogó kép*. Headline + lead szinten ad "
+    "vissza friss híreket 315 forrásból, 8 nyelven, 63 sphere-be tagelve. Akkor "
+    "használd, ha hangulatot mérsz, sphere-eket hasonlítasz, vagy a kérdés "
+    "frissesség-érzékeny ('mai', 'friss', 'most', 'ma reggel'). NEM mélyfúrás: "
+    "csak címek és lead-ek vannak. Egy körben többször is hívhatod, eltérő "
+    "sphere-tekkel. URL-eket is kapsz, melyiken érdemes mélyebben olvasni.\n"
+    "2. **`web_fetch`** — egyetlen URL teljes szövege (4000 karakterig). "
+    "Akkor használd, ha az `echolot_query` (vagy `web_search`) után **kiválasztottál** "
+    "1-2 konkrét cikket amit mélyen el akarsz olvasni. NE használd böngészésre.\n"
+    "3. **`web_search`** — globális mélykutatás DuckDuckGo-n. Akkor használd, "
+    "ha az Echolot nem fed le a témát (pl. történelmi adat, statisztika, "
+    "tudományos cikk), vagy a hír mélyebb hátterét keresed.\n\n"
+    "**Kanonikus minta** egy frissesség-érzékeny kérdéshez:\n"
+    "  (1) `echolot_query(...)` → áttekintés, sphere-ek nézőpontja, URL-ek\n"
+    "  (2) `web_fetch(url=...)` a 1-3 legfontosabb cikkre → teljes szöveg\n"
+    "  (3) Ha valami konkrét állítást ellenőrizni kell → `web_search`\n"
+    "  (4) Szintézis forrás-idézéssel.\n"
+)
+
+
+async def _fetch_url_text(url: str, max_chars: int = 4000) -> str:
+    """Fetch a URL and return cleaned plain text. Used by sub-agent web_fetch tool.
+
+    Strips <script>/<style> blocks and HTML tags via regex (cheap, no extra deps).
+    Caps at max_chars to keep tool-result payload bounded.
+    """
+    import re as _re
+    if not url or not (url.startswith("http://") or url.startswith("https://")):
+        return json.dumps({"error": "valid http(s) URL required"})
+    try:
+        async with httpx.AsyncClient(timeout=15, follow_redirects=True) as client:
+            resp = await client.get(
+                url,
+                headers={"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36"},
+            )
+        text = resp.text
+        text = _re.sub(r'<script[^>]*>.*?</script>', '', text, flags=_re.DOTALL)
+        text = _re.sub(r'<style[^>]*>.*?</style>', '', text, flags=_re.DOTALL)
+        text = _re.sub(r'<[^>]+>', ' ', text)
+        text = _re.sub(r'\s+', ' ', text).strip()
+        return json.dumps({
+            "url": url, "content": text[:max_chars], "length": len(text),
+        }, ensure_ascii=False)
+    except Exception as e:
+        return json.dumps({"error": f"fetch failed: {type(e).__name__}: {e}"})
+
+
+async def _dispatch_subagent_tool(name: str, args: dict) -> str:
+    """Run one sub-agent tool call. Returns a JSON / text string fed back to the model."""
+    if name == "web_search":
+        q = (args.get("query") or "").strip()
+        if not q:
+            return json.dumps({"error": "empty query"})
+        return await _web_search(q)
+
+    if name == "echolot_query":
+        if not ECHOLOT_ENABLED or echolot_client is None:
+            return json.dumps({"error": "Echolot integration disabled (ECHOLOT_URL missing)"})
+        spheres_raw = (args.get("spheres") or "").strip()
+        sphere_list = [s.strip() for s in spheres_raw.split(",") if s.strip()]
+        query = (args.get("query") or "").strip()
+        days = max(1, min(21, int(args.get("days", 7))))
+        limit = max(1, min(100, int(args.get("limit", 25))))
+        try:
+            if query:
+                data = await echolot_client.search_news(
+                    query=query, days=days,
+                    sphere=sphere_list[0] if sphere_list else "",
+                    limit=limit,
+                )
+                label = f'search:"{query}"'
+            else:
+                data = await echolot_client.fetch_news(
+                    spheres=sphere_list, days=days, limit=limit,
+                )
+                label = "spheres:" + ",".join(sphere_list) if sphere_list else f"latest-{days}d"
+            articles = list(data.get("articles") or [])
+            return echolot_client.format_news_block(articles, label=label, group_by_sphere=True)
+        except Exception as e:
+            return json.dumps({"error": f"echolot_query failed: {type(e).__name__}: {e}"})
+
+    if name == "web_fetch":
+        url = (args.get("url") or "").strip()
+        return await _fetch_url_text(url)
+
+    return json.dumps({"error": f"unknown tool: {name}"})
 
 
 DDG_USER_AGENTS = [
@@ -2940,16 +3091,20 @@ def _clean_synthesis_output(content: str) -> str:
 
 DEEP_RESEARCH_DIRECTIVE = (
     "\n\n## DEEP RESEARCH MÓD — MULTI-ROUND KUTATÁS KÖTELEZŐ\n"
-    "Ez NEM egy 1-shot kérdés. Több körön keresztül a `web_search` tool-t többször "
-    "is használnod kell, hogy a témát ALAPOSAN kifedd:\n"
-    "1) Az első körben tervezz 3-5 különböző web_search query-t (fókuszok: tényadat, "
-    "vélemény, kontextus, ellenőrző-forrás).\n"
-    "2) Olvasd a találatokat, és ha valamelyik fontos dimenzió hiányzik vagy "
-    "ellentmondásos, indíts ÚJABB web_search-öt finomított query-vel.\n"
-    "3) Cross-checkeld a kulcsállításokat 2+ független forrásból.\n"
-    "4) MINDEN tényállításnál idézd a forrást — formátum: `[forrás N]` a mondat "
+    "Ez NEM egy 1-shot kérdés. Több körön keresztül kutatsz a 3 információs "
+    "eszközöddel (`echolot_query`, `web_fetch`, `web_search`):\n"
+    "1) Ha a téma frissesség-érzékeny (mai/aktuális hírek, piaci hangulat, "
+    "geopolitika, sajtó-keret), kezdd `echolot_query`-vel — gyors átfogó kép, "
+    "sphere-tagolt, többnyelvű, URL-ekkel. Egy körben többször is hívhatod, "
+    "eltérő sphere-tekkel (pl. először `regional_us`, aztán `regional_chinese`).\n"
+    "2) Az echolot/search találatokból **válaszd ki** a 1-3 legrelevánsabb URL-t, "
+    "és kérd le `web_fetch`-csel a teljes szövegüket.\n"
+    "3) Ha az Echolot nem fed le valamit (történelmi adat, statisztika, "
+    "tudomány, hosszú forrás), `web_search`-et használj.\n"
+    "4) Cross-checkeld a kulcsállításokat 2+ független forrásból.\n"
+    "5) MINDEN tényállításnál idézd a forrást — formátum: `[forrás N]` a mondat "
     "végén, ahol N a források listájában szereplő sorszám.\n"
-    "5) A végső válasz STRUKTURÁLT legyen, és tartalmazzon egy `## Források` "
+    "6) A végső válasz STRUKTURÁLT legyen, és tartalmazzon egy `## Források` "
     "szekciót, sorszámozva, minden sorhoz a teljes URL.\n\n"
     "FONTOS: ha egy állítás nincs forrással alátámasztva, NE írd le. "
     "Inkább mondd hogy 'nem találtam erre megbízható forrást'.\n"
@@ -3012,7 +3167,7 @@ async def _deep_research_loop(
             **agent_extra,
         }
         if not is_final:
-            payload["tools"] = [WEB_SEARCH_TOOL_DEF]
+            payload["tools"] = SUBAGENT_TOOL_DEFS
         else:
             # Final round: force synthesis with citations.
             messages = messages + [{
@@ -3059,18 +3214,17 @@ async def _deep_research_loop(
             messages = messages + [msg]
             for tc in tool_calls:
                 fn = tc.get("function", {})
-                if fn.get("name") != "web_search":
+                tool_name = fn.get("name", "")
+                if tool_name not in ("web_search", "echolot_query", "web_fetch"):
                     continue
                 args_raw = fn.get("arguments", "{}")
                 try:
                     args = json.loads(args_raw) if isinstance(args_raw, str) else args_raw
                 except Exception:
                     args = {}
-                q = args.get("query", "")
-                if not q:
-                    continue
-                logger.info("Deep research round %d query: %s", round_num, q[:80])
-                sr = await _web_search(q)
+                summary = (args.get("query") or args.get("url") or args.get("spheres") or "")
+                logger.info("Deep research round %d %s: %s", round_num, tool_name, str(summary)[:80])
+                sr = await _dispatch_subagent_tool(tool_name, args)
                 # Capture URLs for the citation footer fallback
                 for url in re.findall(r'https?://[^\s\)]+', sr):
                     if url not in sources:
@@ -3145,7 +3299,7 @@ async def _run_agent_with_tools(model_id: str, messages: list, max_rounds: int =
         if "Kimi" in model_id:
             payload["thinking"] = {"type": "disabled"}
         if use_tools:
-            payload["tools"] = [WEB_SEARCH_TOOL_DEF]
+            payload["tools"] = SUBAGENT_TOOL_DEFS
 
         async with httpx.AsyncClient(timeout=SILICONFLOW_TIMEOUT) as client:
             resp = await client.post(
@@ -3206,15 +3360,21 @@ async def _run_agent_with_tools(model_id: str, messages: list, max_rounds: int =
         messages.append(msg)
         for tc in tool_calls:
             fn = tc.get("function", {})
-            if fn.get("name") == "web_search":
+            tool_name = fn.get("name", "")
+            if tool_name not in ("web_search", "echolot_query", "web_fetch"):
+                continue
+            try:
                 args = json.loads(fn.get("arguments", "{}"))
-                result = await _web_search(args.get("query", ""))
-                messages.append({
-                    "role": "tool",
-                    "tool_call_id": tc["id"],
-                    "content": result,
-                })
-                logger.info("AI web_search round %d: %s", round_num, args.get("query", "")[:80])
+            except Exception:
+                args = {}
+            result = await _dispatch_subagent_tool(tool_name, args)
+            messages.append({
+                "role": "tool",
+                "tool_call_id": tc["id"],
+                "content": result[:4000],
+            })
+            summary = (args.get("query") or args.get("url") or args.get("spheres") or "")
+            logger.info("AI %s round %d: %s", tool_name, round_num, str(summary)[:80])
 
     # Should not reach here (last round forces text), but just in case
     return msg.get("content", "") or "(az agent nem adott választ a web keresés után)"
@@ -3279,8 +3439,10 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
                 # the agent writes markdown the Bridge can render to a real file.
                 if output_format and output_format in OUTPUT_FORMAT_DIRECTIVES:
                     system += OUTPUT_FORMAT_DIRECTIVES[output_format]
-                # Sub-agent uses tools (web_search) — forbid text-marker tool_calls
-                # so Kimi K2.6 doesn't burn rounds emitting <|tool_calls_section_*|>
+                # Tell the sub-agent which 3 information tools it has and how to use them
+                system += SUBAGENT_TOOLS_DIRECTIVE
+                # Forbid text-marker tool_calls so Kimi K2.6 doesn't burn rounds
+                # emitting <|tool_calls_section_*|>
                 system += NO_TEXT_MARKER_DIRECTIVE
 
                 # Kimi K2.6 default thinking is ON on SF — force OFF to keep latency sane.
@@ -3343,7 +3505,7 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
                         ],
                         "temperature": 0.6,
                         "max_tokens": agent_max_tokens,
-                        "tools": [WEB_SEARCH_TOOL_DEF],
+                        "tools": SUBAGENT_TOOL_DEFS,
                         **agent_extra,
                     })
 
@@ -3356,16 +3518,21 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
                     content = msg.get("content", "") or ""
                     tool_calls = msg.get("tool_calls")
 
-                    # Case A: Proper JSON tool_calls — execute web search
+                    # Case A: Proper JSON tool_calls — execute via shared dispatcher
                     if tool_calls:
                         for tc in tool_calls:
                             fn = tc.get("function", {})
-                            if fn.get("name") == "web_search":
-                                query = json.loads(fn.get("arguments", "{}")).get("query", "")
-                                if query:
-                                    sr = await _web_search(query)
-                                    search_results += f"\n[Web search: {query}]\n{sr}\n"
-                                    logger.info("AI task #%d %s: web_search '%s'", task_id, agent_name, query[:60])
+                            tool_name = fn.get("name", "")
+                            if tool_name not in ("web_search", "echolot_query", "web_fetch"):
+                                continue
+                            try:
+                                args = json.loads(fn.get("arguments", "{}"))
+                            except Exception:
+                                args = {}
+                            sr = await _dispatch_subagent_tool(tool_name, args)
+                            summary = (args.get("query") or args.get("url") or args.get("spheres") or "")
+                            search_results += f"\n[{tool_name}: {summary}]\n{sr}\n"
+                            logger.info("AI task #%d %s: %s '%s'", task_id, agent_name, tool_name, str(summary)[:60])
 
                     # Case B: Text-based tool calls — parse search query from text
                     tool_markers = ["<|tool_call", "<｜DSML｜", "function_calls>", "tool_calls_section"]
@@ -3615,7 +3782,7 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
             model_id = SILICONFLOW_MODELS.get(model, model)
             # Inject the strong temporal directive — Kimi otherwise overrides the
             # runtime date with its training cutoff, poisoning the dispatch output.
-            system_prompt = (system_prompt or "") + _temporal_directive(model)
+            system_prompt = (system_prompt or "") + SUBAGENT_TOOLS_DIRECTIVE + _temporal_directive(model)
             # Append output_format directive if requested
             if output_format and output_format in OUTPUT_FORMAT_DIRECTIVES:
                 system_prompt += OUTPUT_FORMAT_DIRECTIVES[output_format]
@@ -3674,7 +3841,7 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
                         {"role": "user", "content": prompt},
                     ],
                     "temperature": temperature, "max_tokens": max_tokens,
-                    "tools": [WEB_SEARCH_TOOL_DEF],
+                    "tools": SUBAGENT_TOOL_DEFS,
                     **agent_extra,
                 })
 
@@ -3686,16 +3853,21 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
             tool_calls = msg.get("tool_calls")
             search_results = ""
 
-            # Case A: Proper JSON tool_calls
+            # Case A: Proper JSON tool_calls — dispatch via shared helper
             if tool_calls:
                 for tc in tool_calls:
                     fn = tc.get("function", {})
-                    if fn.get("name") == "web_search":
-                        query = json.loads(fn.get("arguments", "{}")).get("query", "")
-                        if query:
-                            sr = await _web_search(query)
-                            search_results += f"\n[Web search: {query}]\n{sr}\n"
-                            logger.info("Dispatch %s: web_search '%s'", model, query[:60])
+                    tool_name = fn.get("name", "")
+                    if tool_name not in ("web_search", "echolot_query", "web_fetch"):
+                        continue
+                    try:
+                        args = json.loads(fn.get("arguments", "{}"))
+                    except Exception:
+                        args = {}
+                    sr = await _dispatch_subagent_tool(tool_name, args)
+                    summary = (args.get("query") or args.get("url") or args.get("spheres") or "")
+                    search_results += f"\n[{tool_name}: {summary}]\n{sr}\n"
+                    logger.info("Dispatch %s: %s '%s'", model, tool_name, str(summary)[:60])
 
             # Case B: Text-based tool calls (Kimi does this)
             text_markers = ["<|tool_call", "<｜DSML｜", "function_calls>", "tool_calls_section"]
