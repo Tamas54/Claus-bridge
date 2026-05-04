@@ -23,8 +23,8 @@ import httpx
 
 logger = logging.getLogger("echolot_client")
 
-ECHOLOT_URL = os.getenv("ECHOLOT_URL", "").rstrip("/")
-TIMEOUT = float(os.getenv("ECHOLOT_TIMEOUT", "10"))
+ECHOLOT_URL = os.getenv("ECHOLOT_URL", "").strip().rstrip("/")
+TIMEOUT = float(os.getenv("ECHOLOT_TIMEOUT", "10").strip() or "10")
 COALESCE_WINDOW = 5.0  # seconds — concurrent identical calls share one upstream
 
 # In-flight request coalescing: key -> (started_ts, future)
