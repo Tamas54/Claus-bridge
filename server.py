@@ -2056,10 +2056,13 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
         deep_research: Multi-round web_search loop with mandatory source citation.
             Use for press review, market briefs, fact-checking, anything where
             1-shot search isn't enough. Slower (~30-90s), uses real DDG.
-        deep_thinking: Enable reasoning mode — Kimi gets thinking=enabled,
-            DeepSeek gets reasoning_effort=high. Default behavior is thinking
-            OFF for Kimi (latency), reasoning_effort=medium for DeepSeek. Turn
-            this on for hard logic, math, multi-step deduction. ~3-5x slower.
+        deep_thinking: Enable reasoning mode for DeepSeek (reasoning_effort=high).
+            NOTE: Kimi K2.6 thinking is FORCED OFF on the SF endpoint regardless
+            of this flag — explicit thinking on 25k+ token contexts routinely
+            times out at the 220s SiliconFlow ceiling (#150, #151 evidence). The
+            model's endogenous reasoning is strong enough without it. Default
+            behavior is reasoning_effort=medium for DeepSeek. ~3-5x slower for
+            DeepSeek when enabled.
         output_format: Empty string for plain text response (default), or
             "docx" / "xlsx" / "pptx" — the agent will write structured markdown
             and the Bridge will render it into a real Office file. The returned
@@ -2154,10 +2157,13 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
     messages.append({"role": "user", "content": prompt})
 
     # Agent extras: thinking/reasoning kapcsolók. deep_thinking=True felülírja
-    # a default clamping-et (Kimi thinking=disabled, DeepSeek reasoning=medium).
+    # a default clamping-et — DE Kimi-nél MINDIG disabled. A Kimi-K2.6 SF
+    # endpoint deep_thinking + 25k+ tokenes kontextusen rendszeresen 220s
+    # timeout-ba fut (#150, #151 task is így halt). A model endogén reasoning-ja
+    # erős thinking nélkül is. (2026-05-05 fix.)
     if deep_thinking:
         if model == "kimi":
-            agent_extra = {"thinking": {"type": "enabled"}}
+            agent_extra = {"thinking": {"type": "disabled"}}  # forced — see comment
         elif model == "deepseek":
             agent_extra = {"reasoning_effort": "high"}
         else:
@@ -3766,11 +3772,14 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
                 system += NO_TEXT_MARKER_DIRECTIVE
 
                 # Kimi K2.6 default thinking is ON on SF — force OFF to keep latency sane.
-                # DeepSeek V4-Pro default thinking ON too — clamp to medium effort.
-                # deep_thinking=True overrides: thinking ON for Kimi, reasoning=high for DeepSeek.
+                # deep_thinking=True does NOT enable thinking for Kimi anymore —
+                # the SF endpoint times out at 220s on 25k+ token broadcasts when
+                # thinking is enabled (#150, #151 evidence). Kimi's endogenous
+                # reasoning is strong enough without explicit chain-of-thought.
+                # deep_thinking still flips DeepSeek to reasoning_effort=high.
                 if deep_thinking:
                     if agent_name == "kimi":
-                        agent_extra = {"thinking": {"type": "enabled"}}
+                        agent_extra = {"thinking": {"type": "disabled"}}  # forced — see comment
                     elif agent_name == "deepseek":
                         agent_extra = {"reasoning_effort": "high"}
                     else:
@@ -4038,11 +4047,14 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
             citations and a final `## Források` URL list. Use for press review,
             equity briefs, fact-checking — anywhere 1-shot DDG is too thin.
             Slower (~60-180s per agent), real DDG calls.
-        deep_thinking: Enable explicit reasoning mode — Kimi `thinking=enabled`,
-            DeepSeek `reasoning_effort=high`. Default is OFF/medium for latency.
-            Turn on for hard logic, multi-step deduction, mathematical proofs.
-            ~3-5x slower per agent. Combinable with deep_research (very slow,
-            but the highest-quality output the rizsrakéták can produce).
+        deep_thinking: Enable explicit reasoning mode for DeepSeek
+            (`reasoning_effort=high`). NOTE: Kimi thinking is FORCED OFF
+            regardless of this flag — explicit thinking on 25k+ token
+            broadcasts routinely times out at SF's 220s ceiling (#150, #151
+            evidence). Kimi's endogenous reasoning is strong enough without
+            it. Default is reasoning_effort=medium for DeepSeek. Turn this on
+            for hard logic, multi-step deduction, mathematical proofs.
+            ~3-5x slower for DeepSeek. Combinable with deep_research.
         output_format: Empty for normal text response (default), or
             "docx" / "xlsx" / "pptx". Each agent then writes its content
             in a structured markdown the Bridge renders into a real Office
@@ -4161,10 +4173,12 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
 
             # K2.6 defaults thinking ON on SF — force OFF (latency unacceptable on dispatch path).
             # V4-Pro defaults thinking ON too — clamp to reasoning_effort=medium.
-            # deep_thinking flips both back to maximum-reasoning mode.
+            # deep_thinking flips DeepSeek to reasoning_effort=high; Kimi stays
+            # disabled regardless (SF Kimi-K2.6 thinking + large context = timeout,
+            # see #150 + #151 audit evidence). Kimi's endogenous reasoning suffices.
             if deep_thinking:
                 if model == "kimi":
-                    agent_extra = {"thinking": {"type": "enabled"}}
+                    agent_extra = {"thinking": {"type": "disabled"}}  # forced — see comment
                 elif model == "deepseek":
                     agent_extra = {"reasoning_effort": "high"}
                 else:
