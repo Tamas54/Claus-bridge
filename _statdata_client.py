@@ -39,10 +39,16 @@ _inflight_lock = asyncio.Lock()
 # ---------------------------------------------------------------------------
 DATA_PRESETS: dict[str, list[dict[str, Any]]] = {
     "hu_macro": [
-        {"tool": "get_ksh_stadat", "args": {"table_code": "ara0002"}},       # CPI havi (1.1.1.2)
-        {"tool": "get_ksh_stadat", "args": {"table_code": "gdp0002"}},       # GDP hosszú idősor (21.1.1.2)
+        # Friss havi HU CPI / negyedéves GDP / munkanélküliség → Eurostat
+        # (a KSH STADAT táblák ÉVES adatokat adnak, és parser-bug a multi-row headeren)
+        {"tool": "get_eurostat_data", "args": {"dataset_code": "prc_hicp_manr", "geo": "HU", "sinceTimePeriod": "2025-01"}},  # HICP havi
+        {"tool": "get_eurostat_data", "args": {"dataset_code": "namq_10_gdp", "geo": "HU"}},                                    # GDP negyedéves
+        {"tool": "get_eurostat_data", "args": {"dataset_code": "une_rt_m", "geo": "HU", "sinceTimePeriod": "2025-01"}},          # munkanélküli ráta havi
+        {"tool": "get_eurostat_data", "args": {"dataset_code": "irt_st_m", "geo": "HU", "sinceTimePeriod": "2025-01"}},          # money market rate (~MNB rate proxy, friss!)
+        {"tool": "get_ksh_stadat", "args": {"table_code": "ara0002"}},                                                           # KSH CPI éves bontás (1.1.1.2)
+        {"tool": "get_ksh_stadat", "args": {"table_code": "gdp0004"}},                                                           # KSH GDP nominál HUF/EUR/USD (gdp0002 helyett — parser-bug)
         {"tool": "mnb_rates", "args": {"mode": "current", "currencies": "EUR,USD"}},
-        {"tool": "get_policy_rates", "args": {"countries": "HU"}},
+        {"tool": "get_policy_rates", "args": {"countries": "HU"}},                                                               # BIS jelzi STALE-t
     ],
     "us_macro": [
         {"tool": "get_fred_data", "args": {"series_id": "GDP", "limit": 8}},
@@ -94,12 +100,15 @@ DATA_PRESETS: dict[str, list[dict[str, Any]]] = {
         for s in ("EEM", "USDBRL=X", "USDINR=X", "USDCNY=X", "USDZAR=X", "USDTRY=X")
     ],
     "hu_markets": [
-        # Magyar tőzsdei proxy — a Yahoo Finance-en a ^BUX index delistelt, ezért
-        # a 3 nagy BUX-komponens és az EURHUF-ot együtt használjuk.
-        {"tool": "yfinance", "args": {"symbol": "OTP.BD", "action": "quote"}},     # OTP Bank
-        {"tool": "yfinance", "args": {"symbol": "MOL.BD", "action": "quote"}},     # MOL
-        {"tool": "yfinance", "args": {"symbol": "RICHTER.BD", "action": "quote"}}, # Richter
-        {"tool": "yfinance", "args": {"symbol": "EURHUF=X", "action": "quote"}},   # EUR/HUF
+        # Magyar tőzsdei proxy — a Yahoo Finance-en a ^BUX index delistelt, és
+        # RICHTER.BD/MTELEKOM.BD/MASTERPLAST.BD szintén halott mutual fund proxyk.
+        # Ezek az ÉLŐ Budapest tickerek 2026-05-05 audit alapján:
+        {"tool": "yfinance", "args": {"symbol": "OTP.BD", "action": "quote"}},     # OTP Bank — BUX legnagyobb komponens
+        {"tool": "yfinance", "args": {"symbol": "MOL.BD", "action": "quote"}},     # MOL Magyar Olaj
+        {"tool": "yfinance", "args": {"symbol": "MTEL.BD", "action": "quote"}},    # Magyar Telekom (NEM MTELEKOM.BD!)
+        {"tool": "yfinance", "args": {"symbol": "4IG.BD", "action": "quote"}},     # 4iG
+        {"tool": "yfinance", "args": {"symbol": "OPUS.BD", "action": "quote"}},    # Opus Global
+        {"tool": "yfinance", "args": {"symbol": "EURHUF=X", "action": "quote"}},   # EUR/HUF FX
     ],
 }
 
