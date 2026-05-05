@@ -3771,26 +3771,19 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
                 # emitting <|tool_calls_section_*|>
                 system += NO_TEXT_MARKER_DIRECTIVE
 
-                # Kimi K2.6 default thinking is ON on SF — force OFF to keep latency sane.
-                # deep_thinking=True does NOT enable thinking for Kimi anymore —
-                # the SF endpoint times out at 220s on 25k+ token broadcasts when
-                # thinking is enabled (#150, #151 evidence). Kimi's endogenous
-                # reasoning is strong enough without explicit chain-of-thought.
-                # deep_thinking still flips DeepSeek to reasoning_effort=high.
-                if deep_thinking:
-                    if agent_name == "kimi":
-                        agent_extra = {"thinking": {"type": "disabled"}}  # forced — see comment
-                    elif agent_name == "deepseek":
-                        agent_extra = {"reasoning_effort": "high"}
-                    else:
-                        agent_extra = {}
+                # In multi-agent BROADCAST/DISPATCH mode, both Kimi-thinking=enabled
+                # and DeepSeek-reasoning_effort=high routinely time out / return
+                # empty bodies on 25k+ token contexts (#150 Kimi crash, #152
+                # DeepSeek "Expecting value" 48s later). The deep_thinking flag's
+                # benefit is not worth losing the agent. Both forced to safe mode
+                # in broadcast — single-agent ai_query keeps the original
+                # deep_thinking semantics for smaller contexts.
+                if agent_name == "kimi":
+                    agent_extra = {"thinking": {"type": "disabled"}}
+                elif agent_name == "deepseek":
+                    agent_extra = {"reasoning_effort": "medium"}
                 else:
-                    if agent_name == "kimi":
-                        agent_extra = {"thinking": {"type": "disabled"}}
-                    elif agent_name == "deepseek":
-                        agent_extra = {"reasoning_effort": "medium"}
-                    else:
-                        agent_extra = {}
+                    agent_extra = {}
 
                 # Deep research path — broadcast módban is csak EGY designált
                 # research-agent (DeepSeek V4-Pro) fut multi-round loopban,
@@ -4172,24 +4165,18 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
             system_prompt += NO_TEXT_MARKER_DIRECTIVE
 
             # K2.6 defaults thinking ON on SF — force OFF (latency unacceptable on dispatch path).
-            # V4-Pro defaults thinking ON too — clamp to reasoning_effort=medium.
-            # deep_thinking flips DeepSeek to reasoning_effort=high; Kimi stays
-            # disabled regardless (SF Kimi-K2.6 thinking + large context = timeout,
-            # see #150 + #151 audit evidence). Kimi's endogenous reasoning suffices.
-            if deep_thinking:
-                if model == "kimi":
-                    agent_extra = {"thinking": {"type": "disabled"}}  # forced — see comment
-                elif model == "deepseek":
-                    agent_extra = {"reasoning_effort": "high"}
-                else:
-                    agent_extra = {}
+            # In multi-agent DISPATCH mode (per-agent custom tasks), both
+            # Kimi-thinking=enabled and DeepSeek-reasoning_effort=high routinely
+            # time out or return empty bodies on 25k+ token contexts (#150
+            # Kimi crash, #152 DeepSeek "Expecting value" 48s later). Force
+            # safe mode regardless of deep_thinking flag here too — same as
+            # broadcast path. ai_query single-agent path keeps original semantics.
+            if model == "kimi":
+                agent_extra = {"thinking": {"type": "disabled"}}
+            elif model == "deepseek":
+                agent_extra = {"reasoning_effort": "medium"}
             else:
-                if model == "kimi":
-                    agent_extra = {"thinking": {"type": "disabled"}}
-                elif model == "deepseek":
-                    agent_extra = {"reasoning_effort": "medium"}
-                else:
-                    agent_extra = {}
+                agent_extra = {}
 
             # Deep research path — multi-round loop, returns final content.
             # Per-agent scoping: closure-ből veszi az agent_research_flags-t.
