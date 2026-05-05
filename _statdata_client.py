@@ -39,8 +39,8 @@ _inflight_lock = asyncio.Lock()
 # ---------------------------------------------------------------------------
 DATA_PRESETS: dict[str, list[dict[str, Any]]] = {
     "hu_macro": [
-        {"tool": "get_ksh_stadat", "args": {"table_code": "qse001"}},        # CPI havi
-        {"tool": "get_ksh_stadat", "args": {"table_code": "qpt001"}},        # GDP negyedéves
+        {"tool": "get_ksh_stadat", "args": {"table_code": "ara0002"}},       # CPI havi (1.1.1.2)
+        {"tool": "get_ksh_stadat", "args": {"table_code": "gdp0002"}},       # GDP hosszú idősor (21.1.1.2)
         {"tool": "mnb_rates", "args": {"mode": "current", "currencies": "EUR,USD"}},
         {"tool": "get_policy_rates", "args": {"countries": "HU"}},
     ],
@@ -58,10 +58,11 @@ DATA_PRESETS: dict[str, list[dict[str, Any]]] = {
     ],
     "markets": [
         {"tool": "yfinance", "args": {"symbol": "^GSPC", "action": "quote"}},      # S&P 500
-        {"tool": "yfinance", "args": {"symbol": "^BUX", "action": "quote"}},       # BUX
+        {"tool": "yfinance", "args": {"symbol": "OTP.BD", "action": "quote"}},     # OTP Bank — HU piaci proxy (^BUX delistelt YHD-n)
         {"tool": "yfinance", "args": {"symbol": "EURHUF=X", "action": "quote"}},
         {"tool": "yfinance", "args": {"symbol": "CL=F", "action": "quote"}},       # WTI crude
         {"tool": "yfinance", "args": {"symbol": "^TNX", "action": "quote"}},       # 10Y treasury yield
+        {"tool": "yfinance", "args": {"symbol": "GC=F", "action": "quote"}},       # Gold
     ],
     "tech_stocks": [
         {"tool": "yfinance", "args": {"symbol": s, "action": "quote"}}
@@ -83,13 +84,22 @@ DATA_PRESETS: dict[str, list[dict[str, Any]]] = {
     ],
     "inflation_focus": [
         {"tool": "get_fred_data", "args": {"series_id": "CPIAUCSL", "limit": 24}},
-        {"tool": "get_eurostat_data", "args": {"dataset_code": "prc_hicp_manr", "geo": "EA"}},
-        {"tool": "get_ksh_stadat", "args": {"table_code": "qse001"}},
-        {"tool": "get_fred_data", "args": {"series_id": "T10YIE", "limit": 12}},              # 10Y breakeven
+        {"tool": "get_eurostat_data", "args": {"dataset_code": "prc_hicp_manr", "geo": "EA", "sinceTimePeriod": "2025-01"}},
+        {"tool": "get_eurostat_data", "args": {"dataset_code": "prc_hicp_manr", "geo": "HU", "sinceTimePeriod": "2025-01"}},  # HU HICP Eurostat-ról (KSH ara0002 mellé)
+        {"tool": "get_ksh_stadat", "args": {"table_code": "ara0002"}},                         # KSH CPI (volt qse001)
+        {"tool": "get_fred_data", "args": {"series_id": "T10YIE", "limit": 12}},               # US 10Y breakeven
     ],
     "emerging_markets": [
         {"tool": "yfinance", "args": {"symbol": s, "action": "quote"}}
         for s in ("EEM", "USDBRL=X", "USDINR=X", "USDCNY=X", "USDZAR=X", "USDTRY=X")
+    ],
+    "hu_markets": [
+        # Magyar tőzsdei proxy — a Yahoo Finance-en a ^BUX index delistelt, ezért
+        # a 3 nagy BUX-komponens és az EURHUF-ot együtt használjuk.
+        {"tool": "yfinance", "args": {"symbol": "OTP.BD", "action": "quote"}},     # OTP Bank
+        {"tool": "yfinance", "args": {"symbol": "MOL.BD", "action": "quote"}},     # MOL
+        {"tool": "yfinance", "args": {"symbol": "RICHTER.BD", "action": "quote"}}, # Richter
+        {"tool": "yfinance", "args": {"symbol": "EURHUF=X", "action": "quote"}},   # EUR/HUF
     ],
 }
 
@@ -250,7 +260,8 @@ async def resolve_data_context(spec: Any) -> tuple[list[dict], str]:
     spec accepts:
         - str preset name: "hu_macro" | "us_macro" | "eu_macro" | "markets" |
                            "tech_stocks" | "commodities" | "fx_majors" |
-                           "bonds" | "inflation_focus" | "emerging_markets"
+                           "bonds" | "inflation_focus" | "emerging_markets" |
+                           "hu_markets"
         - dict:
             {"presets": ["hu_macro", "markets"]}
             {"series": [{"tool": "get_fred_data", "args": {...}}, ...]}

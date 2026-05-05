@@ -2079,15 +2079,17 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
             Lehet:
               - preset név: "hu_macro" | "us_macro" | "eu_macro" | "markets" |
                 "tech_stocks" | "commodities" | "fx_majors" | "bonds" |
-                "inflation_focus" | "emerging_markets"
+                "inflation_focus" | "emerging_markets" | "hu_markets"
               - JSON dict string, pl.
                   '{"presets":["hu_macro","markets"]}'
                   '{"presets":["hu_macro"],"forecast":true}'   (LASSÚ +ML predikció)
                   '{"series":[{"tool":"get_fred_data","args":{"series_id":"GDP"}}]}'
                   '{"presets":["us_macro"],"series":[{"tool":"yfinance","args":{"symbol":"BTC-USD"}}]}'
             Frissen lehúzott idősorok (Eurostat, KSH, DBnomics, MNB, FRED, Yahoo
-            Finance) a system_prompt-ba ragasztva. Echolot news_context-tel
-            kombinálható: friss hírek + friss számok együtt.
+            Finance) a system_prompt-ba ragasztva. A yfinance és policy_rates
+            tool jelzi ha az adat stale (delistelt ticker / régi BIS havi
+            adatpont) — a sub-agent erre figyeljen, NE idézze friss számként.
+            Echolot news_context-tel kombinálható: friss hírek + friss számok együtt.
     """
     denied = _enforce(caller, "ai_query")
     if denied:
@@ -4015,7 +4017,7 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
         data_context: Opt-in friss gazdasági adatkontextus a StatData MCP-ből.
             Ugyanaz a szintaxis mint az ai_query-nél: preset név (hu_macro,
             us_macro, eu_macro, markets, tech_stocks, commodities, fx_majors,
-            bonds, inflation_focus, emerging_markets) vagy JSON dict
+            bonds, inflation_focus, emerging_markets, hu_markets) vagy JSON dict
             ({"presets":[...], "series":[...], "forecast":bool}). A friss
             idősorok a `context` ELÉ kerülnek, mind a 3 agent megkapja.
             news_context-tel kombinálható.
