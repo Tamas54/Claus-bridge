@@ -407,8 +407,11 @@ def format_data_block(entries: list[dict], label: str = "") -> str:
             result = it.get("result", "")
             if not isinstance(result, str):
                 result = _json.dumps(result, ensure_ascii=False, default=str)
-            if len(result) > 2000:
-                result = result[:2000] + f"\n…[csonkolva, összesen {len(result)} char]"
+            # 2000→8000: the prior 2KB limit cut Eurostat HICP at month 6 of
+            # 18, hiding 2026 frontier data from sub-agents. 8KB now fits a
+            # full 18-month series with all dimensions. (2026-05-05 fix.)
+            if len(result) > 8000:
+                result = result[:8000] + f"\n…[csonkolva, összesen {len(result)} char]"
             lines.append(f"- `{tool}({args_str})`:\n{result}")
 
     return "\n".join(lines)
