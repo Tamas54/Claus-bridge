@@ -52,6 +52,14 @@ except ImportError:
     ECHOLOT_ENABLED = False
     echolot_client = None  # type: ignore
 
+# StatData — economic/statistical data (separate Railway instance, REST /api/call)
+try:
+    import _statdata_client as statdata_client
+    STATDATA_ENABLED = bool(os.getenv("STATDATA_URL"))
+except ImportError:
+    STATDATA_ENABLED = False
+    statdata_client = None  # type: ignore
+
 # Feldwebel — Telegram command system + smart triage + briefing
 try:
     from feldwebel import init_feldwebel, BridgeContext
@@ -301,6 +309,43 @@ def _parse_news_context(spec: str):
         except json.JSONDecodeError as e:
             raise ValueError(f"news_context JSON invalid: {e}")
     return s  # treated as preset name by resolve_news_context
+
+
+def _parse_data_context(spec: str):
+    """Coerce the MCP-string data_context into a dict spec for statdata_client.
+
+    Accepts a preset name (see _statdata_client.DATA_PRESETS) or a JSON-encoded
+    dict ({"presets": [...], "series": [...], "forecast": bool}).
+    Empty / falsy → None.
+    """
+    if not spec:
+        return None
+    s = spec.strip()
+    if not s:
+        return None
+    if s.startswith("{"):
+        try:
+            return json.loads(s)
+        except json.JSONDecodeError as e:
+            raise ValueError(f"data_context JSON invalid: {e}")
+    return s  # treated as preset name by resolve_data_context
+
+
+async def _statdata_passthrough(tool: str, args: dict) -> str:
+    """Shared helper for statdata_* @mcp.tool wrappers.
+
+    Forwards `args` to the StatData REST endpoint via _statdata_client._call,
+    returns the result as a string (JSON-stringifies non-str results).
+    """
+    if not STATDATA_ENABLED or statdata_client is None:
+        return json.dumps({"error": "StatData integration not enabled (STATDATA_URL missing)"})
+    clean = {k: v for k, v in (args or {}).items() if v not in ("", None)}
+    try:
+        r = await statdata_client._call(tool, clean)
+        return r if isinstance(r, str) else json.dumps(r, ensure_ascii=False)
+    except Exception as e:
+        logger.error("statdata_passthrough %s failed: %s", tool, e)
+        return json.dumps({"error": f"{type(e).__name__}: {e}"})
 
 
 # ============================================================
@@ -1831,12 +1876,170 @@ async def echolot_query(spheres: str = "", query: str = "", days: int = 7,
         return json.dumps({"error": f"Echolot call failed: {e}"})
 
 
+# ============================================================
+# StatData pass-through tools — economic/statistical data (StatData MCP)
+# ============================================================
+
+@mcp.tool()
+async def statdata_search(query: str, source: str = "all", limit: int = 20,
+                           caller: str = "") -> str:
+    """Keresés Eurostat / KSH / DBnomics adatállományok között (StatData MCP).
+
+    Args:
+        query: Kulcsszó (pl. "GDP Hungary", "infláció", "unemployment").
+        source: "eurostat" | "ksh" | "dbnomics" | "all" | "both" (eurostat+ksh). Default "all".
+        limit: 1..100, default 20.
+    """
+    return await _statdata_passthrough("search_datasets", {
+        "query": query, "source": source, "limit": limit,
+    })
+
+
+@mcp.tool()
+async def statdata_eurostat(dataset_code: str, geo: str = "", time: str = "",
+                             sinceTimePeriod: str = "", untilTimePeriod: str = "",
+                             filters: str = "", lang: str = "EN", caller: str = "") -> str:
+    """Eurostat lekérdezés (JSON-stat). Pl. dataset_code="nama_10_gdp", geo="HU"."""
+    return await _statdata_passthrough("get_eurostat_data", {
+        "dataset_code": dataset_code, "geo": geo, "time": time,
+        "sinceTimePeriod": sinceTimePeriod, "untilTimePeriod": untilTimePeriod,
+        "filters": filters, "lang": lang,
+    })
+
+
+@mcp.tool()
+async def statdata_ksh_hvd(dataset_id: str = "", query: str = "", lang: str = "hu",
+                            max_rows: int = 200, caller: str = "") -> str:
+    """KSH High-Value Datasets — listázás/keresés (üres dataset_id) vagy letöltés."""
+    return await _statdata_passthrough("get_ksh_hvd", {
+        "dataset_id": dataset_id, "query": query, "lang": lang, "max_rows": max_rows,
+    })
+
+
+@mcp.tool()
+async def statdata_dbnomics_search(query: str = "", provider: str = "", limit: int = 20,
+                                     mode: str = "search", caller: str = "") -> str:
+    """DBnomics keresés (700M+ idősor, 70+ provider). mode="providers" → providerlistázás."""
+    return await _statdata_passthrough("dbnomics_search", {
+        "query": query, "provider": provider, "limit": limit, "mode": mode,
+    })
+
+
+@mcp.tool()
+async def statdata_dbnomics_series(provider_code: str, dataset_code: str,
+                                     series_code: str = "", dimensions: str = "",
+                                     query: str = "", limit: int = 50,
+                                     caller: str = "") -> str:
+    """DBnomics konkrét idősor letöltése (provider+dataset+series_code/dimensions)."""
+    return await _statdata_passthrough("dbnomics_series", {
+        "provider_code": provider_code, "dataset_code": dataset_code,
+        "series_code": series_code, "dimensions": dimensions,
+        "query": query, "limit": limit,
+    })
+
+
+@mcp.tool()
+async def statdata_ksh_stadat(table_code: str, max_rows: int = 200, caller: str = "") -> str:
+    """KSH STADAT tábla — magyar idősorok (CPI, bér, GDP...). Pl. table_code="qse001"."""
+    return await _statdata_passthrough("get_ksh_stadat", {
+        "table_code": table_code, "max_rows": max_rows,
+    })
+
+
+@mcp.tool()
+async def statdata_yfinance(symbol: str, action: str = "quote", period: str = "1y",
+                             interval: str = "1d", start: str = "", end: str = "",
+                             caller: str = "") -> str:
+    """Yahoo Finance — részvény, deviza, áru, index. action="quote" vagy "history"."""
+    return await _statdata_passthrough("yfinance", {
+        "symbol": symbol, "action": action, "period": period, "interval": interval,
+        "start": start, "end": end,
+    })
+
+
+@mcp.tool()
+async def statdata_calculate(expression: str, caller: str = "") -> str:
+    """Gazdasági kalkulátor (infláció, CAGR, reálérték, konverzió)."""
+    return await _statdata_passthrough("calculate", {"expression": expression})
+
+
+@mcp.tool()
+async def statdata_mnb_rates(mode: str = "current", currencies: str = "",
+                              start_date: str = "", end_date: str = "",
+                              caller: str = "") -> str:
+    """MNB árfolyam — current vagy historical (1949-től). currencies pl. "EUR,USD"."""
+    return await _statdata_passthrough("mnb_rates", {
+        "mode": mode, "currencies": currencies,
+        "start_date": start_date, "end_date": end_date,
+    })
+
+
+@mcp.tool()
+async def statdata_recipe_book(action: str = "search", topic: str = "", id: str = "",
+                                provider: str = "", dataset: str = "", note: str = "",
+                                keywords: str = "", dimensions: str = "",
+                                series_code: str = "", tool: str = "", tool_name: str = "",
+                                description: str = "", client: str = "",
+                                caller: str = "") -> str:
+    """StatData receptkönyv: search / add / report / stats. Sub-agentek gyarapíthatják."""
+    return await _statdata_passthrough("recipe_book", {
+        "action": action, "topic": topic, "id": id, "provider": provider,
+        "dataset": dataset, "note": note, "keywords": keywords, "dimensions": dimensions,
+        "series_code": series_code, "tool": tool, "tool_name": tool_name,
+        "description": description, "client": client,
+    })
+
+
+@mcp.tool()
+async def statdata_fred(series_id: str, limit: int = 100, sort_order: str = "desc",
+                         frequency: str = "", units: str = "", caller: str = "") -> str:
+    """FRED idősor — 800K+ US makro-adat (St. Louis Fed). Pl. series_id="GDP"."""
+    return await _statdata_passthrough("get_fred_data", {
+        "series_id": series_id, "limit": limit, "sort_order": sort_order,
+        "frequency": frequency, "units": units,
+    })
+
+
+@mcp.tool()
+async def statdata_forecast(country: str, indicator: str = "gdp", year: int = 2026,
+                             quarter: int = 0, caller: str = "") -> str:
+    """LASSÚ (~10-30s): ML-előrejelzés (gdp/inflation/unemployment) vagy OECD CLI.
+
+    Args:
+        country: ISO-2 (HU, DE, US, ...).
+        indicator: "gdp" | "inflation" | "unemployment" | "oecd_cli".
+        year: célév (default 2026). oecd_cli-nél figyelmen kívül hagyva.
+        quarter: 1..4 negyedéves, 0 éves. oecd_cli-nél = havi obs. száma.
+    """
+    return await _statdata_passthrough("forecast", {
+        "country": country, "indicator": indicator, "year": year, "quarter": quarter,
+    })
+
+
+@mcp.tool()
+async def statdata_economic_calendar(days_ahead: int = 14, region: str = "all",
+                                       caller: str = "") -> str:
+    """Várható makro-események (FRED / ECB / Eurostat) a következő N napban."""
+    return await _statdata_passthrough("get_economic_calendar", {
+        "days_ahead": days_ahead, "region": region,
+    })
+
+
+@mcp.tool()
+async def statdata_policy_rates(countries: str = "XM,HU,CZ,PL,RO", frequency: str = "M",
+                                 limit: int = 12, caller: str = "") -> str:
+    """Központi bank policy rate-ek (BIS): ECB, MNB, CNB, NBP, BNR, Fed stb."""
+    return await _statdata_passthrough("get_policy_rates", {
+        "countries": countries, "frequency": frequency, "limit": limit,
+    })
+
+
 @mcp.tool()
 async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature: float = 0.7,
                    max_tokens: int = 20000, caller: str = "",
                    deep_research: bool = False, deep_thinking: bool = False,
                    output_format: str = "",
-                   news_context: str = "") -> str:
+                   news_context: str = "", data_context: str = "") -> str:
     """Query a SiliconFlow AI sub-agent (Kimi-K2.6, DeepSeek-V4-Pro, or GLM-5.1).
 
     Use for research, analysis, translation, summarization, or second opinions.
@@ -1872,6 +2075,19 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
             A friss híranyag 8 nyelven (eredeti) injektálódik a system_prompt-ba;
             a sub-agent magyarul válaszol és forrást idéz. NEM default — explicit
             opt-in, mert kódolási / matek / fordítási kérésnél context-pazarlás.
+        data_context: Opt-in friss gazdasági adatkontextus a StatData MCP-ből.
+            Lehet:
+              - preset név: "hu_macro" | "us_macro" | "eu_macro" | "markets" |
+                "tech_stocks" | "commodities" | "fx_majors" | "bonds" |
+                "inflation_focus" | "emerging_markets"
+              - JSON dict string, pl.
+                  '{"presets":["hu_macro","markets"]}'
+                  '{"presets":["hu_macro"],"forecast":true}'   (LASSÚ +ML predikció)
+                  '{"series":[{"tool":"get_fred_data","args":{"series_id":"GDP"}}]}'
+                  '{"presets":["us_macro"],"series":[{"tool":"yfinance","args":{"symbol":"BTC-USD"}}]}'
+            Frissen lehúzott idősorok (Eurostat, KSH, DBnomics, MNB, FRED, Yahoo
+            Finance) a system_prompt-ba ragasztva. Echolot news_context-tel
+            kombinálható: friss hírek + friss számok együtt.
     """
     denied = _enforce(caller, "ai_query")
     if denied:
@@ -1906,6 +2122,16 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
             system_prompt += echolot_client.MULTILANG_DIRECTIVE + block
         except Exception as ne:
             logger.warning("news_context fetch failed (continuing without): %s", ne)
+
+    # StatData data_context — opt-in, fresh economic time series injected before agent runs.
+    if data_context and STATDATA_ENABLED and statdata_client is not None:
+        try:
+            spec = _parse_data_context(data_context)
+            entries, label = await statdata_client.resolve_data_context(spec)
+            block = statdata_client.format_data_block(entries, label=label)
+            system_prompt += statdata_client.DATA_DIRECTIVE + block
+        except Exception as de:
+            logger.warning("data_context fetch failed (continuing without): %s", de)
 
     # Tell the agent it has 3 information tools (echolot_query, web_fetch, web_search)
     # — by Kommandant's policy: every agent has free access, no cost concern.
@@ -3752,7 +3978,7 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
 @mcp.tool()
 async def ai_task(title: str, description: str, context: str = "", file_id: int = 0, assigned_by: str = "unknown",
                   agent_tasks: str = "", deep_research: bool = False, deep_thinking: bool = False,
-                  output_format: str = "", news_context: str = "") -> str:
+                  output_format: str = "", news_context: str = "", data_context: str = "") -> str:
     """Create and execute a multi-agent AI task. Kimi, DeepSeek, and GLM-5.1 work on it, then a synthesis is generated.
 
     Two modes:
@@ -3786,6 +4012,13 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
             multi-sphere hírblokk a `context` ELÉ kerül, mind a 3 agent megkapja
             a research / synthesis előtt. Hasznos: napi sajtószemle generálás,
             piaci elemzés gazdasági képbehozóval, geopolitikai tematikus brief.
+        data_context: Opt-in friss gazdasági adatkontextus a StatData MCP-ből.
+            Ugyanaz a szintaxis mint az ai_query-nél: preset név (hu_macro,
+            us_macro, eu_macro, markets, tech_stocks, commodities, fx_majors,
+            bonds, inflation_focus, emerging_markets) vagy JSON dict
+            ({"presets":[...], "series":[...], "forecast":bool}). A friss
+            idősorok a `context` ELÉ kerülnek, mind a 3 agent megkapja.
+            news_context-tel kombinálható.
     """
     # Pull in uploaded file content if file_id provided
     if file_id:
@@ -3807,6 +4040,16 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
             context = (echolot_client.MULTILANG_DIRECTIVE + block + "\n\n" + (context or "")).strip()
         except Exception as ne:
             logger.warning("ai_task news_context fetch failed (continuing without): %s", ne)
+
+    # StatData data_context — opt-in, prepended to shared context so all agents get it.
+    if data_context and STATDATA_ENABLED and statdata_client is not None:
+        try:
+            spec = _parse_data_context(data_context)
+            entries, label = await statdata_client.resolve_data_context(spec)
+            block = statdata_client.format_data_block(entries, label=label)
+            context = (statdata_client.DATA_DIRECTIVE + block + "\n\n" + (context or "")).strip()
+        except Exception as de:
+            logger.warning("ai_task data_context fetch failed (continuing without): %s", de)
 
     if not SILICONFLOW_API_KEY:
         return json.dumps({"error": "SILICONFLOW_API_KEY not set"})

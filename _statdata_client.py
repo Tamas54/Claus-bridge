@@ -1,0 +1,357 @@
+"""StatData HTTP client + data_context helpers for the Bridge.
+
+StatData runs as a separate Railway instance. It exposes a generic REST
+dispatch endpoint that mirrors its 14 @mcp.tool() functions:
+
+    POST /api/call
+    Body: {"tool": "<name>", "args": {...}}
+    →    {"ok": true, "result": <str|json>}    on success
+         {"ok": false, "error": "<msg>"}       on failure (4xx/5xx)
+
+Caching policy:
+    StatData owns its caches (recipe_book, KSH index, etc). The Bridge does
+    NOT add a TTL cache — only short-window request coalescing so that
+    concurrent identical calls share one upstream request.
+"""
+from __future__ import annotations
+
+import asyncio
+import json as _json
+import logging
+import os
+import time
+from typing import Any
+
+import httpx
+
+logger = logging.getLogger("statdata_client")
+
+STATDATA_URL = os.getenv("STATDATA_URL", "").strip().rstrip("/")
+TIMEOUT = float(os.getenv("STATDATA_TIMEOUT", "30").strip() or "30")
+COALESCE_WINDOW = 5.0  # seconds — concurrent identical calls share one upstream
+
+_inflight: dict[str, tuple[float, asyncio.Future]] = {}
+_inflight_lock = asyncio.Lock()
+
+
+# ---------------------------------------------------------------------------
+# Presets (for ai_query/ai_task data_context="<preset>")
+# ---------------------------------------------------------------------------
+DATA_PRESETS: dict[str, list[dict[str, Any]]] = {
+    "hu_macro": [
+        {"tool": "get_ksh_stadat", "args": {"table_code": "qse001"}},        # CPI havi
+        {"tool": "get_ksh_stadat", "args": {"table_code": "qpt001"}},        # GDP negyedéves
+        {"tool": "mnb_rates", "args": {"mode": "current", "currencies": "EUR,USD"}},
+        {"tool": "get_policy_rates", "args": {"countries": "HU"}},
+    ],
+    "us_macro": [
+        {"tool": "get_fred_data", "args": {"series_id": "GDP", "limit": 8}},
+        {"tool": "get_fred_data", "args": {"series_id": "CPIAUCSL", "limit": 12}},
+        {"tool": "get_fred_data", "args": {"series_id": "DGS10", "limit": 12}},
+        {"tool": "get_fred_data", "args": {"series_id": "UNRATE", "limit": 12}},
+        {"tool": "get_policy_rates", "args": {"countries": "US"}},
+    ],
+    "eu_macro": [
+        {"tool": "get_eurostat_data", "args": {"dataset_code": "prc_hicp_manr", "geo": "EA"}},
+        {"tool": "get_policy_rates", "args": {"countries": "XM"}},           # Eurozone
+        {"tool": "yfinance", "args": {"symbol": "EURUSD=X", "action": "quote"}},
+    ],
+    "markets": [
+        {"tool": "yfinance", "args": {"symbol": "^GSPC", "action": "quote"}},      # S&P 500
+        {"tool": "yfinance", "args": {"symbol": "^BUX", "action": "quote"}},       # BUX
+        {"tool": "yfinance", "args": {"symbol": "EURHUF=X", "action": "quote"}},
+        {"tool": "yfinance", "args": {"symbol": "CL=F", "action": "quote"}},       # WTI crude
+        {"tool": "yfinance", "args": {"symbol": "^TNX", "action": "quote"}},       # 10Y treasury yield
+    ],
+    "tech_stocks": [
+        {"tool": "yfinance", "args": {"symbol": s, "action": "quote"}}
+        for s in ("MSFT", "NVDA", "GOOGL", "AAPL", "META", "AMZN", "^IXIC")
+    ],
+    "commodities": [
+        {"tool": "yfinance", "args": {"symbol": s, "action": "quote"}}
+        for s in ("CL=F", "BZ=F", "GC=F", "NG=F", "ZW=F", "HG=F")
+    ],
+    "fx_majors": [
+        {"tool": "yfinance", "args": {"symbol": s, "action": "quote"}}
+        for s in ("EURUSD=X", "USDJPY=X", "GBPUSD=X", "USDCHF=X", "EURHUF=X")
+    ],
+    "bonds": [
+        {"tool": "yfinance", "args": {"symbol": "^TNX", "action": "quote"}},                  # US 10Y
+        {"tool": "yfinance", "args": {"symbol": "^TYX", "action": "quote"}},                  # US 30Y
+        {"tool": "get_fred_data", "args": {"series_id": "DGS2", "limit": 12}},                # US 2Y
+        {"tool": "get_fred_data", "args": {"series_id": "IRLTLT01DEM156N", "limit": 12}},     # DE 10Y
+    ],
+    "inflation_focus": [
+        {"tool": "get_fred_data", "args": {"series_id": "CPIAUCSL", "limit": 24}},
+        {"tool": "get_eurostat_data", "args": {"dataset_code": "prc_hicp_manr", "geo": "EA"}},
+        {"tool": "get_ksh_stadat", "args": {"table_code": "qse001"}},
+        {"tool": "get_fred_data", "args": {"series_id": "T10YIE", "limit": 12}},              # 10Y breakeven
+    ],
+    "emerging_markets": [
+        {"tool": "yfinance", "args": {"symbol": s, "action": "quote"}}
+        for s in ("EEM", "USDBRL=X", "USDINR=X", "USDCNY=X", "USDZAR=X", "USDTRY=X")
+    ],
+}
+
+# Forecast add-ons appended when data_context = {"presets": [...], "forecast": True}.
+# Use cautiously — forecast tool is slow (~10-30s per call, runs ML pipeline).
+FORECAST_ADDONS: dict[str, list[dict[str, Any]]] = {
+    "hu_macro": [
+        {"tool": "forecast", "args": {"country": "HU", "indicator": "inflation", "year": 2027}},
+        {"tool": "forecast", "args": {"country": "HU", "indicator": "gdp", "year": 2027}},
+    ],
+    "us_macro": [
+        {"tool": "forecast", "args": {"country": "US", "indicator": "inflation", "year": 2027}},
+        {"tool": "forecast", "args": {"country": "US", "indicator": "oecd_cli"}},
+    ],
+    "eu_macro": [
+        {"tool": "forecast", "args": {"country": "DE", "indicator": "inflation", "year": 2027}},
+    ],
+    "inflation_focus": [
+        {"tool": "forecast", "args": {"country": "HU", "indicator": "inflation", "year": 2027}},
+        {"tool": "forecast", "args": {"country": "US", "indicator": "inflation", "year": 2027}},
+    ],
+}
+
+
+# ---------------------------------------------------------------------------
+# HTTP plumbing
+# ---------------------------------------------------------------------------
+class StatDataError(Exception):
+    pass
+
+
+async def _call(tool: str, args: dict[str, Any]) -> Any:
+    """POST STATDATA_URL/api/call with {"tool", "args"}, with request-coalescing.
+
+    Retries once on transport error. Raises StatDataError on non-ok response.
+    """
+    if not STATDATA_URL:
+        raise StatDataError("STATDATA_URL env var not set")
+
+    clean_args = {k: v for k, v in (args or {}).items() if v not in ("", None)}
+    key = f"{tool}::" + _json.dumps(clean_args, sort_keys=True, default=str)
+    now = time.monotonic()
+
+    async with _inflight_lock:
+        existing = _inflight.get(key)
+        if existing and (now - existing[0]) < COALESCE_WINDOW:
+            future = existing[1]
+            owner = False
+        else:
+            loop = asyncio.get_running_loop()
+            future = loop.create_future()
+            _inflight[key] = (now, future)
+            owner = True
+
+    if not owner:
+        return await future
+
+    try:
+        url = f"{STATDATA_URL}/api/call"
+        payload = {"tool": tool, "args": clean_args}
+        last_err: Exception | None = None
+        for attempt in (1, 2):
+            try:
+                async with httpx.AsyncClient(timeout=TIMEOUT) as client:
+                    resp = await client.post(url, json=payload)
+                if resp.status_code >= 400:
+                    body = resp.text[:300]
+                    raise StatDataError(f"HTTP {resp.status_code}: {body}")
+                data = resp.json()
+                if not data.get("ok"):
+                    raise StatDataError(f"upstream error: {data.get('error', '<unknown>')}")
+                future.set_result(data["result"])
+                return data["result"]
+            except (httpx.TransportError, httpx.TimeoutException) as e:
+                last_err = e
+                if attempt == 2:
+                    break
+                await asyncio.sleep(0.5)
+        err = StatDataError(f"transport error: {last_err}")
+        future.set_exception(err)
+        raise err
+    except StatDataError as e:
+        if not future.done():
+            future.set_exception(e)
+        raise
+    finally:
+        async with _inflight_lock:
+            cur = _inflight.get(key)
+            if cur and cur[1] is future:
+                _inflight.pop(key, None)
+
+
+# ---------------------------------------------------------------------------
+# Public API — one helper per StatData tool (kwargs forwarded as-is)
+# ---------------------------------------------------------------------------
+async def search_datasets(**kwargs) -> Any:
+    return await _call("search_datasets", kwargs)
+
+
+async def get_eurostat_data(**kwargs) -> Any:
+    return await _call("get_eurostat_data", kwargs)
+
+
+async def get_ksh_hvd(**kwargs) -> Any:
+    return await _call("get_ksh_hvd", kwargs)
+
+
+async def dbnomics_search(**kwargs) -> Any:
+    return await _call("dbnomics_search", kwargs)
+
+
+async def dbnomics_series(**kwargs) -> Any:
+    return await _call("dbnomics_series", kwargs)
+
+
+async def get_ksh_stadat(**kwargs) -> Any:
+    return await _call("get_ksh_stadat", kwargs)
+
+
+async def yfinance(**kwargs) -> Any:
+    return await _call("yfinance", kwargs)
+
+
+async def calculate(**kwargs) -> Any:
+    return await _call("calculate", kwargs)
+
+
+async def mnb_rates(**kwargs) -> Any:
+    return await _call("mnb_rates", kwargs)
+
+
+async def recipe_book(**kwargs) -> Any:
+    return await _call("recipe_book", kwargs)
+
+
+async def get_fred_data(**kwargs) -> Any:
+    return await _call("get_fred_data", kwargs)
+
+
+async def forecast(**kwargs) -> Any:
+    return await _call("forecast", kwargs)
+
+
+async def get_economic_calendar(**kwargs) -> Any:
+    return await _call("get_economic_calendar", kwargs)
+
+
+async def get_policy_rates(**kwargs) -> Any:
+    return await _call("get_policy_rates", kwargs)
+
+
+# ---------------------------------------------------------------------------
+# data_context resolver — what ai_query/ai_task call before injecting prompts
+# ---------------------------------------------------------------------------
+async def resolve_data_context(spec: Any) -> tuple[list[dict], str]:
+    """Resolve a data_context spec into (entries, label).
+
+    spec accepts:
+        - str preset name: "hu_macro" | "us_macro" | "eu_macro" | "markets" |
+                           "tech_stocks" | "commodities" | "fx_majors" |
+                           "bonds" | "inflation_focus" | "emerging_markets"
+        - dict:
+            {"presets": ["hu_macro", "markets"]}
+            {"series": [{"tool": "get_fred_data", "args": {...}}, ...]}
+            {"presets": [...], "series": [...], "forecast": True}
+
+    Returns (entries, label) where each entry is
+        {"tool": str, "args": dict, "result": <result>}  on success
+        {"tool": str, "args": dict, "error": str}        on failure
+    """
+    if spec is None:
+        return [], ""
+
+    if isinstance(spec, str):
+        spec = {"presets": [spec]}
+
+    if not isinstance(spec, dict):
+        raise StatDataError(f"data_context must be str or dict, got {type(spec).__name__}")
+
+    presets: list[str] = list(spec.get("presets") or [])
+    if "preset" in spec and spec["preset"]:                  # tolerate singular
+        presets.insert(0, spec["preset"])
+    series: list[dict] = list(spec.get("series") or [])
+    want_forecast = bool(spec.get("forecast", False))
+
+    calls: list[dict] = []
+    label_parts: list[str] = []
+
+    for p in presets:
+        if p not in DATA_PRESETS:
+            raise StatDataError(f"Unknown preset: {p!r}. Valid: {list(DATA_PRESETS)}")
+        for c in DATA_PRESETS[p]:
+            calls.append({"tool": c["tool"], "args": dict(c.get("args") or {})})
+        addons = FORECAST_ADDONS.get(p, []) if want_forecast else []
+        for c in addons:
+            calls.append({"tool": c["tool"], "args": dict(c.get("args") or {})})
+        label_parts.append(p + ("+forecast" if addons else ""))
+
+    for c in series:
+        if not isinstance(c, dict) or "tool" not in c:
+            raise StatDataError(f"series entry must be {{'tool': ..., 'args': ...}}, got {c!r}")
+        calls.append({"tool": c["tool"], "args": dict(c.get("args") or {})})
+
+    if series:
+        label_parts.append(f"custom({len(series)})")
+
+    # Execute all calls in parallel; coalescing handles dedup across concurrent calls.
+    results = await asyncio.gather(
+        *(_call(c["tool"], c["args"]) for c in calls),
+        return_exceptions=True,
+    )
+
+    out: list[dict] = []
+    for c, r in zip(calls, results):
+        if isinstance(r, Exception):
+            out.append({"tool": c["tool"], "args": c["args"], "error": str(r)})
+        else:
+            out.append({"tool": c["tool"], "args": c["args"], "result": r})
+
+    label = "+".join(label_parts) if label_parts else "empty"
+    return out, label
+
+
+# ---------------------------------------------------------------------------
+# Prompt formatting
+# ---------------------------------------------------------------------------
+DATA_DIRECTIVE = (
+    "\n\n--- FRISS GAZDASÁGI ADATKONTEXTUS HASZNÁLATI UTASÍTÁS ---\n"
+    "Az alábbi friss adatok a StatData MCP-ből származnak (Eurostat, KSH, "
+    "DBnomics, MNB, FRED, BIS, Yahoo Finance). Magyarul válaszolj, kivéve ha a "
+    "felhasználó kifejezetten más nyelven kéri. Ha konkrét számra hivatkozol "
+    "az adatokból, idézd a forrást [forrás_neve, ÉÉÉÉ-HH-NN] formátumban. Ha az "
+    "adatkontextus nem fedi a kérdést, NE találj ki tényt — mondd ki, hogy "
+    "nincs erre vonatkozó friss adat, vagy hívd a megfelelő `statdata_*` tool-t "
+    "a hiányzó idősorra. A `forecast` tool-tól kapott számok modellbecslések, "
+    "nem tények — jelöld őket előrejelzésként.\n"
+)
+
+
+def format_data_block(entries: list[dict], label: str = "") -> str:
+    """Return a Markdown data block ready to append to a system_prompt."""
+    if not entries:
+        return f"\n\n--- FRISS GAZDASÁGI ADATKONTEXTUS ({label or 'üres'}) ---\n(Nincs friss adat a kérésre.)\n"
+
+    lines = [f"\n\n--- FRISS GAZDASÁGI ADATKONTEXTUS ({label or 'mixed'}) ---"]
+
+    groups: dict[str, list[dict]] = {}
+    for e in entries:
+        groups.setdefault(e["tool"], []).append(e)
+
+    for tool, items in groups.items():
+        lines.append(f"\n### {tool} ({len(items)} hívás)")
+        for it in items:
+            args_str = ", ".join(f"{k}={v}" for k, v in (it.get("args") or {}).items())
+            if "error" in it:
+                lines.append(f"- `{tool}({args_str})` HIBA: {it['error']}")
+                continue
+            result = it.get("result", "")
+            if not isinstance(result, str):
+                result = _json.dumps(result, ensure_ascii=False, default=str)
+            if len(result) > 2000:
+                result = result[:2000] + f"\n…[csonkolva, összesen {len(result)} char]"
+            lines.append(f"- `{tool}({args_str})`:\n{result}")
+
+    return "\n".join(lines)
