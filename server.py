@@ -2216,7 +2216,30 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
                 json=payload,
             )
             raw = resp.text
-            data = json.loads(raw) if isinstance(raw, str) else raw
+            try:
+                data = json.loads(raw) if isinstance(raw, str) else raw
+            except json.JSONDecodeError as je:
+                # SiliconFlow occasionally returns non-JSON bodies — gateway 504,
+                # rate-limit HTML, or empty body when the upstream model times
+                # out under heavy context. Surface the actual status + body
+                # preview so we can diagnose, instead of dumping a useless
+                # "Expecting value: line 1 column 1" to the user. (2026-05-05.)
+                logger.error("SiliconFlow non-JSON response from %s: status=%d, body=%r",
+                             model_id, resp.status_code, raw[:500])
+                return json.dumps({
+                    "error": f"SiliconFlow returned non-JSON body (HTTP {resp.status_code})",
+                    "model": model_id,
+                    "status_code": resp.status_code,
+                    "body_preview": raw[:300] if raw else "(empty)",
+                    "json_decode_error": str(je),
+                    "hint": (
+                        "Common causes: (1) gateway 504/502 timeout — context too large or model overloaded; "
+                        "(2) rate-limit exceeded — wait 30-60s and retry; "
+                        "(3) auth/quota issue — check SILICONFLOW_API_KEY. "
+                        "If body_preview looks like HTML, it's a gateway error. "
+                        "If empty, the upstream model timed out before sending headers."
+                    ),
+                })
 
         if not isinstance(data, dict):
             return json.dumps({"error": f"Unexpected response type: {type(data).__name__}", "raw": str(data)[:500]})
@@ -2271,7 +2294,13 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
                              "Content-Type": "application/json"},
                     json=payload2,
                 )
-            data2 = json.loads(resp2.text)
+            try:
+                data2 = json.loads(resp2.text)
+            except json.JSONDecodeError:
+                logger.error("SiliconFlow second-round non-JSON response from %s: status=%d, body=%r",
+                             model_id, resp2.status_code, resp2.text[:500])
+                # Keep `content` from the first round (may be empty) and skip the synthesis
+                data2 = {}
             if isinstance(data2, dict) and data2.get("choices"):
                 msg2 = data2["choices"][0].get("message", {})
                 content2 = msg2.get("content", "") or ""
@@ -3591,7 +3620,17 @@ async def _run_agent_with_tools(model_id: str, messages: list, max_rounds: int =
                 },
                 json=payload,
             )
-        data = json.loads(resp.text)
+        try:
+            data = json.loads(resp.text)
+        except json.JSONDecodeError as je:
+            logger.error("_run_agent_with_tools non-JSON from %s round %d: status=%d, body=%r",
+                         model_id, round_num, resp.status_code, resp.text[:500])
+            return (
+                f"API error: SiliconFlow returned non-JSON body (HTTP {resp.status_code}, "
+                f"round {round_num}). Body preview: {resp.text[:200] or '(empty)'}. "
+                f"Likely cause: gateway 504/timeout under heavy context, or rate-limit. "
+                f"JSON decode error: {je}"
+            )
         if not isinstance(data, dict) or "error" in data:
             return f"API error: {data}"
 
