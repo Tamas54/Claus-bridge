@@ -42,7 +42,9 @@ DATA_PRESETS: dict[str, list[dict[str, Any]]] = {
         # Friss havi HU CPI / negyedéves GDP / munkanélküliség → Eurostat
         # (a KSH STADAT táblák ÉVES adatokat adnak, és parser-bug a multi-row headeren)
         {"tool": "get_eurostat_data", "args": {"dataset_code": "prc_hicp_manr", "geo": "HU", "sinceTimePeriod": "2025-01"}},  # HICP havi
-        {"tool": "get_eurostat_data", "args": {"dataset_code": "namq_10_gdp", "geo": "HU"}},                                    # GDP negyedéves
+        {"tool": "get_eurostat_data", "args": {"dataset_code": "namq_10_gdp", "geo": "HU",
+                                                  "filters": "na_item=B1GQ&unit=CLV15_MEUR&s_adj=SCA",
+                                                  "sinceTimePeriod": "2024-Q1"}},                                                # GDP negyedéves (chain-linked vol, EUR, SA)
         {"tool": "get_eurostat_data", "args": {"dataset_code": "une_rt_m", "geo": "HU", "sinceTimePeriod": "2025-01"}},          # munkanélküli ráta havi
         {"tool": "get_eurostat_data", "args": {"dataset_code": "irt_st_m", "geo": "HU", "sinceTimePeriod": "2025-01"}},          # money market rate (~MNB rate proxy, friss!)
         {"tool": "get_ksh_stadat", "args": {"table_code": "ara0002"}},                                                           # KSH CPI éves bontás (1.1.1.2)
