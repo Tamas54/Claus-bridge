@@ -2270,7 +2270,7 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
             for tc in tool_calls[:3]:
                 fn = tc.get("function", {}) if isinstance(tc, dict) else {}
                 tool_name = fn.get("name", "")
-                if tool_name not in ("web_search", "echolot_query", "web_fetch"):
+                if tool_name not in SUBAGENT_TOOL_NAMES:
                     continue
                 try:
                     args = json.loads(fn.get("arguments", "{}"))
@@ -2937,14 +2937,144 @@ WEB_FETCH_TOOL_DEF = {
     },
 }
 
+STATDATA_YFINANCE_TOOL_DEF = {
+    "type": "function",
+    "function": {
+        "name": "statdata_yfinance",
+        "description": (
+            "Live-ish market data for any Yahoo Finance ticker (~1 minute delay). "
+            "Use for FX ('EURHUF=X', 'EURUSD=X'), equities ('OTP.BD', 'AAPL'), "
+            "commodities ('BZ=F' Brent, 'CL=F' WTI, 'GC=F' gold), indices "
+            "('^GSPC' S&P500, '^TNX' US 10Y), crypto ('BTC-USD'). Pull this when "
+            "the data_context is >1 hour old and intraday matters, or when the "
+            "ticker wasn't in the preset. Output flags STALE/delisted instruments."
+        ),
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "symbol": {
+                    "type": "string",
+                    "description": "Yahoo Finance ticker (e.g. 'EURHUF=X', 'OTP.BD', 'BZ=F', '^GSPC', 'BTC-USD')",
+                },
+                "period": {
+                    "type": "string",
+                    "description": "Lookback: '1d','5d','1mo','3mo','6mo','1y' (default '5d')",
+                },
+            },
+            "required": ["symbol"],
+        },
+    },
+}
+
+STATDATA_FETCH_TOOL_DEF = {
+    "type": "function",
+    "function": {
+        "name": "statdata_fetch",
+        "description": (
+            "Fetch a single time series from a statistical provider. Use when "
+            "you need a specific dataset that isn't in your data_context preset, "
+            "or to refresh a stale series via a fresher proxy. Providers: 'fred' "
+            "(St. Louis Fed, US macro), 'eurostat' (EU harmonized), 'ksh' "
+            "(Hungarian Central Statistical Office STADAT), 'dbnomics' "
+            "(700M+ series across IMF/ECB/OECD/WB)."
+        ),
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "provider": {
+                    "type": "string",
+                    "description": "One of: 'fred', 'eurostat', 'ksh', 'dbnomics'",
+                },
+                "id": {
+                    "type": "string",
+                    "description": "Series/dataset ID (e.g. 'GDP' FRED, 'prc_hicp_manr' Eurostat, 'ara0039' KSH)",
+                },
+                "filters": {
+                    "type": "string",
+                    "description": "Optional Eurostat-style filter (e.g. 'geo=HU&unit=I15&s_adj=SCA')",
+                },
+                "periods": {
+                    "type": "integer",
+                    "description": "How many recent observations to return (default 12)",
+                },
+            },
+            "required": ["provider", "id"],
+        },
+    },
+}
+
+STATDATA_SEARCH_TOOL_DEF = {
+    "type": "function",
+    "function": {
+        "name": "statdata_search",
+        "description": (
+            "Search for series/dataset IDs across providers when you don't know "
+            "the exact ID. Example: 'hungary core inflation', 'eurozone HICP', "
+            "'us treasury 10y'. Returns matches with provider, ID, title, frequency."
+        ),
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "query": {
+                    "type": "string",
+                    "description": "Keyword search (English or local language).",
+                },
+                "source": {
+                    "type": "string",
+                    "description": "Optional provider filter: 'eurostat', 'ksh', 'dbnomics' (empty = all)",
+                },
+            },
+            "required": ["query"],
+        },
+    },
+}
+
+STATDATA_MNB_RATES_TOOL_DEF = {
+    "type": "function",
+    "function": {
+        "name": "statdata_mnb_rates",
+        "description": (
+            "Live MNB (Hungarian National Bank) official mid-rates for HUF "
+            "crosses. Use 'current' mode for today's official EUR/HUF, USD/HUF, "
+            "GBP/HUF etc. — published daily, more authoritative than yfinance "
+            "for HUF specifically."
+        ),
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "mode": {
+                    "type": "string",
+                    "description": "'current' for today's rates, 'history' for a time series (default 'current')",
+                },
+                "currency": {
+                    "type": "string",
+                    "description": "Currency code (e.g. 'EUR', 'USD'). Empty = all major crosses",
+                },
+            },
+        },
+    },
+}
+
 # Tools sub-agents (Kimi/DeepSeek-V4/GLM5) get during multi-round research.
+# StatData tools only exposed when the integration is configured (STATDATA_URL set).
 SUBAGENT_TOOL_DEFS = [WEB_SEARCH_TOOL_DEF, ECHOLOT_QUERY_TOOL_DEF, WEB_FETCH_TOOL_DEF]
+if STATDATA_ENABLED:
+    SUBAGENT_TOOL_DEFS.extend([
+        STATDATA_YFINANCE_TOOL_DEF,
+        STATDATA_FETCH_TOOL_DEF,
+        STATDATA_SEARCH_TOOL_DEF,
+        STATDATA_MNB_RATES_TOOL_DEF,
+    ])
+
+# Single source of truth for sub-agent tool whitelist (used by 7 dispatch sites).
+SUBAGENT_TOOL_NAMES = tuple(td["function"]["name"] for td in SUBAGENT_TOOL_DEFS)
 
 
-SUBAGENT_TOOLS_DIRECTIVE = (
+_SUBAGENT_TOOLS_DIRECTIVE_BASE = (
     "\n\n## INFORMÁCIÓS ESZKÖZÖK\n"
-    "Három tool áll rendelkezésedre, eltérő profilú. Magad döntsd el mit, mikor, "
+    "Eltérő profilú tool-ok állnak rendelkezésedre. Magad döntsd el mit, mikor, "
     "hányszor — ezek okos eszközök, ne korlátozd magad.\n\n"
+    "**Hír / web tool-ok:**\n"
     "- **`echolot_query`** — friss hírek 315 forrásból (RSS + Telegram), 8 nyelven, "
     "63 sphere-be tagelve (HU + globális topikális + regionális + partisan). "
     "Headline + lead szintű — címet, vezérét és URL-t ad, NEM teljes cikktestet. "
@@ -2956,10 +3086,47 @@ SUBAGENT_TOOLS_DIRECTIVE = (
     "amit teljesen el akarsz olvasni.\n"
     "- **`web_search`** — globális DuckDuckGo (+ Brave fallback). Akkor jó, ha "
     "részletes források, statisztika, hosszú cikk, vagy nem hír-jellegű információ "
-    "kell (történelmi adat, tudomány, dokumentumok).\n\n"
-    "Egy kérdésen több tool-hívást is futtathatsz — a feladat legjobb teljesítése a cél, "
+    "kell (történelmi adat, tudomány, dokumentumok).\n"
+)
+
+_SUBAGENT_STATDATA_DIRECTIVE = (
+    "\n**StatData (statisztikai / piaci adat) tool-ok — pontosság prioritás:**\n"
+    "- **`statdata_yfinance`** — élő piaci kvóta bármely Yahoo Finance tickerre "
+    "(~1 perc delay). Deviza: 'EURHUF=X', 'EURUSD=X', 'EURPLN=X', 'EURCZK=X'. "
+    "Részvény: 'OTP.BD', 'MOL.BD', 'AAPL'. Nyersanyag: 'BZ=F' Brent, 'CL=F' WTI, "
+    "'GC=F' arany. Index: '^GSPC' S&P500, '^TNX' US 10Y. Crypto: 'BTC-USD'. "
+    "**Pull-old pro-aktívan** ha (a) a kontextus 1+ órás és intraday számít, "
+    "(b) a ticker NEM volt a data_context presetben, (c) konkrét piaci kommentárhoz friss ár kell.\n"
+    "- **`statdata_fetch`** — egy konkrét idősor lehúzása. Provider: 'fred' "
+    "(US makró, St. Louis Fed), 'eurostat' (EU harmonizált), 'ksh' (magyar STADAT), "
+    "'dbnomics' (700M+ széria, IMF/ECB/OECD/WB). Akkor használd ha tudod a series ID-t "
+    "de nem volt a presetben, vagy ha egy STALE forrás helyett friss proxy kell "
+    "(pl. BIS WS_CBPOL stale → Eurostat irt_st_m HU).\n"
+    "- **`statdata_search`** — series ID keresés ha nem tudod a pontos azonosítót. "
+    "Pl. 'hungary core inflation' → ara0045.\n"
+    "- **`statdata_mnb_rates`** — élő MNB hivatalos HUF árfolyam (EUR/HUF, USD/HUF, GBP/HUF). "
+    "HUF-keresztekre AUTHORITATIVE, jobb mint yfinance.\n"
+    "\n"
+    "## ADAT-PONTOSSÁG ELSŐRENDŰ\n"
+    "Minden számadatot konkrét forráshoz kell horgonyoznod. Forrás-prioritás:\n"
+    "1. `[StatData/...]` kontextus-blokk vagy statdata_* tool — AUTHORITATIVE\n"
+    "2. **DE** ha találsz FRISSEBB adatot ugyanarra a mutatóra (pl. flash estimate, "
+    "intraday quote, friss MNB-közlemény), idézd MELLÉ explicit `[web/...]` címkével — "
+    "a frissebb mindig értékesebb. NE duplikálj (ugyanaz a 2026-03 CPI ne legyen kétszer).\n"
+    "3. Forrás-divergencia esetén MINDKETTŐT idézd, magyarázd a különbséget.\n"
+    "4. Ha egy adat nincs sehol → írd: 'erre nincs friss adat'. NE találj ki számot.\n"
+)
+
+_SUBAGENT_TOOLS_DIRECTIVE_TAIL = (
+    "\nEgy kérdésen több tool-hívást is futtathatsz — a feladat legjobb teljesítése a cél, "
     "nem a takarékosság. Ha az első hívás eredménye nem találó, finomítsd a paramétereket "
     "és próbáld újra.\n"
+)
+
+SUBAGENT_TOOLS_DIRECTIVE = (
+    _SUBAGENT_TOOLS_DIRECTIVE_BASE
+    + (_SUBAGENT_STATDATA_DIRECTIVE if STATDATA_ENABLED else "")
+    + _SUBAGENT_TOOLS_DIRECTIVE_TAIL
 )
 
 
@@ -3027,6 +3194,77 @@ async def _dispatch_subagent_tool(name: str, args: dict) -> str:
     if name == "web_fetch":
         url = (args.get("url") or "").strip()
         return await _fetch_url_text(url)
+
+    # ── StatData tools (only routed when STATDATA_ENABLED) ──────────────
+    if name == "statdata_yfinance":
+        if not STATDATA_ENABLED or statdata_client is None:
+            return json.dumps({"error": "StatData integration disabled (STATDATA_URL missing)"})
+        symbol = (args.get("symbol") or "").strip()
+        if not symbol:
+            return json.dumps({"error": "symbol required"})
+        period = (args.get("period") or "5d").strip()
+        try:
+            result = await statdata_client.yfinance(symbol=symbol, period=period)
+            return json.dumps(result, ensure_ascii=False, default=str)[:6000]
+        except Exception as e:
+            return json.dumps({"error": f"statdata_yfinance failed: {type(e).__name__}: {e}"})
+
+    if name == "statdata_fetch":
+        if not STATDATA_ENABLED or statdata_client is None:
+            return json.dumps({"error": "StatData integration disabled (STATDATA_URL missing)"})
+        provider = (args.get("provider") or "").strip().lower()
+        series_id = (args.get("id") or "").strip()
+        filters = (args.get("filters") or "").strip()
+        periods = int(args.get("periods") or 12)
+        if not provider or not series_id:
+            return json.dumps({"error": "provider and id required"})
+        try:
+            if provider == "fred":
+                result = await statdata_client.get_fred_data(series_id=series_id, periods=periods)
+            elif provider == "eurostat":
+                kwargs = {"dataset": series_id, "periods": periods}
+                if filters:
+                    kwargs["filters"] = filters
+                result = await statdata_client.get_eurostat_data(**kwargs)
+            elif provider == "ksh":
+                result = await statdata_client.get_ksh_stadat(table=series_id, periods=periods)
+            elif provider == "dbnomics":
+                result = await statdata_client.dbnomics_series(series_id=series_id, periods=periods)
+            else:
+                return json.dumps({"error": f"unknown provider '{provider}'. Use fred|eurostat|ksh|dbnomics"})
+            return json.dumps(result, ensure_ascii=False, default=str)[:6000]
+        except Exception as e:
+            return json.dumps({"error": f"statdata_fetch failed: {type(e).__name__}: {e}"})
+
+    if name == "statdata_search":
+        if not STATDATA_ENABLED or statdata_client is None:
+            return json.dumps({"error": "StatData integration disabled (STATDATA_URL missing)"})
+        q = (args.get("query") or "").strip()
+        source = (args.get("source") or "").strip()
+        if not q:
+            return json.dumps({"error": "query required"})
+        try:
+            kwargs = {"query": q}
+            if source:
+                kwargs["source"] = source
+            result = await statdata_client.search_datasets(**kwargs)
+            return json.dumps(result, ensure_ascii=False, default=str)[:6000]
+        except Exception as e:
+            return json.dumps({"error": f"statdata_search failed: {type(e).__name__}: {e}"})
+
+    if name == "statdata_mnb_rates":
+        if not STATDATA_ENABLED or statdata_client is None:
+            return json.dumps({"error": "StatData integration disabled (STATDATA_URL missing)"})
+        mode = (args.get("mode") or "current").strip()
+        currency = (args.get("currency") or "").strip()
+        try:
+            kwargs = {"mode": mode}
+            if currency:
+                kwargs["currency"] = currency
+            result = await statdata_client.mnb_rates(**kwargs)
+            return json.dumps(result, ensure_ascii=False, default=str)[:6000]
+        except Exception as e:
+            return json.dumps({"error": f"statdata_mnb_rates failed: {type(e).__name__}: {e}"})
 
     return json.dumps({"error": f"unknown tool: {name}"})
 
@@ -3531,7 +3769,7 @@ async def _deep_research_loop(
             for tc in tool_calls:
                 fn = tc.get("function", {})
                 tool_name = fn.get("name", "")
-                if tool_name not in ("web_search", "echolot_query", "web_fetch"):
+                if tool_name not in SUBAGENT_TOOL_NAMES:
                     continue
                 args_raw = fn.get("arguments", "{}")
                 try:
@@ -3687,7 +3925,7 @@ async def _run_agent_with_tools(model_id: str, messages: list, max_rounds: int =
         for tc in tool_calls:
             fn = tc.get("function", {})
             tool_name = fn.get("name", "")
-            if tool_name not in ("web_search", "echolot_query", "web_fetch"):
+            if tool_name not in SUBAGENT_TOOL_NAMES:
                 continue
             try:
                 args = json.loads(fn.get("arguments", "{}"))
@@ -3845,7 +4083,7 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
                         for tc in tool_calls:
                             fn = tc.get("function", {})
                             tool_name = fn.get("name", "")
-                            if tool_name not in ("web_search", "echolot_query", "web_fetch"):
+                            if tool_name not in SUBAGENT_TOOL_NAMES:
                                 continue
                             try:
                                 args = json.loads(fn.get("arguments", "{}"))
@@ -3890,7 +4128,7 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
                                 for tc in tool_calls2:
                                     fn = tc.get("function", {})
                                     tool_name = fn.get("name", "")
-                                    if tool_name not in ("web_search", "echolot_query", "web_fetch"):
+                                    if tool_name not in SUBAGENT_TOOL_NAMES:
                                         continue
                                     try:
                                         args = json.loads(fn.get("arguments", "{}"))
@@ -4229,7 +4467,7 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
                 for tc in tool_calls:
                     fn = tc.get("function", {})
                     tool_name = fn.get("name", "")
-                    if tool_name not in ("web_search", "echolot_query", "web_fetch"):
+                    if tool_name not in SUBAGENT_TOOL_NAMES:
                         continue
                     try:
                         args = json.loads(fn.get("arguments", "{}"))
@@ -4273,7 +4511,7 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
                         for tc in tool_calls2[:3]:
                             fn = tc.get("function", {})
                             tool_name = fn.get("name", "")
-                            if tool_name not in ("web_search", "echolot_query", "web_fetch"):
+                            if tool_name not in SUBAGENT_TOOL_NAMES:
                                 continue
                             try:
                                 args = json.loads(fn.get("arguments", "{}"))
