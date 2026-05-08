@@ -2316,6 +2316,57 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
                 if usage2:
                     usage = usage2
 
+        # Text-marker fallback: when the model emits tool calls as content text
+        # (Kimi <|tool_call_*|>, DeepSeek DSML) instead of the proper tool_calls
+        # JSON field — common with these models on SiliconFlow. Only applies if
+        # we didn't already handle JSON tool_calls above.
+        elif any(m in content for m in TEXT_MARKER_TOKENS):
+            parsed_calls = _extract_text_marker_tool_calls(content)
+            tool_results = ""
+            for tname, targs in parsed_calls[:3]:
+                if tname not in SUBAGENT_TOOL_NAMES:
+                    logger.warning("ai_query %s text-marker: unknown tool '%s' skipped", model, tname)
+                    continue
+                tr = await _dispatch_subagent_tool(tname, targs)
+                summary = _summarize_tool_args(targs)
+                tool_results += f"\n[{tname} (text-marker): {summary}]\n{tr[:4000]}\n"
+                logger.info("ai_query %s text-marker: %s '%s'", model, tname, summary)
+            if tool_results:
+                # Re-call without tools to synthesize a final answer using the results
+                synth_messages = messages + [
+                    {"role": "assistant", "content": "(tool calls végrehajtva)"},
+                    {"role": "user",
+                     "content": f"Tool eredmények:\n{tool_results}\n\nVálaszolj az eredmények alapján, magyarul, forrásolva."},
+                ]
+                payload3 = {
+                    "model": model_id,
+                    "messages": synth_messages,
+                    "temperature": temperature,
+                    "max_tokens": max_tokens,
+                    **agent_extra,
+                }
+                async with httpx.AsyncClient(timeout=SILICONFLOW_TIMEOUT) as client:
+                    resp3 = await client.post(
+                        f"{SILICONFLOW_BASE_URL}/chat/completions",
+                        headers={"Authorization": f"Bearer {SILICONFLOW_API_KEY}",
+                                 "Content-Type": "application/json"},
+                        json=payload3,
+                    )
+                try:
+                    data3 = json.loads(resp3.text)
+                except json.JSONDecodeError:
+                    logger.error("ai_query text-marker synth non-JSON from %s: status=%d, body=%r",
+                                 model_id, resp3.status_code, resp3.text[:500])
+                    data3 = {}
+                if isinstance(data3, dict) and data3.get("choices"):
+                    msg3 = data3["choices"][0].get("message", {})
+                    content3 = msg3.get("content", "") or ""
+                    if content3.strip():
+                        content = content3
+                    usage3 = data3.get("usage", {})
+                    if usage3:
+                        usage = usage3
+
         # Pyramid governance: store result in RAG / shared memory
         if PYRAMID_ENABLED and model in PYRAMID_AGENTS and content:
             try:
@@ -3269,6 +3320,130 @@ async def _dispatch_subagent_tool(name: str, args: dict) -> str:
     return json.dumps({"error": f"unknown tool: {name}"})
 
 
+# Text-marker tool-call detection: substrings that indicate the model emitted
+# its tool calls as content text instead of the proper OpenAI `tool_calls` JSON
+# field. Kimi K2.6 and DeepSeek-V4-Pro do this routinely on SiliconFlow.
+TEXT_MARKER_TOKENS = (
+    "<|tool_call",       # Kimi: <|tool_calls_section_begin|> ... <|tool_call_begin|>
+    "<｜｜DSML｜｜",       # DeepSeek DSML (full-width pipes, double)
+    "<｜DSML｜",          # DeepSeek DSML (full-width pipes, single — variant)
+    "function_calls>",   # Anthropic-style <function_calls>
+    "tool_calls_section",
+)
+
+
+def _extract_text_marker_tool_calls(content: str) -> list[tuple[str, dict]]:
+    """Parse Kimi/DeepSeek/Anthropic-style text-marker tool_call output.
+
+    Returns a list of (tool_name, args_dict) in the order they appear.
+    Empty list if no recognizable structured calls are found.
+
+    Handles three formats:
+
+    1. Kimi K2.6 (SiliconFlow):
+       <|tool_call_begin|>functions.NAME[:N]<|tool_call_argument_begin|>{JSON}<|tool_call_end|>
+
+    2. DeepSeek DSML (SiliconFlow, full-width pipes):
+       <｜｜DSML｜｜invoke name="NAME">
+         <｜｜DSML｜｜parameter name="K" string="true">V</｜｜DSML｜｜parameter>
+         ...
+       </｜｜DSML｜｜invoke>
+
+    3. Anthropic-style XML:
+       <invoke name="NAME">{JSON}</invoke>
+    """
+    import re as _re
+    calls: list[tuple[str, dict]] = []
+    seen: set = set()
+
+    def _add(tool_name: str, args: dict) -> None:
+        if not tool_name:
+            return
+        sig = (tool_name, json.dumps(args, sort_keys=True, default=str))
+        if sig in seen:
+            return
+        seen.add(sig)
+        calls.append((tool_name, args))
+
+    # 1. Kimi format
+    kimi_re = _re.compile(
+        r'<\|tool_call_begin\|>\s*functions\.([A-Za-z_][\w]*)(?::\d+)?\s*'
+        r'<\|tool_call_argument_begin\|>\s*(.*?)\s*<\|tool_call_end\|>',
+        _re.DOTALL,
+    )
+    for m in kimi_re.finditer(content):
+        tname = m.group(1).strip()
+        raw = (m.group(2) or "").strip() or "{}"
+        try:
+            args = json.loads(raw) if raw.startswith("{") else {}
+        except Exception:
+            args = {}
+        _add(tname, args if isinstance(args, dict) else {})
+
+    # 2. DeepSeek DSML format — match invoke + nested parameters
+    dsml_invoke_re = _re.compile(
+        r'<[^>]*?DSML[^>]*?invoke\s+name=["\']([A-Za-z_][\w]*)["\'][^>]*?>(.*?)</[^>]*?DSML[^>]*?invoke>',
+        _re.DOTALL,
+    )
+    dsml_param_re = _re.compile(
+        r'<[^>]*?DSML[^>]*?parameter\s+name=["\']([A-Za-z_][\w]*)["\'][^>]*?>(.*?)</[^>]*?DSML[^>]*?parameter>',
+        _re.DOTALL,
+    )
+    for inv in dsml_invoke_re.finditer(content):
+        tname = inv.group(1).strip()
+        body = inv.group(2)
+        args: dict = {}
+        for p in dsml_param_re.finditer(body):
+            key = p.group(1).strip()
+            val = (p.group(2) or "").strip()
+            # Type coercion for common cases
+            if val.lstrip("-").isdigit():
+                try:
+                    args[key] = int(val)
+                    continue
+                except Exception:
+                    pass
+            if val.lower() in ("true", "false"):
+                args[key] = (val.lower() == "true")
+                continue
+            args[key] = val
+        _add(tname, args)
+
+    # 3. Anthropic-style <invoke name="X">{JSON}</invoke>
+    anth_re = _re.compile(
+        r'<invoke\s+name=["\']([A-Za-z_][\w]*)["\'][^>]*>\s*(\{.*?\})\s*</invoke>',
+        _re.DOTALL,
+    )
+    for m in anth_re.finditer(content):
+        tname = m.group(1).strip()
+        try:
+            args = json.loads(m.group(2))
+            if not isinstance(args, dict):
+                args = {}
+        except Exception:
+            args = {}
+        _add(tname, args)
+
+    return calls
+
+
+def _summarize_tool_args(args: dict) -> str:
+    """Pick a short human-readable label from tool args for logging / context labels."""
+    return str(
+        args.get("query")
+        or args.get("url")
+        or args.get("symbol")
+        or args.get("id")
+        or args.get("dataset")
+        or args.get("series_id")
+        or args.get("table")
+        or args.get("spheres")
+        or args.get("currency")
+        or args.get("mode")
+        or ""
+    )[:80]
+
+
 DDG_USER_AGENTS = [
     "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_2) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Safari/605.1.15",
@@ -3790,23 +3965,35 @@ async def _deep_research_loop(
                 })
             continue
 
-        # Case B — text-marker tool calls (Kimi / DeepSeek DSML / GLM5)
-        text_markers = ["<|tool_call", "<｜DSML｜", "function_calls>", "tool_calls_section"]
-        if not tool_calls and any(m in content for m in text_markers):
-            queries = re.findall(r'"query"[:\s]*"([^"]+)"', content)[:3]
-            if queries:
-                aggregated = ""
+        # Case B — text-marker tool calls (Kimi / DeepSeek DSML / Anthropic)
+        if not tool_calls and any(m in content for m in TEXT_MARKER_TOKENS):
+            aggregated = ""
+            parsed_calls = _extract_text_marker_tool_calls(content)
+            for tname, targs in parsed_calls[:3]:
+                if tname not in SUBAGENT_TOOL_NAMES:
+                    logger.warning("Deep research text-marker: unknown tool '%s' skipped", tname)
+                    continue
+                summary = _summarize_tool_args(targs)
+                logger.info("Deep research round %d (text) %s: %s", round_num, tname, summary)
+                sr = await _dispatch_subagent_tool(tname, targs)
+                aggregated += f"\n[{tname} (text-marker): {summary}]\n{sr}\n"
+                for url in re.findall(r'https?://[^\s\)]+', sr):
+                    if url not in sources:
+                        sources.append(url)
+            # Legacy query-only fallback when parser found nothing
+            if not parsed_calls:
+                queries = re.findall(r'"query"[:\s]*"([^"]+)"', content)[:3]
                 for q in queries:
-                    logger.info("Deep research round %d (text) query: %s", round_num, q[:80])
+                    logger.info("Deep research round %d (legacy text) query: %s", round_num, q[:80])
                     sr = await _web_search(q)
-                    aggregated += f"\n[Web search: {q}]\n{sr}\n"
+                    aggregated += f"\n[Web search (legacy): {q}]\n{sr}\n"
                     for url in re.findall(r'https?://[^\s\)]+', sr):
                         if url not in sources:
                             sources.append(url)
-                # Wrap text-marker into the next user turn so the model can use the data
+            if aggregated:
                 messages = messages + [
-                    {"role": "assistant", "content": "(web_search calls in progress)"},
-                    {"role": "user", "content": f"Web keresési eredmények:\n{aggregated}\n\nFolytasd a kutatást vagy szintetizálj."},
+                    {"role": "assistant", "content": "(tool calls in progress)"},
+                    {"role": "user", "content": f"Tool eredmények:\n{aggregated}\n\nFolytasd a kutatást vagy szintetizálj."},
                 ]
                 continue
 
@@ -3885,20 +4072,29 @@ async def _run_agent_with_tools(model_id: str, messages: list, max_rounds: int =
         tool_calls = msg.get("tool_calls")
         content = msg.get("content", "") or ""
 
-        # Case B: Text-based tool calls (Kimi sometimes does this)
+        # Case B: Text-based tool calls (Kimi/DeepSeek emit markers in content)
         import re
-        text_markers = ["<|tool_call", "<｜DSML｜", "function_calls>", "tool_calls_section"]
-        if not tool_calls and any(m in content for m in text_markers):
-            queries = re.findall(r'"query"[:\s]*"([^"]+)"', content)
-            if queries:
-                search_results = ""
+        if not tool_calls and any(m in content for m in TEXT_MARKER_TOKENS):
+            search_results = ""
+            parsed_calls = _extract_text_marker_tool_calls(content)
+            for tname, targs in parsed_calls[:3]:
+                if tname not in SUBAGENT_TOOL_NAMES:
+                    logger.warning("Synthesis text-marker: unknown tool '%s' skipped", tname)
+                    continue
+                sr = await _dispatch_subagent_tool(tname, targs)
+                summary = _summarize_tool_args(targs)
+                search_results += f"\n[{tname} (text-marker): {summary}]\n{sr}\n"
+                logger.info("AI %s (text-parsed) round %d: '%s'", tname, round_num, summary)
+            # Legacy query-only fallback for malformed markers the parser missed
+            if not parsed_calls:
+                queries = re.findall(r'"query"[:\s]*"([^"]+)"', content)
                 for query in queries[:2]:
                     sr = await _web_search(query)
-                    search_results += f"\n[Web search: {query}]\n{sr}\n"
-                    logger.info("AI web_search (text-parsed) round %d: %s", round_num, query[:80])
-                # Re-call with search results as context
-                messages.append({"role": "assistant", "content": "(web keresés végrehajtva)"})
-                messages.append({"role": "user", "content": f"Web keresési eredmények:\n{search_results}\n\nVálaszolj az eredmények alapján."})
+                    search_results += f"\n[Web search (legacy): {query}]\n{sr}\n"
+                    logger.info("AI web_search (legacy text-parsed) round %d: %s", round_num, query[:80])
+            if search_results:
+                messages.append({"role": "assistant", "content": "(tool calls végrehajtva)"})
+                messages.append({"role": "user", "content": f"Tool eredmények:\n{search_results}\n\nVálaszolj az eredmények alapján."})
                 continue  # Next round will generate text response
 
         # If no tool calls at all, return the text. Fall back to
@@ -4094,15 +4290,28 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
                             search_results += f"\n[{tool_name}: {summary}]\n{sr}\n"
                             logger.info("AI task #%d %s: %s '%s'", task_id, agent_name, tool_name, str(summary)[:60])
 
-                    # Case B: Text-based tool calls — parse search query from text
-                    tool_markers = ["<|tool_call", "<｜DSML｜", "function_calls>", "tool_calls_section"]
-                    if not tool_calls and any(m in content for m in tool_markers):
-                        queries = re.findall(r'"query"[:\s]*"([^"]+)"', content)
-                        for query in queries[:2]:
-                            sr = await _web_search(query)
-                            search_results += f"\n[Web search: {query}]\n{sr}\n"
-                            logger.info("AI task #%d %s: parsed web_search '%s'", task_id, agent_name, query[:60])
-                        content = ""  # Clear broken text
+                    # Case B: Text-based tool calls (Kimi/DeepSeek text-marker output)
+                    if not tool_calls and any(m in content for m in TEXT_MARKER_TOKENS):
+                        parsed_calls = _extract_text_marker_tool_calls(content)
+                        for tname, targs in parsed_calls[:3]:
+                            if tname not in SUBAGENT_TOOL_NAMES:
+                                logger.warning("AI task #%d %s text-marker: unknown tool '%s' skipped",
+                                               task_id, agent_name, tname)
+                                continue
+                            sr = await _dispatch_subagent_tool(tname, targs)
+                            summary = _summarize_tool_args(targs)
+                            search_results += f"\n[{tname} (text-marker): {summary}]\n{sr}\n"
+                            logger.info("AI task #%d %s text-marker: %s '%s'",
+                                        task_id, agent_name, tname, summary)
+                        # Legacy query-only fallback when parser found nothing structured
+                        if not parsed_calls:
+                            queries = re.findall(r'"query"[:\s]*"([^"]+)"', content)
+                            for query in queries[:2]:
+                                sr = await _web_search(query)
+                                search_results += f"\n[Web search (legacy): {query}]\n{sr}\n"
+                                logger.info("AI task #%d %s: legacy web_search '%s'",
+                                            task_id, agent_name, query[:60])
+                        content = ""  # Clear broken marker text
 
                 # Step 2: If we got tool results, give the agent ANOTHER tool round
                 # (it may want to refine — e.g. echolot_query gave noisy data, agent
@@ -4478,14 +4687,24 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
                     search_results += f"\n[{tool_name}: {summary}]\n{sr}\n"
                     logger.info("Dispatch %s: %s '%s'", model, tool_name, str(summary)[:60])
 
-            # Case B: Text-based tool calls (Kimi does this)
-            text_markers = ["<|tool_call", "<｜DSML｜", "function_calls>", "tool_calls_section"]
-            if not tool_calls and any(m in content for m in text_markers):
-                queries = re.findall(r'"query"[:\s]*"([^"]+)"', content)
-                for query in queries[:3]:
-                    sr = await _web_search(query)
-                    search_results += f"\n[Web search: {query}]\n{sr}\n"
-                    logger.info("Dispatch %s: parsed web_search '%s'", model, query[:60])
+            # Case B: Text-based tool calls (Kimi/DeepSeek text-marker output)
+            if not tool_calls and any(m in content for m in TEXT_MARKER_TOKENS):
+                parsed_calls = _extract_text_marker_tool_calls(content)
+                for tname, targs in parsed_calls[:3]:
+                    if tname not in SUBAGENT_TOOL_NAMES:
+                        logger.warning("Dispatch %s text-marker: unknown tool '%s' skipped", model, tname)
+                        continue
+                    sr = await _dispatch_subagent_tool(tname, targs)
+                    summary = _summarize_tool_args(targs)
+                    search_results += f"\n[{tname} (text-marker): {summary}]\n{sr}\n"
+                    logger.info("Dispatch %s text-marker: %s '%s'", model, tname, summary)
+                # Legacy fallback when parser couldn't structure anything
+                if not parsed_calls:
+                    queries = re.findall(r'"query"[:\s]*"([^"]+)"', content)
+                    for query in queries[:3]:
+                        sr = await _web_search(query)
+                        search_results += f"\n[Web search (legacy): {query}]\n{sr}\n"
+                        logger.info("Dispatch %s: legacy web_search '%s'", model, query[:60])
                 content = ""  # Clear broken marker text
 
             # Step 2: If we got tool results, give the agent ANOTHER tool round
