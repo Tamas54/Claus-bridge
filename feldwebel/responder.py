@@ -420,6 +420,49 @@ async def respond(text: str, chat_id: str, agent_id: str = "deepseek") -> str:
         final_content = content
         break
 
+    # Last-resort synthesis: V4-Pro on SiliconFlow occasionally exits the loop
+    # with empty content even after successful tool calls (no_tools final round
+    # returns empty body / reasoning-only). If we have tool results in the
+    # message history, force one more text-only call with an explicit synthesis
+    # instruction. Same pattern as _run_agent_with_tools in server.py.
+    if not final_content and any(m.get("role") == "tool" for m in messages):
+        tool_count = sum(1 for m in messages if m.get("role") == "tool")
+        logger.info(
+            "Feldwebel: agent loop exited empty after %d tool result(s); forcing last-resort synthesis",
+            tool_count,
+        )
+        synth_messages = list(messages) + [{
+            "role": "user",
+            "content": (
+                "Foglald össze a fenti tool-eredményeket KONKRÉT SZÁMOKKAL, magyarul, "
+                "a Kommandantnak. NE hívj újabb tool-t — text-only válasz kell. "
+                "Ha valamit nem fed le az eddigi adatkör, mondd meg."
+            ),
+        }]
+        try:
+            data = await _call_deepseek(ctx, model_id, synth_messages,
+                                        use_tools=False, force_tool=False)
+            if data:
+                choice = data.get("choices", [{}])[0]
+                msg = choice.get("message", {})
+                synth_content = (msg.get("content") or "").strip()
+                if not synth_content:
+                    synth_content = (msg.get("reasoning_content") or "").strip()
+                if synth_content:
+                    final_content = synth_content
+                    logger.info(
+                        "Feldwebel last-resort synthesis succeeded (%d chars)",
+                        len(final_content),
+                    )
+                else:
+                    logger.warning(
+                        "Feldwebel last-resort synthesis also empty (finish_reason=%s)",
+                        choice.get("finish_reason"),
+                    )
+        except Exception as e:
+            logger.error("Feldwebel last-resort synthesis failed: %s: %s",
+                         type(e).__name__, e)
+
     if not final_content:
         # Debug: show what happened in each round
         debug_parts = [f"Agent loop ended with no content (model={model_id})"]
