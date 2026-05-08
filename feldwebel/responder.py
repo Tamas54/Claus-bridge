@@ -518,7 +518,11 @@ async def _call_deepseek(ctx, model_id: str, messages: list, use_tools: bool = T
             payload["thinking"] = {"type": "disabled"}
         if use_tools:
             payload["tools"] = TOOLS
-            if force_tool:
+            # tool_choice="required" is REJECTED by deepseek-reasoner (V4-Pro)
+            # on SiliconFlow with code 20015 "does not support this tool_choice".
+            # Skip it for DeepSeek; the system prompt + provided tools steer the
+            # model to call them anyway. Kimi K2.6 still supports it cleanly.
+            if force_tool and "DeepSeek" not in model_id:
                 payload["tool_choice"] = "required"
 
         async with httpx.AsyncClient(timeout=ctx.siliconflow_timeout) as client:
@@ -532,9 +536,20 @@ async def _call_deepseek(ctx, model_id: str, messages: list, use_tools: bool = T
             )
             data = json.loads(resp.text)
 
+        # SiliconFlow returns errors in TWO shapes: legacy `{"error": ...}` AND
+        # the newer `{"code": N, "message": "...", "data": null}` (see e.g. code
+        # 20015 "deepseek-reasoner does not support this tool_choice"). Detect
+        # both, otherwise the loop sees an empty `choices` list and silently
+        # produces "Agent loop ended with no content" without surfacing the cause.
         if "error" in data:
             logger.error("SiliconFlow error: %s", data["error"])
             await ctx.telegram_push(f"<b>FELDWEBEL</b> — API hiba: {html_escape(str(data['error'])[:500])}")
+            return {}
+        if "code" in data and not data.get("choices"):
+            err_msg = f"code={data.get('code')}: {data.get('message', '<no message>')}"
+            logger.error("SiliconFlow code-style error: %s (model=%s, force_tool=%s)",
+                         err_msg, model_id, force_tool)
+            await ctx.telegram_push(f"<b>FELDWEBEL</b> — API hiba: {html_escape(err_msg[:500])}")
             return {}
         return data
 
