@@ -3424,6 +3424,31 @@ def _extract_text_marker_tool_calls(content: str) -> list[tuple[str, dict]]:
             args = {}
         _add(tname, args)
 
+    # 4. DeepSeek V4-Pro reasoner-mode native variant (2026-05-08+):
+    #    <｜｜DSML｜｜tool_calls>name{JSON}name{JSON}</｜｜DSML｜｜tool_calls>
+    #    No <invoke> wrapping — flat function-name + JSON-args sequence.
+    #    Match either single- or double-pipe outer delimiters.
+    dsml_block_re = _re.compile(
+        r'<｜｜?DSML｜｜?tool_calls>(.*?)</｜｜?DSML｜｜?tool_calls>',
+        _re.DOTALL,
+    )
+    # Inside the block, allow nested {} via a non-greedy depth-1 pattern
+    dsml_call_re = _re.compile(
+        r'([A-Za-z_][\w]*)\s*(\{(?:[^{}]|\{[^{}]*\})*\})',
+        _re.DOTALL,
+    )
+    for block in dsml_block_re.finditer(content):
+        for call in dsml_call_re.finditer(block.group(1)):
+            tname = call.group(1).strip()
+            raw = call.group(2)
+            try:
+                args = json.loads(raw)
+                if not isinstance(args, dict):
+                    args = {}
+            except Exception:
+                args = {}
+            _add(tname, args)
+
     return calls
 
 
@@ -3801,12 +3826,15 @@ def _clean_synthesis_output(content: str) -> str:
         r'<\|tool_call_begin\|>.*?<\|tool_call_end\|>',
         '', cleaned, flags=_re.DOTALL,
     )
-    # DeepSeek DSML-style invokes
+    # DeepSeek DSML-style invokes — both single-pipe (<｜DSML｜...>) and
+    # double-pipe (<｜｜DSML｜｜...>) variants. V4-Pro reasoner mode emits
+    # the double-pipe form; earlier versions used single-pipe. Optional
+    # second pipe in the regex covers both.
     cleaned = _re.sub(
-        r'<｜DSML｜tool_calls>.*?</｜DSML｜tool_calls>',
+        r'<｜｜?DSML｜｜?tool_calls>.*?</｜｜?DSML｜｜?tool_calls>',
         '', cleaned, flags=_re.DOTALL,
     )
-    cleaned = _re.sub(r'<｜DSML｜[^>]*>', '', cleaned)
+    cleaned = _re.sub(r'<｜｜?DSML｜｜?[^>]*>', '', cleaned)
     # Generic <function_calls>...</function_calls>
     cleaned = _re.sub(
         r'<function_calls>.*?</function_calls>',
@@ -3816,6 +3844,54 @@ def _clean_synthesis_output(content: str) -> str:
     if not cleaned:
         return "(a koordinátor csak tool_call markert adott — a Bridge eltávolította, érdemleges szintézis nincs)"
     return cleaned
+
+
+# Placeholder patterns Kimi (and occasionally GLM5) emit as Step-1 narrative
+# bevezetők without ever calling tools or producing substance. These short
+# texts must not poison the koordinátori szintézis.
+_PLACEHOLDER_PATTERNS = (
+    r'^Felderítés (indul|folyik|kezdődik)',
+    r'^Kutatás (folyik|indul|kezdődik)',
+    r'^(Most )?kezdek',
+    r'^Várj egy pillanatr?a?',
+    r'^Folyamatban',
+    r'^Egy pillanatra',
+    r'^Dolgozom rajta',
+    r'^Lássuk csak',
+)
+
+
+def _classify_agent_result(content: str) -> tuple[str, str]:
+    """Classify a sub-agent's result for the koordinátori szintézis preprocessor.
+
+    Returns (classification, reason) where classification is one of:
+      - "ok"          : usable substantive content
+      - "placeholder" : narrative bevezető without substance
+      - "tool_only"   : entirely tool-call residue, no real synthesis
+      - "failed"      : explicit ERROR/TIMEOUT/(no response) sentinel
+    """
+    import re as _re
+    if not content or not content.strip():
+        return ("failed", "üres tartalom")
+    raw = content.strip()
+    # Failed sentinels written by _run_single_agent on exceptions
+    if raw.startswith(("ERROR:", "TIMEOUT")) or raw.startswith("(no response)"):
+        return ("failed", raw[:80])
+    # Strip tool-call residue and re-evaluate
+    cleaned_for_eval = _clean_synthesis_output(raw).strip()
+    # _clean_synthesis_output returns a parenthesized sentinel if everything
+    # was stripped — that means the agent produced only tool markers.
+    if cleaned_for_eval.startswith("(") and cleaned_for_eval.endswith(")") and len(cleaned_for_eval) < 200:
+        return ("tool_only", "csak tool_call markereket adott")
+    # Placeholder detection — short narrative bevezetők
+    if len(cleaned_for_eval) < 120:
+        for pat in _PLACEHOLDER_PATTERNS:
+            if _re.match(pat, cleaned_for_eval, _re.IGNORECASE):
+                return ("placeholder", f"narratív bevezető: '{cleaned_for_eval[:60]}'")
+    # Too short overall to be substantive even without a placeholder pattern
+    if len(cleaned_for_eval) < 50:
+        return ("placeholder", f"túl rövid ({len(cleaned_for_eval)} char) érdemi szintézishez")
+    return ("ok", "")
 
 
 DEEP_RESEARCH_DIRECTIVE = (
@@ -4421,41 +4497,92 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
         *[_run_single_agent(name, mid, rdesc, mt) for name, (mid, rdesc, mt) in roles.items()]
     )
 
-    # Synthesis by Kimi
+    # Synthesis by Kimi — preprocessor classifies each agent result so the
+    # koordinátor never has to wade through DSML residue, "Felderítés indul"
+    # placeholders, or TIMEOUT sentinels. Degraded mode if 0/N agents are
+    # usable: skip the LLM call, write a meaningful diagnostic synthesis row.
     try:
         results = conn.execute(
             "SELECT agent, content FROM ai_task_results WHERE task_id = ? ORDER BY id", (task_id,)
         ).fetchall()
-        parts = "\n\n".join(f"[{r['agent']}]:\n{r['content']}" for r in results)
-        research_note = ""
-        if deep_research:
-            research_note = (
-                f"\n\nFONTOS — RESEARCH-AGENT MEGJELÖLÉS: a `{BROADCAST_RESEARCH_AGENT}` "
-                "agent **deep_research módban** dolgozott, multi-round web_search-csel "
-                "és kötelező `[forrás N]` citation-okkal — az ő tényállításait OKVETLENÜL "
-                "idézd a forrás-hivatkozásával. A többi agent normál 1-shot keresést "
-                "csapott; tényütközés esetén a deep_research agent forrásait preferáld."
+
+        usable_blocks: list[str] = []
+        rejected: list[str] = []
+        for r in results:
+            agent = r['agent']
+            content = r['content'] or ""
+            cls, reason = _classify_agent_result(content)
+            if cls == "ok":
+                # Pre-clean any tool-call residue out of the content before
+                # the koordinátor sees it — synthesis must not re-emit DSML.
+                cleaned = _clean_synthesis_output(content)
+                usable_blocks.append(f"[{agent}]:\n{cleaned}")
+            else:
+                rejected.append(f"[{agent}] — {cls}: {reason}")
+                logger.info("AI task #%d synthesis filter: %s rejected (%s: %s)",
+                            task_id, agent, cls, reason)
+
+        # Degraded path: nothing to synthesize from. Skip the LLM, write a
+        # diagnostic row so the dashboard / Telegram users see WHY synthesis
+        # is empty instead of getting a blank cell.
+        if not usable_blocks:
+            diagnostic = (
+                "(Egyik al-agent sem adott értékelhető választ — koordinátori "
+                "szintézis kihagyva.)\n\n## Elutasított eredmények\n"
+                + "\n".join(rejected)
             )
-        system = (
-            "Te a koordinátor vagy. Az al-agentek elvégezték a feladatot. "
-            "Készíts tömör szintézist az eredményeikből: mi az egyetértés, hol térnek el, és mi a végső ajánlás. "
-            "Magyarul, strukturáltan."
-            + research_note
-            + _temporal_directive("kimi")
-            + SYNTHESIS_NO_TOOLS_DIRECTIVE
-        )
-        messages = [
-            {"role": "system", "content": system},
-            {"role": "user", "content": f"FELADAT: {title}\n\nAGENT EREDMÉNYEK:\n{parts}"},
-        ]
-        synthesis = await _run_agent_with_tools("moonshotai/Kimi-K2.6", messages)
-        synthesis = _clean_synthesis_output(synthesis)
-        ts = now()
-        conn.execute(
-            "INSERT INTO ai_task_results (task_id, agent, role, content, timestamp) VALUES (?, ?, ?, ?, ?)",
-            (task_id, "szintézis", "Koordinátori összefoglaló", synthesis, ts)
-        )
-        conn.commit()
+            ts = now()
+            conn.execute(
+                "INSERT INTO ai_task_results (task_id, agent, role, content, timestamp) VALUES (?, ?, ?, ?, ?)",
+                (task_id, "szintézis", "Koordinátori összefoglaló (degraded — 0 értékelhető eredmény)", diagnostic, ts)
+            )
+            conn.commit()
+            logger.warning("AI task #%d synthesis degraded: 0/%d agents usable",
+                           task_id, len(results))
+        else:
+            research_note = ""
+            if deep_research:
+                research_note = (
+                    f"\n\nFONTOS — RESEARCH-AGENT MEGJELÖLÉS: a `{BROADCAST_RESEARCH_AGENT}` "
+                    "agent **deep_research módban** dolgozott, multi-round web_search-csel "
+                    "és kötelező `[forrás N]` citation-okkal — az ő tényállításait OKVETLENÜL "
+                    "idézd a forrás-hivatkozásával. A többi agent normál 1-shot keresést "
+                    "csapott; tényütközés esetén a deep_research agent forrásait preferáld."
+                )
+            rejection_note = ""
+            if rejected:
+                rejection_note = (
+                    "\n\nFIGYELEM — NÉHÁNY AL-AGENT NEM ADOTT ÉRTÉKELHETŐ EREDMÉNYT: "
+                    + "; ".join(rejected)
+                    + ". Ezeket a Bridge KISZŰRTE — csak az alábbi értékelhető "
+                    "eredményekből szintetizálj. Ha a hiányzó nézőpontot fontosnak "
+                    "tartod, jelezd ('XY al-agent nem szolgáltatott elemzést'), de "
+                    "ne találd ki helyettük."
+                )
+            system = (
+                "Te a koordinátor vagy. Az al-agentek elvégezték a feladatot. "
+                "Készíts tömör szintézist az eredményeikből: mi az egyetértés, hol térnek el, és mi a végső ajánlás. "
+                "Magyarul, strukturáltan."
+                + research_note
+                + rejection_note
+                + _temporal_directive("kimi")
+                + SYNTHESIS_NO_TOOLS_DIRECTIVE
+            )
+            parts = "\n\n".join(usable_blocks)
+            messages = [
+                {"role": "system", "content": system},
+                {"role": "user", "content": f"FELADAT: {title}\n\nAGENT EREDMÉNYEK:\n{parts}"},
+            ]
+            synthesis = await _run_agent_with_tools("moonshotai/Kimi-K2.6", messages)
+            synthesis = _clean_synthesis_output(synthesis)
+            ts = now()
+            conn.execute(
+                "INSERT INTO ai_task_results (task_id, agent, role, content, timestamp) VALUES (?, ?, ?, ?, ?)",
+                (task_id, "szintézis", "Koordinátori összefoglaló", synthesis, ts)
+            )
+            conn.commit()
+            logger.info("AI task #%d synthesis ok: %d/%d agents usable",
+                        task_id, len(usable_blocks), len(results))
     except Exception as e:
         logger.error("AI task #%d synthesis failed: %s", task_id, e)
 
