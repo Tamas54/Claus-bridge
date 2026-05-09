@@ -3236,6 +3236,57 @@ def _stamp_fetched_at(result_str: str) -> str:
     return result_str
 
 
+def _rank_search_hits(query: str, matches_str: str) -> str | None:
+    """Re-rank statdata_search results by simple token overlap with the
+    query so the most relevant title surfaces first.
+
+    The service's underlying matcher hits on substrings, so a query like
+    'magyar GDP év/év növekedés' returns gdp0012 (GNI) as top match because
+    'gdp' appears in the code, not in the relevant title. We tokenize the
+    query (lowercased, length>=3) and the each result's title, score by
+    overlap count, and return the JSON with the results re-ordered (and a
+    'relevance_score' field added so the agent can see the ranking).
+    Returns None if the input doesn't look like a parseable structure.
+    """
+    try:
+        parsed = json.loads(matches_str)
+    except Exception:
+        return None
+    if not isinstance(parsed, dict):
+        return None
+    results = parsed.get("results")
+    if not isinstance(results, dict):
+        return None
+    q_tokens = {t for t in _re_module.findall(r'\w+', query.lower()) if len(t) >= 3}
+    if not q_tokens:
+        return None
+    for src, items in results.items():
+        if not isinstance(items, list):
+            continue
+        scored = []
+        for item in items:
+            if not isinstance(item, dict):
+                continue
+            title = (item.get("title") or "").lower()
+            code = (item.get("code") or item.get("id") or "").lower()
+            # Tokens from the title (excluding short stopwords) PLUS the
+            # alphabetic stem of the code (e.g. 'gdp0012' → 'gdp'). Code
+            # stems carry topic info: 'gdp' belongs in the GDP/GNI family,
+            # 'ege' to health, 'fol' to rivers, even when the human title
+            # doesn't repeat the abbreviation.
+            t_tokens = {t for t in _re_module.findall(r'\w+', title) if len(t) >= 3}
+            code_stem = _re_module.match(r'[a-z]+', code)
+            if code_stem:
+                t_tokens.add(code_stem.group(0))
+            score = len(q_tokens & t_tokens)
+            item_with_score = dict(item)
+            item_with_score["relevance_score"] = score
+            scored.append((score, item_with_score))
+        scored.sort(key=lambda x: x[0], reverse=True)
+        results[src] = [it for _, it in scored]
+    return json.dumps(parsed, ensure_ascii=False, default=str)
+
+
 async def _dispatch_subagent_tool(name: str, args: dict) -> str:
     """Run one sub-agent tool call. Returns a JSON / text string fed back to the model."""
     if name == "web_search":
@@ -3308,6 +3359,20 @@ async def _dispatch_subagent_tool(name: str, args: dict) -> str:
                 kwargs = {"dataset_code": series_id}
                 if filters:
                     kwargs["filters"] = filters
+                # The service truncates Eurostat responses to row_count=500
+                # FROM THE START of the series — for prc_hicp_manr that's
+                # 1997 onwards, so without a time floor the agent never sees
+                # 2024-2026 data. If the agent didn't specify any time/since
+                # window, default to the last 2 years (sinceTimePeriod).
+                # The same preset pattern is used in DATA_PRESETS (line 100).
+                filters_lc = (filters or "").lower()
+                has_time_floor = any(
+                    key in filters_lc
+                    for key in ("sincetimeperiod", "time=", "time>")
+                )
+                if not has_time_floor:
+                    two_years_ago = (datetime.now(timezone.utc).replace(month=1, day=1) - timedelta(days=365 * 2)).strftime("%Y-%m")
+                    kwargs["sinceTimePeriod"] = two_years_ago
                 result = await statdata_client.get_eurostat_data(**kwargs)
                 # Eurostat is dimension-strict; agents often pass dimensions
                 # that don't exist on the dataset (e.g. s_adj on prc_hicp_manr).
@@ -3393,7 +3458,19 @@ async def _dispatch_subagent_tool(name: str, args: dict) -> str:
                         "found": bool(has_hits),
                     })
                     if has_hits:
-                        envelope["auto_search_results"] = matches
+                        # Relevance-rank: score each title by token overlap with
+                        # the query. The service returns matches in arbitrary
+                        # order — for "magyar GDP év/év növekedés" the top hit
+                        # was gdp0012 (GNI, not GDP), drowning out the relevant
+                        # rows. This re-rank surfaces the closest title first.
+                        try:
+                            ranked = _rank_search_hits(series_id, matches_str)
+                            if ranked is not None:
+                                envelope["auto_search_results"] = ranked
+                            else:
+                                envelope["auto_search_results"] = matches
+                        except Exception:
+                            envelope["auto_search_results"] = matches
                         search_hits = [matches]  # truthy
                 except Exception as se:
                     logger.warning("statdata_search fallback failed: %s", se)
