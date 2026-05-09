@@ -67,7 +67,20 @@ def temporal_directive(agent_name: str = "") -> str:
         "'Ez NEM piaci adat, hanem modell-becslés.'\n"
         "- Ha a feladat konkrét tényt kér és nincs hozzá web-forrás, a HELYES VÁLASZ: "
         "'A keresés nem hozott eredményt — nincs megbízható forrás erre.' Pont. "
-        "Inkább vallj be hiányosságot, mint találj ki hamis forrást.\n"
+        "Inkább vallj be hiányosságot, mint találj ki hamis forrást.\n\n"
+        "=== TOOL-EREDMÉNY CITATION SZABÁLY (KEMÉNY) ===\n"
+        "- A `[tool, dátum]` citation-ben szereplő dátum KIZÁRÓLAG lehet: "
+        "(a) a tool-eredmény végén szereplő `[_bridge_fetched_at: YYYY-MM-DD HH:MM UTC]` "
+        "bélyegző dátuma (Bridge által csatolt objektív lekérési időpont), VAGY "
+        "(b) a tool-eredmény tartalmában explicit szereplő adat-dátum "
+        "(pl. 'date: 2026-05-08' egy MNB-rátán).\n"
+        "- TILOS más dátumot kitalálni — sem 2024-2025-ös 'forrás-dátumokat', "
+        "sem becsült/közelített 'körülbelül' időpontokat. Ha az adatnak nincs "
+        "explicit dátuma a tool-eredményben, írd hogy 'dátum: a Bridge-bélyegző "
+        "szerint X' és idézd a `_bridge_fetched_at` értéket.\n"
+        "- Ha a tool-eredmény üres, hibás VAGY az `_bridge_fetched_at` bélyegzőt "
+        "nem találod (mert nem hívtad meg a tool-t!), TILOS dátumozott citation-t adni. "
+        "Helyette: 'NEM hívtam meg a [tool] tool-t — nincs adat.'\n"
     )
 
 AGENT_REGISTRY: Dict[str, Dict[str, Any]] = {

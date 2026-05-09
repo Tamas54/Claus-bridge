@@ -9,6 +9,7 @@ Deployed on Railway alongside Makronóm, BioMed, CégTár, HírMagnet MCP server
 
 import os
 import json
+import re as _re_module
 import sqlite3
 import time
 import base64
@@ -3224,6 +3225,17 @@ async def _fetch_url_text(url: str, max_chars: int = 4000) -> str:
         return json.dumps({"error": f"fetch failed: {type(e).__name__}: {e}"})
 
 
+def _stamp_fetched_at(result_str: str) -> str:
+    """Append a Bridge-observed UTC timestamp to a tool result so agents
+    cannot cite a fabricated date for the citation. Agents are instructed
+    via the temporal_directive that [tool, date] dates must come from this
+    stamp or from explicit dates inside the tool content — nowhere else."""
+    stamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+    if isinstance(result_str, str):
+        return f"{result_str}\n\n[_bridge_fetched_at: {stamp}]"
+    return result_str
+
+
 async def _dispatch_subagent_tool(name: str, args: dict) -> str:
     """Run one sub-agent tool call. Returns a JSON / text string fed back to the model."""
     if name == "web_search":
@@ -3272,7 +3284,7 @@ async def _dispatch_subagent_tool(name: str, args: dict) -> str:
         period = (args.get("period") or "5d").strip()
         try:
             result = await statdata_client.yfinance(symbol=symbol, period=period)
-            return json.dumps(result, ensure_ascii=False, default=str)[:6000]
+            return _stamp_fetched_at(json.dumps(result, ensure_ascii=False, default=str)[:6000])
         except Exception as e:
             return json.dumps({"error": f"statdata_yfinance failed: {type(e).__name__}: {e}"})
 
@@ -3301,22 +3313,31 @@ async def _dispatch_subagent_tool(name: str, args: dict) -> str:
                 # that don't exist on the dataset (e.g. s_adj on prc_hicp_manr).
                 # The Makronóm-MCP service signals this with ok=true but a
                 # result string containing INVALID_QUERY_DIMENSION. Replace the
-                # opaque error with an actionable Bridge-side guidance so the
-                # agent knows exactly which retry to issue.
+                # opaque error with actionable Bridge-side guidance: extract
+                # the actual valid dimensions from a fresh bare lookup so the
+                # agent gets a concrete list, not generic advice.
                 result_str = result if isinstance(result, str) else json.dumps(result, default=str)
                 if filters and "INVALID_QUERY_DIMENSION" in result_str:
-                    logger.warning("Eurostat INVALID_QUERY_DIMENSION with filters=%r — returning guidance", filters)
+                    logger.warning("Eurostat INVALID_QUERY_DIMENSION with filters=%r — extracting dimensions", filters)
+                    valid_dims: list[str] = []
+                    try:
+                        bare = await statdata_client.get_eurostat_data(dataset_code=series_id)
+                        bare_str = bare if isinstance(bare, str) else json.dumps(bare, default=str)
+                        dims_match = _re_module.search(r'"dimensions"\s*:\s*\{([^{}]*)\}', bare_str)
+                        if dims_match:
+                            valid_dims = _re_module.findall(r'"(\w+)"\s*:', dims_match.group(1))
+                    except Exception as bare_e:
+                        logger.warning("dimension extraction failed: %s", bare_e)
                     result = json.dumps({
                         "bridge_error": "Eurostat rejected your filters",
                         "your_filters": filters,
-                        "service_message": result_str[:500],
+                        "valid_dimensions_for_this_dataset": valid_dims or "could-not-extract",
+                        "service_message": result_str[:300],
                         "guidance": (
-                            f"The dataset '{series_id}' does not have one or more of the "
-                            f"dimensions you passed. Retry statdata_fetch with simpler filters: "
-                            "start with just 'geo=HU' (or 'geo=EA20' for the eurozone), then "
-                            "inspect the 'dimensions' field of the response to discover what "
-                            "narrower keys this specific dataset supports. SAFE defaults across "
-                            "most Eurostat datasets: geo, time, freq."
+                            f"Retry statdata_fetch using ONLY keys from "
+                            f"'valid_dimensions_for_this_dataset' above. The keys you "
+                            f"passed that are NOT in that list will reject the query. "
+                            f"Common safe starting filter: 'geo=HU' or 'geo=EA20'."
                         ),
                     }, ensure_ascii=False)
             elif provider == "ksh":
@@ -3334,7 +3355,78 @@ async def _dispatch_subagent_tool(name: str, args: dict) -> str:
                 result = await statdata_client.dbnomics_series(**kwargs)
             else:
                 return json.dumps({"error": f"unknown provider '{provider}'. Use fred|eurostat|ksh|dbnomics"})
-            return json.dumps(result, ensure_ascii=False, default=str)[:6000]
+
+            # ─── Auto-fallback chain: id → service search → web_search ───
+            # If the upstream service says the id doesn't exist, run the
+            # available search layers in cascade so the agent gets useful
+            # material instead of a dead-end "[no result]". The chain:
+            #   1) Try statdata_search on the same provider (structured data)
+            #   2) If that has 0 hits, fall through to web_search
+            # The agent receives a JSON envelope describing which layer
+            # answered, so it can attribute correctly.
+            result_str = result if isinstance(result, str) else json.dumps(result, default=str, ensure_ascii=False)
+            looks_missing = any(
+                marker in result_str
+                for marker in (
+                    "not found", "Not found", "HTTP 404", "no matching",
+                    "Invalid table code", "Invalid dataset", "Invalid series_id",
+                    "unknown table", "unknown series", "unknown dataset",
+                    "Use search_datasets",  # service's own retry hint
+                )
+            )
+            if looks_missing:
+                logger.info("statdata_fetch %s/%s id not found — chain-fallback", provider, series_id)
+                envelope: dict = {
+                    "bridge_error": f"id '{series_id}' not found on {provider}",
+                    "fallback_chain": [],
+                }
+                # Layer 1: statdata_search on the same provider
+                search_hits: list = []
+                try:
+                    search_src = "all" if provider == "fred" else provider
+                    matches = await statdata_client.search_datasets(query=series_id, source=search_src, limit=5)
+                    matches_str = matches if isinstance(matches, str) else json.dumps(matches, default=str, ensure_ascii=False)
+                    has_hits = matches_str and matches_str.strip() not in ("[]", "{}", "null") and "no matching" not in matches_str.lower()
+                    envelope["fallback_chain"].append({
+                        "layer": "statdata_search",
+                        "source": search_src,
+                        "found": bool(has_hits),
+                    })
+                    if has_hits:
+                        envelope["auto_search_results"] = matches
+                        search_hits = [matches]  # truthy
+                except Exception as se:
+                    logger.warning("statdata_search fallback failed: %s", se)
+                    envelope["fallback_chain"].append({"layer": "statdata_search", "error": str(se)[:120]})
+
+                # Layer 2: web_search if no structured hit yet
+                if not search_hits:
+                    try:
+                        web_query = f"{provider} {series_id} statisztika adat"
+                        web_result = await _web_search(web_query)
+                        envelope["fallback_chain"].append({
+                            "layer": "web_search",
+                            "query": web_query,
+                            "found": bool(web_result and "No results" not in web_result[:200]),
+                        })
+                        envelope["web_search_results"] = web_result[:3000]
+                    except Exception as we:
+                        logger.warning("web_search last-resort failed: %s", we)
+                        envelope["fallback_chain"].append({"layer": "web_search", "error": str(we)[:120]})
+
+                envelope["guidance"] = (
+                    "The original id was not found on the structured provider. "
+                    "The Bridge ran a fallback chain: first statdata_search on the same "
+                    "provider, then web_search as a last resort. Inspect the layers above: "
+                    "if 'auto_search_results' is present, retry statdata_fetch with the "
+                    "best-matching id from there. If only 'web_search_results' has content, "
+                    "use those URLs/snippets as your source — but cite them as web_search "
+                    "[forrás N], NOT as statdata_fetch."
+                )
+                result = json.dumps(envelope, ensure_ascii=False, default=str)
+
+            out = json.dumps(result, ensure_ascii=False, default=str)[:6000] if not isinstance(result, str) else result[:6000]
+            return _stamp_fetched_at(out)
         except Exception as e:
             return json.dumps({"error": f"statdata_fetch failed: {type(e).__name__}: {e}"})
 
@@ -3350,7 +3442,7 @@ async def _dispatch_subagent_tool(name: str, args: dict) -> str:
             if source:
                 kwargs["source"] = source
             result = await statdata_client.search_datasets(**kwargs)
-            return json.dumps(result, ensure_ascii=False, default=str)[:6000]
+            return _stamp_fetched_at(json.dumps(result, ensure_ascii=False, default=str)[:6000])
         except Exception as e:
             return json.dumps({"error": f"statdata_search failed: {type(e).__name__}: {e}"})
 
@@ -3366,7 +3458,7 @@ async def _dispatch_subagent_tool(name: str, args: dict) -> str:
             if currencies:
                 kwargs["currencies"] = currencies
             result = await statdata_client.mnb_rates(**kwargs)
-            return json.dumps(result, ensure_ascii=False, default=str)[:6000]
+            return _stamp_fetched_at(json.dumps(result, ensure_ascii=False, default=str)[:6000])
         except Exception as e:
             return json.dumps({"error": f"statdata_mnb_rates failed: {type(e).__name__}: {e}"})
 
