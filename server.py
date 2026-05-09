@@ -4093,6 +4093,37 @@ async def _deep_research_loop(
     return fallback
 
 
+def _model_extra(model_id: str) -> dict:
+    """Per-model SiliconFlow request parameters.
+
+    - Kimi K2.6 in synthesis: thinking=disabled because reasoner mode timed
+      out routinely on 3-agent broadcast contexts (#150 crash, #152 Expecting
+      value 48s later).
+    - DeepSeek V4-Pro: reasoning_effort=medium because high triggered the
+      same reasoner-mode timeouts in broadcast.
+    - GLM-5.1: no extras needed (no reasoner toggle).
+    """
+    if "Kimi" in model_id:
+        return {"thinking": {"type": "disabled"}}
+    if "DeepSeek" in model_id:
+        return {"reasoning_effort": "medium"}
+    return {}
+
+
+def _model_supports_tools(model_id: str) -> bool:
+    """Whether the model can be safely given tools in this Bridge.
+
+    DeepSeek V4-Pro reasoner leaks tool_calls as DSML markers in the content
+    field on SiliconFlow, and rejects tool_choice=required (#12425). Until
+    SiliconFlow fixes the reasoner-mode tool-call shim, do not give V4-Pro
+    tools — even in the synthesis path. The model can still produce useful
+    summaries from the agent results already in the prompt.
+    """
+    if "DeepSeek" in model_id:
+        return False
+    return True
+
+
 async def _run_agent_with_tools(model_id: str, messages: list, max_rounds: int = 4,
                                 max_tokens: int = 8000) -> str:
     """Run an AI agent with optional tool calls (web_search). Returns final text.
@@ -4101,20 +4132,25 @@ async def _run_agent_with_tools(model_id: str, messages: list, max_rounds: int =
     Default max_tokens=8000 (was 2000) — synthesis-truncation caused empty /
     reasoning-only outputs when 3 agents × 16-20k token results had to be
     condensed.
+
+    Per-model behavior is centralized in _model_extra and
+    _model_supports_tools. V4-Pro is given no tools at all even in early
+    rounds, since the model emits DSML format text instead of structured
+    tool_calls, so providing tools would only invite leakage.
     """
     import httpx
+    model_extra = _model_extra(model_id)
+    model_can_use_tools = _model_supports_tools(model_id)
     for round_num in range(max_rounds):
-        # Last round: no tools, force text response
-        use_tools = round_num < max_rounds - 1
+        # Last round: no tools, force text response. V4-Pro: never tools.
+        use_tools = model_can_use_tools and (round_num < max_rounds - 1)
         payload = {
             "model": model_id,
             "messages": messages,
             "temperature": 0.6,
             "max_tokens": max_tokens,
+            **model_extra,
         }
-        # Only synthesis call path — model_id is always K2.6 here. Force thinking OFF.
-        if "Kimi" in model_id:
-            payload["thinking"] = {"type": "disabled"}
         if use_tools:
             payload["tools"] = SUBAGENT_TOOL_DEFS
 
@@ -4299,13 +4335,9 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
                 # DeepSeek "Expecting value" 48s later). The deep_thinking flag's
                 # benefit is not worth losing the agent. Both forced to safe mode
                 # in broadcast — single-agent ai_query keeps the original
-                # deep_thinking semantics for smaller contexts.
-                if agent_name == "kimi":
-                    agent_extra = {"thinking": {"type": "disabled"}}
-                elif agent_name == "deepseek":
-                    agent_extra = {"reasoning_effort": "medium"}
-                else:
-                    agent_extra = {}
+                # deep_thinking semantics for smaller contexts. Centralized in
+                # _model_extra() so the synthesis path uses the same defaults.
+                agent_extra = _model_extra(model_id)
 
                 # Deep research path — broadcast módban is csak EGY designált
                 # research-agent (DeepSeek V4-Pro) fut multi-round loopban,
