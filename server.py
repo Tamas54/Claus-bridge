@@ -3043,7 +3043,7 @@ STATDATA_FETCH_TOOL_DEF = {
                 },
                 "id": {
                     "type": "string",
-                    "description": "Series/dataset ID (e.g. 'GDP' FRED, 'prc_hicp_manr' Eurostat, 'ara0039' KSH)",
+                    "description": "Series/dataset ID. FRED: series_id (e.g. 'GDP', 'CPIAUCSL'). Eurostat: dataset_code (e.g. 'prc_hicp_manr'). KSH: table_code (e.g. 'ara0039', 'ara0045'). DBnomics: 'PROVIDER/DATASET' or 'PROVIDER/DATASET/SERIES_CODE' (e.g. 'ECB/IRS' or 'IMF/IFS/M.US.PCPI_IX').",
                 },
                 "filters": {
                     "type": "string",
@@ -3051,7 +3051,7 @@ STATDATA_FETCH_TOOL_DEF = {
                 },
                 "periods": {
                     "type": "integer",
-                    "description": "How many recent observations to return (default 12)",
+                    "description": "How many recent observations to return (default 12). Honored by FRED + KSH; Eurostat ignores it (truncates to 500 rows by default — use 'filters' to narrow); DBnomics returns the full series.",
                 },
             },
             "required": ["provider", "id"],
@@ -3275,17 +3275,30 @@ async def _dispatch_subagent_tool(name: str, args: dict) -> str:
         if not provider or not series_id:
             return json.dumps({"error": "provider and id required"})
         try:
+            # Per-provider param names differ on the Makronóm-MCP service.
+            # FRED uses `limit`, KSH uses `max_rows`, Eurostat has NO pagination
+            # parameter (the service truncates to row_count=500 by default and
+            # exposes a `filters` knob), DBnomics needs provider+dataset split.
             if provider == "fred":
-                result = await statdata_client.get_fred_data(series_id=series_id, periods=periods)
+                result = await statdata_client.get_fred_data(series_id=series_id, limit=periods)
             elif provider == "eurostat":
-                kwargs = {"dataset": series_id, "periods": periods}
+                kwargs = {"dataset_code": series_id}
                 if filters:
                     kwargs["filters"] = filters
                 result = await statdata_client.get_eurostat_data(**kwargs)
             elif provider == "ksh":
-                result = await statdata_client.get_ksh_stadat(table=series_id, periods=periods)
+                result = await statdata_client.get_ksh_stadat(table_code=series_id, max_rows=periods)
             elif provider == "dbnomics":
-                result = await statdata_client.dbnomics_series(series_id=series_id, periods=periods)
+                # DBnomics needs provider_code + dataset_code (and optionally
+                # series_code) split out. The agent sends a single id like
+                # "ECB/IRS" or "IMF/IFS/M.US.PCPI_IX"; split on "/".
+                parts = [p for p in series_id.split("/") if p]
+                if len(parts) < 2:
+                    return json.dumps({"error": "dbnomics id must be 'PROVIDER/DATASET' or 'PROVIDER/DATASET/SERIES'"})
+                kwargs = {"provider_code": parts[0], "dataset_code": parts[1]}
+                if len(parts) >= 3:
+                    kwargs["series_code"] = "/".join(parts[2:])
+                result = await statdata_client.dbnomics_series(**kwargs)
             else:
                 return json.dumps({"error": f"unknown provider '{provider}'. Use fred|eurostat|ksh|dbnomics"})
             return json.dumps(result, ensure_ascii=False, default=str)[:6000]
@@ -4118,14 +4131,14 @@ def _model_extra(model_id: str) -> dict:
 def _model_supports_tools(model_id: str) -> bool:
     """Whether the model can be safely given tools in this Bridge.
 
-    DeepSeek V4-Pro reasoner leaks tool_calls as DSML markers in the content
-    field on SiliconFlow, and rejects tool_choice=required (#12425). Until
-    SiliconFlow fixes the reasoner-mode tool-call shim, do not give V4-Pro
-    tools — even in the synthesis path. The model can still produce useful
-    summaries from the agent results already in the prompt.
+    All three sub-agents are given tools. V4-Pro reasoner emits its tool_calls
+    in DSML markers in the content field rather than the structured tool_calls
+    field — that's handled by the Case B text-marker parser in
+    _run_single_agent and _run_agent_with_tools, which extracts the calls,
+    dispatches them, and feeds results back into the conversation. So
+    "supports tools" here means the model can be reliably routed through
+    the tool-using flow, not that it emits structured tool_calls natively.
     """
-    if "DeepSeek" in model_id:
-        return False
     return True
 
 
@@ -4266,15 +4279,14 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
     conn.commit()
 
     # roles tuple: (model_id, role_desc, max_tokens, use_tools)
-    # use_tools=False for DeepSeek-V4-Pro because the reasoner architecture
-    # on SiliconFlow leaks tool-call format as text (DSML markers in content)
-    # AND rejects tool_choice=required with code 20015. Tool-using duties
-    # are handled by Kimi + GLM5; V4-Pro contributes critical analysis from
-    # its internal knowledge + the task context (which already includes
-    # news_context / data_context if the caller supplied them).
+    # All three agents get tools. V4-Pro emits its tool_calls in DSML
+    # markers in the content field — Case B in _run_single_agent picks
+    # those up via _extract_text_marker_tool_calls, dispatches the calls,
+    # and feeds results back into the conversation. The new DSML extractor
+    # variant added in 865ccfc covers the reasoner-mode native format.
     roles = {
         "kimi": ("moonshotai/Kimi-K2.6", "Kutató és elemző. Alapos, részletes munkát végzel.", 20000, True),
-        "deepseek": ("deepseek-ai/DeepSeek-V4-Pro", "Kritikus elemző és ellenőr — TOOL-OK NÉLKÜL dolgozol, kizárólag belső tudás + a feladat kontextusa alapján. Logikai hibákat keresel, ellenérveket fogalmazol, hipotéziseket vizsgálsz.", 20000, False),
+        "deepseek": ("deepseek-ai/DeepSeek-V4-Pro", "Kritikus elemző és ellenőr. Logikai hibákat keresel, ellenérveket fogalmazol, hipotéziseket vizsgálsz. Használd a tool-okat ahol releváns adat kell.", 20000, True),
         "glm5": ("zai-org/GLM-5.1", "Végrehajtó és kóder. Konkrét megoldásokat, kódot, strukturált outputot adsz. Ha kell, implementálsz.", 20000, True),
     }
 
