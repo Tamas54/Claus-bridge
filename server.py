@@ -3102,9 +3102,9 @@ STATDATA_MNB_RATES_TOOL_DEF = {
                     "type": "string",
                     "description": "'current' for today's rates, 'history' for a time series (default 'current')",
                 },
-                "currency": {
+                "currencies": {
                     "type": "string",
-                    "description": "Currency code (e.g. 'EUR', 'USD'). Empty = all major crosses",
+                    "description": "Currency code or comma-separated list (e.g. 'EUR', 'EUR,USD,GBP'). Empty = all 32 published crosses.",
                 },
             },
         },
@@ -3325,11 +3325,13 @@ async def _dispatch_subagent_tool(name: str, args: dict) -> str:
         if not STATDATA_ENABLED or statdata_client is None:
             return json.dumps({"error": "StatData integration disabled (STATDATA_URL missing)"})
         mode = (args.get("mode") or "current").strip()
-        currency = (args.get("currency") or "").strip()
+        # Accept both 'currencies' (canonical) and 'currency' (older agent
+        # output) — the underlying service only accepts 'currencies'.
+        currencies = (args.get("currencies") or args.get("currency") or "").strip()
         try:
             kwargs = {"mode": mode}
-            if currency:
-                kwargs["currency"] = currency
+            if currencies:
+                kwargs["currencies"] = currencies
             result = await statdata_client.mnb_rates(**kwargs)
             return json.dumps(result, ensure_ascii=False, default=str)[:6000]
         except Exception as e:
