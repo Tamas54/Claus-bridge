@@ -1716,7 +1716,12 @@ SILICONFLOW_MODELS = {
 # Egyetlen designált research-agent broadcast módban — `deep_research=True`
 # esetén csak ez fut multi-round web_search-loopban, a másik kettő normál
 # 1-shot _web_search-csel dolgozik. Ezzel elkerüljük a 3x-os DDG burst-ot.
-BROADCAST_RESEARCH_AGENT = "deepseek"
+# 2026-05-09: deepseek → kimi switch. V4-Pro reasoner cannot reliably
+# emit structured tool_calls on SiliconFlow (DSML format leak), so the
+# multi-round research loop produced empty results when V4-Pro was the
+# designated researcher. Kimi K2.6 with thinking-disabled handles the
+# same loop cleanly.
+BROADCAST_RESEARCH_AGENT = "kimi"
 
 # Auto-discussion: sub-agents join discussions automatically
 AI_DISCUSSION_ENABLED = os.environ.get("AI_DISCUSSION_ENABLED", "true").lower() == "true"
@@ -4340,10 +4345,13 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
                 agent_extra = _model_extra(model_id)
 
                 # Deep research path — broadcast módban is csak EGY designált
-                # research-agent (DeepSeek V4-Pro) fut multi-round loopban,
-                # a többi normál 1-shot _web_search-csel dolgozik. Ez egyezik
-                # a dispatch-mód policy-jával: nem 3x tölteni a DDG-t.
-                if deep_research and agent_name == BROADCAST_RESEARCH_AGENT:
+                # research-agent fut multi-round loopban, a többi normál
+                # 1-shot _web_search-csel dolgozik. Ez egyezik a dispatch-mód
+                # policy-jával: nem 3x tölteni a DDG-t.
+                # Guard: only enter the loop if the agent supports tools.
+                # V4-Pro is NO-tools (Step C); routing it through a tool-
+                # heavy multi-round loop produces only DSML residue.
+                if deep_research and agent_name == BROADCAST_RESEARCH_AGENT and use_tools:
                     research_system = system + DEEP_RESEARCH_DIRECTIVE
                     content = await _deep_research_loop(
                         model_id=model_id,
