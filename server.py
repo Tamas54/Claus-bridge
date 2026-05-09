@@ -4224,18 +4224,30 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
     conn.execute("UPDATE ai_tasks SET status = 'running' WHERE id = ?", (task_id,))
     conn.commit()
 
+    # roles tuple: (model_id, role_desc, max_tokens, use_tools)
+    # use_tools=False for DeepSeek-V4-Pro because the reasoner architecture
+    # on SiliconFlow leaks tool-call format as text (DSML markers in content)
+    # AND rejects tool_choice=required with code 20015. Tool-using duties
+    # are handled by Kimi + GLM5; V4-Pro contributes critical analysis from
+    # its internal knowledge + the task context (which already includes
+    # news_context / data_context if the caller supplied them).
     roles = {
-        "kimi": ("moonshotai/Kimi-K2.6", "Kutató és elemző. Alapos, részletes munkát végzel.", 20000),
-        "deepseek": ("deepseek-ai/DeepSeek-V4-Pro", "Kritikus elemző és ellenőr. Logikai hibákat keresel, ellenérveket fogalmazol.", 20000),
-        "glm5": ("zai-org/GLM-5.1", "Végrehajtó és kóder. Konkrét megoldásokat, kódot, strukturált outputot adsz. Ha kell, implementálsz.", 20000),
+        "kimi": ("moonshotai/Kimi-K2.6", "Kutató és elemző. Alapos, részletes munkát végzel.", 20000, True),
+        "deepseek": ("deepseek-ai/DeepSeek-V4-Pro", "Kritikus elemző és ellenőr — TOOL-OK NÉLKÜL dolgozol, kizárólag belső tudás + a feladat kontextusa alapján. Logikai hibákat keresel, ellenérveket fogalmazol, hipotéziseket vizsgálsz.", 20000, False),
+        "glm5": ("zai-org/GLM-5.1", "Végrehajtó és kóder. Konkrét megoldásokat, kódot, strukturált outputot adsz. Ha kell, implementálsz.", 20000, True),
     }
 
     task_prompt = f"FELADAT: {title}\n\nLEÍRÁS: {description}"
     if context:
         task_prompt += f"\n\nKONTEXTUS:\n{context}"
 
-    async def _run_single_agent(agent_name, model_id, role_desc, agent_max_tokens=3000):
-        """Run one agent with hybrid tool-call support — called in parallel. Retries once on timeout."""
+    async def _run_single_agent(agent_name, model_id, role_desc, agent_max_tokens=3000, use_tools=True):
+        """Run one agent — called in parallel. Retries once on timeout.
+
+        use_tools=False skips the entire 2-round tool-call flow and goes
+        straight to a no-tools synthesis call (Step 3 path). Used for
+        DeepSeek-V4-Pro reasoner which leaks DSML format under tool calling.
+        """
         import httpx, re
 
         async def _api_call(client, payload):
@@ -4327,23 +4339,32 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
                     logger.info("AI task #%d: %s deep_research done (%d chars)", task_id, agent_name, len(content or ""))
                     return
 
-                # Step 1: Call WITH tools
-                async with httpx.AsyncClient(timeout=SILICONFLOW_TIMEOUT) as client:
-                    data = await _api_call(client, {
-                        "model": model_id,
-                        "messages": [
-                            {"role": "system", "content": system},
-                            {"role": "user", "content": task_prompt},
-                        ],
-                        "temperature": 0.6,
-                        "max_tokens": agent_max_tokens,
-                        "tools": SUBAGENT_TOOL_DEFS,
-                        **agent_extra,
-                    })
-
+                # NO-TOOLS path — agent runs without any tool calling, using
+                # only its internal knowledge and the task context. Drops
+                # straight through to the Step 3 fallback below by leaving
+                # content and search_results empty (no Step 1/2 API call).
                 content = ""
                 search_results = ""
-                if not isinstance(data, dict) or not data.get("choices"):
+                data = None
+
+                if use_tools:
+                    # Step 1: Call WITH tools
+                    async with httpx.AsyncClient(timeout=SILICONFLOW_TIMEOUT) as client:
+                        data = await _api_call(client, {
+                            "model": model_id,
+                            "messages": [
+                                {"role": "system", "content": system},
+                                {"role": "user", "content": task_prompt},
+                            ],
+                            "temperature": 0.6,
+                            "max_tokens": agent_max_tokens,
+                            "tools": SUBAGENT_TOOL_DEFS,
+                            **agent_extra,
+                        })
+
+                if not use_tools:
+                    pass  # skip parsing; Step 3 will fire
+                elif not isinstance(data, dict) or not data.get("choices"):
                     logger.error("AI task #%d %s: bad API response", task_id, agent_name)
                 else:
                     msg = data["choices"][0].get("message", {})
@@ -4438,21 +4459,50 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
                                 if isinstance(data3, dict) and data3.get("choices"):
                                     content = data3["choices"][0].get("message", {}).get("content", "") or content
 
-                # Step 3: Fallback if still empty
+                # Step 3: NO-tools call. This is the PRIMARY call for use_tools=False
+                # agents (V4-Pro), and a fallback for tool-using agents that
+                # ended up with empty content after Step 1+2.
                 if not content or not content.strip():
-                    logger.warning("AI task #%d %s: empty after tools, final fallback", task_id, agent_name)
+                    if use_tools:
+                        logger.warning("AI task #%d %s: empty after tools, final fallback", task_id, agent_name)
+                        no_tools_system = f"{role_desc} Magyarul válaszolj, részletesen. NE használj tool-okat."
+                    else:
+                        logger.info("AI task #%d %s: NO-TOOLS primary call", task_id, agent_name)
+                        # Full agent system (Pyramid context + role + temporal +
+                        # caller persona) plus an explicit ban on tool emission.
+                        no_tools_system = system + (
+                            "\n\n## EBBEN A FELADATBAN TOOL-OK NÉLKÜL DOLGOZOL\n"
+                            "A többi al-agent tool-okkal dolgozik a friss adatokon. "
+                            "A te szereped a kritikus elemzés a SAJÁT belső tudásodból "
+                            "+ a fenti kontextusból. TILOS tool-call markert "
+                            "(`<|tool_call`, `<｜DSML｜`, `function_calls>`, JSON "
+                            "tool_calls) emit-elni. Pure prose magyar válasz."
+                        )
                     async with httpx.AsyncClient(timeout=SILICONFLOW_TIMEOUT) as client:
                         data3 = await _api_call(client, {
                             "model": model_id,
                             "messages": [
-                                {"role": "system", "content": f"{role_desc} Magyarul válaszolj, részletesen. NE használj tool-okat."},
+                                {"role": "system", "content": no_tools_system},
                                 {"role": "user", "content": task_prompt},
                             ],
                             "temperature": 0.7,
                             "max_tokens": agent_max_tokens,
+                            **agent_extra,
                         })
                         if isinstance(data3, dict) and data3.get("choices"):
-                            content = data3["choices"][0].get("message", {}).get("content", "")
+                            msg3 = data3["choices"][0].get("message", {})
+                            content = msg3.get("content", "") or ""
+                            # reasoning_content fallback — V4-Pro reasoner mode
+                            # often emits to reasoning_content with empty content
+                            # field on long synthesis prompts (#150, #152).
+                            if not content.strip():
+                                rc = msg3.get("reasoning_content", "") or ""
+                                if rc.strip():
+                                    logger.info(
+                                        "AI task #%d %s: NO-tools used reasoning_content fallback (%d chars)",
+                                        task_id, agent_name, len(rc),
+                                    )
+                                    content = rc
 
                 ts = now()
                 conn.execute(
@@ -4494,7 +4544,7 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
 
     # Run all agents IN PARALLEL
     await asyncio.gather(
-        *[_run_single_agent(name, mid, rdesc, mt) for name, (mid, rdesc, mt) in roles.items()]
+        *[_run_single_agent(name, mid, rdesc, mt, ut) for name, (mid, rdesc, mt, ut) in roles.items()]
     )
 
     # Synthesis by Kimi — preprocessor classifies each agent result so the
