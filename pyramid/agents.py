@@ -19,7 +19,7 @@ WEEKDAYS_HU = ["hétfő", "kedd", "szerda", "csütörtök", "péntek", "szombat"
 
 
 def temporal_directive(agent_name: str = "") -> str:
-    """Strong temporal-grounding block for SF agent system prompts.
+    """Strong temporal-grounding + anti-hallucination block for SF agent system prompts.
 
     Without this block Kimi K2.6 (and to a lesser extent V4-Pro) silently
     "corrects" any post-cutoff date in the prompt back to what its training
@@ -27,6 +27,11 @@ def temporal_directive(agent_name: str = "") -> str:
     The Anthropic Opus 4.7 system prompt and Moonshot's own K2 Thinking
     prompt both solve this with: (1) explicit cutoff, (2) explicit current
     date, (3) hard rule that present-day facts MUST come from web_search.
+
+    Also bundles ANTI-HALLUCINATION rules (added 2026-04-28 after task #127
+    where GLM5 fabricated `mnbkozeparfolyam.hu` URL + 311.84 HUF rate when
+    DDG returned 202/anomaly). When search fails, agents MUST refuse rather
+    than confabulate sources.
     """
     now = datetime.now(timezone.utc)
     today = now.strftime("%Y-%m-%d")
@@ -38,17 +43,31 @@ def temporal_directive(agent_name: str = "") -> str:
         f"- A jelenlegi aktuális dátum: {today} ({weekday}).\n"
         "- Ez a runtime tényleges dátuma — NEM elírás, NEM hipotézis, NEM 'jövőbeli'.\n\n"
         "TEMPORAL SZABÁLYOK:\n"
+        f"- Ha a feladatban {now.year}-os vagy későbbi dátum szerepel, az NEM 'jövőbeli'. "
+        f"A mai nap {today}. NE írd hogy 'a jelenlegi időponthoz képest a jövőben van'.\n"
+        f"- NE írd hogy 'a mai dátum 2025' vagy bármi 2025-ös. {today} van. Pont.\n"
         "- Bármilyen mai vagy a tréning-cutoffod utáni eseményről / hírről kérdés esetén "
         "a web_search tool használata KÖTELEZŐ ELŐSZÖR. A te magabiztosságod egy témában "
         "NEM kifogás a keresés átugrására.\n"
         "- A web_search tool valós, élő, friss eredményt ad. NE feltételezd hogy 'üres' "
         "vagy 'jövőbeli' — várd meg és olvasd el a TÉNYLEGES válaszát.\n"
-        "- NE javítsd át a megadott dátumot múltbeli (pl. 2025-ös) értékre. "
-        "Ha a rendszer 2026-ot mond, akkor 2026 van.\n"
         "- NE említsd a felhasználónak a knowledge cutoffodat, NE jegyezd meg hogy "
         "'nincs real-time adatod'.\n"
         "- Más agent által hozott friss adatot NE minősítsd 'fiktívnek' vagy 'kitaláltnak' "
-        "csak azért mert a saját tréningedben nem szerepel — a többi agent web-grounded.\n"
+        "csak azért mert a saját tréningedben nem szerepel — a többi agent web-grounded.\n\n"
+        "=== ANTI-HALLUCINATION (KEMÉNY SZABÁLY) ===\n"
+        "- Ha a web_search 'No results found.' VAGY 'DDG status=202, anomaly=True' "
+        "VAGY üres listát ad vissza: TILOS forrást, URL-t, domaint vagy konkrét számot "
+        "kitalálnod. TILOS hivatkozni olyan oldalra ami nem szerepel a search-output-ban.\n"
+        "- TILOS olyan domain-t fabrikálnod amit a search nem hozott vissza "
+        "(pl. NEM létező 'mnbkozeparfolyam.hu' típusú gyártott URL-eket).\n"
+        "- TILOS 'modellből származtatott', 'kamatparitás-modell alapján', 'piaci konszenzus' "
+        "alapú konkrét számot (árfolyam, infláció, GDP) ÉLŐ adatként prezentálnod, "
+        "ha nincs hozzá search-forrás. Ha modellt futtatsz, EGYÉRTELMŰEN jelöld: "
+        "'Ez NEM piaci adat, hanem modell-becslés.'\n"
+        "- Ha a feladat konkrét tényt kér és nincs hozzá web-forrás, a HELYES VÁLASZ: "
+        "'A keresés nem hozott eredményt — nincs megbízható forrás erre.' Pont. "
+        "Inkább vallj be hiányosságot, mint találj ki hamis forrást.\n"
     )
 
 AGENT_REGISTRY: Dict[str, Dict[str, Any]] = {

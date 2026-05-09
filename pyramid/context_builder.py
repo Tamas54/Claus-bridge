@@ -105,23 +105,26 @@ def build_agent_context(
     if inbox_summary:
         sections.append(f"# KOMMANDANT INBOX (friss emailek és naptár)\n{inbox_summary}")
 
-    # 7. Custom system prompt (felülírás, ha van)
-    if custom_system_prompt:
-        sections.append(f"# SPECIÁLIS INSTRUKCIÓ\n{custom_system_prompt}")
-
-    # 8. Elérhető recipe-k
+    # 7. Elérhető recipe-k
     if include_recipes:
         recipes = _get_recipes_summary()
         if recipes:
             sections.append(recipes)
 
-    # 9. Viselkedési szabályok
+    # 8. Viselkedési szabályok
     sections.append("""# VISELKEDÉSI SZABÁLYOK
 - Magyarul válaszolj, hacsak nem kérnek mást.
 - Légy tömör és lényegretörő — a Kommandant utálja a felesleges szöveget.
-- Ha nem tudsz valamit, mondd meg — ne hallucináj.
 - Az eredményeid automatikusan mentésre kerülnek. Dolgozz minőségben.
 - Ha egy feladat túl nagy, mondd meg és javasolj bontást.
 - Ismered a Kommandantot, a Bridge-et, és a csapatot. Használd ezt a tudást.""")
+
+    # 9. KRITIKUS: temporal + anti-hallucination directive — UTOLSÓ helyen,
+    # mert a recency-bias miatt a model a prompt VÉGÉT veszi komolyan a leg-
+    # erősebben. Korábban (mid-prompt) eltemetve a Kimi/GLM5 felülírta 2025-tel
+    # ÉS GLM5 fabrikált forrásokat. Lásd: tasks #127 (mnbkozeparfolyam.hu hallu)
+    # és #128 (Kimi: "mai dátum 2025. január") regression — 2026-04-28.
+    if custom_system_prompt:
+        sections.append(f"# KRITIKUS — KEMÉNY SZABÁLYOK (FELÜLÍRJA AZ ÖSSZES KORÁBBIT)\n{custom_system_prompt}")
 
     return "\n\n---\n\n".join(sections)
