@@ -4623,16 +4623,59 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
                 {"role": "system", "content": system},
                 {"role": "user", "content": f"FELADAT: {title}\n\nAGENT EREDMÉNYEK:\n{parts}"},
             ]
-            synthesis = await _run_agent_with_tools("moonshotai/Kimi-K2.6", messages)
-            synthesis = _clean_synthesis_output(synthesis)
+            # Synthesis fallback chain — Kimi K2.6 → GLM5 → V4-Pro.
+            # Each model is given the same messages and re-validated through
+            # the classifier; if the result is "ok" we keep it, otherwise we
+            # fall through to the next. V4-Pro is last because it cannot
+            # access tools (Step C); it works only when the agent results
+            # already contain enough material to summarize without further
+            # research.
+            SYNTHESIS_CHAIN = (
+                ("moonshotai/Kimi-K2.6", "kimi"),
+                ("zai-org/GLM-5.1", "glm5"),
+                ("deepseek-ai/DeepSeek-V4-Pro", "deepseek"),
+            )
+            synthesis = ""
+            synthesizer_used = None
+            for model_id, label in SYNTHESIS_CHAIN:
+                try:
+                    candidate = await _run_agent_with_tools(model_id, list(messages))
+                    candidate = _clean_synthesis_output(candidate)
+                    cls, reason = _classify_agent_result(candidate)
+                    if cls == "ok":
+                        synthesis = candidate
+                        synthesizer_used = label
+                        break
+                    logger.warning(
+                        "AI task #%d synthesis %s rejected (%s: %s) — falling through",
+                        task_id, label, cls, reason,
+                    )
+                except Exception as e:
+                    logger.warning(
+                        "AI task #%d synthesis %s exception (%s: %s) — falling through",
+                        task_id, label, type(e).__name__, e,
+                    )
+
+            if not synthesis:
+                synthesis = (
+                    "(A koordinátori szintézis-lánc mindhárom modellje silány "
+                    "vagy hibás eredményt adott — a Bridge a végső szintézist "
+                    "kihagyta. Az al-agentek értékelhető eredményei a fenti "
+                    "sorokban olvashatók.)"
+                )
+                synthesizer_used = "none"
+
             ts = now()
+            role_label = "Koordinátori összefoglaló"
+            if synthesizer_used and synthesizer_used != "kimi":
+                role_label = f"Koordinátori összefoglaló ({synthesizer_used} fallback)"
             conn.execute(
                 "INSERT INTO ai_task_results (task_id, agent, role, content, timestamp) VALUES (?, ?, ?, ?, ?)",
-                (task_id, "szintézis", "Koordinátori összefoglaló", synthesis, ts)
+                (task_id, "szintézis", role_label, synthesis, ts)
             )
             conn.commit()
-            logger.info("AI task #%d synthesis ok: %d/%d agents usable",
-                        task_id, len(usable_blocks), len(results))
+            logger.info("AI task #%d synthesis ok via %s: %d/%d agents usable",
+                        task_id, synthesizer_used, len(usable_blocks), len(results))
     except Exception as e:
         logger.error("AI task #%d synthesis failed: %s", task_id, e)
 
