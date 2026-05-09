@@ -4,3 +4,5 @@ CLAUDE.md
 .env
 *.db
 devlog*.md
+thoughts*.md
+reauth.py
