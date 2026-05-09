@@ -3047,7 +3047,7 @@ STATDATA_FETCH_TOOL_DEF = {
                 },
                 "filters": {
                     "type": "string",
-                    "description": "Optional Eurostat-style filter (e.g. 'geo=HU&unit=I15&s_adj=SCA')",
+                    "description": "Optional Eurostat-style filter, '&'-separated key=value pairs. SAFE keys present in most datasets: 'geo' (HU, EA20, DE), 'time' (2024-01), 'freq' (M, Q, A). Dataset-specific dimensions like 'unit', 'coicop', 's_adj', 'nace_r2' EXIST ONLY IN SOME datasets — passing them on a dataset that doesn't have them returns HTTP 400 INVALID_QUERY_DIMENSION. When unsure, start with just 'geo=HU', inspect the response's 'dimensions' field, then add narrower filters in a follow-up call. Example for prc_hicp_manr: 'geo=HU' (works), NOT 's_adj=SCA' (that dimension doesn't exist on prc_hicp_manr).",
                 },
                 "periods": {
                     "type": "integer",
@@ -3177,6 +3177,17 @@ _SUBAGENT_TOOLS_DIRECTIVE_TAIL = (
     "\nEgy kérdésen több tool-hívást is futtathatsz — a feladat legjobb teljesítése a cél, "
     "nem a takarékosság. Ha az első hívás eredménye nem találó, finomítsd a paramétereket "
     "és próbáld újra.\n"
+    "\n## KÖTELEZŐ TOOL-HÍVÁS — KONKRÉT SERIES-ID-RE\n"
+    "Ha a feladat KONKRÉT series-id-t / table-code-ot említ "
+    "(pl. `ara0045`, `prc_hicp_manr`, `CPIAUCSL`, `ECB/IRS`), AKKOR a megfelelő "
+    "`statdata_fetch` / `statdata_yfinance` / `statdata_mnb_rates` hívás "
+    "**KÖTELEZŐ**, akkor is ha hasonló adat a contextben már megvan. "
+    "A series-id különböző mutatót jelenthet — a context-beli ara0002 (CPI) "
+    "NEM helyettesíti az ara0045-öt (maginfláció). NE írd hogy '[nincs eredmény]' "
+    "ha nem hívtad meg a tool-t — vagy hívd meg, vagy mondd ki hogy 'nem hívtam meg'.\n"
+    "\nHa egy tool HTTP 400-at vagy más hibát ad, próbáld újra **kevesebb** "
+    "filter-paraméterrel (pl. csak 'geo=HU'-val), és olvasd el a hibaüzenetet — "
+    "az gyakran jelzi mely dimenziók érvényesek a dataset-en.\n"
 )
 
 SUBAGENT_TOOLS_DIRECTIVE = (
@@ -3286,6 +3297,28 @@ async def _dispatch_subagent_tool(name: str, args: dict) -> str:
                 if filters:
                     kwargs["filters"] = filters
                 result = await statdata_client.get_eurostat_data(**kwargs)
+                # Eurostat is dimension-strict; agents often pass dimensions
+                # that don't exist on the dataset (e.g. s_adj on prc_hicp_manr).
+                # The Makronóm-MCP service signals this with ok=true but a
+                # result string containing INVALID_QUERY_DIMENSION. Replace the
+                # opaque error with an actionable Bridge-side guidance so the
+                # agent knows exactly which retry to issue.
+                result_str = result if isinstance(result, str) else json.dumps(result, default=str)
+                if filters and "INVALID_QUERY_DIMENSION" in result_str:
+                    logger.warning("Eurostat INVALID_QUERY_DIMENSION with filters=%r — returning guidance", filters)
+                    result = json.dumps({
+                        "bridge_error": "Eurostat rejected your filters",
+                        "your_filters": filters,
+                        "service_message": result_str[:500],
+                        "guidance": (
+                            f"The dataset '{series_id}' does not have one or more of the "
+                            f"dimensions you passed. Retry statdata_fetch with simpler filters: "
+                            "start with just 'geo=HU' (or 'geo=EA20' for the eurozone), then "
+                            "inspect the 'dimensions' field of the response to discover what "
+                            "narrower keys this specific dataset supports. SAFE defaults across "
+                            "most Eurostat datasets: geo, time, freq."
+                        ),
+                    }, ensure_ascii=False)
             elif provider == "ksh":
                 result = await statdata_client.get_ksh_stadat(table_code=series_id, max_rows=periods)
             elif provider == "dbnomics":
