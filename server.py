@@ -5047,7 +5047,15 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
             system = (
                 "Te a koordinátor vagy. Az al-agentek elvégezték a feladatot. "
                 "Készíts tömör szintézist az eredményeikből: mi az egyetértés, hol térnek el, és mi a végső ajánlás. "
-                "Magyarul, strukturáltan."
+                "Magyarul, strukturáltan.\n\n"
+                "KEMÉNY SZABÁLY — WEBES-FRISS vs STRUKTURÁLT-STALE ÜTKÖZÉS:\n"
+                "Ha egy adatpontra (pl. ECB DFR, MNB irányadó kamat) az egyik agent "
+                "webes-friss adatot hoz (web_search vagy web_scrape, hivatalos forrás "
+                "pl. ecb.europa.eu, mnb.hu), és ez ELLENTMOND a másik agent strukturált "
+                "API-stale adatpontjának (DBnomics elakadt idősor, BIS WS_CBPOL régi "
+                "adat), A WEBES-FRISS ADAT NYER. Ne minősítsd 'nem ellenőrzött'-nek, "
+                "ha hivatalos web-forrás van mögötte. A strukturált API stale adatpont "
+                "jelölendő [STALE!]-ként, és a webes-friss adat lesz a tényállás."
                 + research_note
                 + rejection_note
                 + _temporal_directive("kimi")
@@ -5482,7 +5490,15 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
                             "Te a koordinátor vagy. Az al-agentek ELTÉRŐ feladatokat kaptak, mindegyik a saját fókuszával dolgozott. "
                             "Készíts strukturált szintézist: 1) röviden mit fedett le mindegyik agent, 2) hol egészítik ki egymást, "
                             "3) hol mondanak ellent (ha igen), 4) végső konklúzió / ajánlás a Kommandantnak. "
-                            "Magyarul, lényegre törően. Ne ismételd meg az agentek szövegét hosszan, csak hivatkozz rájuk."
+                            "Magyarul, lényegre törően. Ne ismételd meg az agentek szövegét hosszan, csak hivatkozz rájuk.\n\n"
+                            "KEMÉNY SZABÁLY — WEBES-FRISS vs STRUKTURÁLT-STALE ÜTKÖZÉS:\n"
+                            "Ha egy adatpontra (pl. ECB DFR, MNB irányadó kamat) az egyik agent "
+                            "webes-friss adatot hoz (web_search vagy web_scrape, hivatalos forrás "
+                            "pl. ecb.europa.eu, mnb.hu), és ez ELLENTMOND a másik agent strukturált "
+                            "API-stale adatpontjának (DBnomics elakadt idősor, BIS WS_CBPOL régi "
+                            "adat), A WEBES-FRISS ADAT NYER. Ne minősítsd 'nem ellenőrzött'-nek, "
+                            "ha hivatalos web-forrás van mögötte. A strukturált API stale adatpont "
+                            "jelölendő [STALE!]-ként, és a webes-friss adat lesz a tényállás."
                             + research_note
                             + _temporal_directive("kimi")
                             + SYNTHESIS_NO_TOOLS_DIRECTIVE

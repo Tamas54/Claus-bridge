@@ -52,22 +52,32 @@ Ha mindkettő van az adatblokkban, mindkettőt idézheted, jelölve melyik:
 
 ## Jegybanki kamatok
 
-### ECB Deposit Facility Rate (DFR) és eurozóna-pénzpiac — preset-ben friss
+### ECB Deposit Facility Rate (DFR) — KÖTELEZŐ web_scrape ecb.europa.eu-ról
 
-Az ECB-adatok **két csatornán** érkeznek a `hu_macro` presetben:
+**Bridge-tool-on át NINCS friss ECB DFR.** A DBnomics ECB FM idősor
+2025-02-05-én megáll (2,75%), holott az ECB 2025 közepén tovább csökkentett
+2,00%-ra. A Bridge sub-agentnek **TILOS** a DBnomics-i 2,75%-ot mint "friss"
+adatot idéznie — **kötelező** web_scrape-szel pótolni hivatalos ECB-forrásról:
 
-1. **ECB DFR (Deposit Facility Rate)** — DBnomics ECB FM datasetből
-   (`B.U2.EUR.4F.KR.DFR.LEV`), az ECB SDW proxyn át, az utolsó kamatváltozás
-   napjáig. Az utolsó adatpont az **aktuális DFR-szint**.
-2. **Eurostat `ei_mfir_m geo=EA`** — havi friss eurozóna 3-hónapos money market
-   rate, 1y / 5y / 10y euro yield-görbe, Maastricht-hozam.
+**3-lépcsős keresés ECB-rate-re:**
+1. `web_search(query="ecb deposit facility rate <ÉV>")` → találati lista
+2. `web_search(query="deposit facility rate site:ecb.europa.eu")` — site-szűrt
+3. `web_scrape(url=ecb.europa.eu/.../key_ecb_interest_rates URL)` → markdown
 
-Mindkettő ECB-eredetű; az 1. a **policy rate**, a 2. a **piaci kamatokat** adja.
-Az ECB-re **ne** használj `web_search`-öt — a két preset-csatorna lefedi.
+Az `ecb.europa.eu/stats/policy_and_exchange_rates/key_ecb_interest_rates/html/`
+oldal **kanonikus**: tartalmazza a Deposit Facility Rate, MRO Rate, Marginal
+Lending Facility Rate aktuális szintjét és az utolsó döntés dátumát.
 
-Citation:
-> ECB Deposit Facility Rate, 2,75%, 2025. február 5-i hatállyal (forrás: ECB / DBnomics ECB FM)
-> Eurostat money market 3-hónapos kamat, eurozóna, 2026. április — 2,18% (forrás: Eurostat ei_mfir_m)
+Citation a brief-be:
+> ECB Deposit Facility Rate, 2,00%, 2025. mid-óta változatlan (forrás: ecb.europa.eu, web_scrape, <kanonikus URL>)
+
+A **piaci kamatok** (3-hónapos money market, 1y/5y/10y euro yield) ezzel
+szemben a presetből érkeznek **frissen**:
+
+- **Eurostat `ei_mfir_m geo=EA`** — havi friss eurozóna money market + yield-görbe
+
+Ez tisztán **különböző** mint a policy rate — a policy rate (DFR/MRO/MLF)
+diskrét döntésekkel változik, a piaci kamatok folyamatosan.
 
 ### MNB irányadó kamat — KÖTELEZŐ web_search pótlás
 

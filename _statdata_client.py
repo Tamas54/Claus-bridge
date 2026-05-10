@@ -62,13 +62,13 @@ DATA_PRESETS: dict[str, list[dict[str, Any]]] = {
         {"tool": "mnb_rates", "args": {"mode": "current", "currencies": "EUR,USD"}},
         {"tool": "yfinance", "args": {"symbol": "EURHUF=X", "action": "history", "period": "3mo", "interval": "1wk"}},  # EUR/HUF heti idősor 3 hó
         # Jegybanki kamatok és pénzpiaci hozamok:
-        # - ECB DFR (Deposit Facility Rate) DBnomics ECB FM datasetből — friss, daily
-        # - Eurostat ei_mfir_m geo=EA: havi friss money market rate + 1/5/10y yields (közvetlen ECB-eredetű feed)
+        # - Eurostat ei_mfir_m geo=EA: havi friss money market rate + 1/5/10y yields
         # - BIS HU+XM — gyakran stale, kontextusként
-        # Az MNB irányadó kamat ezzel szemben Bridge-tool-on át NINCS, web_search-szel pótolandó
-        # (lásd interpretation-rules skill).
-        {"tool": "dbnomics_series", "args": {"provider_code": "ECB", "dataset_code": "FM",
-                                                "series_code": "B.U2.EUR.4F.KR.DFR.LEV"}},  # ECB DFR (Deposit Facility) szint
+        # ECB DFR (Deposit Facility Rate) Bridge-tool-on át NINCS friss — a DBnomics
+        # ECB FM idősor 2025-02-05-én megáll (2,75%), holott az ECB azóta 2,00%-ra
+        # csökkentette. A sub-agent KÖTELEZŐEN web_scrape-szel pótolja ecb.europa.eu-ról
+        # (lásd interpretation-rules skill: 3-lépcsős keresési minta).
+        # Az MNB irányadó kamat ezzel szemben Bridge-tool-on át NINCS, web_search-szel pótolandó.
         {"tool": "get_eurostat_data", "args": {"dataset_code": "ei_mfir_m", "geo": "EA",
                                                   "sinceTimePeriod": "2025-09"}},  # eurozóna 3hó / 1y / 5y / 10y / Maastricht-hozam (havi)
         {"tool": "get_policy_rates", "args": {"countries": "HU,XM"}},  # HU + EA20 BIS (kontextus, gyakran [STALE])
