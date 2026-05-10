@@ -31,7 +31,8 @@ async def dispatch_parallel_tasks(
             agent_id=agent_id,
             custom_system_prompt=task.get("system_prompt"),
             include_shared_memory=True,
-            include_rag=True
+            include_rag=True,
+            minimal=task.get("minimal", False),
         )
 
         result = await call_agent_func(

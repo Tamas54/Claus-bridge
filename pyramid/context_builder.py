@@ -53,23 +53,20 @@ def build_agent_context(
     inbox_summary: str = None,
     relevance_query: str = "",
     cross_agent_rag: bool = False,
+    minimal: bool = False,
 ) -> str:
     """
     Összeállítja egy agent TELJES system promptját.
 
-    Rétegek:
-    1. Személyiség (ki vagy te)
-    2. Ki a Kommandant (a főnököd)
-    3. Mi a Bridge + ki kicsoda a csapatban
-    4. Shared Memory (közös tudás)
-    5. Egyéni RAG (saját korábbi munkák) — ha relevance_query, akkor smart sort
-    6. Cross-agent RAG (Kimi + DeepSeek + GLM5) — ha cross_agent_rag=True
-       (orchestrátoroknak: Feldwebel)
-    7. Inbox — friss emailek és naptár események (ha van)
-    8. Custom system prompt (ha van felülírás)
-    9. Elérhető recipe-k (workflow template-ek)
-    10. Viselkedési szabályok
+    Ha minimal=True: csak a custom_system_prompt jön vissza (vertikum-route
+    erre épít — a vertical_plugins/<vertical>/commands + skills önmagában
+    fegyelmezett system prompt, a 9-rétegű Bridge-context elhomályosítja).
+    A temporal/tools directive downstream a _call_agent-ben rárakódik.
+
+    Egyébként a teljes 9-rétegű context.
     """
+    if minimal:
+        return custom_system_prompt or ""
 
     sections = []
 

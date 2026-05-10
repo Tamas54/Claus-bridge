@@ -292,11 +292,53 @@ async def prefetch_daily_news_brief(deps: dict) -> str:
     }, ensure_ascii=False, indent=2)
 
 
+# ── Vertikum-prefetcherek (B integráció, 2026-05-10) ──────────────────
+
+async def prefetch_weekly_macro_report(deps: dict) -> str:
+    """weekly_macro_report (vertikum: makro): hu_macro preset a StatData-ról."""
+    try:
+        import _statdata_client as statdata
+    except ImportError:
+        logger.error("StatData client nem elerheto — hu_macro preset nem huzhatto")
+        return ""
+    if not statdata.STATDATA_URL:
+        logger.warning("STATDATA_URL nincs beallitva — vertikum prefetch ures")
+        return ""
+    try:
+        entries, label = await statdata.resolve_data_context({"presets": ["hu_macro"]})
+        block = statdata.format_data_block(entries, label=label)
+        return block
+    except Exception as e:
+        logger.error("hu_macro preset huzas hiba: %s: %s", type(e).__name__, e)
+        return ""
+
+
+async def prefetch_weekly_geopolitics_brief(deps: dict) -> str:
+    """weekly_geopolitics_brief (vertikum: geopolitika): Echolot geopolitics preset."""
+    try:
+        import _echolot_client as echolot
+    except ImportError:
+        logger.error("Echolot client nem elerheto")
+        return ""
+    if not echolot.ECHOLOT_URL:
+        logger.warning("ECHOLOT_URL nincs beallitva — vertikum prefetch ures")
+        return ""
+    try:
+        articles, label = await echolot.resolve_news_context({"presets": ["geopolitics"]})
+        block = echolot.format_news_block(articles, label=label, group_by_sphere=True)
+        return block
+    except Exception as e:
+        logger.error("geopolitics preset huzas hiba: %s: %s", type(e).__name__, e)
+        return ""
+
+
 # ── Recipe nev → prefetcher mapping ───────────────────────────────────
 
 RECIPE_PREFETCHERS = {
     "daily_briefing": prefetch_daily_briefing,
     "daily_news_brief": prefetch_daily_news_brief,
+    "weekly_macro_report": prefetch_weekly_macro_report,
+    "weekly_geopolitics_brief": prefetch_weekly_geopolitics_brief,
 }
 
 

@@ -34,7 +34,9 @@ CREATE TABLE IF NOT EXISTS pyramid_recipes (
     cron_delivery TEXT DEFAULT 'both',
     cron_last_run TIMESTAMP DEFAULT NULL,
     cron_deep_research INTEGER DEFAULT 0,
-    cron_deep_thinking INTEGER DEFAULT 0
+    cron_deep_thinking INTEGER DEFAULT 0,
+    vertical TEXT DEFAULT NULL,
+    vertical_command TEXT DEFAULT NULL
 );
 """
 
@@ -46,6 +48,8 @@ ALTER TABLE pyramid_recipes ADD COLUMN cron_delivery TEXT DEFAULT 'both';
 ALTER TABLE pyramid_recipes ADD COLUMN cron_last_run TIMESTAMP DEFAULT NULL;
 ALTER TABLE pyramid_recipes ADD COLUMN cron_deep_research INTEGER DEFAULT 0;
 ALTER TABLE pyramid_recipes ADD COLUMN cron_deep_thinking INTEGER DEFAULT 0;
+ALTER TABLE pyramid_recipes ADD COLUMN vertical TEXT DEFAULT NULL;
+ALTER TABLE pyramid_recipes ADD COLUMN vertical_command TEXT DEFAULT NULL;
 """
 
 
@@ -106,30 +110,73 @@ def register_tools(app, deps):
              "3) Nyitott taskok "
              "4) Trending hirek. "
              "Maximum 300 szo, prioritas szerint rendezve.",
-             "system"),
+             "system", None, None),
             ("weekly_macro_report",
-             "Heti makrogazdasagi osszefoglalo",
+             "Heti makrogazdasagi osszefoglalo (vertikum: makro)",
              '["web_search"]',
-             "Keszits heti makrogazdasagi osszefoglalot: "
-             "1) Magyar es EU GDP, inflacio, munkanelkuliseg legfrissebb adatai "
-             "2) Heti fo gazdasagi hirek "
-             "3) Szintezis es kitekintes, max 500 szo.",
-             "system"),
+             "(vertikum-vezérelt — runtime a vertical_plugins/makro/commands/makro-brief.md-t használja)",
+             "system", "makro", "makro-brief"),
+            ("weekly_geopolitics_brief",
+             "Heti geopolitikai brief (vertikum: geopolitika)",
+             '["web_search"]',
+             "(vertikum-vezérelt — runtime a vertical_plugins/geopolitika/commands/heti-jelentes.md-t használja)",
+             "system", "geopolitika", "heti-jelentes"),
         ]
-        for name_s, desc, tools, prompt, by in _seed_recipes:
+        for name_s, desc, tools, prompt, by, vert, vert_cmd in _seed_recipes:
             conn.execute(
                 "INSERT INTO pyramid_recipes (name, description, required_tools, prompt_template, created_by, created_at, updated_at, "
-                "cron_schedule, cron_model, cron_enabled, cron_delivery) "
-                "VALUES (?, ?, ?, ?, ?, ?, ?, NULL, 'glm5', 0, 'both')",
-                (name_s, desc, tools, prompt, by, ts, ts),
+                "cron_schedule, cron_model, cron_enabled, cron_delivery, vertical, vertical_command) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?, NULL, 'glm5', 0, 'both', ?, ?)",
+                (name_s, desc, tools, prompt, by, ts, ts, vert, vert_cmd),
             )
         conn.commit()
         logger.info("Seeded %d default recipes", len(_seed_recipes))
     conn.close()
 
+    # Idempotens vertikum-migráció: a meglévő (production) Bridge-eken a
+    # `weekly_macro_report` recipe már létezik, de vertikum nélkül. Itt
+    # bekapcsoljuk vertikumosra. A `weekly_geopolitics_brief`-et beillesztjük,
+    # ha még nincs. Mindkettő idempotens — minden plugin-load-on biztonságos.
+    conn = get_db()
+    try:
+        ts2 = _now()
+        # 1) weekly_macro_report → makro vertikum (csak ha még nincs vertikuma)
+        cur = conn.execute(
+            "UPDATE pyramid_recipes SET vertical='makro', vertical_command='makro-brief', updated_at=? "
+            "WHERE name='weekly_macro_report' AND (vertical IS NULL OR vertical='')",
+            (ts2,)
+        )
+        if cur.rowcount:
+            logger.info("Vertikum-migration: weekly_macro_report → makro/makro-brief")
+        # 2) weekly_geopolitics_brief INSERT (ha hiányzik)
+        exists = conn.execute(
+            "SELECT 1 FROM pyramid_recipes WHERE name='weekly_geopolitics_brief'"
+        ).fetchone()
+        if not exists:
+            conn.execute(
+                "INSERT INTO pyramid_recipes (name, description, required_tools, prompt_template, "
+                "created_by, created_at, updated_at, cron_model, cron_enabled, cron_delivery, "
+                "vertical, vertical_command) "
+                "VALUES (?, ?, ?, ?, 'system', ?, ?, 'glm5', 0, 'both', 'geopolitika', 'heti-jelentes')",
+                (
+                    "weekly_geopolitics_brief",
+                    "Heti geopolitikai brief (vertikum: geopolitika)",
+                    '["web_search"]',
+                    "(vertikum-vezérelt — runtime a vertical_plugins/geopolitika/commands/heti-jelentes.md-t használja)",
+                    ts2, ts2,
+                ),
+            )
+            logger.info("Vertikum-seed: weekly_geopolitics_brief beillesztve")
+        conn.commit()
+    except Exception as me:
+        logger.error("Vertikum-migration error: %s", me)
+    finally:
+        conn.close()
+
     @app.tool()
     async def create_recipe(name: str, description: str, prompt_template: str,
-                            required_tools: str = "[]", created_by: str = "kommandant") -> str:
+                            required_tools: str = "[]", created_by: str = "kommandant",
+                            vertical: str = "", vertical_command: str = "") -> str:
         """Create a new recipe (declarative workflow).
 
         Recipes are reusable workflow templates that any agent can execute.
@@ -139,9 +186,16 @@ def register_tools(app, deps):
             name: Unique recipe name (e.g. 'daily_briefing', 'weekly_macro_report')
             description: Human-readable description of what the recipe does
             prompt_template: The full prompt that will be sent to the executing agent
+                (ignored at runtime if vertical+vertical_command set)
             required_tools: JSON list of tool names needed (e.g. '["gmail_poll", "calendar_poll"]')
             created_by: Who created it (kommandant, web-claus, cli-claus, or agent name)
+            vertical: Optional vertical_plugins folder name (e.g. 'makro', 'geopolitika').
+                If set, the runtime loads vertical_plugins/<vertical>/commands/<vertical_command>.md
+                as system prompt + skills/*.md concatenated, instead of using prompt_template.
+            vertical_command: Required if vertical set. The commands/<name>.md basename.
         """
+        if (vertical and not vertical_command) or (vertical_command and not vertical):
+            return json.dumps({"error": "vertical and vertical_command must be set together"})
         # Validate required_tools is valid JSON
         try:
             tools_list = json.loads(required_tools) if isinstance(required_tools, str) else required_tools
@@ -155,9 +209,10 @@ def register_tools(app, deps):
         try:
             ts = _now()
             conn.execute(
-                "INSERT INTO pyramid_recipes (name, description, required_tools, prompt_template, created_by, created_at, updated_at) "
-                "VALUES (?, ?, ?, ?, ?, ?, ?)",
-                (name, description, required_tools, prompt_template, created_by, ts, ts),
+                "INSERT INTO pyramid_recipes (name, description, required_tools, prompt_template, created_by, created_at, updated_at, vertical, vertical_command) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                (name, description, required_tools, prompt_template, created_by, ts, ts,
+                 vertical or None, vertical_command or None),
             )
             conn.commit()
             recipe_id = conn.execute("SELECT id FROM pyramid_recipes WHERE name = ?", (name,)).fetchone()[0]
@@ -185,7 +240,8 @@ def register_tools(app, deps):
         conn = get_db()
         q = ("SELECT id, name, description, required_tools, created_by, created_at, enabled, "
              "cron_schedule, cron_model, cron_enabled, cron_delivery, cron_last_run, "
-             "cron_deep_research, cron_deep_thinking FROM pyramid_recipes ")
+             "cron_deep_research, cron_deep_thinking, vertical, vertical_command "
+             "FROM pyramid_recipes ")
         if enabled_only:
             rows = conn.execute(q + "WHERE enabled = 1 ORDER BY name").fetchall()
         else:
@@ -208,6 +264,9 @@ def register_tools(app, deps):
                     "deep_research": bool(r[12]) if len(r) > 12 else False,
                     "deep_thinking": bool(r[13]) if len(r) > 13 else False,
                 }
+            if len(r) > 14 and r[14]:  # vertical
+                entry["vertical"] = r[14]
+                entry["vertical_command"] = r[15]
             recipes.append(entry)
 
         return json.dumps({"count": len(recipes), "recipes": recipes}, ensure_ascii=False)
@@ -233,7 +292,8 @@ def register_tools(app, deps):
         """
         conn = get_db()
         row = conn.execute(
-            "SELECT id, name, description, required_tools, prompt_template, enabled "
+            "SELECT id, name, description, required_tools, prompt_template, enabled, "
+            "vertical, vertical_command "
             "FROM pyramid_recipes WHERE name = ?", (name,)
         ).fetchone()
         conn.close()
@@ -243,7 +303,81 @@ def register_tools(app, deps):
         if not row[5]:
             return json.dumps({"error": f"Recipe '{name}' le van tiltva."})
 
+        vertical = row[6]
+        vertical_command = row[7]
         prompt = row[4]
+
+        # ────────────────────────────────────────────────────────────
+        # VERTIKUM-ROUTE: ha a recipe vertikum-vezérelt, megkerüljük a
+        # flat prompt_template-et és a vertical_plugins/<vertical>/commands
+        # + skills szabványos szerkezetét adjuk system promptként mind
+        # a 3 agentnek (3-agent + szintézis = "verhetetlen, ha adatolt
+        # és cikkelt", lásd feedback_bridge_3agent_synthesis memo).
+        # ────────────────────────────────────────────────────────────
+        if vertical and vertical_command:
+            try:
+                from vertical_plugins import load_command, load_skills
+                cmd_md = load_command(vertical, vertical_command)
+                skills_md = load_skills(vertical)
+            except Exception as e:
+                return json.dumps({"error": f"vertikum betöltés sikertelen: {vertical}/{vertical_command}: {e}"})
+
+            vertical_system = (
+                f"{cmd_md}\n\n"
+                "═══ DOMAIN SKILLS (alkalmazd a workflow-ban) ═══\n\n"
+                f"{skills_md}\n\n"
+                "═══ END DOMAIN SKILLS ═══"
+            )
+
+            # Prefetch — vertikum-recipe-hez kötelező friss adatblokk
+            factual_context = ""
+            try:
+                from plugins._recipe_prefetch import run_prefetch
+                factual_context = await run_prefetch(name, deps) or ""
+                if factual_context:
+                    logger.info("Vertikum-recipe prefetch: %s (%d chars)", name, len(factual_context))
+            except Exception as pe:
+                logger.error("Vertikum-recipe prefetch failed for %s: %s", name, pe)
+
+            today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+            user_prompt = (
+                f"[Mai dátum: {today}]\n\n"
+                "Itt a friss adatblokk. Csinálj briefet a system promptban leírt struktúrában.\n\n"
+                "=== FACTUAL CONTEXT ===\n"
+                f"{factual_context if factual_context else '(prefetch nem futott vagy nem érhető el — csak a saját tudásodra hagyatkozhatsz, jelöld a hiányokat a záró szekcióban)'}\n"
+                "=== END FACTUAL CONTEXT ===\n\n"
+                "SZIGORÚ SZABÁLY: minden szám/állítás a fenti CONTEXT blokkból. "
+                "Ha valami nincs ott, a 'Hiányzó / nem-elérhető források' záró szekcióba flaggeld."
+            )
+
+            ai_task_func = deps.get("ai_task_func")
+            if not ai_task_func:
+                return json.dumps({"error": "ai_task nem elerheto"})
+
+            agents_to_use = ("kimi", "deepseek", "glm5") if model == "all" else (model,)
+            agent_tasks_dict = {
+                aid: {
+                    "prompt": user_prompt,
+                    "system_prompt": vertical_system,
+                    "minimal": True,
+                    "max_tokens": 4000,
+                }
+                for aid in agents_to_use
+            }
+
+            try:
+                result_json = await ai_task_func(
+                    title=f"Recipe: {name} (vertikum: {vertical})",
+                    description=user_prompt,
+                    assigned_by=caller or "recipe-system",
+                    agent_tasks=json.dumps(agent_tasks_dict),
+                    deep_research=deep_research,
+                    deep_thinking=deep_thinking,
+                )
+                return result_json
+            except Exception as e:
+                logger.error("Vertikum-recipe execute failed for %s: %s", name, e)
+                return json.dumps({"error": f"vertikum-recipe végrehajtás sikertelen: {e}"})
 
         # Template variables: if context is JSON dict, substitute {var} and {var:default}
         if context:
@@ -403,7 +537,8 @@ def register_tools(app, deps):
                             required_tools: str = "", enabled: bool = True,
                             cron_schedule: str = "", cron_model: str = "",
                             cron_enabled: bool = False, cron_delivery: str = "",
-                            cron_deep_research: bool = False, cron_deep_thinking: bool = False) -> str:
+                            cron_deep_research: bool = False, cron_deep_thinking: bool = False,
+                            vertical: str = "", vertical_command: str = "") -> str:
         """Update an existing recipe. Supports cron scheduling.
 
         Args:
@@ -476,6 +611,18 @@ def register_tools(app, deps):
         params.append(1 if cron_deep_research else 0)
         updates.append("cron_deep_thinking = ?")
         params.append(1 if cron_deep_thinking else 0)
+
+        # Vertikum-mezők. "none" = NULL-re törlés, "" = nem érintjük, egyébként set.
+        if vertical == "none":
+            updates.append("vertical = NULL")
+            updates.append("vertical_command = NULL")
+        else:
+            if vertical:
+                updates.append("vertical = ?")
+                params.append(vertical)
+            if vertical_command:
+                updates.append("vertical_command = ?")
+                params.append(vertical_command)
 
         updates.append("updated_at = ?")
         params.append(_now())

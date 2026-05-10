@@ -40,22 +40,38 @@ _inflight_lock = asyncio.Lock()
 DATA_PRESETS: dict[str, list[dict[str, Any]]] = {
     "hu_macro": [
         # KSH HAVI friss adatok (2026-os hónapokat is tartalmaz):
-        {"tool": "get_ksh_stadat", "args": {"table_code": "ara0039", "max_rows": 36}},  # havi CPI + ipari termelői ár + építő (2024-2026)
-        {"tool": "get_ksh_stadat", "args": {"table_code": "ara0045", "max_rows": 36}},  # havi maginfláció (új típusú, szezonálisan kiigazított)
-        {"tool": "get_ksh_stadat", "args": {"table_code": "mun0143", "max_rows": 24}},  # havi kereseti adatok
-        # Eurostat HU friss havi/negyedéves (DESC-sortolt 2026-05-05 fix után):
-        {"tool": "get_eurostat_data", "args": {"dataset_code": "prc_hicp_manr", "geo": "HU", "sinceTimePeriod": "2025-01"}},  # HICP havi (Eurostat-i, EU-harmonizált)
-        {"tool": "get_eurostat_data", "args": {"dataset_code": "namq_10_gdp", "geo": "HU",
+        {"tool": "get_ksh_stadat", "args": {"table_code": "ara0039", "max_rows": 36}},  # havi CPI + ipari termelői ár + építő (gyors havi frissítés)
+        {"tool": "get_ksh_stadat", "args": {"table_code": "ara0066", "max_rows": 24}},  # ipari termelői árindex EU-tagországok kereszt (komparatív, lassabb publikálás)
+        {"tool": "get_ksh_stadat", "args": {"table_code": "ara0045", "max_rows": 36}},  # havi maginfláció (bázis-index, YoY-ra konvertálandó)
+        {"tool": "get_ksh_stadat", "args": {"table_code": "mun0143", "max_rows": 24}},  # havi kereseti adatok (kumulált formátum, +YoY %)
+        # Eurostat HU+EA összevethető (Kommandant feedback 2026-05-10):
+        # Megj.: az Eurostat HICP / une_rt_m 3-6 hét publikálási késedelemmel jön —
+        # heti brief napján a folyó hónapra csak KSH-adat van.
+        {"tool": "get_eurostat_data", "args": {"dataset_code": "prc_hicp_manr", "geo": "HU,EA", "sinceTimePeriod": "2025-01"}},  # HICP havi HU + eurózóna
+        {"tool": "get_eurostat_data", "args": {"dataset_code": "namq_10_gdp", "geo": "HU,EA20",
                                                   "filters": "na_item=B1GQ&unit=CLV15_MEUR&s_adj=SCA",
-                                                  "sinceTimePeriod": "2024-Q1"}},  # GDP negyedéves (chain-linked vol, EUR, SA)
-        {"tool": "get_eurostat_data", "args": {"dataset_code": "une_rt_m", "geo": "HU", "sinceTimePeriod": "2025-01"}},  # munkanélküli ráta havi
+                                                  "sinceTimePeriod": "2024-Q1"}},  # GDP negyedéves HU + EA20
+        {"tool": "get_eurostat_data", "args": {"dataset_code": "une_rt_m", "geo": "HU,EU27_2020",
+                                                  "filters": "sex=T&age=TOTAL&unit=PC_ACT&s_adj=SA",
+                                                  "sinceTimePeriod": "2025-01"}},  # munkanélküli ráta HU + EU27 (EA20 ehhez a táblához nem érvényes geo-kód, lásd 2026-05-10 audit)
         {"tool": "get_eurostat_data", "args": {"dataset_code": "irt_st_m", "geo": "HU", "sinceTimePeriod": "2025-01"}},  # money market rate (~MNB rate proxy)
         # KSH ÉVES bontások (kontextusként):
         {"tool": "get_ksh_stadat", "args": {"table_code": "ara0002"}},  # CPI éves bontás kategóriánként (1.1.1.2)
         {"tool": "get_ksh_stadat", "args": {"table_code": "gdp0004"}},  # GDP éves nominál HUF/EUR/USD/PPP (1995-2024)
-        # Árfolyam + jegybanki kamat:
+        # Árfolyam — napi MNB referencia + heti idősor (yfinance):
         {"tool": "mnb_rates", "args": {"mode": "current", "currencies": "EUR,USD"}},
-        {"tool": "get_policy_rates", "args": {"countries": "HU"}},  # BIS — jelzi [STALE]-t
+        {"tool": "yfinance", "args": {"symbol": "EURHUF=X", "action": "history", "period": "3mo", "interval": "1wk"}},  # EUR/HUF heti idősor 3 hó
+        # Jegybanki kamatok és pénzpiaci hozamok:
+        # - ECB DFR (Deposit Facility Rate) DBnomics ECB FM datasetből — friss, daily
+        # - Eurostat ei_mfir_m geo=EA: havi friss money market rate + 1/5/10y yields (közvetlen ECB-eredetű feed)
+        # - BIS HU+XM — gyakran stale, kontextusként
+        # Az MNB irányadó kamat ezzel szemben Bridge-tool-on át NINCS, web_search-szel pótolandó
+        # (lásd interpretation-rules skill).
+        {"tool": "dbnomics_series", "args": {"provider_code": "ECB", "dataset_code": "FM",
+                                                "series_code": "B.U2.EUR.4F.KR.DFR.LEV"}},  # ECB DFR (Deposit Facility) szint
+        {"tool": "get_eurostat_data", "args": {"dataset_code": "ei_mfir_m", "geo": "EA",
+                                                  "sinceTimePeriod": "2025-09"}},  # eurozóna 3hó / 1y / 5y / 10y / Maastricht-hozam (havi)
+        {"tool": "get_policy_rates", "args": {"countries": "HU,XM"}},  # HU + EA20 BIS (kontextus, gyakran [STALE])
     ],
     "us_macro": [
         {"tool": "get_fred_data", "args": {"series_id": "GDP", "limit": 8}},
