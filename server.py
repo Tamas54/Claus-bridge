@@ -5464,17 +5464,50 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
                         )},
                         {"role": "user", "content": f"FELADAT CÍME: {title}\n\nLEÍRÁS: {description}\n\nAGENT EREDMÉNYEK:\n{synthesis_input}"},
                     ]
-                    synthesis = loop.run_until_complete(
-                        _run_agent_with_tools("moonshotai/Kimi-K2.6", synthesis_messages, max_rounds=2)
+                    # Synthesis fallback chain — same as broadcast mode (Kimi → GLM5 → V4-Pro).
+                    # Required because Kimi K2.6 occasionally times out on long
+                    # contexts; without fallback the whole synthesis is lost (task #175).
+                    DISPATCH_SYNTHESIS_CHAIN = (
+                        ("moonshotai/Kimi-K2.6", "kimi"),
+                        ("zai-org/GLM-5.1", "glm5"),
+                        ("deepseek-ai/DeepSeek-V4-Pro", "deepseek"),
                     )
-                    synthesis = _clean_synthesis_output(synthesis)
+                    synthesis = ""
+                    synthesizer_used = None
+                    for syn_model_id, syn_label in DISPATCH_SYNTHESIS_CHAIN:
+                        try:
+                            candidate = loop.run_until_complete(
+                                _run_agent_with_tools(syn_model_id, list(synthesis_messages), max_rounds=2)
+                            )
+                            candidate = _clean_synthesis_output(candidate)
+                            if candidate and candidate.strip():
+                                synthesis = candidate
+                                synthesizer_used = syn_label
+                                break
+                            logger.warning(
+                                "AI task #%d dispatch synthesis %s empty — falling through",
+                                task_id, syn_label,
+                            )
+                        except Exception as e:
+                            logger.warning(
+                                "AI task #%d dispatch synthesis %s exception (%s: %s) — falling through",
+                                task_id, syn_label, type(e).__name__, e,
+                            )
                     if synthesis and synthesis.strip():
+                        role_tag = (
+                            "Koordinátori összefoglaló"
+                            if synthesizer_used == "kimi"
+                            else f"Koordinátori összefoglaló (fallback: {synthesizer_used})"
+                        )
                         conn2.execute(
                             "INSERT INTO ai_task_results (task_id, agent, role, content, timestamp) VALUES (?, ?, ?, ?, ?)",
-                            (task_id, "szintézis", "Koordinátori összefoglaló", synthesis, now())
+                            (task_id, "szintézis", role_tag, synthesis, now())
                         )
                         conn2.commit()
-                        logger.info("AI task #%d synthesis written (%d chars)", task_id, len(synthesis))
+                        logger.info("AI task #%d synthesis written by %s (%d chars)",
+                                    task_id, synthesizer_used, len(synthesis))
+                    else:
+                        logger.error("AI task #%d dispatch synthesis failed across all 3 fallback agents", task_id)
                 except Exception as syn_e:
                     logger.error("AI task #%d dispatch synthesis failed: %s", task_id, syn_e)
 
