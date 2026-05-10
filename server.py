@@ -2151,6 +2151,14 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
         except Exception as de:
             logger.warning("data_context fetch failed (continuing without): %s", de)
 
+    # PROMPT LAYER 1 — globál szabályok prepend (ai_query single-agent path).
+    # `bridge_vision_2026-05-10.md` Lépés 1.
+    try:
+        from pyramid.prompt_layers import prepend_global_rules
+        system_prompt = prepend_global_rules(system_prompt, output_language="hu")
+    except Exception as e:
+        logger.warning("Global rules prepend failed (ai_query, continuing): %s", e)
+
     # Tell the agent it has 3 information tools (echolot_query, web_fetch, web_search)
     # — by Kommandant's policy: every agent has free access, no cost concern.
     system_prompt += SUBAGENT_TOOLS_DIRECTIVE
@@ -4697,6 +4705,14 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
                         + temporal
                     )
 
+                # PROMPT LAYER 1 — globál szabályok prepend (broadcast-mód).
+                # `bridge_vision_2026-05-10.md` Lépés 1.
+                try:
+                    from pyramid.prompt_layers import prepend_global_rules
+                    system = prepend_global_rules(system, output_language="hu")
+                except Exception as e:
+                    logger.warning("Global rules prepend failed (broadcast, continuing): %s", e)
+
                 # Inject caller persona if available
                 if assigned_by and not is_core_instance(assigned_by):
                     profile = get_profile(assigned_by)
@@ -5242,6 +5258,14 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
             """Wrapper with web search — handles both JSON and text-based tool calls."""
             import httpx, re
             model_id = SILICONFLOW_MODELS.get(model, model)
+            # PROMPT LAYER 1 — globál szabályok (CONTEXT-BOUND, NUMERIC FORMAT,
+            # NYELVI INTEGRITÁS, stb.) prepend a system_prompt ELEJÉRE.
+            # `bridge_vision_2026-05-10.md` Lépés 1, 2026-05-10 este.
+            try:
+                from pyramid.prompt_layers import prepend_global_rules
+                system_prompt = prepend_global_rules(system_prompt, output_language="hu")
+            except Exception as e:
+                logger.warning("Global rules prepend failed (continuing without): %s", e)
             # Inject the strong temporal directive — Kimi otherwise overrides the
             # runtime date with its training cutoff, poisoning the dispatch output.
             system_prompt = (system_prompt or "") + SUBAGENT_TOOLS_DIRECTIVE + _temporal_directive(model)
