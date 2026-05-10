@@ -5042,17 +5042,18 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
                 {"role": "system", "content": system},
                 {"role": "user", "content": f"FELADAT: {title}\n\nAGENT EREDMÉNYEK:\n{parts}"},
             ]
-            # Synthesis fallback chain — Kimi K2.6 → GLM5 → V4-Pro.
-            # Each model is given the same messages and re-validated through
-            # the classifier; if the result is "ok" we keep it, otherwise we
-            # fall through to the next. V4-Pro is last because it cannot
-            # access tools (Step C); it works only when the agent results
-            # already contain enough material to summarize without further
-            # research.
+            # Synthesis fallback chain — Kimi K2.6 → DeepSeek V4-Pro → GLM-5.1.
+            # Order rationale (Kommandant 2026-05-10): DeepSeek's reasoning
+            # output on long-context summarization (the dispatch-task
+            # accumulated agent results + research history can hit 100k+ tokens)
+            # is consistently more thorough than GLM5's; GLM5 occasionally
+            # mis-reads a number on long context (e.g. flipped HICP 2025-11
+            # in #172). Each model is re-validated through the classifier;
+            # if the result is "ok" we keep it, otherwise we fall through.
             SYNTHESIS_CHAIN = (
                 ("moonshotai/Kimi-K2.6", "kimi"),
-                ("zai-org/GLM-5.1", "glm5"),
                 ("deepseek-ai/DeepSeek-V4-Pro", "deepseek"),
+                ("zai-org/GLM-5.1", "glm5"),
             )
             synthesis = ""
             synthesizer_used = None
@@ -5464,13 +5465,14 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
                         )},
                         {"role": "user", "content": f"FELADAT CÍME: {title}\n\nLEÍRÁS: {description}\n\nAGENT EREDMÉNYEK:\n{synthesis_input}"},
                     ]
-                    # Synthesis fallback chain — same as broadcast mode (Kimi → GLM5 → V4-Pro).
-                    # Required because Kimi K2.6 occasionally times out on long
-                    # contexts; without fallback the whole synthesis is lost (task #175).
+                    # Synthesis fallback chain — same as broadcast mode
+                    # (Kimi → DeepSeek V4-Pro → GLM5). DeepSeek 2nd because its
+                    # reasoning output on long-context summarization is more
+                    # thorough than GLM5's; GLM5 last as final fallback.
                     DISPATCH_SYNTHESIS_CHAIN = (
                         ("moonshotai/Kimi-K2.6", "kimi"),
-                        ("zai-org/GLM-5.1", "glm5"),
                         ("deepseek-ai/DeepSeek-V4-Pro", "deepseek"),
+                        ("zai-org/GLM-5.1", "glm5"),
                     )
                     synthesis = ""
                     synthesizer_used = None
