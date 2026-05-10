@@ -61,6 +61,13 @@ except ImportError:
     STATDATA_ENABLED = False
     statdata_client = None  # type: ignore
 
+# Brave-MCP-server — JS-rendered scraping + Brave Search engine
+# (separate Railway instance, JSON-RPC over HTTP). When set, the Bridge
+# `_web_search` uses brave-mcp-server as primary (DDG-html as fallback),
+# AND exposes a new sub-agent tool `web_scrape` for JS-rendered pages.
+BRAVE_MCP_URL = os.getenv("BRAVE_MCP_URL", "").strip()
+BRAVE_MCP_ENABLED = bool(BRAVE_MCP_URL)
+
 # Feldwebel — Telegram command system + smart triage + briefing
 try:
     from feldwebel import init_feldwebel, BridgeContext
@@ -2994,6 +3001,34 @@ WEB_FETCH_TOOL_DEF = {
     },
 }
 
+WEB_SCRAPE_TOOL_DEF = {
+    "type": "function",
+    "function": {
+        "name": "web_scrape",
+        "description": (
+            "Scrape full markdown content of a JS-rendered webpage via headless "
+            "Brave browser (Puppeteer). STRONGER than web_fetch because it executes "
+            "JavaScript — handles SPA pages (Eurostat newsroom, MNB-honlap, ECB "
+            "press releases, etc.) that return an empty shell to plain HTTP. "
+            "Typical pattern: web_search returns a result URL → web_scrape on that "
+            "URL → quote the exact text from the press release / official statement. "
+            "Returns: {url, title, markdown, metadata}. Capped at 8000 chars."
+        ),
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "url": {"type": "string", "description": "Full URL (http/https)"},
+                "wait_time": {
+                    "type": "integer",
+                    "description": "JS-render wait in ms (default 3000)",
+                    "default": 3000,
+                },
+            },
+            "required": ["url"],
+        },
+    },
+}
+
 STATDATA_YFINANCE_TOOL_DEF = {
     "type": "function",
     "function": {
@@ -3115,6 +3150,8 @@ STATDATA_MNB_RATES_TOOL_DEF = {
 # Tools sub-agents (Kimi/DeepSeek-V4/GLM5) get during multi-round research.
 # StatData tools only exposed when the integration is configured (STATDATA_URL set).
 SUBAGENT_TOOL_DEFS = [WEB_SEARCH_TOOL_DEF, ECHOLOT_QUERY_TOOL_DEF, WEB_FETCH_TOOL_DEF]
+if BRAVE_MCP_ENABLED:
+    SUBAGENT_TOOL_DEFS.append(WEB_SCRAPE_TOOL_DEF)
 if STATDATA_ENABLED:
     SUBAGENT_TOOL_DEFS.extend([
         STATDATA_YFINANCE_TOOL_DEF,
@@ -3138,12 +3175,18 @@ _SUBAGENT_TOOLS_DIRECTIVE_BASE = (
     "Tipikus profilja: 'gyors mai/friss kép X témáról' vagy 'hogy keretezi különböző "
     "sphere ugyanazt'. Lookback 1-21 nap. Egy hívás = egy filter — eltérő sphere-csoportokra "
     "külön hívhatod.\n"
-    "- **`web_fetch`** — egy konkrét URL teljes szövege (HTML strippelve, 4000 karakterig). "
-    "Akkor jó, ha kiválasztottál egy cikket az echolot_query / web_search találataiból "
-    "amit teljesen el akarsz olvasni.\n"
-    "- **`web_search`** — globális DuckDuckGo (+ Brave fallback). Akkor jó, ha "
+    "- **`web_search`** — globális Brave Search (+ DDG fallback). Akkor jó, ha "
     "részletes források, statisztika, hosszú cikk, vagy nem hír-jellegű információ "
-    "kell (történelmi adat, tudomány, dokumentumok).\n"
+    "kell (történelmi adat, tudomány, dokumentumok). Anti-bot-ellenálló, JS-rendered "
+    "oldalakat is talál (Eurostat newsroom, MNB-közlemények).\n"
+    "- **`web_fetch`** — egy konkrét URL teljes szövege (HTML strippelve, 4000 karakterig). "
+    "Statikus oldalakra (Wikipedia, blogok, legtöbb hír-cikk) gyors és olcsó.\n"
+    "- **`web_scrape`** — JS-rendered weboldal teljes markdown-tartalma (headless Brave-böngésző "
+    "Puppeteer-rel). **ERŐSEBB mint web_fetch** — kezeli a JavaScript-rendelt SPA-kat (Eurostat "
+    "newsroom, MNB-honlap, ECB press release-ek). Tipikus minta: `web_search` találati URL → "
+    "`web_scrape` ugyanarra → idézd a press release / hivatalos közlemény pontos szövegét. "
+    "Friss flash adatokra (Eurostat HICP flash, MNB Monetáris Tanács közlemény, ECB döntés) "
+    "ez a leghasználhatóbb tool, mert a press release SPA-formában él.\n"
 )
 
 _SUBAGENT_STATDATA_DIRECTIVE = (
@@ -3324,6 +3367,34 @@ async def _dispatch_subagent_tool(name: str, args: dict) -> str:
     if name == "web_fetch":
         url = (args.get("url") or "").strip()
         return await _fetch_url_text(url)
+
+    if name == "web_scrape":
+        if not BRAVE_MCP_ENABLED:
+            return json.dumps({"error": "web_scrape disabled (BRAVE_MCP_URL env var missing)"})
+        url = (args.get("url") or "").strip()
+        if not url:
+            return json.dumps({"error": "url required"})
+        try:
+            wait_time = max(0, min(15000, int(args.get("wait_time", 3000))))
+        except (TypeError, ValueError):
+            wait_time = 3000
+        try:
+            result = await _brave_mcp_scrape(url, wait_time=wait_time)
+        except Exception as e:
+            return json.dumps({"error": f"web_scrape exception: {type(e).__name__}: {e}"})
+        if not result:
+            return json.dumps({"error": "brave-mcp-server scrape failed (timeout / disabled / network)"})
+        md = (result.get("markdown") or result.get("text") or "").strip()
+        # Cap to keep round-context manageable; the model can re-scrape with a
+        # waitForSelector if it needs more depth on a specific section.
+        if len(md) > 8000:
+            md = md[:8000] + f"\n\n[...truncated, total {len(md)} chars]"
+        out = {
+            "url": result.get("url", url),
+            "title": (result.get("title") or "").strip(),
+            "markdown": md,
+        }
+        return _stamp_fetched_at(json.dumps(out, ensure_ascii=False))
 
     # ── StatData tools (only routed when STATDATA_ENABLED) ──────────────
     if name == "statdata_yfinance":
@@ -3765,6 +3836,75 @@ async def _brave_search(query: str, api_key: str) -> list:
         return []
 
 
+# ── Brave-MCP-server (Tamas54/brave-mcp-server) — generic Bridge layer ──────
+async def _brave_mcp_call(tool_name: str, arguments: dict, timeout: float = 60.0) -> dict | None:
+    """Call brave-mcp-server JSON-RPC `tools/call`. Returns parsed result dict or None.
+
+    The brave-mcp-server tools (brave_search, brave_scrape, etc.) wrap their
+    output in {result: {content: [{type:'text', text: <JSON-encoded>}]}}. This
+    helper unwraps + json-decodes the inner text. Returns None on transport
+    error, HTTP non-200, JSON-RPC error, or empty payload — caller decides on
+    fallback strategy.
+    """
+    if not BRAVE_MCP_ENABLED:
+        return None
+    import httpx, json as _json
+    payload = {
+        "jsonrpc": "2.0", "id": 1, "method": "tools/call",
+        "params": {"name": tool_name, "arguments": arguments},
+    }
+    try:
+        async with httpx.AsyncClient(timeout=timeout) as client:
+            resp = await client.post(BRAVE_MCP_URL, json=payload)
+        if resp.status_code != 200:
+            logger.warning("brave-mcp %s status=%d body=%r",
+                           tool_name, resp.status_code, resp.text[:200])
+            return None
+        data = resp.json()
+        if "error" in data:
+            logger.warning("brave-mcp %s rpc_error: %s", tool_name, data["error"])
+            return None
+        text = data.get("result", {}).get("content", [{}])[0].get("text", "")
+        if not text:
+            return None
+        try:
+            return _json.loads(text)
+        except _json.JSONDecodeError:
+            # Tool returned plain text rather than JSON-stringified dict
+            return {"_raw": text}
+    except Exception as e:
+        logger.warning("brave-mcp %s exception: %s: %s", tool_name, type(e).__name__, e)
+        return None
+
+
+async def _brave_mcp_search(query: str, limit: int = 5) -> list[dict] | None:
+    """brave-mcp-server `brave_search` (Brave engine + DDG fallback inside the MCP).
+
+    Returns list of {title, url, description} or None if disabled / failed / empty.
+    """
+    if not BRAVE_MCP_ENABLED:
+        return None
+    result = await _brave_mcp_call("brave_search", {"query": query, "limit": limit})
+    if not result or not isinstance(result.get("results"), list):
+        return None
+    items = result["results"]
+    return items if items else None
+
+
+async def _brave_mcp_scrape(url: str, wait_time: int = 3000) -> dict | None:
+    """brave-mcp-server `brave_scrape` — Puppeteer-rendered markdown extraction.
+
+    Returns {url, title, markdown, text, metadata} or None.
+    Stronger than _fetch_url_text because it executes JavaScript (handles SPA
+    pages like the Eurostat newsroom that return only an empty shell to plain HTTP).
+    """
+    if not BRAVE_MCP_ENABLED:
+        return None
+    return await _brave_mcp_call("brave_scrape",
+                                 {"url": url, "waitTime": wait_time},
+                                 timeout=90.0)
+
+
 async def _web_search(query: str) -> str:
     """Deep web search: DuckDuckGo (UA-rotated) → top URLs → fetch actual page content.
 
@@ -3782,6 +3922,29 @@ async def _web_search(query: str) -> str:
     if cached is not None:
         logger.info("DDG cache HIT: %r", query[:60])
         return cached
+
+    # Primary: brave-mcp-server (Brave Search engine + DDG-fallback inside the MCP).
+    # Anti-bot-resistant (Puppeteer + UA-spoof), JS-rendered képes — friss flash
+    # publikációkra mérhetően jobb mint a Bridge-belső DDG-html scraping. Ha a
+    # brave-mcp-server lefagy / leesik / üres, fallback a meglévő DDG-logikára.
+    if BRAVE_MCP_ENABLED:
+        try:
+            brave_mcp_results = await _brave_mcp_search(query, limit=5)
+        except Exception as e:
+            logger.warning("brave-mcp-search exception, fall through to DDG: %s", e)
+            brave_mcp_results = None
+        if brave_mcp_results:
+            lines = []
+            for i, r in enumerate(brave_mcp_results[:5]):
+                title = (r.get("title") or "").strip()
+                url = (r.get("url") or "").strip()
+                desc = (r.get("description") or "").strip()
+                lines.append(f"[{i+1}] {title}\n    {desc}\n    URL: {url}")
+            output = _stamp_fetched_at("\n".join(lines))
+            _web_search_cache_put(query, output)
+            logger.info("brave-mcp-search %r → %d results", query[:60], len(brave_mcp_results))
+            return output
+        logger.info("brave-mcp-search %r empty/failed, falling back to DDG-html", query[:60])
 
     brave_key = os.environ.get("BRAVE_SEARCH_API_KEY", "").strip()
 

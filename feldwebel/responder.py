@@ -89,8 +89,17 @@ TOOLS = [
         "parameters": {"type": "object", "properties": {"task_id": {"type": "integer", "description": "Task ID szám"}}, "required": ["task_id"]}}},
     # ── Web ──
     {"type": "function", "function": {
-        "name": "web_fetch", "description": "Weboldal tartalmának letöltése URL alapján. Ha linket kaptál és többet akarsz olvasni.",
+        "name": "web_fetch", "description": "Statikus weboldal HTML-tartalmának letöltése URL alapján (HTML strippelve, 4000 karakterig). Gyors és olcsó. JS-rendered SPA-knál (Eurostat newsroom, MNB-honlap) használj `web_scrape`-et.",
         "parameters": {"type": "object", "properties": {"url": {"type": "string", "description": "A letöltendő URL"}}, "required": ["url"]}}},
+    {"type": "function", "function": {
+        "name": "web_search", "description": "Web-keresés (Brave Search engine + DDG fallback). Akkor jó, ha friss adatra (Eurostat flash, MNB-közlemény, ECB döntés), részletes forrásokra, vagy nem-hír jellegű információra van szükség. Visszaad cím + URL + leírás találatokat.",
+        "parameters": {"type": "object", "properties": {"query": {"type": "string", "description": "Keresési kifejezés"}}, "required": ["query"]}}},
+    {"type": "function", "function": {
+        "name": "web_scrape", "description": "JS-rendered weboldal teljes markdown-tartalma (headless Brave-böngészőn, Puppeteer-rel). ERŐSEBB mint web_fetch — kezeli a JavaScript-rendelt SPA-kat (Eurostat newsroom, MNB-honlap, ECB press release-ek). Tipikus minta: web_search → talált URL → web_scrape.",
+        "parameters": {"type": "object", "properties": {
+            "url": {"type": "string", "description": "Teljes URL (http/https)"},
+            "wait_time": {"type": "integer", "description": "JS-render várakozás ms-ban (default 3000)", "default": 3000},
+        }, "required": ["url"]}}},
     # ── Bridge memória és kommunikáció ──
     {"type": "function", "function": {
         "name": "read_memory", "description": "Bridge shared memory olvasása. Korábbi döntések, tudás, kontextus.",
@@ -808,6 +817,48 @@ async def _execute_tool(name: str, args: dict, ctx) -> str:
             return json.dumps({"url": url, "content": text[:4000], "length": len(text)}, ensure_ascii=False)
         except Exception as e:
             return json.dumps({"error": str(e)})
+
+    if name == "web_search":
+        # Bridge-szintű _web_search-t hívjuk (brave-mcp primary + DDG fallback,
+        # 10-min cache, bot-resistant). Lazy import, hogy a Feldwebel-modul
+        # függetlenül indítható maradjon.
+        q = (args.get("query") or "").strip()
+        if not q:
+            return json.dumps({"error": "query required"})
+        try:
+            from server import _web_search
+            return await _web_search(q)
+        except Exception as e:
+            return json.dumps({"error": f"web_search exception: {type(e).__name__}: {e}"})
+
+    if name == "web_scrape":
+        # JS-rendered Puppeteer-scrape brave-mcp-server-en át (Eurostat newsroom,
+        # MNB-honlap, ECB press release, stb.). Akkor érdemes a web_fetch helyett,
+        # ha az URL SPA / JS-rendered.
+        url = (args.get("url") or "").strip()
+        if not url or not url.startswith("http"):
+            return json.dumps({"error": "Érvényes URL szükséges"})
+        try:
+            wait_time = max(0, min(15000, int(args.get("wait_time", 3000))))
+        except (TypeError, ValueError):
+            wait_time = 3000
+        try:
+            from server import _brave_mcp_scrape, BRAVE_MCP_ENABLED
+            if not BRAVE_MCP_ENABLED:
+                return json.dumps({"error": "web_scrape disabled (BRAVE_MCP_URL env missing)"})
+            result = await _brave_mcp_scrape(url, wait_time=wait_time)
+            if not result:
+                return json.dumps({"error": "brave-mcp-server scrape failed"})
+            md = (result.get("markdown") or result.get("text") or "").strip()
+            if len(md) > 6000:
+                md = md[:6000] + f"\n\n[...truncated, total {len(md)} chars]"
+            return json.dumps({
+                "url": result.get("url", url),
+                "title": (result.get("title") or "").strip(),
+                "markdown": md,
+            }, ensure_ascii=False)
+        except Exception as e:
+            return json.dumps({"error": f"web_scrape exception: {type(e).__name__}: {e}"})
 
     if name == "read_memory":
         key = args.get("key", "")
