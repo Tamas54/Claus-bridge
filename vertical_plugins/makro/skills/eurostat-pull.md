@@ -21,7 +21,7 @@ GDP standard filter: `na_item=B1GQ&unit=CLV15_MEUR&s_adj=SCA`
 - `SCA` = seasonally and calendar adjusted
 
 Növekedési ütem-számítás: a Eurostat **abszolút értékeket** ad (millió EUR).
-YoY-számításhoz: `(2026-Q1_érték / 2025-Q1_érték - 1) × 100`.
+YoY-számításhoz: `(<aktuális negyedév>_érték / <egy_évvel_korábbi_negyedév>_érték - 1) × 100`.
 
 ## Földrajzi entitások (`geo`)
 
@@ -47,24 +47,31 @@ press release-t **`web_scrape`-pel kötelező lehúzni**. A flash adat ezekben a
 esetekben már létezik HTML formában (JS-rendered SPA-ban), a strukturált API
 csak később indexeli.
 
-### Konkrét minta — Eurostat flash HICP
+### Workflow-minta — Eurostat flash HICP (évtől független)
 
-A press release-ek konvenciója: `https://ec.europa.eu/eurostat/web/products-euro-indicators/w/2-DDMMYYYY-ap`
-(pl. áprilisi flash: `2-30042026-ap`). A newsroom listing oldalra elnavigálva az
-aktuális press release URL-jét megtaláljuk:
+Az Eurostat newsroom (`ec.europa.eu/eurostat/web/products-euro-indicators` és környéke)
+minden hónap végén kiad egy euro indicator flash press release-t. A **konkrét URL-konvenció
+változhat redesign-nal** — ne támaszkodj fix URL-mintára. A megbízható út:
 
-1. `web_search(query="eurostat hicp <hónap> <év> flash")` → találati URL
-2. `web_scrape(url=találati URL)` → markdown-ban a press release teljes szövege
-3. Onnan idézd: az eurózónás éves HICP, az energia / élelmiszer / szolgáltatás-infláció
-   bontása, és az előző hónaphoz viszonyítás mind benne van.
+1. `web_search(query="eurostat hicp <aktuális hónap> <aktuális év> flash")` — a
+   hónap és év a brief lekérdezési időpontjából vegyed.
+2. A találatok közül **válaszd a `ec.europa.eu` domain-t hordozót**. Ha az első
+   5 találatban nincs hivatalos forrás, ismételd meg site-szűréssel:
+   `web_search(query="hicp flash site:ec.europa.eu")`.
+3. `web_scrape(url=hivatalos URL)` → a press release teljes markdown-szövege.
+4. Onnan idézd: éves HICP, energia / élelmiszer / szolgáltatás-infláció bontása,
+   előző hónapi összevetés.
 
-### Konkrét minta — MNB irányadó kamat
+### Workflow-minta — MNB irányadó kamat (évtől független)
 
-1. `web_search(query="mnb irányadó kamat <év> aktuális monetáris tanács")`
-2. **Hivatalos URL preferálása**: a `https://www.mnb.hu/...` találatot szúrd ki.
-   Ha a search ezt nem hozza vissza az első 5-ben, **ismételd meg site-szűréssel**:
-   `web_search(query="mnb irányadó kamat site:mnb.hu")`.
-3. `web_scrape(url=mnb.hu URL)` → markdown-ban a közlemény + döntés időpontja.
+1. `web_search(query="mnb irányadó kamat <aktuális év> monetáris tanács")`
+2. **Hivatalos URL preferálása**: a `mnb.hu` domain-en lévő találat. Ha az első
+   5-ben nincs, ismételd site-szűréssel: `web_search(query="irányadó kamat site:mnb.hu")`.
+3. `web_scrape(url=mnb.hu URL)` → a közlemény markdown-szövege a döntés időpontjával.
+
+**Kerüld a fix URL-mintára építést** — sem a `mnb.hu/...`, sem a `ec.europa.eu/.../w/<id>`
+slug-konvenció nem garantáltan stabil évek között. A `web_search` mindig megtalálja
+az aktuális struktúrát.
 
 A magyar oldalon a **KSH `ara0039`** lényegesen gyorsabban frissül (2-3 hét után már
 közli a fogyasztói árindexet), ezért a HU-CPI és HU-PPI tekintetében a hazai kép

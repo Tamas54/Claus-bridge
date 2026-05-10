@@ -111,13 +111,16 @@ publikálási késedelemben (HICP, une_rt_m, GDP), **NE elégedj meg** azzal hog
 **léteznek HTML formában**, és a `web_scrape` tool **JS-rendered SPA-kat is**
 le tud húzni.
 
-**Kötelező lépéssor:**
+**Kötelező lépéssor (évtől független):**
 
-1. `web_search` a friss publikációra (pl. *"eurostat hicp april 2026 flash"* vagy
-   *"mnb irányadó kamat 2026 monetáris tanács"*)
-2. A találati listában hivatalos URL-t (`ec.europa.eu`, `mnb.hu`, `ecb.europa.eu`)
-   válassz; ha az első 5 találatban nincs, **site-szűréssel ismételd**:
-   `query="<topic> site:mnb.hu"` vagy `site:ec.europa.eu`.
+A `<HÓNAP>` és `<ÉV>` mindig az AKTUÁLIS lekérdezési időpontból (lásd a system
+prompt elején lévő temporal directive-et), NE használj fix dátumot.
+
+1. `web_search(query="eurostat hicp <HÓNAP> <ÉV> flash")` — vagy
+   `web_search(query="mnb irányadó kamat <ÉV> monetáris tanács")`
+2. A találati listában hivatalos domain-t (`ec.europa.eu`, `mnb.hu`,
+   `ecb.europa.eu`) válassz; ha az első 5 találatban nincs, **site-szűréssel
+   ismételd**: `query="<topic> site:mnb.hu"` vagy `site:ec.europa.eu`.
 3. `web_scrape(url=hivatalos URL)` → a press release / közlemény markdown-szövege
 4. Onnan idézd a konkrét számot a brief-ben — a strukturált API hiánya **nem**
    indok arra, hogy "az adat nem elérhető".
