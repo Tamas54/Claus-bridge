@@ -103,32 +103,67 @@ forrással. Web-citation formátuma:
 Ha a web_search nem talál friss adatot, "(forrás nem elérhető)" + "Hiányzó forrás"
 flag.
 
-## Egyéb stale/hiányzó adat — KÖTELEZŐ web_scrape próbálkozás
+## Egyéb stale/hiányzó adat — KÖTELEZŐ 3-lépcsős keresési minta
 
-Ha a `get_policy_rates` `STALE!` flag-et ad VAGY az Eurostat strukturált API
-publikálási késedelemben (HICP, une_rt_m, GDP), **NE elégedj meg** azzal hogy
-"még nincs publikálva". A flash press release-ek és a hivatalos közlemények
-**léteznek HTML formában**, és a `web_scrape` tool **JS-rendered SPA-kat is**
-le tud húzni.
+Ha az adatblokkban valami **hiányzik** vagy `[STALE!]` flag-et kapott (BIS
+WS_CBPOL, régi DBnomics-adatpont, publikálási késleltetés), **NE elégedj meg**
+azzal hogy "nem elérhető". A flash press release-ek és a hivatalos közlemények
+**léteznek HTML formában** — a `web_scrape` tool JS-rendered SPA-kat is le tud
+húzni.
 
-**Kötelező lépéssor (évtől független):**
+### KÖTELEZŐ 3-lépcsős keresési minta
 
-A `<HÓNAP>` és `<ÉV>` mindig az AKTUÁLIS lekérdezési időpontból (lásd a system
-prompt elején lévő temporal directive-et), NE használj fix dátumot.
+A `<HÓNAP>` és `<ÉV>` mindig az AKTUÁLIS lekérdezési időpontból (temporal
+directive), NE fix dátum.
 
-1. `web_search(query="eurostat hicp <HÓNAP> <ÉV> flash")` — vagy
-   `web_search(query="mnb irányadó kamat <ÉV> monetáris tanács")`
-2. A találati listában hivatalos domain-t (`ec.europa.eu`, `mnb.hu`,
-   `ecb.europa.eu`) válassz; ha az első 5 találatban nincs, **site-szűréssel
-   ismételd**: `query="<topic> site:mnb.hu"` vagy `site:ec.europa.eu`.
-3. `web_scrape(url=hivatalos URL)` → a press release / közlemény markdown-szövege
-4. Onnan idézd a konkrét számot a brief-ben — a strukturált API hiánya **nem**
-   indok arra, hogy "az adat nem elérhető".
+**Lépcső 1 — általános keresés:**
+- `web_search(query="<topic> <HÓNAP> <ÉV>")`
+- Pl. `query="mnb irányadó kamat 2026 monetáris tanács"`,
+  `query="ecb deposit facility rate 2026"`,
+  `query="eurostat hicp flash april 2026"`
 
-**Csak akkor** minősítsd hiányzónak, ha **a `web_scrape` is** üres / hibázik /
-nem talál releváns tartalmat. A "Hiányzó / nem-elérhető források" záró szekcióba
-**kifejezetten az aktuálisan kipróbált URL-t és a hibajelet** írd be — nem
-egyszerűen "publikálási rend miatt nincs".
+**Lépcső 2 — KÖTELEZŐ site-szűrés ha nem volt hivatalos találat:**
+Ha az első 5 találatban nincs **hivatalos domain** (`mnb.hu`, `ec.europa.eu`,
+`ecb.europa.eu`, `ksh.hu`, `bis.org`, `imf.org`, `oecd.org`),
+**KÖTELEZŐ** ismételni site-szűréssel:
+- `web_search(query="<topic> site:mnb.hu")`
+- `web_search(query="<topic> site:ecb.europa.eu")`
+- `web_search(query="<topic> site:ec.europa.eu")`
+
+A másodlagos forrás (rankia.hu, economx.hu, index.hu, portfolio.hu) **NEM
+elfogadható** addig, amíg a site-szűréses hivatalos keresést **NEM** próbáltad meg.
+
+**Lépcső 3 — `web_scrape` a hivatalos URL-re:**
+A találati listából a **hivatalos domain-en** lévő URL-t válaszd. `web_scrape`
+azt az URL-t — a press release / közlemény markdown-szövegét fogja visszaadni.
+Onnan idézd a konkrét számot a brief-ben.
+
+### Mikor mehet "hiányzó / nem elérhető" a brief-be
+
+**CSAK** akkor minősítsd hiányzónak, ha **MIND a 3 lépcső** sikertelen volt:
+- általános `web_search` nem hozott releváns találatot
+- ÉS site-szűréses keresés is üres
+- ÉS a `web_scrape` a kanonikus hivatalos URL-en is sikertelen
+
+A "Hiányzó / nem elérhető források" szekcióba **kifejezetten** ezt a 3-lépcsős
+próbálkozást rögzítsd:
+
+> ECB betéti kamat 2025-02-05 utáni: `web_search(deposit facility rate 2026)`
+> nem hozott friss; `site:ecb.europa.eu` keresés ECB-press-release-listát adott;
+> `web_scrape(ecb.europa.eu/press/pr/date/2026/...)` 404 — az ECB tavasszal
+> még nem publikált új DFR-döntést, a 2,75% (2025-02-05) marad érvényben.
+
+Ez **konkrét audit-trail**, nem általános "publikálási rend miatt nincs"
+mentegetőzés.
+
+### TILTOTT viselkedések
+
+- Másodlagos forrást (rankia, economx, index, portfolio) idézni **anélkül**
+  hogy a hivatalos `site:`-szűréses keresést megpróbáltad volna.
+- "Webes kereséssel nem érhető el" jellegű általánosítás konkrét próbálkozás
+  nélkül.
+- "Strukturált API-ban nem szerepel" mint indoklás, ha a `web_scrape` még
+  nem volt használva a hivatalos newsroom-ra.
 
 ## Anti-hallucination
 
