@@ -33,23 +33,43 @@ YoY-számításhoz: `(2026-Q1_érték / 2025-Q1_érték - 1) × 100`.
 A `prc_hicp_manr` viszonylag egyszerű — `EA` érvényes. A `namq_10_gdp` a **20-tagú** eurózónát
 preferálja `EA20`-ként.
 
-## Publikálási késleltetés — KÖTELEZŐ flag a briefben
+## Publikálási rend — strukturált API vs. flash press release
 
-| Adat | Tipikus késleltetés | 2026. május 10-i állapot |
+| Adat | Strukturált API (`get_eurostat_data`) | Flash press release (Eurostat newsroom) |
 |---|---|---|
-| HICP (`prc_hicp_manr`) | 2-4 hét hónap után | **utolsó publikált 2025-12** (2026 január még NINCS) |
-| GDP (`namq_10_gdp`) | 30-45 nap negyedév után | **2026-Q1 publikálva** |
-| Munkanélküliség (`une_rt_m`) | 4-6 hét hónap után | **utolsó publikált 2026-03** (2026 április még NINCS) |
-| Money market rate (`irt_st_m`) | 2-3 hét hónap után | **utolsó publikált 2026-03** |
+| HICP (`prc_hicp_manr`) | 2-4 hét hónap után | **havi flash a hónap végén** (~28-30-án), `web_scrape` tool-lal |
+| GDP (`namq_10_gdp`) | 30-45 nap negyedév után | quarterly flash, ~30 nap után |
+| Munkanélküliség (`une_rt_m`) | 4-6 hét hónap után | havi flash ~30 nap után |
+| Money market rate (`irt_st_m`) | 2-3 hét hónap után | — |
 
-A brief-ben **explicit ki kell mondani**, ha az Eurostat-adat utolsó publikált hónapja
-nem a friss adatközlés napjához tartozik. Példa: *"Az eurózóna HICP utolsó publikált
-hónapja 2025. december (2,0%); a 2026 első négy hónapjának eurózónás összevetése csak
-2026. május végén lesz teljes."*
+**KÖTELEZŐ**: ha a strukturált API utolsó adatpontja nem a folyó hónap, a flash
+press release-t **`web_scrape`-pel kötelező lehúzni**. A flash adat ezekben az
+esetekben már létezik HTML formában (JS-rendered SPA-ban), a strukturált API
+csak később indexeli.
+
+### Konkrét minta — Eurostat flash HICP
+
+A press release-ek konvenciója: `https://ec.europa.eu/eurostat/web/products-euro-indicators/w/2-DDMMYYYY-ap`
+(pl. áprilisi flash: `2-30042026-ap`). A newsroom listing oldalra elnavigálva az
+aktuális press release URL-jét megtaláljuk:
+
+1. `web_search(query="eurostat hicp <hónap> <év> flash")` → találati URL
+2. `web_scrape(url=találati URL)` → markdown-ban a press release teljes szövege
+3. Onnan idézd: az eurózónás éves HICP, az energia / élelmiszer / szolgáltatás-infláció
+   bontása, és az előző hónaphoz viszonyítás mind benne van.
+
+### Konkrét minta — MNB irányadó kamat
+
+1. `web_search(query="mnb irányadó kamat <év> aktuális monetáris tanács")`
+2. **Hivatalos URL preferálása**: a `https://www.mnb.hu/...` találatot szúrd ki.
+   Ha a search ezt nem hozza vissza az első 5-ben, **ismételd meg site-szűréssel**:
+   `web_search(query="mnb irányadó kamat site:mnb.hu")`.
+3. `web_scrape(url=mnb.hu URL)` → markdown-ban a közlemény + döntés időpontja.
 
 A magyar oldalon a **KSH `ara0039`** lényegesen gyorsabban frissül (2-3 hét után már
 közli a fogyasztói árindexet), ezért a HU-CPI és HU-PPI tekintetében a hazai kép
-naprakészebb mint az Eurostat-i HICP.
+naprakészebb mint az Eurostat-i HICP — **DE az eurozónás HICP-re a `web_scrape`-es
+flash press release ugyanolyan friss**.
 
 ## Citation — emberi formátumban
 

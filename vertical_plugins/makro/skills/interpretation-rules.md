@@ -103,12 +103,29 @@ forrással. Web-citation formátuma:
 Ha a web_search nem talál friss adatot, "(forrás nem elérhető)" + "Hiányzó forrás"
 flag.
 
-## Egyéb stale/hiányzó adat
+## Egyéb stale/hiányzó adat — KÖTELEZŐ web_scrape próbálkozás
 
-Ha a `get_policy_rates` `STALE!` flag-et ad VAGY az Eurostat-adat publikálási
-késedelemben (HICP, une_rt_m): a brief-be **explicit kimondod**:
-"az Eurostat HICP utolsó publikált hónapja YYYY-MM, a frissebb hazai adat csak KSH
-`ara0039`-en érhető el (CPI), HICP-frissítés várható N hét múlva".
+Ha a `get_policy_rates` `STALE!` flag-et ad VAGY az Eurostat strukturált API
+publikálási késedelemben (HICP, une_rt_m, GDP), **NE elégedj meg** azzal hogy
+"még nincs publikálva". A flash press release-ek és a hivatalos közlemények
+**léteznek HTML formában**, és a `web_scrape` tool **JS-rendered SPA-kat is**
+le tud húzni.
+
+**Kötelező lépéssor:**
+
+1. `web_search` a friss publikációra (pl. *"eurostat hicp april 2026 flash"* vagy
+   *"mnb irányadó kamat 2026 monetáris tanács"*)
+2. A találati listában hivatalos URL-t (`ec.europa.eu`, `mnb.hu`, `ecb.europa.eu`)
+   válassz; ha az első 5 találatban nincs, **site-szűréssel ismételd**:
+   `query="<topic> site:mnb.hu"` vagy `site:ec.europa.eu`.
+3. `web_scrape(url=hivatalos URL)` → a press release / közlemény markdown-szövege
+4. Onnan idézd a konkrét számot a brief-ben — a strukturált API hiánya **nem**
+   indok arra, hogy "az adat nem elérhető".
+
+**Csak akkor** minősítsd hiányzónak, ha **a `web_scrape` is** üres / hibázik /
+nem talál releváns tartalmat. A "Hiányzó / nem-elérhető források" záró szekcióba
+**kifejezetten az aktuálisan kipróbált URL-t és a hibajelet** írd be — nem
+egyszerűen "publikálási rend miatt nincs".
 
 ## Anti-hallucination
 
