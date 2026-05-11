@@ -63,15 +63,29 @@ DATA_PRESETS: dict[str, list[dict[str, Any]]] = {
         {"tool": "yfinance", "args": {"symbol": "EURHUF=X", "action": "history", "period": "3mo", "interval": "1wk"}},  # EUR/HUF heti idősor 3 hó
         # Jegybanki kamatok és pénzpiaci hozamok:
         # - Eurostat ei_mfir_m geo=EA: havi friss money market rate + 1/5/10y yields
-        # - BIS HU+XM — gyakran stale, kontextusként
-        # ECB DFR (Deposit Facility Rate) Bridge-tool-on át NINCS friss — a DBnomics
-        # ECB FM idősor 2025-02-05-én megáll (2,75%), holott az ECB azóta 2,00%-ra
-        # csökkentette. A sub-agent KÖTELEZŐEN web_scrape-szel pótolja ecb.europa.eu-ról
-        # (lásd interpretation-rules skill: 3-lépcsős keresési minta).
-        # Az MNB irányadó kamat ezzel szemben Bridge-tool-on át NINCS, web_search-szel pótolandó.
+        # - BIS HU+XM — gyakran stale, kontextusként; XM-en a get_policy_rates már
+        #   automatikus ECB DFR overlay-jel jön, lásd statdata server.py 2026-05-11.
         {"tool": "get_eurostat_data", "args": {"dataset_code": "ei_mfir_m", "geo": "EA",
                                                   "sinceTimePeriod": "2025-09"}},  # eurozóna 3hó / 1y / 5y / 10y / Maastricht-hozam (havi)
-        {"tool": "get_policy_rates", "args": {"countries": "HU,XM"}},  # HU + EA20 BIS (kontextus, gyakran [STALE])
+        {"tool": "get_policy_rates", "args": {"countries": "HU,XM"}},  # HU BIS + XM (XM-re ECB DFR direct overlay)
+        # ECB Data Portal direkt SDMX (2026-05-11): a havi szolgáltatás-infláció,
+        # core HICP és HU HICP 2026-os adat amit a KSH STADAT és az Eurostat
+        # csonkolt feed-jei nem adnak ki. ECB ICP STS_INSTITUTION=4 (Eurostat-
+        # sourced) sorozatok, REF_AREA=HU.
+        {"tool": "get_ecb_data", "args": {"dataset": "ICP", "key": "M.HU.N.000000.4.ANR", "last_n": 12}},  # HU HICP overall havi YoY% (frissebb mint az Eurostat csonkolt)
+        {"tool": "get_ecb_data", "args": {"dataset": "ICP", "key": "M.HU.N.SERV00.4.ANR", "last_n": 12}},  # HU HICP services havi YoY% — egyetlen havi forrás
+        {"tool": "get_ecb_data", "args": {"dataset": "ICP", "key": "M.HU.N.XEF000.4.ANR", "last_n": 12}},  # HU core HICP (excl. energy & food) havi YoY%
+        {"tool": "get_ecb_data", "args": {"dataset": "ICP", "key": "M.U2.N.000000.4.ANR", "last_n": 6}},   # Euro area HICP overall havi (flash + final)
+        {"tool": "get_ecb_data", "args": {"dataset": "ICP", "key": "M.U2.N.XEF000.4.ANR", "last_n": 6}},   # Euro area core HICP havi
+        {"tool": "get_ecb_data", "args": {"dataset": "FM",  "key": "D.U2.EUR.4F.KR.DFR.LEV", "last_n": 5}}, # ECB Deposit Facility Rate napi (kanonikus EA policy rate)
+        {"tool": "get_ecb_data", "args": {"dataset": "IRS", "key": "M.HU.L.L40.CI.0000.HUF.N.Z", "last_n": 12}},  # HU 10Y állampapír hozam (Maastricht), havi
+        # Flash releases — a legfrissebb publikált HU/EA szám amíg a strukturált
+        # idősorok még nem frissültek (KSH RSS retain ~5–20 item, Eurostat Atom 60):
+        {"tool": "get_flash_releases", "args": {"query": "fogyasztói árak", "source": "ksh", "limit": 5}},     # HU CPI flash
+        {"tool": "get_flash_releases", "args": {"query": "munkanélküliség",  "source": "ksh", "limit": 5}},   # HU munkanélküliség flash
+        {"tool": "get_flash_releases", "args": {"query": "GDP",              "source": "ksh", "limit": 5}},   # HU GDP flash
+        {"tool": "get_flash_releases", "args": {"query": "HICP inflation",   "source": "eurostat", "limit": 5}},  # EA HICP flash
+        {"tool": "get_flash_releases", "args": {"query": "unemployment",     "source": "eurostat", "limit": 3}},  # EA unemployment flash
     ],
     "us_macro": [
         {"tool": "get_fred_data", "args": {"series_id": "GDP", "limit": 8}},

@@ -52,66 +52,91 @@ Ha mindkettő van az adatblokkban, mindkettőt idézheted, jelölve melyik:
 
 ## Jegybanki kamatok
 
-### ECB Deposit Facility Rate (DFR) — KÖTELEZŐ web_scrape ecb.europa.eu-ról
+### ECB Deposit Facility Rate (DFR) — a presetben FRISS, web_scrape csak fallback
 
-**Bridge-tool-on át NINCS friss ECB DFR.** A DBnomics ECB FM idősor
-2025-02-05-én megáll (2,75%), holott az ECB 2025 közepén tovább csökkentett
-2,00%-ra. A Bridge sub-agentnek **TILOS** a DBnomics-i 2,75%-ot mint "friss"
-adatot idéznie — **kötelező** web_scrape-szel pótolni hivatalos ECB-forrásról:
+**2026-05-11-től** a `hu_macro` preset tartalmazza a `statdata_ecb` direkt tool-on
+keresztül frissített ECB DFR-t (`FM/D.U2.EUR.4F.KR.DFR.LEV`), és a
+`statdata_policy_rates(countries='XM,...')` is automatikusan overlay-eli a napi
+ECB DFR-t — vagyis az adatblokkban **az aktuális napi értékkel** szerepel.
 
-**3-lépcsős keresés ECB-rate-re:**
-1. `web_search(query="ecb deposit facility rate <ÉV>")` → találati lista
-2. `web_search(query="deposit facility rate site:ecb.europa.eu")` — site-szűrt
-3. `web_scrape(url=ecb.europa.eu/.../key_ecb_interest_rates URL)` → markdown
-
-Az `ecb.europa.eu/stats/policy_and_exchange_rates/key_ecb_interest_rates/html/`
-oldal **kanonikus**: tartalmazza a Deposit Facility Rate, MRO Rate, Marginal
-Lending Facility Rate aktuális szintjét és az utolsó döntés dátumát.
+**Sorrend:**
+1. Az adatblokkban keresd az `ECB Deposit Facility Rate` mezőt
+   (`get_policy_rates → ecb_direct.deposit_facility_rate` overlay,
+   vagy `get_ecb_data FM/D.U2.EUR.4F.KR.DFR.LEV` direkt válasz).
+   A `period` a legutolsó publikálási nap.
+2. Ha az adatblokk valamiért NEM tartalmazza (preset-hiba): `web_scrape` a
+   `ecb.europa.eu/stats/policy_and_exchange_rates/key_ecb_interest_rates/html/`
+   kanonikus URL-re.
+3. A DBnomics ECB FM 2025-02-05-i 2,75%-os értéket **NE** idézd frissként —
+   az stale.
 
 Citation a brief-be:
-> ECB Deposit Facility Rate, 2,00%, 2025. mid-óta változatlan (forrás: ecb.europa.eu, web_scrape, <kanonikus URL>)
+> ECB Deposit Facility Rate, 2,00%, 2026. május 11. (forrás: ECB Data Portal)
 
 A **piaci kamatok** (3-hónapos money market, 1y/5y/10y euro yield) ezzel
-szemben a presetből érkeznek **frissen**:
+szemben az Eurostat `ei_mfir_m geo=EA` sorozatból érkeznek frissen — ezek
+tisztán különbözőek a policy rate-tól (diskrét döntés vs folyamatos piac).
 
-- **Eurostat `ei_mfir_m geo=EA`** — havi friss eurozóna money market + yield-görbe
+### MNB irányadó kamat — preset + flash + web_search
 
-Ez tisztán **különböző** mint a policy rate — a policy rate (DFR/MRO/MLF)
-diskrét döntésekkel változik, a piaci kamatok folyamatosan.
+A `get_policy_rates` BIS-adata HU-ra **gyakran stale** (2-12 hónap késleltetéssel),
+az adatblokk explicit `STALE!` flaggel jelzi. Az `irt_st_m` Day-to-day money market
+rate Eurostat-ról **proxy** (~10 bps eltérés), nem hivatalos kamat.
 
-### MNB irányadó kamat — KÖTELEZŐ web_search pótlás
+**Sorrend HU jegybanki kamatra:**
+1. Először az adatblokk KSH flash-találatait nézd
+   (`statdata_flash(query='alapkamat'/'kamat', source='ksh')` — a 2026-05-11-i
+   preset alapból bekér `query='fogyasztói árak'`, `query='munkanélküliség'`,
+   `query='GDP'` flash-eket; az MNB-rátára kérj kiegészítő flash-t, ha kell).
+2. Ezután a `statdata_policy_rates(countries='HU')` BIS-érték — ha `stale=false`,
+   használd; ha `stale=true`, csak kontextusként idézd (pl. „BIS WS_CBPOL HU
+   legutolsó adatpontja: 6,5% (2025-06)").
+3. Ha az adatblokk még nem tartalmaz friss MNB-döntést:
+   `web_search(query="mnb irányadó kamat <HÓNAP> <ÉV> monetáris tanács")`,
+   majd `site:mnb.hu` szűrés, majd `web_scrape` a hivatalos közleményre.
 
-A `get_policy_rates` BIS-adata **gyakran stale** (2-12 hónap késleltetéssel) — az
-adatblokk explicit `STALE!` flaggel jelzi. Az `irt_st_m` (Day-to-day money market
-rate) Eurostat-ról **proxy** a magyar jegybanki kamatra (~10 bps eltérés), de **NEM**
-azonos a hivatalos MNB irányadó kamattal. Közvetlen friss MNB-rate-tool **nincs**
-a Bridge `hu_macro` presetjében (DBnomics-on sem érhető el direkten).
-
-**Szabály**: ha a heti brief MNB irányadó kamatot említ ÉS az adatblokkban csak stale
-BIS van VAGY csak `irt_st_m` proxy szerepel, **kötelező** a `web_search` tool-t
-használni a friss MNB döntésre. A web-citation formátuma:
-
+Web-citation formátuma:
 > MNB Monetáris Tanács, irányadó kamat 6,50%, 2026. április 29. (forrás: mnb.hu/monetaris-politika/...)
 
-Ha a `web_search` nem hoz friss eredményt, a citation-be írj "(MNB-honlap nem
-elérhető a lekérdezés időpontjában)" és a "Hiányzó / nem-elérhető források"
-szekcióba flaggeld. **Tilos** fejből kitalálni az MNB-ratet.
+Ha sem flash, sem web_search nem hoz friss eredményt, "(MNB-honlap nem
+elérhető a lekérdezés időpontjában)" + "Hiányzó / nem elérhető források"
+szekció. **Tilos** fejből kitalálni az MNB-ratet.
 
-## Szolgáltatás-infláció — KÖTELEZŐ web_search pótlás
+## Szolgáltatás-infláció — a presetben FRISS ECB-sorozattal
 
-A KSH STADAT a fogyasztói **szolgáltatás-inflációt** havi szinten **közvetlenül NEM
-publikálja külön táblában** (csak `ara0002` éves bontás, illetve archív B2B/B-All
-táblák). Az MNB Inflációs Jelentés viszont rendszeresen közli havi szolgáltatás-
-infláció bontást.
+A KSH STADAT a fogyasztói **szolgáltatás-inflációt** havi szinten **nem
+publikálja külön táblában** (csak `ara0002` éves bontás). **2026-05-11-től**
+a `hu_macro` preset tartalmazza a `statdata_ecb(dataset='ICP',
+key='M.HU.N.SERV00.4.ANR')` havi sorozatot — ez az ECB ICP STS_INSTITUTION=4
+(Eurostat-sourced) HU szolgáltatás HICP YoY%, havi bontásban, 2026-os
+adatokkal együtt.
 
-**Szabály**: ha a brief-be szolgáltatás-infláció kell ÉS az adatblokkban nincs friss
-havi érték, használd a `web_search`-öt MNB Inflációs Jelentés vagy KSH gyorsjelentés
-forrással. Web-citation formátuma:
+**Sorrend:**
+1. Először az ECB ICP `M.HU.N.SERV00.4.ANR` sorozatból (adatblokkban közvetlenül).
+2. Ha nincs vagy gyanúsan régi: `statdata_flash(query='szolgáltatás infláció', source='ksh')` ill. `query='fogyasztói árak'` — a KSH gyorstájékoztatóban néha bontásban szerepel.
+3. Csak végső esetben: `web_search` MNB Inflációs Jelentésre.
 
-> MNB Inflációs Jelentés, szolgáltatás-infláció (havi, YoY), 2026. március – 7,3% (mnb.hu/...)
+Citation:
+> ECB ICP, HU HICP szolgáltatások, 2025. december — +7,9% YoY (forrás: ECB Data Portal)
 
-Ha a web_search nem talál friss adatot, "(forrás nem elérhető)" + "Hiányzó forrás"
-flag.
+(NEM `get_ecb_data` tool-nevet vagy series-key-t mint citation-szöveget — az
+intézmény és a tartalmi név emberi formában a fő szövegbe.)
+
+## HU HICP / munkanélküliség 2026-os adatok — preset + flash
+
+Az Eurostat API időnként csonkolja a `prc_hicp_manr` / `une_rt_m` HU-adatot
+500 soros limit miatt — a feed 2025-12-nél megáll. **2026-05-11-től** a preset:
+
+- `statdata_ecb(dataset='ICP', key='M.HU.N.000000.4.ANR')` — HU HICP overall
+  havi YoY%, 2026-os adatokkal együtt (az ECB ICP nem érintett a csonkolásban).
+- `statdata_flash(query='fogyasztói árak', source='ksh')` — a KSH által
+  publikált legfrissebb havi CPI hír (1–3 nappal megelőzi az ECB-t is).
+- `statdata_flash(query='munkanélküliség', source='ksh')` — HU munkanélküliség
+  flash (havi `une_rt_m` Eurostat-csonkolás esetén ez a kerülőút).
+
+**Tilos** az adatblokk csonkolt 2025-12-es Eurostat-értékét frissként idézni,
+ha a fenti két forrás 2026-os értéket ad. A flash release headline-szám
+mellé kötelező a publikálási dátum.
 
 ## Egyéb stale/hiányzó adat — KÖTELEZŐ 3-lépcsős keresési minta
 
