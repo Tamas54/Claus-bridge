@@ -1713,7 +1713,9 @@ async def api_pyramid(request):
 
 SILICONFLOW_API_KEY = os.environ.get("SILICONFLOW_API_KEY", "")
 SILICONFLOW_BASE_URL = "https://api.siliconflow.com/v1"
-SILICONFLOW_TIMEOUT = 220
+SILICONFLOW_TIMEOUT = 360  # 2026-05-11: 220→360s; the statdata_macro 3-step
+                            # brave_search fallback chain pushes DeepSeek V4-Pro
+                            # reasoner-mode tool-use loop past the old limit.
 
 SILICONFLOW_MODELS = {
     "kimi": "moonshotai/Kimi-K2.6",
