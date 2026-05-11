@@ -52,9 +52,22 @@ DATA_PRESETS: dict[str, list[dict[str, Any]]] = {
         {"tool": "get_macro_indicator", "args": {"country": "HU", "indicator": "policy_rate"}},
         {"tool": "get_macro_indicator", "args": {"country": "HU", "indicator": "unemployment"}},
         {"tool": "get_macro_indicator", "args": {"country": "HU", "indicator": "gdp"}},
+        # HU GDP komponensek (negyedéves, Eurostat namq_10_gdp más na_item-kóddal):
+        {"tool": "get_macro_indicator", "args": {"country": "HU", "indicator": "gdp_consumption"}},
+        {"tool": "get_macro_indicator", "args": {"country": "HU", "indicator": "gdp_investment"}},
+        {"tool": "get_macro_indicator", "args": {"country": "HU", "indicator": "gdp_exports"}},
+        {"tool": "get_macro_indicator", "args": {"country": "HU", "indicator": "gdp_imports"}},
+        # HU pénzpiac:
+        {"tool": "get_macro_indicator", "args": {"country": "HU", "indicator": "bond_yield_10y"}},
+        {"tool": "get_macro_indicator", "args": {"country": "HU", "indicator": "ppi"}},
         # Eurozóna kontextus a HU-vetésért:
         {"tool": "get_macro_indicator", "args": {"country": "EA", "indicator": "cpi"}},
+        {"tool": "get_macro_indicator", "args": {"country": "EA", "indicator": "core_cpi"}},
+        {"tool": "get_macro_indicator", "args": {"country": "EA", "indicator": "services_cpi"}},
+        {"tool": "get_macro_indicator", "args": {"country": "EA", "indicator": "energy_cpi"}},
+        {"tool": "get_macro_indicator", "args": {"country": "EA", "indicator": "food_cpi"}},
         {"tool": "get_macro_indicator", "args": {"country": "EA", "indicator": "policy_rate"}},  # ECB DFR friss
+        {"tool": "get_macro_indicator", "args": {"country": "EA", "indicator": "unemployment"}},
         # ── KÖZEGÉSZ: alacsony-szintű idősorok trend-elemzéshez ──
         # Ezek továbbra is kellenek, mert a router csak az utolsó értéket adja —
         # 12–24 havi idősor a trend és bázishatás-elemzéshez szükséges.
