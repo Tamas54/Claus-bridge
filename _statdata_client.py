@@ -47,6 +47,7 @@ DATA_PRESETS: dict[str, list[dict[str, Any]]] = {
         # Egy hívás → egy szám + dátum + forrás (status: fresh|stale|missing).
         # A sub-agentnek NEM kell N alacsony-szintű hívást ottlépcsőznie.
         {"tool": "get_macro_indicator", "args": {"country": "HU", "indicator": "cpi"}},
+        {"tool": "get_macro_indicator", "args": {"country": "HU", "indicator": "hicp"}},
         {"tool": "get_macro_indicator", "args": {"country": "HU", "indicator": "core_cpi"}},
         {"tool": "get_macro_indicator", "args": {"country": "HU", "indicator": "services_cpi"}},
         {"tool": "get_macro_indicator", "args": {"country": "HU", "indicator": "policy_rate"}},
