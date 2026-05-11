@@ -72,10 +72,10 @@ DATA_PRESETS: dict[str, list[dict[str, Any]]] = {
         # ── KÖZEGÉSZ: alacsony-szintű idősorok trend-elemzéshez ──
         # Ezek továbbra is kellenek, mert a router csak az utolsó értéket adja —
         # 12–24 havi idősor a trend és bázishatás-elemzéshez szükséges.
-        {"tool": "get_ksh_stadat", "args": {"table_code": "ara0039", "max_rows": 36}},  # havi CPI + ipari termelői ár + építő
-        {"tool": "get_ksh_stadat", "args": {"table_code": "ara0066", "max_rows": 24}},  # ipari termelői árindex EU-keresztben
-        {"tool": "get_ksh_stadat", "args": {"table_code": "ara0045", "max_rows": 36}},  # havi maginfláció bázis-index (YoY-ra konvertálandó)
-        {"tool": "get_ksh_stadat", "args": {"table_code": "mun0143", "max_rows": 24}},  # havi kereseti adatok
+        {"tool": "get_ksh_stadat", "args": {"table_code": "ara0039", "max_rows": 36, "format": "long"}},
+        {"tool": "get_ksh_stadat", "args": {"table_code": "ara0066", "max_rows": 24, "format": "long"}},
+        {"tool": "get_ksh_stadat", "args": {"table_code": "ara0045", "max_rows": 36, "format": "long"}},
+        {"tool": "get_ksh_stadat", "args": {"table_code": "mun0143", "max_rows": 24, "format": "long"}},
         # Eurostat HU+EA összevethető (Kommandant feedback 2026-05-10):
         # Megj.: az Eurostat HICP / une_rt_m 3-6 hét publikálási késedelemmel jön —
         # heti brief napján a folyó hónapra csak KSH-adat van.
