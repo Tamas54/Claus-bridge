@@ -2093,6 +2093,47 @@ async def statdata_ecb(dataset: str, key: str, start_period: str = "",
 
 
 @mcp.tool()
+async def statdata_macro(country: str, indicator: str,
+                          freshness_days: int = 0, caller: str = "") -> str:
+    """Magas szintű makró-indikátor router — egy hívás, garantáltan friss adat.
+
+    A StatData backend `get_macro_indicator` tool-ját hívja: ország + indikátor
+    → resolver-lánc (strukturált API → hivatalos scrape → brave_search) →
+    az első friss érték nyer. Automatikus friss-ség-ellenőrzés (CPI 60d,
+    policy_rate 75d, unemployment 75d, gdp 120d).
+
+    Akkor használd, ha **egy számot kell adatfegyelemmel** — nem kell N alacsony
+    szintű hívást orchesztrálni. Ország-agnosztikus, jövőálló: HU, DE, FR, IT,
+    ES, EA (euró-area), US, GB.
+
+    Args:
+        country: ISO-2 kód (HU, DE, FR, IT, ES, EA, US, GB).
+                 EA = euró-area aggregate (ECB U2 / Eurostat EA20).
+        indicator: cpi | core_cpi | services_cpi | policy_rate | unemployment | gdp | ppi.
+        freshness_days: Felülírja az indikátor default friss-ség-küszöbét. 0 = default.
+
+    Returns:
+        JSON: {country, indicator, value, period, source_used,
+               status: "fresh"|"stale"|"missing",
+               fallback_chain, all_attempts}.
+
+    Példák:
+        statdata_macro(country="HU", indicator="policy_rate")
+          → MNB scrape → 6.25 (2026-04-28), source: scrape mnb.hu
+        statdata_macro(country="HU", indicator="services_cpi")
+          → ECB ICP M.HU.N.SERV00.4.ANR → 7.9 (2025-12, stale) → brave_search
+        statdata_macro(country="DE", indicator="cpi")
+          → ECB ICP → 2.2 (2026-03), source: ECB
+        statdata_macro(country="US", indicator="unemployment")
+          → FRED UNRATE → 3.9 (2026-03)
+    """
+    return await _statdata_passthrough("get_macro_indicator", {
+        "country": country, "indicator": indicator,
+        "freshness_days": freshness_days,
+    })
+
+
+@mcp.tool()
 async def statdata_flash(query: str = "", source: str = "all", limit: int = 15,
                           refresh: bool = False, caller: str = "") -> str:
     """KSH gyorstájékoztatók + Eurostat news releases keresése.

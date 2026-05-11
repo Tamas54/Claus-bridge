@@ -39,11 +39,25 @@ _inflight_lock = asyncio.Lock()
 # ---------------------------------------------------------------------------
 DATA_PRESETS: dict[str, list[dict[str, Any]]] = {
     "hu_macro": [
-        # KSH HAVI friss adatok (2026-os hónapokat is tartalmaz):
-        {"tool": "get_ksh_stadat", "args": {"table_code": "ara0039", "max_rows": 36}},  # havi CPI + ipari termelői ár + építő (gyors havi frissítés)
-        {"tool": "get_ksh_stadat", "args": {"table_code": "ara0066", "max_rows": 24}},  # ipari termelői árindex EU-tagországok kereszt (komparatív, lassabb publikálás)
-        {"tool": "get_ksh_stadat", "args": {"table_code": "ara0045", "max_rows": 36}},  # havi maginfláció (bázis-index, YoY-ra konvertálandó)
-        {"tool": "get_ksh_stadat", "args": {"table_code": "mun0143", "max_rows": 24}},  # havi kereseti adatok (kumulált formátum, +YoY %)
+        # ── ELSŐDLEGES: magas-szintű router (garantáltan friss, 2026-05-11 óta) ──
+        # Egy hívás → egy szám + dátum + forrás (status: fresh|stale|missing).
+        # A sub-agentnek NEM kell N alacsony-szintű hívást ottlépcsőznie.
+        {"tool": "get_macro_indicator", "args": {"country": "HU", "indicator": "cpi"}},
+        {"tool": "get_macro_indicator", "args": {"country": "HU", "indicator": "core_cpi"}},
+        {"tool": "get_macro_indicator", "args": {"country": "HU", "indicator": "services_cpi"}},
+        {"tool": "get_macro_indicator", "args": {"country": "HU", "indicator": "policy_rate"}},
+        {"tool": "get_macro_indicator", "args": {"country": "HU", "indicator": "unemployment"}},
+        {"tool": "get_macro_indicator", "args": {"country": "HU", "indicator": "gdp"}},
+        # Eurozóna kontextus a HU-vetésért:
+        {"tool": "get_macro_indicator", "args": {"country": "EA", "indicator": "cpi"}},
+        {"tool": "get_macro_indicator", "args": {"country": "EA", "indicator": "policy_rate"}},  # ECB DFR friss
+        # ── KÖZEGÉSZ: alacsony-szintű idősorok trend-elemzéshez ──
+        # Ezek továbbra is kellenek, mert a router csak az utolsó értéket adja —
+        # 12–24 havi idősor a trend és bázishatás-elemzéshez szükséges.
+        {"tool": "get_ksh_stadat", "args": {"table_code": "ara0039", "max_rows": 36}},  # havi CPI + ipari termelői ár + építő
+        {"tool": "get_ksh_stadat", "args": {"table_code": "ara0066", "max_rows": 24}},  # ipari termelői árindex EU-keresztben
+        {"tool": "get_ksh_stadat", "args": {"table_code": "ara0045", "max_rows": 36}},  # havi maginfláció bázis-index (YoY-ra konvertálandó)
+        {"tool": "get_ksh_stadat", "args": {"table_code": "mun0143", "max_rows": 24}},  # havi kereseti adatok
         # Eurostat HU+EA összevethető (Kommandant feedback 2026-05-10):
         # Megj.: az Eurostat HICP / une_rt_m 3-6 hét publikálási késedelemmel jön —
         # heti brief napján a folyó hónapra csak KSH-adat van.

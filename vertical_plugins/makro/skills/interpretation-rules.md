@@ -3,6 +3,35 @@
 A nyers számok önmagukban félrevezetők. Ezek a szabályok kötelezőek minden
 makró-szintézisben, amit a Bridge ad ki.
 
+## ELSŐDLEGES SZABÁLY: statdata_macro a friss adatra
+
+A 2026-05-11-i bővítés óta a StatData backend tartalmazza a magas-szintű
+`statdata_macro(country, indicator)` tool-t, amely **garantáltan friss**
+adatot ad ~50 országra × ~9 indikátorra. Belül 3-lépcsős fallback:
+strukturált API (ECB/Eurostat/FRED/BIS) → hivatalos hivatal scrape (KSH,
+MNB, Destatis, INSEE, ECB, BLS, Fed, BoE stb.) → brave_search.
+
+**Az adatblokk FACTUAL CONTEXT-jébe a `hu_macro` preset bekér 8 magas-
+szintű `statdata_macro` választ** (cpi/core/services/policy_rate/
+unemployment/gdp HU-ra + cpi/policy_rate EA-ra). Mindegyik egy konkrét
+számot + period + source_used + status (fresh/stale/missing) ad.
+
+**Sorrend a friss adatok használatára:**
+1. **Először** a FACTUAL CONTEXT-ben keresd a `statdata_macro` kimenetét.
+   Ha `status: fresh`, használd a számot, idézd a `source_used`-et emberi
+   formában (pl. "ECB Data Portal" / "MNB" / "BLS").
+2. **Ha hiányzó/stale** indikátor van: hívd meg a `statdata_macro`-t
+   közvetlenül (`statdata_macro(country='DE', indicator='cpi')`) — más
+   country-paraméterre is működik (DE/FR/IT/ES/AT/PL/CZ/RO/EA/US/GB/JP/
+   CN/KR/IN/BR/MX/TR és további ~30 ország).
+3. **Csak végső esetben** (ha a router `missing`-et ad VISSZA), próbálj
+   web_search/web_scrape-pel — de jelezd hogy a strukturált fallback is
+   üres.
+
+**Tilos** a FACTUAL CONTEXT régi alacsony-szintű idősorát (pl. ECB ICP
+2025-12 stale) frissként idézni, ha a `statdata_macro` ugyanahhoz az
+indikátorhoz `status: fresh` választ ad ugyanabban a contextben.
+
 ## YoY vs MoM
 
 - **YoY** (year-over-year): a megfelelő hónap egy évvel korábbi értékéhez képest.
