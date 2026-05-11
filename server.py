@@ -2095,6 +2095,24 @@ async def statdata_ecb(dataset: str, key: str, start_period: str = "",
 
 
 @mcp.tool()
+async def statdata_help(concept: str = "", caller: str = "") -> str:
+    """Makró-konvenciók és gyakori számítási hibák magyarázata.
+
+    Egyszerű lookup-szótár a sub-agentnek a brief elején: YoY/QoQ/MoM,
+    HICP vs CPI, COICOP 2.0, maginfláció, szolgáltatás-infláció, stale-adat,
+    flash becslés, nominális vs reál, decision_date, SCA/SA/NSA, CLV15.
+
+    Args:
+        concept: 'YoY' | 'QoQ' | 'MoM' | 'HICP_vs_CPI' | 'COICOP_2.0' |
+                 'core_cpi' | 'services_cpi' | 'stale_data' |
+                 'flash_estimate' | 'nominal_vs_real' | 'decision_date' |
+                 'seasonal_adjustment' | 'CLV15' | 'ksh_flash_pattern' |
+                 'eu_country_codes'. Üres = az összes kulcs listája.
+    """
+    return await _statdata_passthrough("statdata_help", {"concept": concept})
+
+
+@mcp.tool()
 async def statdata_macro(country: str, indicator: str,
                           freshness_days: int = 0, caller: str = "") -> str:
     """Magas szintű makró-indikátor router — egy hívás, garantáltan friss adat.
