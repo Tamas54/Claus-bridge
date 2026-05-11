@@ -27,7 +27,11 @@ import httpx
 logger = logging.getLogger("statdata_client")
 
 STATDATA_URL = os.getenv("STATDATA_URL", "").strip().rstrip("/")
-TIMEOUT = float(os.getenv("STATDATA_TIMEOUT", "30").strip() or "30")
+TIMEOUT = float(os.getenv("STATDATA_TIMEOUT", "60").strip() or "60")  # 2026-05-11: 30→60s
+                                                                       # — statdata router ksh_flash brave-mcp scrape
+                                                                       # 4-hónap visszamenős próbálkozás 15-25s közt
+                                                                       # mozoghat; párhuzamos prefetch-nél a 30s
+                                                                       # limit átléphető volt (#186 transport errors).
 COALESCE_WINDOW = 5.0  # seconds — concurrent identical calls share one upstream
 
 _inflight: dict[str, tuple[float, asyncio.Future]] = {}
