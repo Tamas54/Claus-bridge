@@ -2041,9 +2041,87 @@ async def statdata_economic_calendar(days_ahead: int = 14, region: str = "all",
 @mcp.tool()
 async def statdata_policy_rates(countries: str = "XM,HU,CZ,PL,RO", frequency: str = "M",
                                  limit: int = 12, caller: str = "") -> str:
-    """Központi bank policy rate-ek (BIS): ECB, MNB, CNB, NBP, BNR, Fed stb."""
+    """Központi bank policy rate-ek (BIS + ECB overlay): ECB, MNB, CNB, NBP, BNR, Fed stb.
+
+    Az euró-area (XM) rate-et közvetlenül az ECB Data Portalról frissítjük —
+    soha nem stale. A többi országnál BIS WS_CBPOL + Eurostat irt_st_m fallback.
+    """
     return await _statdata_passthrough("get_policy_rates", {
         "countries": countries, "frequency": frequency, "limit": limit,
+    })
+
+
+@mcp.tool()
+async def statdata_ecb(dataset: str, key: str, start_period: str = "",
+                       end_period: str = "", last_n: int = 12,
+                       caller: str = "") -> str:
+    """ECB Data Portal direkt SDMX kliens — HICP, ECB kamatok, EUR árfolyamok, állampapír-hozamok.
+
+    Ugyanaz a forrás mint az ECB Statistical Data Warehouse, jellemzően 1–24h-val
+    frissebb mint a DBnomics ECB tükör. Akkor használd, ha a havi szolgáltatás-
+    infláció (KSH STADAT csak éves), euró-area policy rate (BIS lag), vagy más
+    ECB-elsődleges sorozat kell.
+
+    Args:
+        dataset: ECB dataflow kód. Gyakoriak:
+                 ICP — HICP (HU + euro area, sub-aggregates: services, energy, food, core)
+                 EXR — EUR reference rates (daily/monthly)
+                 FM  — ECB policy rates (DFR, MRR, MLFR) + money market
+                 IRS — Long-term interest rates (Maastricht 10Y govt bond)
+                 BSI — Monetary aggregates M1/M2/M3
+                 MIR — Bank lending/deposit rates by country
+                 STS — Short-term statistics (industrial production, retail trade)
+                 YC  — Yield curve (zero-coupon spot rates)
+        key: SDMX series key dot-separated. Gyakori példák:
+             "M.HU.N.000000.4.ANR"   — HU HICP overall havi YoY%
+             "M.HU.N.SERV00.4.ANR"   — HU HICP services havi YoY% (havi service-infláció!)
+             "M.HU.N.XEF000.4.ANR"   — HU core HICP (excl. energy & food) havi YoY%
+             "M.U2.N.000000.4.ANR"   — Euro area HICP overall (flash + final)
+             "D.HUF.EUR.SP00.A"      — EUR/HUF napi reference rate
+             "D.U2.EUR.4F.KR.DFR.LEV" — ECB Deposit Facility Rate (napi)
+             "M.HU.L.L40.CI.0000.HUF.N.Z" — HU 10Y állampapír hozam (Maastricht)
+             Service items: SERV00 (NEM 'SERV'), core: XEF000, energy: NRGY00, food: FOOD00.
+             Hungary REF_AREA=HU, euró-area=U2.
+        start_period: Opcionális kezdő periódus (pl. "2024-01"). Üres = lastNObservations.
+        end_period: Opcionális vég. Üres = legutolsó.
+        last_n: Ha start_period üres, ennyi legutolsó megfigyelés (default 12).
+    """
+    return await _statdata_passthrough("get_ecb_data", {
+        "dataset": dataset, "key": key,
+        "start_period": start_period, "end_period": end_period, "last_n": last_n,
+    })
+
+
+@mcp.tool()
+async def statdata_flash(query: str = "", source: str = "all", limit: int = 15,
+                          refresh: bool = False, caller: str = "") -> str:
+    """KSH gyorstájékoztatók + Eurostat news releases keresése.
+
+    Akkor használd, ha a hivatalos time-series API-k (Eurostat, ECB, KSH STADAT)
+    még nincsenek frissítve és a legfrissebb publikált szám kell. KSH 1–3 nappal
+    az Eurostat re-ingesztálása előtt publikál; az Eurostat euró-area flash
+    becsléseket publikál (HICP, GDP) a hivatalos statisztikai release előtt.
+
+    Args:
+        query: Kulcsszó-szűrő HU vagy EN. Példák:
+                 KSH:      "fogyasztói árak", "munkanélküliség", "GDP", "ipari termelés",
+                           "kiskereskedelem", "üzemanyag", "infláció"
+                 Eurostat: "HICP", "inflation", "unemployment", "GDP", "PPI",
+                           "industrial", "retail trade", "deficit"
+               Üres = legutolsó tételek szűretlenül.
+        source: "ksh" | "eurostat" | "all" (default).
+        limit: Max találat (default 15).
+        refresh: Erőltessen feed frissítést cache TTL nélkül. Default False (6h TTL).
+
+    Coverage notes:
+        - KSH RSS csak a ~5–20 legfrissebb hír (rolling window).
+        - Eurostat Atom feed akár 60 tételt ad oldalanként.
+        - HU 2026 havi HICP / unemployment / GDP esetén: először flash_releases
+          a headline + linkért, aztán statdata_ksh_stadat / statdata_eurostat /
+          statdata_ecb a strukturált idősorért.
+    """
+    return await _statdata_passthrough("get_flash_releases", {
+        "query": query, "source": source, "limit": limit, "refresh": refresh,
     })
 
 
