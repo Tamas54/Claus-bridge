@@ -3263,6 +3263,21 @@ BRAVE_SCRAPE_TOOL_DEF = {
                     ),
                     "default": False,
                 },
+                "auto_fallback": {
+                    "type": "boolean",
+                    "description": (
+                        "**AJÁNLOTT bonyolult/ismeretlen webhelyekhez.** "
+                        "Egyetlen flag, transzparens server-oldali eszkaláció: "
+                        "(1) default scrape → (2) stealth → (3) FlareSolverr → "
+                        "(4) FlareSolverr+Puppeteer-render. A server intelligensen "
+                        "lépcsőzik anti-bot védelem alapján, a kliens nem kell "
+                        "manuálisan 3 hívást csináljon. A response-ban "
+                        "`escalation_path` mező a telemetria. Worst-case ~140s, "
+                        "ezért ne használd ha tudod hogy az URL Cloudflare-mentes. "
+                        "Default false."
+                    ),
+                    "default": False,
+                },
             },
             "required": ["url"],
         },
@@ -3524,15 +3539,17 @@ _SUBAGENT_TOOLS_DIRECTIVE_BASE = (
     "- **`brave_scrape`** — Stealth-Puppeteer scrape screenshot- és waitForSelector-"
     "támogatással. Akkor használd, ha (a) a `web_scrape` üres shell-t adott, (b) screenshot "
     "kell egy vizuális részhez (Kimi tudja olvasni base64-PNG-ből), vagy (c) konkrét DOM-"
-    "elemre kell várni (waitForSelector). **Háromszintű anti-bot fallback chain** "
-    "(opt-in, költséges felfelé): "
-    "(1) default `brave_scrape` — gyors, ~5s; "
-    "(2) `stealth: true` — UA-rotáció + cookie-jar + Cloudflare-challenge auto-resolve, "
-    "~5-19s; "
-    "(3) `flaresolverr: true` — külső FlareSolverr Docker-szolgáltatás (undetected-"
-    "chromedriver), magas Turnstile-bypass, 30-90s solve. **Kötelező lépcsőfok-szabály**: "
-    "MINDIG a leg-gyorsabbal kezdj. Ha 'cf_status: blocked' jön VAGY a markdown egy anti-"
-    "bot szöveg ('Just a moment', 'Verify you are human'), AKKOR lépj a következő szintre.\n"
+    "elemre kell várni (waitForSelector). "
+    "**🎯 EGYSZERŰ HASZNÁLAT — `auto_fallback: true`**: ha ismeretlen vagy bonyolult "
+    "(SPA / Cloudflare-protected) webhelyet scrape-elsz, ADD MEG egyszerűen az "
+    "`auto_fallback: true` flag-et. A server EGYETLEN HÍVÁSON belül automatikusan "
+    "lépcsőzik: (1) default → (2) stealth → (3) FlareSolverr Cloudflare-bypass → "
+    "(4) FlareSolverr+Puppeteer-render. Worst-case ~140s, de a leg-legtartalmasabb "
+    "eredményt kapod. A response `escalation_path` mezője megmondja melyik szinten "
+    "tört át. **NE bajlódj manuálisan a `stealth` és `flaresolverr` flag-ekkel** — "
+    "azok low-level escape hatch-ek; a normál ágens-flow az `auto_fallback: true`. "
+    "Statdata-jellegű (Eurostat/MNB/ECB) URL-en NE kapcsold be — felesleges és lassú; "
+    "a default elég.\n"
     "- **`brave_login`** — bejelentkezett browser-session indítása Gmail/Facebook/Twitter/"
     "LinkedIn/Instagram-on, vagy custom URL-en. CSAK akkor használd, ha a Kommandant "
     "explicit jóváhagyta a fiók-hozzáférést a feladatra — soha ne spekulatíven.\n"
@@ -3805,11 +3822,18 @@ async def _dispatch_subagent_tool(name: str, args: dict) -> str:
             # 3. anti-bot szint: külső FlareSolverr Docker-szolgáltatás.
             # 30-90s solve-idő, magas Turnstile-bypass siker-ráta.
             mcp_args["flaresolverr"] = True
+        if args.get("auto_fallback"):
+            # Server-side eszkalációs chain — egyetlen flag, transzparens
+            # többszintű próbálkozás, escalation_path telemetria.
+            mcp_args["auto_fallback"] = True
         sel = (args.get("wait_for_selector") or "").strip()
         if sel:
             mcp_args["waitForSelector"] = sel
-        # Timeout-növelés: stealth +14s, FlareSolverr 30-90s solve → +120s
-        if args.get("flaresolverr"):
+        # Timeout-növelés: auto_fallback worst-case ~140s → +180s.
+        # FlareSolverr 30-90s solve → +120s. Stealth +14s → +30s.
+        if args.get("auto_fallback"):
+            scrape_timeout = 180.0
+        elif args.get("flaresolverr"):
             scrape_timeout = 180.0
         elif args.get("stealth"):
             scrape_timeout = 120.0
@@ -3829,6 +3853,10 @@ async def _dispatch_subagent_tool(name: str, args: dict) -> str:
         # Forward the CF status flag — agent + Bridge log láthatja, mit kerültünk
         if "cf_status" in result:
             out["cf_status"] = result["cf_status"]
+        # Forward az escalation_path-et — auto_fallback chain telemetria.
+        # Pl.: [{level:1,mode:'default',ok:false}, {level:3,mode:'flaresolverr',ok:true}]
+        if "escalation_path" in result:
+            out["escalation_path"] = result["escalation_path"]
         # Pass screenshot as base64 (capped at 200KB-equivalent) only when
         # explicitly requested. Vision-capable agents (Kimi) can ingest it.
         if args.get("screenshot") and result.get("screenshot"):
