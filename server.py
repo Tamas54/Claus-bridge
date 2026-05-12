@@ -3902,9 +3902,29 @@ async def _dispatch_subagent_tool(name: str, args: dict) -> str:
         if "cf_status" in result:
             out["cf_status"] = result["cf_status"]
         # Forward az escalation_path-et — auto_fallback chain telemetria.
-        # Pl.: [{level:1,mode:'default',ok:false}, {level:3,mode:'flaresolverr',ok:true}]
         if "escalation_path" in result:
             out["escalation_path"] = result["escalation_path"]
+        # ── Content usability — agent-barát egyértelmű jelzés ─────────
+        # A tool maga már eldöntötte hogy a markdown valós cikktartalom-e
+        # vagy stub/anti-bot-szöveg. Az agent erre EXPLICIT figyeljen, NE a
+        # markdown-szövegre próbáljon ítéletet alkotni.
+        if "content_usable" in result:
+            out["content_usable"] = result["content_usable"]
+        if result.get("block_reason"):
+            out["block_reason"] = result["block_reason"]
+        if result.get("markdown_warning"):
+            out["markdown_warning"] = result["markdown_warning"]
+        if result.get("content_source"):
+            out["content_source"] = result["content_source"]
+        if result.get("original_scrape_url"):
+            out["original_scrape_url"] = result["original_scrape_url"]
+        # Ha tartalom NEM idézhető (stub / blocked), a markdown elé teszünk
+        # egy egyértelmű marker-sort, hogy az agent biztosan tisztelje a flag-et.
+        if result.get("content_usable") is False and out.get("markdown"):
+            out["markdown"] = (
+                f"[BLOCKED — block_reason={result.get('block_reason','unknown')} — "
+                f"DO NOT QUOTE, treat as anti-bot stub]\n\n" + out["markdown"]
+            )
         # Pass screenshot as base64 (capped at 200KB-equivalent) only when
         # explicitly requested. Vision-capable agents (Kimi) can ingest it.
         if args.get("screenshot") and result.get("screenshot"):
