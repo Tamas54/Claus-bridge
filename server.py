@@ -3250,6 +3250,19 @@ BRAVE_SCRAPE_TOOL_DEF = {
                     ),
                     "default": False,
                 },
+                "flaresolverr": {
+                    "type": "boolean",
+                    "description": (
+                        "3. anti-bot szint — KIZÁRÓLAG végső megoldásként. "
+                        "Külső FlareSolverr Docker-szolgáltatás (undetected-"
+                        "chromedriver), ami Cloudflare Turnstile-tier védelmet is "
+                        "feloldja. Akkor kapcsold be, HA stealth=true is "
+                        "'cf_status: blocked'-ot adott (pl. biddr.com Turnstile). "
+                        "LASSÚ (30-90s solve), tehát NE alapesetben használd. "
+                        "Default false."
+                    ),
+                    "default": False,
+                },
             },
             "required": ["url"],
         },
@@ -3511,10 +3524,15 @@ _SUBAGENT_TOOLS_DIRECTIVE_BASE = (
     "- **`brave_scrape`** — Stealth-Puppeteer scrape screenshot- és waitForSelector-"
     "támogatással. Akkor használd, ha (a) a `web_scrape` üres shell-t adott, (b) screenshot "
     "kell egy vizuális részhez (Kimi tudja olvasni base64-PNG-ből), vagy (c) konkrét DOM-"
-    "elemre kell várni (waitForSelector). **`stealth: true` opt-in paraméter**: ha az első "
-    "brave_scrape-választ Cloudflare-fal (\"Just a moment\", \"Verify you are human\") "
-    "blokkolja, **hívd újra `stealth: true`-val** — UA-rotáció, cookie-jar, challenge-"
-    "auto-resolve. Default OFF (gyors), stealth +14s worst-case-en.\n"
+    "elemre kell várni (waitForSelector). **Háromszintű anti-bot fallback chain** "
+    "(opt-in, költséges felfelé): "
+    "(1) default `brave_scrape` — gyors, ~5s; "
+    "(2) `stealth: true` — UA-rotáció + cookie-jar + Cloudflare-challenge auto-resolve, "
+    "~5-19s; "
+    "(3) `flaresolverr: true` — külső FlareSolverr Docker-szolgáltatás (undetected-"
+    "chromedriver), magas Turnstile-bypass, 30-90s solve. **Kötelező lépcsőfok-szabály**: "
+    "MINDIG a leg-gyorsabbal kezdj. Ha 'cf_status: blocked' jön VAGY a markdown egy anti-"
+    "bot szöveg ('Just a moment', 'Verify you are human'), AKKOR lépj a következő szintre.\n"
     "- **`brave_login`** — bejelentkezett browser-session indítása Gmail/Facebook/Twitter/"
     "LinkedIn/Instagram-on, vagy custom URL-en. CSAK akkor használd, ha a Kommandant "
     "explicit jóváhagyta a fiók-hozzáférést a feladatra — soha ne spekulatíven.\n"
@@ -3783,11 +3801,20 @@ async def _dispatch_subagent_tool(name: str, args: dict) -> str:
             # Cloudflare challenge auto-resolve. ~50ms overhead happy-pathon,
             # ~14s worst-case challenge esetén.
             mcp_args["stealth"] = True
+        if args.get("flaresolverr"):
+            # 3. anti-bot szint: külső FlareSolverr Docker-szolgáltatás.
+            # 30-90s solve-idő, magas Turnstile-bypass siker-ráta.
+            mcp_args["flaresolverr"] = True
         sel = (args.get("wait_for_selector") or "").strip()
         if sel:
             mcp_args["waitForSelector"] = sel
-        # Stealth mode-ban a CF retry +14s-t adhat, ezért a timeout-ot is bővítjük.
-        scrape_timeout = 120.0 if args.get("stealth") else 90.0
+        # Timeout-növelés: stealth +14s, FlareSolverr 30-90s solve → +120s
+        if args.get("flaresolverr"):
+            scrape_timeout = 180.0
+        elif args.get("stealth"):
+            scrape_timeout = 120.0
+        else:
+            scrape_timeout = 90.0
         result = await _brave_mcp_call("brave_scrape", mcp_args, timeout=scrape_timeout)
         if not result:
             return json.dumps({"error": "brave-mcp-server brave_scrape failed (timeout / network)"})
