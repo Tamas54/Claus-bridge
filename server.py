@@ -4497,6 +4497,49 @@ def _extract_text_marker_tool_calls(content: str) -> list[tuple[str, dict]]:
     return calls
 
 
+def _strip_tool_call_markers(content: str) -> str:
+    """Remove leaked Kimi/DeepSeek/Anthropic tool-call markers from final text.
+
+    When deep_research's final synthesis round fails to suppress tool emission
+    (Kimi K2.6 routinely ignores tools=off and still writes <|tool_calls_section_*|>
+    blocks), the assistant content contains raw special-token blocks that are
+    user-visible garbage. This helper rips them out before returning content
+    to the caller.
+
+    Removes:
+      - Kimi: <|tool_calls_section_begin|>...<|tool_calls_section_end|> and any
+        orphan <|tool_call_*|> tokens
+      - DeepSeek DSML: <｜｜DSML｜｜tool_calls>...</｜｜DSML｜｜tool_calls> blocks and
+        any <｜｜DSML｜｜invoke>...</｜｜DSML｜｜invoke> blocks (single + double pipe variants)
+      - Anthropic-style <function_calls>...</function_calls> and <invoke>...</invoke> blocks
+
+    Preserves all surrounding article prose; only the structured tool-call regions
+    are excised.
+    """
+    import re as _re
+    if not content:
+        return content
+    out = content
+    # Kimi full section
+    out = _re.sub(r'<\|tool_calls_section_begin\|>.*?<\|tool_calls_section_end\|>', '', out, flags=_re.DOTALL)
+    # Kimi orphan call (no enclosing section)
+    out = _re.sub(r'<\|tool_call_begin\|>.*?<\|tool_call_end\|>', '', out, flags=_re.DOTALL)
+    # Kimi orphan special tokens left behind
+    out = _re.sub(r'<\|tool_call[^|]*\|>', '', out)
+    out = _re.sub(r'<\|tool_calls_section[^|]*\|>', '', out)
+    # DeepSeek DSML tool_calls block (single + double pipe)
+    out = _re.sub(r'<｜｜?DSML｜｜?tool_calls>.*?</｜｜?DSML｜｜?tool_calls>', '', out, flags=_re.DOTALL)
+    # DeepSeek DSML invoke block
+    out = _re.sub(r'<[^>]*?DSML[^>]*?invoke[^>]*?>.*?</[^>]*?DSML[^>]*?invoke>', '', out, flags=_re.DOTALL)
+    # Anthropic-style function_calls block
+    out = _re.sub(r'<function_calls>.*?</function_calls>', '', out, flags=_re.DOTALL)
+    # Standalone <invoke name="...">{...}</invoke>
+    out = _re.sub(r'<invoke\s+name=["\'][^"\']+["\'][^>]*>.*?</invoke>', '', out, flags=_re.DOTALL)
+    # Collapse excessive whitespace left over by the removals
+    out = _re.sub(r'\n{3,}', '\n\n', out)
+    return out.strip()
+
+
 def _summarize_tool_args(args: dict) -> str:
     """Pick a short human-readable label from tool args for logging / context labels."""
     return str(
@@ -5119,14 +5162,25 @@ async def _deep_research_loop(
             payload["tools"] = SUBAGENT_TOOL_DEFS
         else:
             # Final round: force synthesis with citations.
+            # 2026-05-12: Stronger no-tools directive after task #202 where Kimi
+            # K2.6 still emitted <|tool_calls_section_*|> markers despite tools=off,
+            # producing 2KB of garbage instead of the article. Explicit ban on
+            # emitting special tokens + opening-instruction to start writing.
             messages = messages + [{
                 "role": "user",
                 "content": (
-                    "Most foglald össze az eddig összegyűjtött anyagot. "
-                    "Strukturált, tényszerű választ adj, MINDEN állításhoz idézd "
-                    "a forrást [forrás N] formátumban, és a végén adj egy "
-                    "`## Források` szekciót sorszámozott URL-listával. "
-                    "Ha valamire nincs forrás, mondd ki hogy nincs."
+                    "VÉGSŐ KÖR — TILOS TOVÁBBI KERESÉS. "
+                    "TILOS web_search, web_fetch, echolot_query vagy bármilyen tool-hívás. "
+                    "TILOS `<|tool_call|>`, `<|tool_calls_section|>`, `<｜DSML｜>`, "
+                    "`<function_calls>` vagy `<invoke>` markert kibocsátani. "
+                    "Az eddig összegyűjtött források ELEGENDŐEK — most ÍRD MEG "
+                    "a végleges, részletes cikket prózában. "
+                    "MINDEN állításhoz idézd a forrást `[forrás N]` formátumban "
+                    "(N = 1-től induló sorszám), és a végén kötelező `## Források` "
+                    "szekció sorszámozott URL-listával. Ha valamire nincs forrás, "
+                    "mondd ki hogy nincs. "
+                    "Kezdd azonnal a cikkel — ne írj 'Folytatom a kutatást' "
+                    "vagy 'Még szükségem van forrásokra' bevezetőt."
                 ),
             }]
             payload["messages"] = messages
@@ -5211,6 +5265,50 @@ async def _deep_research_loop(
                         if url not in sources:
                             sources.append(url)
             if aggregated:
+                # Final-round tool-call leak: Kimi (or any agent) emitted tool
+                # markers in the synthesis round despite tools=off. The for-loop
+                # has no more iterations to let the agent write, so the salvage
+                # path would return raw marker garbage as last_content. Instead,
+                # do ONE more dedicated "writer mode" API call with hard no-tool
+                # directive and tool results in context. Added 2026-05-12 after
+                # task #202.
+                if is_final:
+                    logger.warning("Deep research final-round tool-call leak detected — issuing rescue synthesis call")
+                    rescue_messages = messages + [
+                        {"role": "assistant", "content": "(tool calls emitted in final round — results below)"},
+                        {"role": "user", "content": (
+                            f"Tool eredmények az utolsó körből:\n{aggregated}\n\n"
+                            "MOST ÍRD MEG a teljes cikket — TILOS minden további tool-hívás, "
+                            "TILOS bármilyen `<|tool_call|>`, `<|DSML|>`, `<invoke>` markert "
+                            "kibocsátani a válaszban. Csak a kész cikk markdown-szövegét add — "
+                            "kezdd egy `# Cím` fejezettel és a végén `## Források` URL-listával. "
+                            "Minden állításhoz `[forrás N]` hivatkozás."
+                        )},
+                    ]
+                    rescue_payload = {
+                        "model": model_id,
+                        "messages": rescue_messages,
+                        "temperature": temperature,
+                        "max_tokens": max_tokens,
+                        **agent_extra,
+                    }
+                    try:
+                        async with httpx.AsyncClient(timeout=SILICONFLOW_TIMEOUT) as client:
+                            rescue_data = await _api_call(client, rescue_payload)
+                        rescue_content = (
+                            rescue_data.get("choices", [{}])[0]
+                                       .get("message", {})
+                                       .get("content", "") or ""
+                        )
+                        rescue_content = _strip_tool_call_markers(rescue_content)
+                        if rescue_content.strip():
+                            if sources and "## Források" not in rescue_content and "## Forrasok" not in rescue_content:
+                                rescue_content += "\n\n## Források\n" + "\n".join(f"[{i+1}] {u}" for i, u in enumerate(sources[:15]))
+                            return rescue_content
+                        logger.warning("Deep research rescue call returned empty content — falling through to salvage")
+                    except Exception as e:
+                        logger.error("Deep research rescue call failed: %s — falling through to salvage", e)
+                    break  # rescue failed → salvage
                 messages = messages + [
                     {"role": "assistant", "content": "(tool calls in progress)"},
                     {"role": "user", "content": f"Tool eredmények:\n{aggregated}\n\nFolytasd a kutatást vagy szintetizálj."},
@@ -5219,15 +5317,24 @@ async def _deep_research_loop(
 
         # No more tool calls — model wants to finalize. Return whatever we got.
         if content.strip():
+            # Defensive: strip any residual tool-call markers that slipped past
+            # Case A/B detection (e.g., orphan tokens outside a recognized block).
+            cleaned = _strip_tool_call_markers(content)
+            if not cleaned.strip():
+                # Content was 100% markers — fall through to salvage with last_content
+                break
             # Append a fallback citation footer if the model forgot the URL list
-            if sources and "## Források" not in content and "## Forrasok" not in content:
-                content += "\n\n## Források\n" + "\n".join(f"[{i+1}] {u}" for i, u in enumerate(sources[:15]))
-            return content
+            if sources and "## Források" not in cleaned and "## Forrasok" not in cleaned:
+                cleaned += "\n\n## Források\n" + "\n".join(f"[{i+1}] {u}" for i, u in enumerate(sources[:15]))
+            return cleaned
 
     # Loop exhausted (or soft-failed). Salvage whatever we can: the last
-    # non-empty content the model produced, plus the source list we collected.
+    # non-empty content the model produced (stripped of leaked tool markers),
+    # plus the source list we collected.
     if last_content.strip():
-        fallback = last_content.strip()
+        fallback = _strip_tool_call_markers(last_content)
+        if not fallback.strip():
+            fallback = "(Az agent csak tool-call markereket bocsátott ki — nincs felhasználható szintézis.)"
         if sources and "## Források" not in fallback and "## Forrasok" not in fallback:
             fallback += "\n\n## Források\n" + "\n".join(f"[{i+1}] {u}" for i, u in enumerate(sources[:15]))
         return fallback
