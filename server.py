@@ -3237,6 +3237,19 @@ BRAVE_SCRAPE_TOOL_DEF = {
                     "description": "Include raw HTML alongside markdown (default false)",
                     "default": False,
                 },
+                "stealth": {
+                    "type": "boolean",
+                    "description": (
+                        "Opt-in advanced anti-bot mode: UA+viewport randomizáció, "
+                        "per-domain cookie-jar (Cloudflare cf_clearance őrzés), "
+                        "challenge auto-resolve (8s wait + retry). Kapcsold be, "
+                        "HA az első brave_scrape Cloudflare-falba ütközött "
+                        "('Just a moment', 'Verify you are human', üres oldalváz). "
+                        "Default false (gyors path). Lassít kb. 50ms a happy-path-on, "
+                        "+14s worst-case challenge esetén."
+                    ),
+                    "default": False,
+                },
             },
             "required": ["url"],
         },
@@ -3498,7 +3511,10 @@ _SUBAGENT_TOOLS_DIRECTIVE_BASE = (
     "- **`brave_scrape`** — Stealth-Puppeteer scrape screenshot- és waitForSelector-"
     "támogatással. Akkor használd, ha (a) a `web_scrape` üres shell-t adott, (b) screenshot "
     "kell egy vizuális részhez (Kimi tudja olvasni base64-PNG-ből), vagy (c) konkrét DOM-"
-    "elemre kell várni (waitForSelector).\n"
+    "elemre kell várni (waitForSelector). **`stealth: true` opt-in paraméter**: ha az első "
+    "brave_scrape-választ Cloudflare-fal (\"Just a moment\", \"Verify you are human\") "
+    "blokkolja, **hívd újra `stealth: true`-val** — UA-rotáció, cookie-jar, challenge-"
+    "auto-resolve. Default OFF (gyors), stealth +14s worst-case-en.\n"
     "- **`brave_login`** — bejelentkezett browser-session indítása Gmail/Facebook/Twitter/"
     "LinkedIn/Instagram-on, vagy custom URL-en. CSAK akkor használd, ha a Kommandant "
     "explicit jóváhagyta a fiók-hozzáférést a feladatra — soha ne spekulatíven.\n"
@@ -3762,10 +3778,17 @@ async def _dispatch_subagent_tool(name: str, args: dict) -> str:
             mcp_args["screenshot"] = True
         if args.get("include_html"):
             mcp_args["includeHtml"] = True
+        if args.get("stealth"):
+            # Opt-in anti-bot mode: UA randomizáció, cookie-jar persistence,
+            # Cloudflare challenge auto-resolve. ~50ms overhead happy-pathon,
+            # ~14s worst-case challenge esetén.
+            mcp_args["stealth"] = True
         sel = (args.get("wait_for_selector") or "").strip()
         if sel:
             mcp_args["waitForSelector"] = sel
-        result = await _brave_mcp_call("brave_scrape", mcp_args, timeout=90.0)
+        # Stealth mode-ban a CF retry +14s-t adhat, ezért a timeout-ot is bővítjük.
+        scrape_timeout = 120.0 if args.get("stealth") else 90.0
+        result = await _brave_mcp_call("brave_scrape", mcp_args, timeout=scrape_timeout)
         if not result:
             return json.dumps({"error": "brave-mcp-server brave_scrape failed (timeout / network)"})
         md = (result.get("markdown") or result.get("text") or "").strip()
@@ -3776,6 +3799,9 @@ async def _dispatch_subagent_tool(name: str, args: dict) -> str:
             "title": (result.get("title") or "").strip(),
             "markdown": md,
         }
+        # Forward the CF status flag — agent + Bridge log láthatja, mit kerültünk
+        if "cf_status" in result:
+            out["cf_status"] = result["cf_status"]
         # Pass screenshot as base64 (capped at 200KB-equivalent) only when
         # explicitly requested. Vision-capable agents (Kimi) can ingest it.
         if args.get("screenshot") and result.get("screenshot"):
