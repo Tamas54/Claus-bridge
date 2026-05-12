@@ -3176,6 +3176,154 @@ WEB_SCRAPE_TOOL_DEF = {
     },
 }
 
+BRAVE_SEARCH_TOOL_DEF = {
+    "type": "function",
+    "function": {
+        "name": "brave_search",
+        "description": (
+            "Brave Search Engine direct (StealthPlugin Puppeteer wrapper). "
+            "Anti-bot-resistant — returns the FULL structured result list "
+            "({title, url, description}), not collapsed snippet text like "
+            "web_search. Use when web_search hit a 'JavaScript required' / "
+            "Cloudflare / 'unusual activity' block, OR when you need the raw "
+            "result objects for downstream URL selection."
+        ),
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "query": {"type": "string", "description": "Search query"},
+                "limit": {
+                    "type": "integer",
+                    "description": "Result cap, 1-20 (default 10)",
+                    "default": 10,
+                },
+            },
+            "required": ["query"],
+        },
+    },
+}
+
+BRAVE_SCRAPE_TOOL_DEF = {
+    "type": "function",
+    "function": {
+        "name": "brave_scrape",
+        "description": (
+            "Puppeteer-Stealth scrape of a JS-rendered SPA. Stronger variant "
+            "of web_scrape — exposes screenshot capture, CSS-selector wait, "
+            "and full-HTML mode. Use when web_fetch/web_scrape returned an "
+            "empty shell, Cloudflare challenge, or 'JavaScript required' "
+            "error. Returns {url, title, markdown, screenshot?: base64}."
+        ),
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "url": {"type": "string", "description": "Full URL (http/https)"},
+                "screenshot": {
+                    "type": "boolean",
+                    "description": "Return PNG screenshot as base64 (default false)",
+                    "default": False,
+                },
+                "wait_for_selector": {
+                    "type": "string",
+                    "description": "CSS selector to wait for before scraping (e.g. 'main', '.article-body')",
+                },
+                "wait_time": {
+                    "type": "integer",
+                    "description": "JS-render wait in ms (default 3000, max 15000)",
+                    "default": 3000,
+                },
+                "include_html": {
+                    "type": "boolean",
+                    "description": "Include raw HTML alongside markdown (default false)",
+                    "default": False,
+                },
+            },
+            "required": ["url"],
+        },
+    },
+}
+
+BRAVE_LOGIN_TOOL_DEF = {
+    "type": "function",
+    "function": {
+        "name": "brave_login",
+        "description": (
+            "Start an authenticated browser session on a known service "
+            "(Gmail, Facebook, Twitter, LinkedIn, Instagram, or a custom URL). "
+            "Returns a saved session id that subsequent brave_action calls can "
+            "reuse. Required before any session-bound operation (reading "
+            "messages, posting content, exporting data). Use ONLY when the "
+            "Kommandant has explicitly authorised account access for the "
+            "task — never speculatively."
+        ),
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "site": {
+                    "type": "string",
+                    "enum": ["gmail", "facebook", "twitter", "linkedin", "instagram", "custom"],
+                    "description": "Target service preset, or 'custom' with custom_url",
+                },
+                "custom_url": {
+                    "type": "string",
+                    "description": "Login URL when site='custom' (e.g. https://app.example.com/login)",
+                },
+                "username": {"type": "string", "description": "Email / username"},
+                "password": {"type": "string", "description": "Password (will not be logged)"},
+                "totp": {"type": "string", "description": "2FA / TOTP code (optional)"},
+                "save_session": {
+                    "type": "boolean",
+                    "description": "Persist session cookies for reuse (default true)",
+                    "default": True,
+                },
+            },
+            "required": ["site", "username", "password"],
+        },
+    },
+}
+
+BRAVE_ACTION_TOOL_DEF = {
+    "type": "function",
+    "function": {
+        "name": "brave_action",
+        "description": (
+            "Multi-step browser action sequence over a logged-in session "
+            "(or an unauthenticated page if 'url' is given). Each entry in "
+            "'actions' is a step the Bridge dispatches sequentially against "
+            "the brave-mcp-server. Step types: "
+            "{type:'click', x, y} — mouse click at coords; "
+            "{type:'type', text, x?, y?} — keyboard type (clicks at x,y first if given); "
+            "{type:'scroll', y} — scroll by y px; "
+            "{type:'screenshot'} — capture current viewport; "
+            "{type:'navigate', url} — go to URL; "
+            "{type:'wait', ms} — sleep; "
+            "{type:'session_action', site, action, parameters} — run a "
+            "predefined session task (read_emails, send_email, post_content, etc.); "
+            "{type:'script', site, code} — run a custom JS snippet in the page. "
+            "Returns a list of per-step results."
+        ),
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "url": {
+                    "type": "string",
+                    "description": "Optional initial URL — brave_scrape lands here before running the steps.",
+                },
+                "site": {
+                    "type": "string",
+                    "description": "Bound session site for session_action / script steps (e.g. 'gmail').",
+                },
+                "actions": {
+                    "type": "array",
+                    "description": "Ordered list of step objects (see description for shapes).",
+                    "items": {"type": "object"},
+                },
+            },
+            "required": ["actions"],
+        },
+    },
+}
+
 STATDATA_YFINANCE_TOOL_DEF = {
     "type": "function",
     "function": {
@@ -3299,6 +3447,13 @@ STATDATA_MNB_RATES_TOOL_DEF = {
 SUBAGENT_TOOL_DEFS = [WEB_SEARCH_TOOL_DEF, ECHOLOT_QUERY_TOOL_DEF, WEB_FETCH_TOOL_DEF]
 if BRAVE_MCP_ENABLED:
     SUBAGENT_TOOL_DEFS.append(WEB_SCRAPE_TOOL_DEF)
+    # brave-mcp-server passthrough tools — anti-bot-resistant SPA / session ops.
+    SUBAGENT_TOOL_DEFS.extend([
+        BRAVE_SEARCH_TOOL_DEF,
+        BRAVE_SCRAPE_TOOL_DEF,
+        BRAVE_LOGIN_TOOL_DEF,
+        BRAVE_ACTION_TOOL_DEF,
+    ])
 if STATDATA_ENABLED:
     SUBAGENT_TOOL_DEFS.extend([
         STATDATA_YFINANCE_TOOL_DEF,
@@ -3334,6 +3489,29 @@ _SUBAGENT_TOOLS_DIRECTIVE_BASE = (
     "`web_scrape` ugyanarra → idézd a press release / hivatalos közlemény pontos szövegét. "
     "Friss flash adatokra (Eurostat HICP flash, MNB Monetáris Tanács közlemény, ECB döntés) "
     "ez a leghasználhatóbb tool, mert a press release SPA-formában él.\n"
+    "\n**Brave-MCP anti-bot tool-ok** (StealthPlugin, Puppeteer — magasabb képesség, "
+    "lassabb, drágább; csak akkor használd ha a web_* lánc beragad):\n"
+    "- **`brave_search`** — Brave Search engine direct, **strukturált result-listával** "
+    "(title/url/description objektumok), nem snippet-szöveggel. Akkor jobb mint a "
+    "`web_search`, ha a következő tool-hívás konkrét URL-listát igényel, vagy ha a "
+    "`web_search` 'JavaScript required' / Cloudflare / 'unusual activity' blokkot adott.\n"
+    "- **`brave_scrape`** — Stealth-Puppeteer scrape screenshot- és waitForSelector-"
+    "támogatással. Akkor használd, ha (a) a `web_scrape` üres shell-t adott, (b) screenshot "
+    "kell egy vizuális részhez (Kimi tudja olvasni base64-PNG-ből), vagy (c) konkrét DOM-"
+    "elemre kell várni (waitForSelector).\n"
+    "- **`brave_login`** — bejelentkezett browser-session indítása Gmail/Facebook/Twitter/"
+    "LinkedIn/Instagram-on, vagy custom URL-en. CSAK akkor használd, ha a Kommandant "
+    "explicit jóváhagyta a fiók-hozzáférést a feladatra — soha ne spekulatíven.\n"
+    "- **`brave_action`** — több-lépéses browser-szekvencia (click/type/scroll/screenshot/"
+    "navigate/session_action/script). Egy `actions: [...]` listával adsz át lépéseket, a "
+    "Bridge sorban dispatcheli őket. Tipikus minta: brave_login → brave_action[ "
+    "{type:'navigate', url}, {type:'click', x, y}, {type:'screenshot'} ].\n"
+    "\n## ANTI-BOT FALLBACK — KÖTELEZŐ\n"
+    "Ha `web_search` vagy `web_scrape` eredménye 'JavaScript required', Cloudflare-challenge, "
+    "'unusual activity', üres oldalváz, 403/429, vagy bármilyen anti-bot-indikátor — "
+    "**KÖTELEZŐ** a brave_* tool-ok valamelyikét próbálnod ugyanarra a kérésre. A "
+    "brave-mcp-server StealthPlugin-ja kifejezetten erre a célra készült, és nálunk ez a "
+    "megfelelő szerszám SPA-kra és anti-bot-falra. NE adj fel addig, amíg ezt nem próbáltad.\n"
 )
 
 _SUBAGENT_STATDATA_DIRECTIVE = (
@@ -3542,6 +3720,284 @@ async def _dispatch_subagent_tool(name: str, args: dict) -> str:
             "markdown": md,
         }
         return _stamp_fetched_at(json.dumps(out, ensure_ascii=False))
+
+    # ── brave-mcp-server passthrough tools (Tamas54/brave-mcp-server) ──
+    # Exposed when BRAVE_MCP_ENABLED so agents can bypass anti-bot blocks
+    # that the generic web_search/web_scrape chain trips over (Cloudflare,
+    # 'JavaScript required', SPA shells, login-gated content).
+    if name == "brave_search":
+        if not BRAVE_MCP_ENABLED:
+            return json.dumps({"error": "brave_search disabled (BRAVE_MCP_URL env var missing)"})
+        q = (args.get("query") or "").strip()
+        if not q:
+            return json.dumps({"error": "query required"})
+        try:
+            limit = max(1, min(20, int(args.get("limit", 10))))
+        except (TypeError, ValueError):
+            limit = 10
+        result = await _brave_mcp_call("brave_search", {"query": q, "limit": limit})
+        if not result:
+            return json.dumps({"error": "brave-mcp-server brave_search failed (timeout / network)"})
+        # Cap each result's description so the payload stays bounded without
+        # truncating mid-JSON-string (which would break the agent's parser).
+        items = result.get("results") or []
+        for it in items[:limit]:
+            if isinstance(it.get("description"), str) and len(it["description"]) > 600:
+                it["description"] = it["description"][:600] + "…"
+        out = {"query": result.get("query", q), "results": items[:limit]}
+        return _stamp_fetched_at(json.dumps(out, ensure_ascii=False))
+
+    if name == "brave_scrape":
+        if not BRAVE_MCP_ENABLED:
+            return json.dumps({"error": "brave_scrape disabled (BRAVE_MCP_URL env var missing)"})
+        url = (args.get("url") or "").strip()
+        if not url:
+            return json.dumps({"error": "url required"})
+        try:
+            wait_time = max(0, min(15000, int(args.get("wait_time", 3000))))
+        except (TypeError, ValueError):
+            wait_time = 3000
+        mcp_args: dict = {"url": url, "waitTime": wait_time}
+        if args.get("screenshot"):
+            mcp_args["screenshot"] = True
+        if args.get("include_html"):
+            mcp_args["includeHtml"] = True
+        sel = (args.get("wait_for_selector") or "").strip()
+        if sel:
+            mcp_args["waitForSelector"] = sel
+        result = await _brave_mcp_call("brave_scrape", mcp_args, timeout=90.0)
+        if not result:
+            return json.dumps({"error": "brave-mcp-server brave_scrape failed (timeout / network)"})
+        md = (result.get("markdown") or result.get("text") or "").strip()
+        if len(md) > 8000:
+            md = md[:8000] + f"\n\n[...truncated, total {len(md)} chars]"
+        out = {
+            "url": result.get("url", url),
+            "title": (result.get("title") or "").strip(),
+            "markdown": md,
+        }
+        # Pass screenshot as base64 (capped at 200KB-equivalent) only when
+        # explicitly requested. Vision-capable agents (Kimi) can ingest it.
+        if args.get("screenshot") and result.get("screenshot"):
+            shot = result["screenshot"]
+            if isinstance(shot, str) and len(shot) <= 200_000:
+                out["screenshot_base64"] = shot
+            else:
+                out["screenshot_truncated"] = True
+        if args.get("include_html") and result.get("html"):
+            html = result["html"]
+            out["html"] = html[:8000] + ("...[truncated]" if len(html) > 8000 else "")
+        return _stamp_fetched_at(json.dumps(out, ensure_ascii=False))
+
+    if name == "brave_login":
+        if not BRAVE_MCP_ENABLED:
+            return json.dumps({"error": "brave_login disabled (BRAVE_MCP_URL env var missing)"})
+        site = (args.get("site") or "").strip().lower()
+        username = (args.get("username") or "").strip()
+        password = args.get("password") or ""
+        if site not in ("gmail", "facebook", "twitter", "linkedin", "instagram", "custom"):
+            return json.dumps({"error": "site must be gmail|facebook|twitter|linkedin|instagram|custom"})
+        if not username or not password:
+            return json.dumps({"error": "username and password required"})
+        creds: dict = {"username": username, "password": password}
+        totp = (args.get("totp") or "").strip()
+        if totp:
+            creds["totp"] = totp
+        mcp_args: dict = {
+            "site": site,
+            "credentials": creds,
+            "saveSession": bool(args.get("save_session", True)),
+        }
+        custom_url = (args.get("custom_url") or "").strip()
+        if site == "custom":
+            if not custom_url:
+                return json.dumps({"error": "custom_url required when site='custom'"})
+            mcp_args["customUrl"] = custom_url
+        result = await _brave_mcp_call("brave_login", mcp_args, timeout=90.0)
+        if result is None:
+            return json.dumps({"error": "brave-mcp-server brave_login failed (timeout / network)"})
+        # Strip credentials from echo (defence-in-depth, server should not echo
+        # them anyway). Keep only session-id / status / cookies-ref fields.
+        safe = {k: v for k, v in result.items() if k not in ("credentials", "password")}
+        return json.dumps(safe, ensure_ascii=False)[:4000]
+
+    if name == "brave_action":
+        if not BRAVE_MCP_ENABLED:
+            return json.dumps({"error": "brave_action disabled (BRAVE_MCP_URL env var missing)"})
+        actions = args.get("actions") or []
+        if not isinstance(actions, list) or not actions:
+            return json.dumps({"error": "actions (non-empty list) required"})
+        if len(actions) > 25:
+            return json.dumps({"error": "actions list capped at 25 steps"})
+        site = (args.get("site") or "").strip().lower()
+        initial_url = (args.get("url") or "").strip()
+        results: list = []
+
+        # If an initial URL is given, land on it first so subsequent click /
+        # scroll / type steps operate on the right page.
+        if initial_url:
+            land = await _brave_mcp_call(
+                "brave_scrape",
+                {"url": initial_url, "waitTime": 3000},
+                timeout=60.0,
+            )
+            results.append({
+                "step": 0,
+                "type": "navigate",
+                "url": initial_url,
+                "ok": land is not None,
+                "title": (land or {}).get("title", ""),
+            })
+
+        for idx, step in enumerate(actions, start=1):
+            if not isinstance(step, dict):
+                results.append({"step": idx, "error": "step must be an object"})
+                continue
+            stype = (step.get("type") or "").strip().lower()
+            try:
+                if stype == "navigate":
+                    nav_url = (step.get("url") or "").strip()
+                    if not nav_url:
+                        raise ValueError("navigate.url required")
+                    r = await _brave_mcp_call(
+                        "brave_scrape",
+                        {"url": nav_url, "waitTime": int(step.get("wait_time", 3000))},
+                        timeout=60.0,
+                    )
+                    results.append({"step": idx, "type": stype, "ok": r is not None,
+                                    "title": (r or {}).get("title", "")})
+
+                elif stype == "click":
+                    x = float(step.get("x", 0)); y = float(step.get("y", 0))
+                    r = await _brave_mcp_call(
+                        "brave_mouse_control",
+                        {"action": "click", "x": x, "y": y},
+                    )
+                    results.append({"step": idx, "type": stype, "x": x, "y": y, "ok": r is not None})
+
+                elif stype == "type":
+                    text = step.get("text") or ""
+                    if "x" in step and "y" in step:
+                        await _brave_mcp_call(
+                            "brave_mouse_control",
+                            {"action": "click", "x": float(step["x"]), "y": float(step["y"])},
+                        )
+                    if not site:
+                        results.append({"step": idx, "type": stype,
+                                        "error": "type step requires a top-level 'site' (active session)"})
+                        continue
+                    safe_text = text.replace("\\", "\\\\").replace("`", "\\`").replace("$", "\\$")
+                    js = (
+                        "const el = document.activeElement;"
+                        f"if (el) {{ el.value = `{safe_text}`; "
+                        "el.dispatchEvent(new Event('input', {bubbles:true})); "
+                        "el.dispatchEvent(new Event('change', {bubbles:true})); }"
+                    )
+                    r = await _brave_mcp_call(
+                        "brave_session_action",
+                        {"site": site, "action": "custom", "customScript": js},
+                    )
+                    results.append({"step": idx, "type": stype, "len": len(text), "ok": r is not None})
+
+                elif stype == "scroll":
+                    dy = int(step.get("y", 0))
+                    if not site:
+                        results.append({"step": idx, "type": stype,
+                                        "error": "scroll step requires a top-level 'site'"})
+                        continue
+                    r = await _brave_mcp_call(
+                        "brave_session_action",
+                        {"site": site, "action": "custom",
+                         "customScript": f"window.scrollBy(0, {dy});"},
+                    )
+                    results.append({"step": idx, "type": stype, "y": dy, "ok": r is not None})
+
+                elif stype == "screenshot":
+                    shot_url = (step.get("url") or initial_url or "").strip()
+                    if not shot_url:
+                        results.append({"step": idx, "type": stype,
+                                        "error": "screenshot needs an url or initial url"})
+                        continue
+                    r = await _brave_mcp_call(
+                        "brave_scrape",
+                        {"url": shot_url, "screenshot": True, "waitTime": 2000},
+                        timeout=60.0,
+                    )
+                    out: dict = {"step": idx, "type": stype, "ok": r is not None,
+                                 "title": (r or {}).get("title", "")}
+                    if r and isinstance(r.get("screenshot"), str) and len(r["screenshot"]) <= 200_000:
+                        out["screenshot_base64"] = r["screenshot"]
+                    elif r and r.get("screenshot"):
+                        out["screenshot_truncated"] = True
+                    results.append(out)
+
+                elif stype == "wait":
+                    ms = max(0, min(15000, int(step.get("ms", 1000))))
+                    await asyncio.sleep(ms / 1000.0)
+                    results.append({"step": idx, "type": stype, "ms": ms})
+
+                elif stype == "session_action":
+                    s_site = (step.get("site") or site).strip().lower()
+                    s_action = (step.get("action") or "").strip()
+                    if not s_site or not s_action:
+                        results.append({"step": idx, "type": stype,
+                                        "error": "session_action requires site + action"})
+                        continue
+                    payload = {"site": s_site, "action": s_action}
+                    if step.get("parameters"):
+                        payload["parameters"] = step["parameters"]
+                    if step.get("custom_script"):
+                        payload["customScript"] = step["custom_script"]
+                    r = await _brave_mcp_call("brave_session_action", payload, timeout=120.0)
+                    results.append({"step": idx, "type": stype, "site": s_site, "action": s_action,
+                                    "ok": r is not None,
+                                    "result": (r if r is not None else {"error": "call failed"})})
+
+                elif stype == "script":
+                    s_site = (step.get("site") or site).strip().lower()
+                    code = step.get("code") or ""
+                    if not s_site or not code:
+                        results.append({"step": idx, "type": stype,
+                                        "error": "script step requires site + code"})
+                        continue
+                    r = await _brave_mcp_call(
+                        "brave_session_action",
+                        {"site": s_site, "action": "custom", "customScript": code},
+                        timeout=120.0,
+                    )
+                    results.append({"step": idx, "type": stype, "site": s_site, "ok": r is not None,
+                                    "result": (r if r is not None else {"error": "call failed"})})
+
+                else:
+                    results.append({"step": idx, "type": stype,
+                                    "error": f"unknown step type {stype!r}"})
+
+            except Exception as e:
+                results.append({"step": idx, "type": stype,
+                                "error": f"{type(e).__name__}: {e}"})
+
+        # Bound each step result's screenshot blob inline so we don't slice
+        # mid-JSON-string. Drop verbose per-step result payloads if any single
+        # one would push us over budget.
+        BUDGET = 12000
+        for s in results:
+            if isinstance(s.get("screenshot_base64"), str) and len(s["screenshot_base64"]) > 80_000:
+                s["screenshot_base64_len"] = len(s["screenshot_base64"])
+                del s["screenshot_base64"]
+                s["screenshot_dropped"] = "exceeded 80KB"
+            if isinstance(s.get("result"), dict):
+                inner = json.dumps(s["result"], ensure_ascii=False)
+                if len(inner) > 1500:
+                    s["result"] = {"_truncated": True, "len": len(inner)}
+        envelope = {"site": site, "steps": len(actions), "results": results}
+        payload = json.dumps(envelope, ensure_ascii=False)
+        if len(payload) > BUDGET:
+            # Last-resort: replace screenshot blobs with markers, redo serialize.
+            for s in results:
+                if "screenshot_base64" in s:
+                    s["screenshot_base64_len"] = len(s.pop("screenshot_base64"))
+            payload = json.dumps(envelope, ensure_ascii=False)
+        return _stamp_fetched_at(payload)
 
     # ── StatData tools (only routed when STATDATA_ENABLED) ──────────────
     if name == "statdata_yfinance":
@@ -4002,7 +4458,14 @@ async def _brave_mcp_call(tool_name: str, arguments: dict, timeout: float = 60.0
     }
     try:
         async with httpx.AsyncClient(timeout=timeout) as client:
-            resp = await client.post(BRAVE_MCP_URL, json=payload)
+            resp = await client.post(
+                BRAVE_MCP_URL,
+                json=payload,
+                headers={
+                    "User-Agent": "claus-bridge/1.0",
+                    "X-Client-Id": "brave-mcp-client",
+                },
+            )
         if resp.status_code != 200:
             logger.warning("brave-mcp %s status=%d body=%r",
                            tool_name, resp.status_code, resp.text[:200])
