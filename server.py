@@ -3284,6 +3284,51 @@ BRAVE_SCRAPE_TOOL_DEF = {
     },
 }
 
+BRAVE_SCRAPE_ROBUST_TOOL_DEF = {
+    "type": "function",
+    "function": {
+        "name": "brave_scrape_robust",
+        "description": (
+            "⚠️ LASSÚ (30-140s), erős anti-bot bypass. CSAK akkor használd, "
+            "ha a sima `web_scrape` / `brave_scrape` üres-shell-t, 'Just a "
+            "moment'-ot, 'Verify you are human'-t vagy 'Javascript is required'-"
+            "et ad — és NEM helyettesíthető más URL-lel. Server-side 4-szintű "
+            "escalation chain: (1) default scrape → (2) Puppeteer-Stealth → "
+            "(3) FlareSolverr Cloudflare-bypass → (4) FlareSolverr+Puppeteer-"
+            "render. Egy hívás, transzparens próbálkozás, `escalation_path` "
+            "telemetria. **Statdata-jellegű URL-re (Eurostat, MNB, ECB, "
+            "DBnomics) NE használd** — felesleges és lassú. Numizmatikai "
+            "aggregátorok, e-commerce, premium-CF SPA-k a használati eset."
+        ),
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "url": {"type": "string", "description": "Full URL (http/https)"},
+                "screenshot": {
+                    "type": "boolean",
+                    "description": "Return PNG screenshot as base64 (default false)",
+                    "default": False,
+                },
+                "wait_for_selector": {
+                    "type": "string",
+                    "description": "CSS selector to wait for before scraping",
+                },
+                "wait_time": {
+                    "type": "integer",
+                    "description": "JS-render wait in ms (default 5000, max 15000)",
+                    "default": 5000,
+                },
+                "include_html": {
+                    "type": "boolean",
+                    "description": "Include raw HTML alongside markdown (default false)",
+                    "default": False,
+                },
+            },
+            "required": ["url"],
+        },
+    },
+}
+
 BRAVE_LOGIN_TOOL_DEF = {
     "type": "function",
     "function": {
@@ -3492,6 +3537,7 @@ if BRAVE_MCP_ENABLED:
     SUBAGENT_TOOL_DEFS.extend([
         BRAVE_SEARCH_TOOL_DEF,
         BRAVE_SCRAPE_TOOL_DEF,
+        BRAVE_SCRAPE_ROBUST_TOOL_DEF,
         BRAVE_LOGIN_TOOL_DEF,
         BRAVE_ACTION_TOOL_DEF,
     ])
@@ -3539,17 +3585,14 @@ _SUBAGENT_TOOLS_DIRECTIVE_BASE = (
     "- **`brave_scrape`** — Stealth-Puppeteer scrape screenshot- és waitForSelector-"
     "támogatással. Akkor használd, ha (a) a `web_scrape` üres shell-t adott, (b) screenshot "
     "kell egy vizuális részhez (Kimi tudja olvasni base64-PNG-ből), vagy (c) konkrét DOM-"
-    "elemre kell várni (waitForSelector). "
-    "**🎯 EGYSZERŰ HASZNÁLAT — `auto_fallback: true`**: ha ismeretlen vagy bonyolult "
-    "(SPA / Cloudflare-protected) webhelyet scrape-elsz, ADD MEG egyszerűen az "
-    "`auto_fallback: true` flag-et. A server EGYETLEN HÍVÁSON belül automatikusan "
-    "lépcsőzik: (1) default → (2) stealth → (3) FlareSolverr Cloudflare-bypass → "
-    "(4) FlareSolverr+Puppeteer-render. Worst-case ~140s, de a leg-legtartalmasabb "
-    "eredményt kapod. A response `escalation_path` mezője megmondja melyik szinten "
-    "tört át. **NE bajlódj manuálisan a `stealth` és `flaresolverr` flag-ekkel** — "
-    "azok low-level escape hatch-ek; a normál ágens-flow az `auto_fallback: true`. "
-    "Statdata-jellegű (Eurostat/MNB/ECB) URL-en NE kapcsold be — felesleges és lassú; "
-    "a default elég.\n"
+    "elemre kell várni (waitForSelector). **Gyors (~5s), single-mode.**\n"
+    "- **`brave_scrape_robust`** — ⚠️ LASSÚ (30-140s), 4-szintű anti-bot escalation chain "
+    "(default → stealth → FlareSolverr → FlareSolverr+Puppeteer-render). CSAK akkor használd, "
+    "ha brave_scrape üres-shell-t / 'Just a moment'-ot / 'Verify you are human'-t / "
+    "'Javascript is required'-et ad VAGY ha a webhely ismerten Cloudflare-protected aggregator "
+    "(biddr.com, sixbid bizonyos részei, e-commerce premium-CF). **Statdata-jellegű "
+    "(Eurostat/MNB/ECB) URL-en NE használd** — felesleges és lassú. Egy hívás, transzparens "
+    "próbálkozás, `escalation_path` telemetria a response-ban (melyik szint nyert).\n"
     "- **`brave_login`** — bejelentkezett browser-session indítása Gmail/Facebook/Twitter/"
     "LinkedIn/Instagram-on, vagy custom URL-en. CSAK akkor használd, ha a Kommandant "
     "explicit jóváhagyta a fiók-hozzáférést a feladatra — soha ne spekulatíven.\n"
@@ -3798,7 +3841,10 @@ async def _dispatch_subagent_tool(name: str, args: dict) -> str:
         out = {"query": result.get("query", q), "results": items[:limit]}
         return _stamp_fetched_at(json.dumps(out, ensure_ascii=False))
 
-    if name == "brave_scrape":
+    # brave_scrape_robust ↔ brave_scrape + auto_fallback=true (forced).
+    # Separate name + tool-def, hogy az agentek explicit "lassú robust"
+    # útvonal-választást csináljanak — ne kapaszkodjanak véletlenül.
+    if name in ("brave_scrape", "brave_scrape_robust"):
         if not BRAVE_MCP_ENABLED:
             return json.dumps({"error": "brave_scrape disabled (BRAVE_MCP_URL env var missing)"})
         url = (args.get("url") or "").strip()
@@ -3822,16 +3868,18 @@ async def _dispatch_subagent_tool(name: str, args: dict) -> str:
             # 3. anti-bot szint: külső FlareSolverr Docker-szolgáltatás.
             # 30-90s solve-idő, magas Turnstile-bypass siker-ráta.
             mcp_args["flaresolverr"] = True
-        if args.get("auto_fallback"):
+        # brave_scrape_robust mindig auto_fallback-szel megy — egyetlen flag,
+        # 4-szintű eszkaláció a server-side intelligenciával.
+        if name == "brave_scrape_robust" or args.get("auto_fallback"):
             # Server-side eszkalációs chain — egyetlen flag, transzparens
             # többszintű próbálkozás, escalation_path telemetria.
             mcp_args["auto_fallback"] = True
         sel = (args.get("wait_for_selector") or "").strip()
         if sel:
             mcp_args["waitForSelector"] = sel
-        # Timeout-növelés: auto_fallback worst-case ~140s → +180s.
+        # Timeout-növelés. brave_scrape_robust + auto_fallback worst-case ~140s → +180s.
         # FlareSolverr 30-90s solve → +120s. Stealth +14s → +30s.
-        if args.get("auto_fallback"):
+        if name == "brave_scrape_robust" or args.get("auto_fallback"):
             scrape_timeout = 180.0
         elif args.get("flaresolverr"):
             scrape_timeout = 180.0
