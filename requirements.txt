@@ -1,5 +1,8 @@
-fastmcp>=2.0.0
-httpx>=0.25.0
+# Pinned 2026-06-05 — a 2026-05-20 incidens után. A fastmcp pin KRITIKUS:
+# pin nélkül minden Railway-rebuild a legfrissebb major verziót húzza
+# (időzített bomba breaking change-eknél). Railway-n verifikált: 3.4.0.
+fastmcp==3.4.0
+httpx>=0.28,<1.0
 starlette>=0.27.0
 google-api-python-client>=2.100.0
 google-auth>=2.20.0

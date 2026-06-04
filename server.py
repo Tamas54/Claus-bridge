@@ -75,6 +75,14 @@ try:
 except ImportError:
     FELDWEBEL_ENABLED = False
 
+# INFO-szintű logok láthatóvá tétele (2026-06-05): basicConfig nélkül a root
+# logger WARNING+ szinten szűrt, így MINDEN logger.info() némán elveszett —
+# a Railway deploy-logokban csak az errorok látszottak. Startup-diagnózishoz
+# az INFO-sorok kellenek.
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s [%(name)s] %(message)s",
+)
 logger = logging.getLogger("claus-bridge")
 
 # --- Server Setup ---
@@ -2576,7 +2584,17 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
 # ============================================================
 
 UPLOAD_DIR = pathlib.Path(os.environ.get("BRIDGE_UPLOAD_DIR", "/data/uploads"))
-UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+try:
+    UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+except OSError as e:
+    # Volume hiányzik/nem írható (pl. Railway volume-leválás) — degradált
+    # módban ./uploads-ra esünk vissza, a Bridge induljon el akkor is.
+    _fallback_uploads = pathlib.Path(__file__).parent / "uploads"
+    logging.getLogger("bridge").error(
+        "UPLOAD_DIR %s nem hozható létre (%s) — fallback: %s",
+        UPLOAD_DIR, e, _fallback_uploads)
+    UPLOAD_DIR = _fallback_uploads
+    UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def _parse_file_to_text(filepath: pathlib.Path, mime_type: str) -> str:
@@ -7903,9 +7921,35 @@ def _migrate_db_to_volume():
         logger.info("No old DB found at %s, starting fresh at %s", old_db, volume_db)
 
 
+def _init_google_services_with_timeout(timeout_sec: int = 60):
+    """Google init külön szálban, kemény timeouttal.
+
+    2026-05-20 incidens: a module-szintű _init_google_services() timeout
+    nélküli hálózati hívásai (creds.refresh / getProfile) képesek voltak
+    örökre felakasztani a main threadet konténer-restart után → az uvicorn
+    sosem indult el, a Railway 502-t adott 15 napon át. Daemon-szál + join
+    timeout: ha a Google nem válaszol, a Bridge Google nélkül, degradáltan
+    indul tovább.
+    """
+    result = {}
+
+    def _run():
+        result["ok"] = _init_google_services()
+
+    t = threading.Thread(target=_run, daemon=True, name="google-init")
+    t.start()
+    t.join(timeout_sec)
+    if t.is_alive():
+        logger.error(
+            "Google init nem fejeződött be %ds alatt — capture Google nélkül indul "
+            "(a szál daemonként tovább próbálkozik)", timeout_sec)
+        return False
+    return result.get("ok", False)
+
+
 _migrate_db_to_volume()
 init_db()
-_init_google_services()
+_init_google_services_with_timeout()
 _start_capture_background()
 _start_telegram_polling()
 
@@ -8180,9 +8224,38 @@ def _start_cron_scheduler():
 _start_cron_scheduler()
 
 
+def _start_startup_watchdog(port: int, timeout_sec: int = 180):
+    """Ha az uvicorn nem kezd el listenelni `timeout_sec` alatt → exit(1).
+
+    2026-05-20 incidens tanulsága: a hung-at-startup process 15 napig élt
+    némán ("Online" státusszal), mert a Railway nem liveness-probe-ol.
+    Egy crash-loop láthatóbb és öngyógyítóbb, mint egy néma zombi — a
+    Railway restartPolicy újraindítja a kilépett konténert.
+    """
+    import socket
+
+    def _watch():
+        deadline = time.time() + timeout_sec
+        while time.time() < deadline:
+            try:
+                with socket.create_connection(("127.0.0.1", port), timeout=2):
+                    logger.info("Startup watchdog: port %d listenel — minden rendben", port)
+                    return
+            except OSError:
+                time.sleep(3)
+        logger.critical(
+            "Startup watchdog: a szerver %ds alatt sem állt fel a %d porton — exit(1)",
+            timeout_sec, port)
+        os._exit(1)
+
+    threading.Thread(target=_watch, daemon=True, name="startup-watchdog").start()
+
+
 if __name__ == "__main__":
+    _bridge_port = int(os.environ.get("PORT", 8003))
+    _start_startup_watchdog(_bridge_port)
     mcp.run(
         transport="streamable-http",
         host="0.0.0.0",
-        port=int(os.environ.get("PORT", 8003))
+        port=_bridge_port
     )
