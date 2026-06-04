@@ -1,4 +1,9 @@
 {
     "email_triage": {"enabled": true},
-    "recipes": {"enabled": true}
+    "recipes": {"enabled": true},
+    "signal_gatekeeper": {"enabled": true},
+    "semantic_triage": {"enabled": true},
+    "draft_reply": {"enabled": true},
+    "thread_digest": {"enabled": true},
+    "action_extract": {"enabled": true}
 }
