@@ -640,6 +640,18 @@ async def generate_market_brief(session: str) -> dict:
         "market_brief[%s] FAILED after %d attempts. Last errors: %s",
         session, attempts, "; ".join(last_errs[:5]),
     )
+    # Never fail silently: the Kommandant must know a scheduled brief died
+    # (2026-06-05: the 15:00 cron run failed transiently and nobody noticed).
+    if _telegram_push_func is not None:
+        try:
+            await _telegram_push_func(
+                f"⚠️ <b>NOFX Market Brief HIBA</b> — {session}\n"
+                f"{attempts} próbálkozás után sem sikerült a generálás.\n"
+                f"Utolsó hiba: {('; '.join(last_errs[:2]))[:300]}\n"
+                f"Kézi újrapróbálás: market_brief_now('{session}')"
+            )
+        except Exception as te:  # noqa: BLE001
+            logger.warning("market_brief: failure-notify telegram failed: %s", te)
     return {
         "ok": False,
         "session": session,

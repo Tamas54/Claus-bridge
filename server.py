@@ -8236,6 +8236,20 @@ async def _cron_loop():
                         logger.info("Cron market_brief[%s]: ok=%s pushed=%s",
                                     session, mb_result.get("ok"),
                                     (mb_result.get("push") or {}).get("pushed"))
+                        # Transient-failure shield (2026-06-05: the 15:00 run
+                        # died on a flaky synthesis and the day's brief was
+                        # lost). One delayed background retry; doesn't block
+                        # the cron loop.
+                        if not mb_result.get("ok"):
+                            async def _mb_retry(sess=session):
+                                await asyncio.sleep(180)
+                                try:
+                                    res = await _mb.generate_market_brief(sess)
+                                    logger.info("Cron market_brief RETRY[%s]: ok=%s",
+                                                sess, res.get("ok"))
+                                except Exception as re_:  # noqa: BLE001
+                                    logger.error("Cron market_brief retry failed: %s", re_)
+                            asyncio.create_task(_mb_retry())
                     except Exception as e:
                         logger.error("Cron market_brief failed for %s: %s", r["name"], e)
                     continue
