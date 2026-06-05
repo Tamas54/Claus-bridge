@@ -167,6 +167,35 @@ def register_tools(app, deps):
                 ),
             )
             logger.info("Vertikum-seed: weekly_geopolitics_brief beillesztve")
+
+        # 3) market_brief schedule rows (PLAN_20260531.md §4) — idempotent.
+        #    These rows ONLY carry the cron SCHEDULE; the server's _cron_loop
+        #    special-cases name-prefix "market_brief" → generate_market_brief()
+        #    (strict §3 JSON + push to NOFX), NOT the generic ai_task path.
+        #    Cron is interpreted in Europe/Budapest time. US open 09:00 ET ≈
+        #    15:00 Budapest (CEST); early afternoon ~13:30 ET ≈ 19:30 Budapest.
+        _mb_rows = [
+            ("market_brief_morning",
+             "NOFX stratégiai brief — reggel, US nyitás előtt (push /brief-re)",
+             "0 15 * * 1-5"),
+            ("market_brief_afternoon",
+             "NOFX stratégiai brief — kora délután (push /brief-re)",
+             "30 19 * * 1-5"),
+        ]
+        for mb_name, mb_desc, mb_cron in _mb_rows:
+            mb_exists = conn.execute(
+                "SELECT 1 FROM pyramid_recipes WHERE name=?", (mb_name,)
+            ).fetchone()
+            if not mb_exists:
+                conn.execute(
+                    "INSERT INTO pyramid_recipes (name, description, required_tools, prompt_template, "
+                    "created_by, created_at, updated_at, cron_schedule, cron_model, cron_enabled, cron_delivery) "
+                    "VALUES (?, ?, '[]', ?, 'system', ?, ?, ?, 'deepseek', 1, 'none')",
+                    (mb_name, mb_desc,
+                     "(special-cased — runtime: feldwebel.market_brief.generate_market_brief)",
+                     ts2, ts2, mb_cron),
+                )
+                logger.info("market_brief-seed: %s (cron=%s) beillesztve", mb_name, mb_cron)
         conn.commit()
     except Exception as me:
         logger.error("Vertikum-migration error: %s", me)

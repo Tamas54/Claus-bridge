@@ -7055,6 +7055,36 @@ def _bridge_capture_event(subject: str, message: str, priority: str = "normal"):
 
 
 # ============================================================
+# MARKET BRIEF (NOFX integration — PLAN_20260531.md §3/§4/§7)
+# ============================================================
+
+@mcp.tool()
+async def market_brief_now(session: str = "morning", caller: str = "") -> str:
+    """Manually generate + push the strategic market brief for NOFX (test trigger).
+
+    Builds the §3 Strategic Brief (regime / risk budget / tradeable / avoid /
+    exit_flags with the full day's earnings+macro calendar pre-loaded), validates
+    it against the schema, and POSTs it to NOFX (NOFX_BRIEF_URL env var; falls back
+    to a local file if unset). Synthesis runs on DeepSeek V4-Pro.
+
+    Args:
+        session: "morning" (pre-US-open framing) or "afternoon" (post-open update).
+    """
+    denied = _enforce(caller, "market_brief_now")
+    if denied:
+        return denied
+    try:
+        from feldwebel import market_brief as _mb
+        if _mb._ai_query_func is None:
+            _mb.set_ai_query(ai_query)
+        result = await _mb.generate_market_brief(session)
+        return json.dumps(result, ensure_ascii=False)
+    except Exception as e:
+        logger.error("market_brief_now failed: %s", e)
+        return json.dumps({"ok": False, "session": session, "error": str(e)})
+
+
+# ============================================================
 # CAPTURE MCP TOOLS
 # ============================================================
 
@@ -8061,6 +8091,21 @@ if FELDWEBEL_ENABLED:
         telegram_chat_id=TELEGRAM_CHAT_ID or "",
     ))
 
+# Market brief generator (NOFX integration — PLAN_20260531.md §3/§4).
+# Wire ai_query so the brief module can synthesize via DeepSeek V4-Pro without
+# an import cycle (same pattern as _capture_state["_ai_query_func"]).
+try:
+    from feldwebel import market_brief as _market_brief
+    _market_brief.set_ai_query(ai_query)
+    # Telegram delivery: every successful brief also goes to the Kommandant's
+    # Telegram in human-readable form (besides the NOFX push / local file).
+    _market_brief.set_telegram_push(_telegram_push)
+    logger.info("Market brief generator wired (NOFX_BRIEF_URL=%s)",
+                _market_brief.NOFX_BRIEF_URL or "<unset, local-file fallback>")
+except Exception as _mbe:  # noqa: BLE001
+    _market_brief = None  # type: ignore
+    logger.warning("Market brief generator not wired: %s", _mbe)
+
 # Operation Zahnrad — Plugin Auto-Discovery
 try:
     from plugins import discover_and_register
@@ -8175,6 +8220,25 @@ async def _cron_loop():
                 conn.execute("UPDATE pyramid_recipes SET cron_last_run = ? WHERE id = ?", (now_dt.isoformat(), r["id"]))
                 conn.commit()
                 conn.close()
+
+                # ── Market brief special-case (PLAN_20260531.md §4) ──
+                # A `market_brief*` recipe does NOT go through the generic
+                # ai_task→Telegram path: it produces strict §3 JSON and pushes it
+                # to NOFX. The recipe row only carries the SCHEDULE (cron infra
+                # reuse); the session is derived from the recipe name suffix.
+                if r["name"].startswith("market_brief"):
+                    try:
+                        from feldwebel import market_brief as _mb
+                        if _mb._ai_query_func is None:
+                            _mb.set_ai_query(ai_query)
+                        session = "afternoon" if "afternoon" in r["name"] else "morning"
+                        mb_result = await _mb.generate_market_brief(session)
+                        logger.info("Cron market_brief[%s]: ok=%s pushed=%s",
+                                    session, mb_result.get("ok"),
+                                    (mb_result.get("push") or {}).get("pushed"))
+                    except Exception as e:
+                        logger.error("Cron market_brief failed for %s: %s", r["name"], e)
+                    continue
 
                 # Execute via ai_task dispatch (same path as execute_recipe)
                 try:
