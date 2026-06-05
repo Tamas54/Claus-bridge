@@ -544,7 +544,12 @@ async def generate_market_brief(session: str) -> dict:
                 prompt=prompt,
                 system_prompt=system_prompt,
                 temperature=0.2,
-                max_tokens=2000,
+                # DeepSeek V4-Pro runs with reasoning_effort=medium and its
+                # reasoning tokens COUNT AGAINST max_tokens — 2000 was fully
+                # consumed by thinking, yielding content="" (live smoke,
+                # 2026-06-05). The brief itself stays ~200 tokens; the headroom
+                # is purely for the reasoning budget.
+                max_tokens=8000,
                 caller="feldwebel",
                 # news/data context only needed on the first attempt; retries are
                 # pure JSON-repair on already-fetched facts already inside the model
