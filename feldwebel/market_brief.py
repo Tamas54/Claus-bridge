@@ -239,6 +239,11 @@ def _build_prompt(session: str, asof_iso: str, valid_until_iso: str, calendar_ra
                 }
             ],
             "note": "one short sentence",
+            "telegram_digest": (
+                "4-6 mondatos MAGYAR nyelvű helyzetértékelés a Kommandantnak: mi "
+                "mozgatja ma a piacot, miért ez a rezsim és kockázati keret, mire "
+                "kell figyelni napközben."
+            ),
         },
         indent=2,
     )
@@ -271,7 +276,12 @@ def _build_prompt(session: str, asof_iso: str, valid_until_iso: str, calendar_ra
         f"{cal_block}\n\n"
         f"`asof` MUST be \"{asof_iso}\" and `valid_until` MUST be \"{valid_until_iso}\" "
         f"and `session` MUST be \"{session}\".\n"
-        "Keep `note` to ONE short sentence. Keep the whole brief tight (~200 tokens).\n\n"
+        "Keep `note` to ONE short sentence. Keep every field except `telegram_digest` "
+        "tight (~200 tokens total for the machine fields).\n"
+        "`telegram_digest` is the ONE exception: 4-6 full sentences IN HUNGARIAN, "
+        "written for a human reader — explain what is driving the market today, why "
+        "you chose this regime and risk budget, and what to watch intraday. Use the "
+        "actual numbers from the data blocks.\n\n"
         "OUTPUT: a SINGLE JSON object, NOTHING else (no markdown fences, no prose "
         "before or after). It MUST conform exactly to this schema/shape:\n\n"
         f"{schema_example}"
@@ -427,10 +437,12 @@ def _archive_brief(brief: dict) -> Optional[pathlib.Path]:
 _REGIME_EMOJI = {"risk_on": "🟢", "risk_off": "🔴", "neutral": "🟡"}
 
 
-def format_brief_telegram(brief: dict) -> str:
+def format_brief_telegram(brief: dict, digest: str = "") -> str:
     """Render the §3 brief JSON as a compact, human-readable Telegram HTML message.
 
-    Stays well under the 4000-char cap _telegram_push enforces.
+    `digest` is the model's Hungarian situation assessment (human-facing only,
+    stripped from the NOFX wire payload). Stays well under the 4000-char cap
+    _telegram_push enforces.
     """
     session = brief.get("session", "?")
     regime = brief.get("regime", "?")
@@ -440,6 +452,10 @@ def format_brief_telegram(brief: dict) -> str:
         f"Regime: <b>{regime}</b> | Risk budget: <b>{brief.get('risk_budget_pct', '?')}%</b>"
         f" | Crowd: {brief.get('crowd', '?')}",
     ]
+    if digest:
+        lines.append("")
+        lines.append(digest.strip()[:1500])
+        lines.append("")
     bias = brief.get("bias") or {}
     if bias:
         lines.append("Bias: " + ", ".join(f"{k}={v}" for k, v in bias.items()))
@@ -475,12 +491,12 @@ def format_brief_telegram(brief: dict) -> str:
     return "\n".join(lines)
 
 
-async def _send_telegram(brief: dict) -> bool:
+async def _send_telegram(brief: dict, digest: str = "") -> bool:
     """Best-effort Telegram delivery of the brief; never raises."""
     if _telegram_push_func is None:
         return False
     try:
-        await _telegram_push_func(format_brief_telegram(brief))
+        await _telegram_push_func(format_brief_telegram(brief, digest))
         return True
     except Exception as e:  # noqa: BLE001
         logger.warning("market_brief: telegram push failed: %s", e)
@@ -592,13 +608,17 @@ async def generate_market_brief(session: str) -> dict:
             )
             continue
 
-        # Valid.
+        # Valid. The telegram_digest is human-facing ONLY: strip it from the
+        # §3 payload before the NOFX push (keeps the wire contract pure and the
+        # bot's prompt token budget unaffected), but archive it and render it
+        # into the Telegram message.
+        digest = str(brief.pop("telegram_digest", "") or "")
         size_chars = len(json.dumps(brief, ensure_ascii=False))
         # ~4 chars/token rough heuristic for a token-ish size in the log.
         approx_tokens = size_chars // 4
         push = await _push_to_nofx(brief)
-        archive_path = _archive_brief(brief)
-        telegram_sent = await _send_telegram(brief)
+        archive_path = _archive_brief({**brief, "telegram_digest": digest} if digest else brief)
+        telegram_sent = await _send_telegram(brief, digest)
         logger.info(
             "market_brief[%s] SUCCESS in %d attempt(s): %d chars (~%d tok), pushed=%s, telegram=%s",
             session, attempts, size_chars, approx_tokens, push.get("pushed"), telegram_sent,
