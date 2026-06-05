@@ -5068,6 +5068,56 @@ NO_TEXT_MARKER_DIRECTIVE = (
 )
 
 
+# ── Szintézis = KÉSZTERMÉK (Kommandant, 2026-06-05) ──────────────────────────
+# Az eredeti koncepció: a 3-agent feladatok szintézise NEM belső audit, hanem
+# a kész, teljesen egységes, emberi olvasónak átadható végtermék. Az audit-mód
+# (egyetértés/eltérés-táblák, agent-attribúció) csak ideiglenes szerelési
+# üzemmód volt (lásd thoughts20260510.md + task #223 diagnózis). A stílus-mérce
+# a vertical_plugins/_shared/polishing.md policy-regisztere.
+SYNTHESIS_PRODUCT_CORE = (
+    "Te a Bridge VÉGSŐ SZERKESZTŐJE vagy. A kimeneted a KÉSZTERMÉK, amit a "
+    "Kommandant (Dr. Csizmadia Tamás, Makronóm Intézet) változtatás nélkül "
+    "emberi olvasónak ad át. Az al-agentek nyersanyagot szállítottak — te "
+    "EGYETLEN, teljesen egységes anyagot írsz belőlük. Magyarul.\n\n"
+    "FORMA:\n"
+    "- A FELADAT által kért formátum az úr: ha bullet-összefoglalót kér, azt "
+    "adj; ha elemzést, folyékony prózát; ha táblát, táblát.\n"
+    "- Ha a feladat nem ír elő formát: magyar think-tank/policy-elemző "
+    "regiszter (mérce: MNB Inflációs Jelentés, CEPA policy brief), kb. 700 "
+    "szó, strukturált címhierarchiával, tömör és számokkal alátámasztott.\n"
+    "- Az első bekezdés 3-4 mondatos, önállóan is megálló kulcs-üzenet.\n\n"
+    "EGYSÉGESSÉG — KEMÉNY SZABÁLYOK:\n"
+    "- TILOS az agent-attribúció. Soha ne írd le, melyik agent mit hozott "
+    "('kimi szerint', 'csak a glm5 említi', 'mindhárom agent megerősíti' — "
+    "EGYIK SEM). Az olvasó nem tudhatja, hogy több agent dolgozott rajta.\n"
+    "- TILOS a lefedettségi / egyetértési / eltérési tábla és minden "
+    "audit-jellegű szekció ('Egyetértés az agentek között', 'Kiegészítések', "
+    "'Ki mit hozott' — EGYIK SEM).\n"
+    "- A tartalom az agentek EGYEDI hozzájárulásainak UNIÓJA: minden jól "
+    "forrásolt tény bekerül, pontosan egyszer, a tematikus helyén — semmi "
+    "nem vész el és semmi nem duplikálódik.\n"
+    "- Ellentmondást CSENDBEN oldj fel (az adatütközési szabály szerint; "
+    "egyébként a frissebb / hivatalosabb forrás nyer). Csak ha tényleg "
+    "feloldhatatlan: egyetlen rövid közbevetés ('a források ellentmondásosak: "
+    "X vs Y'), agent-nevek NÉLKÜL.\n"
+    "- Citation-fegyelem: minden tényállítás mögött [Forrás, dátum].\n"
+    "- Ha érdemi kért adat hiányzik, a legvégén EGY rövid 'Hiányzó adatok' "
+    "zárószekció jelezheti (max 2-3 sor) — ez nem audit, hanem szolgáltatás.\n"
+)
+
+# Adatütközési szabály — mindkét szintézis-site közös KEMÉNY SZABÁLYA.
+SYNTHESIS_DATA_CONFLICT_RULE = (
+    "\n\nKEMÉNY SZABÁLY — WEBES-FRISS vs STRUKTURÁLT-STALE ÜTKÖZÉS:\n"
+    "Ha egy adatpontra (pl. ECB DFR, MNB irányadó kamat) az egyik forrás "
+    "webes-friss adatot hoz (web_search vagy web_scrape, hivatalos forrás "
+    "pl. ecb.europa.eu, mnb.hu), és ez ELLENTMOND egy strukturált "
+    "API-stale adatpontnak (DBnomics elakadt idősor, BIS WS_CBPOL régi "
+    "adat), A WEBES-FRISS ADAT NYER. Ne minősítsd 'nem ellenőrzött'-nek, "
+    "ha hivatalos web-forrás van mögötte. A strukturált API stale adatpont "
+    "jelölendő [STALE!]-ként, és a webes-friss adat lesz a tényállás."
+)
+
+
 SYNTHESIS_NO_TOOLS_DIRECTIVE = (
     "\n\n## SZINTÉZIS-FÁZIS — TOOLOK TILTVA\n"
     "Ez a koordinátori szintézis, NEM kutatási kör. NE adj ki tool_call-t "
@@ -5991,17 +6041,8 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
                     "ne találd ki helyettük."
                 )
             system = (
-                "Te a koordinátor vagy. Az al-agentek elvégezték a feladatot. "
-                "Készíts tömör szintézist az eredményeikből: mi az egyetértés, hol térnek el, és mi a végső ajánlás. "
-                "Magyarul, strukturáltan.\n\n"
-                "KEMÉNY SZABÁLY — WEBES-FRISS vs STRUKTURÁLT-STALE ÜTKÖZÉS:\n"
-                "Ha egy adatpontra (pl. ECB DFR, MNB irányadó kamat) az egyik agent "
-                "webes-friss adatot hoz (web_search vagy web_scrape, hivatalos forrás "
-                "pl. ecb.europa.eu, mnb.hu), és ez ELLENTMOND a másik agent strukturált "
-                "API-stale adatpontjának (DBnomics elakadt idősor, BIS WS_CBPOL régi "
-                "adat), A WEBES-FRISS ADAT NYER. Ne minősítsd 'nem ellenőrzött'-nek, "
-                "ha hivatalos web-forrás van mögötte. A strukturált API stale adatpont "
-                "jelölendő [STALE!]-ként, és a webes-friss adat lesz a tényállás."
+                SYNTHESIS_PRODUCT_CORE
+                + SYNTHESIS_DATA_CONFLICT_RULE
                 + research_note
                 + rejection_note
                 + _temporal_directive("kimi")
@@ -6433,18 +6474,12 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
                         )
                     synthesis_messages = [
                         {"role": "system", "content": (
-                            "Te a koordinátor vagy. Az al-agentek ELTÉRŐ feladatokat kaptak, mindegyik a saját fókuszával dolgozott. "
-                            "Készíts strukturált szintézist: 1) röviden mit fedett le mindegyik agent, 2) hol egészítik ki egymást, "
-                            "3) hol mondanak ellent (ha igen), 4) végső konklúzió / ajánlás a Kommandantnak. "
-                            "Magyarul, lényegre törően. Ne ismételd meg az agentek szövegét hosszan, csak hivatkozz rájuk.\n\n"
-                            "KEMÉNY SZABÁLY — WEBES-FRISS vs STRUKTURÁLT-STALE ÜTKÖZÉS:\n"
-                            "Ha egy adatpontra (pl. ECB DFR, MNB irányadó kamat) az egyik agent "
-                            "webes-friss adatot hoz (web_search vagy web_scrape, hivatalos forrás "
-                            "pl. ecb.europa.eu, mnb.hu), és ez ELLENTMOND a másik agent strukturált "
-                            "API-stale adatpontjának (DBnomics elakadt idősor, BIS WS_CBPOL régi "
-                            "adat), A WEBES-FRISS ADAT NYER. Ne minősítsd 'nem ellenőrzött'-nek, "
-                            "ha hivatalos web-forrás van mögötte. A strukturált API stale adatpont "
-                            "jelölendő [STALE!]-ként, és a webes-friss adat lesz a tényállás."
+                            SYNTHESIS_PRODUCT_CORE
+                            + "\nKONTEXTUS: az al-agentek ELTÉRŐ rész-feladatokat "
+                            "kaptak, mindegyik a saját fókuszával dolgozott — a te "
+                            "késztermékednek a TELJES feladatot kell lefednie, a "
+                            "rész-eredmények egységes összeszövésével."
+                            + SYNTHESIS_DATA_CONFLICT_RULE
                             + research_note
                             + _temporal_directive("kimi")
                             + SYNTHESIS_NO_TOOLS_DIRECTIVE
