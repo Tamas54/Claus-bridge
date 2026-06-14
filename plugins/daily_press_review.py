@@ -202,8 +202,8 @@ def _domestic_markdown(d: dict) -> str:
     return "\n\n".join(p for p in parts if p).strip()
 
 
-async def _fetch_brief_html(lang: str) -> str:
-    url = f"{BRIEF_URL}?lang={lang}"
+async def _fetch_brief_html(lang: str, date: str | None = None) -> str:
+    url = f"{BRIEF_URL}?date={date}&lang={lang}" if date else f"{BRIEF_URL}?lang={lang}"
     last_err = None
     for attempt in range(2):
         try:
@@ -232,51 +232,85 @@ def _already_stored(day_iso: str) -> bool:
         conn.close()
 
 
-async def fetch_and_store_press_review(lang: str = "hu") -> dict:
-    """Fetch the Echolot daily brief and store world + domestic into the RAG.
+_DATE_RE = re.compile(r"[?&]date=(\d{4}-\d{2}-\d{2})")
 
-    Returns a status dict: {ok, stored, skipped, date, world_chars, local_chars}.
-    Safe to call repeatedly — dedups on the day's date.
-    """
+
+def _available_past_dates(html: str) -> list[str]:
+    """ISO dates the brief date-nav still exposes (older days Echolot serves)."""
+    seen: list[str] = []
+    for m in _DATE_RE.finditer(html):
+        d = m.group(1)
+        if d not in seen:
+            seen.append(d)
+    return seen
+
+
+def _store_brief(day_iso: str, html: str) -> int:
+    """Parse one brief HTML and store world + domestic under day_iso. Returns count."""
     from pyramid.memory_rag import add_to_agent_rag
+    d = extract_brief(html)
+    world = _world_markdown(d)
+    local = _domestic_markdown(d)
+    stored = 0
+    if world:
+        add_to_agent_rag(
+            agent_id="echolot",
+            content=f"Napi sajtószemle · VILÁG · {day_iso}\n\n{world}",
+            task_title=f"Napi sajtószemle · VILÁG · {day_iso}",
+            category="news",
+        )
+        stored += 1
+    if local:
+        add_to_agent_rag(
+            agent_id="echolot",
+            content=f"Napi sajtószemle · ITTHON · {day_iso}\n\n{local}",
+            task_title=f"Napi sajtószemle · ITTHON · {day_iso}",
+            category="news",
+        )
+        stored += 1
+    return stored
 
-    day_iso = datetime.now(timezone.utc).date().isoformat()
+
+async def fetch_and_store_press_review(lang: str = "hu", backfill: bool = True) -> dict:
+    """Fetch the Echolot daily brief(s) and store world + domestic into the RAG.
+
+    By default also backfills every older date the brief date-nav still exposes
+    (~3 days), so the corpus seeds immediately and not only from the next cron
+    run. Idempotent: each date dedups, so re-runs and the daily cron only add
+    what is missing. Returns {ok, stored, days, skipped}.
+    """
+    today_iso = datetime.now(timezone.utc).date().isoformat()
+    result: dict = {"ok": True, "stored": 0, "days": [], "skipped": []}
     try:
-        if _already_stored(day_iso):
-            logger.info("press_review %s already stored — skip", day_iso)
-            return {"ok": True, "stored": 0, "skipped": True, "date": day_iso}
+        current_html = await _fetch_brief_html(lang)
 
-        html = await _fetch_brief_html(lang)
-        d = extract_brief(html)
-        world = _world_markdown(d)
-        local = _domestic_markdown(d)
+        # current day (served without a date param)
+        if _already_stored(today_iso):
+            result["skipped"].append(today_iso)
+        else:
+            n = _store_brief(today_iso, current_html)
+            result["stored"] += n
+            result["days"].append({"date": today_iso, "stored": n})
 
-        if not world and not local:
-            logger.error("press_review %s: empty parse, nothing stored", day_iso)
-            return {"ok": False, "error": "empty parse", "date": day_iso}
+        # older days exposed by the date-nav
+        if backfill:
+            for d in _available_past_dates(current_html):
+                if d == today_iso:
+                    continue
+                if _already_stored(d):
+                    result["skipped"].append(d)
+                    continue
+                try:
+                    html = await _fetch_brief_html(lang, date=d)
+                    n = _store_brief(d, html)
+                    result["stored"] += n
+                    result["days"].append({"date": d, "stored": n})
+                except Exception as e:  # noqa: BLE001
+                    logger.warning("press_review backfill %s failed: %s", d, e)
 
-        stored = 0
-        if world:
-            add_to_agent_rag(
-                agent_id="echolot",
-                content=f"Napi sajtószemle · VILÁG · {day_iso}\n\n{world}",
-                task_title=f"Napi sajtószemle · VILÁG · {day_iso}",
-                category="news",
-            )
-            stored += 1
-        if local:
-            add_to_agent_rag(
-                agent_id="echolot",
-                content=f"Napi sajtószemle · ITTHON · {day_iso}\n\n{local}",
-                task_title=f"Napi sajtószemle · ITTHON · {day_iso}",
-                category="news",
-            )
-            stored += 1
-
-        logger.info("press_review %s: stored=%d world=%dc local=%dc",
-                    day_iso, stored, len(world), len(local))
-        return {"ok": True, "stored": stored, "skipped": False, "date": day_iso,
-                "world_chars": len(world), "local_chars": len(local)}
+        logger.info("press_review: stored=%d days=%s skipped=%s",
+                    result["stored"], [x["date"] for x in result["days"]], result["skipped"])
+        return result
     except Exception as e:  # noqa: BLE001
-        logger.error("press_review failed for %s: %s", day_iso, e)
-        return {"ok": False, "error": str(e), "date": day_iso}
+        logger.error("press_review failed: %s", e)
+        return {"ok": False, "error": str(e)}

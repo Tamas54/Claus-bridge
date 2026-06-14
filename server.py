@@ -8336,8 +8336,9 @@ async def _cron_loop():
                     try:
                         from plugins.daily_press_review import fetch_and_store_press_review
                         pr = await fetch_and_store_press_review()
-                        logger.info("Cron daily_press_review: ok=%s stored=%s skipped=%s date=%s",
-                                    pr.get("ok"), pr.get("stored"), pr.get("skipped"), pr.get("date"))
+                        logger.info("Cron daily_press_review: ok=%s stored=%s days=%s skipped=%s",
+                                    pr.get("ok"), pr.get("stored"),
+                                    [x.get("date") for x in pr.get("days", [])], pr.get("skipped"))
                     except Exception as e:  # noqa: BLE001
                         logger.error("Cron daily_press_review failed: %s", e)
                     continue
