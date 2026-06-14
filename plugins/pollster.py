@@ -155,14 +155,17 @@ async def _chat(client, prompt: str, max_tokens: int = 260, temperature: float =
     the proven teszterek/ pattern. Retries on exception AND empty content (flash
     occasionally returns empty under rate-limit). See [[siliconflow_flash_nonthink]]."""
     url, _key, model, use_think = _provider()
-    body = {
-        "model": model,
-        "messages": [{"role": "user", "content": prompt}],
-        "temperature": temperature,
-        "max_tokens": max_tokens,
-    }
-    if use_think:
-        body["thinking"] = {"type": "disabled"}  # Non-Think — V4 form (SiliconFlow)
+    body = {"model": model, "messages": [{"role": "user", "content": prompt}]}
+    if model.startswith("gpt-5") and "chat" not in model:
+        # gpt-5 reasoning models: max_completion_tokens, default temperature only,
+        # reasoning burns tokens → give headroom + minimal effort for a short answer.
+        body["max_completion_tokens"] = max(max_tokens, 2000)
+        body["reasoning_effort"] = "low"  # 'minimal' rejected by gpt-5.4-mini; low = cheap
+    else:
+        body["temperature"] = temperature
+        body["max_tokens"] = max_tokens
+        if use_think:
+            body["thinking"] = {"type": "disabled"}  # Non-Think — V4 form (SiliconFlow)
     for attempt in range(retries):
         try:
             r = await client.post(url, json=body)
