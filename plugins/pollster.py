@@ -331,3 +331,80 @@ async def run_framing_radar(n_per_cell: int = 6, days: int = 3, seed: int = 42, 
     ranking.sort(key=lambda x: x["viral_box"], reverse=True)
     logger.info("framing radar: %d stories, %d responses", len(ranking), len(recs))
     return {"days": days, "stimuli": len(stimuli), "responses": len(recs), "ranking": ranking}
+
+
+# ============================================================
+# DIRECTION / DELTA RADAR — nowcasting the swing, not the level
+# ============================================================
+# Leverages what LLMs CAN do (directional reaction) vs what they can't (absolute
+# landslide level). Each persona reads the current news and says which big party
+# it currently favors them more — aggregated into a net swing direction + strength.
+
+def _direction_prompt(p: dict, ctx: str) -> str:
+    return (
+        f"Te magyar választópolgár vagy: {p['age']}, lakóhely: {p['settlement']}, "
+        f"iskolázottság: {p['edu']}, {p['media']}.\n\n"
+        "A magyar politika két fő ereje jelenleg a TISZA (Magyar Péter) és a "
+        "Fidesz-KDNP (Orbán Viktor).\n\n"
+        f"A mostani hírhelyzet:\n{ctx or '(nincs friss hír)'}\n\n"
+        "ÖSSZESSÉGÉBEN ezek a hírek melyik párt megítélésének kedveznek NÁLAD "
+        "inkább — vagyis merre MOZDÍTANAK téged?\n\n"
+        "Válaszolj PONTOSAN így:\nIRÁNY: <Tisza / Fidesz / egyik sem>\n"
+        "ERŐSSÉG: <1-3>\nINDOK: <egy rövid mondat>"
+    )
+
+
+def _parse_direction(text: str):
+    import re
+    di = re.search(r"IR[ÁA]NY:\s*(tisza|fidesz|egyik)", text or "", re.I)
+    st = re.search(r"ER[ŐO]SS[ÉE]G:\s*([1-3])", text or "", re.I)
+    direction = di.group(1).lower() if di else None
+    if direction == "egyik":
+        direction = "egyik sem"
+    strength = int(st.group(1)) if st else 1
+    return direction, strength
+
+
+async def run_direction_radar(n: int = 60, seed: int = 42) -> dict:
+    """Nowcast the swing DIRECTION from current news. Returns net swing
+    (Tisza-ward positive) + per-lean breakdown. NO priming — the news drives it."""
+    import httpx
+    from collections import defaultdict
+    ctx, date = latest_context()
+    personas = generate_personas(n, seed)
+    sem = asyncio.Semaphore(CONCURRENCY)
+
+    async with httpx.AsyncClient(
+            headers={"Authorization": f"Bearer {_provider()[1]}"}, timeout=90) as client:
+        async def _one(p):
+            async with sem:
+                try:
+                    d, s = _parse_direction(await _chat(client, _direction_prompt(p, ctx)))
+                    if d is None:
+                        return None
+                    return {"dir": d, "strength": s, "lean": _lean_bucket(p["media"])}
+                except Exception as e:  # noqa: BLE001
+                    logger.warning("direction persona %s failed: %s", p["id"], e)
+                    return None
+        recs = [r for r in await asyncio.gather(*[_one(p) for p in personas]) if r]
+
+    if not recs:
+        return {"error": "no responses"}
+    tisza = sum(r["strength"] for r in recs if r["dir"] == "tisza")
+    fidesz = sum(r["strength"] for r in recs if r["dir"] == "fidesz")
+    n_t = sum(1 for r in recs if r["dir"] == "tisza")
+    n_f = sum(1 for r in recs if r["dir"] == "fidesz")
+    n_x = sum(1 for r in recs if r["dir"] == "egyik sem")
+    net = round((tisza - fidesz) / len(recs), 2)  # strength-weighted, Tisza-ward +
+    lean = defaultdict(lambda: [0, 0, 0])  # [tisza, fidesz, n]
+    for r in recs:
+        lb = lean[r["lean"]]
+        lb[2] += 1
+        if r["dir"] == "tisza":
+            lb[0] += 1
+        elif r["dir"] == "fidesz":
+            lb[1] += 1
+    by_lean = {k: f"Tisza {v[0]}/{v[2]} · Fidesz {v[1]}/{v[2]}" for k, v in lean.items()}
+    return {"date": date, "n": len(recs),
+            "tisza_ward": n_t, "fidesz_ward": n_f, "neither": n_x,
+            "net_strength": net, "by_lean": by_lean}
