@@ -34,16 +34,20 @@ CONCURRENCY = int(os.environ.get("ORAKEL_CONCURRENCY", "8"))
 #   AGE: KSH mun0005 (15–74 népesség, 2025; 18+ buckets, 75+ estimated).
 #   EDU: KSH mun0006 (legmagasabb iskolai végzettség, 2025).
 #   SETTLEMENT: 2022 census settlement-type shares.
-#   MEDIA: NMHH 2026-05 online audience (Telex/24.hu/HVG independent > Index/Origo
-#          pro-gov) + TV adjustment (public TV skews pro-gov/older, not in online data).
+#   MEDIA: PERSISTENT ideological lean (NOT "kormányközeli" — that label goes
+#          stale when the government changes; cf. the Echolot HU media-positioning
+#          rule). Private outlets carry a stable left/right/neutral lean; public
+#          media (közmédia) is always pro-government-of-the-day (lean follows
+#          whoever governs — now TISZA). Weights: NMHH 2026-05 online audience
+#          (liberal Telex/24.hu/HVG > right Origo/Mandiner) + TV reach adjustment.
 AGE = [("18-29", 0.157), ("30-39", 0.160), ("40-49", 0.190), ("50-59", 0.184), ("60+", 0.309)]
 SETTLEMENT = [("Budapest", 0.18), ("megyeszékhely", 0.19), ("város", 0.31), ("község", 0.32)]
 EDU = [("max 8 általános", 0.187), ("szakmunkás", 0.161), ("érettségi", 0.350), ("diploma", 0.302)]
-MEDIA = [("kormányközeli médiát követ (köztévé, Origo, Index)", 0.32),
-         ("független/ellenzéki online médiát követ (Telex, 24.hu, HVG, 444, RTL)", 0.26),
-         ("Facebook-vegyes hírfogyasztó", 0.22),
-         ("alig követi a hírt", 0.15),
-         ("változatos forrásokból tájékozódik", 0.05)]
+MEDIA = [("baloldali/liberális médiát követ (Telex, 24.hu, HVG, 444, RTL)", 0.26),
+         ("jobboldali médiát követ (Origo, Mandiner, Magyar Nemzet)", 0.22),
+         ("közmédiát követ (köztévé — mindenkori kormányoldal)", 0.20),
+         ("Facebook-vegyes/közömbös hírfogyasztó", 0.20),
+         ("alig követi a hírt", 0.12)]
 
 _OUT_KEYS = ["fidesz", "tisza", "dk", "mihazank", "mkkp", "egyeb", "bizonytalan"]
 
