@@ -60,6 +60,21 @@ _GROUND_TRUTH_2025 = [
     ("2025-Q3", "Republikon",        "2025-07-08", 25, 31, 4, 5, 24),
 ]
 
+# 2026-Q2 — DECIDED-voter base ("biztos szavazó pártválasztó"), from partpreferencia.hu
+# homepage chart (Kommandant 2026-06-14). Fidesz/Tisza accurate; DK/MH small-party
+# values are best-effort from the bars. THE clean, overlapping backtest target.
+# (period, pollster, date_end, fidesz, tisza, dk, mihazank, bizonytalan=0)
+_GROUND_TRUTH_2026Q2_DECIDED = [
+    ("2026-Q2", "Závecz",            "2026-06-03", 20, 73, 1, 5, 0),
+    ("2026-Q2", "IDEA",              "2026-05-11", 25, 68, 1, 4, 0),
+    ("2026-Q2", "Publicus",          "2026-05-14", 20, 73, 1, 5, 0),
+    ("2026-Q2", "21 Kutatóközpont",  "2026-05-13", 21, 71, 1, 6, 0),
+    ("2026-Q2", "Republikon",        "2026-05-13", 26, 66, 2, 5, 0),
+    ("2026-Q2", "Medián",            "2026-05-02", 23, 70, 1, 6, 0),
+    ("2026-Q2", "Alapjogokért",      "2026-04-30", 45, 42, 4, 7, 0),
+    ("2026-Q2", "Iránytű",           "2026-04-04", 40, 51, 2, 4, 0),
+]
+
 _PARTY_KEYS = ("fidesz", "tisza", "dk", "mihazank", "bizonytalan")
 
 
@@ -119,6 +134,10 @@ def seed_ground_truth() -> int:
         shares = {"fidesz": fi, "tisza": ti, "dk": dk, "mihazank": mh, "bizonytalan": biz}
         n += insert_poll("ground_truth", period, pollster, date_end, shares,
                          base="teljes_nepesseg", source="partpreferencia.hu")
+    for period, pollster, date_end, fi, ti, dk, mh, biz in _GROUND_TRUTH_2026Q2_DECIDED:
+        shares = {"fidesz": fi, "tisza": ti, "dk": dk, "mihazank": mh, "bizonytalan": biz}
+        n += insert_poll("ground_truth", period, pollster, date_end, shares,
+                         base="biztos_partvalaszto", source="partpreferencia.hu (homepage)")
     if n:
         logger.info("poll_results: seeded %d ground-truth rows", n)
     return n
@@ -145,3 +164,34 @@ def aggregate(period: str, base: str = "teljes_nepesseg", kind: str = "ground_tr
     mean = {k: round(sum(v) / len(v), 1) for k, v in vals.items() if v}
     spread = {k: round(max(v) - min(v), 1) for k, v in vals.items() if v}
     return {"period": period, "n": len(rows), "mean": mean, "spread": spread}
+
+
+_DECIDED_KEYS = ("fidesz", "tisza", "dk", "mihazank")
+
+
+def _to_decided(shares: dict) -> dict:
+    """Renormalize shares over decided parties only (drop undecided)."""
+    denom = sum(float(shares.get(k, 0) or 0) for k in _DECIDED_KEYS) or 1.0
+    return {k: round(float(shares.get(k, 0) or 0) / denom * 100, 1) for k in _DECIDED_KEYS}
+
+
+def calibrate(pred_shares: dict, gt_period: str = "2026-Q2",
+              gt_base: str = "biztos_partvalaszto") -> dict:
+    """Compare a panel prediction to decided-voter ground truth.
+
+    Both sides are converted to the decided base (undecided dropped, renormalized)
+    so a total-population panel is comparable to the published decided-voter result.
+    Returns per-party delta (pred − ground truth) = the systematic bias to correct.
+    """
+    gt = aggregate(gt_period, base=gt_base)
+    if not gt.get("mean"):
+        return {"error": f"no ground truth for {gt_period}/{gt_base}"}
+    pred_dec = _to_decided(pred_shares)
+    gt_dec = _to_decided(gt["mean"])
+    delta = {k: round(pred_dec[k] - gt_dec[k], 1) for k in _DECIDED_KEYS}
+    return {
+        "gt_period": gt_period, "gt_n": gt["n"],
+        "pred_decided": pred_dec, "gt_decided": gt_dec, "delta": delta,
+        "gap_pred": round(pred_dec["tisza"] - pred_dec["fidesz"], 1),
+        "gap_gt": round(gt_dec["tisza"] - gt_dec["fidesz"], 1),
+    }
