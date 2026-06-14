@@ -92,10 +92,20 @@ def latest_context(max_topics: int = 6) -> tuple[str, str | None]:
     return "\n".join(parts), d
 
 
-def _persona_prompt(p: dict, ctx: str) -> str:
+PRIMING_2026 = (
+    "AKTUÁLIS POLITIKAI HELYZET (2026): A 2026. áprilisi országgyűlési választást "
+    "a TISZA Párt (Magyar Péter) nyerte, jelenleg ők kormányoznak. A Fidesz-KDNP "
+    "(Orbán Viktor) ellenzékbe került 16 év kormányzás után. A parlamentbe bejutott "
+    "a Mi Hazánk és a DK is. A két legnagyobb erő jelenleg a TISZA és a Fidesz."
+)
+
+
+def _persona_prompt(p: dict, ctx: str, priming: str = "") -> str:
+    pri = (priming + "\n\n") if priming else ""
     return (
         f"Te egy magyar választópolgár vagy. A profilod: {p['age']} éves, lakóhely: "
         f"{p['settlement']}, iskolázottság: {p['edu']}, {p['media']}.\n\n"
+        f"{pri}"
         f"A mostani hírhelyzet Magyarországon és a világban:\n{ctx or '(nincs friss hír)'}\n\n"
         "Ha most vasárnap országgyűlési választás lenne, melyik pártra szavaznál? "
         "VÁLASSZ PONTOSAN EGYET: Fidesz, Tisza, DK, Mi Hazánk, MKKP, egyéb, bizonytalan.\n\n"
@@ -141,7 +151,7 @@ async def _chat(client, prompt: str, max_tokens: int = 260, temperature: float =
     raise RuntimeError("flash failed after retries (empty/transient)")
 
 
-async def run_poll(n: int = 60, seed: int = 42, store: bool = True) -> dict:
+async def run_poll(n: int = 60, seed: int = 42, store: bool = True, priming: str = "") -> dict:
     """Run the synthetic panel against the latest news context. Returns shares + meta."""
     import httpx
     ctx, date = latest_context()
@@ -154,7 +164,7 @@ async def run_poll(n: int = 60, seed: int = 42, store: bool = True) -> dict:
         async def _one(p):
             async with sem:
                 try:
-                    return _parse_party(await _chat(client, _persona_prompt(p, ctx)))
+                    return _parse_party(await _chat(client, _persona_prompt(p, ctx, priming)))
                 except Exception as e:  # noqa: BLE001
                     logger.warning("orakel persona %s failed: %s", p["id"], e)
                     return None
