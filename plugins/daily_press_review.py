@@ -17,6 +17,7 @@ seeded in plugins/recipes.py. Cron schedule interpreted in Europe/Budapest.
 from __future__ import annotations
 
 import html as _htmlmod
+import json
 import logging
 import os
 import re
@@ -232,6 +233,103 @@ def _already_stored(day_iso: str) -> bool:
         conn.close()
 
 
+# ── press_snapshots: dated "information-environment" archive (separate store) ──
+# One row per (date_iso, lang, signal_type) with a JSON blob. This is the forward
+# press DB the planned Flash pollster reads for news-grounded personas; it lives
+# OUTSIDE the agent RAG. brief = date-accurate (works for backfill); spheres/news
+# are "now"-only signals → captured for the current day only.
+
+def _ensure_snapshots_table() -> None:
+    from pyramid.memory_rag import _get_db
+    conn = _get_db()
+    try:
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS press_snapshots (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                date_iso TEXT NOT NULL,
+                lang TEXT NOT NULL DEFAULT 'hu',
+                signal_type TEXT NOT NULL,
+                content TEXT NOT NULL,
+                created_at TEXT NOT NULL,
+                UNIQUE(date_iso, lang, signal_type)
+            )
+        """)
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_snap_date ON press_snapshots(date_iso, lang)")
+        conn.commit()
+    finally:
+        conn.close()
+
+
+_ensure_snapshots_table()
+
+
+def _snapshot_stored(day_iso: str, lang: str, signal_type: str) -> bool:
+    from pyramid.memory_rag import _get_db
+    conn = _get_db()
+    try:
+        row = conn.execute(
+            "SELECT 1 FROM press_snapshots WHERE date_iso=? AND lang=? AND signal_type=? LIMIT 1",
+            (day_iso, lang, signal_type),
+        ).fetchone()
+        return row is not None
+    finally:
+        conn.close()
+
+
+def _store_snapshot(day_iso: str, lang: str, signal_type: str, content_obj) -> int:
+    """Idempotent upsert (INSERT OR IGNORE on the UNIQUE key). Returns 1 if new, else 0."""
+    from pyramid.memory_rag import _get_db
+    conn = _get_db()
+    try:
+        cur = conn.execute(
+            "INSERT OR IGNORE INTO press_snapshots (date_iso, lang, signal_type, content, created_at) "
+            "VALUES (?, ?, ?, ?, ?)",
+            (day_iso, lang, signal_type,
+             json.dumps(content_obj, ensure_ascii=False),
+             datetime.now(timezone.utc).isoformat()),
+        )
+        conn.commit()
+        return cur.rowcount or 0
+    finally:
+        conn.close()
+
+
+async def _capture_snapshot(day_iso: str, brief_html: str, lang: str = "hu", live: bool = False) -> int:
+    """Store the daily info-environment snapshot. Returns # of new signal rows.
+
+    brief: always (date-accurate). spheres + news: only when live=True (the
+    Echolot JSON API has no date param → those reflect 'now', so capturing them
+    for a past date would be wrong). trending/velocity/entities come in (I-b)
+    once the Echolot REST wrappers exist.
+    """
+    n = 0
+    try:
+        d = extract_brief(brief_html)
+        n += _store_snapshot(day_iso, lang, "brief", {
+            "headline": d.get("headline", ""), "lead": d.get("lead", ""),
+            "topics": d.get("topics", []), "local_title": d.get("local_title", ""),
+            "local_lead": d.get("local_lead", ""), "local_topics": d.get("local_topics", []),
+            "outlook": d.get("outlook", ""),
+        })
+    except Exception as e:  # noqa: BLE001
+        logger.warning("snapshot brief %s failed: %s", day_iso, e)
+
+    if live:
+        try:
+            import _echolot_client as ec
+            sph = await ec.get_spheres()
+            n += _store_snapshot(day_iso, lang, "spheres", sph)
+        except Exception as e:  # noqa: BLE001
+            logger.warning("snapshot spheres %s failed: %s", day_iso, e)
+        try:
+            import _echolot_client as ec
+            news = await ec.fetch_news(days=1, limit=40, language=lang)
+            n += _store_snapshot(day_iso, lang, "news", news)
+        except Exception as e:  # noqa: BLE001
+            logger.warning("snapshot news %s failed: %s", day_iso, e)
+    return n
+
+
 _DATE_RE = re.compile(r"[?&]date=(\d{4}-\d{2}-\d{2})")
 
 
@@ -280,36 +378,39 @@ async def fetch_and_store_press_review(lang: str = "hu", backfill: bool = True) 
     what is missing. Returns {ok, stored, days, skipped}.
     """
     today_iso = datetime.now(timezone.utc).date().isoformat()
-    result: dict = {"ok": True, "stored": 0, "days": [], "skipped": []}
+    result: dict = {"ok": True, "stored": 0, "snapshots": 0, "days": [], "skipped": []}
     try:
         current_html = await _fetch_brief_html(lang)
 
-        # current day (served without a date param)
-        if _already_stored(today_iso):
-            result["skipped"].append(today_iso)
-        else:
-            n = _store_brief(today_iso, current_html)
-            result["stored"] += n
-            result["days"].append({"date": today_iso, "stored": n})
-
-        # older days exposed by the date-nav
+        dates = [today_iso]
         if backfill:
-            for d in _available_past_dates(current_html):
-                if d == today_iso:
-                    continue
+            dates += [d for d in _available_past_dates(current_html) if d != today_iso]
+
+        for d in dates:
+            is_today = (d == today_iso)
+            html = current_html if is_today else None
+            try:
+                # RAG brief (news corpus) — date-deduped
                 if _already_stored(d):
                     result["skipped"].append(d)
-                    continue
-                try:
-                    html = await _fetch_brief_html(lang, date=d)
+                else:
+                    if html is None:
+                        html = await _fetch_brief_html(lang, date=d)
                     n = _store_brief(d, html)
                     result["stored"] += n
                     result["days"].append({"date": d, "stored": n})
-                except Exception as e:  # noqa: BLE001
-                    logger.warning("press_review backfill %s failed: %s", d, e)
+                # press_snapshots (dated archive) — independently deduped;
+                # spheres/news live signals only for today.
+                if not _snapshot_stored(d, lang, "brief"):
+                    if html is None:
+                        html = await _fetch_brief_html(lang, date=d)
+                    result["snapshots"] += await _capture_snapshot(d, html, lang, live=is_today)
+            except Exception as e:  # noqa: BLE001
+                logger.warning("press_review %s failed: %s", d, e)
 
-        logger.info("press_review: stored=%d days=%s skipped=%s",
-                    result["stored"], [x["date"] for x in result["days"]], result["skipped"])
+        logger.info("press_review: stored=%d snapshots=%d days=%s skipped=%s",
+                    result["stored"], result["snapshots"],
+                    [x["date"] for x in result["days"]], result["skipped"])
         return result
     except Exception as e:  # noqa: BLE001
         logger.error("press_review failed: %s", e)
