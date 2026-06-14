@@ -54,11 +54,16 @@ def _provider() -> tuple:
 AGE = [("18-29", 0.157), ("30-39", 0.160), ("40-49", 0.190), ("50-59", 0.184), ("60+", 0.309)]
 SETTLEMENT = [("Budapest", 0.18), ("megyeszékhely", 0.19), ("város", 0.31), ("község", 0.32)]
 EDU = [("max 8 általános", 0.187), ("szakmunkás", 0.161), ("érettségi", 0.350), ("diploma", 0.302)]
+# Media-environment descriptions grounded in the CURRENT (2026) reality, not the
+# model's stale ~2023 prior. The two channels that FLIPPED need explicit framing:
+#   közmédia → now backs the governing Tisza (was Orbán-aligned for 15y);
+#   közösségi → political reach is Tisza-dominated (Telex 2026-02 & 2026-06 data).
+# baloldali/jobboldali keep their stable lean (model handles those correctly).
 MEDIA = [("baloldali/liberális médiát követ (Telex, 24.hu, HVG, 444, RTL)", 0.26),
          ("jobboldali médiát követ (Origo, Mandiner, Magyar Nemzet)", 0.22),
-         ("közmédiát követ (köztévé — mindenkori kormányoldal)", 0.20),
-         ("Facebook-vegyes/közömbös hírfogyasztó", 0.20),
-         ("alig követi a hírt", 0.12)]
+         ("közmédiát követ (köztévé — amely jelenleg a kormányon lévő Tisza-kormányt támogatja)", 0.18),
+         ("közösségi médiában fogyaszt politikai tartalmat (Facebook/TikTok/YouTube — itt jelenleg túlnyomórészt Tisza-közeli tartalom éri el a legtöbb embert)", 0.22),
+         ("alig követi a politikai híreket", 0.12)]
 
 _OUT_KEYS = ["fidesz", "tisza", "dk", "mihazank", "mkkp", "egyeb", "bizonytalan"]
 
@@ -278,9 +283,11 @@ def _lean_bucket(media: str) -> str:
         return "baloldali"
     if "jobboldali" in m:
         return "jobboldali"
-    if "közmédia" in m:
+    if "közméd" in m or "köztévé" in m:  # "közmédiát követ (köztévé …)"
         return "közmédia"
-    return "egyéb/közömbös"
+    if "közösségi" in m or "facebook" in m or "tiktok" in m:
+        return "közösségi"
+    return "alig/egyéb"
 
 
 async def run_framing_radar(n_per_cell: int = 6, days: int = 3, seed: int = 42, priming: str = "") -> dict:
