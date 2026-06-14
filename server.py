@@ -8297,20 +8297,24 @@ async def _cron_loop():
         _news_count = _c.execute(
             "SELECT COUNT(*) AS c FROM pyramid_agent_rag WHERE agent_id='echolot' AND category='news'"
         ).fetchone()["c"]
+        _today_iso = datetime.now(timezone.utc).date().isoformat()
         try:
-            _snap_count = _c.execute("SELECT COUNT(*) AS c FROM press_snapshots").fetchone()["c"]
+            _snap_today = _c.execute(
+                "SELECT COUNT(*) AS c FROM press_snapshots WHERE date_iso=? AND signal_type='trending'",
+                (_today_iso,),
+            ).fetchone()["c"]
         except Exception:  # noqa: BLE001 — table not created yet on first boot
-            _snap_count = 0
+            _snap_today = 0
         _c.close()
-        if _news_count == 0 or _snap_count == 0:
+        if _news_count == 0 or _snap_today == 0:
             from plugins.daily_press_review import fetch_and_store_press_review
             _bf = await fetch_and_store_press_review()
             logger.info("Cron startup backfill: stored=%s snapshots=%s days=%s",
                         _bf.get("stored"), _bf.get("snapshots"),
                         [x.get("date") for x in _bf.get("days", [])])
         else:
-            logger.info("Cron startup backfill skipped (news RAG=%d, snapshots=%d)",
-                        _news_count, _snap_count)
+            logger.info("Cron startup backfill skipped (news RAG=%d, today trending snapshot present)",
+                        _news_count)
     except Exception as e:  # noqa: BLE001
         logger.error("Cron startup backfill failed: %s", e)
 

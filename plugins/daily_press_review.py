@@ -315,18 +315,44 @@ async def _capture_snapshot(day_iso: str, brief_html: str, lang: str = "hu", liv
         logger.warning("snapshot brief %s failed: %s", day_iso, e)
 
     if live:
+        import _echolot_client as ec
+
+        async def _grab(sig, coro):
+            nonlocal n
+            try:
+                n += _store_snapshot(day_iso, lang, sig, await coro)
+            except Exception as e:  # noqa: BLE001
+                logger.warning("snapshot %s %s failed: %s", sig, day_iso, e)
+
+        await _grab("spheres", ec.get_spheres())
+        await _grab("news", ec.fetch_news(days=1, limit=40, language=lang))
+        await _grab("velocity", ec.get_velocity(window_hours=24, limit=30))
+        await _grab("entities", ec.get_top_entities(days=3, limit=30))
+
+        # trending — capture, then derive narrative divergence on the top keywords
+        trending = None
         try:
-            import _echolot_client as ec
-            sph = await ec.get_spheres()
-            n += _store_snapshot(day_iso, lang, "spheres", sph)
+            trending = await ec.get_trending(days=1, limit=15)
+            n += _store_snapshot(day_iso, lang, "trending", trending)
         except Exception as e:  # noqa: BLE001
-            logger.warning("snapshot spheres %s failed: %s", day_iso, e)
+            logger.warning("snapshot trending %s failed: %s", day_iso, e)
         try:
-            import _echolot_client as ec
-            news = await ec.fetch_news(days=1, limit=40, language=lang)
-            n += _store_snapshot(day_iso, lang, "news", news)
+            kws = [t.get("keyword") for t in (trending or {}).get("trending", [])[:3] if t.get("keyword")]
+            nar = {}
+            for kw in kws:
+                raw = await ec.narrative_divergence(kw, days=2, per_sphere_limit=3)
+                # trim to essentials — which spheres cover it, with headlines+lean
+                # (the raw response carries full article objects → ~100KB/keyword)
+                nar[kw] = {
+                    sph: [{"title": (a.get("title") or "")[:160],
+                           "source": a.get("source") or a.get("source_name") or "",
+                           "lean": a.get("lean") or ""} for a in arts]
+                    for sph, arts in (raw.get("by_sphere") or {}).items()
+                }
+            if nar:
+                n += _store_snapshot(day_iso, lang, "narrative", nar)
         except Exception as e:  # noqa: BLE001
-            logger.warning("snapshot news %s failed: %s", day_iso, e)
+            logger.warning("snapshot narrative %s failed: %s", day_iso, e)
     return n
 
 
@@ -399,9 +425,12 @@ async def fetch_and_store_press_review(lang: str = "hu", backfill: bool = True) 
                     n = _store_brief(d, html)
                     result["stored"] += n
                     result["days"].append({"date": d, "stored": n})
-                # press_snapshots (dated archive) — independently deduped;
-                # spheres/news live signals only for today.
-                if not _snapshot_stored(d, lang, "brief"):
+                # press_snapshots (dated archive) — independently deduped.
+                # Gate on the LAST signal we'd add (today: trending — the rich
+                # live set; past: brief). _capture_snapshot uses INSERT OR IGNORE,
+                # so a partially-captured day gets its missing signals filled.
+                gate_signal = "trending" if is_today else "brief"
+                if not _snapshot_stored(d, lang, gate_signal):
                     if html is None:
                         html = await _fetch_brief_html(lang, date=d)
                     result["snapshots"] += await _capture_snapshot(d, html, lang, live=is_today)

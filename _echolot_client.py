@@ -186,6 +186,21 @@ async def get_spheres() -> dict:
     return await _get("/api/spheres", {})
 
 
+async def get_trending(days: int = 1, limit: int = 15, sphere: str = "", mode: str = "strict") -> dict:
+    """GET /api/trending (cross-source keyword clustering)."""
+    return await _get("/api/trending", {"days": days, "limit": limit, "sphere": sphere, "mode": mode})
+
+
+async def get_velocity(window_hours: int = 24, limit: int = 30) -> dict:
+    """GET /api/velocity (which spheres are spiking)."""
+    return await _get("/api/velocity", {"window_hours": window_hours, "limit": limit})
+
+
+async def get_top_entities(days: int = 3, entity_type: str = "", language: str = "", limit: int = 30) -> dict:
+    """GET /api/top_entities (top entities by mentions + sentiment)."""
+    return await _get("/api/top_entities", {"days": days, "entity_type": entity_type, "language": language, "limit": limit})
+
+
 # ---------------------------------------------------------------------------
 # news_context resolver — what ai_query/ai_task call before injecting prompts
 # ---------------------------------------------------------------------------
