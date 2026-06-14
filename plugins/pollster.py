@@ -29,6 +29,17 @@ SF_URL = "https://api.siliconflow.com/v1/chat/completions"
 MODEL = os.environ.get("ORAKEL_MODEL", "deepseek-ai/DeepSeek-V4-Flash")
 CONCURRENCY = int(os.environ.get("ORAKEL_CONCURRENCY", "8"))
 
+# Provider switch — default SiliconFlow/Flash; set ORAKEL_PROVIDER=openai to
+# backtest with a different model family (e.g. gpt-4o) for the prior diagnostic.
+def _provider() -> tuple:
+    """Returns (url, api_key, model, use_thinking_param)."""
+    if os.environ.get("ORAKEL_PROVIDER", "siliconflow").lower() == "openai":
+        return ("https://api.openai.com/v1/chat/completions",
+                os.environ.get("OPENAI_API_KEY", ""),
+                os.environ.get("ORAKEL_OPENAI_MODEL", "gpt-4o"),
+                False)  # OpenAI has no "thinking" param
+    return (SF_URL, SF_KEY, MODEL, True)
+
 # HU adult-population marginals, KSH-grounded (sampled independently as a v0
 # simplification — joint correlations not yet modelled).
 #   AGE: KSH mun0005 (15–74 népesség, 2025; 18+ buckets, 75+ estimated).
@@ -143,16 +154,18 @@ async def _chat(client, prompt: str, max_tokens: int = 260, temperature: float =
     """One Flash call (Non-Think) over a SHARED client, with exponential backoff —
     the proven teszterek/ pattern. Retries on exception AND empty content (flash
     occasionally returns empty under rate-limit). See [[siliconflow_flash_nonthink]]."""
+    url, _key, model, use_think = _provider()
     body = {
-        "model": MODEL,
+        "model": model,
         "messages": [{"role": "user", "content": prompt}],
         "temperature": temperature,
         "max_tokens": max_tokens,
-        "thinking": {"type": "disabled"},  # Non-Think — V4 form
     }
+    if use_think:
+        body["thinking"] = {"type": "disabled"}  # Non-Think — V4 form (SiliconFlow)
     for attempt in range(retries):
         try:
-            r = await client.post(SF_URL, json=body)
+            r = await client.post(url, json=body)
             r.raise_for_status()
             content = (r.json()["choices"][0]["message"].get("content") or "").strip()
             if content:
@@ -172,7 +185,7 @@ async def run_poll(n: int = 60, seed: int = 42, store: bool = True, priming: str
     sem = asyncio.Semaphore(CONCURRENCY)
 
     async with httpx.AsyncClient(
-            headers={"Authorization": f"Bearer {SF_KEY}"}, timeout=90) as client:
+            headers={"Authorization": f"Bearer {_provider()[1]}"}, timeout=90) as client:
 
         async def _one(p):
             async with sem:
@@ -279,7 +292,7 @@ async def run_framing_radar(n_per_cell: int = 6, days: int = 3, seed: int = 42, 
     sem = asyncio.Semaphore(CONCURRENCY)
 
     async with httpx.AsyncClient(
-            headers={"Authorization": f"Bearer {SF_KEY}"}, timeout=90) as client:
+            headers={"Authorization": f"Bearer {_provider()[1]}"}, timeout=90) as client:
         async def _one(i, p):
             s = stimuli[i % len(stimuli)]
             async with sem:
