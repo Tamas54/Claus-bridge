@@ -107,40 +107,65 @@ def get_agent_rag_summary(agent_id: str, max_items: int = 25) -> str:
     return "\n".join(lines)
 
 
-def get_smart_rag_summary(agent_id: str, query: str = "", max_items: int = 25) -> str:
-    """Hybrid RAG: query-relevant hits first, then recency fill.
-
-    If query is empty, equivalent to get_agent_rag_summary. With a query,
-    the most relevant N entries (by keyword match) come first, then the
-    remaining slots are filled with the latest entries that weren't
-    already included. Useful when the agent has hundreds of past entries
-    and only a small subset is relevant to the current task.
-    """
-    if not query or not query.strip():
-        return get_agent_rag_summary(agent_id, max_items=max_items)
-
-    relevant = search_agent_rag(agent_id, query, max_results=min(15, max_items))
-    seen_ids = {r["id"] for r in relevant}
-
+def load_all_rag() -> List[dict]:
+    """Unified read across ALL agents, recency-first. Keeps agent_id as provenance."""
     conn = _get_db()
     rows = conn.execute(
-        "SELECT * FROM pyramid_agent_rag WHERE agent_id = ? ORDER BY timestamp DESC LIMIT ?",
-        (agent_id, max_items * 2)
+        "SELECT * FROM pyramid_agent_rag ORDER BY timestamp DESC"
     ).fetchall()
     conn.close()
-    recent = [
-        {"id": r["entry_id"], "task_title": r["task_title"],
+    return [
+        {"agent_id": r["agent_id"], "id": r["entry_id"], "task_title": r["task_title"],
          "category": r["category"], "content": r["content"], "timestamp": r["timestamp"]}
-        for r in rows if r["entry_id"] not in seen_ids
+        for r in rows
     ]
 
-    combined = (relevant + recent)[:max_items]
+
+def search_all_rag(query: str, max_results: int = 15) -> List[dict]:
+    """Keyword search across ALL agents' RAG. Keeps agent_id as provenance."""
+    conn = _get_db()
+    rows = conn.execute("SELECT * FROM pyramid_agent_rag").fetchall()
+    conn.close()
+    keywords = query.lower().split()
+
+    scored = []
+    for r in rows:
+        text = (r["content"] + " " + r["task_title"]).lower()
+        score = sum(1 for kw in keywords if kw in text)
+        if score > 0:
+            scored.append((score, {
+                "agent_id": r["agent_id"], "id": r["entry_id"], "task_title": r["task_title"],
+                "category": r["category"], "content": r["content"], "timestamp": r["timestamp"]
+            }))
+
+    scored.sort(key=lambda x: x[0], reverse=True)
+    return [entry for _, entry in scored[:max_results]]
+
+
+def get_smart_rag_summary(agent_id: str, query: str = "", max_items: int = 25) -> str:
+    """Unified flotta RAG: every agent sees the WHOLE fleet's past work.
+
+    Each entry is tagged with its source so the caller knows whether it (TE)
+    or another agent produced the work. Query-relevant hits come first, then
+    recency fill. agent_id is no longer a filter — only a provenance label —
+    so the three rizsrakéták (Kimi/DeepSeek/GLM5) cross-learn instead of
+    siloing into separate buborékok.
+    """
+    if query and query.strip():
+        relevant = search_all_rag(query, max_results=min(15, max_items))
+        seen = {(r["agent_id"], r["id"]) for r in relevant}
+        recent = [r for r in load_all_rag() if (r["agent_id"], r["id"]) not in seen]
+        combined = (relevant + recent)[:max_items]
+    else:
+        combined = load_all_rag()[:max_items]
+
     if not combined:
         return ""
 
-    lines = [f"## Saját korábbi munkáid ({agent_id} RAG, relevancia + frissesség sorrendben)"]
+    lines = ["## A FLOTTA közös RAG munkanaplója (saját + társak, relevancia + frissesség)"]
     for r in combined:
-        lines.append(f"- [{r['task_title']}] {r['content'][:200]}...")
+        src = "TE" if r["agent_id"] == agent_id else r["agent_id"].upper()
+        lines.append(f"- [{src}] [{r['task_title']}] {r['content'][:200]}...")
     return "\n".join(lines)
 
 

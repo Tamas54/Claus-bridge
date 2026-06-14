@@ -145,6 +145,35 @@ def test_rag():
     print("  OK\n")
 
 
+def test_unified_rag():
+    print("=" * 60)
+    print("TESZT 6b: Egységes (uniós) RAG — kereszt-láthatóság")
+    print("=" * 60)
+
+    from pyramid.memory_rag import load_all_rag, search_all_rag, get_smart_rag_summary
+
+    add_to_agent_rag("kimi", "Kimi vámtarifa-elemzés.", "Vám teszt")
+    add_to_agent_rag("deepseek", "DeepSeek vámtarifa-fordítás.", "Vám fordítás")
+    add_to_agent_rag("glm5", "GLM5 vámtarifa-összegzés.", "Vám összegzés")
+
+    all_entries = load_all_rag()
+    agents = {e["agent_id"] for e in all_entries}
+    assert {"kimi", "deepseek", "glm5"} <= agents, f"Uniós olvasás hiányos: {agents}"
+    print(f"  load_all_rag: {len(all_entries)} bejegyzés, ágensek: {sorted(agents)}")
+
+    hits = search_all_rag("vámtarifa")
+    hit_agents = {h["agent_id"] for h in hits}
+    assert len(hit_agents) >= 3, f"Kereszt-keresés nem látja mindenkit: {hit_agents}"
+    print(f"  search_all_rag('vámtarifa'): {len(hits)} találat {sorted(hit_agents)} ágenstől")
+
+    # kimi nézetében a sajátja [TE], a többi forrással címkézve
+    summary = get_smart_rag_summary("kimi", query="vámtarifa")
+    assert "[TE]" in summary, "Saját munka nincs TE-vel jelölve!"
+    assert "[DEEPSEEK]" in summary or "[GLM5]" in summary, "Társ munkája nem látszik forrással!"
+    print(f"  kimi uniós summary: {len(summary)} karakter, forrás-címkék OK")
+    print("  OK\n")
+
+
 def test_governance():
     print("=" * 60)
     print("TESZT 7: Governance")
@@ -175,7 +204,7 @@ def test_full_context_with_memory():
 
     ctx = build_agent_context("kimi")
     assert "Közös tudásbázis" in ctx, "Shared memory nem jelenik meg a kontextusban!"
-    assert "Saját korábbi munkáid" in ctx, "RAG nem jelenik meg a kontextusban!"
+    assert "FLOTTA közös RAG" in ctx, "Uniós RAG nem jelenik meg a kontextusban!"
     print(f"  Teljes kontextus: {len(ctx)} karakter")
     print("  OK\n")
 
@@ -202,6 +231,7 @@ if __name__ == "__main__":
         test_context_builder()
         test_shared_memory()
         test_rag()
+        test_unified_rag()
         test_governance()
         test_full_context_with_memory()
 
