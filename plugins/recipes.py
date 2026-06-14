@@ -196,6 +196,24 @@ def register_tools(app, deps):
                      ts2, ts2, mb_cron),
                 )
                 logger.info("market_brief-seed: %s (cron=%s) beillesztve", mb_name, mb_cron)
+
+        # 4) daily_press_review — pure fetch+store of the Echolot daily brief
+        #    into the unified RAG (NO LLM). Special-cased in _cron_loop by name.
+        #    06:00 Budapest daily; the row only carries the schedule.
+        pr_exists = conn.execute(
+            "SELECT 1 FROM pyramid_recipes WHERE name='daily_press_review'"
+        ).fetchone()
+        if not pr_exists:
+            conn.execute(
+                "INSERT INTO pyramid_recipes (name, description, required_tools, prompt_template, "
+                "created_by, created_at, updated_at, cron_schedule, cron_model, cron_enabled, cron_delivery) "
+                "VALUES (?, ?, '[]', ?, 'system', ?, ?, ?, 'deepseek', 1, 'none')",
+                ("daily_press_review",
+                 "Napi sajtószemle (Echolot brief VILÁG+ITTHON) → RAG (no-LLM fetch+store)",
+                 "(special-cased — runtime: plugins.daily_press_review.fetch_and_store_press_review)",
+                 ts2, ts2, "0 6 * * *"),
+            )
+            logger.info("daily_press_review-seed: beillesztve (cron=0 6 * * *)")
         conn.commit()
     except Exception as me:
         logger.error("Vertikum-migration error: %s", me)

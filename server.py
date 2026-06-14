@@ -8300,6 +8300,22 @@ async def _cron_loop():
                         logger.error("Cron market_brief failed for %s: %s", r["name"], e)
                     continue
 
+                # ── Daily press review special-case ──
+                # `daily_press_review` is a pure fetch+store job (NO LLM): it
+                # pulls the Echolot daily brief and writes world + domestic into
+                # the unified RAG under virtual agent `echolot` (category=news),
+                # growing the news corpus the agents/personas read. The recipe
+                # row only carries the SCHEDULE.
+                if r["name"] == "daily_press_review":
+                    try:
+                        from plugins.daily_press_review import fetch_and_store_press_review
+                        pr = await fetch_and_store_press_review()
+                        logger.info("Cron daily_press_review: ok=%s stored=%s skipped=%s date=%s",
+                                    pr.get("ok"), pr.get("stored"), pr.get("skipped"), pr.get("date"))
+                    except Exception as e:  # noqa: BLE001
+                        logger.error("Cron daily_press_review failed: %s", e)
+                    continue
+
                 # Execute via ai_task dispatch (same path as execute_recipe)
                 try:
                     recipe_conn = get_db()
