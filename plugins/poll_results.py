@@ -75,6 +75,14 @@ _GROUND_TRUTH_2026Q2_DECIDED = [
     ("2026-Q2", "Iránytű",           "2026-04-04", 40, 51, 2, 4, 0),
 ]
 
+# 2026 OGY — ACTUAL election result (NVI, 100% processed, party-list vote).
+# THE gold-standard ground truth (real votes, not a poll). Note: the published
+# polls overstated Tisza by ~22pp vs this — the real race was much tighter.
+# (pollster, date_end, fidesz, tisza, dk, mihazank, bizonytalan=0 — list vote = cast votes)
+_GROUND_TRUTH_2026_ELECTION = [
+    ("NVI (tényleges)", "2026-04-12", 38.61, 53.18, 1.10, 5.63, 0),
+]
+
 _PARTY_KEYS = ("fidesz", "tisza", "dk", "mihazank", "bizonytalan")
 
 
@@ -138,6 +146,10 @@ def seed_ground_truth() -> int:
         shares = {"fidesz": fi, "tisza": ti, "dk": dk, "mihazank": mh, "bizonytalan": biz}
         n += insert_poll("ground_truth", period, pollster, date_end, shares,
                          base="biztos_partvalaszto", source="partpreferencia.hu (homepage)")
+    for pollster, date_end, fi, ti, dk, mh, biz in _GROUND_TRUTH_2026_ELECTION:
+        shares = {"fidesz": fi, "tisza": ti, "dk": dk, "mihazank": mh, "bizonytalan": biz}
+        n += insert_poll("ground_truth", "2026-OGY", pollster, date_end, shares,
+                         base="valasztas_lista", source="NVI vtr.valasztas.hu (100%)")
     if n:
         logger.info("poll_results: seeded %d ground-truth rows", n)
     return n
