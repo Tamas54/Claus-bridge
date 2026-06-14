@@ -1365,7 +1365,9 @@ select {
 
 <!-- ===== SAJTÓSZEMLE (NEWS) ===== -->
 <section class="panel" id="panel-news">
-  <div class="section-title">NAPI SAJTÓSZEMLE &mdash; Echolot brief &rarr; RAG (VILÁG + ITTHON)</div>
+  <div class="section-title">INFO-KÖRNYEZET PILLANATKÉPEK &mdash; forward press DB (pollster-alap)</div>
+  <div id="snapshotBox"></div>
+  <div class="section-title" style="margin-top:1.5rem">NAPI SAJTÓSZEMLE &mdash; Echolot brief &rarr; RAG (VILÁG + ITTHON)</div>
   <div id="newsList"></div>
 </section>
 </main>
@@ -2006,7 +2008,49 @@ function fmtBrief(text) {
   }).join('<br>');
 }
 
+async function loadSnapshots() {
+  const box = document.getElementById('snapshotBox');
+  if (!box) return;
+  let data;
+  try { data = await api('/api/press_snapshots'); } catch (e) { box.innerHTML = ''; return; }
+  if (!data || !data.count) {
+    box.innerHTML = '<div style="color:var(--text-muted);padding:0.5rem">Nincs még pillanatkép. A cron 06:00-kor (Budapest) tölti.</div>';
+    return;
+  }
+  const items = data.items || [];
+  const dates = [...new Set(items.map(i => i.date_iso))].sort().reverse();
+  const latest = dates[0];
+  const spheres = (items.find(i => i.signal_type === 'spheres' && i.date_iso === latest) || {}).content;
+  const news = (items.find(i => i.signal_type === 'news' && i.date_iso === latest) || {}).content;
+
+  let html = `<div style="color:var(--text-secondary);margin-bottom:0.5rem">Archívum: <strong>${dates.length} nap</strong> (${dates[dates.length-1]} … ${dates[0]})</div>`;
+
+  // sphere activity (top 8)
+  const sphArr = spheres && Array.isArray(spheres.spheres) ? spheres.spheres.slice(0, 8) : [];
+  if (sphArr.length) {
+    const max = sphArr[0][1] || 1;
+    html += `<div class="msg-card" style="margin-bottom:0.6rem;border-left:3px solid var(--electric)">
+      <div class="msg-subject">&#x1F310; Szféra-aktivitás (${latest})</div>` +
+      sphArr.map(([name, cnt]) => `<div style="display:flex;align-items:center;gap:0.5rem;font-size:0.72rem;margin:0.15rem 0">
+        <span style="width:160px;color:var(--text-secondary)">${esc(name)}</span>
+        <span style="display:inline-block;height:8px;width:${Math.round(cnt/max*180)}px;background:var(--electric);border-radius:2px"></span>
+        <span style="color:var(--text-muted)">${cnt.toLocaleString('hu')}</span>
+      </div>`).join('') + `</div>`;
+  }
+
+  // news flow (count + top headlines)
+  const arts = news && Array.isArray(news.articles) ? news.articles : [];
+  if (arts.length) {
+    html += `<div class="msg-card" style="margin-bottom:0.6rem;border-left:3px solid var(--gold)">
+      <div class="msg-subject">&#x1F4F0; Hírfolyam (${latest}) &mdash; ${news.count ?? arts.length} cikk</div>` +
+      arts.slice(0, 6).map(a => `<div style="font-size:0.72rem;color:var(--text-secondary);margin:0.15rem 0">&bull; ${esc((a.title||'').slice(0,110))} <span style="color:var(--text-muted)">${esc(a.source_name||'')}</span></div>`).join('') +
+      `</div>`;
+  }
+  box.innerHTML = html;
+}
+
 async function loadNews() {
+  await loadSnapshots();
   const data = await api('/api/news');
   const div = document.getElementById('newsList');
   if (!data.count) {
