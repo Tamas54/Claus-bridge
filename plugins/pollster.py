@@ -204,3 +204,114 @@ async def run_poll(n: int = 60, seed: int = 42, store: bool = True, priming: str
             out["ground_truth_ref"] = {"period": gt_q, "mean": gt["mean"]}
     logger.info("orakel poll %s: n=%d shares=%s", period_date, len(results), shares)
     return out
+
+
+# ============================================================
+# FRAMING RADAR — the validated relative instrument
+# ============================================================
+# Each recent news story is a stimulus; personas react between-subject
+# (interest 1-5 + would-share = viral-box). Output: which story resonates /
+# would spread, and with which segments. Generalizes teszterek/ma_mi_nyerne.
+
+def collect_stimuli(days: int = 3, max_items: int = 12) -> list[dict]:
+    """Distinct recent news stories (title+summary) from press_snapshots briefs."""
+    from pyramid.memory_rag import _get_db
+    conn = _get_db()
+    try:
+        rows = conn.execute(
+            "SELECT date_iso, content FROM press_snapshots WHERE signal_type='brief' "
+            "ORDER BY date_iso DESC LIMIT ?", (days,)).fetchall()
+    finally:
+        conn.close()
+    seen, out = set(), []
+    for r in rows:
+        b = json.loads(r["content"])
+        for t in (b.get("topics") or []) + (b.get("local_topics") or []):
+            title = (t.get("title") or "").strip()
+            key = title.lower()[:40]
+            if title and key not in seen:
+                seen.add(key)
+                out.append({"title": title, "summary": (t.get("summary") or "")[:220], "date": r["date_iso"]})
+    return out[:max_items]
+
+
+def _radar_prompt(p: dict, s: dict, priming: str = "") -> str:
+    pri = (priming + "\n\n") if priming else ""
+    return (
+        f"Te egy magyar állampolgár vagy: {p['age']}, lakóhely: {p['settlement']}, "
+        f"iskolázottság: {p['edu']}, {p['media']}.\n\n{pri}"
+        f"Megjelent ez a hír:\n„{s['title']}” — {s['summary']}\n\n"
+        "Őszintén, a saját szemszögedből: mennyire érdekel ez a hír, és megosztanád "
+        "vagy beszélnél-e róla másokkal?\n\n"
+        "Válaszolj PONTOSAN így:\nÉRDEKLŐDÉS: <1-5>\nMEGOSZTÁS: <igen/nem>\nINDOK: <egy rövid mondat>"
+    )
+
+
+def _parse_radar(text: str):
+    import re
+    mi = re.search(r"[ÉE]RDEKL[ŐO]D[ÉE]S:\s*([1-5])", text or "", re.I)
+    ms = re.search(r"MEGOSZT[ÁA]S:\s*(igen|nem)", text or "", re.I)
+    interest = int(mi.group(1)) if mi else None
+    share = (ms.group(1).lower() == "igen") if ms else False
+    return interest, share
+
+
+def _lean_bucket(media: str) -> str:
+    m = media.lower()
+    if "baloldali" in m or "liberális" in m:
+        return "baloldali"
+    if "jobboldali" in m:
+        return "jobboldali"
+    if "közmédia" in m:
+        return "közmédia"
+    return "egyéb/közömbös"
+
+
+async def run_framing_radar(n_per_cell: int = 6, days: int = 3, seed: int = 42, priming: str = "") -> dict:
+    """Between-subject framing radar over the recent news stories. Returns a
+    viral-box-ranked list of stories with mean interest and per-lean breakdown."""
+    import httpx
+    from collections import defaultdict
+    stimuli = collect_stimuli(days=days)
+    if not stimuli:
+        return {"error": "no stimuli (press_snapshots empty)"}
+    personas = generate_personas(n_per_cell * len(stimuli), seed)
+    sem = asyncio.Semaphore(CONCURRENCY)
+
+    async with httpx.AsyncClient(
+            headers={"Authorization": f"Bearer {SF_KEY}"}, timeout=90) as client:
+        async def _one(i, p):
+            s = stimuli[i % len(stimuli)]
+            async with sem:
+                try:
+                    interest, share = _parse_radar(await _chat(client, _radar_prompt(p, s, priming)))
+                    if interest is None:
+                        return None
+                    return {"story": s["title"], "lean": _lean_bucket(p["media"]),
+                            "interest": interest, "share": share}
+                except Exception as e:  # noqa: BLE001
+                    logger.warning("radar persona %s failed: %s", p["id"], e)
+                    return None
+        recs = [r for r in await asyncio.gather(*[_one(i, p) for i, p in enumerate(personas)]) if r]
+
+    agg = defaultdict(lambda: {"n": 0, "interest": [], "share": 0, "lean": defaultdict(lambda: [0, 0])})
+    for r in recs:
+        a = agg[r["story"]]
+        a["n"] += 1
+        a["interest"].append(r["interest"])
+        a["share"] += 1 if r["share"] else 0
+        lb = a["lean"][r["lean"]]
+        lb[0] += 1
+        lb[1] += 1 if r["share"] else 0
+
+    ranking = []
+    for story, a in agg.items():
+        ranking.append({
+            "story": story, "n": a["n"],
+            "interest": round(sum(a["interest"]) / len(a["interest"]), 2),
+            "viral_box": round(a["share"] / a["n"] * 100, 1),
+            "by_lean": {k: round(v[1] / v[0] * 100) for k, v in a["lean"].items() if v[0]},
+        })
+    ranking.sort(key=lambda x: x["viral_box"], reverse=True)
+    logger.info("framing radar: %d stories, %d responses", len(ranking), len(recs))
+    return {"days": days, "stimuli": len(stimuli), "responses": len(recs), "ranking": ranking}
