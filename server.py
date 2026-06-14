@@ -8243,6 +8243,28 @@ async def _cron_loop():
     except ImportError:
         BP_TZ = timezone(timedelta(hours=2))  # CEST fallback
     _last_cleanup = ""
+
+    # ── Startup backfill: seed the press-review corpus if the news RAG is empty.
+    # Runs once per boot in this daemon thread (AFTER the 10s sleep, so it never
+    # blocks main-thread startup — cf. the 2026-05-20 startup-hang incident).
+    # Idempotent per date, so restarts with data already present are a no-op.
+    try:
+        from pyramid.memory_rag import _get_db as _rag_db
+        _c = _rag_db()
+        _news_count = _c.execute(
+            "SELECT COUNT(*) AS c FROM pyramid_agent_rag WHERE agent_id='echolot' AND category='news'"
+        ).fetchone()["c"]
+        _c.close()
+        if _news_count == 0:
+            from plugins.daily_press_review import fetch_and_store_press_review
+            _bf = await fetch_and_store_press_review()
+            logger.info("Cron startup backfill: stored=%s days=%s",
+                        _bf.get("stored"), [x.get("date") for x in _bf.get("days", [])])
+        else:
+            logger.info("Cron startup backfill skipped (news RAG has %d entries)", _news_count)
+    except Exception as e:  # noqa: BLE001
+        logger.error("Cron startup backfill failed: %s", e)
+
     while True:
         try:
             now_dt = datetime.now(timezone.utc)           # UTC for DB timestamps
