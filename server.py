@@ -1854,6 +1854,29 @@ async def api_press_snapshots(request):
     return JSONResponse({"count": len(items), "items": items})
 
 
+@mcp.custom_route("/api/poll_results", methods=["GET"])
+async def api_poll_results(request):
+    """Pártpreferencia ground truth (partpreferencia.hu) — negyedéves aggregátumok.
+
+    Query: kind (ground_truth|prediction, default ground_truth), base (default teljes_nepesseg).
+    """
+    kind = request.query_params.get("kind", "ground_truth")
+    base = request.query_params.get("base", "teljes_nepesseg")
+    from pyramid.memory_rag import _get_db
+    from plugins.poll_results import aggregate
+    conn = _get_db()
+    try:
+        try:
+            periods = [r["period"] for r in conn.execute(
+                "SELECT DISTINCT period FROM poll_results WHERE kind=? ORDER BY period", (kind,)).fetchall()]
+        except Exception:  # noqa: BLE001 — table may not exist yet
+            periods = []
+    finally:
+        conn.close()
+    return JSONResponse({"kind": kind, "base": base,
+                         "periods": [aggregate(p, base=base, kind=kind) for p in periods]})
+
+
 # ============================================================
 # SILICONFLOW AI SUB-AGENTS (Kimi-K2.6, DeepSeek V3.2, etc.)
 # ============================================================
@@ -8317,6 +8340,15 @@ async def _cron_loop():
                         _news_count)
     except Exception as e:  # noqa: BLE001
         logger.error("Cron startup backfill failed: %s", e)
+
+    # Seed pollster ground truth (partpreferencia.hu 2025) — pure DB, idempotent.
+    try:
+        from plugins.poll_results import seed_ground_truth
+        _gt = seed_ground_truth()
+        if _gt:
+            logger.info("Cron startup: seeded %d poll ground-truth rows", _gt)
+    except Exception as e:  # noqa: BLE001
+        logger.error("Cron startup poll seed failed: %s", e)
 
     while True:
         try:

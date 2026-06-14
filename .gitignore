@@ -8,3 +8,4 @@ thoughts*.md
 plan*.md
 reauth.py
 vertical_plugins/pilot_results/
+data/poll_ground_truth/
