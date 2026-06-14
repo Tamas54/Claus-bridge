@@ -1785,6 +1785,32 @@ async def api_pyramid(request):
     })
 
 
+@mcp.custom_route("/api/news", methods=["GET"])
+async def api_news(request):
+    """Napi sajtószemle — az Echolot brief RAG-bejegyzései (agent=echolot, category=news)."""
+    try:
+        limit = int(request.query_params.get("limit", "30"))
+    except (TypeError, ValueError):
+        limit = 30
+    from pyramid.memory_rag import _get_db
+    conn = _get_db()
+    try:
+        rows = conn.execute(
+            "SELECT task_title, category, content, timestamp FROM pyramid_agent_rag "
+            "WHERE agent_id = 'echolot' AND category = 'news' "
+            "ORDER BY timestamp DESC LIMIT ?",
+            (limit,),
+        ).fetchall()
+    finally:
+        conn.close()
+    items = [
+        {"title": r["task_title"], "category": r["category"],
+         "content": r["content"], "timestamp": r["timestamp"]}
+        for r in rows
+    ]
+    return JSONResponse({"count": len(items), "items": items})
+
+
 # ============================================================
 # SILICONFLOW AI SUB-AGENTS (Kimi-K2.6, DeepSeek V3.2, etc.)
 # ============================================================

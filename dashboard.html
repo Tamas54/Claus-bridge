@@ -1097,6 +1097,7 @@ select {
     <div class="tab" data-tab="memory">MEMÓRIA</div>
     <div class="tab" data-tab="tasks">FELADATOK</div>
     <div class="tab" data-tab="aitasks">AI FELADATOK<span class="tab-badge" id="aiBadge" style="display:none"></span></div>
+    <div class="tab" data-tab="news">&#x1F4F0; SAJTÓSZEMLE</div>
     <div class="tab" data-tab="pyramid">&#x1F53A; PYRAMID</div>
   </div>
 </nav>
@@ -1360,6 +1361,12 @@ select {
   <div id="pyramidDisabled" style="display:none;text-align:center;padding:2rem;color:var(--text-muted)">
     Pyramid modul nincs engedélyezve.
   </div>
+</section>
+
+<!-- ===== SAJTÓSZEMLE (NEWS) ===== -->
+<section class="panel" id="panel-news">
+  <div class="section-title">NAPI SAJTÓSZEMLE &mdash; Echolot brief &rarr; RAG (VILÁG + ITTHON)</div>
+  <div id="newsList"></div>
 </section>
 </main>
 
@@ -1991,6 +1998,36 @@ async function loadPyramid() {
   }
 }
 
+// ===== SAJTÓSZEMLE (NEWS) =====
+function fmtBrief(text) {
+  return esc(text || '').split('\n').map(line => {
+    if (line.startsWith('## ')) return '<strong style="color:var(--phosphor)">' + line.slice(3) + '</strong>';
+    return line;
+  }).join('<br>');
+}
+
+async function loadNews() {
+  const data = await api('/api/news');
+  const div = document.getElementById('newsList');
+  if (!data.count) {
+    div.innerHTML = '<div style="color:var(--text-muted);text-align:center;padding:1rem">Még nincs sajtószemle a RAG-ban. A cron 06:00-kor (Budapest) tölti.</div>';
+    return;
+  }
+  div.innerHTML = `<div style="color:var(--text-secondary);margin-bottom:0.5rem">${data.count} bejegyzés</div>` +
+    data.items.map(it => {
+      const isWorld = /VILÁG/.test(it.title);
+      const color = isWorld ? 'var(--ice)' : 'var(--gold)';
+      const tag = isWorld ? '&#x1F30D; VILÁG' : '&#x1F3E0; ITTHON';
+      // strip the leading "title\n\n" line from the stored content
+      const body = (it.content || '').replace(/^[^\n]*\n\n/, '');
+      return `<div class="msg-card" style="margin-bottom:0.6rem;border-left:3px solid ${color}">
+        <div class="msg-header"><span class="msg-sender">${tag}</span> <span class="msg-time">${new Date(it.timestamp).toLocaleString('hu')}</span></div>
+        <div class="msg-subject">${esc(it.title)}</div>
+        <div class="msg-body" style="white-space:normal;line-height:1.5">${fmtBrief(body)}</div>
+      </div>`;
+    }).join('');
+}
+
 // ===== REFRESH =====
 async function refresh() {
   showLoading();
@@ -2002,6 +2039,7 @@ async function refresh() {
       case 'memory': await loadMemory(); break;
       case 'tasks': await loadTasks(); break;
       case 'aitasks': await loadAiTasks(); break;
+      case 'news': await loadNews(); break;
       case 'pyramid': await loadPyramid(); break;
     }
     // Always update badge
