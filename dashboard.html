@@ -2022,6 +2022,9 @@ async function loadSnapshots() {
   const latest = dates[0];
   const spheres = (items.find(i => i.signal_type === 'spheres' && i.date_iso === latest) || {}).content;
   const news = (items.find(i => i.signal_type === 'news' && i.date_iso === latest) || {}).content;
+  const trending = (items.find(i => i.signal_type === 'trending' && i.date_iso === latest) || {}).content;
+  const velocity = (items.find(i => i.signal_type === 'velocity' && i.date_iso === latest) || {}).content;
+  const entities = (items.find(i => i.signal_type === 'entities' && i.date_iso === latest) || {}).content;
 
   let html = `<div style="color:var(--text-secondary);margin-bottom:0.5rem">Archívum: <strong>${dates.length} nap</strong> (${dates[dates.length-1]} … ${dates[0]})</div>`;
 
@@ -2046,6 +2049,35 @@ async function loadSnapshots() {
       arts.slice(0, 6).map(a => `<div style="font-size:0.72rem;color:var(--text-secondary);margin:0.15rem 0">&bull; ${esc((a.title||'').slice(0,110))} <span style="color:var(--text-muted)">${esc(a.source_name||'')}</span></div>`).join('') +
       `</div>`;
   }
+
+  // trending topics
+  const trArr = trending && Array.isArray(trending.trending) ? trending.trending.slice(0, 8) : [];
+  if (trArr.length) {
+    html += `<div class="msg-card" style="margin-bottom:0.6rem;border-left:3px solid var(--phosphor)">
+      <div class="msg-subject">&#x1F525; Trending (${latest})</div>` +
+      trArr.map(t => `<div style="font-size:0.72rem;color:var(--text-secondary);margin:0.12rem 0">&bull; <strong>${esc(t.keyword||'')}</strong> <span style="color:var(--text-muted)">${t.source_count||0} forrás &middot; ${t.article_count||0} cikk</span></div>`).join('') + `</div>`;
+  }
+
+  // velocity — spiking spheres
+  const velArr = velocity && Array.isArray(velocity.spheres) ? velocity.spheres.filter(s => s.status === 'spike').slice(0, 6) : [];
+  if (velArr.length) {
+    html += `<div class="msg-card" style="margin-bottom:0.6rem;border-left:3px solid var(--orange,#e8a)">
+      <div class="msg-subject">&#x26A1; Felpörgő szférák (${latest})</div>` +
+      velArr.map(s => `<div style="font-size:0.72rem;color:var(--text-secondary);margin:0.12rem 0">&bull; ${esc(s.sphere||'')} <span style="color:var(--text-muted)">&times;${(s.velocity_ratio||0).toFixed(1)} (${s.current_count||0}/${s.baseline_count||0})</span></div>`).join('') + `</div>`;
+  }
+
+  // top entities
+  const entArr = entities && Array.isArray(entities.entities) ? entities.entities.slice(0, 8) : [];
+  if (entArr.length) {
+    html += `<div class="msg-card" style="margin-bottom:0.6rem;border-left:3px solid var(--ice)">
+      <div class="msg-subject">&#x1F464; Top entitások (${latest})</div>` +
+      entArr.map(e => {
+        const sent = e.avg_sent || 0;
+        const col = sent > 0.05 ? 'var(--green)' : (sent < -0.05 ? '#e0608a' : 'var(--text-muted)');
+        return `<div style="font-size:0.72rem;color:var(--text-secondary);margin:0.12rem 0">&bull; ${esc(e.label||'')} <span style="color:var(--text-muted)">${e.mentions||0} említés</span> <span style="color:${col}">${sent>=0?'+':''}${sent.toFixed(2)}</span></div>`;
+      }).join('') + `</div>`;
+  }
+
   box.innerHTML = html;
 }
 
