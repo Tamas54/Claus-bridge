@@ -1811,6 +1811,49 @@ async def api_news(request):
     return JSONResponse({"count": len(items), "items": items})
 
 
+@mcp.custom_route("/api/press_snapshots", methods=["GET"])
+async def api_press_snapshots(request):
+    """Napi info-környezet pillanatképek (press_snapshots) — a pollster forward press DB-je.
+
+    Query: date_iso, lang (default hu), signal_type (brief/spheres/news), limit (default 30).
+    """
+    try:
+        limit = int(request.query_params.get("limit", "30"))
+    except (TypeError, ValueError):
+        limit = 30
+    date_iso = request.query_params.get("date_iso", "")
+    lang = request.query_params.get("lang", "")
+    signal_type = request.query_params.get("signal_type", "")
+    from pyramid.memory_rag import _get_db
+    conn = _get_db()
+    try:
+        sql = "SELECT date_iso, lang, signal_type, content, created_at FROM press_snapshots WHERE 1=1"
+        params: list = []
+        if date_iso:
+            sql += " AND date_iso = ?"; params.append(date_iso)
+        if lang:
+            sql += " AND lang = ?"; params.append(lang)
+        if signal_type:
+            sql += " AND signal_type = ?"; params.append(signal_type)
+        sql += " ORDER BY date_iso DESC, signal_type LIMIT ?"; params.append(limit)
+        try:
+            rows = conn.execute(sql, params).fetchall()
+        except Exception:  # noqa: BLE001 — table may not exist yet
+            rows = []
+    finally:
+        conn.close()
+    items = []
+    for r in rows:
+        try:
+            content = json.loads(r["content"])
+        except Exception:  # noqa: BLE001
+            content = r["content"]
+        items.append({"date_iso": r["date_iso"], "lang": r["lang"],
+                      "signal_type": r["signal_type"], "content": content,
+                      "created_at": r["created_at"]})
+    return JSONResponse({"count": len(items), "items": items})
+
+
 # ============================================================
 # SILICONFLOW AI SUB-AGENTS (Kimi-K2.6, DeepSeek V3.2, etc.)
 # ============================================================
