@@ -75,9 +75,13 @@ _GROUND_TRUTH_2026Q2_DECIDED = [
     ("2026-Q2", "Iránytű",           "2026-04-04", 40, 51, 2, 4, 0),
 ]
 
-# 2026 OGY — ACTUAL election result (NVI, 100% processed, party-list vote).
-# THE gold-standard ground truth (real votes, not a poll). Note: the published
-# polls overstated Tisza by ~22pp vs this — the real race was much tighter.
+# 2026 OGY — ACTUAL election result (NVI, 100%, party-list). Gold ground truth.
+# TIMELINE (important): this is the 12 Apr 2026 result (Tisza +14.6). The
+# 2026-Q2 rows above are POST-election (May–Jun) and show Tisza +37 NOT because
+# the polls erred but because Fidesz COLLAPSED after losing power — a later,
+# different reality. Pre-election polls were relatively accurate. A panel
+# grounded on CURRENT (June) news should track the post-collapse state
+# (~2026-Q2), not this April result.
 # (pollster, date_end, fidesz, tisza, dk, mihazank, bizonytalan=0 — list vote = cast votes)
 _GROUND_TRUTH_2026_ELECTION = [
     ("NVI (tényleges)", "2026-04-12", 38.61, 53.18, 1.10, 5.63, 0),
