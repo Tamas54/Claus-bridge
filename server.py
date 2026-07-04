@@ -749,13 +749,19 @@ async def create_task(title: str, assigned_to: str, assigned_by: str,
 
 @mcp.tool()
 async def update_task(task_id: int, status: str = None, description: str = None,
-                      caller: str = "") -> str:
-    """Update a task's status or description.
+                      replace_description: bool = False, caller: str = "") -> str:
+    """Update a task's status or append notes to its description.
 
     Args:
         task_id: Task ID
         status: pending / in_progress / completed / cancelled
-        description: Updated description (append notes)
+        description: Notes to APPEND to the existing description (a
+            timestamped separator is inserted automatically). The old
+            behaviour silently REPLACED the whole description — that wiped
+            the #15/#16 task bodies twice on 2026-07-04.
+        replace_description: True → overwrite the ENTIRE description with
+            `description` instead of appending. Use only deliberately
+            (e.g. restoring a clobbered task).
         caller: Instance ID for permission check
     """
     denied = _enforce(caller, "update_task")
@@ -766,10 +772,24 @@ async def update_task(task_id: int, status: str = None, description: str = None,
     if status:
         conn.execute("UPDATE tasks SET status=?, updated_at=? WHERE id=?", (status, ts, task_id))
     if description:
-        conn.execute("UPDATE tasks SET description=?, updated_at=? WHERE id=?", (description, ts, task_id))
+        if replace_description:
+            conn.execute("UPDATE tasks SET description=?, updated_at=? WHERE id=?",
+                         (description, ts, task_id))
+        else:
+            # SQL-oldali konkatenáció: atomi, így két instance egyidejű
+            # append-je sem tudja egymás jegyzetét (pláne a teljes listát)
+            # kiradírozni — a 2026-07-04-i write-race tanulsága.
+            suffix = f"\n\n--- [{ts} · {caller or 'unknown'}] ---\n{description}"
+            conn.execute(
+                "UPDATE tasks SET description = CASE "
+                "WHEN description IS NULL OR description = '' THEN ? "
+                "ELSE description || ? END, updated_at=? WHERE id=?",
+                (description, suffix, ts, task_id))
     conn.commit()
     conn.close()
-    return json.dumps({"status": "updated", "task_id": task_id})
+    return json.dumps({"status": "updated", "task_id": task_id,
+                       "description_mode": ("replaced" if (description and replace_description)
+                                            else "appended" if description else "unchanged")})
 
 
 @mcp.tool()
