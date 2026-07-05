@@ -8558,6 +8558,28 @@ async def _cron_loop():
                         logger.error("Cron daily_press_review failed: %s", e)
                     continue
 
+                # ── Agora-sorszolgálat special-case ──
+                # `agora_duty_*` (napi 2x komment+reakció kör) és `agora_essay_*`
+                # (heti esszék) NEM a generikus ai_task úton mennek: a
+                # plugins.agora_duty.cron_entry saját pipeline-t futtat
+                # (nyelvi kapu, dedup, kvóták, kill switch), random jitterrel —
+                # háttér-taskként, hogy a jitter-sleep ne blokkolja a cron loopot.
+                if r["name"].startswith("agora_duty") or r["name"].startswith("agora_essay"):
+                    try:
+                        from plugins.agora_duty import cron_entry as _agora_cron
+                        _agora_deps = {
+                            "get_db": get_db,
+                            "siliconflow_api_key": SILICONFLOW_API_KEY,
+                            "siliconflow_base_url": SILICONFLOW_BASE_URL,
+                            "siliconflow_timeout": SILICONFLOW_TIMEOUT,
+                            "siliconflow_models": SILICONFLOW_MODELS,
+                        }
+                        asyncio.create_task(_agora_cron(r["name"], _agora_deps))
+                        logger.info("Cron agora: %s háttér-task elindítva (jitteres)", r["name"])
+                    except Exception as e:  # noqa: BLE001
+                        logger.error("Cron agora dispatch failed for %s: %s", r["name"], e)
+                    continue
+
                 # Execute via ai_task dispatch (same path as execute_recipe)
                 try:
                     recipe_conn = get_db()

@@ -80,6 +80,16 @@ def build_agent_context(
     sections.append(f"# A CLAUS-BRIDGE RENDSZER\n{get_bridge_info()}")
     sections.append(f"# A CSAPAT\n{get_team_info()}")
 
+    # 3/B. AGORA-SZOLGÁLAT — Echolot Agora persona-réteg (Von Takt / Der
+    # Kartograph / Frau Lupe). Csak a 3 érintett agentnél nem üres.
+    try:
+        from plugins._agora_personas import get_agora_service_block
+        agora_block = get_agora_service_block(agent_id)
+        if agora_block:
+            sections.append(agora_block)
+    except Exception as e:
+        logger.debug("Agora service block unavailable: %s", e)
+
     # 4. Shared Memory
     if include_shared_memory:
         shared = get_shared_memory_summary(max_items=20)
