@@ -89,7 +89,7 @@ TOOLS = [
         "parameters": {"type": "object", "properties": {"task_id": {"type": "integer", "description": "Task ID szám"}}, "required": ["task_id"]}}},
     # ── Web ──
     {"type": "function", "function": {
-        "name": "web_fetch", "description": "Statikus weboldal HTML-tartalmának letöltése URL alapján (HTML strippelve, 4000 karakterig). Gyors és olcsó. JS-rendered SPA-knál (Eurostat newsroom, MNB-honlap) használj `web_scrape`-et.",
+        "name": "web_fetch", "description": "Statikus weboldal HTML-tartalmának letöltése URL alapján (HTML strippelve, 6000 karakterig). Gyors és olcsó. JS-rendered SPA-knál (Eurostat newsroom, MNB-honlap) használj `web_scrape`-et.",
         "parameters": {"type": "object", "properties": {"url": {"type": "string", "description": "A letöltendő URL"}}, "required": ["url"]}}},
     {"type": "function", "function": {
         "name": "web_search", "description": "Web-keresés (Brave Search engine + DDG fallback). Akkor jó, ha friss adatra (Eurostat flash, MNB-közlemény, ECB döntés), részletes forrásokra, vagy nem-hír jellegű információra van szükség. Visszaad cím + URL + leírás találatokat.",
@@ -814,7 +814,11 @@ async def _execute_tool(name: str, args: dict, ctx) -> str:
             text = re.sub(r'<style[^>]*>.*?</style>', '', text, flags=re.DOTALL)
             text = re.sub(r'<[^>]+>', ' ', text)
             text = re.sub(r'\s+', ' ', text).strip()
-            return json.dumps({"url": url, "content": text[:4000], "length": len(text)}, ensure_ascii=False)
+            # 6000 = a saját web_scrape-sapkával azonos. Szándékosan konzervatívabb,
+            # mint a Bridge sub-agent web_fetch (30000): a Feldwebel Telegram-chat
+            # asszisztens görgetett historyval — egy 30k-s oldaldump minden további
+            # kört terhelne, és a válasz úgyis Telegram-üzenet méretű.
+            return json.dumps({"url": url, "content": text[:6000], "length": len(text)}, ensure_ascii=False)
         except Exception as e:
             return json.dumps({"error": str(e)})
 
