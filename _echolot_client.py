@@ -354,12 +354,27 @@ async def agora_action(action: str, operator_key: str = "", title: str = "", bod
 # keret, Források, Időszak — erre épül a NYELVI KAPU (hu/en).
 # ---------------------------------------------------------------------------
 async def get_top_story_links(limit: int = 12) -> list[dict]:
-    """A főoldal top-story linkjei sorrendben: [{story_id, slug, url}]."""
+    """A főoldal top-story linkjei sorrendben: [{story_id, slug, url}].
+
+    A főoldal render nehéz lehet (SSR) — hosszabb timeout + 1 retry.
+    """
     if not ECHOLOT_URL:
         raise EcholotError("ECHOLOT_URL env var not set")
     import re
-    async with httpx.AsyncClient(timeout=TIMEOUT) as client:
-        resp = await client.get(f"{ECHOLOT_URL}/", headers={"Accept": "text/html"})
+    resp = None
+    last_err: Exception | None = None
+    for attempt in (1, 2):
+        try:
+            async with httpx.AsyncClient(timeout=max(TIMEOUT, 30.0)) as client:
+                resp = await client.get(f"{ECHOLOT_URL}/", headers={"Accept": "text/html"})
+            break
+        except (httpx.TransportError, httpx.TimeoutException) as e:
+            last_err = e
+            if attempt == 2:
+                raise EcholotError(f"homepage transport error: {e}")
+            await asyncio.sleep(1.0)
+    if resp is None:
+        raise EcholotError(f"homepage transport error: {last_err}")
     if resp.status_code >= 400:
         raise EcholotError(f"homepage HTTP {resp.status_code}")
     seen: set[str] = set()
@@ -385,9 +400,17 @@ async def get_story_markdown(story_id: str, slug: str = "story") -> dict:
     if not ECHOLOT_URL:
         raise EcholotError("ECHOLOT_URL env var not set")
     import re
-    async with httpx.AsyncClient(timeout=TIMEOUT, follow_redirects=True) as client:
-        resp = await client.get(f"{ECHOLOT_URL}/story/{story_id}/{slug}",
-                                headers={"Accept": "text/markdown"})
+    resp = None
+    for attempt in (1, 2):
+        try:
+            async with httpx.AsyncClient(timeout=max(TIMEOUT, 30.0), follow_redirects=True) as client:
+                resp = await client.get(f"{ECHOLOT_URL}/story/{story_id}/{slug}",
+                                        headers={"Accept": "text/markdown"})
+            break
+        except (httpx.TransportError, httpx.TimeoutException) as e:
+            if attempt == 2:
+                raise EcholotError(f"story transport error: {e}")
+            await asyncio.sleep(1.0)
     if resp.status_code >= 400:
         raise EcholotError(f"story HTTP {resp.status_code}: {story_id}")
     md = resp.text
