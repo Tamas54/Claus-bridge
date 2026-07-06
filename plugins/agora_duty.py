@@ -18,7 +18,13 @@ Biztonsági fékek:
   - Tartalmi guard minden kimenő poszt előtt (hossz, nyelv, személyes
     adat, szitkozódás).
   - Kvóták az agora_activity táblából (Budapest-nap): max 3 komment/nap,
-    3 reakció/nap (max 1 dislike), heart max 1/hét, 1 reakció/target.
+    3 reakció/nap (max 1 dislike), heart max 1/hét, 1 reakció/target,
+    max 2 kép-upload/nap/agent.
+  - Média: Von Takt (statdata → "egy kép + egy szám") és Der Kartograph
+    (regional_framing → régiós kontraszt-chart) saját tool-outputból
+    renderelt PNG-t csatolhat (plugins/_agora_charts + _agora_media).
+    A média-guard küldés előtt töröl minden idegen media-refet és
+    videó-URL-t; upload-hiba → kép nélküli poszt (soft).
   - Hiba → 1 retry (a kliensben), aztán log és csendes skip.
 """
 from __future__ import annotations
@@ -41,6 +47,11 @@ __plugin_meta__ = {
 }
 
 from plugins._agora_personas import AGORA_AGENTS, AGORA_COMMON_RULES  # noqa: E402
+from plugins._agora_media import (  # noqa: E402
+    MAX_IMAGES_PER_COMMENT, MAX_IMAGES_PER_ESSAY, MAX_MEDIA_PER_DAY,
+    build_image_markdown, can_upload_media, media_guard, media_uploads_today,
+    record_media_upload, upload_agora_media,
+)
 
 # ---------------------------------------------------------------------------
 # Konfiguráció
@@ -69,7 +80,7 @@ _INIT_SQL = """
 CREATE TABLE IF NOT EXISTS agora_activity (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     agent TEXT NOT NULL,
-    kind TEXT NOT NULL,          -- comment|reply|reaction_like|reaction_dislike|reaction_heart|essay|skip_lang|skip_beat|skip_dedup|skip_quota|error
+    kind TEXT NOT NULL,          -- comment|reply|reaction_like|reaction_dislike|reaction_heart|essay|media_upload|skip_lang|skip_beat|skip_dedup|skip_quota|error
     story_id TEXT DEFAULT '',
     target_id TEXT DEFAULT '',   -- comment_id / agora post_id
     lang TEXT DEFAULT '',
@@ -463,23 +474,30 @@ def _trim(obj, limit: int) -> str:
     return s[:limit]
 
 
-async def prefetch_beat_data(agent_key: str, query: str, statdata_preset: str = "") -> str:
-    """Az agent beat-tooljainak friss outputja, prompt-blokk formában."""
+async def prefetch_beat_data(agent_key: str, query: str,
+                             statdata_preset: str = "") -> tuple[str, dict]:
+    """Az agent beat-tooljainak friss outputja.
+
+    Returns: (prompt_block, chart_source) — a chart_source a média-réteg
+    nyers alapanyaga (von_takt: statdata-entries, der_kartograph: regionális
+    compact dict). Hiba esetén ("", {}).
+    """
     ec = _echolot()
     try:
         if agent_key == "von_takt":
             import _statdata_client as sd
             if not sd.STATDATA_URL:
                 logger.warning("prefetch von_takt: STATDATA_URL nincs beállítva — statdata blokk kihagyva")
-                return ""
+                return "", {}
             preset = statdata_preset if statdata_preset in STATDATA_PRESETS_ALLOWED else "markets"
             entries, label = await sd.resolve_data_context({"presets": [preset]})
             # hibás sorozatok kiszűrése — a hibaüzenet ne szivárogjon a promptba
             entries = [e for e in entries if not (isinstance(e, dict) and e.get("error"))]
             if not entries:
-                return ""
+                return "", {}
             block = sd.format_data_block(entries, label=label)
-            return f"=== FACTUAL CONTEXT (statdata:{preset}) ===\n{_trim(block, 9000)}\n=== END ==="
+            return (f"=== FACTUAL CONTEXT (statdata:{preset}) ===\n{_trim(block, 9000)}\n=== END ===",
+                    {"statdata_entries": entries, "preset": preset})
         if agent_key == "der_kartograph":
             rf = await ec.mcp_call("regional_framing", {"query": query, "days": 7})
             compact = {}
@@ -495,9 +513,10 @@ async def prefetch_beat_data(agent_key: str, query: str, statdata_preset: str = 
             nd = await ec.narrative_divergence(query, days=3, per_sphere_limit=3)
             nd_compact = {sph: [it.get("title") for it in items[:3]]
                           for sph, items in (nd.get("by_sphere") or {}).items()}
-            return ("=== REGIONAL FRAMING (Echolot) ===\n" + _trim(compact, 5000) +
-                    "\n=== NARRATIVE DIVERGENCE ===\n" + _trim(nd_compact, 3000) +
-                    "\n=== END ===")
+            return (("=== REGIONAL FRAMING (Echolot) ===\n" + _trim(compact, 5000) +
+                     "\n=== NARRATIVE DIVERGENCE ===\n" + _trim(nd_compact, 3000) +
+                     "\n=== END ==="),
+                    {"regional": compact, "query": query})
         if agent_key == "frau_lupe":
             fd = await ec.mcp_call("frame_divergence", {"query": query, "days": 7})
             fd_compact = {sph: {"dominant_frame": d.get("dominant_frame"),
@@ -507,12 +526,109 @@ async def prefetch_beat_data(agent_key: str, query: str, statdata_preset: str = 
             rev_compact = [{"source": r.get("source"), "old_title": r.get("old_title"),
                             "new_title": r.get("new_title"), "revised_at": r.get("revised_at")}
                            for r in (rev.get("revisions") or [])[:8]]
-            return ("=== FRAME DIVERGENCE (Echolot) ===\n" + _trim(fd_compact, 4000) +
-                    "\n=== STEALTH-EDIT RADAR (article_revisions, 7 nap) ===\n" +
-                    _trim(rev_compact, 3500) + "\n=== END ===")
+            return (("=== FRAME DIVERGENCE (Echolot) ===\n" + _trim(fd_compact, 4000) +
+                     "\n=== STEALTH-EDIT RADAR (article_revisions, 7 nap) ===\n" +
+                     _trim(rev_compact, 3500) + "\n=== END ==="),
+                    {})
     except Exception as e:  # noqa: BLE001
         logger.error("prefetch_beat_data failed (%s): %s", agent_key, e)
-    return ""
+    return "", {}
+
+
+# ---------------------------------------------------------------------------
+# Média-kör — chart-render + upload (Von Takt: statdata, Der Kartograph:
+# regional_framing). Minden hiba puha: az agent kép nélkül posztol tovább.
+# ---------------------------------------------------------------------------
+async def _von_takt_chart_spec(deps: dict, entries: list[dict],
+                               topic: str, lang: str) -> dict | None:
+    """Von Takt saját modellje chart-specet SPECIFIKÁL a statdata-outputból —
+    a render és a csatolás Pythoné. A spec-et a validate_chart_spec szűri."""
+    data_json = _trim(entries, 7000)
+    system = ("Adatvizualizációs asszisztens vagy. A kapott statisztikai "
+              "tool-outputból EGYETLEN mini-ábra specifikációját adod meg. "
+              "SZIGORÚAN JSON-nal válaszolsz, más szöveg nélkül.")
+    user = (
+        f"TÉMA: {topic}\n\nSTATISZTIKAI TOOL-OUTPUT (JSON):\n{data_json}\n\n"
+        "Válassz ki a fenti adatból EGY, a témához legrelevánsabb numerikus "
+        "sorozatot (idősor → kind=line, kategóriák → kind=bar), 2-24 pont. "
+        "CSAK a fenti outputban ténylegesen szereplő számokat használd — "
+        "számot kitalálni TILOS. A 'source' a valódi adatforrás neve legyen "
+        "(pl. KSH, Eurostat, MNB, FRED, Yahoo Finance) az időszakkal. "
+        "A 'key_number' az ábra EGYETLEN kulcsszáma, mértékegységgel. "
+        f"A title/unit/key_number nyelve: {'magyar' if lang == 'hu' else 'English'}.\n"
+        "Ha a fenti adatban NINCS a témához értelmes sorozat, válaszolj: "
+        '{"skip": true}\n\n'
+        'VÁLASZ (csak JSON): {"kind": "line|bar", "title": "...", '
+        '"labels": ["..."], "values": [1.0], "unit": "...", "source": "...", '
+        '"key_number": "..."}'
+    )
+    raw = await _sf_chat(deps, "kimi", system, user, max_tokens=1200, temperature=0.2)
+    parsed = _extract_json(raw)
+    if not isinstance(parsed, dict) or parsed.get("skip"):
+        return None
+    return parsed
+
+
+async def prepare_chart_media(deps: dict, get_db, agent_key: str,
+                              chart_source: dict, topic: str, lang: str,
+                              op_key: str, dry_run: bool,
+                              story_id: str = "") -> dict:
+    """Chart-render + Agora-upload egy poszthoz. SOFT: bármely lépés hibája
+    esetén üres media_id-val tér vissza, és az agent kép nélkül posztol.
+
+    Returns: {"media_id", "image_md", "alt", "key_number", "status"}
+    """
+    out = {"media_id": "", "image_md": "", "alt": "", "key_number": "",
+           "status": "skip"}
+    if agent_key not in ("von_takt", "der_kartograph") or not chart_source:
+        return out
+    try:
+        from plugins import _agora_charts as ch
+        if not ch.HAS_MPL:
+            out["status"] = "no_matplotlib"
+            return out
+        if not can_upload_media(get_db, agent_key):
+            out["status"] = f"daily_media_quota ({MAX_MEDIA_PER_DAY}/nap elérve)"
+            return out
+
+        png, alt = None, ""
+        if agent_key == "von_takt":
+            entries = chart_source.get("statdata_entries") or []
+            if not entries:
+                return out
+            spec = ch.validate_chart_spec(
+                await _von_takt_chart_spec(deps, entries, topic, lang))
+            if not spec:
+                out["status"] = "no_valid_chart_spec"
+                return out
+            png = ch.render_from_spec(spec)
+            alt = ch.spec_alt_text(spec, lang)
+            out["key_number"] = spec.get("key_number", "")
+        else:  # der_kartograph
+            png, alt = ch.kartograph_regional_chart(
+                chart_source.get("regional") or {},
+                chart_source.get("query") or topic, lang)
+
+        if not png:
+            out["status"] = "render_failed"
+            return out
+        out["alt"] = alt
+        if dry_run:
+            out["status"] = "dry_run_rendered (nincs upload)"
+            return out
+
+        media = await upload_agora_media(png, "image/png", op_key)
+        if not media:
+            out["status"] = "upload_failed (kép nélkül posztolunk)"
+            return out
+        out["media_id"] = str(media.get("media_id"))
+        out["image_md"] = build_image_markdown(alt, out["media_id"])
+        out["status"] = "uploaded"
+        record_media_upload(get_db, agent_key, out["media_id"], story_id, alt)
+    except Exception as e:  # noqa: BLE001
+        logger.error("prepare_chart_media failed (%s): %s", agent_key, e)
+        out["status"] = "error"
+    return out
 
 
 # ---------------------------------------------------------------------------
@@ -530,7 +646,8 @@ def _persona_system(agent_key: str, lang: str) -> str:
 
 
 async def generate_comment(deps: dict, agent_key: str, story: dict,
-                           tool_block: str, lang: str, retry_reason: str = "") -> str:
+                           tool_block: str, lang: str, retry_reason: str = "",
+                           chart_note: str = "") -> str:
     a = AGORA_AGENTS[agent_key]
     story_md = _trim(story.get("markdown", ""), 4500)
     data_note = ("" if tool_block else
@@ -546,6 +663,14 @@ async def generate_comment(deps: dict, agent_key: str, story: dict,
         "mondanak ki. Ne foglald össze a hírt — elemezz. "
         "CSAK a komment szövegét add vissza, semmi mást (nincs cím, nincs aláírás)."
     )
+    if chart_note:
+        user += (
+            f"\n\nKÉP-CSATOLMÁNY: a kommentedhez a rendszer egy saját adatból "
+            f"renderelt ábrát csatol — {chart_note}. Formátum: 'EGY KÉP + EGY "
+            "SZÁM' — a kommented az ábra kulcsszáma köré épüljön, tömör "
+            "szöveggel (cél: 300-600 karakter). NE írj a szövegbe kép-linket, "
+            "markdown-képet vagy media: hivatkozást — a csatolást a rendszer végzi."
+        )
     if retry_reason:
         user += (f"\n\nFONTOS — az előző változatot a tartalmi szűrő elutasította "
                  f"(ok: {retry_reason}). Írd újra úgy, hogy ez a hiba ne forduljon elő.")
@@ -674,6 +799,10 @@ async def reaction_round(deps: dict, get_db, agent_key: str, story_ids: list[str
                 justif = reply_bodies.pop(cid, None)
                 if justif:
                     ok, why, body = content_guard(str(justif.get("body") or ""), target["lang"])
+                    if ok:
+                        # reply nem hordozhat képet/videót — idegen media-ref és videó-URL ki
+                        body, _mg = media_guard(body, set(), target["lang"], max_images=0)
+                        ok = bool(body.strip())
                     if ok and not dry_run:
                         try:
                             res = await ec.post_comment(story_id=sid, body=body, operator_key=op_key,
@@ -704,6 +833,10 @@ async def reaction_round(deps: dict, get_db, agent_key: str, story_ids: list[str
             rlang = target["lang"] if target["lang"] in ("hu", "en") else "hu"
             ok, why, body = content_guard(str(rep.get("body") or ""), rlang)
             if not ok:
+                continue
+            # reply nem hordozhat képet/videót — idegen media-ref és videó-URL ki
+            body, _mg = media_guard(body, set(), rlang, max_images=0)
+            if not body.strip():
                 continue
             new_id = ""
             if not dry_run:
@@ -799,13 +932,29 @@ async def run_agora_duty(deps: dict, dry_run: bool = False, only_agent: str = ""
             continue
 
         lang = story["_lang"]
-        tool_block = await prefetch_beat_data(agent_key, str(m.get("query") or story["title"]),
-                                              str(m.get("statdata_preset") or ""))
+        tool_block, chart_source = await prefetch_beat_data(
+            agent_key, str(m.get("query") or story["title"]),
+            str(m.get("statdata_preset") or ""))
+
+        # ── Média-kör: chart-render + upload MÉG a szöveg előtt (hogy a
+        #    prompt tudjon a csatolmányról). Soft: hiba → kép nélkül. ──
+        media = await prepare_chart_media(deps, get_db, agent_key, chart_source,
+                                          str(m.get("query") or story["title"]),
+                                          lang, op_key, dry_run, story_id=sid)
+        ar["media"] = {"status": media["status"], "media_id": media["media_id"],
+                       "alt": media["alt"][:120]}
+        chart_note = ""
+        if media["media_id"] or media["status"].startswith("dry_run_rendered"):
+            chart_note = media["alt"]
+            if media["key_number"]:
+                chart_note += f" Kulcsszám: {media['key_number']}."
+
         ok, why, body = False, "", ""
         for attempt in (1, 2):  # guard-elutasításnál 1 retry, hibaokkal visszacsatolva
             try:
                 draft = await generate_comment(deps, agent_key, story, tool_block, lang,
-                                               retry_reason=why if attempt > 1 else "")
+                                               retry_reason=why if attempt > 1 else "",
+                                               chart_note=chart_note)
             except Exception as e:  # noqa: BLE001
                 ar["action"] = f"error: komment-generálás — {e}"
                 _log_act(get_db, agent_key, "error", sid, "", lang, f"gen:{e}")
@@ -819,6 +968,21 @@ async def run_agora_duty(deps: dict, dry_run: bool = False, only_agent: str = ""
         if not ok:
             ar["action"] = f"guard_reject: {why}"
             _log_act(get_db, agent_key, "error", sid, "", lang, f"guard:{why}")
+            continue
+
+        # ── Média-guard: a kép-hivatkozást Python illeszti be, és KIZÁRÓLAG
+        #    a most feltöltött saját media_id maradhat; idegen media-ref és
+        #    videó-URL küldés előtt törlődik. ──
+        if media["image_md"]:
+            body = media["image_md"] + "\n\n" + body
+        allowed = {media["media_id"]} if media["media_id"] else set()
+        body, mg = media_guard(body, allowed, lang, max_images=MAX_IMAGES_PER_COMMENT)
+        if any(mg[k] for k in ("removed_unknown", "removed_bad_alt",
+                               "removed_video", "removed_raw_ref")):
+            ar["media_guard"] = mg
+        if not body.strip():
+            ar["action"] = "guard_reject: media_guard után üres body"
+            _log_act(get_db, agent_key, "error", sid, "", lang, f"media_guard:{mg}")
             continue
 
         ar["draft"] = body
@@ -916,12 +1080,27 @@ async def run_agora_essay(deps: dict, agent_key: str, dry_run: bool = False) -> 
     lang = sel.get("lang") if sel.get("lang") in ("hu", "en") else \
         next(c["_lang"] for c in candidates if c["story_id"] == sids[0])
 
-    tool_block = await prefetch_beat_data(agent_key, str(sel.get("query") or ""), "hu_macro")
+    tool_block, chart_source = await prefetch_beat_data(
+        agent_key, str(sel.get("query") or ""), "hu_macro")
+
+    # ── Média-kör az esszéhez: 1 saját ábra, ha a beat-adatból kirajzolható ──
+    media = await prepare_chart_media(deps, get_db, agent_key, chart_source,
+                                      str(sel.get("query") or sel.get("angle") or ""),
+                                      lang, op_key, dry_run, story_id=sids[0])
+    report["media"] = {"status": media["status"], "media_id": media["media_id"],
+                       "alt": media["alt"][:120]}
+    chart_line = ""
+    if media["media_id"] or media["status"].startswith("dry_run_rendered"):
+        chart_line = (f"\nKÉP-CSATOLMÁNY: az esszéhez a rendszer egy saját adatból "
+                      f"renderelt ábrát csatol — {media['alt']} Építs rá a "
+                      "szövegben, de NE írj kép-linket, markdown-képet vagy "
+                      "media: hivatkozást — a csatolást a rendszer végzi.")
+
     ref_md = "\n\n---\n\n".join(_trim(c.get("markdown", ""), 2500)
                                 for c in candidates if c["story_id"] in sids)
     essay_user = (
         f"FELHASZNÁLT STORY-K (id-k: {', '.join(sids)}):\n{ref_md}\n\n{tool_block}\n\n"
-        f"Írj esszét az Agorára. Fókusz: {sel.get('angle','')}\n"
+        f"Írj esszét az Agorára. Fókusz: {sel.get('angle','')}{chart_line}\n"
         f"Nyelv: {'magyar' if lang == 'hu' else 'English'}. Terjedelem: {ESSAY_MIN}-{ESSAY_MAX} "
         "karakter. Szerkezet: erős nyitás, 2-4 gondolati blokk a tool-adatokra építve, "
         "zárás továbbgondolásra érdemes kérdéssel. Tényállítás csak a fenti anyagból.\n\n"
@@ -965,6 +1144,20 @@ async def run_agora_essay(deps: dict, agent_key: str, dry_run: bool = False) -> 
     if len(body) < ESSAY_MIN * 0.8:
         report["status"] = f"reject: túl rövid esszé ({len(body)} kar.)"
         _log_act(get_db, agent_key, "error", sids[0], "", lang, f"essay too short: {len(body)}")
+        return report
+
+    # ── Média-guard az esszén: saját ábra beillesztése + idegen media-ref
+    #    és videó-URL törlése küldés előtt ──
+    if media["image_md"]:
+        body = media["image_md"] + "\n\n" + body
+    allowed = {media["media_id"]} if media["media_id"] else set()
+    body, mg = media_guard(body, allowed, lang, max_images=MAX_IMAGES_PER_ESSAY)
+    if any(mg[k] for k in ("removed_unknown", "removed_bad_alt",
+                           "removed_video", "removed_raw_ref")):
+        report["media_guard"] = mg
+    if not body.strip():
+        report["status"] = "guard_reject: media_guard után üres body"
+        _log_act(get_db, agent_key, "error", sids[0], "", lang, f"essay-media_guard:{mg}")
         return report
 
     report.update({"title": title, "author_note": note, "lang": lang,
@@ -1183,6 +1376,7 @@ def register_tools(app, deps):
                     "reactions_today": f"{c['reactions_today']}/{MAX_REACTIONS_PER_DAY}",
                     "dislikes_today": f"{c['dislikes_today']}/{MAX_DISLIKES_PER_DAY}",
                     "hearts_week": f"{c['hearts_week']}/{MAX_HEARTS_PER_WEEK}",
+                    "media_uploads_today": f"{media_uploads_today(get_db, k)}/{MAX_MEDIA_PER_DAY}",
                 },
             }
         conn = get_db()

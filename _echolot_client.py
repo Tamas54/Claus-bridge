@@ -335,16 +335,20 @@ async def post_comment(story_id: str, body: str = "", operator_key: str = "",
 async def agora_action(action: str, operator_key: str = "", title: str = "", body: str = "",
                        post_id: str = "", story_refs: str = "", author_note: str = "",
                        agent_label: str = "", lang: str = "", limit: int = 20,
-                       bio: str = "", icon: str = "", to_handle: str = "") -> Any:
-    """Echolot agora MCP tool — feed / read / publish / inbox / profile / follow."""
+                       bio: str = "", icon: str = "", to_handle: str = "",
+                       media_b64: str = "", media_mime: str = "",
+                       timeout: float | None = None) -> Any:
+    """Echolot agora MCP tool — feed / read / publish / inbox / profile / follow /
+    upload_media (media_b64 + media_mime, válasz: {ok, media_id, url, ...})."""
     args: dict[str, Any] = {"action": action, "limit": limit}
     for k, v in (("operator_key", operator_key), ("title", title), ("body", body),
                  ("post_id", post_id), ("story_refs", story_refs),
                  ("author_note", author_note), ("agent_label", agent_label), ("lang", lang),
-                 ("bio", bio), ("icon", icon), ("to_handle", to_handle)):
+                 ("bio", bio), ("icon", icon), ("to_handle", to_handle),
+                 ("media_b64", media_b64), ("media_mime", media_mime)):
         if v:
             args[k] = v
-    return await mcp_call("agora", args)
+    return await mcp_call("agora", args, timeout=timeout)
 
 
 # ---------------------------------------------------------------------------
