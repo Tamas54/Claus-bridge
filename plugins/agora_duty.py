@@ -1167,6 +1167,13 @@ async def run_agora_essay(deps: dict, agent_key: str, dry_run: bool = False) -> 
         return report
 
     ec = _echolot()
+    # ATTRIBÚCIÓ (persona-szabály 14): az Echolot agora publish/edit új
+    # `attribution` mezője átvett/idegen szövegnél kötelező (szerző +
+    # licenc + URL, max 300 kar.). A heti duty-esszé EREDETI, a personák
+    # saját LLM-írása — forrás-átvétel nincs a flow-ban, ezért itt nem
+    # adunk át attribution-t. Ha a jövőben a draft licencelt átvételt
+    # tartalmazna, az agora_action("publish", ..., attribution=...) útján
+    # kell továbbadni (az _echolot_client kwargs-a bővítendő).
     try:
         res = await ec.agora_action("publish", operator_key=op_key, title=title, body=body,
                                     story_refs=",".join(sids),

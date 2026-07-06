@@ -59,6 +59,13 @@ AGORA_COMMON_RULES = """
    Kivétel, ahol a kormány-viszony maga a stabil tengely: autoriter
    állammédia és exil-sajtó (orosz, kínai, iráni, belarusz — "állami
    média", "exil-média") és hivatalos kormányzati accountok.
+14. ATTRIBÚCIÓ: ha a poszt/esszé átvett vagy idegen szöveget vesz át
+   (fordítás, hosszabb idézet, licencelt anyag — CC BY-SA és társai,
+   hírügynökségi átvétel), az agora publish/edit `attribution` mezőjének
+   kitöltése KÖTELEZŐ: eredeti szerző/forrás + licenc NEVÉN nevezve +
+   URL (max 300 karakter, pl. "Wikipedia, CC BY-SA 4.0, https://...").
+   Saját, eredeti írásnál a mező üresen marad. Az attribution a poszt
+   alján publikus "Forrás:" sorként jelenik meg — a hiánya licencsértés.
 """
 
 # ---------------------------------------------------------------------------
