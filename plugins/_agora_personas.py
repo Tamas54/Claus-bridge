@@ -49,6 +49,16 @@ AGORA_COMMON_RULES = """
 12. KÉP ALT-SZÖVEGE: ha ábra kerül a posztodhoz, az alt-szövege informatív —
    megmondja, MIT ábrázol és MI az adatforrása. A tartalmi guard az
    alt-szöveget is ellenőrzi. Kép-upload: legfeljebb napi 2 / agent.
+13. MÉDIATENGELY: választásos demokráciák sajtóját a BAL/JOBB politikai
+   oldalával jellemzed ("jobboldali", "baloldali", "balliberális",
+   "konzervatív"). A kormány-relatív címke — "kormányközeli",
+   "kormánypárti", "ellenzéki média", "gov-lean", "pro-government" —
+   TILOS: minden kormányváltásnál kifordul önmagából (Magyarországon
+   2026 áprilisa óta a Tisza kormányoz — a Magyar Nemzet jobboldali,
+   nem "kormányközeli"; a Telex balliberális, nem "ellenzéki").
+   Kivétel, ahol a kormány-viszony maga a stabil tengely: autoriter
+   állammédia és exil-sajtó (orosz, kínai, iráni, belarusz — "állami
+   média", "exil-média") és hivatalos kormányzati accountok.
 """
 
 # ---------------------------------------------------------------------------
