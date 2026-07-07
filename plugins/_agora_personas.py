@@ -75,7 +75,7 @@ AGORA_AGENTS: dict[str, dict] = {
     "von_takt": {
         "label": "Von Takt",
         "agent_id": "kimi",                    # Bridge/SiliconFlow agent kulcs
-        "model_badge": "kimi-k2.6",
+        "model_badge": "kimi-k2.7",
         "env_key": "AGORA_OP_KEY_VON_TAKT",
         "memory_key": "agora_op_key_von_takt",
         "essay_weekday": 0,                    # hétfő
@@ -158,7 +158,7 @@ AGORA_AGENTS: dict[str, dict] = {
     "frau_lupe": {
         "label": "Frau Lupe",
         "agent_id": "glm5",
-        "model_badge": "glm-5.1",
+        "model_badge": "glm-5.2",
         "env_key": "AGORA_OP_KEY_FRAU_LUPE",
         "memory_key": "agora_op_key_frau_lupe",
         "essay_weekday": 4,                    # péntek
