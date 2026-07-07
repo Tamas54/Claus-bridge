@@ -163,7 +163,7 @@ TOOLS = [
         }, "required": ["file_id", "to"]}}},
     # ── Kép elemzés ──
     {"type": "function", "function": {
-        "name": "analyze_upload", "description": "Feltöltött kép elemzése Kimi K2.6 vision modellel. Upload #ID szükséges.",
+        "name": "analyze_upload", "description": "Feltöltött kép elemzése Kimi K2.7 vision modellel. Upload #ID szükséges.",
         "parameters": {"type": "object", "properties": {
             "file_id": {"type": "integer", "description": "Upload fájl ID (pl. #2)"},
             "prompt": {"type": "string", "description": "Kérdés a képről", "default": "Mit latsz a kepen? Ird le reszletesen, magyarul."},
@@ -217,7 +217,7 @@ Szereped:
 FONTOS — AI agentek (rizsrakéták):
 - **Kimi** (model="kimi"): 256k kontextus, kutató/elemző
 - **DeepSeek** (model="deepseek"): gyors gondolkodás, kritikus
-- **GLM-5.1** (model="glm5"): 200k kontextus, 128k output, kódoló + MCP tool-use specialist
+- **GLM-5.2** (model="glm5"): 200k kontextus, 128k output, kódoló + MCP tool-use specialist
 
 SZABÁLYOK az agentekhez:
 - Ha a Kommandant azt mondja "adj ki feladatot", "kérdezd meg", "nézzen utána", "elemezze", vagy BÁRMILYEN agentet említ név szerint → AZONNAL hívd a megfelelő tool-t! NE keress Gmail-ben, NE válaszolj szövegben!
@@ -233,7 +233,7 @@ SZABÁLYOK az agentekhez:
   * econ_calendar — közelgő adatközlések és jegybanki események
 - Ha a Kommandant árfolyamot, kamatot, piaci adatot kér → AZONNAL hívd a megfelelő közgazdasági tool-t!
 - "Adj ki feladatot Kiminek kutatásra" → ai_task(title="...", description="Kimi feladata: ...")
-- "Kérdezd meg GLM-5.1-et mi a véleménye" → ai_query(model="glm5", prompt="...")
+- "Kérdezd meg GLM-5.2-et mi a véleménye" → ai_query(model="glm5", prompt="...")
 - "Mind a hárman elemezzétek" → ai_task(title="...", description="...")
 
 FRISS HÍRKONTEXTUS (Echolot) — opcionális paraméter:
@@ -256,7 +256,7 @@ RECIPE-K (workflow template-ek) — FONTOS:
 - MINDIG az execute_recipe tool-t használd recipe futtatásra! SOHA NE használj ai_task-ot recipe-hez!
 - Egy agent: execute_recipe(name="...", model="glm5") — gyors, ~30mp
 - Mind a 3 agent: execute_recipe(name="...", model="all") — alapos de lassabb (~3-5 perc)
-- Ha a Kommandant konkrét agentet kér (pl. "GLM-5.1-gyel"): model="glm5"
+- Ha a Kommandant konkrét agentet kér (pl. "GLM-5.2-gyel"): model="glm5"
 - Ha "mind a hárman" / "összes agent" / "alaposan": model="all"
 - Alapértelmezés: model="deepseek" (gyors, egy agent)
 - "Futtasd le a napi briefet" / "reggeli brief" → execute_recipe(name="daily_briefing")
@@ -518,7 +518,7 @@ async def _call_deepseek(ctx, model_id: str, messages: list, use_tools: bool = T
             "temperature": 0.7,
             "max_tokens": 2000,
         }
-        # K2.6 + V4-Pro default thinking ON on SF — clamp HARD in the agent loop.
+        # K2.x + V4-Pro default thinking ON on SF — clamp HARD in the agent loop.
         # reasoning_effort=medium proved insufficient for V4-Pro: with
         # tool_choice="required" on round 0 the model reasoned but never committed
         # to content OR a tool call (5 empty rounds). The agent loop is purely
@@ -530,7 +530,7 @@ async def _call_deepseek(ctx, model_id: str, messages: list, use_tools: bool = T
             # tool_choice="required" is REJECTED by deepseek-reasoner (V4-Pro)
             # on SiliconFlow with code 20015 "does not support this tool_choice".
             # Skip it for DeepSeek; the system prompt + provided tools steer the
-            # model to call them anyway. Kimi K2.6 still supports it cleanly.
+            # model to call them anyway. Kimi K2.7 still supports it cleanly.
             if force_tool and "DeepSeek" not in model_id:
                 payload["tool_choice"] = "required"
 
@@ -1082,7 +1082,7 @@ async def _execute_tool(name: str, args: dict, ctx) -> str:
             sf_key = ctx.siliconflow_api_key
             sf_base = ctx.siliconflow_base_url
             sf_models = ctx.siliconflow_models
-            model_id = sf_models.get("kimi", "moonshotai/Kimi-K2.6")
+            model_id = sf_models.get("kimi", "moonshotai/Kimi-K2.7-Code")
             data_url = f"data:{row['mime_type']};base64,{row['content_base64']}"
             vision_payload = {
                 "model": model_id,
@@ -1148,7 +1148,7 @@ async def _execute_tool(name: str, args: dict, ctx) -> str:
                 doc = DocxDocument()
                 doc.add_heading(task["title"], level=1)
                 doc.add_paragraph(f'Kiadta: {task["assigned_by"]} | Dátum: {task["created_at"][:10]}')
-                agent_names = {"kimi": "Kimi-K2.6", "deepseek": "DeepSeek V3.2", "glm5": "GLM-5.1", "szintézis": "Szintézis"}
+                agent_names = {"kimi": "Kimi-K2.7", "deepseek": "DeepSeek V3.2", "glm5": "GLM-5.2", "szintézis": "Szintézis"}
                 for r in results:
                     doc.add_heading(agent_names.get(r["agent"], r["agent"]), level=2)
                     for line in (r["content"] or "").split("\n"):

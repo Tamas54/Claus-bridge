@@ -10,9 +10,9 @@ PROFILES_DIR = Path(__file__).parent / "profiles"
 # prompts: state the cutoff explicitly so the model doesn't silently override
 # the runtime date with stale training memory.
 TRAINING_CUTOFFS = {
-    "kimi":     "2024 vége / 2025 eleje (Kimi K2.6, Moonshot)",
+    "kimi":     "2024 vége / 2025 eleje (Kimi K2.7, Moonshot)",
     "deepseek": "2025 közepe (DeepSeek V4-Pro)",
-    "glm5":     "2026 első negyedéve (GLM-5.1, ~4 hetes modell)",
+    "glm5":     "2026 első negyedéve (GLM-5.2, ~4 hetes modell)",
 }
 
 WEEKDAYS_HU = ["hétfő", "kedd", "szerda", "csütörtök", "péntek", "szombat", "vasárnap"]
@@ -21,7 +21,7 @@ WEEKDAYS_HU = ["hétfő", "kedd", "szerda", "csütörtök", "péntek", "szombat"
 def temporal_directive(agent_name: str = "") -> str:
     """Strong temporal-grounding + anti-hallucination block for SF agent system prompts.
 
-    Without this block Kimi K2.6 (and to a lesser extent V4-Pro) silently
+    Without this block Kimi K2.7 (and to a lesser extent V4-Pro) silently
     "corrects" any post-cutoff date in the prompt back to what its training
     remembers as 'now', then writes the entire response in that wrong frame.
     The Anthropic Opus 4.7 system prompt and Moonshot's own K2 Thinking
@@ -85,7 +85,7 @@ def temporal_directive(agent_name: str = "") -> str:
 
 AGENT_REGISTRY: Dict[str, Dict[str, Any]] = {
     "kimi": {
-        "model_id": "moonshotai/Kimi-K2.6",
+        "model_id": "moonshotai/Kimi-K2.7-Code",
         "provider": "siliconflow",
         "default_temperature": 0.6,
         "default_max_tokens": 8000,
@@ -97,7 +97,7 @@ AGENT_REGISTRY: Dict[str, Dict[str, Any]] = {
         "default_max_tokens": 8000,
     },
     "glm5": {
-        "model_id": "zai-org/GLM-5.1",
+        "model_id": "zai-org/GLM-5.2",
         "provider": "siliconflow",
         "default_temperature": 0.7,
         "default_max_tokens": 16000,
@@ -138,7 +138,7 @@ def get_bridge_info() -> str:
 def get_team_info() -> str:
     team = load_profile("team")
     if not team:
-        return "Csapat: Web-Claus, CLI-Claus, Kimi, DeepSeek, GLM-5.1."
+        return "Csapat: Web-Claus, CLI-Claus, Kimi, DeepSeek, GLM-5.2."
     return json.dumps(team, ensure_ascii=False, indent=2)
 
 

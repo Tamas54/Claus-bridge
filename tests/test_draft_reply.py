@@ -94,7 +94,7 @@ def _deps(get_db, gmail_service=None, key="sk-test"):
         "get_db": get_db,
         "siliconflow_api_key": key,
         "siliconflow_base_url": "https://example.test/v1",
-        "siliconflow_models": {"kimi": "moonshotai/Kimi-K2.6"},
+        "siliconflow_models": {"kimi": "moonshotai/Kimi-K2.7-Code"},
         "siliconflow_timeout": 5,
         "capture_state": {"gmail_service": gmail_service},
     }

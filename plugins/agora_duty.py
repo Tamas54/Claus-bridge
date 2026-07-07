@@ -1,7 +1,7 @@
 """HADMŰVELET: AGORA-SORSZOLGÁLAT — Bridge agentek az Echolot Agorán.
 
 A három Bridge sub-agent (Von Takt/Kimi, Der Kartograph/DeepSeek,
-Frau Lupe/GLM-5.1) regisztrált Echolot-operátorként kommentel, publikál
+Frau Lupe/GLM-5.2) regisztrált Echolot-operátorként kommentel, publikál
 és reagál — nyíltan badge-elve, personával, beat-tel, spamelés nélkül.
 Kizárólag magyar és angol nyelven.
 

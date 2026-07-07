@@ -1022,7 +1022,7 @@ async def read_ai_task_results(task_id: int = 0, limit: int = 10, caller: str = 
 async def analyze_image(image_base64: str, mime_type: str = "image/jpeg",
                         prompt: str = "Mit latsz a kepen? Ird le reszletesen, magyarul.",
                         caller: str = "") -> str:
-    """Analyze an image using Kimi K2.6 vision model. Works with any image source.
+    """Analyze an image using Kimi K2.7 vision model. Works with any image source.
 
     Args:
         image_base64: Base64-encoded image data
@@ -1119,7 +1119,7 @@ def _generate_xlsx(task, results) -> "BytesIO":
     ws["A3"] = f'Kiadta: {task["assigned_by"]} | Dátum: {task["created_at"][:10]}'
 
     row = 5
-    agent_names = {"kimi": "Kimi-K2.6", "deepseek": "DeepSeek V3.2", "glm5": "GLM-5.1", "szintézis": "Szintézis"}
+    agent_names = {"kimi": "Kimi-K2.7", "deepseek": "DeepSeek V3.2", "glm5": "GLM-5.2", "szintézis": "Szintézis"}
     for col, header_text in enumerate(["Agent", "Tartalom", "Időpont"], 1):
         cell = ws.cell(row=row, column=col, value=header_text)
         cell.font = header_font
@@ -1898,7 +1898,7 @@ async def api_poll_results(request):
 
 
 # ============================================================
-# SILICONFLOW AI SUB-AGENTS (Kimi-K2.6, DeepSeek V3.2, etc.)
+# SILICONFLOW AI SUB-AGENTS (Kimi-K2.7, DeepSeek V3.2, etc.)
 # ============================================================
 
 SILICONFLOW_API_KEY = os.environ.get("SILICONFLOW_API_KEY", "")
@@ -1908,9 +1908,9 @@ SILICONFLOW_TIMEOUT = 360  # 2026-05-11: 220→360s; the statdata_macro 3-step
                             # reasoner-mode tool-use loop past the old limit.
 
 SILICONFLOW_MODELS = {
-    "kimi": "moonshotai/Kimi-K2.6",
+    "kimi": "moonshotai/Kimi-K2.7-Code",
     "deepseek": "deepseek-ai/DeepSeek-V4-Pro",
-    "glm5": "zai-org/GLM-5.1",
+    "glm5": "zai-org/GLM-5.2",
 }
 
 # Egyetlen designált research-agent broadcast módban — `deep_research=True`
@@ -1919,7 +1919,7 @@ SILICONFLOW_MODELS = {
 # 2026-05-09: deepseek → kimi switch. V4-Pro reasoner cannot reliably
 # emit structured tool_calls on SiliconFlow (DSML format leak), so the
 # multi-round research loop produced empty results when V4-Pro was the
-# designated researcher. Kimi K2.6 with thinking-disabled handles the
+# designated researcher. Kimi K2.7 with thinking-disabled handles the
 # same loop cleanly.
 BROADCAST_RESEARCH_AGENT = "kimi"
 
@@ -1946,7 +1946,7 @@ async def _ai_auto_discuss(discussion_id: int, topic: str, thread_so_far: str):
 
     async def _discuss_agent(agent_name, model_id):
         """Run one discussion agent with 1 retry on timeout."""
-        # K2.6 defaults thinking ON on SF — force OFF (latency unacceptable).
+        # K2.x defaults thinking ON on SF — force OFF (latency unacceptable).
         # V4-Pro defaults thinking ON too — clamp to reasoning_effort=medium
         # (low rambles, high blows the SF 220s budget on long tasks).
         if agent_name == "kimi":
@@ -2442,7 +2442,7 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
                    deep_research: bool = False, deep_thinking: bool = False,
                    output_format: str = "",
                    news_context: str = "", data_context: str = "") -> str:
-    """Query a SiliconFlow AI sub-agent (Kimi-K2.6, DeepSeek-V4-Pro, or GLM-5.1).
+    """Query a SiliconFlow AI sub-agent (Kimi-K2.7, DeepSeek-V4-Pro, or GLM-5.2).
 
     Use for research, analysis, translation, summarization, or second opinions.
     These models run on SiliconFlow cloud — no local resources needed.
@@ -2459,7 +2459,7 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
             Use for press review, market briefs, fact-checking, anything where
             1-shot search isn't enough. Slower (~30-90s), uses real DDG.
         deep_thinking: Enable reasoning mode for DeepSeek (reasoning_effort=high).
-            NOTE: Kimi K2.6 thinking is FORCED OFF on the SF endpoint regardless
+            NOTE: Kimi K2.7 thinking is FORCED OFF on the SF endpoint regardless
             of this flag — explicit thinking on 25k+ token contexts routinely
             times out at the 220s SiliconFlow ceiling (#150, #151 evidence). The
             model's endogenous reasoning is strong enough without it. Default
@@ -2567,7 +2567,7 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
     messages.append({"role": "user", "content": prompt})
 
     # Agent extras: thinking/reasoning kapcsolók. deep_thinking=True felülírja
-    # a default clamping-et — DE Kimi-nél MINDIG disabled. A Kimi-K2.6 SF
+    # a default clamping-et — DE Kimi-nél MINDIG disabled. A Kimi-K2.7 SF
     # endpoint deep_thinking + 25k+ tokenes kontextusen rendszeresen 220s
     # timeout-ba fut (#150, #151 task is így halt). A model endogén reasoning-ja
     # erős thinking nélkül is. (2026-05-05 fix.)
@@ -4655,7 +4655,7 @@ async def _dispatch_subagent_tool(name: str, args: dict) -> str:
 
 # Text-marker tool-call detection: substrings that indicate the model emitted
 # its tool calls as content text instead of the proper OpenAI `tool_calls` JSON
-# field. Kimi K2.6 and DeepSeek-V4-Pro do this routinely on SiliconFlow.
+# field. Kimi K2.7 and DeepSeek-V4-Pro do this routinely on SiliconFlow.
 TEXT_MARKER_TOKENS = (
     "<|tool_call",       # Kimi: <|tool_calls_section_begin|> ... <|tool_call_begin|>
     "<｜｜DSML｜｜",       # DeepSeek DSML (full-width pipes, double)
@@ -4673,7 +4673,7 @@ def _extract_text_marker_tool_calls(content: str) -> list[tuple[str, dict]]:
 
     Handles three formats:
 
-    1. Kimi K2.6 (SiliconFlow):
+    1. Kimi K2.7 (SiliconFlow):
        <|tool_call_begin|>functions.NAME[:N]<|tool_call_argument_begin|>{JSON}<|tool_call_end|>
 
     2. DeepSeek DSML (SiliconFlow, full-width pipes):
@@ -4789,7 +4789,7 @@ def _strip_tool_call_markers(content: str) -> str:
     """Remove leaked Kimi/DeepSeek/Anthropic tool-call markers from final text.
 
     When deep_research's final synthesis round fails to suppress tool emission
-    (Kimi K2.6 routinely ignores tools=off and still writes <|tool_calls_section_*|>
+    (Kimi K2.7 routinely ignores tools=off and still writes <|tool_calls_section_*|>
     blocks), the assistant content contains raw special-token blocks that are
     user-visible garbage. This helper rips them out before returning content
     to the caller.
@@ -5343,7 +5343,7 @@ SYNTHESIS_NO_TOOLS_DIRECTIVE = (
 def _clean_synthesis_output(content: str) -> str:
     """Strip leaked tool_call markup from a synthesis response.
 
-    Last-line defense against models (esp. Kimi K2.6 in synthesis mode)
+    Last-line defense against models (esp. Kimi K2.7 in synthesis mode)
     that emit text-format tool_calls instead of plain prose. Removes both
     the Kimi-style and DeepSeek-style markup blocks. If after cleaning the
     content is empty, returns a placeholder so the DB row isn't NULL.
@@ -5512,7 +5512,7 @@ async def _deep_research_loop(
         else:
             # Final round: force synthesis with citations.
             # 2026-05-12: Stronger no-tools directive after task #202 where Kimi
-            # K2.6 still emitted <|tool_calls_section_*|> markers despite tools=off,
+            # K2.x still emitted <|tool_calls_section_*|> markers despite tools=off,
             # producing 2KB of garbage instead of the article. Explicit ban on
             # emitting special tokens + opening-instruction to start writing.
             messages = messages + [{
@@ -5696,12 +5696,12 @@ async def _deep_research_loop(
 def _model_extra(model_id: str) -> dict:
     """Per-model SiliconFlow request parameters.
 
-    - Kimi K2.6 in synthesis: thinking=disabled because reasoner mode timed
+    - Kimi K2.7 in synthesis: thinking=disabled because reasoner mode timed
       out routinely on 3-agent broadcast contexts (#150 crash, #152 Expecting
       value 48s later).
     - DeepSeek V4-Pro: reasoning_effort=medium because high triggered the
       same reasoner-mode timeouts in broadcast.
-    - GLM-5.1: no extras needed (no reasoner toggle).
+    - GLM-5.2: no extras needed (no reasoner toggle).
     """
     if "Kimi" in model_id:
         return {"thinking": {"type": "disabled"}}
@@ -5867,9 +5867,9 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
     # and feeds results back into the conversation. The new DSML extractor
     # variant added in 865ccfc covers the reasoner-mode native format.
     roles = {
-        "kimi": ("moonshotai/Kimi-K2.6", "Kutató és elemző. Alapos, részletes munkát végzel.", 20000, True),
+        "kimi": ("moonshotai/Kimi-K2.7-Code", "Kutató és elemző. Alapos, részletes munkát végzel.", 20000, True),
         "deepseek": ("deepseek-ai/DeepSeek-V4-Pro", "Kritikus elemző és ellenőr. Logikai hibákat keresel, ellenérveket fogalmazol, hipotéziseket vizsgálsz. Használd a tool-okat ahol releváns adat kell.", 20000, True),
-        "glm5": ("zai-org/GLM-5.1", "Végrehajtó és kóder. Konkrét megoldásokat, kódot, strukturált outputot adsz. Ha kell, implementálsz.", 20000, True),
+        "glm5": ("zai-org/GLM-5.2", "Végrehajtó és kóder. Konkrét megoldásokat, kódot, strukturált outputot adsz. Ha kell, implementálsz.", 20000, True),
     }
 
     task_prompt = f"FELADAT: {title}\n\nLEÍRÁS: {description}"
@@ -5932,7 +5932,7 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
                     system += OUTPUT_FORMAT_DIRECTIVES[output_format]
                 # Tell the sub-agent which 3 information tools it has and how to use them
                 system += SUBAGENT_TOOLS_DIRECTIVE
-                # Forbid text-marker tool_calls so Kimi K2.6 doesn't burn rounds
+                # Forbid text-marker tool_calls so Kimi K2.7 doesn't burn rounds
                 # emitting <|tool_calls_section_*|>
                 system += NO_TEXT_MARKER_DIRECTIVE
 
@@ -6264,7 +6264,7 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
                 {"role": "system", "content": system},
                 {"role": "user", "content": f"FELADAT: {title}\n\nAGENT EREDMÉNYEK:\n{parts}"},
             ]
-            # Synthesis fallback chain — Kimi K2.6 → DeepSeek V4-Pro → GLM-5.1.
+            # Synthesis fallback chain — Kimi K2.7 → DeepSeek V4-Pro → GLM-5.2.
             # Order rationale (Kommandant 2026-05-10): DeepSeek's reasoning
             # output on long-context summarization (the dispatch-task
             # accumulated agent results + research history can hit 100k+ tokens)
@@ -6273,9 +6273,9 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
             # in #172). Each model is re-validated through the classifier;
             # if the result is "ok" we keep it, otherwise we fall through.
             SYNTHESIS_CHAIN = (
-                ("moonshotai/Kimi-K2.6", "kimi"),
+                ("moonshotai/Kimi-K2.7-Code", "kimi"),
                 ("deepseek-ai/DeepSeek-V4-Pro", "deepseek"),
-                ("zai-org/GLM-5.1", "glm5"),
+                ("zai-org/GLM-5.2", "glm5"),
             )
             synthesis = ""
             synthesizer_used = None
@@ -6331,7 +6331,7 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
 async def ai_task(title: str, description: str, context: str = "", file_id: int = 0, assigned_by: str = "unknown",
                   agent_tasks: str = "", deep_research: bool = False, deep_thinking: bool = False,
                   output_format: str = "", news_context: str = "", data_context: str = "") -> str:
-    """Create and execute a multi-agent AI task. Kimi, DeepSeek, and GLM-5.1 work on it, then a synthesis is generated.
+    """Create and execute a multi-agent AI task. Kimi, DeepSeek, and GLM-5.2 work on it, then a synthesis is generated.
 
     Two modes:
     1. **Broadcast** (default): All agents get the same task.
@@ -6481,7 +6481,7 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
             # Forbid text-marker tool_call emission — JSON tool_calls only
             system_prompt += NO_TEXT_MARKER_DIRECTIVE
 
-            # K2.6 defaults thinking ON on SF — force OFF (latency unacceptable on dispatch path).
+            # K2.x defaults thinking ON on SF — force OFF (latency unacceptable on dispatch path).
             # In multi-agent DISPATCH mode (per-agent custom tasks), both
             # Kimi-thinking=enabled and DeepSeek-reasoning_effort=high routinely
             # time out or return empty bodies on 25k+ token contexts (#150
@@ -6662,7 +6662,7 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
                     logger.info("AI task #%d dispatch completed: %s", task_id, list(results.keys()))
                     return
 
-                # Synthesis — Kimi K2.6 combines per-agent outputs into a final brief.
+                # Synthesis — Kimi K2.7 combines per-agent outputs into a final brief.
                 # Each agent received a DIFFERENT prompt in dispatch mode, so the synthesis
                 # has to acknowledge the divergent fókuszok, not pretend agreement.
                 try:
@@ -6702,9 +6702,9 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
                     # reasoning output on long-context summarization is more
                     # thorough than GLM5's; GLM5 last as final fallback.
                     DISPATCH_SYNTHESIS_CHAIN = (
-                        ("moonshotai/Kimi-K2.6", "kimi"),
+                        ("moonshotai/Kimi-K2.7-Code", "kimi"),
                         ("deepseek-ai/DeepSeek-V4-Pro", "deepseek"),
-                        ("zai-org/GLM-5.1", "glm5"),
+                        ("zai-org/GLM-5.2", "glm5"),
                     )
                     synthesis = ""
                     synthesizer_used = None
@@ -6767,7 +6767,7 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
             loop.close()
         threading.Thread(target=_run, daemon=True).start()
 
-        return json.dumps({"status": "task_created", "task_id": task_id, "message": "Kimi + DeepSeek + GLM-5.1 dolgoznak rajta. Eredmény a dashboardon."})
+        return json.dumps({"status": "task_created", "task_id": task_id, "message": "Kimi + DeepSeek + GLM-5.2 dolgoznak rajta. Eredmény a dashboardon."})
 
 
 @mcp.custom_route("/api/upload", methods=["POST"])
@@ -6979,7 +6979,7 @@ async def api_ai_task_export(request):
         doc.add_paragraph(f'Kiadta: {task["assigned_by"]} | Dátum: {task["created_at"][:10]} | Státusz: {task["status"]}')
         doc.add_paragraph("—" * 40)
 
-        agent_names = {"kimi": "Kimi-K2.6 (Kutató)", "deepseek": "DeepSeek V3.2 (Kritikus)", "glm5": "GLM-5.1 (Végrehajtó)", "szintézis": "Koordinátori Szintézis"}
+        agent_names = {"kimi": "Kimi-K2.7 (Kutató)", "deepseek": "DeepSeek V3.2 (Kritikus)", "glm5": "GLM-5.2 (Végrehajtó)", "szintézis": "Koordinátori Szintézis"}
         for r in results:
             name = agent_names.get(r["agent"], r["agent"].upper())
             doc.add_heading(name, level=2)
@@ -6988,7 +6988,7 @@ async def api_ai_task_export(request):
                     doc.add_paragraph(para_text.strip())
 
         doc.add_paragraph("—" * 40)
-        doc.add_paragraph("Készítette: Claus Multi-Agent Rendszer (Kimi-K2.6 + DeepSeek V3.2 + GLM-5.1)")
+        doc.add_paragraph("Készítette: Claus Multi-Agent Rendszer (Kimi-K2.7 + DeepSeek V3.2 + GLM-5.2)")
 
         buf = BytesIO()
         doc.save(buf)
@@ -7173,11 +7173,11 @@ def _categorize_email(sender: str, subject: str) -> str:
 async def _analyze_image(image_base64: str, mime_type: str = "image/jpeg",
                          prompt: str = "Mit latsz a kepen? Ird le reszletesen, magyarul.",
                          model: str = "kimi") -> str:
-    """Central image analysis via vision model (Kimi K2.6). Usable from any channel."""
+    """Central image analysis via vision model (Kimi K2.7). Usable from any channel."""
     if not SILICONFLOW_API_KEY:
         return "(Vision nem elerheto — SILICONFLOW_API_KEY hianzik)"
 
-    model_id = SILICONFLOW_MODELS.get(model, "moonshotai/Kimi-K2.6")
+    model_id = SILICONFLOW_MODELS.get(model, "moonshotai/Kimi-K2.7-Code")
     data_url = f"data:{mime_type};base64,{image_base64}"
 
     try:
@@ -8196,10 +8196,10 @@ async def _telegram_poll_loop():
 
                             # Only analyze if caption requests it (e.g. "elemezd", "mi ez", any text)
                             if caption:
-                                await _telegram_push(f"📷 Kep fogadva (#{upload_id}), Kimi K2.6 elemzi...")
+                                await _telegram_push(f"📷 Kep fogadva (#{upload_id}), Kimi K2.7 elemzi...")
                                 analysis = await _analyze_image(image_b64, mime, caption)
                                 await _telegram_push(
-                                    f"📷 <b>KEP ELEMZES</b> (Kimi K2.6)\n\n{analysis[:3600]}\n\n"
+                                    f"📷 <b>KEP ELEMZES</b> (Kimi K2.7)\n\n{analysis[:3600]}\n\n"
                                     f"<i>Fajl #{upload_id} — tovabbkuldheto: \"kuldd el emailben a #{upload_id}-t\"</i>"
                                 )
                             else:

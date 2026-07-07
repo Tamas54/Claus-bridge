@@ -183,7 +183,7 @@ def register_tools(app, deps):
             f"Most ird meg a valasz-email torzset a Kommandant hangjan:"
         )
 
-        model_id = sf_models.get("kimi", "moonshotai/Kimi-K2.6")
+        model_id = sf_models.get("kimi", "moonshotai/Kimi-K2.7-Code")
 
         payload = {
             "model": model_id,
