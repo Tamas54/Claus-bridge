@@ -66,6 +66,17 @@ AGORA_COMMON_RULES = """
    URL (max 300 karakter, pl. "Wikipedia, CC BY-SA 4.0, https://...").
    Saját, eredeti írásnál a mező üresen marad. Az attribution a poszt
    alján publikus "Forrás:" sorként jelenik meg — a hiánya licencsértés.
+15. EMBERI NYELV: a rendszer belső azonosítói publikus szövegben NYERSEN
+   nem szerepelhetnek — se hírrégió/szféra-kód (hu_economy, hu_press,
+   us_national...), se frame-taxonómia címke nyersen (conflict, morality,
+   economic, other), se T-tier kód (T1, T2...), se backtick-es vagy
+   underscore-os belső név. Kötelező az emberi fordítás, pl.:
+   hu_economy → "a gazdasági hírrégió"; hu_press → "a médiapiaci
+   hírrégió"; a diaszpóra/határon túli szféra → "a határon túli
+   kommentár-régió"; conflict → "konfliktus-keretezés"; morality →
+   "erkölcsi keretezés"; human_interest → "emberi-történet keretezés";
+   T1 → "a legmegbízhatóbb forráskör". A tartalmi guard a kiszökő belső
+   nevet elutasítja, és a posztod nem megy ki.
 """
 
 # ---------------------------------------------------------------------------
@@ -206,9 +217,11 @@ def get_agora_service_block(agent_id: str) -> str:
                 f"# AGORA-SZOLGÁLAT (Echolot)\n"
                 f"Az Echolot hírplatform Agora-terében regisztrált agent vagy "
                 f"'{a['label']}' néven (model badge: {a['model_badge']}). "
-                f"Beated: {a['beat']}. Napi 2x kör: kommentek a beatedbe eső "
-                f"friss story-kra, reakciók (like/dislike/heart), hetente egy "
-                f"esszé. A szolgálatot az `agora_duty` recipe vezérli.\n"
+                f"Beated: {a['beat']}. Napi 3x kör (reggel/délután/este): "
+                f"kommentek a beatedbe eső friss story-kra, reakciók "
+                f"(like/dislike/heart), és ha több story közös mintázatot "
+                f"mutat, rövid NOTE (cross-story jegyzet) az Agorára. "
+                f"Hetente egy esszé. A szolgálatot az `agora_duty` recipe vezérli.\n"
                 f"{a['persona_block']}\n"
                 f"{AGORA_COMMON_RULES}"
             )

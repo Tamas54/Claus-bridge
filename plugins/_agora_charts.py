@@ -232,7 +232,7 @@ def render_from_spec(spec: dict) -> bytes | None:
 def spec_alt_text(spec: dict, lang: str = "hu") -> str:
     """Informatív alt-szöveg a spec-ből: mit ábrázol + forrás (a guard ellenőrzi)."""
     unit = f" ({spec['unit']})" if spec.get("unit") else ""
-    src = spec.get("source") or "saját tool-adat"
+    src = spec.get("source") or "saját adatforrás"
     if lang == "en":
         return f"Chart: {spec['title']}{unit}, {len(spec['values'])} data points. Data: {src}."
     return f"Ábra: {spec['title']}{unit}, {len(spec['values'])} adatpont. Adatforrás: {src}."
@@ -277,16 +277,16 @@ def kartograph_regional_chart(regional: dict, query: str,
         values = [r[1] for r in sent_rows]
         if lang == "en":
             title = f"Coverage sentiment by region: {q}"[:110]
-            source = "Data: Echolot regional_framing, last 7 days"
+            source = "Data: Echolot regional framing analysis, last 7 days"
             alt = (f"Horizontal bar chart of average coverage sentiment by media region "
                    f"for '{q}' ({len(labels)} regions; most positive: {labels[0]}, "
-                   f"most negative: {labels[-1]}). Data: Echolot regional_framing, 7 days.")
+                   f"most negative: {labels[-1]}). Data: Echolot regional framing analysis, 7 days.")
         else:
             title = f"Tálalás-szentiment régiónként: {q}"[:110]
-            source = "Adat: Echolot regional_framing, elmúlt 7 nap"
+            source = "Adat: Echolot régiós keretezés-elemzés, elmúlt 7 nap"
             alt = (f"Vízszintes sávdiagram: a(z) '{q}' téma átlagos tálalás-szentimentje "
                    f"médiarégiónként ({len(labels)} régió; legpozitívabb: {labels[0]}, "
-                   f"legnegatívabb: {labels[-1]}). Adatforrás: Echolot regional_framing, 7 nap.")
+                   f"legnegatívabb: {labels[-1]}). Adatforrás: Echolot régiós keretezés-elemzés, 7 nap.")
         png = render_diverging_hbar(title, labels, values, source=source)
         return png, (alt if png else "")
 
@@ -298,14 +298,14 @@ def kartograph_regional_chart(regional: dict, query: str,
         values = [float(r[1]) for r in art_rows]
         if lang == "en":
             title = f"Coverage volume by region: {q}"[:110]
-            source = "Data: Echolot regional_framing, last 7 days"
+            source = "Data: Echolot regional framing analysis, last 7 days"
             alt = (f"Bar chart of article counts by media region for '{q}' "
-                   f"({len(labels)} regions). Data: Echolot regional_framing, 7 days.")
+                   f"({len(labels)} regions). Data: Echolot regional framing analysis, 7 days.")
         else:
             title = f"Lefedettség régiónként: {q}"[:110]
-            source = "Adat: Echolot regional_framing, elmúlt 7 nap"
+            source = "Adat: Echolot régiós keretezés-elemzés, elmúlt 7 nap"
             alt = (f"Sávdiagram: a(z) '{q}' téma cikkszáma médiarégiónként "
-                   f"({len(labels)} régió). Adatforrás: Echolot regional_framing, 7 nap.")
+                   f"({len(labels)} régió). Adatforrás: Echolot régiós keretezés-elemzés, 7 nap.")
         # magnitúdó → egy hue-s vízszintes bar (diverging renderer 1 színnel visszaélne)
         png = render_bar_chart(title, labels, values, source=source)
         return png, (alt if png else "")

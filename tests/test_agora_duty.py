@@ -112,3 +112,118 @@ def test_personas_complete():
 def test_extract_json_fenced():
     assert _extract_json('```json\n{"a": 1}\n```') == {"a": 1}
     assert _extract_json('szöveg előtte {"b": [1,2]} utána') == {"b": [1, 2]}
+
+
+# ── mondathatár-truncation (2026-07-08: author_note "...kezdett el " fix) ──
+def test_truncate_sentence_short_unchanged():
+    from plugins.agora_duty import truncate_sentence
+    assert truncate_sentence("Rövid mondat.", 400) == "Rövid mondat."
+
+
+def test_truncate_sentence_cuts_at_sentence_boundary():
+    from plugins.agora_duty import truncate_sentence
+    text = ("Az első mondat itt véget ér. A második mondat hosszabban folytatódik, "
+            "és a vágásnak az előző mondathatárnál kell történnie, nem fél szónál.")
+    out = truncate_sentence(text, 60)
+    assert out == "Az első mondat itt véget ér."
+
+
+def test_truncate_sentence_no_half_word():
+    from plugins.agora_duty import truncate_sentence
+    text = "Egyetlenhosszú mondatvégtelen szavakkal amit nem lehet mondathatáron vágni mert nincs benne pont"
+    out = truncate_sentence(text, 50)
+    assert len(out) <= 51
+    # nem maradhat fél szó: a vágott szöveg szóhatáron ér véget (… lezárással)
+    assert out.endswith("…")
+    assert not out[:-1].endswith(" ")
+    for w in out[:-1].split():
+        assert w in text  # minden megmaradt szó teljes
+
+
+def test_parse_essay_output_author_note_sentence_safe():
+    from plugins.agora_duty import parse_essay_output
+    long_note = ("Ezt az esszét azért írtam meg, mert a közmédia elsötétülése ritka "
+                 "pillanat. " * 6) + "A végén pedig valami hosszú gondolatba kezdett el"
+    raw = f"CÍM: Teszt cím\nJEGYZET: {long_note}\n---\nAz esszé törzse."
+    title, note, body = parse_essay_output(raw)
+    assert title == "Teszt cím"
+    assert body == "Az esszé törzse."
+    assert len(note) <= 400
+    assert not note.endswith("kezdett el")          # a fél mondat nem maradhat
+    assert note.endswith(".") or note.endswith("…")  # mondat- vagy szóhatár-lezárás
+
+
+def test_parse_essay_output_fallback_title():
+    from plugins.agora_duty import parse_essay_output
+    title, note, body = parse_essay_output("csak nyers szöveg formátum nélkül",
+                                           fallback_title="Beat-fókusz")
+    assert title == "Beat-fókusz"
+    assert body == "csak nyers szöveg formátum nélkül"
+
+
+# ── EMBERI NYELV guard (persona-szabály 15) ──
+def test_guard_internal_sphere_code_blocked():
+    ok, why, _ = content_guard(
+        "A hu_economy szférában a keretezés ma egészen máshogy néz ki, mint tegnap.", "hu")
+    assert not ok and why.startswith("internal_id")
+
+
+def test_guard_backtick_internal_blocked():
+    ok, why, _ = content_guard(
+        "A `conflict` keret dominál a mai címlapokon, és ez sokat elmond.", "hu")
+    assert not ok and why.startswith("backtick_internal")
+
+
+def test_guard_ttier_blocked():
+    ok, why, _ = content_guard(
+        "A T1 források már reggel hozták a hírt, a többi csak délután.", "hu")
+    assert not ok and why.startswith("internal_tier")
+
+
+def test_guard_human_translation_passes():
+    ok, why, _ = content_guard(
+        "A gazdasági hírrégió ma a konfliktus-keretezés felé tolódott el, "
+        "és ez nem véletlen: az erkölcsi keretezés csak a címlapokon él.", "hu")
+    assert ok, why
+
+
+def test_guard_url_underscore_not_flagged():
+    ok, why, _ = content_guard(
+        "A teljes elemzés itt olvasható: https://example.com/riport_2026_junius "
+        "— de a lényeg már a címből is látszik, mert a számok nem hazudnak.", "hu")
+    assert ok, why
+
+
+# ── beat-match jelölt-normalizálás (dedup-fallback alapja) ──
+def test_normalize_matches_new_and_old_shape():
+    from plugins.agora_duty import _normalize_matches
+    new = _normalize_matches({"von_takt": {"candidates": [
+        {"story_id": "b", "score": 4}, {"story_id": "a", "score": 9}]}})
+    assert [c["story_id"] for c in new["von_takt"]] == ["a", "b"]  # score-rendezés
+    old = _normalize_matches({"der_kartograph": {"story_id": "x", "score": 7}})
+    assert old["der_kartograph"][0]["story_id"] == "x"
+    assert old["von_takt"] == []
+    assert _normalize_matches("nem dict") == {}
+
+
+# ── nyelvközi lefedettség blokk (defenzív no-op) ──
+def test_intl_coverage_block_defensive():
+    from plugins.agora_duty import _intl_coverage_block
+    assert _intl_coverage_block({"story_id": "x"}) == ""            # mező hiányzik → no-op
+    assert _intl_coverage_block({"international_coverage": []}) == ""
+    blk = _intl_coverage_block({"international_coverage": [
+        {"title": "Blackout in Hungary", "lang": "en", "source": "Reuters"},
+        "Stromausfall in Ungarn (de)"]})
+    assert "Blackout in Hungary" in blk and "Reuters" in blk
+    assert "Stromausfall" in blk and "NYELVKÖZI" in blk
+
+
+# ── note-műfaj segédek ──
+def test_note_quota_and_spacing():
+    from plugins.agora_duty import _last_note_within_days
+    get_db, _ = _mkdb()
+    assert _last_note_within_days(get_db, "frau_lupe") is False
+    _log_act(get_db, "frau_lupe", "note", "s1", "p1", "hu", "cross-story jegyzet")
+    assert _last_note_within_days(get_db, "frau_lupe") is True
+    c = _counts(get_db, "frau_lupe")
+    assert c["notes_today"] == 1 and c["publishes_today"] == 1

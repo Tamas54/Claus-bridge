@@ -431,6 +431,35 @@ async def get_story_markdown(story_id: str, slug: str = "story") -> dict:
     meta["sources_count"] = int(m.group(1)) if m else 0
     m = re.search(r"\*\*Időszak\*\*:.*?→\s*([0-9\-]+ [0-9:]+)", md)
     meta["period_end"] = m.group(1) if m else ""
+    # ── NYELVKÖZI LEFEDETTSÉG (defenzív) ──
+    # Az Echolot story-válaszokba készül az `international_coverage` tömb
+    # (másik instance építi). Amíg nincs, ez a mező üres lista (no-op).
+    # Várt markdown-alak: "**International coverage**" / "**Nemzetközi
+    # lefedettség**" szekció alatt "- [cím](url) (lang, forrás)" sorok.
+    meta["international_coverage"] = []
+    try:
+        m = re.search(
+            r"\*\*(?:International coverage|Nemzetközi lefedettség)\*\*:?\s*\n"
+            r"((?:[ \t]*[-*][^\n]+\n?)+)", md, re.IGNORECASE)
+        if m:
+            for line in m.group(1).splitlines():
+                lm = re.match(r"[ \t]*[-*]\s*\[([^\]]+)\]\(([^)\s]+)\)\s*"
+                              r"(?:[—–(-]\s*([^)\n]{0,120})\)?)?", line)
+                if lm:
+                    item = {"title": lm.group(1).strip(), "url": lm.group(2).strip()}
+                    extra = (lm.group(3) or "").strip()
+                    if extra:
+                        parts = [p.strip() for p in extra.split(",") if p.strip()]
+                        if parts and len(parts[0]) <= 8:
+                            item["lang"] = parts[0]
+                        if len(parts) > 1:
+                            item["source"] = parts[1]
+                    meta["international_coverage"].append(item)
+                elif re.match(r"[ \t]*[-*]\s*\S", line):
+                    meta["international_coverage"].append(
+                        {"title": re.sub(r"^[ \t]*[-*]\s*", "", line).strip()})
+    except Exception:  # noqa: BLE001 — a mező opcionális, parse-hiba = no-op
+        meta["international_coverage"] = []
     return meta
 
 

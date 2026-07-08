@@ -5,13 +5,18 @@ Frau Lupe/GLM-5.2) regisztrált Echolot-operátorként kommentel, publikál
 és reagál — nyíltan badge-elve, personával, beat-tel, spamelés nélkül.
 Kizárólag magyar és angol nyelven.
 
-Pipeline (agora_duty, napi 2x cron + jitter):
-  top-stories → NYELVI KAPU (hu/en) → beat-match (LLM) → dedup →
-  beat-tool prefetch → komment → post_comment → reakció-doktrína.
+Pipeline (agora_duty, napi 3x cron — 8:00/14:00/19:00 Bp + jitter):
+  top-stories → NYELVI KAPU (hu/en) → beat-match (LLM, max 3 jelölt/agent) →
+  dedup (skip esetén a KÖVETKEZŐ jelöltre lép) → beat-tool prefetch →
+  komment → post_comment → reakció-doktrína → note-kör (cross-story minta).
 
 Heti esszé (agora_essay_*, elcsúsztatva: hétfő/szerda/péntek):
   beat legerősebb story-clustere → mélyfúrás → 3000-6000 kar. esszé →
   agora publish (story_refs + author_note + lang kötelező).
+
+NAPLÓ-GARANCIA: minden agent-ág futása nyomot hagy az agora_activity
+táblában (comment/note/essay/skip_*/error), és minden kivétel stackkel
+logolódik — néma elhalás strukturálisan tilos.
 
 Biztonsági fékek:
   - Kill switch: shared_memory 'agora_duty_enabled' (false → no-op).
@@ -36,6 +41,7 @@ import os
 import random
 import re
 import sys
+import traceback
 from datetime import datetime, timedelta, timezone
 
 logger = logging.getLogger("plugins.agora_duty")
@@ -58,12 +64,17 @@ from plugins._agora_media import (  # noqa: E402
 # ---------------------------------------------------------------------------
 DUTY_STORY_LIMIT = 10          # top-story merítés / futás
 MATCH_THRESHOLD = 6            # beat-match score (0-10) küszöb — alatta az agent aznap kihagyja
+MAX_STORY_ATTEMPTS = 3         # dedup/guard-skip után ennyi beat-jelöltet próbál végig
 COMMENT_MAXLEN = 1200
 MAX_COMMENTS_PER_DAY = 3       # komment + reply együtt, agentenként
 MAX_REACTIONS_PER_DAY = 3
 MAX_DISLIKES_PER_DAY = 1
 MAX_HEARTS_PER_WEEK = 1
 ESSAY_MIN, ESSAY_MAX = 3000, 6000
+NOTE_MIN, NOTE_MAX = 250, 1500  # note: rövid cross-story jegyzet (Echolot publish min. 200)
+MAX_NOTES_PER_DAY = 1
+NOTE_SPACING_DAYS = 2          # két note között legalább ennyi Budapest-nap
+MAX_PUBLISHES_PER_DAY = 2      # Echolot-oldali publish-plafon tükre (essay + note együtt)
 DUTY_JITTER_SEC = 1800         # cron-indítás random csúsztatása (botszag ellen)
 ESSAY_JITTER_SEC = 900
 
@@ -80,7 +91,7 @@ _INIT_SQL = """
 CREATE TABLE IF NOT EXISTS agora_activity (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     agent TEXT NOT NULL,
-    kind TEXT NOT NULL,          -- comment|reply|reaction_like|reaction_dislike|reaction_heart|essay|media_upload|skip_lang|skip_beat|skip_dedup|skip_quota|error
+    kind TEXT NOT NULL,          -- comment|reply|reaction_like|reaction_dislike|reaction_heart|essay|note|media_upload|media_skip|skip_lang|skip_beat|skip_dedup|skip_quota|skip_run|skip_essay|skip_note|error
     story_id TEXT DEFAULT '',
     target_id TEXT DEFAULT '',   -- comment_id / agora post_id
     lang TEXT DEFAULT '',
@@ -180,8 +191,22 @@ def _counts(get_db, agent: str) -> dict:
     c["essays_today"] = conn.execute(
         "SELECT COUNT(*) FROM agora_activity WHERE agent=? AND bp_date=? AND kind='essay'",
         (agent, today)).fetchone()[0]
+    c["notes_today"] = conn.execute(
+        "SELECT COUNT(*) FROM agora_activity WHERE agent=? AND bp_date=? AND kind='note'",
+        (agent, today)).fetchone()[0]
+    c["publishes_today"] = c["essays_today"] + c["notes_today"]
     conn.close()
     return c
+
+
+def _last_note_within_days(get_db, agent: str, days: int = NOTE_SPACING_DAYS) -> bool:
+    conn = get_db()
+    since = (_bp_now() - timedelta(days=days - 1)).strftime("%Y-%m-%d")
+    row = conn.execute(
+        "SELECT 1 FROM agora_activity WHERE agent=? AND kind='note' AND bp_date>=? LIMIT 1",
+        (agent, since)).fetchone()
+    conn.close()
+    return row is not None
 
 
 def _commented_story(get_db, agent: str, story_id: str) -> bool:
@@ -329,7 +354,25 @@ async def _sf_chat(deps: dict, agent_id: str, system: str, user: str,
             data = resp.json()
             if resp.status_code >= 400 or "choices" not in data:
                 raise RuntimeError(f"SF HTTP {resp.status_code}: {str(data)[:200]}")
-            return (data["choices"][0]["message"].get("content") or "").strip()
+            choice = data["choices"][0]
+            msg = choice.get("message") or {}
+            content = (msg.get("content") or "").strip()
+            if not content:
+                # Reasoner-módú modell (pl. GLM-5.2) a szöveget néha a
+                # reasoning_content-be teszi, a content üres marad — ez okozta
+                # Frau Lupe 'guard:empty' néma köreit a GLM-5.1→5.2 váltás után.
+                content = (msg.get("reasoning_content") or "").strip()
+                if content:
+                    logger.warning("SF chat (%s): üres content, reasoning_content "
+                                   "fallback (%d kar., finish=%s)", agent_id,
+                                   len(content), choice.get("finish_reason"))
+            if not content:
+                # üres draft = retry-olható hiba, NEM csendes üres string —
+                # így a guard elé már csak valódi szöveg jut, és a hívó
+                # kivételként látja (és logolja) a kétszeri üres választ.
+                raise RuntimeError(
+                    f"empty completion (finish_reason={choice.get('finish_reason')})")
+            return content
         except Exception as e:  # noqa: BLE001
             last_err = e
             if attempt == 2:
@@ -358,26 +401,67 @@ def _extract_json(text: str):
 
 
 # ---------------------------------------------------------------------------
+# Szöveg-utility: mondathatár-truncation (komment, esszé, author_note KÖZÖS)
+# ---------------------------------------------------------------------------
+def truncate_sentence(text: str, maxlen: int) -> str:
+    """Szöveg vágása maxlen-re az utolsó MONDATHATÁRNÁL (". ", "! ", "? ",
+    sortörés előtti írásjel). Ha az első fél-hossznál korábban nincs
+    mondathatár, szóhatárnál vág — fél szó ("...kezdett el ") sosem marad.
+    """
+    text = (text or "").strip()
+    if len(text) <= maxlen:
+        return text
+    cut = text[:maxlen]
+    m = max(cut.rfind(". "), cut.rfind("! "), cut.rfind("? "),
+            cut.rfind(".\n"), cut.rfind("!\n"), cut.rfind("?\n"))
+    if cut.rstrip().endswith((".", "!", "?")):
+        return cut.rstrip()
+    if m > maxlen * 0.3:  # teljes mondat előnyben a szóhatáros "…" vágással szemben
+        return cut[:m + 1].strip()
+    # nincs használható mondathatár → szóhatár, lezáró írásjellel
+    m = cut.rfind(" ")
+    if m > 0:
+        cut = cut[:m]
+    return cut.strip().rstrip(",;:—-") + "…"
+
+
+# ---------------------------------------------------------------------------
 # Tartalmi guard — minden kimenő poszt ELŐTT
 # ---------------------------------------------------------------------------
 _PROFANITY = {"kurva", "geci", "fasz", "faszt", "picsa", "picsába", "szar",
               "fuck", "shit", "asshole", "bitch", "cunt", "bastard", "idiot",
               "idióta", "hülye", "barom"}
 
+# EMBERI NYELV SZABÁLY (persona-szabály 15): belső azonosító nyersen nem
+# szökhet ki publikus szövegbe — underscore-os kód (hu_economy, hu_press,
+# regional_framing...), backtick-es token, T-tier kód.
+_INTERNAL_ID_RE = re.compile(r"\b[a-z]{2,}_[a-z0-9_]+\b")
+_BACKTICK_TOKEN_RE = re.compile(r"`[^`\n]{1,80}`")
+_TTIER_RE = re.compile(r"\bT[0-9]\b")
+
 
 def content_guard(body: str, target_lang: str, maxlen: int = COMMENT_MAXLEN) -> tuple[bool, str, str]:
-    """(ok, reason, cleaned_body). Hossz, nyelv, személyes adat, szitkozódás."""
+    """(ok, reason, cleaned_body). Hossz, nyelv, személyes adat, szitkozódás,
+    kiszökött belső azonosító (underscore/backtick/T-tier)."""
     body = (body or "").strip()
     if not body:
         return False, "empty", ""
     if len(body) > maxlen:
-        cut = body[:maxlen]
-        # utolsó mondathatárnál vágjuk
-        m = max(cut.rfind(". "), cut.rfind("! "), cut.rfind("? "), cut.rfind(".\n"))
-        body = cut[:m + 1].strip() if m > maxlen * 0.5 else cut.strip()
+        body = truncate_sentence(body, maxlen)
         if not body:
             return False, "too_long", ""
     low = body.lower()
+    # belső azonosítók (EMBERI NYELV szabály) — URL-eken kívül vizsgálva
+    no_url = re.sub(r"https?://\S+", " ", body)
+    m = _INTERNAL_ID_RE.search(re.sub(r"https?://\S+", " ", low))
+    if m:
+        return False, f"internal_id({m.group(0)})", ""
+    m = _BACKTICK_TOKEN_RE.search(no_url)
+    if m:
+        return False, f"backtick_internal({m.group(0)[:40]})", ""
+    m = _TTIER_RE.search(no_url)
+    if m:
+        return False, f"internal_tier({m.group(0)})", ""
     # belső konyha nem szivároghat ki
     for leak in ("statdata_url", "statdata hiba", "yfinance hiba", "tool-output",
                  "factual context", "operator_key", "eop_", "prefetch"):
@@ -432,10 +516,38 @@ async def collect_stories(limit: int = DUTY_STORY_LIMIT, story_url: str = "") ->
     return [m for m in metas if m]
 
 
+def _normalize_matches(parsed) -> dict:
+    """Beat-match output normalizálása: {agent_key: [cand, ...]} score szerint
+    csökkenő sorrendben. Elfogadja a régi (egy objektum / agent) és az új
+    ({"candidates": [...]}) alakot is."""
+    out: dict[str, list] = {}
+    if not isinstance(parsed, dict):
+        return out
+    for agent_key in AGORA_AGENTS:
+        v = parsed.get(agent_key)
+        cands: list[dict] = []
+        if isinstance(v, dict) and isinstance(v.get("candidates"), list):
+            cands = [c for c in v["candidates"] if isinstance(c, dict)]
+        elif isinstance(v, dict) and v.get("story_id"):
+            cands = [v]
+        elif isinstance(v, list):
+            cands = [c for c in v if isinstance(c, dict)]
+        for c in cands:
+            try:
+                c["score"] = float(c.get("score") or 0)
+            except (TypeError, ValueError):
+                c["score"] = 0.0
+        cands.sort(key=lambda c: c["score"], reverse=True)
+        out[agent_key] = cands[:MAX_STORY_ATTEMPTS]
+    return out
+
+
 async def beat_match(deps: dict, stories: list[dict]) -> dict:
     """Egy DeepSeek-hívás: melyik story esik melyik agent beatjébe?
 
-    Return: {agent_key: {story_id, score, query, statdata_preset}}
+    Return: {agent_key: [{story_id, score, query, statdata_preset}, ...]}
+    (max MAX_STORY_ATTEMPTS jelölt, score szerint csökkenő) — ha az első
+    jelölt dedup/guard-skip, az agent a következőre lép.
     """
     listing = "\n".join(
         f"- id={s['story_id']} | lang={story_lang(s)} | sphere={s.get('sphere','')} | "
@@ -452,18 +564,66 @@ async def beat_match(deps: dict, stories: list[dict]) -> dict:
     )
     user = (
         f"AGENTEK ÉS BEATJEIK:\n{beats}\n\nFRISS STORY-K:\n{listing}\n\n"
-        "Feladat: minden agenthez válaszd ki a beatjébe LEGJOBBAN illő story-t, "
-        "és adj 0-10 relevancia-score-t (10 = tökéletes beat-találat, 0 = semmi köze). "
-        "Légy szigorú: ha egy story csak érintőlegesen kapcsolódik, a score legyen 5 alatt. "
-        "Adj hozzá egy rövid (2-4 szavas, a story nyelvén értelmes) keresőkifejezést "
+        "Feladat: minden agenthez válaszd ki a beatjébe LEGJOBBAN illő legfeljebb "
+        "3 story-t (candidates, a legjobb elöl), mindhez 0-10 relevancia-score-t "
+        "(10 = tökéletes beat-találat, 0 = semmi köze). "
+        "Légy szigorú: ha egy story csak érintőlegesen kapcsolódik, a score legyen 5 alatt — "
+        "inkább adj kevesebb jelöltet, mint gyengét. "
+        "Minden jelölthöz adj rövid (2-4 szavas, a story nyelvén értelmes) keresőkifejezést "
         "(query) a téma framing-elemzéséhez, von_takt-hoz pedig statdata_preset-et is "
         f"ebből a listából: {', '.join(STATDATA_PRESETS_ALLOWED)}.\n\n"
-        'VÁLASZ (csak JSON): {"von_takt": {"story_id": "...", "score": 0, "query": "...", '
-        '"statdata_preset": "..."}, "der_kartograph": {...}, "frau_lupe": {...}}'
+        'VÁLASZ (csak JSON): {"von_takt": {"candidates": [{"story_id": "...", "score": 0, '
+        '"query": "...", "statdata_preset": "..."}]}, "der_kartograph": {"candidates": [...]}, '
+        '"frau_lupe": {"candidates": [...]}}'
     )
-    raw = await _sf_chat(deps, "deepseek", system, user, max_tokens=1200, temperature=0.2)
-    parsed = _extract_json(raw) or {}
-    return parsed if isinstance(parsed, dict) else {}
+    raw = await _sf_chat(deps, "deepseek", system, user, max_tokens=2000, temperature=0.2)
+    return _normalize_matches(_extract_json(raw) or {})
+
+
+# ---------------------------------------------------------------------------
+# Nyelvközi lefedettség — az Echolot story-válaszok készülő
+# `international_coverage` tömbje. DEFENZÍV: ha a mező (még) hiányzik, no-op.
+# ---------------------------------------------------------------------------
+def _intl_coverage_block(stories: list[dict] | dict, limit: int = 6) -> str:
+    """A story-khoz kapcsolt nyelvközi (más nyelvű) cikkek prompt-blokkja.
+
+    Elfogadott elem-alakok: {"title", "lang", "source", "url"} (bármelyik
+    hiányozhat) vagy nyers string. Üres/hiányzó mező → üres string (no-op).
+    """
+    if isinstance(stories, dict):
+        stories = [stories]
+    lines: list[str] = []
+    for s in stories or []:
+        arr = s.get("international_coverage") if isinstance(s, dict) else None
+        if not isinstance(arr, list):
+            continue
+        for it in arr:
+            if len(lines) >= limit:
+                break
+            if isinstance(it, str) and it.strip():
+                lines.append(f"- {it.strip()[:200]}")
+            elif isinstance(it, dict):
+                title = str(it.get("title") or "").strip()
+                if not title:
+                    continue
+                lang = str(it.get("lang") or it.get("language") or "").strip()
+                src = str(it.get("source") or "").strip()
+                extra = " · ".join(x for x in (lang, src) if x)
+                lines.append(f"- {title[:160]}" + (f" ({extra})" if extra else ""))
+    if not lines:
+        return ""
+    return ("=== NYELVKÖZI LEFEDETTSÉG (ugyanez a téma más nyelvű sajtóban) ===\n"
+            + "\n".join(lines) + "\n=== END ===")
+
+
+_TITLE_STOPS = _HU_STOPS | _EN_STOPS | {"a", "az", "és", "the", "of", "in"}
+
+
+def _title_keywords(title: str, max_words: int = 4) -> str:
+    """Story-címből rövid keresőkifejezés (prefetch-query fallback)."""
+    words = [w for w in re.findall(r"[\wáéíóöőúüűÁÉÍÓÖŐÚÜŰ\-]{3,}", title or "")
+             if w.lower() not in _TITLE_STOPS]
+    return " ".join(words[:max_words])
 
 
 # ---------------------------------------------------------------------------
@@ -595,22 +755,36 @@ async def prepare_chart_media(deps: dict, get_db, agent_key: str,
         if agent_key == "von_takt":
             entries = chart_source.get("statdata_entries") or []
             if not entries:
+                out["status"] = "no_data (üres statdata-forrás)"
                 return out
             spec = ch.validate_chart_spec(
                 await _von_takt_chart_spec(deps, entries, topic, lang))
             if not spec:
                 out["status"] = "no_valid_chart_spec"
+                _media_fail_log(get_db, agent_key, story_id, out["status"], topic)
                 return out
             png = ch.render_from_spec(spec)
             alt = ch.spec_alt_text(spec, lang)
             out["key_number"] = spec.get("key_number", "")
+            fail_detail = f"spec kind={spec.get('kind')} points={len(spec.get('values') or [])}"
         else:  # der_kartograph
+            regional = chart_source.get("regional") or {}
+            usable = sum(1 for d in regional.values() if isinstance(d, dict)
+                         and (d.get("avg_sentiment") is not None
+                              or (d.get("articles") or 0)))
+            if len(regional) < 2 or usable < 2:
+                # ADAT-hiány, nem render-hiba: a regional_framing <2 használható
+                # régiót adott a query-re (ez ölte meg az esszé-ábrát 07-08-án)
+                out["status"] = f"no_regional_data (régió={len(regional)}, használható={usable})"
+                _media_fail_log(get_db, agent_key, story_id, out["status"], topic)
+                return out
             png, alt = ch.kartograph_regional_chart(
-                chart_source.get("regional") or {},
-                chart_source.get("query") or topic, lang)
+                regional, chart_source.get("query") or topic, lang)
+            fail_detail = f"régiók={len(regional)}, használható={usable}"
 
         if not png:
-            out["status"] = "render_failed"
+            out["status"] = f"render_failed ({fail_detail})"
+            _media_fail_log(get_db, agent_key, story_id, out["status"], topic)
             return out
         out["alt"] = alt
         if dry_run:
@@ -620,15 +794,26 @@ async def prepare_chart_media(deps: dict, get_db, agent_key: str,
         media = await upload_agora_media(png, "image/png", op_key)
         if not media:
             out["status"] = "upload_failed (kép nélkül posztolunk)"
+            _media_fail_log(get_db, agent_key, story_id, out["status"], topic)
             return out
         out["media_id"] = str(media.get("media_id"))
         out["image_md"] = build_image_markdown(alt, out["media_id"])
         out["status"] = "uploaded"
         record_media_upload(get_db, agent_key, out["media_id"], story_id, alt)
     except Exception as e:  # noqa: BLE001
-        logger.error("prepare_chart_media failed (%s): %s", agent_key, e)
-        out["status"] = "error"
+        logger.exception("prepare_chart_media failed (%s)", agent_key)
+        out["status"] = f"error: {e}"
+        _media_fail_log(get_db, agent_key, story_id, out["status"], topic)
     return out
+
+
+def _media_fail_log(get_db, agent_key: str, story_id: str, status: str, topic: str) -> None:
+    """Ábra-hiba nyoma az agora_activity-ben — a poszt kép nélkül megy ki
+    (soft), de a hiba OKA visszakereshető (2026-07-08: néma render_failed)."""
+    logger.warning("agora media skip (%s/%s): %s | téma: %s",
+                   agent_key, story_id or "-", status, topic[:80])
+    _log_act(get_db, agent_key, "media_skip", story_id, "", "",
+             f"{status} | téma: {topic[:120]}")
 
 
 # ---------------------------------------------------------------------------
@@ -654,6 +839,9 @@ async def generate_comment(deps: dict, agent_key: str, story: dict,
                  "\n(Ehhez a körhöz nem érkezett friss tool-adatblokk — a story saját "
                  "számaiból és az Echolot-metaadatokból érvelj, és ne állíts olyan "
                  "számot, ami nincs a fenti anyagban.)")
+    intl_block = _intl_coverage_block(story)  # defenzív: hiányzó mező → ""
+    if intl_block:
+        tool_block = (tool_block + "\n\n" + intl_block) if tool_block else intl_block
     user = (
         f"STORY (Echolot, id={story['story_id']}):\n{story_md}\n\n"
         f"{tool_block}{data_note}\n\n"
@@ -863,16 +1051,27 @@ async def run_agora_duty(deps: dict, dry_run: bool = False, only_agent: str = ""
                          story_url: str = "", do_reactions: bool = True) -> dict:
     get_db = deps["get_db"]
     report: dict = {"dry_run": dry_run, "ts": _utc_iso(), "agents": {}}
+    agent_keys = [only_agent] if only_agent in AGORA_AGENTS else list(AGORA_AGENTS)
+
+    def _abort(status: str, kind: str = "skip_run") -> dict:
+        """Futás-szintű elakadás — NAPLÓ-GARANCIA: minden agent-ág kap nyomot."""
+        report["status"] = status
+        for k in agent_keys:
+            _log_act(get_db, k, kind, "", "", "", f"duty abort: {status[:200]}")
+        _session_log(get_db, "agora_duty", report)
+        return report
 
     if not _kill_switch_on(get_db):
-        report["status"] = "killed"
         logger.info("agora_duty: kill switch OFF — no-op")
-        return report
+        return _abort("killed")
 
-    stories = await collect_stories(story_url=story_url)
+    try:
+        stories = await collect_stories(story_url=story_url)
+    except Exception as e:  # noqa: BLE001
+        logger.exception("agora_duty: collect_stories failed")
+        return _abort(f"collect_stories_failed: {e}", kind="error")
     if not stories:
-        report["status"] = "no_stories"
-        return report
+        return _abort("no_stories")
 
     # ── NYELVI KAPU (determinisztikus, minden más előtt) ──
     passed, skipped = [], []
@@ -889,74 +1088,107 @@ async def run_agora_duty(deps: dict, dry_run: bool = False, only_agent: str = ""
                      f"nyelvi kapu: nem hu/en — {s.get('title','')[:100]}")
     report["lang_gate"] = {"passed": len(passed), "skipped": skipped}
     if not passed:
-        report["status"] = "all_skipped_lang_gate"
-        return report
+        return _abort("all_skipped_lang_gate")
 
-    # ── Beat match (egy LLM-hívás) ──
+    # ── Beat match (egy LLM-hívás, max 3 jelölt/agent) ──
     try:
         matches = await beat_match(deps, passed)
     except Exception as e:  # noqa: BLE001
-        report["status"] = f"beat_match_failed: {e}"
-        return report
+        logger.exception("agora_duty: beat_match failed")
+        return _abort(f"beat_match_failed: {e}", kind="error")
     by_id = {s["story_id"]: s for s in passed}
 
-    agent_keys = [only_agent] if only_agent in AGORA_AGENTS else list(AGORA_AGENTS)
     for agent_key in agent_keys:
-        a = AGORA_AGENTS[agent_key]
-        ar: dict = {"label": a["label"]}
+        ar: dict = {"label": AGORA_AGENTS[agent_key]["label"]}
         report["agents"][agent_key] = ar
-        m = matches.get(agent_key) or {}
-        sid = str(m.get("story_id") or "")
-        score = float(m.get("score") or 0)
+        try:
+            await _duty_agent_round(deps, get_db, agent_key,
+                                    matches.get(agent_key) or [], by_id,
+                                    dry_run, do_reactions, ar)
+        except Exception as e:  # noqa: BLE001
+            # NAPLÓ-GARANCIA: egyetlen agent-ág kivétele sem halhat el némán,
+            # és nem viheti el a többi agent körét sem.
+            logger.exception("agora_duty: agent round failed (%s)", agent_key)
+            ar["action"] = f"error: unhandled — {e}"
+            _log_act(get_db, agent_key, "error", "", "", "",
+                     f"unhandled {type(e).__name__}: {e} | {traceback.format_exc()[-250:]}")
+
+    report["status"] = "ok"
+    _session_log(get_db, "agora_duty", report)
+    return report
+
+
+async def _duty_agent_round(deps: dict, get_db, agent_key: str, cands: list[dict],
+                            by_id: dict, dry_run: bool, do_reactions: bool,
+                            ar: dict) -> None:
+    """Egy agent teljes duty-köre: jelölt-lista végigpróbálása (dedup/guard-skip
+    → KÖVETKEZŐ jelölt, max MAX_STORY_ATTEMPTS), reakciók, note-kör.
+    Minden ág agora_activity-nyomot hagy."""
+    a = AGORA_AGENTS[agent_key]
+
+    if not cands:
+        ar["action"] = "skip_beat (nincs beat-jelölt — a csend is minőségjelzés)"
+        _log_act(get_db, agent_key, "skip_beat", "", "", "", "beat_match: 0 jelölt")
+        return
+    cnt = _counts(get_db, agent_key)
+    if cnt["comments_today"] >= MAX_COMMENTS_PER_DAY:
+        ar["action"] = "skip_quota (napi komment-plafon)"
+        _log_act(get_db, agent_key, "skip_quota", str(cands[0].get("story_id") or ""))
+        return
+    op_key = _operator_key(get_db, agent_key)
+    if not op_key:
+        ar["action"] = "error: nincs operátor-kulcs (env/memory)"
+        _log_act(get_db, agent_key, "error", "", "", "", "missing operator key")
+        return
+
+    posted_sid = ""
+    attempts: list[dict] = []
+    ar["attempts"] = attempts
+    for cand in cands[:MAX_STORY_ATTEMPTS]:
+        sid = str(cand.get("story_id") or "")
+        score = float(cand.get("score") or 0)
         story = by_id.get(sid)
-        ar["match"] = {"story_id": sid, "score": score, "query": m.get("query", "")}
+        att: dict = {"story_id": sid, "score": score}
+        attempts.append(att)
 
         if not story or score < MATCH_THRESHOLD:
-            ar["action"] = "skip_beat (a csend is minőségjelzés)"
+            att["action"] = "skip_beat (küszöb alatt / ismeretlen story)"
             _log_act(get_db, agent_key, "skip_beat", sid, "", "",
-                     f"score={score} < {MATCH_THRESHOLD}")
+                     (f"score={score} < {MATCH_THRESHOLD}" if story
+                      else f"ismeretlen story-id (score={score})"))
             continue
         if _commented_story(get_db, agent_key, sid):
-            ar["action"] = "skip_dedup (már kommentelt erre a story-ra)"
-            _log_act(get_db, agent_key, "skip_dedup", sid)
-            continue
-        cnt = _counts(get_db, agent_key)
-        if cnt["comments_today"] >= MAX_COMMENTS_PER_DAY:
-            ar["action"] = "skip_quota (napi komment-plafon)"
-            _log_act(get_db, agent_key, "skip_quota", sid)
-            continue
-        op_key = _operator_key(get_db, agent_key)
-        if not op_key:
-            ar["action"] = "error: nincs operátor-kulcs (env/memory)"
-            _log_act(get_db, agent_key, "error", sid, "", "", "missing operator key")
+            att["action"] = "skip_dedup → következő beat-jelölt"
+            _log_act(get_db, agent_key, "skip_dedup", sid, "", "",
+                     "→ következő beat-jelölt")
             continue
 
         lang = story["_lang"]
         tool_block, chart_source = await prefetch_beat_data(
-            agent_key, str(m.get("query") or story["title"]),
-            str(m.get("statdata_preset") or ""))
+            agent_key, str(cand.get("query") or story["title"]),
+            str(cand.get("statdata_preset") or ""))
 
         # ── Média-kör: chart-render + upload MÉG a szöveg előtt (hogy a
         #    prompt tudjon a csatolmányról). Soft: hiba → kép nélkül. ──
         media = await prepare_chart_media(deps, get_db, agent_key, chart_source,
-                                          str(m.get("query") or story["title"]),
+                                          str(cand.get("query") or story["title"]),
                                           lang, op_key, dry_run, story_id=sid)
-        ar["media"] = {"status": media["status"], "media_id": media["media_id"],
-                       "alt": media["alt"][:120]}
+        att["media"] = {"status": media["status"], "media_id": media["media_id"],
+                        "alt": media["alt"][:120]}
         chart_note = ""
         if media["media_id"] or media["status"].startswith("dry_run_rendered"):
             chart_note = media["alt"]
             if media["key_number"]:
                 chart_note += f" Kulcsszám: {media['key_number']}."
 
-        ok, why, body = False, "", ""
+        ok, why, body, draft = False, "", "", None
         for attempt in (1, 2):  # guard-elutasításnál 1 retry, hibaokkal visszacsatolva
             try:
                 draft = await generate_comment(deps, agent_key, story, tool_block, lang,
                                                retry_reason=why if attempt > 1 else "",
                                                chart_note=chart_note)
             except Exception as e:  # noqa: BLE001
-                ar["action"] = f"error: komment-generálás — {e}"
+                att["action"] = f"error: komment-generálás — {e}"
                 _log_act(get_db, agent_key, "error", sid, "", lang, f"gen:{e}")
                 draft = None
                 break
@@ -964,9 +1196,9 @@ async def run_agora_duty(deps: dict, dry_run: bool = False, only_agent: str = ""
             if ok:
                 break
         if draft is None:
-            continue
+            continue  # generálási hiba ezen a story-n → következő jelölt
         if not ok:
-            ar["action"] = f"guard_reject: {why}"
+            att["action"] = f"guard_reject: {why} → következő beat-jelölt"
             _log_act(get_db, agent_key, "error", sid, "", lang, f"guard:{why}")
             continue
 
@@ -979,48 +1211,181 @@ async def run_agora_duty(deps: dict, dry_run: bool = False, only_agent: str = ""
         body, mg = media_guard(body, allowed, lang, max_images=MAX_IMAGES_PER_COMMENT)
         if any(mg[k] for k in ("removed_unknown", "removed_bad_alt",
                                "removed_video", "removed_raw_ref")):
-            ar["media_guard"] = mg
+            att["media_guard"] = mg
         if not body.strip():
-            ar["action"] = "guard_reject: media_guard után üres body"
+            att["action"] = "guard_reject: media_guard után üres body"
             _log_act(get_db, agent_key, "error", sid, "", lang, f"media_guard:{mg}")
             continue
 
         ar["draft"] = body
         ar["lang"] = lang
+        ar["match"] = {"story_id": sid, "score": score, "query": cand.get("query", "")}
         if dry_run:
-            ar["action"] = "dry_run — nem posztolt"
-        else:
-            ec = _echolot()
-            try:
-                res = await ec.post_comment(story_id=sid, body=body, operator_key=op_key,
-                                            agent_label=a["label"], model=a["model_badge"],
-                                            lang=lang)
-                cid = str((res or {}).get("comment_id") or (res or {}).get("id") or "")
-                ar["action"] = "posted"
-                ar["comment_id"] = cid
-                _log_act(get_db, agent_key, "comment", sid, cid, lang, body[:150])
-            except Exception as e:  # noqa: BLE001
-                ar["action"] = f"error: post — {e}"
-                _log_act(get_db, agent_key, "error", sid, "", lang, f"post:{e}")
-                continue
+            att["action"] = ar["action"] = "dry_run — nem posztolt"
+            posted_sid = sid
+            break
+        ec = _echolot()
+        try:
+            res = await ec.post_comment(story_id=sid, body=body, operator_key=op_key,
+                                        agent_label=a["label"], model=a["model_badge"],
+                                        lang=lang)
+            cid = str((res or {}).get("comment_id") or (res or {}).get("id") or "")
+            att["action"] = ar["action"] = "posted"
+            ar["comment_id"] = cid
+            _log_act(get_db, agent_key, "comment", sid, cid, lang, body[:150])
+            posted_sid = sid
+            break
+        except Exception as e:  # noqa: BLE001
+            att["action"] = f"error: post — {e}"
+            _log_act(get_db, agent_key, "error", sid, "", lang, f"post:{e}")
+            continue
 
-        # ── Reakció-kör: a matchelt wall + a korábbi kommentjeink falai ──
-        if do_reactions:
-            walls = [sid] + [s for s in _recent_commented_stories(get_db, agent_key) if s != sid]
-            try:
-                ar["reactions"] = await reaction_round(deps, get_db, agent_key, walls, dry_run)
-            except Exception as e:  # noqa: BLE001
-                logger.error("reaction round failed (%s): %s", agent_key, e)
-                ar["reactions"] = [{"error": str(e)}]
+    if not posted_sid and "action" not in ar:
+        ar["action"] = (attempts[-1].get("action", "skip")
+                        if attempts else "skip_beat")
 
-    report["status"] = "ok"
-    _session_log(get_db, "agora_duty", report)
-    return report
+    # ── Reakció-kör: a matchelt wall + a korábbi kommentjeink falai ──
+    if do_reactions and posted_sid:
+        walls = [posted_sid] + [s for s in _recent_commented_stories(get_db, agent_key)
+                                if s != posted_sid]
+        try:
+            ar["reactions"] = await reaction_round(deps, get_db, agent_key, walls, dry_run)
+        except Exception as e:  # noqa: BLE001
+            logger.exception("reaction round failed (%s)", agent_key)
+            ar["reactions"] = [{"error": str(e)}]
+
+    # ── Note-kör: rövid cross-story jegyzet, ha ≥2 erős beat-jelölt van ──
+    try:
+        note_rep = await maybe_write_note(deps, get_db, agent_key, cands, by_id,
+                                          op_key, dry_run)
+        if note_rep:
+            ar["note"] = note_rep
+    except Exception as e:  # noqa: BLE001
+        logger.exception("note round failed (%s)", agent_key)
+        ar["note"] = {"status": f"error: {e}"}
+        _log_act(get_db, agent_key, "error", "", "", "", f"note:{e}")
+
+
+# ---------------------------------------------------------------------------
+# NOTE — rövid cross-story jegyzet (a komment és az esszé közti műfaj).
+# A műfaj korábban NEM létezett a pipeline-ban (ezért született nulla note):
+# se prompt-opció, se ág nem volt rá. Most: ha egy duty-körben ≥2 erős
+# beat-jelölt van, az agent megvizsgálja, van-e KÖZÖS mintázat, és ha igen,
+# rövid (250-1500 kar.) jegyzetet publikál több story_refs-szel.
+# ---------------------------------------------------------------------------
+async def maybe_write_note(deps: dict, get_db, agent_key: str, cands: list[dict],
+                           by_id: dict, op_key: str, dry_run: bool) -> dict | None:
+    """Cross-story note kísérlet. None = nem volt rá alkalom (nem hiba).
+
+    Feltételek: ≥2 küszöb feletti beat-jelölt; napi note-kvóta (1) és a
+    publish-plafon (essay+note ≤ 2/nap) szabad; legalább NOTE_SPACING_DAYS
+    Budapest-nap telt el az előző note óta.
+    """
+    a = AGORA_AGENTS[agent_key]
+    strong = [c for c in cands
+              if float(c.get("score") or 0) >= MATCH_THRESHOLD
+              and by_id.get(str(c.get("story_id") or ""))]
+    if len(strong) < 2:
+        return None  # nincs cross-story alapanyag — normál állapot
+    cnt = _counts(get_db, agent_key)
+    if cnt["notes_today"] >= MAX_NOTES_PER_DAY or cnt["publishes_today"] >= MAX_PUBLISHES_PER_DAY:
+        return {"status": "skip: napi note/publish-kvóta"}
+    if _last_note_within_days(get_db, agent_key):
+        return {"status": f"skip: note-ritkítás ({NOTE_SPACING_DAYS} nap)"}
+
+    stories = [by_id[str(c["story_id"])] for c in strong[:3]]
+    sids = [s["story_id"] for s in stories]
+    langs = {s.get("_lang") for s in stories}
+    lang = langs.pop() if len(langs) == 1 and langs & {"hu", "en"} else "hu"
+
+    ref_md = "\n\n---\n\n".join(
+        f"[id={s['story_id']}]\n{_trim(s.get('markdown', ''), 1500)}" for s in stories)
+    intl = _intl_coverage_block(stories)
+    user = (
+        f"MA EGYSZERRE FUTÓ, A BEATEDBE ESŐ STORY-K:\n{ref_md}\n\n{intl}\n\n"
+        "Kérdés: látsz-e KÖZÖS MINTÁZATOT e story-k között (ugyanaz a mechanizmus, "
+        "ellentmondó számok, azonos keretezési trükk, összefüggő folyamat)? "
+        "Ha IGEN, írj róla egy rövid JEGYZETET (note) az Agorára: "
+        f"{NOTE_MIN}-{max(NOTE_MIN, 900)} karakter, EGYETLEN éles megfigyelés, "
+        "nem esszé és nem hírösszefoglaló — a minta a lényeg, amit a story-k "
+        "külön-külön nem mutatnak meg. Tényállítás csak a fenti anyagból. "
+        f"Nyelv: {'magyar' if lang == 'hu' else 'English'}.\n"
+        "Ha NINCS valódi közös mintázat, válaszolj: {\"skip\": true, \"reason\": \"...\"}\n\n"
+        'VÁLASZ (csak JSON): {"title": "8-100 karakteres cím", "body": "a jegyzet szövege", '
+        '"why": "1 mondat: miért érdemes megírni"}'
+    )
+    raw = await _sf_chat(deps, a["agent_id"], _persona_system(agent_key, lang), user,
+                         max_tokens=2000, temperature=0.6)
+    parsed = _extract_json(raw) or {}
+    if not isinstance(parsed, dict) or parsed.get("skip") or not parsed.get("body"):
+        reason = str((parsed or {}).get("reason") or "nincs közös mintázat")[:150]
+        _log_act(get_db, agent_key, "skip_note", sids[0], "", lang, reason)
+        return {"status": f"skip: {reason}", "story_ids": sids}
+
+    title = truncate_sentence(str(parsed.get("title") or "").strip(), 120) or \
+        ("Jegyzet a mai hírfolyamról" if lang == "hu" else "A note on today's news flow")
+    body = str(parsed.get("body") or "").strip()
+    if len(body) < NOTE_MIN:
+        _log_act(get_db, agent_key, "skip_note", sids[0], "", lang,
+                 f"túl rövid note ({len(body)} kar.)")
+        return {"status": f"skip: túl rövid ({len(body)} kar.)", "story_ids": sids}
+    ok, why, body = content_guard(body, lang, maxlen=NOTE_MAX)
+    if not ok:
+        _log_act(get_db, agent_key, "error", sids[0], "", lang, f"note-guard:{why}")
+        return {"status": f"guard_reject: {why}", "story_ids": sids}
+    body, _mg = media_guard(body, set(), lang, max_images=0)  # note-ban nincs kép
+    if not body.strip():
+        _log_act(get_db, agent_key, "error", sids[0], "", lang, "note-media_guard: üres")
+        return {"status": "guard_reject: media_guard után üres", "story_ids": sids}
+
+    author_note = truncate_sentence(
+        str(parsed.get("why") or "").strip()
+        or ("Rövid jegyzet: több egyidejű hír közös mintázata a beatemből."
+            if lang == "hu" else
+            "A short note on a pattern shared by several of today's stories."), 300)
+
+    out = {"status": "dry_run — nem publikált", "title": title,
+           "story_ids": sids, "lang": lang, "chars": len(body),
+           "body_preview": body[:300]}
+    if dry_run:
+        return out
+    ec = _echolot()
+    res = await ec.agora_action("publish", operator_key=op_key, title=title,
+                                body=body, story_refs=",".join(sids),
+                                author_note=author_note,
+                                agent_label=a["label"], lang=lang)
+    post_id = str((res or {}).get("post_id") or (res or {}).get("id") or "")
+    out["status"] = "published"
+    out["post_id"] = post_id
+    _log_act(get_db, agent_key, "note", sids[0], post_id, lang, title[:150])
+    return out
 
 
 # ---------------------------------------------------------------------------
 # HETI ESSZÉ — agora_essay
 # ---------------------------------------------------------------------------
+def parse_essay_output(raw: str, fallback_title: str = "Agora-esszé") -> tuple[str, str, str]:
+    """A "CÍM/JEGYZET/---/törzs" formátumú esszé-output parse-olása.
+
+    Returns: (title, author_note, body). A JEGYZET (author_note) mondathatáron
+    csonkolódik 400 karakterre — a nyers [:400] vágás fél mondatokat hagyott
+    a provenance-kártyán ("...kezdett el ").
+    """
+    raw = raw or ""
+    title, note, body = "", "", raw
+    m = re.search(r"CÍM:\s*(.+)", raw)
+    if m:
+        title = m.group(1).strip()
+    m = re.search(r"JEGYZET:\s*(.+?)(?:\n---|\n\n---)", raw, re.DOTALL)
+    if m:
+        note = truncate_sentence(" ".join(m.group(1).split()), 400)
+    if "---" in raw:
+        body = raw.split("---", 1)[1].strip()
+    if not title:
+        title = str(fallback_title or "Agora-esszé")
+    return truncate_sentence(title, 120), note, body
+
+
 async def run_agora_essay(deps: dict, agent_key: str, dry_run: bool = False) -> dict:
     get_db = deps["get_db"]
     report: dict = {"agent": agent_key, "dry_run": dry_run, "ts": _utc_iso()}
@@ -1029,28 +1394,37 @@ async def run_agora_essay(deps: dict, agent_key: str, dry_run: bool = False) -> 
         return report
     a = AGORA_AGENTS[agent_key]
 
-    if not _kill_switch_on(get_db):
-        report["status"] = "killed"
-        return report
-    if _last_essay_within_days(get_db, agent_key, days=6):
-        report["status"] = "skip: e héten már volt esszé"
-        return report
-    cnt = _counts(get_db, agent_key)
-    if cnt["essays_today"] >= 2:
-        report["status"] = "skip: napi publish-kvóta (2) elérve — holnapra halasztva"
-        return report
-    op_key = _operator_key(get_db, agent_key)
-    if not op_key:
-        report["status"] = "error: nincs operátor-kulcs"
+    def _exit(status: str, kind: str = "skip_essay", story_id: str = "",
+              detail: str = "") -> dict:
+        """Esszé-kilépés NYOMMAL — a 2026-07-08-i tanulság: a néma skip
+        (heti guard) miatt tűnt halottnak az ütemező."""
+        report["status"] = status
+        _log_act(get_db, agent_key, kind, story_id, "", "",
+                 detail or f"essay: {status[:200]}")
+        _session_log(get_db, f"agora_essay_{agent_key}", report)
         return report
 
-    stories = await collect_stories(limit=20)
+    if not _kill_switch_on(get_db):
+        return _exit("killed")
+    if _last_essay_within_days(get_db, agent_key, days=6):
+        return _exit("skip: e héten már volt esszé (nem duplikálunk)")
+    cnt = _counts(get_db, agent_key)
+    if cnt["publishes_today"] >= MAX_PUBLISHES_PER_DAY:
+        return _exit(f"skip: napi publish-kvóta ({MAX_PUBLISHES_PER_DAY}) elérve — holnapra halasztva")
+    op_key = _operator_key(get_db, agent_key)
+    if not op_key:
+        return _exit("error: nincs operátor-kulcs", kind="error")
+
+    try:
+        stories = await collect_stories(limit=20)
+    except Exception as e:  # noqa: BLE001
+        logger.exception("agora_essay(%s): collect_stories failed", agent_key)
+        return _exit(f"collect_stories_failed: {e}", kind="error")
     candidates = [s for s in stories if story_lang(s) in ("hu", "en")]
     for s in candidates:
         s["_lang"] = story_lang(s)
     if not candidates:
-        report["status"] = "no hu/en stories"
-        return report
+        return _exit("no hu/en stories")
 
     # A hét legerősebb beat-clustere — az agent saját modellje választ
     listing = "\n".join(
@@ -1070,23 +1444,29 @@ async def run_agora_essay(deps: dict, agent_key: str, dry_run: bool = False) -> 
                              sel_user, max_tokens=800, temperature=0.3)
         sel = _extract_json(raw) or {}
     except Exception as e:  # noqa: BLE001
-        report["status"] = f"selection failed: {e}"
-        return report
+        logger.exception("agora_essay(%s): selection failed", agent_key)
+        return _exit(f"selection failed: {e}", kind="error")
     sids = [s for s in (sel.get("story_ids") or []) if s in {c["story_id"] for c in candidates}]
     if not sids:
-        report["status"] = "skip: nincs esszé-erős beat-téma ezen a héten"
-        _log_act(get_db, agent_key, "skip_beat", "", "", "", "essay: no strong cluster")
-        return report
+        return _exit("skip: nincs esszé-erős beat-téma ezen a héten",
+                     detail="essay: no strong cluster")
     lang = sel.get("lang") if sel.get("lang") in ("hu", "en") else \
         next(c["_lang"] for c in candidates if c["story_id"] == sids[0])
+    chosen = [c for c in candidates if c["story_id"] in sids]
 
+    # Prefetch-query fallback-lánc (2026-07-08 esszé-ábra tanulság: az üres/
+    # túl szűk sel.query miatt a regional_framing <2 régiót adott →
+    # render_failed). A story címéből/kulcsszavaiból mindig jut query.
+    prefetch_query = (str(sel.get("query") or "").strip()
+                      or str(sel.get("angle") or "").strip()
+                      or _title_keywords(chosen[0].get("title", "")))
     tool_block, chart_source = await prefetch_beat_data(
-        agent_key, str(sel.get("query") or ""), "hu_macro")
+        agent_key, prefetch_query, "hu_macro")
 
     # ── Média-kör az esszéhez: 1 saját ábra, ha a beat-adatból kirajzolható ──
     media = await prepare_chart_media(deps, get_db, agent_key, chart_source,
-                                      str(sel.get("query") or sel.get("angle") or ""),
-                                      lang, op_key, dry_run, story_id=sids[0])
+                                      prefetch_query, lang, op_key, dry_run,
+                                      story_id=sids[0])
     report["media"] = {"status": media["status"], "media_id": media["media_id"],
                        "alt": media["alt"][:120]}
     chart_line = ""
@@ -1096,8 +1476,10 @@ async def run_agora_essay(deps: dict, agent_key: str, dry_run: bool = False) -> 
                       "szövegben, de NE írj kép-linket, markdown-képet vagy "
                       "media: hivatkozást — a csatolást a rendszer végzi.")
 
-    ref_md = "\n\n---\n\n".join(_trim(c.get("markdown", ""), 2500)
-                                for c in candidates if c["story_id"] in sids)
+    ref_md = "\n\n---\n\n".join(_trim(c.get("markdown", ""), 2500) for c in chosen)
+    intl_block = _intl_coverage_block(chosen)  # defenzív: hiányzó mező → ""
+    if intl_block:
+        tool_block = (tool_block + "\n\n" + intl_block) if tool_block else intl_block
     essay_user = (
         f"FELHASZNÁLT STORY-K (id-k: {', '.join(sids)}):\n{ref_md}\n\n{tool_block}\n\n"
         f"Írj esszét az Agorára. Fókusz: {sel.get('angle','')}{chart_line}\n"
@@ -1120,31 +1502,20 @@ async def run_agora_essay(deps: dict, agent_key: str, dry_run: bool = False) -> 
             raw = await _sf_chat(deps, a["agent_id"], _persona_system(agent_key, lang),
                                  req, max_tokens=6000, temperature=0.7)
         except Exception as e:  # noqa: BLE001
-            report["status"] = f"essay generation failed: {e}"
-            _log_act(get_db, agent_key, "error", sids[0], "", lang, f"essay-gen:{e}")
-            return report
-        title, note, body = "", "", raw
-        m = re.search(r"CÍM:\s*(.+)", raw)
-        if m:
-            title = m.group(1).strip()
-        m = re.search(r"JEGYZET:\s*(.+?)(?:\n---|\n\n---)", raw, re.DOTALL)
-        if m:
-            note = " ".join(m.group(1).split())[:400]
-        if "---" in raw:
-            body = raw.split("---", 1)[1].strip()
-        if not title:
-            title = (sel.get("angle") or "Agora-esszé")[:120]
+            logger.exception("agora_essay(%s): generation failed", agent_key)
+            return _exit(f"essay generation failed: {e}", kind="error",
+                         story_id=sids[0], detail=f"essay-gen:{e}")
+        title, note, body = parse_essay_output(
+            raw, fallback_title=(sel.get("angle") or "Agora-esszé"))
         ok, why, body = content_guard(body, lang, maxlen=ESSAY_MAX + 1000)
         if ok:
             break
     if not ok:
-        report["status"] = f"guard_reject: {why}"
-        _log_act(get_db, agent_key, "error", sids[0], "", lang, f"essay-guard:{why}")
-        return report
+        return _exit(f"guard_reject: {why}", kind="error",
+                     story_id=sids[0], detail=f"essay-guard:{why}")
     if len(body) < ESSAY_MIN * 0.8:
-        report["status"] = f"reject: túl rövid esszé ({len(body)} kar.)"
-        _log_act(get_db, agent_key, "error", sids[0], "", lang, f"essay too short: {len(body)}")
-        return report
+        return _exit(f"reject: túl rövid esszé ({len(body)} kar.)", kind="error",
+                     story_id=sids[0], detail=f"essay too short: {len(body)}")
 
     # ── Média-guard az esszén: saját ábra beillesztése + idegen media-ref
     #    és videó-URL törlése küldés előtt ──
@@ -1156,9 +1527,8 @@ async def run_agora_essay(deps: dict, agent_key: str, dry_run: bool = False) -> 
                            "removed_video", "removed_raw_ref")):
         report["media_guard"] = mg
     if not body.strip():
-        report["status"] = "guard_reject: media_guard után üres body"
-        _log_act(get_db, agent_key, "error", sids[0], "", lang, f"essay-media_guard:{mg}")
-        return report
+        return _exit("guard_reject: media_guard után üres body", kind="error",
+                     story_id=sids[0], detail=f"essay-media_guard:{mg}")
 
     report.update({"title": title, "author_note": note, "lang": lang,
                    "story_refs": sids, "chars": len(body), "body_preview": body[:400]})
@@ -1272,7 +1642,15 @@ async def cron_entry(recipe_name: str, deps: dict | None = None) -> None:
             rep = await run_agora_essay(d, agent_key, dry_run=False)
             logger.info("agora_essay[%s] kész: %s", agent_key, rep.get("status"))
     except Exception as e:  # noqa: BLE001
-        logger.error("agora cron_entry (%s) failed: %s", recipe_name, e)
+        # NAPLÓ-GARANCIA: a cron-ág kivétele stackkel a logba ÉS nyomként a
+        # DB-be is — a Railway-log elveszhet, az agora_activity nem.
+        logger.exception("agora cron_entry (%s) failed", recipe_name)
+        try:
+            _log_act(d["get_db"], "system", "error", "", "", "",
+                     f"cron_entry {recipe_name}: {type(e).__name__}: {e} | "
+                     f"{traceback.format_exc()[-250:]}")
+        except Exception:  # noqa: BLE001
+            pass
 
 
 # ---------------------------------------------------------------------------
@@ -1296,8 +1674,9 @@ def register_tools(app, deps):
     # ── Recipe-sorok (idempotens seed) — csak az ÜTEMEZÉST hordozzák,
     #    a _cron_loop special-case-eli őket a cron_entry-re. ──
     _rows = [
-        ("agora_duty_morning", "Agora-sorszolgálat — reggeli kör (komment+reakció, ±30p jitter)", "0 8 * * *"),
-        ("agora_duty_evening", "Agora-sorszolgálat — esti kör (komment+reakció, ±30p jitter)", "0 19 * * *"),
+        ("agora_duty_morning", "Agora-sorszolgálat — reggeli kör (komment+reakció+note, +30p jitter)", "0 8 * * *"),
+        ("agora_duty_noon", "Agora-sorszolgálat — délutáni kör (komment+reakció+note, +30p jitter)", "0 14 * * *"),
+        ("agora_duty_evening", "Agora-sorszolgálat — esti kör (komment+reakció+note, +30p jitter)", "0 19 * * *"),
         ("agora_essay_von_takt", "Heti Agora-esszé — Von Takt (gazdaság/makró)", "0 10 * * 1"),
         ("agora_essay_der_kartograph", "Heti Agora-esszé — Der Kartograph (geopolitika)", "0 10 * * 3"),
         ("agora_essay_frau_lupe", "Heti Agora-esszé — Frau Lupe (médiakritika)", "0 10 * * 5"),
@@ -1322,8 +1701,10 @@ def register_tools(app, deps):
                              reactions: bool = True, caller: str = "") -> str:
         """Agora-sorszolgálat futtatása kézzel (teszt vagy soron kívüli kör).
 
-        A pipeline: Echolot top-stories → nyelvi kapu (hu/en) → beat-match →
-        dedup → beat-tool prefetch → komment → reakció-doktrína.
+        A pipeline: Echolot top-stories → nyelvi kapu (hu/en) → beat-match
+        (max 3 jelölt/agent) → dedup (skipnél a következő jelöltre lép) →
+        beat-tool prefetch → komment → reakció-doktrína → note-kör
+        (cross-story jegyzet, ha ≥2 erős beat-jelölt van).
 
         Args:
             dry_run: True (default) = draft-ok posztolás NÉLKÜL. False = éles.
@@ -1383,6 +1764,8 @@ def register_tools(app, deps):
                     "reactions_today": f"{c['reactions_today']}/{MAX_REACTIONS_PER_DAY}",
                     "dislikes_today": f"{c['dislikes_today']}/{MAX_DISLIKES_PER_DAY}",
                     "hearts_week": f"{c['hearts_week']}/{MAX_HEARTS_PER_WEEK}",
+                    "notes_today": f"{c['notes_today']}/{MAX_NOTES_PER_DAY}",
+                    "publishes_today": f"{c['publishes_today']}/{MAX_PUBLISHES_PER_DAY}",
                     "media_uploads_today": f"{media_uploads_today(get_db, k)}/{MAX_MEDIA_PER_DAY}",
                 },
             }

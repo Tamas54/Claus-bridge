@@ -8402,6 +8402,23 @@ def _cron_matches(schedule: str, dt: datetime) -> bool:
     return True
 
 
+def _cron_last_due(schedule: str, now_local: datetime, lookback_min: int = 360) -> datetime | None:
+    """A legutóbbi cron-találat az elmúlt `lookback_min` percben (a mostani
+    percet KIZÁRVA — azt az exact-match ág kezeli). None, ha nem volt.
+
+    CATCH-UP alap (2026-07-08 tanulság): az exact-minute matcher elveszíti a
+    slotot, ha a process épp redeploy alatt áll vagy a loop-iteráció átcsúszik
+    a percen — heti esszénél ez egy teljes hét kiesése volt. Az ütemezés és a
+    cron_last_run a DB-ben él (pyramid_recipes), így a pótlás restart-álló.
+    """
+    probe = now_local.replace(second=0, microsecond=0)
+    for i in range(1, lookback_min + 1):
+        t = probe - timedelta(minutes=i)
+        if _cron_matches(schedule, t):
+            return t
+    return None
+
+
 async def _cron_loop():
     """Runs every 60s, checks scheduled recipes and executes them. Also cleans old uploads.
 
@@ -8488,17 +8505,40 @@ async def _cron_loop():
             for r in recipes:
                 # Match cron against Budapest LOCAL time (user's timezone).
                 if not _cron_matches(r["cron_schedule"], now_local):
-                    continue
-                # Dedup: skip if already ran this minute (compare in UTC)
-                if r["cron_last_run"]:
-                    try:
-                        last = datetime.fromisoformat(r["cron_last_run"])
-                        if (last.year == now_dt.year and last.month == now_dt.month and
-                                last.day == now_dt.day and last.hour == now_dt.hour and
-                                last.minute == now_dt.minute):
+                    # ── CATCH-UP (csak agora_* recipe-k): ha a slot perce a
+                    # redeploy/blokkolt loop miatt kimaradt, a 6 órás ablakon
+                    # belüli legutóbbi esedékes futást pótoljuk. A dedup a
+                    # DB-beli cron_last_run-on áll (restart-álló); a duplikálás
+                    # ellen a plugin-oldali kvóta/heti-esszé-guard a második öv.
+                    if not r["name"].startswith("agora_"):
+                        continue
+                    due_t = _cron_last_due(r["cron_schedule"], now_local)
+                    if due_t is None:
+                        continue
+                    due_utc = due_t.astimezone(timezone.utc)
+                    if r["cron_last_run"]:
+                        try:
+                            last = datetime.fromisoformat(r["cron_last_run"])
+                            if last.tzinfo is None:
+                                last = last.replace(tzinfo=timezone.utc)
+                            if last >= due_utc - timedelta(minutes=1):
+                                continue  # ez a slot már lefutott
+                        except (ValueError, TypeError):
                             continue
-                    except (ValueError, TypeError):
-                        pass
+                    logger.info("Cron CATCH-UP: %s (schedule=%s, kimaradt slot: %s Bp)",
+                                r["name"], r["cron_schedule"],
+                                due_t.strftime("%Y-%m-%d %H:%M"))
+                else:
+                    # Dedup: skip if already ran this minute (compare in UTC)
+                    if r["cron_last_run"]:
+                        try:
+                            last = datetime.fromisoformat(r["cron_last_run"])
+                            if (last.year == now_dt.year and last.month == now_dt.month and
+                                    last.day == now_dt.day and last.hour == now_dt.hour and
+                                    last.minute == now_dt.minute):
+                                continue
+                        except (ValueError, TypeError):
+                            pass
 
                 logger.info("Cron trigger: %s (schedule=%s, model=%s)", r["name"], r["cron_schedule"], r["cron_model"])
 
@@ -8559,7 +8599,7 @@ async def _cron_loop():
                     continue
 
                 # ── Agora-sorszolgálat special-case ──
-                # `agora_duty_*` (napi 2x komment+reakció kör) és `agora_essay_*`
+                # `agora_duty_*` (napi 3x komment+reakció+note kör) és `agora_essay_*`
                 # (heti esszék) NEM a generikus ai_task úton mennek: a
                 # plugins.agora_duty.cron_entry saját pipeline-t futtat
                 # (nyelvi kapu, dedup, kvóták, kill switch), random jitterrel —
