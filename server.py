@@ -8616,23 +8616,27 @@ async def _cron_loop():
             "SELECT COUNT(*) AS c FROM pyramid_agent_rag WHERE agent_id='echolot' AND category='news'"
         ).fetchone()["c"]
         _today_iso = datetime.now(timezone.utc).date().isoformat()
-        try:
-            _snap_today = _c.execute(
-                "SELECT COUNT(*) AS c FROM press_snapshots WHERE date_iso=? AND signal_type='trending'",
-                (_today_iso,),
-            ).fetchone()["c"]
-        except Exception:  # noqa: BLE001 — table not created yet on first boot
-            _snap_today = 0
         _c.close()
-        if _news_count == 0 or _snap_today == 0:
-            from plugins.daily_press_review import fetch_and_store_press_review
-            _bf = await fetch_and_store_press_review()
-            logger.info("Cron startup backfill: stored=%s snapshots=%s days=%s",
-                        _bf.get("stored"), _bf.get("snapshots"),
-                        [x.get("date") for x in _bf.get("days", [])])
-        else:
-            logger.info("Cron startup backfill skipped (news RAG=%d, today trending snapshot present)",
-                        _news_count)
+        # Multilingual seed: same lang set as the daily cron. Primary (first) lang
+        # feeds the echolot RAG + global signals; the rest only per-language
+        # brief+news. Per-lang gate → each missing language is seeded independently.
+        _langs = [x.strip() for x in os.environ.get(
+            "DELPHOI_CORPUS_LANGS", "hu,pl,fr,it").split(",") if x.strip()]
+        from plugins.daily_press_review import fetch_and_store_press_review, _snapshot_stored
+        for _i, _lg in enumerate(_langs):
+            _primary = (_i == 0)
+            _gate = "trending" if _primary else "news"  # primary's last signal vs per-lang
+            try:
+                _fresh = _snapshot_stored(_today_iso, _lg, _gate)
+            except Exception:  # noqa: BLE001 — table not created yet on first boot
+                _fresh = False
+            if (_primary and _news_count == 0) or not _fresh:
+                _bf = await fetch_and_store_press_review(lang=_lg, localized_only=not _primary)
+                logger.info("Cron startup backfill[%s]: stored=%s snapshots=%s days=%s",
+                            _lg, _bf.get("stored"), _bf.get("snapshots"),
+                            [x.get("date") for x in _bf.get("days", [])])
+            else:
+                logger.info("Cron startup backfill[%s] skipped (already fresh today)", _lg)
     except Exception as e:  # noqa: BLE001
         logger.error("Cron startup backfill failed: %s", e)
 
