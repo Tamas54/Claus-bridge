@@ -1955,6 +1955,118 @@ async def api_delphoi_verify(request):
         return JSONResponse({"ok": False, "error": str(e)}, status_code=500)
 
 
+# ── DELPHOI FOGÁS (fizetős fókuszcsoport) — PRIVÁT REST az Echolotnak ──
+# Auth: osztott kulcs (DELPHOI_BRIDGE_KEY env mindkét oldalon, X-Delphoi-Key
+# fejléc). Kulcs nélkül az ág 503 — a fizetős út alszik, amíg a Kommandant
+# nem élesíti. A siló-vasszabály: ezek az adatok SOHA nem mennek FTS/feed/
+# Agora-útra; a GET csak a tulajdonos user_id-jével ad vissza bármit.
+
+def _delphoi_auth(request):
+    key = os.environ.get("DELPHOI_BRIDGE_KEY", "")
+    if not key:
+        return JSONResponse({"ok": False, "error": "delphoi_disabled"}, status_code=503)
+    if request.headers.get("x-delphoi-key", "") != key:
+        return JSONResponse({"ok": False, "error": "auth"}, status_code=401)
+    return None
+
+
+@mcp.custom_route("/api/delphoi/jobs", methods=["GET", "POST"])
+async def api_delphoi_jobs(request):
+    """POST: új fókuszcsoport-job (atomi kredit-levonás, queued, azonnali
+    háttér-feldolgozás). GET: a user job-listája (?user_id=)."""
+    denied = _delphoi_auth(request)
+    if denied is not None:
+        return denied
+    from plugins import delphoi as _dlph
+    if request.method == "GET":
+        user_id = request.query_params.get("user_id", "")
+        if not user_id:
+            return JSONResponse({"ok": False, "error": "missing_user_id"}, status_code=400)
+        _dlph.watchdog_sweep(get_db)
+        return JSONResponse({"ok": True, "jobs": _dlph.list_jobs(get_db, user_id)})
+    try:
+        data = await request.json()
+    except Exception:  # noqa: BLE001
+        return JSONResponse({"ok": False, "error": "bad_json"}, status_code=400)
+    user_id = str(data.get("user_id") or "").strip()
+    if not user_id:
+        return JSONResponse({"ok": False, "error": "missing_user_id"}, status_code=400)
+    created = _dlph.create_job(
+        get_db, user_id,
+        str(data.get("input_kind") or ""),
+        str(data.get("input_text") or ""),
+        dict(data.get("panel_spec") or {}),
+        data.get("input_variants"))
+    if not created.get("ok"):
+        status = 402 if created.get("error") == "insufficient_credits" else 400
+        return JSONResponse(created, status_code=status)
+    _delphoi_deps = {
+        "get_db": get_db,
+        "siliconflow_api_key": SILICONFLOW_API_KEY,
+        "siliconflow_base_url": SILICONFLOW_BASE_URL,
+        "siliconflow_timeout": SILICONFLOW_TIMEOUT,
+        "siliconflow_models": SILICONFLOW_MODELS,
+    }
+    asyncio.create_task(_dlph.process_job(_delphoi_deps, created["job_id"]))
+    return JSONResponse(created)
+
+
+@mcp.custom_route("/api/delphoi/jobs/{job_id}", methods=["GET", "DELETE"])
+async def api_delphoi_job_detail(request):
+    """GET: állapot + (done) aggregált eredmény — CSAK a tulajdonosnak.
+    DELETE: GDPR-út — nyers input + nyers reakciók fizikai felülírása;
+    aggregátum + kredit-ledger marad, a nowcast-ledgert nem érinti."""
+    denied = _delphoi_auth(request)
+    if denied is not None:
+        return denied
+    from plugins import delphoi as _dlph
+    job_id = request.path_params.get("job_id", "")
+    user_id = request.query_params.get("user_id", "")
+    if not user_id:
+        return JSONResponse({"ok": False, "error": "missing_user_id"}, status_code=400)
+    if request.method == "DELETE":
+        res = _dlph.delete_job(get_db, job_id, user_id)
+    else:
+        res = _dlph.get_job(get_db, job_id, user_id)
+    return JSONResponse(res, status_code=200 if res.get("ok") else 404)
+
+
+@mcp.custom_route("/api/delphoi/credits", methods=["GET"])
+async def api_delphoi_credits(request):
+    """Kredit-egyenleg + ledger-kivonat (?user_id=). Első érintéskor
+    idempotens signup-grant."""
+    denied = _delphoi_auth(request)
+    if denied is not None:
+        return denied
+    from plugins import delphoi as _dlph
+    user_id = request.query_params.get("user_id", "")
+    if not user_id:
+        return JSONResponse({"ok": False, "error": "missing_user_id"}, status_code=400)
+    _dlph.ensure_welcome(get_db, user_id)
+    return JSONResponse({"ok": True, **_dlph.get_credits(get_db, user_id),
+                         "calls_per_credit": _dlph.CALLS_PER_CREDIT})
+
+
+@mcp.custom_route("/api/delphoi/credits/topup", methods=["POST"])
+async def api_delphoi_topup(request):
+    """Kredit-jóváírás (fizetési stub — a tényleges pénzmozgás cserélhető
+    mögötte; a note a dedup-kulcs, pl. 'stripe:<session_id>')."""
+    denied = _delphoi_auth(request)
+    if denied is not None:
+        return denied
+    from plugins import delphoi as _dlph
+    try:
+        data = await request.json()
+    except Exception:  # noqa: BLE001
+        return JSONResponse({"ok": False, "error": "bad_json"}, status_code=400)
+    user_id = str(data.get("user_id") or "").strip()
+    amount = int(data.get("amount") or 0)
+    if not user_id or amount <= 0 or amount > 10000:
+        return JSONResponse({"ok": False, "error": "bad_params"}, status_code=400)
+    return JSONResponse(_dlph.add_credits(get_db, user_id, amount,
+                                          str(data.get("note") or "")))
+
+
 # ============================================================
 # SILICONFLOW AI SUB-AGENTS (Kimi-K2.7, DeepSeek V3.2, etc.)
 # ============================================================

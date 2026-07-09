@@ -150,6 +150,48 @@ COUNTRY_PANEL_CONFIG: dict = {
     },
 }
 
+# A FOGÁS (fizetős fókuszcsoport) validált ország-köre — D5.1: HU/CZ/PT/PL.
+# A nowcast-országok (FR/IT) fókuszcsoportra env-kapuval nyithatók, ha az
+# anchor-készletük validálva lesz.
+FG_COUNTRIES = tuple(
+    c.strip().upper() for c in os.environ.get("DELPHOI_FG_COUNTRIES", "HU,CZ,PT,PL").split(",") if c.strip())
+
+# CZ/PT panel-konfig — a fókuszcsoport-ághoz (a nowcast-seed nem hivatkozik
+# rájuk). Marginálisok: Eurostat-közeli durvább készlet; média: perzisztens
+# lean + intézményi közmédia (ČT/RTP), a "kormányközeli" címke itt is tilos.
+COUNTRY_PANEL_CONFIG["CZ"] = {
+    "lang": "cs",
+    "priming": "SITUACE (2026): česká politická scéna po volbách 2025; veřejnoprávní ČT je institucionální.",
+    "dims": {
+        "age": [("18-29", 0.15), ("30-39", 0.17), ("40-49", 0.19), ("50-59", 0.16), ("60+", 0.33)],
+        "settlement": [("Praha/velké město", 0.25), ("střední město", 0.27), ("malé město", 0.22), ("venkov", 0.26)],
+        "edu": [("základní/vyučen", 0.42), ("maturita", 0.35), ("vysokoškolské", 0.23)],
+    },
+    "media": [
+        ("sleduje liberální média (Seznam Zprávy, Deník N, Respekt)", 0.26, "baloldali"),
+        ("sleduje pravicová/bulvární média (Blesk, Parlamentní listy)", 0.22, "jobboldali"),
+        ("sleduje veřejnoprávní média (ČT, ČRo)", 0.22, "közmédia"),
+        ("konzumuje politický obsah na sociálních sítích", 0.18, "közösségi"),
+        ("téměř nesleduje politické zprávy", 0.12, "alig"),
+    ],
+}
+COUNTRY_PANEL_CONFIG["PT"] = {
+    "lang": "pt",
+    "priming": "SITUAÇÃO (2026): cena política portuguesa; a RTP é institucional.",
+    "dims": {
+        "age": [("18-29", 0.14), ("30-39", 0.15), ("40-49", 0.18), ("50-59", 0.17), ("60+", 0.36)],
+        "settlement": [("Lisboa/Porto", 0.28), ("cidade média", 0.27), ("vila", 0.20), ("rural", 0.25)],
+        "edu": [("básico", 0.40), ("secundário", 0.33), ("superior", 0.27)],
+    },
+    "media": [
+        ("segue media de esquerda/liberais (Público, Expresso)", 0.24, "baloldali"),
+        ("segue media de direita/popular (CM, Observador)", 0.24, "jobboldali"),
+        ("segue os media públicos (RTP)", 0.20, "közmédia"),
+        ("consome conteúdo político nas redes sociais", 0.20, "közösségi"),
+        ("quase não segue notícias políticas", 0.12, "alig"),
+    ],
+}
+
 # ---------------------------------------------------------------------------
 # SSR anchor-halmazok — 5 pontos, 1=erősen negatív mozdulás … 5=erősen pozitív.
 # A REGARD az entitás-megítélés irányát méri (politician/party); a MOOD_* a
@@ -793,6 +835,11 @@ async def cron_entry(recipe_name: str, deps: dict | None = None) -> None:
         logger.error("delphoi cron_entry: nincs deps — skip")
         return
     try:
+        if recipe_name == "delphoi_watchdog":
+            n = watchdog_sweep(d["get_db"])
+            if n:
+                logger.warning("delphoi watchdog: %d ragadt job → failed+refund", n)
+            return
         rep = await run_entity_nowcast(d)
         oks = sum(1 for r in rep.get("results", []) if r.get("ok"))
         logger.info("delphoi nowcast cron kész: %d/%d entitás, anchor=%s",
@@ -818,22 +865,27 @@ def register_tools(app, deps):
     conn = get_db()
     try:
         ensure_tables(conn)
+        ensure_fg_tables(conn)
         seed_registry(conn)
-        # Heti cron-recept (idempotens seed) — hétfő 07:30, Budapest-idő.
-        # NEM napi: token-költség + lean-konfig gondosság (N3/6).
-        exists = conn.execute(
-            "SELECT 1 FROM pyramid_recipes WHERE name='delphoi_nowcast_weekly'").fetchone()
-        if not exists:
-            ts = datetime.now(timezone.utc).isoformat()
-            conn.execute(
-                "INSERT INTO pyramid_recipes (name, description, required_tools, prompt_template, "
-                "created_by, created_at, updated_at, cron_schedule, cron_model, cron_enabled, cron_delivery) "
-                "VALUES (?, ?, '[]', ?, 'system', ?, ?, ?, 'deepseek', 1, 'none')",
-                ("delphoi_nowcast_weekly",
-                 "DELPHOI heti entitás-nowcast — hash-láncolt ledger-sor entitásonként",
-                 "(special-cased — runtime: plugins.delphoi.cron_entry)", ts, ts, "30 7 * * 1"),
-            )
-            logger.info("delphoi recipe seed: delphoi_nowcast_weekly (cron=30 7 * * 1)")
+        # Cron-receptek (idempotens seed) — a nowcast HETI (hétfő 07:30, nem
+        # napi: token-költség + lean-konfig gondosság, N3/6); a watchdog
+        # óránkénti háló a ragadt fókuszcsoport-jobokra (refund-vasszabály).
+        ts = datetime.now(timezone.utc).isoformat()
+        for name, desc, cron in (
+            ("delphoi_nowcast_weekly",
+             "DELPHOI heti entitás-nowcast — hash-láncolt ledger-sor entitásonként", "30 7 * * 1"),
+            ("delphoi_watchdog",
+             "DELPHOI watchdog — ragadt fókuszcsoport-jobok failed+refund", "5 * * * *"),
+        ):
+            exists = conn.execute("SELECT 1 FROM pyramid_recipes WHERE name=?", (name,)).fetchone()
+            if not exists:
+                conn.execute(
+                    "INSERT INTO pyramid_recipes (name, description, required_tools, prompt_template, "
+                    "created_by, created_at, updated_at, cron_schedule, cron_model, cron_enabled, cron_delivery) "
+                    "VALUES (?, ?, '[]', ?, 'system', ?, ?, ?, 'deepseek', 1, 'none')",
+                    (name, desc, "(special-cased — runtime: plugins.delphoi.cron_entry)", ts, ts, cron),
+                )
+                logger.info("delphoi recipe seed: %s (cron=%s)", name, cron)
         conn.commit()
     finally:
         conn.close()
@@ -860,4 +912,719 @@ def register_tools(app, deps):
         Bármely sor utólagos módosítása az összes későbbi sor hash-ét érvényteleníti."""
         return json.dumps(verify_ledger_chain(get_db), ensure_ascii=False)
 
-    logger.info("delphoi plugin regisztrálva (nowcast: %d seed-entitás)", len(_SEED_ENTITIES))
+    @app.tool()
+    async def delphoi_run_focus_group(user_id: str, input_kind: str, input_text: str = "",
+                                      input_variants: str = "", country: str = "HU",
+                                      n_per_cell: int = 30, n_seeds: int = 1) -> str:
+        """DELPHOI szintetikus fókuszcsoport (FIZETŐS, privát siló): job-felvétel +
+        azonnali feldolgozás. input_kind: product_desc|pitch|yt_title|ab_test|concept.
+        input_variants: JSON-lista (ab_test/yt_title). Kredit-levonás atomi;
+        hiba esetén automatikus refund. RELATÍV jelet ad, nem abszolút %-ot."""
+        variants = json.loads(input_variants) if input_variants else None
+        spec = {"country": country, "n_per_cell": n_per_cell, "n_seeds": n_seeds}
+        created = create_job(get_db, user_id, input_kind, input_text, spec, variants)
+        if not created.get("ok"):
+            return json.dumps(created, ensure_ascii=False)
+        rep = await process_job(deps, created["job_id"])
+        return json.dumps({**created, "processing": rep.get("ok"),
+                           "status": "done" if rep.get("ok") else "failed"},
+                          ensure_ascii=False)
+
+    @app.tool()
+    async def delphoi_get_credits(user_id: str) -> str:
+        """DELPHOI kredit-egyenleg + ledger-kivonat (signup-grant idempotens)."""
+        ensure_welcome(get_db, user_id)
+        return json.dumps(get_credits(get_db, user_id), ensure_ascii=False)
+
+    @app.tool()
+    async def delphoi_job_status(job_id: str, user_id: str) -> str:
+        """DELPHOI job-állapot (csak a tulajdonosnak). done → aggregált eredmény;
+        nyers persona-mondat SOHA nem megy ki."""
+        return json.dumps(get_job(get_db, job_id, user_id), ensure_ascii=False)
+
+    logger.info("delphoi plugin regisztrálva (nowcast: %d seed-entitás, fg-országok: %s)",
+                len(_SEED_ENTITIES), ",".join(FG_COUNTRIES))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# A FOGÁS (§3, D1–D3) — fizetős szintetikus fókuszcsoport, PRIVÁT SILÓ.
+#
+# HIGIÉNIA-VASSZABÁLY: a delphoi_jobs / delphoi_panel_responses SOHA nem
+# indexelődik FTS-be, SOHA nem jelenik meg feed/Agora/korpusz-lekérdezésben.
+# A user inputja CSAK a saját jobja panel-promptjába kerül futásidőben; a
+# panel groundingja a NYILVÁNOS hír-korpuszból (press_snapshots) jön.
+# A user felé CSAK az aggregátum megy — nyers persona-mondat sosem.
+# ═══════════════════════════════════════════════════════════════════════════
+
+_FG_INIT_SQL = """
+CREATE TABLE IF NOT EXISTS delphoi_jobs (
+    id             TEXT PRIMARY KEY,
+    user_id        TEXT NOT NULL,
+    status         TEXT NOT NULL DEFAULT 'queued',
+    input_kind     TEXT NOT NULL,
+    input_text     TEXT NOT NULL,
+    input_variants TEXT,
+    vision_ref     TEXT,
+    panel_spec     TEXT NOT NULL,
+    credits_cost   INTEGER NOT NULL,
+    result_json    TEXT,
+    error          TEXT,
+    created_at     TEXT NOT NULL,
+    started_at     TEXT,
+    completed_at   TEXT,
+    deleted_at     TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_delphoi_jobs_user ON delphoi_jobs(user_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_delphoi_jobs_status ON delphoi_jobs(status);
+
+CREATE TABLE IF NOT EXISTS delphoi_panel_responses (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    job_id       TEXT NOT NULL REFERENCES delphoi_jobs(id),
+    persona_idx  INTEGER NOT NULL,
+    segment      TEXT NOT NULL,
+    raw_reaction TEXT NOT NULL,
+    ssr_score    REAL,
+    variant_id   TEXT,
+    created_at   TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_delphoi_resp_job ON delphoi_panel_responses(job_id);
+
+CREATE TABLE IF NOT EXISTS delphoi_credits (
+    user_id    TEXT PRIMARY KEY,
+    balance    INTEGER NOT NULL DEFAULT 0,
+    updated_at TEXT NOT NULL
+);
+-- UNIQUE(user_id, reason): a refund/signup-grant idempotenciája DB-szinten —
+-- egy jobhoz LEGFELJEBB egy refund-sor, egy userhez egy signup_grant.
+CREATE TABLE IF NOT EXISTS delphoi_credit_ledger (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id    TEXT NOT NULL,
+    delta      INTEGER NOT NULL,
+    reason     TEXT NOT NULL,
+    job_id     TEXT,
+    created_at TEXT NOT NULL,
+    UNIQUE(user_id, reason)
+);
+CREATE INDEX IF NOT EXISTS idx_delphoi_ledger_user ON delphoi_credit_ledger(user_id);
+"""
+
+WELCOME_CREDITS = int(os.environ.get("DELPHOI_WELCOME_CREDITS", "2"))
+CALLS_PER_CREDIT = int(os.environ.get("DELPHOI_CALLS_PER_CREDIT", "30"))
+FG_RETRIES = 3               # retry-küszöb a refund ELŐTT (v2 refund-vasszabály)
+FG_MIN_COMPLETION = 0.9      # részeredmény nem termék: e alatt failed+refund
+WATCHDOG_MINUTES = 30        # ragadt 'running' job → failed + refund
+
+VALID_INPUT_KINDS = ("product_desc", "pitch", "yt_title", "ab_test", "concept")
+
+
+def ensure_fg_tables(conn) -> None:
+    conn.executescript(_FG_INIT_SQL)
+    conn.commit()
+
+
+# ── Kredit-könyvelés (atomi, ledger-alapú — az orakel_credits bevált mintája) ──
+
+def ensure_welcome(get_db, user_id: str) -> None:
+    """Idempotens signup-grant — a ledger UNIQUE(user_id,'signup_grant') a garancia."""
+    conn = get_db()
+    try:
+        conn.execute("BEGIN IMMEDIATE")
+        cur = conn.execute(
+            "INSERT OR IGNORE INTO delphoi_credit_ledger (user_id, delta, reason, created_at) "
+            "VALUES (?, ?, 'signup_grant', ?)",
+            (str(user_id), WELCOME_CREDITS, datetime.now(timezone.utc).isoformat()))
+        if cur.rowcount:
+            conn.execute(
+                "INSERT INTO delphoi_credits (user_id, balance, updated_at) VALUES (?, ?, ?) "
+                "ON CONFLICT(user_id) DO UPDATE SET balance = balance + ?, updated_at = ?",
+                (str(user_id), WELCOME_CREDITS, datetime.now(timezone.utc).isoformat(),
+                 WELCOME_CREDITS, datetime.now(timezone.utc).isoformat()))
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def get_credits(get_db, user_id: str) -> dict:
+    conn = get_db()
+    try:
+        row = conn.execute("SELECT balance FROM delphoi_credits WHERE user_id=?",
+                           (str(user_id),)).fetchone()
+        ledger = [dict(r) for r in conn.execute(
+            "SELECT delta, reason, job_id, created_at FROM delphoi_credit_ledger "
+            "WHERE user_id=? ORDER BY id DESC LIMIT 20", (str(user_id),)).fetchall()]
+    finally:
+        conn.close()
+    return {"user_id": str(user_id), "balance": row["balance"] if row else 0, "ledger": ledger}
+
+
+def charge(get_db, user_id: str, job_id: str, cost: int) -> bool:
+    """Atomi levonás: ha nincs fedezet → False, SEMMI nem íródik."""
+    conn = get_db()
+    try:
+        conn.execute("BEGIN IMMEDIATE")
+        cur = conn.execute(
+            "UPDATE delphoi_credits SET balance = balance - ?, updated_at = ? "
+            "WHERE user_id = ? AND balance >= ?",
+            (int(cost), datetime.now(timezone.utc).isoformat(), str(user_id), int(cost)))
+        if not cur.rowcount:
+            conn.rollback()
+            return False
+        conn.execute(
+            "INSERT INTO delphoi_credit_ledger (user_id, delta, reason, job_id, created_at) "
+            "VALUES (?, ?, ?, ?, ?)",
+            (str(user_id), -int(cost), f"job:{job_id}", job_id,
+             datetime.now(timezone.utc).isoformat()))
+        conn.commit()
+        return True
+    finally:
+        conn.close()
+
+
+def refund(get_db, user_id: str, job_id: str, cost: int) -> bool:
+    """REFUND-VASSZABÁLY (v2): automatikus, atomi, IDEMPOTENS — a
+    UNIQUE(user_id, reason='refund:<job>') kizárja a dupla-refundot."""
+    conn = get_db()
+    try:
+        conn.execute("BEGIN IMMEDIATE")
+        cur = conn.execute(
+            "INSERT OR IGNORE INTO delphoi_credit_ledger (user_id, delta, reason, job_id, created_at) "
+            "VALUES (?, ?, ?, ?, ?)",
+            (str(user_id), int(cost), f"refund:{job_id}", job_id,
+             datetime.now(timezone.utc).isoformat()))
+        if not cur.rowcount:
+            conn.rollback()
+            return False
+        conn.execute(
+            "UPDATE delphoi_credits SET balance = balance + ?, updated_at = ? WHERE user_id = ?",
+            (int(cost), datetime.now(timezone.utc).isoformat(), str(user_id)))
+        conn.commit()
+        return True
+    finally:
+        conn.close()
+
+
+def add_credits(get_db, user_id: str, amount: int, note: str) -> dict:
+    """Top-up / admin-jóváírás. A note a dedup-kulcs része (reason egyedi)."""
+    import uuid
+    reason = f"topup:{note or uuid.uuid4().hex[:10]}"
+    conn = get_db()
+    try:
+        conn.execute("BEGIN IMMEDIATE")
+        cur = conn.execute(
+            "INSERT OR IGNORE INTO delphoi_credit_ledger (user_id, delta, reason, created_at) "
+            "VALUES (?, ?, ?, ?)",
+            (str(user_id), int(amount), reason, datetime.now(timezone.utc).isoformat()))
+        if not cur.rowcount:
+            conn.rollback()
+            return {"ok": False, "error": "duplicate_topup"}
+        conn.execute(
+            "INSERT INTO delphoi_credits (user_id, balance, updated_at) VALUES (?, ?, ?) "
+            "ON CONFLICT(user_id) DO UPDATE SET balance = balance + ?, updated_at = ?",
+            (str(user_id), int(amount), datetime.now(timezone.utc).isoformat(),
+             int(amount), datetime.now(timezone.utc).isoformat()))
+        conn.commit()
+        return {"ok": True, "reason": reason}
+    finally:
+        conn.close()
+
+
+def job_cost(panel_spec: dict, input_variants=None) -> int:
+    """ÉLŐ ár-visszacsatolás alapja (D5.1): hívásszám → kredit.
+    calls = n_per_cell × szegmensszám × n_seeds × variánsszám."""
+    import math
+    n = max(30, int(panel_spec.get("n_per_cell", 30)))   # KEMÉNY ALSÓ KORLÁT
+    segs = panel_spec.get("segments") or []
+    n_segments = max(1, len(segs)) if isinstance(segs, list) else 1
+    n_seeds = 3 if int(panel_spec.get("n_seeds", 1)) >= 3 else 1
+    n_variants = max(1, len(input_variants or []))
+    calls = n * n_segments * n_seeds * n_variants
+    return max(1, math.ceil(calls / CALLS_PER_CREDIT))
+
+
+# ── D3: instrumentum-készlet — anchorok + kérdés-sablonok ──────────────────
+# Vonzerő-skála (1=egyáltalán nem vonzó … 5=nagyon vonzó) a validált
+# purchase-intent vonal lokalizált megfelelője (Colgate-terep).
+REFERENCE_SETS_APPEAL = {
+    "hu": [
+        "Ez egyáltalán nem érdekel, biztosan nem választanám.",
+        "Nem igazán vonzó számomra.",
+        "Semleges vagyok, lehet is, nem is.",
+        "Eléggé vonzó, valószínűleg kipróbálnám.",
+        "Nagyon vonzó, ezt biztosan választanám.",
+    ],
+    "cs": [
+        "To mě vůbec nezajímá, určitě bych to nezvolil.",
+        "Není to pro mě moc lákavé.",
+        "Jsem neutrální, možná ano, možná ne.",
+        "Je to docela lákavé, nejspíš bych to vyzkoušel.",
+        "Je to velmi lákavé, určitě bych to zvolil.",
+    ],
+    "pt": [
+        "Isto não me interessa nada, de certeza que não escolheria.",
+        "Não é muito atraente para mim.",
+        "Estou neutro, talvez sim, talvez não.",
+        "É bastante atraente, provavelmente experimentaria.",
+        "É muito atraente, de certeza que escolheria.",
+    ],
+    "pl": [
+        "To mnie w ogóle nie interesuje, na pewno bym tego nie wybrał.",
+        "Nie jest to dla mnie zbyt atrakcyjne.",
+        "Jestem neutralny, może tak, może nie.",
+        "Jest to dość atrakcyjne, pewnie bym spróbował.",
+        "Jest to bardzo atrakcyjne, na pewno bym to wybrał.",
+    ],
+}
+
+# Kérdés-sablonok (lang, input_kind). A persona EGY szabad mondatot ír
+# (SSR-input), plusz strukturált sorokat, ahol a metrika kéri.
+FG_QUESTIONS = {
+    ("hu", "product_desc"): (
+        "Az alábbi termékleírást látod:\n„{stimulus}”\n\n"
+        "Őszintén, a saját szemszögedből: mennyire vonzó ez neked? "
+        "Válaszolj EGY őszinte mondattal."),
+    ("hu", "concept"): (
+        "Az alábbi koncepciót látod:\n„{stimulus}”\n\n"
+        "Őszintén: mennyire tetszik ez neked? Válaszolj EGY őszinte mondattal."),
+    ("hu", "pitch"): (
+        "Az alábbi bemutatkozó szöveget (pitch) hallod:\n„{stimulus}”\n\n"
+        "Válaszolj PONTOSAN így:\nREAKCIÓ: <egy őszinte mondat arról, mennyire győzött meg>\n"
+        "HOMÁLYOS: <egy szó/kifejezés, ami nem volt világos, vagy '-'>"),
+    ("hu", "ab_test"): (
+        "Az alábbi szöveget látod:\n„{stimulus}”\n\n"
+        "Válaszolj PONTOSAN így:\nREAKCIÓ: <egy őszinte mondat>\n"
+        "VÁLASZTÁS: <igen, ha rákattintanál/választanád; nem, ha nem>"),
+    ("hu", "yt_title"): (
+        "Az alábbi videócímek közül EGYETLEN videót nézhetsz meg:\n{stimulus}\n\n"
+        "Válaszolj PONTOSAN így:\nVÁLASZTÁS: <a választott cím sorszáma>\n"
+        "INDOK: <egy rövid mondat>"),
+    ("cs", "product_desc"): (
+        "Vidíš tento popis produktu:\n„{stimulus}”\n\n"
+        "Upřímně, z tvého pohledu: jak je to pro tebe lákavé? Odpověz JEDNOU upřímnou větou."),
+    ("cs", "concept"): (
+        "Vidíš tento koncept:\n„{stimulus}”\n\nUpřímně: jak se ti líbí? Odpověz JEDNOU větou."),
+    ("cs", "pitch"): (
+        "Slyšíš tento pitch:\n„{stimulus}”\n\nOdpověz PŘESNĚ takto:\n"
+        "REAKCE: <jedna upřímná věta>\nNEJASNÉ: <slovo, které nebylo jasné, nebo '-'>"),
+    ("cs", "ab_test"): (
+        "Vidíš tento text:\n„{stimulus}”\n\nOdpověz PŘESNĚ takto:\n"
+        "REAKCE: <jedna upřímná věta>\nVOLBA: <ano/ne>"),
+    ("cs", "yt_title"): (
+        "Z těchto názvů videí si můžeš pustit JEDINÉ video:\n{stimulus}\n\n"
+        "Odpověz PŘESNĚ takto:\nVOLBA: <číslo vybraného názvu>\nDŮVOD: <krátká věta>"),
+    ("pt", "product_desc"): (
+        "Vês esta descrição de produto:\n„{stimulus}”\n\n"
+        "Honestamente, do teu ponto de vista: quão atraente é para ti? Responde com UMA frase honesta."),
+    ("pt", "concept"): (
+        "Vês este conceito:\n„{stimulus}”\n\nHonestamente: quanto gostas? Responde com UMA frase."),
+    ("pt", "pitch"): (
+        "Ouves este pitch:\n„{stimulus}”\n\nResponde EXATAMENTE assim:\n"
+        "REAÇÃO: <uma frase honesta>\nCONFUSO: <uma palavra que não ficou clara, ou '-'>"),
+    ("pt", "ab_test"): (
+        "Vês este texto:\n„{stimulus}”\n\nResponde EXATAMENTE assim:\n"
+        "REAÇÃO: <uma frase honesta>\nESCOLHA: <sim/não>"),
+    ("pt", "yt_title"): (
+        "Destes títulos de vídeo podes ver UM ÚNICO vídeo:\n{stimulus}\n\n"
+        "Responde EXATAMENTE assim:\nESCOLHA: <número do título>\nMOTIVO: <frase curta>"),
+    ("pl", "product_desc"): (
+        "Widzisz ten opis produktu:\n„{stimulus}”\n\n"
+        "Szczerze, z twojej perspektywy: jak bardzo cię to pociąga? Odpowiedz JEDNYM szczerym zdaniem."),
+    ("pl", "concept"): (
+        "Widzisz ten koncept:\n„{stimulus}”\n\nSzczerze: jak bardzo ci się podoba? Odpowiedz JEDNYM zdaniem."),
+    ("pl", "pitch"): (
+        "Słyszysz ten pitch:\n„{stimulus}”\n\nOdpowiedz DOKŁADNIE tak:\n"
+        "REAKCJA: <jedno szczere zdanie>\nNIEJASNE: <słowo, które nie było jasne, albo '-'>"),
+    ("pl", "ab_test"): (
+        "Widzisz ten tekst:\n„{stimulus}”\n\nOdpowiedz DOKŁADNIE tak:\n"
+        "REAKCJA: <jedno szczere zdanie>\nWYBÓR: <tak/nie>"),
+    ("pl", "yt_title"): (
+        "Z tych tytułów wideo możesz obejrzeć TYLKO JEDNO wideo:\n{stimulus}\n\n"
+        "Odpowiedz DOKŁADNIE tak:\nWYBÓR: <numer wybranego tytułu>\nPOWÓD: <krótkie zdanie>"),
+}
+
+# yt_title niche-illesztett néző-mix (memory: 50% casual / 35% téma / 15% rajongó)
+YT_VIEWER_MIX = [("alkalmi néző", 0.50), ("a témát követő néző", 0.35), ("elkötelezett rajongó", 0.15)]
+
+_CHOICE_YES = ("igen", "ano", "sim", "tak", "yes")
+
+
+def _parse_structured(text: str, key_variants: tuple) -> str | None:
+    import re
+    for k in key_variants:
+        m = re.search(rf"{k}\s*:\s*([^\n]+)", text or "", re.I)
+        if m:
+            return m.group(1).strip()
+    return None
+
+
+def _fg_prompt(persona: dict, cfg: dict, kind: str, stimulus: str) -> str:
+    lang = cfg["lang"]
+    template = FG_QUESTIONS.get((lang, kind)) or FG_QUESTIONS[("hu", kind)]
+    profile = ", ".join(f"{k}: {v}" for k, v in persona.items() if k != "id")
+    return f"[{profile}]\n\n{template.format(stimulus=stimulus)}"
+
+
+def create_job(get_db, user_id: str, input_kind: str, input_text: str,
+               panel_spec: dict, input_variants=None) -> dict:
+    """Job-felvétel: validálás → ensure_welcome → ATOMI kredit-levonás →
+    queued sor. Elégtelen kredit → 402-jellegű hiba, SEMMI nem íródik."""
+    import uuid
+    if input_kind not in VALID_INPUT_KINDS:
+        return {"ok": False, "error": f"ismeretlen input_kind: {input_kind}"}
+    if not (input_text or "").strip() and not input_variants:
+        return {"ok": False, "error": "üres input"}
+    country = str(panel_spec.get("country", "HU")).upper()
+    if country not in FG_COUNTRIES:
+        return {"ok": False, "error": f"nem validált ország: {country} (elérhető: {','.join(FG_COUNTRIES)})"}
+    if country not in COUNTRY_PANEL_CONFIG:
+        return {"ok": False, "error": f"nincs panel-konfig: {country}"}
+    if int(panel_spec.get("n_per_cell", 30)) < 30:
+        # KEMÉNY ALSÓ KORLÁT (D5.1): kis minta zajt adna el mérésként.
+        panel_spec = dict(panel_spec, n_per_cell=30)
+    if input_kind in ("ab_test", "yt_title") and (not input_variants or len(input_variants) < 2):
+        return {"ok": False, "error": f"{input_kind}: legalább 2 variáns kell"}
+    cost = job_cost(panel_spec, input_variants)
+    job_id = "dlph-" + uuid.uuid4().hex[:10]
+    ensure_welcome(get_db, user_id)
+    if not charge(get_db, user_id, job_id, cost):
+        bal = get_credits(get_db, user_id)["balance"]
+        return {"ok": False, "error": "insufficient_credits", "cost": cost, "balance": bal}
+    conn = get_db()
+    try:
+        conn.execute(
+            "INSERT INTO delphoi_jobs (id, user_id, status, input_kind, input_text, "
+            "input_variants, panel_spec, credits_cost, created_at) "
+            "VALUES (?, ?, 'queued', ?, ?, ?, ?, ?, ?)",
+            (job_id, str(user_id), input_kind, input_text,
+             json.dumps(input_variants, ensure_ascii=False) if input_variants else None,
+             json.dumps(panel_spec, ensure_ascii=False), cost,
+             datetime.now(timezone.utc).isoformat()))
+        conn.commit()
+    finally:
+        conn.close()
+    return {"ok": True, "job_id": job_id, "cost": cost,
+            "balance": get_credits(get_db, user_id)["balance"]}
+
+
+def _fail_job(get_db, job_id: str, error: str) -> None:
+    """failed + AUTOMATIKUS refund (v2 vasszabály) — kézi beavatkozás nélkül."""
+    conn = get_db()
+    try:
+        row = conn.execute("SELECT user_id, credits_cost, status FROM delphoi_jobs WHERE id=?",
+                           (job_id,)).fetchone()
+        if not row or row["status"] in ("done", "failed"):
+            return
+        conn.execute(
+            "UPDATE delphoi_jobs SET status='failed', error=?, completed_at=? WHERE id=?",
+            (error[:500], datetime.now(timezone.utc).isoformat(), job_id))
+        conn.commit()
+    finally:
+        conn.close()
+    refund(get_db, row["user_id"], job_id, row["credits_cost"])
+    logger.warning("delphoi job %s failed (%s) — kredit visszaírva", job_id, error[:120])
+
+
+def watchdog_sweep(get_db) -> int:
+    """Ragadt 'running' jobok (worker-halál) → failed + refund. Minden
+    API-hívás és a cron is futtatja — olcsó, idempotens."""
+    cutoff = (datetime.now(timezone.utc) - timedelta(minutes=WATCHDOG_MINUTES)).isoformat()
+    conn = get_db()
+    try:
+        stuck = [r["id"] for r in conn.execute(
+            "SELECT id FROM delphoi_jobs WHERE status='running' AND started_at < ?",
+            (cutoff,)).fetchall()]
+    finally:
+        conn.close()
+    for jid in stuck:
+        _fail_job(get_db, jid, f"watchdog: {WATCHDOG_MINUTES} perce ragadt running-ban")
+    return len(stuck)
+
+
+def _aggregate(kind: str, rows: list, variants=None) -> dict:
+    """RELATÍV/ordinális aggregátum + KÖTELEZŐ baseline (doktrína #3, #6).
+    rows: [{segment, ssr_score, variant_id, choice, unclear}]."""
+    from collections import Counter, defaultdict
+    out: dict = {"kind": kind, "n": len(rows)}
+    if kind in ("product_desc", "concept", "pitch"):
+        seg = defaultdict(list)
+        for r in rows:
+            if r.get("ssr_score") is not None:
+                seg[r["segment"]].append(r["ssr_score"])
+        all_scores = [s for v in seg.values() for s in v]
+        out["overall_score"] = round(sum(all_scores) / len(all_scores), 3) if all_scores else None
+        out["baseline"] = {"type": "skála-középpont", "value": 3.0,
+                           "note": "a jel a 3.0 semleges ponthoz mérve értelmezendő"}
+        out["segments"] = sorted(
+            [{"segment": k, "n": len(v), "score": round(sum(v) / len(v), 3),
+              "vs_baseline": round(sum(v) / len(v) - 3.0, 3)} for k, v in seg.items()],
+            key=lambda x: x["score"], reverse=True)
+        if kind == "pitch":
+            unclear = Counter(r["unclear"].lower() for r in rows
+                              if r.get("unclear") and r["unclear"] != "-")
+            out["unclear_top"] = [{"kifejezes": k, "n": n} for k, n in unclear.most_common(5)]
+            out["clear_ratio"] = round(
+                sum(1 for r in rows if not r.get("unclear") or r["unclear"] == "-") / max(1, len(rows)), 3)
+    elif kind == "ab_test":
+        # versengő döntés → PLURALITY az elsődleges (memory: YT-címteszt lecke),
+        # SSR másodlagos. Between-subject: minden persona EGY variánst látott.
+        per_v = defaultdict(lambda: {"n": 0, "yes": 0, "scores": []})
+        for r in rows:
+            v = per_v[r.get("variant_id") or "?"]
+            v["n"] += 1
+            v["yes"] += 1 if r.get("choice") else 0
+            if r.get("ssr_score") is not None:
+                v["scores"].append(r["ssr_score"])
+        k = max(1, len(per_v))
+        out["baseline"] = {"type": "véletlen választás", "value": round(1 / 2, 3),
+                           "note": "az igen-arány az 50% zajszinthez mérve értelmezendő"}
+        out["variants"] = sorted(
+            [{"variant": vid, "n": d["n"],
+              "choice_rate": round(d["yes"] / max(1, d["n"]), 3),
+              "ssr_mean": round(sum(d["scores"]) / len(d["scores"]), 3) if d["scores"] else None}
+             for vid, d in per_v.items()],
+            key=lambda x: x["choice_rate"], reverse=True)
+    elif kind == "yt_title":
+        # egy-a-sokból kattintás → PLURALITY; a persona az EGÉSZ listát látta.
+        picks = Counter(r.get("choice") for r in rows if r.get("choice"))
+        total = sum(picks.values()) or 1
+        k = max(1, len(variants or []))
+        out["baseline"] = {"type": "véletlen választás", "value": round(1 / k, 3),
+                           "note": f"{k} cím közül a véletlen szint {round(100 / k, 1)}%"}
+        out["ranking"] = [
+            {"variant": v, "share": round(n / total, 3), "n": n,
+             "vs_baseline": round(n / total - 1 / k, 3)}
+            for v, n in picks.most_common()]
+    return out
+
+
+async def process_job(deps: dict, job_id: str, chat_fn=None, embed_fn=None) -> dict:
+    """A fókuszcsoport-futás (D2): grounding → kvótás panel → Flash fan-out
+    (retry-vel, cache BE) → SSR/plurality → aggregátum → done | failed+refund.
+    RÉSZEREDMÉNY NEM TERMÉK: a kitöltési arány FG_MIN_COMPLETION alatt refund."""
+    from plugins import persona_sampler, pollster, ssr
+
+    get_db = deps["get_db"]
+    conn = get_db()
+    try:
+        job = conn.execute("SELECT * FROM delphoi_jobs WHERE id=?", (job_id,)).fetchone()
+        if not job or job["status"] not in ("queued", "running"):
+            return {"ok": False, "error": "nincs ilyen queued job"}
+        conn.execute("UPDATE delphoi_jobs SET status='running', started_at=? WHERE id=?",
+                     (datetime.now(timezone.utc).isoformat(), job_id))
+        conn.commit()
+    finally:
+        conn.close()
+
+    try:
+        spec = json.loads(job["panel_spec"])
+        kind = job["input_kind"]
+        country = str(spec.get("country", "HU")).upper()
+        cfg = COUNTRY_PANEL_CONFIG[country]
+        variants = json.loads(job["input_variants"]) if job["input_variants"] else None
+        n = max(30, int(spec.get("n_per_cell", 30)))
+        seed = int(spec.get("seed", 42))
+        n_seeds = 3 if int(spec.get("n_seeds", 1)) >= 3 else 1
+
+        # Grounding: NYILVÁNOS datált korpusz (a privát input SOSEM kerül más
+        # jobok kontextusába — csak ennek a jobnak a promptjába, futásidőben).
+        corpus = build_country_corpus(get_db, country)
+        ctx_line = f"\n\nA friss hírkörnyezet (háttér): {corpus['context'][:600]}" if corpus["context"] else ""
+
+        dims = _build_dims(cfg)
+        if kind == "yt_title":
+            dims = dict(dims, nezotipus=[(l, w) for l, w in YT_VIEWER_MIX])
+        bucket_of = _media_bucket_map(cfg)
+
+        # feladat-lista: (persona, variant_id, stimulus, iteration)
+        tasks = []
+        for s_i in range(n_seeds):
+            personas, _kl = persona_sampler.sample_personas(dims, n=n, seed=seed + s_i * 1000)
+            if kind == "ab_test" and variants:
+                for i, p in enumerate(personas):   # between-subject: fele-fele
+                    vid = f"V{(i % len(variants)) + 1}"
+                    tasks.append((p, vid, variants[i % len(variants)], s_i))
+            elif kind == "yt_title" and variants:
+                listing = "\n".join(f"{i+1}. {v}" for i, v in enumerate(variants))
+                for p in personas:
+                    tasks.append((p, None, listing, s_i))
+            else:
+                for p in personas:
+                    tasks.append((p, None, job["input_text"], s_i))
+
+        cache = None
+        if os.environ.get("DELPHOI_FG_CACHE", "1") == "1":
+            from plugins.llm_cache import LLMCache, cache_key
+            cache = LLMCache()
+
+        async def _ask(client, p, stimulus, iteration):
+            prompt = _fg_prompt(p, cfg, kind, stimulus) + ctx_line
+            if cache is not None:
+                from plugins.llm_cache import cache_key as _ck
+                key = _ck(MODEL, {"temperature": 0.8}, "", prompt, iteration=iteration)
+                hit = cache.get(key)
+                if hit is not None:
+                    return hit
+            if chat_fn is not None:
+                text = await chat_fn(prompt)
+            else:
+                text = await pollster._chat(client, prompt)
+            if cache is not None and text:
+                cache.set(key, text, model=MODEL)
+            return text
+
+        results = []   # (persona, variant_id, raw_text)
+        if chat_fn is not None:
+            for p, vid, stim, s_i in tasks:
+                try:
+                    results.append((p, vid, await _ask(None, p, stim, s_i * 100000 + p["id"])))
+                except Exception:  # noqa: BLE001
+                    results.append((p, vid, None))
+        else:
+            import httpx
+            sem = asyncio.Semaphore(CONCURRENCY)
+            async with httpx.AsyncClient(
+                    headers={"Authorization": f"Bearer {pollster._provider()[1]}"}, timeout=90) as client:
+                async def _one(p, vid, stim, s_i):
+                    async with sem:
+                        try:
+                            # a pollster._chat már FG_RETRIES-nél többet (4) retry-zik
+                            # exponenciális backoffal — a retry-küszöb ott érvényesül
+                            return (p, vid, await _ask(client, p, stim, s_i * 100000 + p["id"]))
+                        except Exception as e:  # noqa: BLE001
+                            logger.warning("delphoi fg persona %s halott: %s", p["id"], e)
+                            return (p, vid, None)
+                results = list(await asyncio.gather(*[_one(*t) for t in tasks]))
+
+        ok_results = [(p, v, t) for p, v, t in results if t]
+        if len(ok_results) < FG_MIN_COMPLETION * len(tasks):
+            _fail_job(get_db, job_id,
+                      f"fan-out kitöltés {len(ok_results)}/{len(tasks)} < {FG_MIN_COMPLETION:.0%} — részeredmény nem termék")
+            return {"ok": False, "error": "incomplete_panel", "refunded": True}
+
+        # kiértékelés instrumentumonként
+        rows = []
+        ssr_texts, ssr_idx = [], []
+        for i, (p, vid, text) in enumerate(ok_results):
+            seg_label = bucket_of.get(p.get("media", ""), "egyéb")
+            row = {"persona_idx": i, "segment": seg_label, "raw": text, "variant_id": vid,
+                   "ssr_score": None, "choice": None, "unclear": None}
+            if kind == "yt_title":
+                pick = _parse_structured(text, ("VÁLASZTÁS", "VOLBA", "ESCOLHA", "WYBÓR", "WYBOR", "CHOICE"))
+                if pick:
+                    import re as _re
+                    m = _re.search(r"\d+", pick)
+                    if m and variants and 1 <= int(m.group(0)) <= len(variants):
+                        row["choice"] = variants[int(m.group(0)) - 1]
+            elif kind == "ab_test":
+                ch = _parse_structured(text, ("VÁLASZTÁS", "VOLBA", "ESCOLHA", "WYBÓR", "WYBOR", "CHOICE"))
+                row["choice"] = bool(ch and ch.lower().split()[0] in _CHOICE_YES)
+                ssr_texts.append(_parse_structured(text, ("REAKCIÓ", "REAKCE", "REAÇÃO", "REACAO", "REAKCJA")) or text)
+                ssr_idx.append(len(rows))
+            elif kind == "pitch":
+                row["unclear"] = _parse_structured(text, ("HOMÁLYOS", "NEJASNÉ", "NEJASNE", "CONFUSO", "NIEJASNE"))
+                ssr_texts.append(_parse_structured(text, ("REAKCIÓ", "REAKCE", "REAÇÃO", "REACAO", "REAKCJA")) or text)
+                ssr_idx.append(len(rows))
+            else:
+                ssr_texts.append(text)
+                ssr_idx.append(len(rows))
+            rows.append(row)
+
+        if ssr_texts:
+            anchors = REFERENCE_SETS_APPEAL.get(cfg["lang"]) or REFERENCE_SETS_APPEAL["hu"]
+            _embed = embed_fn or (lambda ts: _default_embed_fn(ts, deps))
+            import numpy as np
+            emb_resp = await _embed(ssr_texts)
+            emb_anch = await _embed(list(anchors))
+            pmf = ssr.compute_pmf(np.asarray(emb_resp, dtype=float),
+                                  np.asarray(emb_anch, dtype=float), method="linear")
+            scores = ssr.score_pmf(pmf)
+            for j, ridx in enumerate(ssr_idx):
+                rows[ridx]["ssr_score"] = float(scores[j])
+
+        # nyers reakciók a PRIVÁT silóba (aggregálás előtti réteg)
+        conn = get_db()
+        try:
+            ts = datetime.now(timezone.utc).isoformat()
+            conn.executemany(
+                "INSERT INTO delphoi_panel_responses (job_id, persona_idx, segment, "
+                "raw_reaction, ssr_score, variant_id, created_at) VALUES (?,?,?,?,?,?,?)",
+                [(job_id, r["persona_idx"], r["segment"], r["raw"], r["ssr_score"],
+                  r["variant_id"], ts) for r in rows])
+            agg = _aggregate(kind, rows, variants)
+            agg["panel"] = {"country": country, "n_requested": len(tasks),
+                            "n_completed": len(ok_results), "n_seeds": n_seeds,
+                            "corpus_hash": corpus.get("corpus_hash", ""),
+                            "model_id": f"{MODEL}|non-think|ssr=linear"}
+            agg["disclaimer"] = ("Szintetikus panel relatív jelzése, nem abszolút mérés "
+                                 "és nem közvélemény-kutatás.")
+            conn.execute(
+                "UPDATE delphoi_jobs SET status='done', result_json=?, completed_at=? WHERE id=?",
+                (json.dumps(agg, ensure_ascii=False), ts, job_id))
+            conn.commit()
+        finally:
+            conn.close()
+        logger.info("delphoi job %s done (%d/%d válasz)", job_id, len(ok_results), len(tasks))
+        return {"ok": True, "job_id": job_id, "result": agg}
+    except Exception as e:  # noqa: BLE001 — BÁRMELY hiba: failed + auto-refund
+        logger.exception("delphoi job %s crashed", job_id)
+        _fail_job(get_db, job_id, f"{type(e).__name__}: {e}")
+        return {"ok": False, "error": str(e), "refunded": True}
+
+
+def get_job(get_db, job_id: str, user_id: str) -> dict:
+    """CSAK a tulajdonosnak. done → aggregált eredmény; a nyers persona-sorok
+    SOHA nem mennek ki (az aggregátum a termék)."""
+    watchdog_sweep(get_db)
+    conn = get_db()
+    try:
+        row = conn.execute("SELECT * FROM delphoi_jobs WHERE id=?", (job_id,)).fetchone()
+    finally:
+        conn.close()
+    if not row or row["user_id"] != str(user_id):
+        return {"ok": False, "error": "not_found"}
+    out = {"ok": True, "job_id": row["id"], "status": row["status"],
+           "input_kind": row["input_kind"], "credits_cost": row["credits_cost"],
+           "created_at": row["created_at"], "completed_at": row["completed_at"],
+           "deleted_at": row["deleted_at"]}
+    if row["status"] == "done" and row["result_json"]:
+        out["result"] = json.loads(row["result_json"])
+    if row["status"] == "failed":
+        out["error_detail"] = row["error"]
+        out["refunded"] = True   # a refund-vasszabály garantálja
+    return out
+
+
+def delete_job(get_db, job_id: str, user_id: str) -> dict:
+    """GDPR-út (D4): a nyers input + nyers reakciók FIZIKAI felülírása,
+    deleted_at kitöltve. Az aggregátum és a kredit-ledger MARAD (könyvelési
+    integritás); a nowcast-ledger tábláit a törlés NEM ÉRINTI. Nem refund —
+    a törlés adatvédelmi jog, nem visszatérítés."""
+    conn = get_db()
+    try:
+        row = conn.execute("SELECT user_id, deleted_at FROM delphoi_jobs WHERE id=?",
+                           (job_id,)).fetchone()
+        if not row or row["user_id"] != str(user_id):
+            return {"ok": False, "error": "not_found"}
+        if row["deleted_at"]:
+            return {"ok": True, "already_deleted": True}
+        ts = datetime.now(timezone.utc).isoformat()
+        conn.execute(
+            "UPDATE delphoi_jobs SET input_text='[deleted]', input_variants=NULL, "
+            "vision_ref=NULL, deleted_at=? WHERE id=?", (ts, job_id))
+        conn.execute(
+            "UPDATE delphoi_panel_responses SET raw_reaction='[deleted]' WHERE job_id=?",
+            (job_id,))
+        conn.commit()
+        return {"ok": True, "deleted_at": ts}
+    finally:
+        conn.close()
+
+
+def list_jobs(get_db, user_id: str, limit: int = 20) -> list:
+    conn = get_db()
+    try:
+        return [dict(r) for r in conn.execute(
+            "SELECT id, status, input_kind, credits_cost, created_at, completed_at, deleted_at "
+            "FROM delphoi_jobs WHERE user_id=? ORDER BY created_at DESC LIMIT ?",
+            (str(user_id), limit)).fetchall()]
+    finally:
+        conn.close()
