@@ -564,18 +564,20 @@ def anchor_hash(get_db, repo_root: str | None = None) -> dict:
 # ---------------------------------------------------------------------------
 def build_country_corpus(get_db, country: str, window_days: int = 7,
                          max_topics: int = 10) -> dict:
-    """Az ország nyelvének utolsó `window_days` napi brief+trending sorai →
+    """Az ország nyelvének utolsó `window_days` napi brief+trending+news sorai →
     kompakt, ÁLTALÁNOS hír-kontextus (nem entitás-szűrt!) + determinista
-    corpus_hash. Visszaad: {context, corpus_hash, window_start, window_end,
-    snapshot_ids, days}."""
+    corpus_hash. A `news` (Echolot hírfolyam) a legszélesebb merítés — sok
+    forrásból, per-nyelv szűrve. Visszaad: {context, corpus_hash, window_start,
+    window_end, snapshot_ids, days}."""
     cfg = COUNTRY_PANEL_CONFIG.get(country)
     lang = cfg["lang"] if cfg else country.lower()
     conn = get_db()
     try:
+        # *3: naponta 3 releváns signal (brief/trending/news) fér az ablakba.
         rows = conn.execute(
             "SELECT id, date_iso, signal_type, content FROM press_snapshots "
-            "WHERE lang=? AND signal_type IN ('brief','trending') "
-            "ORDER BY date_iso DESC LIMIT ?", (lang, window_days * 2)).fetchall()
+            "WHERE lang=? AND signal_type IN ('brief','trending','news') "
+            "ORDER BY date_iso DESC LIMIT ?", (lang, window_days * 3)).fetchall()
     finally:
         conn.close()
     if not rows:
@@ -583,7 +585,7 @@ def build_country_corpus(get_db, country: str, window_days: int = 7,
                 "window_start": "", "window_end": ""}
     dates = sorted({r["date_iso"] for r in rows})
     window_start, window_end = dates[0], dates[-1]
-    parts, seen_titles = [], set()
+    parts, news_heads, seen_titles = [], [], set()
     for r in sorted(rows, key=lambda x: (x["date_iso"], x["signal_type"]), reverse=True):
         try:
             content = json.loads(r["content"])
@@ -606,9 +608,20 @@ def build_country_corpus(get_db, country: str, window_days: int = 7,
             kws = [t.get("keyword") for t in (content.get("trending") or [])[:8] if t.get("keyword")]
             if kws and not any(p.startswith("Felkapott") for p in parts):
                 parts.append("Felkapott témák: " + ", ".join(kws))
+        elif r["signal_type"] == "news":
+            # A hírfolyam fejléc-szintű, de a legszélesebb merítés (sok forrás).
+            for a in (content.get("articles") or []):
+                title = (a.get("title") or "").strip()
+                k = title.lower()[:48]
+                if title and k not in seen_titles and len(news_heads) < 18:
+                    seen_titles.add(k)
+                    news_heads.append(title)
+    base = parts[: max_topics + 4]
+    if news_heads:
+        base.append("Friss hírfolyam-címek: " + " · ".join(news_heads))
     snapshot_ids = [r["id"] for r in rows]
     return {
-        "context": "\n".join(parts[: max_topics + 4]),
+        "context": "\n".join(base),
         "corpus_hash": compute_corpus_hash(snapshot_ids, window_start, window_end, country),
         "snapshot_ids": snapshot_ids, "days": len(dates),
         "window_start": window_start, "window_end": window_end,

@@ -294,13 +294,16 @@ def _store_snapshot(day_iso: str, lang: str, signal_type: str, content_obj) -> i
         conn.close()
 
 
-async def _capture_snapshot(day_iso: str, brief_html: str, lang: str = "hu", live: bool = False) -> int:
+async def _capture_snapshot(day_iso: str, brief_html: str, lang: str = "hu",
+                            live: bool = False, localized_only: bool = False) -> int:
     """Store the daily info-environment snapshot. Returns # of new signal rows.
 
-    brief: always (date-accurate). spheres + news: only when live=True (the
-    Echolot JSON API has no date param → those reflect 'now', so capturing them
-    for a past date would be wrong). trending/velocity/entities come in (I-b)
-    once the Echolot REST wrappers exist.
+    brief: always (date-accurate). news: per-language (fetch_news carries a
+    language filter) → captured for every language. spheres/velocity/entities/
+    trending/narrative are GLOBAL Echolot signals (no language param) → captured
+    ONLY for the primary language; `localized_only=True` (non-primary langs)
+    skips them so they are never mislabelled under pl/fr/it. All live signals
+    reflect 'now', so they are captured only when live=True.
     """
     n = 0
     try:
@@ -324,8 +327,14 @@ async def _capture_snapshot(day_iso: str, brief_html: str, lang: str = "hu", liv
             except Exception as e:  # noqa: BLE001
                 logger.warning("snapshot %s %s failed: %s", sig, day_iso, e)
 
-        await _grab("spheres", ec.get_spheres())
+        # news is language-filtered → always safe to capture per-lang
         await _grab("news", ec.fetch_news(days=1, limit=40, language=lang))
+
+        if localized_only:
+            return n  # non-primary lang: only the per-language signals (brief + news)
+
+        # GLOBAL signals below (no language param) → primary language only
+        await _grab("spheres", ec.get_spheres())
         await _grab("velocity", ec.get_velocity(window_hours=24, limit=30))
         await _grab("entities", ec.get_top_entities(days=3, limit=30))
 
@@ -395,13 +404,16 @@ def _store_brief(day_iso: str, html: str) -> int:
     return stored
 
 
-async def fetch_and_store_press_review(lang: str = "hu", backfill: bool = True) -> dict:
+async def fetch_and_store_press_review(lang: str = "hu", backfill: bool = True,
+                                       localized_only: bool = False) -> dict:
     """Fetch the Echolot daily brief(s) and store world + domestic into the RAG.
 
     By default also backfills every older date the brief date-nav still exposes
     (~3 days), so the corpus seeds immediately and not only from the next cron
     run. Idempotent: each date dedups, so re-runs and the daily cron only add
-    what is missing. Returns {ok, stored, days, skipped}.
+    what is missing. `localized_only=True` (non-primary corpus languages) skips
+    the global Echolot signals and the RAG write, capturing only the per-language
+    brief + news into press_snapshots. Returns {ok, stored, days, skipped}.
     """
     today_iso = datetime.now(timezone.utc).date().isoformat()
     result: dict = {"ok": True, "stored": 0, "snapshots": 0, "days": [], "skipped": []}
@@ -416,8 +428,12 @@ async def fetch_and_store_press_review(lang: str = "hu", backfill: bool = True) 
             is_today = (d == today_iso)
             html = current_html if is_today else None
             try:
-                # RAG brief (news corpus) — date-deduped
-                if _already_stored(d):
+                # RAG brief (news corpus) — date-deduped. Only the primary
+                # language feeds the (language-agnostic) `echolot` agent RAG;
+                # non-primary corpus langs write to press_snapshots only.
+                if localized_only:
+                    pass
+                elif _already_stored(d):
                     result["skipped"].append(d)
                 else:
                     if html is None:
@@ -429,11 +445,13 @@ async def fetch_and_store_press_review(lang: str = "hu", backfill: bool = True) 
                 # Gate on the LAST signal we'd add (today: trending — the rich
                 # live set; past: brief). _capture_snapshot uses INSERT OR IGNORE,
                 # so a partially-captured day gets its missing signals filled.
-                gate_signal = "trending" if is_today else "brief"
+                gate_signal = (("news" if localized_only else "trending")
+                               if is_today else "brief")
                 if not _snapshot_stored(d, lang, gate_signal):
                     if html is None:
                         html = await _fetch_brief_html(lang, date=d)
-                    result["snapshots"] += await _capture_snapshot(d, html, lang, live=is_today)
+                    result["snapshots"] += await _capture_snapshot(
+                        d, html, lang, live=is_today, localized_only=localized_only)
             except Exception as e:  # noqa: BLE001
                 logger.warning("press_review %s failed: %s", d, e)
 

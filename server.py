@@ -8760,10 +8760,19 @@ async def _cron_loop():
                 if r["name"] == "daily_press_review":
                     try:
                         from plugins.daily_press_review import fetch_and_store_press_review
-                        pr = await fetch_and_store_press_review()
-                        logger.info("Cron daily_press_review: ok=%s stored=%s days=%s skipped=%s",
-                                    pr.get("ok"), pr.get("stored"),
-                                    [x.get("date") for x in pr.get("days", [])], pr.get("skipped"))
+                        # Multilingual corpus feed: the DELPHOI nowcast grounds each
+                        # entity on its own country's dated news window, so the
+                        # press_snapshots archive must fill per language. The first
+                        # lang is primary (feeds the echolot RAG + global signals);
+                        # the rest capture per-language brief + news only.
+                        _langs = [x.strip() for x in os.environ.get(
+                            "DELPHOI_CORPUS_LANGS", "hu,pl,fr,it").split(",") if x.strip()]
+                        for _i, _lg in enumerate(_langs):
+                            pr = await fetch_and_store_press_review(
+                                lang=_lg, localized_only=(_i > 0))
+                            logger.info("Cron daily_press_review[%s]: ok=%s stored=%s snaps=%s days=%s skipped=%s",
+                                        _lg, pr.get("ok"), pr.get("stored"), pr.get("snapshots"),
+                                        [x.get("date") for x in pr.get("days", [])], pr.get("skipped"))
                     except Exception as e:  # noqa: BLE001
                         logger.error("Cron daily_press_review failed: %s", e)
                     continue
