@@ -52,7 +52,7 @@ GENESIS = "GENESIS"
 # Flash-motor konfig — a pollster-rel közös doktrína (Non-Think kötelező).
 MODEL = os.environ.get("ORAKEL_MODEL", "deepseek-ai/DeepSeek-V4-Flash")
 CONCURRENCY = int(os.environ.get("DELPHOI_CONCURRENCY", os.environ.get("ORAKEL_CONCURRENCY", "8")))
-EMBED_MODEL_SF = "BAAI/bge-m3"            # többnyelvű (hu/pl/fr/it) — semantic_triage-ben bevált
+EMBED_MODEL_SF = "Qwen/Qwen3-Embedding-8B"  # többnyelvű (hu/pl/fr/it). A BAAI/bge-m3 kivezetve az SF-ről (code 20012, lásd mem #16568) — 2026-07-09 live-probe: ez él
 EMBED_MODEL_OPENAI = "text-embedding-3-small"  # a backtesztek nyertese — env-kapu (OPENAI_API_KEY)
 
 _DEPS: dict | None = None  # register_tools tölti (cron_entry fallback)
