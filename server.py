@@ -1897,6 +1897,64 @@ async def api_poll_results(request):
                          "periods": [aggregate(p, base=base, kind=kind) for p in periods]})
 
 
+@mcp.custom_route("/api/delphoi/nowcast", methods=["GET"])
+async def api_delphoi_nowcast(request):
+    """DELPHOI entitás-nowcast — a NYILVÁNOS kirakat adata (Echolot N5 sáv).
+
+    A ledger append-only, hash-láncolt predikció-napló: a predicted_at a jel
+    születésének szerver-ideje, a track record maga a bizonyíték.
+    Query: entity_key (QID/slug, pontos) VAGY label (display_label LIKE);
+    üresen minden engedélyezett entitás. history (default 12) sor entitásonként.
+    """
+    entity_key = request.query_params.get("entity_key", "").strip()
+    label = request.query_params.get("label", "").strip()
+    try:
+        history = min(52, max(1, int(request.query_params.get("history", "12"))))
+    except (TypeError, ValueError):
+        history = 12
+    from pyramid.memory_rag import _get_db
+    conn = _get_db()
+    try:
+        sql = "SELECT entity_key, country, entity_type, display_label FROM delphoi_entity_nowcast WHERE enabled=1"
+        params: list = []
+        if entity_key:
+            sql += " AND entity_key = ?"; params.append(entity_key)
+        elif label:
+            sql += " AND display_label LIKE ?"; params.append(f"%{label}%")
+        try:
+            ents = conn.execute(sql, params).fetchall()
+        except Exception:  # noqa: BLE001 — table may not exist yet
+            ents = []
+        out = []
+        for e in ents:
+            rows = conn.execute(
+                "SELECT predicted_at, target_window, direction, direction_prev, "
+                "corpus_hash, content_hash FROM delphoi_nowcast_ledger "
+                "WHERE entity_key=? AND country=? ORDER BY id DESC LIMIT ?",
+                (e["entity_key"], e["country"], history)).fetchall()
+            hist = [dict(r) for r in rows]
+            out.append({"entity_key": e["entity_key"], "country": e["country"],
+                        "entity_type": e["entity_type"], "display_label": e["display_label"],
+                        "latest": hist[0] if hist else None, "history": hist})
+    finally:
+        conn.close()
+    return JSONResponse({"count": len(out), "entities": out,
+                         "disclaimer": "Szintetikus panel relatív irányjelzése, nem közvélemény-kutatás."})
+
+
+@mcp.custom_route("/api/delphoi/verify", methods=["GET"])
+async def api_delphoi_verify(request):
+    """A DELPHOI predikció-napló hash-láncának nyilvános integritás-ellenőrzése
+    (audit-út a nowcaster-feed vevőnek): bármely sor utólagos módosítása az
+    összes későbbi sor hash-ét érvényteleníti."""
+    try:
+        from plugins.delphoi import verify_ledger_chain
+        from pyramid.memory_rag import _get_db
+        return JSONResponse(verify_ledger_chain(_get_db))
+    except Exception as e:  # noqa: BLE001 — table/plugin may not exist yet
+        return JSONResponse({"ok": False, "error": str(e)}, status_code=500)
+
+
 # ============================================================
 # SILICONFLOW AI SUB-AGENTS (Kimi-K2.7, DeepSeek V3.2, etc.)
 # ============================================================
@@ -8618,6 +8676,27 @@ async def _cron_loop():
                         logger.info("Cron agora: %s háttér-task elindítva (jitteres)", r["name"])
                     except Exception as e:  # noqa: BLE001
                         logger.error("Cron agora dispatch failed for %s: %s", r["name"], e)
+                    continue
+
+                # ── DELPHOI special-case ──
+                # `delphoi_nowcast_weekly` (heti entitás-nowcast → hash-láncolt
+                # ledger-sor) és a későbbi `delphoi_*` job-ok NEM a generikus
+                # ai_task úton mennek: a plugins.delphoi.cron_entry a pollster+SSR
+                # motort futtatja háttér-taskként (a fan-out ne blokkolja a loopot).
+                if r["name"].startswith("delphoi_"):
+                    try:
+                        from plugins.delphoi import cron_entry as _delphoi_cron
+                        _delphoi_deps = {
+                            "get_db": get_db,
+                            "siliconflow_api_key": SILICONFLOW_API_KEY,
+                            "siliconflow_base_url": SILICONFLOW_BASE_URL,
+                            "siliconflow_timeout": SILICONFLOW_TIMEOUT,
+                            "siliconflow_models": SILICONFLOW_MODELS,
+                        }
+                        asyncio.create_task(_delphoi_cron(r["name"], _delphoi_deps))
+                        logger.info("Cron delphoi: %s háttér-task elindítva", r["name"])
+                    except Exception as e:  # noqa: BLE001
+                        logger.error("Cron delphoi dispatch failed for %s: %s", r["name"], e)
                     continue
 
                 # Execute via ai_task dispatch (same path as execute_recipe)
