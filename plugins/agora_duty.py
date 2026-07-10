@@ -332,7 +332,10 @@ async def _sf_chat(deps: dict, agent_id: str, system: str, user: str,
     if not api_key:
         raise RuntimeError("SILICONFLOW_API_KEY missing")
     extra: dict = {}
-    if agent_id == "kimi":
+    if agent_id in ("kimi", "glm5"):
+        # glm5: thinking letiltva — GLM-5.2 különben a teljes (angol) reasoning-
+        # láncát a content-be ömleszti, ami bekerült a publikált esszé törzsébe
+        # (2026-07-10 Frau Lupe reasoning-dump). A reasoning_content-fallback lentebb megmarad.
         extra = {"thinking": {"type": "disabled"}}
     elif agent_id == "deepseek":
         extra = {"reasoning_effort": "medium"}
@@ -1431,14 +1434,18 @@ def parse_essay_output(raw: str, fallback_title: str = "Agora-esszé") -> tuple[
     csonkolódik 400 karakterre.
     """
     raw = raw or ""
+    # reasoning-dump / duplázott fejléc ellen: a modell VÉGSŐ válasza az UTOLSÓ
+    # CÍM-fejléctől kezdődik (GLM néha elé ömleszti a gondolkodását + fél-drafteket)
+    hdrs = list(_ESSAY_TITLE_RE.finditer(raw))
+    work = raw[hdrs[-1].start():] if hdrs else raw
     title, note = "", ""
-    m = _ESSAY_TITLE_RE.search(raw)
+    m = _ESSAY_TITLE_RE.search(work)
     if m:
         title = m.group(1).strip().strip("*").strip()
-    m = _ESSAY_NOTE_RE.search(raw)
+    m = _ESSAY_NOTE_RE.search(work)
     if m:
         note = truncate_sentence(" ".join(m.group(1).split()).strip("*").strip(), 400)
-    body = raw.split("---", 1)[1].strip() if "---" in raw else raw
+    body = work.split("---", 1)[1].strip() if "---" in work else work
     body = _strip_leading_scaffolding(body)
     if not title:
         title = str(fallback_title or "Agora-esszé")
