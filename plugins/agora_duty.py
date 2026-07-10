@@ -74,6 +74,7 @@ ESSAY_MIN, ESSAY_MAX = 3000, 6000
 NOTE_MIN, NOTE_MAX = 250, 1500  # note: rövid cross-story jegyzet (Echolot publish min. 200)
 MAX_NOTES_PER_DAY = 1
 NOTE_SPACING_DAYS = 2          # két note között legalább ennyi Budapest-nap
+ESSAY_SPACING_DAYS = 0         # NAPI esszé (0 = csak aznap ne duplikáljon; Kommandant 2026-07-10)
 MAX_PUBLISHES_PER_DAY = 2      # Echolot-oldali publish-plafon tükre (essay + note együtt)
 DUTY_JITTER_SEC = 1800         # cron-indítás random csúsztatása (botszag ellen)
 ESSAY_JITTER_SEC = 900
@@ -236,7 +237,7 @@ def _replied_to(get_db, agent: str, parent_id: str) -> bool:
     return row is not None
 
 
-def _last_essay_within_days(get_db, agent: str, days: int = 6) -> bool:
+def _last_essay_within_days(get_db, agent: str, days: int = ESSAY_SPACING_DAYS) -> bool:
     conn = get_db()
     since = (_bp_now() - timedelta(days=days)).strftime("%Y-%m-%d")
     row = conn.execute(
@@ -1406,8 +1407,8 @@ async def run_agora_essay(deps: dict, agent_key: str, dry_run: bool = False) -> 
 
     if not _kill_switch_on(get_db):
         return _exit("killed")
-    if _last_essay_within_days(get_db, agent_key, days=6):
-        return _exit("skip: e héten már volt esszé (nem duplikálunk)")
+    if _last_essay_within_days(get_db, agent_key, days=ESSAY_SPACING_DAYS):
+        return _exit("skip: ma már volt esszé (nem duplikálunk aznap)")
     cnt = _counts(get_db, agent_key)
     if cnt["publishes_today"] >= MAX_PUBLISHES_PER_DAY:
         return _exit(f"skip: napi publish-kvóta ({MAX_PUBLISHES_PER_DAY}) elérve — holnapra halasztva")
@@ -1448,8 +1449,13 @@ async def run_agora_essay(deps: dict, agent_key: str, dry_run: bool = False) -> 
         return _exit(f"selection failed: {e}", kind="error")
     sids = [s for s in (sel.get("story_ids") or []) if s in {c["story_id"] for c in candidates}]
     if not sids:
-        return _exit("skip: nincs esszé-erős beat-téma ezen a héten",
-                     detail="essay: no strong cluster")
+        # NAPI KÉNYSZER (Kommandant 2026-07-10): nincs "nincs erős téma" kifogás.
+        # Ha a modell nem választ, a legtöbb forrású (legerősebb) klasztert visszük —
+        # minden nap legyen esszé. A prefetch-query/lang fallback lentebb kezeli az ürességet.
+        strongest = max(candidates, key=lambda c: c.get("sources_count", 0))
+        sids = [strongest["story_id"]]
+        _log_act(get_db, agent_key, "essay_forced", strongest["story_id"], "", "",
+                 f"essay: forced pick (nincs modell-választás) — {strongest.get('title', '')[:120]}")
     lang = sel.get("lang") if sel.get("lang") in ("hu", "en") else \
         next(c["_lang"] for c in candidates if c["story_id"] == sids[0])
     chosen = [c for c in candidates if c["story_id"] in sids]
