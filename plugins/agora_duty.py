@@ -1385,23 +1385,61 @@ async def maybe_write_note(deps: dict, get_db, agent_key: str, cands: list[dict]
 # ---------------------------------------------------------------------------
 # HETI ESSZÉ — agora_essay
 # ---------------------------------------------------------------------------
+_ESSAY_TITLE_RE = re.compile(r"(?im)^\s*[#*]*\s*(?:CÍM|CIM|TITLE)\s*[*]*\s*:\s*(.+?)\s*$")
+_ESSAY_NOTE_RE = re.compile(
+    r"(?is)^\s*[#*]*\s*(?:JEGYZET|NOTE)\s*[*]*\s*:\s*(.+?)(?:\n\s*-{3,}|\Z)", re.MULTILINE)
+_ESSAY_TITLE_LINE = re.compile(r"(?i)^[#*]*\s*(?:CÍM|CIM|TITLE)\s*[*]*\s*:")
+_ESSAY_NOTE_LINE = re.compile(r"(?i)^[#*]*\s*(?:JEGYZET|NOTE)\s*[*]*\s*:")
+_ESSAY_SEP_LINE = re.compile(r"^-{3,}$")
+_ESSAY_PREAMBLE_LINE = re.compile(r"(?i)^\*{0,2}\s*(?:az\s+essz[ée]|the\s+essay)\s*\*{0,2}\s*:?\s*$")
+
+
+def _strip_leading_scaffolding(body: str) -> str:
+    """A törzs elejéről levágja a bennragadt formátum-állványt: ismételt
+    CÍM/JEGYZET fejléc-blokk (markdown-bold/heading is), extra '---' elválasztó,
+    "Az esszé:" / "The essay:" előtag, üres sorok. A gyenge modellek (GLM)
+    néha megduplázzák a fejlécet a '---' UTÁN is."""
+    lines = body.split("\n")
+    i, n = 0, len(lines)
+    while i < n:
+        s = lines[i].strip()
+        if not s or _ESSAY_TITLE_LINE.match(s) or _ESSAY_SEP_LINE.match(s) \
+                or _ESSAY_PREAMBLE_LINE.match(s):
+            i += 1
+            continue
+        if _ESSAY_NOTE_LINE.match(s):
+            # note-blokk (akár többsoros) átugrása üres sorig / '---' / előtag-markerig
+            i += 1
+            while i < n and lines[i].strip() and not (
+                    _ESSAY_SEP_LINE.match(lines[i].strip())
+                    or _ESSAY_PREAMBLE_LINE.match(lines[i].strip())):
+                i += 1
+            continue
+        break
+    return "\n".join(lines[i:]).strip()
+
+
 def parse_essay_output(raw: str, fallback_title: str = "Agora-esszé") -> tuple[str, str, str]:
     """A "CÍM/JEGYZET/---/törzs" formátumú esszé-output parse-olása.
 
+    Robusztus a gyenge modellek (GLM-5.2) formátum-csúszására: a CÍM/JEGYZET
+    kulcs lehet markdown-bold (**CÍM**:) vagy heading (# CÍM:), és a törzs
+    elején bennragadhat egy MÁSODIK scaffolding-blokk + "Az esszé:" előtag —
+    ezeket levágjuk, hogy ne szivárogjon a publikált szövegbe.
+
     Returns: (title, author_note, body). A JEGYZET (author_note) mondathatáron
-    csonkolódik 400 karakterre — a nyers [:400] vágás fél mondatokat hagyott
-    a provenance-kártyán ("...kezdett el ").
+    csonkolódik 400 karakterre.
     """
     raw = raw or ""
-    title, note, body = "", "", raw
-    m = re.search(r"CÍM:\s*(.+)", raw)
+    title, note = "", ""
+    m = _ESSAY_TITLE_RE.search(raw)
     if m:
-        title = m.group(1).strip()
-    m = re.search(r"JEGYZET:\s*(.+?)(?:\n---|\n\n---)", raw, re.DOTALL)
+        title = m.group(1).strip().strip("*").strip()
+    m = _ESSAY_NOTE_RE.search(raw)
     if m:
-        note = truncate_sentence(" ".join(m.group(1).split()), 400)
-    if "---" in raw:
-        body = raw.split("---", 1)[1].strip()
+        note = truncate_sentence(" ".join(m.group(1).split()).strip("*").strip(), 400)
+    body = raw.split("---", 1)[1].strip() if "---" in raw else raw
+    body = _strip_leading_scaffolding(body)
     if not title:
         title = str(fallback_title or "Agora-esszé")
     return truncate_sentence(title, 120), note, body
