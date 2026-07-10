@@ -439,6 +439,26 @@ _PROFANITY = {"kurva", "geci", "fasz", "faszt", "picsa", "picsába", "szar",
 _INTERNAL_ID_RE = re.compile(r"\b[a-z]{2,}_[a-z0-9_]+\b")
 _BACKTICK_TOKEN_RE = re.compile(r"`[^`\n]{1,80}`")
 _TTIER_RE = re.compile(r"\bT[0-9]\b")
+# scrub: kis- ÉS nagybetűs kezdetet is (content_guard lowercase-en vizsgál) —
+# gyenge modell (GLM) néha visszaírja a prompt sphere-id-jét a prózába
+_INTERNAL_ID_SCRUB_RE = re.compile(r"\b[A-Za-z]{2,}_[A-Za-z0-9_]+\b")
+
+
+def _scrub_internal_ids(text: str) -> str:
+    """Modell által kiszökött belső azonosítók (sphere-id, pl. 'hu_premium',
+    backtick-token) törlése a publikálandó szövegből — URL-eket megőrizve.
+    Cél: egyetlen token-szivárgás NE ölje meg a napi esszét (a content_guard
+    egyébként hard-reject-elne); a token csak tűnjön el."""
+    def _clean(seg: str) -> str:
+        seg = _BACKTICK_TOKEN_RE.sub(" ", seg)
+        seg = _INTERNAL_ID_SCRUB_RE.sub(" ", seg)
+        return seg
+    parts = re.split(r"(https?://\S+)", text or "")
+    out = "".join(p if p.startswith(("http://", "https://")) else _clean(p)
+                  for p in parts)
+    out = re.sub(r"[ \t]{2,}", " ", out)
+    out = re.sub(r"\s+([,.;:!?])", r"\1", out)
+    return out.strip()
 
 
 def content_guard(body: str, target_lang: str, maxlen: int = COMMENT_MAXLEN) -> tuple[bool, str, str]:
@@ -1513,6 +1533,7 @@ async def run_agora_essay(deps: dict, agent_key: str, dry_run: bool = False) -> 
                          story_id=sids[0], detail=f"essay-gen:{e}")
         title, note, body = parse_essay_output(
             raw, fallback_title=(sel.get("angle") or "Agora-esszé"))
+        body = _scrub_internal_ids(body)  # kiszökött sphere-id (pl. hu_premium) törlése publish előtt
         ok, why, body = content_guard(body, lang, maxlen=ESSAY_MAX + 1000)
         if ok:
             break
