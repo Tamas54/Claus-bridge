@@ -2081,6 +2081,12 @@ SILICONFLOW_MODELS = {
     "kimi": "moonshotai/Kimi-K2.7-Code",
     "deepseek": "deepseek-ai/DeepSeek-V4-Pro",
     "glm5": "zai-org/GLM-5.2",
+    # NULLTARIF (2026-07-19): fordító-igásló — a SF-en JELENLEG $0.00/M
+    # (input+output; 52-hívásos egyenleg-delta méréssel verifikálva).
+    # H2-benchmark: fordításban döntetlen a V4-Flash-sel, extrakció/nowcast
+    # NEM az ő terepe (ott Flash). DEFAULT THINKING modell → thinking
+    # disabled kötelező; response_format json_object-re 400-at dob.
+    "hy3": "tencent/Hy3",
 }
 
 # Egyetlen designált research-agent broadcast módban — `deep_research=True`
@@ -2619,7 +2625,11 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
 
     Args:
         model: 'kimi' (256k context, vision) or 'deepseek' (frontier reasoning, V4-Pro 1.6T MoE)
-            or 'glm5' (200k context, 128k output, coding+agentic) or full model ID
+            or 'glm5' (200k context, 128k output, coding+agentic)
+            or 'hy3' (tencent/Hy3, 262k context — FORDÍTÓ-igásló, jelenleg
+            $0.00/M; karcsú promptot kap, kövér Claus-kontextus nélkül;
+            fordításra/nyers szövegmunkára való, NEM tool-hívós kutatásra)
+            or full model ID
         prompt: The user message / question
         system_prompt: Optional system instruction (default: Claus sub-agent)
         temperature: Creativity 0.0-1.0 (default 0.7)
@@ -2677,6 +2687,16 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
     # Pyramid context: if agent is known and no custom system_prompt, use full Pyramid context
     if PYRAMID_ENABLED and model in PYRAMID_AGENTS and not system_prompt:
         system_prompt = build_agent_context(agent_id=model, inbox_summary=_get_inbox_summary(), relevance_query=prompt)
+    elif model == "hy3" and not system_prompt:
+        # NULLTARIF H3: a fordító-alias KARCSÚ default promptot kap — a
+        # 07-18-i füstpróbán ~10k prompt-token ment el ~300 tokennyi kérésre
+        # (a kövér Claus-kontextus $0-nál is latencia + TPM-pazarlás).
+        system_prompt = (
+            "Precíz fordító vagy. A forrás REGISZTERÉT és KERETEZÉSÉT hűen "
+            "őrizd meg — ne szanáld, ne tompítsd (a propaganda maradjon "
+            "propaganda-hangvételű). A pénzügyi/köznyelvi szlenget jelentés "
+            "szerint fordítsd, ne tükörben ('elszállt a forint' = gyengült). "
+            "Entitásokat ne honosíts. Csak a kért kimenetet add vissza.")
     elif not system_prompt:
         system_prompt = (
             "Te a Claus multi-agent rendszer al-agentje vagy. "
@@ -2711,19 +2731,22 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
             logger.warning("data_context fetch failed (continuing without): %s", de)
 
     # PROMPT LAYER 1 — globál szabályok prepend (ai_query single-agent path).
-    # `bridge_vision_2026-05-10.md` Lépés 1.
-    try:
-        from pyramid.prompt_layers import prepend_global_rules
-        system_prompt = prepend_global_rules(system_prompt, output_language="hu")
-    except Exception as e:
-        logger.warning("Global rules prepend failed (ai_query, continuing): %s", e)
+    # `bridge_vision_2026-05-10.md` Lépés 1. NULLTARIF: a 'hy3' fordító-alias
+    # KIMARAD (globál szabályok + tool-direktíva + temporál = a kövér
+    # injektálás, amit a karcsú fordító-út pont kerül).
+    if model != "hy3":
+        try:
+            from pyramid.prompt_layers import prepend_global_rules
+            system_prompt = prepend_global_rules(system_prompt, output_language="hu")
+        except Exception as e:
+            logger.warning("Global rules prepend failed (ai_query, continuing): %s", e)
 
-    # Tell the agent it has 3 information tools (echolot_query, web_fetch, web_search)
-    # — by Kommandant's policy: every agent has free access, no cost concern.
-    system_prompt += SUBAGENT_TOOLS_DIRECTIVE
+        # Tell the agent it has 3 information tools (echolot_query, web_fetch, web_search)
+        # — by Kommandant's policy: every agent has free access, no cost concern.
+        system_prompt += SUBAGENT_TOOLS_DIRECTIVE
 
-    # Strong temporal directive — prevents Kimi/V4 from overriding runtime date.
-    system_prompt += _temporal_directive(model)
+        # Strong temporal directive — prevents Kimi/V4 from overriding runtime date.
+        system_prompt += _temporal_directive(model)
 
     # If deep_research, prepend the directive to the system prompt so the
     # model knows it must drive a multi-round search before synthesizing.
@@ -2746,6 +2769,10 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
             agent_extra = {"thinking": {"type": "disabled"}}  # forced — see comment
         elif model == "deepseek":
             agent_extra = {"reasoning_effort": "high"}
+        elif model == "hy3":
+            # Hy3 = default-thinking modell; fordító-úton MINDIG disabled
+            # (mérés 2026-07-19: thinking a teljes max_tokens-t megeszi).
+            agent_extra = {"thinking": {"type": "disabled"}}
         else:
             agent_extra = {}
     else:
@@ -2753,6 +2780,8 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
             agent_extra = {"thinking": {"type": "disabled"}}
         elif model == "deepseek":
             agent_extra = {"reasoning_effort": "medium"}
+        elif model == "hy3":
+            agent_extra = {"thinking": {"type": "disabled"}}
         else:
             agent_extra = {}
 
