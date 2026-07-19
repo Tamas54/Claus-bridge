@@ -2087,6 +2087,13 @@ SILICONFLOW_MODELS = {
     # NEM az ő terepe (ott Flash). DEFAULT THINKING modell → thinking
     # disabled kötelező; response_format json_object-re 400-at dob.
     "hy3": "tencent/Hy3",
+    # Kommandant 2026-07-19: a Kimi feladat-SÚLY szerint váltható —
+    # 'kimi' (K2.7-Code, a napi igásló) ↔ 'kimi3' (K3, NEHÉZ feladatokra).
+    # SPARFLAMME-figyelem: a K3 MANDATORY-thinking ($15/M output, a
+    # thinking:disabled IGNORÁLT) és lassabb — a 07-18-i F-bench szerint
+    # ítész-pontosságban NEM jobb a K2.7-nél (10/10 mindkettő), a többlet
+    # a mély reasoning-ot igénylő KOMPOZÍCIÓS/elemző munkánál térül meg.
+    "kimi3": "moonshotai/Kimi-K3",
 }
 
 # Egyetlen designált research-agent broadcast módban — `deep_research=True`
@@ -2629,6 +2636,9 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
             or 'hy3' (tencent/Hy3, 262k context — FORDÍTÓ-igásló, jelenleg
             $0.00/M; karcsú promptot kap, kövér Claus-kontextus nélkül;
             fordításra/nyers szövegmunkára való, NEM tool-hívós kutatásra)
+            or 'kimi3' (moonshotai/Kimi-K3 — NEHÉZ feladatokra, feladat-súly
+            szerint váltva a 'kimi'-vel; DRÁGA: $15/M output, mandatory
+            thinking — csak ha a mély reasoning tényleg kell)
             or full model ID
         prompt: The user message / question
         system_prompt: Optional system instruction (default: Claus sub-agent)
