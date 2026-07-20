@@ -80,3 +80,64 @@ def kl_report(personas: list[dict], dims: dict) -> dict:
         gen = _normalize(counts) if counts.sum() > 0 else counts
         out[d] = float(entropy(gen + eps, targets + eps))
     return out
+
+
+# ── G0d (OPERATION PYTHIA): ORSZÁG-KONFIG RÉTEG ──────────────────────────
+# A sample_personas/kl_report VÁLTOZATLAN (zéró regresszió) — ez a réteg csak
+# egy kvóta-regisztert + kényelmi belépőt ad fölé. A HU a pollster.py-ban
+# validált KSH/NMHH készletből töltődik (lusta import → EGY forrás, nincs
+# számsor-duplikáció). Az új országok kvótaszámait a G0c ország-mátrix agent
+# hozza (Eurostat) — addig a helyük TODO, a get_country_dims beszédes hibával
+# utasítja el őket.
+
+
+def _hu_dims_from_pollster() -> dict:
+    """HU marginálisok — kanonikus forrás: plugins/pollster.py (KSH mun0005/mun0006
+    + 2022 cenzus + NMHH 2026-05). Lusta import: a sampler numpy/scipy-only marad."""
+    from plugins import pollster
+    return {
+        "age": list(pollster.AGE),
+        "settlement": list(pollster.SETTLEMENT),
+        "edu": list(pollster.EDU),
+        "media": [(label, w) for label, w in pollster.MEDIA],
+    }
+
+
+# Regiszter-sor: {"status": "live"|"todo", "source": <adatforrás>, "loader": callable|None}.
+# A loader () -> dims formát ad ({dim: [(label, target_prob), ...]}) — közvetlenül
+# a sample_personas bemenete. TODO-soroknál loader=None.
+_EUROSTAT_TODO = ("TODO(G0c): Eurostat demo_pjan (kor) + edat_lfs_9903 (végzettség) "
+                  "+ degurba/cenzus (településtípus) + helyi médiafogyasztás-mérés")
+COUNTRY_QUOTAS: dict = {
+    "HU": {
+        "status": "live",
+        "source": "KSH mun0005/mun0006 + 2022 cenzus + NMHH 2026-05 (pollster.py a kanonikus tár)",
+        "loader": _hu_dims_from_pollster,
+    },
+    # G1–G2 célországok — a G0c ország-mátrix tölti fel (loader vagy literal dims):
+    "CZ": {"status": "todo", "source": _EUROSTAT_TODO, "loader": None},
+    "DE": {"status": "todo", "source": _EUROSTAT_TODO, "loader": None},
+    "ES": {"status": "todo", "source": _EUROSTAT_TODO, "loader": None},
+    "FR": {"status": "todo", "source": _EUROSTAT_TODO, "loader": None},
+    "IT": {"status": "todo", "source": _EUROSTAT_TODO, "loader": None},
+    "PL": {"status": "todo", "source": _EUROSTAT_TODO, "loader": None},
+    "PT": {"status": "todo", "source": _EUROSTAT_TODO, "loader": None},
+}
+
+
+def get_country_dims(country: str) -> dict:
+    """Ország-kód (pl. 'HU') → dims a sample_personas-hoz. Beszédes hibával áll
+    meg, ha az ország ismeretlen vagy a kvótái még nincsenek feltöltve."""
+    entry = COUNTRY_QUOTAS.get((country or "").upper())
+    if entry is None:
+        raise KeyError(f"ismeretlen ország a COUNTRY_QUOTAS-ban: {country!r} "
+                       f"(elérhető: {', '.join(sorted(COUNTRY_QUOTAS))})")
+    if entry.get("loader") is None:
+        raise ValueError(f"{country.upper()}: a kvóták még nincsenek feltöltve — {entry['source']}")
+    return entry["loader"]()
+
+
+def sample_country_personas(country: str, n: int = 80, seed: int = 42) -> tuple[list[dict], dict]:
+    """Kényelmi belépő: COUNTRY_QUOTAS[country] kvótáival hívja a sample_personas-t.
+    Ugyanaz a motor, ugyanaz a (personas, kl_report) kimenet."""
+    return sample_personas(get_country_dims(country), n=n, seed=seed)
