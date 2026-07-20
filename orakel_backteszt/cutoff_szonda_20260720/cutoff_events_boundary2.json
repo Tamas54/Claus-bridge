@@ -1,0 +1,16 @@
+{
+  "meta": {
+    "operation": "PYTHIA G0a — HATÁR-SZONDA 2. LÉTRA (május–július 2025 sűrítés)",
+    "created": "2026-07-20",
+    "indok": "1. létra: 2025-04 (B07, B08) és 2025-06 (B10: Rising Lion + Midnight Hammer) HELYES, de 2025-05 (B09 BL-döntő) és a májusi pápaválasztás (C4) NEM TUDOM. A májusi lyuk vs. júniusi tudás ellentmondását és a júliusi határt sűrítjük.",
+    "protokoll": "tencent/Hy3, thinking:disabled, temp=0, 2 ismétlés, B (lágy) prompt"
+  },
+  "events": [
+    {"id": "B11", "event_month": "2025-05", "question": "Ki követte Ferenc pápát a pápai trónon?", "gt": "XIV. Leó (Robert Francis Prevost), 2025. május 8-i konklávé.", "keywords": ["Leó", "Prevost"]},
+    {"id": "B12", "event_month": "2025-05", "question": "Ki lett Németország kancellárja 2025 májusában?", "gt": "Friedrich Merz (május 6., második szavazási körben).", "keywords": ["Merz"]},
+    {"id": "B13", "event_month": "2025-05", "question": "Ki nyerte a 2025-ös Eurovíziós Dalfesztivált?", "gt": "Ausztria (JJ, 'Wasted Love'), Bázelben.", "keywords": ["Ausztria", "JJ"]},
+    {"id": "B14", "event_month": "2025-06", "question": "Milyen nagyszabású dróntámadást hajtott végre Ukrajna orosz stratégiai bombázók ellen 2025 nyarának elején?", "gt": "A 'Pókháló' (Spiderweb) művelet (június 1.): teherautókból indított drónok több orosz légibázison Tu-95/Tu-22 bombázókat semmisítettek meg.", "keywords": ["Pókháló", "Spiderweb", "Tu-95", "légibázis"]},
+    {"id": "B15", "event_month": "2025-06", "question": "Milyen légikatasztrófa történt Indiában 2025. június közepén?", "gt": "Az Air India 171-es járata (Boeing 787) lezuhant Ahmedábádban (jún. 12.), ~241 halott a fedélzeten, egy túlélő.", "keywords": ["Air India", "787", "Ahmedábád", "Ahmedabad"]},
+    {"id": "B16", "event_month": "2025-07", "question": "Milyen természeti katasztrófa sújtotta Texast 2025. július elején?", "gt": "Villámárvizek a Hill Country térségében (Guadalupe folyó, júl. 4.), 100+ halálos áldozat.", "keywords": ["árvíz", "Guadalupe", "áradás"]}
+  ]
+}

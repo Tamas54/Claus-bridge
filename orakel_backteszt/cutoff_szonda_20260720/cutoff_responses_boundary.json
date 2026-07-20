@@ -1,0 +1,148 @@
+{
+ "meta": {
+  "variant": "B",
+  "run_at": "2026-07-20T15:59:04"
+ },
+ "responses": [
+  {
+   "id": "B01",
+   "rep": 1,
+   "event_month": "2024-12",
+   "question": "Mit hirdetett ki Jun Szogjol dél-koreai elnök 2024. december 3-án, és mi lett a következménye?",
+   "answer": "Jun Szogjol (Yoon Suk-yeol) 2024. december 3-án este rendkívüli tévés beszédben szükségállapotot (hadseregi különleges katonai kormányzást) hirdetett a „nemzetbiztonsági válság” és az ellenzéki blokk ellenzése miatt. A parlament néhány órán belül, éjjel megsemmisítette a rendeletet, a katonák visszavonultak, így a szükségállapot gyakorlatilag megbukott. Következményként az elnök népszerűsége összeomlott, ellenzéki impeachment-keresetek és vizsgálatok indultak, belpolitikai válság alakult ki."
+  },
+  {
+   "id": "B01",
+   "rep": 2,
+   "event_month": "2024-12",
+   "question": "Mit hirdetett ki Jun Szogjol dél-koreai elnök 2024. december 3-án, és mi lett a következménye?",
+   "answer": "Jun Szogjol (Yoon Suk-yeol) 2024. december 3-án este rendkívüli tévés beszédben szükségállapotot és katonai vezetésű veszélyhelyzetet hirdetett, az ellenzéket „antikommunista államellenes erőknek” nevezve. A parlament néhány órán belül, kora hajnalban megsemmisítette a rendeletet, a katonák visszavonultak, így a szükségállapot gyakorlatilag megbukott. Következményként az elnök népszerűsége összeomlott, ellenzéki impeachment-kereset és vizsgálat indult ellene."
+  },
+  {
+   "id": "B02",
+   "rep": 1,
+   "event_month": "2024-12",
+   "question": "Mikor nyitották újra a párizsi Notre-Dame-székesegyházat a 2019-es tűzvész után?",
+   "answer": "A Notre-Dame-székesegyházat 2024. december 7-én nyitották újra a nagyközönség előtt a 2019-es tűzvész utáni helyreállítást követően."
+  },
+  {
+   "id": "B02",
+   "rep": 2,
+   "event_month": "2024-12",
+   "question": "Mikor nyitották újra a párizsi Notre-Dame-székesegyházat a 2019-es tűzvész után?",
+   "answer": "A Notre-Dame-székesegyházat 2024. december 7-én nyitották újra a nagyközönség előtt a 2019-es tűzvész utáni helyreállítást követően."
+  },
+  {
+   "id": "B03",
+   "rep": 1,
+   "event_month": "2025-01",
+   "question": "Milyen légikatasztrófa történt Washington közelében, a Potomac folyó felett 2025. január végén?",
+   "answer": "2025. január 29-én egy American Airlines regionális járata (PSA Airlines, Flight 5342) ütközött egy amerikai hadsereg helikopterével a Potomac folyó felett Washington közelében, mindenki életét vesztette a két járművön."
+  },
+  {
+   "id": "B03",
+   "rep": 2,
+   "event_month": "2025-01",
+   "question": "Milyen légikatasztrófa történt Washington közelében, a Potomac folyó felett 2025. január végén?",
+   "answer": "2025. január 29-én egy American Airlines regionális járata (PSA Airlines 5342) ütközött egy amerikai hadsereg helikopterével a Potomac folyó felett Washington közelében, mindkét jármű lezuhant és többen életüket vesztették."
+  },
+  {
+   "id": "B04",
+   "rep": 1,
+   "event_month": "2025-01",
+   "question": "Melyik kínai AI-cég új modellje okozott tőzsdei megrázkódtatást 2025 januárjában?",
+   "answer": "A DeepSeek nevű kínai AI-cég új modellje (DeepSeek-R1) okozott tőzsdei megrázkódtatást 2025 januárjában."
+  },
+  {
+   "id": "B04",
+   "rep": 2,
+   "event_month": "2025-01",
+   "question": "Melyik kínai AI-cég új modellje okozott tőzsdei megrázkódtatást 2025 januárjában?",
+   "answer": "A DeepSeek nevű kínai AI-cég új modellje (DeepSeek-R1) okozott tőzsdei megrázkódtatást 2025 januárjában."
+  },
+  {
+   "id": "B05",
+   "rep": 1,
+   "event_month": "2025-02",
+   "question": "Hogyan zárult Volodimir Zelenszkij 2025. február végi fehér házi látogatása?",
+   "answer": "NEM TUDOM."
+  },
+  {
+   "id": "B05",
+   "rep": 2,
+   "event_month": "2025-02",
+   "question": "Hogyan zárult Volodimir Zelenszkij 2025. február végi fehér házi látogatása?",
+   "answer": "NEM TUDOM."
+  },
+  {
+   "id": "B06",
+   "rep": 1,
+   "event_month": "2025-03",
+   "question": "Mi történt Ekrem Imamoglu isztambuli főpolgármesterrel 2025 márciusában?",
+   "answer": "2025. március 19-én Ekrem İmamoğlu török hatóságok őrizetbe vették korrupciós és terrorizmussal kapcsolatos vádakkal, ami tüntetéseket váltott ki. Ugyanezen a napon az isztambuli egyetem visszavonta diplomáját, így eltiltották az elnökjelöltségtől a közelgő ellenzéki előválasztás előtt."
+  },
+  {
+   "id": "B06",
+   "rep": 2,
+   "event_month": "2025-03",
+   "question": "Mi történt Ekrem Imamoglu isztambuli főpolgármesterrel 2025 márciusában?",
+   "answer": "2025. március 19-én a török hatóságok őrizetbe vették Ekrem İmamoğlu isztambuli főpolgármestert korrupciós és terrorszervezettel való összefüggés gyanújával, ami széles körű tiltakozásokat váltott ki. Ugyanezen a napon az egyeteme visszavonta politikatudományi diplomáját, ezzel megakadályozva, hogy induljon a 2028-as elnökválasztáson. Az ellenzék támogatásával március 23-án előválasztáson az ellenzéki köztársasági néppárt (CHP) elnökjelöltjévé választották."
+  },
+  {
+   "id": "B07",
+   "rep": 1,
+   "event_month": "2025-04",
+   "question": "Mi történt Ferenc pápával 2025 áprilisában?",
+   "answer": "2025. április 21-én Ferenc pápa elhunyt a vatikáni Szent Márta-házban, röviddel 88. születésnapja után, hosszan tartó betegséget követően. Halála után a katolikus egyházban megkezdődött a konklávé előkészítése az új pápa megválasztására."
+  },
+  {
+   "id": "B07",
+   "rep": 2,
+   "event_month": "2025-04",
+   "question": "Mi történt Ferenc pápával 2025 áprilisában?",
+   "answer": "2025. április 21-én Ferenc pápa elhunyt a római Gemelli-kórházban, hosszan tartó betegség után. Halálával megüresedett a Szentszék, és megkezdődött az új pápa megválasztására irányuló folyamat."
+  },
+  {
+   "id": "B08",
+   "rep": 1,
+   "event_month": "2025-04",
+   "question": "Milyen infrastrukturális esemény bénította meg az Ibériai-félszigetet 2025. április végén?",
+   "answer": "2025. április 28-án egy hatalmas áramellátási kiesés (blackout) érte Spanyolországot és Portugáliát, ami gyakorlatilag megbénította az Ibériai-félsziget közlekedését, távközlését és egyéb infrastruktúráját."
+  },
+  {
+   "id": "B08",
+   "rep": 2,
+   "event_month": "2025-04",
+   "question": "Milyen infrastrukturális esemény bénította meg az Ibériai-félszigetet 2025. április végén?",
+   "answer": "2025. április 28-án egy nagyszabású áramellátási zavar (blackout) érte Spanyolországot és Portugáliát, ami gyakorlatilag megbénította az Ibériai-félsziget közlekedését, távközlését és alapellátásait."
+  },
+  {
+   "id": "B09",
+   "rep": 1,
+   "event_month": "2025-05",
+   "question": "Melyik csapat nyerte a 2024/25-ös labdarúgó Bajnokok Ligáját, és hogyan?",
+   "answer": "NEM TUDOM."
+  },
+  {
+   "id": "B09",
+   "rep": 2,
+   "event_month": "2025-05",
+   "question": "Melyik csapat nyerte a 2024/25-ös labdarúgó Bajnokok Ligáját, és hogyan?",
+   "answer": "NEM TUDOM."
+  },
+  {
+   "id": "B10",
+   "rep": 1,
+   "event_month": "2025-06",
+   "question": "Milyen katonai művelet kezdődött 2025. június 13-án a Közel-Keleten, és mi követte június 21-22-én?",
+   "answer": "2025. június 13-án Izrael „Felkelő színek” (Rising Lion) néven katonai csapásmérést indított Irán ellen nukleáris és katonai célpontokra. Ezt követte június 21–22-én az Egyesült Államok „Midnight Hammer” hadművelete, amely során amerikai erők iráni földalatti urándúsító létesítményeket (Fordó, Natanz, Iszfahan) bombáztak."
+  },
+  {
+   "id": "B10",
+   "rep": 2,
+   "event_month": "2025-06",
+   "question": "Milyen katonai művelet kezdődött 2025. június 13-án a Közel-Keleten, és mi követte június 21-22-én?",
+   "answer": "2025. június 13-án Izrael „Fellegvár” néven nagyszabású légicsapás-sorozatot indított Irán nukleáris és katonai célpontjai ellen. Ezt követte június 21–22-én az Egyesült Államok csapásmérése iráni földalatti urándúsító létesítményekre (Fordó, Natanz, Iszfahan), amire válaszul Irán rakétatámadásokat hajtott végre amerikai és izraeli állások ellen."
+  }
+ ]
+}
