@@ -31,6 +31,15 @@ __plugin_meta__ = {
 # A SaaS-arc (aipolling.io) sora AKKOR kerül be, amikor a Kommandant a nevét/
 # arculatát rögzíti — soronként, kód-változtatás nélkül.
 BRANDS: dict = {
+    # P6 #15 brand-próba: teszt-brand KIZÁRÓLAG config-sorként (kód nem változik)
+    "sibylle-dev": {
+        "name": "DELPHOI (dev)",
+        "logo_path": "",
+        "footer_text": "DELPHOI — synthetic polling engine (dev brand)",
+        "disclaimer_text": ("Synthetic direction signal — complementary to "
+                            "probability-sample polls, not a substitute."),
+        "public_base_url": "https://aipolling-production.up.railway.app",
+    },
     "echolot": {
         "name": "Echolot",
         "logo_path": "",   # szöveg-logó (ECHOLOT) — nincs képfájl
