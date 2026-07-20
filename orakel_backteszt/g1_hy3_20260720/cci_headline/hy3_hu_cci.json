@@ -1,0 +1,688 @@
+{
+  "run": "G1/3 HU CCI headline (SSR-demó protokoll)",
+  "flag": "CLEAN",
+  "flag_note": "target-ablak 2026-01..03 >= 2025-08",
+  "protocol": "orakel_backteszt_cci/run_ssr_demo.py demo_prompt + run_panel_cci.call_model, SSR linear + text-embedding-3-small",
+  "corpus_files": {
+    "orakel_backteszt_cci/corpus.jsonl": "d06594e15d6a86fbffee1fb177bdd901aeece9a327b7d5f98e3f3878c6d54b55"
+  },
+  "gt": -18.4,
+  "per_seed": [
+    {
+      "seed": 1,
+      "n_sent": 40,
+      "cat_balance": -92.85714285714286,
+      "ssr_score": 2.4776726513543075,
+      "ssr_balance": -26.116367432284626,
+      "survey_pmf": [
+        0.2158164102853753,
+        0.30773073599765155,
+        0.2654037445157667,
+        0.20506201047970407,
+        0.005987098721502547
+      ],
+      "sentences": [
+        "Falun élő friss diplomásként alig van stabil munkám, és bár az infláció lassult, a rezsi és az üzemanyag körüli hírek miatt inkább drágulást várok a következő egy évben. A kampányígéretek helyett a saját zsebemben kevesebbet érzek biztosnak.",
+        "Érettségivel egy vidéki városban bérből megélőként már most is alig jön ki a rezsire és az élelmiszerre a fizetésből, és látom a hírekben, hogy a kormány is csak kapkodja a fejét az árak miatt, szóval nem várok semmi csodát, inkább tartok tőle, hogy a választás után is szűk marad a h",
+        "Budapesti érettségizettként nyugdíj előtt állóként látom, hogy a rezsiről és bérekről szóló ígérgetések mellett az inflációs és költségvetési hírek miatt inkább tartok a drágulástól, és nem érzem biztosnak a megélhetésünket.",
+        "Diplomásként egy vidéki városban élek, és bár a hírek szerint nőttek a bérek, az infláció és a rezsi miatti bizonytalanság miatt inkább tartok attól, hogy a megélhetésünk nem lesz könnyebb. A kampányígéretek ellenére reálisan nézve a következő egy évben a kiadásaink tovább szorí",
+        "Azt hallom, hogy a rezsi megvan, de a boltban meg az üzemanyag ára azért kiüt, meg a férjem nyugdíja alig gyarapodott, úgyhogy én még spórolósabban élek majd, mint eddig. A hírekből nem látom, hogy a következő évben a mi pénztárcánkhoz jobban érnének, inkább tartok tőle",
+        "A rezsi meg a boltokban az árak úgyis alig hagynak nyugtot, hiába ígérgetnek mindkét oldal, a falun meg azt látom, a nyugdíj meg a kevés pénz épp hogy kijön, de bármikor jöhet egy váratlan számla vagy drágulás. Szerintem a következő évben sem lesz könnyebb, inkább",
+        "Azt hallom a hírekből, hogy a rezsi megmarad és az infláció is alacsony, de a nyugdíjam mellett az élelmiszer-árak figyelése még így is nehéz, meg a félhavi bérlet is megszűnt, így Budapesten is többet költök. Nem várok csodát, de nem is hiszem, hogy sokkal rosszabb lenne, mint most.",
+        "Nyugdíjas korhoz közeledő diplomásként a rezsi és a bevásárlás drágulásától tartok, hiába ígér a kormány segítséget, a kormányközeli és ellenzéki hírek is bizonytalan gazdasági képet festenek, így inkább szorítósabb hónapokra számítok.",
+        "Budapesti szakmunkásként a rezsi- és üzemanyagárak körüli huzavona mellett inkább azt érzem, hogy a fizetésem alig tart lépést a mindennapi kiadásokkal, és a kampányígérgetések mögött nem látok biztos garanciát. A következő évben inkább a mostanihoz hasonló szűkülést várok, mint",
+        "Szakmunkásként egy vidéki városban az alapanyagok és a rezsi drágulása miatt már most is szűken jövünk ki, és a hírekben látott bizonytalan költségvetés meg a kampányígérgetések után inkább többet féltem a pénztárcámtól, mintsem hogy javulna.",
+        "Mint szakmunkásként egy megyei jogú városban, azt látom a hírekből, hogy hol rezsistopról meg béremelésről beszélnek, hol meg rekordhiányról meg dráguló üzemanyagról, szóval nem merek bízni abban, hogy javulna a helyzetünk, mert a hónap végén így is alig jövünk ki",
+        "Budapesti szakmunkásként a rezsi és az élelmiszerárak miatt már most is szűkön vagyok, és hiába ígérgetnek mindkét oldal, a költségvetési hiány meg a bizonytalan kampány után inkább még nehezebb hónapokra számítok.",
+        "Nyugdíjaskeresetemmel a rezsi és az élelmiszerek árát nézem, és bár a kormány ígéri a rezsivédelmet meg a 13. havi nyugdíjat, az ellenzéki lapok meg a költségvetési hiányról meg az inflációs kockázatról írnak, úgyhogy inkább tartok tőle, hogy a hónap végén egyre",
+        "Falun diplomásként a rezsi és az élelmiszerárak miatt már most is számolgatnunk kell, és a kampányígéretek ellenére félek, hogy a választás után a tényleges gazdasági helyzet miatt még szűkösebb lesz a hónap vége. A kiskereskedelmi számok meg a hivatalos infláció jó, de a helyi",
+        "Falun szakmunkásként dolgozom, és bár azt hallom a hírekben, hogy lassult az infláció meg emelkedtek a bérek, nekem a rezsi és az étel ára így is alig jön ki a fizetésből, szóval nem várok csodát. Szerintem a következő évben is ugyanolyan szűken gazdálkodunk majd, mint eddig, leg",
+        "Nyugdíjas korhoz közeledő diplomásként a rezsi és a bevásárlás drágulásától tartok, hiába ígér a kormány segítséget, a kormányközeli és ellenzéki hírek is bizonytalan gazdasági képet festenek, így inkább szorítósabb hónapokra számítok.",
+        "Nyugdíjas koromban a rezsi és az élelmiszerárak alakulása határozza meg a hónapomat, és hiába ígér a kormány árcsökkentést meg rezsivédelmet, az ellenzéki lapokban meg azt olvasom, hogy közben rekordhiány van és emelkednek az energiaárak, úgyhogy félek, kevesebbel kell beérnem",
+        "Nyugdíjas korhoz közeledő diplomásként a faluban azt látom, hogy a rezsiről szóló ígérgetések ellenére az árak és a mindennapi kiadások bizonytalansága miatt inkább szűkebbre fogom a költségeimet, mintsem bővítgetném. A kormány és az ellenzék egymásnak ellentmondó gazdasági h",
+        "Budapesti érettségizettként a rezsi- és élelmiszerárakkal kapcsolatos hírek alapján inkább óvatos vagyok, mert az állandó politikai ígérgetések mellett a kormányoldali és ellenzéki sajtó is drágulásról vagy bizonytalan gazdasági helyzetről ír, így tartalékolni próbálok. A kampányban eg",
+        "Diplomásként egy vidéki városban élek, és bár a kormánypropaganda szerint vágtáznak a bérek meg alacsony az infláció, a rezsi és az üzemanyag körüli bizonytalanság, meg a hírekben látott költségvetési hiány miatt inkább tartok attól, hogy a hónap végére egyre szűkebb lesz a keret",
+        "A rezsi meg úgyis csak ígéret marad, az üzemanyag is drágább lett, így falun autó nélkül meg se tudok mozdulni, szóval jövőre is szűkösen jövünk ki, ha lesz is kis béremelés, azt elviszi az élelmiszer és a tankolás.",
+        "Nyugdíjas korhoz közeledő szakmunkásként azt látom a hírekből, hogy hol azt ígérik, megmarad a rezsicsökkentés és jönnek a támogatások, hol meg azt, hogy összeomlott a költségvetés és drágul az üzemanyag, úgyhogy biztosan nem lesz több pénzem a hónap végére.",
+        "A rezsi meg a boltokban az árak miatt én nem érzek semmi nagy nyugtatót, hiába ígérnek mindenki csodát a választás előtt, a hónap vége nálam is egyre szűkösebb. Tartok tőle, hogy a következő évben még ki kell nyitnom a spórolósabb életmódra, mert a bérem nem nagyon mozdul, a kiad",
+        "Budapesti szakmunkásként a rezsi és az élelmiszerárak miatt már most is szűkön vagyok, és hiába ígérgetnek mindkét oldal, a költségvetési hiány meg a bizonytalan kampány után inkább még nehezebb hónapokra számítok.",
+        "Falun élő érettségizett fiatalként a rezsi- és üzemanyagárakról szóló hírek alapján inkább tartok tőle, hogy a következő évben még nehezebb lesz kijönnünk a fizetésemből, pláne ha a drágulások tovább folytatódnak.",
+        "Budapesti szakmunkásként azt látom a hírekből, hogy váltakozva ígérnek rezsicsökkentést és béremelést, de közben meg azt olvasom, hogy rekordhiány van és drágul az üzemanyag, úgyhogy tartok tőle, a hónap végén én nem járok jobban.",
+        "A kormány szerint alacsony az infláció és védett a rezsi, de az ellenzéki oldalon megjelenő hírek szerint a hiány és a drágulás miatt még lehetnek kellemetlen meglepetések, így falusi diplomásként óvatosan tervezek, nehogy a hónap vége szűkösebb legyen. A benzinár-beavatkozás és a rezsist",
+        "Nyugdíjas korhatár előtt álló diplomásként a rezsi és az élelmiszerárak alakulását figyelem, és bár a kormány ígér védelmet, a hírekben látott költségvetési hiány meg a januári számlák miatt inkább tartok attól, hogy a jövő évi megélhetésünk szűkebb lesz.",
+        "Nyugdíjas korhoz közeledő diplomásként a rezsi és a bevásárlás drágulásától tartok, hiába ígér a kormány segítséget, a kormányközeli és ellenzéki hírek is bizonytalan gazdasági képet festenek, így inkább szorítósabb hónapokra számítok.",
+        "Nekem szakmunkásként egy vidéki városban az élelmiszer- és rezsiszámlákkal kell leginkább küszködnöm, és bár a kormány ígérgeti a rezsivédelmet meg a béremelést, az ellenzéki oldalon meg azt olvasom, hogy a hiány meg az infláció bármikor beletörhet a hónap végi bevásárlásba",
+        "Azt hallom a rádióban meg látom az újságban, hogy a rezsi marad és az infláció is alacsony, de a boltban mégis drágább lett a kenyér meg a tűzifa, úgyhogy félek, a nyugdíjamból nehezebb lesz kijönni.",
+        "Nyugdíjasokként a férjemmel a faluban igyekszünk kijönni a 13. havi és a rezsicsökkentés ígérete ellenére is a boltban látott áremelkedésekből, de az infláció meg a bizonytalan választási hangulat miatt inkább szorosabbra fogjuk a nadrágszíjat. Tartok tőle, hogy a kö",
+        "Nyugdíjaskeresetemmel a rezsi és az élelmiszerek árát nézem, és bár a kormány ígéri a rezsivédelmet meg a 13. havi nyugdíjat, az ellenzéki lapok meg a költségvetési hiányról meg az inflációs kockázatról írnak, úgyhogy inkább tartok tőle, hogy a hónap végén egyre",
+        "A rezsit meg a boltban az árakat nézve félek, hogy a nyugdíjas szomszédokkal együtt mi is egyre nehezebben jövünk ki a faluban, mert az ígéretek ellenére csak drágul minden. A választás után sem várok nagy csodát, a gépészet nélkül itt csak a napi robot marad, amiből alig lesz tö",
+        "Azt hallom, hogy a rezsi megvan, de a boltban meg az üzemanyag ára azért kiüt, meg a férjem nyugdíja alig gyarapodott, úgyhogy én még spórolósabban élek majd, mint eddig. A hírekből nem látom, hogy a következő évben a mi pénztárcánkhoz jobban érnének, inkább tartok tőle",
+        "A rezsi és az üzemanyag ára miatt állandó a bizonytalanság, a kormány meg a Tisza is ígérget, de a boltban meg a számlánál én látom, hogy alig marad valami a végére. Inkább tartok tőle, hogy a következő évben még szorosabbra kell húzni a nadrágszíjat, mert az infláció és",
+        "A rezsi és az élelmiszerárak miatt így is alig jövök ki a nyugdíj előtti keresetből, és a hírekben látott költségvetési hiány meg emelkedő üzemanyagárak alapján tartok tőle, hogy a kormány ígéretei ellenére ősszel megint mélyebben a zsebembe kell nyúlnom. K",
+        "Hát, a rezsi meg az élelmiszer az utóbbi időben kicsit nyugodtabb lett, de a benzin meg a gyógyszer még így is sok, és nem tudom, ki nyer a választás után, csak remélem, nem lesz rosszabb a hónap vége.",
+        "A rezsi meg úgyis csak ígéret marad, az üzemanyag is drágább lett, így falun autó nélkül meg se tudok mozdulni, szóval jövőre is szűkösen jövünk ki, ha lesz is kis béremelés, azt elviszi az élelmiszer és a tankolás.",
+        "Nyugdíjasokként a férjemmel a faluban igyekszünk kijönni a 13. havi és a rezsicsökkentés ígérete ellenére is a boltban látott áremelkedésekből, de az infláció meg a bizonytalan választási hangulat miatt inkább szorosabbra fogjuk a nadrágszíjat. Tartok tőle, hogy a kö"
+      ]
+    },
+    {
+      "seed": 2,
+      "n_sent": 40,
+      "cat_balance": -100.0,
+      "ssr_score": 2.607748364805889,
+      "ssr_balance": -19.61258175970555,
+      "survey_pmf": [
+        0.17907628307257178,
+        0.2785900299991499,
+        0.3144330020880225,
+        0.21131040873032858,
+        0.01659027610992714
+      ],
+      "sentences": [
+        "Nyugdíjas diplomásként Budapesten azt látom a hírekből, hogy a rezsivédelem és a nyugdíjak ígérete mellett is az infláció és a költségvetési hiány miatt folyamatos a bizonytalanság, így egyáltalán nem érzem biztosnak a jövő évi megélhetésem.",
+        "Falun élő friss diplomásként alig van stabil munkám, és bár az infláció lassult, a rezsi és az üzemanyag körüli hírek miatt inkább drágulást várok a következő egy évben. A kampányígéretek helyett a saját zsebemben kevesebbet érzek biztosnak.",
+        "Nyugdíjas korhoz közeledő szakmunkásként azt látom a hírekből, hogy hol azt ígérik, megmarad a rezsicsökkentés és jönnek a támogatások, hol meg azt, hogy összeomlott a költségvetés és drágul az üzemanyag, úgyhogy biztosan nem lesz több pénzem a hónap végére.",
+        "Budapesti érettségizettként nyugdíj előtt állóként látom, hogy a rezsiről és bérekről szóló ígérgetések mellett az inflációs és költségvetési hírek miatt inkább tartok a drágulástól, és nem érzem biztosnak a megélhetésünket.",
+        "A rezsi meg a boltban az árak továbbra is a nyakunkba szakadnak, a férjem szakmunkás bére meg alig mozdul, úgyhogy falun nekünk csak szűkösebb lesz a hónap vége. A kormány meg az ellenzék is ígérget, de én a saját kasszánkban még nem láttam semmi biztos javulást. KATEGORIA",
+        "Nyugdíjas diplomásként az infláció alacsonyabb híreinek örülök, de a rezsivel és az üzemanyaggal kapcsolatos bizonytalan bejelentések miatt inkább óvatosan költök, mert tartok a választás utáni áremelkedéstől. A kormány ígéretei ellenére úgy érzem, a megélhetésünk nem lesz k",
+        "Budapesti szakmunkásként a rezsi és az élelmiszerárak miatt már most is szűkön vagyok, és hiába ígérgetnek mindkét oldal, a költségvetési hiány meg a bizonytalan kampány után inkább még nehezebb hónapokra számítok.",
+        "Szakmunkásként dolgozom egy megyei jogú városban, és bár a hírek szerint nőttek a bérek meg alacsony az infláció, az albérlet meg a rezsi még így is viszi a fizetésem javát, úgyhogy nem várok csodát. A kampányban ígérgetnek mindkét oldalról, de nekem már csak az a kérdés,",
+        "Diplomásként egy vidéki városban élek, és bár a kormány szerint lassult az infláció és nőttek a bérek, a rezsi és az üzemanyag körüli bizonytalanság miatt inkább óvatosabb költésre rendezkedtem be, mert tartok a választás utáni áremelkedésektől. A hírekben egymásnak ellentmondó gazdasá",
+        "Budapesti szakmunkásként azt látom a hírekből, hogy váltakozva ígérnek rezsicsökkentést és béremelést, de közben meg azt olvasom, hogy rekordhiány van és drágul az üzemanyag, úgyhogy tartok tőle, a hónap végén én nem járok jobban.",
+        "A rezsire meg az élelmiszerre költök a legtöbbet, és bár azt mondják lassult az infláció, nekem a boltban meg a számláknál ugyanúgy fáj a fizetés végére, szóval nem várok sok javulást. A választás után se hiszem, hogy egyik napról a másikra több pénz maradna a zsebemben,",
+        "Nyugdíjas koromban a rezsi és az élelmiszerárak alakulása határozza meg a hónapomat, és hiába ígér a kormány árcsökkentést meg rezsivédelmet, az ellenzéki lapokban meg azt olvasom, hogy közben rekordhiány van és emelkednek az energiaárak, úgyhogy félek, kevesebbel kell beérnem",
+        "Nyugdíjasokként a férjemmel a faluban igyekszünk kijönni a 13. havi és a rezsicsökkentés ígérete ellenére is a boltban látott áremelkedésekből, de az infláció meg a bizonytalan választási hangulat miatt inkább szorosabbra fogjuk a nadrágszíjat. Tartok tőle, hogy a kö",
+        "Nyugdíjas létemre már így is alig jövök ki a rezsi és a bevásárlás árából, hiába ígérnek árstopokat, ha az infláció vagy az energiaárak megint megugranak, még szorosabb lesz a hónap vége. Falun egyedül élek, nincs ki segítsen, így tartok tőle, hogy az elkövetkező",
+        "A kormány szerint alacsony az infláció és védett a rezsi, de az ellenzéki oldalon megjelenő hírek szerint a hiány és a drágulás miatt még lehetnek kellemetlen meglepetések, így falusi diplomásként óvatosan tervezek, nehogy a hónap vége szűkösebb legyen. A benzinár-beavatkozás és a rezsist",
+        "A rezsi meg úgyis csak ígéret marad, az üzemanyag is drágább lett, így falun autó nélkül meg se tudok mozdulni, szóval jövőre is szűkösen jövünk ki, ha lesz is kis béremelés, azt elviszi az élelmiszer és a tankolás.",
+        "A rezsi meg a boltokban az árak miatt én nem érzek semmi nagy nyugtatót, hiába ígérnek mindenki csodát a választás előtt, a hónap vége nálam is egyre szűkösebb. Tartok tőle, hogy a következő évben még ki kell nyitnom a spórolósabb életmódra, mert a bérem nem nagyon mozdul, a kiad",
+        "Nyugdíjas létemre már így is alig jövök ki a rezsi és a bevásárlás árából, hiába ígérnek árstopokat, ha az infláció vagy az energiaárak megint megugranak, még szorosabb lesz a hónap vége. Falun egyedül élek, nincs ki segítsen, így tartok tőle, hogy az elkövetkező",
+        "A kormány szerint alacsony az infláció és védett a rezsi, de az ellenzéki oldalon megjelenő hírek szerint a hiány és a drágulás miatt még lehetnek kellemetlen meglepetések, így falusi diplomásként óvatosan tervezek, nehogy a hónap vége szűkösebb legyen. A benzinár-beavatkozás és a rezsist",
+        "A rezsicsökkentésről és az alacsony inflációról szóló kormányhírek mellett is úgy érzem, a boltban és a kútoszlopnál folyamatosan emelkednek az árak, a faluban meg azt látom, hogy egyre kevesebb a rendes munka, szóval tartok tőle, hogy jövő ilyenkorra szűkebb lesz a hónap vé",
+        "Nyugdíjas szakmunkásként élek ebben a megyei jogú városban, és látom, hogy a rezsi meg a boltokban az árak még mindig bizonytalanok, hiába ígérgetnek a kormányoldal meg a Tisza is – a hónap végére így is alig jut. A költségvetési hiányról meg a drágulásról szóló hí",
+        "Budapesten érettségivel dolgozóként a rezsi- és élelmiszerárak alakulásától függően még így is alig jövök ki a lakbérből és a napi kiadásokból, a kampányígéretek ellenére reálisan nézve nem várok érezhető könnyebbséget. A választás utáni bizonytalanság és a dr",
+        "Nyugdíjas szakmunkásként egy faluban élek, és bár azt ígérik, marad a rezsicsökkentés meg jön a 13. havi, az élelmiszer- meg üzemanyagárakkal kapcsolatos hírek miatt félek, hogy a végén kevesebb marad a hónap végére. A kormány és az ellenzék is ígérget, de én már",
+        "Falun diplomásként a rezsi és az élelmiszerárak miatt már most is számolgatnunk kell, és a kampányígéretek ellenére félek, hogy a választás után a tényleges gazdasági helyzet miatt még szűkösebb lesz a hónap vége. A kiskereskedelmi számok meg a hivatalos infláció jó, de a helyi",
+        "A rezsi meg a boltokban az árak miatt én nem érzek semmi nagy nyugtatót, hiába ígérnek mindenki csodát a választás előtt, a hónap vége nálam is egyre szűkösebb. Tartok tőle, hogy a következő évben még ki kell nyitnom a spórolósabb életmódra, mert a bérem nem nagyon mozdul, a kiad",
+        "Nyugdíjas szakmunkásként élek ebben a megyei jogú városban, és látom, hogy a rezsi meg a boltokban az árak még mindig bizonytalanok, hiába ígérgetnek a kormányoldal meg a Tisza is – a hónap végére így is alig jut. A költségvetési hiányról meg a drágulásról szóló hí",
+        "Nyugdíjas korhoz közeledő diplomásként a rezsi és a bevásárlás drágulásától tartok, hiába ígér a kormány segítséget, a kormányközeli és ellenzéki hírek is bizonytalan gazdasági képet festenek, így inkább szorítósabb hónapokra számítok.",
+        "Falun élő friss diplomásként alig van stabil munkám, és bár az infláció lassult, a rezsi és az üzemanyag körüli hírek miatt inkább drágulást várok a következő egy évben. A kampányígéretek helyett a saját zsebemben kevesebbet érzek biztosnak.",
+        "Azt hallom a rádióban meg látom az újságban, hogy a rezsi marad és az infláció is alacsony, de a boltban mégis drágább lett a kenyér meg a tűzifa, úgyhogy félek, a nyugdíjamból nehezebb lesz kijönni.",
+        "Albérletben élek a megyei jogú városban, és bár a hírek szerint alacsony az infláció meg emelkedtek a bérek, az alapvető dolgokra (rezsi, kajára, bérlet) keresettel alig jutok, úgyhogy tartok tőle, hogy a választás után sem lesz könnyebb. A rezsistopról meg szavazásról hallott",
+        "Diplomásként Budapesten most is alig futja a rezsire és a bevásárlásra a fizetésből, és a kampányígéretek ellenére félek, hogy a választás után az infláció vagy az üzemanyagár-beavatkozások miatt még szűkebb lesz a hónap vége.",
+        "Nyugdíjas korhatár előtt álló diplomásként a rezsi és az élelmiszerárak alakulását figyelem, és bár a kormány ígér védelmet, a hírekben látott költségvetési hiány meg a januári számlák miatt inkább tartok attól, hogy a jövő évi megélhetésünk szűkebb lesz.",
+        "Diplomásként egy vidéki városban élek, és bár a kormánypropaganda szerint vágtáznak a bérek meg alacsony az infláció, a rezsi és az üzemanyag körüli bizonytalanság, meg a hírekben látott költségvetési hiány miatt inkább tartok attól, hogy a hónap végére egyre szűkebb lesz a keret",
+        "A rezsicsökkentést ígérik, de az üzemanyag és az élelmiszer drágulása miatt a nyugdíjamba meg a kevéske megtakarításomba egyre kevésbé futja bevásárlásra, így jövőre is szorosan kell számolgatnom a filléreket.",
+        "Budapesten érettségivel dolgozóként a rezsi- és élelmiszerárak alakulásától függően még így is alig jövök ki a lakbérből és a napi kiadásokból, a kampányígéretek ellenére reálisan nézve nem várok érezhető könnyebbséget. A választás utáni bizonytalanság és a dr",
+        "Azt hallom a rádióban meg látom az újságban, hogy a rezsi marad és az infláció is alacsony, de a boltban mégis drágább lett a kenyér meg a tűzifa, úgyhogy félek, a nyugdíjamból nehezebb lesz kijönni.",
+        "Falun szakmunkásként dolgozom, és bár azt hallom a hírekben, hogy lassult az infláció meg emelkedtek a bérek, nekem a rezsi és az étel ára így is alig jön ki a fizetésből, szóval nem várok csodát. Szerintem a következő évben is ugyanolyan szűken gazdálkodunk majd, mint eddig, leg",
+        "Lakásban albérletben lakunk, a rezsit meg a kaját alig bírjuk kifizetni, mert csak alkalmi melóim vannak nyolc általánossal, szóval tuti, hogy jövőre is szűk lesz a hónap vége. A hírekből meg nem látom, hogy bármelyik párt tényleg a mi helyzetünkön segítene, csak egymást",
+        "A rezsit meg a boltban az árakat nézve félek, hogy a nyugdíjas szomszédokkal együtt mi is egyre nehezebben jövünk ki a faluban, mert az ígéretek ellenére csak drágul minden. A választás után sem várok nagy csodát, a gépészet nélkül itt csak a napi robot marad, amiből alig lesz tö",
+        "Albérletben lakok a megyeszékhelyen, a rezsi meg a kajavásárlás viszi a fizetésem nagy részét, és mivel csak 8 általánosom van, nem várok nagy béremelést, szóval szűkösebb lesz a hónap vége."
+      ]
+    },
+    {
+      "seed": 3,
+      "n_sent": 40,
+      "cat_balance": -100.0,
+      "ssr_score": 2.579156713550841,
+      "ssr_balance": -21.042164322457957,
+      "survey_pmf": [
+        0.18520421674958457,
+        0.26055925343575725,
+        0.3578058259357394,
+        0.1827370072720708,
+        0.013693696606848094
+      ],
+      "sentences": [
+        "Lakáshitellel és két gyerekre számított családi költségekkel élünk egy megyei jogú városban, és bár az infláció lassult, az üzemanyag- és rezsibizonytalanság miatt inkább tartok a húsvéti és őszi kiadások elől, mert a fizetésem nem nőtt érdemben. A kampányígérgetések hely",
+        "Budapesti érettségizettként nyugdíj előtt állóként látom, hogy a rezsiről és bérekről szóló ígérgetések mellett az inflációs és költségvetési hírek miatt inkább tartok a drágulástól, és nem érzem biztosnak a megélhetésünket.",
+        "Diplomásként egy megyei jogú városban élek, de az inflációs és rezsihírek meg a kormányzati szájkarate mellett reálisan inkább tartok a drágulástól és attól, hogy a fizetésem nem fog lépést tartani a megélhetési költségekkel. A választási ígérgetések ellenére bizonytalannak látom a",
+        "Diplomásként egy vidéki városban élek, és bár a kormánypropaganda szerint vágtáznak a bérek meg alacsony az infláció, a rezsi és az üzemanyag körüli bizonytalanság, meg a hírekben látott költségvetési hiány miatt inkább tartok attól, hogy a hónap végére egyre szűkebb lesz a keret",
+        "Nyugdíjas szakmunkásként azt látom a hírekből, hogy hol azt mondják, megvédik a rezsit és a nyugdíjat, hol meg azt, hogy összeomlott a költségvetés és drágul minden, úgyhogy félek, hogy a végén kevesebb marad a hónap végére. Az üzemanyagár-beavatkozás meg a",
+        "Falun élő érettségizett fiatalként a rezsi- és üzemanyagárakról szóló hírek alapján inkább tartok tőle, hogy a következő évben még nehezebb lesz kijönnünk a fizetésemből, pláne ha a drágulások tovább folytatódnak.",
+        "A rezsi és az élelmiszerárak miatt így is alig jövök ki a nyugdíj előtti keresetből, és a hírekben látott költségvetési hiány meg emelkedő üzemanyagárak alapján tartok tőle, hogy a kormány ígéretei ellenére ősszel megint mélyebben a zsebembe kell nyúlnom. K",
+        "Albérletben élek egy kisebb vidéki városban, és bár az infláció állítólag lassult, az alapélelmiszerek és a rezsi így is le fogja vinni a fizetésem nagy részét, szóval nem látok magam előtt semmilyen javulást. Inkább tartok tőle, hogy ha az üzemanyag vagy a rezsi újra megugrik a válas",
+        "Nehéz falun megélni 8 általánossal, az üzemanyag meg a rezsi azért kiszámíthatatlan, hiába mondja a kormány, hogy védett ár van, félek, hogy a télen megint kevesebb marad a hónap végére. Azt se tudom, melyik ígéretet higgyem el, de a pénztárcámban nem lesz több.",
+        "A rezsicsökkentésről és az alacsony inflációról szóló kormányhírek mellett is úgy érzem, a boltban és a kútoszlopnál folyamatosan emelkednek az árak, a faluban meg azt látom, hogy egyre kevesebb a rendes munka, szóval tartok tőle, hogy jövő ilyenkorra szűkebb lesz a hónap vé",
+        "Nyugdíjas korhoz közeledő diplomásként a rezsi és a bevásárlás drágulásától tartok, hiába ígér a kormány segítséget, a kormányközeli és ellenzéki hírek is bizonytalan gazdasági képet festenek, így inkább szorítósabb hónapokra számítok.",
+        "Nyugdíjas szakmunkásként egy faluban élek, és bár azt ígérik, marad a rezsicsökkentés meg jön a 13. havi, az élelmiszer- meg üzemanyagárakkal kapcsolatos hírek miatt félek, hogy a végén kevesebb marad a hónap végére. A kormány és az ellenzék is ígérget, de én már",
+        "Azt hallom a hírekből, hogy a rezsi megmarad és az infláció is alacsony, de a nyugdíjam mellett az élelmiszer-árak figyelése még így is nehéz, meg a félhavi bérlet is megszűnt, így Budapesten is többet költök. Nem várok csodát, de nem is hiszem, hogy sokkal rosszabb lenne, mint most.",
+        "Diplomásként egy vidéki városban élek, és bár a kormánypropaganda szerint vágtáznak a bérek meg alacsony az infláció, a rezsi és az üzemanyag körüli bizonytalanság, meg a hírekben látott költségvetési hiány miatt inkább tartok attól, hogy a hónap végére egyre szűkebb lesz a keret",
+        "Nyugdíjas korhoz közeledő szakmunkásként azt látom a hírekből, hogy hol azt ígérik, megmarad a rezsicsökkentés és jönnek a támogatások, hol meg azt, hogy összeomlott a költségvetés és drágul az üzemanyag, úgyhogy biztosan nem lesz több pénzem a hónap végére.",
+        "Nekem szakmunkásként egy vidéki városban az élelmiszer- és rezsiszámlákkal kell leginkább küszködnöm, és bár a kormány ígérgeti a rezsivédelmet meg a béremelést, az ellenzéki oldalon meg azt olvasom, hogy a hiány meg az infláció bármikor beletörhet a hónap végi bevásárlásba",
+        "Nyugdíjas korhoz közeledő diplomásként a rezsi és a bevásárlás drágulásától tartok, hiába ígér a kormány segítséget, a kormányközeli és ellenzéki hírek is bizonytalan gazdasági képet festenek, így inkább szorítósabb hónapokra számítok.",
+        "Nyugdíjasokként a férjemmel a faluban igyekszünk kijönni a 13. havi és a rezsicsökkentés ígérete ellenére is a boltban látott áremelkedésekből, de az infláció meg a bizonytalan választási hangulat miatt inkább szorosabbra fogjuk a nadrágszíjat. Tartok tőle, hogy a kö",
+        "A rezsicsökkentést mondják, hogy tartják, de az üzemanyag meg az élelmiszer drágulását minden héten érzem a boltban, úgyhogy nekem csak kevesebb marad a végén. A nyugdíjam meg a kevés pénzem nem fog nőni, szóval jövőre is szorosan kell gazdálkodnom.",
+        "Nyugdíjas diplomásként az infláció alacsonyabb híreinek örülök, de a rezsivel és az üzemanyaggal kapcsolatos bizonytalan bejelentések miatt inkább óvatosan költök, mert tartok a választás utáni áremelkedéstől. A kormány ígéretei ellenére úgy érzem, a megélhetésünk nem lesz k",
+        "A rezsi meg a kaja ára az utóbbi időben lecsendesedett, de a férjem nyugdíja alig gyarapszik, és tartok tőle, hogy ha választás után átalakítják a támogatásokat, a falusi életünk csak nehezebb lesz.",
+        "Budapesti szakmunkásként azt látom a hírekből, hogy váltakozva ígérnek rezsicsökkentést és béremelést, de közben meg azt olvasom, hogy rekordhiány van és drágul az üzemanyag, úgyhogy tartok tőle, a hónap végén én nem járok jobban.",
+        "Nyugdíjas diplomásként Budapesten azt látom a hírekből, hogy a rezsivédelem és a nyugdíjak ígérete mellett is az infláció és a költségvetési hiány miatt folyamatos a bizonytalanság, így egyáltalán nem érzem biztosnak a jövő évi megélhetésem.",
+        "Nyugdíjas szakmunkásként Budapesten azt látom a hírekből, hogy hol rezsicsökkentésről, hol meg drágulásról meg inflációról beszélnek, de a januári számlák és a kormány hiányhírek alapján nekem csak kevesebb marad a végén. Tartok tőle, hogy a következő egy évben a megélheté",
+        "A rezsi meg úgyis csak ígéret marad, az üzemanyag is drágább lett, így falun autó nélkül meg se tudok mozdulni, szóval jövőre is szűkösen jövünk ki, ha lesz is kis béremelés, azt elviszi az élelmiszer és a tankolás.",
+        "Budapesten érettségizett fiatalként albérletből és alkalmi munkákból élek, és látom a hírekben a rezsidrágulást meg a bérleti díjak száguldását, úgyhogy attól tartok, a következő évben még szűkösebb lesz a hónap vége. A kampányígéretek helyett a saját pénztárcámban nem é",
+        "A rezsi meg a boltokban az árak úgyis alig hagynak nyugtot, hiába ígérgetnek mindkét oldal, a falun meg azt látom, a nyugdíj meg a kevés pénz épp hogy kijön, de bármikor jöhet egy váratlan számla vagy drágulás. Szerintem a következő évben sem lesz könnyebb, inkább",
+        "Nyugdíjas létemre már így is alig jövök ki a rezsi és a bevásárlás árából, hiába ígérnek árstopokat, ha az infláció vagy az energiaárak megint megugranak, még szorosabb lesz a hónap vége. Falun egyedül élek, nincs ki segítsen, így tartok tőle, hogy az elkövetkező",
+        "A rezsire meg az élelmiszerre költök a legtöbbet, és bár azt mondják lassult az infláció, nekem a boltban meg a számláknál ugyanúgy fáj a fizetés végére, szóval nem várok sok javulást. A választás után se hiszem, hogy egyik napról a másikra több pénz maradna a zsebemben,",
+        "Lakásban albérletben lakunk, a rezsit meg a kaját alig bírjuk kifizetni, mert csak alkalmi melóim vannak nyolc általánossal, szóval tuti, hogy jövőre is szűk lesz a hónap vége. A hírekből meg nem látom, hogy bármelyik párt tényleg a mi helyzetünkön segítene, csak egymást",
+        "Nyugdíjas segédmunkásként Budapesten alig jövök ki a rezsiből és a bevásárlásból, és látom a hírekben, hogy van, ahol rekordhiány meg drágulás van, úgyhogy félek, hogy a pénzem kevesebb lesz a következő évben.",
+        "Nyugdíjas szakmunkásként egy faluban élek, és bár azt ígérik, marad a rezsicsökkentés meg jön a 13. havi, az élelmiszer- meg üzemanyagárakkal kapcsolatos hírek miatt félek, hogy a végén kevesebb marad a hónap végére. A kormány és az ellenzék is ígérget, de én már",
+        "Nyugdíjas szakmunkásként azt látom a hírekből, hogy hol azt mondják, megvédik a rezsit és a nyugdíjat, hol meg azt, hogy összeomlott a költségvetés és drágul minden, úgyhogy félek, hogy a végén kevesebb marad a hónap végére. Az üzemanyagár-beavatkozás meg a",
+        "A rezsi és az élelmiszerárak miatt így is alig jövök ki a nyugdíj előtti keresetből, és a hírekben látott költségvetési hiány meg emelkedő üzemanyagárak alapján tartok tőle, hogy a kormány ígéretei ellenére ősszel megint mélyebben a zsebembe kell nyúlnom. K",
+        "A kormány megígérte, hogy marad a rezsicsökkentés és emelkednek a bérek, de az ellenzéki lapok meg azt írják, hogy a költségvetés összeomlott és drágulhat az élet, úgyhogy falun nyugdíjas fejjel én inkább a takarékoskodást nézem, mert nem hiszek a nagy ígérgetésekben. KATEG",
+        "A rezsi meg a boltban az árak továbbra is a nyakunkba szakadnak, a férjem szakmunkás bére meg alig mozdul, úgyhogy falun nekünk csak szűkösebb lesz a hónap vége. A kormány meg az ellenzék is ígérget, de én a saját kasszánkban még nem láttam semmi biztos javulást. KATEGORIA",
+        "Falun szakmunkásként dolgozom, és bár a kormány mondja, hogy alacsony az infláció meg van rezsivédelem, nekem a boltban és a tanknál is egyre kevesebbet érek el a fizetésemmel, szóval tartok tőle, hogy jövőre is csak kapkodjuk a fejünket a számlák miatt. A kampány ígérgetése",
+        "Budapesti érettségizettként nyugdíj előtt állóként látom, hogy a rezsiről és bérekről szóló ígérgetések mellett az inflációs és költségvetési hírek miatt inkább tartok a drágulástól, és nem érzem biztosnak a megélhetésünket.",
+        "Budapesti érettségizettként a rezsi- és élelmiszerárakkal kapcsolatos hírek alapján inkább óvatos vagyok, mert az állandó politikai ígérgetések mellett a kormányoldali és ellenzéki sajtó is drágulásról vagy bizonytalan gazdasági helyzetről ír, így tartalékolni próbálok. A kampányban eg",
+        "Budapesti érettségizettként nyugdíj előtt állóként látom, hogy a rezsiről és bérekről szóló ígérgetések mellett az inflációs és költségvetési hírek miatt inkább tartok a drágulástól, és nem érzem biztosnak a megélhetésünket."
+      ]
+    }
+  ],
+  "mean_ssr_balance": -22.257037838149376,
+  "abs_err": 3.8570378381493775,
+  "flash_reference": {
+    "canonical": -18.7,
+    "recomputed_offline_on_tracked_sentences": -18.593360218555198,
+    "source": "orakel_backteszt_cci/ssr_demo_sentences.json (Flash-mondatok, tracked)"
+  },
+  "cost": {
+    "n_calls": 120,
+    "n_api_calls": 61,
+    "n_cache_hits": 59,
+    "calls_per_min_limit": 16.3,
+    "elapsed_s": 379.4,
+    "prompt_chars": 3575339,
+    "completion_chars": 16567,
+    "est_prompt_tokens": 1117293,
+    "est_completion_tokens": 5177
+  },
+  "raw_stream": [
+    {
+      "i": 1,
+      "response": "MONDAT: Falun élő friss diplomásként alig van stabil munkám, és bár az infláció lassult, a rezsi és az üzemanyag körüli hírek miatt inkább drágulást várok a következő egy évben. A kampányígéretek helyett a saját zsebemben kevesebbet érzek biztosnak.\nKATEGORIA: rosszabb"
+    },
+    {
+      "i": 2,
+      "response": "MONDAT: Budapesti érettségizettként nyugdíj előtt állóként látom, hogy a rezsiről és bérekről szóló ígérgetések mellett az inflációs és költségvetési hírek miatt inkább tartok a drágulástól, és nem érzem biztosnak a megélhetésünket.\nKATEGORIA: rosszabb"
+    },
+    {
+      "i": 3,
+      "response": "MONDAT: Érettségivel egy vidéki városban bérből megélőként már most is alig jön ki a rezsire és az élelmiszerre a fizetésből, és látom a hírekben, hogy a kormány is csak kapkodja a fejét az árak miatt, szóval nem várok semmi csodát, inkább tartok tőle, hogy a választás után is szűk marad a h"
+    },
+    {
+      "i": 4,
+      "response": "MONDAT: Diplomásként egy vidéki városban élek, és bár a hírek szerint nőttek a bérek, az infláció és a rezsi miatti bizonytalanság miatt inkább tartok attól, hogy a megélhetésünk nem lesz könnyebb. A kampányígéretek ellenére reálisan nézve a következő egy évben a kiadásaink tovább szorí"
+    },
+    {
+      "i": 5,
+      "response": "MONDAT: Azt hallom, hogy a rezsi megvan, de a boltban meg az üzemanyag ára azért kiüt, meg a férjem nyugdíja alig gyarapodott, úgyhogy én még spórolósabban élek majd, mint eddig. A hírekből nem látom, hogy a következő évben a mi pénztárcánkhoz jobban érnének, inkább tartok tőle"
+    },
+    {
+      "i": 6,
+      "response": "MONDAT: A rezsi meg a boltokban az árak úgyis alig hagynak nyugtot, hiába ígérgetnek mindkét oldal, a falun meg azt látom, a nyugdíj meg a kevés pénz épp hogy kijön, de bármikor jöhet egy váratlan számla vagy drágulás. Szerintem a következő évben sem lesz könnyebb, inkább"
+    },
+    {
+      "i": 7,
+      "response": "MONDAT: Azt hallom a hírekből, hogy a rezsi megmarad és az infláció is alacsony, de a nyugdíjam mellett az élelmiszer-árak figyelése még így is nehéz, meg a félhavi bérlet is megszűnt, így Budapesten is többet költök. Nem várok csodát, de nem is hiszem, hogy sokkal rosszabb lenne, mint most."
+    },
+    {
+      "i": 8,
+      "response": "MONDAT: Nyugdíjas korhoz közeledő diplomásként a rezsi és a bevásárlás drágulásától tartok, hiába ígér a kormány segítséget, a kormányközeli és ellenzéki hírek is bizonytalan gazdasági képet festenek, így inkább szorítósabb hónapokra számítok.\nKATEGORIA: rosszabb"
+    },
+    {
+      "i": 9,
+      "response": "MONDAT: Budapesti szakmunkásként a rezsi- és üzemanyagárak körüli huzavona mellett inkább azt érzem, hogy a fizetésem alig tart lépést a mindennapi kiadásokkal, és a kampányígérgetések mögött nem látok biztos garanciát. A következő évben inkább a mostanihoz hasonló szűkülést várok, mint"
+    },
+    {
+      "i": 10,
+      "response": "MONDAT: Szakmunkásként egy vidéki városban az alapanyagok és a rezsi drágulása miatt már most is szűken jövünk ki, és a hírekben látott bizonytalan költségvetés meg a kampányígérgetések után inkább többet féltem a pénztárcámtól, mintsem hogy javulna.\nKATEGORIA: rosszabb"
+    },
+    {
+      "i": 11,
+      "response": "MONDAT: Mint szakmunkásként egy megyei jogú városban, azt látom a hírekből, hogy hol rezsistopról meg béremelésről beszélnek, hol meg rekordhiányról meg dráguló üzemanyagról, szóval nem merek bízni abban, hogy javulna a helyzetünk, mert a hónap végén így is alig jövünk ki"
+    },
+    {
+      "i": 12,
+      "response": "MONDAT: Budapesti szakmunkásként a rezsi és az élelmiszerárak miatt már most is szűkön vagyok, és hiába ígérgetnek mindkét oldal, a költségvetési hiány meg a bizonytalan kampány után inkább még nehezebb hónapokra számítok.\nKATEGORIA: rosszabb"
+    },
+    {
+      "i": 13,
+      "response": "MONDAT: Nyugdíjaskeresetemmel a rezsi és az élelmiszerek árát nézem, és bár a kormány ígéri a rezsivédelmet meg a 13. havi nyugdíjat, az ellenzéki lapok meg a költségvetési hiányról meg az inflációs kockázatról írnak, úgyhogy inkább tartok tőle, hogy a hónap végén egyre"
+    },
+    {
+      "i": 14,
+      "response": "MONDAT: Nyugdíjas korhoz közeledő diplomásként a rezsi és a bevásárlás drágulásától tartok, hiába ígér a kormány segítséget, a kormányközeli és ellenzéki hírek is bizonytalan gazdasági képet festenek, így inkább szorítósabb hónapokra számítok.\nKATEGORIA: rosszabb"
+    },
+    {
+      "i": 15,
+      "response": "MONDAT: Falun diplomásként a rezsi és az élelmiszerárak miatt már most is számolgatnunk kell, és a kampányígéretek ellenére félek, hogy a választás után a tényleges gazdasági helyzet miatt még szűkösebb lesz a hónap vége. A kiskereskedelmi számok meg a hivatalos infláció jó, de a helyi"
+    },
+    {
+      "i": 16,
+      "response": "MONDAT: Falun szakmunkásként dolgozom, és bár azt hallom a hírekben, hogy lassult az infláció meg emelkedtek a bérek, nekem a rezsi és az étel ára így is alig jön ki a fizetésből, szóval nem várok csodát. Szerintem a következő évben is ugyanolyan szűken gazdálkodunk majd, mint eddig, leg"
+    },
+    {
+      "i": 17,
+      "response": "MONDAT: Nyugdíjas koromban a rezsi és az élelmiszerárak alakulása határozza meg a hónapomat, és hiába ígér a kormány árcsökkentést meg rezsivédelmet, az ellenzéki lapokban meg azt olvasom, hogy közben rekordhiány van és emelkednek az energiaárak, úgyhogy félek, kevesebbel kell beérnem"
+    },
+    {
+      "i": 18,
+      "response": "MONDAT: Nyugdíjas korhoz közeledő diplomásként a faluban azt látom, hogy a rezsiről szóló ígérgetések ellenére az árak és a mindennapi kiadások bizonytalansága miatt inkább szűkebbre fogom a költségeimet, mintsem bővítgetném. A kormány és az ellenzék egymásnak ellentmondó gazdasági h"
+    },
+    {
+      "i": 19,
+      "response": "MONDAT: Budapesti érettségizettként a rezsi- és élelmiszerárakkal kapcsolatos hírek alapján inkább óvatos vagyok, mert az állandó politikai ígérgetések mellett a kormányoldali és ellenzéki sajtó is drágulásról vagy bizonytalan gazdasági helyzetről ír, így tartalékolni próbálok. A kampányban eg"
+    },
+    {
+      "i": 20,
+      "response": "MONDAT: Diplomásként egy vidéki városban élek, és bár a kormánypropaganda szerint vágtáznak a bérek meg alacsony az infláció, a rezsi és az üzemanyag körüli bizonytalanság, meg a hírekben látott költségvetési hiány miatt inkább tartok attól, hogy a hónap végére egyre szűkebb lesz a keret"
+    },
+    {
+      "i": 21,
+      "response": "MONDAT: A rezsi meg úgyis csak ígéret marad, az üzemanyag is drágább lett, így falun autó nélkül meg se tudok mozdulni, szóval jövőre is szűkösen jövünk ki, ha lesz is kis béremelés, azt elviszi az élelmiszer és a tankolás.\nKATEGORIA: rosszabb"
+    },
+    {
+      "i": 22,
+      "response": "MONDAT: Budapesti szakmunkásként a rezsi és az élelmiszerárak miatt már most is szűkön vagyok, és hiába ígérgetnek mindkét oldal, a költségvetési hiány meg a bizonytalan kampány után inkább még nehezebb hónapokra számítok.\nKATEGORIA: rosszabb"
+    },
+    {
+      "i": 23,
+      "response": "MONDAT: Nyugdíjas korhoz közeledő szakmunkásként azt látom a hírekből, hogy hol azt ígérik, megmarad a rezsicsökkentés és jönnek a támogatások, hol meg azt, hogy összeomlott a költségvetés és drágul az üzemanyag, úgyhogy biztosan nem lesz több pénzem a hónap végére."
+    },
+    {
+      "i": 24,
+      "response": "MONDAT: A rezsi meg a boltokban az árak miatt én nem érzek semmi nagy nyugtatót, hiába ígérnek mindenki csodát a választás előtt, a hónap vége nálam is egyre szűkösebb. Tartok tőle, hogy a következő évben még ki kell nyitnom a spórolósabb életmódra, mert a bérem nem nagyon mozdul, a kiad"
+    },
+    {
+      "i": 25,
+      "response": "MONDAT: Falun élő érettségizett fiatalként a rezsi- és üzemanyagárakról szóló hírek alapján inkább tartok tőle, hogy a következő évben még nehezebb lesz kijönnünk a fizetésemből, pláne ha a drágulások tovább folytatódnak.\nKATEGORIA: rosszabb"
+    },
+    {
+      "i": 26,
+      "response": "MONDAT: Budapesti szakmunkásként azt látom a hírekből, hogy váltakozva ígérnek rezsicsökkentést és béremelést, de közben meg azt olvasom, hogy rekordhiány van és drágul az üzemanyag, úgyhogy tartok tőle, a hónap végén én nem járok jobban.\nKATEGORIA: rosszabb"
+    },
+    {
+      "i": 27,
+      "response": "MONDAT: Nyugdíjas korhoz közeledő diplomásként a rezsi és a bevásárlás drágulásától tartok, hiába ígér a kormány segítséget, a kormányközeli és ellenzéki hírek is bizonytalan gazdasági képet festenek, így inkább szorítósabb hónapokra számítok.\nKATEGORIA: rosszabb"
+    },
+    {
+      "i": 28,
+      "response": "MONDAT: A kormány szerint alacsony az infláció és védett a rezsi, de az ellenzéki oldalon megjelenő hírek szerint a hiány és a drágulás miatt még lehetnek kellemetlen meglepetések, így falusi diplomásként óvatosan tervezek, nehogy a hónap vége szűkösebb legyen. A benzinár-beavatkozás és a rezsist"
+    },
+    {
+      "i": 29,
+      "response": "MONDAT: Nyugdíjas korhatár előtt álló diplomásként a rezsi és az élelmiszerárak alakulását figyelem, és bár a kormány ígér védelmet, a hírekben látott költségvetési hiány meg a januári számlák miatt inkább tartok attól, hogy a jövő évi megélhetésünk szűkebb lesz.\nKATEGORIA:"
+    },
+    {
+      "i": 30,
+      "response": "MONDAT: Nekem szakmunkásként egy vidéki városban az élelmiszer- és rezsiszámlákkal kell leginkább küszködnöm, és bár a kormány ígérgeti a rezsivédelmet meg a béremelést, az ellenzéki oldalon meg azt olvasom, hogy a hiány meg az infláció bármikor beletörhet a hónap végi bevásárlásba"
+    },
+    {
+      "i": 31,
+      "response": "MONDAT: Azt hallom a rádióban meg látom az újságban, hogy a rezsi marad és az infláció is alacsony, de a boltban mégis drágább lett a kenyér meg a tűzifa, úgyhogy félek, a nyugdíjamból nehezebb lesz kijönni.\nKATEGORIA: rosszabb"
+    },
+    {
+      "i": 32,
+      "response": "MONDAT: Nyugdíjaskeresetemmel a rezsi és az élelmiszerek árát nézem, és bár a kormány ígéri a rezsivédelmet meg a 13. havi nyugdíjat, az ellenzéki lapok meg a költségvetési hiányról meg az inflációs kockázatról írnak, úgyhogy inkább tartok tőle, hogy a hónap végén egyre"
+    },
+    {
+      "i": 33,
+      "response": "MONDAT: Azt hallom, hogy a rezsi megvan, de a boltban meg az üzemanyag ára azért kiüt, meg a férjem nyugdíja alig gyarapodott, úgyhogy én még spórolósabban élek majd, mint eddig. A hírekből nem látom, hogy a következő évben a mi pénztárcánkhoz jobban érnének, inkább tartok tőle"
+    },
+    {
+      "i": 34,
+      "response": "MONDAT: Nyugdíjasokként a férjemmel a faluban igyekszünk kijönni a 13. havi és a rezsicsökkentés ígérete ellenére is a boltban látott áremelkedésekből, de az infláció meg a bizonytalan választási hangulat miatt inkább szorosabbra fogjuk a nadrágszíjat. Tartok tőle, hogy a kö"
+    },
+    {
+      "i": 35,
+      "response": "MONDAT: A rezsit meg a boltban az árakat nézve félek, hogy a nyugdíjas szomszédokkal együtt mi is egyre nehezebben jövünk ki a faluban, mert az ígéretek ellenére csak drágul minden. A választás után sem várok nagy csodát, a gépészet nélkül itt csak a napi robot marad, amiből alig lesz tö"
+    },
+    {
+      "i": 36,
+      "response": "MONDAT: A rezsi és az üzemanyag ára miatt állandó a bizonytalanság, a kormány meg a Tisza is ígérget, de a boltban meg a számlánál én látom, hogy alig marad valami a végére. Inkább tartok tőle, hogy a következő évben még szorosabbra kell húzni a nadrágszíjat, mert az infláció és"
+    },
+    {
+      "i": 37,
+      "response": "MONDAT: A rezsi meg úgyis csak ígéret marad, az üzemanyag is drágább lett, így falun autó nélkül meg se tudok mozdulni, szóval jövőre is szűkösen jövünk ki, ha lesz is kis béremelés, azt elviszi az élelmiszer és a tankolás.\nKATEGORIA: rosszabb"
+    },
+    {
+      "i": 38,
+      "response": "MONDAT: Hát, a rezsi meg az élelmiszer az utóbbi időben kicsit nyugodtabb lett, de a benzin meg a gyógyszer még így is sok, és nem tudom, ki nyer a választás után, csak remélem, nem lesz rosszabb a hónap vége.\nKATEGORIA: ugyanaz"
+    },
+    {
+      "i": 39,
+      "response": "MONDAT: Nyugdíjasokként a férjemmel a faluban igyekszünk kijönni a 13. havi és a rezsicsökkentés ígérete ellenére is a boltban látott áremelkedésekből, de az infláció meg a bizonytalan választási hangulat miatt inkább szorosabbra fogjuk a nadrágszíjat. Tartok tőle, hogy a kö"
+    },
+    {
+      "i": 40,
+      "response": "MONDAT: A rezsi és az élelmiszerárak miatt így is alig jövök ki a nyugdíj előtti keresetből, és a hírekben látott költségvetési hiány meg emelkedő üzemanyagárak alapján tartok tőle, hogy a kormány ígéretei ellenére ősszel megint mélyebben a zsebembe kell nyúlnom.\nK"
+    },
+    {
+      "i": 41,
+      "response": "MONDAT: Falun élő friss diplomásként alig van stabil munkám, és bár az infláció lassult, a rezsi és az üzemanyag körüli hírek miatt inkább drágulást várok a következő egy évben. A kampányígéretek helyett a saját zsebemben kevesebbet érzek biztosnak.\nKATEGORIA: rosszabb"
+    },
+    {
+      "i": 42,
+      "response": "MONDAT: Nyugdíjas korhoz közeledő szakmunkásként azt látom a hírekből, hogy hol azt ígérik, megmarad a rezsicsökkentés és jönnek a támogatások, hol meg azt, hogy összeomlott a költségvetés és drágul az üzemanyag, úgyhogy biztosan nem lesz több pénzem a hónap végére."
+    },
+    {
+      "i": 43,
+      "response": "MONDAT: Nyugdíjas diplomásként Budapesten azt látom a hírekből, hogy a rezsivédelem és a nyugdíjak ígérete mellett is az infláció és a költségvetési hiány miatt folyamatos a bizonytalanság, így egyáltalán nem érzem biztosnak a jövő évi megélhetésem.\nKATEGORIA: rosszabb"
+    },
+    {
+      "i": 44,
+      "response": "MONDAT: Budapesti érettségizettként nyugdíj előtt állóként látom, hogy a rezsiről és bérekről szóló ígérgetések mellett az inflációs és költségvetési hírek miatt inkább tartok a drágulástól, és nem érzem biztosnak a megélhetésünket.\nKATEGORIA: rosszabb"
+    },
+    {
+      "i": 45,
+      "response": "MONDAT: Budapesti szakmunkásként a rezsi és az élelmiszerárak miatt már most is szűkön vagyok, és hiába ígérgetnek mindkét oldal, a költségvetési hiány meg a bizonytalan kampány után inkább még nehezebb hónapokra számítok.\nKATEGORIA: rosszabb"
+    },
+    {
+      "i": 46,
+      "response": "MONDAT: A rezsi meg a boltban az árak továbbra is a nyakunkba szakadnak, a férjem szakmunkás bére meg alig mozdul, úgyhogy falun nekünk csak szűkösebb lesz a hónap vége. A kormány meg az ellenzék is ígérget, de én a saját kasszánkban még nem láttam semmi biztos javulást.\nKATEGORIA"
+    },
+    {
+      "i": 47,
+      "response": "MONDAT: Nyugdíjas diplomásként az infláció alacsonyabb híreinek örülök, de a rezsivel és az üzemanyaggal kapcsolatos bizonytalan bejelentések miatt inkább óvatosan költök, mert tartok a választás utáni áremelkedéstől. A kormány ígéretei ellenére úgy érzem, a megélhetésünk nem lesz k"
+    },
+    {
+      "i": 48,
+      "response": "MONDAT: Budapesti szakmunkásként azt látom a hírekből, hogy váltakozva ígérnek rezsicsökkentést és béremelést, de közben meg azt olvasom, hogy rekordhiány van és drágul az üzemanyag, úgyhogy tartok tőle, a hónap végén én nem járok jobban.\nKATEGORIA: rosszabb"
+    },
+    {
+      "i": 49,
+      "response": "MONDAT: Szakmunkásként dolgozom egy megyei jogú városban, és bár a hírek szerint nőttek a bérek meg alacsony az infláció, az albérlet meg a rezsi még így is viszi a fizetésem javát, úgyhogy nem várok csodát. A kampányban ígérgetnek mindkét oldalról, de nekem már csak az a kérdés,"
+    },
+    {
+      "i": 50,
+      "response": "MONDAT: Diplomásként egy vidéki városban élek, és bár a kormány szerint lassult az infláció és nőttek a bérek, a rezsi és az üzemanyag körüli bizonytalanság miatt inkább óvatosabb költésre rendezkedtem be, mert tartok a választás utáni áremelkedésektől. A hírekben egymásnak ellentmondó gazdasá"
+    },
+    {
+      "i": 51,
+      "response": "MONDAT: Nyugdíjas koromban a rezsi és az élelmiszerárak alakulása határozza meg a hónapomat, és hiába ígér a kormány árcsökkentést meg rezsivédelmet, az ellenzéki lapokban meg azt olvasom, hogy közben rekordhiány van és emelkednek az energiaárak, úgyhogy félek, kevesebbel kell beérnem"
+    },
+    {
+      "i": 52,
+      "response": "MONDAT: Nyugdíjasokként a férjemmel a faluban igyekszünk kijönni a 13. havi és a rezsicsökkentés ígérete ellenére is a boltban látott áremelkedésekből, de az infláció meg a bizonytalan választási hangulat miatt inkább szorosabbra fogjuk a nadrágszíjat. Tartok tőle, hogy a kö"
+    },
+    {
+      "i": 53,
+      "response": "MONDAT: A rezsire meg az élelmiszerre költök a legtöbbet, és bár azt mondják lassult az infláció, nekem a boltban meg a számláknál ugyanúgy fáj a fizetés végére, szóval nem várok sok javulást. A választás után se hiszem, hogy egyik napról a másikra több pénz maradna a zsebemben,"
+    },
+    {
+      "i": 54,
+      "response": "MONDAT: A kormány szerint alacsony az infláció és védett a rezsi, de az ellenzéki oldalon megjelenő hírek szerint a hiány és a drágulás miatt még lehetnek kellemetlen meglepetések, így falusi diplomásként óvatosan tervezek, nehogy a hónap vége szűkösebb legyen. A benzinár-beavatkozás és a rezsist"
+    },
+    {
+      "i": 55,
+      "response": "MONDAT: A rezsi meg úgyis csak ígéret marad, az üzemanyag is drágább lett, így falun autó nélkül meg se tudok mozdulni, szóval jövőre is szűkösen jövünk ki, ha lesz is kis béremelés, azt elviszi az élelmiszer és a tankolás.\nKATEGORIA: rosszabb"
+    },
+    {
+      "i": 56,
+      "response": "MONDAT: Nyugdíjas létemre már így is alig jövök ki a rezsi és a bevásárlás árából, hiába ígérnek árstopokat, ha az infláció vagy az energiaárak megint megugranak, még szorosabb lesz a hónap vége. Falun egyedül élek, nincs ki segítsen, így tartok tőle, hogy az elkövetkező"
+    },
+    {
+      "i": 57,
+      "response": "MONDAT: A rezsi meg a boltokban az árak miatt én nem érzek semmi nagy nyugtatót, hiába ígérnek mindenki csodát a választás előtt, a hónap vége nálam is egyre szűkösebb. Tartok tőle, hogy a következő évben még ki kell nyitnom a spórolósabb életmódra, mert a bérem nem nagyon mozdul, a kiad"
+    },
+    {
+      "i": 58,
+      "response": "MONDAT: Nyugdíjas létemre már így is alig jövök ki a rezsi és a bevásárlás árából, hiába ígérnek árstopokat, ha az infláció vagy az energiaárak megint megugranak, még szorosabb lesz a hónap vége. Falun egyedül élek, nincs ki segítsen, így tartok tőle, hogy az elkövetkező"
+    },
+    {
+      "i": 59,
+      "response": "MONDAT: A kormány szerint alacsony az infláció és védett a rezsi, de az ellenzéki oldalon megjelenő hírek szerint a hiány és a drágulás miatt még lehetnek kellemetlen meglepetések, így falusi diplomásként óvatosan tervezek, nehogy a hónap vége szűkösebb legyen. A benzinár-beavatkozás és a rezsist"
+    },
+    {
+      "i": 60,
+      "response": "MONDAT: A rezsicsökkentésről és az alacsony inflációról szóló kormányhírek mellett is úgy érzem, a boltban és a kútoszlopnál folyamatosan emelkednek az árak, a faluban meg azt látom, hogy egyre kevesebb a rendes munka, szóval tartok tőle, hogy jövő ilyenkorra szűkebb lesz a hónap vé"
+    },
+    {
+      "i": 61,
+      "response": "MONDAT: Nyugdíjas szakmunkásként élek ebben a megyei jogú városban, és látom, hogy a rezsi meg a boltokban az árak még mindig bizonytalanok, hiába ígérgetnek a kormányoldal meg a Tisza is – a hónap végére így is alig jut. A költségvetési hiányról meg a drágulásról szóló hí"
+    },
+    {
+      "i": 62,
+      "response": "MONDAT: Budapesten érettségivel dolgozóként a rezsi- és élelmiszerárak alakulásától függően még így is alig jövök ki a lakbérből és a napi kiadásokból, a kampányígéretek ellenére reálisan nézve nem várok érezhető könnyebbséget. A választás utáni bizonytalanság és a dr"
+    },
+    {
+      "i": 63,
+      "response": "MONDAT: A rezsi meg a boltokban az árak miatt én nem érzek semmi nagy nyugtatót, hiába ígérnek mindenki csodát a választás előtt, a hónap vége nálam is egyre szűkösebb. Tartok tőle, hogy a következő évben még ki kell nyitnom a spórolósabb életmódra, mert a bérem nem nagyon mozdul, a kiad"
+    },
+    {
+      "i": 64,
+      "response": "MONDAT: Nyugdíjas szakmunkásként élek ebben a megyei jogú városban, és látom, hogy a rezsi meg a boltokban az árak még mindig bizonytalanok, hiába ígérgetnek a kormányoldal meg a Tisza is – a hónap végére így is alig jut. A költségvetési hiányról meg a drágulásról szóló hí"
+    },
+    {
+      "i": 65,
+      "response": "MONDAT: Falun diplomásként a rezsi és az élelmiszerárak miatt már most is számolgatnunk kell, és a kampányígéretek ellenére félek, hogy a választás után a tényleges gazdasági helyzet miatt még szűkösebb lesz a hónap vége. A kiskereskedelmi számok meg a hivatalos infláció jó, de a helyi"
+    },
+    {
+      "i": 66,
+      "response": "MONDAT: Nyugdíjas korhoz közeledő diplomásként a rezsi és a bevásárlás drágulásától tartok, hiába ígér a kormány segítséget, a kormányközeli és ellenzéki hírek is bizonytalan gazdasági képet festenek, így inkább szorítósabb hónapokra számítok.\nKATEGORIA: rosszabb"
+    },
+    {
+      "i": 67,
+      "response": "MONDAT: Azt hallom a rádióban meg látom az újságban, hogy a rezsi marad és az infláció is alacsony, de a boltban mégis drágább lett a kenyér meg a tűzifa, úgyhogy félek, a nyugdíjamból nehezebb lesz kijönni.\nKATEGORIA: rosszabb"
+    },
+    {
+      "i": 68,
+      "response": "MONDAT: Falun élő friss diplomásként alig van stabil munkám, és bár az infláció lassult, a rezsi és az üzemanyag körüli hírek miatt inkább drágulást várok a következő egy évben. A kampányígéretek helyett a saját zsebemben kevesebbet érzek biztosnak.\nKATEGORIA: rosszabb"
+    },
+    {
+      "i": 69,
+      "response": "MONDAT: Nyugdíjas szakmunkásként egy faluban élek, és bár azt ígérik, marad a rezsicsökkentés meg jön a 13. havi, az élelmiszer- meg üzemanyagárakkal kapcsolatos hírek miatt félek, hogy a végén kevesebb marad a hónap végére. A kormány és az ellenzék is ígérget, de én már"
+    },
+    {
+      "i": 70,
+      "response": "MONDAT: Nyugdíjas korhatár előtt álló diplomásként a rezsi és az élelmiszerárak alakulását figyelem, és bár a kormány ígér védelmet, a hírekben látott költségvetési hiány meg a januári számlák miatt inkább tartok attól, hogy a jövő évi megélhetésünk szűkebb lesz.\nKATEGORIA:"
+    },
+    {
+      "i": 71,
+      "response": "MONDAT: Diplomásként egy vidéki városban élek, és bár a kormánypropaganda szerint vágtáznak a bérek meg alacsony az infláció, a rezsi és az üzemanyag körüli bizonytalanság, meg a hírekben látott költségvetési hiány miatt inkább tartok attól, hogy a hónap végére egyre szűkebb lesz a keret"
+    },
+    {
+      "i": 72,
+      "response": "MONDAT: Albérletben élek a megyei jogú városban, és bár a hírek szerint alacsony az infláció meg emelkedtek a bérek, az alapvető dolgokra (rezsi, kajára, bérlet) keresettel alig jutok, úgyhogy tartok tőle, hogy a választás után sem lesz könnyebb. A rezsistopról meg szavazásról hallott"
+    },
+    {
+      "i": 73,
+      "response": "MONDAT: Azt hallom a rádióban meg látom az újságban, hogy a rezsi marad és az infláció is alacsony, de a boltban mégis drágább lett a kenyér meg a tűzifa, úgyhogy félek, a nyugdíjamból nehezebb lesz kijönni.\nKATEGORIA: rosszabb"
+    },
+    {
+      "i": 74,
+      "response": "MONDAT: Budapesten érettségivel dolgozóként a rezsi- és élelmiszerárak alakulásától függően még így is alig jövök ki a lakbérből és a napi kiadásokból, a kampányígéretek ellenére reálisan nézve nem várok érezhető könnyebbséget. A választás utáni bizonytalanság és a dr"
+    },
+    {
+      "i": 75,
+      "response": "MONDAT: Diplomásként Budapesten most is alig futja a rezsire és a bevásárlásra a fizetésből, és a kampányígéretek ellenére félek, hogy a választás után az infláció vagy az üzemanyagár-beavatkozások miatt még szűkebb lesz a hónap vége.\nKATEGORIA: rosszabb"
+    },
+    {
+      "i": 76,
+      "response": "MONDAT: Falun szakmunkásként dolgozom, és bár azt hallom a hírekben, hogy lassult az infláció meg emelkedtek a bérek, nekem a rezsi és az étel ára így is alig jön ki a fizetésből, szóval nem várok csodát. Szerintem a következő évben is ugyanolyan szűken gazdálkodunk majd, mint eddig, leg"
+    },
+    {
+      "i": 77,
+      "response": "MONDAT: A rezsit meg a boltban az árakat nézve félek, hogy a nyugdíjas szomszédokkal együtt mi is egyre nehezebben jövünk ki a faluban, mert az ígéretek ellenére csak drágul minden. A választás után sem várok nagy csodát, a gépészet nélkül itt csak a napi robot marad, amiből alig lesz tö"
+    },
+    {
+      "i": 78,
+      "response": "MONDAT: A rezsicsökkentést ígérik, de az üzemanyag és az élelmiszer drágulása miatt a nyugdíjamba meg a kevéske megtakarításomba egyre kevésbé futja bevásárlásra, így jövőre is szorosan kell számolgatnom a filléreket.\nKATEGORIA: rosszabb"
+    },
+    {
+      "i": 79,
+      "response": "MONDAT: Lakásban albérletben lakunk, a rezsit meg a kaját alig bírjuk kifizetni, mert csak alkalmi melóim vannak nyolc általánossal, szóval tuti, hogy jövőre is szűk lesz a hónap vége. A hírekből meg nem látom, hogy bármelyik párt tényleg a mi helyzetünkön segítene, csak egymást"
+    },
+    {
+      "i": 80,
+      "response": "MONDAT: Albérletben lakok a megyeszékhelyen, a rezsi meg a kajavásárlás viszi a fizetésem nagy részét, és mivel csak 8 általánosom van, nem várok nagy béremelést, szóval szűkösebb lesz a hónap vége.\nKATEGORIA: rosszabb"
+    },
+    {
+      "i": 81,
+      "response": "MONDAT: Budapesti érettségizettként nyugdíj előtt állóként látom, hogy a rezsiről és bérekről szóló ígérgetések mellett az inflációs és költségvetési hírek miatt inkább tartok a drágulástól, és nem érzem biztosnak a megélhetésünket.\nKATEGORIA: rosszabb"
+    },
+    {
+      "i": 82,
+      "response": "MONDAT: Lakáshitellel és két gyerekre számított családi költségekkel élünk egy megyei jogú városban, és bár az infláció lassult, az üzemanyag- és rezsibizonytalanság miatt inkább tartok a húsvéti és őszi kiadások elől, mert a fizetésem nem nőtt érdemben. A kampányígérgetések hely"
+    },
+    {
+      "i": 83,
+      "response": "MONDAT: Diplomásként egy vidéki városban élek, és bár a kormánypropaganda szerint vágtáznak a bérek meg alacsony az infláció, a rezsi és az üzemanyag körüli bizonytalanság, meg a hírekben látott költségvetési hiány miatt inkább tartok attól, hogy a hónap végére egyre szűkebb lesz a keret"
+    },
+    {
+      "i": 84,
+      "response": "MONDAT: Diplomásként egy megyei jogú városban élek, de az inflációs és rezsihírek meg a kormányzati szájkarate mellett reálisan inkább tartok a drágulástól és attól, hogy a fizetésem nem fog lépést tartani a megélhetési költségekkel. A választási ígérgetések ellenére bizonytalannak látom a"
+    },
+    {
+      "i": 85,
+      "response": "MONDAT: Falun élő érettségizett fiatalként a rezsi- és üzemanyagárakról szóló hírek alapján inkább tartok tőle, hogy a következő évben még nehezebb lesz kijönnünk a fizetésemből, pláne ha a drágulások tovább folytatódnak.\nKATEGORIA: rosszabb"
+    },
+    {
+      "i": 86,
+      "response": "MONDAT: A rezsi és az élelmiszerárak miatt így is alig jövök ki a nyugdíj előtti keresetből, és a hírekben látott költségvetési hiány meg emelkedő üzemanyagárak alapján tartok tőle, hogy a kormány ígéretei ellenére ősszel megint mélyebben a zsebembe kell nyúlnom.\nK"
+    },
+    {
+      "i": 87,
+      "response": "MONDAT: Nyugdíjas szakmunkásként azt látom a hírekből, hogy hol azt mondják, megvédik a rezsit és a nyugdíjat, hol meg azt, hogy összeomlott a költségvetés és drágul minden, úgyhogy félek, hogy a végén kevesebb marad a hónap végére. Az üzemanyagár-beavatkozás meg a"
+    },
+    {
+      "i": 88,
+      "response": "MONDAT: Albérletben élek egy kisebb vidéki városban, és bár az infláció állítólag lassult, az alapélelmiszerek és a rezsi így is le fogja vinni a fizetésem nagy részét, szóval nem látok magam előtt semmilyen javulást. Inkább tartok tőle, hogy ha az üzemanyag vagy a rezsi újra megugrik a válas"
+    },
+    {
+      "i": 89,
+      "response": "MONDAT: A rezsicsökkentésről és az alacsony inflációról szóló kormányhírek mellett is úgy érzem, a boltban és a kútoszlopnál folyamatosan emelkednek az árak, a faluban meg azt látom, hogy egyre kevesebb a rendes munka, szóval tartok tőle, hogy jövő ilyenkorra szűkebb lesz a hónap vé"
+    },
+    {
+      "i": 90,
+      "response": "MONDAT: Nyugdíjas korhoz közeledő diplomásként a rezsi és a bevásárlás drágulásától tartok, hiába ígér a kormány segítséget, a kormányközeli és ellenzéki hírek is bizonytalan gazdasági képet festenek, így inkább szorítósabb hónapokra számítok.\nKATEGORIA: rosszabb"
+    },
+    {
+      "i": 91,
+      "response": "MONDAT: Nehéz falun megélni 8 általánossal, az üzemanyag meg a rezsi azért kiszámíthatatlan, hiába mondja a kormány, hogy védett ár van, félek, hogy a télen megint kevesebb marad a hónap végére. Azt se tudom, melyik ígéretet higgyem el, de a pénztárcámban nem lesz több."
+    },
+    {
+      "i": 92,
+      "response": "MONDAT: Nyugdíjas szakmunkásként egy faluban élek, és bár azt ígérik, marad a rezsicsökkentés meg jön a 13. havi, az élelmiszer- meg üzemanyagárakkal kapcsolatos hírek miatt félek, hogy a végén kevesebb marad a hónap végére. A kormány és az ellenzék is ígérget, de én már"
+    },
+    {
+      "i": 93,
+      "response": "MONDAT: Azt hallom a hírekből, hogy a rezsi megmarad és az infláció is alacsony, de a nyugdíjam mellett az élelmiszer-árak figyelése még így is nehéz, meg a félhavi bérlet is megszűnt, így Budapesten is többet költök. Nem várok csodát, de nem is hiszem, hogy sokkal rosszabb lenne, mint most."
+    },
+    {
+      "i": 94,
+      "response": "MONDAT: Diplomásként egy vidéki városban élek, és bár a kormánypropaganda szerint vágtáznak a bérek meg alacsony az infláció, a rezsi és az üzemanyag körüli bizonytalanság, meg a hírekben látott költségvetési hiány miatt inkább tartok attól, hogy a hónap végére egyre szűkebb lesz a keret"
+    },
+    {
+      "i": 95,
+      "response": "MONDAT: Nyugdíjas korhoz közeledő szakmunkásként azt látom a hírekből, hogy hol azt ígérik, megmarad a rezsicsökkentés és jönnek a támogatások, hol meg azt, hogy összeomlott a költségvetés és drágul az üzemanyag, úgyhogy biztosan nem lesz több pénzem a hónap végére."
+    },
+    {
+      "i": 96,
+      "response": "MONDAT: Nekem szakmunkásként egy vidéki városban az élelmiszer- és rezsiszámlákkal kell leginkább küszködnöm, és bár a kormány ígérgeti a rezsivédelmet meg a béremelést, az ellenzéki oldalon meg azt olvasom, hogy a hiány meg az infláció bármikor beletörhet a hónap végi bevásárlásba"
+    },
+    {
+      "i": 97,
+      "response": "MONDAT: Nyugdíjas korhoz közeledő diplomásként a rezsi és a bevásárlás drágulásától tartok, hiába ígér a kormány segítséget, a kormányközeli és ellenzéki hírek is bizonytalan gazdasági képet festenek, így inkább szorítósabb hónapokra számítok.\nKATEGORIA: rosszabb"
+    },
+    {
+      "i": 98,
+      "response": "MONDAT: Nyugdíjasokként a férjemmel a faluban igyekszünk kijönni a 13. havi és a rezsicsökkentés ígérete ellenére is a boltban látott áremelkedésekből, de az infláció meg a bizonytalan választási hangulat miatt inkább szorosabbra fogjuk a nadrágszíjat. Tartok tőle, hogy a kö"
+    },
+    {
+      "i": 99,
+      "response": "MONDAT: Nyugdíjas diplomásként az infláció alacsonyabb híreinek örülök, de a rezsivel és az üzemanyaggal kapcsolatos bizonytalan bejelentések miatt inkább óvatosan költök, mert tartok a választás utáni áremelkedéstől. A kormány ígéretei ellenére úgy érzem, a megélhetésünk nem lesz k"
+    },
+    {
+      "i": 100,
+      "response": "MONDAT: A rezsicsökkentést mondják, hogy tartják, de az üzemanyag meg az élelmiszer drágulását minden héten érzem a boltban, úgyhogy nekem csak kevesebb marad a végén. A nyugdíjam meg a kevés pénzem nem fog nőni, szóval jövőre is szorosan kell gazdálkodnom.\nKATEGORIA: ross"
+    },
+    {
+      "i": 101,
+      "response": "MONDAT: Budapesti szakmunkásként azt látom a hírekből, hogy váltakozva ígérnek rezsicsökkentést és béremelést, de közben meg azt olvasom, hogy rekordhiány van és drágul az üzemanyag, úgyhogy tartok tőle, a hónap végén én nem járok jobban.\nKATEGORIA: rosszabb"
+    },
+    {
+      "i": 102,
+      "response": "MONDAT: A rezsi meg a kaja ára az utóbbi időben lecsendesedett, de a férjem nyugdíja alig gyarapszik, és tartok tőle, hogy ha választás után átalakítják a támogatásokat, a falusi életünk csak nehezebb lesz.\nKATEGORIA: rosszabb"
+    },
+    {
+      "i": 103,
+      "response": "MONDAT: Nyugdíjas diplomásként Budapesten azt látom a hírekből, hogy a rezsivédelem és a nyugdíjak ígérete mellett is az infláció és a költségvetési hiány miatt folyamatos a bizonytalanság, így egyáltalán nem érzem biztosnak a jövő évi megélhetésem.\nKATEGORIA: rosszabb"
+    },
+    {
+      "i": 104,
+      "response": "MONDAT: A rezsi meg úgyis csak ígéret marad, az üzemanyag is drágább lett, így falun autó nélkül meg se tudok mozdulni, szóval jövőre is szűkösen jövünk ki, ha lesz is kis béremelés, azt elviszi az élelmiszer és a tankolás.\nKATEGORIA: rosszabb"
+    },
+    {
+      "i": 105,
+      "response": "MONDAT: A rezsi meg a boltokban az árak úgyis alig hagynak nyugtot, hiába ígérgetnek mindkét oldal, a falun meg azt látom, a nyugdíj meg a kevés pénz épp hogy kijön, de bármikor jöhet egy váratlan számla vagy drágulás. Szerintem a következő évben sem lesz könnyebb, inkább"
+    },
+    {
+      "i": 106,
+      "response": "MONDAT: Nyugdíjas létemre már így is alig jövök ki a rezsi és a bevásárlás árából, hiába ígérnek árstopokat, ha az infláció vagy az energiaárak megint megugranak, még szorosabb lesz a hónap vége. Falun egyedül élek, nincs ki segítsen, így tartok tőle, hogy az elkövetkező"
+    },
+    {
+      "i": 107,
+      "response": "MONDAT: A rezsire meg az élelmiszerre költök a legtöbbet, és bár azt mondják lassult az infláció, nekem a boltban meg a számláknál ugyanúgy fáj a fizetés végére, szóval nem várok sok javulást. A választás után se hiszem, hogy egyik napról a másikra több pénz maradna a zsebemben,"
+    },
+    {
+      "i": 108,
+      "response": "MONDAT: Lakásban albérletben lakunk, a rezsit meg a kaját alig bírjuk kifizetni, mert csak alkalmi melóim vannak nyolc általánossal, szóval tuti, hogy jövőre is szűk lesz a hónap vége. A hírekből meg nem látom, hogy bármelyik párt tényleg a mi helyzetünkön segítene, csak egymást"
+    },
+    {
+      "i": 109,
+      "response": "MONDAT: Nyugdíjas szakmunkásként Budapesten azt látom a hírekből, hogy hol rezsicsökkentésről, hol meg drágulásról meg inflációról beszélnek, de a januári számlák és a kormány hiányhírek alapján nekem csak kevesebb marad a végén. Tartok tőle, hogy a következő egy évben a megélheté"
+    },
+    {
+      "i": 110,
+      "response": "MONDAT: Budapesten érettségizett fiatalként albérletből és alkalmi munkákból élek, és látom a hírekben a rezsidrágulást meg a bérleti díjak száguldását, úgyhogy attól tartok, a következő évben még szűkösebb lesz a hónap vége. A kampányígéretek helyett a saját pénztárcámban nem é"
+    },
+    {
+      "i": 111,
+      "response": "MONDAT: Nyugdíjas szakmunkásként egy faluban élek, és bár azt ígérik, marad a rezsicsökkentés meg jön a 13. havi, az élelmiszer- meg üzemanyagárakkal kapcsolatos hírek miatt félek, hogy a végén kevesebb marad a hónap végére. A kormány és az ellenzék is ígérget, de én már"
+    },
+    {
+      "i": 112,
+      "response": "MONDAT: A rezsi és az élelmiszerárak miatt így is alig jövök ki a nyugdíj előtti keresetből, és a hírekben látott költségvetési hiány meg emelkedő üzemanyagárak alapján tartok tőle, hogy a kormány ígéretei ellenére ősszel megint mélyebben a zsebembe kell nyúlnom.\nK"
+    },
+    {
+      "i": 113,
+      "response": "MONDAT: Nyugdíjas szakmunkásként azt látom a hírekből, hogy hol azt mondják, megvédik a rezsit és a nyugdíjat, hol meg azt, hogy összeomlott a költségvetés és drágul minden, úgyhogy félek, hogy a végén kevesebb marad a hónap végére. Az üzemanyagár-beavatkozás meg a"
+    },
+    {
+      "i": 114,
+      "response": "MONDAT: A rezsi meg a boltban az árak továbbra is a nyakunkba szakadnak, a férjem szakmunkás bére meg alig mozdul, úgyhogy falun nekünk csak szűkösebb lesz a hónap vége. A kormány meg az ellenzék is ígérget, de én a saját kasszánkban még nem láttam semmi biztos javulást.\nKATEGORIA"
+    },
+    {
+      "i": 115,
+      "response": "MONDAT: Budapesti érettségizettként nyugdíj előtt állóként látom, hogy a rezsiről és bérekről szóló ígérgetések mellett az inflációs és költségvetési hírek miatt inkább tartok a drágulástól, és nem érzem biztosnak a megélhetésünket.\nKATEGORIA: rosszabb"
+    },
+    {
+      "i": 116,
+      "response": "MONDAT: Budapesti érettségizettként nyugdíj előtt állóként látom, hogy a rezsiről és bérekről szóló ígérgetések mellett az inflációs és költségvetési hírek miatt inkább tartok a drágulástól, és nem érzem biztosnak a megélhetésünket.\nKATEGORIA: rosszabb"
+    },
+    {
+      "i": 117,
+      "response": "MONDAT: Budapesti érettségizettként a rezsi- és élelmiszerárakkal kapcsolatos hírek alapján inkább óvatos vagyok, mert az állandó politikai ígérgetések mellett a kormányoldali és ellenzéki sajtó is drágulásról vagy bizonytalan gazdasági helyzetről ír, így tartalékolni próbálok. A kampányban eg"
+    },
+    {
+      "i": 118,
+      "response": "MONDAT: Nyugdíjas segédmunkásként Budapesten alig jövök ki a rezsiből és a bevásárlásból, és látom a hírekben, hogy van, ahol rekordhiány meg drágulás van, úgyhogy félek, hogy a pénzem kevesebb lesz a következő évben. \nKATEGORIA: rosszabb"
+    },
+    {
+      "i": 119,
+      "response": "MONDAT: A kormány megígérte, hogy marad a rezsicsökkentés és emelkednek a bérek, de az ellenzéki lapok meg azt írják, hogy a költségvetés összeomlott és drágulhat az élet, úgyhogy falun nyugdíjas fejjel én inkább a takarékoskodást nézem, mert nem hiszek a nagy ígérgetésekben.\nKATEG"
+    },
+    {
+      "i": 120,
+      "response": "MONDAT: Falun szakmunkásként dolgozom, és bár a kormány mondja, hogy alacsony az infláció meg van rezsivédelem, nekem a boltban és a tanknál is egyre kevesebbet érek el a fizetésemmel, szóval tartok tőle, hogy jövőre is csak kapkodjuk a fejünket a számlák miatt. A kampány ígérgetése"
+    }
+  ],
+  "model": "tencent/Hy3",
+  "provider": "siliconflow",
+  "date": "2026-07-20",
+  "seeds_run": [
+    1,
+    2,
+    3
+  ]
+}

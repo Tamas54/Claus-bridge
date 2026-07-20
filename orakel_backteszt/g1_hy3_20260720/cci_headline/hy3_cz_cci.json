@@ -1,0 +1,1287 @@
+{
+  "run": "G1/3 CZ CCI headline (SSR n77 protokoll)",
+  "flag": "GRAY",
+  "flag_note": "target-ablak 2025-07..09; a 2025-07 a cutoff-farok GRAY sávjában",
+  "protocol": "orakel_backteszt_cz/run_cci_ssr.py változatlanul (N=80, cci_prompt, SSR linear + OpenAI-small)",
+  "corpus_files": {
+    "orakel_backteszt_cz/corpus.jsonl": "5f75f9a2bd7921da9df93af0d5c3ef7bc569ed66d0a0c79f1452dbc721f45fb5"
+  },
+  "gt": -7.533333333333333,
+  "per_seed": [
+    {
+      "seed": 1,
+      "n_sent": 80,
+      "cat_balance": -80.76923076923077,
+      "ssr_score": 3.2422723322264657,
+      "ssr_balance": 12.113616611323286,
+      "survey_pmf": [
+        0.12002774305853843,
+        0.14121864145736568,
+        0.33924434954144955,
+        0.1754720720843842,
+        0.22403719385826207
+      ],
+      "sentences": [
+        "Upřímně, z těch slibů všech stran, co lítá na TikToku a v novinách, mám spíš obavu, že jako studenta na vesnici mě další rok nic moc neuleví a spíš to bude s penězi ještě těžší. Babiš sice slibuje levnější energie a důchody, ale vláda zase straší rozpočtem a já nevěřím, že se to doma nějak zázračně zlepší.",
+        "Upřímně, podle všech těch slibů v novinách se bojím, že s drahým životem a tímhle hádkama před volbama nám peněz moc nepřibude, spíš to vidím na další šetření. Babiš sice hlásá levnější energie a vyšší důchody, ale Fiala zase varuje, že je to populismus, tak nevím, co si myslet.",
+        "Jako důchodce s vysokoškolským vzděláním v Praze vidím, že ceny pořád rostou rychleji než moje penze, a sliby politiků o levném životě beru s velkou rezervou. Čekám, že s těmi nesmyslnými výdaji, co ANO i vláda chystají, bude v naší domácnosti na konci roku 2026 ještě hůř než teď.",
+        "Upřímně, s touhle předvolební hádkou o slibech, co nikdo pořádně nevysvětlil, spíš čekám, že ceny a bydlení zůstanou nepřístupné, takže jako studentce s vysokoškolským rozpočtem se nám doma neuleví.",
+        "Od těch politiků slýchám jen sliby, že bude líp, ale ceny v obchodě pořád rostou a za důchod to neutáhnu, takže čekám, že bude hůř. Babiš aspoň mluví o zastropování důchodového věku a levnějších energiích, ale nevím, jestli to po volbách opravdu udělá.",
+        "Po těch všech slibech od Babiše i Fialy moc nevěřím, že nám v důchodu něco zbyde, spíš čekám, že energie a jídlo zase podraží a bude nám hůř.",
+        "Já už jsem v důchodu, ale s těma cenama v obchodech a drahým bydlením v Praze mi peníze moc nezbývají, tak doufám, že po volbách slíbený levnější život konečně přijde, ale moc tomu nevěřím. Babiš aspoň slibuje důchody a levnější energie, Fiala jen mluví, že budem jako Bavoři, ale já to tady nevidím.",
+        "Upřímně čekám, že to bude spíš horší, protože sliby ANO i vlády znějí hezky, ale z praxe v našem městě cítím, že ceny pořád rostou a na výdělku se to neprojeví. Po volbách asi žádný zázrak nepřijde, spíš budeme ještě víc šetřit.",
+        "Jako vyučený v Praze vidím, že všechno zdražuje a ani jedna strana pořádně neříká, jak nám normálním lidem uleví, takže čekám, že s penězma budem pořád v prdeli. U Babiše sice slibujou levnější energie a důchod v 65, ale nevím, jestli to není jenom kecy před volbama.",
+        "Od Babiše slýchám, že zlevní energie a zastropuje důchodový věk, takže doufám, že s ANO bude v peněžence líp, ale teď každá koruna bolí a nevím, jestli to není jenom planý slib.",
+        "Slyším ze všech stran jen samý sliby o levnějším životě, ale ceny v obchodech i nájem tu pořád rostou, takže čekám, že s naším rozpočtem budeme v hadrech ještě víc šetřit. Věřím, že po volbách to třeba Babiš aspoň trochu koupí, ale moc si od toho neslibuju.",
+        "Já si myslím, že s těma slibama od Babiše i Fialy nic moc nevyhraju, protože ceny v Praze pořád rostou a výplata mi na konci měsíce vychází nadoraz, takže čekám, že budem spíš šetřit ještě víc než teď.",
+        "Od Babiše slýchám, že zlevní energie a zastropuje důchodový věk, takže doufám, že nám s manželkou nebudeme muset tolik šetřit na léky a jídlo. Ale Fiala pořád jen straší a nic moc pro naše kapsy neudělal, takže čekám, že to bude tak napůl, spíš furt těžký.",
+        "Upřímně čekám, že s těmi sliby o levnějším životě od ANO i Spolu to u nás na vesnici moc reálné nebude a spíš budeme dál šetřit na všechno, co je potřeba. Ceny potravin a energií nás tlačí a platy tady prostě nerostou jako v Praze.",
+        "Mám pocit, že na vesnici jsou ceny pořád vysoký a výdělky mizerný, takže po volbách moc nečekám, že by se nám doma ulevilo, spíš to vidím na další šetření. Babiš sice něco slibuje, ale já nevím, jestli to pro kluka bez maturity něco reálně změní.",
+        "Jako důchodce s vysokoškolským vzděláním vidím, že ceny pořád rostou rychleji než moje penze, a sliby politiků o levnějším životě mi přijdou jen jako předvolební řečnění, takže za rok budeme s manželkou spíš ještě víc šetřit. KATEGORIE: horší",
+        "Slyším sliby ze všech stran, ale ceny pořád rostou a důchod mi nestačí, takže spíš čekám, že s penězi budeme ještě víc bojovat. Babiš aspoň mluví o zastropování věku a levnějších energiích, ale nevím, jestli to po volbách opravdu splní.",
+        "Od té doby, co ceny všeho pořád rostou a mzda mi moc nepřidala, čekám, že s hypotékou a provozem auta v obci na tom budeme spíš hůř, ať už vyhrají ve volbách Babiš se svými sliby nebo Fiala s Bruselem. Noviny pořád píšou o drahém životě a žádná strana mi neukázala reálný plán, co by nám na vsi zlevnilo energie i nákupy.",
+        "Upřímně, s těmi sliby všech stran kolem levnějších energií a zastropování důchodů moc nepočítám, spíš čekám, že ceny v Praze zůstanou vysoké a náš rozpočet bude dál napnutý. Podle toho, jak se vláda i opozice jen hádají a nic moc konkrétního nepředvádí, se za rok nejspíš nepolepšíme.",
+        "Upřímně čekám, že s těmi sliby o levnějším životě od všech stran to u nás doma moc hmatatelné nebude a spíš budeme dál šetřit na všem, než aby nám zbývalo víc. Podle toho, jak se v novinách pořád hádají o nesplnitelné programy a ceny pořád rostou, si myslím, že na tom budeme hůř než teď.",
+        "Upřímně čekám, že nám bude líp, až Babiš konečně zastropuje důchod na 65 a slíbí levnější energie, protože teď na vesnici sotva vycházíme s penězi a Fiala nám jenom slibuje bavorské platy, co nevidíme.",
+        "Od té doby, co jsou ceny pořád vysoký a důchod mi zůstal skoro stejnej, čekám, že s tím Babišem by to mohlo bejt aspoň o kousek lepší než teď pod Fialou. Podle těch slibů o zastropování penzí a levnějších energiích doufám, že nebudu muset šetřit na každým rohlíku.",
+        "Mám obavy, že i když Babiš slibuje levnější život a zastropování důchodového věku, reálně se naše rodinné výdaje kvůli drahým energiím a potravinám spíš nezlepší, spíš to vidím na další šetření. Podle těch zpráv o programech a debatách nevěřím, že někdo z nich má faktický plán, který by nám v menším městě do roka ulevil.",
+        "Upřímně, s tou drahotou v Praze a sliby všech stran, co znají jen z billboardů, čekám, že s naším rozpočtem to spíš ještě víc zatře, než se něco uklidní. Babiš s Fialou se jen hádají v debatách, ale nikdo z nich mi nezařídí levnější nájem nebo energie.",
+        "Upřímně čekám, že to bude spíš horší, protože z těch volebních slibů všech stran mám pocit, že nikdo pořádně neřeší, jak zlevní energie a nákupy pro lidi na vesnici, a Babiš s Fialou si jen hážou špínu. Jako mladý s průměrným platem od rodičů moc nečekám, že se nám doma uleví.",
+        "Já si myslím, že s těma slibama od Babiše i Fialy nic moc nezlevní, takže s našima výdajema na nájem a jídlo budem pořád na šrot a spíš to uvidím černěji. KATEGORIE: horší",
+        "Upřímně, po těch všech slibech od Babiše i Fialy moc nevěřím, že nám v příštím roce nějak výrazně poleví drahota, spíš čekám, že s výdaji budeme bojovat pořád stejně těžce jako teď. Na vesnici vidím, že ceny v obchodě i energie nikdo moc nesnížil, takže naše domácnost bude nejspíš dál v minusu.",
+        "Upřímně čekám, že s těmi sliby o levnějším životě od ANO i vlády budeme pořád doplácet na drahé energie a bydlení, takže naši rodinnou pokladnu to spíš ještě provětrá. Koupit se zatím nedá, když programy jsou jen hádky v debatách a nikdo pořádně neříká, odkud vezme peníze.",
+        "Upřímně, po všech těch slibech od Babiše i Fialy a cenách, co pořád rostou, moc nevěřím, že nám doma bude do roka líp – spíš se bojím, že s tím dalším zdražováním a nejistotou kolem voleb naše služby a nákupy ještě víc pocítíme.",
+        "Od těch politiků slýchám samý sliby, ale ceny pořád rostou a výplata mi sotva pokryje složenky, takže čekám, že s penězi budeme ještě víc na štíru. Babiš aspoň mluví o levnějších energiích a zastropování důchodového věku, ale nevím, jestli to po volbách opravdu splní.",
+        "Já si myslím, že s těma všema slibama od Babiše a od vlády budem mít peněz pořád míň než dřív, protože v obchodě pořád všechno zdražuje a důchod mi nepřidají tolik, aby to stačilo. Takže na tom budem za rok hůř než teď.",
+        "Jako důchodce na vsi se bojím, že i když Babiš slibuje levnější energie a vyšší důchody, vládní sliby o prosperitě k nám dolů nedojdou a život bude dál drahý. Čekám spíš, že s rostoucími cenami a nejistotou kolem voleb na tom budeme o kousek hůř než teď.",
+        "Od Babiše slýchám, že zlevní energie a zastropuje důchodový věk, tak doufám, že se nám s manželkou příští rok bude aspoň trochu líp dýchat, ale vláda nám za ty roky moc nepřidala. KATEGORIE: stejná",
+        "Já si myslím, že s těma všema slibama od Babiše i Fialy budem pořád v tym samym bryndě, protože ceny ve vojsku ani na důchodě neklesly a platy tu máme pořád jako v sedmnáctým. KATEGORIE: horší",
+        "Mám obavu, že to s našima penězma zůstane stejně napnutý, protože ceny pořád rostou a sliby politiků mi přijdou prázdný. Babiš sice hlásí levnější život, ale já si nejsem jistá, jestli to po volbách fakt vyjde.",
+        "Od vlády ani od Babiše moc nečekám, ceny pořád rostou a výplata mi sotva pokryje nájem a nákupy, takže za rok budeme spíš ještě víc šetřit. Sliby v televizi sliby mě neživí, na konci měsíce stejně nezbývá skoro nic.",
+        "Vzhledem k tomu, co slibují všechny strany a jak draze se teď žije, moc nevěřím, že nám v příštím roce nějak poleví výdaje na energie a nákupy, spíš to vidím ještě hůř. Jsem z toho kampanění a hádek dost skeptický, Babiš sice něco slibuje, ale Fiala zas varuje, že to jsou plané věci, takže na nás doma asi zase něco zbude.",
+        "Mám základní vzdělání a ve velkým městě jsou ceny pořád vysoký, takže čekám, že s těmahle sliby politiků na levnější život to u nás doma moc zázraků neudělá a budeme spíš šetřit. KATEGORIE: horší",
+        "Od Babiše slýchám sliby o levnějším životě a zastropování důchodů, tak doufám, že po volbách nám aspoň trochu odlehčí, ale furt nevím, kde na to stát vezme peníze. Každopádně teď nám konce měsíce vycházejí na hraně a další zdražování už bychom neustáli.",
+        "Po těch letech drahota pořád cítím, že penze a úspory sotva stačí na běžný chod domácnosti, a podle slibů v kampani nevěřím, že se to do roka zlepší. Babiš sice hlásá levnější energie a vyšší důchody, ale Fiala zas mluví o bavorských platech až někdy daleko, takže já moc optimismu nemám.",
+        "Upřímně, s těmi sliby o levnějším životě od všech stran mám spíš obavy, protože Babiš zase rozdává nesplnitelné věci a Fiala nás ujišťuje o západních platech, ale v našem menším městě se reálně nic nezlevňuje. Čekám, že za rok budeme s rodinným rozpočtem pořád na štíru, spíš hůř než líp.",
+        "Já mám v Praze jen základní školu a práci za málo peněz, takže se bojím, že po těch volbách, co slibujou všichni jen levný život a pak nic nedodrží, budu mít na nájem a jídlo ještě míň než teď. Babiš sice říká, že bude líp, ale Fiala taky něco sliboval a mně se furt hůř žije.",
+        "Já už jsem v důchodu, ale s těmahle cenama a tím, co všichni slibujou a nic pořádnýho nedodržej, čekám, že nám s manželkou bude na účtěnách a v obchodě akorát hůř. Babiš sice říká, že zastropuje důchodovej věk a zlevní energie, ale já na ty jeho řeči moc nevěřím, Fiala zas jen straší a dovolenkuje.",
+        "Mám obavu, že s těmi sliby všech stran se v praxi nic moc nezlevní a jako učně s průměrným platem v Praze mě další rok zas vytáhnou nájmy a energie, takže budem spíš počítat každou korunu. KATEGORIE: horší",
+        "Upřímně, s bydlením ve velkém městě a nízkým platem po maturitě moc nevěřím, že to bude za rok lepší, spíš pořád šetřím každou korunu a sliby v kampani mi přijdou prázdné. KATEGORIE: horší",
+        "Upřímně čekám, že to bude spíš horší, protože sliby všech těch stran o levnějším životě znějí fajn, ale z newsu mám spíš pocit, že ANO i Spolu jen házejí plány na papír a ceny energií a potravin nám v menším městě pořád táhnou rodinný rozpočet dolů. KATEGORIE: horší",
+        "Upřímně, s těmi sliby od Babiše i Fialy kolem levnějších energií a hypoték moc nepočítám, spíš čekám, že v Praze nám zase vyskočí nájem a srazí nás zdražování, takže budeme šetřit ještě víc než teď.",
+        "Od Babiše slýchám sliby o levnějším životě a zastropování důchodového věku, ale Fiala zase říká, že ANO jen rozdává nerealné bambiliony, takže nevím, jestli nám vůbec někdo reálně pomůže. Spíš čekám, že s cenami a bydlením v městě to zůstane těžké jako teď, než se něco změní.",
+        "Upřímně, po tomhle všem co čtu o slibech ANO i vlády a cenách co pořád rostou, moc nevěřím že by se nám s přítelem do roka výrazně ulevilo, spíš čekám další šetření. Jako mladí s hypotékou a normálním platem se prostě bojím, že budeme pořád na hraně.",
+        "Od vlády ani od Babiše moc nečekám, ceny pořád rostou a na vesnici máme s manželkou jen průměrné výdělky, takže spíš počítám, že nás to příští rok ještě víc zatlačí. Na ty sliby o levnějším životě se dívám skepticky, když ani pořádně nevím, kdo co reálně udělá.",
+        "Jsem rád, že aspoň vidím v televizi, jak Babiš slibuje levnější energie a zastavení zdražování, ale s mojí základní školou a nájmem ve velkým městě furt nemám na nic peníze, takže čekám, že to bude spíš stejný nebo ještě horší. Fiala s tou svojí dovolenou a kecama o bavorských platech mi moc nevěří, když tady naživo vidím, že všecko pořád draží.",
+        "Od těch politiků slýchám samý sliby, ale ceny v obchodě pořád rostou a důchod máme jen ten náš, takže za rok budem mít asi ještě tíž proto, že všechno zdraží víc než nám přidaj. Babiš sice říká, že bude levněji, ale já na to moc nevěřím, už jsme to tady zažili.",
+        "Mám pocit, že ať vyhrají ve volbách ti nebo oni, tak nám s manželkou jako důchodcům v velkém městě žádné zlevnění ani vyšší penze moc nepomůžou, protože sliby jsou všude, ale ceny pořád rostou. Spíš čekám, že s těmi účty za bydlení a jídlo budeme ještě víc šetřit než teď.",
+        "Podle slibů všech stran má být levněji a důchody vyšší, ale po těch zkušenostech s drahotou posledních let spíš čekám, že s fixním příjmem jako důchodce moc neušetřím. Vláda i Babiš jenom slibují, takže naše domácnost bude nejspíš dál žít skromně jako dosud.",
+        "Upřímně čekám, že s těmi sliby všech stran o levnějším životě nic moc nepřijde a naše rodinné výdaje zůstanou napnuté, spíš to vidím na další šetření. Jelikož ceny pořád rostou a hypotéku máme na krku, za rok budeme asi na tom hůř než teď.",
+        "Mám obavy, že s těmi sliby všech stran nic moc neklesnou ceny a na důchod ještě nedosáhnu, takže s penězma budem asi pořád na štrejchu. Koupit teď něco většího bez půjčky si nemůžem dovolit, takže čekám spíš horší časy.",
+        "Od Babiše jsem na Facebooku slyšel, že zlevní energie a zastropuje důchodový věk, tak doufám, že s ANO budem mít v rodině na víc, ale teď nám peníze mizí v obchodě furt rychlejc. KATEGORIE: stejná",
+        "Pořád vidím v novinách, jak Babiš slibuje levnější energie a zastropování důchodů na 65, tak doufám, že se nám s manželkou bude aspoň trochu líp dýchat, ale Fiala zase straší, že je to všechno populismus, tak nevím. Těch sedm let zpátky v mzdách, co psali v Parlamentních listech, jsme fakt pocítili na vesnici, takže čekám, že to bude spíš boj o přežití, než nějaký z",
+        "Upřímně čekám, že to bude spíš horší, protože z těch slibů všech stran mám pocit, že ani Babiš, ani Fiala pořádně neříkají, kde na to vezmou peníze, a na vesnici ceny pořád rostou. Sousedé i já vidíme, že reálné mzdy jsou pořád dole oproti dřívějšku, takže v rozpočtu budem muset šetřit dál.",
+        "Od těch politiků slýchám samý sliby o levnějším životě, ale ceny v Praze pořád rostou a Fiala s Babišem se jen hádají, takže čekám, že s penězi na konci měsíce budeme bojovat ještě víc než teď.",
+        "Já si myslím, že s těma slibama od Babiše by to mohlo být aspoň o kousek lepší, ale teď na důchodu furt počítám každou korunu a nic moc nevidím. Vláda nás podle těch zpráv v Parlamentkách jenom tahá za nos, takže se spíš bojím, aby to nebylo ještě horší.",
+        "Já už jsem v důchodu, ale s tou drahotou a sliby všech těch stran, co nic neplatí, moc nevěřím, že mi peněz na živobytí přibude, spíš se budu muset ještě víc uskrovňovat. Podle toho, co Babiš i Fiala jenom házejí sliby bez pořádného programu, čekám, že to pro naši kapsu dopadne spíš blbě.",
+        "Po těch letech drahota neutichla a z programů ani Babiše, ani Fialy nemám pocit, že by nám na vsi s penzí nějak výrazně polevili, spíš čekám další šetření na všem. Jako důchodce s vysokoškolským vzděláním vidím, že sliby o levnějším životě jsou hlavně předvolební řeči, takže na tom budeme hůř.",
+        "Mám obavu, že s těma sliby všech stran nic moc nevyjde a život nám zase jen zdraží, hlavně energie a jídlo. Babiš sice něco slibuje, ale já už mu moc nevěřím, tak čekám spíš hůř.",
+        "Upřímně, s těmi pořád slibovanými levnějšími potravinami a energiemi od Babiše ani jistotou od Fialy moc nevěřím, že nám doma příští rok zbude víc, spíš pořád šetříme na každým nákupu. Jako rodina v menším městě se bojím, aby se nám zase nezvedly výdaje rychleji než výplata.",
+        "Mám obavu, že to nebude lepší, protož všude čtu, jak jsou životní náklady pořád vysoký a strany jen slibují, ale nic moc reálnýho nevidím. Babiš sice říká, že zlevní energie a dá víc peněz, ale nevím, jestli to vážně udělá, spíš čekám, že budem šetřit jako dosud.",
+        "Upřímně, z těch slibů Babiše o levnějších energiích a zastropování důchodů mám spíš pocit, že se nic moc nezlepší, protože Fiala zase jen straší a ceny v obchodech pořád rostou. Jako rodina ve velkém městě se spíš bojím, že nám peněz na konci měsíce ještě ubude.",
+        "Jako důchodce s vysokoškolským vzděláním v Praze vidím, že sliby ANO o levnějších energiích a zastropování důchodového věku znějí lákavě, ale podle médií mají jejich programové plány díry, takže čekám, že moje životní náklady zůstanou vysoké a reálně se nezlepší.",
+        "Od Babiše jsem slyšel, že zlevní energie a zastropuje důchodový věk, tak doufám, že s ANO bude v domácnosti líp, ale teď furt vidím, jak všechno zdražuje a Fiala jen slibuje. KATEGORIE: stejná",
+        "Já už jsem v důchodu, ale s tou drahotou a sliby všech těch stran nevěřím, že mi peněz na živobytí nějak přibude, spíš se bojím, že to bude ještě těžší. Podle toho, co slibují v televizi, žádná z vlád neudělá zázrak, aby se nám starým ulehčilo.",
+        "Od té současné vlády jsem moc nepocítil, že by se nám žilo líp, a s těmi sliby všech stran kolem levnějšího života mám spíš obavy, že nám bude hůř nebo to zůstane stejně těžké. Babiš aspoň mluví o zastropování důchodu a levnějších energiích, ale jestli to dodrží, nevím, takže se spíš bojím o peněženku.",
+        "Upřímně čekám, že nám bude hůř, protože sliby všech stran o levnějším životě znějí fajn, ale reálně vidím jen drahé energie a hypotéky, co nám utáhnou rozpočet. Podle těch keců v kampani ani jeden nemá jasný plán, jak nám v menším městě reálně ulevit.",
+        "Upřímně, po těch všech slibech od Babiše i Fialy v kampani moc nevěřím, že nám v domácnosti reálně přidají, spíš čekám, že ceny a bydlení zůstanou napnuté a náš rozpočet se ještě víc stáhne.",
+        "Já už jsem v důchodu, ale s těma všema slibama od Babiše a drahotou, co pořád čtu v Blesku, moc nevěřím, že budu mít na konci roku víc peněz než teď. Spíš se bojím, že ty ceny v obchodech zase naskočí nahoru a moje kapsa to pocítí.",
+        "Od té vlády Spolu nic dobrého nečekám, Babiš aspoň slibuje levnější energie a zastropování důchodového věku, takže doufám, že po volbách bude líp. Ale furt máme vysoký ceny v obchodě, takže se bojím, aby to s našima penězma nebylo ještě horší.",
+        "Upřímně, po těch všech slibech od Babiše i Fialy a vidině drahého života, která pořád trvá, čekám, že s naším rozpočtem v velkém městě to spíš ještě víc zatne, než se uvolní.",
+        "Od těch politiků slýchám jen samý sliby, že bude líp, ale s cenama v obchodě a za energie mám spíš strach, že nám peněz na konci měsíce ještě ubude. Koupit se teď nedá skoro nic, co by nebolelo, tak čekám, že to doma budem mít těžší než letos.",
+        "Upřímně, po těch všech slibech od Babiše i Fialy moc nevěřím, že nám v naší vesnici nějak poleví drahota, spíš čekám, že energie a nákupy zůstanou stejně nebo i víc při těch divných plánech ANO zatížených dluhy.",
+        "Upřímně, podle všech těch slibů v novinách ani jedna strana neříká, jak se mně v Praze s průměrným platem uleví, takže čekám, že to s bydlením a drahotou zůstane stejně na houby. KATEGORIE: stejná",
+        "Od tý doby co jsou ceny pořád vysoký a co čtu, že mzdy jsou pořád níž než dřív, tak čekám, že s penězma budem doma bojovat ještě víc než teď. Babiš sice něco slibuje, ale nevím, jestli to pro nás na vesnici něco změní, spíš si myslím, že bude hůř."
+      ]
+    },
+    {
+      "seed": 2,
+      "n_sent": 80,
+      "cat_balance": -74.02597402597402,
+      "ssr_score": 3.2245235757670425,
+      "ssr_balance": 11.226178788352126,
+      "survey_pmf": [
+        0.11939256491405388,
+        0.1575478388729376,
+        0.34212210512581936,
+        0.14101843770629016,
+        0.23991905338089886
+      ],
+      "sentences": [
+        "Jako důchodce s vysokoškolským vzděláním v Praze vidím, že ceny pořád rostou rychleji než moje penze, a sliby ANO i Spolu mi přijdou jako prázdné řeči před volbami. Čekám, že s novou vládou se reálně nezlepší nic, spíš budeme ještě víc šetřit za každou korunu.",
+        "Jako student na vesnici žiju hlavně z mála peněz a od rodičů, a podle všech těch slibů i hádek ve zprávách nevěřím, že mi za rok bude líp, spíš čekám, že ceny a nájmy zůstanou vysoké nebo ještě trochu porostou. KATEGORIE: horší",
+        "Od té doby, co ceny všeho vyletěly, žijeme z měsíce na měsíc a z důchodu manžela ani mých úspor nevidím žádné zlepšení, spíš mám strach, co bude, až zdraží zase energie. Babiš aspoň slibuje, že se bude líp, ale Fiala pořád jen straší a nic moc neudělal, takže u nás to za rok vidím spíš hůř.",
+        "Upřímně čekám, že s těmi sliby všech stran o levnějším životě nic moc nepřijde a naše rodinné výdaje zůstanou napjaté, spíš to vidím na další šetření. Podle toho, co slibují Babiš i Fiala bez jasného programu, si myslím, že za rok na tom budeme hůř nebo stejně špatně.",
+        "Od té doby, co jsou ceny pořád vysoký a mzda mi moc nevzrostla, čekám, že s hypotékou a nákupama budem spíš počítat každou korunu ještě víc než teď. Babiš sice něco slibuje, ale já na nějaký zázrak moc nevěřím, spíš to u nás doma bude těžší.",
+        "Slyším sliby všech stran, ale reálně mi z penze neutáhnu ani energie, takže se spíš bojím, že za rok budu muset šetřit ještě víc než teď. Babiš sice hlásá levnější život, ale vláda zase mluví o bavorských platech a já jsem toho v našem městě moc neviděl.",
+        "Mám obavu, že s těmi sliby všech stran o levnějším životě to u nás doma moc nepocítíme, když Babiš i Fiala jen hádají a nic moc konkrétního nevidím. Spíš čekám, že ceny a energie nás dál budou tlačit a naše rodinné výdaje zůstanou napnuté k prasknutí.",
+        "Upřímně, s těmahle sliby od Babiše i Fialy kolem levnějších energií a bydlení moc nevěřím, že se nám v bytě v Praze do roka uleví, spíš čekám, že jako mladým s průměrným platem nás to ekonomicky ještě víc zatlačí.",
+        "Upřímně, podle toho, co slibují všichni ve volebních programech a jak rostou ceny, moc nevěřím, že nám do roka výrazně přidají na kontě – spíš čekám, že sotva vyjdeme s výplatou jako teď.",
+        "Od té vlády Spolu jsem moc nepocítil, že by se žilo levněji, a Babiš aspoň slibuje zastropování důchodu a levnější energie, takže čekám, že s novou vládou by nám mohlo být o něco líp, ale furt to bude boj. KATEGORIE: lepší",
+        "Od vlády ani od Babiše moc nečekám, ceny pořád rostou a výplata sotva pokryje složenky, takže za rok budeme spíš ještě víc šetřit. Doufám, že to nebude o moc horší, ale moc optimismu nemám.",
+        "Mám obavy, že s těmi sliby všech stran o levnějším životě to u nás doma moc do praxe nepůjde, když vidím, jak se jen hádají a Babiš s Fialou si nalévají, a moje penze zůstává napjatá. Čekám spíš, že budeme muset ještě víc šetřit na jídle a energiích.",
+        "Od té vlády Spolu slyšíme pořád jen o bezpečnosti a západních mzdách, ale v obchodě mi ceny pořád rostou a důchod sotva stačí, takže od Babiše čekám, že aspoň zastropuje věk a trochu uleví, ale moc nevěřím, že bude do roka líp. KATEGORIE: horší",
+        "Podle toho, co slibují v televizi a na Facebooku, mám spíš obavu, že s důchodem a cenami v naší vesnici nevyjdeme líp, Babiš sice něco slibuje, ale Fiala zas říká, že je to populismus, tak nevím. KATEGORIE: horší",
+        "Upřímně čekám, že to bude spíš horší, protože ceny pořád rostou rychleji než naše příjmy a sliby všech těch stran znějí fajn, ale programy moc nevěřím. Na vesnici navíc každou korunu pocítíme, když jezdíme autem a topíme plynem.",
+        "Od Babiše slyším sliby o levnějších energiích a zastropování důchodového věku, ale Fialova vláda zatím nic moc nepřinesla, takže u nás na vsi spíš čekám, že to s penězi zůstane těžké jako teď. Podle toho, co slibují v kampani, se spíš bojím, že za rok budeme na tom hůř nebo stejně špatně.",
+        "Od vlády ani od Babiše moc nečekám, ceny pořád rostou a naše výplaty sotva pokryjí složenky, takže se spíš bojím, že nám bude ještě hůř. KATEGORIE: horší",
+        "Od téhle vlády jsem nic dobrého nečekal, spíš doufám, že po volbách Babiš aspoň trochu zastaví zdražování a důchod nám nezhltá inflace, ale moc v to nevěřím.",
+        "Upřímně, s tímhle drahým životem a sliby všech stran, co znají jenom z novin, moc nevěřím, že nám doma zbyde víc peněz než teď. Spíš čekám, že to bude stejně napnuté jako letos, nebo ještě o kousek horší.",
+        "Od Babiše slýchám, že zlevní energie a zastropuje penze na 65, tak doufám, že se nám konečně uleví, ale Fiala zase akorát straší a nic moc nepředvedl. Každopádně na vesnici pořád vidím, že v obchodě vše draží, takže moc optimističtí nejsme.",
+        "Po těch letech drahota pořád tlačí na rozpočet a sliby všech těch stran mi přijdou spíš jako mlžení, takže čekám, že s penzí a cenami budeme spíš ještě víc šetřit. Babiš aspoň mluví o zastropování důchodového věku a levnějších energiích, ale nevím, jestli to po volbách vůbec splní.",
+        "Upřímně, s těmi pořád dokola slibovanými levnějšími energiemi a bydlením od Babiše i Fialy moc nevěřím, že nám do roka v peněžence něco reálně přibude, spíš počítám s dalším šetřením. Jakožto rodina ve velkém městě vidím, že ceny pořád rostou a žádná z těch hádek v debatách zatím nepřinesla nic konkrétního, co by nám pomohlo.",
+        "Od těch politiků slýchám samý sliby, ale ceny v obchodě pořád rostou a důchod mi nestačí, takže se spíš bojím, že to doma budeme mít ještě těžší. Babiš aspoň mluví o levnějším životě, ale Fiala nám jen říká, ať věříme, zatímco na nás dole v naší dědině nic nezlevnilo.",
+        "Upřímně, po těch všech slibech od Babiše i Fialy moc nevěřím, že nám v naší vesnici reálně klesnou výdaje, spíš čekám, že energie a nákupy zůstanou drahé jako teď.",
+        "Od té doby, co ceny všeho vyletěly a mzda mi moc nepřidala, mám strach, že s dalšími sliby a daněmi bude v peněžence ještě hůř než teď. Babiš sice hlásá levnější život, ale já už těm politickým řečem moc nevěřím, takže spíš šetřím na všechno.",
+        "Mám obavu, že to s cenama a s placením složenek nebude lepší, protože co slibujou ve volbách, to se většinou stejně doma neprojeví, a Babiš s Fialou jen hádají, kdo to zvládne líp. Život v drahým městě mě dál bude bolet, tak čekám, že budem muset šetřit ještě víc než teď.",
+        "Upřímně, po těch všech slibech od Babiše i Fialy nevěřím, že se nám doma uvolní peněženka – ceny potravin a energií nás dál tlačí a platy podle těch zpráv pořád nejsou tam, kde byly. Spíš čekám, že to budeme zvládat tak nějak na dřeň jako teď, než aby přišlo nějaké reálné zlepšení.",
+        "Upřímně, s tou drahotou a sliby všech stran kolem voleb moc nevěřím, že se nám na vesnici do roka výrazně uleví, spíš čekám, že sotva vyjdeme. Jako student s vysokou školou a bydlením u rodičů vidím, že ceny pořád rostou a žádná změna v programech mi nedává naději na zlepšení.",
+        "Od těch politiků slýchám samý sliby, ale ceny v obchodě pořád rostou a důchod mi neutáhne rodinu, takže se spíš bojím, že nám bude hůř než líp. Babiš aspoň mluví o zastropování důchodového věku a levnějších energiích, ale jestli to splní, to nikdo neví.",
+        "Upřímně, s těmi sliby od Babiše i Fialy kolem levnějšího bydlení a energií moc nepočítám, spíš čekám, že jako mladý v nájmu ve velkým městě budu dál šetřit každou korunu. Podle tý kampaně a zpráv o drahým životě tipuju, že nám doma bude hůř nebo max tak stejně.",
+        "Upřímně, po těch všech slibech Babiše i Fialy a zprávách o drahém životě v Praze moc nevěřím, že se nám s manželkou do roka výrazně uleví, spíš čekám další šetření na hypotéku a energie. Vládní i opoziční programy mi přijdou jako plané řeči, takže naše domácnost bude spíš v mínusu než v plusu.",
+        "Upřímně čekám, že to bude spíš horší, protože sliby všech těch stran o levnějším životě znějí hezky, ale programy jako by ani neměli a Babišovo rozdávání peněz bez škrtů mi přijde nereálné. Jako rodina ve městě s hypotékou a drahým bydlením se prostě bojím, že ceny zůstanou vysoko a příjmy nestíhají.",
+        "Upřímně, po těch všech slibech od Babiše i Fialy kolem levnějších energií a vyšších mezd moc nevěřím, že se nám doma do roka výrazně uleví, spíš počítám s tím, že rozpočet zůstane napnutý jako teď. Slyším pořád jen hádky a populistické kousky, takže na klidný rozpočet moc nesázím.",
+        "Já už jsem v důchodu, ale s tou drahotou a sliby všech těch stran nevěřím, že mi to za rok bude doma vycházet líp, spíš budu muset šetřit ještě víc. Ty poplatky a ceny v obchodě pořád rostou a Fiala s Babišem se jen hádají, takže se bojím o každou korunu.",
+        "Upřímně, s těma sliby od Babiše i Fialy kolem levnějších energií a hypoték nevím, co si myslet, ale v Praze máme nájmy pořád vysoký a platy nám moc nerostly, tak čekám, že to bude spíš boj o každou korunu dál. Podle těch zpráv o drahým životě a žádným jasným řešením od vlády ani opozice asi hůř nebude, ale líp taky ne.",
+        "Já si myslím, že s těma slibama od Babiše, co chce zastavit zdražování a dát důchodcům víc, by to u nás doma mohlo být o kus lepší, hlavně když teď všechno tak draze stojí. Ale Fiala pořád jen straší a nic moc nezlevnil, tak uvidíme, co ty volby přinesou.",
+        "Mám obavu, že s těmahle cenama a slibama politiků, co pořád jen házejí vinu jeden na druhýho, nám bude v kapse pořád prázdnějc než dřív. Babiš sice slibuje levnější život, ale z newsů na Parlamentních listech mi přijde, že vlastně ani pořádně neví, kde na to vezme.",
+        "Mám pocit, že ty sliby všech těch stran jsou jen kecy, protože ani Babiš, ani Fiala nic moc neudělali, aby mi zbylo víc peněz na nájem a jídlo, takže čekám, že to bude spíš zase těžké. Jako vyučený s prácí v menším městě nevidím, že by mi mělo za rok výrazně přidat, spíš budu pořád počítat každou korunu.",
+        "Od tý vlády a Fialy se nám pořád nedá dohromady, všechno je drahý a výdělky mizerný, takže čekám, že s Babišem by to mohlo bejt aspoň trochu lepší, ale moc nevěřím, že se reálně něco zlepší. Spíš počítám, že to zůstane stejný nebo ještě horší, než to tady teď je.",
+        "Já moc nevím, co bude, ale z těch zpráv mi přijde, že všechno slibujou a nic moc nezlevňujou, takže budem asi pořád sotva vycházet s penězma. Babiš sice říká levnější život, ale tři tisíce na mě neudělají zázrak, když nájem a jídlo pořád roste.",
+        "Od roku 2017 jsme na mzdách v podstatě zpátky a s těmi sliby všech stran nevím, jestli se na to dá spolehnout, takže čekám, že s cenami v Praze nám to doma spíš ještě víc zatáhne. Věřím, že po volbách se sice bude něco řešit, ale do roka se nám reálně neuleví.",
+        "Já doufám, že po volbách Babiš konečně něco udělá s těma cenama a drahotou, protože teď s osmou třídou a málem na město jen tak vyjít nejde. Ale upřímně se bojím, že to bude stejně všechno dražší, jak slibujou všichni a nic z toho nevidím.",
+        "Od té doby, co ceny všeho vyletěly, sotva vyjdeme s penězi a sliby politiků mi přijdou jako plané řeči, takže čekám, že s důchodem a drahým provozem doma to spíš ještě zhorší. Babiš aspoň mluví o zastropování důchodového věku a levnějších energiích, ale nevěřím, že se do roka něco reálně zlepší.",
+        "Od téhle vlády jsem moc nečekal, ale Babiš aspoň slibuje levnější energie a zastropování důchodového věku, takže doufám, že se nám s manželem na vesnici bude trochu líp dýchat, i když moc nevěřím, že to za rok vyjde. KATEGORIE: stejná",
+        "Od té doby, co ceny všeho vyletěly a mzda mi zůstala skoro stejná, moc nevěřím, že se nám bude žít líp – spíš čekám, že s těmi sliby politiků budeme na tom stejně nebo hůř. Babiš aspoň mluví o levnějším životě, ale Fiala nám zatím jen přidával starosti.",
+        "Od těch politiků slýchám pořád jen sliby, ale v obchodě zaplatím pořád víc než dřív, takže čekám, že s penězma budem pořád na šrot. Jestli Babiš něco udělá, třeba to bude lepší, ale moc nevěřím, že se do roka něco zlepší.",
+        "Od těch politiků slýchám jen samý sliby, že bude líp, ale ceny v obchodě pořád rostou a důchod mi nestačí, takže se bojím, že to za rok bude ještě těžší. Babiš aspoň mluví o tom, že důchodci dostanou víc, ale nevím, jestli to po volbách fakt splní.",
+        "Upřímně, podle těch slibů v novinách ani jeden z nich pořádně neříká, jak zlevní energie a hypotéky, což nás v bytě ve městě nejvíc tlačí, takže čekám, že s dětmi budeme šetřit jako dosud. Babiš s Fialou se jen hádají, kdežto naše výdaje rostou dál, takže do roka spíš nic lepšího nečekám.",
+        "Já si myslím, že s tou drahotou a sliby všech stran se nic moc nezlepší, Babiš sice říká, že budou levnější energie a důchody na 65, ale zatím jsem v penzi spíš pořád na šrot a nic z toho nevidím. KATEGORIE: stejná",
+        "Já si myslím, že s těma slibama od Babiše by to mohlo být aspoň o trochu lepší, ale furt nevidím, že by se něco reálně zlevnilo, takže spíš čekám, že to zůstane takový nahoře dole jak je teď.",
+        "Jsem mladý, mám jen základní školu a v Praze jsou všechno drahý nájmy i žrátko, takže se spíš bojím, že budu mít ještě míň peněz než teď. Babiš sice slibuje levnější život, ale nevím, jestli to jakožto nízkoškolák v Praze fakt dopadne na mě.",
+        "Já si myslím, že s tímhle drahým životem to bude spíš horší, protože co slibujou ve zprávách, to se k nám do města nejspíš nedonese a ceny pořád rostou. Babiš sice něco slibuje, ale nevím, jestli to vůbec udělá, takže se spíš bojím o peníze.",
+        "Od té doby, co ceny všeho pořád rostou a výdělky na vsi moc nepohnuly, čekám, že s hypotékou a nákupy pro rodinu budeme muset ještě víc šetřit, ať už vyhrají na podzim kdokoli. Noviny slibují všelijaké slevy a důchody od Babiše nebo Fialy, ale mně z toho vychází, že reálně u nás doma peněz nepřibude.",
+        "Od té vlády Spolu slyším jen sliby o bavorských platech, ale v obchodě mi pořád rostou ceny a důchod mi nevychází, takže od Babiše čekám, že aspoň zastaví zdražování a nechá mě jít dřív do penze. Proto si myslím, že s ANO bude naše situace o kus lepší než teď.",
+        "Upřímně, s tímhle drahým životem a sliby všech stran, co pořád jen házejí vinu jeden na druhého, moc nevěřím, že nám doma bude za rok líp – spíš počítám, že sotva vydržíme naživu z výplat. Babiš sice slibuje levnější energie a důchod v 65, ale podle zpráv chce rozdávat peníze, co nemá, takže se bojím, že nás to jenom víc zatíží. KATEGOR",
+        "Já už jsem v důchodu, ale s těmi cenami energií a potravin, co pořád slibují, že zlevní, moc nevěřím, že na tom budeme za rok líp, spíš to vidím na další šetření. Babiš sice hlásá levný život, ale Fiala zas varuje před průšvihem, tak nevím, co z toho vyjde.",
+        "Podle slibů všech stran by to mělo být levnější, ale z vlastní zkušenosti v Praze mám spíš obavu, že ceny a energie zůstanou vysoko a reálně si nepolepšíme. KATEGORIE: horší",
+        "Jako mladý vyučený v Praze moc nevěřím, že se nám s přítelem bude žít levněji, hlavně když všechny strany jen slibují a ceny bytů i jídla pořád rostou. Čekám, že s našima výdělkama budeme v příštím roce spíš v ještě větším průšvihu.",
+        "Já už jsem v důchodu, ale s tou drahotou a sliby všech těch stran nevěřím, že mi peněz na živobytí přibude, spíš se budu muset ještě víc uskrovňovat. Vláda i Babiš jenom slibují, ale ceny v obchodech pořád rostou a nic se nelepší.",
+        "Od těch politiků slyším pořád jen sliby, ale ceny v obchodech a nájmy ve městě mě dál drtí, takže čekám, že s našima penězma bude zase hůř. Babiš aspoň mluví o levnějším životě, ale nevím, jestli to po volbách fakt splní.",
+        "Upřímně, po těch všech slibech od Babiše i Fialy a zprávách o drahém životě čekám, že s našimi platy v velkém městě to spíš ještě víc pocítíme, hlavně na bydlení a energiích. Jsem skeptický, jestli po volbách někdo fakt něco změní, spíš to vidím na další šetření doma.",
+        "Od těch politiců slýchám samé sliby o levnějším životě, ale ceny v obchodě pořád rostou a na důchod se nechystám, takže čekám, že s penězma budem pořád na štrejchu. V naší vesnici se nic moc nezlepšuje, spíš mám strach, že nám ještě přitvrdí.",
+        "Od Babiše jsem slyšel, že zlevní energie a zastropuje důchodový věk, tak doufám, že to s novou vládou konečně přestane být taková nouze jako teď. Ale Fiala pořád jen straší a nic moc nezlevnil, takže mám spíš obavu, že jako důchodce s maturitou v malém městě budu šetřit dál.",
+        "Upřímně, s těmi sliby od Babiše i Fialy kolem levnějších energií a vyšších důchodů moc nepočítám, v Praze máme drahé bydlení a životní náklady pořád vysoké, takže čekám, že s penězi budeme šetřit ještě víc. Koupěschopnost naší domácnosti se podle mě spíš ještě o něco zhorší, než by se zlepšila.",
+        "Upřímně, po těch všech slibech od Babiše i Fialy v televizi moc nevěřím, že nám v Praze nějak citelně poleví drahota, spíš čekám, že s hypotékou a energiemi budeme šetřit ještě víc. Když se dívám na ty jejich programy, co slibují bambiliony, co nejspíš nemají, tak mám obavu, že jako střední vrstva zase zaplatíme za všechno my.",
+        "Upřímně, s tímhle věčným politickým handrkováním a sliby o levnějším životě, co nikdo pořádně nevysvětlil, moc nevěřím, že se nám v bytě v Praze za rok výrazně uleví. Spíš počítám, že jako student s vysokoškolským rozpočtem zůstaneme v plusu jen těžko, když ceny pořád něco dělají.",
+        "Upřímně, po těch všech slibech od Babiše i Fialy v televizi moc nevěřím, že nám doma peněz přibude, spíš čekám, že ceny zůstanou vysoko a šetřit budeme dál. Jako střední vrstva v menším městě se cítíme pořád jako ti, co na ty „bavorské platy“ nedosáhnou.",
+        "Upřímně, po těch všech slibech od ANO i Spolu v kampani moc nevěřím, že nám doma v menším městě reálně klesnou výdaje, spíš čekám, že ceny zůstanou vysoko a platy sotva stačí. Sousedé na Facebooku sice tleskají Babišovým hláškám o levném životě, ale já jako vysokoškolák vidím, že žádný z nich pořádně neříká, odkud na to vezme.",
+        "Upřímně, s těma sliby Babiše i Fialy kolem levnějšího bydlení a energií v Praze moc nepočítám, že se nám do roka reálně uleví, spíš budeme dál šetřit každou korunu. Jako mladý s maturitou v nájmu tu vidím spíš další tlak na peněženku než zlepšení.",
+        "Upřímně čekám, že to bude spíš horší, protože ceny pořád rostou a z programů kolem voleb mám pocit, že ani Babiš, ani Fiala nic reálného pro naše výdaje neudělají. Splašené sliby jako levné energie nebo vyšší důchody zní fajn, ale doma počítám každou korunu a moc nevěřím, že se nám uleví.",
+        "Mám pocit, že s tou drahotou a nízkýma mzdama se nic moc nezlepší, ať vyhrajou jakoby chtěli, slibujou všichni, ale peněz na konci měsíce je pořád málo. Spíš čekám, že to bude stejný boj o každou korunu jako teď.",
+        "Od té vlády nic moc nečekám, spíš doufám, že po volbách Babiš aspoň trochu srazí ceny a zastropuje důchody, ale zatím máme v peněžence pořád hluboko. Když slibují levnější energie a hypotéky, rádi bychom to uvítali, ale věřit se tomu moc nedá, dokud to neuvidím na výplatě.",
+        "Máme s přítelkyní oba jen výuční list a děláme za málo peněz, takže po těch všech slibech politiků spíš čekám, že nás další rok zase nějaká drahota dostane, protože nic z toho se asi nebere vážně. Podle těch zpráv o rekordně drahém životě a šišlajících programech si myslím, že na konci měsíce budem pořád počítat každou korunu.",
+        "Já už jsem v důchodu a s manželem žijem z mála, takže podle těch slibů všech stran nevěřím, že nám to tu za rok nějak zásadně polepší, spíš se bojím, že ceny pořád rostou a naše penze na to nestačí.",
+        "Upřímně, podle těch slibů všech stran nevím, co si myslet – Babiš láká na levnější energie a zastropovaný důchodový věk, ale Fiala zase straší, že to bude průšvih, a já mám pocit, že s našima výdaji na provoz domácnosti v menším městě to za rok bude spíš těžší.",
+        "Od vlády ani od Babiše moc nečekám, ceny pořád rostou a našetřit se nedá, takže spíš počítám s tím, že nám bude hůř nebo tak tak vyjdeme. Věřím, že po volbách se sice něco slibuje, ale reálně se nám doma peněz nepřidá.",
+        "Já mám v Praze základní školu a práci za hubičku, takže po těch slibech Babiše i Fialy spíš čekám, že nám peněz na nájem a jídlo moc nezbude a bude to ještě těžší.",
+        "Od téhle vlády jsem nic dobrého nečekal, pořád všechno zdražuje a důchod sotva stačí na nájem a jídlo, takže pokud vyhraje Babiš, aspoň slibuje levnější energie a zastavení zdražování. Doufám, že to příští rok nebude horší než letos, ale moc optimistický nejsem.",
+        "Já jsem v důchodu a žiju z mála, od Babiše slýchám, že budou levnější energie a zastaví se zdražování, tak doufám, že to po volbách konečně poleví. Ale Fiala pořád jen straší a nic moc nezlevnil, takže vím, že to hned lepší nebude.",
+        "Od té vlády čekám jen další zdražování a byrokracii, zatímco Babiš aspoň slibuje levnější energie a zastropování důchodů, takže doufám, že po volbách bude s našima penězma konečně líp. Věřím, že ANO něco změní, protože teď sotva vycházíme s důchodem."
+      ]
+    },
+    {
+      "seed": 3,
+      "n_sent": 80,
+      "cat_balance": -75.9493670886076,
+      "ssr_score": 3.2600070763820126,
+      "ssr_balance": 13.00035381910063,
+      "survey_pmf": [
+        0.12391218059271587,
+        0.1566995097142811,
+        0.29351903520401934,
+        0.18720760169624134,
+        0.23866167279274228
+      ],
+      "sentences": [
+        "Upřímně, s těmi sliby od Babiše i Fialy kolem levnějších energií a důchodů moc nepočítám, spíš čekám, že ceny zůstanou vysoko a nájem ve městě nás dál bude ždímat. Asi budeme muset jezdit víc načerno a šetřit na všem, než aby se nám fakt ulevilo.",
+        "Upřímně, podle těch slibů všech stran nevěřím, že nám v Praze nějak výrazně klesnou výdaje, spíš čekám, že ceny a bydlení zůstanou napnuté, takže si nepolepšíme. Slyšel jsem v zprávách, že reálné mzdy jsou pořád níž než dřív, a vláda ani Babiš s tím moc nepohnuli, tak jdu do roka spíš opatrně.",
+        "Upřímně, s těmi sliby od ANO i Spolu kolem levnějšího bydlení a daní moc nepočítám, spíš čekám, že jako studenta v nájmu v Praze mě příští rok zasáhnou vyšší ceny a nic moc se nezlepší. Podle titulků v novinách i TikToku se jen hádají a programy mají duté, takže na klidný rozpočet moc nevěřím.",
+        "Upřímně, s těmi sliby od ANO i Spolu kolem levnějšího života moc nepočítám, spíš čekám, že ceny a hypotéky zůstanou vysoce nejisté a náš rozpočet v menším městě moc neoddechne. Podle mě se za rok budeme mít s manželkou pořád o každou korunu těžší hlavu než dřív.",
+        "Od Babiše slýchám, že zlevní energie a zastropuje důchodový věk, takže doufám, že nám s manželkou nebudou penze mizet, ale Fialova vláda nás spíš jenom dojížděla drahotou. KATEGORIE: lepší",
+        "Upřímně, z těch slibů všech stran, co slibují levnější život a vyšší mzdy, moc nevěřím, že se mi na vesnici něco reálně zlepší, spíš čekám, že ceny zůstanou vysoké a jako mladý s průměrným výdělkem budu šetřit dál.",
+        "Upřímně, s těmi cenami energií a potravin, co pořád slibují, že zlevní, ale pořád rostou, čekám, že s penězi budeme ještě víc na štrejchu než teď. Babiš sice hází velký sliby, ale já nevěřím, že se mi v menším městě od ledna něco reálně uleví.",
+        "Upřímně, s těmahle sliby od Babiše i Fialy kolem levnějších energií a důchodů moc nevěřím, že se nám doma ušetřit podaří, spíš čekám, že ceny zůstanou vysoké a výplata mi nevystačí. Jako mladý s maturitou v malým městě moc nevidím, že by se něco zlepšilo, spíš budem šetřit jak můžem.",
+        "Mám základní školu a žiju na vsi, peníze na náku pomaly docházejí, tak doufám, že po volbách Babiš slíbí levnější energie a jídlo, ale moc tomu nevěřím. KATEGORIE: horší",
+        "Od vlády i opozice slýcháme samé sliby o levnějším životě, ale ceny v obchodech pořád rostou a na důchod to nevypadá, takže čekám, že s penězi budeme ještě víc zápasit. Babiš sice hlásá lepší život, ale já mu moc nevěřím, když vidím, co všechno napral do programu a kolik by to stálo.",
+        "Mám obavy, že s těmi sliby všech stran o levnějším životě to u nás doma moc reálné nebude, když Babiš rozdává biliardy a vláda zase jen straší Babišem místo aby ukázala, jak nám důchodcům uleví. Spíš čekám, že s rostoucími cenami a nejistotou kolem voleb nám peněz na konci měsíce ještě ubude.",
+        "Od těch politiků slýchám samé sliby, že bude líp, ale s cenami v obchodě a drahým topením na vsi moc nevěřím, že na mě něco kápne, spíš to vidím na další šetření. KATEGORIE: horší",
+        "Já už jsem v důchodu a s manželem tak tak vyjdeme s penězi, takže se bojím, že když budou dál drahý energie a jídlo, tak nám bude hůř než teď. Babiš sice slibuje levnější život, ale já nevím, jestli to vůbec dodrží, každopádně od Fialy nic dobrýho pro nás starý nečekám.",
+        "Upřímně, po těch všech slibech od Babiše i Fialy moc nevěřím, že nám do roka reálně přidají, spíš čekám, že ceny zůstanou vysoko a hypotéku budeme dál těžko zvládat. Slyšela jsem v novinách, že reálné mzdy jsou pořád níž než před lety, takže naše domácnost bude spíš šetřit.",
+        "Od té vlády nic dobrého nečekám, slyším pořád jen sliby a ceny pořád rostou, takže budeme s penězi ještě víc bojovat. Babiš aspoň mluví o levnějším životě, tak snad to po volbách trochu poleví, ale moc v to nedoufám.",
+        "Od vlády moc nečekám, slyším pořád jen sliby o bavorských platech, ale v obchodě mi pořád kupují víc než dřív, takže pokud vyhraje Babiš s levnějšíma energiema, třeba se nám uleví, jinak vidím spíš další šetření. KATEGORIE: horší",
+        "Upřímně, po těch všech slibech od Babiše i Fialy a zprávách o drahém životě čekám, že s našimi platy v menším městě to spíš ještě víc pocítíme, než se něco zlepší. Hlavně mě děsí, že ANO chce rozdávat peníze, co nemá, a vláda zas jen straší, takže reálně budeme šetřit víc než dřív.",
+        "Po těch letech drahota nepoleví, ať vyhrají volby kterkoliv, takže za náš důchod a trochu úspor koupíme v příštím roce ještě míň než teď. Babiš sice slibuje levné energie a zastropovaný důchodový věk, ale z těch článků mám spíš strach, že to všechno zaplatíme my jako danoví poplatníci.",
+        "Já si myslím, že s těma slibama od Babiše, že zlevní energie a zastropuje důchodový věk, by to u nás na vsi mohlo být o něco lepší, ale furt se bojím, co provede tahle vláda s cenama. KATEGORIE: stejná",
+        "Odcházím za pár let do důchodu a s tímhle drahým životem a sliby bez krytí se spíš bojím, že nám peněz na konci měsíce ještě ubude, hlavně když ani Babiš s Fialou pořádně neříkají, kde na to vezmou.",
+        "Od téhle vlády nic dobrého nečekám, Babiš aspoň slibuje, že se zlevní energie a zastaví zdražování, tak snad s ním bude v peněžence líp. Teď ale s důchodem sotva vycházím a bojím se, že to do voleb ještě o něco zhorší.",
+        "Já si myslím, že s těmito cenami a sliby všech těch stran se nám doma moc neuleví, spíš to vidím na další šetření, než aby bylo líp. Babiš sice něco slibuje, ale Fiala zas říká, že je to všechno populismus, tak nevím, komu věřit.",
+        "Jako důchodce s vysokoškolským vzděláním v Praze se obávám, že po těch slibech ANO i Spolu bez jasného programu na zlevnění života naše rodinné výdaje spíš ještě stoupnou. Vláda ani opozice neukazují, že by reálně snížili ceny energií nebo daně, což naše domácnost citelně pocítí.",
+        "Mám obavy, že i když Babiš slibuje levnější energie a vyšší důchody, takové housata na dluh nám doma moc nepomůžou a ceny v obchodě pořád rostou, takže na tom budem spíš hůř. KATEGORIE: horší",
+        "Od vlády ani od Babiše moc nečekám, ceny pořád rostou a na vesnici máme s manželkou co dělat, aby nám s platem vydrželo na složenky, takže spíš počítám, že nám bude hůř.",
+        "Jsem z Prahy a s maturitou teprve začínám samostatný život, takže podle všech těch slibů ANO i Spolu o levnějším bydlení a mzdách nevím, jestli se mi bude žít líp, ale reálně čekám, že jako mladému bez vysoké školy v hlavním městě bude pořád těžko ušetřit.",
+        "Od těch vládních slibů o bavorských platech nic moc nevidím, spíš mě děsí, co všechno chce ANO rozdávat, takže obávám se, že s penzí vyjdeme hůř nebo tak tak. Koupě cukru a nafty v obchodě pořád bolí, takže do roka čekám spíš další škrtání.",
+        "Od té doby, co ceny všeho vyletěly, žijeme z měsíce na měsíc a z důchodu manžela ani mých úspor nevidím žádné zlepšení, spíš mě děsí, co Babiš a ostatní naslibují, ale jestli to nezlevní, bude hůř. KATEGORIE: horší",
+        "Od těch politiků slýchám pořád jen sliby, že bude líp, ale ceny v obchodě pořád rostou a výplata mi sotva stačí na složenky, takže čekám, že to za rok bude spíš zase těžší. Babiš aspoň mluví o levnějších energiích a zastavení penze na 65, ale nevím, jestli to po volbách fakt udělají.",
+        "Mám pocit, že s těmahle cenama a sliby politiků se nám doma nebude líp, spíš budem muset ještě víc šetřit, než aby nám zbylo. Babiš sice něco slibuje, ale nevěřím, že to pro lidi jako jsem já něco reálně změní.",
+        "Já si myslím, že s těma slibama od Babiše a ANO to bude aspoň o kousek lepší, hlavně s těma zastropovaným důchodem a levnějšíma energiema, ale Fiala nám zatím akorát dokola říkal, že budem mít bavorsky platy a nic z toho nebylo.",
+        "Mám z důchodu a trochy úspor co ušetřit, ale ceny pořád rostou a sliby politiků mi přijdou jako planý řeči, takže čekám, že s penězi budeme ještě víc šetřit. Babiš aspoň mluví o zastavení věku v 65 a levnějších energiích, ale nevím, jestli to dotáhne.",
+        "Od Babiše slýchám, že zlevní energie a zastropuje důchodový věk, tak doufám, že nám s manželkou konečně trochu odlehčí, ale Fialova vláda nás za ty roky dostala do bryndy. KATEGORIE: lepší",
+        "Upřímně, s těmahle sliby od všech stran moc nevěřím, že nám doma bude líp, spíš čekám, že ceny zůstanou vysoko a naše úspory dál ztratí na hodnotě. Babiš sice něco slibuje, ale z těch zpráv mám spíš strach, co to přinese za dluhy.",
+        "Upřímně, s těmi pořád rostoucími cenami a sliby všech stran, co vidím v novinách i na Facebooku, moc nevěřím, že nám doma zbyde víc peněz než teď. Babiš sice hlásá levnější energie a vyšší důchody, ale zprávy píšou, že to jsou jen plané sliby a nikdo pořádně neví, kde na to vezme, takže čekám spíš další šetření.",
+        "Od vlády ani od Babiše moc nečekám, ceny v obchodě pořád rostou a na důchod ještě dlouho nebudu, takže budem s manželkou šetřit jako dosud. Peníze navíc nevidím, spíš bude hůř, než se něco uklidní.",
+        "Od těch politiků slýchám samý sliby, ale ceny v obchodě pořád rostou a na výplatní pásku to moc nevidím, takže čekám, že s penězma budem bojovat dál. Babiš aspoň mluví o levnějším životě, ale nevím, jestli to po volbách fakt vyjde.",
+        "Jako Pražák v předprodukčním věku vidím, že ceny bydlení a energií pořád rostou a politici jen slibují, takže čekám, že s našimi příjmy budeme v příštím roce vyššími výdaji ještě víc tlačení ke zdi. Věřím, že po volbách se s tím nic zásadně nehne, spíš naopak.",
+        "Upřímně, s těmi sliby od Babiše i Fialy kolem levnějších energií a důchodů moc nepočítám, v Praze máme nájmy jako blázen a žádná změna se zatím nekoná, tak čekám, že s penězi budeme ještě víc šetřit.",
+        "S cenami v Praze a tím, co slibují všichni politici před volbami, moc nevěřím, že nám v příštím roce něco zbyde navíc, spíš budeme šetřit na každém nákupu stejně jako teď. Babiš sice hlásá levnější energie a vyšší důchody, ale Fiala zase straší, že je to populismus, takže já čekám spíš další tlak na rodinný rozpočet.",
+        "Upřímně čekám, že s těmi sliby všech stran o levnějším životě nic moc nepřijde a naše rodinné výdaje zůstanou napnuté k prasknutí, takže spíš to vidím bledě.",
+        "Mám obavu, že to s našimi výdaji nebude lepší, když pořád čtu, jak strany jen slibují levnější život, ale nikdo z těch nahoře pořádně neříká, odkud na to vezme, a ceny v obchodě pořád rostou. Babiš sice hlásá lepší život a zastropování důchodů, ale podle novin to má být za biliardy, co nejsou, takže já moc nevěřím, že nám doma zbyde ví",
+        "Mám jen základní školu a práci v menším městě mizerně placenou, takže od těch slibů Babiše i Fialy moc nečekám a spíš budem sotva vycházet jako doteď. Ceny jsou pořád vysoký a žádná strana mi nepřišla, že by fakt řešila lidi jako jsem já.",
+        "Od té vlády nic dobrého nečekám, pořád všechno zdražuje a důchod mi sotva stačí na nájem a jídlo, takže doufám, že Babiš to aspoň trochu zklidní. Spíš mám ale strach, že za rok na tom budeme ještě hůř než teď.",
+        "Od těch politiků slýchám samé sliby o levnějším životě, ale ceny v obchodech pořád rostou a výplata mi sotva pokryje nájem, takže čekám, že s penězma budeme ještě víc na štíru. Babiš aspoň mluví o zastropování důchodů a levnějších energiích, ale nevím, jestli to po volbách fakt udělají.",
+        "Od Babiše slýchám, že zlevní energie a zastropuje důchodový věk, tak doufám, že nám aspoň trochu odlehčí od těch pořád drahých nákupů, ale Fiala zas pořád jen straší a nic moc nezlevnil. KATEGORIE: stejná",
+        "Od té doby co ceny všeho vyletěly, furt žijem od výplaty k výplatě a sliby na billboardech mi přijdou jako sci-fi, takže čekám, že s dětma to budem mít spíš ještě těžší. Babiš sice říká, že bude levněji, ale já už mu moc nevěřím, když ani pořádně neví, odkud vezme peníze.",
+        "Upřímně, z těch slibů všech stran, co slibují levnější život i hypotéky, moc nevěřím, že se nám na vesnici do roka něco zlepší, spíš čekám, že to bude stejně těžký jako teď. Rodiče pořád řeší drahý energie a já s málem peněz od nich moc nevidím.",
+        "Od těch politiků slýchám samý sliby, ale ceny potravin a energií nás dál drtí, takže čekám, že s našima výdělkama na vesnici to spíš ještě zhorší. Babiš sice říká, že bude líp, ale já v to moc nevěřím, když ani teď sotva vyjdeme.",
+        "Od vlády ani od Babiše moc nečekám, ceny pořád rostou a výplata mi sotva pokryje složenky, takže za rok budeme spíš na suchu. Koupit si novou pračku nebo jet na dovolenou je teď nesplnitelnej sen, spíš šetříme každou korunu.",
+        "Já už jsem v důchodu, ale s těmahle cenama v obchodech a co slibujou, moc nevěřím, že budu mít na konci roku víc peněz než teď. Spíš čekám, že to bude stejný boj o každou korunu jako dosud.",
+        "Upřímně, po těch všech slibech od ANO i Spolu a zprávách o drahém životě spíš čekám, že s našimi hypotékou a nájmem v menším městě budeme šetřit ještě víc, než je teď. Babiš sice slibuje levné energie a zastropování důchodu, ale vláda zas mluví o bavorských platech, což u nás moc nevidím.",
+        "Mám obavy, že s těmi sliby všech stran nic moc nevyjde a jako důchodce s průměrným příjmem budu mít v příštím roce spíš ještě tíživěji s penězi. Ceny pořád rostou a Babiš s Fialou se jen hádají, takže na nás obyčejné lidi nikdo moc nemyslí.",
+        "Odcházím do důchodu a slyším sliby o zastropování věku na 65 a levnějších energiích, ale současná vláda podle zpráv moc nepomohla, takže čekám, že s inflací a cenami bude náš rozpočet spíš napnutý. Věřím, že po volbách Babiš aspoň trochu uleví, ale jisté to není.",
+        "Od těch politiků slyším jen sliby, že bude líp, ale ceny v obchodě pořád rostou a výplata mi sotva stačí na nájem a jídlo, takže moc nevěřím, že se za rok budeme mít líp. Spíš se bojím, aby nás s manželkou nedřeli dalšími platbami, co nezvládnem.",
+        "Upřímně, s těmi sliby ANO o levnějších energiích a zastropování penzí nevím, jestli to budou dodržovat, ale teď nám hlavně rostou ceny v obchodě a na vesnici nic moc neklesá, takže čekám, že s naším rozpočtem to půjde spíš z kopce.",
+        "Od tý vlády a Fialy nám pořád všechno zdražuje a mzda mi na to nevyskakuje, takže doufám, že po volbách Babiš aspoň trochu zlevní energie a život, ale moc si od toho neslibuju. Kategorii vidím spíš hůř, dokud se něco fakt nezmění.",
+        "Upřímně, po těch všech slibech od Babiše i Fialy a předvolebním křiku kolem drahého života moc nevěřím, že se nám doma do příštího září reálně uleví, spíš čekám, že energie a nákupy zůstanou stejně nepříjemné jako teď.",
+        "Od Babiše jsem na Facebooku slyšel, že chce levnější energie a zastavit zdražování, tak doufám, že se nám s příjmy konečně vyrovnají výdaje a bude líp. Tady na vesnici jsme s klukem sotva vydělali na nájem a nákup, takže čekám, že po volbách to aspoň nebude horší.",
+        "Od té doby co ceny všeho vyletěly, sotva vyjdeme s výplatou a podle těch slibů od Babiše ani Fialy nevěřím, že nám to za rok nějak polepší, spíš to vidím na další šetření. Koupili bychom si s manželkou novou pračku, ale radši počkáme, co bude po volbách a jestli zase něco nezdraží.",
+        "Od té doby, co ceny všeho vyletěly, sotva vyjdeme s penězi a sliby politiků mi přijdou prázdné, takže čekám, že s našima výdělkama to za rok bude spíš ještě těžší. Hlavně kdyby Fiala nebo Babiš něco zase zvedli, tak to doma pocítíme naplno.",
+        "Já si moc nevěřím, že to bude příští rok lepší, když čtu, jak Babiš slibuje levný život a důchody, ale vláda pořád jen straší a nic z levnějších věcí nevidím. U nás na vesnici jsou ceny pořád vysoký a výdělek malej, tak čekám, že budem spíš počítat každou korunu jako teď.",
+        "Obávám jsem se, že s těmi sliby o levnějším životě od všech stran nic moc nebude a jako důchodce s vysokoškolským vzděláním vidím, že naše úspory dál ztrácejí hodnotu. V příštím roce čekám spíš další šetření na úkor běžných výdajů domácnosti.",
+        "Jako důchodce s vysokoškolským vzděláním v velkém městě vidím, že ceny pořád rostou rychleji než moje penze, a podle slibů v kampani ani jedna strana neříká, jak to reálně zlepší, takže čekám spíš další zhoršování. KATEGORIE: horší",
+        "Slyším sliby od všech stran, ale po těch letech drahoty a rekordně nízkých reálných mzdách moc nevěřím, že se nám doma do roka výrazně uleví, spíš čekám další šetření. Babiš sice slibuje levnější energie a vyšší důchody, ale podle HN je to populismus a nikdo pořádně neví, kde na to vezme.",
+        "Od té doby, co všechno zdražilo a mzda mi moc nevzrostla, mám strach, že s dalšími sliby politiků a cenami energií budeme s manželkou spíš na suchu než aby nám bylo líp. Věřím, že ať vyhrají Fiala nebo Babiš, na nás obyčejné lidi v paneláku to stejně dolehne nejlíp jenom horším životem.",
+        "Já vidím v novinách pořád jen sliby, že bude líp, ale ceny v obchodě pořád rostou a výplata mi na konci měsíce nestačí, takže se spíš bojím, že to doma budem mít ještě těžší. Babiš sice říká, že zlevní energie a dá důchody dřív, ale nevím, jestli to po volbách fakt splní.",
+        "Upřímně, s touhle předvolební vřavou a sliby jako \"bavorské platy\" nebo \"levné energie\" moc nevěřím, že se nám v Praze s hypotékou a drahým životem do roka uleví, spíš čekám, že to zůstane napjaté. Podle všeho, co čtu, ani Babišův program není nic než populismus a Fiala zas mluví o bezpečí, ale ceny pořád rostou.",
+        "Od té doby, co ceny všeho vyletěly, sotva vyjdeme s penězi, a jestli vyhrají ti, co slibují levnější energie a zastropování důchodového věku, snad to konečně ucítíme na výplatě i na důchodu. Jinak se ale bojím, že jako senior na vsi budu muset šetřit ještě víc než teď.",
+        "Po těch letech drahoty a slibů všech těch stran moc nevěřím, že se nám doma do příštího podzimu reálně uleví, spíš čekám, že s důchodem a cenami v menším městě vyjdeme tak tak.",
+        "Upřímně, s těma sliby od Babiše i Fialy kolem levnějšího bydlení a energií moc nepočítám, v našem pronajatým bytě v Praze spíš čekám, že nájmy zase šoupnou nahoru a já budu muset víc šetřit. Jako mladý bez vysoký školy na střední s maturitou moc nevěřím, že se nám do roka výrazně uleví.",
+        "Podle toho, co slibují všichni ve zprávách – Babiš levné energie a vyšší důchody, Fiala zas bavorské platy – ale ceny v obchodě pořád rostou, tak mám spíš strach, že s naším rozpočtem na menší město to bude jen těžší.",
+        "Upřímně, z těch slibů všech stran mám spíš obavy než naději, protože Babiš zase rozdává levné energie a důchody od 65 bez udání zdrojů, zatímco Fiala jen straší a mluví o bavorských platech, které nevidím. Čekám, že naše rodinné výdaje zůstanou napnuté a reálně se moc neuleví.",
+        "Od té vlády nic dobrýho nečekám, Babiš aspoň slibuje levnější energie a zastropování důchodů, ale jestli to splní, to nevím, takže spíš počítám, že nám peněz moc nezbude. Ceny v obchodě pořád rostou a výplata mi sotva pokryje složenky, takže se bojím, že budem na tom hůř.",
+        "Upřímně, podle toho, co slibují všechny strany a jak se v kampani jen hádají a straší, čekám, že naše rodinné výdaje zůstanou napjaté a reálně se nám neuleví, spíš budeme muset dál šetřit.",
+        "Upřímně, s těmi sliby od Babiše i Fialy moc nevím, co si myslet, ale ceny pořád rostou a na vesnici máme jenom jeden příjem, takže čekám, že nám bude ještě hůř. Koupit něco většího je teď fakt problém a šetříme na všem.",
+        "Upřímně čekám, že to bude spíš horší, protože ceny pořád rostou rychleji než naše příjmy a sliby ve volebních programech mi přijdou jako plané řeči. Po těch všech zprávách o drahém životě a nejisté ekonomice se bojím, že s hypotékou a dětmi utáhneme jen těžko.",
+        "Jako důchodce s vysokoškolským vzděláním v Praze vidím, že ceny pořád rostou rychleji než moje penze, a sliby jako zastropování důchodového věku od ANO znějí fajn, ale nevím, jestli je za tím reálně něco. Od říjnových voleb moc nečekám, že se nám doma uleví, spíš budeme muset dál šetřit.",
+        "Upřímně, po těch všech slibech od Babiše i Fialy a zprávách o drahém životě spíš počítám, že s naším rozpočtem v Praze moc nepohneme, spíš to vidím na další šetření. Vláda i opozice jen házejí plány bez jasných čísel, takže se bojím, aby nám mzdy zase neukrajovala inflace nebo nové daně.",
+        "Od těch politiků slýchám samý sliby o levnějším životě, ale zatím máme s manželkou v menším městě pořád vyšší výdaje než dřív a mzda moc nepohnula, takže čekám, že to bude spíš zatloukat. KATEGORIE: horší"
+      ]
+    }
+  ],
+  "mean_ssr_balance": 12.113383072925346,
+  "abs_err": 19.64671640625868,
+  "flash_reference": {
+    "file": "orakel_backteszt_cz/cci_ssr_deepseek_ai_DeepSeek_V4_Flash_n77.json",
+    "ssr_balance": -2.5
+  },
+  "cost": {
+    "n_calls": 240,
+    "n_api_calls": 80,
+    "n_cache_hits": 160,
+    "calls_per_min_limit": 19.8,
+    "elapsed_s": 388.2,
+    "prompt_chars": 3833275,
+    "completion_chars": 21205,
+    "est_prompt_tokens": 1197898,
+    "est_completion_tokens": 6626
+  },
+  "raw_stream": [
+    {
+      "i": 1,
+      "response": "VETA: Upřímně, z těch slibů všech stran, co lítá na TikToku a v novinách, mám spíš obavu, že jako studenta na vesnici mě další rok nic moc neuleví a spíš to bude s penězi ještě těžší. Babiš sice slibuje levnější energie a důchody, ale vláda zase straší rozpočtem a já nevěřím, že se to doma nějak zázračně zlepší.\nKATEGORIE: horší"
+    },
+    {
+      "i": 2,
+      "response": "VETA: Upřímně, podle všech těch slibů v novinách se bojím, že s drahým životem a tímhle hádkama před volbama nám peněz moc nepřibude, spíš to vidím na další šetření. Babiš sice hlásá levnější energie a vyšší důchody, ale Fiala zase varuje, že je to populismus, tak nevím, co si myslet.\nKATEGORIE: horší"
+    },
+    {
+      "i": 3,
+      "response": "VETA: Jako důchodce s vysokoškolským vzděláním v Praze vidím, že ceny pořád rostou rychleji než moje penze, a sliby politiků o levném životě beru s velkou rezervou. Čekám, že s těmi nesmyslnými výdaji, co ANO i vláda chystají, bude v naší domácnosti na konci roku 2026 ještě hůř než teď.\nKATEGORIE: horší"
+    },
+    {
+      "i": 4,
+      "response": "VETA: Upřímně, s touhle předvolební hádkou o slibech, co nikdo pořádně nevysvětlil, spíš čekám, že ceny a bydlení zůstanou nepřístupné, takže jako studentce s vysokoškolským rozpočtem se nám doma neuleví.\nKATEGORIE: horší"
+    },
+    {
+      "i": 5,
+      "response": "VETA: Od těch politiků slýchám jen sliby, že bude líp, ale ceny v obchodě pořád rostou a za důchod to neutáhnu, takže čekám, že bude hůř. Babiš aspoň mluví o zastropování důchodového věku a levnějších energiích, ale nevím, jestli to po volbách opravdu udělá.\nKATEGORIE: horší"
+    },
+    {
+      "i": 6,
+      "response": "VETA: Po těch všech slibech od Babiše i Fialy moc nevěřím, že nám v důchodu něco zbyde, spíš čekám, že energie a jídlo zase podraží a bude nám hůř.\nKATEGORIE: horší"
+    },
+    {
+      "i": 7,
+      "response": "VETA: Já už jsem v důchodu, ale s těma cenama v obchodech a drahým bydlením v Praze mi peníze moc nezbývají, tak doufám, že po volbách slíbený levnější život konečně přijde, ale moc tomu nevěřím. Babiš aspoň slibuje důchody a levnější energie, Fiala jen mluví, že budem jako Bavoři, ale já to tady nevidím.\nKATEGORIE: horší"
+    },
+    {
+      "i": 8,
+      "response": "VETA: Upřímně čekám, že to bude spíš horší, protože sliby ANO i vlády znějí hezky, ale z praxe v našem městě cítím, že ceny pořád rostou a na výdělku se to neprojeví. Po volbách asi žádný zázrak nepřijde, spíš budeme ještě víc šetřit.\nKATEGORIE: horší"
+    },
+    {
+      "i": 9,
+      "response": "VETA: Jako vyučený v Praze vidím, že všechno zdražuje a ani jedna strana pořádně neříká, jak nám normálním lidem uleví, takže čekám, že s penězma budem pořád v prdeli. U Babiše sice slibujou levnější energie a důchod v 65, ale nevím, jestli to není jenom kecy před volbama.\nKATEGORIE: horší"
+    },
+    {
+      "i": 10,
+      "response": "VETA: Od Babiše slýchám, že zlevní energie a zastropuje důchodový věk, takže doufám, že s ANO bude v peněžence líp, ale teď každá koruna bolí a nevím, jestli to není jenom planý slib.\nKATEGORIE: stejná"
+    },
+    {
+      "i": 11,
+      "response": "VETA: Slyším ze všech stran jen samý sliby o levnějším životě, ale ceny v obchodech i nájem tu pořád rostou, takže čekám, že s naším rozpočtem budeme v hadrech ještě víc šetřit. Věřím, že po volbách to třeba Babiš aspoň trochu koupí, ale moc si od toho neslibuju.\nKATEGORIE: horší"
+    },
+    {
+      "i": 12,
+      "response": "VETA: Já si myslím, že s těma slibama od Babiše i Fialy nic moc nevyhraju, protože ceny v Praze pořád rostou a výplata mi na konci měsíce vychází nadoraz, takže čekám, že budem spíš šetřit ještě víc než teď.\nKATEGORIE: horší"
+    },
+    {
+      "i": 13,
+      "response": "VETA: Od Babiše slýchám, že zlevní energie a zastropuje důchodový věk, takže doufám, že nám s manželkou nebudeme muset tolik šetřit na léky a jídlo. Ale Fiala pořád jen straší a nic moc pro naše kapsy neudělal, takže čekám, že to bude tak napůl, spíš furt těžký.\nKATEGORIE: stejná"
+    },
+    {
+      "i": 14,
+      "response": "VETA: Upřímně čekám, že s těmi sliby o levnějším životě od ANO i Spolu to u nás na vesnici moc reálné nebude a spíš budeme dál šetřit na všechno, co je potřeba. Ceny potravin a energií nás tlačí a platy tady prostě nerostou jako v Praze.\nKATEGORIE: horší"
+    },
+    {
+      "i": 15,
+      "response": "VETA: Mám pocit, že na vesnici jsou ceny pořád vysoký a výdělky mizerný, takže po volbách moc nečekám, že by se nám doma ulevilo, spíš to vidím na další šetření. Babiš sice něco slibuje, ale já nevím, jestli to pro kluka bez maturity něco reálně změní.\nKATEGORIE: horší"
+    },
+    {
+      "i": 16,
+      "response": "VETA: Jako důchodce s vysokoškolským vzděláním vidím, že ceny pořád rostou rychleji než moje penze, a sliby politiků o levnějším životě mi přijdou jen jako předvolební řečnění, takže za rok budeme s manželkou spíš ještě víc šetřit. KATEGORIE: horší"
+    },
+    {
+      "i": 17,
+      "response": "VETA: Slyším sliby ze všech stran, ale ceny pořád rostou a důchod mi nestačí, takže spíš čekám, že s penězi budeme ještě víc bojovat. Babiš aspoň mluví o zastropování věku a levnějších energiích, ale nevím, jestli to po volbách opravdu splní.\nKATEGORIE: horší"
+    },
+    {
+      "i": 18,
+      "response": "VETA: Od té doby, co ceny všeho pořád rostou a mzda mi moc nepřidala, čekám, že s hypotékou a provozem auta v obci na tom budeme spíš hůř, ať už vyhrají ve volbách Babiš se svými sliby nebo Fiala s Bruselem. Noviny pořád píšou o drahém životě a žádná strana mi neukázala reálný plán, co by nám na vsi zlevnilo energie i nákupy.\nKATEGORIE: horší"
+    },
+    {
+      "i": 19,
+      "response": "VETA: Upřímně, s těmi sliby všech stran kolem levnějších energií a zastropování důchodů moc nepočítám, spíš čekám, že ceny v Praze zůstanou vysoké a náš rozpočet bude dál napnutý. Podle toho, jak se vláda i opozice jen hádají a nic moc konkrétního nepředvádí, se za rok nejspíš nepolepšíme.\nKATEGORIE: horší"
+    },
+    {
+      "i": 20,
+      "response": "VETA: Upřímně čekám, že s těmi sliby o levnějším životě od všech stran to u nás doma moc hmatatelné nebude a spíš budeme dál šetřit na všem, než aby nám zbývalo víc. Podle toho, jak se v novinách pořád hádají o nesplnitelné programy a ceny pořád rostou, si myslím, že na tom budeme hůř než teď.\nKATEGORIE: horší"
+    },
+    {
+      "i": 21,
+      "response": "VETA: Upřímně čekám, že nám bude líp, až Babiš konečně zastropuje důchod na 65 a slíbí levnější energie, protože teď na vesnici sotva vycházíme s penězi a Fiala nám jenom slibuje bavorské platy, co nevidíme.\nKATEGORIE: lepší"
+    },
+    {
+      "i": 22,
+      "response": "VETA: Od té doby, co jsou ceny pořád vysoký a důchod mi zůstal skoro stejnej, čekám, že s tím Babišem by to mohlo bejt aspoň o kousek lepší než teď pod Fialou. Podle těch slibů o zastropování penzí a levnějších energiích doufám, že nebudu muset šetřit na každým rohlíku.\nKATEGORIE: lepší"
+    },
+    {
+      "i": 23,
+      "response": "VETA: Mám obavy, že i když Babiš slibuje levnější život a zastropování důchodového věku, reálně se naše rodinné výdaje kvůli drahým energiím a potravinám spíš nezlepší, spíš to vidím na další šetření. Podle těch zpráv o programech a debatách nevěřím, že někdo z nich má faktický plán, který by nám v menším městě do roka ulevil.\nKATEGORIE: horší"
+    },
+    {
+      "i": 24,
+      "response": "VETA: Upřímně, s tou drahotou v Praze a sliby všech stran, co znají jen z billboardů, čekám, že s naším rozpočtem to spíš ještě víc zatře, než se něco uklidní. Babiš s Fialou se jen hádají v debatách, ale nikdo z nich mi nezařídí levnější nájem nebo energie.\nKATEGORIE: horší"
+    },
+    {
+      "i": 25,
+      "response": "VETA: Já si myslím, že s těma slibama od Babiše i Fialy nic moc nezlevní, takže s našima výdajema na nájem a jídlo budem pořád na šrot a spíš to uvidím černěji. KATEGORIE: horší"
+    },
+    {
+      "i": 26,
+      "response": "VETA: Upřímně čekám, že to bude spíš horší, protože z těch volebních slibů všech stran mám pocit, že nikdo pořádně neřeší, jak zlevní energie a nákupy pro lidi na vesnici, a Babiš s Fialou si jen hážou špínu. Jako mladý s průměrným platem od rodičů moc nečekám, že se nám doma uleví.\nKATEGORIE: horší"
+    },
+    {
+      "i": 27,
+      "response": "VETA: Od Babiše slýchám sliby o levnějším životě a zastropování důchodů, tak doufám, že po volbách nám aspoň trochu odlehčí, ale furt nevím, kde na to stát vezme peníze. Každopádně teď nám konce měsíce vycházejí na hraně a další zdražování už bychom neustáli.\nKATEGORIE: stejná"
+    },
+    {
+      "i": 28,
+      "response": "VETA: Od Babiše slýchám, že zlevní energie a zastropuje důchodový věk, tak doufám, že se nám s manželkou příští rok bude aspoň trochu líp dýchat, ale vláda nám za ty roky moc nepřidala. KATEGORIE: stejná"
+    },
+    {
+      "i": 29,
+      "response": "VETA: Jako důchodce na vsi se bojím, že i když Babiš slibuje levnější energie a vyšší důchody, vládní sliby o prosperitě k nám dolů nedojdou a život bude dál drahý. Čekám spíš, že s rostoucími cenami a nejistotou kolem voleb na tom budeme o kousek hůř než teď.\nKATEGORIE: horší"
+    },
+    {
+      "i": 30,
+      "response": "VETA: Já už jsem v důchodu, ale s těmahle cenama a tím, co všichni slibujou a nic pořádnýho nedodržej, čekám, že nám s manželkou bude na účtěnách a v obchodě akorát hůř. Babiš sice říká, že zastropuje důchodovej věk a zlevní energie, ale já na ty jeho řeči moc nevěřím, Fiala zas jen straší a dovolenkuje.\nKATEGORIE: horší"
+    },
+    {
+      "i": 31,
+      "response": "VETA: Vzhledem k tomu, co slibují všechny strany a jak draze se teď žije, moc nevěřím, že nám v příštím roce nějak poleví výdaje na energie a nákupy, spíš to vidím ještě hůř. Jsem z toho kampanění a hádek dost skeptický, Babiš sice něco slibuje, ale Fiala zas varuje, že to jsou plané věci, takže na nás doma asi zase něco zbude.\nKATEGORIE: horší"
+    },
+    {
+      "i": 32,
+      "response": "VETA: Já si myslím, že s těma všema slibama od Babiše a od vlády budem mít peněz pořád míň než dřív, protože v obchodě pořád všechno zdražuje a důchod mi nepřidají tolik, aby to stačilo. Takže na tom budem za rok hůř než teď.\nKATEGORIE: horší"
+    },
+    {
+      "i": 33,
+      "response": "VETA: Upřímně čekám, že to bude spíš horší, protože sliby všech těch stran o levnějším životě znějí fajn, ale z newsu mám spíš pocit, že ANO i Spolu jen házejí plány na papír a ceny energií a potravin nám v menším městě pořád táhnou rodinný rozpočet dolů. KATEGORIE: horší"
+    },
+    {
+      "i": 34,
+      "response": "VETA: Mám základní vzdělání a ve velkým městě jsou ceny pořád vysoký, takže čekám, že s těmahle sliby politiků na levnější život to u nás doma moc zázraků neudělá a budeme spíš šetřit. KATEGORIE: horší"
+    },
+    {
+      "i": 35,
+      "response": "VETA: Od vlády ani od Babiše moc nečekám, ceny pořád rostou a výplata mi sotva pokryje nájem a nákupy, takže za rok budeme spíš ještě víc šetřit. Sliby v televizi sliby mě neživí, na konci měsíce stejně nezbývá skoro nic.\nKATEGORIE: horší"
+    },
+    {
+      "i": 36,
+      "response": "VETA: Upřímně, po těch všech slibech od Babiše i Fialy moc nevěřím, že nám v příštím roce nějak výrazně poleví drahota, spíš čekám, že s výdaji budeme bojovat pořád stejně těžce jako teď. Na vesnici vidím, že ceny v obchodě i energie nikdo moc nesnížil, takže naše domácnost bude nejspíš dál v minusu.\nKATEGORIE: horší"
+    },
+    {
+      "i": 37,
+      "response": "VETA: Upřímně čekám, že s těmi sliby o levnějším životě od ANO i vlády budeme pořád doplácet na drahé energie a bydlení, takže naši rodinnou pokladnu to spíš ještě provětrá. Koupit se zatím nedá, když programy jsou jen hádky v debatách a nikdo pořádně neříká, odkud vezme peníze.\nKATEGORIE: horší"
+    },
+    {
+      "i": 38,
+      "response": "VETA: Já mám v Praze jen základní školu a práci za málo peněz, takže se bojím, že po těch volbách, co slibujou všichni jen levný život a pak nic nedodrží, budu mít na nájem a jídlo ještě míň než teď. Babiš sice říká, že bude líp, ale Fiala taky něco sliboval a mně se furt hůř žije.\nKATEGORIE: horší"
+    },
+    {
+      "i": 39,
+      "response": "VETA: Upřímně, s těmi sliby od Babiše i Fialy kolem levnějších energií a hypoték moc nepočítám, spíš čekám, že v Praze nám zase vyskočí nájem a srazí nás zdražování, takže budeme šetřit ještě víc než teď.\nKATEGORIE: horší"
+    },
+    {
+      "i": 40,
+      "response": "VETA: Upřímně, s bydlením ve velkém městě a nízkým platem po maturitě moc nevěřím, že to bude za rok lepší, spíš pořád šetřím každou korunu a sliby v kampani mi přijdou prázdné. KATEGORIE: horší"
+    },
+    {
+      "i": 41,
+      "response": "VETA: Po těch letech drahota pořád cítím, že penze a úspory sotva stačí na běžný chod domácnosti, a podle slibů v kampani nevěřím, že se to do roka zlepší. Babiš sice hlásá levnější energie a vyšší důchody, ale Fiala zas mluví o bavorských platech až někdy daleko, takže já moc optimismu nemám.\nKATEGORIE: horší"
+    },
+    {
+      "i": 42,
+      "response": "VETA: Upřímně, s těmi sliby o levnějším životě od všech stran mám spíš obavy, protože Babiš zase rozdává nesplnitelné věci a Fiala nás ujišťuje o západních platech, ale v našem menším městě se reálně nic nezlevňuje. Čekám, že za rok budeme s rodinným rozpočtem pořád na štíru, spíš hůř než líp.\nKATEGORIE: horší"
+    },
+    {
+      "i": 43,
+      "response": "VETA: Upřímně, po všech těch slibech od Babiše i Fialy a cenách, co pořád rostou, moc nevěřím, že nám doma bude do roka líp – spíš se bojím, že s tím dalším zdražováním a nejistotou kolem voleb naše služby a nákupy ještě víc pocítíme.\nKATEGORIE: horší"
+    },
+    {
+      "i": 44,
+      "response": "VETA: Od Babiše slýchám sliby o levnějším životě a zastropování důchodového věku, ale Fiala zase říká, že ANO jen rozdává nerealné bambiliony, takže nevím, jestli nám vůbec někdo reálně pomůže. Spíš čekám, že s cenami a bydlením v městě to zůstane těžké jako teď, než se něco změní.\nKATEGORIE: stejná"
+    },
+    {
+      "i": 45,
+      "response": "VETA: Já si myslím, že s těma všema slibama od Babiše i Fialy budem pořád v tym samym bryndě, protože ceny ve vojsku ani na důchodě neklesly a platy tu máme pořád jako v sedmnáctým. KATEGORIE: horší"
+    },
+    {
+      "i": 46,
+      "response": "VETA: Od těch politiků slýchám samý sliby, ale ceny pořád rostou a výplata mi sotva pokryje složenky, takže čekám, že s penězi budeme ještě víc na štíru. Babiš aspoň mluví o levnějších energiích a zastropování důchodového věku, ale nevím, jestli to po volbách opravdu splní.\nKATEGORIE: horší"
+    },
+    {
+      "i": 47,
+      "response": "VETA: Mám obavu, že s těmi sliby všech stran se v praxi nic moc nezlevní a jako učně s průměrným platem v Praze mě další rok zas vytáhnou nájmy a energie, takže budem spíš počítat každou korunu. KATEGORIE: horší"
+    },
+    {
+      "i": 48,
+      "response": "VETA: Mám obavu, že to s našima penězma zůstane stejně napnutý, protože ceny pořád rostou a sliby politiků mi přijdou prázdný. Babiš sice hlásí levnější život, ale já si nejsem jistá, jestli to po volbách fakt vyjde.\nKATEGORIE: stejná"
+    },
+    {
+      "i": 49,
+      "response": "VETA: Upřímně, po tomhle všem co čtu o slibech ANO i vlády a cenách co pořád rostou, moc nevěřím že by se nám s přítelem do roka výrazně ulevilo, spíš čekám další šetření. Jako mladí s hypotékou a normálním platem se prostě bojím, že budeme pořád na hraně.\nKATEGORIE: horší"
+    },
+    {
+      "i": 50,
+      "response": "VETA: Od vlády ani od Babiše moc nečekám, ceny pořád rostou a na vesnici máme s manželkou jen průměrné výdělky, takže spíš počítám, že nás to příští rok ještě víc zatlačí. Na ty sliby o levnějším životě se dívám skepticky, když ani pořádně nevím, kdo co reálně udělá.\nKATEGORIE: horší"
+    },
+    {
+      "i": 51,
+      "response": "VETA: Jsem rád, že aspoň vidím v televizi, jak Babiš slibuje levnější energie a zastavení zdražování, ale s mojí základní školou a nájmem ve velkým městě furt nemám na nic peníze, takže čekám, že to bude spíš stejný nebo ještě horší. Fiala s tou svojí dovolenou a kecama o bavorských platech mi moc nevěří, když tady naživo vidím, že všecko pořád draží.\nKATEGORIE:"
+    },
+    {
+      "i": 52,
+      "response": "VETA: Od těch politiků slýchám samý sliby, ale ceny v obchodě pořád rostou a důchod máme jen ten náš, takže za rok budem mít asi ještě tíž proto, že všechno zdraží víc než nám přidaj. Babiš sice říká, že bude levněji, ale já na to moc nevěřím, už jsme to tady zažili.\nKATEGORIE: horší"
+    },
+    {
+      "i": 53,
+      "response": "VETA: Mám pocit, že ať vyhrají ve volbách ti nebo oni, tak nám s manželkou jako důchodcům v velkém městě žádné zlevnění ani vyšší penze moc nepomůžou, protože sliby jsou všude, ale ceny pořád rostou. Spíš čekám, že s těmi účty za bydlení a jídlo budeme ještě víc šetřit než teď.\nKATEGORIE: horší"
+    },
+    {
+      "i": 54,
+      "response": "VETA: Podle slibů všech stran má být levněji a důchody vyšší, ale po těch zkušenostech s drahotou posledních let spíš čekám, že s fixním příjmem jako důchodce moc neušetřím. Vláda i Babiš jenom slibují, takže naše domácnost bude nejspíš dál žít skromně jako dosud.\nKATEGORIE: stejná"
+    },
+    {
+      "i": 55,
+      "response": "VETA: Upřímně čekám, že s těmi sliby všech stran o levnějším životě nic moc nepřijde a naše rodinné výdaje zůstanou napnuté, spíš to vidím na další šetření. Jelikož ceny pořád rostou a hypotéku máme na krku, za rok budeme asi na tom hůř než teď.\nKATEGORIE: horší"
+    },
+    {
+      "i": 56,
+      "response": "VETA: Mám obavy, že s těmi sliby všech stran nic moc neklesnou ceny a na důchod ještě nedosáhnu, takže s penězma budem asi pořád na štrejchu. Koupit teď něco většího bez půjčky si nemůžem dovolit, takže čekám spíš horší časy.\nKATEGORIE: horší"
+    },
+    {
+      "i": 57,
+      "response": "VETA: Od Babiše jsem na Facebooku slyšel, že zlevní energie a zastropuje důchodový věk, tak doufám, že s ANO budem mít v rodině na víc, ale teď nám peníze mizí v obchodě furt rychlejc. KATEGORIE: stejná"
+    },
+    {
+      "i": 58,
+      "response": "VETA: Pořád vidím v novinách, jak Babiš slibuje levnější energie a zastropování důchodů na 65, tak doufám, že se nám s manželkou bude aspoň trochu líp dýchat, ale Fiala zase straší, že je to všechno populismus, tak nevím. Těch sedm let zpátky v mzdách, co psali v Parlamentních listech, jsme fakt pocítili na vesnici, takže čekám, že to bude spíš boj o přežití, než nějaký z"
+    },
+    {
+      "i": 59,
+      "response": "VETA: Upřímně čekám, že to bude spíš horší, protože z těch slibů všech stran mám pocit, že ani Babiš, ani Fiala pořádně neříkají, kde na to vezmou peníze, a na vesnici ceny pořád rostou. Sousedé i já vidíme, že reálné mzdy jsou pořád dole oproti dřívějšku, takže v rozpočtu budem muset šetřit dál.\nKATEGORIE: horší"
+    },
+    {
+      "i": 60,
+      "response": "VETA: Od těch politiků slýchám samý sliby o levnějším životě, ale ceny v Praze pořád rostou a Fiala s Babišem se jen hádají, takže čekám, že s penězi na konci měsíce budeme bojovat ještě víc než teď.\nKATEGORIE: horší"
+    },
+    {
+      "i": 61,
+      "response": "VETA: Já si myslím, že s těma slibama od Babiše by to mohlo být aspoň o kousek lepší, ale teď na důchodu furt počítám každou korunu a nic moc nevidím. Vláda nás podle těch zpráv v Parlamentkách jenom tahá za nos, takže se spíš bojím, aby to nebylo ještě horší.\nKATEGORIE: horší"
+    },
+    {
+      "i": 62,
+      "response": "VETA: Já už jsem v důchodu, ale s tou drahotou a sliby všech těch stran, co nic neplatí, moc nevěřím, že mi peněz na živobytí přibude, spíš se budu muset ještě víc uskrovňovat. Podle toho, co Babiš i Fiala jenom házejí sliby bez pořádného programu, čekám, že to pro naši kapsu dopadne spíš blbě.\nKATEGORIE: horší"
+    },
+    {
+      "i": 63,
+      "response": "VETA: Po těch letech drahota neutichla a z programů ani Babiše, ani Fialy nemám pocit, že by nám na vsi s penzí nějak výrazně polevili, spíš čekám další šetření na všem. Jako důchodce s vysokoškolským vzděláním vidím, že sliby o levnějším životě jsou hlavně předvolební řeči, takže na tom budeme hůř.\nKATEGORIE: horší"
+    },
+    {
+      "i": 64,
+      "response": "VETA: Mám obavu, že s těma sliby všech stran nic moc nevyjde a život nám zase jen zdraží, hlavně energie a jídlo. Babiš sice něco slibuje, ale já už mu moc nevěřím, tak čekám spíš hůř.\nKATEGORIE: horší"
+    },
+    {
+      "i": 65,
+      "response": "VETA: Upřímně, s těmi pořád slibovanými levnějšími potravinami a energiemi od Babiše ani jistotou od Fialy moc nevěřím, že nám doma příští rok zbude víc, spíš pořád šetříme na každým nákupu. Jako rodina v menším městě se bojím, aby se nám zase nezvedly výdaje rychleji než výplata.\nKATEGORIE: horší"
+    },
+    {
+      "i": 66,
+      "response": "VETA: Mám obavu, že to nebude lepší, protož všude čtu, jak jsou životní náklady pořád vysoký a strany jen slibují, ale nic moc reálnýho nevidím. Babiš sice říká, že zlevní energie a dá víc peněz, ale nevím, jestli to vážně udělá, spíš čekám, že budem šetřit jako dosud.\nKATEGORIE: horší"
+    },
+    {
+      "i": 67,
+      "response": "VETA: Upřímně, z těch slibů Babiše o levnějších energiích a zastropování důchodů mám spíš pocit, že se nic moc nezlepší, protože Fiala zase jen straší a ceny v obchodech pořád rostou. Jako rodina ve velkém městě se spíš bojím, že nám peněz na konci měsíce ještě ubude.\nKATEGORIE: horší"
+    },
+    {
+      "i": 68,
+      "response": "VETA: Jako důchodce s vysokoškolským vzděláním v Praze vidím, že sliby ANO o levnějších energiích a zastropování důchodového věku znějí lákavě, ale podle médií mají jejich programové plány díry, takže čekám, že moje životní náklady zůstanou vysoké a reálně se nezlepší.\nKATEGORIE: stejná"
+    },
+    {
+      "i": 69,
+      "response": "VETA: Od Babiše jsem slyšel, že zlevní energie a zastropuje důchodový věk, tak doufám, že s ANO bude v domácnosti líp, ale teď furt vidím, jak všechno zdražuje a Fiala jen slibuje. KATEGORIE: stejná"
+    },
+    {
+      "i": 70,
+      "response": "VETA: Já už jsem v důchodu, ale s tou drahotou a sliby všech těch stran nevěřím, že mi peněz na živobytí nějak přibude, spíš se bojím, že to bude ještě těžší. Podle toho, co slibují v televizi, žádná z vlád neudělá zázrak, aby se nám starým ulehčilo.\nKATEGORIE: horší"
+    },
+    {
+      "i": 71,
+      "response": "VETA: Od té současné vlády jsem moc nepocítil, že by se nám žilo líp, a s těmi sliby všech stran kolem levnějšího života mám spíš obavy, že nám bude hůř nebo to zůstane stejně těžké. Babiš aspoň mluví o zastropování důchodu a levnějších energiích, ale jestli to dodrží, nevím, takže se spíš bojím o peněženku.\nKATEGORIE: horší"
+    },
+    {
+      "i": 72,
+      "response": "VETA: Upřímně čekám, že nám bude hůř, protože sliby všech stran o levnějším životě znějí fajn, ale reálně vidím jen drahé energie a hypotéky, co nám utáhnou rozpočet. Podle těch keců v kampani ani jeden nemá jasný plán, jak nám v menším městě reálně ulevit.\nKATEGORIE: horší"
+    },
+    {
+      "i": 73,
+      "response": "VETA: Já už jsem v důchodu, ale s těma všema slibama od Babiše a drahotou, co pořád čtu v Blesku, moc nevěřím, že budu mít na konci roku víc peněz než teď. Spíš se bojím, že ty ceny v obchodech zase naskočí nahoru a moje kapsa to pocítí.\nKATEGORIE: horší"
+    },
+    {
+      "i": 74,
+      "response": "VETA: Upřímně, po těch všech slibech od Babiše i Fialy v kampani moc nevěřím, že nám v domácnosti reálně přidají, spíš čekám, že ceny a bydlení zůstanou napnuté a náš rozpočet se ještě víc stáhne.\nKATEGORIE: horší"
+    },
+    {
+      "i": 75,
+      "response": "VETA: Od té vlády Spolu nic dobrého nečekám, Babiš aspoň slibuje levnější energie a zastropování důchodového věku, takže doufám, že po volbách bude líp. Ale furt máme vysoký ceny v obchodě, takže se bojím, aby to s našima penězma nebylo ještě horší.\nKATEGORIE: horší"
+    },
+    {
+      "i": 76,
+      "response": "VETA: Upřímně, po těch všech slibech od Babiše i Fialy a vidině drahého života, která pořád trvá, čekám, že s naším rozpočtem v velkém městě to spíš ještě víc zatne, než se uvolní.\nKATEGORIE: horší"
+    },
+    {
+      "i": 77,
+      "response": "VETA: Od těch politiků slýchám jen samý sliby, že bude líp, ale s cenama v obchodě a za energie mám spíš strach, že nám peněz na konci měsíce ještě ubude. Koupit se teď nedá skoro nic, co by nebolelo, tak čekám, že to doma budem mít těžší než letos.\nKATEGORIE: horší"
+    },
+    {
+      "i": 78,
+      "response": "VETA: Upřímně, po těch všech slibech od Babiše i Fialy moc nevěřím, že nám v naší vesnici nějak poleví drahota, spíš čekám, že energie a nákupy zůstanou stejně nebo i víc při těch divných plánech ANO zatížených dluhy.\nKATEGORIE: horší"
+    },
+    {
+      "i": 79,
+      "response": "VETA: Upřímně, podle všech těch slibů v novinách ani jedna strana neříká, jak se mně v Praze s průměrným platem uleví, takže čekám, že to s bydlením a drahotou zůstane stejně na houby. KATEGORIE: stejná"
+    },
+    {
+      "i": 80,
+      "response": "VETA: Od tý doby co jsou ceny pořád vysoký a co čtu, že mzdy jsou pořád níž než dřív, tak čekám, že s penězma budem doma bojovat ještě víc než teď. Babiš sice něco slibuje, ale nevím, jestli to pro nás na vesnici něco změní, spíš si myslím, že bude hůř.\nKATEGORIE: horší"
+    },
+    {
+      "i": 81,
+      "response": "VETA: Jako důchodce s vysokoškolským vzděláním v Praze vidím, že ceny pořád rostou rychleji než moje penze, a sliby ANO i Spolu mi přijdou jako prázdné řeči před volbami. Čekám, že s novou vládou se reálně nezlepší nic, spíš budeme ještě víc šetřit za každou korunu.\nKATEGORIE: horší"
+    },
+    {
+      "i": 82,
+      "response": "VETA: Jako student na vesnici žiju hlavně z mála peněz a od rodičů, a podle všech těch slibů i hádek ve zprávách nevěřím, že mi za rok bude líp, spíš čekám, že ceny a nájmy zůstanou vysoké nebo ještě trochu porostou. KATEGORIE: horší"
+    },
+    {
+      "i": 83,
+      "response": "VETA: Upřímně čekám, že s těmi sliby všech stran o levnějším životě nic moc nepřijde a naše rodinné výdaje zůstanou napjaté, spíš to vidím na další šetření. Podle toho, co slibují Babiš i Fiala bez jasného programu, si myslím, že za rok na tom budeme hůř nebo stejně špatně.\nKATEGORIE: horší"
+    },
+    {
+      "i": 84,
+      "response": "VETA: Od té doby, co ceny všeho vyletěly, žijeme z měsíce na měsíc a z důchodu manžela ani mých úspor nevidím žádné zlepšení, spíš mám strach, co bude, až zdraží zase energie. Babiš aspoň slibuje, že se bude líp, ale Fiala pořád jen straší a nic moc neudělal, takže u nás to za rok vidím spíš hůř.\nKATEGORIE: horší"
+    },
+    {
+      "i": 85,
+      "response": "VETA: Od té doby, co jsou ceny pořád vysoký a mzda mi moc nevzrostla, čekám, že s hypotékou a nákupama budem spíš počítat každou korunu ještě víc než teď. Babiš sice něco slibuje, ale já na nějaký zázrak moc nevěřím, spíš to u nás doma bude těžší.\nKATEGORIE: horší"
+    },
+    {
+      "i": 86,
+      "response": "VETA: Slyším sliby všech stran, ale reálně mi z penze neutáhnu ani energie, takže se spíš bojím, že za rok budu muset šetřit ještě víc než teď. Babiš sice hlásá levnější život, ale vláda zase mluví o bavorských platech a já jsem toho v našem městě moc neviděl.\nKATEGORIE: horší"
+    },
+    {
+      "i": 87,
+      "response": "VETA: Mám obavu, že s těmi sliby všech stran o levnějším životě to u nás doma moc nepocítíme, když Babiš i Fiala jen hádají a nic moc konkrétního nevidím. Spíš čekám, že ceny a energie nás dál budou tlačit a naše rodinné výdaje zůstanou napnuté k prasknutí.\nKATEGORIE: horší"
+    },
+    {
+      "i": 88,
+      "response": "VETA: Upřímně, s těmahle sliby od Babiše i Fialy kolem levnějších energií a bydlení moc nevěřím, že se nám v bytě v Praze do roka uleví, spíš čekám, že jako mladým s průměrným platem nás to ekonomicky ještě víc zatlačí.\nKATEGORIE: horší"
+    },
+    {
+      "i": 89,
+      "response": "VETA: Upřímně, podle toho, co slibují všichni ve volebních programech a jak rostou ceny, moc nevěřím, že nám do roka výrazně přidají na kontě – spíš čekám, že sotva vyjdeme s výplatou jako teď.\nKATEGORIE: stejná"
+    },
+    {
+      "i": 90,
+      "response": "VETA: Od té vlády Spolu jsem moc nepocítil, že by se žilo levněji, a Babiš aspoň slibuje zastropování důchodu a levnější energie, takže čekám, že s novou vládou by nám mohlo být o něco líp, ale furt to bude boj. KATEGORIE: lepší"
+    },
+    {
+      "i": 91,
+      "response": "VETA: Od vlády ani od Babiše moc nečekám, ceny pořád rostou a výplata sotva pokryje složenky, takže za rok budeme spíš ještě víc šetřit. Doufám, že to nebude o moc horší, ale moc optimismu nemám.\nKATEGORIE: horší"
+    },
+    {
+      "i": 92,
+      "response": "VETA: Mám obavy, že s těmi sliby všech stran o levnějším životě to u nás doma moc do praxe nepůjde, když vidím, jak se jen hádají a Babiš s Fialou si nalévají, a moje penze zůstává napjatá. Čekám spíš, že budeme muset ještě víc šetřit na jídle a energiích.\nKATEGORIE: horší"
+    },
+    {
+      "i": 93,
+      "response": "VETA: Od té vlády Spolu slyšíme pořád jen o bezpečnosti a západních mzdách, ale v obchodě mi ceny pořád rostou a důchod sotva stačí, takže od Babiše čekám, že aspoň zastropuje věk a trochu uleví, ale moc nevěřím, že bude do roka líp. KATEGORIE: horší"
+    },
+    {
+      "i": 94,
+      "response": "VETA: Podle toho, co slibují v televizi a na Facebooku, mám spíš obavu, že s důchodem a cenami v naší vesnici nevyjdeme líp, Babiš sice něco slibuje, ale Fiala zas říká, že je to populismus, tak nevím. KATEGORIE: horší"
+    },
+    {
+      "i": 95,
+      "response": "VETA: Upřímně čekám, že to bude spíš horší, protože ceny pořád rostou rychleji než naše příjmy a sliby všech těch stran znějí fajn, ale programy moc nevěřím. Na vesnici navíc každou korunu pocítíme, když jezdíme autem a topíme plynem.\nKATEGORIE: horší"
+    },
+    {
+      "i": 96,
+      "response": "VETA: Od Babiše slyším sliby o levnějších energiích a zastropování důchodového věku, ale Fialova vláda zatím nic moc nepřinesla, takže u nás na vsi spíš čekám, že to s penězi zůstane těžké jako teď. Podle toho, co slibují v kampani, se spíš bojím, že za rok budeme na tom hůř nebo stejně špatně.\nKATEGORIE: horší"
+    },
+    {
+      "i": 97,
+      "response": "VETA: Od vlády ani od Babiše moc nečekám, ceny pořád rostou a naše výplaty sotva pokryjí složenky, takže se spíš bojím, že nám bude ještě hůř. KATEGORIE: horší"
+    },
+    {
+      "i": 98,
+      "response": "VETA: Od téhle vlády jsem nic dobrého nečekal, spíš doufám, že po volbách Babiš aspoň trochu zastaví zdražování a důchod nám nezhltá inflace, ale moc v to nevěřím.\nKATEGORIE: horší"
+    },
+    {
+      "i": 99,
+      "response": "VETA: Upřímně, s tímhle drahým životem a sliby všech stran, co znají jenom z novin, moc nevěřím, že nám doma zbyde víc peněz než teď. Spíš čekám, že to bude stejně napnuté jako letos, nebo ještě o kousek horší.\nKATEGORIE: horší"
+    },
+    {
+      "i": 100,
+      "response": "VETA: Od Babiše slýchám, že zlevní energie a zastropuje penze na 65, tak doufám, že se nám konečně uleví, ale Fiala zase akorát straší a nic moc nepředvedl. Každopádně na vesnici pořád vidím, že v obchodě vše draží, takže moc optimističtí nejsme.\nKATEGORIE: stejná"
+    },
+    {
+      "i": 101,
+      "response": "VETA: Po těch letech drahota pořád tlačí na rozpočet a sliby všech těch stran mi přijdou spíš jako mlžení, takže čekám, že s penzí a cenami budeme spíš ještě víc šetřit. Babiš aspoň mluví o zastropování důchodového věku a levnějších energiích, ale nevím, jestli to po volbách vůbec splní.\nKATEGORIE: horší"
+    },
+    {
+      "i": 102,
+      "response": "VETA: Upřímně, s těmi pořád dokola slibovanými levnějšími energiemi a bydlením od Babiše i Fialy moc nevěřím, že nám do roka v peněžence něco reálně přibude, spíš počítám s dalším šetřením. Jakožto rodina ve velkém městě vidím, že ceny pořád rostou a žádná z těch hádek v debatách zatím nepřinesla nic konkrétního, co by nám pomohlo.\nKATEGORIE: hor"
+    },
+    {
+      "i": 103,
+      "response": "VETA: Od těch politiků slýchám samý sliby, ale ceny v obchodě pořád rostou a důchod mi nestačí, takže se spíš bojím, že to doma budeme mít ještě těžší. Babiš aspoň mluví o levnějším životě, ale Fiala nám jen říká, ať věříme, zatímco na nás dole v naší dědině nic nezlevnilo.\nKATEGORIE: horší"
+    },
+    {
+      "i": 104,
+      "response": "VETA: Upřímně, po těch všech slibech od Babiše i Fialy moc nevěřím, že nám v naší vesnici reálně klesnou výdaje, spíš čekám, že energie a nákupy zůstanou drahé jako teď.\nKATEGORIE: stejná"
+    },
+    {
+      "i": 105,
+      "response": "VETA: Upřímně, po těch všech slibech Babiše i Fialy a zprávách o drahém životě v Praze moc nevěřím, že se nám s manželkou do roka výrazně uleví, spíš čekám další šetření na hypotéku a energie. Vládní i opoziční programy mi přijdou jako plané řeči, takže naše domácnost bude spíš v mínusu než v plusu.\nKATEGORIE: horší"
+    },
+    {
+      "i": 106,
+      "response": "VETA: Od téhle vlády jsem moc nečekal, ale Babiš aspoň slibuje levnější energie a zastropování důchodového věku, takže doufám, že se nám s manželem na vesnici bude trochu líp dýchat, i když moc nevěřím, že to za rok vyjde. KATEGORIE: stejná"
+    },
+    {
+      "i": 107,
+      "response": "VETA: Já už jsem v důchodu, ale s tou drahotou a sliby všech těch stran nevěřím, že mi to za rok bude doma vycházet líp, spíš budu muset šetřit ještě víc. Ty poplatky a ceny v obchodě pořád rostou a Fiala s Babišem se jen hádají, takže se bojím o každou korunu.\nKATEGORIE: horší"
+    },
+    {
+      "i": 108,
+      "response": "VETA: Upřímně, s tou drahotou a sliby všech stran kolem voleb moc nevěřím, že se nám na vesnici do roka výrazně uleví, spíš čekám, že sotva vyjdeme. Jako student s vysokou školou a bydlením u rodičů vidím, že ceny pořád rostou a žádná změna v programech mi nedává naději na zlepšení.\nKATEGORIE: horší"
+    },
+    {
+      "i": 109,
+      "response": "VETA: Já doufám, že po volbách Babiš konečně něco udělá s těma cenama a drahotou, protože teď s osmou třídou a málem na město jen tak vyjít nejde. Ale upřímně se bojím, že to bude stejně všechno dražší, jak slibujou všichni a nic z toho nevidím.\nKATEGORIE: horší"
+    },
+    {
+      "i": 110,
+      "response": "VETA: Od té doby, co ceny všeho vyletěly, sotva vyjdeme s penězi a sliby politiků mi přijdou jako plané řeči, takže čekám, že s důchodem a drahým provozem doma to spíš ještě zhorší. Babiš aspoň mluví o zastropování důchodového věku a levnějších energiích, ale nevěřím, že se do roka něco reálně zlepší.\nKATEGORIE: horší"
+    },
+    {
+      "i": 111,
+      "response": "VETA: Mám obavu, že to s cenama a s placením složenek nebude lepší, protože co slibujou ve volbách, to se většinou stejně doma neprojeví, a Babiš s Fialou jen hádají, kdo to zvládne líp. Život v drahým městě mě dál bude bolet, tak čekám, že budem muset šetřit ještě víc než teď.\nKATEGORIE: horší"
+    },
+    {
+      "i": 112,
+      "response": "VETA: Upřímně, po těch všech slibech od Babiše i Fialy nevěřím, že se nám doma uvolní peněženka – ceny potravin a energií nás dál tlačí a platy podle těch zpráv pořád nejsou tam, kde byly. Spíš čekám, že to budeme zvládat tak nějak na dřeň jako teď, než aby přišlo nějaké reálné zlepšení.\nKATEGORIE: stejná"
+    },
+    {
+      "i": 113,
+      "response": "VETA: Upřímně, s těma sliby od Babiše i Fialy kolem levnějších energií a hypoték nevím, co si myslet, ale v Praze máme nájmy pořád vysoký a platy nám moc nerostly, tak čekám, že to bude spíš boj o každou korunu dál. Podle těch zpráv o drahým životě a žádným jasným řešením od vlády ani opozice asi hůř nebude, ale líp taky ne.\nKATEGORIE: stejná"
+    },
+    {
+      "i": 114,
+      "response": "VETA: Od těch politiků slýchám pořád jen sliby, ale v obchodě zaplatím pořád víc než dřív, takže čekám, že s penězma budem pořád na šrot. Jestli Babiš něco udělá, třeba to bude lepší, ale moc nevěřím, že se do roka něco zlepší.\nKATEGORIE: horší"
+    },
+    {
+      "i": 115,
+      "response": "VETA: Upřímně čekám, že to bude spíš horší, protože sliby všech těch stran o levnějším životě znějí hezky, ale programy jako by ani neměli a Babišovo rozdávání peněz bez škrtů mi přijde nereálné. Jako rodina ve městě s hypotékou a drahým bydlením se prostě bojím, že ceny zůstanou vysoko a příjmy nestíhají.\nKATEGORIE: horší"
+    },
+    {
+      "i": 116,
+      "response": "VETA: Upřímně, podle těch slibů v novinách ani jeden z nich pořádně neříká, jak zlevní energie a hypotéky, což nás v bytě ve městě nejvíc tlačí, takže čekám, že s dětmi budeme šetřit jako dosud. Babiš s Fialou se jen hádají, kdežto naše výdaje rostou dál, takže do roka spíš nic lepšího nečekám.\nKATEGORIE: horší"
+    },
+    {
+      "i": 117,
+      "response": "VETA: Od té doby, co ceny všeho vyletěly a mzda mi zůstala skoro stejná, moc nevěřím, že se nám bude žít líp – spíš čekám, že s těmi sliby politiků budeme na tom stejně nebo hůř. Babiš aspoň mluví o levnějším životě, ale Fiala nám zatím jen přidával starosti.\nKATEGORIE: horší"
+    },
+    {
+      "i": 118,
+      "response": "VETA: Já moc nevím, co bude, ale z těch zpráv mi přijde, že všechno slibujou a nic moc nezlevňujou, takže budem asi pořád sotva vycházet s penězma. Babiš sice říká levnější život, ale tři tisíce na mě neudělají zázrak, když nájem a jídlo pořád roste.\nKATEGORIE: horší"
+    },
+    {
+      "i": 119,
+      "response": "VETA: Upřímně, po těch všech slibech od Babiše i Fialy kolem levnějších energií a vyšších mezd moc nevěřím, že se nám doma do roka výrazně uleví, spíš počítám s tím, že rozpočet zůstane napnutý jako teď. Slyším pořád jen hádky a populistické kousky, takže na klidný rozpočet moc nesázím.\nKATEGORIE: stejná"
+    },
+    {
+      "i": 120,
+      "response": "VETA: Upřímně, s těmi sliby od Babiše i Fialy kolem levnějšího bydlení a energií moc nepočítám, spíš čekám, že jako mladý v nájmu ve velkým městě budu dál šetřit každou korunu. Podle tý kampaně a zpráv o drahým životě tipuju, že nám doma bude hůř nebo max tak stejně.\nKATEGORIE: horší"
+    },
+    {
+      "i": 121,
+      "response": "VETA: Mám pocit, že ty sliby všech těch stran jsou jen kecy, protože ani Babiš, ani Fiala nic moc neudělali, aby mi zbylo víc peněz na nájem a jídlo, takže čekám, že to bude spíš zase těžké. Jako vyučený s prácí v menším městě nevidím, že by mi mělo za rok výrazně přidat, spíš budu pořád počítat každou korunu.\nKATEGORIE: horší"
+    },
+    {
+      "i": 122,
+      "response": "VETA: Já si myslím, že s tou drahotou a sliby všech stran se nic moc nezlepší, Babiš sice říká, že budou levnější energie a důchody na 65, ale zatím jsem v penzi spíš pořád na šrot a nic z toho nevidím. KATEGORIE: stejná"
+    },
+    {
+      "i": 123,
+      "response": "VETA: Mám obavu, že s těmahle cenama a slibama politiků, co pořád jen házejí vinu jeden na druhýho, nám bude v kapse pořád prázdnějc než dřív. Babiš sice slibuje levnější život, ale z newsů na Parlamentních listech mi přijde, že vlastně ani pořádně neví, kde na to vezme.\nKATEGORIE: horší"
+    },
+    {
+      "i": 124,
+      "response": "VETA: Od roku 2017 jsme na mzdách v podstatě zpátky a s těmi sliby všech stran nevím, jestli se na to dá spolehnout, takže čekám, že s cenami v Praze nám to doma spíš ještě víc zatáhne. Věřím, že po volbách se sice bude něco řešit, ale do roka se nám reálně neuleví.\nKATEGORIE: horší"
+    },
+    {
+      "i": 125,
+      "response": "VETA: Od těch politiků slýchám jen samý sliby, že bude líp, ale ceny v obchodě pořád rostou a důchod mi nestačí, takže se bojím, že to za rok bude ještě těžší. Babiš aspoň mluví o tom, že důchodci dostanou víc, ale nevím, jestli to po volbách fakt splní.\nKATEGORIE: horší"
+    },
+    {
+      "i": 126,
+      "response": "VETA: Od těch politiků slýchám samý sliby, ale ceny v obchodě pořád rostou a důchod mi neutáhne rodinu, takže se spíš bojím, že nám bude hůř než líp. Babiš aspoň mluví o zastropování důchodového věku a levnějších energiích, ale jestli to splní, to nikdo neví.\nKATEGORIE: horší"
+    },
+    {
+      "i": 127,
+      "response": "VETA: Od tý vlády a Fialy se nám pořád nedá dohromady, všechno je drahý a výdělky mizerný, takže čekám, že s Babišem by to mohlo bejt aspoň trochu lepší, ale moc nevěřím, že se reálně něco zlepší. Spíš počítám, že to zůstane stejný nebo ještě horší, než to tady teď je.\nKATEGORIE: horší"
+    },
+    {
+      "i": 128,
+      "response": "VETA: Od té doby, co ceny všeho vyletěly a mzda mi moc nepřidala, mám strach, že s dalšími sliby a daněmi bude v peněžence ještě hůř než teď. Babiš sice hlásá levnější život, ale já už těm politickým řečem moc nevěřím, takže spíš šetřím na všechno.\nKATEGORIE: horší"
+    },
+    {
+      "i": 129,
+      "response": "VETA: Já si myslím, že s těma slibama od Babiše, co chce zastavit zdražování a dát důchodcům víc, by to u nás doma mohlo být o kus lepší, hlavně když teď všechno tak draze stojí. Ale Fiala pořád jen straší a nic moc nezlevnil, tak uvidíme, co ty volby přinesou.\nKATEGORIE: lepší"
+    },
+    {
+      "i": 130,
+      "response": "VETA: Já si myslím, že s těma slibama od Babiše by to mohlo být aspoň o trochu lepší, ale furt nevidím, že by se něco reálně zlevnilo, takže spíš čekám, že to zůstane takový nahoře dole jak je teď.\nKATEGORIE: stejná"
+    },
+    {
+      "i": 131,
+      "response": "VETA: Jsem mladý, mám jen základní školu a v Praze jsou všechno drahý nájmy i žrátko, takže se spíš bojím, že budu mít ještě míň peněz než teď. Babiš sice slibuje levnější život, ale nevím, jestli to jakožto nízkoškolák v Praze fakt dopadne na mě.\nKATEGORIE: horší"
+    },
+    {
+      "i": 132,
+      "response": "VETA: Já si myslím, že s tímhle drahým životem to bude spíš horší, protože co slibujou ve zprávách, to se k nám do města nejspíš nedonese a ceny pořád rostou. Babiš sice něco slibuje, ale nevím, jestli to vůbec udělá, takže se spíš bojím o peníze.\nKATEGORIE: horší"
+    },
+    {
+      "i": 133,
+      "response": "VETA: Od té doby, co ceny všeho pořád rostou a výdělky na vsi moc nepohnuly, čekám, že s hypotékou a nákupy pro rodinu budeme muset ještě víc šetřit, ať už vyhrají na podzim kdokoli. Noviny slibují všelijaké slevy a důchody od Babiše nebo Fialy, ale mně z toho vychází, že reálně u nás doma peněz nepřibude.\nKATEGORIE: horší"
+    },
+    {
+      "i": 134,
+      "response": "VETA: Od té vlády Spolu slyším jen sliby o bavorských platech, ale v obchodě mi pořád rostou ceny a důchod mi nevychází, takže od Babiše čekám, že aspoň zastaví zdražování a nechá mě jít dřív do penze. Proto si myslím, že s ANO bude naše situace o kus lepší než teď.\nKATEGORIE: lepší"
+    },
+    {
+      "i": 135,
+      "response": "VETA: Upřímně, s tímhle drahým životem a sliby všech stran, co pořád jen házejí vinu jeden na druhého, moc nevěřím, že nám doma bude za rok líp – spíš počítám, že sotva vydržíme naživu z výplat. Babiš sice slibuje levnější energie a důchod v 65, ale podle zpráv chce rozdávat peníze, co nemá, takže se bojím, že nás to jenom víc zatíží.\nKATEGOR"
+    },
+    {
+      "i": 136,
+      "response": "VETA: Já už jsem v důchodu, ale s těmi cenami energií a potravin, co pořád slibují, že zlevní, moc nevěřím, že na tom budeme za rok líp, spíš to vidím na další šetření. Babiš sice hlásá levný život, ale Fiala zas varuje před průšvihem, tak nevím, co z toho vyjde.\nKATEGORIE: horší"
+    },
+    {
+      "i": 137,
+      "response": "VETA: Podle slibů všech stran by to mělo být levnější, ale z vlastní zkušenosti v Praze mám spíš obavu, že ceny a energie zůstanou vysoko a reálně si nepolepšíme. KATEGORIE: horší"
+    },
+    {
+      "i": 138,
+      "response": "VETA: Jako mladý vyučený v Praze moc nevěřím, že se nám s přítelem bude žít levněji, hlavně když všechny strany jen slibují a ceny bytů i jídla pořád rostou. Čekám, že s našima výdělkama budeme v příštím roce spíš v ještě větším průšvihu.\nKATEGORIE: horší"
+    },
+    {
+      "i": 139,
+      "response": "VETA: Já už jsem v důchodu, ale s tou drahotou a sliby všech těch stran nevěřím, že mi peněz na živobytí přibude, spíš se budu muset ještě víc uskrovňovat. Vláda i Babiš jenom slibují, ale ceny v obchodech pořád rostou a nic se nelepší.\nKATEGORIE: horší"
+    },
+    {
+      "i": 140,
+      "response": "VETA: Od těch politiků slyším pořád jen sliby, ale ceny v obchodech a nájmy ve městě mě dál drtí, takže čekám, že s našima penězma bude zase hůř. Babiš aspoň mluví o levnějším životě, ale nevím, jestli to po volbách fakt splní.\nKATEGORIE: horší"
+    },
+    {
+      "i": 141,
+      "response": "VETA: Upřímně, po těch všech slibech od Babiše i Fialy a zprávách o drahém životě čekám, že s našimi platy v velkém městě to spíš ještě víc pocítíme, hlavně na bydlení a energiích. Jsem skeptický, jestli po volbách někdo fakt něco změní, spíš to vidím na další šetření doma.\nKATEGORIE: horší"
+    },
+    {
+      "i": 142,
+      "response": "VETA: Od těch politiců slýchám samé sliby o levnějším životě, ale ceny v obchodě pořád rostou a na důchod se nechystám, takže čekám, že s penězma budem pořád na štrejchu. V naší vesnici se nic moc nezlepšuje, spíš mám strach, že nám ještě přitvrdí.\nKATEGORIE: horší"
+    },
+    {
+      "i": 143,
+      "response": "VETA: Od Babiše jsem slyšel, že zlevní energie a zastropuje důchodový věk, tak doufám, že to s novou vládou konečně přestane být taková nouze jako teď. Ale Fiala pořád jen straší a nic moc nezlevnil, takže mám spíš obavu, že jako důchodce s maturitou v malém městě budu šetřit dál.\nKATEGORIE: stejná"
+    },
+    {
+      "i": 144,
+      "response": "VETA: Upřímně, s těmi sliby od Babiše i Fialy kolem levnějších energií a vyšších důchodů moc nepočítám, v Praze máme drahé bydlení a životní náklady pořád vysoké, takže čekám, že s penězi budeme šetřit ještě víc. Koupěschopnost naší domácnosti se podle mě spíš ještě o něco zhorší, než by se zlepšila.\nKATEGORIE: horší"
+    },
+    {
+      "i": 145,
+      "response": "VETA: Upřímně, po těch všech slibech od Babiše i Fialy v televizi moc nevěřím, že nám v Praze nějak citelně poleví drahota, spíš čekám, že s hypotékou a energiemi budeme šetřit ještě víc. Když se dívám na ty jejich programy, co slibují bambiliony, co nejspíš nemají, tak mám obavu, že jako střední vrstva zase zaplatíme za všechno my.\nKATEGORIE: horší"
+    },
+    {
+      "i": 146,
+      "response": "VETA: Upřímně, s tímhle věčným politickým handrkováním a sliby o levnějším životě, co nikdo pořádně nevysvětlil, moc nevěřím, že se nám v bytě v Praze za rok výrazně uleví. Spíš počítám, že jako student s vysokoškolským rozpočtem zůstaneme v plusu jen těžko, když ceny pořád něco dělají.\nKATEGORIE: horší"
+    },
+    {
+      "i": 147,
+      "response": "VETA: Upřímně, po těch všech slibech od Babiše i Fialy v televizi moc nevěřím, že nám doma peněz přibude, spíš čekám, že ceny zůstanou vysoko a šetřit budeme dál. Jako střední vrstva v menším městě se cítíme pořád jako ti, co na ty „bavorské platy“ nedosáhnou.\nKATEGORIE: horší"
+    },
+    {
+      "i": 148,
+      "response": "VETA: Upřímně, po těch všech slibech od ANO i Spolu v kampani moc nevěřím, že nám doma v menším městě reálně klesnou výdaje, spíš čekám, že ceny zůstanou vysoko a platy sotva stačí. Sousedé na Facebooku sice tleskají Babišovým hláškám o levném životě, ale já jako vysokoškolák vidím, že žádný z nich pořádně neříká, odkud na to vezme.\nKATEGORIE: stejn"
+    },
+    {
+      "i": 149,
+      "response": "VETA: Upřímně, s těma sliby Babiše i Fialy kolem levnějšího bydlení a energií v Praze moc nepočítám, že se nám do roka reálně uleví, spíš budeme dál šetřit každou korunu. Jako mladý s maturitou v nájmu tu vidím spíš další tlak na peněženku než zlepšení.\nKATEGORIE: horší"
+    },
+    {
+      "i": 150,
+      "response": "VETA: Upřímně čekám, že to bude spíš horší, protože ceny pořád rostou a z programů kolem voleb mám pocit, že ani Babiš, ani Fiala nic reálného pro naše výdaje neudělají. Splašené sliby jako levné energie nebo vyšší důchody zní fajn, ale doma počítám každou korunu a moc nevěřím, že se nám uleví.\nKATEGORIE: horší"
+    },
+    {
+      "i": 151,
+      "response": "VETA: Mám pocit, že s tou drahotou a nízkýma mzdama se nic moc nezlepší, ať vyhrajou jakoby chtěli, slibujou všichni, ale peněz na konci měsíce je pořád málo. Spíš čekám, že to bude stejný boj o každou korunu jako teď.\nKATEGORIE: stejná"
+    },
+    {
+      "i": 152,
+      "response": "VETA: Od té vlády nic moc nečekám, spíš doufám, že po volbách Babiš aspoň trochu srazí ceny a zastropuje důchody, ale zatím máme v peněžence pořád hluboko. Když slibují levnější energie a hypotéky, rádi bychom to uvítali, ale věřit se tomu moc nedá, dokud to neuvidím na výplatě.\nKATEGORIE: horší"
+    },
+    {
+      "i": 153,
+      "response": "VETA: Máme s přítelkyní oba jen výuční list a děláme za málo peněz, takže po těch všech slibech politiků spíš čekám, že nás další rok zase nějaká drahota dostane, protože nic z toho se asi nebere vážně. Podle těch zpráv o rekordně drahém životě a šišlajících programech si myslím, že na konci měsíce budem pořád počítat každou korunu.\nKATEGORIE: horší"
+    },
+    {
+      "i": 154,
+      "response": "VETA: Já už jsem v důchodu a s manželem žijem z mála, takže podle těch slibů všech stran nevěřím, že nám to tu za rok nějak zásadně polepší, spíš se bojím, že ceny pořád rostou a naše penze na to nestačí.\nKATEGORIE: horší"
+    },
+    {
+      "i": 155,
+      "response": "VETA: Upřímně, podle těch slibů všech stran nevím, co si myslet – Babiš láká na levnější energie a zastropovaný důchodový věk, ale Fiala zase straší, že to bude průšvih, a já mám pocit, že s našima výdaji na provoz domácnosti v menším městě to za rok bude spíš těžší.\nKATEGORIE: horší"
+    },
+    {
+      "i": 156,
+      "response": "VETA: Od vlády ani od Babiše moc nečekám, ceny pořád rostou a našetřit se nedá, takže spíš počítám s tím, že nám bude hůř nebo tak tak vyjdeme. Věřím, že po volbách se sice něco slibuje, ale reálně se nám doma peněz nepřidá.\nKATEGORIE: horší"
+    },
+    {
+      "i": 157,
+      "response": "VETA: Já mám v Praze základní školu a práci za hubičku, takže po těch slibech Babiše i Fialy spíš čekám, že nám peněz na nájem a jídlo moc nezbude a bude to ještě těžší.\nKATEGORIE: horší"
+    },
+    {
+      "i": 158,
+      "response": "VETA: Od téhle vlády jsem nic dobrého nečekal, pořád všechno zdražuje a důchod sotva stačí na nájem a jídlo, takže pokud vyhraje Babiš, aspoň slibuje levnější energie a zastavení zdražování. Doufám, že to příští rok nebude horší než letos, ale moc optimistický nejsem.\nKATEGORIE: horší"
+    },
+    {
+      "i": 159,
+      "response": "VETA: Já jsem v důchodu a žiju z mála, od Babiše slýchám, že budou levnější energie a zastaví se zdražování, tak doufám, že to po volbách konečně poleví. Ale Fiala pořád jen straší a nic moc nezlevnil, takže vím, že to hned lepší nebude.\nKATEGORIE: stejná"
+    },
+    {
+      "i": 160,
+      "response": "VETA: Od té vlády čekám jen další zdražování a byrokracii, zatímco Babiš aspoň slibuje levnější energie a zastropování důchodů, takže doufám, že po volbách bude s našima penězma konečně líp. Věřím, že ANO něco změní, protože teď sotva vycházíme s důchodem.\nKATEGORIE: lepší"
+    },
+    {
+      "i": 161,
+      "response": "VETA: Upřímně, s těmi sliby od Babiše i Fialy kolem levnějších energií a důchodů moc nepočítám, spíš čekám, že ceny zůstanou vysoko a nájem ve městě nás dál bude ždímat. Asi budeme muset jezdit víc načerno a šetřit na všem, než aby se nám fakt ulevilo.\nKATEGORIE: horší"
+    },
+    {
+      "i": 162,
+      "response": "VETA: Upřímně, podle těch slibů všech stran nevěřím, že nám v Praze nějak výrazně klesnou výdaje, spíš čekám, že ceny a bydlení zůstanou napnuté, takže si nepolepšíme. Slyšel jsem v zprávách, že reálné mzdy jsou pořád níž než dřív, a vláda ani Babiš s tím moc nepohnuli, tak jdu do roka spíš opatrně.\nKATEGORIE: stejná"
+    },
+    {
+      "i": 163,
+      "response": "VETA: Upřímně, s těmi sliby od ANO i Spolu kolem levnějšího bydlení a daní moc nepočítám, spíš čekám, že jako studenta v nájmu v Praze mě příští rok zasáhnou vyšší ceny a nic moc se nezlepší. Podle titulků v novinách i TikToku se jen hádají a programy mají duté, takže na klidný rozpočet moc nevěřím.\nKATEGORIE: horší"
+    },
+    {
+      "i": 164,
+      "response": "VETA: Upřímně, s těmi sliby od ANO i Spolu kolem levnějšího života moc nepočítám, spíš čekám, že ceny a hypotéky zůstanou vysoce nejisté a náš rozpočet v menším městě moc neoddechne. Podle mě se za rok budeme mít s manželkou pořád o každou korunu těžší hlavu než dřív.\nKATEGORIE: horší"
+    },
+    {
+      "i": 165,
+      "response": "VETA: Od Babiše slýchám, že zlevní energie a zastropuje důchodový věk, takže doufám, že nám s manželkou nebudou penze mizet, ale Fialova vláda nás spíš jenom dojížděla drahotou. KATEGORIE: lepší"
+    },
+    {
+      "i": 166,
+      "response": "VETA: Upřímně, s těmi cenami energií a potravin, co pořád slibují, že zlevní, ale pořád rostou, čekám, že s penězi budeme ještě víc na štrejchu než teď. Babiš sice hází velký sliby, ale já nevěřím, že se mi v menším městě od ledna něco reálně uleví.\nKATEGORIE: horší"
+    },
+    {
+      "i": 167,
+      "response": "VETA: Upřímně, z těch slibů všech stran, co slibují levnější život a vyšší mzdy, moc nevěřím, že se mi na vesnici něco reálně zlepší, spíš čekám, že ceny zůstanou vysoké a jako mladý s průměrným výdělkem budu šetřit dál.\nKATEGORIE: stejná"
+    },
+    {
+      "i": 168,
+      "response": "VETA: Upřímně, s těmahle sliby od Babiše i Fialy kolem levnějších energií a důchodů moc nevěřím, že se nám doma ušetřit podaří, spíš čekám, že ceny zůstanou vysoké a výplata mi nevystačí. Jako mladý s maturitou v malým městě moc nevidím, že by se něco zlepšilo, spíš budem šetřit jak můžem.\nKATEGORIE: horší"
+    },
+    {
+      "i": 169,
+      "response": "VETA: Mám základní školu a žiju na vsi, peníze na náku pomaly docházejí, tak doufám, že po volbách Babiš slíbí levnější energie a jídlo, ale moc tomu nevěřím. KATEGORIE: horší"
+    },
+    {
+      "i": 170,
+      "response": "VETA: Od vlády i opozice slýcháme samé sliby o levnějším životě, ale ceny v obchodech pořád rostou a na důchod to nevypadá, takže čekám, že s penězi budeme ještě víc zápasit. Babiš sice hlásá lepší život, ale já mu moc nevěřím, když vidím, co všechno napral do programu a kolik by to stálo.\nKATEGORIE: horší"
+    },
+    {
+      "i": 171,
+      "response": "VETA: Mám obavy, že s těmi sliby všech stran o levnějším životě to u nás doma moc reálné nebude, když Babiš rozdává biliardy a vláda zase jen straší Babišem místo aby ukázala, jak nám důchodcům uleví. Spíš čekám, že s rostoucími cenami a nejistotou kolem voleb nám peněz na konci měsíce ještě ubude.\nKATEGORIE: horší"
+    },
+    {
+      "i": 172,
+      "response": "VETA: Od těch politiků slýchám samé sliby, že bude líp, ale s cenami v obchodě a drahým topením na vsi moc nevěřím, že na mě něco kápne, spíš to vidím na další šetření. KATEGORIE: horší"
+    },
+    {
+      "i": 173,
+      "response": "VETA: Já už jsem v důchodu a s manželem tak tak vyjdeme s penězi, takže se bojím, že když budou dál drahý energie a jídlo, tak nám bude hůř než teď. Babiš sice slibuje levnější život, ale já nevím, jestli to vůbec dodrží, každopádně od Fialy nic dobrýho pro nás starý nečekám.\nKATEGORIE: horší"
+    },
+    {
+      "i": 174,
+      "response": "VETA: Upřímně, po těch všech slibech od Babiše i Fialy moc nevěřím, že nám do roka reálně přidají, spíš čekám, že ceny zůstanou vysoko a hypotéku budeme dál těžko zvládat. Slyšela jsem v novinách, že reálné mzdy jsou pořád níž než před lety, takže naše domácnost bude spíš šetřit.\nKATEGORIE: horší"
+    },
+    {
+      "i": 175,
+      "response": "VETA: Od té vlády nic dobrého nečekám, slyším pořád jen sliby a ceny pořád rostou, takže budeme s penězi ještě víc bojovat. Babiš aspoň mluví o levnějším životě, tak snad to po volbách trochu poleví, ale moc v to nedoufám.\nKATEGORIE: horší"
+    },
+    {
+      "i": 176,
+      "response": "VETA: Od vlády moc nečekám, slyším pořád jen sliby o bavorských platech, ale v obchodě mi pořád kupují víc než dřív, takže pokud vyhraje Babiš s levnějšíma energiema, třeba se nám uleví, jinak vidím spíš další šetření. KATEGORIE: horší"
+    },
+    {
+      "i": 177,
+      "response": "VETA: Upřímně, po těch všech slibech od Babiše i Fialy a zprávách o drahém životě čekám, že s našimi platy v menším městě to spíš ještě víc pocítíme, než se něco zlepší. Hlavně mě děsí, že ANO chce rozdávat peníze, co nemá, a vláda zas jen straší, takže reálně budeme šetřit víc než dřív.\nKATEGORIE: horší"
+    },
+    {
+      "i": 178,
+      "response": "VETA: Po těch letech drahota nepoleví, ať vyhrají volby kterkoliv, takže za náš důchod a trochu úspor koupíme v příštím roce ještě míň než teď. Babiš sice slibuje levné energie a zastropovaný důchodový věk, ale z těch článků mám spíš strach, že to všechno zaplatíme my jako danoví poplatníci.\nKATEGORIE: horší"
+    },
+    {
+      "i": 179,
+      "response": "VETA: Já si myslím, že s těma slibama od Babiše, že zlevní energie a zastropuje důchodový věk, by to u nás na vsi mohlo být o něco lepší, ale furt se bojím, co provede tahle vláda s cenama. KATEGORIE: stejná"
+    },
+    {
+      "i": 180,
+      "response": "VETA: Odcházím za pár let do důchodu a s tímhle drahým životem a sliby bez krytí se spíš bojím, že nám peněz na konci měsíce ještě ubude, hlavně když ani Babiš s Fialou pořádně neříkají, kde na to vezmou.\nKATEGORIE: horší"
+    },
+    {
+      "i": 181,
+      "response": "VETA: Od téhle vlády nic dobrého nečekám, Babiš aspoň slibuje, že se zlevní energie a zastaví zdražování, tak snad s ním bude v peněžence líp. Teď ale s důchodem sotva vycházím a bojím se, že to do voleb ještě o něco zhorší.\nKATEGORIE: horší"
+    },
+    {
+      "i": 182,
+      "response": "VETA: Jako důchodce s vysokoškolským vzděláním v Praze se obávám, že po těch slibech ANO i Spolu bez jasného programu na zlevnění života naše rodinné výdaje spíš ještě stoupnou. Vláda ani opozice neukazují, že by reálně snížili ceny energií nebo daně, což naše domácnost citelně pocítí.\nKATEGORIE: horší"
+    },
+    {
+      "i": 183,
+      "response": "VETA: Já si myslím, že s těmito cenami a sliby všech těch stran se nám doma moc neuleví, spíš to vidím na další šetření, než aby bylo líp. Babiš sice něco slibuje, ale Fiala zas říká, že je to všechno populismus, tak nevím, komu věřit.\nKATEGORIE: horší"
+    },
+    {
+      "i": 184,
+      "response": "VETA: Mám obavy, že i když Babiš slibuje levnější energie a vyšší důchody, takové housata na dluh nám doma moc nepomůžou a ceny v obchodě pořád rostou, takže na tom budem spíš hůř. KATEGORIE: horší"
+    },
+    {
+      "i": 185,
+      "response": "VETA: Od vlády ani od Babiše moc nečekám, ceny pořád rostou a na vesnici máme s manželkou co dělat, aby nám s platem vydrželo na složenky, takže spíš počítám, že nám bude hůř. \nKATEGORIE: horší"
+    },
+    {
+      "i": 186,
+      "response": "VETA: Jsem z Prahy a s maturitou teprve začínám samostatný život, takže podle všech těch slibů ANO i Spolu o levnějším bydlení a mzdách nevím, jestli se mi bude žít líp, ale reálně čekám, že jako mladému bez vysoké školy v hlavním městě bude pořád těžko ušetřit.\nKATEGORIE: stejná"
+    },
+    {
+      "i": 187,
+      "response": "VETA: Od těch vládních slibů o bavorských platech nic moc nevidím, spíš mě děsí, co všechno chce ANO rozdávat, takže obávám se, že s penzí vyjdeme hůř nebo tak tak. Koupě cukru a nafty v obchodě pořád bolí, takže do roka čekám spíš další škrtání.\nKATEGORIE: horší"
+    },
+    {
+      "i": 188,
+      "response": "VETA: Od té doby, co ceny všeho vyletěly, žijeme z měsíce na měsíc a z důchodu manžela ani mých úspor nevidím žádné zlepšení, spíš mě děsí, co Babiš a ostatní naslibují, ale jestli to nezlevní, bude hůř. KATEGORIE: horší"
+    },
+    {
+      "i": 189,
+      "response": "VETA: Od těch politiků slýchám pořád jen sliby, že bude líp, ale ceny v obchodě pořád rostou a výplata mi sotva stačí na složenky, takže čekám, že to za rok bude spíš zase těžší. Babiš aspoň mluví o levnějších energiích a zastavení penze na 65, ale nevím, jestli to po volbách fakt udělají.\nKATEGORIE: horší"
+    },
+    {
+      "i": 190,
+      "response": "VETA: Mám pocit, že s těmahle cenama a sliby politiků se nám doma nebude líp, spíš budem muset ještě víc šetřit, než aby nám zbylo. Babiš sice něco slibuje, ale nevěřím, že to pro lidi jako jsem já něco reálně změní.\nKATEGORIE: horší"
+    },
+    {
+      "i": 191,
+      "response": "VETA: Já si myslím, že s těma slibama od Babiše a ANO to bude aspoň o kousek lepší, hlavně s těma zastropovaným důchodem a levnějšíma energiema, ale Fiala nám zatím akorát dokola říkal, že budem mít bavorsky platy a nic z toho nebylo.\nKATEGORIE: lepší"
+    },
+    {
+      "i": 192,
+      "response": "VETA: Mám z důchodu a trochy úspor co ušetřit, ale ceny pořád rostou a sliby politiků mi přijdou jako planý řeči, takže čekám, že s penězi budeme ještě víc šetřit. Babiš aspoň mluví o zastavení věku v 65 a levnějších energiích, ale nevím, jestli to dotáhne.\nKATEGORIE: horší"
+    },
+    {
+      "i": 193,
+      "response": "VETA: Od Babiše slýchám, že zlevní energie a zastropuje důchodový věk, tak doufám, že nám s manželkou konečně trochu odlehčí, ale Fialova vláda nás za ty roky dostala do bryndy. KATEGORIE: lepší"
+    },
+    {
+      "i": 194,
+      "response": "VETA: Upřímně, s těmi pořád rostoucími cenami a sliby všech stran, co vidím v novinách i na Facebooku, moc nevěřím, že nám doma zbyde víc peněz než teď. Babiš sice hlásá levnější energie a vyšší důchody, ale zprávy píšou, že to jsou jen plané sliby a nikdo pořádně neví, kde na to vezme, takže čekám spíš další šetření.\nKATEGORIE: horší"
+    },
+    {
+      "i": 195,
+      "response": "VETA: Upřímně, s těmahle sliby od všech stran moc nevěřím, že nám doma bude líp, spíš čekám, že ceny zůstanou vysoko a naše úspory dál ztratí na hodnotě. Babiš sice něco slibuje, ale z těch zpráv mám spíš strach, co to přinese za dluhy.\nKATEGORIE: horší"
+    },
+    {
+      "i": 196,
+      "response": "VETA: Od vlády ani od Babiše moc nečekám, ceny v obchodě pořád rostou a na důchod ještě dlouho nebudu, takže budem s manželkou šetřit jako dosud. Peníze navíc nevidím, spíš bude hůř, než se něco uklidní.\nKATEGORIE: horší"
+    },
+    {
+      "i": 197,
+      "response": "VETA: Od těch politiků slýchám samý sliby, ale ceny v obchodě pořád rostou a na výplatní pásku to moc nevidím, takže čekám, že s penězma budem bojovat dál. Babiš aspoň mluví o levnějším životě, ale nevím, jestli to po volbách fakt vyjde.\nKATEGORIE: horší"
+    },
+    {
+      "i": 198,
+      "response": "VETA: Jako Pražák v předprodukčním věku vidím, že ceny bydlení a energií pořád rostou a politici jen slibují, takže čekám, že s našimi příjmy budeme v příštím roce vyššími výdaji ještě víc tlačení ke zdi. Věřím, že po volbách se s tím nic zásadně nehne, spíš naopak.\nKATEGORIE: horší"
+    },
+    {
+      "i": 199,
+      "response": "VETA: Upřímně, s těmi sliby od Babiše i Fialy kolem levnějších energií a důchodů moc nepočítám, v Praze máme nájmy jako blázen a žádná změna se zatím nekoná, tak čekám, že s penězi budeme ještě víc šetřit.\nKATEGORIE: horší"
+    },
+    {
+      "i": 200,
+      "response": "VETA: S cenami v Praze a tím, co slibují všichni politici před volbami, moc nevěřím, že nám v příštím roce něco zbyde navíc, spíš budeme šetřit na každém nákupu stejně jako teď. Babiš sice hlásá levnější energie a vyšší důchody, ale Fiala zase straší, že je to populismus, takže já čekám spíš další tlak na rodinný rozpočet.\nKATEGORIE: horší"
+    },
+    {
+      "i": 201,
+      "response": "VETA: Upřímně čekám, že s těmi sliby všech stran o levnějším životě nic moc nepřijde a naše rodinné výdaje zůstanou napnuté k prasknutí, takže spíš to vidím bledě.\nKATEGORIE: horší"
+    },
+    {
+      "i": 202,
+      "response": "VETA: Mám obavu, že to s našimi výdaji nebude lepší, když pořád čtu, jak strany jen slibují levnější život, ale nikdo z těch nahoře pořádně neříká, odkud na to vezme, a ceny v obchodě pořád rostou. Babiš sice hlásá lepší život a zastropování důchodů, ale podle novin to má být za biliardy, co nejsou, takže já moc nevěřím, že nám doma zbyde ví"
+    },
+    {
+      "i": 203,
+      "response": "VETA: Od té vlády nic dobrého nečekám, pořád všechno zdražuje a důchod mi sotva stačí na nájem a jídlo, takže doufám, že Babiš to aspoň trochu zklidní. Spíš mám ale strach, že za rok na tom budeme ještě hůř než teď.\nKATEGORIE: horší"
+    },
+    {
+      "i": 204,
+      "response": "VETA: Mám jen základní školu a práci v menším městě mizerně placenou, takže od těch slibů Babiše i Fialy moc nečekám a spíš budem sotva vycházet jako doteď. Ceny jsou pořád vysoký a žádná strana mi nepřišla, že by fakt řešila lidi jako jsem já.\nKATEGORIE: stejná"
+    },
+    {
+      "i": 205,
+      "response": "VETA: Od těch politiků slýchám samé sliby o levnějším životě, ale ceny v obchodech pořád rostou a výplata mi sotva pokryje nájem, takže čekám, že s penězma budeme ještě víc na štíru. Babiš aspoň mluví o zastropování důchodů a levnějších energiích, ale nevím, jestli to po volbách fakt udělají.\nKATEGORIE: horší"
+    },
+    {
+      "i": 206,
+      "response": "VETA: Od Babiše slýchám, že zlevní energie a zastropuje důchodový věk, tak doufám, že nám aspoň trochu odlehčí od těch pořád drahých nákupů, ale Fiala zas pořád jen straší a nic moc nezlevnil. KATEGORIE: stejná"
+    },
+    {
+      "i": 207,
+      "response": "VETA: Od té doby co ceny všeho vyletěly, furt žijem od výplaty k výplatě a sliby na billboardech mi přijdou jako sci-fi, takže čekám, že s dětma to budem mít spíš ještě těžší. Babiš sice říká, že bude levněji, ale já už mu moc nevěřím, když ani pořádně neví, odkud vezme peníze.\nKATEGORIE: horší"
+    },
+    {
+      "i": 208,
+      "response": "VETA: Upřímně, z těch slibů všech stran, co slibují levnější život i hypotéky, moc nevěřím, že se nám na vesnici do roka něco zlepší, spíš čekám, že to bude stejně těžký jako teď. Rodiče pořád řeší drahý energie a já s málem peněz od nich moc nevidím.\nKATEGORIE: stejná"
+    },
+    {
+      "i": 209,
+      "response": "VETA: Od vlády ani od Babiše moc nečekám, ceny pořád rostou a výplata mi sotva pokryje složenky, takže za rok budeme spíš na suchu. Koupit si novou pračku nebo jet na dovolenou je teď nesplnitelnej sen, spíš šetříme každou korunu.\nKATEGORIE: horší"
+    },
+    {
+      "i": 210,
+      "response": "VETA: Od těch politiků slýchám samý sliby, ale ceny potravin a energií nás dál drtí, takže čekám, že s našima výdělkama na vesnici to spíš ještě zhorší. Babiš sice říká, že bude líp, ale já v to moc nevěřím, když ani teď sotva vyjdeme.\nKATEGORIE: horší"
+    },
+    {
+      "i": 211,
+      "response": "VETA: Já už jsem v důchodu, ale s těmahle cenama v obchodech a co slibujou, moc nevěřím, že budu mít na konci roku víc peněz než teď. Spíš čekám, že to bude stejný boj o každou korunu jako dosud.\nKATEGORIE: horší"
+    },
+    {
+      "i": 212,
+      "response": "VETA: Upřímně, po těch všech slibech od ANO i Spolu a zprávách o drahém životě spíš čekám, že s našimi hypotékou a nájmem v menším městě budeme šetřit ještě víc, než je teď. Babiš sice slibuje levné energie a zastropování důchodu, ale vláda zas mluví o bavorských platech, což u nás moc nevidím.\nKATEGORIE: horší"
+    },
+    {
+      "i": 213,
+      "response": "VETA: Mám obavy, že s těmi sliby všech stran nic moc nevyjde a jako důchodce s průměrným příjmem budu mít v příštím roce spíš ještě tíživěji s penězi. Ceny pořád rostou a Babiš s Fialou se jen hádají, takže na nás obyčejné lidi nikdo moc nemyslí.\nKATEGORIE: horší"
+    },
+    {
+      "i": 214,
+      "response": "VETA: Odcházím do důchodu a slyším sliby o zastropování věku na 65 a levnějších energiích, ale současná vláda podle zpráv moc nepomohla, takže čekám, že s inflací a cenami bude náš rozpočet spíš napnutý. Věřím, že po volbách Babiš aspoň trochu uleví, ale jisté to není.\nKATEGORIE: horší"
+    },
+    {
+      "i": 215,
+      "response": "VETA: Od těch politiků slyším jen sliby, že bude líp, ale ceny v obchodě pořád rostou a výplata mi sotva stačí na nájem a jídlo, takže moc nevěřím, že se za rok budeme mít líp. Spíš se bojím, aby nás s manželkou nedřeli dalšími platbami, co nezvládnem.\nKATEGORIE: horší"
+    },
+    {
+      "i": 216,
+      "response": "VETA: Od tý vlády a Fialy nám pořád všechno zdražuje a mzda mi na to nevyskakuje, takže doufám, že po volbách Babiš aspoň trochu zlevní energie a život, ale moc si od toho neslibuju. Kategorii vidím spíš hůř, dokud se něco fakt nezmění.\nKATEGORIE: horší"
+    },
+    {
+      "i": 217,
+      "response": "VETA: Upřímně, s těmi sliby ANO o levnějších energiích a zastropování penzí nevím, jestli to budou dodržovat, ale teď nám hlavně rostou ceny v obchodě a na vesnici nic moc neklesá, takže čekám, že s naším rozpočtem to půjde spíš z kopce.\nKATEGORIE: horší"
+    },
+    {
+      "i": 218,
+      "response": "VETA: Upřímně, po těch všech slibech od Babiše i Fialy a předvolebním křiku kolem drahého života moc nevěřím, že se nám doma do příštího září reálně uleví, spíš čekám, že energie a nákupy zůstanou stejně nepříjemné jako teď.\nKATEGORIE: stejná"
+    },
+    {
+      "i": 219,
+      "response": "VETA: Od Babiše jsem na Facebooku slyšel, že chce levnější energie a zastavit zdražování, tak doufám, že se nám s příjmy konečně vyrovnají výdaje a bude líp. Tady na vesnici jsme s klukem sotva vydělali na nájem a nákup, takže čekám, že po volbách to aspoň nebude horší.\nKATEGORIE: lepší"
+    },
+    {
+      "i": 220,
+      "response": "VETA: Od té doby, co ceny všeho vyletěly, sotva vyjdeme s penězi a sliby politiků mi přijdou prázdné, takže čekám, že s našima výdělkama to za rok bude spíš ještě těžší. Hlavně kdyby Fiala nebo Babiš něco zase zvedli, tak to doma pocítíme naplno.\nKATEGORIE: horší"
+    },
+    {
+      "i": 221,
+      "response": "VETA: Od té doby co ceny všeho vyletěly, sotva vyjdeme s výplatou a podle těch slibů od Babiše ani Fialy nevěřím, že nám to za rok nějak polepší, spíš to vidím na další šetření. Koupili bychom si s manželkou novou pračku, ale radši počkáme, co bude po volbách a jestli zase něco nezdraží.\nKATEGORIE: horší"
+    },
+    {
+      "i": 222,
+      "response": "VETA: Já si moc nevěřím, že to bude příští rok lepší, když čtu, jak Babiš slibuje levný život a důchody, ale vláda pořád jen straší a nic z levnějších věcí nevidím. U nás na vesnici jsou ceny pořád vysoký a výdělek malej, tak čekám, že budem spíš počítat každou korunu jako teď.\nKATEGORIE: horší"
+    },
+    {
+      "i": 223,
+      "response": "VETA: Obávám jsem se, že s těmi sliby o levnějším životě od všech stran nic moc nebude a jako důchodce s vysokoškolským vzděláním vidím, že naše úspory dál ztrácejí hodnotu. V příštím roce čekám spíš další šetření na úkor běžných výdajů domácnosti.\nKATEGORIE: horší"
+    },
+    {
+      "i": 224,
+      "response": "VETA: Jako důchodce s vysokoškolským vzděláním v velkém městě vidím, že ceny pořád rostou rychleji než moje penze, a podle slibů v kampani ani jedna strana neříká, jak to reálně zlepší, takže čekám spíš další zhoršování. KATEGORIE: horší"
+    },
+    {
+      "i": 225,
+      "response": "VETA: Slyším sliby od všech stran, ale po těch letech drahoty a rekordně nízkých reálných mzdách moc nevěřím, že se nám doma do roka výrazně uleví, spíš čekám další šetření. Babiš sice slibuje levnější energie a vyšší důchody, ale podle HN je to populismus a nikdo pořádně neví, kde na to vezme.\nKATEGORIE: horší"
+    },
+    {
+      "i": 226,
+      "response": "VETA: Od té doby, co všechno zdražilo a mzda mi moc nevzrostla, mám strach, že s dalšími sliby politiků a cenami energií budeme s manželkou spíš na suchu než aby nám bylo líp. Věřím, že ať vyhrají Fiala nebo Babiš, na nás obyčejné lidi v paneláku to stejně dolehne nejlíp jenom horším životem.\nKATEGORIE: horší"
+    },
+    {
+      "i": 227,
+      "response": "VETA: Já vidím v novinách pořád jen sliby, že bude líp, ale ceny v obchodě pořád rostou a výplata mi na konci měsíce nestačí, takže se spíš bojím, že to doma budem mít ještě těžší. Babiš sice říká, že zlevní energie a dá důchody dřív, ale nevím, jestli to po volbách fakt splní.\nKATEGORIE: horší"
+    },
+    {
+      "i": 228,
+      "response": "VETA: Upřímně, s touhle předvolební vřavou a sliby jako \"bavorské platy\" nebo \"levné energie\" moc nevěřím, že se nám v Praze s hypotékou a drahým životem do roka uleví, spíš čekám, že to zůstane napjaté. Podle všeho, co čtu, ani Babišův program není nic než populismus a Fiala zas mluví o bezpečí, ale ceny pořád rostou.\nKATEGORIE: stejná"
+    },
+    {
+      "i": 229,
+      "response": "VETA: Po těch letech drahoty a slibů všech těch stran moc nevěřím, že se nám doma do příštího podzimu reálně uleví, spíš čekám, že s důchodem a cenami v menším městě vyjdeme tak tak. \nKATEGORIE: stejná"
+    },
+    {
+      "i": 230,
+      "response": "VETA: Od té doby, co ceny všeho vyletěly, sotva vyjdeme s penězi, a jestli vyhrají ti, co slibují levnější energie a zastropování důchodového věku, snad to konečně ucítíme na výplatě i na důchodu. Jinak se ale bojím, že jako senior na vsi budu muset šetřit ještě víc než teď.\nKATEGORIE: horší"
+    },
+    {
+      "i": 231,
+      "response": "VETA: Upřímně, s těma sliby od Babiše i Fialy kolem levnějšího bydlení a energií moc nepočítám, v našem pronajatým bytě v Praze spíš čekám, že nájmy zase šoupnou nahoru a já budu muset víc šetřit. Jako mladý bez vysoký školy na střední s maturitou moc nevěřím, že se nám do roka výrazně uleví.\nKATEGORIE: horší"
+    },
+    {
+      "i": 232,
+      "response": "VETA: Upřímně, z těch slibů všech stran mám spíš obavy než naději, protože Babiš zase rozdává levné energie a důchody od 65 bez udání zdrojů, zatímco Fiala jen straší a mluví o bavorských platech, které nevidím. Čekám, že naše rodinné výdaje zůstanou napnuté a reálně se moc neuleví.\nKATEGORIE: stejná"
+    },
+    {
+      "i": 233,
+      "response": "VETA: Podle toho, co slibují všichni ve zprávách – Babiš levné energie a vyšší důchody, Fiala zas bavorské platy – ale ceny v obchodě pořád rostou, tak mám spíš strach, že s naším rozpočtem na menší město to bude jen těžší.\nKATEGORIE: horší"
+    },
+    {
+      "i": 234,
+      "response": "VETA: Od té vlády nic dobrýho nečekám, Babiš aspoň slibuje levnější energie a zastropování důchodů, ale jestli to splní, to nevím, takže spíš počítám, že nám peněz moc nezbude. Ceny v obchodě pořád rostou a výplata mi sotva pokryje složenky, takže se bojím, že budem na tom hůř.\nKATEGORIE: horší"
+    },
+    {
+      "i": 235,
+      "response": "VETA: Upřímně, podle toho, co slibují všechny strany a jak se v kampani jen hádají a straší, čekám, že naše rodinné výdaje zůstanou napjaté a reálně se nám neuleví, spíš budeme muset dál šetřit.\nKATEGORIE: horší"
+    },
+    {
+      "i": 236,
+      "response": "VETA: Upřímně, s těmi sliby od Babiše i Fialy moc nevím, co si myslet, ale ceny pořád rostou a na vesnici máme jenom jeden příjem, takže čekám, že nám bude ještě hůř. Koupit něco většího je teď fakt problém a šetříme na všem.\nKATEGORIE: horší"
+    },
+    {
+      "i": 237,
+      "response": "VETA: Upřímně čekám, že to bude spíš horší, protože ceny pořád rostou rychleji než naše příjmy a sliby ve volebních programech mi přijdou jako plané řeči. Po těch všech zprávách o drahém životě a nejisté ekonomice se bojím, že s hypotékou a dětmi utáhneme jen těžko.\nKATEGORIE: horší"
+    },
+    {
+      "i": 238,
+      "response": "VETA: Jako důchodce s vysokoškolským vzděláním v Praze vidím, že ceny pořád rostou rychleji než moje penze, a sliby jako zastropování důchodového věku od ANO znějí fajn, ale nevím, jestli je za tím reálně něco. Od říjnových voleb moc nečekám, že se nám doma uleví, spíš budeme muset dál šetřit.\nKATEGORIE: horší"
+    },
+    {
+      "i": 239,
+      "response": "VETA: Upřímně, po těch všech slibech od Babiše i Fialy a zprávách o drahém životě spíš počítám, že s naším rozpočtem v Praze moc nepohneme, spíš to vidím na další šetření. Vláda i opozice jen házejí plány bez jasných čísel, takže se bojím, aby nám mzdy zase neukrajovala inflace nebo nové daně.\nKATEGORIE: horší"
+    },
+    {
+      "i": 240,
+      "response": "VETA: Od těch politiků slýchám samý sliby o levnějším životě, ale zatím máme s manželkou v menším městě pořád vyšší výdaje než dřív a mzda moc nepohnula, takže čekám, že to bude spíš zatloukat. KATEGORIE: horší"
+    }
+  ],
+  "model": "tencent/Hy3",
+  "provider": "siliconflow",
+  "date": "2026-07-20",
+  "seeds_run": [
+    1,
+    2,
+    3
+  ]
+}

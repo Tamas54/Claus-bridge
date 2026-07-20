@@ -1,0 +1,988 @@
+{
+  "run": "G1/3 PT CCI headline (persona-only + SSR)",
+  "flag": "CLEAN",
+  "flag_note": "target-ablak 2026-03..05 >= 2025-08",
+  "protocol": "orakel_backteszt_pt_cci.py változatlanul (N=60, SSR linear + OpenAI-small)",
+  "corpus_files": {
+    "pt_corpus.json": "2a6b8ce28de3f1db10d5ae08bd9dd4767bdb453f75b4565296fb31624f2612fb"
+  },
+  "gt": {
+    "gt_latest": -11.5,
+    "gt_window": -14.0,
+    "prior": -1.7
+  },
+  "per_seed": [
+    {
+      "seed": 1,
+      "n_sent": 60,
+      "ssr_score": 2.7512624229868354,
+      "ssr_balance": -12.436878850658228,
+      "survey_pmf": [
+        0.1567623590599503,
+        0.2875329596827734,
+        0.2785869889918381,
+        0.2019152837413679,
+        0.07520240852407051
+      ],
+      "sentences": [
+        "Como já estou reformado e as rendas em Lisboa e a inflação continuam a subir mais do que o que ganho, prevejo que o meu poder de compra vá continuar a apertar, apesar da pequena subida das tabelas de IRS e da descida da Euribor aliviar um pouco quem tem crédito.",
+        "A prestação da casa subiu outra vez e o juro não para de crescer, e como o emprego está a cair e o desemprego a subir sinto que o meu dinheiro vai chegar ainda mais justo, apesar de o salário ter aumentado um bocadinho. Para o ano que vem estou com receio de ter de cortar mais nas despesas da família para conseguirmos pagar tudo.",
+        "Com a prestação da casa a subir outra vez e o gás a encarecer em outubro, sinto que o nosso orçamento vai ficar mais apertado apesar de termos poupado mais ultimamente, e não vejo alívio real nos próximos 12 meses.",
+        "Como as medidas do ano passado estão a acabar e o consumo vai crescer mais devagar, espero ter de apertar mais o cinto em casa, mas pelo menos a luz sobe pouco e os depósitos que temos no banco dão algum descanso.",
+        "Com o BCE a subir juros e a inflação revista em alta, o meu crédito à habitação vai ficar mais pesado e as contas do mês vão continuar apertadas com rendas, combustíveis e portagens nestes níveis. Para quem está perto da reforma, não vejo folga no orçamento familiar nos próximos 12 meses, só mais cuidado com cada euro.",
+        "Com o preço das casas a bater mais um recorde e a energia a disparar, sinto que o meu ordenho não vai chegar para muito mais do que o básico, e se as urgências fecharem no verão ainda me aperto mais na carteira com despesas de saúde privada.",
+        "Ajudava-me se eu conseguisse arranjar trabalho estável em Lisboa, porque com a inflação e a luz a subir tanto a minha carteira não chega, mas os 350 milhões para jovens comprarem casa dão-me alguma esperança de sair da renda cara.",
+        "Com o gás e a prestação da casa a subir e os juros do banco a agravarem o crédito, sinto que o meu dinheiro vai chegar com menos folga no fim do mês, mesmo guardando o que posso no banco.",
+        "Com o gasóleo e a gasolina a quase dois euros e a inflação a subir para mais de 3%, sinto que o meu ordenho não chega para a despesa da casa, e embora o alívio do IRS ajude um pouco, não me vejo a ter sobras nos próximos 12 meses.",
+        "Com a prestação da casa a subir outra vez e o cabaz alimentar no recorde dos 255 euros, sinto que vamos ter de apertar mais o cinto, mesmo que a Euribor prometa descer um pouco; com o emprego a cair e as rendas a aumentar, não vejo folga na carteira para o próximo ano.",
+        "Com o preço das casas e a inflação a subir e o emprego a cair, receio que o meu dinheiro não chegue para tudo o que precisamos, e como já estou na reforma não vejo grande margem para melhorar a situação.",
+        "Com o cabaz a custar 255 euros e os juros do crédito a subir, vou ter de apertar mais o cinto e não vejo folga no orçamento daqui a um ano, quanto mais com o gasóleo pelos preços que está.",
+        "A prestação da casa vai continuar a subir em junho e o cabaz alimentar já bateu recordes, por isso sinto que o nosso orçamento vai ficar mais apertado apesar do pequeno aumento do salário e da prometida descida da Euribor. Para o ano, conto com mais dificuldade em poupar e ter de cortar noutras despesas para manter o que temos.",
+        "Com o alívio de IRS ajuda um pouco no ordenado, mas com a renda em Lisboa a passar dos 1.500 euros e o desemprego a subir, sinto que vamos continuar a viver no limite e a mal parar para poupar.",
+        "Com o alívio de IRS e o aumento do salário médio sinto que vou ter algum fôlego a mais, mas com um T2 em Lisboa a passar de 1.500 euros e a greve a mostrar que os serviços públicos estão a ferver, duvido que a minha carteira aguente tranquilidade nos próximos 12 meses.",
+        "Como já estou reformado e as pensões subiram um bocadinho, ajudo-me com o alívio do IRS, mas vejo os juros no meu depósito a cair e as casas a subir sempre, por isso não me sinto mais descansado e o que tenho guardado rende cada vez menos.",
+        "Com o crédito à habitação a subir com as taxas do BCE e o cabaz alimentar e os combustíveis a continuarem caros, sinto que vamos ter de apertar ainda mais o orçamento apesar do salário ter subido um pouco, e qualquer poupança que tenhamos no banco vai servir só para nos proteger das incertezas.",
+        "Entre o alívio da Euribor a baixar e o BdP a prever inflação a subir para os 3,1%, sinto que vamos continuar a apertar o cinto com rendas e transportes, mas a descida das taxas dá-me algum fôlego para poder poupar um pouco mais este ano.",
+        "Como já estou reformado e os juros dos depósitos caíram para o mínimo, o aumento do gás em outubro vai apertar ainda mais o orçamento da casa, e à falta de acordo na função pública e com o desemprego a subir, não vejo grande folga para o meu agregado familiar nos próximos doze meses.",
+        "As notícias dizem que o IRS vai aliviar e as famílias estão a poupar mais, mas com o gás a subir quase 6,5% e as rendas e portagens a continuar a apertar, sinto que o meu dinheiro vai continuar a passar mal e não vejo grande folga no nosso orçamento para o ano que vem.",
+        "Com a prestação da casa a subir outra vez por causa das taxas do BCE e o emprego a cair por todo o lado, sinto que vamos ter de apertar ainda mais o cinto e poupar o que pudermos, porque não vejo o nosso dinheiro chegar com mais folga no ano que vem.",
+        "Como já estou reformado e a eletricidade só subiu 1%, aguento o barco sem sustos grandes, mas com as rendas e o preço das casas a disparar fico preocupado pelos meus filhos e netos que ainda pagam casa no Algarve. No fundo, para o meu agregado as perspetivas são de estabilidade modesta, desde que não apareçam despesas de saúde inesperadas a perturbar a paz.",
+        "Entre o cabaz alimentar a 255 euros e a carne e o peixe a subir 7%, o que me alivia no crédito com a Euribor e no IRS não chega para a despesa do dia a dia, por isso vejo o meu bolso a ficar mais apertado neste ano que vem.",
+        "Entre a prestação da casa que volta a subir e os combustíveis caríssimos, sinto que o alívio no IRS mal chega para cobrir o que mês a mês nos tiram, e com os preços das casas e rendas a bater recordes não vejo forma de respirar melhor no próximo ano. Se o salário mínimo sobe mas tudo o resto sobe atrás, para quem tem estudos básicos e já anda no limite, os próximos 12 meses vão ser para aguentar e não para melhorar.",
+        "Com o IRS a aliviar um pouco e a luz a subir menos que a inflação, respiramos de alívio no orçamento doméstico, mas o emprego a cair e a comida e os combustíveis ainda tão caros deixam-me receoso de que qualquer susto nos próximos meses possa apertar-nos outra vez.",
+        "Como em Lisboa o cabaz já bateu recordes e os supermercados avisam que a carne e o peixe vão subir 7%, vou ter de apertar mais no orçamento, e com o emprego a cair não me sinto nada seguro de que o meu agregado vai melhorar os próximos 12 meses.",
+        "Com a carne e o peixe a subir quase 7% e o desemprego a crescer, sinto que vamos ter de apertar mais o cinto, mesmo com a luz a aumentar só 1%, porque o ordenado não acompanha o que o supermercado realmente custa.",
+        "Com as rendas e portagens a continuar a subir e os juros dos depósitos no chão, sinto que o meu ordenado não vai chegar com mais folga e vou ter de apertar ainda mais o cinto em casa. Mesmo que digam que as famílias estão a poupar recordes, para quem tem só o básico isso não é escolha, é sobrevivência.",
+        "Com o desemprego a subir e a água e a energia cada vez mais caras aqui em Lisboa, sinto que o nosso orçamento familiar vai continuar a apertar e não vejo folga para poupar neste próximo ano.",
+        "Com o crédito a aliviar um pouco pela Euribor e a luz a subir menos que a inflação, respiramos o ano que vem, mas com o gasóleo pelo preço que está e as rendas a disparar para quem precise de casa, o orçamento da família continua a ficar muito apertado.",
+        "Com o salário a subir um pouco mas a inflação e as taxas do crédito a voltares a subir, sinto que vamos continuar a apertar o cinto e mal vamos conseguir poupar para o que quer que seja este ano.",
+        "Como só tenho o básico e aqui no Alentejo os ordenados são baixos, vejo o meu agregado a continuar a apertar o cinto com a inflação nos 3,3% e a luz e o gasóleo a subir muito, sem esperar grande melhoria apesar do alívio de IRS.",
+        "Com o gasóleo e a energia a subirem assim e a inflação ainda a 3,3%, sinto que o meu ordenho vai chegar cada vez menos para o mês, e como não sou jovem nem vou comprar casa, essas ajudas do Governo não me tocam nada. Para o ano que vem, conto viver mais apertado e a ver se não me sobra demasiado no fim do mês.",
+        "Com o IRS a aliviar um pouco e a inflação mais parada, respiro melhor no ordenado, mas os preços da energia a subir quase 13% vão continuar a esmagar a minha carteira no dia a dia. Para o ano que vem, conto aguentar com algum folgo se não houver mais sobressaltos, mas não me atrevo a planear grandes gastos fora do essencial.",
+        "Com o BCE a subir os juros outra vez e os combustíveis pelo nas alturas, o meu crédito à habitação e o mês a mês vão ficar mais apertados, por isso para o ano que vem vejo as contas de casa a esticar-se sem folga para grandes planos.",
+        "Entre a prestação da casa que volta a subir, o cabaz alimentar no recorde e os combustíveis caríssimos, sinto que o meu dinheiro vai continuar a não chegar com folga, mesmo com o alívio no IRS; vou ter de poupar mais e evitar gastos para aguentar o próximo ano.",
+        "Como o IRS subiu mas baixaram um pouco as taxas e os supermercados já avisaram que a comida vai encarecer 7%, sinto que o meu ordenho vai dar menos para o mês a mês, e com o gasóleo quase a 1,90 euros nem posso contar com folga para poupar. Estou a ver o próximo ano a apertar o cinto em casa, sem grandes perspetivas de melhorar enquanto os preços não acalmarem.",
+        "As contas vão ficar mais apertadas com a água e a eletricidade a subir e a inflação revista para 3,1%, mas como tenho emprego estável em Lisboa e as pensões dos meus pais sofreram atualização, aguentamos o ano sem sustos graves.",
+        "Com o cabaz a custar já 255 euros e as rendas a subir, sinto que o meu dinheiro não chega como antes, e embora a Euribor desça um pouco alivie o crédito, não vejo grande folga para o meu agregado familiar nos próximos 12 meses.",
+        "Com o aumento da prestação da casa e do gás a chegar em outubro, e as rendas e portagens a continuar a apertar, sinto que vamos ter de poupar mais e gastar menos, mesmo com o salário mínimo a subir um bocadinho.",
+        "Com o emprego a cair e o desemprego a subir, fico com receio de perder estabilidade ou ver o ordenado mais apertado, por isso vou continuar a poupar o que puder apesar dos combustíveis e eletricidade caros. Para o ano que vem, vejo as contas lá a passar, mas sem grandes folgas nem planos de gastar à grande.",
+        "Com os juros do crédito a subir e o cabaz alimentar no recorde dos 255 euros, sinto que o meu orçamento vai continuar a apertar e não me atrevo a gastar em nada que não seja estritamente necessário nos próximos meses. Mesmo com a inflação mais baixa, as rendas e portagens não largam e os depósitos já nem rendem o suficiente para compensar, por isso vejo pouca folga para a minha família no ano que vem.",
+        "Com o crédito à habitação a subir outra vez e a água e as rendas cada vez mais caras, sinto que o meu ordenado vai chegar ainda menos ao fim do mês, mesmo com o aumento do salário mínimo e os juros dos depósitos tão baixos que nem vale a pena poupar.",
+        "Com o salário mínimo a subir um pouco e a luz a aumentar menos que a inflação ainda mexo, mas fecharam fábricas aqui perto e as urgências do SNS vão encerrar no verão, por isso temo que se aparecer uma despesa de saúde ou falta de trabalho a gente não aguente o ano.",
+        "Como tenho ensino superior e o Governo está a reforçar apoios à habitação e a baixar IRS, sinto que se eu arranjar emprego estável no Sul consigo finalmente poupar para sair de casa dos meus, mas a subida da criminalidade e a emigração dos meus amigos deixam-me pouco seguro de que cá encontre futuro digno.",
+        "Como as rendas e a comida continuam a subir e a casa está cada vez mais cara, não vejo forma de poupar o que as notícias dizem que as famílias estão a conseguir, e para o meu agregado os próximos 12 meses vão ser para apertar ainda mais o cinto.",
+        "Com o salário mínimo a subir e a poupança a render tão pouco juro, vou tentar juntar o que posso mas com a casa a custar cada vez mais e os impostos a não baixar, não vejo grande folga no bolso daqui a um ano.",
+        "O salário até subiu um bocadinho mas com a casa a passar dos 3 mil euros o metro e o cabaz a quase 260 euros não vejo maneira de juntar para nada, e se o Governo só ajuda quem tem menos de 35 anos e estuda, para mim e para a minha mulher está cada vez mais difícil.",
+        "Estou a ver isso negro porque a casa cada vez custa mais e com o BCE a subir juros nem pensar em sair da casa dos meus pais, e o que sobra do ordenado mal dá para as rendas e contas que não param de subir.",
+        "Como já estou reformado e os juros dos depósitos caíram para o mais baixo desde 2023, o que tenho de lado rende menos, e com a carne e o peixe a subir 7% nos supermercados vou ter de apertar mais o cinto este ano, apesar de o IRS subir um pouco e aliviar no ordenado dos filhos que cá vivem.",
+        "Como estou reformado e com o custo da vida a subir — rendas, combustíveis e inflação a 3,1% —, receio que o alívio de IRS não chegue para manter o meu poder de compra e vou ter de apertar mais no cinto este ano.",
+        "Como reformado em Lisboa com pensão atualizada e IRS mais leve, sinto o orçamento familiar um pouco mais folgado, mas a subida de 7% na carne e no peixe e os juros baixos dos depósitos vão continuar a apertar a minha poupança no dia a dia.",
+        "Com a prestação da casa a subir de novo e o emprego a cair no país, receio que o nosso orçamento fique mais apertado e tenhamos de cortar nas despesas para aguentar o próximo ano.",
+        "Entre o BCE a subir juros e as rendas e portagens a continuar a apertar, sinto que o meu orçamento vai ficar mais pressionado apesar da inflação mais baixa, e qualquer poupança para a casa vai ser mais difícil de juntar.",
+        "Com esta inflação nos 3,3% e a luz e o gasóleo a disparar quase 13%, não vejo folga na carteira para o ano que vem, até porque a casa em Lisboa já custa o triplo do que pagávamos e o ordenado não acompanha. Se a reforma laboral passar sem acordo, receio ainda menos direitos e mais incerteza para quem trabalha como eu.",
+        "Como já tenho a casa paga no Alentejo e não dependo de crédito à habitação, o que mais me aperta o bolso é o cabaz alimentar a 255 euros e o calor extremo que agrava as contas da eletricidade, por isso prevejo 12 meses de aperto no dia a dia mas sem risco de perder o teto.",
+        "Como já estou reformado e a minha mulher também, o alívio do IRS ajuda um pouco mas com a prestação da casa a subir e as rendas e casas a disparar, sinto que o que temos no bolso chega cada vez menos para viver tranquilo aqui no Alentejo.",
+        "Com o preço das casas a subir sempre e o desemprego a aparecer de novo, sinto que vai ser difícil aguentar as contas, mas as tabelas do IRS e a Euribor mais baixa dão um pequeno alívio para o meu bolso. Ainda assim, com greves e incerteza no trabalho, vou continuar a guardar o que posso e não me vou meter em créditos grandes este ano.",
+        "Com o gás e a comida a subir e as urgências do SNS a fechar, sinto que o que ganhamos a mais no salário vai tudo embora, por isso vou continuar a guardar o que posso mas com pouca folga para o que vier.",
+        "Como já estou reformado e os depósitos das famílias bateram recordes, sinto-me seguro com as poupanças, mas a subida de 7% na carne e no peixe e a escalada dos preços das casas vão apertar o orçamento diário e dificultar ajudar os filhos a instalarem-se em Lisboa."
+      ]
+    },
+    {
+      "seed": 2,
+      "n_sent": 60,
+      "ssr_score": 2.7698219902107604,
+      "ssr_balance": -11.508900489461983,
+      "survey_pmf": [
+        0.14815104015644642,
+        0.2891087228724411,
+        0.27526503310843375,
+        0.21971761432926282,
+        0.0677575895334158
+      ],
+      "sentences": [
+        "Como já estou reformado e os depósitos rendem quase nada com juros a 1,34%, sinto que o meu poder de compra vai continuar a apertar com o cabaz a 255 euros e os combustíveis pelo preço que estão, por muito que o salário mínimo suba aos mais novos. Para o meu agregado, nos próximos 12 meses vejo tranquilidade mas muita contenção, porque o dinheiro no banco não cresce e tudo o que compramos custa cada vez mais.",
+        "Como ganho pouco e os preços do combustível e a inflação continuam a subir, vou ter de apertar mais o cinto em casa, mas pelo menos o desemprego juvenil baixou um bocado e pode aparecer algum trabalho por aqui no Norte.",
+        "Com o cabaz alimentar a bater os 255 euros e o gás a subir mais 6,4% em outubro, vou ter de apertar ainda mais o cinto em casa, e não vejo nada nestas notícias que me faça crer que o meu ordenho ou as contas vão aliviar nos próximos 12 meses.",
+        "Com o combustível a quase dois euros e o emprego a cair, receio que o meu agregado familiar tenha de apertar mais o cinto e poupar onde puder, enquanto a saúde pública piora e não ajuda em nada nas despesas.",
+        "Com o BCE a subir juros e a Euribor a descer só um bocadinho, o crédito continua a pesar no meu bolso, mas as subidas das pensões e o alívio do IRS dão-me algum fôlego para aguentar o ano sem grandes sustos.",
+        "O salário mínimo subiu mas o arrendamento em Lisboa e a comida no supermercado também estão a fugir-nos do bolso, por isso daqui a um ano vou continuar a viver com pouca folga e a contar cada cêntimo para fechar o mês.",
+        "Como ganho pouco e só tenho o básico, vejo o meu agregado a apertar mais o cinto porque a prestação e as contas sobem enquanto o cabaz e a renda não largam, e o que sobra mal chega para o mês.",
+        "Como já estou reformado e vejo que a inflação subiu para 3,1% e as rendas e portagens continuam a apertar, receio que o meu dinheiro não chegue tão bem como este ano, apesar do alívio no IRS. Se a greve geral e o desacordo no trabalho trouxerem mais subidas de preços, vai ser ainda mais difícil gerir a casa.",
+        "O salário subiu um pouco e o IRS aliviou, mas com a inflação revista para 3,1% e a casa a custar cada vez mais, sinto que o poder de compra vai continuar a ser pressionado e não vou conseguir poupar como gostaria. Para o ano, espero manter-nos estáveis, mas sem margem para grandes melhorias enquanto os preços dos bens e da habitação não abrandarem.",
+        "As contas vão continuar apertadas com a casa e a alimentação a subir sem parar e os juros da poupança no pós, por isso vou manter o pé atrás e guardar o que puder, mesmo ganhando um pouco mais este ano.",
+        "Com o cabaz a custar 255 euros e a energia a subir quase 14%, sinto que o meu salário não chega para muito mais do que o básico, por isso vou continuar a poupar o que posso e a segurar nos gastos nos próximos meses.",
+        "Com o salário médio a subir acima da inflação e a Euribor a baixar um pouco, espero conseguir respirar melhor no orçamento, mas o desemprego geral a subir e a reforma laboral em brasa deixam-me receoso de que o meu primeiro emprego fixe não esteja garantido.",
+        "Com a prestação da casa a subir outra vez e o gás a encarecer em outubro, sinto que o que ganho vai chegar com menos folga, mesmo com o salário a aumentar um pouco, e vou ter de poupar mais para não ficar apertado no fim do mês.",
+        "A prestação da casa sobe outra vez e os preços da energia estão a disparar, por isso vou ter de apertar mais o cinto, mas com as pensões a subir um pouco e a Euribor a baixar não me sinto de todo desesperado, embora o futuro pareça cada vez mais incerto.",
+        "Com as rendas e preços das casas a disparar e os juros dos depósitos no ponto mais baixo, sinto que o que ganhamos com o salário a subir vai ser comido pela inflação e custos fixos, por isso não vejo grande folga na carteira no próximo ano.",
+        "Entre a renda a subir 5% e o cabaz alimentar a passar os 255 euros, sinto que o meu ordenho vai chegar cada vez mais curto, e com a greve e a instabilidade não vejo grande margem para melhorar nos próximos 12 meses.",
+        "Os juros baixos e o preço das casas a disparar deixam-me a sentir que poupar não chega para mudar de vida, mas com o IRS a descer e a renda a subir 5% vou ter de apertar mais o cinto para manter o que temos.",
+        "Com o cabaz a 255 euros e o gasóleo quase a dois euros, sinto que vamos ter de apertar mais o cinto e poupar o que sobrar, porque não vejo o nosso rendimento a acompanhar estes preços nos próximos 12 meses.",
+        "Com as rendas, a luz, o gás e a comida sempre a subir e a inflação revista para cima, vejo o meu dinheiro a chegar cada vez menos ao fim do mês e não conto conseguir poupar nada neste próximo ano.",
+        "Com os juros dos depósitos no ponto mais baixo desde 2023 e o emprego a cair assim, receio que o meu dinheiro renda cada vez menos e que os que ainda trabalham na família fiquem mais expostos a dificuldades; por cá, vou tentar gerir bem o que tenho, mas não vejo grandes melhorias no ano que vem.",
+        "A prestação da casa a subir outra vez e o desemprego a crescer deixam-me com o pé atrás, mas como a luz só aumentou 1% e as rendas vão ter mais dedução no IRS, tento ir poupando para não ficarmos apertados no próximo ano.",
+        "Como já estou reformado e as pensões subiram um pouco acima da inflação, sinto o meu bolso mais aliviado, mas o preço da eletricidade e dos combustíveis ainda me aperta e as urgências do SNS fechadas deixam-me preocupado com os custos se a saúde falhar. No geral, aguento o ano com tranquilidade relativa, desde que não apareçam despesas inesperadas.",
+        "Com o cabaz alimentar e a carne e o peixe a subir assim e os juros dos depósitos no fundo do poço, sinto que o meu dinheiro vai chegar cada vez menos para o básico, e não vejo nada nas notícias que me faça crer que vai aliviar no próximo ano.",
+        "Com o BCE a subir juros e a inflação da energia a disparar, sinto que o nosso orçamento vai ficar mais apertado e vou ter de poupar ainda mais antes de pensar em qualquer mudança de casa.",
+        "Com a Euribor a baixar um pouco e os depósitos das famílias no máximo, sinto que vamos respirar melhor no crédito da casa, mas com a incerteza da reforma laboral e os preços ainda altos vou continuar a guardar o que posso e não me vou meter em gastos grandes.",
+        "Como já estou reformado e os combustíveis continuam tão caros, o que ganho nas pensões não chega para a vida com folga, e receio que estes aumentos de salários e gastos do Estado acabem por pressionar ainda mais os meus rendimentos fixos no próximo ano.",
+        "Com o cabaz a custar 255 euros e o gás a subir quase 6 e tal por cento, sinto que o meu ordenho vai chegar cada vez menos e vou ter de apertar mais o cinto, mesmo trabalhando sem parar aqui no Norte. Vejo o ano difícil, a poupar o que der porque já não há margem para sustos com estes preços.",
+        "Com o alívio do IRS e o excedente no Orçamento, espero respirar um pouco mais no fim do mês, mas a greve geral e os preços altos com estes calores deixam-me com o pé atrás sobre quanto vai sobrar na prática.",
+        "Como acabei de entrar no mercado de trabalho e o salário subiu mais que a inflação, respiro de alívio, mas com o gás e os combustíveis a disparar e a casa a passar dos 3.100 euros o metro quadrado no Porto, juntar para sair de casa dos meus pais vai continuar a parecer missão impossível.",
+        "Como as rendas continuam a subir e o meu salário não acompanha, vou continuar a pôr de lado o que consigo para estar mais seguro, mas não me vejo a comprar casa tão cedo apesar do apoio aos jovens, porque os preços ainda estão fora do meu alcance.",
+        "O IRS mais leve e a eletricidade quase parada dão algum fôlego, mas com a renda a subir 5% e a casa cada vez mais cara sinto que o orçamento familiar continua a ser apertado e não consigo poupar com tranquilidade.",
+        "Com o gasóleo e a gasolina ainda tão caros e a incerteza política a pairar, sinto que vamos continuar a apertar o cinto e a poupar o que pudermos, apesar de termos algum dinheiro de lado nos depósitos.",
+        "Com o BCE a subir juros e as casas a bater recordes de preço, sinto que o meu crédito vai ficar mais pesado e comprar ou mudar de casa é cada vez mais impossível, mas o aumento do salário e a luz mais estável dão algum fôlego para aguentar o ano. No fundo, vivo com mais aperto e incerteza, porque o emprego está a cair e as urgências do SNS vão fechar, e não vejo o meu poder de compra melhorar de verdade em 2026.",
+        "Com o IRS mais leve e o salário mínimo a subir para quem ganha pouco, respirámos um pouco, mas com a carne, o peixe e a energia a disparar sinto que o que sobra para a poupança continua a ser curto e incerto.",
+        "Com o custo da casa e da energia a subir e fábricas a fechar por aqui no Norte, sinto que o aumento do meu salário mal chega para manter o que temos, por isso vejo os próximos 12 meses com muita cautela e receio de perder poder de compra.",
+        "As contas vão continuar apertadas com o cabaz a 255 euros e as casas cada vez mais caras, mas o alívio no IRS e a Euribor a descer dão algum fôlego para respirar e talvez poupar um pouco menos de forma sofrida. Mesmo assim, sinto que estabilizar a vida da família exige cuidado redobrado, porque rendas e preços não param de subir.",
+        "Com o salário a subir um pouco acima da inflação mas as rendas em Lisboa a passar dos 1.500 euros, sinto que vamos continuar a apertar o cinto e a poupar mais, porque o que sobra para viver decentemente em casa continua curto.",
+        "Entre a renda de Lisboa a passar os 1.500 euros e os preços da comida a subir 7%, sinto que o meu ordenho vai chegar cada vez menos ao fim do mês, e com o emprego a cair não me parece que a situação melhore tão cedo.",
+        "Entre o gás a subir 6,4% e o cabaz a custar já 255 euros, sinto o orçamento cada vez mais apertado, mas com a Euribor a descer e o IRS a baixar um pouco respiro no crédito e no ordenho da reforma que ainda recebo.",
+        "Com a prestação da casa a subir outra vez e os preços tudo a aumentar, vou ter de apertar mais o cinto e não me sobra quase nada para poupar, mas como já tenho o crédito quase pago e a reforma entra, aguento o ano sem grandes sustos.",
+        "Como reformado em Lisboa, agradeço o aumento das pensões e o alívio no IRS, mas com a água mais cara e os combustíveis pelo preço que estão, sinto que o meu poder de compra vai ficar quase na mesma e terei de continuar a apertar o cinto no dia a dia.",
+        "Como já estou reformado e o meu crédito à habitação fica pior com a subida do BCE, sinto que o meu poder de compra vai ficar mais apertado apesar do alívio no IRS, e vou ter de poupar ainda mais para aguentar a inflação e as despesas da saúde.",
+        "Com a prestação da casa a subir outra vez e o cabaz alimentar no máximo histórico, sinto que o nosso orçamento vai continuar a apertar e mal vamos conseguir poupar nos próximos 12 meses.",
+        "Como só tenho o 9.º ano e vejo que o desemprego geral subiu e há fábricas a despedir, fico com medo de não arranjar trabalho fixo e de mal chegar para as contas de casa; o apoio para jovens comprar ou alugar ajuda mas, sem ordenado certo, não me sinto seguro para os próximos meses.",
+        "Com o desemprego a subir e a falar em greves e despedimentos, receio que o meu ordenado não chegue para aguentar os preços da casa em Lisboa, por mais que os depósitos estejam altos e o salário mínimo tenha subido. Para o ano que vem, sinto que vamos ter de apertar o cinto e poupar o que pudermos, sem contar com melhorias grandes.",
+        "Com o desemprego juvenil a baixar um bocado e o IRS a subir as tabelas, posso respirar melhor no meu ordenado, mas com a inflação a subir para os 3,1% e o emprego a cair no país, tenho medo de perder o trabalho e não sobrar nada para a minha família poupar.",
+        "Com o salário a subir um pouco mas a renda e a comida a aumentar quase o mesmo, sinto que vamos continuar a apertar o cinto e a meter de lado o que sobrar no banco, que é o que nos tem salvado. Não vejo grande folga este ano, com a reforma laboral e a greve só vejo incerteza e preços a subir em Lisboa.",
+        "Com o salário a subir um bocado e o IRS a aliviar, vou tentar juntar mais para a família, mas as rendas e o que pagamos de luz e portagens não largam e o SNS a fechar urgências no verão deixa-me a pensar se não vou ter despesas extra com saúde.",
+        "Com o cabaz a bater recordes, o gás a subir em outubro e a prestação da casa a encarregar mais 41 euros já em junho, sinto que o nosso orçamento vai ficar cada vez mais apertado e terei de cortar noutras coisas para conseguirmos pagar tudo.",
+        "Entre a prestação da casa e o gás a subirem e a água em Lisboa a ficar mais cara, sinto que o orçamento vai continuar apertado apesar do alívio no IRS, e com o emprego a cair e a economia incerta prefiro não me iludir com melhorias nos próximos meses.",
+        "Como já estou perto da reforma e vejo os preços da comida e do gás a subir enquanto o emprego e a economia parecem piorar, prevejo que vamos ter de apertar mais o cinto e poupar onde pudermos nos próximos meses. Não me sinto tranquilo com o que vem aí, porque tudo o que leio diz que a vida vai ficar mais cara e o dinheiro vai chegar com menos folga.",
+        "Com o cabaz a 255 euros, a prestação da casa a subir e o gás a encarecer em outubro, sinto que o meu dinheiro vai chegar cada vez menos e vamos ter de apertar mais o cinto no próximo ano.",
+        "Com a inflação a subir para os 3,1% e as medidas do ano passado a acabar, vejo o meu orçamento familiar mais apertado e vou ter de poupar mais para manter o mesmo padrão de vida.",
+        "Com o cabaz a custar já 255 euros e a fábrica de Lanheses fechada a tirar trabalho à zona, vejo o meu dinheiro a dar cada vez menos e receio que o ano que vem seja só para apertar mais o cinto em casa.",
+        "Com estes preços dos combustíveis e as rendas a subir, o que me sobra para o bolso cada vez é menos, e com as urgências do SNS a fechar no verão ainda vou ter de gastar mais se precisar de algum cuidado; para o ano que vem vejo pouca folga e muita cautela para não me meter em apuros.",
+        "Com o BCE a subir as taxas e as rendas e portagens a continuar a apertar, vou sentir o orçamento mais pressionado apesar da Euribor baixar um pouco, e a poupança vai ser para segurar e não para gastar.",
+        "Com os juros dos depósitos tão baixos e a prestação da casa a subir outra vez, sinto que o que guardámos vai render menos e o ordenado não chega com a mesma folga, por isso para o ano vou ter de apertar mais no dia a dia.",
+        "Com a Euribor a baixar um pouco alivia o crédito, mas os preços da energia e dos combustíveis continuam a esmagar o orçamento e o emprego a cair deixa-me com o pé atrás para o que aí vem.",
+        "Com o gás a subir quase 6,5% e o cabaz a custar já 255 euros, vai ser um ano para apertar o cinto, mas pelo menos a Euribor a descer um pouco alivia a prestação da casa e respiramos um pouco.",
+        "Com o gás e a inflação ainda a subir e as rendas ou créditos a pesar no orçamento, sinto que vamos continuar a apertar o cinto, apesar do alívio prometido pela descida da Euribor e dos apoios à habitação."
+      ]
+    },
+    {
+      "seed": 3,
+      "n_sent": 60,
+      "ssr_score": 2.795110822957569,
+      "ssr_balance": -10.244458852121552,
+      "survey_pmf": [
+        0.1352534934270185,
+        0.29591290454710495,
+        0.27878092016916517,
+        0.21857464935471146,
+        0.07147803250199986
+      ],
+      "sentences": [
+        "As casas cada vez mais caras e o juro do crédito a subir vão apertar-me o bolso, mas com o IRS a baixar um bocado e a água mais cara já me estou a preparar para gastar menos em tudo o que não é essencial.",
+        "Com a subida das taxas de juro a agravar o nosso crédito à habitação e o cabaz alimentar no recorde dos 255 euros, sinto que vamos ter de apertar mais o cinto, embora o alívio no IRS ajude um pouco a respirar. Para o ano, conto que o orçamento fique esticado entre rendas, transportes e o calor que nos obriga a gastar mais com a casa, sem grandes folgas para o que não seja essencial.",
+        "Com as rendas em Lisboa a passar dos 1.500 euros e o desemprego a subir, sinto que vai ser cada vez mais difícil pagar as contas e juntar o que quer que seja, mesmo poupando o que posso. Se o SNS fechar urgências e os preços não abrandarem, qualquer despesa inesperada vai deixar-nos mal, por isso não vejo grande folga no nosso dinheiro estes próximos meses.",
+        "Com o cabaz essencial a bater recordes e a inflação revista em alta, sinto que o que ganho mal chega para o mês mesmo com o salário a subir, e com o desemprego a trepar e casa cada vez mais cara fico com pouca margem para poupar ou planear com tranquilidade.",
+        "Com a prestação da casa a subir outra vez e as urgências do SNS a fechar por aqui no verão, sinto que vamos ter de apertar mais o cinto e poupar como nunca, mesmo com o alívio no IRS a ajudar um pouco.",
+        "Como sou reformado e a minha pensão só sobe 2,8% enquanto a luz e o gasóleo continuam a disparar, sinto que o meu dinheiro vai chegar ainda mais justo no próximo ano e vou ter de cortar nas compras para me aguentar.",
+        "O salário médio subiu um bocado e isso ajuda nas contas de casa, mas com a fábrica de Ovar a despedir gente e tanta falta de médicos e mão de obra por aqui, receio que o custo de viver continue a pesar mais do que o que entra.",
+        "A prestação da casa voltou a subir e com o que ganho sinto o ordenado a fugir-me das mãos, por isso para o ano que vem vejo o meu agregado a apertar ainda mais o cinto e sem folga para luxos.",
+        "A prestação da casa sobe outra vez e o gás vai pesar mais no inverno, mas com a eletricidade a subir pouco e as pensões a acompanhar a inflação, cá nos vamos aguentando sem grandes sustos nem luxos.",
+        "Com o gás e os combustíveis a subir e a fábrica da Yazaki a despedir gente, receio que o meu orçamento fique mais apertado apesar do pequeno alívio no IRS e do salário ter crescido um pouco. Para o ano, vou tentar poupar mais mas estou pouco confiante, porque os juros no banco estão baixos e o emprego por aí não parece estável.",
+        "Com o emprego a cair e as casas e contas do gás e da água cada vez mais caras, sinto que o meu agregado familiar vai ter de apertar mais o cinto e poupar o que puder, porque o dinheiro que entra está mais incerto e o que sai não para de subir.",
+        "Com a inflação ainda a morder e o emprego a cair, sinto que vai ser um ano para apertar o cinto e poupar onde der, sem grandes certezas de melhoria para quem já está na reforma ou perto dela.",
+        "Com o IRS a aliviar um pouco sinto algum fôlego, mas como as rendas, a comida e os juros do crédito continuam a subir, para o meu agregado a vida vai continuar apertada e sem grandes folgas estes próximos meses.",
+        "Para o meu agregado familiar, vejo os próximos 12 meses com dificuldade porque a prestação da casa e a comida só sobem, o emprego está a cair e o salário mínimo que ganho não chega para tanto aumento.",
+        "Como já estou reformado e o que tenho guardado não rende mais, vejo o ano a vir difícil porque a casa e a comida não param de subir e o meu dinheiro chega cada vez menos para o fim do mês.",
+        "Como reformado, a subida de 2,8% nas pensões ajuda um pouco mas o cabaz alimentar a 255 euros e os preços a subir vão continuar a apertar o nosso bolso, por isso para o ano que vem vejo a carteira a aguentar com custo, sem grandes folgas.",
+        "Com esta inflação nos 3,3% e os preços da carne e do peixe a subir mais de 7%, sinto que o meu ordenho não vai chegar para tudo e os depósitos a prazo já nem dão para compensar o que a gente gasta, por isso vejo o ano difícil e a ter de apertar mais o cinto.",
+        "Como acabei de terminar o curso superior no Centro e vejo o desemprego a subir e as casas a bater recordes de preço, sinto que vai ser muito difícil conseguir rendimento estável e independência da minha família nos próximos 12 meses. A prestação da casa dos meus pais a aumentar e a inflação revista em alta só apertam ainda mais o orçamento comum cá de casa.",
+        "O salário subiu um bocadinho e a comida está a estabilizar, mas com a luz e o gasóleo a disparar e a renda a aumentar, continuo a apertar o cinto e a não me atrever a gastar à frente nos próximos meses.",
+        "Com o alívio de IRS e o meu salário a subir um pouco sinto algum fôlego, mas a inflação em alta e as casas incompráveis deixam-me receoso de que o ano passe a correr sem conseguir poupar de verdade.",
+        "Entre o aumento de 6,4% no gás em outubro e as urgências do SNS a fechar no verão, sinto que o meu ordenho não vai chegar mais folgado, e qualquer despesa extra vai ter de ser bem pensada. Se nada mudar no meu trabalho, vou viver com o mesmo aperto ou pior, sem margem para respirar.",
+        "Com o cabaz a custar já 255 euros e a gente a ver as casas a abrandar, vou continuar a pôr de parte o que posso e a segurar nos gastos, porque não me parece que o ano que vem vá trazer alívio cá para casa.",
+        "Entre o aumento do gás e as rendas em Lisboa a passar dos 1.500 euros, sinto que o nosso orçamento vai ficar mais apertado e qualquer poupança para comprar casa vai demorar mais do que o previsto.",
+        "Como acabei de terminar o curso e ainda partilho casa arrendada com os meus pais no Algarve, as rendas subirem 5% e a inflação ir a 3,1% apertam-nos o orçamento, mas a possibilidade de deduzir mais rendas no IRS e a Euribor descer um pouco dão algum alívio para aguentarmos este ano.",
+        "As contas vão continuar apertadas com o gás, os combustíveis e as rendas a subir, e embora o IRS desça um pouco, não chega para o que sai do bolso todos os meses. Para o meu agregado, estes próximos 12 meses serão de ver cada cêntimo e não me atrevo a gastar em luxos.",
+        "Como ganho pouco e os juros dos depósitos caíram para o mínimo, sinto que mal vamos conseguir poupar algo, e com a inflação nos 3,3% e a casa cada vez mais cara, os próximos 12 meses vão ser para apertar o cinto e tentar não ficar a perder.",
+        "Como já estou reformado e as pensões só subiram uns trocos, sinto que vamos continuar a apertar o cinto porque tudo o que vejo nas notícias, como as casas a subir sempre, mostra que a vida não vai ficar mais barata para quem vive do pouco que tem.",
+        "Com o salário a subir um pouco e o IRS a aliviar, devemos respirar melhor no orçamento de casa, mas receio que a falta de mão de obra e os salários a crescer acima da produção acabem por disparar os preços e corroer o que ganhámos.",
+        "Com o salário a subir um bocadinho mas a renda e o gás a aumentarem, vou continuar a apertar o cinto e a não me meter em créditos, porque ter casa própria está fora de questão com estes preços. Para o ano que vem, vejo o orçamento da família a passar por mais dificuldades se as contas da luz e do gás continuarem a subir.",
+        "Com o gás a subir 6,4% e a comida a encarecer perto de 7%, sinto que o nosso orçamento vai ficar mais apertado apesar de termos poupado o que pudemos, e vou ter de cortar noutras coisas para manter o mesmo nível de vida.",
+        "Com o IRS a descer um pouco e as tabelas a subir, respiro melhor no ordenado, mas o aumento do gás e a subida da criminalidade deixam-me a guardar mais na conta em vez de gastar, por cautela. Para o ano, espero manter o que tenho e não me endividar, porque as notícias sobre a economia e a emigração dos mais novos não me dão confiança para alargar despesas.",
+        "Com o gasóleo e a eletricidade sempre caros e as casas a subir sem parar, sinto que o meu poder de compra vai continuar a apertar e não meso em grandes melhorias para o meu bolso no próximo ano.",
+        "Com o salário a subir um bocado mas a água e a energia cada vez mais caras, sinto que vamos continuar a apertar o cinto e não vai sobrar muito para poupar neste ano.",
+        "Com o desemprego a subir e os preços da comida e da água a aumentar, vou ter de apertar mais o cinto e poupar o que puder, porque não conto que o meu ordenado acompanhe as despesas nos próximos 12 meses.",
+        "A prestação da casa sobe outra vez e os juros do poupanço caíram tanto que quase nada rende, mas com o alívio do IRS este ano devemos aguentar as contas sem grandes sustos, embora viva com o receio de o que vem a seguir.",
+        "Entre a prestação da casa que volta a subir e o cabaz alimentar a bater recordes, sinto que o meu ordenho vai continuar a não chegar com folga, apesar de o IRS subir um pouco e as pensões melhorarem para os mais velhos. Se a Euribor descer como dizem, ajuda no crédito, mas o dia a dia no Centro continua a apertar com rendas, portagens e transportes caros.",
+        "Entre o gás, a água e as rendas a subirem e o emprego a cair, sinto que o meu agregado vai ter de apertar mais o cinto este ano, mesmo com a inflação um pouco estável e a Euribor a baixar um pouco.",
+        "Com o gasóleo e o gás a subir e a prestação da casa a aumentar quase 41 euros, sinto que o meu dinheiro não chega como antes, e embora o salário mínimo tenha subido, a inflação de 3,1% vai comer essa diferença toda. Para o ano que vem, vejo-me a apertar mais o cinto e a viver com menos folga, porque os custos fixos não param de crescer.",
+        "Com o emprego a cair e os preços da comida, água e combustíveis sempre a subir, vejo o meu orçamento familiar a ficar mais apertado e vou ter de poupar ainda mais para não ficarmos mal.",
+        "Como ganho o salário mínimo e os preços da energia e da comida continuam a subir, sinto que o alívio de IRS e o aumento do ordenado mal chegam para ficar mais descansado, mas pelo menos temos as festas e o Rock in Rio em Lisboa para não pensar tanto nisso.",
+        "Como já estou reformado e em Lisboa, vejo o meu dinheiro a dar menos por causa da água e da comida mais cara, e como acabaram as ajudas do ano passado, vou ter de apertar mais o cinto nos próximos meses.",
+        "As contas vão continuar apertadas com o gás a subir quase 6,5% no outono e a eletricidade também a aumentar, mas como o desemprego jovem baixou e o meu caso não está mau, espero aguentar o ano sem grandes sobressaltos se não houver mais subidas inesperadas.",
+        "Com estes preços do gasóleo e a prestação da casa a subir outra vez, vou continuar a apertar o cinto e a pôr dinheiro de parte, porque não vejo folga no orçamento para o ano que vem.",
+        "Como reformado em Lisboa, sinto que o aumento das pensões ajuda pouco quando a carne, o peixe e a água ficam mais caros e os juros no meu depósito a prazo quase desapareceram, por isso prevejo ter de apertar mais o cinto no próximo ano.",
+        "Com o Banco Central a subir os juros outra vez e as rendas a aumentar, sinto que o meu dinheiro vai chegar com menos folga para o ano, e como o emprego está a cair não me parece que vá melhorar tão cedo.",
+        "O meu salário sobe um bocado mas a inflação e os juros baixos nos depósitos deixam-me a ganhar menos poder de compra, e com o emprego a cair e as urgências do SNS a fechar sinto que é melhor guardar o que posso e não me esticar demasiado nas contas da casa.",
+        "Entre o alívio do IRS e a descida da Euribor, devemos respirar um pouco melhor no orçamento da casa, mas com a energia a subir mais de 13% e os serviços públicos a falhar, sinto que qualquer folga vai ser curta e incerta.",
+        "Como já estou reformado e o IRS subiu um pouco, respiro melhor no ordenado da reforma, mas com os juros dos depósitos no pique mais baixo e os combustíveis ainda a quase dois euros, sinto que o que sobra para poupar ou ajudar os filhos vai continuar muito apertado.",
+        "Para o meu agregado, os próximos 12 meses vão ser cada vez mais apertados, com a água e o gás a subir, a prestação da casa a aumentar outra vez e o transporte em greve, e já não dá para contar com aquele dinheiro extra do ano passado. Vou ter de poupar bem mais e cortar nas saídas, porque o que entra não acompanha o que está a ficar caro.",
+        "O salário mínimo subiu e a Euribor baixou um pouco, mas com a água, as rendas e o transporte sempre a subir, sinto que o meu dinheiro não chega com mais folga e vou continuar a apertar o cinto este ano.",
+        "Com a Euribor a descer um pouco vou aliviar no crédito da casa, mas o cabaz essencial a 255 euros e o emprego a cair deixam-me receoso, por isso vou continuar a gerir o orçamento com muito cuidado e sem grandes gastos nos próximos meses.",
+        "Com o juro do crédito a subir outra vez e os preços da casa, do gasóleo e da comida cada vez mais altos, vai ser um ano para apertar o cinto e viver com o que temos, sem luxos nem viagens. Só espero que a Euribor desça como o Banco de Portugal diz, senão a prestação come-nos o que sobrava para o resto.",
+        "Com o juro do crédito a subir outra vez e a comida mais cara, vou ter de apertar mais o cinto apesar do alívio no IRS, e qualquer reserva que consiga fazer fica só a ganhar importância para aguentar o ano.",
+        "O alívio de IRS e o aumento do salário mínimo ajudam um pouco, mas com a prestação da casa e os combustíveis a subir e as rendas e transportes a apertar, sinto que o nosso orçamento familiar vai continuar a ser difícil de gerir no próximo ano.",
+        "Com o gasóleo e a luz cada vez mais caros e as rendas em Lisboa acima dos 1.500 euros, o que ganho a mais nem chega para cobrir, por isso vejo o ano a seguir a passar ainda mais apertado para a minha família.",
+        "Com o custo de vida a subir e as rendas ou casas fora do alcance, para o meu agregado familiar os próximos 12 meses vão ser de apertar o cinto e não contar com grandes melhorias no ordenado.",
+        "Como já estou reformado e vejo o gás e a água a subir, as minhas contas vão ficar mais apertadas apesar do pequeno aumento da pensão, e receio que o que sobra para o dia a dia seja cada vez menos.",
+        "Com o desemprego a subir e as casas cada vez mais caras, sinto que vai ser difícil arranjar trabalho estável e juntar dinheiro para sair de casa dos meus pais, mesmo com aquele apoio para jovens que o Governo anunciou. Para o meu agregado, o ano vai ser de apertar o cinto porque os juros dos depósitos caíram e não vejo a situação melhorar tão cedo.",
+        "Como já estou reformado e o meu salário não acompanha estas subidas, prevejo que os próximos 12 meses sejam de maior aperto com a energia e a alimentação mais caras, apesar do alívio no IRS e na eletricidade. Vou ter de poupar mais e evitar despesas supérfluas para manter o mesmo nível de vida em Lisboa.",
+        "Como já estou reformado e o que tenho no banco rende poucochinho, mas o gás, a renda e a comida só sobem, vejo o meu dinheiro a chegar cada vez menos ao fim do mês e não conto poder poupar nada neste próximo ano."
+      ]
+    }
+  ],
+  "mean_ssr_balance": -11.396746064080588,
+  "abs_err_window": 2.603253935919412,
+  "flash_reference": {
+    "file": "pt_cci_result.json",
+    "pt_balance": -28.32
+  },
+  "cost": {
+    "n_calls": 180,
+    "n_api_calls": 180,
+    "n_cache_hits": 0,
+    "calls_per_min_limit": 100.0,
+    "elapsed_s": 120.3,
+    "prompt_chars": 486015,
+    "completion_chars": 44880,
+    "est_prompt_tokens": 151879,
+    "est_completion_tokens": 14025
+  },
+  "raw_stream": [
+    {
+      "i": 1,
+      "response": "Com a prestação da casa a subir outra vez e o gás a encarecer em outubro, sinto que o nosso orçamento vai ficar mais apertado apesar de termos poupado mais ultimamente, e não vejo alívio real nos próximos 12 meses."
+    },
+    {
+      "i": 2,
+      "response": "Como já estou reformado e as rendas em Lisboa e a inflação continuam a subir mais do que o que ganho, prevejo que o meu poder de compra vá continuar a apertar, apesar da pequena subida das tabelas de IRS e da descida da Euribor aliviar um pouco quem tem crédito."
+    },
+    {
+      "i": 3,
+      "response": "Como as medidas do ano passado estão a acabar e o consumo vai crescer mais devagar, espero ter de apertar mais o cinto em casa, mas pelo menos a luz sobe pouco e os depósitos que temos no banco dão algum descanso."
+    },
+    {
+      "i": 4,
+      "response": "A prestação da casa subiu outra vez e o juro não para de crescer, e como o emprego está a cair e o desemprego a subir sinto que o meu dinheiro vai chegar ainda mais justo, apesar de o salário ter aumentado um bocadinho. Para o ano que vem estou com receio de ter de cortar mais nas despesas da família para conseguirmos pagar tudo."
+    },
+    {
+      "i": 5,
+      "response": "Com o BCE a subir juros e a inflação revista em alta, o meu crédito à habitação vai ficar mais pesado e as contas do mês vão continuar apertadas com rendas, combustíveis e portagens nestes níveis. Para quem está perto da reforma, não vejo folga no orçamento familiar nos próximos 12 meses, só mais cuidado com cada euro."
+    },
+    {
+      "i": 6,
+      "response": "Com o gás e a prestação da casa a subir e os juros do banco a agravarem o crédito, sinto que o meu dinheiro vai chegar com menos folga no fim do mês, mesmo guardando o que posso no banco."
+    },
+    {
+      "i": 7,
+      "response": "Com o preço das casas a bater mais um recorde e a energia a disparar, sinto que o meu ordenho não vai chegar para muito mais do que o básico, e se as urgências fecharem no verão ainda me aperto mais na carteira com despesas de saúde privada."
+    },
+    {
+      "i": 8,
+      "response": "Ajudava-me se eu conseguisse arranjar trabalho estável em Lisboa, porque com a inflação e a luz a subir tanto a minha carteira não chega, mas os 350 milhões para jovens comprarem casa dão-me alguma esperança de sair da renda cara."
+    },
+    {
+      "i": 9,
+      "response": "Com o preço das casas e a inflação a subir e o emprego a cair, receio que o meu dinheiro não chegue para tudo o que precisamos, e como já estou na reforma não vejo grande margem para melhorar a situação."
+    },
+    {
+      "i": 10,
+      "response": "Com o cabaz a custar 255 euros e os juros do crédito a subir, vou ter de apertar mais o cinto e não vejo folga no orçamento daqui a um ano, quanto mais com o gasóleo pelos preços que está."
+    },
+    {
+      "i": 11,
+      "response": "Com a prestação da casa a subir outra vez e o cabaz alimentar no recorde dos 255 euros, sinto que vamos ter de apertar mais o cinto, mesmo que a Euribor prometa descer um pouco; com o emprego a cair e as rendas a aumentar, não vejo folga na carteira para o próximo ano."
+    },
+    {
+      "i": 12,
+      "response": "A prestação da casa vai continuar a subir em junho e o cabaz alimentar já bateu recordes, por isso sinto que o nosso orçamento vai ficar mais apertado apesar do pequeno aumento do salário e da prometida descida da Euribor. Para o ano, conto com mais dificuldade em poupar e ter de cortar noutras despesas para manter o que temos."
+    },
+    {
+      "i": 13,
+      "response": "Com o gasóleo e a gasolina a quase dois euros e a inflação a subir para mais de 3%, sinto que o meu ordenho não chega para a despesa da casa, e embora o alívio do IRS ajude um pouco, não me vejo a ter sobras nos próximos 12 meses."
+    },
+    {
+      "i": 14,
+      "response": "Com o alívio de IRS ajuda um pouco no ordenado, mas com a renda em Lisboa a passar dos 1.500 euros e o desemprego a subir, sinto que vamos continuar a viver no limite e a mal parar para poupar."
+    },
+    {
+      "i": 15,
+      "response": "Com o alívio de IRS e o aumento do salário médio sinto que vou ter algum fôlego a mais, mas com um T2 em Lisboa a passar de 1.500 euros e a greve a mostrar que os serviços públicos estão a ferver, duvido que a minha carteira aguente tranquilidade nos próximos 12 meses."
+    },
+    {
+      "i": 16,
+      "response": "Como já estou reformado e as pensões subiram um bocadinho, ajudo-me com o alívio do IRS, mas vejo os juros no meu depósito a cair e as casas a subir sempre, por isso não me sinto mais descansado e o que tenho guardado rende cada vez menos."
+    },
+    {
+      "i": 17,
+      "response": "Entre o alívio da Euribor a baixar e o BdP a prever inflação a subir para os 3,1%, sinto que vamos continuar a apertar o cinto com rendas e transportes, mas a descida das taxas dá-me algum fôlego para poder poupar um pouco mais este ano."
+    },
+    {
+      "i": 18,
+      "response": "Com o crédito à habitação a subir com as taxas do BCE e o cabaz alimentar e os combustíveis a continuarem caros, sinto que vamos ter de apertar ainda mais o orçamento apesar do salário ter subido um pouco, e qualquer poupança que tenhamos no banco vai servir só para nos proteger das incertezas."
+    },
+    {
+      "i": 19,
+      "response": "As notícias dizem que o IRS vai aliviar e as famílias estão a poupar mais, mas com o gás a subir quase 6,5% e as rendas e portagens a continuar a apertar, sinto que o meu dinheiro vai continuar a passar mal e não vejo grande folga no nosso orçamento para o ano que vem."
+    },
+    {
+      "i": 20,
+      "response": "Como já estou reformado e os juros dos depósitos caíram para o mínimo, o aumento do gás em outubro vai apertar ainda mais o orçamento da casa, e à falta de acordo na função pública e com o desemprego a subir, não vejo grande folga para o meu agregado familiar nos próximos doze meses."
+    },
+    {
+      "i": 21,
+      "response": "Com a prestação da casa a subir outra vez por causa das taxas do BCE e o emprego a cair por todo o lado, sinto que vamos ter de apertar ainda mais o cinto e poupar o que pudermos, porque não vejo o nosso dinheiro chegar com mais folga no ano que vem."
+    },
+    {
+      "i": 22,
+      "response": "Entre a prestação da casa que volta a subir e os combustíveis caríssimos, sinto que o alívio no IRS mal chega para cobrir o que mês a mês nos tiram, e com os preços das casas e rendas a bater recordes não vejo forma de respirar melhor no próximo ano. Se o salário mínimo sobe mas tudo o resto sobe atrás, para quem tem estudos básicos e já anda no limite, os próximos 12 meses vão ser para aguentar e não para melhorar."
+    },
+    {
+      "i": 23,
+      "response": "Entre o cabaz alimentar a 255 euros e a carne e o peixe a subir 7%, o que me alivia no crédito com a Euribor e no IRS não chega para a despesa do dia a dia, por isso vejo o meu bolso a ficar mais apertado neste ano que vem."
+    },
+    {
+      "i": 24,
+      "response": "Como já estou reformado e a eletricidade só subiu 1%, aguento o barco sem sustos grandes, mas com as rendas e o preço das casas a disparar fico preocupado pelos meus filhos e netos que ainda pagam casa no Algarve. No fundo, para o meu agregado as perspetivas são de estabilidade modesta, desde que não apareçam despesas de saúde inesperadas a perturbar a paz."
+    },
+    {
+      "i": 25,
+      "response": "Com o IRS a aliviar um pouco e a luz a subir menos que a inflação, respiramos de alívio no orçamento doméstico, mas o emprego a cair e a comida e os combustíveis ainda tão caros deixam-me receoso de que qualquer susto nos próximos meses possa apertar-nos outra vez."
+    },
+    {
+      "i": 26,
+      "response": "Como em Lisboa o cabaz já bateu recordes e os supermercados avisam que a carne e o peixe vão subir 7%, vou ter de apertar mais no orçamento, e com o emprego a cair não me sinto nada seguro de que o meu agregado vai melhorar os próximos 12 meses."
+    },
+    {
+      "i": 27,
+      "response": "Com a carne e o peixe a subir quase 7% e o desemprego a crescer, sinto que vamos ter de apertar mais o cinto, mesmo com a luz a aumentar só 1%, porque o ordenado não acompanha o que o supermercado realmente custa."
+    },
+    {
+      "i": 28,
+      "response": "Com o crédito a aliviar um pouco pela Euribor e a luz a subir menos que a inflação, respiramos o ano que vem, mas com o gasóleo pelo preço que está e as rendas a disparar para quem precise de casa, o orçamento da família continua a ficar muito apertado."
+    },
+    {
+      "i": 29,
+      "response": "Com o desemprego a subir e a água e a energia cada vez mais caras aqui em Lisboa, sinto que o nosso orçamento familiar vai continuar a apertar e não vejo folga para poupar neste próximo ano."
+    },
+    {
+      "i": 30,
+      "response": "Com as rendas e portagens a continuar a subir e os juros dos depósitos no chão, sinto que o meu ordenado não vai chegar com mais folga e vou ter de apertar ainda mais o cinto em casa. Mesmo que digam que as famílias estão a poupar recordes, para quem tem só o básico isso não é escolha, é sobrevivência."
+    },
+    {
+      "i": 31,
+      "response": "Com o salário a subir um pouco mas a inflação e as taxas do crédito a voltares a subir, sinto que vamos continuar a apertar o cinto e mal vamos conseguir poupar para o que quer que seja este ano."
+    },
+    {
+      "i": 32,
+      "response": "Como só tenho o básico e aqui no Alentejo os ordenados são baixos, vejo o meu agregado a continuar a apertar o cinto com a inflação nos 3,3% e a luz e o gasóleo a subir muito, sem esperar grande melhoria apesar do alívio de IRS."
+    },
+    {
+      "i": 33,
+      "response": "Com o gasóleo e a energia a subirem assim e a inflação ainda a 3,3%, sinto que o meu ordenho vai chegar cada vez menos para o mês, e como não sou jovem nem vou comprar casa, essas ajudas do Governo não me tocam nada. Para o ano que vem, conto viver mais apertado e a ver se não me sobra demasiado no fim do mês."
+    },
+    {
+      "i": 34,
+      "response": "Com o IRS a aliviar um pouco e a inflação mais parada, respiro melhor no ordenado, mas os preços da energia a subir quase 13% vão continuar a esmagar a minha carteira no dia a dia. Para o ano que vem, conto aguentar com algum folgo se não houver mais sobressaltos, mas não me atrevo a planear grandes gastos fora do essencial."
+    },
+    {
+      "i": 35,
+      "response": "Com o salário mínimo a subir um pouco e a luz a aumentar menos que a inflação ainda mexo, mas fecharam fábricas aqui perto e as urgências do SNS vão encerrar no verão, por isso temo que se aparecer uma despesa de saúde ou falta de trabalho a gente não aguente o ano."
+    },
+    {
+      "i": 36,
+      "response": "Com o aumento da prestação da casa e do gás a chegar em outubro, e as rendas e portagens a continuar a apertar, sinto que vamos ter de poupar mais e gastar menos, mesmo com o salário mínimo a subir um bocadinho."
+    },
+    {
+      "i": 37,
+      "response": "As contas vão ficar mais apertadas com a água e a eletricidade a subir e a inflação revista para 3,1%, mas como tenho emprego estável em Lisboa e as pensões dos meus pais sofreram atualização, aguentamos o ano sem sustos graves."
+    },
+    {
+      "i": 38,
+      "response": "Com o crédito à habitação a subir outra vez e a água e as rendas cada vez mais caras, sinto que o meu ordenado vai chegar ainda menos ao fim do mês, mesmo com o aumento do salário mínimo e os juros dos depósitos tão baixos que nem vale a pena poupar."
+    },
+    {
+      "i": 39,
+      "response": "Com o cabaz a custar já 255 euros e as rendas a subir, sinto que o meu dinheiro não chega como antes, e embora a Euribor desça um pouco alivie o crédito, não vejo grande folga para o meu agregado familiar nos próximos 12 meses."
+    },
+    {
+      "i": 40,
+      "response": "Com o BCE a subir os juros outra vez e os combustíveis pelo nas alturas, o meu crédito à habitação e o mês a mês vão ficar mais apertados, por isso para o ano que vem vejo as contas de casa a esticar-se sem folga para grandes planos."
+    },
+    {
+      "i": 41,
+      "response": "Como as rendas e a comida continuam a subir e a casa está cada vez mais cara, não vejo forma de poupar o que as notícias dizem que as famílias estão a conseguir, e para o meu agregado os próximos 12 meses vão ser para apertar ainda mais o cinto."
+    },
+    {
+      "i": 42,
+      "response": "Com o emprego a cair e o desemprego a subir, fico com receio de perder estabilidade ou ver o ordenado mais apertado, por isso vou continuar a poupar o que puder apesar dos combustíveis e eletricidade caros. Para o ano que vem, vejo as contas lá a passar, mas sem grandes folgas nem planos de gastar à grande."
+    },
+    {
+      "i": 43,
+      "response": "Entre a prestação da casa que volta a subir, o cabaz alimentar no recorde e os combustíveis caríssimos, sinto que o meu dinheiro vai continuar a não chegar com folga, mesmo com o alívio no IRS; vou ter de poupar mais e evitar gastos para aguentar o próximo ano."
+    },
+    {
+      "i": 44,
+      "response": "Com os juros do crédito a subir e o cabaz alimentar no recorde dos 255 euros, sinto que o meu orçamento vai continuar a apertar e não me atrevo a gastar em nada que não seja estritamente necessário nos próximos meses. Mesmo com a inflação mais baixa, as rendas e portagens não largam e os depósitos já nem rendem o suficiente para compensar, por isso vejo pouca folga para a minha família no ano que vem."
+    },
+    {
+      "i": 45,
+      "response": "Com o salário mínimo a subir e a poupança a render tão pouco juro, vou tentar juntar o que posso mas com a casa a custar cada vez mais e os impostos a não baixar, não vejo grande folga no bolso daqui a um ano."
+    },
+    {
+      "i": 46,
+      "response": "Como o IRS subiu mas baixaram um pouco as taxas e os supermercados já avisaram que a comida vai encarecer 7%, sinto que o meu ordenho vai dar menos para o mês a mês, e com o gasóleo quase a 1,90 euros nem posso contar com folga para poupar. Estou a ver o próximo ano a apertar o cinto em casa, sem grandes perspetivas de melhorar enquanto os preços não acalmarem."
+    },
+    {
+      "i": 47,
+      "response": "Como tenho ensino superior e o Governo está a reforçar apoios à habitação e a baixar IRS, sinto que se eu arranjar emprego estável no Sul consigo finalmente poupar para sair de casa dos meus, mas a subida da criminalidade e a emigração dos meus amigos deixam-me pouco seguro de que cá encontre futuro digno."
+    },
+    {
+      "i": 48,
+      "response": "Estou a ver isso negro porque a casa cada vez custa mais e com o BCE a subir juros nem pensar em sair da casa dos meus pais, e o que sobra do ordenado mal dá para as rendas e contas que não param de subir."
+    },
+    {
+      "i": 49,
+      "response": "O salário até subiu um bocadinho mas com a casa a passar dos 3 mil euros o metro e o cabaz a quase 260 euros não vejo maneira de juntar para nada, e se o Governo só ajuda quem tem menos de 35 anos e estuda, para mim e para a minha mulher está cada vez mais difícil."
+    },
+    {
+      "i": 50,
+      "response": "Como já estou reformado e os juros dos depósitos caíram para o mais baixo desde 2023, o que tenho de lado rende menos, e com a carne e o peixe a subir 7% nos supermercados vou ter de apertar mais o cinto este ano, apesar de o IRS subir um pouco e aliviar no ordenado dos filhos que cá vivem."
+    },
+    {
+      "i": 51,
+      "response": "Como estou reformado e com o custo da vida a subir — rendas, combustíveis e inflação a 3,1% —, receio que o alívio de IRS não chegue para manter o meu poder de compra e vou ter de apertar mais no cinto este ano."
+    },
+    {
+      "i": 52,
+      "response": "Como reformado em Lisboa com pensão atualizada e IRS mais leve, sinto o orçamento familiar um pouco mais folgado, mas a subida de 7% na carne e no peixe e os juros baixos dos depósitos vão continuar a apertar a minha poupança no dia a dia."
+    },
+    {
+      "i": 53,
+      "response": "Com a prestação da casa a subir de novo e o emprego a cair no país, receio que o nosso orçamento fique mais apertado e tenhamos de cortar nas despesas para aguentar o próximo ano."
+    },
+    {
+      "i": 54,
+      "response": "Entre o BCE a subir juros e as rendas e portagens a continuar a apertar, sinto que o meu orçamento vai ficar mais pressionado apesar da inflação mais baixa, e qualquer poupança para a casa vai ser mais difícil de juntar."
+    },
+    {
+      "i": 55,
+      "response": "Como já tenho a casa paga no Alentejo e não dependo de crédito à habitação, o que mais me aperta o bolso é o cabaz alimentar a 255 euros e o calor extremo que agrava as contas da eletricidade, por isso prevejo 12 meses de aperto no dia a dia mas sem risco de perder o teto."
+    },
+    {
+      "i": 56,
+      "response": "Com esta inflação nos 3,3% e a luz e o gasóleo a disparar quase 13%, não vejo folga na carteira para o ano que vem, até porque a casa em Lisboa já custa o triplo do que pagávamos e o ordenado não acompanha. Se a reforma laboral passar sem acordo, receio ainda menos direitos e mais incerteza para quem trabalha como eu."
+    },
+    {
+      "i": 57,
+      "response": "Como já estou reformado e a minha mulher também, o alívio do IRS ajuda um pouco mas com a prestação da casa a subir e as rendas e casas a disparar, sinto que o que temos no bolso chega cada vez menos para viver tranquilo aqui no Alentejo."
+    },
+    {
+      "i": 58,
+      "response": "Com o preço das casas a subir sempre e o desemprego a aparecer de novo, sinto que vai ser difícil aguentar as contas, mas as tabelas do IRS e a Euribor mais baixa dão um pequeno alívio para o meu bolso. Ainda assim, com greves e incerteza no trabalho, vou continuar a guardar o que posso e não me vou meter em créditos grandes este ano."
+    },
+    {
+      "i": 59,
+      "response": "Com o gás e a comida a subir e as urgências do SNS a fechar, sinto que o que ganhamos a mais no salário vai tudo embora, por isso vou continuar a guardar o que posso mas com pouca folga para o que vier."
+    },
+    {
+      "i": 60,
+      "response": "Como já estou reformado e os depósitos das famílias bateram recordes, sinto-me seguro com as poupanças, mas a subida de 7% na carne e no peixe e a escalada dos preços das casas vão apertar o orçamento diário e dificultar ajudar os filhos a instalarem-se em Lisboa."
+    },
+    {
+      "i": 61,
+      "response": "Como já estou reformado e os depósitos rendem quase nada com juros a 1,34%, sinto que o meu poder de compra vai continuar a apertar com o cabaz a 255 euros e os combustíveis pelo preço que estão, por muito que o salário mínimo suba aos mais novos. Para o meu agregado, nos próximos 12 meses vejo tranquilidade mas muita contenção, porque o dinheiro no banco não cresce e tudo o que compramos custa cada vez mais."
+    },
+    {
+      "i": 62,
+      "response": "Como ganho pouco e os preços do combustível e a inflação continuam a subir, vou ter de apertar mais o cinto em casa, mas pelo menos o desemprego juvenil baixou um bocado e pode aparecer algum trabalho por aqui no Norte."
+    },
+    {
+      "i": 63,
+      "response": "Com o cabaz alimentar a bater os 255 euros e o gás a subir mais 6,4% em outubro, vou ter de apertar ainda mais o cinto em casa, e não vejo nada nestas notícias que me faça crer que o meu ordenho ou as contas vão aliviar nos próximos 12 meses."
+    },
+    {
+      "i": 64,
+      "response": "Com o combustível a quase dois euros e o emprego a cair, receio que o meu agregado familiar tenha de apertar mais o cinto e poupar onde puder, enquanto a saúde pública piora e não ajuda em nada nas despesas."
+    },
+    {
+      "i": 65,
+      "response": "Com o BCE a subir juros e a Euribor a descer só um bocadinho, o crédito continua a pesar no meu bolso, mas as subidas das pensões e o alívio do IRS dão-me algum fôlego para aguentar o ano sem grandes sustos."
+    },
+    {
+      "i": 66,
+      "response": "Como ganho pouco e só tenho o básico, vejo o meu agregado a apertar mais o cinto porque a prestação e as contas sobem enquanto o cabaz e a renda não largam, e o que sobra mal chega para o mês."
+    },
+    {
+      "i": 67,
+      "response": "O salário mínimo subiu mas o arrendamento em Lisboa e a comida no supermercado também estão a fugir-nos do bolso, por isso daqui a um ano vou continuar a viver com pouca folga e a contar cada cêntimo para fechar o mês."
+    },
+    {
+      "i": 68,
+      "response": "Como já estou reformado e vejo que a inflação subiu para 3,1% e as rendas e portagens continuam a apertar, receio que o meu dinheiro não chegue tão bem como este ano, apesar do alívio no IRS. Se a greve geral e o desacordo no trabalho trouxerem mais subidas de preços, vai ser ainda mais difícil gerir a casa."
+    },
+    {
+      "i": 69,
+      "response": "As contas vão continuar apertadas com a casa e a alimentação a subir sem parar e os juros da poupança no pós, por isso vou manter o pé atrás e guardar o que puder, mesmo ganhando um pouco mais este ano."
+    },
+    {
+      "i": 70,
+      "response": "O salário subiu um pouco e o IRS aliviou, mas com a inflação revista para 3,1% e a casa a custar cada vez mais, sinto que o poder de compra vai continuar a ser pressionado e não vou conseguir poupar como gostaria. Para o ano, espero manter-nos estáveis, mas sem margem para grandes melhorias enquanto os preços dos bens e da habitação não abrandarem."
+    },
+    {
+      "i": 71,
+      "response": "Com o cabaz a custar 255 euros e a energia a subir quase 14%, sinto que o meu salário não chega para muito mais do que o básico, por isso vou continuar a poupar o que posso e a segurar nos gastos nos próximos meses."
+    },
+    {
+      "i": 72,
+      "response": "Com o salário médio a subir acima da inflação e a Euribor a baixar um pouco, espero conseguir respirar melhor no orçamento, mas o desemprego geral a subir e a reforma laboral em brasa deixam-me receoso de que o meu primeiro emprego fixe não esteja garantido."
+    },
+    {
+      "i": 73,
+      "response": "Com a prestação da casa a subir outra vez e o gás a encarecer em outubro, sinto que o que ganho vai chegar com menos folga, mesmo com o salário a aumentar um pouco, e vou ter de poupar mais para não ficar apertado no fim do mês."
+    },
+    {
+      "i": 74,
+      "response": "A prestação da casa sobe outra vez e os preços da energia estão a disparar, por isso vou ter de apertar mais o cinto, mas com as pensões a subir um pouco e a Euribor a baixar não me sinto de todo desesperado, embora o futuro pareça cada vez mais incerto."
+    },
+    {
+      "i": 75,
+      "response": "Entre a renda a subir 5% e o cabaz alimentar a passar os 255 euros, sinto que o meu ordenho vai chegar cada vez mais curto, e com a greve e a instabilidade não vejo grande margem para melhorar nos próximos 12 meses."
+    },
+    {
+      "i": 76,
+      "response": "Com as rendas e preços das casas a disparar e os juros dos depósitos no ponto mais baixo, sinto que o que ganhamos com o salário a subir vai ser comido pela inflação e custos fixos, por isso não vejo grande folga na carteira no próximo ano."
+    },
+    {
+      "i": 77,
+      "response": "Os juros baixos e o preço das casas a disparar deixam-me a sentir que poupar não chega para mudar de vida, mas com o IRS a descer e a renda a subir 5% vou ter de apertar mais o cinto para manter o que temos."
+    },
+    {
+      "i": 78,
+      "response": "Com o cabaz a 255 euros e o gasóleo quase a dois euros, sinto que vamos ter de apertar mais o cinto e poupar o que sobrar, porque não vejo o nosso rendimento a acompanhar estes preços nos próximos 12 meses."
+    },
+    {
+      "i": 79,
+      "response": "Com as rendas, a luz, o gás e a comida sempre a subir e a inflação revista para cima, vejo o meu dinheiro a chegar cada vez menos ao fim do mês e não conto conseguir poupar nada neste próximo ano."
+    },
+    {
+      "i": 80,
+      "response": "Com os juros dos depósitos no ponto mais baixo desde 2023 e o emprego a cair assim, receio que o meu dinheiro renda cada vez menos e que os que ainda trabalham na família fiquem mais expostos a dificuldades; por cá, vou tentar gerir bem o que tenho, mas não vejo grandes melhorias no ano que vem."
+    },
+    {
+      "i": 81,
+      "response": "A prestação da casa a subir outra vez e o desemprego a crescer deixam-me com o pé atrás, mas como a luz só aumentou 1% e as rendas vão ter mais dedução no IRS, tento ir poupando para não ficarmos apertados no próximo ano."
+    },
+    {
+      "i": 82,
+      "response": "Como já estou reformado e as pensões subiram um pouco acima da inflação, sinto o meu bolso mais aliviado, mas o preço da eletricidade e dos combustíveis ainda me aperta e as urgências do SNS fechadas deixam-me preocupado com os custos se a saúde falhar. No geral, aguento o ano com tranquilidade relativa, desde que não apareçam despesas inesperadas."
+    },
+    {
+      "i": 83,
+      "response": "Com o BCE a subir juros e a inflação da energia a disparar, sinto que o nosso orçamento vai ficar mais apertado e vou ter de poupar ainda mais antes de pensar em qualquer mudança de casa."
+    },
+    {
+      "i": 84,
+      "response": "Com o cabaz alimentar e a carne e o peixe a subir assim e os juros dos depósitos no fundo do poço, sinto que o meu dinheiro vai chegar cada vez menos para o básico, e não vejo nada nas notícias que me faça crer que vai aliviar no próximo ano."
+    },
+    {
+      "i": 85,
+      "response": "Como já estou reformado e os combustíveis continuam tão caros, o que ganho nas pensões não chega para a vida com folga, e receio que estes aumentos de salários e gastos do Estado acabem por pressionar ainda mais os meus rendimentos fixos no próximo ano."
+    },
+    {
+      "i": 86,
+      "response": "Com a Euribor a baixar um pouco e os depósitos das famílias no máximo, sinto que vamos respirar melhor no crédito da casa, mas com a incerteza da reforma laboral e os preços ainda altos vou continuar a guardar o que posso e não me vou meter em gastos grandes."
+    },
+    {
+      "i": 87,
+      "response": "Com o alívio do IRS e o excedente no Orçamento, espero respirar um pouco mais no fim do mês, mas a greve geral e os preços altos com estes calores deixam-me com o pé atrás sobre quanto vai sobrar na prática."
+    },
+    {
+      "i": 88,
+      "response": "Com o cabaz a custar 255 euros e o gás a subir quase 6 e tal por cento, sinto que o meu ordenho vai chegar cada vez menos e vou ter de apertar mais o cinto, mesmo trabalhando sem parar aqui no Norte. Vejo o ano difícil, a poupar o que der porque já não há margem para sustos com estes preços."
+    },
+    {
+      "i": 89,
+      "response": "Como acabei de entrar no mercado de trabalho e o salário subiu mais que a inflação, respiro de alívio, mas com o gás e os combustíveis a disparar e a casa a passar dos 3.100 euros o metro quadrado no Porto, juntar para sair de casa dos meus pais vai continuar a parecer missão impossível."
+    },
+    {
+      "i": 90,
+      "response": "Como as rendas continuam a subir e o meu salário não acompanha, vou continuar a pôr de lado o que consigo para estar mais seguro, mas não me vejo a comprar casa tão cedo apesar do apoio aos jovens, porque os preços ainda estão fora do meu alcance."
+    },
+    {
+      "i": 91,
+      "response": "O IRS mais leve e a eletricidade quase parada dão algum fôlego, mas com a renda a subir 5% e a casa cada vez mais cara sinto que o orçamento familiar continua a ser apertado e não consigo poupar com tranquilidade."
+    },
+    {
+      "i": 92,
+      "response": "Com o BCE a subir juros e as casas a bater recordes de preço, sinto que o meu crédito vai ficar mais pesado e comprar ou mudar de casa é cada vez mais impossível, mas o aumento do salário e a luz mais estável dão algum fôlego para aguentar o ano. No fundo, vivo com mais aperto e incerteza, porque o emprego está a cair e as urgências do SNS vão fechar, e não vejo o meu poder de compra melhorar de verdade em 2026."
+    },
+    {
+      "i": 93,
+      "response": "Com o gasóleo e a gasolina ainda tão caros e a incerteza política a pairar, sinto que vamos continuar a apertar o cinto e a poupar o que pudermos, apesar de termos algum dinheiro de lado nos depósitos."
+    },
+    {
+      "i": 94,
+      "response": "Com o IRS mais leve e o salário mínimo a subir para quem ganha pouco, respirámos um pouco, mas com a carne, o peixe e a energia a disparar sinto que o que sobra para a poupança continua a ser curto e incerto."
+    },
+    {
+      "i": 95,
+      "response": "Com o custo da casa e da energia a subir e fábricas a fechar por aqui no Norte, sinto que o aumento do meu salário mal chega para manter o que temos, por isso vejo os próximos 12 meses com muita cautela e receio de perder poder de compra."
+    },
+    {
+      "i": 96,
+      "response": "Entre a renda de Lisboa a passar os 1.500 euros e os preços da comida a subir 7%, sinto que o meu ordenho vai chegar cada vez menos ao fim do mês, e com o emprego a cair não me parece que a situação melhore tão cedo."
+    },
+    {
+      "i": 97,
+      "response": "As contas vão continuar apertadas com o cabaz a 255 euros e as casas cada vez mais caras, mas o alívio no IRS e a Euribor a descer dão algum fôlego para respirar e talvez poupar um pouco menos de forma sofrida. Mesmo assim, sinto que estabilizar a vida da família exige cuidado redobrado, porque rendas e preços não param de subir."
+    },
+    {
+      "i": 98,
+      "response": "Com o salário a subir um pouco acima da inflação mas as rendas em Lisboa a passar dos 1.500 euros, sinto que vamos continuar a apertar o cinto e a poupar mais, porque o que sobra para viver decentemente em casa continua curto."
+    },
+    {
+      "i": 99,
+      "response": "Entre o gás a subir 6,4% e o cabaz a custar já 255 euros, sinto o orçamento cada vez mais apertado, mas com a Euribor a descer e o IRS a baixar um pouco respiro no crédito e no ordenho da reforma que ainda recebo."
+    },
+    {
+      "i": 100,
+      "response": "Com a prestação da casa a subir outra vez e os preços tudo a aumentar, vou ter de apertar mais o cinto e não me sobra quase nada para poupar, mas como já tenho o crédito quase pago e a reforma entra, aguento o ano sem grandes sustos."
+    },
+    {
+      "i": 101,
+      "response": "Como reformado em Lisboa, agradeço o aumento das pensões e o alívio no IRS, mas com a água mais cara e os combustíveis pelo preço que estão, sinto que o meu poder de compra vai ficar quase na mesma e terei de continuar a apertar o cinto no dia a dia."
+    },
+    {
+      "i": 102,
+      "response": "Como já estou reformado e o meu crédito à habitação fica pior com a subida do BCE, sinto que o meu poder de compra vai ficar mais apertado apesar do alívio no IRS, e vou ter de poupar ainda mais para aguentar a inflação e as despesas da saúde."
+    },
+    {
+      "i": 103,
+      "response": "Com a prestação da casa a subir outra vez e o cabaz alimentar no máximo histórico, sinto que o nosso orçamento vai continuar a apertar e mal vamos conseguir poupar nos próximos 12 meses."
+    },
+    {
+      "i": 104,
+      "response": "Com o desemprego juvenil a baixar um bocado e o IRS a subir as tabelas, posso respirar melhor no meu ordenado, mas com a inflação a subir para os 3,1% e o emprego a cair no país, tenho medo de perder o trabalho e não sobrar nada para a minha família poupar."
+    },
+    {
+      "i": 105,
+      "response": "Como só tenho o 9.º ano e vejo que o desemprego geral subiu e há fábricas a despedir, fico com medo de não arranjar trabalho fixo e de mal chegar para as contas de casa; o apoio para jovens comprar ou alugar ajuda mas, sem ordenado certo, não me sinto seguro para os próximos meses."
+    },
+    {
+      "i": 106,
+      "response": "Com o desemprego a subir e a falar em greves e despedimentos, receio que o meu ordenado não chegue para aguentar os preços da casa em Lisboa, por mais que os depósitos estejam altos e o salário mínimo tenha subido. Para o ano que vem, sinto que vamos ter de apertar o cinto e poupar o que pudermos, sem contar com melhorias grandes."
+    },
+    {
+      "i": 107,
+      "response": "Com o salário a subir um pouco mas a renda e a comida a aumentar quase o mesmo, sinto que vamos continuar a apertar o cinto e a meter de lado o que sobrar no banco, que é o que nos tem salvado. Não vejo grande folga este ano, com a reforma laboral e a greve só vejo incerteza e preços a subir em Lisboa."
+    },
+    {
+      "i": 108,
+      "response": "Com o cabaz a bater recordes, o gás a subir em outubro e a prestação da casa a encarregar mais 41 euros já em junho, sinto que o nosso orçamento vai ficar cada vez mais apertado e terei de cortar noutras coisas para conseguirmos pagar tudo."
+    },
+    {
+      "i": 109,
+      "response": "Com o salário a subir um bocado e o IRS a aliviar, vou tentar juntar mais para a família, mas as rendas e o que pagamos de luz e portagens não largam e o SNS a fechar urgências no verão deixa-me a pensar se não vou ter despesas extra com saúde."
+    },
+    {
+      "i": 110,
+      "response": "Entre a prestação da casa e o gás a subirem e a água em Lisboa a ficar mais cara, sinto que o orçamento vai continuar apertado apesar do alívio no IRS, e com o emprego a cair e a economia incerta prefiro não me iludir com melhorias nos próximos meses."
+    },
+    {
+      "i": 111,
+      "response": "Com o cabaz a 255 euros, a prestação da casa a subir e o gás a encarecer em outubro, sinto que o meu dinheiro vai chegar cada vez menos e vamos ter de apertar mais o cinto no próximo ano."
+    },
+    {
+      "i": 112,
+      "response": "Como já estou perto da reforma e vejo os preços da comida e do gás a subir enquanto o emprego e a economia parecem piorar, prevejo que vamos ter de apertar mais o cinto e poupar onde pudermos nos próximos meses. Não me sinto tranquilo com o que vem aí, porque tudo o que leio diz que a vida vai ficar mais cara e o dinheiro vai chegar com menos folga."
+    },
+    {
+      "i": 113,
+      "response": "Com a inflação a subir para os 3,1% e as medidas do ano passado a acabar, vejo o meu orçamento familiar mais apertado e vou ter de poupar mais para manter o mesmo padrão de vida."
+    },
+    {
+      "i": 114,
+      "response": "Com o cabaz a custar já 255 euros e a fábrica de Lanheses fechada a tirar trabalho à zona, vejo o meu dinheiro a dar cada vez menos e receio que o ano que vem seja só para apertar mais o cinto em casa."
+    },
+    {
+      "i": 115,
+      "response": "Com o BCE a subir as taxas e as rendas e portagens a continuar a apertar, vou sentir o orçamento mais pressionado apesar da Euribor baixar um pouco, e a poupança vai ser para segurar e não para gastar."
+    },
+    {
+      "i": 116,
+      "response": "Com estes preços dos combustíveis e as rendas a subir, o que me sobra para o bolso cada vez é menos, e com as urgências do SNS a fechar no verão ainda vou ter de gastar mais se precisar de algum cuidado; para o ano que vem vejo pouca folga e muita cautela para não me meter em apuros."
+    },
+    {
+      "i": 117,
+      "response": "Com a Euribor a baixar um pouco alivia o crédito, mas os preços da energia e dos combustíveis continuam a esmagar o orçamento e o emprego a cair deixa-me com o pé atrás para o que aí vem."
+    },
+    {
+      "i": 118,
+      "response": "Com os juros dos depósitos tão baixos e a prestação da casa a subir outra vez, sinto que o que guardámos vai render menos e o ordenado não chega com a mesma folga, por isso para o ano vou ter de apertar mais no dia a dia."
+    },
+    {
+      "i": 119,
+      "response": "Com o gás a subir quase 6,5% e o cabaz a custar já 255 euros, vai ser um ano para apertar o cinto, mas pelo menos a Euribor a descer um pouco alivia a prestação da casa e respiramos um pouco."
+    },
+    {
+      "i": 120,
+      "response": "Com o gás e a inflação ainda a subir e as rendas ou créditos a pesar no orçamento, sinto que vamos continuar a apertar o cinto, apesar do alívio prometido pela descida da Euribor e dos apoios à habitação."
+    },
+    {
+      "i": 121,
+      "response": "As casas cada vez mais caras e o juro do crédito a subir vão apertar-me o bolso, mas com o IRS a baixar um bocado e a água mais cara já me estou a preparar para gastar menos em tudo o que não é essencial."
+    },
+    {
+      "i": 122,
+      "response": "Com o cabaz essencial a bater recordes e a inflação revista em alta, sinto que o que ganho mal chega para o mês mesmo com o salário a subir, e com o desemprego a trepar e casa cada vez mais cara fico com pouca margem para poupar ou planear com tranquilidade."
+    },
+    {
+      "i": 123,
+      "response": "Com a subida das taxas de juro a agravar o nosso crédito à habitação e o cabaz alimentar no recorde dos 255 euros, sinto que vamos ter de apertar mais o cinto, embora o alívio no IRS ajude um pouco a respirar. Para o ano, conto que o orçamento fique esticado entre rendas, transportes e o calor que nos obriga a gastar mais com a casa, sem grandes folgas para o que não seja essencial."
+    },
+    {
+      "i": 124,
+      "response": "Com as rendas em Lisboa a passar dos 1.500 euros e o desemprego a subir, sinto que vai ser cada vez mais difícil pagar as contas e juntar o que quer que seja, mesmo poupando o que posso. Se o SNS fechar urgências e os preços não abrandarem, qualquer despesa inesperada vai deixar-nos mal, por isso não vejo grande folga no nosso dinheiro estes próximos meses."
+    },
+    {
+      "i": 125,
+      "response": "Com a prestação da casa a subir outra vez e as urgências do SNS a fechar por aqui no verão, sinto que vamos ter de apertar mais o cinto e poupar como nunca, mesmo com o alívio no IRS a ajudar um pouco."
+    },
+    {
+      "i": 126,
+      "response": "A prestação da casa voltou a subir e com o que ganho sinto o ordenado a fugir-me das mãos, por isso para o ano que vem vejo o meu agregado a apertar ainda mais o cinto e sem folga para luxos."
+    },
+    {
+      "i": 127,
+      "response": "Como sou reformado e a minha pensão só sobe 2,8% enquanto a luz e o gasóleo continuam a disparar, sinto que o meu dinheiro vai chegar ainda mais justo no próximo ano e vou ter de cortar nas compras para me aguentar."
+    },
+    {
+      "i": 128,
+      "response": "O salário médio subiu um bocado e isso ajuda nas contas de casa, mas com a fábrica de Ovar a despedir gente e tanta falta de médicos e mão de obra por aqui, receio que o custo de viver continue a pesar mais do que o que entra."
+    },
+    {
+      "i": 129,
+      "response": "A prestação da casa sobe outra vez e o gás vai pesar mais no inverno, mas com a eletricidade a subir pouco e as pensões a acompanhar a inflação, cá nos vamos aguentando sem grandes sustos nem luxos."
+    },
+    {
+      "i": 130,
+      "response": "Com o gás e os combustíveis a subir e a fábrica da Yazaki a despedir gente, receio que o meu orçamento fique mais apertado apesar do pequeno alívio no IRS e do salário ter crescido um pouco. Para o ano, vou tentar poupar mais mas estou pouco confiante, porque os juros no banco estão baixos e o emprego por aí não parece estável."
+    },
+    {
+      "i": 131,
+      "response": "Com o emprego a cair e as casas e contas do gás e da água cada vez mais caras, sinto que o meu agregado familiar vai ter de apertar mais o cinto e poupar o que puder, porque o dinheiro que entra está mais incerto e o que sai não para de subir."
+    },
+    {
+      "i": 132,
+      "response": "Com a inflação ainda a morder e o emprego a cair, sinto que vai ser um ano para apertar o cinto e poupar onde der, sem grandes certezas de melhoria para quem já está na reforma ou perto dela."
+    },
+    {
+      "i": 133,
+      "response": "Com o IRS a aliviar um pouco sinto algum fôlego, mas como as rendas, a comida e os juros do crédito continuam a subir, para o meu agregado a vida vai continuar apertada e sem grandes folgas estes próximos meses."
+    },
+    {
+      "i": 134,
+      "response": "Para o meu agregado familiar, vejo os próximos 12 meses com dificuldade porque a prestação da casa e a comida só sobem, o emprego está a cair e o salário mínimo que ganho não chega para tanto aumento."
+    },
+    {
+      "i": 135,
+      "response": "Com o alívio de IRS e o meu salário a subir um pouco sinto algum fôlego, mas a inflação em alta e as casas incompráveis deixam-me receoso de que o ano passe a correr sem conseguir poupar de verdade."
+    },
+    {
+      "i": 136,
+      "response": "Entre o aumento de 6,4% no gás em outubro e as urgências do SNS a fechar no verão, sinto que o meu ordenho não vai chegar mais folgado, e qualquer despesa extra vai ter de ser bem pensada. Se nada mudar no meu trabalho, vou viver com o mesmo aperto ou pior, sem margem para respirar."
+    },
+    {
+      "i": 137,
+      "response": "Como já estou reformado e o que tenho guardado não rende mais, vejo o ano a vir difícil porque a casa e a comida não param de subir e o meu dinheiro chega cada vez menos para o fim do mês."
+    },
+    {
+      "i": 138,
+      "response": "O salário subiu um bocadinho e a comida está a estabilizar, mas com a luz e o gasóleo a disparar e a renda a aumentar, continuo a apertar o cinto e a não me atrever a gastar à frente nos próximos meses."
+    },
+    {
+      "i": 139,
+      "response": "Como reformado, a subida de 2,8% nas pensões ajuda um pouco mas o cabaz alimentar a 255 euros e os preços a subir vão continuar a apertar o nosso bolso, por isso para o ano que vem vejo a carteira a aguentar com custo, sem grandes folgas."
+    },
+    {
+      "i": 140,
+      "response": "Entre o aumento do gás e as rendas em Lisboa a passar dos 1.500 euros, sinto que o nosso orçamento vai ficar mais apertado e qualquer poupança para comprar casa vai demorar mais do que o previsto."
+    },
+    {
+      "i": 141,
+      "response": "Com o cabaz a custar já 255 euros e a gente a ver as casas a abrandar, vou continuar a pôr de parte o que posso e a segurar nos gastos, porque não me parece que o ano que vem vá trazer alívio cá para casa."
+    },
+    {
+      "i": 142,
+      "response": "Com esta inflação nos 3,3% e os preços da carne e do peixe a subir mais de 7%, sinto que o meu ordenho não vai chegar para tudo e os depósitos a prazo já nem dão para compensar o que a gente gasta, por isso vejo o ano difícil e a ter de apertar mais o cinto."
+    },
+    {
+      "i": 143,
+      "response": "Como acabei de terminar o curso superior no Centro e vejo o desemprego a subir e as casas a bater recordes de preço, sinto que vai ser muito difícil conseguir rendimento estável e independência da minha família nos próximos 12 meses. A prestação da casa dos meus pais a aumentar e a inflação revista em alta só apertam ainda mais o orçamento comum cá de casa."
+    },
+    {
+      "i": 144,
+      "response": "Como ganho pouco e os juros dos depósitos caíram para o mínimo, sinto que mal vamos conseguir poupar algo, e com a inflação nos 3,3% e a casa cada vez mais cara, os próximos 12 meses vão ser para apertar o cinto e tentar não ficar a perder."
+    },
+    {
+      "i": 145,
+      "response": "Como acabei de terminar o curso e ainda partilho casa arrendada com os meus pais no Algarve, as rendas subirem 5% e a inflação ir a 3,1% apertam-nos o orçamento, mas a possibilidade de deduzir mais rendas no IRS e a Euribor descer um pouco dão algum alívio para aguentarmos este ano."
+    },
+    {
+      "i": 146,
+      "response": "Como já estou reformado e as pensões só subiram uns trocos, sinto que vamos continuar a apertar o cinto porque tudo o que vejo nas notícias, como as casas a subir sempre, mostra que a vida não vai ficar mais barata para quem vive do pouco que tem."
+    },
+    {
+      "i": 147,
+      "response": "As contas vão continuar apertadas com o gás, os combustíveis e as rendas a subir, e embora o IRS desça um pouco, não chega para o que sai do bolso todos os meses. Para o meu agregado, estes próximos 12 meses serão de ver cada cêntimo e não me atrevo a gastar em luxos."
+    },
+    {
+      "i": 148,
+      "response": "Com o salário a subir um pouco e o IRS a aliviar, devemos respirar melhor no orçamento de casa, mas receio que a falta de mão de obra e os salários a crescer acima da produção acabem por disparar os preços e corroer o que ganhámos."
+    },
+    {
+      "i": 149,
+      "response": "Com o gás a subir 6,4% e a comida a encarecer perto de 7%, sinto que o nosso orçamento vai ficar mais apertado apesar de termos poupado o que pudemos, e vou ter de cortar noutras coisas para manter o mesmo nível de vida."
+    },
+    {
+      "i": 150,
+      "response": "Com o salário a subir um bocadinho mas a renda e o gás a aumentarem, vou continuar a apertar o cinto e a não me meter em créditos, porque ter casa própria está fora de questão com estes preços. Para o ano que vem, vejo o orçamento da família a passar por mais dificuldades se as contas da luz e do gás continuarem a subir."
+    },
+    {
+      "i": 151,
+      "response": "Com o salário a subir um bocado mas a água e a energia cada vez mais caras, sinto que vamos continuar a apertar o cinto e não vai sobrar muito para poupar neste ano."
+    },
+    {
+      "i": 152,
+      "response": "Com o gasóleo e a eletricidade sempre caros e as casas a subir sem parar, sinto que o meu poder de compra vai continuar a apertar e não meso em grandes melhorias para o meu bolso no próximo ano."
+    },
+    {
+      "i": 153,
+      "response": "Com o IRS a descer um pouco e as tabelas a subir, respiro melhor no ordenado, mas o aumento do gás e a subida da criminalidade deixam-me a guardar mais na conta em vez de gastar, por cautela. Para o ano, espero manter o que tenho e não me endividar, porque as notícias sobre a economia e a emigração dos mais novos não me dão confiança para alargar despesas."
+    },
+    {
+      "i": 154,
+      "response": "A prestação da casa sobe outra vez e os juros do poupanço caíram tanto que quase nada rende, mas com o alívio do IRS este ano devemos aguentar as contas sem grandes sustos, embora viva com o receio de o que vem a seguir."
+    },
+    {
+      "i": 155,
+      "response": "Com o desemprego a subir e os preços da comida e da água a aumentar, vou ter de apertar mais o cinto e poupar o que puder, porque não conto que o meu ordenado acompanhe as despesas nos próximos 12 meses."
+    },
+    {
+      "i": 156,
+      "response": "Entre o gás, a água e as rendas a subirem e o emprego a cair, sinto que o meu agregado vai ter de apertar mais o cinto este ano, mesmo com a inflação um pouco estável e a Euribor a baixar um pouco."
+    },
+    {
+      "i": 157,
+      "response": "Entre a prestação da casa que volta a subir e o cabaz alimentar a bater recordes, sinto que o meu ordenho vai continuar a não chegar com folga, apesar de o IRS subir um pouco e as pensões melhorarem para os mais velhos. Se a Euribor descer como dizem, ajuda no crédito, mas o dia a dia no Centro continua a apertar com rendas, portagens e transportes caros."
+    },
+    {
+      "i": 158,
+      "response": "Com o emprego a cair e os preços da comida, água e combustíveis sempre a subir, vejo o meu orçamento familiar a ficar mais apertado e vou ter de poupar ainda mais para não ficarmos mal."
+    },
+    {
+      "i": 159,
+      "response": "Com o gasóleo e o gás a subir e a prestação da casa a aumentar quase 41 euros, sinto que o meu dinheiro não chega como antes, e embora o salário mínimo tenha subido, a inflação de 3,1% vai comer essa diferença toda. Para o ano que vem, vejo-me a apertar mais o cinto e a viver com menos folga, porque os custos fixos não param de crescer."
+    },
+    {
+      "i": 160,
+      "response": "Como já estou reformado e em Lisboa, vejo o meu dinheiro a dar menos por causa da água e da comida mais cara, e como acabaram as ajudas do ano passado, vou ter de apertar mais o cinto nos próximos meses."
+    },
+    {
+      "i": 161,
+      "response": "Como ganho o salário mínimo e os preços da energia e da comida continuam a subir, sinto que o alívio de IRS e o aumento do ordenado mal chegam para ficar mais descansado, mas pelo menos temos as festas e o Rock in Rio em Lisboa para não pensar tanto nisso."
+    },
+    {
+      "i": 162,
+      "response": "As contas vão continuar apertadas com o gás a subir quase 6,5% no outono e a eletricidade também a aumentar, mas como o desemprego jovem baixou e o meu caso não está mau, espero aguentar o ano sem grandes sobressaltos se não houver mais subidas inesperadas."
+    },
+    {
+      "i": 163,
+      "response": "Com estes preços do gasóleo e a prestação da casa a subir outra vez, vou continuar a apertar o cinto e a pôr dinheiro de parte, porque não vejo folga no orçamento para o ano que vem."
+    },
+    {
+      "i": 164,
+      "response": "Com o Banco Central a subir os juros outra vez e as rendas a aumentar, sinto que o meu dinheiro vai chegar com menos folga para o ano, e como o emprego está a cair não me parece que vá melhorar tão cedo."
+    },
+    {
+      "i": 165,
+      "response": "Como reformado em Lisboa, sinto que o aumento das pensões ajuda pouco quando a carne, o peixe e a água ficam mais caros e os juros no meu depósito a prazo quase desapareceram, por isso prevejo ter de apertar mais o cinto no próximo ano."
+    },
+    {
+      "i": 166,
+      "response": "O meu salário sobe um bocado mas a inflação e os juros baixos nos depósitos deixam-me a ganhar menos poder de compra, e com o emprego a cair e as urgências do SNS a fechar sinto que é melhor guardar o que posso e não me esticar demasiado nas contas da casa."
+    },
+    {
+      "i": 167,
+      "response": "Entre o alívio do IRS e a descida da Euribor, devemos respirar um pouco melhor no orçamento da casa, mas com a energia a subir mais de 13% e os serviços públicos a falhar, sinto que qualquer folga vai ser curta e incerta."
+    },
+    {
+      "i": 168,
+      "response": "Como já estou reformado e o IRS subiu um pouco, respiro melhor no ordenado da reforma, mas com os juros dos depósitos no pique mais baixo e os combustíveis ainda a quase dois euros, sinto que o que sobra para poupar ou ajudar os filhos vai continuar muito apertado."
+    },
+    {
+      "i": 169,
+      "response": "O salário mínimo subiu e a Euribor baixou um pouco, mas com a água, as rendas e o transporte sempre a subir, sinto que o meu dinheiro não chega com mais folga e vou continuar a apertar o cinto este ano."
+    },
+    {
+      "i": 170,
+      "response": "Com a Euribor a descer um pouco vou aliviar no crédito da casa, mas o cabaz essencial a 255 euros e o emprego a cair deixam-me receoso, por isso vou continuar a gerir o orçamento com muito cuidado e sem grandes gastos nos próximos meses."
+    },
+    {
+      "i": 171,
+      "response": "Para o meu agregado, os próximos 12 meses vão ser cada vez mais apertados, com a água e o gás a subir, a prestação da casa a aumentar outra vez e o transporte em greve, e já não dá para contar com aquele dinheiro extra do ano passado. Vou ter de poupar bem mais e cortar nas saídas, porque o que entra não acompanha o que está a ficar caro."
+    },
+    {
+      "i": 172,
+      "response": "Com o juro do crédito a subir outra vez e os preços da casa, do gasóleo e da comida cada vez mais altos, vai ser um ano para apertar o cinto e viver com o que temos, sem luxos nem viagens. Só espero que a Euribor desça como o Banco de Portugal diz, senão a prestação come-nos o que sobrava para o resto."
+    },
+    {
+      "i": 173,
+      "response": "Com o gasóleo e a luz cada vez mais caros e as rendas em Lisboa acima dos 1.500 euros, o que ganho a mais nem chega para cobrir, por isso vejo o ano a seguir a passar ainda mais apertado para a minha família."
+    },
+    {
+      "i": 174,
+      "response": "O alívio de IRS e o aumento do salário mínimo ajudam um pouco, mas com a prestação da casa e os combustíveis a subir e as rendas e transportes a apertar, sinto que o nosso orçamento familiar vai continuar a ser difícil de gerir no próximo ano."
+    },
+    {
+      "i": 175,
+      "response": "Com o juro do crédito a subir outra vez e a comida mais cara, vou ter de apertar mais o cinto apesar do alívio no IRS, e qualquer reserva que consiga fazer fica só a ganhar importância para aguentar o ano."
+    },
+    {
+      "i": 176,
+      "response": "Com o custo de vida a subir e as rendas ou casas fora do alcance, para o meu agregado familiar os próximos 12 meses vão ser de apertar o cinto e não contar com grandes melhorias no ordenado."
+    },
+    {
+      "i": 177,
+      "response": "Como já estou reformado e vejo o gás e a água a subir, as minhas contas vão ficar mais apertadas apesar do pequeno aumento da pensão, e receio que o que sobra para o dia a dia seja cada vez menos."
+    },
+    {
+      "i": 178,
+      "response": "Com o desemprego a subir e as casas cada vez mais caras, sinto que vai ser difícil arranjar trabalho estável e juntar dinheiro para sair de casa dos meus pais, mesmo com aquele apoio para jovens que o Governo anunciou. Para o meu agregado, o ano vai ser de apertar o cinto porque os juros dos depósitos caíram e não vejo a situação melhorar tão cedo."
+    },
+    {
+      "i": 179,
+      "response": "Como já estou reformado e o meu salário não acompanha estas subidas, prevejo que os próximos 12 meses sejam de maior aperto com a energia e a alimentação mais caras, apesar do alívio no IRS e na eletricidade. Vou ter de poupar mais e evitar despesas supérfluas para manter o mesmo nível de vida em Lisboa."
+    },
+    {
+      "i": 180,
+      "response": "Como já estou reformado e o que tenho no banco rende poucochinho, mas o gás, a renda e a comida só sobem, vejo o meu dinheiro a chegar cada vez menos ao fim do mês e não conto poder poupar nada neste próximo ano."
+    }
+  ],
+  "model": "tencent/Hy3",
+  "provider": "siliconflow",
+  "date": "2026-07-20",
+  "seeds_run": [
+    1,
+    2,
+    3
+  ]
+}
