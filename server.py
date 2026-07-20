@@ -1912,34 +1912,14 @@ async def api_delphoi_nowcast(request):
         history = min(52, max(1, int(request.query_params.get("history", "12"))))
     except (TypeError, ValueError):
         history = 12
+    # PYTHIA P1 (deploy #1): a payload a plugins.delphoi.public_nowcast_feed-ből
+    # jön — bitre azonos szerkezet + modellregime-annotáció (model_regime_boundary
+    # + regime_note a Flash→Hy3 korszakhatáron). MOD2/A6-előkép: brand-semleges.
     from pyramid.memory_rag import _get_db
-    conn = _get_db()
-    try:
-        sql = "SELECT entity_key, country, entity_type, display_label FROM delphoi_entity_nowcast WHERE enabled=1"
-        params: list = []
-        if entity_key:
-            sql += " AND entity_key = ?"; params.append(entity_key)
-        elif label:
-            sql += " AND display_label LIKE ?"; params.append(f"%{label}%")
-        try:
-            ents = conn.execute(sql, params).fetchall()
-        except Exception:  # noqa: BLE001 — table may not exist yet
-            ents = []
-        out = []
-        for e in ents:
-            rows = conn.execute(
-                "SELECT predicted_at, target_window, direction, direction_prev, "
-                "corpus_hash, content_hash FROM delphoi_nowcast_ledger "
-                "WHERE entity_key=? AND country=? ORDER BY id DESC LIMIT ?",
-                (e["entity_key"], e["country"], history)).fetchall()
-            hist = [dict(r) for r in rows]
-            out.append({"entity_key": e["entity_key"], "country": e["country"],
-                        "entity_type": e["entity_type"], "display_label": e["display_label"],
-                        "latest": hist[0] if hist else None, "history": hist})
-    finally:
-        conn.close()
-    return JSONResponse({"count": len(out), "entities": out,
-                         "disclaimer": "Szintetikus panel relatív irányjelzése, nem közvélemény-kutatás."})
+    from plugins.delphoi import public_nowcast_feed
+    payload = public_nowcast_feed(_get_db, entity_key=entity_key, label=label,
+                                  history=history)
+    return JSONResponse(payload)
 
 
 @mcp.custom_route("/api/delphoi/verify", methods=["GET"])
@@ -8582,6 +8562,20 @@ try:
 except Exception as e:
     logger.error("Operation Zahnrad plugin loading failed: %s", e)
 
+# PYTHIA P1 (deploy #1): NULLTARIF-őr cron-seed (idempotens) — napi Hy3
+# ár/elérhetőség-ellenőrzés; a futtatás a _cron_loop nulltarif_ special-casén.
+try:
+    from plugins.nulltarif_guard import seed_cron as _nt_seed
+    _nt_conn = get_db()
+    try:
+        if _nt_seed(_nt_conn):
+            _nt_conn.commit()
+            logger.info("PYTHIA P1: nulltarif_guard_daily cron seedelve")
+    finally:
+        _nt_conn.close()
+except Exception as _nte:  # noqa: BLE001
+    logger.warning("nulltarif cron-seed kihagyva: %s", _nte)
+
 # Operation Zahnrad — Cron Scheduler
 def _cron_matches(schedule: str, dt: datetime) -> bool:
     """Simple crontab matcher: 'minute hour day month weekday'. Supports: number, *, ranges (1-5), lists (1,3,5)."""
@@ -8840,6 +8834,18 @@ async def _cron_loop():
                         logger.info("Cron agora: %s háttér-task elindítva (jitteres)", r["name"])
                     except Exception as e:  # noqa: BLE001
                         logger.error("Cron agora dispatch failed for %s: %s", r["name"], e)
+                    continue
+
+                # ── NULLTARIF-őr special-case (PYTHIA P1) ──
+                # napi Hy3 ár/elérhetőség-check → Telegram-riasztás; nincs
+                # ai_task-út, a plugins.nulltarif_guard.cron_entry fut.
+                if r["name"].startswith("nulltarif_"):
+                    try:
+                        from plugins.nulltarif_guard import cron_entry as _nt_cron
+                        asyncio.create_task(_nt_cron(r["name"]))
+                        logger.info("Cron nulltarif: %s háttér-task elindítva", r["name"])
+                    except Exception as e:  # noqa: BLE001
+                        logger.error("Cron nulltarif dispatch failed for %s: %s", r["name"], e)
                     continue
 
                 # ── DELPHOI special-case ──
