@@ -67,6 +67,54 @@ REGIME_NOTE = "bázisreset — modellváltás, nem hasonlítható"
 EMBED_MODEL_SF = "Qwen/Qwen3-Embedding-8B"  # többnyelvű (hu/pl/fr/it). A BAAI/bge-m3 kivezetve az SF-ről (code 20012, lásd mem #16568) — 2026-07-09 live-probe: ez él
 EMBED_MODEL_OPENAI = "text-embedding-3-small"  # a backtesztek nyertese — env-kapu (OPENAI_API_KEY)
 
+
+# ---------------------------------------------------------------------------
+# P2 — VARIANCIA-ŐR + EMBED-SAPKA + KALIBRÁCIÓS KULCS (env-vezérelt, hívás-
+# időben olvasva a tesztelhetőségért). A G1-lelet: seed/minta-átlagolás
+# KÖTELEZŐ Hy3 alatt — pontbecslés egyetlen mintából TILOS.
+# ---------------------------------------------------------------------------
+def nowcast_samples() -> int:
+    """DELPHOI_NOWCAST_SAMPLES — minta/persona a nowcast-ágon (G1: default 3).
+    KÜLÖN env a FOGÁS-étól: a heti nowcast hívásszáma is k-szorozódik."""
+    try:
+        return max(1, int(os.environ.get("DELPHOI_NOWCAST_SAMPLES", "3")))
+    except ValueError:
+        return 3
+
+
+def fg_samples() -> int:
+    """DELPHOI_SAMPLES_PER_PERSONA — minta/persona a FOGÁS-ágon (default 3)."""
+    try:
+        return max(1, int(os.environ.get("DELPHOI_SAMPLES_PER_PERSONA", "3")))
+    except ValueError:
+        return 3
+
+
+def panel_temperature() -> float:
+    """DELPHOI_PANEL_TEMP — panel-hőmérséklet env-kapu, a [0.7, 1.0] sávra
+    vágva (0 felé a k-mintás variancia-becslés kollabálna, 1 fölött zaj)."""
+    try:
+        t = float(os.environ.get("DELPHOI_PANEL_TEMP", "0.8"))
+    except ValueError:
+        t = 0.8
+    return min(1.0, max(0.7, t))
+
+
+def embed_budget() -> int:
+    """DELPHOI_EMBED_BUDGET — napi embedding-token-sapka (G0d-ajánlás: 2M
+    token ≈ $0.04/nap plafon; a runaway-loop ellen véd, nem a tervezett
+    terhelés ellen). Túllépésnél HANGOS hiba, nem néma vágás."""
+    try:
+        return max(1, int(os.environ.get("DELPHOI_EMBED_BUDGET", "2000000")))
+    except ValueError:
+        return 2_000_000
+
+
+# A nowcast szentiment-entitásainak kalibrációs kulcsa (G4-registry, cci-domén
+# cellák). A regard-domén cellái még nincsenek a registry-ben — ott a
+# calibrate() explicit no_entry-metával raw-t ad (a plumbing így is látszik).
+NOWCAST_CAL_PANEL_VERSION = "pythia-cci-ssr-v1"
+
 _DEPS: dict | None = None  # register_tools tölti (cron_entry fallback)
 
 
@@ -403,6 +451,12 @@ BEGIN SELECT RAISE(ABORT, 'delphoi_nowcast_ledger is append-only'); END;
 CREATE TRIGGER IF NOT EXISTS delphoi_ledger_no_delete
 BEFORE DELETE ON delphoi_nowcast_ledger
 BEGIN SELECT RAISE(ABORT, 'delphoi_nowcast_ledger is append-only'); END;
+
+-- P2: napi SSR-embedding token-számláló (DELPHOI_EMBED_BUDGET sapka őre)
+CREATE TABLE IF NOT EXISTS delphoi_embed_usage (
+    day    TEXT PRIMARY KEY,
+    tokens INTEGER NOT NULL DEFAULT 0
+);
 """
 
 # ELSŐ MENET entitás-kör (N2, Kommandant-jóváhagyott). A 2. kör (UK/US) seedelve,
@@ -616,9 +670,23 @@ def public_nowcast_feed(get_db, entity_key: str = "", label: str = "",
                     "WHERE entity_key=? AND country=? ORDER BY id DESC LIMIT ?",
                     (e["entity_key"], e["country"], history)).fetchall()
                 hist = [dict(r) for r in rows]
+            # P2 — kalibráció a feed "latest" sorára: NYERS és KALIBRÁLT érték
+            # verzió-címkével (a ledger-sor maga érintetlen, a réteg on-the-fly).
+            latest = hist[0] if hist else None
+            if latest is not None and latest.get("direction") is not None:
+                try:
+                    from plugins import delphoi_calibration as _calib
+                    domain = "cci" if e["entity_type"] == "sentiment_expectation" else "regard"
+                    raw_balance = round(float(latest["direction"]) * 100.0, 3)  # panel-szaldó skála
+                    calibrated, cal_meta = _calib.calibrate(
+                        raw_balance, e["country"], domain, NOWCAST_CAL_PANEL_VERSION,
+                        latest.get("model_id") or NOWCAST_MODEL)
+                    latest["calibration"] = {"raw": raw_balance, "calibrated": calibrated, **cal_meta}
+                except Exception:  # noqa: BLE001
+                    logger.debug("delphoi feed calibration skipped", exc_info=True)
             out.append({"entity_key": e["entity_key"], "country": e["country"],
                         "entity_type": e["entity_type"], "display_label": e["display_label"],
-                        "latest": hist[0] if hist else None, "history": hist})
+                        "latest": latest, "history": hist})
     finally:
         conn.close()
     return {"count": len(out), "entities": out,
@@ -651,6 +719,48 @@ def anchor_hash(get_db, repo_root: str | None = None) -> dict:
         # A poszt-út bekötése a csatorna-döntés után (Kommandant).
         return {"channel": "agora", "anchored": False, "reason": "agora-csatorna még nincs bekötve"}
     return {"channel": channel, "anchored": False, "reason": "ismeretlen csatorna"}
+
+
+# ---------------------------------------------------------------------------
+# P2 — SSR-EMBEDDING NAPI TOKEN-SAPKA (G0d). A k-mintázás az embedding-
+# hívásszámot k-szorozza: számoljuk, logoljuk, és a napi sapka felett
+# HANGOSAN elhasalunk (RuntimeError) — néma vágás nincs. A hívó ága viszi a
+# hibát: nowcastnál az entitás-futás, FOGÁS-nál failed + auto-refund.
+# ---------------------------------------------------------------------------
+def estimate_embed_tokens(texts) -> int:
+    """Durva token-becslés: karakter/3.2 (a G1 költség-log konvenciója)."""
+    return sum(max(1, int(len(str(t)) / 3.2)) for t in texts)
+
+
+def charge_embed_budget(get_db, n_tokens: int, label: str = "") -> dict:
+    """Atomi napi számláló-terhelés. Sapka felett a terhelés NEM íródik és
+    RuntimeError repül (hangos hiba, nem néma vágás)."""
+    day = datetime.now(timezone.utc).date().isoformat()
+    budget = embed_budget()
+    conn = get_db()
+    try:
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS delphoi_embed_usage "
+            "(day TEXT PRIMARY KEY, tokens INTEGER NOT NULL DEFAULT 0)")
+        conn.execute("BEGIN IMMEDIATE")
+        row = conn.execute("SELECT tokens FROM delphoi_embed_usage WHERE day=?", (day,)).fetchone()
+        used = int(row["tokens"]) if row else 0
+        if used + int(n_tokens) > budget:
+            conn.rollback()
+            raise RuntimeError(
+                f"DELPHOI_EMBED_BUDGET túllépés: ma {used} + kért {int(n_tokens)} > "
+                f"sapka {budget} token ({label or 'embed'}) — a futás megáll, nem vágunk némán.")
+        conn.execute(
+            "INSERT INTO delphoi_embed_usage (day, tokens) VALUES (?, ?) "
+            "ON CONFLICT(day) DO UPDATE SET tokens = tokens + ?",
+            (day, int(n_tokens), int(n_tokens)))
+        conn.commit()
+    finally:
+        conn.close()
+    total = used + int(n_tokens)
+    logger.info("delphoi embed-budget: +%d token (%s) → ma %d / %d",
+                int(n_tokens), label or "embed", total, budget)
+    return {"day": day, "charged": int(n_tokens), "today_total": total, "budget": budget}
 
 
 # ---------------------------------------------------------------------------
@@ -803,10 +913,12 @@ def _iso_target_window(predicted: datetime | None = None) -> str:
 
 async def run_entity_nowcast(deps: dict, entity_key: str = "", country: str = "",
                              n: int = 60, seed: int = 42, window_days: int = 7,
-                             dry_run: bool = False, chat_fn=None, embed_fn=None) -> dict:
+                             dry_run: bool = False, chat_fn=None, embed_fn=None,
+                             samples: int | None = None) -> dict:
     """A heti nowcast: enabled regiszter-sorok (szűrhető) → ország-korpusz →
-    kvótás panel → Flash fan-out (szabad mondat) → SSR-linear → direction ∈ [-1,1]
-    → ÚJ ledger-sor (INSERT — más út a triggerek miatt nincs is)."""
+    kvótás panel → Hy3 fan-out (personánként k minta, P2 variancia-őr) →
+    SSR-linear → direction ∈ [-1,1] → ÚJ ledger-sor (INSERT — más út a
+    triggerek miatt nincs is). samples=None → DELPHOI_NOWCAST_SAMPLES env."""
     from plugins import persona_sampler, pollster, ssr
 
     get_db = deps["get_db"]
@@ -841,48 +953,73 @@ async def run_entity_nowcast(deps: dict, entity_key: str = "", country: str = ""
         kind = _anchor_kind(ent["entity_key"], ent["entity_type"])
         bucket_of = _media_bucket_map(cfg)
 
-        # Flash fan-out — megosztott httpx client + semaphore + exp. backoff
-        # (a pollster._chat bevált mintája); chat_fn injektálható (teszt).
-        reactions: list = []
+        # Hy3 fan-out (P2 variancia-őr): personánként k minta (G1: minta-
+        # átlagolás kötelező), panel-hőmérséklet env-kapun; megosztott httpx
+        # client + semaphore + exp. backoff; chat_fn injektálható (teszt).
+        k = max(1, int(samples if samples is not None else nowcast_samples()))
+        temp = panel_temperature()
+        by_persona: dict = {p["id"]: (p, []) for p in personas}
         if chat_fn is not None:
             for p in personas:
-                text = await chat_fn(_nowcast_prompt(p, cfg, ent["display_label"], kind, corpus["context"]))
-                reactions.append((p, text))
+                for _j in range(k):
+                    by_persona[p["id"]][1].append(
+                        await chat_fn(_nowcast_prompt(p, cfg, ent["display_label"], kind, corpus["context"])))
         else:
             import httpx
             sem = asyncio.Semaphore(CONCURRENCY)
             async with httpx.AsyncClient(
                     headers={"Authorization": f"Bearer {pollster._provider()[1]}"}, timeout=90) as client:
-                async def _one(p):
+                async def _one(p, j):
                     async with sem:
                         try:
-                            return (p, await pollster._chat(
+                            return (p["id"], await pollster._chat(
                                 client, _nowcast_prompt(p, cfg, ent["display_label"], kind, corpus["context"]),
-                                model=NOWCAST_MODEL))
+                                temperature=temp, model=NOWCAST_MODEL))
                         except Exception as e:  # noqa: BLE001
-                            logger.warning("delphoi nowcast persona %s failed: %s", p["id"], e)
+                            logger.warning("delphoi nowcast persona %s/minta %d failed: %s", p["id"], j, e)
                             return None
-                got = await asyncio.gather(*[_one(p) for p in personas])
-                reactions = [g for g in got if g]
+                got = await asyncio.gather(*[_one(p, j) for p in personas for j in range(k)])
+                for g in got:
+                    if g:
+                        by_persona[g[0]][1].append(g[1])
+        # persona akkor él, ha legalább 1 mintája van — az élők minta-ÁTLAGGAL
+        reactions = [(p, sample_texts) for p, sample_texts in by_persona.values() if sample_texts]
 
         if not reactions:
             results.append({"entity_key": ent["entity_key"], "ok": False, "error": "üres panel (minden hívás elhalt)"})
             continue
 
-        texts = [t for _p, t in reactions]
-        _embed = embed_fn or (lambda ts: _default_embed_fn(ts, deps))
+        # SSR — MINDEN minta beágyazva; a hívásszám k-szorozódik → számoljuk,
+        # logoljuk és a napi sapka őrzi (G0d; túllépés = hangos hiba).
+        texts, slices = [], []
+        for _p, sample_texts in reactions:
+            slices.append((len(texts), len(texts) + len(sample_texts)))
+            texts.extend(sample_texts)
         anchors = _anchor_set(kind, cfg["lang"])
+        embed_info = charge_embed_budget(
+            get_db, estimate_embed_tokens(texts + list(anchors)),
+            label=f"nowcast:{ent['entity_key']}")
+        _embed = embed_fn or (lambda ts: _default_embed_fn(ts, deps))
         emb_resp = await _embed(texts)
         emb_anch = await _embed(list(anchors))
         import numpy as np
         pmf = ssr.compute_pmf(np.asarray(emb_resp, dtype=float),
                               np.asarray(emb_anch, dtype=float), method="linear")
         scores = ssr.score_pmf(pmf)
-        survey_score = float(scores.mean())
+        persona_scores = np.array([float(scores[a:b].mean()) for a, b in slices])
+        survey_score = float(persona_scores.mean())
         direction = round((survey_score - 3.0) / 2.0, 4)   # [-1, +1] — RELATÍV jel
 
+        # válasz-szórás arány (P2 riport-metrika): personán BELÜLI (minta-zaj)
+        # vs personák KÖZÖTTI szórás — a k-átlagolás értelmét ez mutatja meg.
+        within = [float(scores[a:b].std()) for a, b in slices if b - a >= 2]
+        within_sd = round(float(np.mean(within)), 4) if within else None
+        between_sd = round(float(persona_scores.std()), 4) if len(persona_scores) >= 2 else None
+        dispersion_ratio = (round(within_sd / between_sd, 3)
+                            if within_sd is not None and between_sd else None)
+
         seg: dict = {}
-        for (p, _t), s in zip(reactions, scores):
+        for (p, _t), s in zip(reactions, persona_scores):
             b = bucket_of.get(p.get("media", ""), "egyéb")
             seg.setdefault(b, []).append(float(s))
         segment_json = json.dumps(
@@ -891,14 +1028,38 @@ async def run_entity_nowcast(deps: dict, entity_key: str = "", country: str = ""
             ensure_ascii=False)
 
         emb_model = EMBED_MODEL_OPENAI if os.environ.get("OPENAI_API_KEY") else EMBED_MODEL_SF
-        model_id = f"{NOWCAST_MODEL}|non-think|temp=0.8|ssr=linear|emb={emb_model}"
+        model_id = f"{NOWCAST_MODEL}|non-think|temp={temp}|k={k}|ssr=linear|emb={emb_model}"
         entry = {
             "entity_key": ent["entity_key"], "country": ent["country"], "ok": True,
             "display_label": ent["display_label"], "n": len(reactions),
             "direction": direction, "survey_score": round(survey_score, 3),
-            "kl": {k: round(v, 4) for k, v in kl.items()},
+            "kl": {kk: round(v, 4) for kk, v in kl.items()},
             "corpus_hash": corpus["corpus_hash"], "corpus_days": corpus["days"],
+            "sampling": {"k": k, "temperature": temp, "n_calls": len(texts),
+                         "within_persona_sd": within_sd,
+                         "between_persona_sd": between_sd,
+                         "dispersion_ratio": dispersion_ratio},
+            "embed_budget": embed_info,
         }
+
+        # P2 — coverage + konfidencia + kalibráció (NYERS és KALIBRÁLT érték,
+        # verzió-címkével). Best-effort: hibájuk SOSEM töri a nowcastot.
+        try:
+            from plugins import delphoi_scopegate as _sg
+            cov = _sg.coverage_score(get_db, ent["country"], window_days=window_days, corpus=corpus)
+            entry["coverage"] = cov
+            entry["confidence"] = _sg.confidence(None, cov)
+        except Exception:  # noqa: BLE001
+            logger.exception("delphoi nowcast coverage failed (non-fatal)")
+        try:
+            from plugins import delphoi_calibration as _calib
+            domain = "cci" if ent["entity_type"] == "sentiment_expectation" else "regard"
+            raw_balance = round((survey_score - 3.0) / 2.0 * 100.0, 3)  # panel-szaldó skála
+            calibrated, cal_meta = _calib.calibrate(
+                raw_balance, ent["country"], domain, NOWCAST_CAL_PANEL_VERSION, NOWCAST_MODEL)
+            entry["calibration"] = {"raw": raw_balance, "calibrated": calibrated, **cal_meta}
+        except Exception:  # noqa: BLE001
+            logger.exception("delphoi nowcast calibration failed (non-fatal)")
 
         # HALLUCINÁCIÓ-ŐR (P1) — olcsó heurisztika az éles kimeneten, LLM-hívás
         # nélkül; best-effort: az őr hibája SOSEM töri a nowcastot.
@@ -1395,6 +1556,13 @@ def _fg_prompt(persona: dict, cfg: dict, kind: str, stimulus: str) -> str:
     return f"[{profile}]\n\n{template.format(stimulus=stimulus)}"
 
 
+def _fg_iteration(seed_idx: int, sample_idx: int, persona_id: int) -> int:
+    """Cache-kulcs iteráció (P2): a (seed, minta, persona) hármas ütközés-
+    mentesen — a k minta KÜLÖN cache-cellát kap (különben a cache a
+    variancia-őrt ölné meg: k-szor ugyanaz a válasz jönne vissza)."""
+    return (seed_idx * 100 + sample_idx) * 100000 + persona_id
+
+
 def create_job(get_db, user_id: str, input_kind: str, input_text: str,
                panel_spec: dict, input_variants=None) -> dict:
     """Job-felvétel: validálás → ensure_welcome → ATOMI kredit-levonás →
@@ -1531,10 +1699,14 @@ def _aggregate(kind: str, rows: list, variants=None) -> dict:
     return out
 
 
-async def process_job(deps: dict, job_id: str, chat_fn=None, embed_fn=None) -> dict:
-    """A fókuszcsoport-futás (D2): grounding → kvótás panel → Flash fan-out
-    (retry-vel, cache BE) → SSR/plurality → aggregátum → done | failed+refund.
-    RÉSZEREDMÉNY NEM TERMÉK: a kitöltési arány FG_MIN_COMPLETION alatt refund."""
+async def process_job(deps: dict, job_id: str, chat_fn=None, embed_fn=None,
+                      scope_chat_fn=None) -> dict:
+    """A fókuszcsoport-futás (D2): SCOPE-GATE + coverage (P2) → grounding →
+    kvótás panel → Hy3 fan-out (personánként k minta, retry-vel, cache BE) →
+    SSR/plurality → aggregátum → done | failed+refund.
+    RÉSZEREDMÉNY NEM TERMÉK: a kitöltési arány FG_MIN_COMPLETION alatt refund.
+    scope_chat_fn: az ítész-hívás injektálható (teszt); ha chat_fn injektált
+    (teszt-mód) és scope_chat_fn nincs, az ítész kimarad — a heurisztika dönt."""
     from plugins import persona_sampler, pollster, ssr
 
     get_db = deps["get_db"]
@@ -1564,6 +1736,33 @@ async def process_job(deps: dict, job_id: str, chat_fn=None, embed_fn=None) -> d
         corpus = build_country_corpus(get_db, country)
         ctx_line = f"\n\nA friss hírkörnyezet (háttér): {corpus['context'][:600]}" if corpus["context"] else ""
 
+        # ── P2 SCOPE-GATE + COVERAGE a job-felvételkor ──────────────────────
+        # PIROS NEM TILT: kötelező figyelmeztetés + konfidencia-levonás. Az
+        # oszlopok már a futás ELEJÉN íródnak (bukott job is hordozza a
+        # verdiktet); a kapu hibája SOSEM töri a jobot.
+        scope = None
+        cov = None
+        try:
+            from plugins import delphoi_scopegate as _sg
+            stimulus = (job["input_text"] or "").strip() or " | ".join(str(v) for v in (variants or []))
+            use_judge = (chat_fn is None) or (scope_chat_fn is not None)
+            scope = await _sg.scope_verdict(stimulus, chat_fn=scope_chat_fn, use_judge=use_judge)
+            cov = _sg.coverage_score(get_db, country, corpus=corpus)
+            conn = get_db()
+            try:
+                conn.execute(
+                    "UPDATE delphoi_jobs SET scope_verdict=?, coverage_score=? WHERE id=?",
+                    (scope["verdict"], cov["score"], job_id))
+                conn.commit()
+            finally:
+                conn.close()
+            if scope.get("warning"):
+                logger.warning("delphoi job %s scope=%s: %s", job_id, scope["verdict"], scope["warning"])
+            if cov.get("warning"):
+                logger.warning("delphoi job %s coverage=%.3f: %s", job_id, cov["score"], cov["warning"])
+        except Exception:  # noqa: BLE001
+            logger.exception("delphoi scope-gate failed (non-fatal)")
+
         dims = _build_dims(cfg)
         if kind == "yt_title":
             dims = dict(dims, nezotipus=[(l, w) for l, w in YT_VIEWER_MIX])
@@ -1585,6 +1784,10 @@ async def process_job(deps: dict, job_id: str, chat_fn=None, embed_fn=None) -> d
                 for p in personas:
                     tasks.append((p, None, job["input_text"], s_i))
 
+        # P2 variancia-őr: personánként k minta, panel-hőmérséklet env-kapun.
+        k = fg_samples()
+        temp = panel_temperature()
+
         cache = None
         if os.environ.get("DELPHOI_FG_CACHE", "1") == "1":
             from plugins.llm_cache import LLMCache, cache_key
@@ -1594,77 +1797,116 @@ async def process_job(deps: dict, job_id: str, chat_fn=None, embed_fn=None) -> d
             prompt = _fg_prompt(p, cfg, kind, stimulus) + ctx_line
             if cache is not None:
                 from plugins.llm_cache import cache_key as _ck
-                key = _ck(FG_MODEL, {"temperature": 0.8}, "", prompt, iteration=iteration)
+                key = _ck(FG_MODEL, {"temperature": temp}, "", prompt, iteration=iteration)
                 hit = cache.get(key)
                 if hit is not None:
                     return hit
             if chat_fn is not None:
                 text = await chat_fn(prompt)
             else:
-                text = await pollster._chat(client, prompt, model=FG_MODEL)
+                text = await pollster._chat(client, prompt, temperature=temp, model=FG_MODEL)
             if cache is not None and text:
                 cache.set(key, text, model=FG_MODEL)
             return text
 
-        results = []   # (persona, variant_id, raw_text)
+        results = []   # (persona, variant_id, [minta-szöveg × k])
         if chat_fn is not None:
             for p, vid, stim, s_i in tasks:
-                try:
-                    results.append((p, vid, await _ask(None, p, stim, s_i * 100000 + p["id"])))
-                except Exception:  # noqa: BLE001
-                    results.append((p, vid, None))
+                sample_texts = []
+                for j in range(k):
+                    try:
+                        sample_texts.append(await _ask(None, p, stim, _fg_iteration(s_i, j, p["id"])))
+                    except Exception:  # noqa: BLE001
+                        sample_texts.append(None)
+                results.append((p, vid, sample_texts))
         else:
             import httpx
             sem = asyncio.Semaphore(CONCURRENCY)
             async with httpx.AsyncClient(
                     headers={"Authorization": f"Bearer {pollster._provider()[1]}"}, timeout=90) as client:
-                async def _one(p, vid, stim, s_i):
+                async def _one(t_idx, p, stim, s_i, j):
                     async with sem:
                         try:
                             # a pollster._chat már FG_RETRIES-nél többet (4) retry-zik
                             # exponenciális backoffal — a retry-küszöb ott érvényesül
-                            return (p, vid, await _ask(client, p, stim, s_i * 100000 + p["id"]))
+                            return (t_idx, await _ask(client, p, stim, _fg_iteration(s_i, j, p["id"])))
                         except Exception as e:  # noqa: BLE001
-                            logger.warning("delphoi fg persona %s halott: %s", p["id"], e)
-                            return (p, vid, None)
-                results = list(await asyncio.gather(*[_one(*t) for t in tasks]))
+                            logger.warning("delphoi fg persona %s/minta %d halott: %s", p["id"], j, e)
+                            return (t_idx, None)
+                flat = await asyncio.gather(*[
+                    _one(i, p, stim, s_i, j)
+                    for i, (p, _vid, stim, s_i) in enumerate(tasks) for j in range(k)])
+                buf: dict = {i: [] for i in range(len(tasks))}
+                for t_idx, text in flat:
+                    buf[t_idx].append(text)
+                results = [(tasks[i][0], tasks[i][1], buf[i]) for i in range(len(tasks))]
 
-        ok_results = [(p, v, t) for p, v, t in results if t]
+        # RÉSZEREDMÉNY NEM TERMÉK — personára is: egy persona mérése akkor
+        # teljes, ha MIND a k mintája él (fél-mintás persona nem átlagolható
+        # torzítatlanul); a kitöltés a teljes personák aránya.
+        ok_results = [(p, v, ts_) for p, v, ts_ in results
+                      if len(ts_) == k and all(t for t in ts_)]
         if len(ok_results) < FG_MIN_COMPLETION * len(tasks):
             _fail_job(get_db, job_id,
-                      f"fan-out kitöltés {len(ok_results)}/{len(tasks)} < {FG_MIN_COMPLETION:.0%} — részeredmény nem termék")
+                      f"fan-out kitöltés {len(ok_results)}/{len(tasks)} teljes persona "
+                      f"< {FG_MIN_COMPLETION:.0%} — részeredmény nem termék")
             return {"ok": False, "error": "incomplete_panel", "refunded": True}
 
-        # kiértékelés instrumentumonként
-        rows = []
-        ssr_texts, ssr_idx = [], []
-        for i, (p, vid, text) in enumerate(ok_results):
+        # kiértékelés instrumentumonként — task-szintű sorok (persona-aggregátum,
+        # az _aggregate bemenete) + minta-szintű nyers sorok a privát silóba.
+        from collections import Counter as _Counter
+        rows = []          # task-szint: ssr_score = k minta átlaga; choice = többség
+        sample_rows = []   # minta-szint: nyers reakciók (delphoi_panel_responses)
+        ssr_texts, ssr_refs = [], []   # ssr_refs: (task_idx, sample_row_idx)
+        _CHOICE_KEYS = ("VÁLASZTÁS", "VOLBA", "ESCOLHA", "WYBÓR", "WYBOR", "CHOICE")
+        _REACT_KEYS = ("REAKCIÓ", "REAKCE", "REAÇÃO", "REACAO", "REAKCJA")
+        for i, (p, vid, sample_texts) in enumerate(ok_results):
             seg_label = bucket_of.get(p.get("media", ""), "egyéb")
-            row = {"persona_idx": i, "segment": seg_label, "raw": text, "variant_id": vid,
+            row = {"persona_idx": i, "segment": seg_label, "variant_id": vid,
                    "ssr_score": None, "choice": None, "unclear": None}
-            if kind == "yt_title":
-                pick = _parse_structured(text, ("VÁLASZTÁS", "VOLBA", "ESCOLHA", "WYBÓR", "WYBOR", "CHOICE"))
-                if pick:
-                    import re as _re
-                    m = _re.search(r"\d+", pick)
-                    if m and variants and 1 <= int(m.group(0)) <= len(variants):
-                        row["choice"] = variants[int(m.group(0)) - 1]
-            elif kind == "ab_test":
-                ch = _parse_structured(text, ("VÁLASZTÁS", "VOLBA", "ESCOLHA", "WYBÓR", "WYBOR", "CHOICE"))
-                row["choice"] = bool(ch and ch.lower().split()[0] in _CHOICE_YES)
-                ssr_texts.append(_parse_structured(text, ("REAKCIÓ", "REAKCE", "REAÇÃO", "REACAO", "REAKCJA")) or text)
-                ssr_idx.append(len(rows))
-            elif kind == "pitch":
-                row["unclear"] = _parse_structured(text, ("HOMÁLYOS", "NEJASNÉ", "NEJASNE", "CONFUSO", "NIEJASNE"))
-                ssr_texts.append(_parse_structured(text, ("REAKCIÓ", "REAKCE", "REAÇÃO", "REACAO", "REAKCJA")) or text)
-                ssr_idx.append(len(rows))
-            else:
-                ssr_texts.append(text)
-                ssr_idx.append(len(rows))
+            choices, unclears = [], []
+            for text in sample_texts:
+                sample_rows.append({"persona_idx": i, "segment": seg_label,
+                                    "raw": text, "variant_id": vid, "ssr_score": None})
+                if kind == "yt_title":
+                    pick = _parse_structured(text, _CHOICE_KEYS)
+                    if pick:
+                        import re as _re
+                        m = _re.search(r"\d+", pick)
+                        if m and variants and 1 <= int(m.group(0)) <= len(variants):
+                            choices.append(variants[int(m.group(0)) - 1])
+                elif kind == "ab_test":
+                    ch = _parse_structured(text, _CHOICE_KEYS)
+                    choices.append(bool(ch and ch.lower().split()[0] in _CHOICE_YES))
+                    ssr_texts.append(_parse_structured(text, _REACT_KEYS) or text)
+                    ssr_refs.append((i, len(sample_rows) - 1))
+                elif kind == "pitch":
+                    unclears.append(_parse_structured(text, ("HOMÁLYOS", "NEJASNÉ", "NEJASNE", "CONFUSO", "NIEJASNE")))
+                    ssr_texts.append(_parse_structured(text, _REACT_KEYS) or text)
+                    ssr_refs.append((i, len(sample_rows) - 1))
+                else:
+                    ssr_texts.append(text)
+                    ssr_refs.append((i, len(sample_rows) - 1))
+            # minta-aggregálás personánként (P2): választás → plurality/többség,
+            # homályos-kifejezés → leggyakoribb.
+            if kind == "yt_title" and choices:
+                row["choice"] = _Counter(choices).most_common(1)[0][0]
+            elif kind == "ab_test" and choices:
+                row["choice"] = sum(1 for c in choices if c) * 2 >= len(choices)
+            if kind == "pitch":
+                vals = [u for u in unclears if u is not None]
+                if vals:
+                    row["unclear"] = _Counter(vals).most_common(1)[0][0]
             rows.append(row)
 
+        within_sd = between_sd = dispersion_ratio = None
+        embed_info = None
         if ssr_texts:
             anchors = REFERENCE_SETS_APPEAL.get(cfg["lang"]) or REFERENCE_SETS_APPEAL["hu"]
+            # embed-hívásszám k-szorozódik → napi sapka (G0d; túllépés = hangos
+            # hiba → except-ág → failed + auto-refund, nem néma vágás)
+            embed_info = charge_embed_budget(
+                get_db, estimate_embed_tokens(ssr_texts + list(anchors)), label=f"fg:{job_id}")
             _embed = embed_fn or (lambda ts: _default_embed_fn(ts, deps))
             import numpy as np
             emb_resp = await _embed(ssr_texts)
@@ -1672,10 +1914,21 @@ async def process_job(deps: dict, job_id: str, chat_fn=None, embed_fn=None) -> d
             pmf = ssr.compute_pmf(np.asarray(emb_resp, dtype=float),
                                   np.asarray(emb_anch, dtype=float), method="linear")
             scores = ssr.score_pmf(pmf)
-            for j, ridx in enumerate(ssr_idx):
-                rows[ridx]["ssr_score"] = float(scores[j])
+            per_task: dict = {}
+            for (t_idx, s_idx), sc in zip(ssr_refs, scores):
+                per_task.setdefault(t_idx, []).append(float(sc))
+                sample_rows[s_idx]["ssr_score"] = float(sc)
+            for t_idx, vals in per_task.items():
+                rows[t_idx]["ssr_score"] = float(np.mean(vals))
+            # válasz-szórás arány (P2 riport-metrika): minta-zaj vs panel-jel
+            within = [float(np.std(v)) for v in per_task.values() if len(v) >= 2]
+            task_means = [float(np.mean(v)) for v in per_task.values()]
+            within_sd = round(float(np.mean(within)), 4) if within else None
+            between_sd = round(float(np.std(task_means)), 4) if len(task_means) >= 2 else None
+            dispersion_ratio = (round(within_sd / between_sd, 3)
+                                if within_sd is not None and between_sd else None)
 
-        # nyers reakciók a PRIVÁT silóba (aggregálás előtti réteg)
+        # nyers reakciók a PRIVÁT silóba (aggregálás előtti réteg) — MINDEN minta
         conn = get_db()
         try:
             ts = datetime.now(timezone.utc).isoformat()
@@ -1683,22 +1936,51 @@ async def process_job(deps: dict, job_id: str, chat_fn=None, embed_fn=None) -> d
                 "INSERT INTO delphoi_panel_responses (job_id, persona_idx, segment, "
                 "raw_reaction, ssr_score, variant_id, created_at) VALUES (?,?,?,?,?,?,?)",
                 [(job_id, r["persona_idx"], r["segment"], r["raw"], r["ssr_score"],
-                  r["variant_id"], ts) for r in rows])
+                  r["variant_id"], ts) for r in sample_rows])
             agg = _aggregate(kind, rows, variants)
-            fg_model_id = f"{FG_MODEL}|non-think|ssr=linear"
-            coverage = round(len(ok_results) / max(1, len(tasks)), 4)
+            fg_model_id = f"{FG_MODEL}|non-think|temp={temp}|k={k}|ssr=linear"
+            completion = round(len(ok_results) / max(1, len(tasks)), 4)
             agg["panel"] = {"country": country, "n_requested": len(tasks),
                             "n_completed": len(ok_results), "n_seeds": n_seeds,
+                            "completion_ratio": completion,
+                            "sampling": {"k": k, "temperature": temp,
+                                         "n_calls": len(tasks) * k,
+                                         "within_persona_sd": within_sd,
+                                         "between_persona_sd": between_sd,
+                                         "dispersion_ratio": dispersion_ratio},
                             "corpus_hash": corpus.get("corpus_hash", ""),
                             "model_id": fg_model_id,
                             "panel_version": FG_PANEL_VERSION}
+            if embed_info:
+                agg["panel"]["embed_budget"] = embed_info
+            # P2 — scope-verdikt + coverage + konfidencia + kalibráció a riport-
+            # payloadban is (a verdikt/coverage a job-oszlopokban már él).
+            if scope is not None:
+                agg["scope"] = scope
+            if cov is not None:
+                agg["coverage"] = cov
+            try:
+                from plugins import delphoi_scopegate as _sg
+                agg["confidence"] = _sg.confidence(scope, cov)
+            except Exception:  # noqa: BLE001
+                logger.exception("delphoi confidence failed (non-fatal)")
+            if agg.get("overall_score") is not None:
+                try:
+                    from plugins import delphoi_calibration as _calib
+                    appeal_raw = round((float(agg["overall_score"]) - 1.0) / 4.0 * 100.0, 3)
+                    calibrated, cal_meta = _calib.calibrate(
+                        appeal_raw, country, "agora_appeal", FG_PANEL_VERSION, FG_MODEL)
+                    agg["calibration"] = {"raw": appeal_raw, "scale": "0-100 appeal",
+                                          "calibrated": calibrated, **cal_meta}
+                except Exception:  # noqa: BLE001
+                    logger.exception("delphoi fg calibration failed (non-fatal)")
             agg["disclaimer"] = ("Szintetikus panel relatív jelzése, nem abszolút mérés "
                                  "és nem közvélemény-kutatás.")
             conn.execute(
                 "UPDATE delphoi_jobs SET status='done', result_json=?, completed_at=?, "
-                "model_id=?, panel_version=?, coverage_score=? WHERE id=?",
+                "model_id=?, panel_version=? WHERE id=?",
                 (json.dumps(agg, ensure_ascii=False), ts, fg_model_id,
-                 FG_PANEL_VERSION, coverage, job_id))
+                 FG_PANEL_VERSION, job_id))
             conn.commit()
         finally:
             conn.close()
@@ -1727,6 +2009,12 @@ def get_job(get_db, job_id: str, user_id: str) -> dict:
            "input_kind": row["input_kind"], "credits_cost": row["credits_cost"],
            "created_at": row["created_at"], "completed_at": row["completed_at"],
            "deleted_at": row["deleted_at"]}
+    # P2: a scope-verdikt + coverage az API-payload ELSŐ szintjén is (nem csak
+    # a result_json-ban) — bukott/futó job is hordozza. Legacy DB-n (oszlop
+    # nélkül) a mező egyszerűen kimarad.
+    for col in ("scope_verdict", "coverage_score"):
+        if col in row.keys():
+            out[col] = row[col]
     if row["status"] == "done" and row["result_json"]:
         out["result"] = json.loads(row["result_json"])
     if row["status"] == "failed":
