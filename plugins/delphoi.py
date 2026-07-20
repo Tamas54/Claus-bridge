@@ -49,9 +49,21 @@ __plugin_meta__ = {
 
 GENESIS = "GENESIS"
 
-# Flash-motor konfig — a pollster-rel közös doktrína (Non-Think kötelező).
-MODEL = os.environ.get("ORAKEL_MODEL", "deepseek-ai/DeepSeek-V4-Flash")
+# Motor-konfig (PYTHIA P1) — a pollster-rel közös doktrína (Non-Think kötelező,
+# feltétel nélkül). A nowcast- és a FOGÁS-ág KÜLÖN env-kapcsolót kap, mindkettő
+# default-ja a tencent/Hy3 (NULLTARIF; Kommandant 07-20: a FOGÁS is mehet Hy3-ra,
+# Hy3-tiltó őr NINCS). Flash SEHOL nem default és nem silent fallback —
+# motorhiba = hangos hiba (a pollster._chat exception-nel + loggal hasal el).
+NOWCAST_MODEL = os.environ.get("DELPHOI_NOWCAST_MODEL", "tencent/Hy3")
+FG_MODEL = os.environ.get("DELPHOI_FG_MODEL", "tencent/Hy3")
 CONCURRENCY = int(os.environ.get("DELPHOI_CONCURRENCY", os.environ.get("ORAKEL_CONCURRENCY", "8")))
+
+# A FOGÁS-ág panel-verziója (P1 bump — Hy3-regime; az Echolot echolot_orakel.py
+# PANEL_VERSION-jével azonos string, a modellregime-váltás korszak-jelölője).
+FG_PANEL_VERSION = "orakel-agora-hu-v2-hy3"
+
+# Modellregime-korszakhatár megjegyzés (N5-sáv / irányfal-kimenet, P1).
+REGIME_NOTE = "bázisreset — modellváltás, nem hasonlítható"
 EMBED_MODEL_SF = "Qwen/Qwen3-Embedding-8B"  # többnyelvű (hu/pl/fr/it). A BAAI/bge-m3 kivezetve az SF-ről (code 20012, lásd mem #16568) — 2026-07-09 live-probe: ez él
 EMBED_MODEL_OPENAI = "text-embedding-3-small"  # a backtesztek nyertese — env-kapu (OPENAI_API_KEY)
 
@@ -531,6 +543,88 @@ def verify_ledger_chain(get_db) -> dict:
     return {"ok": True, "checked": len(rows), "head": expected_prev if rows else GENESIS}
 
 
+# ---------------------------------------------------------------------------
+# MODELLREGIME-VÁLTÁS (P1) — az első Hy3-sor korszakhatár: ahol a direction_prev
+# egy Flash-korszakú sorra mutat, a kimenet "model_regime_boundary": true jelzést
+# + a delta mellé REGIME_NOTE megjegyzést kap. Régi sorok model_id=NULL =
+# Flash-korszak (migráció előtti sorok, sor-érintés tilos).
+# ---------------------------------------------------------------------------
+def _model_era(model_id) -> str:
+    """Ledger-sor modell-korszaka. NULL/üres = Flash-korszak (P1 előtti sor);
+    'Hy3' a model_id-ban = hy3; 'Flash' = flash; egyéb: a modellnév-prefix."""
+    if not model_id:
+        return "flash"
+    low = str(model_id).lower()
+    if "hy3" in low:
+        return "hy3"
+    if "flash" in low:
+        return "flash"
+    return low.split("|", 1)[0]
+
+
+def _annotate_regime(conn, rows: list[dict]) -> list[dict]:
+    """Ledger-sor dict-ek in-place korszakhatár-jelölése. Minden sorhoz az
+    entitás ELŐZŐ ledger-sorának (a direction_prev forrásának) korszakát nézi:
+    eltérő korszak → model_regime_boundary=True + regime_note. A sorokhoz
+    'id', 'entity_key', 'country' és 'model_id' mező kell."""
+    for r in rows:
+        prev = conn.execute(
+            "SELECT model_id FROM delphoi_nowcast_ledger "
+            "WHERE entity_key=? AND country=? AND id<? ORDER BY id DESC LIMIT 1",
+            (r["entity_key"], r["country"], r["id"])).fetchone()
+        if prev is None:
+            continue  # nincs előző jel — nincs delta, nincs korszakhatár
+        if _model_era(r.get("model_id")) != _model_era(prev["model_id"]):
+            r["model_regime_boundary"] = True
+            r["regime_note"] = REGIME_NOTE
+    return rows
+
+
+def public_nowcast_feed(get_db, entity_key: str = "", label: str = "",
+                        history: int = 12) -> dict:
+    """A NYILVÁNOS kirakat-feed (Echolot N5-sáv adatforrása) — a server.py
+    /api/delphoi/nowcast végpontja deploykor erre delegál. A history-sorok
+    korszakhatár-jelölést kapnak (model_regime_boundary + regime_note)."""
+    history = min(52, max(1, int(history)))
+    conn = get_db()
+    try:
+        sql = ("SELECT entity_key, country, entity_type, display_label "
+               "FROM delphoi_entity_nowcast WHERE enabled=1")
+        params: list = []
+        if entity_key:
+            sql += " AND entity_key = ?"; params.append(entity_key)
+        elif label:
+            sql += " AND display_label LIKE ?"; params.append(f"%{label}%")
+        try:
+            ents = conn.execute(sql, params).fetchall()
+        except Exception:  # noqa: BLE001 — table may not exist yet
+            ents = []
+        out = []
+        for e in ents:
+            try:
+                rows = conn.execute(
+                    "SELECT id, entity_key, country, predicted_at, target_window, "
+                    "direction, direction_prev, corpus_hash, content_hash, model_id "
+                    "FROM delphoi_nowcast_ledger WHERE entity_key=? AND country=? "
+                    "ORDER BY id DESC LIMIT ?",
+                    (e["entity_key"], e["country"], history)).fetchall()
+                hist = _annotate_regime(conn, [dict(r) for r in rows])
+            except Exception:  # noqa: BLE001 — migráció előtti DB: legacy oszlopkészlet
+                rows = conn.execute(
+                    "SELECT predicted_at, target_window, direction, direction_prev, "
+                    "corpus_hash, content_hash FROM delphoi_nowcast_ledger "
+                    "WHERE entity_key=? AND country=? ORDER BY id DESC LIMIT ?",
+                    (e["entity_key"], e["country"], history)).fetchall()
+                hist = [dict(r) for r in rows]
+            out.append({"entity_key": e["entity_key"], "country": e["country"],
+                        "entity_type": e["entity_type"], "display_label": e["display_label"],
+                        "latest": hist[0] if hist else None, "history": hist})
+    finally:
+        conn.close()
+    return {"count": len(out), "entities": out,
+            "disclaimer": "Szintetikus panel relatív irányjelzése, nem közvélemény-kutatás."}
+
+
 def anchor_hash(get_db, repo_root: str | None = None) -> dict:
     """N1.5/5 — külső horgony hook. A csatorna env-kapu mögött ALSZIK
     (DELPHOI_ANCHOR_CHANNEL=off|git|agora, default off) — a Kommandant szava.
@@ -763,7 +857,8 @@ async def run_entity_nowcast(deps: dict, entity_key: str = "", country: str = ""
                     async with sem:
                         try:
                             return (p, await pollster._chat(
-                                client, _nowcast_prompt(p, cfg, ent["display_label"], kind, corpus["context"])))
+                                client, _nowcast_prompt(p, cfg, ent["display_label"], kind, corpus["context"]),
+                                model=NOWCAST_MODEL))
                         except Exception as e:  # noqa: BLE001
                             logger.warning("delphoi nowcast persona %s failed: %s", p["id"], e)
                             return None
@@ -796,7 +891,7 @@ async def run_entity_nowcast(deps: dict, entity_key: str = "", country: str = ""
             ensure_ascii=False)
 
         emb_model = EMBED_MODEL_OPENAI if os.environ.get("OPENAI_API_KEY") else EMBED_MODEL_SF
-        model_id = f"{MODEL}|non-think|temp=0.8|ssr=linear|emb={emb_model}"
+        model_id = f"{NOWCAST_MODEL}|non-think|temp=0.8|ssr=linear|emb={emb_model}"
         entry = {
             "entity_key": ent["entity_key"], "country": ent["country"], "ok": True,
             "display_label": ent["display_label"], "n": len(reactions),
@@ -804,6 +899,21 @@ async def run_entity_nowcast(deps: dict, entity_key: str = "", country: str = ""
             "kl": {k: round(v, 4) for k, v in kl.items()},
             "corpus_hash": corpus["corpus_hash"], "corpus_days": corpus["days"],
         }
+
+        # HALLUCINÁCIÓ-ŐR (P1) — olcsó heurisztika az éles kimeneten, LLM-hívás
+        # nélkül; best-effort: az őr hibája SOSEM töri a nowcastot.
+        try:
+            from plugins import delphoi_halluguard as _hg
+            grounding_extra = "\n".join(
+                [cfg.get("priming", ""), ent["display_label"], _stimulus_name(ent["display_label"])])
+            hg_report = _hg.scan_reactions(texts, corpus["context"], grounding_extra)
+            _hg.log_flags(get_db, "nowcast", ent["entity_key"], ent["country"],
+                          corpus["corpus_hash"], hg_report)
+            entry["halluguard"] = {"n_texts": hg_report["n_texts"],
+                                   "n_suspect_texts": hg_report["n_suspect_texts"],
+                                   "n_suspects": len(hg_report["suspects"])}
+        except Exception:  # noqa: BLE001
+            logger.exception("delphoi halluguard failed (non-fatal)")
         if not dry_run:
             row = append_ledger_row(
                 get_db, ent["entity_key"], ent["country"], _iso_target_window(),
@@ -820,19 +930,24 @@ async def run_entity_nowcast(deps: dict, entity_key: str = "", country: str = ""
 
 
 def nowcast_status(get_db, entity_key: str = "", limit: int = 12) -> dict:
-    """A regiszter + a legfrissebb napló-sorok (entitásonként), a láncfej."""
+    """A regiszter + a legfrissebb napló-sorok (entitásonként), a láncfej.
+    A ledger-sorok korszakhatár-jelölést kapnak (model_regime_boundary, P1)."""
     conn = get_db()
     try:
         reg = [dict(r) for r in conn.execute(
             "SELECT entity_key, country, entity_type, display_label, enabled "
             "FROM delphoi_entity_nowcast ORDER BY country, entity_key").fetchall()]
-        sql = ("SELECT entity_key, country, predicted_at, target_window, direction, "
-               "direction_prev, content_hash FROM delphoi_nowcast_ledger ")
+        sql = ("SELECT id, entity_key, country, predicted_at, target_window, direction, "
+               "direction_prev, content_hash, model_id FROM delphoi_nowcast_ledger ")
         params: list = []
         if entity_key:
             sql += "WHERE entity_key=? "; params.append(entity_key)
         sql += "ORDER BY id DESC LIMIT ?"; params.append(limit)
-        ledger = [dict(r) for r in conn.execute(sql, params).fetchall()]
+        try:
+            ledger = _annotate_regime(conn, [dict(r) for r in conn.execute(sql, params).fetchall()])
+        except Exception:  # noqa: BLE001 — migráció előtti DB: legacy oszlopkészlet
+            legacy_sql = sql.replace(", model_id", "").replace("SELECT id, ", "SELECT ")
+            ledger = [dict(r) for r in conn.execute(legacy_sql, params).fetchall()]
         head = _last_chain_hash(conn)
     finally:
         conn.close()
@@ -985,7 +1100,11 @@ CREATE TABLE IF NOT EXISTS delphoi_jobs (
     created_at     TEXT NOT NULL,
     started_at     TEXT,
     completed_at   TEXT,
-    deleted_at     TEXT
+    deleted_at     TEXT,
+    model_id       TEXT,
+    panel_version  TEXT,
+    scope_verdict  TEXT,
+    coverage_score REAL
 );
 CREATE INDEX IF NOT EXISTS idx_delphoi_jobs_user ON delphoi_jobs(user_id, created_at);
 CREATE INDEX IF NOT EXISTS idx_delphoi_jobs_status ON delphoi_jobs(status);
@@ -1472,16 +1591,16 @@ async def process_job(deps: dict, job_id: str, chat_fn=None, embed_fn=None) -> d
             prompt = _fg_prompt(p, cfg, kind, stimulus) + ctx_line
             if cache is not None:
                 from plugins.llm_cache import cache_key as _ck
-                key = _ck(MODEL, {"temperature": 0.8}, "", prompt, iteration=iteration)
+                key = _ck(FG_MODEL, {"temperature": 0.8}, "", prompt, iteration=iteration)
                 hit = cache.get(key)
                 if hit is not None:
                     return hit
             if chat_fn is not None:
                 text = await chat_fn(prompt)
             else:
-                text = await pollster._chat(client, prompt)
+                text = await pollster._chat(client, prompt, model=FG_MODEL)
             if cache is not None and text:
-                cache.set(key, text, model=MODEL)
+                cache.set(key, text, model=FG_MODEL)
             return text
 
         results = []   # (persona, variant_id, raw_text)
@@ -1563,15 +1682,20 @@ async def process_job(deps: dict, job_id: str, chat_fn=None, embed_fn=None) -> d
                 [(job_id, r["persona_idx"], r["segment"], r["raw"], r["ssr_score"],
                   r["variant_id"], ts) for r in rows])
             agg = _aggregate(kind, rows, variants)
+            fg_model_id = f"{FG_MODEL}|non-think|ssr=linear"
+            coverage = round(len(ok_results) / max(1, len(tasks)), 4)
             agg["panel"] = {"country": country, "n_requested": len(tasks),
                             "n_completed": len(ok_results), "n_seeds": n_seeds,
                             "corpus_hash": corpus.get("corpus_hash", ""),
-                            "model_id": f"{MODEL}|non-think|ssr=linear"}
+                            "model_id": fg_model_id,
+                            "panel_version": FG_PANEL_VERSION}
             agg["disclaimer"] = ("Szintetikus panel relatív jelzése, nem abszolút mérés "
                                  "és nem közvélemény-kutatás.")
             conn.execute(
-                "UPDATE delphoi_jobs SET status='done', result_json=?, completed_at=? WHERE id=?",
-                (json.dumps(agg, ensure_ascii=False), ts, job_id))
+                "UPDATE delphoi_jobs SET status='done', result_json=?, completed_at=?, "
+                "model_id=?, panel_version=?, coverage_score=? WHERE id=?",
+                (json.dumps(agg, ensure_ascii=False), ts, fg_model_id,
+                 FG_PANEL_VERSION, coverage, job_id))
             conn.commit()
         finally:
             conn.close()

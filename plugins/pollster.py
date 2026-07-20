@@ -5,8 +5,10 @@ education, media diet); party preference EMERGES from each persona's reaction to
 the current news state (read from press_snapshots). Quota-sampled proportionally
 to the HU adult population, so the raw share is implicitly post-stratified.
 
-Cheap by design: DeepSeek-V4-Flash with Non-Think ({"thinking":{"type":"disabled"}},
-see [[siliconflow_flash_nonthink]]) + short prompts + concurrency. Predictions are
+Cheap by design: SiliconFlow Non-Think motor ({"thinking":{"type":"disabled"}} —
+feltétel nélkül) + short prompts + concurrency. PYTHIA P1 óta a default motor a
+tencent/Hy3 (ORAKEL_MODEL env felülírhatja); Flash SEHOL nem default és nem
+silent fallback — motorhiba = hangos hiba, nem modell-csere. Predictions are
 written to poll_results (kind='prediction') — OUTSIDE the unified agent RAG.
 
 This is the relative/ordinal instrument from the ORAKEL design; absolute calibration
@@ -26,10 +28,10 @@ logger = logging.getLogger(__name__)
 
 SF_KEY = os.environ.get("SILICONFLOW_API_KEY", "")
 SF_URL = "https://api.siliconflow.com/v1/chat/completions"
-MODEL = os.environ.get("ORAKEL_MODEL", "deepseek-ai/DeepSeek-V4-Flash")
+MODEL = os.environ.get("ORAKEL_MODEL", "tencent/Hy3")
 CONCURRENCY = int(os.environ.get("ORAKEL_CONCURRENCY", "8"))
 
-# Provider switch — default SiliconFlow/Flash; set ORAKEL_PROVIDER=openai to
+# Provider switch — default SiliconFlow (tencent/Hy3); set ORAKEL_PROVIDER=openai to
 # backtest with a different model family (e.g. gpt-4o) for the prior diagnostic.
 def _provider() -> tuple:
     """Returns (url, api_key, model, use_thinking_param)."""
@@ -155,11 +157,15 @@ def _parse_party(text: str) -> str:
     return "bizonytalan"
 
 
-async def _chat(client, prompt: str, max_tokens: int = 260, temperature: float = 0.8, retries: int = 4) -> str:
-    """One Flash call (Non-Think) over a SHARED client, with exponential backoff —
-    the proven teszterek/ pattern. Retries on exception AND empty content (flash
-    occasionally returns empty under rate-limit). See [[siliconflow_flash_nonthink]]."""
-    url, _key, model, use_think = _provider()
+async def _chat(client, prompt: str, max_tokens: int = 260, temperature: float = 0.8,
+                retries: int = 4, model: str | None = None) -> str:
+    """One Non-Think call over a SHARED client, with exponential backoff —
+    the proven teszterek/ pattern. Retries on exception AND empty content (a motor
+    rate-limit alatt néha üreset ad). A `model` paraméter felülírja a modellnevet;
+    None esetén a _provider() default-ja az útvonal. NINCS silent fallback:
+    kimerült retry = hangos RuntimeError (exception + log), NEM modell-csere."""
+    url, _key, provider_model, use_think = _provider()
+    model = model or provider_model
     body = {"model": model, "messages": [{"role": "user", "content": prompt}]}
     if model.startswith("gpt-5") and "chat" not in model:
         # gpt-5 reasoning models: max_completion_tokens, default temperature only,
@@ -170,7 +176,9 @@ async def _chat(client, prompt: str, max_tokens: int = 260, temperature: float =
         body["temperature"] = temperature
         body["max_tokens"] = max_tokens
         if use_think:
-            body["thinking"] = {"type": "disabled"}  # Non-Think — V4 form (SiliconFlow)
+            # Non-Think — FELTÉTEL NÉLKÜL a SiliconFlow-úton (Hy3 default-thinking
+            # modell, a thinking:disabled kötelező — NULLTARIF-recept).
+            body["thinking"] = {"type": "disabled"}
     for attempt in range(retries):
         try:
             r = await client.post(url, json=body)
@@ -182,7 +190,9 @@ async def _chat(client, prompt: str, max_tokens: int = 260, temperature: float =
             pass
         if attempt < retries - 1:
             await asyncio.sleep(2 ** attempt + random.random())
-    raise RuntimeError("flash failed after retries (empty/transient)")
+    # HANGOS motorhiba — semmilyen modell-csere/fallback nem történik.
+    logger.error("orakel motor (%s) failed after %d retries (empty/transient)", model, retries)
+    raise RuntimeError(f"orakel motor ({model}) failed after retries (empty/transient)")
 
 
 async def run_poll(n: int = 60, seed: int = 42, store: bool = True, priming: str = "") -> dict:
@@ -213,10 +223,11 @@ async def run_poll(n: int = 60, seed: int = 42, store: bool = True, priming: str
 
     if store and len(results):
         from plugins.poll_results import insert_poll, aggregate
+        _model = _provider()[2]
         insert_poll(
-            "prediction", f"orakel-{period_date}", "ORAKEL-Flash", period_date,
+            "prediction", f"orakel-{period_date}", f"ORAKEL-{_model.split('/')[-1]}", period_date,
             {k: shares[k] for k in ("fidesz", "tisza", "dk", "mihazank", "bizonytalan")},
-            base="teljes_nepesseg", source=f"orakel-flash n={len(results)} seed={seed}",
+            base="teljes_nepesseg", source=f"orakel model={_model} n={len(results)} seed={seed}",
         )
         # nearest ground-truth quarter for a quick sanity delta (optional)
         gt_q = "2025-Q3"
