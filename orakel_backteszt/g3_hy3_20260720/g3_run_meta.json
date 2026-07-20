@@ -72,6 +72,29 @@
         "est_prompt_tokens": 344829,
         "est_completion_tokens": 48073
       }
+    },
+    "CZ/2025-09": {
+      "corpus_file": "corpus_cz_2025_julsep.json",
+      "corpus_sha256": "6a2945d548afbe76a5c7b5287323608529f478390c4661e0fe3abcc4ae82220d",
+      "corpus_n": 169,
+      "sectors": [
+        "industry",
+        "services",
+        "retail",
+        "construction"
+      ],
+      "elapsed_s": 342.0,
+      "cost": {
+        "n_calls": 480,
+        "n_api_calls": 480,
+        "n_cache_hits": 0,
+        "calls_per_min_limit": 100.0,
+        "elapsed_s": 342.0,
+        "prompt_chars": 2016068,
+        "completion_chars": 144392,
+        "est_prompt_tokens": 630021,
+        "est_completion_tokens": 45122
+      }
     }
   }
 }
