@@ -1,0 +1,5 @@
+G1/1 HU panel — modell=tencent/Hy3, N=80, seeds=[2, 3], pacing=16/perc
+  seed 2: Tisza 56.2 | Fidesz 43.8 | rés +12.50
+  seed 3: Tisza 47.5 | Fidesz 52.5 | rés -5.00
+  ÖSSZ (3 seed): mean_gap +7.50 (szórás 8.90) | GT +14.57 | |hiba| 7.07
+[g1] artefakt: /home/tamas1/Claus/claus-bridge-mcp/orakel_backteszt/g1_hy3_20260720/hu_pre_election/hy3_panel_g1.json

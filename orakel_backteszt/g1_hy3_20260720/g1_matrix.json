@@ -1,0 +1,651 @@
+{
+  "date": "2026-07-20",
+  "model_new": "tencent/Hy3",
+  "model_hist": "deepseek-ai/DeepSeek-V4-Flash (történeti artefaktokból, futtatás nélkül)",
+  "cells": [
+    {
+      "domain": "election",
+      "country": "HU",
+      "cell": "HU pre-election Tisza-Fidesz rés",
+      "flag": "CLEAN/cutoff-igazolt",
+      "gt": 14.57,
+      "hy3": {
+        "mean_gap": 7.5,
+        "per_seed": [
+          15.0,
+          12.5,
+          -5.0
+        ],
+        "abs_err": 7.07,
+        "direction_hit": true
+      },
+      "flash": {
+        "mean_gap": 20.888,
+        "abs_err": 6.32,
+        "direction_hit": true,
+        "seeds": 2
+      }
+    },
+    {
+      "domain": "election",
+      "country": "CZ",
+      "cell": "CZ election (base)",
+      "flag": "CLEAN",
+      "gt": {
+        "rank": [
+          "ANO",
+          "SPOLU",
+          "STAN",
+          "Pirati",
+          "SPD",
+          "Motoriste",
+          "Stacilo"
+        ],
+        "ano_spolu_gap": 11.160000000000004
+      },
+      "hy3": {
+        "ano_first": true,
+        "spolu_second": true,
+        "stacilo_out": false,
+        "panel_rank": [
+          "ANO",
+          "SPOLU",
+          "Pirati",
+          "STAN",
+          "SPD",
+          "Motoriste",
+          "Stacilo"
+        ],
+        "ano_spolu_gap": 46.770529049010065,
+        "gap_abs_err": 35.61052904901006,
+        "share_spearman_vs_gt": 0.8078131663950782,
+        "seeds": 3
+      },
+      "flash": {
+        "ano_first": true,
+        "spolu_second": true,
+        "stacilo_out": false,
+        "panel_rank": [
+          "ANO",
+          "SPOLU",
+          "Pirati",
+          "SPD",
+          "STAN",
+          "Motoriste",
+          "Stacilo"
+        ],
+        "ano_spolu_gap": 37.301587301587304,
+        "gap_abs_err": 26.1415873015873,
+        "share_spearman_vs_gt": 0.7783117824941564,
+        "seeds": 2
+      }
+    },
+    {
+      "domain": "election",
+      "country": "CZ",
+      "cell": "CZ election (multiparty)",
+      "flag": "CLEAN",
+      "gt": {
+        "rank": [
+          "ANO",
+          "SPOLU",
+          "STAN",
+          "Pirati",
+          "SPD",
+          "Motoriste",
+          "Stacilo"
+        ],
+        "ano_spolu_gap": 11.160000000000004
+      },
+      "hy3": {
+        "ano_first": true,
+        "spolu_second": true,
+        "stacilo_out": true,
+        "panel_rank": [
+          "ANO",
+          "SPOLU",
+          "Pirati",
+          "STAN",
+          "Motoriste",
+          "SPD",
+          "Stacilo"
+        ],
+        "ano_spolu_gap": 50.833333333333336,
+        "gap_abs_err": 39.67333333333333,
+        "share_spearman_vs_gt": 0.9285714285714288,
+        "seeds": 3
+      },
+      "flash": {
+        "ano_first": true,
+        "spolu_second": true,
+        "stacilo_out": true,
+        "panel_rank": [
+          "ANO",
+          "SPOLU",
+          "Pirati",
+          "STAN",
+          "SPD",
+          "Motoriste",
+          "Stacilo"
+        ],
+        "ano_spolu_gap": 42.79951593384429,
+        "gap_abs_err": 31.639515933844287,
+        "share_spearman_vs_gt": 0.9642857142857145,
+        "seeds": 2
+      }
+    },
+    {
+      "domain": "cci_headline",
+      "country": "HU",
+      "cell": "HU CCI headline",
+      "flag": "CLEAN",
+      "gt": -18.4,
+      "hy3": {
+        "balance": -22.257037838149376,
+        "per_seed": [
+          -26.116367432284626,
+          -19.61258175970555,
+          -21.042164322457957
+        ],
+        "abs_err": 3.8570378381493775,
+        "direction_hit": true
+      },
+      "flash": {
+        "balance": -18.593360218555198,
+        "abs_err": 0.19336021855519903,
+        "direction_hit": true
+      }
+    },
+    {
+      "domain": "cci_headline",
+      "country": "CZ",
+      "cell": "CZ CCI headline",
+      "flag": "GRAY",
+      "gt": -7.533333333333333,
+      "hy3": {
+        "balance": 12.113383072925346,
+        "per_seed": [
+          12.113616611323286,
+          11.226178788352126,
+          13.00035381910063
+        ],
+        "abs_err": 19.64671640625868,
+        "direction_hit": false
+      },
+      "flash": {
+        "balance": -2.5,
+        "abs_err": 5.033333333333333,
+        "direction_hit": true
+      }
+    },
+    {
+      "domain": "cci_headline",
+      "country": "PT",
+      "cell": "PT CCI headline",
+      "flag": "CLEAN",
+      "gt": -14.0,
+      "hy3": {
+        "balance": -11.396746064080588,
+        "per_seed": [
+          -12.436878850658228,
+          -11.508900489461983,
+          -10.244458852121552
+        ],
+        "abs_err": 2.603253935919412,
+        "direction_hit": true
+      },
+      "flash": {
+        "balance": -28.32,
+        "abs_err": 14.32,
+        "direction_hit": true
+      }
+    },
+    {
+      "domain": "cci_nowcast_arc",
+      "country": "HU",
+      "cell": "HU nowcast-ív ['2025-06', '2025-12', '2026-05']",
+      "flag": [
+        "GRAY",
+        "CLEAN",
+        "CLEAN"
+      ],
+      "gt": [
+        -29.7,
+        -19.4,
+        -2.1
+      ],
+      "hy3": {
+        "nowcast": [
+          -24.2877986514209,
+          -8.884725957215293,
+          0.4245831400434552
+        ],
+        "per_seed": {
+          "2025-06": [
+            -21.757371943310623,
+            -24.798497597218415,
+            -26.30752641373366
+          ],
+          "2025-12": [
+            -9.487071431619576,
+            -7.423374589806908,
+            -9.743731850219394
+          ],
+          "2026-05": [
+            4.3057171010086215,
+            -1.0647198749953235,
+            -1.9672478058829324
+          ]
+        },
+        "arc_spearman": 1.0,
+        "mae": 6.1506861771357535
+      },
+      "flash": {
+        "nowcast": [
+          -35.44240023810228,
+          -15.098174396910968,
+          -10.6061936380899
+        ],
+        "arc_spearman": 1.0,
+        "mae": 6.183473159760404
+      }
+    },
+    {
+      "domain": "cci_nowcast_arc",
+      "country": "CZ",
+      "cell": "CZ nowcast-ív ['2025-julsep', '2026-01', '2026-05']",
+      "flag": [
+        "GRAY",
+        "CLEAN",
+        "CLEAN"
+      ],
+      "gt": [
+        -7.5,
+        1.1,
+        -7.6
+      ],
+      "hy3": {
+        "nowcast": [
+          -6.821408047592599,
+          6.23089095952869,
+          -12.791302224871991
+        ],
+        "per_seed": {
+          "2025-julsep": [
+            -4.8132614204274615,
+            -15.948108015398144,
+            0.2971452930478069
+          ],
+          "2026-01": [
+            6.916921347113192,
+            6.073276220279733,
+            5.702475311193145
+          ],
+          "2026-05": [
+            -12.576538105576507,
+            -11.737434234509214,
+            -14.059934334530254
+          ]
+        },
+        "arc_spearman": 1.0,
+        "mae": 3.6669283789360274
+      },
+      "flash": {
+        "nowcast": [
+          -7.084837151108481,
+          2.7574056742285524,
+          -14.79123532986435
+        ],
+        "arc_spearman": 1.0,
+        "mae": 3.0879346176614737
+      }
+    },
+    {
+      "domain": "inflation_expectation",
+      "country": "HU/CZ/PT/PL",
+      "cell": "inflexp 4 ország x 3 hó",
+      "flag": "CLEAN",
+      "gt": {
+        "price_gt": {
+          "HU": [
+            36.5,
+            33.3,
+            30.9
+          ],
+          "CZ": [
+            23.6,
+            8.6,
+            7.3
+          ],
+          "PT": [
+            41.8,
+            33.8,
+            38.0
+          ],
+          "PL": [
+            20.9,
+            21.6,
+            20.6
+          ]
+        },
+        "cci_gt": {
+          "HU": [
+            -24.8,
+            -24.4,
+            -19.4
+          ],
+          "CZ": [
+            -7.3,
+            -2.6,
+            1.1
+          ],
+          "PT": [
+            -17.4,
+            -15.1,
+            -13.7
+          ],
+          "PL": [
+            -11.4,
+            -13.0,
+            -13.2
+          ]
+        },
+        "months": [
+          "2025-09",
+          "2025-11",
+          "2026-01"
+        ]
+      },
+      "hy3": {
+        "spearman_price_by_month_seedmean": [
+          0.6000000000000001,
+          0.39999999999999997,
+          0.19999999999999998
+        ],
+        "spearman_cci_by_month_seedmean": [
+          0.7999999999999999,
+          0.7999999999999999,
+          -0.39999999999999997
+        ],
+        "spearman_price_per_seed": [
+          [
+            0.7999999999999999,
+            0.19999999999999998,
+            0.19999999999999998
+          ],
+          [
+            0.6000000000000001,
+            0.39999999999999997,
+            0.19999999999999998
+          ],
+          [
+            0.6000000000000001,
+            0.39999999999999997,
+            0.19999999999999998
+          ]
+        ],
+        "spearman_cci_per_seed": [
+          [
+            0.7999999999999999,
+            0.7999999999999999,
+            0.19999999999999998
+          ],
+          [
+            0.7999999999999999,
+            1.0,
+            0.19999999999999998
+          ],
+          [
+            0.6000000000000001,
+            1.0,
+            -0.39999999999999997
+          ]
+        ],
+        "cross_time_delta_dir_ok_seedmean": {
+          "HU": true,
+          "CZ": false,
+          "PT": true,
+          "PL": true
+        }
+      },
+      "flash": {
+        "spearman_price_by_month": [
+          0.6000000000000001,
+          0.39999999999999997,
+          0.39999999999999997
+        ],
+        "spearman_cci_by_month": [
+          0.7999999999999999,
+          1.0,
+          0.0
+        ],
+        "cross_time_delta_dir_ok": {
+          "HU": false,
+          "CZ": true,
+          "PT": true,
+          "PL": true
+        }
+      }
+    },
+    {
+      "domain": "yt_title_appeal",
+      "country": "EN",
+      "cell": "YT hit@3 (7 csatorna)",
+      "flag": "MIXED (csatornánként, ld. results[].flag)",
+      "gt": "valós nézettség/hó rangsor (channels_data.json)",
+      "hy3": {
+        "mean_rho": 0.13886932263984791,
+        "hit3": 2,
+        "n_channels": 7,
+        "per_channel": [
+          {
+            "label": "Pharos Foundation",
+            "rho": 0.6727272727272726,
+            "hit3": true,
+            "flag": "CONTAMINATED-PARTIAL"
+          },
+          {
+            "label": "Adrian Goldsworthy",
+            "rho": -0.2630080105579639,
+            "hit3": false,
+            "flag": "CLEAN"
+          },
+          {
+            "label": "Hannah Boulton",
+            "rho": 0.15197638592001614,
+            "hit3": false,
+            "flag": "CONTAMINATED-PARTIAL"
+          },
+          {
+            "label": "Miles Deutscher",
+            "rho": -0.28484848484848485,
+            "hit3": false,
+            "flag": "CLEAN"
+          },
+          {
+            "label": "Diary Of A CEO",
+            "rho": 0.8285714285714287,
+            "hit3": true,
+            "flag": "CLEAN"
+          },
+          {
+            "label": "QuickyBaby",
+            "rho": 0.10303030303030303,
+            "hit3": false,
+            "flag": "CLEAN"
+          },
+          {
+            "label": "All About AI",
+            "rho": -0.23636363636363633,
+            "hit3": false,
+            "flag": "CLEAN"
+          }
+        ]
+      },
+      "flash": {
+        "mean_rho": 0.049969068081702275,
+        "hit3": 1,
+        "n_channels": 7
+      }
+    }
+  ],
+  "cost_log": {
+    "by_artifact": {
+      "cci_nowcast/hy3_hu_2025-06.json": {
+        "n_calls": 180,
+        "n_api_calls": 180,
+        "n_cache_hits": 0,
+        "calls_per_min_limit": 100.0,
+        "elapsed_s": 126.5,
+        "prompt_chars": 474256,
+        "completion_chars": 50599,
+        "est_prompt_tokens": 148205,
+        "est_completion_tokens": 15812
+      },
+      "cci_nowcast/hy3_hu_2025-12.json": {
+        "n_calls": 180,
+        "n_api_calls": 180,
+        "n_cache_hits": 0,
+        "calls_per_min_limit": 100.0,
+        "elapsed_s": 126.2,
+        "prompt_chars": 501499,
+        "completion_chars": 52994,
+        "est_prompt_tokens": 156718,
+        "est_completion_tokens": 16560
+      },
+      "cci_nowcast/hy3_cz_2026-05.json": {
+        "n_calls": 180,
+        "n_api_calls": 180,
+        "n_cache_hits": 0,
+        "calls_per_min_limit": 100.0,
+        "elapsed_s": 125.5,
+        "prompt_chars": 490774,
+        "completion_chars": 50472,
+        "est_prompt_tokens": 153366,
+        "est_completion_tokens": 15772
+      },
+      "cci_nowcast/hy3_hu_2026-05.json": {
+        "n_calls": 180,
+        "n_api_calls": 180,
+        "n_cache_hits": 0,
+        "calls_per_min_limit": 100.0,
+        "elapsed_s": 126.4,
+        "prompt_chars": 478467,
+        "completion_chars": 51895,
+        "est_prompt_tokens": 149520,
+        "est_completion_tokens": 16217
+      },
+      "cci_nowcast/hy3_cz_2026-01.json": {
+        "n_calls": 180,
+        "n_api_calls": 180,
+        "n_cache_hits": 0,
+        "calls_per_min_limit": 100.0,
+        "elapsed_s": 125.0,
+        "prompt_chars": 472128,
+        "completion_chars": 47133,
+        "est_prompt_tokens": 147540,
+        "est_completion_tokens": 14729
+      },
+      "cci_nowcast/hy3_cz_2025-julsep.json": {
+        "n_calls": 180,
+        "n_api_calls": 180,
+        "n_cache_hits": 0,
+        "calls_per_min_limit": 100.0,
+        "elapsed_s": 126.3,
+        "prompt_chars": 895658,
+        "completion_chars": 46465,
+        "est_prompt_tokens": 279893,
+        "est_completion_tokens": 14520
+      },
+      "hu_pre_election/hy3_panel_g1.json": {
+        "n_calls": 160,
+        "calls_per_min_limit": 16.2,
+        "elapsed_s": 596.7,
+        "prompt_chars": 9460082,
+        "completion_chars": 2860,
+        "est_prompt_tokens": 2956275,
+        "est_completion_tokens": 893
+      },
+      "cci_headline/hy3_hu_cci.json": {
+        "n_calls": 120,
+        "n_api_calls": 61,
+        "n_cache_hits": 59,
+        "calls_per_min_limit": 16.3,
+        "elapsed_s": 379.4,
+        "prompt_chars": 3575339,
+        "completion_chars": 16567,
+        "est_prompt_tokens": 1117293,
+        "est_completion_tokens": 5177
+      },
+      "cci_headline/hy3_pt_cci.json": {
+        "n_calls": 180,
+        "n_api_calls": 180,
+        "n_cache_hits": 0,
+        "calls_per_min_limit": 100.0,
+        "elapsed_s": 120.3,
+        "prompt_chars": 486015,
+        "completion_chars": 44880,
+        "est_prompt_tokens": 151879,
+        "est_completion_tokens": 14025
+      },
+      "cci_headline/hy3_cz_cci.json": {
+        "n_calls": 240,
+        "n_api_calls": 80,
+        "n_cache_hits": 160,
+        "calls_per_min_limit": 19.8,
+        "elapsed_s": 388.2,
+        "prompt_chars": 3833275,
+        "completion_chars": 21205,
+        "est_prompt_tokens": 1197898,
+        "est_completion_tokens": 6626
+      },
+      "yt_title/hy3_harvester.json": {
+        "n_calls": 840,
+        "n_api_calls": 38,
+        "n_cache_hits": 802,
+        "calls_per_min_limit": 100.0,
+        "elapsed_s": 301.5,
+        "prompt_chars": 30458,
+        "completion_chars": 4789,
+        "est_prompt_tokens": 9518,
+        "est_completion_tokens": 1496
+      },
+      "cz_election/hy3_panel_g1_base.json": {
+        "n_calls": 240,
+        "calls_per_min_limit": 19.9,
+        "elapsed_s": 727.4,
+        "prompt_chars": 11528458,
+        "completion_chars": 2351,
+        "est_prompt_tokens": 3602643,
+        "est_completion_tokens": 734
+      },
+      "cz_election/hy3_panel_g1_multiparty.json": {
+        "n_calls": 240,
+        "calls_per_min_limit": 19.8,
+        "elapsed_s": 732.1,
+        "prompt_chars": 11609098,
+        "completion_chars": 2397,
+        "est_prompt_tokens": 3627843,
+        "est_completion_tokens": 749
+      },
+      "inflexp/hy3_inflexp.json": {
+        "n_calls": 1440,
+        "n_api_calls": 145,
+        "n_cache_hits": 1295,
+        "calls_per_min_limit": 200.0,
+        "elapsed_s": 623.3,
+        "prompt_chars": 212669,
+        "completion_chars": 43164,
+        "est_prompt_tokens": 66458,
+        "est_completion_tokens": 13487,
+        "note": "ket resz osszege (seeds 1-2 + seed 3); a timeout-ujrafuttatasok cache-hitjeit az n_cache_hits tartalmazza"
+      }
+    },
+    "total": {
+      "n_calls": 4540,
+      "est_prompt_tokens": 13765049,
+      "est_completion_tokens": 136797
+    },
+    "note": "token = karakter/3,2 becslés; Hy3 = $0 (NULLTARIF); embedding: OpenAI text-embedding-3-small"
+  }
+}

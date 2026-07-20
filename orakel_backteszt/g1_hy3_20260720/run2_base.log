@@ -1,0 +1,6 @@
+G1/2 CZ panel [base] — modell=tencent/Hy3, N=80, seeds=[1, 2, 3], multiparty_hint=0, pacing=20/perc
+  seed 1: ANO 75% | SPOLU 19% | Pirati 6%
+  seed 2: ANO 65% | SPOLU 28% | Pirati 6%
+  seed 3: ANO 72% | SPOLU 24% | Pirati 4%
+  ÖSSZ rangsor: ANO > SPOLU > Pirati > STAN > SPD > Motoriste > Stacilo | ANO-SPOLU rés +46.8 (GT +11.16) | ANO1 True SPOLU2 True Stacilo-ki False
+[g1] artefakt: /home/tamas1/Claus/claus-bridge-mcp/orakel_backteszt/g1_hy3_20260720/cz_election/hy3_panel_g1_base.json
