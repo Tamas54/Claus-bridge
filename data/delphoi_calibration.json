@@ -1,0 +1,285 @@
+{
+  "_schema": {
+    "purpose": "DELPHOI kalibracios registry — (country, domain, panel_version, model) -> affin (a,b) horgonyok a PYTHIA G1/G2/agora-A/B backtest-artefaktokbol. Fogyaszto: a P2 delphoi_calibration.py.",
+    "convention": "calibrated = a + b * raw, ahol raw = a panel nyers becslese (CCI: panel-szaldo -100..+100; agora: 0-100 appeal-atlag). A calibrated ertek a GT-skalan (CCI) ill. a cel-modell skalajan (agora anchor_pair) ertendo.",
+    "lookup_key": ["country", "domain", "panel_version", "model"],
+    "status_values": {
+      "calibrated": "OLS-illesztes >=3 (raw, gt) parbol; a/b hasznalhato",
+      "calibrated_low_confidence": "OLS letezik, de a meredekseg elojele vagy n miatt NEM megbizhato — a P2 az ols_fallback_offset_only agat hasznalja (b=1, a = mean(gt)-mean(raw))",
+      "insufficient_data": "n < 3 par — a/b null, kalibracio NEM vegezheto; a cella raw erteke csak irany-allitasra hasznalhato",
+      "use_categorical_layer": "szlav szabad-mondatos SSR-cella (G1 #3 lelet): kalibracio HELYETT a kategorikus elicitalasi reteg hasznalando; szabad-mondatos SSR-t Hy3 alatt TILOS elesiteni",
+      "anchor_pair": "egyetlen skala-horgonypar ket modell kozott — csak offset (b fixen 1.0) becsulheto, meredekseg nem"
+    },
+    "fields": {
+      "a": "affin eltolas (float | null)",
+      "b": "affin meredekseg (float | null)",
+      "n": "felhasznalt (raw, gt) parok szama",
+      "pairs": "a felhasznalt [raw, gt] parok (auditalhatosag)",
+      "r2": "OLS illeszkedes (csak calibrated*)",
+      "residual_sd": "rezidualis szoras, n>2 eseten (a kalibralt becsles bizonytalansaga)",
+      "raw_seed_sd": "a nyers becsles seedek kozti szorasa cellankent (a becsles sajat zaja)",
+      "recommendation": "csak use_categorical_layer statusznal",
+      "source": "artefakt-hivatkozas"
+    },
+    "note": "Alulvonassal kezdodo kulcsokat ('_schema', '_meta') a fogyaszto hagyja figyelmen kivul."
+  },
+  "_meta": {
+    "version": "1.0",
+    "generated": "2026-07-20",
+    "generated_by": "OPERATION PYTHIA G4 (LLM-hivas nelkul, a kesz artefaktokbol)",
+    "sources": [
+      "orakel_backteszt/g1_hy3_20260720/g1_matrix.json",
+      "orakel_backteszt/g2_hy3_20260720/g2_fr_it.json",
+      "orakel_backteszt/hy3_20260720/agora_ab_results.json"
+    ],
+    "counts": {
+      "calibrated": 4,
+      "calibrated_low_confidence": 1,
+      "insufficient_data": 5,
+      "use_categorical_layer": 2,
+      "anchor_pair": 1
+    }
+  },
+  "entries": [
+    {
+      "country": "HU",
+      "domain": "agora_appeal",
+      "panel_version": "orakel-agora-hu-v2-hy3",
+      "model": "tencent/Hy3",
+      "status": "anchor_pair",
+      "a": -15.125,
+      "b": 1.0,
+      "n": 1,
+      "target_scale": "deepseek-ai/DeepSeek-V4-Flash (orakel-agora-hu-v2)",
+      "anchor": {
+        "flash_mean": 28.4375,
+        "hy3_mean": 43.5625,
+        "flash_sd": 9.077,
+        "hy3_sd": 16.844,
+        "n_personas": 16,
+        "item": "agora_post 24236fa40de4 (kettos allampolgarsag)"
+      },
+      "note": "07-20-i A/B-artefakt (torteneti adat-felhasznalas): Flash 28.4 <-> Hy3 43.6 skala-par. Egyetlen horgonypar -> csak offset; a Hy3 emellett ~1.9x szelesebb szorast ad (16.8 vs 9.1) — tobb-item horgonyig a szoras-korrekcio NEM alkalmazando, csak jelezve.",
+      "source": "orakel_backteszt/hy3_20260720/agora_ab_results.json"
+    },
+    {
+      "country": "HU",
+      "domain": "cci",
+      "panel_version": "pythia-cci-ssr-v1",
+      "model": "tencent/Hy3",
+      "status": "calibrated",
+      "a": -5.763,
+      "b": 0.846,
+      "n": 4,
+      "r2": 0.748,
+      "residual_sd": 7.008,
+      "pairs": [
+        [-22.257, -18.4],
+        [-24.288, -29.7],
+        [-8.885, -19.4],
+        [0.425, -2.1]
+      ],
+      "raw_seed_sd": {
+        "headline": 3.418,
+        "nowcast_2025-06": 2.318,
+        "nowcast_2025-12": 1.272,
+        "nowcast_2026-05": 3.391
+      },
+      "note": "headline + 3 nowcast-cella (G1 3a+4a); GRAY-cella (2025-06) benne — kihagyasa n=3-ra csokkentene",
+      "source": "orakel_backteszt/g1_hy3_20260720/g1_matrix.json"
+    },
+    {
+      "country": "HU",
+      "domain": "cci",
+      "panel_version": "pythia-cci-ssr-v1",
+      "model": "deepseek-ai/DeepSeek-V4-Flash",
+      "status": "calibrated",
+      "a": 0.826,
+      "b": 0.914,
+      "n": 4,
+      "r2": 0.755,
+      "residual_sd": 6.913,
+      "pairs": [
+        [-18.593, -18.4],
+        [-35.442, -29.7],
+        [-15.098, -19.4],
+        [-10.606, -2.1]
+      ],
+      "raw_seed_sd": null,
+      "note": "torteneti Flash-artefaktokbol (G1 Flash-oszlop, futtatas nelkul)",
+      "source": "orakel_backteszt/g1_hy3_20260720/g1_matrix.json"
+    },
+    {
+      "country": "CZ",
+      "domain": "cci",
+      "panel_version": "pythia-cci-ssr-v1",
+      "model": "tencent/Hy3",
+      "status": "use_categorical_layer",
+      "a": null,
+      "b": null,
+      "n": 4,
+      "recommendation": "use_categorical_layer",
+      "note": "SZLAV SZABAD-MONDAT REGISZTER-HIBA (G1 #3 lelet): a Hy3 cseh mondatai 'bizakodo' regiszterben irodnak, az SSR-embedding pozitivra pontozza -> irany-vesztes (headline +12.1 vs GT -7.5), MIKOZBEN a sajat kategorikus valasza (-77) irany-helyes. Kalibracio ertelmetlen — a hiba a szoveg-retegben van; a kategorikus elicitalasi reteg hasznalando.",
+      "source": "orakel_backteszt/g1_hy3_20260720/g1_matrix.json"
+    },
+    {
+      "country": "CZ",
+      "domain": "cci",
+      "panel_version": "pythia-cci-ssr-v1",
+      "model": "deepseek-ai/DeepSeek-V4-Flash",
+      "status": "calibrated",
+      "a": -3.07,
+      "b": 0.428,
+      "n": 4,
+      "r2": 0.542,
+      "residual_sd": 3.581,
+      "pairs": [
+        [-2.5, -7.533],
+        [-7.085, -7.5],
+        [2.757, 1.1],
+        [-14.791, -7.6]
+      ],
+      "raw_seed_sd": null,
+      "note": "Flash CZ-n irany-helyes (a szlav regiszter-hiba Hy3-specifikus); headline-cella GRAY (2025-07 farok), a julsep nowcast-cella szinten GRAY — r2=0.54 gyengebb illeszkedes",
+      "source": "orakel_backteszt/g1_hy3_20260720/g1_matrix.json"
+    },
+    {
+      "country": "PT",
+      "domain": "cci",
+      "panel_version": "pythia-cci-ssr-v1",
+      "model": "tencent/Hy3",
+      "status": "insufficient_data",
+      "a": null,
+      "b": null,
+      "n": 1,
+      "pairs": [
+        [-11.397, -14.0]
+      ],
+      "raw_seed_sd": {
+        "headline": 1.101
+      },
+      "note": "egyetlen ablak (G1 3c; alt-GT 2026-05: -11.5, |e|=0.1) — kalibracio nem szukseges es nem is becsulheto: a PT kuralt korpuszon a nyers becsles mar GT-kozeli. Tovabbi ablakok utan ujraszamitando.",
+      "source": "orakel_backteszt/g1_hy3_20260720/g1_matrix.json"
+    },
+    {
+      "country": "PT",
+      "domain": "cci",
+      "panel_version": "pythia-cci-ssr-v1",
+      "model": "deepseek-ai/DeepSeek-V4-Flash",
+      "status": "insufficient_data",
+      "a": null,
+      "b": null,
+      "n": 1,
+      "pairs": [
+        [-28.32, -14.0]
+      ],
+      "raw_seed_sd": null,
+      "note": "egyetlen ablak; a Flash PT-n 14.3 pontot tullo — kalibracio kellene, de n=1",
+      "source": "orakel_backteszt/g1_hy3_20260720/g1_matrix.json"
+    },
+    {
+      "country": "FR",
+      "domain": "cci",
+      "panel_version": "pythia-cci-ssr-v1",
+      "model": "tencent/Hy3",
+      "status": "calibrated_low_confidence",
+      "a": -38.557,
+      "b": -0.363,
+      "n": 3,
+      "r2": 0.288,
+      "residual_sd": 1.539,
+      "ols_fallback_offset_only": {
+        "a": 28.384,
+        "b": 1.0
+      },
+      "pairs": [
+        [-49.567, -21.8],
+        [-47.024, -21.1],
+        [-50.761, -19.3]
+      ],
+      "raw_seed_sd": {
+        "2026-04": 3.1,
+        "2026-05": 1.8,
+        "2026-06": 1.2
+      },
+      "note": "NEGATIV meredekseg (ablak-Spearman -0.5) -> az OLS anti-informativ a diszkriminaciora; a P2 a fallback offset-only agat hasznalja (szint-horgony). KORPUSZ-KIKOTES: a parok a pre-QUELLENSCHLEUSE ritka zonabol (30/60/60 cikk, Le Point-right tulsuly) — az elso suru-zonas target (2026-07, Eurostat ~07-29) utan KOTELEZO ujrameres.",
+      "source": "orakel_backteszt/g2_hy3_20260720/g2_fr_it.json"
+    },
+    {
+      "country": "FR",
+      "domain": "cci",
+      "panel_version": "pythia-cci-ssr-v1",
+      "model": "deepseek-ai/DeepSeek-V4-Flash",
+      "status": "insufficient_data",
+      "a": null,
+      "b": null,
+      "n": 0,
+      "pairs": [],
+      "note": "FR-t Flash-sel soha nem mertuk (G2 Flash-hivas: 0 db)",
+      "source": null
+    },
+    {
+      "country": "IT",
+      "domain": "cci",
+      "panel_version": "pythia-cci-ssr-v1",
+      "model": "tencent/Hy3",
+      "status": "calibrated",
+      "a": -17.173,
+      "b": 0.13,
+      "n": 3,
+      "r2": 0.771,
+      "residual_sd": 0.857,
+      "pairs": [
+        [-50.425, -23.8],
+        [-36.857, -21.3],
+        [-34.536, -22.2]
+      ],
+      "raw_seed_sd": {
+        "2026-04": 1.2,
+        "2026-05": 3.6,
+        "2026-06": 1.1
+      },
+      "note": "lapos meredekseg (a panel 16 pontot mozog, a GT 2.5-ot) — a kalibralt ertek erosen a konstans fele huz; korpusz-kikotes mint FR-nel (a tullloves a korpusz-osszetetellel skalazik), suru-zonas ujrameres 2026-07 utan",
+      "source": "orakel_backteszt/g2_hy3_20260720/g2_fr_it.json"
+    },
+    {
+      "country": "IT",
+      "domain": "cci",
+      "panel_version": "pythia-cci-ssr-v1",
+      "model": "deepseek-ai/DeepSeek-V4-Flash",
+      "status": "insufficient_data",
+      "a": null,
+      "b": null,
+      "n": 0,
+      "pairs": [],
+      "note": "IT-t Flash-sel soha nem mertuk (G2 Flash-hivas: 0 db)",
+      "source": null
+    },
+    {
+      "country": "PL",
+      "domain": "cci",
+      "panel_version": "pythia-cci-ssr-v1",
+      "model": "tencent/Hy3",
+      "status": "use_categorical_layer",
+      "a": null,
+      "b": null,
+      "n": 3,
+      "recommendation": "use_categorical_layer",
+      "note": "out-of-sample IRANY-HIBA (G1 inflexp CCI-oszlop: +16.6/+26.9/+9.0 vs GT -11..-13) — ugyanaz a szlav regiszter-minta, mint CZ-nel; szabad-mondatos SSR PL-en Hy3 alatt TILOS, kategorikus reteg kell. Megj.: a 3 par nem fuggetlen headline/nowcast-cella, hanem az inflexp-harness CCI-oszlopa — kalibraciora akkor sem lenne hasznalhato, ha az irany stimmelne.",
+      "source": "orakel_backteszt/g1_hy3_20260720/g1_matrix.json"
+    },
+    {
+      "country": "PL",
+      "domain": "cci",
+      "panel_version": "pythia-cci-ssr-v1",
+      "model": "deepseek-ai/DeepSeek-V4-Flash",
+      "status": "insufficient_data",
+      "a": null,
+      "b": null,
+      "n": 0,
+      "pairs": [],
+      "note": "PL-re headline/nowcast CCI-backteszt Flash-sel nincs (csak az inflexp CCI-oszlop, ami nem kalibracios cella)",
+      "source": null
+    }
+  ]
+}
