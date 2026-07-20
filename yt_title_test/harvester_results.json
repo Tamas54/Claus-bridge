@@ -1,0 +1,72 @@
+[
+  {
+    "label": "Pharos Foundation",
+    "subs": "21K",
+    "n_titles": 10,
+    "rho": 0.17575757575757575,
+    "hit3": false,
+    "overlap3": 0,
+    "panel_winner": "How To Kill Your Fellow Romans | Adrian Goldsworth",
+    "real_winner": "Julius Caesar's Reforms and Logistics | Adrian Gol"
+  },
+  {
+    "label": "Adrian Goldsworthy",
+    "subs": "21.7K",
+    "n_titles": 10,
+    "rho": -0.3792208524324131,
+    "hit3": false,
+    "overlap3": 0,
+    "panel_winner": "Why did the Romans defeat the Macedonians and Sele",
+    "real_winner": "Hoplites and Warfare in Classical Greece - Athens "
+  },
+  {
+    "label": "Hannah Boulton",
+    "subs": "158K",
+    "n_titles": 10,
+    "rho": 0.19999999999999998,
+    "hit3": false,
+    "overlap3": 0,
+    "panel_winner": "Take On Me - The Last of Us 2/Ellie | Hannah Boult",
+    "real_winner": "Wonderwall - Oasis | Hannah Boulton"
+  },
+  {
+    "label": "Miles Deutscher",
+    "subs": "227K",
+    "n_titles": 10,
+    "rho": -0.6,
+    "hit3": false,
+    "overlap3": 0,
+    "panel_winner": "Crypto: The Harsh Reality Of What's Next",
+    "real_winner": "My Plan To Print Millions In Crypto In 2026! (3 Ev"
+  },
+  {
+    "label": "Diary Of A CEO",
+    "subs": "17.5M",
+    "n_titles": 6,
+    "rho": 0.7714285714285715,
+    "hit3": true,
+    "overlap3": 2,
+    "panel_winner": "Stanford Neuroscientist: Can't Remember Your Dream",
+    "real_winner": "Stanford Neuroscientist: Can't Remember Your Dream"
+  },
+  {
+    "label": "QuickyBaby",
+    "subs": "680K",
+    "n_titles": 10,
+    "rho": 0.2121212121212121,
+    "hit3": false,
+    "overlap3": 1,
+    "panel_winner": "Wargaming didn't care... Tiered boxes are back in ",
+    "real_winner": "Playing the NEW Gorilla, Executor and Fauteur in W"
+  },
+  {
+    "label": "All About AI",
+    "subs": "224K",
+    "n_titles": 10,
+    "rho": -0.0303030303030303,
+    "hit3": false,
+    "overlap3": 1,
+    "panel_winner": "Can Claude Code Learn To Draw In MS PAINT?",
+    "real_winner": "Building a Polymarket AI Trading Bot From Scratch"
+  }
+]
