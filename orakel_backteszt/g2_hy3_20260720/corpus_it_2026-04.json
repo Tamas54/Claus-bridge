@@ -1,0 +1,175 @@
+{
+ "lang": "it",
+ "target_month": "2026-04",
+ "corpus_window": [
+  "2026-03-15",
+  "2026-04-15"
+ ],
+ "n": 22,
+ "lean_dist": {
+  "unknown": 22
+ },
+ "cat_dist": {
+  "global": 15,
+  "tech": 7
+ },
+ "items": [
+  {
+   "text": "L’inglese in Italia resta indietro: il Paese ultimo in Europa secondo l’EF EPI 2025 — Il livello di inglese degli italiani continua a rappresentare un punto critico nel panorama europeo. A evidenziarlo è l’edizione 2025 dell’Indice di Conoscenza dell’Inglese EF (EF EPI), che fotografa le competenze lin...",
+   "source": "Si24",
+   "lean": "unknown",
+   "date": "2026-03-16",
+   "category": "global"
+  },
+  {
+   "text": "Il Meteo: Allerta in Calabria, si passa da arancione a gialla ma resta la conta dei danni — Oggi, 17 marzo 2026, la Calabria respira a fatica dopo giorni di piogge torrenziali e raffiche di vento. Il ciclone Jolina, che ha flagellato l’intero Sud Italia, comincia lentamente a perdere intensità. La Protezione...",
+   "source": "strill.it",
+   "lean": "unknown",
+   "date": "2026-03-17",
+   "category": "global"
+  },
+  {
+   "text": "Emergenza idrogeologica, frane a Mesoraca e Crosia — Il bilancio del maltempo in Calabria si aggrava pesantemente sul fronte del dissesto idrogeologico. Nelle ultime ore, i Vigili del Fuoco hanno effettuato decine di interventi di salvataggio, concentrati soprattutto ne...",
+   "source": "strill.it",
+   "lean": "unknown",
+   "date": "2026-03-17",
+   "category": "global"
+  },
+  {
+   "text": "Cancelli sbarrati in Calabria, le ordinanze dei sindaci per il 17 marzo — La prudenza vince sulla didattica. A causa del perdurare delle difficili condizioni meteorologiche, per l’intera giornata di oggi, 17 marzo 2026, numerosi sindaci calabresi hanno firmato ordinanze per la chiusura dell...",
+   "source": "strill.it",
+   "lean": "unknown",
+   "date": "2026-03-17",
+   "category": "global"
+  },
+  {
+   "text": "Vento e danni alle imprese, scoperchiato il capannone di Caffè Guglielmo — Il ciclone Jolina non ha risparmiato il tessuto industriale ed economico della Calabria. I danni strutturali alle aziende iniziano a delineare un quadro preoccupante per l’imprenditoria locale, già messa alla prova da...",
+   "source": "strill.it",
+   "lean": "unknown",
+   "date": "2026-03-17",
+   "category": "global"
+  },
+  {
+   "text": "Viabilità in tilt in Calabria, voli dirottati e treni sospesi — Il maltempo paralizza i collegamenti: voli deviati su Brindisi, tratte ferroviarie bloccate sulla costa ionica e statali interrotte per allagamenti. Muoversi in Calabria in queste ore è estremamente complesso. L’ondat...",
+   "source": "strill.it",
+   "lean": "unknown",
+   "date": "2026-03-17",
+   "category": "global"
+  },
+  {
+   "text": "Space 11 prosegue il suo viaggio nello spazio e arruola l’ex dirigente NASA Camille Wardrop Alleyne — Altro significativo passo per Space 11, che punta a consolidare la propria identità all’incrocio tra esplorazione spaziale e intrattenimento.… L'articolo Space 11 prosegue il suo viaggio nello spazio e arruola l’ex di...",
+   "source": "PC Professionale",
+   "lean": "unknown",
+   "date": "2026-03-18",
+   "category": "tech"
+  },
+  {
+   "text": "Reggio Calabria, 29enne travolta e uccisa da auto: è caccia al pirata della strada — Una ragazza di 29 anni è stata travolta e uccisa da un’auto nella notte, intorno alle tre, a Reggio Calabria. La persona alla guida dell’auto pirata non ha prestato soccorso alla vittima e si è dileguata a bordo del m...",
+   "source": "strill.it",
+   "lean": "unknown",
+   "date": "2026-03-19",
+   "category": "global"
+  },
+  {
+   "text": "Roccella Jonica inizia a suonare jazz: dal 27 al 29 marzo la Spring Edition di “Rumori Mediterranei” — C’è un tempo dell’anno in cui tutto ricomincia. La luce si allunga, l’aria si fa più lieve, e anche i suoni sembrano cercare nuove strade per incontrarsi. È la primavera: stagione di rinascita, di attese che si riapro...",
+   "source": "strill.it",
+   "lean": "unknown",
+   "date": "2026-03-21",
+   "category": "global"
+  },
+  {
+   "text": "Sanità in Crisi nel Vibonese: Sette Comuni Senza Pediatra, Pronta la Diffida — L’emergenza sanitaria nel Vibonese si aggrava, colpendo la fascia più vulnerabile: i bambini. Ben sette comuni del territorio si ritrovano attualmente senza un medico pediatra di base. Dopo una prima comunicazione cad...",
+   "source": "strill.it",
+   "lean": "unknown",
+   "date": "2026-03-21",
+   "category": "global"
+  },
+  {
+   "text": "Lamezia Terme: Truffa all’Asp, Protesi Acustiche Prescritte a Pazienti Deceduti — Un’ombra inquietante si allunga sulla gestione dei fondi sanitari a Lamezia Terme. Un’articolata inchiesta condotta dalla Procura locale ha scoperchiato quello che appare come un sistema fraudolento ben collaudato, in...",
+   "source": "strill.it",
+   "lean": "unknown",
+   "date": "2026-03-21",
+   "category": "global"
+  },
+  {
+   "text": "Tre cose su ’sto referendum — Quella per questo referendum è stata una campagna elettorale pessima, dicono tutti. Lo dicono così tutti che non si capisce chi sia stato, allora, a renderla pessima. Probabilmente tutti. Ne dirò tre cose, per aiutare...",
+   "source": "Wittgenstein",
+   "lean": "unknown",
+   "date": "2026-03-23",
+   "category": "global"
+  },
+  {
+   "text": "Cisco Talos: la sicurezza dell’ IA agentica e il futuro degli agenti autonomi — L’IA agentica sta attirando sempre più attenzione a livello globale grazie alla sua capacità di potenziare competenze e supportare le attività umane in modo più efficace. L'articolo Cisco Talos: la sicurezza dell’ IA ...",
+   "source": "PC Professionale",
+   "lean": "unknown",
+   "date": "2026-03-23",
+   "category": "tech"
+  },
+  {
+   "text": "Moya, il robot umanoide dalla “pelle calda” — In arrivo Moya, il robot umanoide dell’azienda cinese DroidUp, con sede a Shanghai. La società punta ad offrire alle persone […] L'articolo Moya, il robot umanoide dalla “pelle calda” proviene da PC Professionale .",
+   "source": "PC Professionale",
+   "lean": "unknown",
+   "date": "2026-03-23",
+   "category": "tech"
+  },
+  {
+   "text": "Ha vinto il NO, ora torniamo ai veri problemi degli Italiani? — Ogni dieci anni ci riprovano. Ogni dieci anni prendono una sonora scoppola, che ci ricorda come i miti classici e il concetto di ùbris (ὕβρις), cioè dell’arroganza di sentirsi invincibili ... Leggi tutto L'articolo Ha...",
+   "source": "Qualcosa di Sinistra",
+   "lean": "unknown",
+   "date": "2026-03-24",
+   "category": "global"
+  },
+  {
+   "text": "Cinquantaquattro contro quarantasei — Chiedo scusa, ma fino a che l’indotto politico-economico che beneficia della produzione di giorni di fuffa sull’analisi del voto dopo ogni elezione o referendum continuerà a riempire noiosamente il nostro tempo, io no...",
+   "source": "Wittgenstein",
+   "lean": "unknown",
+   "date": "2026-03-24",
+   "category": "global"
+  },
+  {
+   "text": "Agentic MDR, stop alle violazioni alla massima sicurezza — CrowdStrike lancia l’Agentic MDR per fermare le violazioni alla massima velocità Gli élite security analist di Falcon Complete creano e orchestrano agenti intelligenti per fermare le minacce accelerate dall’AI, mentre...",
+   "source": "PC Professionale",
+   "lean": "unknown",
+   "date": "2026-03-25",
+   "category": "tech"
+  },
+  {
+   "text": "Referendum, quando anche i seggi “sicuri” smettono di esserlo — Breve cronaca di un'esperienza da scrutatore in uno dei seggi storicamente a favore del centrodestra in quel di Monza al referendum. L'articolo Referendum, quando anche i seggi “sicuri” smettono di esserlo proviene da...",
+   "source": "Qualcosa di Sinistra",
+   "lean": "unknown",
+   "date": "2026-03-25",
+   "category": "global"
+  },
+  {
+   "text": "Viva Mexico: il Messico e il suo rapporto con i videogames e Hollywood — Il Messico occupa un posto importante nell’immaginario visivo globale: non a caso, molti prodotti dell’industria videoludica utilizzano questo paese come ambientazione narrativa. Il cinema di Hollywood e il settore de...",
+   "source": "Si24",
+   "lean": "unknown",
+   "date": "2026-03-31",
+   "category": "global"
+  },
+  {
+   "text": "Huawei Watch GT Runner 2: funzionale, elegante e luminosissimo — Cinque anni di lavoro per realizzare un prodotto che sia all'altezza di professionisti ma anche funzionale per dilettanti. Non solo dati sulla corsa... L'articolo Huawei Watch GT Runner 2: funzionale, elegante e lumin...",
+   "source": "PC Professionale",
+   "lean": "unknown",
+   "date": "2026-04-03",
+   "category": "tech"
+  },
+  {
+   "text": "Nilox si cimenta con gli occhiali intelligenti: quattro modelli — Il brand italiano debutta in una nuova categoria strategica con una collezione che fonde performance sportiva, attitudine lifestyle e tocco tech. I modelli Sorapis e Glen guidano il lancio di una linea pensata per ess...",
+   "source": "PC Professionale",
+   "lean": "unknown",
+   "date": "2026-04-03",
+   "category": "tech"
+  },
+  {
+   "text": "La visione “Beyond the Edge” di MOVA: quanti lanci ad Amburgo — Lanci internazionali di grande livello per MOVA che punta a lasciare il segno in più ambienti. L'articolo La visione “Beyond the Edge” di MOVA: quanti lanci ad Amburgo proviene da PC Professionale .",
+   "source": "PC Professionale",
+   "lean": "unknown",
+   "date": "2026-04-14",
+   "category": "tech"
+  }
+ ],
+ "built": "2026-07-20",
+ "source_db": "ELES prod Echolot DB (railway ssh glistening-luck, file:/data/echolot.db?mode=ro)",
+ "build_rule": "title>15, cim-dedupe, kanadai frankofon kizarva, lead 220 char, MAXN=60 lean-cap: minden nem-jobb + jobb datum-stride ritkitassal"
+}

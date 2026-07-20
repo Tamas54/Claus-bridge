@@ -1,0 +1,446 @@
+{
+ "lang": "fr",
+ "target_month": "2026-06",
+ "corpus_window": [
+  "2026-05-15",
+  "2026-06-15"
+ ],
+ "n": 60,
+ "lean_dist": {
+  "right": 39,
+  "center": 17,
+  "center_left": 3,
+  "unknown": 1
+ },
+ "cat_dist": {
+  "foreign": 39,
+  "general": 12,
+  "economy": 8,
+  "global": 1
+ },
+ "items": [
+  {
+   "text": "Au Rwanda, l’Afrique acte l’accélération de sa mue économique face aux grandes puissances — REPORTAGE. Alors que les équilibres mondiaux se recomposent à grande vitesse, l’Africa CEO Forum de Kigali veut faire émerger une nouvelle doctrine économique africaine : grandir, s’unir et accélérer pour ne plus rest...",
+   "source": "Le Point — Afrique",
+   "lean": "right",
+   "date": "2026-05-15",
+   "category": "foreign"
+  },
+  {
+   "text": "« Ce n’est plus possible de vivre ici » : au Sénégal, la traque des homosexuels s’intensifie — Depuis la loi du 11 mars doublant les peines contre l’homosexualité, le Sénégal connaît une flambée de violences. Traques, agressions, dénonciations : des victimes témoignent.",
+   "source": "Le Point — Afrique",
+   "lean": "right",
+   "date": "2026-05-17",
+   "category": "foreign"
+  },
+  {
+   "text": "« Ebola n’est plus seulement un problème congolais : c’est un risque mondial » — ENTRETIEN. Absence de vaccin, surveillance défaillante, groupes armés… Jean-Jacques Muyembe, codécouvreur du virus Ebola, alerte sur les risques d’une propagation régionale.",
+   "source": "Le Point — Afrique",
+   "lean": "right",
+   "date": "2026-05-18",
+   "category": "foreign"
+  },
+  {
+   "text": "Présidentielle 2027 : \"Ma détermination à être dans le débat est totale\", affirme l'ancien Premier ministre Bernard Cazeneuve — Il confirme sur France Inter sa volonté d'être candidat, se proposant comme une alternative sociale-démocrate face à ce qu'il appelle les \"dégagismes\" d'extrême droite et d'extrême gauche.",
+   "source": "France Info — À la une",
+   "lean": "center",
+   "date": "2026-05-19",
+   "category": "foreign"
+  },
+  {
+   "text": "Face à Trump, la « leçon de Pékin » aux Européens — Avant les prochains sommets du G7 et de l’Otan, deux rendez-vous de grande importance avec le président américain, les dirigeants européens feraient bien de tirer les enseignements de sa récente visite en Chine.",
+   "source": "L'Obs — Monde",
+   "lean": "center_left",
+   "date": "2026-05-19",
+   "category": "foreign"
+  },
+  {
+   "text": "Laïcité : « L’abandon », c’est le nôtre — ÉDITO. Un film retrace les derniers jours de Samuel Paty. La première réaction d’une presse de gauche ? Se demander s’il est opportun de s’en souvenir, en s’alarmant de ce qu’en ferait l’extrême droite…",
+   "source": "Le Point — Éditos",
+   "lean": "right",
+   "date": "2026-05-20",
+   "category": "general"
+  },
+  {
+   "text": "Présidentielle 2027 : Fabien Roussel accuse LFI de vouloir « faire éclater le PCF » pour avantager Mélenchon — A l’approche du congrès du PCF prévu début juillet à Lille, Fabien Roussel accuse LFI de vouloir fragiliser le Parti communiste français pour soutenir une candidature de Mélenchon à la présidentielle de 2027",
+   "source": "20 Minutes — Lille",
+   "lean": "center",
+   "date": "2026-05-21",
+   "category": "foreign"
+  },
+  {
+   "text": "Brexit : le poison des cyniques — ÉDITO. Dix ans après, l’échec britannique éclaire les ravages du repli nationaliste et les dangereuses illusions des marchands de chimères français.",
+   "source": "Le Point — Éditos",
+   "lean": "right",
+   "date": "2026-05-21",
+   "category": "general"
+  },
+  {
+   "text": "Alexia Laroche-Joubert : « Ça va mieux depuis que j’ai une IA pour répondre à mes mails » — L’INTERVIEW INTIME DES GRANDS PATRONS. Elle aime être sur le terrain mais doit jongler avec les réunions. La présidente de Banijay France se confie sur son quotidien.",
+   "source": "Le Point — Économie",
+   "lean": "right",
+   "date": "2026-05-22",
+   "category": "economy"
+  },
+  {
+   "text": "Sénégal : que cache le limogeage du Premier ministre Sonko ? — RÉCIT. Après des mois de tensions, le président sénégalais a mis fin aux fonctions de son Premier ministre et ancien mentor politique.",
+   "source": "Le Point — Afrique",
+   "lean": "right",
+   "date": "2026-05-23",
+   "category": "foreign"
+  },
+  {
+   "text": "Ahmad Vahidi, le fugitif d’Interpol qui tient désormais les rênes militaires de Téhéran — Soupçonné de terrorisme international, Ahmad Vahidi est désormais l’un des principaux décideurs de Téhéran. Portrait d’un homme de l’ombre devenu indispensable au cœur du régime iranien.",
+   "source": "Le Point — États-Unis (tag)",
+   "lean": "right",
+   "date": "2026-05-24",
+   "category": "foreign"
+  },
+  {
+   "text": "Trump et « l’acte de corruption le plus éhonté du siècle » — CHRONIQUE. Le « contribuable Donald Trump » va bénéficier de l’extraordinaire générosité du « président Donald Trump » pour effacer de possibles fraudes fiscales grâce à un tour de passe-passe financier dont il fait a...",
+   "source": "Le Point — États-Unis (tag)",
+   "lean": "right",
+   "date": "2026-05-25",
+   "category": "foreign"
+  },
+  {
+   "text": "Football : En Ligue 1, c’est terminé entre le LOSC et son entraîneur Bruno Genesio — Après deux belles saisons, la collaboration prend fin entre Bruno Genesio et le LOSC, malgré une qualification pour la prochaine Ligue des champions",
+   "source": "20 Minutes — Lille",
+   "lean": "center",
+   "date": "2026-05-26",
+   "category": "foreign"
+  },
+  {
+   "text": "En difficulté, les librairies Furet du Nord et Decitre demandent leur placement en redressement judiciaire — « Le marché des biens culturels traverse une crise profonde, marquée par une forte pression sur les marges et un recul des volumes de près de 15 % depuis 2021 », explique le groupe Nosoli dans un communiqué",
+   "source": "20 Minutes — Lille",
+   "lean": "center",
+   "date": "2026-05-26",
+   "category": "foreign"
+  },
+  {
+   "text": "Affaire Grégory : la Cour d'appel de Dijon rendra sa décision sur la demande en annulation de la mise en examen de la grand-tante le 15 juillet — Jacqueline Jacob est soupçonnée d'être l'un des corbeaux qui ont harcelé la famille de l'enfant assassiné à l'âge de 4 ans, en 1982. Une audience à huit clos s'est tenue devant la chambre de l'instruction de la cour d...",
+   "source": "France Info — À la une",
+   "lean": "center",
+   "date": "2026-05-27",
+   "category": "foreign"
+  },
+  {
+   "text": "Cette gauche pour qui les immigrés sont du « bétail » électoral — ÉDITO. Mélenchon, Sanchez, Starmer : la gauche européenne a troqué ses convictions laïques contre un vote communautaire.",
+   "source": "Le Point — Éditos",
+   "lean": "right",
+   "date": "2026-05-27",
+   "category": "general"
+  },
+  {
+   "text": "Mali : « Le scénario d’un effondrement similaire à celui vu en Afghanistan n’est pas à exclure » — CHRONIQUE. Pour le chercheur Djallil Lounnas, le rapprochement tactique entre le Front de libération de l’Azawad (FLA) et le JNIM affilié à Al-Qaïda, est le symptôme d’une mutation majeure du paysage sécuritaire malien.",
+   "source": "Le Point — Afrique",
+   "lean": "right",
+   "date": "2026-05-27",
+   "category": "foreign"
+  },
+  {
+   "text": "À Nice, comment Éric Ciotti marque son territoire — Le nouveau maire (UDR) lance une cure d’austérité et multiplie les mesures de rupture.",
+   "source": "Le Point — Politique",
+   "lean": "right",
+   "date": "2026-05-27",
+   "category": "general"
+  },
+  {
+   "text": "Péter Magyar, un homme du système devenu son fossoyeur — LA LETTRE DE BRUXELLES. Le nouveau Premier ministre hongrois sera à Paris le 3 juin pour sa première rencontre, en fonction, avec Emmanuel Macron. Retour sur un parcours fulgurant.",
+   "source": "Le Point — Hongrie (tag)",
+   "lean": "right",
+   "date": "2026-05-28",
+   "category": "foreign"
+  },
+  {
+   "text": "Congrès mondial contre le cancer : les grandes annonces prévues cette année — Rendez-vous mondial majeur en oncologie, le congrès de l’Asco s’ouvre ce vendredi 29 mai aux États-Unis. Parmi les priorités figure la personnalisation des diagnostics et des traitements.",
+   "source": "Le Point — États-Unis (tag)",
+   "lean": "right",
+   "date": "2026-05-29",
+   "category": "foreign"
+  },
+  {
+   "text": "Péter Magyar promet le ménage, Bruxelles ouvre le coffre — Le nouveau Premier ministre de la Hongrie trouve un accord avec la Commission pour débloquer 16,4 milliards d’euros à la fin de l’année en contrepartie des réformes sur la corruption.",
+   "source": "Le Point — Hongrie (tag)",
+   "lean": "right",
+   "date": "2026-05-29",
+   "category": "foreign"
+  },
+  {
+   "text": "Un discours a-t-il vraiment tué le président le plus éphémère des États-Unis ? — William Henry Harrison prononça le discours d’investiture le plus long de l’histoire américaine sous un ciel de mars glacial. Un mois plus tard, il était mort.",
+   "source": "Le Point — États-Unis (tag)",
+   "lean": "right",
+   "date": "2026-05-31",
+   "category": "foreign"
+  },
+  {
+   "text": "JO d’hiver 2030 : « Il ne sait pas de quoi il parle… » Muselier recadre Ciotti suite à la délocalisation du pôle glace — Le président de la région Sud, Renaud Muselier, a contre-attaqué et justifié l’éviction de Nice de la carte des Jeux d’hiver 2030, après les déclarations d’Éric Ciotti",
+   "source": "20 Minutes — Nice",
+   "lean": "center",
+   "date": "2026-06-01",
+   "category": "foreign"
+  },
+  {
+   "text": "Comment le cas de Taïwan illustre les reculs de Trump en Asie — Les hésitations et signaux contradictoires du locataire de la Maison-Blanche, comme encore récemment sur la volonté de Washington de protéger la petite île démocratique revendiquée par Pékin, sèment le doute sur la po...",
+   "source": "L'Obs — Monde",
+   "lean": "center_left",
+   "date": "2026-06-01",
+   "category": "foreign"
+  },
+  {
+   "text": "Mort d’André Santini, le maire bâtisseur infatigable d’Issy-les-Moulineaux — Maire d’Issy-les-Moulineaux depuis 46 ans et figure emblématique des Hauts-de-Seine, l’ex-ministre, proche de Charles Pasqua, a tiré sa dernière révérence dans la nuit de dimanche à lundi.",
+   "source": "Le Point — Politique",
+   "lean": "right",
+   "date": "2026-06-01",
+   "category": "general"
+  },
+  {
+   "text": "Attentat de Nice : Pourquoi cette directrice de la police municipale est jugée ce mardi pour calomnie — Poursuivie pour dénonciation calomnieuse, la policière municipale Sandra Bertin, qui supervisait le centre de vidéosurveillance le soir de l’attentat de Nice en 2016, a affirmé avoir subi des pressions du ministère po...",
+   "source": "20 Minutes — Nice",
+   "lean": "center",
+   "date": "2026-06-02",
+   "category": "foreign"
+  },
+  {
+   "text": "Des États-Unis à la France, le public obsédé par « Obsession » — Tourné par un YouTubeur de 26 ans, ce film d’horreur au microbudget confirme l’appétit de la jeune génération pour une nouvelle ère de frissons collectifs.",
+   "source": "Le Point — États-Unis (tag)",
+   "lean": "right",
+   "date": "2026-06-02",
+   "category": "foreign"
+  },
+  {
+   "text": "Un Rafale en alerte décolle pour intercepter un aéronef qui refusait d’obtempérer — Un ULM VL3 reliant Venise à Alicante a adopté « un comportement inhabituel alors qu’il survolait le pays niçois », puis a « refusé les consignes qui lui étaient adressées par les contrôleurs aériens »",
+   "source": "20 Minutes — Nice",
+   "lean": "center",
+   "date": "2026-06-03",
+   "category": "foreign"
+  },
+  {
+   "text": "« Ni armes ni argent pour l’Ukraine » : Péter Magyar empêtré dans le système Orban — À Berlin mardi puis à Paris ce mercredi, Péter Magyar affiche son retour dans le jeu européen. Mais sur l’Ukraine, le nouveau Premier ministre hongrois reste prisonnier des choix énergétiques de Viktor Orban.",
+   "source": "Le Point — Hongrie (tag)",
+   "lean": "right",
+   "date": "2026-06-03",
+   "category": "foreign"
+  },
+  {
+   "text": "De Macron à Trump, les banquiers centraux sous tutelle — ÉDITO. L’indépendance monétaire, pilier de l’ordre libéral, vacille sous les coups de boutoir du politique.",
+   "source": "Le Point — Éditos",
+   "lean": "right",
+   "date": "2026-06-03",
+   "category": "general"
+  },
+  {
+   "text": "Dans tes pensées — CHRONIQUE. Cesse d’accuser le smartphone de tous les maux. La seule liberté qu’il t’a ôtée, c’est celle de penser quand tu n’as rien à faire.",
+   "source": "Le Point — Éditos",
+   "lean": "right",
+   "date": "2026-06-03",
+   "category": "general"
+  },
+  {
+   "text": "L’état-major de Dassault Systèmes — Avec un chiffre d’affaires de 6,24 milliards d’euros, l’entreprise française est une référence de l’IA industrielle. Tour d’horizon de ceux qui dirigent le groupe aux côtés de son PDG, Pascal Daloz.",
+   "source": "Le Point — Économie",
+   "lean": "right",
+   "date": "2026-06-03",
+   "category": "economy"
+  },
+  {
+   "text": "Baby-sitter accusé de pédocriminalité : « On est jetés en pleine mer »… Une mère dans les méandres de la justice — « 20 Minutes » a recueilli le témoignage d’une seconde maman dont le fils aurait été victime d’un pédocriminel récidiviste. Ce dernier était inscrit comme baby-sitter dans le Nord sur une plateforme en ligne",
+   "source": "20 Minutes — Lille",
+   "lean": "center",
+   "date": "2026-06-04",
+   "category": "foreign"
+  },
+  {
+   "text": "Loto foot : Il décroche un montant record de 3,2 millions d’euros et devient « supporter de l’OGC Nice » — Le 26 avril dernier, un parieur de Loto Foto a remporté un gain historique de 3,2 millions d’euros en visant juste pour les résultats de 15 matchs",
+   "source": "20 Minutes — Nice",
+   "lean": "center",
+   "date": "2026-06-04",
+   "category": "foreign"
+  },
+  {
+   "text": "Compositeurs et IA : « On l’utilise comme un outil, pas pour qu’elle fasse la musique à notre place » — MON MÉTIER & l’IA #2. Dans leurs studios parisiens, Paul-Marie Barbier et Julien Grunberg, duo de compositeurs pour le cinéma et les séries, expérimentent les outils d’intelligence artificielle pour répondre à des dem...",
+   "source": "Le Point — Économie",
+   "lean": "right",
+   "date": "2026-06-04",
+   "category": "economy"
+  },
+  {
+   "text": "Accusé de violences sur son épouse, le footballeur Wissam Ben Yedder est relaxé — Ben Yedder a encore un dossier devant la cour d’appel d’Aix-en-Provence, qu’il a saisie après sa condamnation en 2024 à deux ans de prison avec sursis pour des violences sexuelles sur une jeune femme",
+   "source": "20 Minutes — Nice",
+   "lean": "center",
+   "date": "2026-06-05",
+   "category": "foreign"
+  },
+  {
+   "text": "Nice : Des passagers n’ont pas pu embarquer car une agente a confondu l’île Maurice et la Mauritanie — Cinq ressortissants mauriciens, qui devaient prendre l’avion à Nice pour se rendre en Italie, ont été empêchés d’embarquer à cause d’une erreur lors du contrôle de leurs documents",
+   "source": "20 Minutes — Nice",
+   "lean": "center",
+   "date": "2026-06-05",
+   "category": "foreign"
+  },
+  {
+   "text": "Ces photos fascinantes (et inédites) d'animaux et fonds marins pour la Journée mondiale de l'océan — Pour son édition 2026 qui se déroule ce lundi 8 juin, la Journée mondiale de l'océan nous invite à «réimaginer» la conservation de ce milieu qui abrite la majeure partie de la biodiversité de la planète. Une histoire ...",
+   "source": "Slate.fr",
+   "lean": "unknown",
+   "date": "2026-06-05",
+   "category": "global"
+  },
+  {
+   "text": "Kev Adams fait un tabac dans America’s Got Talent, Macron bluffé — L’humoriste français a tenté sa chance dans la version américaine de « La France a un incroyable talent », récoltant une standing ovation. Le début d’une carrière outre-atlantique ?",
+   "source": "Le Point — États-Unis (tag)",
+   "lean": "right",
+   "date": "2026-06-05",
+   "category": "foreign"
+  },
+  {
+   "text": "Bernadette Chirac : ses meilleures citations — Libre et franche, l’ex-première dame, décédée ce vendredi 5 juin à 93 ans, ne s’est jamais gênée pour donner son avis. Petit florilège.",
+   "source": "Le Point — Politique",
+   "lean": "right",
+   "date": "2026-06-06",
+   "category": "general"
+  },
+  {
+   "text": "À Niamey, le nouveau chef d’État béninois face aux défis du Sahel — CHRONIQUE. Pour l’analyste politique Adrien Poussou*, en se rendant au Niger moins de dix jours après son investiture, le nouveau chef de l’État béninois veut renouer le dialogue avec des voisins sahéliens en rupture.",
+   "source": "Le Point — Afrique",
+   "lean": "right",
+   "date": "2026-06-07",
+   "category": "foreign"
+  },
+  {
+   "text": "Bernadette Chirac, la stratège politique que Jacques n’écoutait pas assez — Indéfectible soutien de la carrière de son mari, Bernadette Chodron de Courcel s’était émancipée de l’ombre de Jacques pour conquérir le cœur des Français. Elue en Corrèze, elle s’est éteinte vendredi à 93 ans.",
+   "source": "Le Point — Politique",
+   "lean": "right",
+   "date": "2026-06-08",
+   "category": "general"
+  },
+  {
+   "text": "Le gouvernement avance ses premières pistes politiques pour tenter de répondre à l’affaire Lyhanna — Face à l’affaire Lyhanna, le gouvernement est pris en étau et tente de canaliser la colère en multipliant les réponses. Matignon a annoncé ce mardi la réforme de la proposition de la loi sur la protection de l’enfance...",
+   "source": "L'Obs — Politique",
+   "lean": "center_left",
+   "date": "2026-06-09",
+   "category": "foreign"
+  },
+  {
+   "text": "Déficit des retraites : « Supprimer l’âge légal de départ, c’est hypocrite » — ENTRETIEN. Selon l’économiste Bertrand Martinot, l’idée de supprimer l’âge de départ, poussée par Gabriel Attal, ne viendra pas colmater le creusement du déficit.",
+   "source": "Le Point — Économie",
+   "lean": "right",
+   "date": "2026-06-09",
+   "category": "economy"
+  },
+  {
+   "text": "Comment la gauche se prépare à perdre en 2027 — CHRONIQUE. Derrière les ambitions affichées, les représentants des 50 nuances de gauche conservent leur lucidité et s’apprêtent à encaisser une défaite lors de la prochaine présidentielle.",
+   "source": "Le Point — Politique",
+   "lean": "right",
+   "date": "2026-06-09",
+   "category": "general"
+  },
+  {
+   "text": "Un chauffard arrêté pour avoir roulé à 130 km/h sur la promenade des Anglais — Le trentenaire qui roulait à vive allure à Nice a été placé en garde à vue et sa voiture saisie",
+   "source": "20 Minutes — Nice",
+   "lean": "center",
+   "date": "2026-06-10",
+   "category": "foreign"
+  },
+  {
+   "text": "« Les Chinois ont gagné la bataille des coûts, mais l’Europe conserve des atouts » : les vérités du patron de Stellantis — ENTRETIEN. De son enfance en Italie jusqu’à la crise de l’industrie européenne, Antonio Filosa se confie sur sa méthode pour relancer le géant automobile aux 14 marques, dont Peugeot, Citroën, Fiat et Jeep.",
+   "source": "Le Point — Économie",
+   "lean": "right",
+   "date": "2026-06-10",
+   "category": "economy"
+  },
+  {
+   "text": "Retraites : le COR lance le débat pour la présidentielle — Le Conseil d’orientation des retraites s’apprête à rendre la version 2026 de son rapport. À un an de l’élection présidentielle, ce rapport place les candidats au pied du mur.",
+   "source": "Le Point — Économie",
+   "lean": "right",
+   "date": "2026-06-10",
+   "category": "economy"
+  },
+  {
+   "text": "Matthieu Pigasse, le banquier préféré des anticapitalistes — CHRONIQUE. Il se drape dans le marxisme et fait du business avec les dictateurs. L’homme d’affaires n’est pas à une contradiction près.",
+   "source": "Le Point — Politique",
+   "lean": "right",
+   "date": "2026-06-10",
+   "category": "general"
+  },
+  {
+   "text": "Quatre infos méconnues sur SpaceX — Elon Musk vise la plus grande introduction en Bourse de l’Histoire, le 12 juin, pour SpaceX. Son entreprise de cœur, celle qui doit emmener l’humanité sur Mars et au-delà, détient quelques bottes secrètes.",
+   "source": "Le Point — États-Unis (tag)",
+   "lean": "right",
+   "date": "2026-06-10",
+   "category": "foreign"
+  },
+  {
+   "text": "Salah Abdeslam : Les restrictions de parloir maintenues, le terroriste aurait menacé le directeur de la prison — Les restrictions de parloir de Salah Abdeslam ont été maintenues par la justice au vu de nouveaux éléments, notamment le fait qu’il aurait menacé le directeur de sa prison",
+   "source": "20 Minutes — Lille",
+   "lean": "center",
+   "date": "2026-06-11",
+   "category": "foreign"
+  },
+  {
+   "text": "Claire Simonin, avocate : « L’IA est comme un confrère auprès duquel je peux tester mes idées » — MON MÉTIER & l’IA #3. Cette spécialiste du droit de la propriété intellectuelle utilise l’intelligence artificielle pour approfondir ses recherches et tester ses idées. Pas question, en revanche, de lui déléguer la pl...",
+   "source": "Le Point — Économie",
+   "lean": "right",
+   "date": "2026-06-11",
+   "category": "economy"
+  },
+  {
+   "text": "« On s’est mis tout seuls dans la seringue » : la campagne contrariée de Marine Tondelier — Après avoir fait de l’union de la gauche sa marque de fabrique, la patronne des Écologistes se prépare désormais à l’hypothèse d’une candidature autonome à la présidentielle. Un exercice d’équilibriste.",
+   "source": "Le Point — Politique",
+   "lean": "right",
+   "date": "2026-06-11",
+   "category": "general"
+  },
+  {
+   "text": "En Afrique du Sud, la peur d’une nouvelle flambée xénophobe — REPORTAGE. Menaces, appels à l’expulsion des étrangers : la campagne menée par le mouvement March and March a déjà poussé des centaines de Ghanéens à quitter le pays.",
+   "source": "Le Point — Afrique",
+   "lean": "right",
+   "date": "2026-06-11",
+   "category": "foreign"
+  },
+  {
+   "text": "Cyberattaque : Sept personnes interpellées, suspectées du vol de millions de données informatiques sensibles — Ce groupe, connu sous le nom de « Dumpsec », ciblait des acteurs privés et publics : plus de 1.500 sociétés ou entités pourraient être victimes de ces hackers français",
+   "source": "20 Minutes — Lille",
+   "lean": "center",
+   "date": "2026-06-12",
+   "category": "foreign"
+  },
+  {
+   "text": "Testé positif à la cocaïne après son atterrissage à l’aéroport de Nice, un pilote de ligne condamné — Un pilote de ligne a été condamné, ce jeudi à Nice, pour avoir volé sous l’emprise de cocaïne",
+   "source": "20 Minutes — Nice",
+   "lean": "center",
+   "date": "2026-06-12",
+   "category": "foreign"
+  },
+  {
+   "text": "Hausse des taux d’intérêt à long terme : les conséquences d’une mauvaise nouvelle — CHRONIQUE. Ils augmentent dans les principaux pays de l’OCDE depuis le début de l’année, avec des conséquences non négligeables sur les dettes et déficits publics.",
+   "source": "Le Point — Économie",
+   "lean": "right",
+   "date": "2026-06-13",
+   "category": "economy"
+  },
+  {
+   "text": "Intelligence artificielle : l’Amérique décide de débrancher le reste du monde — En interdisant soudainement l’accès à Fable 5 et Mythos 5, les modèles de pointe d’Anthropic à tous les non-Américains, Washington vient de briser l’illusion d’une technologie sans frontières. Un électrochoc pour l’Eu...",
+   "source": "Le Point — États-Unis (tag)",
+   "lean": "right",
+   "date": "2026-06-13",
+   "category": "foreign"
+  },
+  {
+   "text": "Kymco Riders, l’expérience client pour les fans du scootériste et de tourisme — Pas besoin de posséder une Harley-Davidson ou une voiture de collection pour partir en balade en groupe. En France, Kymco prend soin de ses clients en organisant chaque année un week-end un peu spécial. Nous avons par...",
+   "source": "20 Minutes — Nice",
+   "lean": "center",
+   "date": "2026-06-14",
+   "category": "foreign"
+  },
+  {
+   "text": "« 20 % minimum » : des restaurants américains automatisent le pourboire pour les touristes — À Kansas City, le Mondial de football ravive le débat sur le pourboire. Pour protéger les salaires, des restaurants imposent un « tip » automatique aux touristes.",
+   "source": "Le Point — États-Unis (tag)",
+   "lean": "right",
+   "date": "2026-06-14",
+   "category": "foreign"
+  }
+ ],
+ "built": "2026-07-20",
+ "source_db": "ELES prod Echolot DB (railway ssh glistening-luck, file:/data/echolot.db?mode=ro)",
+ "build_rule": "title>15, cim-dedupe, kanadai frankofon kizarva, lead 220 char, MAXN=60 lean-cap: minden nem-jobb + jobb datum-stride ritkitassal"
+}

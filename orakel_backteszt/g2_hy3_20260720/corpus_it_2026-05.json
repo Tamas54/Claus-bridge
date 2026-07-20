@@ -1,0 +1,229 @@
+{
+ "lang": "it",
+ "target_month": "2026-05",
+ "corpus_window": [
+  "2026-04-15",
+  "2026-05-15"
+ ],
+ "n": 29,
+ "lean_dist": {
+  "unknown": 17,
+  "center": 12
+ },
+ "cat_dist": {
+  "foreign": 15,
+  "entertainment": 2,
+  "general": 2,
+  "tech": 3,
+  "global": 5,
+  "sport": 2
+ },
+ "items": [
+  {
+   "text": "Bambino annegato alle terme, la famiglia di Gabriele denuncia: “Mancava la griglia del bocchettone” — Sarà l’autopsia a chiarire se Gabriele Ubaldo Petrucci, il bimbo di 7 anni annegato sabato alle terme ‘Le Vescine’ a Suio – nel territorio di Castelforte – in provincia di Latina, è morto a causa di un malore o per un...",
+   "source": "Latina24ore.it",
+   "lean": "unknown",
+   "date": "2026-04-20",
+   "category": "foreign"
+  },
+  {
+   "text": "Incendio a Ponza, volontaria ferita. La solidarietà dell’assessore Pasquale Ciacciarelli — Una volontaria di Protezione civile è rimasta ferita a seguito di un incendio divampato questa mattina sull’Isola di Ponza, in provincia di Latina. «La notizia dell’infortunio subito da una nostra volontaria di Protez...",
+   "source": "Latina24ore.it",
+   "lean": "unknown",
+   "date": "2026-04-21",
+   "category": "foreign"
+  },
+  {
+   "text": "In una società dominata dal rumore e dalla velocità, serve tornare all’essenziale — C'è un tipo di stanchezza che non viene dal fare troppo. Viene dall'essere attraversati continuamente da cose che non si è scelto di guardare, ascoltare, pensare. Una stanchezza che non si sente nelle gambe né nelle b...",
+   "source": "THE VISION",
+   "lean": "unknown",
+   "date": "2026-04-22",
+   "category": "entertainment"
+  },
+  {
+   "text": "Sguardi sulle prestazioni — Audi svela Origin, installazione firmata Zaha Hadid Architects. Con un focus sulla performance. Barlet, direttore Audi Italia: «l’innovazione è confrontarsi e fare rete»",
+   "source": "Corriere della Sera — Cronache",
+   "lean": "center",
+   "date": "2026-04-23",
+   "category": "general"
+  },
+  {
+   "text": "«Design, velocità e qualità». Lezioni per giovani talenti — In una serie di Talk al Portrait Milano (fino al 25), Audi si confronta con allievi top della next gen",
+   "source": "Corriere della Sera — Cronache",
+   "lean": "center",
+   "date": "2026-04-23",
+   "category": "general"
+  },
+  {
+   "text": "È nell’equilibrio tra velocità e tempo che si misura la qualità di ciò che costruiamo — L'articolo È nell’equilibrio tra velocità e tempo che si misura la qualità di ciò che costruiamo proviene da THE VISION .",
+   "source": "THE VISION",
+   "lean": "unknown",
+   "date": "2026-04-23",
+   "category": "entertainment"
+  },
+  {
+   "text": "Spazio di archiviazione del sistema Mac esaurito? Ecco i metodi migliori per liberarlo. — Anche un computer come il MacBook potrebbe avere problemi causati dalla saturazione dello spazio di archiviazione con particolare attenzione ai […] L'articolo Spazio di archiviazione del sistema Mac esaurito? Ecco i m...",
+   "source": "PC Professionale",
+   "lean": "unknown",
+   "date": "2026-04-27",
+   "category": "tech"
+  },
+  {
+   "text": "PC Specialist: l’azienda amata da gamer e professionisti — C’è chi entra in un negozio e compra un PC già pronto, e poi c’è chi vuole metterci mano, scegliere […] L'articolo PC Specialist: l’azienda amata da gamer e professionisti proviene da PC Professionale .",
+   "source": "PC Professionale",
+   "lean": "unknown",
+   "date": "2026-04-27",
+   "category": "tech"
+  },
+  {
+   "text": "The International Spectator: una rivista al servizio del dibattito internazionale – 13 Marzo 2023 — Negli ultimi sette anni abbiamo avuto il privilegio di essere direttori di The International Spectator, la rivista peer-reviewed dello IAI fondata da Altiero Spinelli nel 1966. In questi sette anni, abbiamo deciso di ...",
+   "source": "Affari Internazionali (IAI)",
+   "lean": "center",
+   "date": "2026-04-27",
+   "category": "foreign"
+  },
+  {
+   "text": "Più concorrenza nel mercato della difesa – 13 dicembre 2006 — 13 dicembre 2006 La pubblicazione, il 7 dicembre, della Comunicazione Interpretativa della Commissione Europea sugli acquisti militari chiude il primo tempo dell’iniziativa lanciata nel 2003 per rafforzare il mercato ...",
+   "source": "Affari Internazionali (IAI)",
+   "lean": "center",
+   "date": "2026-04-27",
+   "category": "foreign"
+  },
+  {
+   "text": "La stella polare dell’opzione zero – 15 aprile 2009 — 15 aprile 2009 È davvero realizzabile un mondo senza armi nucleari? L’opzione zero riproposta da Barack Obama si potrebbe definire, in linguaggio kantiano, un’”idea regolativa”: indica un obiettivo che si sa in parten...",
+   "source": "Affari Internazionali (IAI)",
+   "lean": "center",
+   "date": "2026-04-27",
+   "category": "foreign"
+  },
+  {
+   "text": "Una riforma per prevenire le crisi – 20 settembre 2006 — 20 settembre 2006 All’assemblea annuale del Fondo monetario internazionale (Fmi) di Singapore dei giorni scorsi, sono stati approvati alcuni elementi rilevanti del processo di riforma del Fmi nell’ambito della strateg...",
+   "source": "Affari Internazionali (IAI)",
+   "lean": "center",
+   "date": "2026-04-27",
+   "category": "foreign"
+  },
+  {
+   "text": "Una forza multinazionale: per che fare? – 4 agosto 2006 — 4 agosto 2006 Una cosa è certa: non deve replicare il sostanziale fallimento dell’Unifil. Questa forza Onu, presente in Libano sin dal 1978, attualmente composta di circa 2000 soldati, è anche quella che ha sofferto p...",
+   "source": "Affari Internazionali (IAI)",
+   "lean": "center",
+   "date": "2026-04-27",
+   "category": "foreign"
+  },
+  {
+   "text": "L’Europa non ha la bacchetta magica – 9 ottobre 2013 — 9 ottobre 2013 I morti di Lampedusa hanno provocato un’ondata di polemiche strumentali e di dichiarazioni non sempre necessarie o opportune. Si è in un primo momento stigmatizzata la mancanza di soccorsi tempestivi, m...",
+   "source": "Affari Internazionali (IAI)",
+   "lean": "center",
+   "date": "2026-04-27",
+   "category": "foreign"
+  },
+  {
+   "text": "IAI, nel mondo che cambia, resta prezioso – 21 giugno 2016 — 21 giugno 2016 Il cinquantesimo compleanno dell’Istituto affari internazionali è una bella occasione per riflettere sulla politica estera italiana, sulla sua rilevanza, in particolare nel quadro europeo, e sulla perce...",
+   "source": "Affari Internazionali (IAI)",
+   "lean": "center",
+   "date": "2026-04-27",
+   "category": "foreign"
+  },
+  {
+   "text": "Ue: una necessità per tutti nel XXI secolo – 1 febbraio 2019 — 1 febbraio 2019 Per i miei genitori, l’Europa è stata un ideale: la pace che avrebbe messo fine alla morte e alla distruzione generate da due guerre mondiali. È pur vero che l’Europa era un sogno di pochi, ma era un s...",
+   "source": "Affari Internazionali (IAI)",
+   "lean": "center",
+   "date": "2026-04-27",
+   "category": "foreign"
+  },
+  {
+   "text": "Un compito difficile: raccontare la politica internazionale – 13 gennaio 2020 — 13 gennaio 2020 Assumo con il nuovo anno la direzione di AffarInternazionali, dal 2006 la rivista online dello storico istituto fondato da Altiero Spinelli cinquantacinque anni fa. Sono particolarmente grato al dirett...",
+   "source": "Affari Internazionali (IAI)",
+   "lean": "center",
+   "date": "2026-04-27",
+   "category": "foreign"
+  },
+  {
+   "text": "Narwal Flow 2 debutta in Italia: disponibilità, prezzi e prime impressioni — Scopri i dettagli tecnici, i prezzi, la promozione early-bird e una prima anticipazione dei nostri test di laboratorio in attesa della recensione completa. L'articolo Narwal Flow 2 debutta in Italia: disponibilità, pr...",
+   "source": "PC Professionale",
+   "lean": "unknown",
+   "date": "2026-04-30",
+   "category": "tech"
+  },
+  {
+   "text": "Bambino azzannato da un pitbull a Ponza — Un bambino di 8 anni è stato trasportato in eliambulanza all’ospedale Bambino Gesù di Roma dopo che questa mattina è stato azzannato da un cane sull’isola Ponza, in provincia di Latina. Secondo quanto ricostruito dai ...",
+   "source": "Latina24ore.it",
+   "lean": "unknown",
+   "date": "2026-05-03",
+   "category": "foreign"
+  },
+  {
+   "text": "L’ALIBI MERIDIONALE — di Raffaele Mortelliti Maggio 2026. Il PNRR entra nella sua fase finale e il Paese si specchia nei suoi numeri. Tutto sembra funzionare: percentuali rispettate, milestone raggiunte, opere inaugurate. (diciamo). È la l...",
+   "source": "strill.it",
+   "lean": "unknown",
+   "date": "2026-05-04",
+   "category": "global"
+  },
+  {
+   "text": "LA LOCRIDE CONNESSA, IL PIANO GELSOMINI LINK — La Giunta Municipale del Comune di Roccella Ionica ha approvato una delibera con la quale adotta ufficialmente il documento “La Locride Connessa — Piano Gelsomini Link” e delega il Sindaco Vittorio Zito ad assumere tu...",
+   "source": "strill.it",
+   "lean": "unknown",
+   "date": "2026-05-04",
+   "category": "global"
+  },
+  {
+   "text": "LO STRETTO DEI COGLIONI — di Raffaele Mortelliti C’è un paradosso intollerabile che si consuma ogni giorno sotto i nostri occhi, nel punto più strategico del Mediterraneo. Lì dove la geografia ha disegnato una piattaforma naturale perfetta, in...",
+   "source": "strill.it",
+   "lean": "unknown",
+   "date": "2026-05-04",
+   "category": "global"
+  },
+  {
+   "text": "L’IISS “Ettore Majorana” di Brindisi e Il Liceo Scientifico Statale “Alessandro Volta” di Reggio Calabria uniche italiane ai Global Schools Prize 2026 — C’è un cortocircuito cognitivo in Italia che si ripete ogni anno, puntuale come le tasse: l’uscita dei test standardizzati nazionali. Puntualmente, i soloni dell’educazione e gli editorialisti salottieri stendono il l...",
+   "source": "strill.it",
+   "lean": "unknown",
+   "date": "2026-05-04",
+   "category": "global"
+  },
+  {
+   "text": "TARTA-NET 2026: la rete mediterranea per la tutela delle tartarughe marine si riunisce all’IZS Sicilia — Il prossimo 11 maggio all’Istituto Zooprofilattico Sperimentale della Sicilia “A. Mirri” di Palermo si apriranno i lavori dell’Annual Meeting del progetto TARTA-NET un appuntamento chiave per fare il punto delle attiv...",
+   "source": "Si24",
+   "lean": "unknown",
+   "date": "2026-05-05",
+   "category": "global"
+  },
+  {
+   "text": "Sofia Goggia a Che Tempo Che Fa: \"Infortuni e difficoltà mi hanno reso ciò che sono\" — VIDEO SCI ALPINO FEMMINILE - Sofia Goggia ospite speciale di Che Tempo Che Fa, si è raccontata a 360° al termine di un'annata che l'ha vista portarsi a casa la Coppa del Mondo di specialità e il bronzo ai Giochi di Mi...",
+   "source": "NeveItalia",
+   "lean": "unknown",
+   "date": "2026-05-11",
+   "category": "sport"
+  },
+  {
+   "text": "La crisi politica parallela in Francia e in Gran Bretagna — Chi osserva l’evoluzione dell’Europa non può non guardare con preoccupazione alle nubi politiche che si addensano su due dei suoi principali paesi, la Francia e Gran Bretagna. Non sono le due principali potenze econom...",
+   "source": "Affari Internazionali (IAI)",
+   "lean": "center",
+   "date": "2026-05-11",
+   "category": "foreign"
+  },
+  {
+   "text": "Le prime grandi nevicate d’autunno trasformano Ushuaia in un paesaggio invernale — Le prime grandi nevicate dell’autunno 2026 imbiancano Ushuaia, la città più australe del pianeta. In questo suggestivo video notturno si percorrono le strade del “Fin del Mundo” tra fiocchi intensi, piazze, lungomare ...",
+   "source": "NeveItalia",
+   "lean": "unknown",
+   "date": "2026-05-12",
+   "category": "sport"
+  },
+  {
+   "text": "Droga, armi ed estorsioni: 16 arresti a Latina — Dalle prime ore di oggi gli agenti di polizia della squadra Mobile della questura di Latina hanno eseguito 16 misure cautelari emesse dal gip del tribunale del capoluogo pontino, su richiesta della locale procura per ...",
+   "source": "Latina24ore.it",
+   "lean": "unknown",
+   "date": "2026-05-12",
+   "category": "foreign"
+  },
+  {
+   "text": "Tragedia in ospedale, Erica Carroccia (31 anni) partorisce due gemelli e muore poco dopo — Dramma a Roma dove una maestra di Sonnino, Erica Carroccia, 31 anni, è morta dopo aver dato alla luce due gemelli all’ospedale Isola Tiberina – Gemelli. «Con profondo dolore questa mattina la nostra comunità ha appres...",
+   "source": "Latina24ore.it",
+   "lean": "unknown",
+   "date": "2026-05-14",
+   "category": "foreign"
+  }
+ ],
+ "built": "2026-07-20",
+ "source_db": "ELES prod Echolot DB (railway ssh glistening-luck, file:/data/echolot.db?mode=ro)",
+ "build_rule": "title>15, cim-dedupe, kanadai frankofon kizarva, lead 220 char, MAXN=60 lean-cap: minden nem-jobb + jobb datum-stride ritkitassal"
+}

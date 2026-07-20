@@ -1,0 +1,431 @@
+{
+ "lang": "it",
+ "target_month": "2026-06",
+ "corpus_window": [
+  "2026-05-15",
+  "2026-06-15"
+ ],
+ "n": 58,
+ "lean_dist": {
+  "unknown": 45,
+  "center": 13
+ },
+ "cat_dist": {
+  "foreign": 3,
+  "general": 13,
+  "sport": 3,
+  "tech": 1,
+  "global": 38
+ },
+ "items": [
+  {
+   "text": "Latina, schianto sulla Pontina: morte due persone — Due morti e un ferito. E’ il bilancio di un incidente avvenuto alle 6 al chilometro 71,4 della strada statale Pontina, sul cavalcavia di via Picasso, all’altezza di Latina. A scontrarsi, per cause al vaglio degli agen...",
+   "source": "Latina24ore.it",
+   "lean": "unknown",
+   "date": "2026-05-16",
+   "category": "foreign"
+  },
+  {
+   "text": "Notte di fuoco a Sabaudia, incendiati 3 chioschi: guerra criminale per le concessioni — Poco prima della mezzanotte di ieri tre chioschi distanti l’uno dall’altro sul lungomare di Sabaudia sono stati avvolti dalle fiamme in circostanze misteriose. Sul posto, alle 23:55 circa, sono intervenuti i vigili de...",
+   "source": "Latina24ore.it",
+   "lean": "unknown",
+   "date": "2026-05-16",
+   "category": "foreign"
+  },
+  {
+   "text": "Sani: «La chiave è l’incrocio tra i giovani e i grandi nomi» — Con un intreccio sempre più fitto tra grande repertorio e contemporanea (e tredici prime assolute), la formula del Chigiana International Festival & Summer Academy sta riscuotendo un successo in vertiginosa crescita",
+   "source": "Corriere della Sera — Cronache",
+   "lean": "center",
+   "date": "2026-05-18",
+   "category": "general"
+  },
+  {
+   "text": "Alla prova del talento — Daniele Gatti è dal 2016 alla guida del corso d’orchestra dell’Accademia Chigiana: «Non dico mai come si fa, ma li ascolto»",
+   "source": "Corriere della Sera — Cronache",
+   "lean": "center",
+   "date": "2026-05-18",
+   "category": "general"
+  },
+  {
+   "text": "Gran Paradiso - Primavera 2026 — Salita primaverile (Aprile 2026) sul Gran Paradiso [4061 mt]. In giornata con partenza da Pont Valsavarenche. Rischiosa caduta senza conseguenze ripresa in diretta: dal deposito sci, causa aggancio non accurato dello ...",
+   "source": "NeveItalia",
+   "lean": "unknown",
+   "date": "2026-05-18",
+   "category": "sport"
+  },
+  {
+   "text": "«Creiamo spazi istituzionali per un confronto tra le voci e per costruire le strategie» — Fabio Pompei, Ad di Deloitte Italia, spiega perché l’azienda di servizi di consulenza e revisione ha dedicato il secondo appuntamento dell’Institutional Breakfast al Brasile e al Mercosur",
+   "source": "Corriere della Sera — Cronache",
+   "lean": "center",
+   "date": "2026-05-19",
+   "category": "general"
+  },
+  {
+   "text": "«Partnership industriali e scambi di competenze saranno sempre più centrali» — Renato Mosca de Souza, ambasciatore del Brasile in Italia, fa un analisi degli accordi tra Ue e Mercosur e in particolare esamina le possibili prospettive economiche tra il Brasile e il nostro Paese",
+   "source": "Corriere della Sera — Cronache",
+   "lean": "center",
+   "date": "2026-05-19",
+   "category": "general"
+  },
+  {
+   "text": "La sfida del Brasile — Il report di Deloitte presentato a Roma disegna uno scenario di rapporti economici solidi tra il Paese sudamericano e Ue, nei quali anche l’Italia avrà modo di giocare un ruolo di crescente importanza",
+   "source": "Corriere della Sera — Cronache",
+   "lean": "center",
+   "date": "2026-05-19",
+   "category": "general"
+  },
+  {
+   "text": "Berrabah: «Mi affascina la geometria dei corpi» — Dall’osservazione di uno stormo di uccelli in volo (e dal disegno) il coreografo francese ha trovato l’ispirazione per una visione artistica segnata dalla sincronia",
+   "source": "Corriere della Sera — Cronache",
+   "lean": "center",
+   "date": "2026-05-20",
+   "category": "general"
+  },
+  {
+   "text": "Sarte, calzolai, scalpellini e sudore«Ho messo in scena il lavoro vero» — «OperaPaese» di Giorgio Battistelli, teatro musicale e umano",
+   "source": "Corriere della Sera — Cronache",
+   "lean": "center",
+   "date": "2026-05-20",
+   "category": "general"
+  },
+  {
+   "text": "La Rocca Brancaleone dove tutto cominciò (e continuò nonostante il Covid) — L’antica fortezza ha attraversato gli eventi della Storia finché la musica l’ha trasformata nel luogo del cuore dei ravennati",
+   "source": "Corriere della Sera — Cronache",
+   "lean": "center",
+   "date": "2026-05-20",
+   "category": "general"
+  },
+  {
+   "text": "Il Grande Teatro, un laboratorio multiculturale che immagina un nuovo mondo — A Lido Adriano 130 persone di origine, età e religione diverse interpreta ogni anno un classico della cultura orientale. Ce ne parla il regista Luigi Dadina",
+   "source": "Corriere della Sera — Cronache",
+   "lean": "center",
+   "date": "2026-05-20",
+   "category": "general"
+  },
+  {
+   "text": "Omaggio a san FrancescoUn «filo rosso» narrativo — Dal concerto della Cherubini alle parole di Cacciari e Trincia",
+   "source": "Corriere della Sera — Cronache",
+   "lean": "center",
+   "date": "2026-05-20",
+   "category": "general"
+  },
+  {
+   "text": "Canale Lepre - scialpinismo - Campo Imperatore — Mattinata dal sapore d’avventura a Campo Imperatore per una giornata di sci alpinismo sul Canale Lepre. Alle 8:30 del 17 maggio tutto sembrava fermo al bivio di Sant’Egidio, con la sbarra chiusa a bloccare l’accesso a...",
+   "source": "NeveItalia",
+   "lean": "unknown",
+   "date": "2026-05-21",
+   "category": "sport"
+  },
+  {
+   "text": "Quando i campioni HEAD salgono in cabinovia può succedere di tutto… anche un improbabile “word rap” dalla A alla Z — Con Cornelia Hütter, Atle Lie McGrath, Sara Hector e Linus Strasser il divertimento è assicurato tra risate, freestyle e puro spirito Rebels",
+   "source": "NeveItalia",
+   "lean": "unknown",
+   "date": "2026-05-22",
+   "category": "sport"
+  },
+  {
+   "text": "Travolta da un’auto in bicicletta muore a 14 anni — Da sola, in bicicletta, su una strada pericolosa, già teatro di incidenti mortali. E’ la tragica situazione in cui si è venuta a trovare una bambina di 14 anni investita e uccisa nel pomeriggio da un’auto in via del G...",
+   "source": "Latina24ore.it",
+   "lean": "unknown",
+   "date": "2026-05-27",
+   "category": "foreign"
+  },
+  {
+   "text": "Huawei Watch Fit 5 e Fit 5 Pro: caratteristiche, prezzo e l’anteprima della nostra prova — Huawei lancia la nuova serie Watch Fit 5. Materiali premium, luminoso display LTPO e pagamenti NFC: scopri prezzi, colori, sconti di lancio e un'anteprima della nostra prova, disponibile sul prossimo numero di PC Prof...",
+   "source": "PC Professionale",
+   "lean": "unknown",
+   "date": "2026-06-04",
+   "category": "tech"
+  },
+  {
+   "text": "“Le chiavi della mente”: un viaggio tra neuroscienze e identità nel nuovo libro di Pasquale e Perla Romeo — Viviamo in un’epoca in cui la nostra mente è continuamente sollecitata, ma raramente compresa. Da questa profonda riflessione nasce “Le chiavi della mente”, un testo a due voci scritto da Pasquale Romeo e Perla Romeo....",
+   "source": "strill.it",
+   "lean": "unknown",
+   "date": "2026-06-04",
+   "category": "global"
+  },
+  {
+   "text": "Kiosk – 6 giugno 2026 — Ogni settimana, scelti dalla redazione di Q Code, una selezione di articoli della stampa internazionale che approfondiscono temi urgenti con linguaggi differenti L'articolo Kiosk – 6 giugno 2026 proviene da Q Code Mag...",
+   "source": "Q Code Magazine",
+   "lean": "unknown",
+   "date": "2026-06-06",
+   "category": "global"
+  },
+  {
+   "text": "Con due pistole caricate a salve e un canestro di parole — A cose dette, e agitazioni già rimpiazzate da altre, metto qui delle considerazioni sulla cosiddetta “polemica De Gregori” che avevo scritto una settimana fa nella newsletter Le Canzoni, sperando di introdurre senso t...",
+   "source": "Wittgenstein",
+   "lean": "unknown",
+   "date": "2026-06-07",
+   "category": "global"
+  },
+  {
+   "text": "«Serate evento, grandi stelleE uno spettacolo accessibile» — La Sovrintendente dell’Arena Cecilia Gasdia: «Percorsi per i portatori di disabilità e per i bambini». Attesa per Bolle",
+   "source": "Corriere della Sera — Cronache",
+   "lean": "center",
+   "date": "2026-06-07",
+   "category": "general"
+  },
+  {
+   "text": "«Così trasformo Vivaldi e Paganini in uno show per giovani» — Il violinista Giovanni Zanon e l’idea nata durante una cena con Marco Balich: impatto visivo e intrecci musicali",
+   "source": "Corriere della Sera — Cronache",
+   "lean": "center",
+   "date": "2026-06-07",
+   "category": "general"
+  },
+  {
+   "text": "Russomanno: «La mia Violetta non amerebbe mai Alfredo» — Il soprano livornese (che ha lavorato anche alla Disney) racconta la scoperta della lirica: «È stato come nascere una seconda volta»",
+   "source": "Corriere della Sera — Cronache",
+   "lean": "center",
+   "date": "2026-06-07",
+   "category": "general"
+  },
+  {
+   "text": "“Tale of Place: Roccella Jonica”, la Calabria incontra il Qatar in un progetto internazionale tra arte, memoria, suono e paesaggio — ROCCELLA JONICA – Un luogo può essere raccontato da chi lo abita, ma può anche essere reinventato da chi lo osserva da lontano. È da questa intuizione che nasce “Tale of Place: Roccella Jonica”, il primo capitolo di u...",
+   "source": "strill.it",
+   "lean": "unknown",
+   "date": "2026-06-08",
+   "category": "global"
+  },
+  {
+   "text": "Taglia e cuci: omaggio a Marjane Satrapi — Ricordo della grande autrice franco-iraniana a pochi giorni dall’addio L'articolo Taglia e cuci: omaggio a Marjane Satrapi proviene da Q Code Magazine .",
+   "source": "Q Code Magazine",
+   "lean": "unknown",
+   "date": "2026-06-08",
+   "category": "global"
+  },
+  {
+   "text": "HABITARE 2050 a Reggio Calabria: l’Innovazione Digitale ridefinisce il Futuro dell’Abitare Sostenibile — Un Festival della Visione tra Ricerca e Sperimentazione Territoriale Prende il via a Reggio Calabria HABITARE 2050. Living in Cities, Thinking about Housing, Making by Digital. L’iniziativa, in programma dal 9 all’11 ...",
+   "source": "strill.it",
+   "lean": "unknown",
+   "date": "2026-06-09",
+   "category": "global"
+  },
+  {
+   "text": "Europa. Proteggiamo ciò che conta. Con le armi? — La Commissione europea ha lanciato una campagna di propaganda sugli investimenti in armi. Dove ci siamo persi? L'articolo Europa. Proteggiamo ciò che conta. Con le armi? proviene da Q Code Magazine .",
+   "source": "Q Code Magazine",
+   "lean": "unknown",
+   "date": "2026-06-09",
+   "category": "global"
+  },
+  {
+   "text": "A chi pensi, quando senti dire “patrimoniale”? — Ci sono persone stimabili ed esperte che da qualche tempo si esprimono sulla cosiddetta “patrimoniale”, ovvero su un aumento delle tasse sui grandi patrimoni. Ne vedo di esperte e stimabili, e con motivati argomenti, ...",
+   "source": "Wittgenstein",
+   "lean": "unknown",
+   "date": "2026-06-09",
+   "category": "global"
+  },
+  {
+   "text": "Don’t feed the trolls — Lo sbaglio che abbiamo fatto, noi persone teoricamente progressiste, e che vorrebbero essere ragionevoli e avere il senso delle proporzioni ma finiscono per farsi contagiare dalla scemenza generale, è stato collaborar...",
+   "source": "Wittgenstein",
+   "lean": "unknown",
+   "date": "2026-06-10",
+   "category": "global"
+  },
+  {
+   "text": "Fugge ai carabinieri ma dimentica in auto la carta d’identità — Il giovane ha violato l’obbligo di firma e il divieto di uscire di notte. La misura è stata aggravata ed è finito in carcere",
+   "source": "Il Giornale di Vicenza",
+   "lean": "unknown",
+   "date": "2026-06-11",
+   "category": "global"
+  },
+  {
+   "text": "Tetti divelti, alberi caduti e grandine: il maltempo si abbatte su basso lago, Valpolicella e pure sulla...Traviata — Nemmeno la scenografia dell'opera destinata a inaugurare il festival lirico è stata risparmiata",
+   "source": "Il Giornale di Vicenza",
+   "lean": "unknown",
+   "date": "2026-06-11",
+   "category": "global"
+  },
+  {
+   "text": "Dietro lo sguardo. Con registi e scrittori Bassano indaga la forma del cinema. Ecco il programma — Dal 18 al 21 giugno proiezioni, incontri e dibattiti. Tra gli ospiti Cupellini, Rossetto, Bugaro, Emilia Mazzacurati e la fotografa Lando",
+   "source": "Il Giornale di Vicenza",
+   "lean": "unknown",
+   "date": "2026-06-11",
+   "category": "global"
+  },
+  {
+   "text": "Patriottismo dolce identità, comunità, soft economy nel tempo delle fratture",
+   "source": "Il Giornale di Vicenza",
+   "lean": "unknown",
+   "date": "2026-06-11",
+   "category": "global"
+  },
+  {
+   "text": "Vicenza, tutti i big verso il rinnovo. Anche Leverbe",
+   "source": "Il Giornale di Vicenza",
+   "lean": "unknown",
+   "date": "2026-06-11",
+   "category": "global"
+  },
+  {
+   "text": "Furgone in fiamme al casello della A4: il conducente si salva ma il rogo danneggia altre auto — Il conducente è uscito a Grisignano e si è fermato nel parcheggio, poi il mezzo è stato avvolto dalle fiamme",
+   "source": "Il Giornale di Vicenza",
+   "lean": "unknown",
+   "date": "2026-06-11",
+   "category": "global"
+  },
+  {
+   "text": "Il dg dell'Ulss 8 Assembergs: «No a capri espiatori sulle liste d’attesa. Troviamo una soluzione» — Il direttore generale dell'azienda sanitaria berica getta acqua sul fuoco dopo gli attriti con i primari",
+   "source": "Il Giornale di Vicenza",
+   "lean": "unknown",
+   "date": "2026-06-11",
+   "category": "global"
+  },
+  {
+   "text": "Grosso ramo cade nel cortile della scuola Zanella, paura per i bimbi. Il Comune: «Il legno era marcio» — È accaduto durante l'orario d'ingresso dei piccoli che frequentano i centri estivi",
+   "source": "Il Giornale di Vicenza",
+   "lean": "unknown",
+   "date": "2026-06-12",
+   "category": "global"
+  },
+  {
+   "text": "Famila, Laksa resta a Schio. \"Attaccamento alla maglia\"",
+   "source": "Il Giornale di Vicenza",
+   "lean": "unknown",
+   "date": "2026-06-12",
+   "category": "global"
+  },
+  {
+   "text": "Il Thiene crede nel ripescaggio in Eccellenza ma il Mozzecane non scioglie le riserve",
+   "source": "Il Giornale di Vicenza",
+   "lean": "unknown",
+   "date": "2026-06-12",
+   "category": "global"
+  },
+  {
+   "text": "Concerti, libri e sport. Così si accende l’estate — Ricco cartellone con 60 appuntamenti fra cultura, natura e divertimento in centro e anche in collina",
+   "source": "Il Giornale di Vicenza",
+   "lean": "unknown",
+   "date": "2026-06-12",
+   "category": "global"
+  },
+  {
+   "text": "Viva Verdi, torna la magia della musica in piazza — La 22esima edizione dell'evento il 22 giugno in piazza dei Signori. E il 24 è in programma la \"Notte palladiana\"",
+   "source": "Il Giornale di Vicenza",
+   "lean": "unknown",
+   "date": "2026-06-12",
+   "category": "global"
+  },
+  {
+   "text": "Achille Lauro e Venditti, i due \"Re di Roma\" incantano l'Olimpico — Emozione tra i 60 mila spettatori allo stadio per il duetto di \"Che tesoro che sei\"",
+   "source": "Il Giornale di Vicenza",
+   "lean": "unknown",
+   "date": "2026-06-12",
+   "category": "global"
+  },
+  {
+   "text": "Kiosk – 13 giugno 2026 — Ogni settimana, scelti dalla redazione di Q Code, una selezione di articoli della stampa internazionale che approfondiscono temi urgenti con linguaggi differenti Albania Understanding Albania’s Flamingo Revolution La ...",
+   "source": "Q Code Magazine",
+   "lean": "unknown",
+   "date": "2026-06-13",
+   "category": "global"
+  },
+  {
+   "text": "Dall'Eccellenza veneta a Dubai (con l'Fc Al Madinah): Cannoletta, la fantasia è realtà — L'esterno offensivo classe 2001 cresciuto nel Villafranca",
+   "source": "L'Arena",
+   "lean": "unknown",
+   "date": "2026-06-13",
+   "category": "global"
+  },
+  {
+   "text": "Al circolo Noi di Zevio lo spettacolo teatrale «L'è fadiga far tornare i conti»",
+   "source": "L'Arena",
+   "lean": "unknown",
+   "date": "2026-06-13",
+   "category": "global"
+  },
+  {
+   "text": "Al Damage Inc arrivano i Possessed, i fondatori del death metal",
+   "source": "L'Arena",
+   "lean": "unknown",
+   "date": "2026-06-13",
+   "category": "global"
+  },
+  {
+   "text": "Tom Cruise, Paris Hilton, Jamie Foxx: Hollywood va allo stadio per la nazionale Usa — Tribune piene di star dello spettacolo al SoFi stadium di Los Angeles per Usa-Paraguay",
+   "source": "Il Giornale di Vicenza",
+   "lean": "unknown",
+   "date": "2026-06-13",
+   "category": "global"
+  },
+  {
+   "text": "Venezia celebra il tè contemporaneo: nasce il Venice Tea Day — L'evento internazionale in programma a Venezia il 20 e 21 giugno propone una visione innovativa del tè che valorizza l’origine ma anche preparazione, acqua e cultura",
+   "source": "Il Giornale di Vicenza",
+   "lean": "unknown",
+   "date": "2026-06-13",
+   "category": "global"
+  },
+  {
+   "text": "Vicenza celebra i donatori Fidas: la Basilica Palladiana si illumina di rosso — Oggi, 14 giugno, alle 21.30 la Basilica di piazza dei Signori si tingerà di rosso per sensibilizzare la comunità sull’importanza della donazione",
+   "source": "Il Giornale di Vicenza",
+   "lean": "unknown",
+   "date": "2026-06-13",
+   "category": "global"
+  },
+  {
+   "text": "Cade con il parapendio sul Monte Baldo, 47enne bresciano trasferito a Borgo Trento — Intervento dell'elisoccorso. L'uomo, vigile e cosciente, è stato trasferito in codice rosso all'ospedale cittadino",
+   "source": "L'Arena",
+   "lean": "unknown",
+   "date": "2026-06-13",
+   "category": "global"
+  },
+  {
+   "text": "L'Italia di Michele Turetta esce ai gironi alla World Cup of Darts",
+   "source": "Il Giornale di Vicenza",
+   "lean": "unknown",
+   "date": "2026-06-13",
+   "category": "global"
+  },
+  {
+   "text": "Morto Mino Allione, per quindici anni direttore de Il Giornale di Vicenza — Si è spento a Verona a 84 anni il giornalista che aveva iniziato la sua lunga carriera al Guerin Sportivo",
+   "source": "Il Giornale di Vicenza",
+   "lean": "unknown",
+   "date": "2026-06-13",
+   "category": "global"
+  },
+  {
+   "text": "Esposti e inchieste, finisce in stallo il futuro dell’A4 Brescia-Padova — Ministero e Regione Veneto vogliono passare all’ “in house”, ma si moltiplicano gli ostacoli e ci vorrà molto tempo",
+   "source": "Il Giornale di Vicenza",
+   "lean": "unknown",
+   "date": "2026-06-14",
+   "category": "global"
+  },
+  {
+   "text": "Cologna Veneta, uomo investito sulla provinciale 7. Elitrasportato a Borgo Trento — In codice rosso all'ospedale cittadino. Accertamenti in corso sulla dinamica dell'incidente",
+   "source": "L'Arena",
+   "lean": "unknown",
+   "date": "2026-06-14",
+   "category": "global"
+  },
+  {
+   "text": "Addio a Luisa Muraro, filosofa e voce del femminismo italiano — L'intellettuale vicentina nata a Montecchio Maggiore si è spenta a 86 anni, li avrebbe compiuti oggi. Tra le fondatrici della Libreria delle donne a Milano.",
+   "source": "Il Giornale di Vicenza",
+   "lean": "unknown",
+   "date": "2026-06-14",
+   "category": "global"
+  },
+  {
+   "text": "Giornata Mondiale del donatore. Arriva l'appello: «Serve più plasma» — A lanciarlo congiuntamente sono le sezioni provinciali di Avis, Fidas e Asfa, che richiamano l’attenzione su un dato ancora critico: in Italia la raccolta di plasma copre solo il 59% del fabbisogno nazionale",
+   "source": "L'Arena",
+   "lean": "unknown",
+   "date": "2026-06-14",
+   "category": "global"
+  },
+  {
+   "text": "Mino Allione, il suo stile cambiò l'informazione di provincia — A Il Giornale di Vicenza ribaltò tutto, dalla redazione alla grafica dal 1984 al 1998",
+   "source": "Il Giornale di Vicenza",
+   "lean": "unknown",
+   "date": "2026-06-14",
+   "category": "global"
+  },
+  {
+   "text": "La Traviata accende il Liston. E la prima traina la stagione turistica — Gasdia: «Il risultato dell’impegno e della passione di tante persone. Dobbiamo essere orgogliosi». I gestori dei locali soddisfatti: «Abbiamo lavorato parecchio e c’era molto movimento»",
+   "source": "L'Arena",
+   "lean": "unknown",
+   "date": "2026-06-14",
+   "category": "global"
+  }
+ ],
+ "built": "2026-07-20",
+ "source_db": "ELES prod Echolot DB (railway ssh glistening-luck, file:/data/echolot.db?mode=ro)",
+ "build_rule": "title>15, cim-dedupe, kanadai frankofon kizarva, lead 220 char, MAXN=60 lean-cap: minden nem-jobb + jobb datum-stride ritkitassal"
+}

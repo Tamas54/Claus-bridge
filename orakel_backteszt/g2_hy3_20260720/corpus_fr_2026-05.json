@@ -1,0 +1,444 @@
+{
+ "lang": "fr",
+ "target_month": "2026-05",
+ "corpus_window": [
+  "2026-04-15",
+  "2026-05-15"
+ ],
+ "n": 60,
+ "lean_dist": {
+  "right": 56,
+  "center": 1,
+  "center_left": 3
+ },
+ "cat_dist": {
+  "foreign": 38,
+  "general": 21,
+  "economy": 1
+ },
+ "items": [
+  {
+   "text": "Derrière la chute de Viktor Orban, la fragilité des démocraties truquées — CHRONIQUE. Le Premier ministre hongrois est tombé, et avec lui un mythe illibéral mondial. Mais son revers n’efface ni les dégâts institutionnels ni le piège post-populiste qu’il laisse derrière lui.",
+   "source": "Le Point — Hongrie (tag)",
+   "lean": "right",
+   "date": "2026-04-15",
+   "category": "foreign"
+  },
+  {
+   "text": "Sans suspense, Romuald Wadagni devient le nouveau président du Bénin — Avec 94 % des suffrages, le dauphin de Patrice Talon s’impose largement. Une transition maîtrisée qui prolonge le système en place, sur fond d’attentes sociales persistantes.",
+   "source": "Le Point — Afrique",
+   "lean": "right",
+   "date": "2026-04-15",
+   "category": "foreign"
+  },
+  {
+   "text": "Jean-Bruno Tagne : « Le Cameroun est un pays en lambeaux » — ENTRETIEN. Au moment où le pape Léon XIV arrive au Cameroun, le journaliste et essayiste camerounais Jean-Bruno Tagne décrit un pays sous tension, entre contestation du pouvoir, crise économique et affaiblissement de ...",
+   "source": "Le Point — Afrique",
+   "lean": "right",
+   "date": "2026-04-15",
+   "category": "foreign"
+  },
+  {
+   "text": "Encore raté, monsieur Poutine ! — ÉDITO. La défaite de Viktor Orban montre que le modèle libéral européen n’est peut-être pas si « obsolète » que ne le pensait le maître du Kremlin…",
+   "source": "Le Point — Hongrie (tag)",
+   "lean": "right",
+   "date": "2026-04-16",
+   "category": "foreign"
+  },
+  {
+   "text": "« Vous m’avez insulté » : Péter Magyar règle ses comptes avec les médias d’Orban — Invité pour la première fois depuis dix-huit mois sur la chaîne publique M1, Péter Magyar y est venu solder les comptes autant qu’annoncer son programme. Entretien à couteaux tirés.",
+   "source": "Le Point — Hongrie (tag)",
+   "lean": "right",
+   "date": "2026-04-16",
+   "category": "foreign"
+  },
+  {
+   "text": "Cameroun : sous les critiques, la visite du pape Léon XIV prend une dimension politique — Entre accusations de récupération du pouvoir, contestations de la présidentielle de 2025 et fractures au sein même de l’Église, la venue du souverain pontife, du 15 au 18 avril, dépasse largement le cadre pastoral.",
+   "source": "Le Point — Afrique",
+   "lean": "right",
+   "date": "2026-04-16",
+   "category": "foreign"
+  },
+  {
+   "text": "Arrêté en Afrique du Sud, l’agitateur anti-occidental Kemi Seba pourrait être extradé au Bénin — Arrêté alors qu’il tentait de quitter illégalement le territoire, cet agitateur panafricaniste devenu embarrassant pour plusieurs États, et déchu de sa nationalité française, pourrait être extradé vers le Bénin où il ...",
+   "source": "Le Point — Afrique",
+   "lean": "right",
+   "date": "2026-04-16",
+   "category": "foreign"
+  },
+  {
+   "text": "« J’ai encore du jeu » : battu, Viktor Orban rêve d’un match retour — Quatre jours après la déroute du 12 avril, Viktor Orban a accordé sa première interview à la chaîne amie Patriota. Un exercice de contrition calibrée pour préparer son retour sur le ring.",
+   "source": "Le Point — Hongrie (tag)",
+   "lean": "right",
+   "date": "2026-04-17",
+   "category": "foreign"
+  },
+  {
+   "text": "« Au Soudan, une génération entière est en train de basculer dans la famine » — ENTRETIEN. Trois ans après le début de la guerre, le Soudan s’enfonce dans une crise humanitaire majeure. Au Darfour du Nord, Oumarou Mahamadou, coordinateur pour l’ONG Alima, alerte sur l’urgence absolue.",
+   "source": "Le Point — Afrique",
+   "lean": "right",
+   "date": "2026-04-17",
+   "category": "foreign"
+  },
+  {
+   "text": "RDC : Kinshasa accueille ses premiers migrants expulsés des États-Unis — Ils sont arrivés de nuit, en toute discrétion : quinze migrants expulsés des États-Unis ont été transférés à Kinshasa, symbole d’un dispositif migratoire américain de plus en plus contesté.",
+   "source": "Le Point — Afrique",
+   "lean": "right",
+   "date": "2026-04-17",
+   "category": "foreign"
+  },
+  {
+   "text": "Esclavage : pourquoi le vote de l’ONU ne suffit pas en Afrique — Si la reconnaissance de la traite transatlantique comme « crime le plus grave contre l’humanité » consacre un tournant symbolique, elle laisse intactes les attentes de réparation, estime l’économiste Hippolyte Fofack ...",
+   "source": "Le Point — Afrique",
+   "lean": "right",
+   "date": "2026-04-18",
+   "category": "foreign"
+  },
+  {
+   "text": "Angola : l’Église catholique bousculée par les nouveaux prophètes — Le pape Léon XIV est attendu à Luanda ce samedi 18 avril. Avec l’essor fulgurant des églises évangéliques, le Vatican doit désormais partager son influence dans un pays où la foi est perçue comme enjeu de sécurité nat...",
+   "source": "Le Point — Afrique",
+   "lean": "right",
+   "date": "2026-04-18",
+   "category": "foreign"
+  },
+  {
+   "text": "Tierno Monénembo : « Léon XIV a la gueule de l’apôtre » — DIEU DANS LES YEUX. Musulman, l’écrivain guinéen souligne l’influence spirituelle et politique du pape en Afrique. Même si, dit-il, le syncrétisme n’y est jamais loin.",
+   "source": "Le Point — Afrique",
+   "lean": "right",
+   "date": "2026-04-19",
+   "category": "foreign"
+  },
+  {
+   "text": "« Pourquoi accueillir des migrants expulsés dans un pays confronté à ses propres urgences ? » : Kinshasa face à un choix controversé — Une quinzaine de ressortissants étrangers expulsés des États-Unis ont atterri à Kinshasa. Derrière cette arrivée discrète, un accord migratoire encore flou, sur fond de partenariat stratégique entre Washington et la RDC.",
+   "source": "Le Point — Afrique",
+   "lean": "right",
+   "date": "2026-04-19",
+   "category": "foreign"
+  },
+  {
+   "text": "Guinée équatoriale : le pape Léon XIV dans le bastion catholique du régime Obiang — Dans un pays où le catholicisme structure l’État, la visite du pape offre au pouvoir une vitrine internationale soigneusement orchestrée.",
+   "source": "Le Point — Afrique",
+   "lean": "right",
+   "date": "2026-04-21",
+   "category": "foreign"
+  },
+  {
+   "text": "Pourquoi la guerre au Moyen-Orient rebat les cartes économiques de l’Afrique — Le Fonds monétaire international revoit à la baisse ses prévisions pour l’Afrique subsaharienne, à 4,3 % en 2026. En cause : le choc provoqué par la guerre au Moyen-Orient, qui fragilise une reprise encore récente.",
+   "source": "Le Point — Afrique",
+   "lean": "right",
+   "date": "2026-04-21",
+   "category": "foreign"
+  },
+  {
+   "text": "Alphonse Allais, maître à penser et à rire — CHRONIQUE. Le problème du rire, c’est qu’il vieillit plus vite que les larmes. Les membres de l’académie Alphonse-Allais s’efforcent d’en tenir compte avant d’écrire leurs textes.",
+   "source": "Le Point — Éditos",
+   "lean": "right",
+   "date": "2026-04-22",
+   "category": "general"
+  },
+  {
+   "text": "Le kit de victimisation de Kémi Séba — CHRONIQUE. Derrière l’idéologie « décoloniale » se cache une tentative de coloniser les esprits des enfants d’immigrés, assimilés à d’éternels arrivants.",
+   "source": "Le Point — Éditos",
+   "lean": "right",
+   "date": "2026-04-22",
+   "category": "general"
+  },
+  {
+   "text": "Tunisie : des dérapages politiques anti-migrants de plus en plus assumés — LA LETTRE DU MAGHREB. Depuis 2023, les Africains subsahariens sont devenus les boucs émissaires du pouvoir tunisien. Cette semaine, des propos racistes ont résonné dans l’enceinte du parlement. Un problème structurel.",
+   "source": "Le Point — Afrique",
+   "lean": "right",
+   "date": "2026-04-23",
+   "category": "foreign"
+  },
+  {
+   "text": "« Les points forts des Français correspondent parfaitement aux besoins du Mozambique » — ENTRETIEN. Le pays d’Afrique australe, qui va bientôt engranger les dividendes du gaz, offre des opportunités évidentes aux investisseurs, explique Alexandre Chivale, avocat mozambicain en droit des sociétés.",
+   "source": "Le Point — Afrique",
+   "lean": "right",
+   "date": "2026-04-23",
+   "category": "foreign"
+  },
+  {
+   "text": "D’Abidjan à Bouaké, la France redessine sa présence militaire en Afrique — REPORTAGE. À distance du Sahel, la France s’appuie sur la Côte d’Ivoire pour redéployer son dispositif militaire. Exercices conjoints, montée en puissance aérienne, coopération renforcée : un modèle plus discret, mais...",
+   "source": "Le Point — Afrique",
+   "lean": "right",
+   "date": "2026-04-25",
+   "category": "foreign"
+  },
+  {
+   "text": "Mali : ce que l’on sait de la journée d’attaques de Bamako à Kidal — Des attaques coordonnées ont visé, samedi 25 avril, plusieurs villes maliennes, jusqu’à la capitale. L’armée assure que la situation est sous contrôle, mais les informations contradictoires et les combats en cours ren...",
+   "source": "Le Point — Afrique",
+   "lean": "right",
+   "date": "2026-04-25",
+   "category": "foreign"
+  },
+  {
+   "text": "Tchernobyl, 40 ans après : Faut-il avoir peur d’une nouvelle explosion dans la centrale ou dans celle de Zaporijia ? — Si la centrale nucléaire de Zaporijia et sa région ont pu être la cible de drones dans le cadre de la guerre menée par la Russie en Ukraine, le risque de revivre un nouveau Tchernobyl est « inexistant »",
+   "source": "20 Minutes — Une",
+   "lean": "center",
+   "date": "2026-04-26",
+   "category": "foreign"
+  },
+  {
+   "text": "Mali : qui était Sadio Camara, ministre de la Défense de la junte tué par les djihadistes ? — Pilier du régime militaire, ce général formé en Russie incarnait la ligne dure du pouvoir malien. Sa mort, au cœur d’une attaque contre sa résidence, ébranle un appareil sécuritaire déjà sous tension.",
+   "source": "Le Point — Afrique",
+   "lean": "right",
+   "date": "2026-04-26",
+   "category": "foreign"
+  },
+  {
+   "text": "Quelque part entre le Bangladesh et la Malaisie… — CHRONIQUE. Il faut aller voir le film « Les Fleurs du manguier », du Japonais Akio Fujimoto. Une fiction bouleversante sur la tragédie oubliée des Rohingyas.",
+   "source": "Le Point — Éditos",
+   "lean": "right",
+   "date": "2026-04-27",
+   "category": "general"
+  },
+  {
+   "text": "Péter Magyar lance la chasse au trésor des oligarques d’Orban — Selon le futur Premier ministre hongrois, les grandes fortunes quittent le territoire. Il engage, avant même son entrée en fonction, les autorités douanières à stopper les fuites vers les paradis fiscaux et les pays o...",
+   "source": "Le Point — Hongrie (tag)",
+   "lean": "right",
+   "date": "2026-04-28",
+   "category": "foreign"
+  },
+  {
+   "text": "« Personne n’est à l’abri » : après les attaques au Mali, l’onde de choc gagne Abidjan — Les attaques coordonnées menées au Mali, qui ont frappé jusqu’au cœur du pouvoir, ravivent la crainte d’un embrasement régional et plongent la diaspora sahélienne dans l’angoisse.",
+   "source": "Le Point — Afrique",
+   "lean": "right",
+   "date": "2026-04-28",
+   "category": "foreign"
+  },
+  {
+   "text": "Crise au Mali : ce qu’en pense Alger — Après un silence prudent, le pouvoir algérien a commenté les récents événements au Mali, son voisin du sud, avec lequel les relations sont dégradées depuis des mois.",
+   "source": "Le Point — Afrique",
+   "lean": "right",
+   "date": "2026-04-28",
+   "category": "foreign"
+  },
+  {
+   "text": "La France peut-elle basculer à gauche ? — ÉDITO. Derrière une apparence droitière, la France révèle des penchants issus du socialisme paléolithique.",
+   "source": "Le Point — Éditos",
+   "lean": "right",
+   "date": "2026-04-29",
+   "category": "general"
+  },
+  {
+   "text": "Trump au gala de la presse : un dîner avorté, une liberté fragilisée — ÉDITO. En plus de lui offrir une couverture médiatique flatteuse et inespérée, la tentative d’assassinat déjouée contre le président américain, étouffant le débat avec les journalistes, fragilise la liberté de la presse.",
+   "source": "Le Point — Éditos",
+   "lean": "right",
+   "date": "2026-04-29",
+   "category": "general"
+  },
+  {
+   "text": "Algérie : vaut-il mieux être égorgeur qu’écrivain ? — CHRONIQUE. En frappant une fiction publiée en France, Alger rappelle sa loi : la guerre civile doit rester sans mots, sans morts, sans roman.",
+   "source": "Le Point — Éditos",
+   "lean": "right",
+   "date": "2026-04-29",
+   "category": "general"
+  },
+  {
+   "text": "Nous sommes tous Kamel Daoud (même ceux qui ne le sont pas) — ÉDITO. L’écrivain est condamné à trois ans de prison en Algérie, et ceux qui se taisent ont bien tort : sa liberté est aussi la nôtre.",
+   "source": "Le Point — Éditos",
+   "lean": "right",
+   "date": "2026-04-30",
+   "category": "general"
+  },
+  {
+   "text": "Colonisation sauvage, crimes de guerre, autoritarisme… Comment Israël s’est radicalisé — Sous Benyamin Netanyahou, et plus encore depuis le 7-Octobre 2023, Israël a dérivé vers un autoritarisme d’extrême droite et s’enfonce dans une spirale guerrière délétère. C’est la conséquence de la victoire idéologiq...",
+   "source": "L'Obs — Monde",
+   "lean": "center_left",
+   "date": "2026-05-01",
+   "category": "foreign"
+  },
+  {
+   "text": "RDC : Washington sanctionne Joseph Kabila pour ses liens présumés avec le M23 — Washington accuse l’ex-président de soutenir la rébellion du M23 et le place sous sanctions. Une décision qui rebat les cartes politiques dans une RDC fragilisée par la guerre à l’Est.",
+   "source": "Le Point — Afrique",
+   "lean": "right",
+   "date": "2026-05-01",
+   "category": "foreign"
+  },
+  {
+   "text": "Le Mali unit l’Algérie et le Maroc — LETTRE DU MAGHREB. L’offensive conjointe des indépendantistes Touaregs et des djihadistes d’Al-Qaïda a provoqué des réactions similaires à Alger et Rabat.",
+   "source": "Le Point — Afrique",
+   "lean": "right",
+   "date": "2026-05-03",
+   "category": "foreign"
+  },
+  {
+   "text": "Cette jeunesse chinoise qui refuse les rythmes de travail acharnés : les adeptes du « tangping » inquiètent Pékin — Une partie de la jeunesse chinoise refuse un rythme de travail acharné et s’en explique sur les réseaux sociaux. S’agit-il d’une nouvelle forme de contestation ? Pékin y voit en tout cas une menace, venue de l’étranger.",
+   "source": "L'Obs — Monde",
+   "lean": "center_left",
+   "date": "2026-05-04",
+   "category": "foreign"
+  },
+  {
+   "text": "« La transition électrique est irréversible et nous avons la technologie » : en Chine avec le mastodonte CATL — GRANDS PATRONS CHINOIS 2/4. L’entreprise chinoise capte 40 % du marché mondial de la batterie. LFP, NMC, batterie solide, sodium, implantations en Europe... Entretien avec Feng Shen, patron pour l’Europe, accompagné d...",
+   "source": "Le Point — Économie",
+   "lean": "right",
+   "date": "2026-05-04",
+   "category": "economy"
+  },
+  {
+   "text": "Charles III, du génie politique au délire scientifique — ÉDITO. Le roi britannique a donné aux États-Unis une subtile leçon de démocratie. Mais la force de son discours n’efface pas la réalité de sa lubie anthroposophique.",
+   "source": "Le Point — Éditos",
+   "lean": "right",
+   "date": "2026-05-04",
+   "category": "general"
+  },
+  {
+   "text": "Êtes-vous pour ou contre « l’indépendance » de la France vis-à-vis de l’Algérie ? — CHRONIQUE. De l’autodétermination algérienne à la dépendance française : Kamel Daoud ausculte une relation où mémoire, immigration et religion brouillent tout.",
+   "source": "Le Point — Éditos",
+   "lean": "right",
+   "date": "2026-05-05",
+   "category": "general"
+  },
+  {
+   "text": "« L’échec russe au Sahel n’est pas que militaire, il est symbolique » — ENTRETIEN. Après les attaques du 25 avril au Mali, l’AES reste silencieuse et la Cedeao impuissante. Pour Bakary Sambe, président du Timbuktu Institute, la crise révèle aussi les limites du soutien russe au Sahel.",
+   "source": "Le Point — Afrique",
+   "lean": "right",
+   "date": "2026-05-05",
+   "category": "foreign"
+  },
+  {
+   "text": "« Les Touaregs sont des gens de paix qui n’ont parfois plus d’autre choix que de se défendre » — ENTRETIEN. Alors que le Mali vacille à nouveau, « Ressacs, une histoire touarègue » fait écho à une réalité que son auteur explore depuis des années. Intagrist el Ansari, cinéaste malien de la tribu Kel Ansar, revient...",
+   "source": "Le Point — Afrique",
+   "lean": "right",
+   "date": "2026-05-05",
+   "category": "foreign"
+  },
+  {
+   "text": "La droite LR pourra-t-elle rebondir un jour ? — ÉDITO. Entre RN et macronisme, le groupe LR cherche encore sa place dans le paysage politique français.",
+   "source": "Le Point — Éditos",
+   "lean": "right",
+   "date": "2026-05-06",
+   "category": "general"
+  },
+  {
+   "text": "Décennie noire en Algérie : l’Histoire sous haute surveillance — CHRONIQUE. Derrière l’affaire « Houris », c’est le droit même des Algériens à connaître leur histoire récente que la présidence Tebboune nie.",
+   "source": "Le Point — Éditos",
+   "lean": "right",
+   "date": "2026-05-06",
+   "category": "general"
+  },
+  {
+   "text": "Peut-on sortir indemne des attaques sur les réseaux sociaux ? — CHRONIQUE. Les campagnes de haine en ligne laissent des traces sociales, intimes et parfois même physiques chez ceux qu’elles transforment en pestiférés.",
+   "source": "Le Point — Éditos",
+   "lean": "right",
+   "date": "2026-05-06",
+   "category": "general"
+  },
+  {
+   "text": "Inflation, arme fatale — ÉDITO. À Téhéran comme à Washington, c’est l’indice des prix à la consommation qui dicte désormais le tempo de la guerre.",
+   "source": "Le Point — Éditos",
+   "lean": "right",
+   "date": "2026-05-06",
+   "category": "general"
+  },
+  {
+   "text": "Ce que les djihadistes maliens avaient prédit à Olivier Dubois, leur otage au Sahel — TÉMOIGNAGE. Le collaborateur du « Point » Olivier Dubois a été prisonnier, d’avril 2021 à mars 2023, des islamistes qui sont aujourd’hui aux portes de Bamako. Dans le désert, il les entendait déjà se préparer à ce cou...",
+   "source": "Le Point — Afrique",
+   "lean": "right",
+   "date": "2026-05-06",
+   "category": "foreign"
+  },
+  {
+   "text": "Au Burkina Faso, l’interdiction de TV5 Monde accélère le verrouillage médiatique — Après les attaques du Jnim et du FLA au Mali, le Burkina Faso interdit TV5Monde. Accusée de « désinformation », la chaîne paie le prix d’un durcissement généralisé de l’information au Sahel.",
+   "source": "Le Point — Afrique",
+   "lean": "right",
+   "date": "2026-05-08",
+   "category": "foreign"
+  },
+  {
+   "text": "Quand la politique devient une mise en concurrence des fragilités — ÉDITO. La gauche identitaire est plus déprimée que la gauche sociale. Mais, à droite, le même virus commence à prospérer, avec les mêmes effets.",
+   "source": "Le Point — Éditos",
+   "lean": "right",
+   "date": "2026-05-08",
+   "category": "general"
+  },
+  {
+   "text": "RDC : comment Félix Tshisekedi prépare les Congolais à un troisième mandat — En liant l’élection de 2028 à la guerre dans l’est de son pays, le chef de l’État au pouvoir depuis 2019 relance le débat explosif sur un éventuel troisième mandat.",
+   "source": "Le Point — Afrique",
+   "lean": "right",
+   "date": "2026-05-08",
+   "category": "foreign"
+  },
+  {
+   "text": "« L’histoire des esclavages n’est pas close » — LES SAMEDIS DE L’HISTOIRE. À l’occasion de la Journée nationale des mémoires de la traite et de l’esclavage, le spécialiste de l’Afrique Vincent Hugeux revient sur les dérives idéologiques de toutes parts qui empêchen...",
+   "source": "Le Point — Afrique",
+   "lean": "right",
+   "date": "2026-05-09",
+   "category": "foreign"
+  },
+  {
+   "text": "Migration illégale : le grand renversement qui bouscule le débat politique — LETTRE DU MAGHREB. Tandis que les arrivées diminuent, les politiques de coopération avec les pays d’Afrique du Nord redessinent la gestion des flux migratoires en Méditerranée.",
+   "source": "Le Point — Afrique",
+   "lean": "right",
+   "date": "2026-05-11",
+   "category": "foreign"
+  },
+  {
+   "text": "Fils de colons, le péché de naissance que Mélenchon tente de « réparer » — CHRONIQUE. Du Tanger colonial aux meetings Insoumis, Jean-Luc Mélenchon transforme sa généalogie en arme électorale. Mais la stratégie du roman familial pourrait finir par se retourner contre lui…",
+   "source": "Le Point — Éditos",
+   "lean": "right",
+   "date": "2026-05-11",
+   "category": "general"
+  },
+  {
+   "text": "L’an prochain, la révolution et… la guillotine ? — ÉDITO. Bally Bagayoko, le néo-Robespierre de Saint-Denis, agite déjà la menace d’une insurrection populaire.",
+   "source": "Le Point — Éditos",
+   "lean": "right",
+   "date": "2026-05-12",
+   "category": "general"
+  },
+  {
+   "text": "Macron et l’arabe : peut-on l’enseigner sans s’y perdre ? — CHRONIQUE. Le président de la République croit ouvrir une porte. Encore faut-il savoir vers quoi : la langue des livres, des mosquées, ou celle des mères et des rues ?",
+   "source": "Le Point — Éditos",
+   "lean": "right",
+   "date": "2026-05-12",
+   "category": "general"
+  },
+  {
+   "text": "Pourquoi et comment Poutine tombera — CHRONIQUE. Le président russe s’enfermerait dans la paranoïa des dictateurs qui se savent haïs de tous et condamnés. Il avait d’ailleurs déjà été trahi par l’un des siens, Evgueni Prigojine.",
+   "source": "Le Point — Éditos",
+   "lean": "right",
+   "date": "2026-05-12",
+   "category": "general"
+  },
+  {
+   "text": "L’argent ne fait pas les bébés — ÉDITO. Pour enrayer la chute des naissances, la droite française parie sur les aides financières. Mais l’exemple hongrois illustre les limites des politiques natalistes.",
+   "source": "Le Point — Éditos",
+   "lean": "right",
+   "date": "2026-05-12",
+   "category": "general"
+  },
+  {
+   "text": "France-Algérie : comment se souvenir sans s’agenouiller ? — CHRONIQUE. Emmanuel Macron invoque la « mémoire juste ». Encore faut-il qu’elle échappe aux faux témoins, aux héros autoproclamés et aux rentes mémorielles.",
+   "source": "Le Point — Éditos",
+   "lean": "right",
+   "date": "2026-05-12",
+   "category": "general"
+  },
+  {
+   "text": "Au festival MOT pour mots, rencontrez des auteurs et partagez notre amour des livres — Le week-end du 6 et 7 juin 2026 se tient à la Villette “MOT pour mots”, le festival littéraire du “Monde”, du “Nouvel Obs” et de “Télérama”, parrainé par Riad Sattouf. L’occasion de rencontres et d’échanges avec des a...",
+   "source": "Telerama",
+   "lean": "center_left",
+   "date": "2026-05-13",
+   "category": "foreign"
+  },
+  {
+   "text": "Non, la bêtise ne gagne pas toujours… — ÉDITO. La pénurie de fariboles ne guette pas la politique française. Mais à bien y regarder, il en est tout de même qui disparaissent...",
+   "source": "Le Point — Éditos",
+   "lean": "right",
+   "date": "2026-05-13",
+   "category": "general"
+  },
+  {
+   "text": "En Éthiopie, la visite de Macron sur fond de guerre oubliée au Tigré — Alors que le président français est à Addis-Abeba, Human Rights Watch dénonce la généralisation des discriminations et des violences à l’encontre des Tigréens restés dans l’ouest de la région.",
+   "source": "Le Point — Afrique",
+   "lean": "right",
+   "date": "2026-05-13",
+   "category": "foreign"
+  }
+ ],
+ "built": "2026-07-20",
+ "source_db": "ELES prod Echolot DB (railway ssh glistening-luck, file:/data/echolot.db?mode=ro)",
+ "build_rule": "title>15, cim-dedupe, kanadai frankofon kizarva, lead 220 char, MAXN=60 lean-cap: minden nem-jobb + jobb datum-stride ritkitassal"
+}

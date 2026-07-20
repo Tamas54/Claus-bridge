@@ -1,0 +1,233 @@
+{
+ "lang": "fr",
+ "target_month": "2026-04",
+ "corpus_window": [
+  "2026-03-15",
+  "2026-04-15"
+ ],
+ "n": 30,
+ "lean_dist": {
+  "center_left": 2,
+  "right": 28
+ },
+ "cat_dist": {
+  "foreign": 28,
+  "general": 1,
+  "economy": 1
+ },
+ "items": [
+  {
+   "text": "Pourquoi la guerre de Sécession obsède-t-elle encore les Etats-Unis ? — Trump veut réécrire l’histoire américaine. Au cœur de cette bataille mémorielle : la guerre de Sécession, ses 600 000 morts et la question de l’esclavage. Dans ce nouvel épisode d’« Oncle Obs », notre journaliste vous...",
+   "source": "L'Obs — Monde",
+   "lean": "center_left",
+   "date": "2026-03-22",
+   "category": "foreign"
+  },
+  {
+   "text": "L’ancien Premier ministre socialiste Lionel Jospin est mort — Il a incarné le socialisme triomphant des années 2000, mais aussi l’échec historique du 21 avril 2002. Lionel Jospin s’est éteint à 88 ans.",
+   "source": "Le Point — Politique",
+   "lean": "right",
+   "date": "2026-03-23",
+   "category": "general"
+  },
+  {
+   "text": "Peter Szijjarto, le ministre hongrois qui soufflait les secrets de l’UE à Moscou — Le chef de la diplomatie hongroise, Peter Szijjarto, informait son homologue russe Sergueï Lavrov en temps réel des discussions à huis clos du Conseil de l’UE. Il confirme mais minimise en pleine campagne des législat...",
+   "source": "Le Point — Hongrie (tag)",
+   "lean": "right",
+   "date": "2026-03-24",
+   "category": "foreign"
+  },
+  {
+   "text": "Pétrole, taux d’intérêt, croissance : la France peut-elle éviter le naufrage ? — Selon l’Insee, le choc devrait être contenu d’ici le mois de juin. Mais la seconde partie d’année pourrait être plus difficile, surtout si le conflit se prolonge.",
+   "source": "Le Point — Économie",
+   "lean": "right",
+   "date": "2026-03-24",
+   "category": "economy"
+  },
+  {
+   "text": "Dette publique : le Sénégal a-t-il sciemment caché un emprunt de 650 millions d’euros ? — Dakar dément, mais le doute s’installe. Selon le Financial Times, le pays ouest-africain aurait contracté 650 millions d’euros via des montages financiers peu transparents pour éviter le défaut. Une stratégie qui inte...",
+   "source": "Le Point — Afrique",
+   "lean": "right",
+   "date": "2026-03-25",
+   "category": "foreign"
+  },
+  {
+   "text": "Allan Bloom contre « les gentils nihilistes » — Le professeur de philosophie est l’auteur du magistral « L’Âme désarmée », paru en 1987, qui analyse le mal qui touche le gauchisme estudiantin et l’effondrement de la culture classique.",
+   "source": "Le Point — États-Unis (tag)",
+   "lean": "right",
+   "date": "2026-03-25",
+   "category": "foreign"
+  },
+  {
+   "text": "Burkina Faso : deux ans d’enquête révèlent l’ampleur des massacres de civils — Après plus de 450 témoignages recueillis dans la région, Human Rights Watch dresse un tableau glaçant des violences commises par l’armée, ses supplétifs et les groupes djihadistes, pouvant relever de crimes contre l’h...",
+   "source": "Le Point — Afrique",
+   "lean": "right",
+   "date": "2026-04-03",
+   "category": "foreign"
+  },
+  {
+   "text": "Congo-Brazzaville : « On produit du pétrole, mais on pourrait manquer de tout » — REPORTAGE. Premier producteur d’Afrique centrale, Brazzaville pourrait théoriquement profiter d’une envolée des cours du pétrole. Mais dans un pays dépendant des importations et confronté à de fortes fragilités struct...",
+   "source": "Le Point — Afrique",
+   "lean": "right",
+   "date": "2026-04-04",
+   "category": "foreign"
+  },
+  {
+   "text": "Pourquoi l’élection de Bally Bagayoko à Saint-Denis horripile l’extrême droite ? On vous explique par l’histoire — Si Bally Bagayoko est particulièrement visé par le racisme, c’est aussi parce qu’il n’a pas été élu n’importe où. N’en déplaise à l’extrême droite, qui glorifie le passé royaliste et catholique de Saint-Denis, l’histo...",
+   "source": "L'Obs — Monde",
+   "lean": "center_left",
+   "date": "2026-04-04",
+   "category": "foreign"
+  },
+  {
+   "text": "Amanda Askell, la philosophe qui donne bonne conscience à l’IA chez Anthropic — La philosophe écossaise a édicté un code de conduite pour Claude, l’agent de la société Anthropic qui a récemment tenu tête au Pentagone. Jusqu’où ?",
+   "source": "Le Point — États-Unis (tag)",
+   "lean": "right",
+   "date": "2026-04-04",
+   "category": "foreign"
+  },
+  {
+   "text": "L’Afrique à l’honneur des Rencontres d’Arles 2026 — La 57e édition du festival international de photographie, qui se tiendra du 6 juillet au 4 octobre, fera une large place au continent africain.",
+   "source": "Le Point — Afrique",
+   "lean": "right",
+   "date": "2026-04-04",
+   "category": "foreign"
+  },
+  {
+   "text": "La guerre au Moyen-Orient menace la sécurité alimentaire en Afrique — La FAO redoute une flambée des prix et une aggravation de l’insécurité alimentaire mondiale. L’Afrique subsaharienne, déjà fragile, figure parmi les régions les plus exposées.",
+   "source": "Le Point — Afrique",
+   "lean": "right",
+   "date": "2026-04-07",
+   "category": "foreign"
+  },
+  {
+   "text": "« Un coup d’État constitutionnel » : au Cameroun, Paul Biya verrouille sa succession — À 93 ans, le doyen des chefs d’État crée un poste de vice-président qu’il choisira lui-même, s’assurant ainsi un successeur à sa main. Une manœuvre qui divise le Cameroun et inquiète la société civile.",
+   "source": "Le Point — Afrique",
+   "lean": "right",
+   "date": "2026-04-08",
+   "category": "foreign"
+  },
+  {
+   "text": "Bénin, Côte d’Ivoire et Nigeria, locomotives d’une Afrique de l’Ouest à deux vitesses — ANALYSE. Depuis dix ans, l’Afrique de l’Ouest assiste à un découplage entre une zone littorale, le Golfe de Guinée, énergique et en développement, à l’image du géant nigérian ou bien du dynamisme béninois ; et des pay...",
+   "source": "Le Point — Afrique",
+   "lean": "right",
+   "date": "2026-04-09",
+   "category": "foreign"
+  },
+  {
+   "text": "Les votes inégaux de Péter Magyar, ennemi juré d’Orban, au Parlement européen — Il n’est pas la copie du Premier ministre hongrois mais partage certains de ses combats. Challenger des législatives, il reste un eurodéputé souvent absent, prudent sur un terrain miné par son adversaire.",
+   "source": "Le Point — Hongrie (tag)",
+   "lean": "right",
+   "date": "2026-04-10",
+   "category": "foreign"
+  },
+  {
+   "text": "Comment Viktor Orban a transformé la Hongrie en cheval de Troie russe — Jouant sa survie politique aux législatives du 12 avril, le Premier ministre hongrois compte se maintenir au pouvoir… avec le soutien de la Russie, des États-Unis et de la Chine.",
+   "source": "Le Point — Hongrie (tag)",
+   "lean": "right",
+   "date": "2026-04-10",
+   "category": "foreign"
+  },
+  {
+   "text": "« Génocide blanc » : un an après, le rêve américain contrarié des Afrikaners — Ils sont près de 5 000 à avoir été relocalisés en un an. Lancé par Donald Trump au nom d’une supposée « persécution » des fermiers blancs sud-africains, le programme d’accueil des Afrikaners révèle aujourd’hui un bila...",
+   "source": "Le Point — Afrique",
+   "lean": "right",
+   "date": "2026-04-10",
+   "category": "foreign"
+  },
+  {
+   "text": "Bénin : derrière une élection sans entrave, l’intranquillité du pouvoir en place — REPORTAGE. Entre réformes contestées, opposition marginalisée et tensions sécuritaires, le Bénin élit ce dimanche son président. Si la continuité semble acquise avec la victoire annoncée du dauphin de Patrice Talon, l...",
+   "source": "Le Point — Afrique",
+   "lean": "right",
+   "date": "2026-04-10",
+   "category": "foreign"
+  },
+  {
+   "text": "Le Liban, pays des guerres et des duperies — Ce pays demeure le grand oublié de la trêve actuelle. Une habitude. Le désastre est-il le destin de ce pays ?",
+   "source": "Le Point — Monde",
+   "lean": "right",
+   "date": "2026-04-12",
+   "category": "foreign"
+  },
+  {
+   "text": "Algérie : le ballon rond et le goupillon — LETTRE DU MAGHREB. Coup sur coup, deux pouvoirs se succèdent en visite officielle à Alger : le président de la FIFA, Gianni Infantino, et le pape Léon XIV. Un gain de légitimité pour le régime algérien.",
+   "source": "Le Point — Afrique",
+   "lean": "right",
+   "date": "2026-04-12",
+   "category": "foreign"
+  },
+  {
+   "text": "Au Bénin, la fin d’une exception sécuritaire — Longtemps épargné par les violences sahéliennes, le pays fait face à une progression des groupes armés dans sa partie nord. Une évolution qui fragilise son statut d’exception sécuritaire en Afrique de l’Ouest.",
+   "source": "Le Point — Afrique",
+   "lean": "right",
+   "date": "2026-04-12",
+   "category": "foreign"
+  },
+  {
+   "text": "En Hongrie, la chute de la maison Orban — Pendant seize ans, Viktor Orban a méthodiquement fait passer la Hongrie dans le camp des ennemis de la démocratie. Donné victorieux, son opposant, Péter Magyar, saura-t-il renouer avec l’UE ?",
+   "source": "Le Point — Hongrie (tag)",
+   "lean": "right",
+   "date": "2026-04-12",
+   "category": "foreign"
+  },
+  {
+   "text": "En Hongrie, Viktor Orban battu par KO par Péter Magyar — Une participation record et une vague « anti-Orban » massive : la Hongrie bascule. Péter Magyar, 43 ans, s’impose. Son parti Tisza remporte 138 sièges sur 199. La supermajorité est à portée de main.",
+   "source": "Le Point — Hongrie (tag)",
+   "lean": "right",
+   "date": "2026-04-12",
+   "category": "foreign"
+  },
+  {
+   "text": "Léon XIV en Afrique : comment s’organise un voyage papal — COULISSES. Algérie, Cameroun, Angola, Guinée équatoriale… Du 13 au 23 avril, le pape effectue son premier grand voyage en Afrique. Un déplacement très codifié.",
+   "source": "Le Point — Afrique",
+   "lean": "right",
+   "date": "2026-04-13",
+   "category": "foreign"
+  },
+  {
+   "text": "Comment Péter Magyar prévoit de démanteler le système Orban — Justice, médias, institutions, Union européenne : le nouveau Premier ministre hongrois veut rebâtir l’État de droit et entend s’attaquer frontalement à l’héritage de son prédécesseur.",
+   "source": "Le Point — Hongrie (tag)",
+   "lean": "right",
+   "date": "2026-04-13",
+   "category": "foreign"
+  },
+  {
+   "text": "11 jours, 4 pays : ce qui se joue derrière le voyage de Léon XIV en Afrique — Le pape, né aux États-Unis, longtemps missionnaire au Pérou, a choisi l’Afrique pour son premier grand voyage, mettant ses pas dans ceux de saint Augustin mais aussi de Jean-Paul II. Analyse d’un pari stratégique.",
+   "source": "Le Point — Afrique",
+   "lean": "right",
+   "date": "2026-04-13",
+   "category": "foreign"
+  },
+  {
+   "text": "Hongrie, Pakistan… la mauvaise semaine de JD Vance — Sauver le soldat Orban du naufrage électoral et ramener la paix avec Téhéran : tel était l’ordre de mission du vice-président américain. Chronique d’un fiasco diplomatique en deux actes.",
+   "source": "Le Point — Hongrie (tag)",
+   "lean": "right",
+   "date": "2026-04-13",
+   "category": "foreign"
+  },
+  {
+   "text": "Viktor Orban : la défaite qui nuit à Le Pen et Bardella — CHRONIQUE. Hier ils présentaient le perdant aux élections hongroises en pionnier de leur stratégie de conquête. Aujourd’hui, ils doivent faire profil bas et remballer leurs mots d’ordre absurdes.",
+   "source": "Le Point — Hongrie (tag)",
+   "lean": "right",
+   "date": "2026-04-14",
+   "category": "foreign"
+  },
+  {
+   "text": "Hongrie : après la chute d’Orban, les défis du nouveau pouvoir vus par la presse étrangère — Si la chute de Viktor Orban est saluée par les médias étrangers, ces derniers alertent sur une économie fragilisée, un État miné par la corruption et les défis qui attendent Péter Magyar.",
+   "source": "Le Point — Hongrie (tag)",
+   "lean": "right",
+   "date": "2026-04-14",
+   "category": "foreign"
+  },
+  {
+   "text": "« La défaite d’Orban est aussi celle de la droite woke » — ENTRETIEN. Le politologue Thibault Muzergues, récent auteur de l’ouvrage « La Droite woke », analyse la défaite du Premier ministre hongrois aux élections législatives.",
+   "source": "Le Point — Hongrie (tag)",
+   "lean": "right",
+   "date": "2026-04-14",
+   "category": "foreign"
+  }
+ ],
+ "built": "2026-07-20",
+ "source_db": "ELES prod Echolot DB (railway ssh glistening-luck, file:/data/echolot.db?mode=ro)",
+ "build_rule": "title>15, cim-dedupe, kanadai frankofon kizarva, lead 220 char, MAXN=60 lean-cap: minden nem-jobb + jobb datum-stride ritkitassal"
+}
