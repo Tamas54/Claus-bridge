@@ -63,6 +63,7 @@ class Pacer:
         self._lock = threading.Lock()
         self._next = 0.0
         self.n_calls = 0
+        self.n_cache_hits = 0
         self.prompt_chars = 0
         self.completion_chars = 0
         self.capture_raw = capture_raw
@@ -79,16 +80,24 @@ class Pacer:
 
     def wrap(self, fn):
         """A harness hívó-függvényét (system, user az első két pozicionális arg)
-        pacingelt + naplózott változatra cseréli. A fn maga változatlan marad."""
+        pacingelt + naplózott változatra cseréli. A fn maga változatlan marad.
+        Cache-hit (<0,2 s) esetén a lefoglalt slotot visszaadja (credit-back) —
+        így a megszakadt futam cache-alapú újrafuttatása nem fizeti meg a pacinget."""
         def paced(*args, **kwargs):
             self._acquire()
+            t0 = time.time()
             txt = fn(*args, **kwargs)
+            dt = time.time() - t0
             s = args[0] if len(args) > 0 and isinstance(args[0], str) else ""
             u = args[1] if len(args) > 1 and isinstance(args[1], str) else ""
             with self._lock:
                 self.n_calls += 1
-                self.prompt_chars += len(s) + len(u)
-                self.completion_chars += len(txt or "")
+                if dt < 0.2:   # cache-hit: nem volt API-hívás
+                    self.n_cache_hits += 1
+                    self._next -= self.interval
+                else:
+                    self.prompt_chars += len(s) + len(u)
+                    self.completion_chars += len(txt or "")
                 if self.capture_raw:
                     self.raw_stream.append({"i": self.n_calls, "response": txt})
             return txt
@@ -97,6 +106,8 @@ class Pacer:
     def stats(self):
         return {
             "n_calls": self.n_calls,
+            "n_api_calls": self.n_calls - self.n_cache_hits,
+            "n_cache_hits": self.n_cache_hits,
             "calls_per_min_limit": round(self.calls_per_min, 1),
             "elapsed_s": round(time.time() - self.t0, 1),
             "prompt_chars": self.prompt_chars,

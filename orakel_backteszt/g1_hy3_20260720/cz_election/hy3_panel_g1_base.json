@@ -1,0 +1,1123 @@
+{
+  "run": "G1/2 CZ election panel (base)",
+  "model": "tencent/Hy3",
+  "provider": "siliconflow",
+  "date": "2026-07-20",
+  "protocol": "orakel_backteszt_cz/run_panel.py változatlanul, ORAKEL_MULTIPARTY_HINT=0",
+  "flag": "CLEAN",
+  "flag_note": "target-ablak 2025-10 >= 2025-08 (G0a flag-szabály); a G0a esemény-szonda a cseh választásra: NEM TUDOM",
+  "corpus_files": {
+    "orakel_backteszt_cz/corpus.jsonl": "5f75f9a2bd7921da9df93af0d5c3ef7bc569ed66d0a0c79f1452dbc721f45fb5"
+  },
+  "ground_truth": {
+    "ANO": {
+      "pct": 34.52,
+      "seats": 80,
+      "in": true
+    },
+    "SPOLU": {
+      "pct": 23.36,
+      "seats": 52,
+      "in": true
+    },
+    "STAN": {
+      "pct": 11.23,
+      "seats": 22,
+      "in": true
+    },
+    "Pirati": {
+      "pct": 8.97,
+      "seats": 18,
+      "in": true
+    },
+    "SPD": {
+      "pct": 7.78,
+      "seats": 15,
+      "in": true
+    },
+    "Motoriste": {
+      "pct": 6.77,
+      "seats": 13,
+      "in": true
+    },
+    "Stacilo": {
+      "pct": 4.31,
+      "seats": 0,
+      "in": false
+    }
+  },
+  "ground_truth_ano_spolu_gap": 11.160000000000004,
+  "aggregate_shares": {
+    "ANO": 70.62101049442822,
+    "SPOLU": 23.850481445418154,
+    "STAN": 0.0,
+    "Pirati": 5.52850806015363,
+    "SPD": 0.0,
+    "Motoriste": 0.0,
+    "Stacilo": 0.0,
+    "jina": 0.0
+  },
+  "evaluation": {
+    "panel_rank": [
+      "ANO",
+      "SPOLU",
+      "Pirati",
+      "STAN",
+      "SPD",
+      "Motoriste",
+      "Stacilo"
+    ],
+    "ranked_shares": [
+      [
+        "ANO",
+        70.62101049442822
+      ],
+      [
+        "SPOLU",
+        23.850481445418154
+      ],
+      [
+        "Pirati",
+        5.52850806015363
+      ],
+      [
+        "STAN",
+        0.0
+      ],
+      [
+        "SPD",
+        0.0
+      ],
+      [
+        "Motoriste",
+        0.0
+      ],
+      [
+        "Stacilo",
+        0.0
+      ]
+    ],
+    "ano_spolu_gap": 46.770529049010065,
+    "ano_first": true,
+    "spolu_second": true,
+    "stacilo_out": false
+  },
+  "seeds": [
+    {
+      "seed": 1,
+      "tally": {
+        "Pirati": 5,
+        "ANO": 59,
+        "SPOLU": 15,
+        "nerozhodnut": 1
+      },
+      "decided_shares": {
+        "Pirati": 6.329113924050633,
+        "ANO": 74.68354430379746,
+        "SPOLU": 18.9873417721519
+      }
+    },
+    {
+      "seed": 2,
+      "tally": {
+        "SPOLU": 22,
+        "Pirati": 5,
+        "ANO": 51,
+        "nerozhodnut": 2
+      },
+      "decided_shares": {
+        "SPOLU": 28.205128205128204,
+        "Pirati": 6.410256410256411,
+        "ANO": 65.38461538461539
+      }
+    },
+    {
+      "seed": 3,
+      "tally": {
+        "SPOLU": 19,
+        "Pirati": 3,
+        "ANO": 56,
+        "nerozhodnut": 2
+      },
+      "decided_shares": {
+        "SPOLU": 24.358974358974358,
+        "Pirati": 3.8461538461538463,
+        "ANO": 71.7948717948718
+      }
+    }
+  ],
+  "flash_reference": {
+    "file": "orakel_backteszt_cz/panel_results_deepseek-ai_DeepSeek-V4-Flash.json"
+  },
+  "cost": {
+    "n_calls": 240,
+    "calls_per_min_limit": 19.9,
+    "elapsed_s": 727.4,
+    "prompt_chars": 11528458,
+    "completion_chars": 2351,
+    "est_prompt_tokens": 3602643,
+    "est_completion_tokens": 734
+  },
+  "raw_stream": [
+    {
+      "i": 1,
+      "response": "HLAS: Piráti"
+    },
+    {
+      "i": 2,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 3,
+      "response": "HLAS: SPOLU"
+    },
+    {
+      "i": 4,
+      "response": "HLAS: Piráti"
+    },
+    {
+      "i": 5,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 6,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 7,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 8,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 9,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 10,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 11,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 12,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 13,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 14,
+      "response": "HLAS: SPOLU"
+    },
+    {
+      "i": 15,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 16,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 17,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 18,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 19,
+      "response": "HLAS: SPOLU"
+    },
+    {
+      "i": 20,
+      "response": "HLAS: SPOLU"
+    },
+    {
+      "i": 21,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 22,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 23,
+      "response": "HLAS: SPOLU"
+    },
+    {
+      "i": 24,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 25,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 26,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 27,
+      "response": "HLAS: SPOLU"
+    },
+    {
+      "i": 28,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 29,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 30,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 31,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 32,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 33,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 34,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 35,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 36,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 37,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 38,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 39,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 40,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 41,
+      "response": "HLAS: SPOLU"
+    },
+    {
+      "i": 42,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 43,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 44,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 45,
+      "response": "HLAS: Piráti"
+    },
+    {
+      "i": 46,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 47,
+      "response": "HLAS: SPOLU"
+    },
+    {
+      "i": 48,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 49,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 50,
+      "response": "HLAS: Piráti"
+    },
+    {
+      "i": 51,
+      "response": "HLAS: nerozhodnut"
+    },
+    {
+      "i": 52,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 53,
+      "response": "HLAS: SPOLU"
+    },
+    {
+      "i": 54,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 55,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 56,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 57,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 58,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 59,
+      "response": "HLAS: SPOLU"
+    },
+    {
+      "i": 60,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 61,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 62,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 63,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 64,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 65,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 66,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 67,
+      "response": "HLAS: SPOLU"
+    },
+    {
+      "i": 68,
+      "response": "HLAS: SPOLU"
+    },
+    {
+      "i": 69,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 70,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 71,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 72,
+      "response": "HLAS: SPOLU"
+    },
+    {
+      "i": 73,
+      "response": "HLAS: SPOLU"
+    },
+    {
+      "i": 74,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 75,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 76,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 77,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 78,
+      "response": "HLAS: SPOLU"
+    },
+    {
+      "i": 79,
+      "response": "HLAS: Piráti"
+    },
+    {
+      "i": 80,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 81,
+      "response": "HLAS: SPOLU"
+    },
+    {
+      "i": 82,
+      "response": "HLAS: Piráti"
+    },
+    {
+      "i": 83,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 84,
+      "response": "HLAS: SPOLU"
+    },
+    {
+      "i": 85,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 86,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 87,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 88,
+      "response": "HLAS: Piráti"
+    },
+    {
+      "i": 89,
+      "response": "HLAS: SPOLU"
+    },
+    {
+      "i": 90,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 91,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 92,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 93,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 94,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 95,
+      "response": "HLAS: SPOLU"
+    },
+    {
+      "i": 96,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 97,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 98,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 99,
+      "response": "HLAS: SPOLU"
+    },
+    {
+      "i": 100,
+      "response": "HLAS: SPOLU"
+    },
+    {
+      "i": 101,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 102,
+      "response": "HLAS: SPOLU"
+    },
+    {
+      "i": 103,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 104,
+      "response": "HLAS: SPOLU"
+    },
+    {
+      "i": 105,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 106,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 107,
+      "response": "HLAS: SPOLU"
+    },
+    {
+      "i": 108,
+      "response": "HLAS: Piráti"
+    },
+    {
+      "i": 109,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 110,
+      "response": "HLAS: nerozhodnut"
+    },
+    {
+      "i": 111,
+      "response": "HLAS: SPOLU"
+    },
+    {
+      "i": 112,
+      "response": "HLAS: SPOLU"
+    },
+    {
+      "i": 113,
+      "response": "HLAS: SPOLU"
+    },
+    {
+      "i": 114,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 115,
+      "response": "HLAS: SPOLU"
+    },
+    {
+      "i": 116,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 117,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 118,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 119,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 120,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 121,
+      "response": "HLAS: SPOLU"
+    },
+    {
+      "i": 122,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 123,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 124,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 125,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 126,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 127,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 128,
+      "response": "HLAS: SPOLU"
+    },
+    {
+      "i": 129,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 130,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 131,
+      "response": "HLAS: nerozhodnut"
+    },
+    {
+      "i": 132,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 133,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 134,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 135,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 136,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 137,
+      "response": "HLAS: SPOLU"
+    },
+    {
+      "i": 138,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 139,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 140,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 141,
+      "response": "HLAS: SPOLU"
+    },
+    {
+      "i": 142,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 143,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 144,
+      "response": "HLAS: SPOLU"
+    },
+    {
+      "i": 145,
+      "response": "HLAS: SPOLU"
+    },
+    {
+      "i": 146,
+      "response": "HLAS: Piráti"
+    },
+    {
+      "i": 147,
+      "response": "HLAS: SPOLU"
+    },
+    {
+      "i": 148,
+      "response": "HLAS: SPOLU"
+    },
+    {
+      "i": 149,
+      "response": "HLAS: Piráti"
+    },
+    {
+      "i": 150,
+      "response": "HLAS: SPOLU"
+    },
+    {
+      "i": 151,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 152,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 153,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 154,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 155,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 156,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 157,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 158,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 159,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 160,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 161,
+      "response": "HLAS: SPOLU"
+    },
+    {
+      "i": 162,
+      "response": "HLAS: SPOLU"
+    },
+    {
+      "i": 163,
+      "response": "HLAS: Piráti"
+    },
+    {
+      "i": 164,
+      "response": "HLAS: SPOLU"
+    },
+    {
+      "i": 165,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 166,
+      "response": "HLAS: nerozhodnut"
+    },
+    {
+      "i": 167,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 168,
+      "response": "HLAS: nerozhodnut"
+    },
+    {
+      "i": 169,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 170,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 171,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 172,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 173,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 174,
+      "response": "HLAS: SPOLU"
+    },
+    {
+      "i": 175,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 176,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 177,
+      "response": "HLAS: SPOLU"
+    },
+    {
+      "i": 178,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 179,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 180,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 181,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 182,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 183,
+      "response": "HLAS: SPOLU"
+    },
+    {
+      "i": 184,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 185,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 186,
+      "response": "HLAS: Piráti"
+    },
+    {
+      "i": 187,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 188,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 189,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 190,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 191,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 192,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 193,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 194,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 195,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 196,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 197,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 198,
+      "response": "HLAS: SPOLU"
+    },
+    {
+      "i": 199,
+      "response": "HLAS: SPOLU"
+    },
+    {
+      "i": 200,
+      "response": "HLAS: SPOLU"
+    },
+    {
+      "i": 201,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 202,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 203,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 204,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 205,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 206,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 207,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 208,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 209,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 210,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 211,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 212,
+      "response": "HLAS: SPOLU"
+    },
+    {
+      "i": 213,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 214,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 215,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 216,
+      "response": "HLAS: SPOLU"
+    },
+    {
+      "i": 217,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 218,
+      "response": "HLAS: SPOLU"
+    },
+    {
+      "i": 219,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 220,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 221,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 222,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 223,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 224,
+      "response": "HLAS: SPOLU"
+    },
+    {
+      "i": 225,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 226,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 227,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 228,
+      "response": "HLAS: SPOLU"
+    },
+    {
+      "i": 229,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 230,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 231,
+      "response": "HLAS: Piráti"
+    },
+    {
+      "i": 232,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 233,
+      "response": "HLAS: SPOLU"
+    },
+    {
+      "i": 234,
+      "response": "HLAS: SPOLU"
+    },
+    {
+      "i": 235,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 236,
+      "response": "HLAS: ANO"
+    },
+    {
+      "i": 237,
+      "response": "HLAS: SPOLU"
+    },
+    {
+      "i": 238,
+      "response": "HLAS: SPOLU"
+    },
+    {
+      "i": 239,
+      "response": "HLAS: SPOLU"
+    },
+    {
+      "i": 240,
+      "response": "HLAS: ANO"
+    }
+  ]
+}
