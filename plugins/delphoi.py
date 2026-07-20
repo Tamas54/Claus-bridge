@@ -1398,7 +1398,10 @@ def _fg_prompt(persona: dict, cfg: dict, kind: str, stimulus: str) -> str:
 def create_job(get_db, user_id: str, input_kind: str, input_text: str,
                panel_spec: dict, input_variants=None) -> dict:
     """Job-felvétel: validálás → ensure_welcome → ATOMI kredit-levonás →
-    queued sor. Elégtelen kredit → 402-jellegű hiba, SEMMI nem íródik."""
+    queued sor. Elégtelen kredit → 402-jellegű hiba, SEMMI nem íródik.
+    # A2: user_id+kulcs a kanonikus authz; az Echolot-session csak a proxy
+    # fordítási rétege — a user_id ma az Echolot-proxy 'user:<id>' stringje,
+    # az átkötés célpontja a delphoi_users (origin+external_id) feloldás."""
     import uuid
     if input_kind not in VALID_INPUT_KINDS:
         return {"ok": False, "error": f"ismeretlen input_kind: {input_kind}"}
@@ -1716,6 +1719,8 @@ def get_job(get_db, job_id: str, user_id: str) -> dict:
         row = conn.execute("SELECT * FROM delphoi_jobs WHERE id=?", (job_id,)).fetchone()
     finally:
         conn.close()
+    # A2: user_id+kulcs a kanonikus authz; az Echolot-session csak a proxy
+    # fordítási rétege (a tulaj-egyezés ma nyers string-match a proxy-kulcson).
     if not row or row["user_id"] != str(user_id):
         return {"ok": False, "error": "not_found"}
     out = {"ok": True, "job_id": row["id"], "status": row["status"],
@@ -1739,6 +1744,8 @@ def delete_job(get_db, job_id: str, user_id: str) -> dict:
     try:
         row = conn.execute("SELECT user_id, deleted_at FROM delphoi_jobs WHERE id=?",
                            (job_id,)).fetchone()
+        # A2: user_id+kulcs a kanonikus authz; az Echolot-session csak a proxy
+        # fordítási rétege.
         if not row or row["user_id"] != str(user_id):
             return {"ok": False, "error": "not_found"}
         if row["deleted_at"]:
