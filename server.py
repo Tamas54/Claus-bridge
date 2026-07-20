@@ -2048,6 +2048,89 @@ async def api_delphoi_topup(request):
 
 
 # ============================================================
+@mcp.custom_route("/api/delphoi/briefs", methods=["GET", "POST"])
+async def api_delphoi_briefs(request):
+    """B1: brief-lista (GET ?user_id=) / brief-mentés (POST {user_id, spec}).
+    Validálás + spec_hash a plugins.delphoi_brief séma-igazságforrásán."""
+    denied = _delphoi_auth(request)
+    if denied is not None:
+        return denied
+    from plugins import delphoi_brief as _brf
+    if request.method == "GET":
+        user_id = request.query_params.get("user_id", "")
+        if not user_id:
+            return JSONResponse({"ok": False, "error": "missing_user_id"}, status_code=400)
+        return JSONResponse({"ok": True, "briefs": _brf.list_briefs(get_db, user_id)})
+    try:
+        data = await request.json()
+    except Exception:  # noqa: BLE001
+        return JSONResponse({"ok": False, "error": "bad_json"}, status_code=400)
+    user_id = str(data.get("user_id") or "").strip()
+    if not user_id:
+        return JSONResponse({"ok": False, "error": "missing_user_id"}, status_code=400)
+    res = _brf.save_brief(get_db, user_id, dict(data.get("spec") or {}))
+    return JSONResponse(res, status_code=200 if res.get("ok") else 400)
+
+
+@mcp.custom_route("/api/delphoi/briefs/{brief_id}", methods=["GET"])
+async def api_delphoi_brief_detail(request):
+    """B1: brief betöltése (csak a tulajdonosnak) — spec + tracking + idősor."""
+    denied = _delphoi_auth(request)
+    if denied is not None:
+        return denied
+    from plugins import delphoi_brief as _brf
+    user_id = request.query_params.get("user_id", "")
+    if not user_id:
+        return JSONResponse({"ok": False, "error": "missing_user_id"}, status_code=400)
+    res = _brf.get_brief(get_db, request.path_params.get("brief_id", ""), user_id)
+    return JSONResponse(res, status_code=200 if res.get("ok") else 404)
+
+
+@mcp.custom_route("/api/delphoi/report/{job_id}", methods=["GET"])
+async def api_delphoi_report(request):
+    """B2: riport-artefakt (?user_id=&fmt=html|pdf|json|csv). Hiányzó artefakt →
+    on-demand generate_report (Hy3-szintézis). shared=1: user-ellenőrzés nélküli
+    HTML — az Echolot-oldali 72 órás HMAC-token a felhatalmazás, az út így is
+    X-Delphoi-Key mögött van."""
+    denied = _delphoi_auth(request)
+    if denied is not None:
+        return denied
+    from starlette.responses import Response as StarletteResponse
+    from plugins import delphoi_report as _rep
+    job_id = request.path_params.get("job_id", "")
+    fmt = str(request.query_params.get("fmt") or "html")
+    user_id = request.query_params.get("user_id", "")
+    if request.query_params.get("shared", "") == "1":
+        conn = get_db()
+        try:
+            row = conn.execute("SELECT user_id FROM delphoi_jobs WHERE id=?",
+                               (job_id,)).fetchone()
+        finally:
+            conn.close()
+        if not row:
+            return JSONResponse({"ok": False, "error": "not_found"}, status_code=404)
+        user_id, fmt = row["user_id"], "html"
+    elif not user_id:
+        return JSONResponse({"ok": False, "error": "missing_user_id"}, status_code=400)
+    got = _rep.latest_artifact(get_db, job_id, user_id, fmt)
+    if not got.get("ok"):
+        _delphoi_deps = {
+            "get_db": get_db,
+            "siliconflow_api_key": SILICONFLOW_API_KEY,
+            "siliconflow_base_url": SILICONFLOW_BASE_URL,
+            "siliconflow_timeout": SILICONFLOW_TIMEOUT,
+        }
+        gen = await _rep.generate_report(_delphoi_deps, job_id, user_id)
+        if not gen.get("ok"):
+            return JSONResponse(gen, status_code=404)
+        got = _rep.latest_artifact(get_db, job_id, user_id, fmt)
+        if not got.get("ok"):
+            return JSONResponse(got, status_code=404)
+    with open(got["path"], "rb") as f:
+        content = f.read()
+    return StarletteResponse(content, media_type=got["mime"])
+
+
 # SILICONFLOW AI SUB-AGENTS (Kimi-K2.7, DeepSeek V3.2, etc.)
 # ============================================================
 
@@ -8576,6 +8659,20 @@ try:
 except Exception as _nte:  # noqa: BLE001
     logger.warning("nulltarif cron-seed kihagyva: %s", _nte)
 
+# PYTHIA B1 (deploy #2): tracking-runner cron-seed (idempotens) — napi tick
+# az esedékes gördülő briefekre; futtatás a _cron_loop delphoi_tracking
+# special-casén (KÖTELEZŐEN a generikus delphoi_ ág ELŐTT!).
+try:
+    from plugins.delphoi_tracking import seed_cron as _dt_seed
+    _dt_conn = get_db()
+    try:
+        if _dt_seed(_dt_conn):
+            logger.info("PYTHIA B1: delphoi_tracking_daily cron seedelve")
+    finally:
+        _dt_conn.close()
+except Exception as _dte:  # noqa: BLE001
+    logger.warning("delphoi_tracking cron-seed kihagyva: %s", _dte)
+
 # Operation Zahnrad — Cron Scheduler
 def _cron_matches(schedule: str, dt: datetime) -> bool:
     """Simple crontab matcher: 'minute hour day month weekday'. Supports: number, *, ranges (1-5), lists (1,3,5)."""
@@ -8834,6 +8931,25 @@ async def _cron_loop():
                         logger.info("Cron agora: %s háttér-task elindítva (jitteres)", r["name"])
                     except Exception as e:  # noqa: BLE001
                         logger.error("Cron agora dispatch failed for %s: %s", r["name"], e)
+                    continue
+
+                # ── DELPHOI tracking special-case (PYTHIA B1) ──
+                # A generikus delphoi_ ág ELŐTT kell állnia: a recept neve
+                # delphoi_ prefixű, de a plugins.delphoi_tracking.cron_entry fut.
+                if r["name"].startswith("delphoi_tracking"):
+                    try:
+                        from plugins.delphoi_tracking import cron_entry as _dt_cron
+                        _dt_deps = {
+                            "get_db": get_db,
+                            "siliconflow_api_key": SILICONFLOW_API_KEY,
+                            "siliconflow_base_url": SILICONFLOW_BASE_URL,
+                            "siliconflow_timeout": SILICONFLOW_TIMEOUT,
+                            "siliconflow_models": SILICONFLOW_MODELS,
+                        }
+                        asyncio.create_task(_dt_cron(r["name"], _dt_deps))
+                        logger.info("Cron delphoi_tracking: %s háttér-task elindítva", r["name"])
+                    except Exception as e:  # noqa: BLE001
+                        logger.error("Cron delphoi_tracking dispatch failed for %s: %s", r["name"], e)
                     continue
 
                 # ── NULLTARIF-őr special-case (PYTHIA P1) ──
