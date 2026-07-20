@@ -1,0 +1,233 @@
+{
+  "op": "OPERATION PYTHIA — G4 KONSZILENCIA-RIPORT v2",
+  "date": "2026-07-20",
+  "llm_calls": 0,
+  "inputs": [
+    "orakel_backteszt/g1_hy3_20260720/g1_matrix.json",
+    "orakel_backteszt/g2_hy3_20260720/g2_fr_it.json",
+    "orakel_backteszt/g3_hy3_20260720/g3_falszifikacio.json",
+    "orakel_backteszt/cutoff_szonda_20260720/cutoff_jegyzokonyv.md",
+    "orakel_backteszt/orszag_matrix_20260720/matrix.md",
+    "orakel_backteszt/hy3_20260720/agora_ab_results.json"
+  ],
+  "flag_rule": "G0a zarolt szabaly: target <=2025-04 CONTAMINATED, 2025-05..2025-07 GRAY, >=2025-08 CLEAN",
+  "doctrine": "irany es sorrend igazolt; szint csak kalibracioval; szektor-melyseg out of scope — modellfuggetlenul",
+  "rows": [
+    {
+      "id": "1",
+      "domain": "election_gap",
+      "country": "HU",
+      "direction": "OK_seed_mean_de_1of3_seed_fordit",
+      "level": "RESZBEN — |e|~6-7 mindket modell (Hy3 +7.5 / Flash +20.9 vs GT +14.57)",
+      "discrimination": null,
+      "contamination_flag": "CLEAN (cutoff-szondaval direkt igazolva)",
+      "seed_stability": "Hy3 INSTABIL (sd=8.9; seedek +15.0/+12.5/-5.0) vs Flash stabil (sd=2.0)",
+      "hy3_vs_flash": "hasonlo |e|; a 07-20-i 0.4 pontos seed=1 szerencse, nem idezheto"
+    },
+    {
+      "id": "2a",
+      "domain": "election_ordinal_base",
+      "country": "CZ",
+      "direction": "OK (ANO 1., SPOLU 2. mindket modell; Stacilo-ki miss)",
+      "level": "FAIL — res-tullloves 26-36 pont",
+      "discrimination": "OK — share-rho 0.78-0.81",
+      "contamination_flag": "CLEAN",
+      "seed_stability": "Hy3 sd~9 (base)",
+      "hy3_vs_flash": "ekvivalens ordinalisan; res-szintet egyik sem hozza"
+    },
+    {
+      "id": "2b",
+      "domain": "election_ordinal_multiparty",
+      "country": "CZ",
+      "direction": "OK — TELJES rangsor (Stacilo-ki is)",
+      "level": "FAIL — res-tullloves 32-40 pont",
+      "discrimination": "OK — share-rho 0.93-0.96",
+      "contamination_flag": "CLEAN",
+      "seed_stability": "Hy3 seed-stabil (sd~1.5)",
+      "hy3_vs_flash": "ekvivalens — a HU-variancia nem altalanos Hy3-tulajdonsag"
+    },
+    {
+      "id": "3a",
+      "domain": "cci_headline",
+      "country": "HU",
+      "direction": "OK",
+      "level": "OK — Hy3 |e|=3.9 / Flash 0.2",
+      "discrimination": null,
+      "contamination_flag": "CLEAN",
+      "seed_stability": "jo (sd=3.4)",
+      "hy3_vs_flash": "Flash kicsit jobb"
+    },
+    {
+      "id": "3b",
+      "domain": "cci_headline",
+      "country": "CZ",
+      "direction": "Hy3 FAIL / Flash OK",
+      "level": "FAIL — Hy3 |e|=19.6 (Flash 5.0)",
+      "discrimination": null,
+      "contamination_flag": "GRAY (2025-07 farok)",
+      "seed_stability": "seed-stabil, de rossz iranyban",
+      "hy3_vs_flash": "ROSSZABB — szlav szabad-mondat regiszter-hiba (Hy3 +12 vs GT -7.5, sajat kategorikus valasza -77)"
+    },
+    {
+      "id": "3c",
+      "domain": "cci_headline",
+      "country": "PT",
+      "direction": "OK",
+      "level": "OK — Hy3 |e|=0.1-2.6 (Flash 14.3)",
+      "discrimination": null,
+      "contamination_flag": "CLEAN",
+      "seed_stability": "jo (sd=1.1)",
+      "hy3_vs_flash": "Hy3 JOBB — a Flash-tullovest kijavitja; a kuralt PT-minta a szint-kalibracio bizonyitott utja"
+    },
+    {
+      "id": "4a",
+      "domain": "cci_nowcast_arc",
+      "country": "HU",
+      "direction": "OK — iv-rho=1.0 (emelkedo)",
+      "level": "RESZBEN — MAE 6.2 mindketto",
+      "discrimination": "OK idobeli",
+      "contamination_flag": "GRAY/CLEAN/CLEAN",
+      "seed_stability": "jo",
+      "hy3_vs_flash": "ekvivalens"
+    },
+    {
+      "id": "4b",
+      "domain": "cci_nowcast_arc",
+      "country": "CZ",
+      "direction": "OK — iv-rho=1.0 (csucs-alak)",
+      "level": "RESZBEN — MAE 3.7 vs 3.1",
+      "discrimination": "OK idobeli",
+      "contamination_flag": "GRAY/CLEAN/CLEAN",
+      "seed_stability": "julsep-cellan nagy szoras",
+      "hy3_vs_flash": "ekvivalens (Flash MAE minimalisan jobb)"
+    },
+    {
+      "id": "5a",
+      "domain": "inflexp_price_rank",
+      "country": "HU/CZ/PT/PL",
+      "direction": "OK — delta-irany 3/4 (hibazo MAS: Hy3->CZ, Flash->HU)",
+      "level": "skala-offset (3-as anchor-kozeppont nem GT-nulla)",
+      "discrimination": "RESZBEN — Spearman +0.6 -> +0.2 honaprol honapra romlik",
+      "contamination_flag": "CLEAN",
+      "seed_stability": "seed-stabil",
+      "hy3_vs_flash": "ekvivalens"
+    },
+    {
+      "id": "5b",
+      "domain": "inflexp_cci_column_oos",
+      "country": "PL",
+      "direction": "Hy3 FAIL (+16.6..+26.9 vs GT -11..-13)",
+      "level": "FAIL",
+      "discrimination": "FAIL",
+      "contamination_flag": "CLEAN",
+      "seed_stability": null,
+      "hy3_vs_flash": "Hy3 IRANY-HIBA — ugyanaz a szlav regiszter-minta, mint 3b; PL szabad-mondatos SSR Hy3 alatt TILOS"
+    },
+    {
+      "id": "6",
+      "domain": "yt_title_appeal",
+      "country": "EN",
+      "direction": "zaj-kozeli",
+      "level": null,
+      "discrimination": "FAIL — hit@3 2/7 (Hy3, rho_mean +0.14) vs 1/7 (Flash, +0.05)",
+      "contamination_flag": "5 CLEAN + 2 CONTAMINATED-PARTIAL",
+      "seed_stability": null,
+      "hy3_vs_flash": "mindketto gyenge — a domen NEM igazolhato, nem epitunk ra"
+    },
+    {
+      "id": "7",
+      "domain": "esi_sector_between",
+      "country": "HU/CZ/PL",
+      "direction": null,
+      "level": null,
+      "discrimination": "FALSZIFIKALT — Hy3 rho_mean=-0.311 vs Flash -0.378; modellek kozti pred.-korrelacio +0.740 (p=2.6e-7); persistence baseline +0.978; between-country kontroll POZITIV (Hy3 +0.375, Flash +0.292)",
+      "contamination_flag": "CLEAN (36/36)",
+      "seed_stability": "verdikt nem seed-erzekeny (-0.44/-0.20/-0.27, mind negativ)",
+      "hy3_vs_flash": "MODELL-INVARIANS bukas — a korlat a BEMENET tulajdonsaga; szektoralis melyseg vegleg scope-on kivul, modositas csak Kommandant-szora"
+    },
+    {
+      "id": "8a",
+      "domain": "cci_headline",
+      "country": "FR",
+      "direction": "OK 3/3 (SSR + kategorikus egybehangzo)",
+      "level": "FAIL — tullloves 26-32 pont, KORPUSZ-KIKOTES (pre-QUELLENSCHLEUSE ritka zona, Le Point-right tulsuly)",
+      "discrimination": "FAIL — ablak-Spearman -0.5",
+      "contamination_flag": "CLEAN (12/12)",
+      "seed_stability": "seed-stabil (sd 1.2-3.1)",
+      "hy3_vs_flash": "csak Hy3 merve — RESZBEN MEGEROSITVE; elso tiszta szint-teszt: 2026-07 target a mai suru korpusszal"
+    },
+    {
+      "id": "8b",
+      "domain": "cci_headline",
+      "country": "IT",
+      "direction": "OK 3/3",
+      "level": "FAIL — tullloves 12-27 pont, a korpusz-osszetetellel skalazik (katasztrofa-hiru ablak -50, gazdagabb -34)",
+      "discrimination": "RESZBEN — ablak-Spearman +0.5 (a G2 legjobbja)",
+      "contamination_flag": "CLEAN",
+      "seed_stability": "seed-stabil (sd 1.1-3.6)",
+      "hy3_vs_flash": "csak Hy3 — RESZBEN MEGEROSITVE"
+    },
+    {
+      "id": "8c",
+      "domain": "inflexp_price",
+      "country": "FR/IT",
+      "direction": "OK — kereszt-orszag rangsor 3/3 (FR>IT)",
+      "level": "skala-offset (pre-reg sign-szabaly 6/6 miss — szisztematikus, G1-referenciaval egyezo)",
+      "discrimination": "FAIL ablakon belul (FR -1.0 / IT -0.5)",
+      "contamination_flag": "CLEAN",
+      "seed_stability": "nagyon stabil (sd 0.02-0.08)",
+      "hy3_vs_flash": "csak Hy3 — a RANG-reteg igazolt, a szint nem"
+    }
+  ],
+  "hu_contamination_closure": {
+    "verdict": "NEM KONTAMINALT",
+    "evidence": "cutoff-szonda: 25 valasz, 3 elicitalasi mod — a Hy3 sehol nem ismeri a Tisza-gyozelmet, a 2026-04 valasztast jovobeli esemenykent kezeli; onlokalizacio 2024-es tudasra",
+    "de": "a 0.4 pontos seed=1 eredmeny NEM robusztus: 3 seeden +15.0/+12.5/-5.0, seed-atlag +7.5 vs GT +14.57 — pontbecsles egyetlen seedbol TILOS, seed-atlag (>=3) kotelezo"
+  },
+  "entity_recommendations": [
+    {
+      "entity_key": "fr-novekedesi-hangulat",
+      "country": "FR",
+      "current_enabled": 0,
+      "recommendation": "FLIP-JELOLT enabled=1",
+      "reason": "G2 irany 3/3, seed-stabil; szint-res a registry FR-cellajaval (offset-only) kezelve; eles futas mar a QUELLENSCHLEUSE utani suru korpuszon — a G2 korpusz-kikotese elesben nem all fenn; elso validacio 2026-07 Eurostat (~07-29)"
+    },
+    {
+      "entity_key": "it-novekedesi-hangulat",
+      "country": "IT",
+      "current_enabled": 0,
+      "recommendation": "FLIP-JELOLT enabled=1",
+      "reason": "G2 irany 3/3 + legjobb ablak-diszkriminacio (+0.5); tullloves korpusz-fuggo, eles korpusz gazdagabb; kalibracio a registry IT-cellajabol (OLS n=3, r2=0.77)"
+    },
+    {
+      "entity_key": "pl-inflacios-varakozas",
+      "country": "PL",
+      "current_enabled": 0,
+      "recommendation": "FELTETELES — csak a kategorikus reteg implementalasa UTAN",
+      "reason": "ar-rang reteg mukodik PL-lel, de szlav szabad-mondat regiszter-hiba miatt SSR-rel irany-veszto (registry: use_categorical_layer); PL-korpusz 40 forras < 60-kuszob"
+    },
+    {
+      "entity_key": "keir-starmer",
+      "country": "UK",
+      "current_enabled": 0,
+      "recommendation": "MARAD 0",
+      "reason": "nincs gepi GT (Eurostat x, OECD MEI 2024-01-gyel megszakadt, GfK API-mentes) es demografia-reteg sem"
+    },
+    {
+      "entity_key": "nigel-farage",
+      "country": "UK",
+      "current_enabled": 0,
+      "recommendation": "MARAD 0",
+      "reason": "ua. mint keir-starmer"
+    },
+    {
+      "entity_key": "Q22686",
+      "country": "US",
+      "current_enabled": 0,
+      "recommendation": "MARAD 0",
+      "reason": "nem volt G-teszt targya; GT- es konfig-reteg nincs"
+    }
+  ],
+  "calibration_registry": "data/delphoi_calibration.json",
+  "memory_key": "delphoi_gesamtbefehl_backtest_szintezis_2026_07"
+}
