@@ -1,0 +1,3483 @@
+{
+  "run": "G1/6 YT cím/appeal hit@3 (téma-harvester)",
+  "model": "tencent/Hy3",
+  "provider": "siliconflow",
+  "date": "2026-07-20",
+  "protocol": "yt_title_test/run_harvester.py változatlanul (N=40, N_SEEDS=3, slate-of-4, generikus blend)",
+  "flag": "MIXED (csatornánként, ld. results[].flag)",
+  "flag_note": "a címek egy része <= 2025-04 publikálású — a történeti Flash-futásnak ugyanez volt a kitettsége",
+  "labeled_set": {
+    "yt_title_test/channels_data.json": "51bdd52d21113e68006ae7545b3dc013d045b8d7acc3e00344e72ec1dc90c31e"
+  },
+  "results": [
+    {
+      "label": "Pharos Foundation",
+      "subs": "21K",
+      "n_titles": 10,
+      "rho": 0.6727272727272726,
+      "hit3": true,
+      "overlap3": 2,
+      "panel_winner": "A Government Insider On Why Immigration Got Out Of",
+      "real_winner": "A Government Insider On Why Immigration Got Out Of",
+      "flag": "CONTAMINATED-PARTIAL",
+      "flag_note": "3/10 cím <= 2025-04"
+    },
+    {
+      "label": "Adrian Goldsworthy",
+      "subs": "21.7K",
+      "n_titles": 10,
+      "rho": -0.2630080105579639,
+      "hit3": false,
+      "overlap3": 0,
+      "panel_winner": "The Roman Army at War AT THIRTY!",
+      "real_winner": "Hoplites and Warfare in Classical Greece - Athens ",
+      "flag": "CLEAN",
+      "flag_note": "minden cím >= 2025-08"
+    },
+    {
+      "label": "Hannah Boulton",
+      "subs": "158K",
+      "n_titles": 10,
+      "rho": 0.15197638592001614,
+      "hit3": false,
+      "overlap3": 1,
+      "panel_winner": "Take On Me - The Last of Us 2/Ellie | Hannah Boult",
+      "real_winner": "Wonderwall - Oasis | Hannah Boulton",
+      "flag": "CONTAMINATED-PARTIAL",
+      "flag_note": "10/10 cím <= 2025-04"
+    },
+    {
+      "label": "Miles Deutscher",
+      "subs": "227K",
+      "n_titles": 10,
+      "rho": -0.28484848484848485,
+      "hit3": false,
+      "overlap3": 0,
+      "panel_winner": "Altcoins Are Quietly Doubling Again... Here's What",
+      "real_winner": "My Plan To Print Millions In Crypto In 2026! (3 Ev",
+      "flag": "CLEAN",
+      "flag_note": "minden cím >= 2025-08"
+    },
+    {
+      "label": "Diary Of A CEO",
+      "subs": "17.5M",
+      "n_titles": 6,
+      "rho": 0.8285714285714287,
+      "hit3": true,
+      "overlap3": 2,
+      "panel_winner": "Stanford Neuroscientist: Can't Remember Your Dream",
+      "real_winner": "Stanford Neuroscientist: Can't Remember Your Dream",
+      "flag": "CLEAN",
+      "flag_note": "minden cím >= 2025-08"
+    },
+    {
+      "label": "QuickyBaby",
+      "subs": "680K",
+      "n_titles": 10,
+      "rho": 0.10303030303030303,
+      "hit3": false,
+      "overlap3": 0,
+      "panel_winner": "The most BRUTAL premium in World of Tanks!",
+      "real_winner": "Playing the NEW Gorilla, Executor and Fauteur in W",
+      "flag": "CLEAN",
+      "flag_note": "minden cím >= 2025-08"
+    },
+    {
+      "label": "All About AI",
+      "subs": "224K",
+      "n_titles": 10,
+      "rho": -0.23636363636363633,
+      "hit3": false,
+      "overlap3": 1,
+      "panel_winner": "Can Claude Code Learn To Draw In MS PAINT?",
+      "real_winner": "Building a Polymarket AI Trading Bot From Scratch",
+      "flag": "CLEAN",
+      "flag_note": "minden cím >= 2025-08"
+    }
+  ],
+  "aggregate": {
+    "mean_rho": 0.13886932263984791,
+    "stdev_rho": 0.4215602788749406,
+    "hit3": 2,
+    "n_channels": 7
+  },
+  "flash_reference": {
+    "file": "yt_title_test/harvester_results.json",
+    "mean_rho": 0.049969068081702275,
+    "hit3": 1,
+    "n_channels": 7
+  },
+  "cost": {
+    "n_calls": 840,
+    "n_api_calls": 38,
+    "n_cache_hits": 802,
+    "calls_per_min_limit": 100.0,
+    "elapsed_s": 301.5,
+    "prompt_chars": 30458,
+    "completion_chars": 4789,
+    "est_prompt_tokens": 9518,
+    "est_completion_tokens": 1496
+  },
+  "raw_stream": [
+    {
+      "i": 1,
+      "response": "CHOICE: 1\nWHY: The title about a government insider and immigration feels timely and relevant to today’s news, unlike the old history or science talks."
+    },
+    {
+      "i": 2,
+      "response": "CHOICE: 1\nWHY: As someone into history, a talk by a known ancient historian on Rome–Persia superpower conflict sounds like a solid academic lecture."
+    },
+    {
+      "i": 3,
+      "response": "CHOICE: 4\nWHY: Richard Dawkins talking about science as poetry sounds like a chill, interesting break from boring stuff."
+    },
+    {
+      "i": 4,
+      "response": "CHOICE: 1\nWHY: The title about a government insider explaining why immigration got out of control sounds like current, Relevant drama I'd want to hear about."
+    },
+    {
+      "i": 5,
+      "response": "CHOICE: 3\nWHY: As a history fan I'm instantly drawn to a clear ancient superpower clash I hadn't heard framed as Rome vs Persia."
+    },
+    {
+      "i": 6,
+      "response": "CHOICE: 2\nWHY: The word \"Deepstate\" and mention of Britain failing sounds like a juicy drama I'd want to peek at for fun."
+    },
+    {
+      "i": 7,
+      "response": "CHOICE: 1\nWHY: The title sounds like a juicy insider tell-all about a messy political issue, which is more instantly entertaining than the others."
+    },
+    {
+      "i": 8,
+      "response": "CHOICE: 2\nWHY: The contrast in the title feels spicy and gossipy, which sounds more fun than the other dry history topics."
+    },
+    {
+      "i": 9,
+      "response": "CHOICE: 2\nWHY: The title sounds like a juicy insider tell-all about a messy political issue, which is more entertaining than dry history lectures."
+    },
+    {
+      "i": 10,
+      "response": "CHOICE: 4\nWHY: The phrase \"poetry of reality\" sounds beautifully calming and like a nice break from everyday stress."
+    },
+    {
+      "i": 11,
+      "response": "CHOICE: 4\nWHY: As a casual viewer, a headline about immigration getting out of control from a government insider sounds like juicy, relevant drama I'd want to peek at."
+    },
+    {
+      "i": 12,
+      "response": "CHOICE: 4\nWHY: The title about how historians study gay history sounds like a weird, intriguing topic I didn't expect to see pop up."
+    },
+    {
+      "i": 13,
+      "response": "CHOICE: 4\nWHY: As someone who loves history, the specific topic of how historians approach gay history feels fresh and genuinely intriguing."
+    },
+    {
+      "i": 14,
+      "response": "CHOICE: 4\nWHY: As someone who enjoys history and academic lectures, the topic of how the Nazis took over universities under a renowned historian like Niall Ferguson instantly intrigues me."
+    },
+    {
+      "i": 15,
+      "response": "CHOICE: 4\nWHY: The title sounds like a juicy insider tell-all about a hot-button issue, which is more instantly tempting than dry history or policy talks."
+    },
+    {
+      "i": 16,
+      "response": "CHOICE: 4\nWHY: The title promises a sharp, authoritative look at how the Nazis took over academia, which instantly fits my interest in history and intellectual betrayal."
+    },
+    {
+      "i": 17,
+      "response": "CHOICE: 3\nWHY: As someone into history, a lecture by Adrian Goldsworthy on Caesar's reforms and Roman army logistics sounds genuinely fascinating and academically solid."
+    },
+    {
+      "i": 18,
+      "response": "CHOICE: 3\nWHY: Immigration getting out of control sounds like a juicy insider gossip story I'd actually care about."
+    },
+    {
+      "i": 19,
+      "response": "CHOICE: 4\nWHY: As someone who enjoys academic history lectures, the focused topic of how historians study gay history genuinely piques my curiosity."
+    },
+    {
+      "i": 20,
+      "response": "CHOICE: 2\nWHY: As a history fan, the chilling intersection of Nazis and academia from a big-name historian instantly hooks me."
+    },
+    {
+      "i": 21,
+      "response": "CHOICE: 4\nWHY: Ancient Rome vs Persia superpower clash sounds like a cool, cinematic history story to kill time with."
+    },
+    {
+      "i": 22,
+      "response": "CHOICE: 2\nWHY: The phrase \"poetry of reality\" sounds like a refreshing, entertaining break from dry history talks."
+    },
+    {
+      "i": 23,
+      "response": "CHOICE: 3\nWHY: Immigration is a hot topic I hear about all the time and a government insider sounds like a juicy tell-all."
+    },
+    {
+      "i": 24,
+      "response": "CHOICE: 3\nWHY: As someone who loves history, a talk on the misuse of history in politics by a serious scholar instantly appeals to me."
+    },
+    {
+      "i": 25,
+      "response": "CHOICE: 2\nWHY: The title about different types of gay men sounds like a juicy social topic, not a dull lecture."
+    },
+    {
+      "i": 26,
+      "response": "CHOICE: 4\nWHY: The title about a government insider explaining why immigration got out of control sounds like a juicy, relevant scandal I'd want to hear about."
+    },
+    {
+      "i": 27,
+      "response": "CHOICE: 2\nWHY: The Nazis taking over universities sounds like a wild, dramatic story I'd actually want to watch."
+    },
+    {
+      "i": 28,
+      "response": "CHOICE: 2\nWHY: The word \"Deepstate\" and \"Fails Britain\" sounds like a juicy modern scandal, not a dusty history lesson."
+    },
+    {
+      "i": 29,
+      "response": "CHOICE: 3\nWHY: The Nazis taking over universities sounds like a wild, dramatic story I'd actually want to watch."
+    },
+    {
+      "i": 30,
+      "response": "CHOICE: 1\nWHY: The word \"Deepstate\" sounds like a wild conspiracy drama, way more entertaining than old army logistics."
+    },
+    {
+      "i": 31,
+      "response": "CHOICE: 4\nWHY: As someone into history, a straightforward lecture on Caesar's logistics by a known historian sounds genuinely educational and immediately appealing."
+    },
+    {
+      "i": 32,
+      "response": "CHOICE: 2\nWHY: The title sounds like a juicy political tell-all from an insider, which is more entertaining than the others."
+    },
+    {
+      "i": 33,
+      "response": "CHOICE: 4\nWHY: Roman armies conquering the world sounds like a proper bit of entertainment, not a lecture on stuff I don't care about."
+    },
+    {
+      "i": 34,
+      "response": "CHOICE: 4\nWHY: The Nazi takeover of universities sounds like a wild, dramatic story I'd actually want to watch."
+    },
+    {
+      "i": 35,
+      "response": "CHOICE: 1\nWHY: As a history fan, a talk by Jonathan Sumption on the misuse of history in politics instantly hooks my interest."
+    },
+    {
+      "i": 36,
+      "response": "CHOICE: 3\nWHY: As someone interested in history, the topic of how historians study gay history genuinely intrigues me and feels fresh compared to yet another Roman army lecture."
+    },
+    {
+      "i": 37,
+      "response": "CHOICE: 3\nWHY: The Nazi takeover of universities sounds like a wild, dark power story that beats dry Roman logistics for quick entertainment."
+    },
+    {
+      "i": 38,
+      "response": "CHOICE: 3\nWHY: As a history fan, a lecture on Caesar's military reforms and logistics by a known Roman historian instantly appeals to my interests."
+    },
+    {
+      "i": 39,
+      "response": "CHOICE: 1\nWHY: A government insider spilling on why immigration got out of control sounds like juicy drama I'd actually care about."
+    },
+    {
+      "i": 40,
+      "response": "CHOICE: 3\nWHY: Immigration getting out of control sounds like a relevant, drama-filled topic I'd want to hear an insider explain."
+    },
+    {
+      "i": 41,
+      "response": "CHOICE: 4\nWHY: Immigration is a hot topic in the US news and I'm curious what an insider has to say about it."
+    },
+    {
+      "i": 42,
+      "response": "CHOICE: 1\nWHY: As a casual viewer the personal topic of gay men's identities sounds more relatable than dry history or science lectures."
+    },
+    {
+      "i": 43,
+      "response": "CHOICE: 3\nWHY: Roman logistics conquering the world sounds like a badass story, not a dry lecture."
+    },
+    {
+      "i": 44,
+      "response": "CHOICE: 2\nWHY: The title sounds like a juicy insider tell-all about a mess everyone's talking about, which is more fun than dry lectures."
+    },
+    {
+      "i": 45,
+      "response": "CHOICE: 1\nWHY: As a history fan, a lecture on Roman logistics and army by Adrian Goldsworthy instantly appeals to my interests."
+    },
+    {
+      "i": 46,
+      "response": "CHOICE: 2\nWHY: The title about a government insider explaining why immigration got out of control sounds like a juicy, relevant drama I'd actually care about."
+    },
+    {
+      "i": 47,
+      "response": "CHOICE: 4\nWHY: As someone interested in history and academic lectures, the chilling intersection of Nazism and universities under a renowned historian like Ferguson immediately grabs my attention."
+    },
+    {
+      "i": 48,
+      "response": "CHOICE: 2\nWHY: The title sounds like a juicy insider tell-all about immigration getting out of control, which is way more intriguing than boring lectures."
+    },
+    {
+      "i": 49,
+      "response": "CHOICE: 2\nWHY: The idea of Roman logistics conquering the world sounds like a fun, sweeping story rather than a dry lecture."
+    },
+    {
+      "i": 50,
+      "response": "CHOICE: 4\nWHY: As a history fan I’m instantly drawn to Roman military logistics and a multi-part lecture series by a known expert."
+    },
+    {
+      "i": 51,
+      "response": "CHOICE: 2\nWHY: As a Roman history buff, Caesar's reforms and logistics by Goldsworthy instantly hook me."
+    },
+    {
+      "i": 52,
+      "response": "CHOICE: 3\nWHY: As someone into history and academia, a lecture on how historians study gay history sounds genuinely interesting and relevant."
+    },
+    {
+      "i": 53,
+      "response": "CHOICE: 2\nWHY: As a Roman military history buff, Goldsworthy on Caesar's army reforms is instantly compelling."
+    },
+    {
+      "i": 54,
+      "response": "CHOICE: 1\nWHY: As a Roman history fan, a Goldsworthy lecture on Caesar's reforms and army logistics instantly appeals to me."
+    },
+    {
+      "i": 55,
+      "response": "CHOICE: 3\nWHY: The chilling intersection of Nazi takeovers and academic betrayal instantly pulls at my love for intellectual history."
+    },
+    {
+      "i": 56,
+      "response": "CHOICE: 4\nWHY: \"Deepstate\" and \"fails Britain\" sounds like shady drama I'd actually want to watch for fun."
+    },
+    {
+      "i": 57,
+      "response": "CHOICE: 2\nWHY: The title sounds like a juicy insider scandal about immigration, which is more clickable than dry history or politics lectures."
+    },
+    {
+      "i": 58,
+      "response": "CHOICE: 4\nWHY: As someone who enjoys academic lectures, Dawkins discussing science as the poetry of reality sounds immediately intriguing and uplifting."
+    },
+    {
+      "i": 59,
+      "response": "CHOICE: 1\nWHY: As a history fan, a talk by Goldsworthy on Rome-Persia superpower conflict sounds like a solid, intriguing academic lecture."
+    },
+    {
+      "i": 60,
+      "response": "CHOICE: 2\nWHY: As a history fan I’m instantly drawn to a structured lecture series on Roman army logistics by a recognised expert like Adrian Goldsworthy."
+    },
+    {
+      "i": 61,
+      "response": "CHOICE: 3\nWHY: As someone into history, a clear Roman logistics video by a known author instantly sounds like a solid academic watch."
+    },
+    {
+      "i": 62,
+      "response": "CHOICE: 4\nWHY: The title about gay history feels relevant and intriguing for casual, personal-interest browsing."
+    },
+    {
+      "i": 63,
+      "response": "CHOICE: 2\nWHY: As a history fan, a focused lecture on Roman logistics and army conquest by a known historian instantly appeals to me."
+    },
+    {
+      "i": 64,
+      "response": "CHOICE: 3\nWHY: The title sounds like a juicy insider tell-all about a messy real-world issue, which is more entertaining than dry history or political theory."
+    },
+    {
+      "i": 65,
+      "response": "CHOICE: 3\nWHY: As someone keen on history, the Nazi takeover of universities under a renowned historian like Ferguson is immediately compelling."
+    },
+    {
+      "i": 66,
+      "response": "CHOICE: 1\nWHY: As a history fan, a superpower conflict between Rome and Persia sounds like a gripping ancient geopolitical lecture."
+    },
+    {
+      "i": 67,
+      "response": "CHOICE: 4\nWHY: The Nazis taking over universities sounds like a wild, dramatic story I'd want to see."
+    },
+    {
+      "i": 68,
+      "response": "CHOICE: 3\nWHY: As a young casual viewer, a video about gay history feels more relevant and personally interesting than old generals or Nazis."
+    },
+    {
+      "i": 69,
+      "response": "CHOICE: 3\nWHY: The title sounds like a juicy insider tell-all on a hot topic, which is more entertaining than dusty army history."
+    },
+    {
+      "i": 70,
+      "response": "CHOICE: 3\nWHY: \"Deepstate\" and \"fails Britain\" sounds like spicy drama, not a boring lecture."
+    },
+    {
+      "i": 71,
+      "response": "CHOICE: 3\nWHY: As someone who loves history, a clear academic talk on ancient Rome versus Persia instantly appeals to me more than modern political topics."
+    },
+    {
+      "i": 72,
+      "response": "CHOICE: 3\nWHY: As someone who enjoys history lectures, the topic of how historians approach gay history genuinely intrigues me."
+    },
+    {
+      "i": 73,
+      "response": "CHOICE: 3\nWHY: As someone into history and universities, the claim that Nazis conquered German academia under a renowned historian instantly hooks me."
+    },
+    {
+      "i": 74,
+      "response": "CHOICE: 1\nWHY: The title sounds like a juicy insider tell-all about a hot-button issue, which is more instantly entertaining than dusty history lectures."
+    },
+    {
+      "i": 75,
+      "response": "CHOICE: 4\nWHY: As someone into history, Roman military logistics sounds like a solid academic topic that grabs my interest immediately."
+    },
+    {
+      "i": 76,
+      "response": "CHOICE: 3\nWHY: Ancient Rome vs Persia superpower conflict sounds like a badass historical clash that could be entertaining."
+    },
+    {
+      "i": 77,
+      "response": "CHOICE: 2\nWHY: The word \"Deepstate\" sounds like a juicy modern conspiracy drama, not a boring old history lesson."
+    },
+    {
+      "i": 78,
+      "response": "CHOICE: 3\nWHY: As a history fan, Roman military logistics by a known historian instantly appeals to my interest in how empires functioned."
+    },
+    {
+      "i": 79,
+      "response": "CHOICE: 2\nWHY: The word \"Deepstate\" and \"State Failure\" sounds like juicy modern drama, not a boring history lesson."
+    },
+    {
+      "i": 80,
+      "response": "CHOICE: 3\nWHY: As a casual viewer I’m curious about social topics like gay stereotypes and this title feels more relatable than the others."
+    },
+    {
+      "i": 81,
+      "response": "CHOICE: 2\nWHY: The title promises a broad, intriguing claim about Roman logistics shaping world history, which instantly hooks my interest in ancient history."
+    },
+    {
+      "i": 82,
+      "response": "CHOICE: 2\nWHY: As someone into history, a talk by Adrian Goldsworthy on Rome vs Persia superpower conflict sounds like a genuinely fascinating academic topic."
+    },
+    {
+      "i": 83,
+      "response": "CHOICE: 3\nWHY: The title sounds like a juicy insider tell-all about a messy real-world issue, which is more entertaining than the others."
+    },
+    {
+      "i": 84,
+      "response": "CHOICE: 2\nWHY: Roman logistics and how it enabled conquest is a concrete military-history topic that immediately interests me."
+    },
+    {
+      "i": 85,
+      "response": "CHOICE: 1\nWHY: As a casual viewer I’m curious about relatable LGBTQ topics and the title sounds personally intriguing."
+    },
+    {
+      "i": 86,
+      "response": "CHOICE: 1\nWHY: As someone into history, a lecture on Roman logistics and army by a known author instantly pulls me in."
+    },
+    {
+      "i": 87,
+      "response": "CHOICE: 2\nWHY: The title sounds like a juicy insider reveal about immigration drama and I’m curious what a government guy says."
+    },
+    {
+      "i": 88,
+      "response": "CHOICE: 2\nWHY: As a history fan, a serious lecture on ancient Rome versus Persia by a known historian instantly appeals to me."
+    },
+    {
+      "i": 89,
+      "response": "CHOICE: 1\nWHY: Jonathan Sumption discussing the misuse of history in politics instantly appeals to my interest in rigorous historical analysis."
+    },
+    {
+      "i": 90,
+      "response": "CHOICE: 1\nWHY: The word \"Deepstate\" and \"Fails Britain\" sounds like shady drama I'd totally gossip-click out of curiosity."
+    },
+    {
+      "i": 91,
+      "response": "CHOICE: 2\nWHY: The word \"Deepstate\" and \"Fails Britain\" sounds like a juicy modern drama, not a boring old lecture."
+    },
+    {
+      "i": 92,
+      "response": "CHOICE: 2\nWHY: As a history fan I’m instantly drawn to a clear lecture on Caesar’s reforms and Roman army logistics by a known author."
+    },
+    {
+      "i": 93,
+      "response": "CHOICE: 2\nWHY: As a history enthusiast, a serious academic talk on Roman-Persian superpower conflict instantly appeals to my interests."
+    },
+    {
+      "i": 94,
+      "response": "CHOICE: 3\nWHY: Richard Dawkins and the phrase \"poetry of reality\" sound calming and interesting for casual watching."
+    },
+    {
+      "i": 95,
+      "response": "CHOICE: 3\nWHY: As someone who enjoys history, the idea of a respected historian discussing how history is misused in politics immediately piques my curiosity."
+    },
+    {
+      "i": 96,
+      "response": "CHOICE: 2\nWHY: As someone who enjoys academic history, the topic of how historians approach gay history is genuinely intriguing and not something I see every day."
+    },
+    {
+      "i": 97,
+      "response": "CHOICE: 2\nWHY: As a history fan I’m instantly drawn to a clear, series-based lecture on Roman military logistics by a known historian."
+    },
+    {
+      "i": 98,
+      "response": "CHOICE: 3\nWHY: The title promises a juicy insider tell-all about immigration from a controversial political figure, which sounds more entertaining than the others."
+    },
+    {
+      "i": 99,
+      "response": "CHOICE: 1\nWHY: The title about a government insider explaining why immigration got out of control sounds like a juicy, relevant drama I'd want to hear."
+    },
+    {
+      "i": 100,
+      "response": "CHOICE: 4\nWHY: The title about different types of gay men sounds like a spicy social topic, not a boring lecture."
+    },
+    {
+      "i": 101,
+      "response": "CHOICE: 1\nWHY: As a history lover, a talk by Jonathan Sumption on the misuse of history in politics sounds right up my street."
+    },
+    {
+      "i": 102,
+      "response": "CHOICE: 4\nWHY: The phrase \"poetry of reality\" sounds intriguing and like a cool, non-boring take on science."
+    },
+    {
+      "i": 103,
+      "response": "CHOICE: 1\nWHY: The title sounds like a juicy insider tell-all about a hot topic, which is more instantly entertaining than the others."
+    },
+    {
+      "i": 104,
+      "response": "CHOICE: 2\nWHY: As a history fan, a lecture by Adrian Goldsworthy on Caesar's army reforms sounds like exactly the kind of solid academic history I enjoy."
+    },
+    {
+      "i": 105,
+      "response": "CHOICE: 4\nWHY: As someone into history, the title about Nazis taking over universities with Niall Ferguson sounds like a gripping academic deep-dive."
+    },
+    {
+      "i": 106,
+      "response": "CHOICE: 1\nWHY: The clash of two ancient superpowers is exactly the kind of big-picture history I love stumbling into."
+    },
+    {
+      "i": 107,
+      "response": "CHOICE: 4\nWHY: Roman logistics conquering the world sounds like a badass history story way more fun than politics or lectures."
+    },
+    {
+      "i": 108,
+      "response": "CHOICE: 4\nWHY: Dawkins talking about science as the poetry of reality sounds like a cool, mind-blowing distraction."
+    },
+    {
+      "i": 109,
+      "response": "CHOICE: 1\nWHY: The contrast between effeminate and masculine gay men sounds like a juicy social topic I'd vaguely wonder about."
+    },
+    {
+      "i": 110,
+      "response": "CHOICE: 3\nWHY: As someone into history and academia, the chilling idea of Nazis taking over universities instantly hooks my curiosity."
+    },
+    {
+      "i": 111,
+      "response": "CHOICE: 2\nWHY: As someone who loves history, a fresh talk by a known Roman historian on Rome vs Persia instantly appeals more than series parts or political insiders."
+    },
+    {
+      "i": 112,
+      "response": "CHOICE: 4\nWHY: The Nazi takeover of universities sounds like a wild, dark true story I'd want to peek at for fun."
+    },
+    {
+      "i": 113,
+      "response": "CHOICE: 2\nWHY: The title about Nazis taking over universities sounds like a chilling and lesser-known academic history angle that instantly piques my curiosity."
+    },
+    {
+      "i": 114,
+      "response": "CHOICE: 4\nWHY: The title about Nazis taking over universities sounds chilling and personally relevant to academic life."
+    },
+    {
+      "i": 115,
+      "response": "CHOICE: 2\nWHY: The word \"Nazis\" and the dramatic idea of them taking over universities sounds like a wild, gripping story I'd want to see."
+    },
+    {
+      "i": 116,
+      "response": "CHOICE: 4\nWHY: The title about science as the poetry of reality sounds like an interesting and uplifting way to be entertained."
+    },
+    {
+      "i": 117,
+      "response": "CHOICE: 4\nWHY: The phrase \"Deepstate Fails Britain\" sounds like a juicy conspiracy-ish drama I'd want to peek at for fun."
+    },
+    {
+      "i": 118,
+      "response": "CHOICE: 3\nWHY: Ancient Rome versus Persia as a superpower conflict sounds like a fresh, epic historical angle I haven't seen spammed everywhere."
+    },
+    {
+      "i": 119,
+      "response": "CHOICE: 4\nWHY: The title sounds like a juicy insider tell-all about a hot-button issue, which is more clickable than dry history or political deepstate talk."
+    },
+    {
+      "i": 120,
+      "response": "CHOICE: 2\nWHY: The title about a government insider explaining why immigration got out of control sounds like a juicy, relevant drama I'd want to hear."
+    },
+    {
+      "i": 121,
+      "response": "CHOICE: 4\nWHY: The shouty \"AT THIRTY!\" makes it sound like a fun, punchy video rather than a dull history lecture."
+    },
+    {
+      "i": 122,
+      "response": "CHOICE: 2\nWHY: As someone into Greek military history, a clear focus on hoplites and Athens versus Sparta instantly pulls me in."
+    },
+    {
+      "i": 123,
+      "response": "CHOICE: 4\nWHY: The yelling \"AT THIRTY!\" makes it sound like a fun, energetic video rather than a boring history lesson."
+    },
+    {
+      "i": 124,
+      "response": "CHOICE: 2\nWHY: The title poses a specific, intriguing question about Rome's easy victories that makes me curious for the answer."
+    },
+    {
+      "i": 125,
+      "response": "CHOICE: 3\nWHY: The word \"introduction\" suggests an easy, low-effort starting point that might be mildly interesting without needing prior knowledge."
+    },
+    {
+      "i": 126,
+      "response": "CHOICE: 3\nWHY: \"ATHENS and SPARTA\" sounds like a simple intro to a famous rivalry that might be fun to learn about casually."
+    },
+    {
+      "i": 127,
+      "response": "CHOICE: 2\nWHY: The \"AT THIRTY!\" makes it sound like a fun, weirdly specific twist that sparks my curiosity instantly."
+    },
+    {
+      "i": 128,
+      "response": "CHOICE: 4\nWHY: \"MARK ANTONY the POLITICIAN\" sounds like a juicy personal drama, not a dry history lecture."
+    },
+    {
+      "i": 129,
+      "response": "CHOICE: 3\nWHY: The phrase \"the Conquered and the Proud\" sounds like a story-driven title that hints at drama, not a dry history lesson."
+    },
+    {
+      "i": 130,
+      "response": "CHOICE: 4\nWHY: The shouty \"AT THIRTY!\" made it sound like a fun, weird twist rather than a dry history lesson."
+    },
+    {
+      "i": 131,
+      "response": "CHOICE: 2\nWHY: Mark Antony sounds like a dramatic historical figure and the title hints at politics, which feels more like a story than a dry military topic."
+    },
+    {
+      "i": 132,
+      "response": "CHOICE: 4\nWHY: \"MARK ANTONY the POLITICIAN\" sounds like a juicy character-driven story, not a dry military lecture."
+    },
+    {
+      "i": 133,
+      "response": "CHOICE: 2\nWHY: I’m always drawn to clear comparisons of Athenian and Spartan hoplite warfare in classical Greece."
+    },
+    {
+      "i": 134,
+      "response": "CHOICE: 3\nWHY: A straightforward overview of the Punic Wars is exactly the kind of classic topic I'd happily dip into without needing prior context."
+    },
+    {
+      "i": 135,
+      "response": "CHOICE: 3\nWHY: The mention of \"modern\" combat makes it feel more relevant and intriguing than purely ancient topics."
+    },
+    {
+      "i": 136,
+      "response": "CHOICE: 3\nWHY: As someone into Greek military history, a clear title on hoplites and warfare between Athens and Sparta directly hits my interest."
+    },
+    {
+      "i": 137,
+      "response": "CHOICE: 1\nWHY: \"AT THIRTY!\" makes it sound like a fun personal milestone video rather than a dry textbook topic, which instantly stands out in my feed."
+    },
+    {
+      "i": 138,
+      "response": "CHOICE: 1\nWHY: The \"AT THIRTY!\" makes it sound like a weird personal milestone twist that piques my curiosity more than the others."
+    },
+    {
+      "i": 139,
+      "response": "CHOICE: 2\nWHY: I’m always drawn to comparative Greek land warfare, and Athens versus Sparta hoplites is a classic I’d happily revisit."
+    },
+    {
+      "i": 140,
+      "response": "CHOICE: 4\nWHY: As a fan of Roman military history, the seeming ease of Rome's wins over famous Hellenistic armies instantly piques my curiosity."
+    },
+    {
+      "i": 141,
+      "response": "CHOICE: 4\nWHY: \"Aggression and Success in Roman Warfare\" sounds like a punchy, entertaining look at how the Romans won fights."
+    },
+    {
+      "i": 142,
+      "response": "CHOICE: 2\nWHY: The \"AT THIRTY!\" makes it sound like a fun, punchy milestone story rather than dry history."
+    },
+    {
+      "i": 143,
+      "response": "CHOICE: 4\nWHY: The word \"easily\" makes me curious about a surprising historical upset I know nothing about."
+    },
+    {
+      "i": 144,
+      "response": "CHOICE: 3\nWHY: I’ve always been curious how Rome overpowered those big Hellenistic kingdoms so fast, and the title promises a clear answer."
+    },
+    {
+      "i": 145,
+      "response": "CHOICE: 4\nWHY: The punchy \"AT THIRTY!\" makes me curious what happened to the Roman army at that mark, and I love Roman military history."
+    },
+    {
+      "i": 146,
+      "response": "CHOICE: 1\nWHY: The \"AT THIRTY!\" makes it sound punchy and intriguing, like a fun twist I didn't expect from ancient history."
+    },
+    {
+      "i": 147,
+      "response": "CHOICE: 3\nWHY: Mark Antony sounds like a familiar name from films and I’m curious about him as a politician rather than boring battles."
+    },
+    {
+      "i": 148,
+      "response": "CHOICE: 2\nWHY: The oddly specific \"AT THIRTY!\" hook makes me instantly curious what happened to the Roman Army at that age."
+    },
+    {
+      "i": 149,
+      "response": "CHOICE: 3\nWHY: \"AT THIRTY!\" makes it sound like a fun milestone video and the Roman Army at War sounds like an entertaining battle topic."
+    },
+    {
+      "i": 150,
+      "response": "CHOICE: 4\nWHY: \"MARK ANTONY the POLITICIAN\" sounds like a juicy personal drama, not a dry history lecture."
+    },
+    {
+      "i": 151,
+      "response": "CHOICE: 3\nWHY: As someone into Greek military history, hoplites and the Athens vs Sparta contrast instantly pulls me in."
+    },
+    {
+      "i": 152,
+      "response": "CHOICE: 2\nWHY: \"The Punic Wars - An Overview\" sounds like a simple, broad story I can dip into without prior knowledge."
+    },
+    {
+      "i": 153,
+      "response": "CHOICE: 3\nWHY: The phrase \"The Conquered and the Proud\" sounds like a dramatic story, not a dry history lesson."
+    },
+    {
+      "i": 154,
+      "response": "CHOICE: 2\nWHY: The title about Trajan and Hadrian sounds like a story of conquered and proud people, which seems more entertaining than the others."
+    },
+    {
+      "i": 155,
+      "response": "CHOICE: 4\nWHY: The phrase \"Aggression and Success\" sounds like a punchy, entertaining take on winning fights, which grabs my attention more than the others."
+    },
+    {
+      "i": 156,
+      "response": "CHOICE: 4\nWHY: The phrasing \"The Conquered and the Proud\" sounds intriguing and story-like, not like a dry history lecture."
+    },
+    {
+      "i": 157,
+      "response": "CHOICE: 3\nWHY: \"Navies, Seapower and the Trireme\" sounds like cool ships and battles on water, which seems more fun than dry politics or intros."
+    },
+    {
+      "i": 158,
+      "response": "CHOICE: 1\nWHY: The \"AT THIRTY!\" makes it sound like a fun personal milestone angle rather than dry history."
+    },
+    {
+      "i": 159,
+      "response": "CHOICE: 1\nWHY: As someone fascinated by Greek military history, the focused look at Athenian and Spartan naval power and triremes instantly appeals to me."
+    },
+    {
+      "i": 160,
+      "response": "CHOICE: 4\nWHY: The title about Mark Antony as a politician sounds like a personal drama story, which seems more entertaining than the others."
+    },
+    {
+      "i": 161,
+      "response": "CHOICE: 3\nWHY: The title about Mark Antony the politician sounds like a juicy personal story rather than dry battlefield stuff."
+    },
+    {
+      "i": 162,
+      "response": "CHOICE: 2\nWHY: The odd \"AT THIRTY!\" phrasing makes it sound intriguing and like a fun milestone rather than a dry history lesson."
+    },
+    {
+      "i": 163,
+      "response": "CHOICE: 3\nWHY: The \"AT THIRTY!\" makes it sound fun and intriguing like a milestone celebration, not a dry history lesson."
+    },
+    {
+      "i": 164,
+      "response": "CHOICE: 2\nWHY: The \"AT THIRTY!\" hook makes it feel like a fresh, age-relevant take on Roman warfare that I want to see immediately."
+    },
+    {
+      "i": 165,
+      "response": "CHOICE: 1\nWHY: The \"AT THIRTY!\" makes it sound fun and personal, unlike the dry history topics of the others."
+    },
+    {
+      "i": 166,
+      "response": "CHOICE: 3\nWHY: \"AN INTRODUCTION\" sounds like the easiest and least boring way to dip into something I know nothing about."
+    },
+    {
+      "i": 167,
+      "response": "CHOICE: 1\nWHY: As someone keen on ancient naval warfare, the focused look at Athenian and Spartan trireme seapower immediately catches my interest."
+    },
+    {
+      "i": 168,
+      "response": "CHOICE: 1\nWHY: The \"AT THIRTY!\" makes it sound like a weird personal milestone video, which is more intriguing than the dry history topics."
+    },
+    {
+      "i": 169,
+      "response": "CHOICE: 1\nWHY: The title about Mark Antony the politician sounds like a personal story I might find entertaining without needing any background knowledge."
+    },
+    {
+      "i": 170,
+      "response": "CHOICE: 3\nWHY: As a fan of Roman military history, the promise of insight into what drove Roman battlefield success instantly appeals to me."
+    },
+    {
+      "i": 171,
+      "response": "CHOICE: 3\nWHY: As a fan of ancient Greek military history, hoplite warfare between Athens and Sparta is exactly the kind of classic ground combat topic I love."
+    },
+    {
+      "i": 172,
+      "response": "CHOICE: 2\nWHY: As someone into Greek military history, a clear title on hoplites and Athens versus Sparta instantly appeals to my interest."
+    },
+    {
+      "i": 173,
+      "response": "CHOICE: 1\nWHY: I’m always drawn to straight-up hoplite battle tactics and the classic Athens vs Sparta rivalry."
+    },
+    {
+      "i": 174,
+      "response": "CHOICE: 3\nWHY: As a fan of Greek military history, the focused look at hoplites and warfare between Athens and Sparta is the most directly appealing."
+    },
+    {
+      "i": 175,
+      "response": "CHOICE: 1\nWHY: I’m instantly curious about the lopsided Roman wins over those famous Hellenistic armies and want the quick answer."
+    },
+    {
+      "i": 176,
+      "response": "CHOICE: 2\nWHY: \"Aggression and Success\" sounds like a punchy, entertaining take rather than a dry history lesson."
+    },
+    {
+      "i": 177,
+      "response": "CHOICE: 3\nWHY: \"Punic Wars\" sounds like a cool battle name and the word \"Overview\" promises an easy, no-effort watch."
+    },
+    {
+      "i": 178,
+      "response": "CHOICE: 3\nWHY: As someone into Greek military history, \"Hoplites and Warfare\" directly promises the combat detail I care about most."
+    },
+    {
+      "i": 179,
+      "response": "CHOICE: 2\nWHY: As a fan of ancient military history, the link between modern combat theory and ancient warfare immediately piques my curiosity."
+    },
+    {
+      "i": 180,
+      "response": "CHOICE: 3\nWHY: As a fan of Greek military history, \"Hoplites and Warfare\" promises focused detail on the core battlefield experience I love."
+    },
+    {
+      "i": 181,
+      "response": "CHOICE: 2\nWHY: The \"AT THIRTY!\" hook makes it sound like a milestone or special episode, which instantly piques my curiosity."
+    },
+    {
+      "i": 182,
+      "response": "CHOICE: 3\nWHY: The \"AT THIRTY!\" sounds like a fun, casual twist that sticks out from the rest."
+    },
+    {
+      "i": 183,
+      "response": "CHOICE: 3\nWHY: \"Aggression and Success in Roman Warfare\" promises a focused look at what made Rome win, which instantly hooks me as a fan of their military history."
+    },
+    {
+      "i": 184,
+      "response": "CHOICE: 2\nWHY: \"An Overview\" sounds like an easy, low-effort way to learn something new without needing prior interest."
+    },
+    {
+      "i": 185,
+      "response": "CHOICE: 4\nWHY: \"Navies and seapower\" sounds like epic sea battles, which is more entertaining than dry intro or analysis videos."
+    },
+    {
+      "i": 186,
+      "response": "CHOICE: 3\nWHY: The title poses a surprising question that makes me curious about an easy Roman victory I know nothing about."
+    },
+    {
+      "i": 187,
+      "response": "CHOICE: 4\nWHY: The punchy \"AT THIRTY!\" made me curious what happened to the Roman Army at that age or timeframe."
+    },
+    {
+      "i": 188,
+      "response": "CHOICE: 3\nWHY: As someone into Greek military history, hoplites and Athens vs Sparta combat instantly pulls me in."
+    },
+    {
+      "i": 189,
+      "response": "CHOICE: 3\nWHY: I’ve always wondered how Rome beat those big Hellenistic kingdoms so fast, so that title hits my curiosity immediately."
+    },
+    {
+      "i": 190,
+      "response": "CHOICE: 4\nWHY: The shouty \"AT THIRTY!\" makes it sound like a fun, punchy video rather than a dry history lesson."
+    },
+    {
+      "i": 191,
+      "response": "CHOICE: 1\nWHY: The \"AT THIRTY!\" makes it sound like a fun, relatable twist on army stuff that might be a joke or weirdly specific."
+    },
+    {
+      "i": 192,
+      "response": "CHOICE: 4\nWHY: The title poses a specific, intriguing question about Roman superiority that immediately sparks my curiosity."
+    },
+    {
+      "i": 193,
+      "response": "CHOICE: 2\nWHY: The question of Rome's easy victories over the Macedonian and Seleucid successors of Alexander has always puzzled me and I'd want a quick answer."
+    },
+    {
+      "i": 194,
+      "response": "CHOICE: 3\nWHY: \"Aggression and Success\" sounds like a punchy, entertaining take rather than a dry history lesson."
+    },
+    {
+      "i": 195,
+      "response": "CHOICE: 4\nWHY: \"The Conquered and the Proud\" sounds like a dramatic story, not a dry history lecture."
+    },
+    {
+      "i": 196,
+      "response": "CHOICE: 3\nWHY: \"Aggression and Success\" sounds like a punchy, entertaining take rather than a dry history lesson."
+    },
+    {
+      "i": 197,
+      "response": "CHOICE: 1\nWHY: The title promises a clear, intriguing explanation for Rome’s easy victories over major Hellenistic powers, which instantly piques my curiosity."
+    },
+    {
+      "i": 198,
+      "response": "CHOICE: 2\nWHY: \"The Punic Wars\" sounds like a simple, broad overview that could be an easy and entertaining story to jump into."
+    },
+    {
+      "i": 199,
+      "response": "CHOICE: 3\nWHY: \"The Punic Wars\" sounds like a straightforward epic conflict overview that could be fun to casually watch."
+    },
+    {
+      "i": 200,
+      "response": "CHOICE: 1\nWHY: As a fan of Greek military history, hoplites and warfare between Athens and Sparta is exactly the kind of classical combat content I love."
+    },
+    {
+      "i": 201,
+      "response": "CHOICE: 2\nWHY: The mention of S.L.A. Marshall and combat participation across modern and ancient instantly spikes my curiosity about how ancient battles compare to modern research."
+    },
+    {
+      "i": 202,
+      "response": "CHOICE: 3\nWHY: \"AT THIRTY!\" makes it sound like a fun, weirdly specific take on the Roman army that I didn't expect from a history title."
+    },
+    {
+      "i": 203,
+      "response": "CHOICE: 1\nWHY: The \"AT THIRTY!\" makes it sound like a fun personal milestone twist on history, which instantly caught my attention."
+    },
+    {
+      "i": 204,
+      "response": "CHOICE: 2\nWHY: The \"AT THIRTY!\" makes it sound like a fun, quirky angle rather than a dry history lesson."
+    },
+    {
+      "i": 205,
+      "response": "CHOICE: 4\nWHY: As a fan of ancient Greek military history, a focused comparison of Athenian and Spartan naval power and triremes instantly appeals to me."
+    },
+    {
+      "i": 206,
+      "response": "CHOICE: 4\nWHY: \"The Roman Army at War AT THIRTY!\" sounds like a punchy, intriguing take on Roman military history that I want to understand immediately."
+    },
+    {
+      "i": 207,
+      "response": "CHOICE: 3\nWHY: \"Punic Wars\" sounds like a weird, intriguing name and I want to know what it's about."
+    },
+    {
+      "i": 208,
+      "response": "CHOICE: 2\nWHY: As a fan of Roman military history, the title on Roman aggression and success in warfare instantly appeals to my interest in how they won their wars."
+    },
+    {
+      "i": 209,
+      "response": "CHOICE: 1\nWHY: The title promises a clear explanation of Rome’s swift victories over major Hellenistic armies, which is exactly the kind of comparative military history I enjoy."
+    },
+    {
+      "i": 210,
+      "response": "CHOICE: 2\nWHY: \"Aggression and Success\" sounds like a punchy, drama-filled topic that might be fun to watch."
+    },
+    {
+      "i": 211,
+      "response": "CHOICE: 3\nWHY: The title asks a intriguing \"why\" question that sounds like a surprising story I'd want to know."
+    },
+    {
+      "i": 212,
+      "response": "CHOICE: 3\nWHY: As someone into ancient military history, \"Hoplites and Warfare in Classical Greece\" directly promises the ground-level combat detail I find most interesting."
+    },
+    {
+      "i": 213,
+      "response": "CHOICE: 2\nWHY: The title promises a focused look at what made Roman martial conduct effective, which directly fits my interest in Roman military history."
+    },
+    {
+      "i": 214,
+      "response": "CHOICE: 3\nWHY: The odd \"AT THIRTY!\" made me curious what that means and felt more playful than the others."
+    },
+    {
+      "i": 215,
+      "response": "CHOICE: 3\nWHY: As someone who loves ancient military history, I'm instantly curious about how Rome managed such easy victories over those famous Hellenistic kingdoms."
+    },
+    {
+      "i": 216,
+      "response": "CHOICE: 3\nWHY: As someone into Hellenistic and Roman military history, that title promises a direct explanation of a major battlefield mismatch I've wondered about."
+    },
+    {
+      "i": 217,
+      "response": "CHOICE: 4\nWHY: \"AT THIRTY!\" makes me instantly curious what happened to the Roman army at that age or number and sounds punchy."
+    },
+    {
+      "i": 218,
+      "response": "CHOICE: 2\nWHY: The \"AT THIRTY!\" makes it sound like a fun, punchy video rather than a dry history lesson."
+    },
+    {
+      "i": 219,
+      "response": "CHOICE: 2\nWHY: The \"AT THIRTY!\" makes it sound like a fun, punchy video rather than a dry history lesson."
+    },
+    {
+      "i": 220,
+      "response": "CHOICE: 2\nWHY: The \"AT THIRTY!\" makes it sound weird and intriguing like some odd joke or twist I gotta see."
+    },
+    {
+      "i": 221,
+      "response": "CHOICE: 1\nWHY: As a fan of Roman military history, I'm instantly drawn to a title promising insight into their battlefield supremacy over Hellenistic armies."
+    },
+    {
+      "i": 222,
+      "response": "CHOICE: 4\nWHY: The shouting-capitalized \"AT THIRTY!\" makes it sound like a weird, punchy hype video rather than dry history."
+    },
+    {
+      "i": 223,
+      "response": "CHOICE: 4\nWHY: The title poses a surprising question that makes me curious about an easy underdog win."
+    },
+    {
+      "i": 224,
+      "response": "CHOICE: 4\nWHY: The punchy \"AT THIRTY!\" makes me curious what happened to the Roman army at that mark and stands out from the standard overview titles."
+    },
+    {
+      "i": 225,
+      "response": "CHOICE: 2\nWHY: The title poses a specific, intriguing historical question that hits my interest in Roman-Greek clashes without assuming prior channel context."
+    },
+    {
+      "i": 226,
+      "response": "CHOICE: 2\nWHY: The \"AT THIRTY!\" makes it sound like a fun, weirdly specific twist that stands out from the rest."
+    },
+    {
+      "i": 227,
+      "response": "CHOICE: 2\nWHY: \"The Punic Wars\" sounds like a clear, story-style overview that’s easy to jump into without prior knowledge."
+    },
+    {
+      "i": 228,
+      "response": "CHOICE: 2\nWHY: I’ve always been curious how Rome beat the successor kingdoms so fast, and the title promises a clear explanation."
+    },
+    {
+      "i": 229,
+      "response": "CHOICE: 4\nWHY: The \"AT THIRTY!\" makes it sound like a punchy, personal twist that’s more fun than the other dry history titles."
+    },
+    {
+      "i": 230,
+      "response": "CHOICE: 4\nWHY: \"AT THIRTY!\" sounds like a fun, punchy video and being 55+ made me curious what the Roman army was like at my age."
+    },
+    {
+      "i": 231,
+      "response": "CHOICE: 3\nWHY: As someone keen on Greek military history, a clear comparison of Athenian and Spartan hoplite warfare instantly appeals to me."
+    },
+    {
+      "i": 232,
+      "response": "CHOICE: 3\nWHY: The word \"INTRODUCTION\" suggests an easy, low-effort starting point with no prior knowledge needed."
+    },
+    {
+      "i": 233,
+      "response": "CHOICE: 1\nWHY: The \"AT THIRTY!\" makes it sound like a fun personal twist I want to see."
+    },
+    {
+      "i": 234,
+      "response": "CHOICE: 2\nWHY: \"Punic Wars\" sounds like a cool unknown conflict and the word \"Overview\" promises easy, low-effort entertainment."
+    },
+    {
+      "i": 235,
+      "response": "CHOICE: 4\nWHY: The phrase \"AN INTRODUCTION\" suggests an easy, low-effort starting point that feels less like a deep history lecture."
+    },
+    {
+      "i": 236,
+      "response": "CHOICE: 4\nWHY: The \"AT THIRTY!\" phrasing sounds punchy and personal, like it might be a fun or relatable take rather than a dry history lesson."
+    },
+    {
+      "i": 237,
+      "response": "CHOICE: 2\nWHY: I’m curious about the asymmetry in those conquests and the title poses a clear, intriguing question."
+    },
+    {
+      "i": 238,
+      "response": "CHOICE: 4\nWHY: The shouty \"AT THIRTY!\" phrasing makes me curious what happened to the Roman army at that age or year and feels instantly intriguing."
+    },
+    {
+      "i": 239,
+      "response": "CHOICE: 4\nWHY: \"The Roman Army at War AT THIRTY!\" sounds like a punchy, intriguing look at a specific Roman military scenario that I can't resist clicking."
+    },
+    {
+      "i": 240,
+      "response": "CHOICE: 2\nWHY: I’ve always wondered how Rome beat those big Hellenistic armies so fast, and the title promises a clear answer."
+    },
+    {
+      "i": 241,
+      "response": "CHOICE: 4\nWHY: The bizarre all-caps question makes me curious what crazy story is behind it, unlike the boring music covers."
+    },
+    {
+      "i": 242,
+      "response": "CHOICE: 2\nWHY: I love Oasis and a familiar acoustic Wonderwall cover is an easy instant click."
+    },
+    {
+      "i": 243,
+      "response": "CHOICE: 4\nWHY: The all-caps dramatic question makes me curious what happened to get so many subs in a week."
+    },
+    {
+      "i": 244,
+      "response": "CHOICE: 2\nWHY: \"Wicked Game\" is a classic I know and the collaboration mention caught my eye more than the solo covers."
+    },
+    {
+      "i": 245,
+      "response": "CHOICE: 3\nWHY: A haunting Take On Me cover tied to The Last of Us 2 instantly sounds like a unique acoustic twist I’d want to hear."
+    },
+    {
+      "i": 246,
+      "response": "CHOICE: 2\nWHY: \"Time for an update..\" sounds like a casual personal vlog, which is more my speed than music covers."
+    },
+    {
+      "i": 247,
+      "response": "CHOICE: 2\nWHY: A wild channel milestone claim is way more intriguing than another acoustic cover I didn't ask for."
+    },
+    {
+      "i": 248,
+      "response": "CHOICE: 3\nWHY: \"Time for an update..\" sounds like a personal vlog or channel update, which feels more entertaining and less like a music cover I'm not into."
+    },
+    {
+      "i": 249,
+      "response": "CHOICE: 3\nWHY: \"I'm Outta Love\" sounds like a familiar banger and the collab tag makes it feel less like a sleepy solo cover."
+    },
+    {
+      "i": 250,
+      "response": "CHOICE: 4\nWHY: The all-caps excited question makes me curious what happened to get so many subscribers so fast."
+    },
+    {
+      "i": 251,
+      "response": "CHOICE: 3\nWHY: I recognize The Last of Us and Ellie, so that title feels familiar and intriguing compared to the plain song covers."
+    },
+    {
+      "i": 252,
+      "response": "CHOICE: 1\nWHY: The Last of Us 2 reference makes it feel like a pop-culture mashup rather than just another boring music cover."
+    },
+    {
+      "i": 253,
+      "response": "CHOICE: 2\nWHY: I love acoustic covers of classic songs and Wonderwall is an instant yes for me."
+    },
+    {
+      "i": 254,
+      "response": "CHOICE: 1\nWHY: As an acoustic cover fan, a familiar song like Wild Horses performed by a new singer instantly appeals to me."
+    },
+    {
+      "i": 255,
+      "response": "CHOICE: 4\nWHY: Wonderwall is a well-known rock song and I’d be curious what an acoustic cover of it sounds like."
+    },
+    {
+      "i": 256,
+      "response": "CHOICE: 3\nWHY: Wonderwall is a classic acoustic-friendly song I love hearing covered, and it instantly caught my interest."
+    },
+    {
+      "i": 257,
+      "response": "CHOICE: 3\nWHY: As someone into acoustic covers, a \"Wicked Game\" cover featuring named musicians instantly appeals more than updates or milestone videos."
+    },
+    {
+      "i": 258,
+      "response": "CHOICE: 1\nWHY: A wild subscriber milestone sounds like chaotic entertaining drama, not another boring acoustic cover."
+    },
+    {
+      "i": 259,
+      "response": "CHOICE: 2\nWHY: Wonderwall is a classic acoustic-friendly song I love hearing covered by new artists."
+    },
+    {
+      "i": 260,
+      "response": "CHOICE: 3\nWHY: Wild Horses is a classic I love and a Natasha Bedingfield cover by Hannah Boulton sounds like a fresh acoustic take I'd want to hear."
+    },
+    {
+      "i": 261,
+      "response": "CHOICE: 4\nWHY: The Last of Us 2/Ellie reference caught my eye since I know the game and it sounds more interesting than a plain cover."
+    },
+    {
+      "i": 262,
+      "response": "CHOICE: 4\nWHY: I recognize Take On Me and The Last of Us from general pop culture, so it sparks my curiosity more than the others."
+    },
+    {
+      "i": 263,
+      "response": "CHOICE: 3\nWHY: Wonderwall is a classic rock song I know and might enjoy hearing, unlike the unfamiliar others."
+    },
+    {
+      "i": 264,
+      "response": "CHOICE: 4\nWHY: I love acoustic covers of Sia songs and Chandelier is a powerful song I'd enjoy hearing reimagined."
+    },
+    {
+      "i": 265,
+      "response": "CHOICE: 3\nWHY: An original single sounds more interesting than another cover of a song I already know."
+    },
+    {
+      "i": 266,
+      "response": "CHOICE: 1\nWHY: A surprising milestone headline is more likely to catch my eye than unknown music covers."
+    },
+    {
+      "i": 267,
+      "response": "CHOICE: 3\nWHY: The collaboration with named musicians sounds more like an event than a solo cover, which piques my curiosity."
+    },
+    {
+      "i": 268,
+      "response": "CHOICE: 2\nWHY: \"Chandelier\" is a well-known hit and the Sia cover title instantly rings a bell for a quick listen."
+    },
+    {
+      "i": 269,
+      "response": "CHOICE: 3\nWHY: Wonderwall is a classic Oasis song I know and might enjoy hearing, unlike the obscure covers."
+    },
+    {
+      "i": 270,
+      "response": "CHOICE: 2\nWHY: \"Time for an update..\" sounds like a personal vlog or channel update, which piques my curiosity more than another music cover."
+    },
+    {
+      "i": 271,
+      "response": "CHOICE: 1\nWHY: The all-caps hype about gaining ten thousand subscribers in a week feels like a wild, curiosity-sparking drama I'd rather click than hear a music cover."
+    },
+    {
+      "i": 272,
+      "response": "CHOICE: 3\nWHY: The all-caps shock-question title feels like a weird internet drama clickbait thing, not another boring music cover."
+    },
+    {
+      "i": 273,
+      "response": "CHOICE: 2\nWHY: The collab with Rabea Massaad sounds like a proper track, not just another solo cover."
+    },
+    {
+      "i": 274,
+      "response": "CHOICE: 4\nWHY: Wonderwall is a classic acoustic-friendly song and I love hearing fresh Oasis covers from dedicated music channels."
+    },
+    {
+      "i": 275,
+      "response": "CHOICE: 4\nWHY: The Last of Us 2 reference caught my eye since I know the game and it sounds more interesting than a plain cover."
+    },
+    {
+      "i": 276,
+      "response": "CHOICE: 3\nWHY: A haunting classic like Wicked Game as an acoustic collab with named musicians instantly piques my curiosity."
+    },
+    {
+      "i": 277,
+      "response": "CHOICE: 3\nWHY: Wonderwall is a classic acoustic-friendly song I love hearing covered, and the title is instantly recognizable."
+    },
+    {
+      "i": 278,
+      "response": "CHOICE: 3\nWHY: \"Black Velvet\" is a classic acoustic-friendly song I love, and the cover title instantly caught my interest."
+    },
+    {
+      "i": 279,
+      "response": "CHOICE: 3\nWHY: \"Black Velvet\" is a classic song I know and like, so the cover caught my eye instantly."
+    },
+    {
+      "i": 280,
+      "response": "CHOICE: 3\nWHY: \"I'm Outta Love\" sounds like a recognizable pop hit and the cover collab title is the most intriguing to me."
+    },
+    {
+      "i": 281,
+      "response": "CHOICE: 2\nWHY: The Last of Us is a show I've heard of, so that title sounds more interesting than just a plain song cover."
+    },
+    {
+      "i": 282,
+      "response": "CHOICE: 3\nWHY: A dramatic subscriber milestone story sounds more entertaining than unfamiliar music covers."
+    },
+    {
+      "i": 283,
+      "response": "CHOICE: 2\nWHY: The all-caps hype about gaining ten thousand subscribers in a week feels like a weird, entertaining story I didn't expect from a cover channel."
+    },
+    {
+      "i": 284,
+      "response": "CHOICE: 4\nWHY: As a fan of acoustic covers, a Sia Chandelier cover by Hannah Boulton instantly appeals to me."
+    },
+    {
+      "i": 285,
+      "response": "CHOICE: 1\nWHY: A dramatic subscriber spike sounds like entertaining drama, not another music cover I'm not into."
+    },
+    {
+      "i": 286,
+      "response": "CHOICE: 2\nWHY: Wonderwall by Oasis is a well-known banger and I'd be curious what a cover sounds like."
+    },
+    {
+      "i": 287,
+      "response": "CHOICE: 2\nWHY: \"Wild Horses\" is a classic acoustic-friendly song and the Natasha Bedingfield tag plus a female cover singer piques my curiosity."
+    },
+    {
+      "i": 288,
+      "response": "CHOICE: 1\nWHY: The all-caps hype about gaining 10k subs in a week feels like a wild story I'd wanna see, not just another music cover."
+    },
+    {
+      "i": 289,
+      "response": "CHOICE: 4\nWHY: \"Wicked Game\" is a classic rock song I know and the collaboration sounds more interesting than a solo cover."
+    },
+    {
+      "i": 290,
+      "response": "CHOICE: 2\nWHY: Sia's Chandelier as an acoustic cover by Hannah Boulton sounds like a hauntingly beautiful reinterpretation I'd love to hear."
+    },
+    {
+      "i": 291,
+      "response": "CHOICE: 2\nWHY: Wicked Game is a moody classic and the collab with Rabea Massaad sparks my curiosity for an acoustic take."
+    },
+    {
+      "i": 292,
+      "response": "CHOICE: 2\nWHY: I love acoustic covers and Wonderwall is a classic I'd instantly want to hear."
+    },
+    {
+      "i": 293,
+      "response": "CHOICE: 2\nWHY: The collaboration with Rabea Massaad on a moody classic like Wicked Game sounds like a fresh acoustic take I'd want to hear."
+    },
+    {
+      "i": 294,
+      "response": "CHOICE: 3\nWHY: Wonderwall is a classic acoustic-friendly song and I know Hannah Boulton covers from the other titles, so it’s an easy instant grab."
+    },
+    {
+      "i": 295,
+      "response": "CHOICE: 2\nWHY: The Last of Us 2/Ellie reference makes this acoustic cover feel unexpected and intriguing."
+    },
+    {
+      "i": 296,
+      "response": "CHOICE: 2\nWHY: The Last of Us 2 reference caught my eye since I know the game, not because it's a cover."
+    },
+    {
+      "i": 297,
+      "response": "CHOICE: 3\nWHY: \"Time for an update..\" sounds like a personal vlog or channel update, which is more my casual entertainment speed than music covers."
+    },
+    {
+      "i": 298,
+      "response": "CHOICE: 3\nWHY: Wonderwall is a classic acoustic-friendly song I love hearing covered by new artists."
+    },
+    {
+      "i": 299,
+      "response": "CHOICE: 1\nWHY: The Last of Us 2/Ellie angle makes a familiar song cover feel fresh and intriguing."
+    },
+    {
+      "i": 300,
+      "response": "CHOICE: 2\nWHY: Wicked Game is a moody classic I love hearing acoustic and the collab with Rabea grabs me instantly."
+    },
+    {
+      "i": 301,
+      "response": "CHOICE: 4\nWHY: Wonderwall is a classic acoustic-friendly song I love hearing covered and the title is a simple straightforward cover."
+    },
+    {
+      "i": 302,
+      "response": "CHOICE: 3\nWHY: The all-caps dramatic question makes me curious what happened, unlike the boring cover song titles."
+    },
+    {
+      "i": 303,
+      "response": "CHOICE: 2\nWHY: I'm always down to hear a fresh acoustic cover of a familiar pop song like Wild Horses."
+    },
+    {
+      "i": 304,
+      "response": "CHOICE: 2\nWHY: \"Time for an update..\" sounds like a personal vlog or channel update, which is more my casual entertainment speed than a music cover."
+    },
+    {
+      "i": 305,
+      "response": "CHOICE: 2\nWHY: As an older UK lad I know Oasis well and fancy a casual acoustic Wonderwall cover without any channel baggage."
+    },
+    {
+      "i": 306,
+      "response": "CHOICE: 2\nWHY: I love acoustic Oasis covers and Wonderwall is a classic I'd instantly want to hear."
+    },
+    {
+      "i": 307,
+      "response": "CHOICE: 3\nWHY: I recognize Natasha Bedingfield and \"Wild Horses\" sounds like a familiar song I'd randomly listen to."
+    },
+    {
+      "i": 308,
+      "response": "CHOICE: 3\nWHY: Wonderwall is a classic acoustic-friendly song I love and instantly recognize."
+    },
+    {
+      "i": 309,
+      "response": "CHOICE: 3\nWHY: The Last of Us 2 reference caught my eye since I know the game, unlike the music covers."
+    },
+    {
+      "i": 310,
+      "response": "CHOICE: 2\nWHY: I love acoustic covers of familiar songs and Natasha Bedingfield’s Wild Horses is one I’d enjoy hearing reimagined."
+    },
+    {
+      "i": 311,
+      "response": "CHOICE: 1\nWHY: The all-caps excitement about hitting ten thousand subscribers sounds like fun drama I'd actually want to watch."
+    },
+    {
+      "i": 312,
+      "response": "CHOICE: 4\nWHY: The all-caps question about gaining subscribers sounds like a weird drama story, which is more entertaining than song covers."
+    },
+    {
+      "i": 313,
+      "response": "CHOICE: 3\nWHY: The Last of Us 2 reference makes it feel like a gaming-related video rather than just another music cover."
+    },
+    {
+      "i": 314,
+      "response": "CHOICE: 1\nWHY: I've always loved Oasis and a solo acoustic Wonderwall cover is exactly the kind of easy-listening throwback I'd click on."
+    },
+    {
+      "i": 315,
+      "response": "CHOICE: 3\nWHY: \"Time for an update..\" sounds like a personal vlog or channel update, which is more my casual entertainment vibe than another music cover."
+    },
+    {
+      "i": 316,
+      "response": "CHOICE: 4\nWHY: A stripped-back acoustic take on Sia's \"Chandelier\" instantly sounds like a compelling contrast to the original."
+    },
+    {
+      "i": 317,
+      "response": "CHOICE: 4\nWHY: \"Wicked Game\" sounds like a moody track and the collaboration hint makes it feel less like a typical solo acoustic cover."
+    },
+    {
+      "i": 318,
+      "response": "CHOICE: 1\nWHY: I know and like Oasis, and a straightforward acoustic \"Wonderwall\" cover is exactly the kind of classic I'd click on spontaneously."
+    },
+    {
+      "i": 319,
+      "response": "CHOICE: 2\nWHY: \"Wicked Game\" is a well-known rock song and the guitarist name made it sound like a real collab, not just another soft cover."
+    },
+    {
+      "i": 320,
+      "response": "CHOICE: 3\nWHY: An original single sounds more interesting than another acoustic cover of a song I already know."
+    },
+    {
+      "i": 321,
+      "response": "CHOICE: 2\nWHY: I love acoustic covers of well-known songs and Wild Horses is a classic I'd want to hear reimagined."
+    },
+    {
+      "i": 322,
+      "response": "CHOICE: 2\nWHY: As a fan of acoustic covers, a recognizable song like \"Take On Me\" framed as an Ellie/Last of Us 2 version instantly piques my curiosity."
+    },
+    {
+      "i": 323,
+      "response": "CHOICE: 1\nWHY: The all-caps excitement about gaining subscribers fast makes me curious what happened, unlike the music covers I'm not into."
+    },
+    {
+      "i": 324,
+      "response": "CHOICE: 2\nWHY: The all-caps dramatic question makes me curious what happened, unlike the music covers I'm not into."
+    },
+    {
+      "i": 325,
+      "response": "CHOICE: 3\nWHY: As a fan of acoustic covers, \"Black Velvet\" is a classic song I'd enjoy hearing reimagined."
+    },
+    {
+      "i": 326,
+      "response": "CHOICE: 3\nWHY: Wonderwall is a classic acoustic-friendly song I love hearing covered by new artists."
+    },
+    {
+      "i": 327,
+      "response": "CHOICE: 3\nWHY: \"Time for an update..\" sounds like a personal vlog or channel update, which seems more entertaining than just music covers."
+    },
+    {
+      "i": 328,
+      "response": "CHOICE: 3\nWHY: I'm drawn to a familiar acoustic cover of a classic-style song by a known pop artist."
+    },
+    {
+      "i": 329,
+      "response": "CHOICE: 2\nWHY: A Wicked Game cover with Rabea Massaad promises a quality acoustic guitar-driven take on a classic song."
+    },
+    {
+      "i": 330,
+      "response": "CHOICE: 2\nWHY: The Last of Us reference makes it feel like a fun, unexpected crossover I’d want to check out."
+    },
+    {
+      "i": 331,
+      "response": "CHOICE: 2\nWHY: \"Time for an update..\" sounds like a personal vlog or channel update, which feels more entertaining and relatable than music covers."
+    },
+    {
+      "i": 332,
+      "response": "CHOICE: 2\nWHY: The collaboration with Rabea Massaad hints at a unique acoustic twist on a moody classic I already love."
+    },
+    {
+      "i": 333,
+      "response": "CHOICE: 1\nWHY: Wonderwall is a classic acoustic-friendly song I know well and would enjoy hearing covered."
+    },
+    {
+      "i": 334,
+      "response": "CHOICE: 3\nWHY: A surprising milestone like ten thousand subscribers in a week sounds like fun, odd drama I'd enjoy stumbling into."
+    },
+    {
+      "i": 335,
+      "response": "CHOICE: 3\nWHY: As someone who enjoys acoustic music, an original single by Hannah Boulton sounds like a fresh discover rather than a familiar cover."
+    },
+    {
+      "i": 336,
+      "response": "CHOICE: 2\nWHY: \"Black Velvet\" is a classic song I love and a named acoustic cover instantly appeals to me."
+    },
+    {
+      "i": 337,
+      "response": "CHOICE: 3\nWHY: A haunting Take On Me cover in Ellie's voice from The Last of Us 2 sounds like a unique acoustic twist I'd love to hear."
+    },
+    {
+      "i": 338,
+      "response": "CHOICE: 2\nWHY: A wild claim about gaining ten thousand subscribers in a week sounds like bizarre internet drama I'd click out of curiosity."
+    },
+    {
+      "i": 339,
+      "response": "CHOICE: 2\nWHY: A wild channel milestone like that sounds like a fun, weird story I'd rather watch than another acoustic cover."
+    },
+    {
+      "i": 340,
+      "response": "CHOICE: 3\nWHY: The Last of Us 2 reference caught my eye since I know the game, not the acoustic cover stuff."
+    },
+    {
+      "i": 341,
+      "response": "CHOICE: 3\nWHY: I love acoustic covers of well-known songs and Wild Horses is a beautiful classic I'd enjoy hearing reimagined."
+    },
+    {
+      "i": 342,
+      "response": "CHOICE: 4\nWHY: The all-caps questioning title feels like a weird drama hook and instantly grabs my attention more than plain music covers."
+    },
+    {
+      "i": 343,
+      "response": "CHOICE: 2\nWHY: \"Time for an update..\" sounds like a casual vlog or channel update, which feels more entertaining than music covers I'm not into."
+    },
+    {
+      "i": 344,
+      "response": "CHOICE: 2\nWHY: As a fan of acoustic covers, a \"Wicked Game\" cover featuring named musicians instantly appeals to me."
+    },
+    {
+      "i": 345,
+      "response": "CHOICE: 2\nWHY: The all-caps shock title about gaining ten thousand subscribers in a week spikes my curiosity as a casual viewer."
+    },
+    {
+      "i": 346,
+      "response": "CHOICE: 4\nWHY: A wild claim about gaining ten thousand subscribers in a week sounds curious and entertaining."
+    },
+    {
+      "i": 347,
+      "response": "CHOICE: 3\nWHY: \"Wicked Game\" is a moody classic I love acoustic versions of, and the collaborator names hint at a quality rendition."
+    },
+    {
+      "i": 348,
+      "response": "CHOICE: 4\nWHY: The all-caps question about gaining ten thousand subscribers in a week sparks my curiosity as a weird, unexpected claim."
+    },
+    {
+      "i": 349,
+      "response": "CHOICE: 1\nWHY: The all-caps milestone and question mark make it feel like a crazy story I'd want to peek at for a laugh."
+    },
+    {
+      "i": 350,
+      "response": "CHOICE: 2\nWHY: \"Time for an update..\" sounds like a personal vlog or channel update, which is more intriguing than another music cover."
+    },
+    {
+      "i": 351,
+      "response": "CHOICE: 1\nWHY: The Last of Us 2 reference makes it feel like something beyond a standard music cover and catches my attention."
+    },
+    {
+      "i": 352,
+      "response": "CHOICE: 3\nWHY: The Last of Us 2/Ellie reference instantly hooks me as a gamer curious about that acoustic reinterpretation."
+    },
+    {
+      "i": 353,
+      "response": "CHOICE: 3\nWHY: Wonderwall is a classic Oasis song I love and a solo acoustic cover is exactly the kind of thing I’m in the mood for."
+    },
+    {
+      "i": 354,
+      "response": "CHOICE: 2\nWHY: \"Time for an update..\" sounds like a personal vlog or channel update, which seems more entertaining than random music covers."
+    },
+    {
+      "i": 355,
+      "response": "CHOICE: 4\nWHY: As an acoustic cover fan, an \"I'm Outta Love\" cover by two named artists instantly appeals to me."
+    },
+    {
+      "i": 356,
+      "response": "CHOICE: 2\nWHY: Oasis is a well-known band and Wonderwall is a recognizable hit, so it sparks my curiosity more than the others."
+    },
+    {
+      "i": 357,
+      "response": "CHOICE: 4\nWHY: The Last of Us 2/Ellie reference instantly grabs me as a gamer curious about that acoustic reinterpretation."
+    },
+    {
+      "i": 358,
+      "response": "CHOICE: 4\nWHY: The all-caps question about gaining ten thousand subscribers in a week sparks my curiosity as a weird, unexpected feed outlier."
+    },
+    {
+      "i": 359,
+      "response": "CHOICE: 2\nWHY: I'm drawn to a familiar acoustic cover of a well-known song by an artist I don't know but sounds intriguing."
+    },
+    {
+      "i": 360,
+      "response": "CHOICE: 3\nWHY: The Last of Us 2/Ellie reference makes this acoustic cover feel unexpected and intriguing."
+    },
+    {
+      "i": 361,
+      "response": "CHOICE: 2\nWHY: The vague hint of a rare shift in Bitcoin makes me curious what changed without promising unrealistic riches."
+    },
+    {
+      "i": 362,
+      "response": "CHOICE: 4\nWHY: The conditional warning about selling everything hints at a specific make-or-break event I'd want to understand as a crypto holder."
+    },
+    {
+      "i": 363,
+      "response": "CHOICE: 1\nWHY: The promise of printing millions sounds like wild, fun hype I'd wanna see even if it's nonsense."
+    },
+    {
+      "i": 364,
+      "response": "CHOICE: 3\nWHY: The specific, bold prediction of when the crash ends instantly grabs my attention as a crypto-interested viewer."
+    },
+    {
+      "i": 365,
+      "response": "CHOICE: 2\nWHY: The phrase \"something big just shifted\" sounds intriguing and mysterious enough to make me curious what happened."
+    },
+    {
+      "i": 366,
+      "response": "CHOICE: 4\nWHY: \"Something Big Just Shifted\" sounds intriguing and mysterious enough to make me curious without needing to know crypto."
+    },
+    {
+      "i": 367,
+      "response": "CHOICE: 3\nWHY: The phrase \"quietly doubling\" sounds intriguing and low-effort to peek at for quick entertainment."
+    },
+    {
+      "i": 368,
+      "response": "CHOICE: 4\nWHY: The dramatic \"I'm selling all my crypto\" threat makes me curious what crazy condition he's talking about."
+    },
+    {
+      "i": 369,
+      "response": "CHOICE: 4\nWHY: The phrase \"quietly doubling\" sounds intriguing and low-effort to peek at without promising hype or complicated talk."
+    },
+    {
+      "i": 370,
+      "response": "CHOICE: 4\nWHY: The title sounds like it explains a current mystery in plain language, which feels more entertaining than the others."
+    },
+    {
+      "i": 371,
+      "response": "CHOICE: 2\nWHY: The dramatic personal stake of \"I'm selling all my crypto\" makes me curious what trigger would make someone do that."
+    },
+    {
+      "i": 372,
+      "response": "CHOICE: 3\nWHY: The phrase \"Something Big Just Shifted\" sounds intriguing and mysterious enough to make me curious what happened."
+    },
+    {
+      "i": 373,
+      "response": "CHOICE: 3\nWHY: As someone into finance analysis, I want to understand the actual market dynamics behind Bitcoin's recent weakness rather than hype or speculation."
+    },
+    {
+      "i": 374,
+      "response": "CHOICE: 1\nWHY: As someone interested in crypto, I'm curious what specific altcoins whales are accumulating during a quiet rally."
+    },
+    {
+      "i": 375,
+      "response": "CHOICE: 3\nWHY: The phrase \"quietly doubling\" sounds intriguing and low-drama compared to the overly hypey or vague others."
+    },
+    {
+      "i": 376,
+      "response": "CHOICE: 1\nWHY: As someone into crypto analysis, I'm curious what specific altcoins whales are accumulating during a quiet rally."
+    },
+    {
+      "i": 377,
+      "response": "CHOICE: 3\nWHY: The phrase \"Something Big Just Shifted... (first time in months)\" hints at a rare, timely market move I'd want to know about immediately."
+    },
+    {
+      "i": 378,
+      "response": "CHOICE: 4\nWHY: The idea of altcoins quietly doubling and whales buying sounds intriguing and low-effort to peek at."
+    },
+    {
+      "i": 379,
+      "response": "CHOICE: 4\nWHY: The blunt, conditional threat of selling everything makes me curious what specific event he's betting the market on."
+    },
+    {
+      "i": 380,
+      "response": "CHOICE: 3\nWHY: As someone always hunting for the next big altcoin play, \"whales are buying\" instantly signals a potential edge."
+    },
+    {
+      "i": 381,
+      "response": "CHOICE: 2\nWHY: The promise of easy money quietly doubling sounds like fun, low-effort entertainment with a bit of intrigue."
+    },
+    {
+      "i": 382,
+      "response": "CHOICE: 4\nWHY: A specific end date for the crash sounds like a clear, reassuring answer I can easily understand."
+    },
+    {
+      "i": 383,
+      "response": "CHOICE: 4\nWHY: The blunt \"harsh reality\" phrasing sounds like an honest, no-hype take that might be entertaining to peek at."
+    },
+    {
+      "i": 384,
+      "response": "CHOICE: 2\nWHY: As someone interested in crypto analysis, I want to understand the actual factors behind Bitcoin's recent weakness rather than hype or speculation."
+    },
+    {
+      "i": 385,
+      "response": "CHOICE: 4\nWHY: The bold ultimatum \"I'm Selling All My Crypto\" sounds dramatic and intriguing enough to warrant a quick click."
+    },
+    {
+      "i": 386,
+      "response": "CHOICE: 3\nWHY: The phrase \"Something Big Just Shifted\" hints at a rare, timely market signal that appeals to my interest in analysis over hype."
+    },
+    {
+      "i": 387,
+      "response": "CHOICE: 3\nWHY: The mention of a specific interview making buys \"obvious\" sounds like a straightforward, human story rather than vague doom or hype."
+    },
+    {
+      "i": 388,
+      "response": "CHOICE: 4\nWHY: The phrase \"quietly doubling again\" sounds intriguing and entertaining without demanding I know anything about crypto."
+    },
+    {
+      "i": 389,
+      "response": "CHOICE: 4\nWHY: As a crypto follower, a vague but urgent Bitcoin shift headline piques my curiosity without seeming like hype or self-promotion."
+    },
+    {
+      "i": 390,
+      "response": "CHOICE: 2\nWHY: The phrase \"something big just shifted\" sounds intriguing and mysterious enough to make me curious without needing crypto interest."
+    },
+    {
+      "i": 391,
+      "response": "CHOICE: 4\nWHY: The phrase \"quietly doubling\" sounds intriguing and low-effort entertaining without needing to know crypto."
+    },
+    {
+      "i": 392,
+      "response": "CHOICE: 4\nWHY: The phrase \"Something Big Just Shifted\" sounds intriguing and mysterious enough to make me curious without promising unrealistic riches."
+    },
+    {
+      "i": 393,
+      "response": "CHOICE: 2\nWHY: As a crypto fan frustrated by recent price action, I want to know the real reason Bitcoin is struggling."
+    },
+    {
+      "i": 394,
+      "response": "CHOICE: 3\nWHY: The title sounds like a blunt, drama-free reality check, which feels more entertaining and less hypey than the others."
+    },
+    {
+      "i": 395,
+      "response": "CHOICE: 4\nWHY: A specific, surprising date for when the crash ends sounds like an easy, intriguing answer to a scary situation."
+    },
+    {
+      "i": 396,
+      "response": "CHOICE: 3\nWHY: The phrase \"Something Big Just Shifted\" sounds intriguing and mysterious enough to spark my curiosity without promising unrealistic riches."
+    },
+    {
+      "i": 397,
+      "response": "CHOICE: 4\nWHY: As someone interested in crypto but not following this channel, the specific mention of altcoins doubling and whale activity sparks immediate curiosity about actionable market moves."
+    },
+    {
+      "i": 398,
+      "response": "CHOICE: 3\nWHY: The phrase \"Something Big Just Shifted\" makes me curious what changed without sounding like a get-rich scheme."
+    },
+    {
+      "i": 399,
+      "response": "CHOICE: 3\nWHY: \"Quietly doubling\" and \"whales are buying\" sounds like a sneaky money-making story that's more fun than dry portfolio talk."
+    },
+    {
+      "i": 400,
+      "response": "CHOICE: 2\nWHY: The promise of printing millions sounds like wild entertainment, not boring analysis."
+    },
+    {
+      "i": 401,
+      "response": "CHOICE: 2\nWHY: The bold claim about a specific end date for the crash sounds intriguing and easy to understand."
+    },
+    {
+      "i": 402,
+      "response": "CHOICE: 4\nWHY: The phrase \"harsh reality\" sounds intriguingly dramatic and like a juicy, no-nonsense story I might enjoy as casual entertainment."
+    },
+    {
+      "i": 403,
+      "response": "CHOICE: 3\nWHY: The promise of altcoins quietly doubling sounds like easy entertainment and a peek at something exciting happening without effort."
+    },
+    {
+      "i": 404,
+      "response": "CHOICE: 3\nWHY: The phrase \"Something Big Just Shifted\" sounds intriguing and mysterious enough to make me curious without promising unrealistic riches."
+    },
+    {
+      "i": 405,
+      "response": "CHOICE: 1\nWHY: As a trader I'm always hunting for early altcoin moves and whale activity hints to front-run the market."
+    },
+    {
+      "i": 406,
+      "response": "CHOICE: 4\nWHY: The phrase \"quietly doubling\" and \"what whales are buying\" sounds intriguing and mysterious enough to spark quick curiosity."
+    },
+    {
+      "i": 407,
+      "response": "CHOICE: 2\nWHY: As someone interested in finance analysis, I'm drawn to concrete whale buying signals and altcoin performance rather than vague or interview-based hype."
+    },
+    {
+      "i": 408,
+      "response": "CHOICE: 2\nWHY: The promise of printing millions sounds like wild, fun entertainment, not boring analysis."
+    },
+    {
+      "i": 409,
+      "response": "CHOICE: 4\nWHY: The phrase \"Something Big Just Shifted\" sounds intriguing and mysterious enough to spark my curiosity without assuming any prior crypto interest."
+    },
+    {
+      "i": 410,
+      "response": "CHOICE: 4\nWHY: As a crypto fan wanting actionable insight, \"whales are buying\" altcoins quietly doubling hints at a timely edge I don't want to miss."
+    },
+    {
+      "i": 411,
+      "response": "CHOICE: 2\nWHY: As a crypto fan I’m drawn to rare, significant Bitcoin shifts that could signal a real market change."
+    },
+    {
+      "i": 412,
+      "response": "CHOICE: 4\nWHY: As someone into finance analysis, a specific expert interview promising portfolio impact feels more substantive than vague hype or doom."
+    },
+    {
+      "i": 413,
+      "response": "CHOICE: 2\nWHY: As a regular analyst-follower, a rare market shift in Bitcoin immediately grabs my attention more than hype or ultimatums."
+    },
+    {
+      "i": 414,
+      "response": "CHOICE: 1\nWHY: As a crypto fan, a rare major Bitcoin shift is exactly the kind of market-moving signal I want to know about immediately."
+    },
+    {
+      "i": 415,
+      "response": "CHOICE: 4\nWHY: As a crypto fan, I'm instantly drawn to actionable whale-buying signals on quietly surging altcoins."
+    },
+    {
+      "i": 416,
+      "response": "CHOICE: 3\nWHY: The phrase \"Something Big Just Shifted\" sounds intriguing and mysterious enough to make me curious without needing any crypto interest."
+    },
+    {
+      "i": 417,
+      "response": "CHOICE: 2\nWHY: The promise of printing millions sounds like wild, fun hype I'd want to peek at for entertainment."
+    },
+    {
+      "i": 418,
+      "response": "CHOICE: 4\nWHY: As someone into finance analysis, I'm curious about the actual underlying cause of Bitcoin's weak performance rather than hype or personal plans."
+    },
+    {
+      "i": 419,
+      "response": "CHOICE: 2\nWHY: As someone into crypto analysis, I'm curious what specific altcoins whales are accumulating during quiet gains."
+    },
+    {
+      "i": 420,
+      "response": "CHOICE: 2\nWHY: As a crypto fan I'm instantly drawn to a title hinting at a rare, major Bitcoin shift I might've missed."
+    },
+    {
+      "i": 421,
+      "response": "CHOICE: 3\nWHY: As someone into crypto analysis, I’m curious what whales are buying while altcoins quietly double."
+    },
+    {
+      "i": 422,
+      "response": "CHOICE: 2\nWHY: The vague \"something big just shifted\" sounds intriguing and mysterious enough to make me curious what happened."
+    },
+    {
+      "i": 423,
+      "response": "CHOICE: 2\nWHY: As a crypto fan, I want to know which altcoins whales are buying while they quietly double."
+    },
+    {
+      "i": 424,
+      "response": "CHOICE: 3\nWHY: The promise of printing millions sounds like wild, entertaining hype I can't help but laugh at."
+    },
+    {
+      "i": 425,
+      "response": "CHOICE: 4\nWHY: As a seasoned UK investor, I value straight talk over hype and want to know the unfiltered outlook for crypto."
+    },
+    {
+      "i": 426,
+      "response": "CHOICE: 4\nWHY: \"Something Big Just Shifted\" in Bitcoin sounds like urgent, non-hype analysis worth a quick look."
+    },
+    {
+      "i": 427,
+      "response": "CHOICE: 3\nWHY: A bold, specific claim about when the crypto crash ends sounds like quick, dramatic entertainment."
+    },
+    {
+      "i": 428,
+      "response": "CHOICE: 1\nWHY: The promise of altcoins quietly doubling sounds like easy entertainment and a potential quick win without needing to know anything."
+    },
+    {
+      "i": 429,
+      "response": "CHOICE: 2\nWHY: The phrase \"quietly doubling\" sounds intriguing and low-effort fun to peek at without needing crypto knowledge."
+    },
+    {
+      "i": 430,
+      "response": "CHOICE: 3\nWHY: The phrase \"quietly doubling\" sounds like easy money and catches my eye as a casual viewer."
+    },
+    {
+      "i": 431,
+      "response": "CHOICE: 3\nWHY: As someone into crypto analysis, a specific expert interview that clarifies concrete buys is more useful than vague hype or emotional takes."
+    },
+    {
+      "i": 432,
+      "response": "CHOICE: 2\nWHY: As a seasoned finance watcher, I trust blunt reality checks over hype and want to know the unfiltered outlook."
+    },
+    {
+      "i": 433,
+      "response": "CHOICE: 3\nWHY: The dramatic \"I'm selling all my crypto\" line sounds like juicy drama I'd want to peek at."
+    },
+    {
+      "i": 434,
+      "response": "CHOICE: 2\nWHY: The phrase \"quietly doubling\" and \"what whales are buying\" sounds intriguing and like a sneaky money story without promising unrealistic riches."
+    },
+    {
+      "i": 435,
+      "response": "CHOICE: 3\nWHY: As a longtime crypto fan, I'm always keen to see what the whales are quietly accumulating during altcoin rallies."
+    },
+    {
+      "i": 436,
+      "response": "CHOICE: 4\nWHY: As someone into crypto, I’m curious what whales are buying when altcoins are quietly doubling without mainstream hype."
+    },
+    {
+      "i": 437,
+      "response": "CHOICE: 2\nWHY: The phrase \"Something Big Just Shifted\" sounds intriguing and suggests a rare, noteworthy event worth a quick look."
+    },
+    {
+      "i": 438,
+      "response": "CHOICE: 2\nWHY: The phrase \"Something Big Just Shifted\" sounds intriguing and mysterious enough to make me curious what happened with Bitcoin."
+    },
+    {
+      "i": 439,
+      "response": "CHOICE: 2\nWHY: As someone interested in crypto, I’m curious what whales are buying while altcoins quietly double without mainstream attention."
+    },
+    {
+      "i": 440,
+      "response": "CHOICE: 3\nWHY: The bold, specific claim about a crash ending on a date sounds intriguing and dramatic enough to peek at for fun."
+    },
+    {
+      "i": 441,
+      "response": "CHOICE: 2\nWHY: As someone into crypto, I'm curious what whales are buying when altcoins are quietly doubling again."
+    },
+    {
+      "i": 442,
+      "response": "CHOICE: 4\nWHY: The phrase \"Something Big Just Shifted\" makes me curious what changed in Bitcoin without sounding like a fixed deadline or vague struggle."
+    },
+    {
+      "i": 443,
+      "response": "CHOICE: 3\nWHY: The bold promise of printing millions sounds like wild entertainment, not a boring finance lecture."
+    },
+    {
+      "i": 444,
+      "response": "CHOICE: 4\nWHY: As someone tracking markets for years, a rare major shift in Bitcoin catches my attention more than hype or ultimatums."
+    },
+    {
+      "i": 445,
+      "response": "CHOICE: 4\nWHY: The promise of printing millions sounds wild and fun, exactly the kind of absurd clickbait I'd tap just to see what they're on about."
+    },
+    {
+      "i": 446,
+      "response": "CHOICE: 1\nWHY: As someone into crypto, I'm curious what specific altcoins whales are accumulating during a quiet rally."
+    },
+    {
+      "i": 447,
+      "response": "CHOICE: 2\nWHY: The promise of printing millions sounds like a fun, wild ride and instantly grabs my attention more than the boring stuff."
+    },
+    {
+      "i": 448,
+      "response": "CHOICE: 3\nWHY: As a crypto fan, I want to know which altcoins whales are buying while they're quietly doubling."
+    },
+    {
+      "i": 449,
+      "response": "CHOICE: 2\nWHY: As a Bitcoin-focused UK investor, a rare monthly shift in BTC instantly signals a timely market move I can't ignore."
+    },
+    {
+      "i": 450,
+      "response": "CHOICE: 3\nWHY: The idea of altcoins quietly doubling and seeing what whales are buying sounds intriguing and like easy drama to peek at."
+    },
+    {
+      "i": 451,
+      "response": "CHOICE: 4\nWHY: The phrase \"quietly doubling\" sounds intriguing and low-effort fun to peek at without needing crypto knowledge."
+    },
+    {
+      "i": 452,
+      "response": "CHOICE: 2\nWHY: The vague but urgent \"something big just shifted\" in Bitcoin hooks my curiosity as a crypto follower wanting timely market signals."
+    },
+    {
+      "i": 453,
+      "response": "CHOICE: 3\nWHY: As a seasoned crypto holder, I want to know the specific condition that would make a serious analyst dump everything."
+    },
+    {
+      "i": 454,
+      "response": "CHOICE: 3\nWHY: The title sounds like it explains a simple reason in plain language, which feels easy and curious to tap into without any prior interest."
+    },
+    {
+      "i": 455,
+      "response": "CHOICE: 3\nWHY: At my age I value straight talk over hype, and \"the harsh reality\" sounds like an honest assessment rather than a get-rich-quick pitch."
+    },
+    {
+      "i": 456,
+      "response": "CHOICE: 1\nWHY: The hint of a rare, months-overdue shift in Bitcoin instantly piques my curiosity as a crypto follower."
+    },
+    {
+      "i": 457,
+      "response": "CHOICE: 2\nWHY: As a crypto fan I'm always hunting for early altcoin moves and whale activity to get an edge."
+    },
+    {
+      "i": 458,
+      "response": "CHOICE: 4\nWHY: The phrase \"quietly doubling\" sounds intriguing and low-drama compared to the overly hyped or doom-laden others."
+    },
+    {
+      "i": 459,
+      "response": "CHOICE: 4\nWHY: The phrase \"Something Big Just Shifted\" sounds intriguing and mysterious enough to make me curious what happened."
+    },
+    {
+      "i": 460,
+      "response": "CHOICE: 3\nWHY: The bold claim of knowing exactly when the crypto crash ends sounds weirdly specific and intriguing enough to satisfy my boredom."
+    },
+    {
+      "i": 461,
+      "response": "CHOICE: 3\nWHY: As someone who follows crypto closely, I'm curious which altcoins whales are quietly accumulating for potential gains."
+    },
+    {
+      "i": 462,
+      "response": "CHOICE: 2\nWHY: The specific date and exclamation mark make it feel like a dramatic, quick answer to something happening soon."
+    },
+    {
+      "i": 463,
+      "response": "CHOICE: 3\nWHY: The title hints at easy gains and secret insider action, which sounds more fun and intriguing than the others."
+    },
+    {
+      "i": 464,
+      "response": "CHOICE: 2\nWHY: As a crypto fan, I instantly want to know what major Bitcoin shift just happened after months of nothing."
+    },
+    {
+      "i": 465,
+      "response": "CHOICE: 4\nWHY: The promise of obvious next crypto buys from an interview feels directly useful and actionable for my own investing."
+    },
+    {
+      "i": 466,
+      "response": "CHOICE: 2\nWHY: As someone into crypto analysis, I want to know which altcoins whales are accumulating while prices move quietly."
+    },
+    {
+      "i": 467,
+      "response": "CHOICE: 3\nWHY: The phrase \"quietly doubling\" sounds like easy money and catches my eye more than the doom-and-gloom others."
+    },
+    {
+      "i": 468,
+      "response": "CHOICE: 3\nWHY: The phrase \"quietly doubling\" sounds like easy, intriguing money without needing to understand crypto."
+    },
+    {
+      "i": 469,
+      "response": "CHOICE: 4\nWHY: As someone into crypto, I'm curious which altcoins whales are accumulating during a quiet rally."
+    },
+    {
+      "i": 470,
+      "response": "CHOICE: 4\nWHY: The vague \"something big just shifted\" sounds intriguing and mysterious enough to make me curious without promising shady get-rich schemes."
+    },
+    {
+      "i": 471,
+      "response": "CHOICE: 2\nWHY: The bold, specific claim about a crash ending on a exact date instantly sparks my curiosity."
+    },
+    {
+      "i": 472,
+      "response": "CHOICE: 3\nWHY: The phrase \"Something Big Just Shifted\" sounds intriguing and like a rare event worth a quick look."
+    },
+    {
+      "i": 473,
+      "response": "CHOICE: 3\nWHY: The phrase \"quietly doubling\" sounds like easy money and grabs my attention as a casual viewer."
+    },
+    {
+      "i": 474,
+      "response": "CHOICE: 4\nWHY: As someone into crypto analysis, I'm curious about quiet altcoin moves and whale activity without the hype of absolute predictions."
+    },
+    {
+      "i": 475,
+      "response": "CHOICE: 2\nWHY: The title hints at a intriguing explanation without hype, which feels more like a curious story than a get-rich scheme."
+    },
+    {
+      "i": 476,
+      "response": "CHOICE: 4\nWHY: A specific, confident prediction about when the crash ends feels instantly useful and curiosity-driving."
+    },
+    {
+      "i": 477,
+      "response": "CHOICE: 4\nWHY: The phrase \"quietly doubling\" and \"what whales are buying\" sounds intriguing and mysterious enough to spark quick curiosity."
+    },
+    {
+      "i": 478,
+      "response": "CHOICE: 4\nWHY: The promise of printing millions sounds like wild, entertaining hype I can't resist clicking."
+    },
+    {
+      "i": 479,
+      "response": "CHOICE: 1\nWHY: The vague hint of a rare, major Bitcoin shift makes me curious what I missed without sounding like doomposting."
+    },
+    {
+      "i": 480,
+      "response": "CHOICE: 3\nWHY: The phrase \"Something Big Just Shifted\" hints at a rare, time-sensitive market signal I'd want to know about immediately."
+    },
+    {
+      "i": 481,
+      "response": "CHOICE: 1\nWHY: The weird brain dream warning sounds like a fun, low-stakes curiosity bite rather than heavy expert talk."
+    },
+    {
+      "i": 482,
+      "response": "CHOICE: 2\nWHY: As someone into health podcasts, a斯坦福 neuroscientist explaining a weird brain warning about dreams instantly hooks my curiosity."
+    },
+    {
+      "i": 483,
+      "response": "CHOICE: 2\nWHY: The weird brain fact about forgetting dreams sounds like a fun, quick curiosity hit."
+    },
+    {
+      "i": 484,
+      "response": "CHOICE: 1\nWHY: As an older guy I sometimes forget my dreams and wouldn't mind a quick odd brain warning story for fun."
+    },
+    {
+      "i": 485,
+      "response": "CHOICE: 4\nWHY: The AI whistleblower angle with a named journalist feels immediately relevant and suspicious in a way I want to hear about."
+    },
+    {
+      "i": 486,
+      "response": "CHOICE: 3\nWHY: The idea of a 20-year simulation of the Iran war sounds like a concrete, intriguing \"what happens next\" story rather than vague doom or celebrity talk."
+    },
+    {
+      "i": 487,
+      "response": "CHOICE: 3\nWHY: A weird brain fact about forgetting dreams sounds like a fun, low-stakes thing to click for entertainment."
+    },
+    {
+      "i": 488,
+      "response": "CHOICE: 1\nWHY: The bold claim of being gaslit by AI companies sounds like wild drama I want to peek at."
+    },
+    {
+      "i": 489,
+      "response": "CHOICE: 3\nWHY: The dream memory angle sounds like a weird personal brain quirk I'd instantly want to know about for fun."
+    },
+    {
+      "i": 490,
+      "response": "CHOICE: 1\nWHY: The title about forgetting dreams hints at a weird personal health warning that sounds fun and easy to peek at."
+    },
+    {
+      "i": 491,
+      "response": "CHOICE: 3\nWHY: The dramatic claim about being gaslit by AI companies sounds juicy and mysterious enough to peek at for fun."
+    },
+    {
+      "i": 492,
+      "response": "CHOICE: 1\nWHY: The weird brain dream warning sounds like a fun random fact to kill a few minutes, not another boring expert talk."
+    },
+    {
+      "i": 493,
+      "response": "CHOICE: 2\nWHY: As someone interested in world affairs and expert interviews, the AI whistleblower angle from a named journalist instantly piques my curiosity about hidden truths."
+    },
+    {
+      "i": 494,
+      "response": "CHOICE: 4\nWHY: As someone interested in health, a Stanford neuroscientist explaining a possible brain warning from forgotten dreams feels immediately relevant and intriguing."
+    },
+    {
+      "i": 495,
+      "response": "CHOICE: 3\nWHY: A weird brain fact about forgetting dreams sounds like a quick, fun curiosity, not a heavy expert lecture."
+    },
+    {
+      "i": 496,
+      "response": "CHOICE: 3\nWHY: As someone into world affairs, a simulated 20-year Iran war scenario from an expert instantly piques my curiosity."
+    },
+    {
+      "i": 497,
+      "response": "CHOICE: 4\nWHY: As someone into health podcasts, a Stanford neuroscientist revealing a brain warning through forgotten dreams instantly hooks my curiosity."
+    },
+    {
+      "i": 498,
+      "response": "CHOICE: 1\nWHY: The weird brain dream warning sounds fun and instantly curious, unlike the boring expert or celebrity stuff."
+    },
+    {
+      "i": 499,
+      "response": "CHOICE: 4\nWHY: As someone into world affairs and expert interviews, the claim of being gaslit by AI companies from a whistleblower instantly piques my curiosity."
+    },
+    {
+      "i": 500,
+      "response": "CHOICE: 4\nWHY: As someone into world affairs, \"The Iran War Expert: The Most Dangerous Stage Begins Now (STAGE 4)\" sounds urgent and immediately gripping."
+    },
+    {
+      "i": 501,
+      "response": "CHOICE: 2\nWHY: The whistleblower angle with a clear accusation of being lied to sounds like juicy, dramatic entertainment."
+    },
+    {
+      "i": 502,
+      "response": "CHOICE: 3\nWHY: As an older guy who sometimes forgets his dreams, that brain warning bit instantly caught my curiosity."
+    },
+    {
+      "i": 503,
+      "response": "CHOICE: 1\nWHY: The promise of a weird brain warning about forgotten dreams is the most instantly curiosity-grabbing and low-effort fun."
+    },
+    {
+      "i": 504,
+      "response": "CHOICE: 4\nWHY: As someone interested in world affairs and expert interviews, the claim of being gaslit by AI companies from a whistleblower instantly piqued my curiosity."
+    },
+    {
+      "i": 505,
+      "response": "CHOICE: 3\nWHY: A weird brain fact about forgetting dreams sounds like fun, low-effort entertainment I’d actually enjoy."
+    },
+    {
+      "i": 506,
+      "response": "CHOICE: 2\nWHY: The word \"collapse\" and \"ignoring the signs\" sounds like a eerie warning I can't help but peek at."
+    },
+    {
+      "i": 507,
+      "response": "CHOICE: 3\nWHY: The weird brain dream warning thing sounds like a fun random fact to kill time, not boring serious stuff."
+    },
+    {
+      "i": 508,
+      "response": "CHOICE: 1\nWHY: The weird brain dream warning sounds like a fun, low-stakes curiosity bite rather than another heavy expert lecture."
+    },
+    {
+      "i": 509,
+      "response": "CHOICE: 3\nWHY: A weird brain quirk about forgetting dreams sounds like a fun, low-stakes thing to kill a few minutes with."
+    },
+    {
+      "i": 510,
+      "response": "CHOICE: 4\nWHY: As someone my age, a headline about my brain possibly warning me through forgotten dreams instantly feels personally relevant and intriguing."
+    },
+    {
+      "i": 511,
+      "response": "CHOICE: 2\nWHY: A weird brain fact about forgetting dreams sounds like a quick, fun curiosity, not a heavy interview."
+    },
+    {
+      "i": 512,
+      "response": "CHOICE: 1\nWHY: The weird brain dream warning sounds like a fun random fact to kill a few minutes."
+    },
+    {
+      "i": 513,
+      "response": "CHOICE: 3\nWHY: At my age I sometimes forget my dreams and wouldn't mind a quick scary-but-fun brain warning bit to watch."
+    },
+    {
+      "i": 514,
+      "response": "CHOICE: 2\nWHY: As someone into world affairs and tech, an AI whistleblower claiming companies are hiding the truth instantly piques my curiosity."
+    },
+    {
+      "i": 515,
+      "response": "CHOICE: 2\nWHY: The weird brain dream warning thing sounds like a fun random fact to kill a few minutes, not homework."
+    },
+    {
+      "i": 516,
+      "response": "CHOICE: 4\nWHY: The bold claim of being gaslit by AI companies sounds like wild, juicy drama I'd want to peek at for fun."
+    },
+    {
+      "i": 517,
+      "response": "CHOICE: 3\nWHY: As a casual viewer I’m randomly curious about weird brain stuff like forgetting dreams, not war or collapse."
+    },
+    {
+      "i": 518,
+      "response": "CHOICE: 3\nWHY: The dream thing sounds weird and personally relatable, not like boring expert talk."
+    },
+    {
+      "i": 519,
+      "response": "CHOICE: 2\nWHY: As someone into world affairs and history, a Pulitzer historian warning about collapse signs instantly spikes my curiosity."
+    },
+    {
+      "i": 520,
+      "response": "CHOICE: 4\nWHY: As someone into world affairs, a 20-year simulation of a potential Iran war instantly sounds like concrete expert insight rather than vague hype."
+    },
+    {
+      "i": 521,
+      "response": "CHOICE: 1\nWHY: As someone my age, a headline about memory and brain warnings instantly catches my attention for peace of mind."
+    },
+    {
+      "i": 522,
+      "response": "CHOICE: 2\nWHY: The blunt whistleblower claim about AI companies hiding the truth sounds like a juicy, sneaky scandal worth a quick look."
+    },
+    {
+      "i": 523,
+      "response": "CHOICE: 4\nWHY: The dramatic warning about collapse and ignored signs sounds intriguing and mysterious enough to peek my curiosity."
+    },
+    {
+      "i": 524,
+      "response": "CHOICE: 2\nWHY: As someone into expert interviews, an AI whistleblower exposing hidden truths from companies instantly spikes my curiosity."
+    },
+    {
+      "i": 525,
+      "response": "CHOICE: 2\nWHY: As someone who sometimes can't recall dreams, that brain warning claim instantly piqued my curiosity for fun."
+    },
+    {
+      "i": 526,
+      "response": "CHOICE: 3\nWHY: The brain warning thing about not remembering dreams sounds weird and immediately intriguing."
+    },
+    {
+      "i": 527,
+      "response": "CHOICE: 2\nWHY: As someone interested in world affairs, a long-term simulation of the Iran war from an expert piques my curiosity about what may happen next."
+    },
+    {
+      "i": 528,
+      "response": "CHOICE: 3\nWHY: I’m curious if my bad dream memory means something’s wrong with my brain."
+    },
+    {
+      "i": 529,
+      "response": "CHOICE: 1\nWHY: I’m curious about my own forgetful dreams and a brain warning sounds like easy, weird fun."
+    },
+    {
+      "i": 530,
+      "response": "CHOICE: 4\nWHY: As someone who follows expert interviews on world affairs and business, an AI whistleblower exposing hidden truths instantly piques my curiosity."
+    },
+    {
+      "i": 531,
+      "response": "CHOICE: 1\nWHY: As a world affairs fan, the urgent warning about a dangerous new stage of the Iran war instantly pulls me in."
+    },
+    {
+      "i": 532,
+      "response": "CHOICE: 2\nWHY: As someone into expert interviews, an AI whistleblower reveal from a named journalist instantly feels timely and intriguing."
+    },
+    {
+      "i": 533,
+      "response": "CHOICE: 2\nWHY: As a fan of expert interviews, an AI whistleblower expose with a named journalist instantly sounds like urgent, must-hear world-affairs content."
+    },
+    {
+      "i": 534,
+      "response": "CHOICE: 2\nWHY: As someone who follows world affairs and expert interviews, a whistleblower exposing AI company deception from a named journalist instantly grabs my attention."
+    },
+    {
+      "i": 535,
+      "response": "CHOICE: 3\nWHY: As someone into health podcasts, a brain warning signal about forgotten dreams instantly piques my curiosity."
+    },
+    {
+      "i": 536,
+      "response": "CHOICE: 4\nWHY: As a casual viewer I’m randomly curious about weird brain stuff like forgetting dreams, not politics or experts."
+    },
+    {
+      "i": 537,
+      "response": "CHOICE: 4\nWHY: As someone who sometimes forgets dreams, a brain warning sounds weird and immediately curiosity-grabbing."
+    },
+    {
+      "i": 538,
+      "response": "CHOICE: 3\nWHY: As someone interested in health, a claim about my brain warning me through forgotten dreams instantly hooks my curiosity."
+    },
+    {
+      "i": 539,
+      "response": "CHOICE: 3\nWHY: As someone interested in world affairs, a claim about the Iran war entering its most dangerous stage makes me want to hear the expert's urgent update."
+    },
+    {
+      "i": 540,
+      "response": "CHOICE: 4\nWHY: As a world affairs fan, a long-term simulated war scenario from an expert instantly pulls me in."
+    },
+    {
+      "i": 541,
+      "response": "CHOICE: 4\nWHY: As someone who forgets dreams often, a Stanford neuroscientist warning about my brain instantly hooked me."
+    },
+    {
+      "i": 542,
+      "response": "CHOICE: 2\nWHY: The weird brain fact about forgetting dreams sounds like a fun, low-effort thing to watch for entertainment."
+    },
+    {
+      "i": 543,
+      "response": "CHOICE: 1\nWHY: The AI whistleblower angle with a specific named journalist promises a timely, insider business/tech expose I didn't know I needed."
+    },
+    {
+      "i": 544,
+      "response": "CHOICE: 2\nWHY: The whistleblower angle with a bold accusation of being gaslit sounds like juicy, dramatic entertainment."
+    },
+    {
+      "i": 545,
+      "response": "CHOICE: 1\nWHY: The brain warning about forgotten dreams sounds like a weird, personal health curiosity I’d tap into for fun."
+    },
+    {
+      "i": 546,
+      "response": "CHOICE: 4\nWHY: As someone into health podcasts, a claim about dreams being a brain warning instantly piques my curiosity."
+    },
+    {
+      "i": 547,
+      "response": "CHOICE: 2\nWHY: The whistleblower angle with a bold accusation of being gaslit sounds like dramatic, entertaining drama I didn't go looking for."
+    },
+    {
+      "i": 548,
+      "response": "CHOICE: 1\nWHY: The weird brain dream warning sounds like a fun random fact to kill a few minutes, not a heavy interview."
+    },
+    {
+      "i": 549,
+      "response": "CHOICE: 3\nWHY: A weird brain fact about forgetting dreams sounds like a quick, fun curiosity, not a heavy expert lecture."
+    },
+    {
+      "i": 550,
+      "response": "CHOICE: 3\nWHY: A weird brain fact about forgetting dreams sounds fun and personal, unlike the heavy war or collapse stuff."
+    },
+    {
+      "i": 551,
+      "response": "CHOICE: 4\nWHY: As someone interested in world affairs, a 20-year simulation of the Iran war from an expert piques my curiosity about what might actually happen next."
+    },
+    {
+      "i": 552,
+      "response": "CHOICE: 2\nWHY: The idea that my brain might be warning me through forgotten dreams instantly hooked my curiosity."
+    },
+    {
+      "i": 553,
+      "response": "CHOICE: 3\nWHY: As someone interested in world affairs, a simulated 20-year look at the Iran war instantly pulls me in."
+    },
+    {
+      "i": 554,
+      "response": "CHOICE: 4\nWHY: As someone who sometimes forgets dreams, a quick brain warning hook sounds personally intriguing and fun to learn about."
+    },
+    {
+      "i": 555,
+      "response": "CHOICE: 4\nWHY: As someone who follows world affairs, a Pulitzer historian warning of collapse with ignored signs instantly grabs my attention."
+    },
+    {
+      "i": 556,
+      "response": "CHOICE: 4\nWHY: The AI whistleblower angle with a specific person and accusation of hiding the truth instantly feels like a juicy, relevant exposé I don't want to miss."
+    },
+    {
+      "i": 557,
+      "response": "CHOICE: 1\nWHY: The weird brain dream warning sounds like a fun random fact to kill time, not heavy stuff."
+    },
+    {
+      "i": 558,
+      "response": "CHOICE: 4\nWHY: The whistleblower angle about AI companies hiding the truth sounds like a juicy, dramatic expose that's entertaining to peek at."
+    },
+    {
+      "i": 559,
+      "response": "CHOICE: 4\nWHY: As someone interested in health, a Stanford neuroscientist explaining a possible brain warning from forgotten dreams instantly piques my curiosity."
+    },
+    {
+      "i": 560,
+      "response": "CHOICE: 4\nWHY: The whistleblower angle with a specific person and bold claim about AI companies hiding truth instantly spikes my curiosity as a regular podcast listener."
+    },
+    {
+      "i": 561,
+      "response": "CHOICE: 4\nWHY: As someone into world affairs, \"The Most Dangerous Stage Begins Now\" sounds urgent and immediately relevant."
+    },
+    {
+      "i": 562,
+      "response": "CHOICE: 3\nWHY: The AI whistleblower angle with a specific person and a bold claim about being gaslit instantly pulls me in."
+    },
+    {
+      "i": 563,
+      "response": "CHOICE: 3\nWHY: As someone who occasionally wonders about my own weird dreams, that brain warning angle instantly hooked me."
+    },
+    {
+      "i": 564,
+      "response": "CHOICE: 4\nWHY: As someone who sometimes forgets dreams, a brain warning sounds weirdly personal and intriguing."
+    },
+    {
+      "i": 565,
+      "response": "CHOICE: 4\nWHY: As someone interested in world affairs, a simulated 20-year expert forecast on the Iran war instantly grabs my attention."
+    },
+    {
+      "i": 566,
+      "response": "CHOICE: 4\nWHY: As someone into health, a Stanford neuroscientist explaining a weird brain warning about forgetting dreams instantly hooks my curiosity."
+    },
+    {
+      "i": 567,
+      "response": "CHOICE: 4\nWHY: The whistleblower drama and accusation of being gaslit sounds like wild, entertaining chaos I didn't go looking for."
+    },
+    {
+      "i": 568,
+      "response": "CHOICE: 1\nWHY: As someone wary of global instability, a historian warning about collapse signs grabs my attention more than war simulations or political celebrity chatter."
+    },
+    {
+      "i": 569,
+      "response": "CHOICE: 4\nWHY: As someone my age, a neuroscientist explaining a possible brain warning from forgotten dreams instantly grabs my health curiosity."
+    },
+    {
+      "i": 570,
+      "response": "CHOICE: 1\nWHY: The dramatic \"gaslit\" and \"hiding the truth\" wording sounds like juicy drama I'd actually want to watch for fun."
+    },
+    {
+      "i": 571,
+      "response": "CHOICE: 4\nWHY: As someone who sometimes forgets dreams, a quick brain warning hook sounds fun and personally relatable."
+    },
+    {
+      "i": 572,
+      "response": "CHOICE: 4\nWHY: As someone into health, a Stanford neuroscientist explaining a possible brain warning from forgotten dreams instantly grabs my curiosity."
+    },
+    {
+      "i": 573,
+      "response": "CHOICE: 3\nWHY: As someone who follows world affairs, the warning of a dangerous new stage in the Iran war instantly grabs my attention."
+    },
+    {
+      "i": 574,
+      "response": "CHOICE: 1\nWHY: The word \"collapse\" and being warned I'm ignoring signs makes me curious what I might be missing."
+    },
+    {
+      "i": 575,
+      "response": "CHOICE: 4\nWHY: As someone my age, I'm curious about what my brain might be telling me through forgotten dreams."
+    },
+    {
+      "i": 576,
+      "response": "CHOICE: 4\nWHY: As someone into expert interviews, an AI whistleblower exposing hidden truths sounds immediately intriguing and relevant."
+    },
+    {
+      "i": 577,
+      "response": "CHOICE: 3\nWHY: As someone into health podcasts, a creepy brain warning about forgotten dreams instantly hooks my curiosity."
+    },
+    {
+      "i": 578,
+      "response": "CHOICE: 3\nWHY: The whistleblower angle about AI companies hiding the truth sounds like a proper scandal that might be entertaining to uncover."
+    },
+    {
+      "i": 579,
+      "response": "CHOICE: 1\nWHY: The title about not remembering dreams being a brain warning is weird and intriguing enough to make me curious as a casual viewer."
+    },
+    {
+      "i": 580,
+      "response": "CHOICE: 3\nWHY: The whistleblower angle with a bold \"gaslit\" and \"hiding the truth\" claim sounds like juicy drama I'd want to peek at."
+    },
+    {
+      "i": 581,
+      "response": "CHOICE: 4\nWHY: As someone who enjoys world affairs and expert interviews, a Pulitzer historian warning about collapse signs I'm ignoring instantly piques my curiosity."
+    },
+    {
+      "i": 582,
+      "response": "CHOICE: 2\nWHY: The whistleblower angle with a bold \"they're hiding the truth\" claim sounds like juicy drama I'd tap into for fun."
+    },
+    {
+      "i": 583,
+      "response": "CHOICE: 4\nWHY: As a casual viewer I’m randomly curious if my forgotten dreams mean something weird about my brain."
+    },
+    {
+      "i": 584,
+      "response": "CHOICE: 4\nWHY: As someone who follows world affairs, the urgent warning about a dangerous new stage in the Iran war instantly grabs my attention."
+    },
+    {
+      "i": 585,
+      "response": "CHOICE: 4\nWHY: As someone into health and world affairs, the AI whistleblower angle feels timely and secretly intriguing."
+    },
+    {
+      "i": 586,
+      "response": "CHOICE: 2\nWHY: The whistleblower angle with a concrete claim of being misled by AI companies instantly spikes my curiosity as a regular podcast listener."
+    },
+    {
+      "i": 587,
+      "response": "CHOICE: 1\nWHY: The whistleblower angle with a bold \"gaslit\" claim instantly sounds juicy and mysterious."
+    },
+    {
+      "i": 588,
+      "response": "CHOICE: 4\nWHY: As someone curious about health, a claim that my brain might be warning me via forgotten dreams instantly pulls me in."
+    },
+    {
+      "i": 589,
+      "response": "CHOICE: 2\nWHY: The weird brain dream warning thing sounds like a fun random fact to kill a few minutes."
+    },
+    {
+      "i": 590,
+      "response": "CHOICE: 1\nWHY: The dream brain warning title sounds weird and fun to skim while killing time, not like heavy expert talk."
+    },
+    {
+      "i": 591,
+      "response": "CHOICE: 1\nWHY: The weird brain-dream warning sounds like a fun random fact to kill boredom, not another serious talk."
+    },
+    {
+      "i": 592,
+      "response": "CHOICE: 4\nWHY: As someone getting older, I'm curious if my fuzzy dream recall means something's up with my brain."
+    },
+    {
+      "i": 593,
+      "response": "CHOICE: 3\nWHY: As someone interested in health, a warning about my brain from a Stanford neuroscientist feels personally relevant and intriguing."
+    },
+    {
+      "i": 594,
+      "response": "CHOICE: 3\nWHY: As someone interested in world affairs and expert interviews, the AI whistleblower angle from a named journalist feels urgently relevant and intriguing."
+    },
+    {
+      "i": 595,
+      "response": "CHOICE: 4\nWHY: The whistleblower angle with a bold accusation sounds like juicy drama I'd want to peek at."
+    },
+    {
+      "i": 596,
+      "response": "CHOICE: 2\nWHY: As someone into health podcasts, a Stanford neuroscientist revealing a brain warning sign about forgotten dreams instantly grabs my curiosity."
+    },
+    {
+      "i": 597,
+      "response": "CHOICE: 3\nWHY: A weird brain fact about forgetting dreams sounds like a quick, fun curiosity, not a heavy expert lecture."
+    },
+    {
+      "i": 598,
+      "response": "CHOICE: 2\nWHY: The promise of a weird brain warning from dreams is the kind of quick, curiosity-sparking hook I'd tap on for fun."
+    },
+    {
+      "i": 599,
+      "response": "CHOICE: 3\nWHY: The whistleblower angle with a specific person and bold claim about AI companies hiding truth instantly pulls me in."
+    },
+    {
+      "i": 600,
+      "response": "CHOICE: 4\nWHY: The whistleblower angle about AI companies hiding the truth sounds like a juicy conspiracy worth a quick click."
+    },
+    {
+      "i": 601,
+      "response": "CHOICE: 4\nWHY: \"Most BRUTAL premium\" sounds like a fun, punchy hype video that needs no tank knowledge to enjoy."
+    },
+    {
+      "i": 602,
+      "response": "CHOICE: 3\nWHY: As someone interested in tank reviews, a clear \"Tank Review\" title like Schwertwal instantly appeals to me."
+    },
+    {
+      "i": 603,
+      "response": "CHOICE: 4\nWHY: \"Most BRUTAL premium\" sounds like chaotic fun, not a boring review or tutorial."
+    },
+    {
+      "i": 604,
+      "response": "CHOICE: 2\nWHY: The word \"DANGEROUS\" makes it sound exciting and intriguing even though I don't play the game."
+    },
+    {
+      "i": 605,
+      "response": "CHOICE: 4\nWHY: As someone into tank reviews, a clear \"Tank Review\" of the Schwertwal is exactly the kind of focused content I'd click unprompted."
+    },
+    {
+      "i": 606,
+      "response": "CHOICE: 1\nWHY: The phrase \"Wargaming didn't care\" sounds like drama or controversy, which is more entertaining than a dry tank review."
+    },
+    {
+      "i": 607,
+      "response": "CHOICE: 2\nWHY: \"Most BRUTAL premium\" sounds dramatic and entertaining without needing any tank knowledge."
+    },
+    {
+      "i": 608,
+      "response": "CHOICE: 4\nWHY: The all-caps rage and silly \"rrrrreeeeeeeeeeee\" made me laugh and I'm curious what the fuss is about."
+    },
+    {
+      "i": 609,
+      "response": "CHOICE: 3\nWHY: The \"BEST SNIPER\" with a curious punctuation grabs my attention as a fun, hype-driven clip without needing tank knowledge."
+    },
+    {
+      "i": 610,
+      "response": "CHOICE: 4\nWHY: \"BRUTAL\" sounds dramatic and entertaining, unlike the dry stats or review titles."
+    },
+    {
+      "i": 611,
+      "response": "CHOICE: 2\nWHY: The all-caps and silly string of \"e\"s made me curious what the weird outburst was about."
+    },
+    {
+      "i": 612,
+      "response": "CHOICE: 4\nWHY: The all-caps rage and silly string of \"e\"s made me laugh and I'm curious what the fuss is about."
+    },
+    {
+      "i": 613,
+      "response": "CHOICE: 3\nWHY: As someone who likes tank reviews, \"the most BRUTAL premium\" instantly sounds like a juicy, must-see premium tank breakdown."
+    },
+    {
+      "i": 614,
+      "response": "CHOICE: 2\nWHY: As a regular player I'm instantly curious which premium tank is being called the most brutal and why."
+    },
+    {
+      "i": 615,
+      "response": "CHOICE: 2\nWHY: The word \"REVEALED\" and the trio of weird names make it feel like a juicy scoop rather than a dull review."
+    },
+    {
+      "i": 616,
+      "response": "CHOICE: 3\nWHY: As a player I'm curious about the new Gorilla, Executor and Fauteur tanks and want to see them in action."
+    },
+    {
+      "i": 617,
+      "response": "CHOICE: 3\nWHY: As a light tank fan, a claim about the most dangerous light instantly piques my curiosity."
+    },
+    {
+      "i": 618,
+      "response": "CHOICE: 1\nWHY: \"BRUTAL\" sounds entertaining and dramatic, which grabs my attention more than the others."
+    },
+    {
+      "i": 619,
+      "response": "CHOICE: 3\nWHY: A clear, specific tank review title tells me exactly what I’m getting and matches my interest in tank reviews."
+    },
+    {
+      "i": 620,
+      "response": "CHOICE: 1\nWHY: A bold claim about the most dangerous light tank instantly hooks me as a WoT fan wanting hype gameplay."
+    },
+    {
+      "i": 621,
+      "response": "CHOICE: 3\nWHY: The all-caps rage and weird spelling made me instantly curious what the fuss was about."
+    },
+    {
+      "i": 622,
+      "response": "CHOICE: 2\nWHY: \"Most BRUTAL premium\" sounds like sensational fun, not a dry review or complaint."
+    },
+    {
+      "i": 623,
+      "response": "CHOICE: 1\nWHY: The all-caps rage and weird string of letters makes it look like a funny, chaotic meme video rather than a boring tank review."
+    },
+    {
+      "i": 624,
+      "response": "CHOICE: 2\nWHY: As a regular player I’m always curious which premium tank is considered the most brutal and whether it’s worth my money."
+    },
+    {
+      "i": 625,
+      "response": "CHOICE: 4\nWHY: The playful \"?!?\" and promise of a \"BEST\" pick feels like a fun, low-effort curiosity hook rather than a niche tank deep-dive."
+    },
+    {
+      "i": 626,
+      "response": "CHOICE: 1\nWHY: \"BRUTAL\" sounds like fun, silly entertainment, unlike the others which are just bland tank names and stats."
+    },
+    {
+      "i": 627,
+      "response": "CHOICE: 2\nWHY: As a fan of tank reviews, a video promising the most brutal premium tank instantly hooks my curiosity about its power."
+    },
+    {
+      "i": 628,
+      "response": "CHOICE: 3\nWHY: The \"New BEST SNIPER\" phrasing with a curious twist feels like a fun, low-effort watch unlike the dry tank names."
+    },
+    {
+      "i": 629,
+      "response": "CHOICE: 2\nWHY: The \"New BEST SNIPER?!\" title instantly hooks me with curiosity about a possible meta-changing tank."
+    },
+    {
+      "i": 630,
+      "response": "CHOICE: 1\nWHY: The bold claim about the most dangerous light tank instantly piques my curiosity as a gameplay fan."
+    },
+    {
+      "i": 631,
+      "response": "CHOICE: 4\nWHY: The all-caps rage and nonsense \"rrrrreeeeeeeeeeee\" looks like a weirdly funny meme I'd click for a laugh."
+    },
+    {
+      "i": 632,
+      "response": "CHOICE: 3\nWHY: The odd \"BAN TESAK rrrrreeeeeeeeeeee\" title is weird and funny enough to make me curious what it's about."
+    },
+    {
+      "i": 633,
+      "response": "CHOICE: 3\nWHY: The word \"DANGEROUS\" and the dramatic tone make it sound like the most entertaining, curiosity-sparking clip of the bunch."
+    },
+    {
+      "i": 634,
+      "response": "CHOICE: 4\nWHY: The drama of Wargaming not caring and loot boxes returning sounds like juicy drama I'd click out of curiosity."
+    },
+    {
+      "i": 635,
+      "response": "CHOICE: 3\nWHY: The word \"BRUTAL\" sounds like chaotic fun and the promise of a crazy premium tank piques my curiosity for easy entertainment."
+    },
+    {
+      "i": 636,
+      "response": "CHOICE: 2\nWHY: The all-caps yelling and weird \"rrrrreeeeeeeeeeee\" made me instantly curious what the fuss was about."
+    },
+    {
+      "i": 637,
+      "response": "CHOICE: 3\nWHY: As a WoT player I want to know which light tank is considered most dangerous and why."
+    },
+    {
+      "i": 638,
+      "response": "CHOICE: 4\nWHY: The all-caps rage and weird string of e's makes it look like a funny, unhinged rant I'd want to peek at."
+    },
+    {
+      "i": 639,
+      "response": "CHOICE: 4\nWHY: The all-caps angry \"rrrrreeeeeeeeeeee\" makes it look like a funny, unhinged rant I'd get a kick out of."
+    },
+    {
+      "i": 640,
+      "response": "CHOICE: 2\nWHY: The \"New BEST SNIPER\" with a curious punctuation grabs my attention as something potentially surprising and fun."
+    },
+    {
+      "i": 641,
+      "response": "CHOICE: 4\nWHY: The word \"Gorilla\" made me curious what silly thing that is in a game I don't know."
+    },
+    {
+      "i": 642,
+      "response": "CHOICE: 4\nWHY: The all-caps rage and weird \"rrrrreeeeeeeeeeee\" stands out as absurd and entertaining compared to the boring tank stuff."
+    },
+    {
+      "i": 643,
+      "response": "CHOICE: 3\nWHY: \"The most BRUTAL premium\" sounds dramatic and entertaining, unlike the rest which are just game updates or stats."
+    },
+    {
+      "i": 644,
+      "response": "CHOICE: 2\nWHY: The promise of the \"most BRUTAL premium\" instantly hooks me as a fan of strong tank picks without needing to know the specific vehicle."
+    },
+    {
+      "i": 645,
+      "response": "CHOICE: 1\nWHY: \"BRUTAL\" sounds dramatic and entertaining, unlike the others which are just tank names or specs."
+    },
+    {
+      "i": 646,
+      "response": "CHOICE: 2\nWHY: \"Gorilla,\" \"Executor,\" and \"Fauteur\" sound like weird new stuff and the word NEW makes it feel like a fun showcase rather than a dry review."
+    },
+    {
+      "i": 647,
+      "response": "CHOICE: 1\nWHY: The phrase \"most DANGEROUS light\" sounds intriguing and promises a strong opinion on a tank I might not know."
+    },
+    {
+      "i": 648,
+      "response": "CHOICE: 4\nWHY: The all-caps \"BAN TESAK rrrrreeeeeeeeeeee\" looks like chaotic funny rage-bait I'd accidentally click for a laugh."
+    },
+    {
+      "i": 649,
+      "response": "CHOICE: 3\nWHY: The mention of familiar-sounding vehicle names coming \"BACK\" sparks a bit of curiosity about what's returning, without any odd shouting or jargon."
+    },
+    {
+      "i": 650,
+      "response": "CHOICE: 2\nWHY: As a fan of tank reviews and gameplay, I’m curious to see the returning DBV-152 and Vickers in action."
+    },
+    {
+      "i": 651,
+      "response": "CHOICE: 3\nWHY: New tanks like Gorilla, Executor and Fauteur instantly grab my attention as a WoT gameplay fan."
+    },
+    {
+      "i": 652,
+      "response": "CHOICE: 4\nWHY: As someone who likes tank reviews, a clear \"Tank Review\" title for the Schwertwal is exactly what I'd want to watch."
+    },
+    {
+      "i": 653,
+      "response": "CHOICE: 2\nWHY: As a WoT fan I'm intrigued by a claim about the most dangerous light tank and want to see what makes TESAK stand out."
+    },
+    {
+      "i": 654,
+      "response": "CHOICE: 3\nWHY: New tanks I haven't tried yet always pull me in more than reviews or known lights."
+    },
+    {
+      "i": 655,
+      "response": "CHOICE: 1\nWHY: As a fan of tank reviews and new vehicles, revealed stats for intriguing named tanks instantly grab my attention."
+    },
+    {
+      "i": 656,
+      "response": "CHOICE: 2\nWHY: The drama of \"Wargaming didn't care\" sounds like juicy drama I'd click out of curiosity even without caring about tanks."
+    },
+    {
+      "i": 657,
+      "response": "CHOICE: 4\nWHY: \"Most DANGEROUS\" sounds like a fun, dramatic claim that hooks me even without caring about tanks."
+    },
+    {
+      "i": 658,
+      "response": "CHOICE: 4\nWHY: As a WoT player I'm curious which premium tank is called the most brutal and want a quick opinion on it."
+    },
+    {
+      "i": 659,
+      "response": "CHOICE: 1\nWHY: The title hints at controversial monetization returning in WoT, which instantly grabs my attention as a regular player."
+    },
+    {
+      "i": 660,
+      "response": "CHOICE: 3\nWHY: New premium tanks I haven't tried always pull me in to see how they play."
+    },
+    {
+      "i": 661,
+      "response": "CHOICE: 2\nWHY: \"The most BRUTAL premium\" sounds like a fun, hype gameplay highlight rather than a boring review or news rant."
+    },
+    {
+      "i": 662,
+      "response": "CHOICE: 4\nWHY: The all-caps rage and silly \"rrrrreeeeeeeeeeee\" made me curious what got the creator so worked up."
+    },
+    {
+      "i": 663,
+      "response": "CHOICE: 1\nWHY: \"Most BRUTAL premium\" instantly promises hype gameplay and strong opinions I want to see as a WoT fan."
+    },
+    {
+      "i": 664,
+      "response": "CHOICE: 4\nWHY: The \"New BEST SNIPER?!\" title sounds intriguing and fun like a quick hype video, even without caring about tanks."
+    },
+    {
+      "i": 665,
+      "response": "CHOICE: 3\nWHY: The drama of \"Wargaming didn't care\" sounds like juicy drama I'd click out of curiosity."
+    },
+    {
+      "i": 666,
+      "response": "CHOICE: 4\nWHY: \"BRUTAL\" sounds dramatic and entertaining, even without knowing anything about tanks."
+    },
+    {
+      "i": 667,
+      "response": "CHOICE: 2\nWHY: As a longtime player I want straight stats on those new tanks without hype before deciding if they're worth my time."
+    },
+    {
+      "i": 668,
+      "response": "CHOICE: 3\nWHY: As an older player I'm always curious about which tank might give me the best sniping edge without chasing flashy new premiums."
+    },
+    {
+      "i": 669,
+      "response": "CHOICE: 3\nWHY: The all-caps rage and silly gibberish made me laugh and I’m curious what has this person so worked up."
+    },
+    {
+      "i": 670,
+      "response": "CHOICE: 3\nWHY: New tanks I haven't tried yet sound way more fun than another dry review or random rant."
+    },
+    {
+      "i": 671,
+      "response": "CHOICE: 3\nWHY: The words \"NEW\" and silly names like \"Gorilla\" make it sound like a fun, fresh mess-around video rather than a dry review."
+    },
+    {
+      "i": 672,
+      "response": "CHOICE: 2\nWHY: The word \"DANGEROUS\" makes it sound exciting and dramatic, which is more entertaining than the others."
+    },
+    {
+      "i": 673,
+      "response": "CHOICE: 3\nWHY: The \"New BEST SNIPER\" title with a question mark sparks immediate curiosity about which tank tops the meta right now."
+    },
+    {
+      "i": 674,
+      "response": "CHOICE: 2\nWHY: I want to see new tanks actually played rather than just stats or complaints."
+    },
+    {
+      "i": 675,
+      "response": "CHOICE: 4\nWHY: As a longtime fan of tank reviews and gameplay, a video promising the most brutal premium tank instantly grabs my attention."
+    },
+    {
+      "i": 676,
+      "response": "CHOICE: 4\nWHY: The all-caps rage and silly spelling make it look like a funny, chaotic rant worth a quick laugh."
+    },
+    {
+      "i": 677,
+      "response": "CHOICE: 4\nWHY: The phrase \"most BRUTAL premium\" sounds intriguing and promises exciting gameplay without needing to know the channel."
+    },
+    {
+      "i": 678,
+      "response": "CHOICE: 4\nWHY: The all-caps rage and nonsense word make it look like a funny, chaotic video rather than a boring tank review."
+    },
+    {
+      "i": 679,
+      "response": "CHOICE: 4\nWHY: The word \"DANGEROUS\" makes it sound intense and exciting, unlike the dry review or stats titles."
+    },
+    {
+      "i": 680,
+      "response": "CHOICE: 1\nWHY: The word \"NEW\" and the silly animal-style names made it sound like a fun, weird update worth a quick look."
+    },
+    {
+      "i": 681,
+      "response": "CHOICE: 1\nWHY: The word \"DANGEROUS\" and a specific light tank claim instantly piques my curiosity as a gameplay-focused player."
+    },
+    {
+      "i": 682,
+      "response": "CHOICE: 3\nWHY: The words \"NEW\" and \"Gorilla\" make it sound like a fun, weird update worth a quick look."
+    },
+    {
+      "i": 683,
+      "response": "CHOICE: 3\nWHY: The phrase \"most BRUTAL premium\" instantly makes me curious which tank it is and how it dominates."
+    },
+    {
+      "i": 684,
+      "response": "CHOICE: 2\nWHY: \"BRUTAL\" sounds dramatic and entertaining, unlike the other dry tank-specific titles."
+    },
+    {
+      "i": 685,
+      "response": "CHOICE: 4\nWHY: As a longtime player I'm curious which light tank is considered most dangerous and worth watching."
+    },
+    {
+      "i": 686,
+      "response": "CHOICE: 4\nWHY: \"The most BRUTAL premium\" sounds like a hype-driven, curiosity-sparking clip about a strong tank I might want to know about."
+    },
+    {
+      "i": 687,
+      "response": "CHOICE: 1\nWHY: The word \"REVEALED\" makes it sound like juicy leaked info, which is more intriguing than just gameplay or a review."
+    },
+    {
+      "i": 688,
+      "response": "CHOICE: 1\nWHY: As a fan of tank reviews, the Schwertwal review instantly appeals to my interest in detailed vehicle breakdowns."
+    },
+    {
+      "i": 689,
+      "response": "CHOICE: 2\nWHY: As a fan of tank reviews and gameplay, a claim about the most dangerous light tank instantly piques my curiosity."
+    },
+    {
+      "i": 690,
+      "response": "CHOICE: 4\nWHY: The word \"DANGEROUS\" and dramatic phrasing make it sound like exciting drama, not a boring review."
+    },
+    {
+      "i": 691,
+      "response": "CHOICE: 3\nWHY: The word \"REVEALED\" and the odd creature-like names make it sound like a juicy gossip drop rather than a boring tank review."
+    },
+    {
+      "i": 692,
+      "response": "CHOICE: 3\nWHY: I’m curious about the new tanks mentioned and want to see them in action immediately."
+    },
+    {
+      "i": 693,
+      "response": "CHOICE: 4\nWHY: As a fan of tank reviews, a clear single-tank review like the Schwertwal is exactly what I enjoy most."
+    },
+    {
+      "i": 694,
+      "response": "CHOICE: 1\nWHY: The odd shouting style and mysterious \"BAN TESAK\" caught my attention as something weird and entertaining."
+    },
+    {
+      "i": 695,
+      "response": "CHOICE: 1\nWHY: As a casual viewer I’m drawn to a bold claim about a specific tank being the most dangerous light, which sounds like a fun review."
+    },
+    {
+      "i": 696,
+      "response": "CHOICE: 3\nWHY: As someone who likes tank reviews and gameplay, newly revealed stats for unmentioned tanks instantly piques my curiosity."
+    },
+    {
+      "i": 697,
+      "response": "CHOICE: 4\nWHY: \"The most BRUTAL premium\" sounds like an exciting hype-driven gameplay clip that promises action right away."
+    },
+    {
+      "i": 698,
+      "response": "CHOICE: 2\nWHY: \"Most BRUTAL premium\" sounds like a fun, dramatic bit of entertainment without needing any tank knowledge."
+    },
+    {
+      "i": 699,
+      "response": "CHOICE: 2\nWHY: \"Most BRUTAL premium\" sounds like a fun, dramatic bit of entertainment with no need to know the game."
+    },
+    {
+      "i": 700,
+      "response": "CHOICE: 2\nWHY: \"Most BRUTAL premium\" sounds dramatic and intriguing enough to click for quick entertainment."
+    },
+    {
+      "i": 701,
+      "response": "CHOICE: 4\nWHY: As a fan of tank reviews, a clear \"Schwertwal - Tank Review\" title is exactly the content I enjoy."
+    },
+    {
+      "i": 702,
+      "response": "CHOICE: 4\nWHY: \"Most BRUTAL premium\" sounds like chaotic fun and instantly hooks me as a casual viewer."
+    },
+    {
+      "i": 703,
+      "response": "CHOICE: 1\nWHY: The word \"Playing\" and \"NEW\" makes it sound like fun action rather than a dry stats or review video."
+    },
+    {
+      "i": 704,
+      "response": "CHOICE: 2\nWHY: As a longtime player I love light tank mayhem and the word \"DANGEROUS\" promises some exciting gameplay."
+    },
+    {
+      "i": 705,
+      "response": "CHOICE: 2\nWHY: \"Most BRUTAL premium\" sounds like dramatic, entertaining content even without caring about tanks."
+    },
+    {
+      "i": 706,
+      "response": "CHOICE: 3\nWHY: As someone who watches tank reviews, a video questioning a new best sniper tank instantly grabs my curiosity."
+    },
+    {
+      "i": 707,
+      "response": "CHOICE: 3\nWHY: The \"BEST SNIPER?!\" phrasing with a curious twist feels like a fun, quick hype video even without knowing the game."
+    },
+    {
+      "i": 708,
+      "response": "CHOICE: 1\nWHY: The word \"BRUTAL\" sounds like it promises some crazy action or drama that could be fun to watch."
+    },
+    {
+      "i": 709,
+      "response": "CHOICE: 2\nWHY: The provocative \"New BEST SNIPER?!\" phrasing sparks curiosity even without knowing the game."
+    },
+    {
+      "i": 710,
+      "response": "CHOICE: 4\nWHY: As someone who enjoys tank reviews and gameplay, a video promising the most brutal premium tank instantly sounds like an exciting, content-rich watch."
+    },
+    {
+      "i": 711,
+      "response": "CHOICE: 4\nWHY: The word \"BRUTAL\" sounds exciting and promises some entertaining action without needing to know tank names."
+    },
+    {
+      "i": 712,
+      "response": "CHOICE: 2\nWHY: The words \"NEW\" and silly names like Gorilla and Executor make it sound like a fun, weird update worth a quick look."
+    },
+    {
+      "i": 713,
+      "response": "CHOICE: 4\nWHY: \"The most BRUTAL premium\" sounds like a fun, dramatic clickbait hook with no prior knowledge needed."
+    },
+    {
+      "i": 714,
+      "response": "CHOICE: 4\nWHY: The intriguing question format about a possible new best sniper makes me curious to see which tank it is."
+    },
+    {
+      "i": 715,
+      "response": "CHOICE: 3\nWHY: As a WoT player I'm always curious about which light tanks are considered dangerous and worth learning."
+    },
+    {
+      "i": 716,
+      "response": "CHOICE: 3\nWHY: As someone who enjoys WoT gameplay, I’m curious to see the new Gorilla, Executor and Fauteur tanks in action."
+    },
+    {
+      "i": 717,
+      "response": "CHOICE: 4\nWHY: \"BRUTAL\" sounds like chaotic fun and the word premium hints at something flashy without needing tank knowledge."
+    },
+    {
+      "i": 718,
+      "response": "CHOICE: 2\nWHY: As a WoT player I'm curious about the revealed stats of those new tanks and it sounds like concrete info rather than hype."
+    },
+    {
+      "i": 719,
+      "response": "CHOICE: 3\nWHY: \"BACK\" makes it sound like a fun return of familiar stuff, which feels more entertaining than technical reviews or unknown tank names."
+    },
+    {
+      "i": 720,
+      "response": "CHOICE: 4\nWHY: The clickbaity \"New BEST SNIPER?!\" with a question mark makes me curious what tank it is and if it's worth trying."
+    },
+    {
+      "i": 721,
+      "response": "CHOICE: 3\nWHY: The idea of an AI trying to draw in MS Paint sounds like silly, fun entertainment rather than another boring tech tutorial."
+    },
+    {
+      "i": 722,
+      "response": "CHOICE: 2\nWHY: The promise of making money quickly with AI sounds like an entertaining and intriguing side hustle story."
+    },
+    {
+      "i": 723,
+      "response": "CHOICE: 3\nWHY: The promise of making money with AI automation in just 3 days sounds like a practical, immediately useful win."
+    },
+    {
+      "i": 724,
+      "response": "CHOICE: 4\nWHY: As a broke student I'm instantly drawn to a quick, real money-making AI automation story."
+    },
+    {
+      "i": 725,
+      "response": "CHOICE: 4\nWHY: The idea of an AI trying to draw in MS Paint sounds silly and fun, not like a boring tech tutorial."
+    },
+    {
+      "i": 726,
+      "response": "CHOICE: 2\nWHY: Making money in 3 days sounds like quick, entertaining payoff without needing to care about the tech."
+    },
+    {
+      "i": 727,
+      "response": "CHOICE: 3\nWHY: The absurd idea of an AI trying to draw in MS Paint sounds funny and weirdly entertaining."
+    },
+    {
+      "i": 728,
+      "response": "CHOICE: 3\nWHY: \"Made money in 3 days\" sounds like a quick, concrete payoff that's more intriguing than vague setups or updates."
+    },
+    {
+      "i": 729,
+      "response": "CHOICE: 4\nWHY: Watching an AI try to draw in MS Paint sounds like a funny, weirdly entertaining experiment."
+    },
+    {
+      "i": 730,
+      "response": "CHOICE: 3\nWHY: The promise of making money quickly with AI sounds entertaining and personally useful without needing tech expertise."
+    },
+    {
+      "i": 731,
+      "response": "CHOICE: 1\nWHY: The silly idea of an AI trying to draw in MS Paint sounds like a fun, weird distraction."
+    },
+    {
+      "i": 732,
+      "response": "CHOICE: 2\nWHY: The idea of Claude Code trying to draw in MS Paint sounds funny and weird enough to be entertaining."
+    },
+    {
+      "i": 733,
+      "response": "CHOICE: 3\nWHY: As someone wanting practical automation help, a simple 3-part system promising to automate anything is instantly appealing."
+    },
+    {
+      "i": 734,
+      "response": "CHOICE: 2\nWHY: As someone interested in automation tutorials, a simple reusable AI agent system promises immediate practical value without hype."
+    },
+    {
+      "i": 735,
+      "response": "CHOICE: 3\nWHY: The weird and funny idea of Claude trying to draw in MS Paint instantly grabs my attention more than the boring tech or money stuff."
+    },
+    {
+      "i": 736,
+      "response": "CHOICE: 3\nWHY: Building a trading bot from scratch combines automation and real-world AI application, which instantly appeals to my interest in hands-on agents."
+    },
+    {
+      "i": 737,
+      "response": "CHOICE: 4\nWHY: As someone into automation, a fully local AI pipeline sounds privacy-friendly and genuinely intriguing compared to the samey money-making angles."
+    },
+    {
+      "i": 738,
+      "response": "CHOICE: 4\nWHY: Watching an AI try to draw in MS Paint sounds like a funny, weird bit of entertainment."
+    },
+    {
+      "i": 739,
+      "response": "CHOICE: 3\nWHY: As someone into automation, a concrete 3-day money-making AI iOS automation story sounds immediately useful and intriguing."
+    },
+    {
+      "i": 740,
+      "response": "CHOICE: 3\nWHY: As an AI automation fan I’m instantly curious whether Claude Code can actually mess around and draw in MS Paint."
+    },
+    {
+      "i": 741,
+      "response": "CHOICE: 2\nWHY: The idea of Claude Code trying to draw in MS Paint sounds like a funny, weird experiment I'd actually enjoy watching."
+    },
+    {
+      "i": 742,
+      "response": "CHOICE: 1\nWHY: The idea of Claude Code drawing in MS Paint sounds like a silly, entertaining experiment I'd enjoy watching."
+    },
+    {
+      "i": 743,
+      "response": "CHOICE: 2\nWHY: \"Blows My Mind\" sounds like a fun, curiosity-sparking watch without needing any tech background."
+    },
+    {
+      "i": 744,
+      "response": "CHOICE: 2\nWHY: As someone wanting practical automation help, a simple 3-part system promises quick, accessible results without specialist setup."
+    },
+    {
+      "i": 745,
+      "response": "CHOICE: 4\nWHY: Minecraft sounds like fun entertainment, not a boring tech tutorial."
+    },
+    {
+      "i": 746,
+      "response": "CHOICE: 4\nWHY: \"Blows My Mind\" sounds like a fun, curiosity-sparking watch without needing to know any AI stuff."
+    },
+    {
+      "i": 747,
+      "response": "CHOICE: 4\nWHY: The word \"profit\" and the casual \"after 10 days\" update sounds like a real experiment I might find entertaining."
+    },
+    {
+      "i": 748,
+      "response": "CHOICE: 2\nWHY: The phrase \"Blows My Mind\" sounds fun and intriguing for casual entertainment, unlike the technical or finance-focused others."
+    },
+    {
+      "i": 749,
+      "response": "CHOICE: 3\nWHY: As someone into automation, a 100% local AI pipeline sounds private, powerful, and immediately intriguing."
+    },
+    {
+      "i": 750,
+      "response": "CHOICE: 1\nWHY: The idea of an AI trying to draw in MS Paint sounds funny and weird enough to be entertaining."
+    },
+    {
+      "i": 751,
+      "response": "CHOICE: 4\nWHY: The unexpectedly quirky idea of Claude Code learning to draw in MS Paint instantly piqued my curiosity about AI agents' limits."
+    },
+    {
+      "i": 752,
+      "response": "CHOICE: 1\nWHY: The idea of an AI trying to draw in MS Paint sounds silly and fun, which is exactly the kind of weird entertainment I'd click for."
+    },
+    {
+      "i": 753,
+      "response": "CHOICE: 2\nWHY: Making money in 3 days sounds like a quick, entertaining get-rich story I'd curious to peek at."
+    },
+    {
+      "i": 754,
+      "response": "CHOICE: 3\nWHY: The weirdly specific and silly idea of AI trying to draw in MS Paint instantly caught my attention as something fun."
+    },
+    {
+      "i": 755,
+      "response": "CHOICE: 4\nWHY: The idea of an AI trying to draw in MS Paint sounds daft and amusing, which is just the bit of entertainment I'm after."
+    },
+    {
+      "i": 756,
+      "response": "CHOICE: 3\nWHY: Building a trading bot from scratch sounds like a concrete, hands-on automation project I'd actually learn from."
+    },
+    {
+      "i": 757,
+      "response": "CHOICE: 4\nWHY: A simple reusable system to automate anything sounds broadly useful and instantly applicable versus niche or income-claim teasers."
+    },
+    {
+      "i": 758,
+      "response": "CHOICE: 4\nWHY: The idea of Claude Code trying to draw in MS Paint sounds funny and weirdly entertaining, unlike the other bland tech tutorial titles."
+    },
+    {
+      "i": 759,
+      "response": "CHOICE: 4\nWHY: The phrase \"profit?\" makes it sound like a real ongoing money-making experiment I could gossip about."
+    },
+    {
+      "i": 760,
+      "response": "CHOICE: 1\nWHY: The phrase \"Automate Anything\" sounds like it could make my everyday life easier without needing tech expertise."
+    },
+    {
+      "i": 761,
+      "response": "CHOICE: 3\nWHY: The word \"profit\" and the casual \"after 10 days\" update sounds like a relatable little money story I might enjoy."
+    },
+    {
+      "i": 762,
+      "response": "CHOICE: 3\nWHY: \"Automate Anything\" sounds like it could make my daily life easier without needing tech expertise."
+    },
+    {
+      "i": 763,
+      "response": "CHOICE: 3\nWHY: The weirdly specific and silly idea of Claude Code learning to draw in MS Paint instantly amuses me more than the dry automation stuff."
+    },
+    {
+      "i": 764,
+      "response": "CHOICE: 4\nWHY: A 100% local AI automation pipeline sounds privacy-friendly and genuinely impressive for someone into agents and automation."
+    },
+    {
+      "i": 765,
+      "response": "CHOICE: 3\nWHY: The word \"passive income\" sounds intriguing and like it could be an easy way to make money without much effort."
+    },
+    {
+      "i": 766,
+      "response": "CHOICE: 4\nWHY: The idea of an AI trying to draw in MS Paint sounds weird and funny enough to be entertaining."
+    },
+    {
+      "i": 767,
+      "response": "CHOICE: 3\nWHY: A fully local AI automation pipeline sounds practical and privacy-friendly, which interests me more than income schemes or niche experiments."
+    },
+    {
+      "i": 768,
+      "response": "CHOICE: 4\nWHY: The word \"profit\" makes it sound like a juicy real-world experiment rather than a tech tutorial."
+    },
+    {
+      "i": 769,
+      "response": "CHOICE: 2\nWHY: The idea of an AI trying to draw in MS Paint sounds silly and fun, not like a boring tech tutorial."
+    },
+    {
+      "i": 770,
+      "response": "CHOICE: 2\nWHY: A fully local AI automation pipeline sounds instantly practical and exciting for someone into privacy-friendly automation."
+    },
+    {
+      "i": 771,
+      "response": "CHOICE: 3\nWHY: Building a trading bot from scratch combines my interest in AI agents and automation with real-world money-making potential."
+    },
+    {
+      "i": 772,
+      "response": "CHOICE: 4\nWHY: The promise of making money fast with AI automation in just 3 days feels instantly intriguing and low-commitment."
+    },
+    {
+      "i": 773,
+      "response": "CHOICE: 2\nWHY: As someone into AI automation, a ready-made passive income setup with Claude Code sounds immediately useful and intriguing."
+    },
+    {
+      "i": 774,
+      "response": "CHOICE: 3\nWHY: As a fan of automation tutorials, building a trading bot from scratch sounds like a hands-on, high-value project I'd want to see."
+    },
+    {
+      "i": 775,
+      "response": "CHOICE: 4\nWHY: The absurd and playful idea of Claude Code learning to draw in MS Paint instantly piques my curiosity as a fun automation test."
+    },
+    {
+      "i": 776,
+      "response": "CHOICE: 4\nWHY: Making money in 3 days sounds like a quick, entertaining payoff story I’d actually want to see."
+    },
+    {
+      "i": 777,
+      "response": "CHOICE: 3\nWHY: The promise of making money quickly with AI in just 3 days sounds like an easy, entertaining hack worth a click."
+    },
+    {
+      "i": 778,
+      "response": "CHOICE: 4\nWHY: A simple reusable system to automate anything sounds immediately practical and low-effort to learn."
+    },
+    {
+      "i": 779,
+      "response": "CHOICE: 3\nWHY: As someone interested in automation, a concrete 3-day money-making case with AI instantly appeals to me more than abstract or experimental titles."
+    },
+    {
+      "i": 780,
+      "response": "CHOICE: 4\nWHY: A 100% local AI automation pipeline sounds immediately intriguing and novel compared to the other more familiar topics."
+    },
+    {
+      "i": 781,
+      "response": "CHOICE: 2\nWHY: The promise of a simple system to automate anything instantly sounds like a practical, low-effort win I can actually use."
+    },
+    {
+      "i": 782,
+      "response": "CHOICE: 3\nWHY: \"Automate Anything\" sounds like a fun, easy life hack I might actually use, unlike the boring bot or income stuff."
+    },
+    {
+      "i": 783,
+      "response": "CHOICE: 4\nWHY: As someone into automation, a real 3-day money-making iOS app automation story is instantly compelling."
+    },
+    {
+      "i": 784,
+      "response": "CHOICE: 2\nWHY: The promise of making money quickly with automation sounds like an entertaining get-rich-quick story I'd curious to peek at."
+    },
+    {
+      "i": 785,
+      "response": "CHOICE: 2\nWHY: The absurd idea of AI learning to draw in MS Paint sounds funny and weirdly entertaining, not like a boring tutorial."
+    },
+    {
+      "i": 786,
+      "response": "CHOICE: 2\nWHY: The idea of an AI trying to draw in MS Paint sounds weird and funny enough to be entertaining."
+    },
+    {
+      "i": 787,
+      "response": "CHOICE: 4\nWHY: As someone interested in AI tools, I'm curious about Nvidia's new model and want a quick first impression without committing to a build tutorial."
+    },
+    {
+      "i": 788,
+      "response": "CHOICE: 3\nWHY: The phrase \"blows my mind\" sounds fun and intriguing enough to satisfy my craving for easy entertainment."
+    },
+    {
+      "i": 789,
+      "response": "CHOICE: 4\nWHY: The promise of a mind-blowing 100% local AI automation pipeline instantly appeals as something practical and private I can run myself."
+    },
+    {
+      "i": 790,
+      "response": "CHOICE: 3\nWHY: The idea of an AI trying to draw in MS Paint sounds funny and weird enough to be entertaining."
+    },
+    {
+      "i": 791,
+      "response": "CHOICE: 1\nWHY: The promise of making money quickly with something easy sounds like a fun, low-effort way to be entertained."
+    },
+    {
+      "i": 792,
+      "response": "CHOICE: 2\nWHY: Making money in 3 days sounds like a quick, concrete payoff that beats abstract tech talk."
+    },
+    {
+      "i": 793,
+      "response": "CHOICE: 4\nWHY: As someone interested in automation tutorials, a simple reusable AI agent system sounds immediately useful and practical."
+    },
+    {
+      "i": 794,
+      "response": "CHOICE: 4\nWHY: The weird and specific challenge of Claude Code learning to draw in MS Paint instantly grabs my curiosity as an AI enthusiast."
+    },
+    {
+      "i": 795,
+      "response": "CHOICE: 1\nWHY: As someone keen on practical AI automation, a simple system to automate anything instantly appeals to my interest."
+    },
+    {
+      "i": 796,
+      "response": "CHOICE: 2\nWHY: The promise of making money fast with AI sounds entertaining and immediately intriguing."
+    },
+    {
+      "i": 797,
+      "response": "CHOICE: 4\nWHY: As a fan of automation tutorials, a simple reusable 3-part AI agent system promises practical value I can apply immediately."
+    },
+    {
+      "i": 798,
+      "response": "CHOICE: 2\nWHY: Building a trading bot from scratch sounds like a practical, high-value automation project I could actually learn from."
+    },
+    {
+      "i": 799,
+      "response": "CHOICE: 3\nWHY: The word \"passive income\" and \"profit?\" makes me curious if someone actually made money, which feels more relatable than tech jargon."
+    },
+    {
+      "i": 800,
+      "response": "CHOICE: 3\nWHY: The promise of making money quickly with AI sounds like an entertaining and intriguing side hustle story."
+    },
+    {
+      "i": 801,
+      "response": "CHOICE: 4\nWHY: A fully local AI automation pipeline sounds privacy-friendly and genuinely impressive, which piques my curiosity more than income claims."
+    },
+    {
+      "i": 802,
+      "response": "CHOICE: 3\nWHY: As someone into automation tutorials, a simple reusable system to automate anything sounds immediately useful and practical."
+    },
+    {
+      "i": 803,
+      "response": "CHOICE: 2\nWHY: The weirdly specific idea of Claude trying to draw in MS Paint sounds funny and entertaining, not like a boring tutorial."
+    },
+    {
+      "i": 804,
+      "response": "CHOICE: 3\nWHY: The promise of making money quickly with something easy like iOS apps sounds fun and personally useful."
+    },
+    {
+      "i": 805,
+      "response": "CHOICE: 1\nWHY: A simple reusable system to automate anything sounds immediately practical and broadly useful for my AI interests."
+    },
+    {
+      "i": 806,
+      "response": "CHOICE: 2\nWHY: \"100% local\" and \"blows my mind\" promise a privacy-friendly automation setup that's instantly intriguing without needing prior context."
+    },
+    {
+      "i": 807,
+      "response": "CHOICE: 3\nWHY: The promise of making money quickly with AI sounds like easy entertainment and a crazy story worth a click."
+    },
+    {
+      "i": 808,
+      "response": "CHOICE: 4\nWHY: As someone into automation tutorials, a fully local AI pipeline sounds both private and seriously impressive."
+    },
+    {
+      "i": 809,
+      "response": "CHOICE: 1\nWHY: Browser automation is the core bottleneck for practical AI agents and I want to see what Surfagent actually solves."
+    },
+    {
+      "i": 810,
+      "response": "CHOICE: 3\nWHY: The idea of an AI trying to draw in MS Paint sounds silly and fun, not like a boring tech tutorial."
+    },
+    {
+      "i": 811,
+      "response": "CHOICE: 4\nWHY: The idea of an AI trying to draw in MS Paint sounds silly and fun, unlike the boring money or tech talk."
+    },
+    {
+      "i": 812,
+      "response": "CHOICE: 3\nWHY: Building a trading bot from scratch sounds like a concrete, high-value automation project I'd actually learn from."
+    },
+    {
+      "i": 813,
+      "response": "CHOICE: 2\nWHY: Headless AI agents with Minecraft and swarms sounds like a fascinating technical deep-dive into autonomous systems."
+    },
+    {
+      "i": 814,
+      "response": "CHOICE: 3\nWHY: As someone interested in AI agents, a title promising to solve a real automation problem instantly caught my attention."
+    },
+    {
+      "i": 815,
+      "response": "CHOICE: 2\nWHY: The promise of making money quickly with AI sounds entertaining and intriguing even for a casual viewer."
+    },
+    {
+      "i": 816,
+      "response": "CHOICE: 3\nWHY: As someone into AI agents, a tool claiming to solve browser automation for agents instantly sounds technically interesting."
+    },
+    {
+      "i": 817,
+      "response": "CHOICE: 4\nWHY: As someone into automation, a simple reusable 3-part agent system sounds immediately useful and practical."
+    },
+    {
+      "i": 818,
+      "response": "CHOICE: 4\nWHY: The idea of Claude messing about in MS Paint sounds like a bit of silly fun, not another boring tech tutorial."
+    },
+    {
+      "i": 819,
+      "response": "CHOICE: 3\nWHY: The \"profit?\" angle and real 10-day update sounds like a curious little experiment I might enjoy watching."
+    },
+    {
+      "i": 820,
+      "response": "CHOICE: 4\nWHY: As someone who loves automation tutorials, making real money with AI in just three days sounds immediately useful and exciting."
+    },
+    {
+      "i": 821,
+      "response": "CHOICE: 3\nWHY: The word \"profit?\" makes it sound like a real story with money involved, which is more entertaining than dry tech tutorials."
+    },
+    {
+      "i": 822,
+      "response": "CHOICE: 4\nWHY: \"Blows My Mind\" sounds like a fun, low-effort watch and I'm curious what crazy local AI thing that is."
+    },
+    {
+      "i": 823,
+      "response": "CHOICE: 3\nWHY: The absurd idea of an AI trying to draw in MS Paint sounds weirdly funny and entertaining."
+    },
+    {
+      "i": 824,
+      "response": "CHOICE: 4\nWHY: As someone who loves practical AI agent systems, a simple 3-part setup to automate anything is instantly appealing."
+    },
+    {
+      "i": 825,
+      "response": "CHOICE: 4\nWHY: A simple reusable system to automate anything promises immediate practical value without niche context."
+    },
+    {
+      "i": 826,
+      "response": "CHOICE: 3\nWHY: As someone interested in automation, a quick real-world money-making result in 3 days is instantly intriguing."
+    },
+    {
+      "i": 827,
+      "response": "CHOICE: 4\nWHY: The playful idea of Claude Code learning to draw in MS Paint instantly amuses me and feels like a fun, low-stakes AI tutorial."
+    },
+    {
+      "i": 828,
+      "response": "CHOICE: 4\nWHY: As someone into automation tutorials, a promised simple system to automate anything is immediately appealing and practical."
+    },
+    {
+      "i": 829,
+      "response": "CHOICE: 1\nWHY: The phrase \"100% Local AI Automation Pipeline\" sounds like a practical, privacy-friendly setup I could actually run myself."
+    },
+    {
+      "i": 830,
+      "response": "CHOICE: 3\nWHY: The idea of Claude Code trying to draw in MS Paint sounds like a funny, weird experiment I'd actually enjoy watching."
+    },
+    {
+      "i": 831,
+      "response": "CHOICE: 2\nWHY: Minecraft sounds fun and the word swarms makes it feel like a weird game thing, not a boring tutorial."
+    },
+    {
+      "i": 832,
+      "response": "CHOICE: 3\nWHY: The idea of Claude messing around with MS Paint sounds like a fun, weird experiment I'd actually watch for entertainment."
+    },
+    {
+      "i": 833,
+      "response": "CHOICE: 3\nWHY: The idea of Claude Code trying to draw in MS Paint sounds funny and weird enough to be entertaining."
+    },
+    {
+      "i": 834,
+      "response": "CHOICE: 4\nWHY: The idea of an AI trying to draw in MS Paint sounds funny and weirdly entertaining, not like a boring tutorial."
+    },
+    {
+      "i": 835,
+      "response": "CHOICE: 2\nWHY: Making money in 3 days sounds like a quick, entertaining win I'd want to see."
+    },
+    {
+      "i": 836,
+      "response": "CHOICE: 4\nWHY: The idea of Claude Code struggling to draw in MS Paint sounds weirdly fun and instantly curiosity-grabbing."
+    },
+    {
+      "i": 837,
+      "response": "CHOICE: 4\nWHY: The promise of making money fast in just 3 days sounds like an entertaining get-rich-quick story."
+    },
+    {
+      "i": 838,
+      "response": "CHOICE: 1\nWHY: The promise of making money in 3 days sounds like a quick, entertaining get-rich story I'd actually click on."
+    },
+    {
+      "i": 839,
+      "response": "CHOICE: 1\nWHY: The absurd idea of Claude trying to draw in MS Paint sounds funny and weirdly entertaining."
+    },
+    {
+      "i": 840,
+      "response": "CHOICE: 4\nWHY: As someone into AI tools I'm curious about Nvidia's new model and want a quick first impression without committing to a full setup tutorial."
+    }
+  ]
+}
