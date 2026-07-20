@@ -179,3 +179,14 @@ def calibrate(raw, country: str, domain: str, panel_version: str, model_id) -> t
     logger.warning("delphoi_calibration: ismeretlen registry-státusz: %r", status)
     meta["warning"] = f"ismeretlen registry-státusz: {status} — raw megy tovább"
     return round(raw, 3), meta
+
+
+def register_tools(app, deps):
+    """Nem regisztrál MCP-toolt (tool-count fegyelem, a halluguard mintája) —
+    csak a registry-t tölti be induláskor, hogy a hiánya már a logban lássék."""
+    reg = load_registry()
+    if reg.get("error"):
+        logger.warning("delphoi_calibration: %s", reg["error"])
+    else:
+        logger.info("delphoi_calibration betöltve: registry v%s, %d cella",
+                    reg.get("version"), len(reg["entries"]))

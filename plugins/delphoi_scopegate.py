@@ -320,3 +320,10 @@ def confidence(scope: dict | None, coverage: dict | None) -> float:
         c -= max(0.0, float(coverage.get("min") or coverage_min())
                  - float(coverage.get("score") or 0.0))
     return round(max(0.1, c), 3)
+
+
+def register_tools(app, deps):
+    """Nem regisztrál MCP-toolt (tool-count fegyelem, a halluguard mintája) —
+    a kaput a delphoi.py hívja (process_job / run_entity_nowcast)."""
+    logger.info("delphoi_scopegate betöltve (ítész=%s, coverage-küszöb=%.2f)",
+                judge_model(), coverage_min())
