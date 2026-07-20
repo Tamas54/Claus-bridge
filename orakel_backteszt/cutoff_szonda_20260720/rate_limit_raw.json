@@ -1,0 +1,61 @@
+{
+ "model": "tencent/Hy3",
+ "run_at": "2026-07-20T16:05:26",
+ "l1_frame": "10000 RPM / 400000 TPM",
+ "stages": [
+  {
+   "n": 5,
+   "ok": 5,
+   "n_429": 0,
+   "n_other_err": 0,
+   "lat_p50": 2.15,
+   "lat_p90": 2.44,
+   "lat_max": 3.31,
+   "lat_mean": 2.36,
+   "avg_tokens_per_call": 59,
+   "stage": "baseline_seq_5"
+  },
+  {
+   "n": 20,
+   "ok": 20,
+   "n_429": 0,
+   "n_other_err": 0,
+   "lat_p50": 3.02,
+   "lat_p90": 3.08,
+   "lat_max": 3.08,
+   "lat_mean": 2.96,
+   "avg_tokens_per_call": 59,
+   "stage": "parallel_20",
+   "wall_s": 3.08,
+   "throughput_rpm_equiv": 389.0
+  },
+  {
+   "n": 60,
+   "ok": 60,
+   "n_429": 0,
+   "n_other_err": 0,
+   "lat_p50": 5.52,
+   "lat_p90": 5.6,
+   "lat_max": 5.63,
+   "lat_mean": 5.26,
+   "avg_tokens_per_call": 59.1,
+   "stage": "parallel_60",
+   "wall_s": 5.64,
+   "throughput_rpm_equiv": 639.0
+  },
+  {
+   "n": 120,
+   "ok": 120,
+   "n_429": 0,
+   "n_other_err": 0,
+   "lat_p50": 8.2,
+   "lat_p90": 12.24,
+   "lat_max": 12.39,
+   "lat_mean": 8.79,
+   "avg_tokens_per_call": 59.1,
+   "stage": "parallel_120",
+   "wall_s": 12.4,
+   "throughput_rpm_equiv": 580.0
+  }
+ ]
+}
