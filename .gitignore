@@ -8,6 +8,7 @@ thoughts*.md
 plan*.md
 reauth.py
 vertical_plugins/pilot_results/
-data/poll_ground_truth/
-orakel_backteszt/
 .venv/
+
+# PYTHIA v3.1 (2026-07-20): a backteszt-bizonyítékbázis GITBEN ÉL
+# (pre-regisztráció: GT commit a futás ELŐTT) — a korábbi ignore törölve.

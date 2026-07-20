@@ -1,0 +1,501 @@
+[
+ {
+  "model": "deepseek-ai/DeepSeek-V4-Flash",
+  "records": [
+   {
+    "p": {
+     "id": 0,
+     "age": "50-59",
+     "settlement": "Budapest",
+     "edu": "szakmunkás",
+     "media": "baloldali/liberális médiát követ (Telex, 24.hu, HVG, 444, RTL)"
+    },
+    "label": "50-59 éves, Budapest, szakmunkás, baloldali/liberális médiaközönség",
+    "score": 30,
+    "reason": "A kettős állampolgárság kiterjesztése szerintem megint csak a Fidesznek kedvezne, mert a határon túli magyarok nagy része rájuk szavaz. Nem hiszek abban, hogy ez a nemzeti összetartozásról szól, inkább politikai játszma. A cikk tényszerű, d",
+    "raw": "PONTSZÁM: 30  \nINDOK: A kettős állampolgárság kiterjesztése szerintem megint csak a Fidesznek kedvezne, mert a határon túli magyarok nagy része rájuk szavaz. Nem hiszek abban, hogy ez a nemzeti összetartozásról szól, inkább politikai játszma. A cikk tényszerű, de a téma nekem most nem fontos, inkább"
+   },
+   {
+    "p": {
+     "id": 1,
+     "age": "60+",
+     "settlement": "község",
+     "edu": "diploma",
+     "media": "jobboldali médiát követ (Origo, Mandiner, Magyar Nemzet)"
+    },
+    "label": "60+ éves, község, diploma, jobboldali médiaközönség",
+    "score": 20,
+    "reason": "Ez a cikk látszólag tárgyilagos, de pont azt a veszélyt hallgatja el, amit a TISZA-párti kormány kettős állampolgársággal kapcsolatos tervei jelentenek: a határon túli magyarok szavazati jogának korlátozásával a Fidesz és a nemzeti oldal tá",
+    "raw": "PONTSZÁM: 20\nINDOK: Ez a cikk látszólag tárgyilagos, de pont azt a veszélyt hallgatja el, amit a TISZA-párti kormány kettős állampolgársággal kapcsolatos tervei jelentenek: a határon túli magyarok szavazati jogának korlátozásával a Fidesz és a nemzeti oldal támogatottságát akarják gyengíteni, miközb"
+   },
+   {
+    "p": {
+     "id": 2,
+     "age": "30-39",
+     "settlement": "megyeszékhely",
+     "edu": "max 8 általános",
+     "media": "közösségi médiában fogyaszt politikai tartalmat (Facebook/TikTok/YouTube — itt jelenleg túlnyomórészt Tisza-közeli tartalom éri el a legtöbb embert)"
+    },
+    "label": "30-39 éves, megyeszékhely, max 8 általános, közösségimédia-közönség",
+    "score": 30,
+    "reason": "Hát ezt a cikket kicsit olyan érzem, mintha a Tisza akarná megmondani, hogy ki lehet magyar meg ki nem. Szerintem a határon túli magyarok igenis szavazhassanak, mert ők is magyarok, de a Fidesz ezt jobban csinálta, és most megint csak a saj",
+    "raw": "PONTSZÁM: 30  \nINDOK: Hát ezt a cikket kicsit olyan érzem, mintha a Tisza akarná megmondani, hogy ki lehet magyar meg ki nem. Szerintem a határon túli magyarok igenis szavazhassanak, mert ők is magyarok, de a Fidesz ezt jobban csinálta, és most megint csak a saját malmukra akarják hajtani a vizet. N"
+   },
+   {
+    "p": {
+     "id": 3,
+     "age": "18-29",
+     "settlement": "város",
+     "edu": "érettségi",
+     "media": "közmédiát követ (köztévé — amely jelenleg a kormányon lévő Tisza-kormányt támogatja)"
+    },
+    "label": "18-29 éves, város, érettségi, közmédia-közönség",
+    "score": 45,
+    "reason": "Az írás próbál tárgyilagos lenni, de számomra túl óvatos és semleges, miközben a kettős állampolgárság kérdése nyilvánvalóan a Fidesz régi játszmája a választási befolyásolásra. A Tisza-kormány alatt fontos lenne ezt tisztázni, de a cikk ne",
+    "raw": "PONTSZÁM: 45  \nINDOK: Az írás próbál tárgyilagos lenni, de számomra túl óvatos és semleges, miközben a kettős állampolgárság kérdése nyilvánvalóan a Fidesz régi játszmája a választási befolyásolásra. A Tisza-kormány alatt fontos lenne ezt tisztázni, de a cikk nem mond ki semmi határozottat, így nem "
+   },
+   {
+    "p": {
+     "id": 4,
+     "age": "40-49",
+     "settlement": "község",
+     "edu": "diploma",
+     "media": "baloldali/liberális médiát követ (Telex, 24.hu, HVG, 444, RTL)"
+    },
+    "label": "40-49 éves, község, diploma, baloldali/liberális médiaközönség",
+    "score": 30,
+    "reason": "Az írás látszólag tárgyilagos, de számomra pont az a baj, hogy kerüli a lényegi kérdést: a kettős állampolgárság kiterjesztése a Fidesz által kreált választási manipuláció eszköze volt, amivel a határon túli, magyar belpolitikában nem érint",
+    "raw": "PONTSZÁM: 30\n\nINDOK: Az írás látszólag tárgyilagos, de számomra pont az a baj, hogy kerüli a lényegi kérdést: a kettős állampolgárság kiterjesztése a Fidesz által kreált választási manipuláció eszköze volt, amivel a határon túli, magyar belpolitikában nem érintett szavazókkal torzították az eredmény"
+   },
+   {
+    "p": {
+     "id": 5,
+     "age": "60+",
+     "settlement": "város",
+     "edu": "érettségi",
+     "media": "közösségi médiában fogyaszt politikai tartalmat (Facebook/TikTok/YouTube — itt jelenleg túlnyomórészt Tisza-közeli tartalom éri el a legtöbb embert)"
+    },
+    "label": "60+ éves, város, érettségi, közösségimédia-közönség",
+    "score": 20,
+    "reason": "Nem tetszik, hogy megint a határon túliak szavazati jogát akarják szűkíteni, mert azok is magyarok. A Tisza kormány alatt megint csak a Fidesz régi témáit erőltetik, mintha nem lenne fontosabb dolguk.",
+    "raw": "PONTSZÁM: 20\nINDOK: Nem tetszik, hogy megint a határon túliak szavazati jogát akarják szűkíteni, mert azok is magyarok. A Tisza kormány alatt megint csak a Fidesz régi témáit erőltetik, mintha nem lenne fontosabb dolguk."
+   },
+   {
+    "p": {
+     "id": 6,
+     "age": "50-59",
+     "settlement": "Budapest",
+     "edu": "max 8 általános",
+     "media": "jobboldali médiát követ (Origo, Mandiner, Magyar Nemzet)"
+    },
+    "label": "50-59 éves, Budapest, max 8 általános, jobboldali médiaközönség",
+    "score": 10,
+    "reason": "Ez a cikk megint a TISZA párt propagandája, akik el akarják venni a határon túli magyarok szavazati jogát, hogy könnyebben nyerhessenek legközelebb is. Nem kell semmilyen \"társadalmi vita\", a kettős állampolgárság a nemzeti összetartozás al",
+    "raw": "PONTSZÁM: 10\nINDOK: Ez a cikk megint a TISZA párt propagandája, akik el akarják venni a határon túli magyarok szavazati jogát, hogy könnyebben nyerhessenek legközelebb is. Nem kell semmilyen \"társadalmi vita\", a kettős állampolgárság a nemzeti összetartozás alapja, ezt Orbán Viktor rendesen megcsiná"
+   },
+   {
+    "p": {
+     "id": 7,
+     "age": "60+",
+     "settlement": "város",
+     "edu": "érettségi",
+     "media": "alig követi a politikai híreket"
+    },
+    "label": "60+ éves, város, érettségi, hírkerülők",
+    "score": 30,
+    "reason": "Őszintén szólva, engem ez a téma nem igazán érdekel, és túl bonyolultnak érzem. A politikai híreket amúgy sem követem figyelemmel, így ez az írás sem mozgat meg különösebben.",
+    "raw": "PONTSZÁM: 30\nINDOK: Őszintén szólva, engem ez a téma nem igazán érdekel, és túl bonyolultnak érzem. A politikai híreket amúgy sem követem figyelemmel, így ez az írás sem mozgat meg különösebben."
+   },
+   {
+    "p": {
+     "id": 8,
+     "age": "40-49",
+     "settlement": "község",
+     "edu": "szakmunkás",
+     "media": "közmédiát követ (köztévé — amely jelenleg a kormányon lévő Tisza-kormányt támogatja)"
+    },
+    "label": "40-49 éves, község, szakmunkás, közmédia-közönség",
+    "score": 30,
+    "reason": "Ez a cikk túl semlegesen próbálja beállítani a kettős állampolgárságot, mintha csak egy jogi kérdés lenne, de szerintem a Tisza-kormány ezzel is csak a Fidesz szavazóbázisát akarja gyengíteni. Nekem nem kell több szavazat a határon túlról, ",
+    "raw": "PONTSZÁM: 30  \nINDOK: Ez a cikk túl semlegesen próbálja beállítani a kettős állampolgárságot, mintha csak egy jogi kérdés lenne, de szerintem a Tisza-kormány ezzel is csak a Fidesz szavazóbázisát akarja gyengíteni. Nekem nem kell több szavazat a határon túlról, aki itt él, az döntsön a sorsunkról."
+   },
+   {
+    "p": {
+     "id": 9,
+     "age": "30-39",
+     "settlement": "megyeszékhely",
+     "edu": "diploma",
+     "media": "baloldali/liberális médiát követ (Telex, 24.hu, HVG, 444, RTL)"
+    },
+    "label": "30-39 éves, megyeszékhely, diploma, baloldali/liberális médiaközönség",
+    "score": 45,
+    "reason": "A cikk semleges hangneme és a jogi keretek ismertetése rendben van, de hiányzik belőle az a kritikai szempont, ami szerintem elengedhetetlen: a kettős állampolgárság kiterjesztése a Fidesz által bevezetett módosításokkal messze nem csak szi",
+    "raw": "PONTSZÁM: 45\nINDOK: A cikk semleges hangneme és a jogi keretek ismertetése rendben van, de hiányzik belőle az a kritikai szempont, ami szerintem elengedhetetlen: a kettős állampolgárság kiterjesztése a Fidesz által bevezetett módosításokkal messze nem csak szimbolikus, hanem egyértelműen a választás"
+   },
+   {
+    "p": {
+     "id": 10,
+     "age": "18-29",
+     "settlement": "város",
+     "edu": "érettségi",
+     "media": "jobboldali médiát követ (Origo, Mandiner, Magyar Nemzet)"
+    },
+    "label": "18-29 éves, város, érettségi, jobboldali médiaközönség",
+    "score": 20,
+    "reason": "Ez a cikk túl semleges és körülményes, mintha nem akarná kimondani, hogy a kettős állampolgárság a nemzeti összetartozás alapja. Szerintem a baloldal és a Tisza pont azért akarja korlátozni, mert félnek attól, hogy a határon túli magyarok t",
+    "raw": "PONTSZÁM: 20\nINDOK: Ez a cikk túl semleges és körülményes, mintha nem akarná kimondani, hogy a kettős állampolgárság a nemzeti összetartozás alapja. Szerintem a baloldal és a Tisza pont azért akarja korlátozni, mert félnek attól, hogy a határon túli magyarok továbbra is a Fideszre szavaznak."
+   },
+   {
+    "p": {
+     "id": 11,
+     "age": "40-49",
+     "settlement": "község",
+     "edu": "max 8 általános",
+     "media": "közösségi médiában fogyaszt politikai tartalmat (Facebook/TikTok/YouTube — itt jelenleg túlnyomórészt Tisza-közeli tartalom éri el a legtöbb embert)"
+    },
+    "label": "40-49 éves, község, max 8 általános, közösségimédia-közönség",
+    "score": 30,
+    "reason": "Nem igazán érdekel ez a téma, mert úgyis mindig a politikusok csinálják, ahogy nekik jó. A Tisza se lesz más, csak cseréltek pár embert.",
+    "raw": "PONTSZÁM: 30  \nINDOK: Nem igazán érdekel ez a téma, mert úgyis mindig a politikusok csinálják, ahogy nekik jó. A Tisza se lesz más, csak cseréltek pár embert."
+   },
+   {
+    "p": {
+     "id": 12,
+     "age": "60+",
+     "settlement": "megyeszékhely",
+     "edu": "diploma",
+     "media": "közmédiát követ (köztévé — amely jelenleg a kormányon lévő Tisza-kormányt támogatja)"
+    },
+    "label": "60+ éves, megyeszékhely, diploma, közmédia-közönség",
+    "score": 35,
+    "reason": "A cikk tényszerű, de számomra nem meggyőző, mert a Tisza-kormány alatt a kettős állampolgárság korlátozása a nemzeti összetartozás gyengítését jelentené, és úgy érzem, ez politikai manőver a Fidesz elleni szavazatok csökkentésére.",
+    "raw": "PONTSZÁM: 35\nINDOK: A cikk tényszerű, de számomra nem meggyőző, mert a Tisza-kormány alatt a kettős állampolgárság korlátozása a nemzeti összetartozás gyengítését jelentené, és úgy érzem, ez politikai manőver a Fidesz elleni szavazatok csökkentésére."
+   },
+   {
+    "p": {
+     "id": 13,
+     "age": "50-59",
+     "settlement": "község",
+     "edu": "érettségi",
+     "media": "alig követi a politikai híreket"
+    },
+    "label": "50-59 éves, község, érettségi, hírkerülők",
+    "score": 30,
+    "reason": "Őszintén szólva, ezek a politikai viták már untatnak. A kettős állampolgárság megvan, az emberek meg éljék az életüket, ne a szavazatok átrendezésén agyaljanak folyton.",
+    "raw": "PONTSZÁM: 30  \nINDOK: Őszintén szólva, ezek a politikai viták már untatnak. A kettős állampolgárság megvan, az emberek meg éljék az életüket, ne a szavazatok átrendezésén agyaljanak folyton."
+   },
+   {
+    "p": {
+     "id": 14,
+     "age": "18-29",
+     "settlement": "város",
+     "edu": "szakmunkás",
+     "media": "baloldali/liberális médiát követ (Telex, 24.hu, HVG, 444, RTL)"
+    },
+    "label": "18-29 éves, város, szakmunkás, baloldali/liberális médiaközönség",
+    "score": 30,
+    "reason": "Egész jól összefoglalja a jogi hátteret, de szerintem ez az egész kettős állampolgárságosdi megint csak egy fideszes trükk, hogy a határon túli szavazókkal tornásszák fel az eredményeiket, a Tisza meg próbálja ezt valahogy kezelni, szóval n",
+    "raw": "PONTSZÁM: 30\n\nINDOK: Egész jól összefoglalja a jogi hátteret, de szerintem ez az egész kettős állampolgárságosdi megint csak egy fideszes trükk, hogy a határon túli szavazókkal tornásszák fel az eredményeiket, a Tisza meg próbálja ezt valahogy kezelni, szóval nem annyira hiszek a tényszerű mérlegelé"
+   },
+   {
+    "p": {
+     "id": 15,
+     "age": "60+",
+     "settlement": "Budapest",
+     "edu": "diploma",
+     "media": "közösségi médiában fogyaszt politikai tartalmat (Facebook/TikTok/YouTube — itt jelenleg túlnyomórészt Tisza-közeli tartalom éri el a legtöbb embert)"
+    },
+    "label": "60+ éves, Budapest, diploma, közösségimédia-közönség",
+    "score": 20,
+    "reason": "Ez a cikk finoman a Tisza-párti álláspontot erősíti, de én úgy látom, hogy a kettős állampolgárság megkérdőjelezése mögött valójában a nemzeti összetartozás gyengítése áll. Orbánék 16 éve építették ezt a közösséget, és most Magyar Péterék e",
+    "raw": "PONTSZÁM: 20\n\nINDOK: Ez a cikk finoman a Tisza-párti álláspontot erősíti, de én úgy látom, hogy a kettős állampolgárság megkérdőjelezése mögött valójában a nemzeti összetartozás gyengítése áll. Orbánék 16 éve építették ezt a közösséget, és most Magyar Péterék ezt próbálják aláásni, miközben a valódi"
+   }
+  ],
+  "errors": 0,
+  "parse_fail": 0,
+  "latencies": [
+   4.674019045000023,
+   7.441947528997844,
+   7.721622507997381,
+   8.572060591999616,
+   8.69496853199962,
+   9.476158449004288,
+   5.832570204998774,
+   10.585148448000837,
+   2.4167827979981666,
+   11.169773558998713,
+   3.9699527760021738,
+   2.1246395660054986,
+   3.268779584002914,
+   5.809139393000805,
+   8.854259990002902,
+   7.340601982003136,
+   6.272700458001054
+  ],
+  "tin": 21523,
+  "tout": 2137,
+  "synthesis_raw": "{\"motifs_positive\": [\"tényszerű jogi keretek ismertetése\", \"próbál tárgyilagos lenni\"], \"motifs_negative\": [\"Fidesz választási manipulációja\", \"nemzeti összetartozás gyengítése\", \"Tisza-párti propaganda\", \"politikai játszma a szavazatokért\", \"túl semleges és óvatos\", \"határon túliak szavazati jogának korlátozása\", \"nem érdekel, túl bonyolult\"]}",
+  "motifs": {
+   "motifs_positive": [
+    "tényszerű jogi keretek ismertetése",
+    "próbál tárgyilagos lenni"
+   ],
+   "motifs_negative": [
+    "Fidesz választási manipulációja",
+    "nemzeti összetartozás gyengítése",
+    "Tisza-párti propaganda"
+   ]
+  },
+  "wall_s": 24.2
+ },
+ {
+  "model": "tencent/Hy3",
+  "records": [
+   {
+    "p": {
+     "id": 0,
+     "age": "50-59",
+     "settlement": "Budapest",
+     "edu": "szakmunkás",
+     "media": "baloldali/liberális médiát követ (Telex, 24.hu, HVG, 444, RTL)"
+    },
+    "label": "50-59 éves, Budapest, szakmunkás, baloldali/liberális médiaközönség",
+    "score": 65,
+    "reason": "A cikk tárgyilagosan írja körül a kettős állampolgárság jogi hátterét, de kicsit túl semleges, mintha elkerülné volna a Fidesz 16 év alatti visszaéléseit ebben a témában. Nekem fontos a téma, de hiányzik belőle a kritikai él, amit a mi olda",
+    "raw": "PONTSZÁM: 65\nINDOK: A cikk tárgyilagosan írja körül a kettős állampolgárság jogi hátterét, de kicsit túl semleges, mintha elkerülné volna a Fidesz 16 év alatti visszaéléseit ebben a témában. Nekem fontos a téma, de hiányzik belőle a kritikai él, amit a mi oldalunk médiája általában képvisel."
+   },
+   {
+    "p": {
+     "id": 1,
+     "age": "60+",
+     "settlement": "község",
+     "edu": "diploma",
+     "media": "jobboldali médiát követ (Origo, Mandiner, Magyar Nemzet)"
+    },
+    "label": "60+ éves, község, diploma, jobboldali médiaközönség",
+    "score": 15,
+    "reason": "Ez az Echolot-írás száraz és semleges, mintha elvinné a figyelmet a nemzeti összetartozás valódi vívmányairól, miközben a TISZA-kormány alatt újra felbolydult kettős állampolgársági vita csak a választási erőviszonyok átrendezését szolgálja",
+    "raw": "PONTSZÁM: 15\nINDOK: Ez az Echolot-írás száraz és semleges, mintha elvinné a figyelmet a nemzeti összetartozás valódi vívmányairól, miközben a TISZA-kormány alatt újra felbolydult kettős állampolgársági vita csak a választási erőviszonyok átrendezését szolgálja. Nem találom hitelesnek, mert a ballibe"
+   },
+   {
+    "p": {
+     "id": 2,
+     "age": "30-39",
+     "settlement": "megyeszékhely",
+     "edu": "max 8 általános",
+     "media": "közösségi médiában fogyaszt politikai tartalmat (Facebook/TikTok/YouTube — itt jelenleg túlnyomórészt Tisza-közeli tartalom éri el a legtöbb embert)"
+    },
+    "label": "30-39 éves, megyeszékhely, max 8 általános, közösségimédia-közönség",
+    "score": 35,
+    "reason": "Nekem ez az írás túl száraz és jogászkodós, a Facebookon látott tiszás videók sokkal érthetőbben mondják el, miért kell a határon túli magyaroknak szavazni, nem hiszem, hogy ezen most komolyan vitatkozni kéne.",
+    "raw": "PONTSZÁM: 35\nINDOK: Nekem ez az írás túl száraz és jogászkodós, a Facebookon látott tiszás videók sokkal érthetőbben mondják el, miért kell a határon túli magyaroknak szavazni, nem hiszem, hogy ezen most komolyan vitatkozni kéne."
+   },
+   {
+    "p": {
+     "id": 3,
+     "age": "18-29",
+     "settlement": "város",
+     "edu": "érettségi",
+     "media": "közmédiát követ (köztévé — amely jelenleg a kormányon lévő Tisza-kormányt támogatja)"
+    },
+    "label": "18-29 éves, város, érettségi, közmédia-közönség",
+    "score": 65,
+    "reason": "A köztévén is látom, hogy a nemzeti összetartozás fontos a Tisza-kormánynak, de kicsit semlegesnek érzem ezt az írást, mintha nem vállalná fel nyíltan, hogy a határon túli magyaroknak helyük van a közösségben. Engem azért érdekel, mert a vá",
+    "raw": "PONTSZÁM: 65\nINDOK: A köztévén is látom, hogy a nemzeti összetartozás fontos a Tisza-kormánynak, de kicsit semlegesnek érzem ezt az írást, mintha nem vállalná fel nyíltan, hogy a határon túli magyaroknak helyük van a közösségben. Engem azért érdekel, mert a választási szabályok így is kihatnak a mi "
+   },
+   {
+    "p": {
+     "id": 4,
+     "age": "40-49",
+     "settlement": "község",
+     "edu": "diploma",
+     "media": "baloldali/liberális médiát követ (Telex, 24.hu, HVG, 444, RTL)"
+    },
+    "label": "40-49 éves, község, diploma, baloldali/liberális médiaközönség",
+    "score": 65,
+    "reason": "A téma fontos és a jogi keretek tárgyilagos bemutatása tetszik, de a stílus túl semleges, mintha elkerülné a valódi politikai tétet, például hogy a Fidesz ezt évekig magyarokat megosztva használta fegyverként.",
+    "raw": "PONTSZÁM: 65\nINDOK: A téma fontos és a jogi keretek tárgyilagos bemutatása tetszik, de a stílus túl semleges, mintha elkerülné a valódi politikai tétet, például hogy a Fidesz ezt évekig magyarokat megosztva használta fegyverként."
+   },
+   {
+    "p": {
+     "id": 5,
+     "age": "60+",
+     "settlement": "város",
+     "edu": "érettségi",
+     "media": "közösségi médiában fogyaszt politikai tartalmat (Facebook/TikTok/YouTube — itt jelenleg túlnyomórészt Tisza-közeli tartalom éri el a legtöbb embert)"
+    },
+    "label": "60+ éves, város, érettségi, közösségimédia-közönség",
+    "score": 45,
+    "reason": "Nevetséges, hogy most a Tisza-kormány alatt ezzel jönnek, amikor a Fidesz 16 évig osztogatta a papírokat, és közben az igazi baj a bűnözés meg a trollkodás; túl száraz és elméleti ez az írás, nem foglalkozik azzal, ki manipulálja tényleg a ",
+    "raw": "PONTSZÁM: 45\nINDOK: Nevetséges, hogy most a Tisza-kormány alatt ezzel jönnek, amikor a Fidesz 16 évig osztogatta a papírokat, és közben az igazi baj a bűnözés meg a trollkodás; túl száraz és elméleti ez az írás, nem foglalkozik azzal, ki manipulálja tényleg a választásokat."
+   },
+   {
+    "p": {
+     "id": 6,
+     "age": "50-59",
+     "settlement": "Budapest",
+     "edu": "max 8 általános",
+     "media": "jobboldali médiát követ (Origo, Mandiner, Magyar Nemzet)"
+    },
+    "label": "50-59 éves, Budapest, max 8 általános, jobboldali médiaközönség",
+    "score": 15,
+    "reason": "Ez az Echolotos írás csak a tiszások és a liberálisok szekerét tolja, mert a kettős állampolgárságot mi már rég megadtuk a határon túli magyaroknak, nem kell ide újabb balos vita. Nem hiszek ezeknek a balliberális portáloknak, csak a Magyar",
+    "raw": "PONTSZÁM: 15\nINDOK: Ez az Echolotos írás csak a tiszások és a liberálisok szekerét tolja, mert a kettős állampolgárságot mi már rég megadtuk a határon túli magyaroknak, nem kell ide újabb balos vita. Nem hiszek ezeknek a balliberális portáloknak, csak a Magyar Nemzetből és az Origo-ból tájékozódom r"
+   },
+   {
+    "p": {
+     "id": 7,
+     "age": "60+",
+     "settlement": "város",
+     "edu": "érettségi",
+     "media": "alig követi a politikai híreket"
+    },
+    "label": "60+ éves, város, érettségi, hírkerülők",
+    "score": 35,
+    "reason": "Őszintén szólva alig értem, miért kell ezen most ennyit okoskodni, amikor az ember nem is hallott róla a tévében, és nekem a nyugdíjam meg a boltok árai a fontos, nem a határon túli szavazatok. Az meg külön gyanús, hogy a pártok csak egymás",
+    "raw": "PONTSZÁM: 35\nINDOK: Őszintén szólva alig értem, miért kell ezen most ennyit okoskodni, amikor az ember nem is hallott róla a tévében, és nekem a nyugdíjam meg a boltok árai a fontos, nem a határon túli szavazatok. Az meg külön gyanús, hogy a pártok csak egymásnak akarnak ezzel beadni valamit, szóval"
+   },
+   {
+    "p": {
+     "id": 8,
+     "age": "40-49",
+     "settlement": "község",
+     "edu": "szakmunkás",
+     "media": "közmédiát követ (köztévé — amely jelenleg a kormányon lévő Tisza-kormányt támogatja)"
+    },
+    "label": "40-49 éves, község, szakmunkás, közmédia-közönség",
+    "score": 35,
+    "reason": "Ezt az írást túlzottan elvontnak és a valóságtól elrugaszkodottnak érzem, miközben a közmédia szerint a Tisza-kormány dolga a rendrakás lenne, nem megint a határon túliak szavazati jogáról vitatkozni. Nekem, falusi szakmunkásként a Klauzál ",
+    "raw": "PONTSZÁM: 35\nINDOK: Ezt az írást túlzottan elvontnak és a valóságtól elrugaszkodottnak érzem, miközben a közmédia szerint a Tisza-kormány dolga a rendrakás lenne, nem megint a határon túliak szavazati jogáról vitatkozni. Nekem, falusi szakmunkásként a Klauzál téri gyilkosság vagy a Barátság vezeték "
+   },
+   {
+    "p": {
+     "id": 9,
+     "age": "30-39",
+     "settlement": "megyeszékhely",
+     "edu": "diploma",
+     "media": "baloldali/liberális médiát követ (Telex, 24.hu, HVG, 444, RTL)"
+    },
+    "label": "30-39 éves, megyeszékhely, diploma, baloldali/liberális médiaközönség",
+    "score": 55,
+    "reason": "A téma fontos és a jogi keretek tárgyilagos bemutatása rendben van, de a stílus túl semleges és elnéző a kettős állampolgárság választási visszásságaival szemben, miközben a Fidesz trollkodásairól szóló hírek után nehéz elhinni, hogy ez csa",
+    "raw": "PONTSZÁM: 55\nINDOK: A téma fontos és a jogi keretek tárgyilagos bemutatása rendben van, de a stílus túl semleges és elnéző a kettős állampolgárság választási visszásságaival szemben, miközben a Fidesz trollkodásairól szóló hírek után nehéz elhinni, hogy ez csak „szimbolikus” kérdés."
+   },
+   {
+    "p": {
+     "id": 10,
+     "age": "18-29",
+     "settlement": "város",
+     "edu": "érettségi",
+     "media": "jobboldali médiát követ (Origo, Mandiner, Magyar Nemzet)"
+    },
+    "label": "18-29 éves, város, érettségi, jobboldali médiaközönség",
+    "score": 25,
+    "reason": "Ez az Agora-írás túl semlegesnek tűnik és elhallgatja, hogy a kettős állampolgárság eddig is a nemzeti összetartozást szolgálta, a mostani tiszás vezetés meg csak a maga javára akarja átírni a szabályokat. A balos sajtó meg máris ott liheg ",
+    "raw": "PONTSZÁM: 25\nINDOK: Ez az Agora-írás túl semlegesnek tűnik és elhallgatja, hogy a kettős állampolgárság eddig is a nemzeti összetartozást szolgálta, a mostani tiszás vezetés meg csak a maga javára akarja átírni a szabályokat. A balos sajtó meg máris ott liheg mögötte, szóval nem igazán hiszek az ind"
+   },
+   {
+    "p": {
+     "id": 11,
+     "age": "40-49",
+     "settlement": "község",
+     "edu": "max 8 általános",
+     "media": "közösségi médiában fogyaszt politikai tartalmat (Facebook/TikTok/YouTube — itt jelenleg túlnyomórészt Tisza-közeli tartalom éri el a legtöbb embert)"
+    },
+    "label": "40-49 éves, község, max 8 általános, közösségimédia-közönség",
+    "score": 35,
+    "reason": "Nekem ez az írás túl elméleti és hideg, nem mondja ki, hogy a határon túli szavazatokkal ki baszhatja meg a magyarokat, amikor a TikTokon látom, hogyan játszák ki a törvényt. Nem hiszek a semlegesnek tűnő magyarázatoknak, ha közben a Fidesz",
+    "raw": "PONTSZÁM: 35\nINDOK: Nekem ez az írás túl elméleti és hideg, nem mondja ki, hogy a határon túli szavazatokkal ki baszhatja meg a magyarokat, amikor a TikTokon látom, hogyan játszák ki a törvényt. Nem hiszek a semlegesnek tűnő magyarázatoknak, ha közben a Fidesz megint a saját domainjeivel és trolljai"
+   },
+   {
+    "p": {
+     "id": 12,
+     "age": "60+",
+     "settlement": "megyeszékhely",
+     "edu": "diploma",
+     "media": "közmédiát követ (köztévé — amely jelenleg a kormányon lévő Tisza-kormányt támogatja)"
+    },
+    "label": "60+ éves, megyeszékhely, diploma, közmédia-közönség",
+    "score": 45,
+    "reason": "Az írás tárgyilagosan foglalja össze a jogi hátteret, de a köztévén látottak alapján nekem a nemzeti összetartozás fontosabb, mint ezek a száraz jogi megjegyzések, ráadásul a kettős állampolgárságot eddig is támogattuk, így a mostani vita m",
+    "raw": "PONTSZÁM: 45\nINDOK: Az írás tárgyilagosan foglalja össze a jogi hátteret, de a köztévén látottak alapján nekem a nemzeti összetartozás fontosabb, mint ezek a száraz jogi megjegyzések, ráadásul a kettős állampolgárságot eddig is támogattuk, így a mostani vita mesterségesen felfújt probléma."
+   },
+   {
+    "p": {
+     "id": 13,
+     "age": "50-59",
+     "settlement": "község",
+     "edu": "érettségi",
+     "media": "alig követi a politikai híreket"
+    },
+    "label": "50-59 éves, község, érettségi, hírkerülők",
+    "score": 45,
+    "reason": "Nekem ez túl elméleti és jogi szöveg, nem követem én ezt a kettős állampolgárságos vitát, meg amúgy is jobban érdekel, hogy lesz-e rendes nyugdíjemelés, mint ezek a parlamenti okoskodások.",
+    "raw": "PONTSZÁM: 45\nINDOK: Nekem ez túl elméleti és jogi szöveg, nem követem én ezt a kettős állampolgárságos vitát, meg amúgy is jobban érdekel, hogy lesz-e rendes nyugdíjemelés, mint ezek a parlamenti okoskodások."
+   },
+   {
+    "p": {
+     "id": 14,
+     "age": "18-29",
+     "settlement": "város",
+     "edu": "szakmunkás",
+     "media": "baloldali/liberális médiát követ (Telex, 24.hu, HVG, 444, RTL)"
+    },
+    "label": "18-29 éves, város, szakmunkás, baloldali/liberális médiaközönség",
+    "score": 62,
+    "reason": "Alapvetően rendben van, hogy tényszerűen írják körül a jogi hátterét, de kicsit steril és elméletieskedő, miközben a gyakorlatban a határon túli szavazatok mindig is a Fideszt húzták, szóval a „közösség határai” mögött ott a nyers politikai",
+    "raw": "PONTSZÁM: 62\nINDOK: Alapvetően rendben van, hogy tényszerűen írják körül a jogi hátterét, de kicsit steril és elméletieskedő, miközben a gyakorlatban a határon túli szavazatok mindig is a Fideszt húzták, szóval a „közösség határai” mögött ott a nyers politikai érdek is."
+   },
+   {
+    "p": {
+     "id": 15,
+     "age": "60+",
+     "settlement": "Budapest",
+     "edu": "diploma",
+     "media": "közösségi médiában fogyaszt politikai tartalmat (Facebook/TikTok/YouTube — itt jelenleg túlnyomórészt Tisza-közeli tartalom éri el a legtöbb embert)"
+    },
+    "label": "60+ éves, Budapest, diploma, közösségimédia-közönség",
+    "score": 55,
+    "reason": "Korrektül összefoglalja a jogi hátteret, de túl semleges és elméleti, miközben a Facebookon látott tiszás videók alapján nekem a határon túli szavazatok visszaélései és a nemzeti összetartozás valódi tartalma a lényeg, nem ez a száraz szöve",
+    "raw": "PONTSZÁM: 55\nINDOK: Korrektül összefoglalja a jogi hátteret, de túl semleges és elméleti, miközben a Facebookon látott tiszás videók alapján nekem a határon túli szavazatok visszaélései és a nemzeti összetartozás valódi tartalma a lényeg, nem ez a száraz szöveg."
+   }
+  ],
+  "errors": 0,
+  "parse_fail": 0,
+  "latencies": [
+   5.376986796996789,
+   6.666976510001405,
+   6.668337194998458,
+   6.99715285700222,
+   7.121676226997806,
+   7.137303105002502,
+   7.397682083006657,
+   7.739713456998288,
+   5.633958463004092,
+   4.507203221000964,
+   4.399350856001547,
+   5.330175477996818,
+   5.207071115000872,
+   4.588971195997146,
+   4.932104965999315,
+   5.974196786999528,
+   3.5532088149993797
+  ],
+  "tin": 24163,
+  "tout": 2165,
+  "synthesis_raw": "{\"motifs_positive\": [\"tárgyilagos jogi háttér\", \"téma fontossága\", \"tényalapú bemutatás\"], \"motifs_negative\": [\"túl semleges stílus\", \"száraz jogászkodás\", \"hiányzó kritikai él\", \"politikai tét elkerülése\", \"nem érinti valóságot\", \"figyelemelterelés vádja\"]}",
+  "motifs": {
+   "motifs_positive": [
+    "tárgyilagos jogi háttér",
+    "téma fontossága",
+    "tényalapú bemutatás"
+   ],
+   "motifs_negative": [
+    "túl semleges stílus",
+    "száraz jogászkodás",
+    "hiányzó kritikai él"
+   ]
+  },
+  "wall_s": 16.2
+ }
+]

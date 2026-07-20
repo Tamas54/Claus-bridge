@@ -1,0 +1,48 @@
+{
+  "provider": "siliconflow",
+  "model": "deepseek-ai/DeepSeek-V4-Flash",
+  "cci_window": {
+    "2026-01": -19.4,
+    "2026-02": -17.6,
+    "2026-03": -18.2
+  },
+  "cci_window_mean": -18.4,
+  "cci_trajectory": "JAVULÓ (2025-08 -27,2 → 2026 jan-márc ~-18 → 2026-05 -2,1)",
+  "components": {
+    "ANYAGI_MULT": {
+      "balance": -87.5,
+      "n": 8
+    },
+    "ANYAGI_VAR": {
+      "balance": -12.5,
+      "n": 8
+    },
+    "ORSZAG_VAR": {
+      "balance": -100.0,
+      "n": 8
+    },
+    "VASARLAS": {
+      "balance": -100.0,
+      "n": 8
+    },
+    "FELRETESZ": {
+      "balance": -100.0,
+      "n": 8
+    }
+  },
+  "cci_synth": -70.83333333333333,
+  "direction_delta": 75.0,
+  "seeds": [
+    {
+      "seed": 1,
+      "components": {
+        "ANYAGI_MULT": -87.5,
+        "ANYAGI_VAR": -12.5,
+        "ORSZAG_VAR": -100.0,
+        "VASARLAS": -100.0,
+        "FELRETESZ": -100.0
+      },
+      "cci_synth": -70.83333333333333
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "provider": "openai",
+  "model": "gpt-5.4-mini",
+  "cci_window": {
+    "2026-01": -19.4,
+    "2026-02": -17.6,
+    "2026-03": -18.2
+  },
+  "cci_window_mean": -18.4,
+  "cci_trajectory": "JAVULÓ (2025-08 -27,2 → 2026 jan-márc ~-18 → 2026-05 -2,1)",
+  "components": {
+    "ANYAGI_MULT": {
+      "balance": -77.35849056603773,
+      "n": 159
+    },
+    "ANYAGI_VAR": {
+      "balance": -34.81012658227848,
+      "n": 158
+    },
+    "ORSZAG_VAR": {
+      "balance": -93.125,
+      "n": 160
+    },
+    "VASARLAS": {
+      "balance": -54.088050314465406,
+      "n": 159
+    },
+    "FELRETESZ": {
+      "balance": -30.81761006289308,
+      "n": 159
+    }
+  },
+  "cci_synth": -52.917578881723855,
+  "direction_delta": 42.54836398375925,
+  "seeds": [
+    {
+      "seed": 1,
+      "components": {
+        "ANYAGI_MULT": -72.15189873417721,
+        "ANYAGI_VAR": -36.70886075949367,
+        "ORSZAG_VAR": -91.25,
+        "VASARLAS": -52.5,
+        "FELRETESZ": -25.0
+      },
+      "cci_synth": -50.98628691983122
+    },
+    {
+      "seed": 2,
+      "components": {
+        "ANYAGI_MULT": -82.5,
+        "ANYAGI_VAR": -32.91139240506329,
+        "ORSZAG_VAR": -95.0,
+        "VASARLAS": -55.69620253164557,
+        "FELRETESZ": -36.70886075949367
+      },
+      "cci_synth": -54.87341772151898
+    }
+  ]
+}

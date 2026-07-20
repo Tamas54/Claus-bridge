@@ -1,0 +1,21 @@
+{
+  "provider": "siliconflow",
+  "model": "tencent/Hy3",
+  "ground_truth_gap": 14.57,
+  "mean_gap": 15.0,
+  "stdev": 0.0,
+  "seeds": [
+    {
+      "seed": 1,
+      "tally": {
+        "Tisza": 46,
+        "Fidesz-KDNP": 34
+      },
+      "decided_shares": {
+        "Tisza": 57.5,
+        "Fidesz-KDNP": 42.5
+      },
+      "tisza_fidesz_gap": 15.0
+    }
+  ]
+}

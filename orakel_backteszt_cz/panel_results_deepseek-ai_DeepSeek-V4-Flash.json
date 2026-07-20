@@ -1,0 +1,129 @@
+{
+  "provider": "siliconflow",
+  "model": "deepseek-ai/DeepSeek-V4-Flash",
+  "ground_truth": {
+    "ANO": {
+      "pct": 34.52,
+      "seats": 80,
+      "in": true
+    },
+    "SPOLU": {
+      "pct": 23.36,
+      "seats": 52,
+      "in": true
+    },
+    "STAN": {
+      "pct": 11.23,
+      "seats": 22,
+      "in": true
+    },
+    "Pirati": {
+      "pct": 8.97,
+      "seats": 18,
+      "in": true
+    },
+    "SPD": {
+      "pct": 7.78,
+      "seats": 15,
+      "in": true
+    },
+    "Motoriste": {
+      "pct": 6.77,
+      "seats": 13,
+      "in": true
+    },
+    "Stacilo": {
+      "pct": 4.31,
+      "seats": 0,
+      "in": false
+    }
+  },
+  "ground_truth_ano_spolu_gap": 11.160000000000004,
+  "aggregate_shares": {
+    "ANO": 66.17063492063492,
+    "SPOLU": 28.86904761904762,
+    "STAN": 0.0,
+    "Pirati": 4.246031746031746,
+    "SPD": 0.7142857142857143,
+    "Motoriste": 0.0,
+    "Stacilo": 0.0,
+    "jina": 0.0
+  },
+  "evaluation": {
+    "panel_rank": [
+      "ANO",
+      "SPOLU",
+      "Pirati",
+      "SPD",
+      "STAN",
+      "Motoriste",
+      "Stacilo"
+    ],
+    "ranked_shares": [
+      [
+        "ANO",
+        66.17063492063492
+      ],
+      [
+        "SPOLU",
+        28.86904761904762
+      ],
+      [
+        "Pirati",
+        4.246031746031746
+      ],
+      [
+        "SPD",
+        0.7142857142857143
+      ],
+      [
+        "STAN",
+        0.0
+      ],
+      [
+        "Motoriste",
+        0.0
+      ],
+      [
+        "Stacilo",
+        0.0
+      ]
+    ],
+    "ano_spolu_gap": 37.301587301587304,
+    "ano_first": true,
+    "spolu_second": true,
+    "stacilo_out": false
+  },
+  "seeds": [
+    {
+      "seed": 1,
+      "tally": {
+        "nerozhodnut": 8,
+        "ANO": 49,
+        "SPOLU": 21,
+        "Pirati": 2
+      },
+      "decided_shares": {
+        "ANO": 68.05555555555556,
+        "SPOLU": 29.166666666666668,
+        "Pirati": 2.7777777777777777
+      }
+    },
+    {
+      "seed": 2,
+      "tally": {
+        "SPOLU": 20,
+        "Pirati": 4,
+        "ANO": 45,
+        "nerozhodnut": 10,
+        "SPD": 1
+      },
+      "decided_shares": {
+        "SPOLU": 28.571428571428573,
+        "Pirati": 5.714285714285714,
+        "ANO": 64.28571428571429,
+        "SPD": 1.4285714285714286
+      }
+    }
+  ]
+}

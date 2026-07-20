@@ -1,0 +1,34 @@
+{
+  "provider": "openai",
+  "model": "gpt-5.4-mini",
+  "ground_truth_gap": 14.57,
+  "mean_gap": -10.664556962025316,
+  "stdev": 4.335443037974684,
+  "seeds": [
+    {
+      "seed": 1,
+      "tally": {
+        "Tisza": 34,
+        "Fidesz-KDNP": 46
+      },
+      "decided_shares": {
+        "Tisza": 42.5,
+        "Fidesz-KDNP": 57.5
+      },
+      "tisza_fidesz_gap": -15.0
+    },
+    {
+      "seed": 2,
+      "tally": {
+        "Tisza": 37,
+        "Fidesz-KDNP": 42,
+        "bizonytalan": 1
+      },
+      "decided_shares": {
+        "Tisza": 46.835443037974684,
+        "Fidesz-KDNP": 53.164556962025316
+      },
+      "tisza_fidesz_gap": -6.329113924050631
+    }
+  ]
+}

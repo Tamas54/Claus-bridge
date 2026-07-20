@@ -1,0 +1,35 @@
+{
+  "provider": "siliconflow",
+  "model": "deepseek-ai/DeepSeek-V4-Flash",
+  "ground_truth_gap": 14.57,
+  "mean_gap": 20.88803088803089,
+  "stdev": 1.969111969111971,
+  "seeds": [
+    {
+      "seed": 1,
+      "tally": {
+        "bizonytalan": 10,
+        "Tisza": 43,
+        "Fidesz-KDNP": 27
+      },
+      "decided_shares": {
+        "Tisza": 61.42857142857143,
+        "Fidesz-KDNP": 38.57142857142857
+      },
+      "tisza_fidesz_gap": 22.85714285714286
+    },
+    {
+      "seed": 2,
+      "tally": {
+        "Tisza": 44,
+        "Fidesz-KDNP": 30,
+        "bizonytalan": 6
+      },
+      "decided_shares": {
+        "Tisza": 59.45945945945946,
+        "Fidesz-KDNP": 40.54054054054054
+      },
+      "tisza_fidesz_gap": 18.91891891891892
+    }
+  ]
+}

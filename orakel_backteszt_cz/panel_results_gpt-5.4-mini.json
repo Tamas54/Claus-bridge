@@ -1,0 +1,129 @@
+{
+  "provider": "openai",
+  "model": "gpt-5.4-mini",
+  "ground_truth": {
+    "ANO": {
+      "pct": 34.52,
+      "seats": 80,
+      "in": true
+    },
+    "SPOLU": {
+      "pct": 23.36,
+      "seats": 52,
+      "in": true
+    },
+    "STAN": {
+      "pct": 11.23,
+      "seats": 22,
+      "in": true
+    },
+    "Pirati": {
+      "pct": 8.97,
+      "seats": 18,
+      "in": true
+    },
+    "SPD": {
+      "pct": 7.78,
+      "seats": 15,
+      "in": true
+    },
+    "Motoriste": {
+      "pct": 6.77,
+      "seats": 13,
+      "in": true
+    },
+    "Stacilo": {
+      "pct": 4.31,
+      "seats": 0,
+      "in": false
+    }
+  },
+  "ground_truth_ano_spolu_gap": 11.160000000000004,
+  "aggregate_shares": {
+    "ANO": 60.0,
+    "SPOLU": 25.0,
+    "STAN": 3.125,
+    "Pirati": 11.875,
+    "SPD": 0.0,
+    "Motoriste": 0.0,
+    "Stacilo": 0.0,
+    "jina": 0.0
+  },
+  "evaluation": {
+    "panel_rank": [
+      "ANO",
+      "SPOLU",
+      "Pirati",
+      "STAN",
+      "SPD",
+      "Motoriste",
+      "Stacilo"
+    ],
+    "ranked_shares": [
+      [
+        "ANO",
+        60.0
+      ],
+      [
+        "SPOLU",
+        25.0
+      ],
+      [
+        "Pirati",
+        11.875
+      ],
+      [
+        "STAN",
+        3.125
+      ],
+      [
+        "SPD",
+        0.0
+      ],
+      [
+        "Motoriste",
+        0.0
+      ],
+      [
+        "Stacilo",
+        0.0
+      ]
+    ],
+    "ano_spolu_gap": 35.0,
+    "ano_first": true,
+    "spolu_second": true,
+    "stacilo_out": false
+  },
+  "seeds": [
+    {
+      "seed": 1,
+      "tally": {
+        "Pirati": 8,
+        "ANO": 52,
+        "SPOLU": 19,
+        "STAN": 1
+      },
+      "decided_shares": {
+        "Pirati": 10.0,
+        "ANO": 65.0,
+        "SPOLU": 23.75,
+        "STAN": 1.25
+      }
+    },
+    {
+      "seed": 2,
+      "tally": {
+        "SPOLU": 21,
+        "Pirati": 11,
+        "ANO": 44,
+        "STAN": 4
+      },
+      "decided_shares": {
+        "SPOLU": 26.25,
+        "Pirati": 13.75,
+        "ANO": 55.0,
+        "STAN": 5.0
+      }
+    }
+  ]
+}
