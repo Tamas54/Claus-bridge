@@ -108,18 +108,44 @@ def _hu_dims_from_pollster() -> dict:
 # a sample_personas bemenete. TODO-soroknál loader=None.
 _EUROSTAT_TODO = ("TODO(G0c): Eurostat demo_pjan (kor) + edat_lfs_9903 (végzettség) "
                   "+ degurba/cenzus (településtípus) + helyi médiafogyasztás-mérés")
+
+
+def _delphoi_dims(country: str):
+    """FR/IT (G2) marginálisok — kanonikus forrás: plugins/delphoi.py
+    COUNTRY_PANEL_CONFIG (nowcast-grade, Eurostat-verifikált a G0c mátrixban:
+    demo_pjan + edat_lfse_03 + edat_lfs_9913 degurba). Lusta import, EGY forrás
+    — a HU/pollster mintája. A media (label, w, bucket) hármasból (label, w) lesz."""
+    def load():
+        from plugins import delphoi
+        cfg = delphoi.COUNTRY_PANEL_CONFIG[country]
+        dims = {d: list(opts) for d, opts in cfg["dims"].items()}
+        dims["media"] = [(label, w) for label, w, _bucket in cfg["media"]]
+        return dims
+    return load
+
+
 COUNTRY_QUOTAS: dict = {
     "HU": {
         "status": "live",
         "source": "KSH mun0005/mun0006 + 2022 cenzus + NMHH 2026-05 (pollster.py a kanonikus tár)",
         "loader": _hu_dims_from_pollster,
     },
-    # G1–G2 célországok — a G0c ország-mátrix tölti fel (loader vagy literal dims):
+    # G2 (PYTHIA): FR/IT feltöltve a G0c-verifikált Eurostat-marginálisokból
+    # (delphoi.COUNTRY_PANEL_CONFIG a kanonikus tár, nowcast-grade konfig).
+    "FR": {
+        "status": "live",
+        "source": "Eurostat-marginálisok (G0c mátrix-verifikáció) — delphoi.COUNTRY_PANEL_CONFIG['FR'] a kanonikus tár",
+        "loader": _delphoi_dims("FR"),
+    },
+    "IT": {
+        "status": "live",
+        "source": "Eurostat-marginálisok (G0c mátrix-verifikáció) — delphoi.COUNTRY_PANEL_CONFIG['IT'] a kanonikus tár",
+        "loader": _delphoi_dims("IT"),
+    },
+    # Többi célország — a G0c ország-mátrix tölti fel (loader vagy literal dims):
     "CZ": {"status": "todo", "source": _EUROSTAT_TODO, "loader": None},
     "DE": {"status": "todo", "source": _EUROSTAT_TODO, "loader": None},
     "ES": {"status": "todo", "source": _EUROSTAT_TODO, "loader": None},
-    "FR": {"status": "todo", "source": _EUROSTAT_TODO, "loader": None},
-    "IT": {"status": "todo", "source": _EUROSTAT_TODO, "loader": None},
     "PL": {"status": "todo", "source": _EUROSTAT_TODO, "loader": None},
     "PT": {"status": "todo", "source": _EUROSTAT_TODO, "loader": None},
 }

@@ -44,7 +44,7 @@ def test_sample_country_personas_deterministic_and_case_insensitive():
 
 
 def test_todo_countries_are_registered_but_reject_loudly():
-    for c in ("CZ", "DE", "ES", "FR", "IT", "PL", "PT"):
+    for c in ("CZ", "DE", "ES", "PL", "PT"):
         assert c in ps.COUNTRY_QUOTAS, f"hiányzó regiszter-sor: {c}"
         assert ps.COUNTRY_QUOTAS[c]["status"] == "todo"
         try:
@@ -52,6 +52,25 @@ def test_todo_countries_are_registered_but_reject_loudly():
             assert False, f"{c}: feltöltetlen kvótára ValueError kell"
         except ValueError as e:
             assert "G0c" in str(e) or "kvót" in str(e)
+
+
+def test_fr_it_live_from_delphoi_canonical():
+    # G2: FR/IT a delphoi.COUNTRY_PANEL_CONFIG-ból töltődik (EGY forrás, lusta import)
+    from plugins import delphoi
+    for c in ("FR", "IT"):
+        assert ps.COUNTRY_QUOTAS[c]["status"] == "live"
+        dims = ps.get_country_dims(c)
+        cfg = delphoi.COUNTRY_PANEL_CONFIG[c]
+        for d in ("age", "settlement", "edu"):
+            assert dims[d] == list(cfg["dims"][d])
+        assert dims["media"] == [(l, w) for l, w, _b in cfg["media"]]
+        for d, opts in dims.items():
+            total = sum(w for _l, w in opts)
+            assert abs(total - 1.0) < 0.02, f"{c}/{d}: súlyösszeg {total}"
+        personas, kl = ps.sample_country_personas(c, n=60, seed=1)
+        assert len(personas) == 60
+        assert set(personas[0].keys()) == {"id", "age", "settlement", "edu", "media"}
+        assert all(v < 0.05 for v in kl.values()), f"{c}: KL-illeszkedés gyenge: {kl}"
 
 
 def test_unknown_country_raises_keyerror():
