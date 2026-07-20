@@ -1,0 +1,712 @@
+{
+  "run": "G1/1 HU pre-election panel",
+  "model": "tencent/Hy3",
+  "provider": "siliconflow",
+  "date": "2026-07-20",
+  "protocol": "orakel_backteszt/run_panel.py változatlanul (N=80, temp=0.8, max_tokens=30)",
+  "flag": "CLEAN/cutoff-igazolt",
+  "flag_note": "G0a cutoff-szonda 4. pont: a Hy3 a 2026-04-i választást jövőként kezeli, 25/25 válaszban nincs Tisza-győzelem",
+  "corpus_files": {
+    "orakel_backteszt/corpus.jsonl": "d06594e15d6a86fbffee1fb177bdd901aeece9a327b7d5f98e3f3878c6d54b55"
+  },
+  "ground_truth_gap": 14.57,
+  "seeds": [
+    {
+      "seed": 1,
+      "tally": {
+        "Tisza": 46,
+        "Fidesz-KDNP": 34
+      },
+      "decided_shares": {
+        "Tisza": 57.5,
+        "Fidesz-KDNP": 42.5
+      },
+      "tisza_fidesz_gap": 15.0,
+      "source": "hy3_20260720/panel_results_tencent_Hy3.json (2026-07-20 futás)"
+    },
+    {
+      "seed": 2,
+      "tally": {
+        "Tisza": 45,
+        "Fidesz-KDNP": 35
+      },
+      "decided_shares": {
+        "Tisza": 56.25,
+        "Fidesz-KDNP": 43.75
+      },
+      "tisza_fidesz_gap": 12.5
+    },
+    {
+      "seed": 3,
+      "tally": {
+        "Tisza": 38,
+        "Fidesz-KDNP": 42
+      },
+      "decided_shares": {
+        "Tisza": 47.5,
+        "Fidesz-KDNP": 52.5
+      },
+      "tisza_fidesz_gap": -5.0
+    }
+  ],
+  "mean_gap": 7.5,
+  "stdev": 8.897565210026093,
+  "abs_err": 7.07,
+  "flash_reference": {
+    "file": "orakel_backteszt/panel_results_deepseek-ai_DeepSeek-V4-Flash.json",
+    "mean_gap": 20.888,
+    "seeds": 2,
+    "abs_err": 6.32
+  },
+  "cost": {
+    "n_calls": 160,
+    "calls_per_min_limit": 16.2,
+    "elapsed_s": 596.7,
+    "prompt_chars": 9460082,
+    "completion_chars": 2860,
+    "est_prompt_tokens": 2956275,
+    "est_completion_tokens": 893
+  },
+  "raw_stream": [
+    {
+      "i": 1,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 2,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 3,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 4,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 5,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 6,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 7,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 8,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 9,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 10,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 11,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 12,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 13,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 14,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 15,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 16,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 17,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 18,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 19,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 20,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 21,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 22,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 23,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 24,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 25,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 26,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 27,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 28,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 29,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 30,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 31,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 32,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 33,
+      "response": "SZAVAT: Tisza"
+    },
+    {
+      "i": 34,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 35,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 36,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 37,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 38,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 39,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 40,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 41,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 42,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 43,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 44,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 45,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 46,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 47,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 48,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 49,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 50,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 51,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 52,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 53,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 54,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 55,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 56,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 57,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 58,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 59,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 60,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 61,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 62,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 63,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 64,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 65,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 66,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 67,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 68,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 69,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 70,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 71,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 72,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 73,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 74,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 75,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 76,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 77,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 78,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 79,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 80,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 81,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 82,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 83,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 84,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 85,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 86,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 87,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 88,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 89,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 90,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 91,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 92,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 93,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 94,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 95,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 96,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 97,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 98,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 99,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 100,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 101,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 102,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 103,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 104,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 105,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 106,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 107,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 108,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 109,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 110,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 111,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 112,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 113,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 114,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 115,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 116,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 117,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 118,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 119,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 120,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 121,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 122,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 123,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 124,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 125,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 126,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 127,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 128,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 129,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 130,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 131,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 132,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 133,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 134,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 135,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 136,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 137,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 138,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 139,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 140,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 141,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 142,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 143,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 144,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 145,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 146,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 147,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 148,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 149,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 150,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 151,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 152,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 153,
+      "response": "SZAVAZAT: Fidesz-KDNP"
+    },
+    {
+      "i": 154,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 155,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 156,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 157,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 158,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 159,
+      "response": "SZAVAZAT: Tisza"
+    },
+    {
+      "i": 160,
+      "response": "SZAVAZAT: Tisza"
+    }
+  ]
+}
