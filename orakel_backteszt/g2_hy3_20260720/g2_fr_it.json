@@ -1,0 +1,401 @@
+{
+ "op": "OPERATION PYTHIA — G2 ELSŐ KÖR: FR + IT vak backteszt (CCI headline + inflációs várakozás)",
+ "date": "2026-07-20",
+ "model": "tencent/Hy3 (SiliconFlow, thinking:disabled, response_format nélkül, temp=0.8)",
+ "flash_calls": 0,
+ "seeds": [
+  1,
+  2,
+  3
+ ],
+ "flags": "mind a 12 cella CLEAN (targetek 2026-04/05/06 >= 2025-08); TOPIC-GRAY nem aktiválódott",
+ "gt_source": "gt_LOCKED_fr_it.json (pre-reg commit 74c5090) — Eurostat ei_bsco_m BS-CSMCI + BS-PT-NY, SA/BAL, statdata MCP-rétegen",
+ "window_design": {
+  "targets": [
+   "2026-04",
+   "2026-05",
+   "2026-06"
+  ],
+  "corpus_windows": {
+   "2026-04": [
+    "2026-03-15",
+    "2026-04-14"
+   ],
+   "2026-05": [
+    "2026-04-15",
+    "2026-05-14"
+   ],
+   "2026-06": [
+    "2026-05-15",
+    "2026-06-14"
+   ]
+  },
+  "rationale": "A parancs szerinti 'target-hónapot megelőző ~3 hét' ablakokban a prod Echolot DB fr/it rétege a scrape későbbi indulása miatt kritikusan ritka (fr 2026-03: 10 cikk, it 2026-04: 21 cikk); a sűrű zóna 2026-06-21-től él, ami minden GT-fedett targethez KÉSŐI. A parancs 'told közelebbre' klauzulája szerint a legkésőbbi 3 GT-fedett targetet (2026-04/05/06) vesszük, és az ablakot fieldwork-igazítjuk: [M-1 hó 15. .. M hó 14.] — az EU harmonizált fogyasztói felmérés terepmunkája a target-hónap első 2-3 hete, így a válaszadók információs halmaza a hónap közepéig terjedő hírkörnyezet. A GT-érték (havi szaldó) a hónap VÉGÉN publikálódik, a korpusz-ablak vége (M-14.) előtt semmilyen formában nem létezik -> nincs target-szivárgás, a cella pre-outcome.",
+  "corpus_reality_note": "Prod DB (railway ssh, file:/data/echolot.db?mode=ro) mért készlet az ablakokban: FR ~35/~84/~190 cikk (Le Point-szekciók right-túlsúlyával, center/CL kisebbség), IT ~27/~25/~58 cikk (lokál/regionális + Corriere Cronache + IAI, lean főleg unknown/center). A korai ablakok a G1 PT fan-out méretosztályában (18-23) vannak — a parancs szerint kezelhető; lean-kiegyensúlyozás cap-eléssel, tematikus szűrés NINCS (PT-lecke: reprezentativitás, nem téma-skew)."
+ },
+ "cells": {
+  "FR_cci_2026-04": {
+   "seeds": [
+    -45.3,
+    -51.0,
+    -52.4
+   ],
+   "mean": -49.6,
+   "sd": 3.1,
+   "cat_seeds": [
+    -85.0,
+    -86.7,
+    -93.3
+   ],
+   "cat_mean": -88.3,
+   "gt": -21.8,
+   "dir_hit": true,
+   "abs_err": 27.8,
+   "corpus_n": 30,
+   "corpus_lean": {
+    "center_left": 2,
+    "right": 28
+   },
+   "flag": "CLEAN"
+  },
+  "FR_cci_2026-05": {
+   "seeds": [
+    -44.9,
+    -47.0,
+    -49.2
+   ],
+   "mean": -47.0,
+   "sd": 1.8,
+   "cat_seeds": [
+    -90.0,
+    -86.7,
+    -90.0
+   ],
+   "cat_mean": -88.9,
+   "gt": -21.1,
+   "dir_hit": true,
+   "abs_err": 25.9,
+   "corpus_n": 60,
+   "corpus_lean": {
+    "right": 56,
+    "center": 1,
+    "center_left": 3
+   },
+   "flag": "CLEAN"
+  },
+  "FR_cci_2026-06": {
+   "seeds": [
+    -50.2,
+    -52.4,
+    -49.7
+   ],
+   "mean": -50.8,
+   "sd": 1.2,
+   "cat_seeds": [
+    -90.0,
+    -88.3,
+    -90.0
+   ],
+   "cat_mean": -89.4,
+   "gt": -19.3,
+   "dir_hit": true,
+   "abs_err": 31.5,
+   "corpus_n": 60,
+   "corpus_lean": {
+    "right": 39,
+    "center": 17,
+    "center_left": 3,
+    "unknown": 1
+   },
+   "flag": "CLEAN"
+  },
+  "FR_inflexp_2026-04": {
+   "seeds": [
+    2.245,
+    2.373,
+    2.192
+   ],
+   "mean": 2.27,
+   "sd": 0.076,
+   "fin_mean": -22.9,
+   "gt": 51.0,
+   "dir_hit_sign_rule": false,
+   "flag": "CLEAN",
+   "corpus_n": 30
+  },
+  "FR_inflexp_2026-05": {
+   "seeds": [
+    2.224,
+    2.343,
+    2.303
+   ],
+   "mean": 2.29,
+   "sd": 0.049,
+   "fin_mean": -22.3,
+   "gt": 42.6,
+   "dir_hit_sign_rule": false,
+   "flag": "CLEAN",
+   "corpus_n": 60
+  },
+  "FR_inflexp_2026-06": {
+   "seeds": [
+    2.225,
+    2.395,
+    2.356
+   ],
+   "mean": 2.325,
+   "sd": 0.073,
+   "fin_mean": -24.5,
+   "gt": 28.2,
+   "dir_hit_sign_rule": false,
+   "flag": "CLEAN",
+   "corpus_n": 60
+  },
+  "IT_cci_2026-04": {
+   "seeds": [
+    -48.8,
+    -51.5,
+    -51.1
+   ],
+   "mean": -50.4,
+   "sd": 1.2,
+   "cat_seeds": [
+    -80.0,
+    -90.0,
+    -86.7
+   ],
+   "cat_mean": -85.6,
+   "gt": -23.8,
+   "dir_hit": true,
+   "abs_err": 26.6,
+   "corpus_n": 22,
+   "corpus_lean": {
+    "unknown": 22
+   },
+   "flag": "CLEAN"
+  },
+  "IT_cci_2026-05": {
+   "seeds": [
+    -35.3,
+    -41.9,
+    -33.4
+   ],
+   "mean": -36.9,
+   "sd": 3.7,
+   "cat_seeds": [
+    -75.0,
+    -85.0,
+    -73.3
+   ],
+   "cat_mean": -77.8,
+   "gt": -21.3,
+   "dir_hit": true,
+   "abs_err": 15.6,
+   "corpus_n": 29,
+   "corpus_lean": {
+    "unknown": 17,
+    "center": 12
+   },
+   "flag": "CLEAN"
+  },
+  "IT_cci_2026-06": {
+   "seeds": [
+    -35.7,
+    -34.7,
+    -33.1
+   ],
+   "mean": -34.5,
+   "sd": 1.1,
+   "cat_seeds": [
+    -76.7,
+    -76.7,
+    -70.0
+   ],
+   "cat_mean": -74.4,
+   "gt": -22.2,
+   "dir_hit": true,
+   "abs_err": 12.3,
+   "corpus_n": 58,
+   "corpus_lean": {
+    "unknown": 45,
+    "center": 13
+   },
+   "flag": "CLEAN"
+  },
+  "IT_inflexp_2026-04": {
+   "seeds": [
+    2.038,
+    2.079,
+    2.098
+   ],
+   "mean": 2.072,
+   "sd": 0.025,
+   "fin_mean": -31.1,
+   "gt": 40.9,
+   "dir_hit_sign_rule": false,
+   "flag": "CLEAN",
+   "corpus_n": 22
+  },
+  "IT_inflexp_2026-05": {
+   "seeds": [
+    2.17,
+    2.147,
+    2.184
+   ],
+   "mean": 2.167,
+   "sd": 0.015,
+   "fin_mean": -23.4,
+   "gt": 26.3,
+   "dir_hit_sign_rule": false,
+   "flag": "CLEAN",
+   "corpus_n": 29
+  },
+  "IT_inflexp_2026-06": {
+   "seeds": [
+    2.115,
+    2.148,
+    2.171
+   ],
+   "mean": 2.145,
+   "sd": 0.023,
+   "fin_mean": -15.9,
+   "gt": 25.1,
+   "dir_hit_sign_rule": false,
+   "flag": "CLEAN",
+   "corpus_n": 58
+  }
+ },
+ "country_level": {
+  "FR": {
+   "cci": {
+    "panel_means": [
+     -49.567,
+     -47.024,
+     -50.761
+    ],
+    "gt": [
+     -21.8,
+     -21.1,
+     -19.3
+    ],
+    "spearman_3win": -0.5
+   },
+   "inflexp": {
+    "panel_means": [
+     2.27,
+     2.29,
+     2.325
+    ],
+    "gt": [
+     51.0,
+     42.6,
+     28.2
+    ],
+    "spearman_3win": -1.0
+   }
+  },
+  "IT": {
+   "cci": {
+    "panel_means": [
+     -50.425,
+     -36.857,
+     -34.536
+    ],
+    "gt": [
+     -23.8,
+     -21.3,
+     -22.2
+    ],
+    "spearman_3win": 0.5
+   },
+   "inflexp": {
+    "panel_means": [
+     2.072,
+     2.167,
+     2.145
+    ],
+    "gt": [
+     40.9,
+     26.3,
+     25.1
+    ],
+    "spearman_3win": -0.5
+   }
+  }
+ },
+ "cross_country_price_rank": {
+  "2026-04": {
+   "panel_FR_gt_IT": true,
+   "gt_FR_gt_IT": true,
+   "ok": true
+  },
+  "2026-05": {
+   "panel_FR_gt_IT": true,
+   "gt_FR_gt_IT": true,
+   "ok": true
+  },
+  "2026-06": {
+   "panel_FR_gt_IT": true,
+   "gt_FR_gt_IT": true,
+   "ok": true
+  }
+ },
+ "cross_country_cci_rank": {
+  "2026-04": {
+   "panel_FR_gt_IT": true,
+   "gt_FR_gt_IT": true,
+   "ok": true
+  },
+  "2026-05": {
+   "panel_FR_gt_IT": false,
+   "gt_FR_gt_IT": true,
+   "ok": false
+  },
+  "2026-06": {
+   "panel_FR_gt_IT": false,
+   "gt_FR_gt_IT": true,
+   "ok": false
+  }
+ },
+ "positivity_bias_check": {
+  "verdict": "NEM jelent meg — újlatin nyelveken a szláv minta ELLENKEZŐJE: pesszimizmus-túllövés",
+  "evidence": "mind a 12 cellában a szabad-mondatos SSR és a beépített kategorikus réteg (G1 CZ-minta, MONDAT+KATEGORIA/PHRASE+CATEGORIE) EGYBEHANGZÓAN negatív; a kategorikus 25-40 ponttal MÉLYEBB negatív (FR cat -85..-93 vs SSR -45..-52; IT cat -70..-90 vs SSR -33..-52). Irány-vesztés pozitív irányba sehol -> külön kategorikus összevető futam nem volt szükséges (a kategorikus elicitálás minden cellában beépítve futott)."
+ },
+ "price_scale_note": "Az ár-cellák sign(score-3) előjel-szabálya (pre-reg) mind a 6 cellán 'miss'-t ad, DE a G1-referencia (hy3_inflexp.json) szerint a skála-offset szisztematikus: G1-ben HU GT+36.5 mellett 2.31, CZ GT+23.6 mellett 1.72 volt a score — a 3-as középpont nem a GT-nulla. Az informatív metrika a rang: a 2-ország kereszt-rangsor (FR>IT) 3/3 ablakban TALÁL, az ablakon belüli 3-ablak Spearman viszont gyenge/negatív (FR -1.0, IT -0.5).",
+ "seed_stability": "CCI-cellák sd 1.1-3.6 (jóval stabilabb, mint a G1 HU-panel 8.9-e); inflexp sd 0.05-0.08 — a Hy3 FR/IT-n seed-stabil, egyetlen seed sem fordított irányt.",
+ "verdicts": {
+  "FR": "RÉSZBEN MEGERŐSÍTVE, korpusz-kikötéssel. Irány-réteg: CCI 3/3 cella jó előjel (SSR és kategorikus egybehangzó), ár kereszt-rangsor 3/3; seed-stabil. Szint-réteg: CCI-túllövés |e|=25.9-31.5, ablak-Spearman -0.5 (CCI) / -1.0 (ár) -> a nowcast-grade szint-állítás a TÖRTÉNETI korpuszon nem igazolódott. A rés lokalizálható: a backtest-ablakok a QUELLENSCHLEUSE (07-15) ELŐTTI ritka zónába esnek (30/60/60 cikk, Le Point-right túlsúly 28/56/39, foreign-kategória 28/38/39) — a G0c 0.89-es korpusz-score a MAI sűrű zónára áll, a történeti ablakokra nem.",
+  "IT": "RÉSZBEN MEGERŐSÍTVE, korpusz-kikötéssel. Irány-réteg: CCI 3/3, ár kereszt-rangsor 3/3; CCI ablak-Spearman +0.5 (a legjobb G2-ben). Szint-réteg: túllövés |e|=12.3-26.6 — a korpusz-összetétel hatása közvetlenül látszik: a lokál-katasztrófa-hírű 2026-04 ablak (22 cikk) -50.4-et ad, a gazdagabb 05/06 (29/58 cikk) -36.9/-34.5-öt. A backtest-ablakok korpusza (lean: csak unknown/center) messze a G0c 0.90 alatti minőségű."
+ },
+ "g0c_matrix_conclusion": "A G0c 'IGAZOLHATÓ' verdikt a konfig/GT/demográfia/anchor-rétegre MEGERŐSÍTVE (minden réteg hibamentesen működött: FR/IT anchorok, persona-kvóták, GT-lánc); a korpusz-kritérium viszont IDŐFÜGGŐ — a 0.89/0.90 score a jelenre áll, a GT-fedett múltra nem. Ajánlás G3/G4-nek: az első sűrű-zónás target (2026-07, Eurostat-publikáció ~07-29) utáni azonnali újramérés a mai korpusszal; szint-kalibrációhoz a PT-minta (kurált, kiegyensúlyozott egysoros korpusz) a bizonyított út.",
+ "cost": {
+  "n_calls": 1800,
+  "n_api_calls": 1800,
+  "n_cache_hits": 0,
+  "est_prompt_tokens": 2777886,
+  "est_completion_tokens": 154470,
+  "elapsed_s": 1399.0000000000002,
+  "note": "1800 logikai = 1800 API-hívás (0 cache-hit, egyetlen futam sem szakadt meg — nem kellett szeletelni), ~2.78M prompt + ~0.15M completion token (kar/3.2 becslés), panel-idő ~23.3 perc + SSR-embedding (OpenAI text-embedding-3-small, ~72 rate-hívás, filléres). Hy3-ár: $0 (NULLTARIF)."
+ },
+ "commits": {
+  "gt_lock": "74c5090",
+  "corpus": "712130b",
+  "persona_quotas": "4f60df0",
+  "harness": "9cb8799",
+  "cells": [
+   "5a3c1dd",
+   "3c74052",
+   "61c6489",
+   "6be0c40",
+   "78f27c8",
+   "ee03363",
+   "0a8e255",
+   "035198d",
+   "543d727",
+   "215848f",
+   "e6e9ea7",
+   "a57bf29"
+  ]
+ },
+ "integrity": "GT + korpuszok + harness a futások ELŐTT commitolva; corpus_hash (sha256) minden cella-artefaktban; plugins/ változás KIZÁRÓLAG persona_sampler COUNTRY_QUOTAS (FR/IT feltöltés, HU-tesztek zöldek); G1-artefaktok érintetlenek; DeepSeek-V4-Flash hívás: 0 db; éles DB read-only (mode=ro)."
+}
