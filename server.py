@@ -2067,6 +2067,105 @@ async def api_delphoi_topup(request):
                                           str(data.get("note") or "")))
 
 
+# ── PYTHIA B3: API-kulcs kezelés (Echolot-proxy útja, X-Delphoi-Key mögött) ──
+# A kulcs a delphoi_users.user_id-hoz kötődik (MOD2/A2); a user_id paraméter az
+# eredet-oldali external_id (Echolot: 'user:<id>' — a meglévő owner_key minta).
+
+@mcp.custom_route("/api/delphoi/keys", methods=["GET", "POST"])
+async def api_delphoi_keys(request):
+    """GET ?user_id=[&origin=] → kulcs-lista (prefix+meta, plaintext SOHA).
+    POST {user_id, label[, origin]} → új kulcs — a plaintext EGYSZER látszik."""
+    denied = _delphoi_auth(request)
+    if denied is not None:
+        return denied
+    from plugins import delphoi_public_mcp as _dpub
+    if request.method == "GET":
+        user_id = request.query_params.get("user_id", "")
+        origin = request.query_params.get("origin", "echolot")
+        if not user_id:
+            return JSONResponse({"ok": False, "error": "missing_user_id"}, status_code=400)
+        return JSONResponse({"ok": True,
+                             "keys": _dpub.list_api_keys(get_db, origin, user_id)})
+    try:
+        data = await request.json()
+    except Exception:  # noqa: BLE001
+        return JSONResponse({"ok": False, "error": "bad_json"}, status_code=400)
+    user_id = str(data.get("user_id") or "").strip()
+    origin = str(data.get("origin") or "echolot").strip().lower()
+    if not user_id:
+        return JSONResponse({"ok": False, "error": "missing_user_id"}, status_code=400)
+    if origin not in _dpub.VALID_ORIGINS:
+        return JSONResponse({"ok": False, "error": "bad_origin"}, status_code=400)
+    return JSONResponse(_dpub.generate_api_key(get_db, origin, user_id,
+                                               str(data.get("label") or "")))
+
+
+@mcp.custom_route("/api/delphoi/keys/{key_id}/revoke", methods=["POST"])
+async def api_delphoi_key_revoke(request):
+    """Kulcs-revoke — CSAK a tulajdonos userének kulcsára (user-mapping authz)."""
+    denied = _delphoi_auth(request)
+    if denied is not None:
+        return denied
+    from plugins import delphoi_public_mcp as _dpub
+    try:
+        data = await request.json()
+    except Exception:  # noqa: BLE001
+        data = {}
+    user_id = str(data.get("user_id") or request.query_params.get("user_id") or "").strip()
+    origin = str(data.get("origin") or "echolot").strip().lower()
+    if not user_id:
+        return JSONResponse({"ok": False, "error": "missing_user_id"}, status_code=400)
+    try:
+        key_id = int(request.path_params.get("key_id", "0"))
+    except (TypeError, ValueError):
+        return JSONResponse({"ok": False, "error": "bad_key_id"}, status_code=400)
+    res = _dpub.revoke_api_key(get_db, origin, user_id, key_id)
+    return JSONResponse(res, status_code=200 if res.get("ok") else 404)
+
+
+@mcp.custom_route("/api/delphoi/saas/report/{token}", methods=["GET"])
+async def api_delphoi_saas_report(request):
+    """B3: lejáró tokenes riport-letöltés — a delphoi_get_report SaaS-tool
+    letöltő-URL-jének célpontja. A HMAC-token maga a felhatalmazás (rövid
+    életű); érvénytelen/lejárt token → 403. Aggregátum-artefakt megy ki,
+    nyers persona-adat ezen az úton sem létezik."""
+    from starlette.responses import Response as StarletteResponse
+    from plugins import delphoi_public_mcp as _dpub
+    from plugins import delphoi_report as _rep
+    got_tok = _dpub.verify_report_token(request.path_params.get("token", "")[:160])
+    if not got_tok:
+        return JSONResponse({"ok": False, "error": "invalid_token"}, status_code=403)
+    job_id, fmt = got_tok
+    conn = get_db()
+    try:
+        row = conn.execute("SELECT user_id FROM delphoi_jobs WHERE id=?",
+                           (job_id,)).fetchone()
+    finally:
+        conn.close()
+    if not row:
+        return JSONResponse({"ok": False, "error": "not_found"}, status_code=404)
+    got = _rep.latest_artifact(get_db, job_id, row["user_id"], fmt)
+    if not got.get("ok"):
+        _saas_deps = {
+            "get_db": get_db,
+            "siliconflow_api_key": SILICONFLOW_API_KEY,
+            "siliconflow_base_url": SILICONFLOW_BASE_URL,
+            "siliconflow_timeout": SILICONFLOW_TIMEOUT,
+        }
+        gen = await _rep.generate_report(_saas_deps, job_id, row["user_id"])
+        if not gen.get("ok"):
+            return JSONResponse(gen, status_code=404)
+        got = _rep.latest_artifact(get_db, job_id, row["user_id"], fmt)
+        if not got.get("ok"):
+            return JSONResponse(got, status_code=404)
+    with open(got["path"], "rb") as f:
+        content = f.read()
+    headers = {}
+    if fmt in ("pdf", "json", "csv"):
+        headers["Content-Disposition"] = f'attachment; filename="{job_id}.{fmt}"'
+    return StarletteResponse(content, media_type=got["mime"], headers=headers)
+
+
 # ============================================================
 @mcp.custom_route("/api/delphoi/briefs", methods=["GET", "POST"])
 async def api_delphoi_briefs(request):
@@ -8664,6 +8763,34 @@ try:
         logger.info("Operation Zahnrad: No plugins found")
 except Exception as e:
     logger.error("Operation Zahnrad plugin loading failed: %s", e)
+
+# ── PYTHIA B3: publikus DELPHOI SaaS MCP-kapu — MÁSODIK, IZOLÁLT FastMCP-app ──
+# a fő Starlette-appban. A fő `mcp` custom-route listája Starlette BaseRoute-okat
+# hordoz (a create_streamable_http_app változatlanul fűzi be őket), így egy
+# Mount("/saas", app=...) route-ként a második FastMCP http_app-ja a /saas/mcp
+# úton él — SAJÁT tool-registry-vel (KIZÁRÓLAG a 4 delphoi-tool), a belső
+# Bridge-toolok (memory, gmail, taskok stb.) ezen a felületen NEM LÉTEZNEK.
+# Az al-app lifespan-jét a LazyLifespanASGI az első kérésnél indítja (a
+# Starlette a mountolt al-app lifespan-jét nem futtatja). Hiba = hangos log,
+# a fő app érintetlen.
+try:
+    from starlette.routing import Mount as _StarletteMount
+    from plugins import delphoi_public_mcp as _dpub_mount
+    _saas_deps = {
+        "get_db": get_db,
+        "siliconflow_api_key": SILICONFLOW_API_KEY,
+        "siliconflow_base_url": SILICONFLOW_BASE_URL,
+        "siliconflow_timeout": SILICONFLOW_TIMEOUT,
+        "siliconflow_models": SILICONFLOW_MODELS,
+    }
+    mcp._additional_http_routes.append(
+        _StarletteMount(_dpub_mount.PUBLIC_MOUNT_PATH,
+                        app=_dpub_mount.build_public_asgi(_saas_deps)))
+    logger.info("PYTHIA B3: publikus DELPHOI MCP mountolva: %s%s (toolok: %s)",
+                _dpub_mount.PUBLIC_MOUNT_PATH, _dpub_mount.PUBLIC_MCP_PATH,
+                ",".join(_dpub_mount.PUBLIC_TOOL_NAMES))
+except Exception as _dpme:  # noqa: BLE001
+    logger.error("PYTHIA B3 publikus MCP mount FAILED: %s", _dpme)
 
 # PYTHIA P1 (deploy #1): NULLTARIF-őr cron-seed (idempotens) — napi Hy3
 # ár/elérhetőség-ellenőrzés; a futtatás a _cron_loop nulltarif_ special-casén.
