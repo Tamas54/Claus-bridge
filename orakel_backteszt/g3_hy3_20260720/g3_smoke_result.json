@@ -1,0 +1,14 @@
+{
+  "HU": {
+    "2025-09": {
+      "industry": {
+        "balances": [
+          -51.17
+        ],
+        "mean": -51.17,
+        "std": 0.0,
+        "corpus": "corpus_hu_pre_2025_09.json"
+      }
+    }
+  }
+}
