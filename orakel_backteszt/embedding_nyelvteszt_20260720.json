@@ -1,0 +1,315 @@
+{
+  "date": "2026-07-20T13:56:14+00:00",
+  "model": "text-embedding-3-small",
+  "usage_tokens": {
+    "prompt_tokens": 3689,
+    "total_tokens": 3689
+  },
+  "metric": "separation = mean(within-category cos-sim) − mean(between-category cos-sim)",
+  "threshold": {
+    "formula": "0.5 × min(separation[hu, pt])",
+    "reference_separations": {
+      "hu": 0.3561,
+      "pt": 0.2854
+    },
+    "value": 0.1427
+  },
+  "results": {
+    "cs": {
+      "n_categories": 4,
+      "n_sentences": 20,
+      "within_mean": 0.7604,
+      "between_mean": 0.4379,
+      "separation": 0.3226,
+      "per_category": {
+        "ssr/financni_vyhled": {
+          "n": 5,
+          "within_sim": 0.8524,
+          "scale_coherence": 0.0127
+        },
+        "ssr/souhlas": {
+          "n": 5,
+          "within_sim": 0.6108,
+          "scale_coherence": -0.2606
+        },
+        "ssr/price[CZ]": {
+          "n": 5,
+          "within_sim": 0.6638,
+          "scale_coherence": 0.7119
+        },
+        "ssr/business[CZ]": {
+          "n": 5,
+          "within_sim": 0.9147,
+          "scale_coherence": 0.0127
+        }
+      },
+      "alarm": false
+    },
+    "de": {
+      "n_categories": 4,
+      "n_sentences": 20,
+      "within_mean": 0.7687,
+      "between_mean": 0.4089,
+      "separation": 0.3598,
+      "per_category": {
+        "ssr/zustimmung": {
+          "n": 5,
+          "within_sim": 0.6267,
+          "scale_coherence": -0.0826
+        },
+        "ssr/finanzielle_aussicht": {
+          "n": 5,
+          "within_sim": 0.8587,
+          "scale_coherence": 0.0572
+        },
+        "ssr/price[DE]": {
+          "n": 5,
+          "within_sim": 0.6787,
+          "scale_coherence": 0.286
+        },
+        "ssr/business[DE]": {
+          "n": 5,
+          "within_sim": 0.9109,
+          "scale_coherence": 0.0572
+        }
+      },
+      "alarm": false
+    },
+    "en": {
+      "n_categories": 5,
+      "n_sentences": 25,
+      "within_mean": 0.681,
+      "between_mean": 0.212,
+      "separation": 0.469,
+      "per_category": {
+        "ssr/purchase_intent": {
+          "n": 5,
+          "within_sim": 0.7325,
+          "scale_coherence": 0.1017
+        },
+        "ssr/interest": {
+          "n": 5,
+          "within_sim": 0.7376,
+          "scale_coherence": 0.464
+        },
+        "ssr/agreement": {
+          "n": 5,
+          "within_sim": 0.4774,
+          "scale_coherence": -0.178
+        },
+        "ssr/financial_outlook": {
+          "n": 5,
+          "within_sim": 0.8482,
+          "scale_coherence": 0.1017
+        },
+        "ssr/price[EN]": {
+          "n": 5,
+          "within_sim": 0.6093,
+          "scale_coherence": 0.5594
+        }
+      },
+      "alarm": false
+    },
+    "es": {
+      "n_categories": 3,
+      "n_sentences": 15,
+      "within_mean": 0.6943,
+      "between_mean": 0.3413,
+      "separation": 0.3529,
+      "per_category": {
+        "ssr/acuerdo": {
+          "n": 5,
+          "within_sim": 0.5595,
+          "scale_coherence": -0.089
+        },
+        "ssr/perspectiva_financiera": {
+          "n": 5,
+          "within_sim": 0.8455,
+          "scale_coherence": 0.178
+        },
+        "ssr/price[ES]": {
+          "n": 5,
+          "within_sim": 0.6778,
+          "scale_coherence": 0.5784
+        }
+      },
+      "alarm": false
+    },
+    "fr": {
+      "n_categories": 5,
+      "n_sentences": 25,
+      "within_mean": 0.7459,
+      "between_mean": 0.3605,
+      "separation": 0.3854,
+      "per_category": {
+        "ssr/accord": {
+          "n": 5,
+          "within_sim": 0.5646,
+          "scale_coherence": -0.1017
+        },
+        "ssr/perspective_financiere": {
+          "n": 5,
+          "within_sim": 0.8513,
+          "scale_coherence": 0.1208
+        },
+        "delphoi/regard": {
+          "n": 5,
+          "within_sim": 0.8313,
+          "scale_coherence": 0.1017
+        },
+        "delphoi/growth": {
+          "n": 5,
+          "within_sim": 0.821,
+          "scale_coherence": 0.1017
+        },
+        "delphoi/price_extra": {
+          "n": 5,
+          "within_sim": 0.6611,
+          "scale_coherence": 0.4704
+        }
+      },
+      "alarm": false
+    },
+    "hu": {
+      "n_categories": 6,
+      "n_sentences": 30,
+      "within_mean": 0.7611,
+      "between_mean": 0.405,
+      "separation": 0.3561,
+      "per_category": {
+        "ssr/egyetertes": {
+          "n": 5,
+          "within_sim": 0.5132,
+          "scale_coherence": 0.089
+        },
+        "ssr/anyagi_varakozas": {
+          "n": 5,
+          "within_sim": 0.8651,
+          "scale_coherence": 0.0127
+        },
+        "ssr/price[HU]": {
+          "n": 5,
+          "within_sim": 0.6667,
+          "scale_coherence": 0.7373
+        },
+        "ssr/business[HU]": {
+          "n": 5,
+          "within_sim": 0.9038,
+          "scale_coherence": 0.1335
+        },
+        "delphoi/regard": {
+          "n": 5,
+          "within_sim": 0.8112,
+          "scale_coherence": 0.0127
+        },
+        "delphoi/growth": {
+          "n": 5,
+          "within_sim": 0.8064,
+          "scale_coherence": -0.178
+        }
+      },
+      "alarm": false
+    },
+    "it": {
+      "n_categories": 5,
+      "n_sentences": 25,
+      "within_mean": 0.7439,
+      "between_mean": 0.4198,
+      "separation": 0.3241,
+      "per_category": {
+        "ssr/accordo": {
+          "n": 5,
+          "within_sim": 0.5413,
+          "scale_coherence": -0.2606
+        },
+        "ssr/prospettiva_finanziaria": {
+          "n": 5,
+          "within_sim": 0.8492,
+          "scale_coherence": 0.0572
+        },
+        "delphoi/regard": {
+          "n": 5,
+          "within_sim": 0.835,
+          "scale_coherence": 0.0127
+        },
+        "delphoi/growth": {
+          "n": 5,
+          "within_sim": 0.8283,
+          "scale_coherence": 0.0572
+        },
+        "delphoi/price_extra": {
+          "n": 5,
+          "within_sim": 0.6655,
+          "scale_coherence": 0.3687
+        }
+      },
+      "alarm": false
+    },
+    "pl": {
+      "n_categories": 6,
+      "n_sentences": 30,
+      "within_mean": 0.8123,
+      "between_mean": 0.4765,
+      "separation": 0.3358,
+      "per_category": {
+        "ssr/perspektywa_finansowa": {
+          "n": 5,
+          "within_sim": 0.8905,
+          "scale_coherence": 0.0572
+        },
+        "ssr/zgoda": {
+          "n": 5,
+          "within_sim": 0.6274,
+          "scale_coherence": -0.2161
+        },
+        "ssr/price[PL]": {
+          "n": 5,
+          "within_sim": 0.7417,
+          "scale_coherence": 0.4894
+        },
+        "ssr/business[PL]": {
+          "n": 5,
+          "within_sim": 0.9319,
+          "scale_coherence": 0.0763
+        },
+        "delphoi/regard": {
+          "n": 5,
+          "within_sim": 0.85,
+          "scale_coherence": -0.0318
+        },
+        "delphoi/growth": {
+          "n": 5,
+          "within_sim": 0.8322,
+          "scale_coherence": 0.0572
+        }
+      },
+      "alarm": false
+    },
+    "pt": {
+      "n_categories": 3,
+      "n_sentences": 15,
+      "within_mean": 0.8123,
+      "between_mean": 0.527,
+      "separation": 0.2854,
+      "per_category": {
+        "ssr/perspetiva_financeira": {
+          "n": 5,
+          "within_sim": 0.8734,
+          "scale_coherence": 0.3623
+        },
+        "ssr/price[PT]": {
+          "n": 5,
+          "within_sim": 0.6732,
+          "scale_coherence": 0.5467
+        },
+        "ssr/business[PT]": {
+          "n": 5,
+          "within_sim": 0.8903,
+          "scale_coherence": 0.4259
+        }
+      },
+      "alarm": false
+    }
+  },
+  "alarms": []
+}
