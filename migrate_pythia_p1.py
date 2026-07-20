@@ -1,9 +1,15 @@
 #!/usr/bin/env python3
 """migrate_pythia_p1.py — PYTHIA P1 ledger-migráció (Bridge).
 
-Cél (GESAMTBEFEHL P1/2):
+Cél (GESAMTBEFEHL P1/2 + MODIFIKATION 2/A2):
   - delphoi_nowcast_ledger + model_id oszlop (ha hiányzik);
-  - delphoi_jobs + model_id, panel_version, scope_verdict, coverage_score.
+  - delphoi_jobs + model_id, panel_version, scope_verdict, coverage_score;
+  - A2 IDENTITÁS-RÉTEG: delphoi_users tábla (user_id INTEGER PK, origin
+    CHECK('echolot'|'saas'), external_id, email, created_at) + backfill —
+    a meglévő Echolot-eredetű user-hivatkozások (delphoi_credits.user_id ∪
+    delphoi_jobs.user_id; a mező TEXT, az Echolot-proxy 'user:<id>' formát
+    küld) origin='echolot' sorokként, IDEMPOTENSEN (UNIQUE(origin,
+    external_id) index a DB-szintű garancia).
 
 Módszer: ALTER TABLE ... ADD COLUMN — az append-only triggerekkel nem ütközik
 (az ALTER nem UPDATE/DELETE, a triggerek nem tüzelnek). RÉGI SOR NEM ÉRINTHETŐ:
@@ -43,6 +49,59 @@ PLANNED_COLUMNS = [
     ("delphoi_jobs", "scope_verdict", "TEXT"),
     ("delphoi_jobs", "coverage_score", "REAL"),
 ]
+
+# A2 — identitás-réteg (brand-agnosztikus Core: 'echolot' és 'saas' eredetű
+# userek egy táblában; az external_id az eredet-oldali azonosító, Echolotnál
+# a mai 'user:<id>' TEXT-kulcs). Az UNIQUE index az idempotens backfill őre.
+_USERS_SQL = """
+CREATE TABLE IF NOT EXISTS delphoi_users (
+    user_id     INTEGER PRIMARY KEY,
+    origin      TEXT CHECK(origin IN ('echolot','saas')),
+    external_id TEXT,
+    email       TEXT,
+    created_at  TEXT
+);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_delphoi_users_origin_ext
+    ON delphoi_users(origin, external_id);
+"""
+
+# A backfill forrásai: a MAI user-hivatkozás mezők (mindkettő TEXT).
+_USER_REF_SOURCES = [("delphoi_credits", "user_id"), ("delphoi_jobs", "user_id")]
+
+
+def _pending_user_refs(conn: sqlite3.Connection) -> list[str]:
+    """Distinct user-hivatkozások a forrás-táblákból, amelyek MÉG nincsenek a
+    delphoi_users-ben origin='echolot'-tal. Hiányzó forrás-tábla = üres ág."""
+    refs: set = set()
+    for table, col in _USER_REF_SOURCES:
+        if not _table_exists(conn, table):
+            continue
+        for r in conn.execute(f"SELECT DISTINCT {col} FROM {table} "
+                              f"WHERE {col} IS NOT NULL AND {col} != ''"):
+            refs.add(str(r[0]))
+    if not refs:
+        return []
+    existing: set = set()
+    if _table_exists(conn, "delphoi_users"):
+        existing = {str(r[0]) for r in conn.execute(
+            "SELECT external_id FROM delphoi_users WHERE origin='echolot'")}
+    return sorted(refs - existing)
+
+
+def apply_users(conn: sqlite3.Connection) -> int:
+    """Tábla + index (IF NOT EXISTS) + idempotens origin='echolot' backfill.
+    Visszaadja az ÚJ user-sorok számát."""
+    conn.executescript(_USERS_SQL)
+    pending = _pending_user_refs(conn)
+    ts = datetime.now(timezone.utc).isoformat()
+    n = 0
+    for ext in pending:
+        cur = conn.execute(
+            "INSERT OR IGNORE INTO delphoi_users (origin, external_id, created_at) "
+            "VALUES ('echolot', ?, ?)", (ext, ts))
+        n += cur.rowcount or 0
+    conn.commit()
+    return n
 
 
 def _columns(conn: sqlite3.Connection, table: str) -> list[str]:
@@ -101,6 +160,8 @@ def main(argv=None) -> int:
     conn.row_factory = sqlite3.Row
     try:
         plan = build_plan(conn)
+        users_exists = _table_exists(conn, "delphoi_users")
+        pending_users = _pending_user_refs(conn)
     finally:
         conn.close()
 
@@ -111,9 +172,14 @@ def main(argv=None) -> int:
             print(f"  + ALTER TABLE {step['table']} ADD COLUMN {step['column']} {step['type']}")
         else:
             print(f"  = {step['table']}.{step['column']}: SKIP ({step['why']})")
+    print(f"  {'=' if users_exists else '+'} delphoi_users tábla (A2): "
+          f"{'már létezik' if users_exists else 'CREATE + UNIQUE(origin, external_id) index'}")
+    print(f"  + backfill origin='echolot': {len(pending_users)} új user-hivatkozás "
+          f"(delphoi_credits ∪ delphoi_jobs, idempotens)")
     to_add = [s for s in plan if s["action"] == "add"]
     if not args.apply:
-        print(f"Terv: {len(to_add)} oszlop-hozzáadás, {len(plan) - len(to_add)} skip. (dry-run — semmi nem íródott)")
+        print(f"Terv: {len(to_add)} oszlop-hozzáadás, {len(plan) - len(to_add)} skip, "
+              f"{len(pending_users)} user-backfill. (dry-run — semmi nem íródott)")
         return 0
 
     # ── APPLY: 1) backup ────────────────────────────────────────────────────
@@ -127,8 +193,9 @@ def main(argv=None) -> int:
     conn.row_factory = sqlite3.Row
     try:
         n = apply_plan(conn, plan)
+        n_users = apply_users(conn)
     except Exception as e:  # noqa: BLE001 — hangos hiba + backup-útvonal
-        print(f"HIBA az ALTER közben: {type(e).__name__}: {e}", file=sys.stderr)
+        print(f"HIBA a migráció közben: {type(e).__name__}: {e}", file=sys.stderr)
         print(f"A DB visszaállítható a backupból: {backup_path}", file=sys.stderr)
         conn.close()
         return 2
@@ -137,7 +204,8 @@ def main(argv=None) -> int:
             conn.close()
         except Exception:  # noqa: BLE001
             pass
-    print(f"Végrehajtva: {n} oszlop hozzáadva.")
+    print(f"Végrehajtva: {n} oszlop hozzáadva; delphoi_users kész, "
+          f"{n_users} új origin='echolot' user-sor backfillelve.")
 
     # ── 3) verify_ledger_chain — KÖTELEZŐ zöld ─────────────────────────────
     from plugins.delphoi import verify_ledger_chain
