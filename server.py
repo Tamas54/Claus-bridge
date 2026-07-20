@@ -1897,7 +1897,18 @@ async def api_poll_results(request):
                          "periods": [aggregate(p, base=base, kind=kind) for p in periods]})
 
 
-@mcp.custom_route("/api/delphoi/nowcast", methods=["GET"])
+# PYTHIA P5 (MOD2/A6): a KÉT publikus delphoi adat-végpont (nowcast + verify)
+# CORS-NYITOTT (bármely origin, GET+OPTIONS) és brand-semleges — kulcs-kapu
+# (_delphoi_auth) ezeken SZÁNDÉKOSAN NINCS, a ledger nyilvános adat.
+_DELPHOI_PUBLIC_CORS = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Max-Age": "86400",
+}
+
+
+@mcp.custom_route("/api/delphoi/nowcast", methods=["GET", "OPTIONS"])
 async def api_delphoi_nowcast(request):
     """DELPHOI entitás-nowcast — a NYILVÁNOS kirakat adata (Echolot N5 sáv).
 
@@ -1906,6 +1917,9 @@ async def api_delphoi_nowcast(request):
     Query: entity_key (QID/slug, pontos) VAGY label (display_label LIKE);
     üresen minden engedélyezett entitás. history (default 12) sor entitásonként.
     """
+    if request.method == "OPTIONS":
+        from starlette.responses import Response as StarletteResponse
+        return StarletteResponse(status_code=204, headers=_DELPHOI_PUBLIC_CORS)
     entity_key = request.query_params.get("entity_key", "").strip()
     label = request.query_params.get("label", "").strip()
     try:
@@ -1914,25 +1928,31 @@ async def api_delphoi_nowcast(request):
         history = 12
     # PYTHIA P1 (deploy #1): a payload a plugins.delphoi.public_nowcast_feed-ből
     # jön — bitre azonos szerkezet + modellregime-annotáció (model_regime_boundary
-    # + regime_note a Flash→Hy3 korszakhatáron). MOD2/A6-előkép: brand-semleges.
+    # + regime_note a Flash→Hy3 korszakhatáron). MOD2/A6: brand-semleges
+    # (disclaimer a delphoi_brands.public_disclaimer-ből) + chain_head (P5 badge).
     from pyramid.memory_rag import _get_db
     from plugins.delphoi import public_nowcast_feed
     payload = public_nowcast_feed(_get_db, entity_key=entity_key, label=label,
                                   history=history)
-    return JSONResponse(payload)
+    return JSONResponse(payload, headers=_DELPHOI_PUBLIC_CORS)
 
 
-@mcp.custom_route("/api/delphoi/verify", methods=["GET"])
+@mcp.custom_route("/api/delphoi/verify", methods=["GET", "OPTIONS"])
 async def api_delphoi_verify(request):
     """A DELPHOI predikció-napló hash-láncának nyilvános integritás-ellenőrzése
     (audit-út a nowcaster-feed vevőnek): bármely sor utólagos módosítása az
     összes későbbi sor hash-ét érvényteleníti."""
+    if request.method == "OPTIONS":
+        from starlette.responses import Response as StarletteResponse
+        return StarletteResponse(status_code=204, headers=_DELPHOI_PUBLIC_CORS)
     try:
         from plugins.delphoi import verify_ledger_chain
         from pyramid.memory_rag import _get_db
-        return JSONResponse(verify_ledger_chain(_get_db))
+        return JSONResponse(verify_ledger_chain(_get_db),
+                            headers=_DELPHOI_PUBLIC_CORS)
     except Exception as e:  # noqa: BLE001 — table/plugin may not exist yet
-        return JSONResponse({"ok": False, "error": str(e)}, status_code=500)
+        return JSONResponse({"ok": False, "error": str(e)}, status_code=500,
+                            headers=_DELPHOI_PUBLIC_CORS)
 
 
 # ── DELPHOI FOGÁS (fizetős fókuszcsoport) — PRIVÁT REST az Echolotnak ──

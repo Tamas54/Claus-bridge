@@ -460,8 +460,17 @@ CREATE TABLE IF NOT EXISTS delphoi_embed_usage (
 """
 
 # ELSŐ MENET entitás-kör (N2, Kommandant-jóváhagyott). A 2. kör (UK/US) seedelve,
-# de enabled=0 — env/config-flip, ha az első bevált. A PL/FR/IT szentiment-
-# entitások szintén enabled=0, amíg a korpusz-mélység országonként nem igazolt.
+# de enabled=0 — env/config-flip, ha az első bevált.
+#
+# P5 / G4-verdikt (orakel_backteszt/orszag_matrix_20260720/matrix.md, 2026-07-20):
+#   - fr-novekedesi-hangulat + it-novekedesi-hangulat: REGISZTRÁLVA enabled=0 —
+#     FR/IT a mátrixban IGAZOLHATÓ (korpusz 0.89/0.90, lean-konfig nowcast-grade,
+#     Eurostat-GT él); a flip Kommandant-szóra megy, itt NEM történik.
+#   - pl-inflacios-varakozas: FELTÉTELES-jelölt — a PL korpusz átmegy (0.72, de
+#     40 forrás < 60-küszöb, vékony bal-oldal), ám az inflációs-várakozás
+#     kalibrációjához KATEGORIKUS réteg kellene (delphoi_calibration: a
+#     kategorikus kalibráció TILOS-státuszú) → marad enabled=0, amíg a
+#     kategorikus réteg nincs meg. Flip itt SEM történik.
 _SEED_ENTITIES = [
     # (entity_key, country, entity_type, display_label, enabled)
     # entity_key = Wikidata QID, ahol van (az Echolot entitás-rétegének kulcsa);
@@ -687,27 +696,85 @@ def public_nowcast_feed(get_db, entity_key: str = "", label: str = "",
             out.append({"entity_key": e["entity_key"], "country": e["country"],
                         "entity_type": e["entity_type"], "display_label": e["display_label"],
                         "latest": latest, "history": hist})
+        # P5: a lánc-fej a feedben — a fogyasztó (irányfal verify-badge) enélkül
+        # is ellenőrizhet a /api/delphoi/verify-on, de így egy kérésből megvan.
+        try:
+            chain_head = _last_chain_hash(conn)
+        except Exception:  # noqa: BLE001 — migráció előtti DB: nincs ledger-tábla
+            chain_head = None
     finally:
         conn.close()
-    return {"count": len(out), "entities": out,
-            "disclaimer": "Szintetikus panel relatív irányjelzése, nem közvélemény-kutatás."}
+    # MOD2/A6 — a payload BRAND-SEMLEGES: a disclaimer a delphoi_brands közös,
+    # semleges szövege (arc-specifikus szöveg a publikus adat-API-ban TILOS).
+    from plugins.delphoi_brands import public_disclaimer
+    return {"count": len(out), "entities": out, "chain_head": chain_head,
+            "disclaimer": public_disclaimer()}
 
 
-def anchor_hash(get_db, repo_root: str | None = None) -> dict:
+def _agora_anchor_post_text(head: str, checked: int, stamp_iso: str) -> tuple[str, str]:
+    """A heti lánc-pecsét Agora-poszt (cím, törzs). A törzs ≥200 karakter (az
+    Echolot publish-minimum) és brand-URL nélkül is értelmes: a verify-út a
+    brand public_base_url-jéről jön (delphoi_brands — az Echolot /api/delphoi/
+    verify pass-through-ja a Bridge-re mutat)."""
+    from plugins.delphoi_brands import get_brand
+    try:
+        verify_url = get_brand()["public_base_url"].rstrip("/") + "/api/delphoi/verify"
+    except Exception:  # noqa: BLE001 — brand-config hiba ne törje a pecsétet
+        verify_url = "/api/delphoi/verify"
+    title = f"DELPHOI lánc-pecsét — {stamp_iso[:10]}"
+    body = (
+        "Heti kriptográfiai pecsét a DELPHOI predikció-naplóról. A napló "
+        "append-only, hash-láncolt: minden sor lenyomata tartalmazza az előző "
+        "sorét, így bármely korábbi jel utólagos módosítása az összes későbbi "
+        "sor hash-ét érvényteleníti. Ez a poszt a lánc mai fejét rögzíti "
+        "nyilvánosan — a track record így kívülről is auditálható.\n\n"
+        f"Lánc-fej (SHA-256): {head}\n"
+        f"Ellenőrzött sorok: {checked}\n"
+        f"Pecsét ideje: {stamp_iso} UTC\n"
+        f"Független ellenőrzés: {verify_url}\n\n"
+        "Szintetikus panel relatív irányjelzése — nem közvélemény-kutatás és "
+        "nem abszolút mérés."
+    )
+    return title, body
+
+
+async def _agora_anchor_publish(title: str, body: str) -> dict:
+    """A tényleges Agora-publish a nowcaster-agent operátor-kulcsával
+    (DELPHOI_ANCHOR_AGORA_KEY env; agent_label opcionális felülírás)."""
+    import _echolot_client as ec
+    key = os.environ.get("DELPHOI_ANCHOR_AGORA_KEY", "")
+    res = await ec.agora_action(
+        "publish", operator_key=key, title=title, body=body, lang="hu",
+        agent_label=os.environ.get("DELPHOI_ANCHOR_AGORA_LABEL", ""))
+    return res if isinstance(res, dict) else {"ok": False, "error": str(res)}
+
+
+def anchor_hash(get_db, repo_root: str | None = None, publish_fn=None) -> dict:
     """N1.5/5 — külső horgony hook. A csatorna env-kapu mögött ALSZIK
-    (DELPHOI_ANCHOR_CHANNEL=off|git|agora, default off) — a Kommandant szava.
-    'git': a lánc-fejet a repo ledger_anchors.txt-jébe fűzi (a commit kézi/CI)."""
+    (DELPHOI_ANCHOR_CHANNEL=off|git|agora, default off) — a flip a Kommandant
+    szava. Mindkét mód KÉSZ (P5):
+      'git':   a lánc-fejet a repo ledger_anchors.txt-jébe fűzi (commit kézi/CI);
+      'agora': heti lánc-pecsét Agora-poszt a nowcaster-agenttől
+               (DELPHOI_ANCHOR_AGORA_KEY operátor-kulccsal; futó event-loopban
+               háttér-taskként megy el, hogy a cron-utat ne blokkolja).
+    publish_fn: tesztekhez injektálható async publisher (default: Echolot-kliens)."""
     channel = os.environ.get("DELPHOI_ANCHOR_CHANNEL", "off").lower()
     if channel == "off":
         return {"channel": "off", "anchored": False}
     conn = get_db()
     try:
         head = _last_chain_hash(conn)
+        try:
+            checked = conn.execute(
+                "SELECT COUNT(*) AS n FROM delphoi_nowcast_ledger").fetchone()["n"]
+        except Exception:  # noqa: BLE001
+            checked = 0
     finally:
         conn.close()
     if head == GENESIS:
         return {"channel": channel, "anchored": False, "reason": "üres lánc"}
-    stamp = f"{datetime.now(timezone.utc).isoformat()} {head}\n"
+    now_iso = datetime.now(timezone.utc).isoformat()
+    stamp = f"{now_iso} {head}\n"
     if channel == "git":
         root = repo_root or os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         path = os.path.join(root, "ledger_anchors.txt")
@@ -715,9 +782,42 @@ def anchor_hash(get_db, repo_root: str | None = None) -> dict:
             f.write(stamp)
         return {"channel": "git", "anchored": True, "head": head, "path": path}
     if channel == "agora":
-        # Előkészítve: heti lánc-pecsét Agora-poszt a nowcaster-agenttől.
-        # A poszt-út bekötése a csatorna-döntés után (Kommandant).
-        return {"channel": "agora", "anchored": False, "reason": "agora-csatorna még nincs bekötve"}
+        if publish_fn is None and not os.environ.get("DELPHOI_ANCHOR_AGORA_KEY", ""):
+            return {"channel": "agora", "anchored": False,
+                    "reason": "nincs operátor-kulcs (DELPHOI_ANCHOR_AGORA_KEY)"}
+        title, body = _agora_anchor_post_text(head, checked, now_iso)
+        pub = publish_fn or _agora_anchor_publish
+        try:
+            loop = asyncio.get_running_loop()
+        except RuntimeError:
+            loop = None
+        if loop is not None:
+            # Cron-kontextus (futó loop): fire-and-forget háttér-task — a
+            # nowcast-futást a hálózati út nem blokkolhatja; hiba → hangos log.
+            async def _bg():
+                try:
+                    res = await pub(title, body)
+                    if not (isinstance(res, dict) and res.get("ok")):
+                        logger.error("delphoi agora-anchor publish FAILED: %s", res)
+                    else:
+                        logger.info("delphoi agora-anchor posztolva: head=%s post=%s",
+                                    head[:12], res.get("post_id"))
+                except Exception:  # noqa: BLE001
+                    logger.exception("delphoi agora-anchor publish crashed")
+            loop.create_task(_bg())
+            return {"channel": "agora", "anchored": True, "head": head,
+                    "mode": "scheduled"}
+        # Loop nélkül (script/teszt): szinkron várjuk meg az eredményt.
+        try:
+            res = asyncio.run(pub(title, body))
+        except Exception as e:  # noqa: BLE001
+            return {"channel": "agora", "anchored": False,
+                    "reason": f"publish-hiba: {type(e).__name__}: {e}"}
+        if isinstance(res, dict) and res.get("ok"):
+            return {"channel": "agora", "anchored": True, "head": head,
+                    "mode": "posted", "post_id": res.get("post_id")}
+        return {"channel": "agora", "anchored": False,
+                "reason": f"publish-hiba: {res.get('error') if isinstance(res, dict) else res}"}
     return {"channel": channel, "anchored": False, "reason": "ismeretlen csatorna"}
 
 

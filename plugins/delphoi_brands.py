@@ -45,6 +45,20 @@ BRANDS: dict = {
 _REQUIRED_FIELDS = ("name", "logo_path", "footer_text", "disclaimer_text",
                     "public_base_url")
 
+# ── MOD2/A6 — a PUBLIKUS adat-API (nowcast/verify) BRAND-SEMLEGES disclaimere.
+# Nem brand-config-sor: a kirakat-feedet BÁRMELY arc (Echolot, SaaS) fogyasztja,
+# ezért a payloadban brand-név/URL nem szerepelhet — az EGY közös, semleges
+# szöveg itt, a registry mellett él (egy igazságforrás, a brandek e köré
+# öltöztetik a saját köntösüket).
+NEUTRAL_DISCLAIMER = ("Szintetikus panel relatív irányjelzése — nem "
+                      "közvélemény-kutatás és nem abszolút mérés.")
+
+
+def public_disclaimer() -> str:
+    """A publikus (auth nélküli) delphoi adat-végpontok disclaimere —
+    brand-semleges, a payload sosem hordoz arc-specifikus szöveget."""
+    return NEUTRAL_DISCLAIMER
+
 
 def get_brand(key: str | None = None) -> dict:
     """A brand-config MÁSOLATA (a hívó nem tudja elrontani a registry-t).
