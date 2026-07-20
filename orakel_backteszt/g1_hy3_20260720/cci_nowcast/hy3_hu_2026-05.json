@@ -1,0 +1,959 @@
+{
+  "run": "G1/4 HU CCI nowcast 2026-05",
+  "model": "tencent/Hy3",
+  "provider": "siliconflow",
+  "date": "2026-07-20",
+  "protocol": "orakel_hu_nowcast.py változatlanul (N=60, SSR linear + OpenAI-small)",
+  "flag": "CLEAN",
+  "flag_note": "target-ablak >= 2025-08",
+  "corpus_files": {
+    "corpus_hu_2026_05.json": "c62570fadae555a499a29266873c2943c649723418693c7e61252ddbce5b5121"
+  },
+  "gt": -2.1,
+  "per_seed": [
+    {
+      "seed": 1,
+      "n_sent": 60,
+      "ssr_score": 3.0861143420201724,
+      "nowcast": 4.3057171010086215,
+      "sentences": [
+        "Nekem nyugdíjasnak ezek a nagy uniós milliárdok és a forint erősödése a hírekben jól hangzanak, de az én pénztárcámban nemigen mozdul semmi, inkább azt látom, hogy a vízdíj és a kánikula miatti költségek emésztenek fel, úgyhogy a következő egy évben csak arra számítok, hogy szűkösen, de kijövök a rezsiből meg az élelmiszerből.",
+        "A forint erősödése és az uniós pénzek megígért hazahozatala nyugtat, de a lakhatási válság és a bizonytalan áfacsökkentés miatt a nyugdíjam mellett óvatosan költök, és nem várok csodát egy év alatt.",
+        "A forint erősödése és az uniós pénzek beindulása nyugtat meg valamelyest, de a beígért vagyonadó meg a budapesti lakhatási válság miatt óvatosan tervezek, és nem számolok nagy anyagi fellélegzéssel a következő egy évben.",
+        "A forint nagyon erős most meg az infláció is alacsony, szóval rövid távon nyugodtabban költhetek, de Budapesten középfokú végzettséggel még mindig bizonytalan, mennyire lesz stabil a munkám és a fizum a jövő évi költségvetés átírása után.",
+        "A különadók és a tervezett vagyonadó meg a változó kamatok miatt óvatos vagyok, de az alacsony infláció és a falusi nyugodt élet azért ad egy kis levegőt, így a következő egy évben nagyjából tartani tudjuk a szintet, ha nem jön váratlan kiadás.",
+        "A forint erősödése és az uniós pénzek megállapodása nyugtat, de az EKB miatti kamatemelési várakozás és a budapesti lakhatási válság miatt a változó hitelesként és nagyvárosban élőként óvatos maradok, nem érzem még biztosnak a jövő évi pénztárcánkat.",
+        "A forint erősödése és a tervezett áfacsökkentés megkönnyítheti a mindennapi kiadásainkat, de az emelkedő kamatok miatt féltem a változó hitelünk törlesztőjétől, és a várható hőhullám is növelheti a víz- meg villanyszámlánkat. Összességében óvatosan bizakodó vagyok, de a kisvárosi költségvetésünket még mindig feszegeti a bizonytalanság.",
+        "Az infláció lejjebb ment és a benzin is olcsóbb lehet, de Budapesten az albérleti árak miatt én meg továbbra is a falat látom, és ha az EKB miatt emelik a kamatot, a kölcsönömön is ráfázhatok. Remélem, az új kormány tényleg csökkenti az áfát meg a lakhatási költségeket, mert így két keresettel is alig jövünk ki.",
+        "Falun középfokú végzettséggel élve nekem a budapesti lakhatási válság nem fáj, viszont ha az új kormány tényleg hozza az áfacsökkentést és az uniós pénzeket, akkor a boltban és a rezsinél kicsit könnyebb lehet a következő évben, bár a vagyonadótól meg a vízdíj-módosítástól még tartok.",
+        "A forint erősödése és az alacsony infláció jól jön a bevásárlásnál, de Budapesten az albérleti árak miatt így sem látok sok javulást a háztartásunk pénztárcájában, és a vagyonadó meg a bizonytalan kormányváltás miatt óvatosabban tervezek.",
+        "Nekem alapfokú végzettséggel falun nehéz lesz a következő év, mert bár a forint erősödése meg az alacsonyabb infláció jól hangzik, a vagyonadó és a változó kamatos hitel törlesztőm emelkedése jobban kijjebb szívja a pénztárcámat. Tartok tőle, hogy a kormányváltás utáni átalakításokból nekem csak a szűkebb keresztmetszet jut, nem a nagy uniós pénzek.",
+        "A forint erősödése és az uniós pénzek felszabadulása nyugtat meg egy kicsit, mert talán nem drágul minden tovább, de a kisvárosi nyugdíjas pénztárcámban a rezsit és az élelmiszert illetően még mindig óvatosan számolok, míg nem látom a tényleges árcsökkenést a polcon.",
+        "Nyugdíjas értelmiségiként a forint erősödéséből és az uniós pénzek felszabadulásából remélem, hogy csökkenhetnek a megélhetési terheink, de a tartós hőség és a bizonytalan vízdíj-változások miatt óvatosan kezelem a költségvetésünket, és nem számítok drámai javulásra egy év alatt.",
+        "A hírek alapján bizakodóbb vagyok, mert az alacsony infláció, az erős forint és a családtámogatások ígérete könnyíthet a mindennapi kiadásokon, de a budapesti lakhatási válság miatt az albérletünkön nem igazán érezni majd enyhülést, és a változó kamatozású hitelünk törlesztője is aggaszt, ha a régiós kamatok emelkednek.",
+        "Nekem középfokú végzettséggel kisvárosban alig van stabil munkám, az alapkamat magas maradt és a szárazság miatt jöhetnek a drágább víz- vagy rezsiszámlák, úgyhogy a következő egy évben inkább a túlélésre játszom, nem a megtakarításra. A kormány ígérgetéseit még nem érzem a pénztárcámon, a brüsszeli pénzek meg csak nagyobb beruházásokra mennek, nem a mi rezsink",
+        "Budapesti diplomásként egyelőre bizakodó vagyok a jövő évi áfacsökkentés és a családtámogatási ígéretek miatt, de a változó kamatok emelkedése és a beígért vagyonadó miatt óvatosan figyelem, mennyit marad ténylegesen a pénztárcámban.",
+        "A forint mostanában elég jó erős, meg az infláció is alacsony, szóval a napi bevásárlás kevésbé fogja szívni a pénzt, de a vagyonadó meg a bizonytalan uniós pénzek miatt nem merek nagyobb költekezésbe kezdeni, maradok a takarékoskodós vonalon.",
+        "Nyugdíjaskent a megélhetésem a nyugdíjemeléstől és az áfacsökkentés ígéretétől függ, de az uniós pénzek végre hazajövetele és a forint erősödése nyugtat, míg az emelkedő kamatok és a bizonytalan vízdíjak miatt óvatosan költök továbbra is.",
+        "A forint erősödése jól jön, ha nyáron külföldre megyek rokonhoz, és a benzin olcsóbbodása is könnyít a költségeimen, de tartok tőle, hogy ha a kamatok tényleg emelkednek, az azokat érinti majd, akiknek még van törlesztőjük, és a vízdíj vagy az adók átalakítása is hozhat még meglepetéseket. Összességében óvatosan költök, mert bár most stabilabbnak tűnik a he",
+        "Budapesti fiatalként nekem a benzinár-esés és az ígért áfacsökkentés jönne jól, de a változó kamatok emelkedése és a bizonytalan megélhetési költségek miatt csak óvatosan bízom abban, hogy a következő egy évben tényleg könnyebb lesz megélni.",
+        "Budapesten albérletben élek, és hiába lassult az infláció meg ígérnek áfacsökkentést, azt látom, hogy a lakhatásra költött pénzünk nem fog kevesebb lenni, szóval a következő egy évben legfeljebb stagnálni fog a pénztárcánk, de könnyebb semmiért se lesz.",
+        "A forint erősödése és az alacsonyabb infláció nekem is segít, mert a bevásárlás olcsóbb lett, de a változó kamatozású hitelem miatt még félek, hogy ha a régióban emelkednek a kamatok, megugorhat a törlesztőm; összességében óvatosan bizakodó vagyok, de nem tervezek nagy költekezést.",
+        "Nyugdíjas budapestiként a forint erősödése és az alacsony infláció jót tesz a pénztárcámnak, de a lakhatási válság és a bizonytalan kormányzati ígérgetések miatt óvatosan tervezek, és nem számítok nagy anyagi javulásra a következő évben.",
+        "Az infláció lecsökkenése és a forint erősödése nekem is könnyebbség a bevásárlásnál meg a nyaralásnál, de a lakhatási válság és a régiós kamatemelés miatt, ha hitelen ülnénk, máris szorítanék, így összességében óvatosan reménykedem, de nem érzem magam biztosnak.",
+        "A forint erősödése megkönnyíti a nyári pót-vásárlásokat és a megtakarításaink értékét is növeli, de az emelkedő kamatok miatt tartok tőle, hogy a változó hitelünk törlesztője elviszi azt a kis légkört, amit az apró javulások hozhatnának.",
+        "A forint erősödése és az alacsony infláció nekem is segít a napi bevásárlásnál, de a változó kamatozású hitelem miatt tartok tőle, hogy ha a régióban emelkednek a kamatok, a törlesztőm ismét elszállhat, így óvatosan tervezek a következő egy évben.",
+        "A faluban nyugdíjból élünk, a hírekben ígérgetnek, hogy csökkentik a megélhetési költségeket, de a jövő nyári hőség és a drágaság miatt én inkább úgy saccolom, hogy azért szorosan kell majd fogjuk a garast, mert az élelmiszer és a rezsi úgyis az egekben marad. Bízom benne, hogy a kormányváltás után nem rontanak el mindent, de biztos pénzünk nincs rá, hogy jobban jár",
+        "A forint erősödése és az alacsonyabb infláció miatt kicsit könnyebb most beosztani a fizetést, de azért tartok tőle, hogy ha a kamatok mégis emelkednek, a változó hitelünk törlesztője megugrik és visszavesz a mozgásterünkből.",
+        "A forint erősödése és az alacsony infláció miatt egyelőre nyugodtabb vagyok, de az EKB-s kamatemelés és a változó kamatozású hiteleknél jöhetőbeni magasabb törlesztő miatt óvatosan tervezek, a kormány áfacsökkentés ígérete meg kicsit reményt ad a kisvárosi költségeink csökkentésére.",
+        "Falusi felsőfokúként a vagyonadó bevezetése miatt kicsit bizonytalan vagyok, de az ígért áfacsökkentés és a családtámogatások bővítése, meg az uniós pénzek hazahozatala ad némi reményt, hogy a megélhetésünk nem lesz rosszabb, sőt talán kicsit könnyebb is lehet a következő évben.",
+        "Kisvárosban középfokú végzettséggel élve a fix alapkamattal és a forinterősödéssel nyugodtabb vagyok, de az uniós pénzek bizonytalansága meg a szárazság miatti drágulás miatt tartok tőle, hogy a mindennapi kiadásaink nem lesznek könnyebbek egy év múlva.",
+        "A forint erősödése és az uniós pénzek hazajövetele nyugtat, de falun középfokú végzettséggel az árakat és a hiteleseknek szánt kamatemelést látva óvatosan tervezek, nem várok nagy ugrást a pénztárcámban. Ha az ígért áfacsökkentés és apáknak járó plusz szabadság tényleg meglesz, az kicsit könnyíthet, de egyelőre csak kivárok.",
+        "A nyugdíjam kicsi, de örülök, hogy erős a forint meg ígérik az áfacsökkentést, hátha kevesebb lesz a boltban a kaja, viszont a vízdíj és a kamatok híre miatt azért tartok tőle, hogy jövőre is szűkre kell majd húznom a gatyát.",
+        "Középfokú végzettségűként és hitelesként nyugtalanít, hogy az EKB miatt emelkedhet a törlesztőm, de a forint erősödése, az ígért áfacsökkentés és a benzinár-csökkenés talán kicsit könnyítene a mindennapi kiadásokon, ha tényleg megvalósulnak. A vagyonadótól nem félek, mert nincs nagy vagyonom, de a költségvetés átvilágítása és a bizonytalan uniós pénzek miatt óv",
+        "Nekem nyugdíjasnak az jó, hogy olcsóbb lett az euró meg alig van infláció, de az áruk zöme még így is drága maradt, és a budapesti lakhatási válság miatt az unokáimon is aggódom, úgyhogy a saját pénzemből a következő évben csak óvatosan, spórolósan tudok élni.",
+        "Nekem már nyugdíjasnak nyugodalmam lenne, de azt látom, hogy az erős forinttal talán egy kicsit kevesebbbe kerülnek a gyógyszerek meg a boltban a cuccok, viszont a hírekben emlegetett kamatemelés a gyerekeim hitelét nyomhatja meg, úgyhogy az én pénzem is kevesebb marad, ha segítenem kell nekik. A kormány ígérgetésében meg nem nagyon bízok, mert a mi kisvárosi nyugdíjunkból így is",
+        "Az öregember nyugdíjából tengődök e falun, a forint erősödése jó hír ha váltani kell, de az ígért megélhetési segítséget még nem érzem a pénztárcámban, és a jövő nyári szárazságtól is tartok, mert a kertem locsolása megdrágulhat.",
+        "A forint erősödése és az alacsony infláció jól jön a boltban, meg a nyaraláskor is olcsóbb lesz a valuta, de az alapkamat tartása és a külföldi kamatemelés miatt félek, hogy a változó hiteleknél megint emelkedhet a törlesztő, úgyhogy óvatosan költök.",
+        "Mint budapesti diplomás fiatal, az erős forint és az alacsony infláció miatt most olcsóbban utazhatok vagy vehetem meg a külföldi cuccokat, de a változó kamatok emelkedése és a vagyonadó körüli bizonytalanság miatt óvatosabb leszek a nagyobb kiadásokkal, így a következő egy évben stabil, de kicsit bizonytalan anyagi helyzetre számítok.",
+        "Nyugdíjas felsőfokúként örülök a forint erősödésének és az alacsony inflációnak, mert a bevásárlás és a nyári utazás olcsóbb lett, de az EKB miatti kamatemelési várakozások miatt tartok tőle, hogy ha a gyerekeimnek változó hitelük van, az ránk is ráéghet; alapvetően stabilnak érzem a helyzetünket, csak a politikai átrendeződés bizonytalansága nyugtalanít egy kicsit.",
+        "A nyugdíjam mellett az euró árfolyamának zuhanása és az ígért áfacsökkentés, meg uniós pénzek miatt kicsit kedvezőbbnek látom a következő egy év költekezését, de a budapesti lakhatási válság és a bizonytalan költségvetési átvilágítás még tartja bennem az óvatosságot.",
+        "Budapesti középfokú végzettségűként a Tisza-kormány ígért áfacsökkentése és családtámogatás-bővítése nekem is könnyebbséget hozhat, de a vízdíj-módosítás és a Mol-adó miatti bizonytalanság miatt óvatosan várom, hogy a pénztárcámban tényleg érezhető lesz-e a változás egy éven belül.",
+        "Mint kisvárosi középfokú végzettségű családapa, az erős forintnak és az ígért áfacsökkentésnek, meg a Brüsszellel megkötött uniós pénzeknek örülök, mert végre kevésbé szorít a gázsi, de a kormányváltás utáni bizonytalanság és a magas alapkamat miatt még óvatosan költök, nem hiszek rögtön a csodában.",
+        "Nekem már nyugdíjas falusi emberként a forint erősödése és az ígért rezsicsökkentés, meg a Brüsszelből jövő pénzek híre jól jönne, mert az élelmiszer és a télire való fűtés így kevésbé terhelné meg a pénztárcámat, de a szárazságtól tartok, hogy a kertem kevesebbet terem, úgyhogy óvatosan reménykedem.",
+        "A lakhatási válság miatt így is alig jövök ki a rezsiből és albérletből, de hogy 350 alá ment az euró és olcsóbb lehet a benzin, az legalább a napi kiadásokon kicsit könnyít; a vagyonadó meg a kormányváltás utáni ígérgetések még kérdésesek, nem merek bővülő pénztárcában reménykedni egy évig.",
+        "Kisvárosban alapfokú végzettséggel dolgozom, és bár az új kormány ígér áfacsökkentést meg családtámogatást, a hírek alapján nem érzem, hogy azonnal több pénz maradna a zsebemben, szóval a következő egy évben inkább szűkösen, de kijövök valahogy a rezsiből és az alapélelmiszerekből. Reménykedem, hogy a kitűzött áfacsökkentés tényleg segít, mert most fő",
+        "Falun élve a lakhatási válság nem az én bőrömre megy, de az EKB miatti kamatemelési nyomás és a jövő nyári aszály miatti vízdíj-változások izgatnak, mert ha a rezsi megugrik, a középfokú fizum mellett szűkül a családi kassza. Az új kormány ígért családtámogatásai meg a kiszabaduló uniós pénzek adnak egy kis reményt, hogy nem leszünk lényegesen rosszabbul,",
+        "Kisvárosban középfokú végzettséggel élve a Mol-adó miatti olcsóbb üzemanyag és az erős forint nekem is segíthet egy kicsit a boltban és a tankolásnál, de a családtámogatásokig és a vízdíj-módosításig még sok a bizonytalanság, úgyhogy óvatosan költekezünk, amíg nem látjuk a valóságban is a kormány ígéreteit.",
+        "Falun élve és diplomásként stabilnak érzem a helyzetünket, de az EKB miatti kamatemelési várakozások miatt a változó hitelünk törlesztője aggaszt, míg a forint erősödése és a tervezett áfacsökkentés ad némi reményt, hogy a megélhetés nem drágul tovább érezhetően.",
+        "A kisvárosi életünkön a Budapestet sújtó lakhatási válság szerencsére nem fog az árainkkal, az alacsonyabb infláció és a hazai üzemanyagár-ígéretek megkönnyítik a mindennapokat, de a tervezett vagyonadó és az uniós pénzek bizonytalansága miatt óvatosan költök, és nem számítok nagy anyagi fellélegzésre egy éven belül.",
+        "A forint erősödése és az alacsonyabb infláció jól jön a bevásárlásnál, de a kisvárosban alacsonyabb keresettel és a tervezett vagyonadóval meg az emelkedő kamatokkal óvatosan nézek a jövő évre, mert nem tudom, mennyi marad a végén a zsebemben.",
+        "Nyugdíjas felsőfokúként a forint erősödése és az alacsonyabb infláció jól jön a megélhetésnél, de a vagyonadóról szóló hírek és a külföldi kamatemelési nyomás miatt óvatosan mérem fel a következő egy év anyagi biztonságát. Összességében stabilnak érzem a helyzetemet, de a kormányzati változásokkal járó új adók és a szárazság miatti esetleges drágulások miatt nem számol",
+        "Nekem már nyugdíjas koromban a fix jövedelmem van, szóval a hírekben ígért áfacsökkentés és a megélhetési költségek mérséklése nekem is jól jönne, de a vízdíj-módosítás és a várható hőség miatt a rezsi így is emelkedhet, úgyhogy óvatosan reménykedek, hogy a családi pótlék meg ilyenektől én már lemaradtam, a lényeg hogy a nyugdíjam ne csökkenjen.",
+        "Falun középfokú végzettséggel és változó kamatozású hitellel élek, úgyhogy az EKB miatti kamatemelés jobban fájhat a pénztárcámnak, mint a kormány áfacsökkentésről szóló ígéretei használnak; a vagyonadó minket nem érint, de a törlesztő növekedésétől tartok, így a következő évben inkább szűkösebben, óvatosabban gazdálkodunk.",
+        "Nekem most jó hír, hogy az infláció lement és az euró is olcsóbb lett, meg a kormány ígér áfacsökkentést, de középfokú végzettséggel és változó kamatos hitellel játszadozó baráti körben azért félek, hogy ha az EKB miatt emelik a kamatokat, akkor a törlesztők behúzhatnak minket, úgyhogy óvatosan költekeznék a következő egy évben.",
+        "Budapesti nyugdíj előtt állóként örülök, hogy a hír szerint mérséklődött az infláció és olcsóbb lett az üzemanyag, meg a forint is erős, de alapfokú végzettséggel és bizonytalan jövedelemmel félek, hogy az új kormány ígéretei még nem érződnek a saját pénztárcámon egy évig.",
+        "A nyugdíjam mostanában alig változott, de örülök, hogy a benzin olcsóbb lehet és az euró is 350 alatt van, mert a faluban autóval járok és ha kell, spórolok a vásárláson; a vagyonadó engem nem érint, de a hosszú hőhullám miatt tartok a vízdíjtól és a nyári költségektől, úgyhogy jövőre is csak takarékoskodva, de kijövök valahogy.",
+        "Az infláció lejjebb ment és az euró is olcsóbb lett, így a nyugdíjamból kijövök, de a vagyonadótól meg az új rendeletektől tartok, mert nem tudom, pontosan mennyit visznek el tőlünk. Alapvetően stabilnak érzem a helyzetem, de óvatosan költök, amíg nem látom, mi lesz a tényleges változásokkal.",
+        "A forint erősödése és az új kormány ígért családtámogatásai, megélhetési költségcsökkentései miatt bizakodóbb vagyok, de a hitelminősítői felminősítés ellenére a GKI figyelmeztetése az uniós pénzek elszórakozására azért bennem is ott a kétely, hogy tényleg könnyebb lesz-e a pénztárcánk egy év múlva.",
+        "Örülök, hogy olcsóbb lett az euro meg a boltokban is kevesebbet kérnek, meg ha az új kormány tényleg csökkenti a megélhetési költségeket, akkor a nyugdíjamból kijövök valahogy, de azért azt nem ártana, ha a törlesztőm ne emelkedne, mert a szárazságtól meg a melegtől azt se tudom, mennyi lesz a víz meg a villany."
+      ]
+    },
+    {
+      "seed": 2,
+      "n_sent": 60,
+      "ssr_score": 2.9787056025000935,
+      "nowcast": -1.0647198749953235,
+      "sentences": [
+        "Az infláció alacsony és az euró is olcsóbb lett, szóval a nyugdíjamból most kevésbé fogy el az élelmiszer, de az EKB miatti kamatemelés és a lakhatási válság nem érint közvetlenül, viszont a nyári hőség miatt az áram- vagy vízszámlától tartok egy kicsit. Összességében úgy látom, a következő egy évben stabil maradhat a megélhetésem, ha nem jön váratlan kiadás.",
+        "Nekem kisvárosban alapfokú végzettséggel állami segédmunkásként nem ugrik be azonnal a fizum, de örülök, hogy az euró 350 alatt van és az infláció is lejjebb ment, így a bevásárlás kevésbé fáj; remélem, a Tisza ígért áfacsökkentése és családtámogatása tényleg elér hozzánk is, mert így csak épphogy kijövünk a havi számlákkal.",
+        "Nekünk kisvárosban alapfokú végzettséggel a fizetésünk ugyanannyi marad, de jó hír, hogy a benzin olcsóbb lehet és az infláció is lejjebb ment, úgyhogy a mindennapi bevásárlás és a fűtés-számlák kevésbé fogják azt a kevés pénzt elvinni, mint tavaly. A nagy meleg miatt viszont több lesz a villany a klímára, meg ha a vízdíj is emelkedik, az kicsit aggaszt, de öss",
+        "A nyugdíjam körül még bizonytalan a vagyonadó meg a kamatemelés miatti drágulás, de az alacsony infláció és az erős forint, meg a Mol-adó miatti olajárcsillapítás nekem kisvárosi nyugdíjasként most inkább könnyebbséget jelent, így a következő egy évben úgy érzem, kijövünk a rezsivel és a bevásárlással valahogy.",
+        "A hírek szerint erősödött a forint és jönnek az uniós pénzek, de nekem van változó kamatozású hitelem, amit az emelkedő kamatok miatt félek, hogy kevesebből nehezebb lesz fizetni, úgyhogy a következő egy évben inkább szorosabbra kell húznom a nadrágszíjat, hátha később az áfacsökkentés könnyít rajtam.",
+        "Budapesti diplomásként most bizakodóbb vagyok, mert az erős forint, az alacsony infláció és a tervezett áfacsökkentés megkönnyíti a megélhetést, de a kormányváltás utáni büdzséátvilágítástól függ, hogy a javulás tartós lesz-e vagy csak átmeneti.",
+        "Nekem nyugdíjasnak nem lesz könnyebb a következő évben, mert bár ígérik az áfacsökkentést meg az olcsóbb üzemanyagot, azt látom a hírekben, hogy a kamatok magasak maradtak és a lakhatás meg az élelmiszer ára továbbra is az egekben van, a pénzem meg ugyanannyi. A kánikula és a szárazság is inkább csak drágítja majd a rezsit, úgyhogy szorosan kell majd fognom a gatyát",
+        "Kisvárosban középfokú végzettséggel élve a forint erősödése és az ígért áfacsökkentés jól jönne a bevásárlásnál, de a változó kamatozású hiteleknél az EKB miatti drágulástól tartok, meg a vagyonadótól is, úgyhogy óvatosan tervezek, nem számítok nagy fellélegzésre.",
+        "Falun élő diplomásként a forint erősödése és az alacsony infláció nekem is segít, de a beígért vagyonadó miatt kicsit tartok tőle, hogy a megtakarításainkat vagy a házunk után jövőre többet kell majd kifizetnünk, úgyhogy óvatosabban költök, mint egy éve.",
+        "Örülök, hogy az infláció lecsökkent és a forint is erősödött, így a nyugdíjamból kijövök, de az albérletárak és a bizonytalan hírek miatt azért tartok tőle, hogy ha a kamatok mégis megugranak, az mindenen elesz.",
+        "A forint erősödése és az alacsony infláció miatt a hétköznapi kiadásainkon most könnyebb úgy-ahogy tartani, de a lakhatási válság miatt a városon belül is szorít a gatya, és nem érzem biztosnak, hogy egy év múlva már megfizethetőbb lesz az albérlet vagy a saját lakás. Ha az uniós pénzek tényleg bejönnek és ígérnek áfacsökkentést, az segíthetne, de egyelőre csak reménykedem,",
+        "A forint erősödése és az alacsonyabb infláció jól jön, mert a boltban és a kúton is kevesebbet fizetek, de a falun azt látom, hogy az áfacsökkentés és a kisvállalkozói támogatás még csak ígéret, így óvatosan költök, amíg nem látom a saját pénztárcámon is.",
+        "A forint eddig példátlanul erősöint, és ha tényleg jönnek az uniós milliárdok meg az ígért áfacsökkentés, nekünk kisvárosi családnak végre kicsit fellélegezhet a pénztárcánk, de az emelkedő kamatok miatt a változó hitelünk törlesztője még odacsíphet, úgyhogy óvatosan reménykedem.",
+        "Budapesti alapfokú végzettségűként nekem a forint erősödése és a tervezett áfacsökkentés, meg a benzinár-esés híre ad egy kis légzést, de a változó kamatos hitelünk miatt az EKB-s kamatemelési félelem bennem van, úgyhogy óvatosan reménykedek, de még mindig szűken jövünk ki.",
+        "A forint erősödése és az alacsonyabb infláció miatt kicsit nyugodtabban nézek a következő év elé, de a vagyonadó és a kormányváltás utáni bizonytalanság miatt óvatosan költekezem, és a nyári szárazságtól is tartok a rezsi miatt.",
+        "Nekem alapfokú végzettséggel és kisvárosban élőként nagyobb gondom a napi megélhetés és a drága boltok, mint a forint erősödése, úgyhogy ha az új kormány tényleg csökkenti a költségeket és több szabadság is lesz, csak akkor látok kicsit jobb fél évet, de egyelőre kivárom.",
+        "A kisvárosi, felsőfokú végzettségű háztartásunkat az infláció látványos mérséklődése és a forint erősödése most kicsit fellélegezteti, de a vagyonadó és a bizonytalan uniós pénzek miatt óvatosabban tervezek, nem költekezek túl bátran a következő egy évben.",
+        "Nyugdíjas felsőfokúként a forint erősöedése és az alacsony infláció jól jön a megélhetésnél, de a lakhatási válság és a várható hőhullám miatt az energia- meg vízköltségek bizonytalansága miatt óvatosan remélem, hogy kijövünk a fix bevételekből egy évig.",
+        "Nyugdíjas háztartásként a forint erősödése és az ígért megélhetési költségcsökkentés jót tehet a pénztárcámnak, de a közelgő hőhullám és a bizonytalan uniós pénzek miatt az energia- és rezsiszámláktól még tartok egy kicsit. Összességében óvatos bizakodással nézek a következő év elé, de nem költekeznék túl a kereteimen.",
+        "Nyugdíjas Budapesten úgy látom, a mérséklődő infláció és az ígért áfacsökkentés, meg az uniós pénzek beindulása kicsit fellélegeztethet, de a tervezett vízdíj-változás és a külföldi kamatemelés miatt azért óvatosan bánok a pénzzel, mert a rezsi és a megtakarításaim értéke még bizonytalan.",
+        "A forint erősödése és az alacsony infláció miatt kicsit nyugodtabban nézek a következő év elé, de az EKB miatti kamatemelési várakozások a változó hitelünknél még simán elronthatják a terveinket, ha a törlesztőnk megugrik.",
+        "Nyugdíjas felsőfokú budapestiként az alacsony infláció és a tervezett áfacsökkentés nekem is jól jönne, de a tartós hőhullám miatti áram- és vízszámlák és a bizonytalan kormányzati újratervezés miatt óvatosan költök, így a következő egy évben legfeljebb stagnáló, de kiszámítható anyagi helyzetre számítok.",
+        "Nyugdíjas kisvárosi emberként a forint erősödését és a benzin árának ígért csökkenését örömmel fogadom, de a beígért vagyonadó miatt bizonytalan vagyok, mert nem tudom, a mi szerény ingatlanunk után is kell-e majd fizetni, és a hosszú hőhullám miatt az áram- és vízszámláktól is tartok.",
+        "Falun középfokú végzettséggel és változó kamatozású hitellel élek, úgyhogy az EKB-s kamatemelési hírek miatt tartok tőle, hogy a törlesztőnk csak nőni fog, miközben a szárazság és a vízdíj-módosítások is rátehetnek egy lapáttal a rezsire, szóval a következő egy évben inkább szorosabbra kell húznunk a nadrágszíjat.",
+        "Nekem alapfokú végzettséggel és nagyvárosi albérleten élőként a lakhatási válság miatt semmi nem lesz olcsóbb, a hírekben ígért forinterősödés meg uniós pénzek az én pénztárcámban nem fognak landolni, viszont ha az EKB miatt emelik a kamatokat, a változó hiteles ismerőseim mellett nekem is drágább lehet minden, szóval jövőre is szűken jövünk ki.",
+        "Budapestinék jobban látom a jövőt, mert a forint erősödése, az alacsony infláció és a kormány ígért családtámogatásai miatt kevesebbet kell költenünk az alapvető dolgokra, de azért a hosszú hőhullám miatt a villanyszámlától még tartok egy kicsit.",
+        "Nekem alapfokú végzettséggel, nagyvárosban egyik napról a másikra megélőként nem sokat jelentenek ezek a kormányígérgetések, mert ha jön a vagyonadó meg az EKB-miatt emelkedő törlesztő, meg a hőség miatt az áram- és vízszámla is nő, nekem csak szűkebb lesz a hónap végére. Bízok benne, hogy a családtámogatásokból valami nálam is segít, de őszintén szól",
+        "Kisvárosban diplomásként egyelőre nem éget a lakhatási válság, és az alacsony infláció meg a beharangozott áfacsökkentés miatt úgy érzem, a megélhetésünk a következő egy évben kicsit könnyebb lehet, de az új kormány ígéretei még nem látszanak a fizetésemben, szóval óvatosan örülök.",
+        "Azt látom, hogy az új kormány ígéri az áfacsökkentést és a családtámogatások bővítését, meg a benzinár is lejebb mehet, szóval ha tényleg megvalósítják, könnyebb lesz kijönnünk a fizetésből, de egyelőre kivárom, míg a pénztárcámban is érzem, nem csak a hírekben.",
+        "Öregemberként jól jön, hogy olcsóbb lett az élelmiszer és az energia, meg az euró is kevesebb forintba kerül, de a szárazság miatt tartok tőle, hogy a vízdíj és a kerti termés kimaradása miatt azért nem lesz teljesen zsebbarát az elkövetkező év.",
+        "A forint erősödése jól jön a nyári külföldi nyaralásnál meg a drága bevásárlásoknál, de a lakhatási válság és a változó kamatos hiteleknél jövőre várható kamatemelés miatt nem érzem biztosnak a helyzetünket, így inkább takarékoskodva, óvatosan tervezem a családi költségvetést.",
+        "A forint erősödése és az alacsonyabb infláció jól jön a bevásárlásnál, de budapesti albérletben élőként a lakhatási válság miatt egyáltalán nem nyugodtak a kilátásaim, mert az új kormány ígéretei még nem látszanak a saját pénztárcámon.",
+        "Nekem alapfokú végzettséggel kisvárosban amúgy se túl sok a pénzem, de ha tényleg lejjebb megy a benzinár és az euróhoz képest erős marad a forint, akkor a mindennapi kiadásokon legalább egy kicsit könnyebb lesz, bár a vagyonadó meg az átvilágítások miatt bizonytalan, mit hoznak be még ellenünk.",
+        "Az uniós pénzek és a forint erősödése nyugodtabbá teszi a nyugdíjas életünket, de az áfacsökkentés és az olcsóbb üzemanyag csak akkor segít igazán, ha tényleg megjönnek ezek a ígéretek az új kormánytól.",
+        "Nekem alapfokú végzettséggel és nagyvárosi lakhatási költségekkel a bérem alig tartja a lépést, de a forint erősödése és az alacsony infláció most kicsit nyugodtabban hagyja a pénztárcámat, szóval a következő évben legfeljebb stagnálásra vagy vékonyka javulásra számítok, ha nem jön közbe valami váratlan kiadás.",
+        "Albérletből tengődök egy nagyvárosban, és bár a forint most erős meg jöhetnek uniós pénzek, az lakhatási válság miatt az én pénztárcámban nem fog sokat javítani, inkább csak a túlélésre játszom a drága bérleti díjak mellett. Ha a kamatok mégis felmennek, az kifejezetten rosszul érintene, de egyelőre nincs hitelünk, szóval marad a napi számolgatás.",
+        "Öregemberként a kisvárosi nyugdíjamból tengődök, a vízdíj és a Mol-adó körüli hírekből nem látok egyenesen több pénzt a zsebemben, inkább attól félek, hogy az állandó bizonytalanság miatt még a rezsi is drágább lehet, szóval a következő évben szorosabbra kell húznom a nadrágszíjat.",
+        "A benzinár és az infláció csökkenése, meg az erős forint kicsit könnyít a napi kiadásokon, de Budapesten a lakhatási válság miatt az albérlet vagy lakásvétel továbbra is behajthatatlan fal, úgyhogy a pénztárcámban nem lesz igazi fellélegzés egy év alatt.",
+        "Nyugdíjas kisvárosi emberként a forint erősödését és az alacsony inflációt jól érzem a boltban, de az árak még így is magasak, és a hosszú hőhullám miatt tartok a rezsiszámlák emelkedésétől, úgyhogy a következő egy évben legfeljebb stagnáló, óvatosan kiegyensúlyozott anyagi helyzetre számítok.",
+        "Nyugdíjasért a kisnyugdíjam mellett az infláció lassulása és az ígért megélhetési költségcsökkentés jól jönne, de a változó kamatok és a várható áremelkedések miatt azért óvatosan nézek a jövő évre, nem hiszek el mindent azonnal.",
+        "Budapesti diplomásként a forint erősödése és az uniós pénzek beindulása nekem is segíthet a megélhetésen, de a változó kamatozású hiteleknél az EKB miatti kamatemelés és a kormány átvilágítása miatti bizonytalanság miatt óvatosan tervezem a következő egy évet.",
+        "Nekem alapfokú végzettséggel falun nehéz lesz jobban járni, mert a vagyonadó és a Mol-adó nem a mi zsebünkben marad, de a forint erősödése meg a családtámogatások ígérete miatt talán nem lesz drágább az alapélet, ha nem rontják el az uniós pénzeket.",
+        "Nekem most jó hír, hogy 350 alatt van az euró, mert nyáron terveztem valutát váltani külföldi fesztiválhoz, de az alapkamat tartása és a régiós kamatemelési nyomás miatt félek, hogy ha hitelt kellene felvennem vagy lakbérem emelkedik, az simán elviszi a kis megtakarításomat.",
+        "A forint erősödése és az alacsony infláció jól jön a bevásárlásnál meg a nyári utazásnál, de a lakhatási válság miatt városon belül albérletből albérletbe sodródunk, és ha az EKB miatt emelkednek a kamatok, a változó hitelünk törlesztője ismét elszállhat. Összességében óvatosan bizakodom, de a lakásronta és a bizonytalan kamatok miatt nem érzem még biztosnak a javulást.",
+        "Nekem alapfokú végzettséggel falun nagyobb gondom a hőség meg a drága élet, mint a forinterősödés, úgyhogy a következő egy évben legfeljebb a létfontosságúra futja, ha a számlák és az élelmiszer ára nem csökken tényleg.",
+        "Nekem falun alapfokú végzettséggel megvan a napi betevő, és örülök, hogy mérséklődött az infláció meg csökkenhet az üzemanyag ára, de a vagyonadótól és az uniós pénzek bizonytalanságától tartok, így a következő évben inkább szűkösen, de kijövünk valahogy a rezsi és az élelmiszer árából.",
+        "Nekem nyugdíjas falusi emberként a vagyonadó meg a különféle kormányzati átrendezések inkább bizonytalanságot hoznak, de az erős forint meg a benzinár csökkenésének ígérete kicsit könnyíthet a mindennapi kiadásokon, ha tényleg így lesz. A hosszú hőhullám meg a szárazság viszont azt jelenti, hogy a kertemmel és a rezsivel is több gondom lehet, úgyhogy azért szorosan kell",
+        "A forint erősödése, az alacsony infláció és a benzinár ígért csökkenése nekem is könnyebbség, de a beígért vagyonadó miatt kicsit bizonytalan, mennyit marad a végén a mi megtakarításainkból.",
+        "Falun élve és diplomásként a forint erősödése meg a megígért áfacsökkentés jól jönne a mindennapi kiadásoknál, de a vízdíj-módosítás és az új kormány költségvetési átvilágítása miatt óvatosan várom, hogy tényleg több maradjon a pénztárcámban egy év múlva.",
+        "A falun nyugodtabbak az árak, és az alacsony infláció meg az erős forint nekem is segít a bevásárlásban, de a vagyonadó és a bizonytalan uniós pénzek miatt óvatosan tervezek, nem költekeznék túl. Ha a családtámogatások tényleg bővülnek, az javíthatna a helyzetünkön, de egyelőre kivárom, mit hoz a költségvetés átvilágítása.",
+        "Nyugdíjas budapestiként a benzin és a gázolaj árcsökkenése megkönnyíti a mindennapjaimat, és az erős forint miatt az euróváltás is jobban kijön, de a vagyonadó és a lakhatási válság híre miatt óvatosan nézek a jövő évre, mert nem tudom, mennyit visz el tőlünk az új rendszer.",
+        "Falun alapfokú végzettséggel kevés a pénz, a hírekben ígérgetnek családtámogatást meg olcsóbb üzemanyagot, de az emelkedő kamatok és a szárazság miatti drágulás inkább szívja a zsebem, úgyhogy a következő egy évben legfeljebb nullára járok, de könnyebbre nem számítok.",
+        "Nekem nyugdíjas kisvárosi emberként jól jön, hogy 350 alá ment az euró, így az unokáknak vett nyári cucc olcsóbb lesz, de a hosszú hőhullám és a vízdíj-módosítás miatt a rezsi nyáron simán elszaladhat, úgyhogy azért szorosan figyelem a pénztárcámat.",
+        "A forint erősödése és az alacsony infláció miatt végre kevésbé szorít a gázsi, ráadásul ha a benzin is olcsóbb lesz, több marad a családi kasszában, de a falun élőként várom, hogy a ígért családtámogatások tényleg megjöjjenek, mert abból nekünk közvetlenül lenne könnyebb.",
+        "Nyugdíjas kisvárosi emberként engem leginkább az örül, hogy az infláció lecsökkent és az euró is gyengült, meg MP szerint a benzin is olcsóbb lehet, így a szűkös nyugdíjamból talán kevésbé kell nélkülözni, de az új kormány ígéretei még csak ígéretek, úgyhogy óvatosan reménykedem, hogy nem lesz rosszabb a következő egy év.",
+        "Nyugdíjaséknak az uniós pénzek felszabadulása és a forint erősödése talán stabilizálhatja a megélhetést, de az ígért áfacsökkentésig a hőség miatti víz- és rezsiterhek és a bizonytalan kormányzati átvilágítás miatt óvatosan tervezek, mert a kasszánk nem enged meg nagy kockázatot.",
+        "A forint erősödése jól jön, ha nyaralni megyünk külföldre, de itthon a lakhatási válság és a változó kamatozású hiteleknél fenyegető kamatemelés miatt azt érzem, hogy a hónap végére alig marad több pénzünk, mint eddig.",
+        "Nekem kisvárosi nyugdíjasnak jól jön, hogy olcsóbb lett az üzemanyag meg alig van infláció, de azt várom, hogy az ígért áfacsökkentés tényleg megjelenjen a boltokban, mert a rezsivel meg az élelmiszerrel így is számolnom kell minden hónapban.",
+        "Az öregembernek jó hír, hogy olcsóbb lett az üzemanyag meg a bolt, meg erős a forint, de falun élő nyugdíjasként én csak azt látom, hogy a kasszában kevés a pénz, és nem tudom, ebből a sok ígéretből mi jut tényleg a mi kis házunkhoz egy év múlva.",
+        "Nekem már nincs hitelünk, nyugdíjból élünk, úgyhogy a kamatmegőrzés nem fáj, de az infláció ugyan alacsonyabb, a falusi élelmiszer- és tüzelőárak még így is azt hozzák, hogy jövőre is csak spórolással jutunk ki a gondokból. Az uniós pénzekről meg csak remélem, hogy ide is eljut belőle valami, mert nekünk közvetlenül nem sokat segített eddig a nagy bejelenté"
+      ]
+    },
+    {
+      "seed": 3,
+      "n_sent": 60,
+      "ssr_score": 2.9606550438823414,
+      "nowcast": -1.9672478058829324,
+      "sentences": [
+        "Budapestiként jól jön, hogy a forint most erős meg az alapkamat is nyugodt, és ha tényleg megjönnek az uniós milliárdok meg az ígért áfacsökkentés, talán végre nem azt érzem majd, hogy minden hónapban a takarékoskodáson kell szorítanom, de egyelőre kivárom, mit hoznak ténylegesen az új kormány intézkedései.",
+        "A nyugdíjam mellett a vagyonadó és a Mol-adó miatti áfacsökkentés még bizonytalan, de az erős forint és a megígért megélhetési támogatások miatt úgy érzem, jövőre talán nem szorulok majd annyira a szűkös garast nyomorgatni, mint eddig.",
+        "Az euró árfolyam esése és a befagyasztott uniós pénzek felszabadulása nekem is adhat egy kis lélegzetet, de a lakhatási válság és a jövő nyári hőség miatti várható víz- és rezsiterhek miatt azt érzem, alig lesz több pénz a zsebemben, legfeljebb nem csúszunk lejjebb.",
+        "Nekem alapfokú végzettséggel falun nehéz lenne megmondani, merre billen a pénztárcánk, mert a hírek szerint van vagyonadó és költségvetés-átvilágítás, de az euró olcsóbb lett meg több uniós pénz jöhet, úgyhogy kivárom, a gyerekekre meg az apás szabira jobban figyelek, mint a nagy ígérgetésekre.",
+        "Budapesten albérletből élek középfokú végzettséggel, szóval a lakhatási válság miatt a pénztárcámban alig marad valami, de ha tényleg csökkentik a megélhetési költségeket és jönnek az uniós pénzek, talán nem lesz rosszabb a helyzet, csak nehogy a vagyonadó vagy a vízdíj módosítása pont engem szúrjon ki.",
+        "Nekem öregembernek a falun nincs hitelem, de a vízdíj meg a benzinár hírekből nem látom pontosan, mennyit kell majd fizetnem, így inkább úgy érzem, maradok a szűkös, de kiszámolt nyugdíjból, és csak remélem, hogy nem emelik az alapvető dolgokat.",
+        "Budapesten lakásként vagy albérletként még mindig az viszi a pénzem javát, és ha a változó hiteleseknél emelkedik a törlesztő, az belém is rúg, viszont az erős forint meg a családtámogatások bővítése talán kicsit könnyebbé teszi a nyári kiadásokat. Összességében stagnálásra vagy lassú kis javulásra számítok, de a lakhatási válság miatt nem érzem magam biztonságban any",
+        "A hírek szerint jöhet áfacsökkentés és több családtámogatás, de a vagyonadó meg a külföldi kamatemelés miatt inkább óvatosan várom a következő egy évet, mert nem tudom, a végén nálam marad-e több pénz a rezsin és a bevásárláson.",
+        "A kisvárosban élő alapfokú végzettségű emberként nekem a hírekben emlegetett uniós milliárdokból alig jut, viszont az alacsony infláció és az erős forint jó, mert a boltban kevesebbet kell fizetnem, csak a hiteleseknek való kamatemelés és a vagyonadó izgat, de nekem nincs hitelem meg vagyonom, úgyhogy a következő évben csak a napi megélhetésért kell szűkösen, de kijönni.",
+        "Nyugdíjas háztartásként a forint erősödése és az alacsony infláció nekem is segít, így a megélhetésem biztosabbnak tűnik, de a lakhatási válság és a kormányváltás utáni bizonytalan költségvetés miatt óvatosan tervezek, nem várok csodát egy éven belül.",
+        "A forint erősödése és az alacsony infláció jó hír a pénztárcámnak, de Budapesten az albérleti válság és a beígért vagyonadó miatt nem érzem biztosnak, hogy tényleg többet tudok majd félretenni egy év múlva.",
+        "Nekem nyugdíjasnak ezek a nagy politikai változások és az áfacsökkentés ígérete jól jöhetne, de a lakhatási válság és a vagyonadó híre nyugtalanít, mert azt sem tudom, mit hoznak még ki rajtunk az új adókkal, úgyhogy a következő évben legfeljebb arra számítok, hogy a boltban egy kicsit kevesebb lesz a drágulás, de biztos kenyérre valónk lesz.",
+        "Egyetemista fejjel nézve a lakhatási válság miatt az albérleti árak továbbra is szívnak, de az alacsony infláció, az erős forint és a tervezett áfacsökkentés meg a diákhitel-döntések miatt a mindennapi kiadásaimon kicsit könnyebb lesz a következő évben.",
+        "Budapesti diplomásként végre fellélegzek, mert a forint erősödése, az alacsony infláció és a beharangozott áfacsökkentés, családtámogatás meg az uniós pénzek miatt kevésbé félek a mindennapi kiadásoktól, de a lakhatási válság itt a fővárosban még mindig az, ami a legszorítja a pénztárcámat.",
+        "Falun élő friss diplomásként egyelőre bizonytalan, mit hoz a kormányváltás, de az áfacsökkentés és a forint erőssége miatt reménykedem, hogy nem nyomja agyon a megélhetési költségeket, bár állásban még nem vagyok stabil.",
+        "Az infláció csökkenése és a benzin árának ígért zuhanása jól jönne a pénztárcámnak, de a vagyonadó meg a szárazság miatti vízdíj-változások miatt azért bizonytalan, mennyit is marad majd a végén. Egyelőre kivárom, mit hoz a kormány új költségvetése, de tartalékot nemigen tudok képezni, ha minden drágulni is akar.",
+        "Az infláció lejjebb ment és az euró is olcsóbb lett, úgyhogy a nyugdíjamból most kevésbé szorít a gúzs, de az EKB miatti kamatemelés és a bizonytalan kormányzati áttervezés miatt még óvatosan nézek a jövő évre.",
+        "A forint erősödése és a tervezett áfacsökkentés jó hír, mert a nyugdíjamból kijövök valahogy, de a nyárra ígért hőhullám és a drága energia miatt tartok tőle, hogy a rezsiköltségek megint elviszik a többit.",
+        "A forint erősödése és az alacsony infláció miatt a napi kiadásaink egyelőre könnyebbnek tűnnek, de budapesti lakhatási válság és a tervezett vagyonadó miatt nem érzem biztosnak, hogy tizenkét hónap múlva is így állunk majd a pénztárcánkkal.",
+        "A forint erősödése és az alacsonyabb infláció jól jön a bevásárlásnál, de az emelkedő kamatok miatt félek, hogy a változó hitelünk törlesztője megint elszáll, úgyhogy összességében készpénzben nem érzem még biztosnak a helyzetünket.",
+        "A kisvárosi életünkön az infláció lassulása és a forint erősödése talán kicsit könnyít, de a vízdíj-bizonytalanság és a jövő nyári hőség miatti magasabb rezsi miatt azért nem dőlhetünk hátra, a családtámogatási ígéretekig inkább takarékoskodva nézzük a következő egy évet.",
+        "A kisvárosban élő alapfokú végzettségűként nekem a vagyonadó nem fog fájni, de a Mol-adó miatt meg az infláció lassú csökkenése ellenére is inkább úgy érzem, hogy a rezsi és a mindennapi élelmiszer megmarad drágán, szóval a következő egy évben csak úgy tudom kihozni, ha szigorúan spórolunk és nem engedünk a vásárlási kísértésnek.",
+        "A forint erősödése és az alacsony infláció miatt kicsit nyugodtabban nézek a boltokba meg a nyári külföldi utazásra, de az EKB miatti kamatemelési félelem a változó hitelünknél tartja a bizonytalanságot, így összességében stabilabbnak érzem a helyzetet, de még nem merek nagyobbat költekezni.",
+        "Az erősödő forint és a változatlan alapkamat nekem, nyugdíjas értelmiségiként a megtakarításaim értékállóságát javítja, de a politikai ígérgetések és a költségvetés átvilágítása körüli bizonytalanság miatt óvatosan tervezek, és nem számítok látványos anyagi javulásra a következő egy évben.",
+        "Az öregember nyugdíjából tengődöm ebben a nagyvárosban, de ha tényleg olcsóbb lesz a benzin meg alig van infláció, talán nem kell annyira számolgatnom, mit vegyek ki a kosárból; azért a vízdíj és a bizonytalan kormányzati átírások miatt még tartok tőle, hogy a végén én is ráfizetek valamire.",
+        "Budapesti diplomásként egyelőre kivárom, mit hoz a kormányváltás utáni átvilágítás és az ígért áfacsökkentés, de a forint erősödése és a Brüsszeli pénzek miatt óvatosan bizakodó vagyok, hogy a megélhetési költségeink egy év múlvára csökkenhetnek.",
+        "Albérleti árak miatt már most is alig jövök ki a havi fizumból, úgyhogy ha a lakhatási válság nem enyhül, a következő évben is csak a túlélésre játszom, nem a félretevésre. Az uniós milliárdok meg a vagyonadó megígért családtámogatások nekem egyelőre csak hírek, a saját pénztárcámban nem érzem őket.",
+        "A faluban középfokú végzettséggel és bizonytalan melóval nekem a hitelminősítés meg az uniós milliárdok nem sokat jelentenek, de hogy 1,8%-ra esett az infláció és olcsóbb az energia, az legalább a hónap végén kevesebb szorongással tölti meg a pénztárcámat. A jövő évre inkább a szárazságtól és a kiszámíthatatlan helyi munkáktól félek, úgyhogy csak takarékosk",
+        "A nyugdíjam mellett az infláció lassulása és a forint erősödése jól jön, mert a bevásárlás és a nyári utazás kevesebbe kerül, de a vagyonadótól és a kamatemeléstől tartok, ha a gyerekeknek segítek a hitelével, így óvatosan költök majd.",
+        "Budapesti lakhatási válság miatt nekem is nyomás a költségvetésen, de az uniós pénzek felszabadulása és a megélhetési ígéretek adnak némi reményt, hogy nem lesz rosszabb a helyzetünk, ha az új kormány tényleg átláthatóan gazdálkodik.",
+        "Nekem középfokú végzettséggel, bérelt lakásban élő fiatalként a forint erősödés és az alacsony infláció jól jön a napi bevásárlásnál, de az EKB miatti kamatemelési várakozás és a közelgő hőhullám miatti vízdíj-változás inkább rontja a kilátásaimat, úgyhogy a következő egy évben inkább csak kijövök a rezsiből és bulikból, de nem lesz sok tartalékom.",
+        "A forint erősödése és a tervezett áfacsökkentés nekem is könnyebbséget hozhat a kisvárosi boltokban, de a Mol-adó és a vagyonadó híre miatt óvatosan költök, így a következő évben legfeljebb stagnáló, lassan javuló anyagi helyzetre számítok.",
+        "A nyugdíjam most kevesebbet ér, mert a boltban már nem olyan drágák a dolgok, és ha tényleg csökken az áfa, mint mondják, talán kijövök a rezsivel meg a gyógyszerrel, de azért az eszembe van, hogy a városban az albérlet meg a lakásár úgyis az egekben, szóval én csak a magam kis pénzére vigyázok, mert bizonytalan, meddig tart ez a javulás.",
+        "Nekem már nyugdíjas falusi emberként a vagyonadó nemigen érint, de jól jön, hogy olcsóbb lett a benzin és a gáz, meg alig van infláció, így a következő évben valahogy kijövök a pénzemből, ha nem jön közbe nagy betegség.",
+        "Budapestiként nekem most főleg az jön be, hogy végre 350 alatt az euró és szinte alig van infláció, úgyhogy a nyaralás és a napi bevásárlás is kevésbé fáj, de mivel középfokú végzettséggel dolgozom, a bizonytalan kormányváltás és a költségvetés átírása miatt még óvatosan tervezek, nem hiszek azonnal a családtámogatási ígéreteknek.",
+        "A forint erősödése és az alacsony infláció jól jön a bevásárlásnál, de az eurókamat-emelés miatt tartok tőle, hogy a változó hitelünk törlesztője megugrik, és a nyári hőség meg a vízdíjas pletykák még ránk vernek egy kis költséget. Összességében stabilabbnak érzem a helyzetet, mint tavaly, de azért szorosan figyeljük a költést.",
+        "Nekem alapfokú végzettséggel kisvárosban az a legfontosabb, hogy az áfacsökkentés és az 1,8%-os infláció végre ne eméssze fel a fizum, de a vagyonadó engem nem érint, szóval tisztes megélhetésre számítok, ha lesz rendes munkám.",
+        "Budapestin középfokú végzettségűként nekem az számít, hogy ha tényleg jönnek az uniós pénzek és csökken az áfa, talán kicsit több marad a zsebemben, de a kormányváltás utáni költségvetés-átvilágítástól és a nyári hőségtől meg a vízdíj-sufnijavaslatoktól még tartok, hogy a rezsi egy része rámveri az elejét.",
+        "A hírek szerint csökkentenék a megélhetési költségeket és jönnek a családtámogatások meg az apákra is több szabadság, szóval ha tényleg megkapjuk, kicsit könnyebb lesz a hónap vége, de a vagyonadó és az, hogy az uniós pénzeket is el lehet szúrni, bennem is van, úgyhogy óvatosan örülök csak.",
+        "Nyugdíjas falusi emberként a csökkenő infláció és az ígért áfacsökkentés nekem is könnyebbséget hozhat, de a szárazságtól tartok, mert ha a kertem és a tárolt vízellátás bajba kerül, az nekem extra kiadás, nem úszom meg a városi lakhatási válságokat, de a forint erősödése a gyerekeknek küldött kisebb támogatásomnál is jól jön.",
+        "Nyugdíjas háztartásként a forint erősödése és az alacsony infláció nekem most jól jön, de az emelkedő kamatkörnyezet és a budapesti lakhatási válság miatt nem érzem teljesen biztonságban a pénztárcánkat, ha a gyerekeken vagy a lakáson keresztül ér minket a piaci nyomás.",
+        "Nekem alapfokú végzettséggel kisvárosban nem ugrik be a fizu attól, hogy erősödött a forint, és ha az üzemanyag tényleg olcsóbb lesz, az csak a napi túlélésensegít, de rendes tartalékot így se látok magam előtt. A következő évben inkább azon szorongok, hogy lesz-e stabil munkám, mert az ígéreteken kívül nem sok konkrétum ér el egyáltalán hozzám.",
+        "Budapesti diplomásként nyugtató, hogy az infláció lecsökkent és a forint erősödött, meg az uniós pénzek is mozgolódnak, szóval a családi kasszánkban végre nem a drágulástól kell rettegni, de a nyári szárazság és a bizonytalan kormányváltás miatt óvatosan tervezek, és nem költekezem túl magam.",
+        "A forint mostanában elég erős és az infláció is alacsony, szóval a napi bevásárlás és a nyaraláshoz való pénzváltás kifejezetten jó most, viszont ha a régióban emelkednek a kamatok, a változó hitelünk törlesztője még fájhat, és a vagyonadó híre is bizonytalanná teszi, mennyire marad meg a megtakarításunk. Összességében óvatosan optimista vagyok, de tartok a kamat- és adóv",
+        "A békebeli kisvárosi életünkön most sokat segít, hogy végre 1,8 százalékra lassult az infláció és olcsóbb lett az üzemanyag, de az EKB miatti kamatemelés miatt a változó hitelünk törlesztője izgalmassá teheti a következő egy évet. Összességében bizakodóbb vagyok, mint tavaly ilyenkor, mert ha az uniós pénzek tényleg megjönnek és csökken az áfa, a mi pénztárcánk is könny",
+        "Nekem nyugdíjasnak alapfokú végzettséggel a városban azt se tudom, hogy a vagyonadó engem érint-e, de az uniós pénzek és az ígért áfacsökkentés miatt talán nem lesz rosszabb a megélhetés, csak azt sajnálom, hogy a meleg miatt többet költök majd áramra a ventillátorra.",
+        "Nekem középfokú végzettséggel, nagyvárosban élőként eddig is azt éreztem, hogy az alapkamat tartása miatt a hiteleim nem lesznek olcsóbbak, de az euró 350 alatti árfolyama és a felszabaduló uniós pénzek híre kicsit megnyugtat, hátha a kormányváltás után tényleg csökkennek a megélhetési költségek és több marad a pénztárcámban. Bízom benne, hogy a benzinár is",
+        "Nekem alapfokú végzettséggel kisvárosban nem túl acélosak a kilátásaim, mert a vagyonadó meg az átvilágítások inkább a gazdagokat érintik, de a forint erősödés és az ígért áfacsökkentés meg a családtámogatások talán kicsit könnyebbítik a mindennapi kiadásokon, ha tényleg megvalósul.",
+        "Budapesti középfokú végzettségűként nekem a forint erősödése és a benzin árcsökkenése már most könnyít a pénztárcámon, de a vagyonadó és a költségvetés átalakítása miatt kivárok, mert nem tudom, a családtámogatások tényleg megérkeznek-e a jövő évi terhek mellett. Összességében óvatosan bizakodó vagyok, de még nem érzem stabilnak a helyzetet.",
+        "Falun középfokú végzettséggel élve nekem a vagyonadó valószínűleg nem fog a nyakamba szakadni, viszont az ígért családtámogatásokból és az erősödő forint miatti olcsóbb üzemanyagból talán kevesebbet költök majd, szóval a következő egy évben stabilabbnak érzem a pénztárcánkat, ha tényleg megkapjuk ezeket a segítségeket.",
+        "Nekem alapfokú végzettséggel, nagyvárosban élő nyomorgó családként jól jönne az áfacsökkentés és a nyugodtabb gazdaság, de a vagyonadó meg a költségvetés átvilágítása miatt még kivárok, nem hiszek rögtön a javulásban. A forint erősödése meg az alacsony infláció azért ad egy kis levegőt a hónap végén, de a tartalékunk az nincs, úgyhogy óvatosan ör",
+        "Egyetemista diplomás fejjel Budapesten az albérletárak mellett még mindig szívás lesz megélni, de a forint erősödése és az ígért áfacsökkentés meg az uniós pénzek miatt talán nem lesz rosszabb, mint most, sőt lassan stabilabbá válhat a helyzetem. A változó kamatos hitelektől egyelőre tartok, de hitelt úgysem veszek fel, így a lakhatási válság a legnagyobb tényleges anyagi nyomás rajtam.",
+        "Falun élve és felsőfokú végzettséggel a forint erősödése meg a lecsökkent infláció nekem is könnyebbség, de tartok tőle, hogy az uniós pénzek elszívása vagy a költségvetés átvilágítása miatt jövőre mégis befagyhatnak a támogatások, úgyhogy óvatosan költök, és nem tervezek nagyobb kiadást.",
+        "Nyugdíjas falusi emberként a forint erősödése és a benzin árának ígért csökkenése jól jönne a szűkös hónapokban, de a jósolt hőség és szárazság miatt a kertem is kevesebbet teremhet, úgyhogy óvatosan reménykedem, hogy nem lesz rosszabb a helyzetünk, mint most.",
+        "Budapestin lakóként jól jön, hogy erősödött a forint meg jönnek az uniós pénzek, de a vagyonadó meg a dráguló hitelek miatt én inkább szorosabbra húzom a nadrágszíjat, mert nem tudom, mennyit visznek el tőlünk a változások.",
+        "Nyugdíjas budapestiként a májusi 1,8 százalékos infláció és a forint erősödése nyugtat meg, mert végre nem emésztik fel a rezsiszámláim az öregségi ellátásomat, de a tervezett vagyonadó miatt azt sem tartom kizártnak, hogy valamivel kevesebb marad a megtakarításainkból, ha a lakásunk után is kell fizetni.",
+        "Nyugdíjas kisvárosi értelmiségiként a forint erősödéséből és az alacsonyan tartott kamatokból leginkább azt látom, hogy a megtakarításaim nem hoznak sokat, de a nyári utazásra váltott euró most kevesebbe kerül, és ha az ígért megélhetési költségcsökkentés tényleg megjön, akkor a következő egy évben talán nem szorulok majd annyira a végére.",
+        "Nekem már nyugdíjas falusi emberként a vagyonadó nem fáj, de az áfacsökkentés és a mérsékelt infláció jól jönne a bevásárlásnál, ha tényleg megérzem az árakon; egyébként óvatosan várom, mit hoz a költségvetés átvilágítása, mert attól tartok, a nyugdíj körül is lehetnek változások.",
+        "Albérletben lakunk a városban, és hiába ígérnek áfacsökkentést meg családtámogatást, azt látom, hogy a lakhatás egyre drágább, szóval az elkövetkező évben is szűkmarkúan kell beosztanom a fizetést. A benzin olcsóbb lehet, az uniós pénzek megjöhetnek, de én ebből a vagyonadóból és a bizonytalan költségvetésből egyelőre nem érzek több pénzt a zsebemben.",
+        "Nekem középfokú végzettséggel falun nem igazán látszik még a zsebemen a brüsszeli milliárdok ígérete, de ha tényleg csökken a benzinár és jön valami áfacsökkentés, az legalább a napi költekezésen könnyíthet egy kicsit. A vagyonadó engem nem érint, de az alapkamat tartása és a külföldi kamatemelési hírek miatt hitelt semmiképp nem vennék fel mostanában."
+      ]
+    }
+  ],
+  "mean_nowcast": 0.4245831400434552,
+  "abs_err": 2.5245831400434553,
+  "flash_reference": {
+    "file": "hu_nowcast_2026-05.json",
+    "nowcast": -10.6061936380899,
+    "abs_err": 8.5061936380899
+  },
+  "cost": {
+    "n_calls": 180,
+    "n_api_calls": 180,
+    "n_cache_hits": 0,
+    "calls_per_min_limit": 100.0,
+    "elapsed_s": 126.4,
+    "prompt_chars": 478467,
+    "completion_chars": 51895,
+    "est_prompt_tokens": 149520,
+    "est_completion_tokens": 16217
+  },
+  "raw_stream": [
+    {
+      "i": 1,
+      "response": "A forint erősödése és az uniós pénzek megígért hazahozatala nyugtat, de a lakhatási válság és a bizonytalan áfacsökkentés miatt a nyugdíjam mellett óvatosan költök, és nem várok csodát egy év alatt."
+    },
+    {
+      "i": 2,
+      "response": "A forint erősödése és az uniós pénzek beindulása nyugtat meg valamelyest, de a beígért vagyonadó meg a budapesti lakhatási válság miatt óvatosan tervezek, és nem számolok nagy anyagi fellélegzéssel a következő egy évben."
+    },
+    {
+      "i": 3,
+      "response": "Nekem nyugdíjasnak ezek a nagy uniós milliárdok és a forint erősödése a hírekben jól hangzanak, de az én pénztárcámban nemigen mozdul semmi, inkább azt látom, hogy a vízdíj és a kánikula miatti költségek emésztenek fel, úgyhogy a következő egy évben csak arra számítok, hogy szűkösen, de kijövök a rezsiből meg az élelmiszerből."
+    },
+    {
+      "i": 4,
+      "response": "A forint nagyon erős most meg az infláció is alacsony, szóval rövid távon nyugodtabban költhetek, de Budapesten középfokú végzettséggel még mindig bizonytalan, mennyire lesz stabil a munkám és a fizum a jövő évi költségvetés átírása után."
+    },
+    {
+      "i": 5,
+      "response": "A forint erősödése és az uniós pénzek megállapodása nyugtat, de az EKB miatti kamatemelési várakozás és a budapesti lakhatási válság miatt a változó hitelesként és nagyvárosban élőként óvatos maradok, nem érzem még biztosnak a jövő évi pénztárcánkat."
+    },
+    {
+      "i": 6,
+      "response": "A különadók és a tervezett vagyonadó meg a változó kamatok miatt óvatos vagyok, de az alacsony infláció és a falusi nyugodt élet azért ad egy kis levegőt, így a következő egy évben nagyjából tartani tudjuk a szintet, ha nem jön váratlan kiadás."
+    },
+    {
+      "i": 7,
+      "response": "Falun középfokú végzettséggel élve nekem a budapesti lakhatási válság nem fáj, viszont ha az új kormány tényleg hozza az áfacsökkentést és az uniós pénzeket, akkor a boltban és a rezsinél kicsit könnyebb lehet a következő évben, bár a vagyonadótól meg a vízdíj-módosítástól még tartok."
+    },
+    {
+      "i": 8,
+      "response": "A forint erősödése és a tervezett áfacsökkentés megkönnyítheti a mindennapi kiadásainkat, de az emelkedő kamatok miatt féltem a változó hitelünk törlesztőjétől, és a várható hőhullám is növelheti a víz- meg villanyszámlánkat. Összességében óvatosan bizakodó vagyok, de a kisvárosi költségvetésünket még mindig feszegeti a bizonytalanság."
+    },
+    {
+      "i": 9,
+      "response": "A forint erősödése és az alacsony infláció jól jön a bevásárlásnál, de Budapesten az albérleti árak miatt így sem látok sok javulást a háztartásunk pénztárcájában, és a vagyonadó meg a bizonytalan kormányváltás miatt óvatosabban tervezek."
+    },
+    {
+      "i": 10,
+      "response": "Nekem alapfokú végzettséggel falun nehéz lesz a következő év, mert bár a forint erősödése meg az alacsonyabb infláció jól hangzik, a vagyonadó és a változó kamatos hitel törlesztőm emelkedése jobban kijjebb szívja a pénztárcámat. Tartok tőle, hogy a kormányváltás utáni átalakításokból nekem csak a szűkebb keresztmetszet jut, nem a nagy uniós pénzek."
+    },
+    {
+      "i": 11,
+      "response": "Az infláció lejjebb ment és a benzin is olcsóbb lehet, de Budapesten az albérleti árak miatt én meg továbbra is a falat látom, és ha az EKB miatt emelik a kamatot, a kölcsönömön is ráfázhatok. Remélem, az új kormány tényleg csökkenti az áfát meg a lakhatási költségeket, mert így két keresettel is alig jövünk ki."
+    },
+    {
+      "i": 12,
+      "response": "A forint erősödése és az uniós pénzek felszabadulása nyugtat meg egy kicsit, mert talán nem drágul minden tovább, de a kisvárosi nyugdíjas pénztárcámban a rezsit és az élelmiszert illetően még mindig óvatosan számolok, míg nem látom a tényleges árcsökkenést a polcon."
+    },
+    {
+      "i": 13,
+      "response": "Nyugdíjas értelmiségiként a forint erősödéséből és az uniós pénzek felszabadulásából remélem, hogy csökkenhetnek a megélhetési terheink, de a tartós hőség és a bizonytalan vízdíj-változások miatt óvatosan kezelem a költségvetésünket, és nem számítok drámai javulásra egy év alatt."
+    },
+    {
+      "i": 14,
+      "response": "A hírek alapján bizakodóbb vagyok, mert az alacsony infláció, az erős forint és a családtámogatások ígérete könnyíthet a mindennapi kiadásokon, de a budapesti lakhatási válság miatt az albérletünkön nem igazán érezni majd enyhülést, és a változó kamatozású hitelünk törlesztője is aggaszt, ha a régiós kamatok emelkednek."
+    },
+    {
+      "i": 15,
+      "response": "Nyugdíjaskent a megélhetésem a nyugdíjemeléstől és az áfacsökkentés ígéretétől függ, de az uniós pénzek végre hazajövetele és a forint erősödése nyugtat, míg az emelkedő kamatok és a bizonytalan vízdíjak miatt óvatosan költök továbbra is."
+    },
+    {
+      "i": 16,
+      "response": "Budapesti diplomásként egyelőre bizakodó vagyok a jövő évi áfacsökkentés és a családtámogatási ígéretek miatt, de a változó kamatok emelkedése és a beígért vagyonadó miatt óvatosan figyelem, mennyit marad ténylegesen a pénztárcámban."
+    },
+    {
+      "i": 17,
+      "response": "A forint mostanában elég jó erős, meg az infláció is alacsony, szóval a napi bevásárlás kevésbé fogja szívni a pénzt, de a vagyonadó meg a bizonytalan uniós pénzek miatt nem merek nagyobb költekezésbe kezdeni, maradok a takarékoskodós vonalon."
+    },
+    {
+      "i": 18,
+      "response": "Nekem középfokú végzettséggel kisvárosban alig van stabil munkám, az alapkamat magas maradt és a szárazság miatt jöhetnek a drágább víz- vagy rezsiszámlák, úgyhogy a következő egy évben inkább a túlélésre játszom, nem a megtakarításra. A kormány ígérgetéseit még nem érzem a pénztárcámon, a brüsszeli pénzek meg csak nagyobb beruházásokra mennek, nem a mi rezsink"
+    },
+    {
+      "i": 19,
+      "response": "Budapesti fiatalként nekem a benzinár-esés és az ígért áfacsökkentés jönne jól, de a változó kamatok emelkedése és a bizonytalan megélhetési költségek miatt csak óvatosan bízom abban, hogy a következő egy évben tényleg könnyebb lesz megélni."
+    },
+    {
+      "i": 20,
+      "response": "A forint erősödése jól jön, ha nyáron külföldre megyek rokonhoz, és a benzin olcsóbbodása is könnyít a költségeimen, de tartok tőle, hogy ha a kamatok tényleg emelkednek, az azokat érinti majd, akiknek még van törlesztőjük, és a vízdíj vagy az adók átalakítása is hozhat még meglepetéseket. Összességében óvatosan költök, mert bár most stabilabbnak tűnik a he"
+    },
+    {
+      "i": 21,
+      "response": "Budapesten albérletben élek, és hiába lassult az infláció meg ígérnek áfacsökkentést, azt látom, hogy a lakhatásra költött pénzünk nem fog kevesebb lenni, szóval a következő egy évben legfeljebb stagnálni fog a pénztárcánk, de könnyebb semmiért se lesz."
+    },
+    {
+      "i": 22,
+      "response": "A forint erősödése és az alacsonyabb infláció nekem is segít, mert a bevásárlás olcsóbb lett, de a változó kamatozású hitelem miatt még félek, hogy ha a régióban emelkednek a kamatok, megugorhat a törlesztőm; összességében óvatosan bizakodó vagyok, de nem tervezek nagy költekezést."
+    },
+    {
+      "i": 23,
+      "response": "Nyugdíjas budapestiként a forint erősödése és az alacsony infláció jót tesz a pénztárcámnak, de a lakhatási válság és a bizonytalan kormányzati ígérgetések miatt óvatosan tervezek, és nem számítok nagy anyagi javulásra a következő évben."
+    },
+    {
+      "i": 24,
+      "response": "A forint erősödése megkönnyíti a nyári pót-vásárlásokat és a megtakarításaink értékét is növeli, de az emelkedő kamatok miatt tartok tőle, hogy a változó hitelünk törlesztője elviszi azt a kis légkört, amit az apró javulások hozhatnának."
+    },
+    {
+      "i": 25,
+      "response": "A forint erősödése és az alacsony infláció nekem is segít a napi bevásárlásnál, de a változó kamatozású hitelem miatt tartok tőle, hogy ha a régióban emelkednek a kamatok, a törlesztőm ismét elszállhat, így óvatosan tervezek a következő egy évben."
+    },
+    {
+      "i": 26,
+      "response": "Az infláció lecsökkenése és a forint erősödése nekem is könnyebbség a bevásárlásnál meg a nyaralásnál, de a lakhatási válság és a régiós kamatemelés miatt, ha hitelen ülnénk, máris szorítanék, így összességében óvatosan reménykedem, de nem érzem magam biztosnak."
+    },
+    {
+      "i": 27,
+      "response": "A forint erősödése és az alacsonyabb infláció miatt kicsit könnyebb most beosztani a fizetést, de azért tartok tőle, hogy ha a kamatok mégis emelkednek, a változó hitelünk törlesztője megugrik és visszavesz a mozgásterünkből."
+    },
+    {
+      "i": 28,
+      "response": "Kisvárosban középfokú végzettséggel élve a fix alapkamattal és a forinterősödéssel nyugodtabb vagyok, de az uniós pénzek bizonytalansága meg a szárazság miatti drágulás miatt tartok tőle, hogy a mindennapi kiadásaink nem lesznek könnyebbek egy év múlva."
+    },
+    {
+      "i": 29,
+      "response": "A forint erősödése és az alacsony infláció miatt egyelőre nyugodtabb vagyok, de az EKB-s kamatemelés és a változó kamatozású hiteleknél jöhetőbeni magasabb törlesztő miatt óvatosan tervezek, a kormány áfacsökkentés ígérete meg kicsit reményt ad a kisvárosi költségeink csökkentésére."
+    },
+    {
+      "i": 30,
+      "response": "A faluban nyugdíjból élünk, a hírekben ígérgetnek, hogy csökkentik a megélhetési költségeket, de a jövő nyári hőség és a drágaság miatt én inkább úgy saccolom, hogy azért szorosan kell majd fogjuk a garast, mert az élelmiszer és a rezsi úgyis az egekben marad. Bízom benne, hogy a kormányváltás után nem rontanak el mindent, de biztos pénzünk nincs rá, hogy jobban jár"
+    },
+    {
+      "i": 31,
+      "response": "Falusi felsőfokúként a vagyonadó bevezetése miatt kicsit bizonytalan vagyok, de az ígért áfacsökkentés és a családtámogatások bővítése, meg az uniós pénzek hazahozatala ad némi reményt, hogy a megélhetésünk nem lesz rosszabb, sőt talán kicsit könnyebb is lehet a következő évben."
+    },
+    {
+      "i": 32,
+      "response": "A forint erősödése és az uniós pénzek hazajövetele nyugtat, de falun középfokú végzettséggel az árakat és a hiteleseknek szánt kamatemelést látva óvatosan tervezek, nem várok nagy ugrást a pénztárcámban. Ha az ígért áfacsökkentés és apáknak járó plusz szabadság tényleg meglesz, az kicsit könnyíthet, de egyelőre csak kivárok."
+    },
+    {
+      "i": 33,
+      "response": "A nyugdíjam kicsi, de örülök, hogy erős a forint meg ígérik az áfacsökkentést, hátha kevesebb lesz a boltban a kaja, viszont a vízdíj és a kamatok híre miatt azért tartok tőle, hogy jövőre is szűkre kell majd húznom a gatyát."
+    },
+    {
+      "i": 34,
+      "response": "Nekem nyugdíjasnak az jó, hogy olcsóbb lett az euró meg alig van infláció, de az áruk zöme még így is drága maradt, és a budapesti lakhatási válság miatt az unokáimon is aggódom, úgyhogy a saját pénzemből a következő évben csak óvatosan, spórolósan tudok élni."
+    },
+    {
+      "i": 35,
+      "response": "Középfokú végzettségűként és hitelesként nyugtalanít, hogy az EKB miatt emelkedhet a törlesztőm, de a forint erősödése, az ígért áfacsökkentés és a benzinár-csökkenés talán kicsit könnyítene a mindennapi kiadásokon, ha tényleg megvalósulnak. A vagyonadótól nem félek, mert nincs nagy vagyonom, de a költségvetés átvilágítása és a bizonytalan uniós pénzek miatt óv"
+    },
+    {
+      "i": 36,
+      "response": "Az öregember nyugdíjából tengődök e falun, a forint erősödése jó hír ha váltani kell, de az ígért megélhetési segítséget még nem érzem a pénztárcámban, és a jövő nyári szárazságtól is tartok, mert a kertem locsolása megdrágulhat."
+    },
+    {
+      "i": 37,
+      "response": "A forint erősödése és az alacsony infláció jól jön a boltban, meg a nyaraláskor is olcsóbb lesz a valuta, de az alapkamat tartása és a külföldi kamatemelés miatt félek, hogy a változó hiteleknél megint emelkedhet a törlesztő, úgyhogy óvatosan költök."
+    },
+    {
+      "i": 38,
+      "response": "Nekem már nyugdíjasnak nyugodalmam lenne, de azt látom, hogy az erős forinttal talán egy kicsit kevesebbbe kerülnek a gyógyszerek meg a boltban a cuccok, viszont a hírekben emlegetett kamatemelés a gyerekeim hitelét nyomhatja meg, úgyhogy az én pénzem is kevesebb marad, ha segítenem kell nekik. A kormány ígérgetésében meg nem nagyon bízok, mert a mi kisvárosi nyugdíjunkból így is"
+    },
+    {
+      "i": 39,
+      "response": "Mint budapesti diplomás fiatal, az erős forint és az alacsony infláció miatt most olcsóbban utazhatok vagy vehetem meg a külföldi cuccokat, de a változó kamatok emelkedése és a vagyonadó körüli bizonytalanság miatt óvatosabb leszek a nagyobb kiadásokkal, így a következő egy évben stabil, de kicsit bizonytalan anyagi helyzetre számítok."
+    },
+    {
+      "i": 40,
+      "response": "Nyugdíjas felsőfokúként örülök a forint erősödésének és az alacsony inflációnak, mert a bevásárlás és a nyári utazás olcsóbb lett, de az EKB miatti kamatemelési várakozások miatt tartok tőle, hogy ha a gyerekeimnek változó hitelük van, az ránk is ráéghet; alapvetően stabilnak érzem a helyzetünket, csak a politikai átrendeződés bizonytalansága nyugtalanít egy kicsit."
+    },
+    {
+      "i": 41,
+      "response": "A nyugdíjam mellett az euró árfolyamának zuhanása és az ígért áfacsökkentés, meg uniós pénzek miatt kicsit kedvezőbbnek látom a következő egy év költekezését, de a budapesti lakhatási válság és a bizonytalan költségvetési átvilágítás még tartja bennem az óvatosságot."
+    },
+    {
+      "i": 42,
+      "response": "Budapesti középfokú végzettségűként a Tisza-kormány ígért áfacsökkentése és családtámogatás-bővítése nekem is könnyebbséget hozhat, de a vízdíj-módosítás és a Mol-adó miatti bizonytalanság miatt óvatosan várom, hogy a pénztárcámban tényleg érezhető lesz-e a változás egy éven belül."
+    },
+    {
+      "i": 43,
+      "response": "A lakhatási válság miatt így is alig jövök ki a rezsiből és albérletből, de hogy 350 alá ment az euró és olcsóbb lehet a benzin, az legalább a napi kiadásokon kicsit könnyít; a vagyonadó meg a kormányváltás utáni ígérgetések még kérdésesek, nem merek bővülő pénztárcában reménykedni egy évig."
+    },
+    {
+      "i": 44,
+      "response": "Mint kisvárosi középfokú végzettségű családapa, az erős forintnak és az ígért áfacsökkentésnek, meg a Brüsszellel megkötött uniós pénzeknek örülök, mert végre kevésbé szorít a gázsi, de a kormányváltás utáni bizonytalanság és a magas alapkamat miatt még óvatosan költök, nem hiszek rögtön a csodában."
+    },
+    {
+      "i": 45,
+      "response": "Nekem már nyugdíjas falusi emberként a forint erősödése és az ígért rezsicsökkentés, meg a Brüsszelből jövő pénzek híre jól jönne, mert az élelmiszer és a télire való fűtés így kevésbé terhelné meg a pénztárcámat, de a szárazságtól tartok, hogy a kertem kevesebbet terem, úgyhogy óvatosan reménykedem."
+    },
+    {
+      "i": 46,
+      "response": "Kisvárosban alapfokú végzettséggel dolgozom, és bár az új kormány ígér áfacsökkentést meg családtámogatást, a hírek alapján nem érzem, hogy azonnal több pénz maradna a zsebemben, szóval a következő egy évben inkább szűkösen, de kijövök valahogy a rezsiből és az alapélelmiszerekből. Reménykedem, hogy a kitűzött áfacsökkentés tényleg segít, mert most fő"
+    },
+    {
+      "i": 47,
+      "response": "Falun élve a lakhatási válság nem az én bőrömre megy, de az EKB miatti kamatemelési nyomás és a jövő nyári aszály miatti vízdíj-változások izgatnak, mert ha a rezsi megugrik, a középfokú fizum mellett szűkül a családi kassza. Az új kormány ígért családtámogatásai meg a kiszabaduló uniós pénzek adnak egy kis reményt, hogy nem leszünk lényegesen rosszabbul,"
+    },
+    {
+      "i": 48,
+      "response": "Falun élve és diplomásként stabilnak érzem a helyzetünket, de az EKB miatti kamatemelési várakozások miatt a változó hitelünk törlesztője aggaszt, míg a forint erősödése és a tervezett áfacsökkentés ad némi reményt, hogy a megélhetés nem drágul tovább érezhetően."
+    },
+    {
+      "i": 49,
+      "response": "Kisvárosban középfokú végzettséggel élve a Mol-adó miatti olcsóbb üzemanyag és az erős forint nekem is segíthet egy kicsit a boltban és a tankolásnál, de a családtámogatásokig és a vízdíj-módosításig még sok a bizonytalanság, úgyhogy óvatosan költekezünk, amíg nem látjuk a valóságban is a kormány ígéreteit."
+    },
+    {
+      "i": 50,
+      "response": "A kisvárosi életünkön a Budapestet sújtó lakhatási válság szerencsére nem fog az árainkkal, az alacsonyabb infláció és a hazai üzemanyagár-ígéretek megkönnyítik a mindennapokat, de a tervezett vagyonadó és az uniós pénzek bizonytalansága miatt óvatosan költök, és nem számítok nagy anyagi fellélegzésre egy éven belül."
+    },
+    {
+      "i": 51,
+      "response": "Nekem már nyugdíjas koromban a fix jövedelmem van, szóval a hírekben ígért áfacsökkentés és a megélhetési költségek mérséklése nekem is jól jönne, de a vízdíj-módosítás és a várható hőség miatt a rezsi így is emelkedhet, úgyhogy óvatosan reménykedek, hogy a családi pótlék meg ilyenektől én már lemaradtam, a lényeg hogy a nyugdíjam ne csökkenjen."
+    },
+    {
+      "i": 52,
+      "response": "A forint erősödése és az alacsonyabb infláció jól jön a bevásárlásnál, de a kisvárosban alacsonyabb keresettel és a tervezett vagyonadóval meg az emelkedő kamatokkal óvatosan nézek a jövő évre, mert nem tudom, mennyi marad a végén a zsebemben."
+    },
+    {
+      "i": 53,
+      "response": "Budapesti nyugdíj előtt állóként örülök, hogy a hír szerint mérséklődött az infláció és olcsóbb lett az üzemanyag, meg a forint is erős, de alapfokú végzettséggel és bizonytalan jövedelemmel félek, hogy az új kormány ígéretei még nem érződnek a saját pénztárcámon egy évig."
+    },
+    {
+      "i": 54,
+      "response": "Falun középfokú végzettséggel és változó kamatozású hitellel élek, úgyhogy az EKB miatti kamatemelés jobban fájhat a pénztárcámnak, mint a kormány áfacsökkentésről szóló ígéretei használnak; a vagyonadó minket nem érint, de a törlesztő növekedésétől tartok, így a következő évben inkább szűkösebben, óvatosabban gazdálkodunk."
+    },
+    {
+      "i": 55,
+      "response": "Nekem most jó hír, hogy az infláció lement és az euró is olcsóbb lett, meg a kormány ígér áfacsökkentést, de középfokú végzettséggel és változó kamatos hitellel játszadozó baráti körben azért félek, hogy ha az EKB miatt emelik a kamatokat, akkor a törlesztők behúzhatnak minket, úgyhogy óvatosan költekeznék a következő egy évben."
+    },
+    {
+      "i": 56,
+      "response": "Nyugdíjas felsőfokúként a forint erősödése és az alacsonyabb infláció jól jön a megélhetésnél, de a vagyonadóról szóló hírek és a külföldi kamatemelési nyomás miatt óvatosan mérem fel a következő egy év anyagi biztonságát. Összességében stabilnak érzem a helyzetemet, de a kormányzati változásokkal járó új adók és a szárazság miatti esetleges drágulások miatt nem számol"
+    },
+    {
+      "i": 57,
+      "response": "A forint erősödése és az új kormány ígért családtámogatásai, megélhetési költségcsökkentései miatt bizakodóbb vagyok, de a hitelminősítői felminősítés ellenére a GKI figyelmeztetése az uniós pénzek elszórakozására azért bennem is ott a kétely, hogy tényleg könnyebb lesz-e a pénztárcánk egy év múlva."
+    },
+    {
+      "i": 58,
+      "response": "Az infláció lejjebb ment és az euró is olcsóbb lett, így a nyugdíjamból kijövök, de a vagyonadótól meg az új rendeletektől tartok, mert nem tudom, pontosan mennyit visznek el tőlünk. Alapvetően stabilnak érzem a helyzetem, de óvatosan költök, amíg nem látom, mi lesz a tényleges változásokkal."
+    },
+    {
+      "i": 59,
+      "response": "A nyugdíjam mostanában alig változott, de örülök, hogy a benzin olcsóbb lehet és az euró is 350 alatt van, mert a faluban autóval járok és ha kell, spórolok a vásárláson; a vagyonadó engem nem érint, de a hosszú hőhullám miatt tartok a vízdíjtól és a nyári költségektől, úgyhogy jövőre is csak takarékoskodva, de kijövök valahogy."
+    },
+    {
+      "i": 60,
+      "response": "Örülök, hogy olcsóbb lett az euro meg a boltokban is kevesebbet kérnek, meg ha az új kormány tényleg csökkenti a megélhetési költségeket, akkor a nyugdíjamból kijövök valahogy, de azért azt nem ártana, ha a törlesztőm ne emelkedne, mert a szárazságtól meg a melegtől azt se tudom, mennyi lesz a víz meg a villany."
+    },
+    {
+      "i": 61,
+      "response": "Az infláció alacsony és az euró is olcsóbb lett, szóval a nyugdíjamból most kevésbé fogy el az élelmiszer, de az EKB miatti kamatemelés és a lakhatási válság nem érint közvetlenül, viszont a nyári hőség miatt az áram- vagy vízszámlától tartok egy kicsit. Összességében úgy látom, a következő egy évben stabil maradhat a megélhetésem, ha nem jön váratlan kiadás."
+    },
+    {
+      "i": 62,
+      "response": "Nekünk kisvárosban alapfokú végzettséggel a fizetésünk ugyanannyi marad, de jó hír, hogy a benzin olcsóbb lehet és az infláció is lejjebb ment, úgyhogy a mindennapi bevásárlás és a fűtés-számlák kevésbé fogják azt a kevés pénzt elvinni, mint tavaly. A nagy meleg miatt viszont több lesz a villany a klímára, meg ha a vízdíj is emelkedik, az kicsit aggaszt, de öss"
+    },
+    {
+      "i": 63,
+      "response": "Nekem kisvárosban alapfokú végzettséggel állami segédmunkásként nem ugrik be azonnal a fizum, de örülök, hogy az euró 350 alatt van és az infláció is lejjebb ment, így a bevásárlás kevésbé fáj; remélem, a Tisza ígért áfacsökkentése és családtámogatása tényleg elér hozzánk is, mert így csak épphogy kijövünk a havi számlákkal."
+    },
+    {
+      "i": 64,
+      "response": "A hírek szerint erősödött a forint és jönnek az uniós pénzek, de nekem van változó kamatozású hitelem, amit az emelkedő kamatok miatt félek, hogy kevesebből nehezebb lesz fizetni, úgyhogy a következő egy évben inkább szorosabbra kell húznom a nadrágszíjat, hátha később az áfacsökkentés könnyít rajtam."
+    },
+    {
+      "i": 65,
+      "response": "A nyugdíjam körül még bizonytalan a vagyonadó meg a kamatemelés miatti drágulás, de az alacsony infláció és az erős forint, meg a Mol-adó miatti olajárcsillapítás nekem kisvárosi nyugdíjasként most inkább könnyebbséget jelent, így a következő egy évben úgy érzem, kijövünk a rezsivel és a bevásárlással valahogy."
+    },
+    {
+      "i": 66,
+      "response": "Budapesti diplomásként most bizakodóbb vagyok, mert az erős forint, az alacsony infláció és a tervezett áfacsökkentés megkönnyíti a megélhetést, de a kormányváltás utáni büdzséátvilágítástól függ, hogy a javulás tartós lesz-e vagy csak átmeneti."
+    },
+    {
+      "i": 67,
+      "response": "Falun élő diplomásként a forint erősödése és az alacsony infláció nekem is segít, de a beígért vagyonadó miatt kicsit tartok tőle, hogy a megtakarításainkat vagy a házunk után jövőre többet kell majd kifizetnünk, úgyhogy óvatosabban költök, mint egy éve."
+    },
+    {
+      "i": 68,
+      "response": "Kisvárosban középfokú végzettséggel élve a forint erősödése és az ígért áfacsökkentés jól jönne a bevásárlásnál, de a változó kamatozású hiteleknél az EKB miatti drágulástól tartok, meg a vagyonadótól is, úgyhogy óvatosan tervezek, nem számítok nagy fellélegzésre."
+    },
+    {
+      "i": 69,
+      "response": "Nekem nyugdíjasnak nem lesz könnyebb a következő évben, mert bár ígérik az áfacsökkentést meg az olcsóbb üzemanyagot, azt látom a hírekben, hogy a kamatok magasak maradtak és a lakhatás meg az élelmiszer ára továbbra is az egekben van, a pénzem meg ugyanannyi. A kánikula és a szárazság is inkább csak drágítja majd a rezsit, úgyhogy szorosan kell majd fognom a gatyát"
+    },
+    {
+      "i": 70,
+      "response": "Örülök, hogy az infláció lecsökkent és a forint is erősödött, így a nyugdíjamból kijövök, de az albérletárak és a bizonytalan hírek miatt azért tartok tőle, hogy ha a kamatok mégis megugranak, az mindenen elesz."
+    },
+    {
+      "i": 71,
+      "response": "A forint erősödése és az alacsony infláció miatt a hétköznapi kiadásainkon most könnyebb úgy-ahogy tartani, de a lakhatási válság miatt a városon belül is szorít a gatya, és nem érzem biztosnak, hogy egy év múlva már megfizethetőbb lesz az albérlet vagy a saját lakás. Ha az uniós pénzek tényleg bejönnek és ígérnek áfacsökkentést, az segíthetne, de egyelőre csak reménykedem,"
+    },
+    {
+      "i": 72,
+      "response": "A forint erősödése és az alacsonyabb infláció jól jön, mert a boltban és a kúton is kevesebbet fizetek, de a falun azt látom, hogy az áfacsökkentés és a kisvállalkozói támogatás még csak ígéret, így óvatosan költök, amíg nem látom a saját pénztárcámon is."
+    },
+    {
+      "i": 73,
+      "response": "A forint eddig példátlanul erősöint, és ha tényleg jönnek az uniós milliárdok meg az ígért áfacsökkentés, nekünk kisvárosi családnak végre kicsit fellélegezhet a pénztárcánk, de az emelkedő kamatok miatt a változó hitelünk törlesztője még odacsíphet, úgyhogy óvatosan reménykedem."
+    },
+    {
+      "i": 74,
+      "response": "Nekem alapfokú végzettséggel és kisvárosban élőként nagyobb gondom a napi megélhetés és a drága boltok, mint a forint erősödése, úgyhogy ha az új kormány tényleg csökkenti a költségeket és több szabadság is lesz, csak akkor látok kicsit jobb fél évet, de egyelőre kivárom."
+    },
+    {
+      "i": 75,
+      "response": "A forint erősödése és az alacsonyabb infláció miatt kicsit nyugodtabban nézek a következő év elé, de a vagyonadó és a kormányváltás utáni bizonytalanság miatt óvatosan költekezem, és a nyári szárazságtól is tartok a rezsi miatt."
+    },
+    {
+      "i": 76,
+      "response": "Budapesti alapfokú végzettségűként nekem a forint erősödése és a tervezett áfacsökkentés, meg a benzinár-esés híre ad egy kis légzést, de a változó kamatos hitelünk miatt az EKB-s kamatemelési félelem bennem van, úgyhogy óvatosan reménykedek, de még mindig szűken jövünk ki."
+    },
+    {
+      "i": 77,
+      "response": "A kisvárosi, felsőfokú végzettségű háztartásunkat az infláció látványos mérséklődése és a forint erősödése most kicsit fellélegezteti, de a vagyonadó és a bizonytalan uniós pénzek miatt óvatosabban tervezek, nem költekezek túl bátran a következő egy évben."
+    },
+    {
+      "i": 78,
+      "response": "Nyugdíjas felsőfokúként a forint erősöedése és az alacsony infláció jól jön a megélhetésnél, de a lakhatási válság és a várható hőhullám miatt az energia- meg vízköltségek bizonytalansága miatt óvatosan remélem, hogy kijövünk a fix bevételekből egy évig."
+    },
+    {
+      "i": 79,
+      "response": "Nyugdíjas háztartásként a forint erősödése és az ígért megélhetési költségcsökkentés jót tehet a pénztárcámnak, de a közelgő hőhullám és a bizonytalan uniós pénzek miatt az energia- és rezsiszámláktól még tartok egy kicsit. Összességében óvatos bizakodással nézek a következő év elé, de nem költekeznék túl a kereteimen."
+    },
+    {
+      "i": 80,
+      "response": "Nyugdíjas Budapesten úgy látom, a mérséklődő infláció és az ígért áfacsökkentés, meg az uniós pénzek beindulása kicsit fellélegeztethet, de a tervezett vízdíj-változás és a külföldi kamatemelés miatt azért óvatosan bánok a pénzzel, mert a rezsi és a megtakarításaim értéke még bizonytalan."
+    },
+    {
+      "i": 81,
+      "response": "A forint erősödése és az alacsony infláció miatt kicsit nyugodtabban nézek a következő év elé, de az EKB miatti kamatemelési várakozások a változó hitelünknél még simán elronthatják a terveinket, ha a törlesztőnk megugrik."
+    },
+    {
+      "i": 82,
+      "response": "Nyugdíjas felsőfokú budapestiként az alacsony infláció és a tervezett áfacsökkentés nekem is jól jönne, de a tartós hőhullám miatti áram- és vízszámlák és a bizonytalan kormányzati újratervezés miatt óvatosan költök, így a következő egy évben legfeljebb stagnáló, de kiszámítható anyagi helyzetre számítok."
+    },
+    {
+      "i": 83,
+      "response": "Falun középfokú végzettséggel és változó kamatozású hitellel élek, úgyhogy az EKB-s kamatemelési hírek miatt tartok tőle, hogy a törlesztőnk csak nőni fog, miközben a szárazság és a vízdíj-módosítások is rátehetnek egy lapáttal a rezsire, szóval a következő egy évben inkább szorosabbra kell húznunk a nadrágszíjat."
+    },
+    {
+      "i": 84,
+      "response": "Nyugdíjas kisvárosi emberként a forint erősödését és a benzin árának ígért csökkenését örömmel fogadom, de a beígért vagyonadó miatt bizonytalan vagyok, mert nem tudom, a mi szerény ingatlanunk után is kell-e majd fizetni, és a hosszú hőhullám miatt az áram- és vízszámláktól is tartok."
+    },
+    {
+      "i": 85,
+      "response": "Nekem alapfokú végzettséggel, nagyvárosban egyik napról a másikra megélőként nem sokat jelentenek ezek a kormányígérgetések, mert ha jön a vagyonadó meg az EKB-miatt emelkedő törlesztő, meg a hőség miatt az áram- és vízszámla is nő, nekem csak szűkebb lesz a hónap végére. Bízok benne, hogy a családtámogatásokból valami nálam is segít, de őszintén szól"
+    },
+    {
+      "i": 86,
+      "response": "Budapestinék jobban látom a jövőt, mert a forint erősödése, az alacsony infláció és a kormány ígért családtámogatásai miatt kevesebbet kell költenünk az alapvető dolgokra, de azért a hosszú hőhullám miatt a villanyszámlától még tartok egy kicsit."
+    },
+    {
+      "i": 87,
+      "response": "Nekem alapfokú végzettséggel és nagyvárosi albérleten élőként a lakhatási válság miatt semmi nem lesz olcsóbb, a hírekben ígért forinterősödés meg uniós pénzek az én pénztárcámban nem fognak landolni, viszont ha az EKB miatt emelik a kamatokat, a változó hiteles ismerőseim mellett nekem is drágább lehet minden, szóval jövőre is szűken jövünk ki."
+    },
+    {
+      "i": 88,
+      "response": "Kisvárosban diplomásként egyelőre nem éget a lakhatási válság, és az alacsony infláció meg a beharangozott áfacsökkentés miatt úgy érzem, a megélhetésünk a következő egy évben kicsit könnyebb lehet, de az új kormány ígéretei még nem látszanak a fizetésemben, szóval óvatosan örülök."
+    },
+    {
+      "i": 89,
+      "response": "Azt látom, hogy az új kormány ígéri az áfacsökkentést és a családtámogatások bővítését, meg a benzinár is lejebb mehet, szóval ha tényleg megvalósítják, könnyebb lesz kijönnünk a fizetésből, de egyelőre kivárom, míg a pénztárcámban is érzem, nem csak a hírekben."
+    },
+    {
+      "i": 90,
+      "response": "Öregemberként jól jön, hogy olcsóbb lett az élelmiszer és az energia, meg az euró is kevesebb forintba kerül, de a szárazság miatt tartok tőle, hogy a vízdíj és a kerti termés kimaradása miatt azért nem lesz teljesen zsebbarát az elkövetkező év."
+    },
+    {
+      "i": 91,
+      "response": "A forint erősödése jól jön a nyári külföldi nyaralásnál meg a drága bevásárlásoknál, de a lakhatási válság és a változó kamatos hiteleknél jövőre várható kamatemelés miatt nem érzem biztosnak a helyzetünket, így inkább takarékoskodva, óvatosan tervezem a családi költségvetést."
+    },
+    {
+      "i": 92,
+      "response": "Az uniós pénzek és a forint erősödése nyugodtabbá teszi a nyugdíjas életünket, de az áfacsökkentés és az olcsóbb üzemanyag csak akkor segít igazán, ha tényleg megjönnek ezek a ígéretek az új kormánytól."
+    },
+    {
+      "i": 93,
+      "response": "A forint erősödése és az alacsonyabb infláció jól jön a bevásárlásnál, de budapesti albérletben élőként a lakhatási válság miatt egyáltalán nem nyugodtak a kilátásaim, mert az új kormány ígéretei még nem látszanak a saját pénztárcámon."
+    },
+    {
+      "i": 94,
+      "response": "Nekem alapfokú végzettséggel és nagyvárosi lakhatási költségekkel a bérem alig tartja a lépést, de a forint erősödése és az alacsony infláció most kicsit nyugodtabban hagyja a pénztárcámat, szóval a következő évben legfeljebb stagnálásra vagy vékonyka javulásra számítok, ha nem jön közbe valami váratlan kiadás."
+    },
+    {
+      "i": 95,
+      "response": "Nekem alapfokú végzettséggel kisvárosban amúgy se túl sok a pénzem, de ha tényleg lejjebb megy a benzinár és az euróhoz képest erős marad a forint, akkor a mindennapi kiadásokon legalább egy kicsit könnyebb lesz, bár a vagyonadó meg az átvilágítások miatt bizonytalan, mit hoznak be még ellenünk."
+    },
+    {
+      "i": 96,
+      "response": "Albérletből tengődök egy nagyvárosban, és bár a forint most erős meg jöhetnek uniós pénzek, az lakhatási válság miatt az én pénztárcámban nem fog sokat javítani, inkább csak a túlélésre játszom a drága bérleti díjak mellett. Ha a kamatok mégis felmennek, az kifejezetten rosszul érintene, de egyelőre nincs hitelünk, szóval marad a napi számolgatás."
+    },
+    {
+      "i": 97,
+      "response": "A benzinár és az infláció csökkenése, meg az erős forint kicsit könnyít a napi kiadásokon, de Budapesten a lakhatási válság miatt az albérlet vagy lakásvétel továbbra is behajthatatlan fal, úgyhogy a pénztárcámban nem lesz igazi fellélegzés egy év alatt."
+    },
+    {
+      "i": 98,
+      "response": "Öregemberként a kisvárosi nyugdíjamból tengődök, a vízdíj és a Mol-adó körüli hírekből nem látok egyenesen több pénzt a zsebemben, inkább attól félek, hogy az állandó bizonytalanság miatt még a rezsi is drágább lehet, szóval a következő évben szorosabbra kell húznom a nadrágszíjat."
+    },
+    {
+      "i": 99,
+      "response": "Nyugdíjas kisvárosi emberként a forint erősödését és az alacsony inflációt jól érzem a boltban, de az árak még így is magasak, és a hosszú hőhullám miatt tartok a rezsiszámlák emelkedésétől, úgyhogy a következő egy évben legfeljebb stagnáló, óvatosan kiegyensúlyozott anyagi helyzetre számítok."
+    },
+    {
+      "i": 100,
+      "response": "Nyugdíjasért a kisnyugdíjam mellett az infláció lassulása és az ígért megélhetési költségcsökkentés jól jönne, de a változó kamatok és a várható áremelkedések miatt azért óvatosan nézek a jövő évre, nem hiszek el mindent azonnal."
+    },
+    {
+      "i": 101,
+      "response": "Budapesti diplomásként a forint erősödése és az uniós pénzek beindulása nekem is segíthet a megélhetésen, de a változó kamatozású hiteleknél az EKB miatti kamatemelés és a kormány átvilágítása miatti bizonytalanság miatt óvatosan tervezem a következő egy évet."
+    },
+    {
+      "i": 102,
+      "response": "Nekem most jó hír, hogy 350 alatt van az euró, mert nyáron terveztem valutát váltani külföldi fesztiválhoz, de az alapkamat tartása és a régiós kamatemelési nyomás miatt félek, hogy ha hitelt kellene felvennem vagy lakbérem emelkedik, az simán elviszi a kis megtakarításomat."
+    },
+    {
+      "i": 103,
+      "response": "Nekem alapfokú végzettséggel falun nehéz lesz jobban járni, mert a vagyonadó és a Mol-adó nem a mi zsebünkben marad, de a forint erősödése meg a családtámogatások ígérete miatt talán nem lesz drágább az alapélet, ha nem rontják el az uniós pénzeket."
+    },
+    {
+      "i": 104,
+      "response": "Nekem alapfokú végzettséggel falun nagyobb gondom a hőség meg a drága élet, mint a forinterősödés, úgyhogy a következő egy évben legfeljebb a létfontosságúra futja, ha a számlák és az élelmiszer ára nem csökken tényleg."
+    },
+    {
+      "i": 105,
+      "response": "Nekem falun alapfokú végzettséggel megvan a napi betevő, és örülök, hogy mérséklődött az infláció meg csökkenhet az üzemanyag ára, de a vagyonadótól és az uniós pénzek bizonytalanságától tartok, így a következő évben inkább szűkösen, de kijövünk valahogy a rezsi és az élelmiszer árából."
+    },
+    {
+      "i": 106,
+      "response": "A forint erősödése, az alacsony infláció és a benzinár ígért csökkenése nekem is könnyebbség, de a beígért vagyonadó miatt kicsit bizonytalan, mennyit marad a végén a mi megtakarításainkból."
+    },
+    {
+      "i": 107,
+      "response": "A forint erősödése és az alacsony infláció jól jön a bevásárlásnál meg a nyári utazásnál, de a lakhatási válság miatt városon belül albérletből albérletbe sodródunk, és ha az EKB miatt emelkednek a kamatok, a változó hitelünk törlesztője ismét elszállhat. Összességében óvatosan bizakodom, de a lakásronta és a bizonytalan kamatok miatt nem érzem még biztosnak a javulást."
+    },
+    {
+      "i": 108,
+      "response": "Nekem nyugdíjas falusi emberként a vagyonadó meg a különféle kormányzati átrendezések inkább bizonytalanságot hoznak, de az erős forint meg a benzinár csökkenésének ígérete kicsit könnyíthet a mindennapi kiadásokon, ha tényleg így lesz. A hosszú hőhullám meg a szárazság viszont azt jelenti, hogy a kertemmel és a rezsivel is több gondom lehet, úgyhogy azért szorosan kell"
+    },
+    {
+      "i": 109,
+      "response": "Falun élve és diplomásként a forint erősödése meg a megígért áfacsökkentés jól jönne a mindennapi kiadásoknál, de a vízdíj-módosítás és az új kormány költségvetési átvilágítása miatt óvatosan várom, hogy tényleg több maradjon a pénztárcámban egy év múlva."
+    },
+    {
+      "i": 110,
+      "response": "Nyugdíjas budapestiként a benzin és a gázolaj árcsökkenése megkönnyíti a mindennapjaimat, és az erős forint miatt az euróváltás is jobban kijön, de a vagyonadó és a lakhatási válság híre miatt óvatosan nézek a jövő évre, mert nem tudom, mennyit visz el tőlünk az új rendszer."
+    },
+    {
+      "i": 111,
+      "response": "A falun nyugodtabbak az árak, és az alacsony infláció meg az erős forint nekem is segít a bevásárlásban, de a vagyonadó és a bizonytalan uniós pénzek miatt óvatosan tervezek, nem költekeznék túl. Ha a családtámogatások tényleg bővülnek, az javíthatna a helyzetünkön, de egyelőre kivárom, mit hoz a költségvetés átvilágítása."
+    },
+    {
+      "i": 112,
+      "response": "Falun alapfokú végzettséggel kevés a pénz, a hírekben ígérgetnek családtámogatást meg olcsóbb üzemanyagot, de az emelkedő kamatok és a szárazság miatti drágulás inkább szívja a zsebem, úgyhogy a következő egy évben legfeljebb nullára járok, de könnyebbre nem számítok."
+    },
+    {
+      "i": 113,
+      "response": "Nekem nyugdíjas kisvárosi emberként jól jön, hogy 350 alá ment az euró, így az unokáknak vett nyári cucc olcsóbb lesz, de a hosszú hőhullám és a vízdíj-módosítás miatt a rezsi nyáron simán elszaladhat, úgyhogy azért szorosan figyelem a pénztárcámat."
+    },
+    {
+      "i": 114,
+      "response": "A forint erősödése és az alacsony infláció miatt végre kevésbé szorít a gázsi, ráadásul ha a benzin is olcsóbb lesz, több marad a családi kasszában, de a falun élőként várom, hogy a ígért családtámogatások tényleg megjöjjenek, mert abból nekünk közvetlenül lenne könnyebb."
+    },
+    {
+      "i": 115,
+      "response": "Nyugdíjas kisvárosi emberként engem leginkább az örül, hogy az infláció lecsökkent és az euró is gyengült, meg MP szerint a benzin is olcsóbb lehet, így a szűkös nyugdíjamból talán kevésbé kell nélkülözni, de az új kormány ígéretei még csak ígéretek, úgyhogy óvatosan reménykedem, hogy nem lesz rosszabb a következő egy év."
+    },
+    {
+      "i": 116,
+      "response": "A forint erősödése jól jön, ha nyaralni megyünk külföldre, de itthon a lakhatási válság és a változó kamatozású hiteleknél fenyegető kamatemelés miatt azt érzem, hogy a hónap végére alig marad több pénzünk, mint eddig."
+    },
+    {
+      "i": 117,
+      "response": "Nyugdíjaséknak az uniós pénzek felszabadulása és a forint erősödése talán stabilizálhatja a megélhetést, de az ígért áfacsökkentésig a hőség miatti víz- és rezsiterhek és a bizonytalan kormányzati átvilágítás miatt óvatosan tervezek, mert a kasszánk nem enged meg nagy kockázatot."
+    },
+    {
+      "i": 118,
+      "response": "Nekem kisvárosi nyugdíjasnak jól jön, hogy olcsóbb lett az üzemanyag meg alig van infláció, de azt várom, hogy az ígért áfacsökkentés tényleg megjelenjen a boltokban, mert a rezsivel meg az élelmiszerrel így is számolnom kell minden hónapban."
+    },
+    {
+      "i": 119,
+      "response": "Az öregembernek jó hír, hogy olcsóbb lett az üzemanyag meg a bolt, meg erős a forint, de falun élő nyugdíjasként én csak azt látom, hogy a kasszában kevés a pénz, és nem tudom, ebből a sok ígéretből mi jut tényleg a mi kis házunkhoz egy év múlva."
+    },
+    {
+      "i": 120,
+      "response": "Nekem már nincs hitelünk, nyugdíjból élünk, úgyhogy a kamatmegőrzés nem fáj, de az infláció ugyan alacsonyabb, a falusi élelmiszer- és tüzelőárak még így is azt hozzák, hogy jövőre is csak spórolással jutunk ki a gondokból. Az uniós pénzekről meg csak remélem, hogy ide is eljut belőle valami, mert nekünk közvetlenül nem sokat segített eddig a nagy bejelenté"
+    },
+    {
+      "i": 121,
+      "response": "A nyugdíjam mellett a vagyonadó és a Mol-adó miatti áfacsökkentés még bizonytalan, de az erős forint és a megígért megélhetési támogatások miatt úgy érzem, jövőre talán nem szorulok majd annyira a szűkös garast nyomorgatni, mint eddig."
+    },
+    {
+      "i": 122,
+      "response": "Budapestiként jól jön, hogy a forint most erős meg az alapkamat is nyugodt, és ha tényleg megjönnek az uniós milliárdok meg az ígért áfacsökkentés, talán végre nem azt érzem majd, hogy minden hónapban a takarékoskodáson kell szorítanom, de egyelőre kivárom, mit hoznak ténylegesen az új kormány intézkedései."
+    },
+    {
+      "i": 123,
+      "response": "Nekem alapfokú végzettséggel falun nehéz lenne megmondani, merre billen a pénztárcánk, mert a hírek szerint van vagyonadó és költségvetés-átvilágítás, de az euró olcsóbb lett meg több uniós pénz jöhet, úgyhogy kivárom, a gyerekekre meg az apás szabira jobban figyelek, mint a nagy ígérgetésekre."
+    },
+    {
+      "i": 124,
+      "response": "Az euró árfolyam esése és a befagyasztott uniós pénzek felszabadulása nekem is adhat egy kis lélegzetet, de a lakhatási válság és a jövő nyári hőség miatti várható víz- és rezsiterhek miatt azt érzem, alig lesz több pénz a zsebemben, legfeljebb nem csúszunk lejjebb."
+    },
+    {
+      "i": 125,
+      "response": "Budapesten albérletből élek középfokú végzettséggel, szóval a lakhatási válság miatt a pénztárcámban alig marad valami, de ha tényleg csökkentik a megélhetési költségeket és jönnek az uniós pénzek, talán nem lesz rosszabb a helyzet, csak nehogy a vagyonadó vagy a vízdíj módosítása pont engem szúrjon ki."
+    },
+    {
+      "i": 126,
+      "response": "Nekem öregembernek a falun nincs hitelem, de a vízdíj meg a benzinár hírekből nem látom pontosan, mennyit kell majd fizetnem, így inkább úgy érzem, maradok a szűkös, de kiszámolt nyugdíjból, és csak remélem, hogy nem emelik az alapvető dolgokat."
+    },
+    {
+      "i": 127,
+      "response": "A hírek szerint jöhet áfacsökkentés és több családtámogatás, de a vagyonadó meg a külföldi kamatemelés miatt inkább óvatosan várom a következő egy évet, mert nem tudom, a végén nálam marad-e több pénz a rezsin és a bevásárláson."
+    },
+    {
+      "i": 128,
+      "response": "Budapesten lakásként vagy albérletként még mindig az viszi a pénzem javát, és ha a változó hiteleseknél emelkedik a törlesztő, az belém is rúg, viszont az erős forint meg a családtámogatások bővítése talán kicsit könnyebbé teszi a nyári kiadásokat. Összességében stagnálásra vagy lassú kis javulásra számítok, de a lakhatási válság miatt nem érzem magam biztonságban any"
+    },
+    {
+      "i": 129,
+      "response": "Nyugdíjas háztartásként a forint erősödése és az alacsony infláció nekem is segít, így a megélhetésem biztosabbnak tűnik, de a lakhatási válság és a kormányváltás utáni bizonytalan költségvetés miatt óvatosan tervezek, nem várok csodát egy éven belül."
+    },
+    {
+      "i": 130,
+      "response": "A forint erősödése és az alacsony infláció jó hír a pénztárcámnak, de Budapesten az albérleti válság és a beígért vagyonadó miatt nem érzem biztosnak, hogy tényleg többet tudok majd félretenni egy év múlva."
+    },
+    {
+      "i": 131,
+      "response": "A kisvárosban élő alapfokú végzettségű emberként nekem a hírekben emlegetett uniós milliárdokból alig jut, viszont az alacsony infláció és az erős forint jó, mert a boltban kevesebbet kell fizetnem, csak a hiteleseknek való kamatemelés és a vagyonadó izgat, de nekem nincs hitelem meg vagyonom, úgyhogy a következő évben csak a napi megélhetésért kell szűkösen, de kijönni."
+    },
+    {
+      "i": 132,
+      "response": "Egyetemista fejjel nézve a lakhatási válság miatt az albérleti árak továbbra is szívnak, de az alacsony infláció, az erős forint és a tervezett áfacsökkentés meg a diákhitel-döntések miatt a mindennapi kiadásaimon kicsit könnyebb lesz a következő évben."
+    },
+    {
+      "i": 133,
+      "response": "Falun élő friss diplomásként egyelőre bizonytalan, mit hoz a kormányváltás, de az áfacsökkentés és a forint erőssége miatt reménykedem, hogy nem nyomja agyon a megélhetési költségeket, bár állásban még nem vagyok stabil."
+    },
+    {
+      "i": 134,
+      "response": "Budapesti diplomásként végre fellélegzek, mert a forint erősödése, az alacsony infláció és a beharangozott áfacsökkentés, családtámogatás meg az uniós pénzek miatt kevésbé félek a mindennapi kiadásoktól, de a lakhatási válság itt a fővárosban még mindig az, ami a legszorítja a pénztárcámat."
+    },
+    {
+      "i": 135,
+      "response": "Nekem nyugdíjasnak ezek a nagy politikai változások és az áfacsökkentés ígérete jól jöhetne, de a lakhatási válság és a vagyonadó híre nyugtalanít, mert azt sem tudom, mit hoznak még ki rajtunk az új adókkal, úgyhogy a következő évben legfeljebb arra számítok, hogy a boltban egy kicsit kevesebb lesz a drágulás, de biztos kenyérre valónk lesz."
+    },
+    {
+      "i": 136,
+      "response": "Az infláció csökkenése és a benzin árának ígért zuhanása jól jönne a pénztárcámnak, de a vagyonadó meg a szárazság miatti vízdíj-változások miatt azért bizonytalan, mennyit is marad majd a végén. Egyelőre kivárom, mit hoz a kormány új költségvetése, de tartalékot nemigen tudok képezni, ha minden drágulni is akar."
+    },
+    {
+      "i": 137,
+      "response": "Az infláció lejjebb ment és az euró is olcsóbb lett, úgyhogy a nyugdíjamból most kevésbé szorít a gúzs, de az EKB miatti kamatemelés és a bizonytalan kormányzati áttervezés miatt még óvatosan nézek a jövő évre."
+    },
+    {
+      "i": 138,
+      "response": "A forint erősödése és a tervezett áfacsökkentés jó hír, mert a nyugdíjamból kijövök valahogy, de a nyárra ígért hőhullám és a drága energia miatt tartok tőle, hogy a rezsiköltségek megint elviszik a többit."
+    },
+    {
+      "i": 139,
+      "response": "A forint erősödése és az alacsony infláció miatt a napi kiadásaink egyelőre könnyebbnek tűnnek, de budapesti lakhatási válság és a tervezett vagyonadó miatt nem érzem biztosnak, hogy tizenkét hónap múlva is így állunk majd a pénztárcánkkal."
+    },
+    {
+      "i": 140,
+      "response": "A kisvárosi életünkön az infláció lassulása és a forint erősödése talán kicsit könnyít, de a vízdíj-bizonytalanság és a jövő nyári hőség miatti magasabb rezsi miatt azért nem dőlhetünk hátra, a családtámogatási ígéretekig inkább takarékoskodva nézzük a következő egy évet."
+    },
+    {
+      "i": 141,
+      "response": "A forint erősödése és az alacsonyabb infláció jól jön a bevásárlásnál, de az emelkedő kamatok miatt félek, hogy a változó hitelünk törlesztője megint elszáll, úgyhogy összességében készpénzben nem érzem még biztosnak a helyzetünket."
+    },
+    {
+      "i": 142,
+      "response": "A forint erősödése és az alacsony infláció miatt kicsit nyugodtabban nézek a boltokba meg a nyári külföldi utazásra, de az EKB miatti kamatemelési félelem a változó hitelünknél tartja a bizonytalanságot, így összességében stabilabbnak érzem a helyzetet, de még nem merek nagyobbat költekezni."
+    },
+    {
+      "i": 143,
+      "response": "A kisvárosban élő alapfokú végzettségűként nekem a vagyonadó nem fog fájni, de a Mol-adó miatt meg az infláció lassú csökkenése ellenére is inkább úgy érzem, hogy a rezsi és a mindennapi élelmiszer megmarad drágán, szóval a következő egy évben csak úgy tudom kihozni, ha szigorúan spórolunk és nem engedünk a vásárlási kísértésnek."
+    },
+    {
+      "i": 144,
+      "response": "Az öregember nyugdíjából tengődöm ebben a nagyvárosban, de ha tényleg olcsóbb lesz a benzin meg alig van infláció, talán nem kell annyira számolgatnom, mit vegyek ki a kosárból; azért a vízdíj és a bizonytalan kormányzati átírások miatt még tartok tőle, hogy a végén én is ráfizetek valamire."
+    },
+    {
+      "i": 145,
+      "response": "Az erősödő forint és a változatlan alapkamat nekem, nyugdíjas értelmiségiként a megtakarításaim értékállóságát javítja, de a politikai ígérgetések és a költségvetés átvilágítása körüli bizonytalanság miatt óvatosan tervezek, és nem számítok látványos anyagi javulásra a következő egy évben."
+    },
+    {
+      "i": 146,
+      "response": "Budapesti lakhatási válság miatt nekem is nyomás a költségvetésen, de az uniós pénzek felszabadulása és a megélhetési ígéretek adnak némi reményt, hogy nem lesz rosszabb a helyzetünk, ha az új kormány tényleg átláthatóan gazdálkodik."
+    },
+    {
+      "i": 147,
+      "response": "Budapesti diplomásként egyelőre kivárom, mit hoz a kormányváltás utáni átvilágítás és az ígért áfacsökkentés, de a forint erősödése és a Brüsszeli pénzek miatt óvatosan bizakodó vagyok, hogy a megélhetési költségeink egy év múlvára csökkenhetnek."
+    },
+    {
+      "i": 148,
+      "response": "A nyugdíjam mellett az infláció lassulása és a forint erősödése jól jön, mert a bevásárlás és a nyári utazás kevesebbe kerül, de a vagyonadótól és a kamatemeléstől tartok, ha a gyerekeknek segítek a hitelével, így óvatosan költök majd."
+    },
+    {
+      "i": 149,
+      "response": "Albérleti árak miatt már most is alig jövök ki a havi fizumból, úgyhogy ha a lakhatási válság nem enyhül, a következő évben is csak a túlélésre játszom, nem a félretevésre. Az uniós milliárdok meg a vagyonadó megígért családtámogatások nekem egyelőre csak hírek, a saját pénztárcámban nem érzem őket."
+    },
+    {
+      "i": 150,
+      "response": "A forint erősödése és a tervezett áfacsökkentés nekem is könnyebbséget hozhat a kisvárosi boltokban, de a Mol-adó és a vagyonadó híre miatt óvatosan költök, így a következő évben legfeljebb stagnáló, lassan javuló anyagi helyzetre számítok."
+    },
+    {
+      "i": 151,
+      "response": "A faluban középfokú végzettséggel és bizonytalan melóval nekem a hitelminősítés meg az uniós milliárdok nem sokat jelentenek, de hogy 1,8%-ra esett az infláció és olcsóbb az energia, az legalább a hónap végén kevesebb szorongással tölti meg a pénztárcámat. A jövő évre inkább a szárazságtól és a kiszámíthatatlan helyi munkáktól félek, úgyhogy csak takarékosk"
+    },
+    {
+      "i": 152,
+      "response": "Nekem már nyugdíjas falusi emberként a vagyonadó nemigen érint, de jól jön, hogy olcsóbb lett a benzin és a gáz, meg alig van infláció, így a következő évben valahogy kijövök a pénzemből, ha nem jön közbe nagy betegség."
+    },
+    {
+      "i": 153,
+      "response": "Budapestiként nekem most főleg az jön be, hogy végre 350 alatt az euró és szinte alig van infláció, úgyhogy a nyaralás és a napi bevásárlás is kevésbé fáj, de mivel középfokú végzettséggel dolgozom, a bizonytalan kormányváltás és a költségvetés átírása miatt még óvatosan tervezek, nem hiszek azonnal a családtámogatási ígéreteknek."
+    },
+    {
+      "i": 154,
+      "response": "Nekem középfokú végzettséggel, bérelt lakásban élő fiatalként a forint erősödés és az alacsony infláció jól jön a napi bevásárlásnál, de az EKB miatti kamatemelési várakozás és a közelgő hőhullám miatti vízdíj-változás inkább rontja a kilátásaimat, úgyhogy a következő egy évben inkább csak kijövök a rezsiből és bulikból, de nem lesz sok tartalékom."
+    },
+    {
+      "i": 155,
+      "response": "A forint erősödése és az alacsony infláció jól jön a bevásárlásnál, de az eurókamat-emelés miatt tartok tőle, hogy a változó hitelünk törlesztője megugrik, és a nyári hőség meg a vízdíjas pletykák még ránk vernek egy kis költséget. Összességében stabilabbnak érzem a helyzetet, mint tavaly, de azért szorosan figyeljük a költést."
+    },
+    {
+      "i": 156,
+      "response": "A nyugdíjam most kevesebbet ér, mert a boltban már nem olyan drágák a dolgok, és ha tényleg csökken az áfa, mint mondják, talán kijövök a rezsivel meg a gyógyszerrel, de azért az eszembe van, hogy a városban az albérlet meg a lakásár úgyis az egekben, szóval én csak a magam kis pénzére vigyázok, mert bizonytalan, meddig tart ez a javulás."
+    },
+    {
+      "i": 157,
+      "response": "Budapestin középfokú végzettségűként nekem az számít, hogy ha tényleg jönnek az uniós pénzek és csökken az áfa, talán kicsit több marad a zsebemben, de a kormányváltás utáni költségvetés-átvilágítástól és a nyári hőségtől meg a vízdíj-sufnijavaslatoktól még tartok, hogy a rezsi egy része rámveri az elejét."
+    },
+    {
+      "i": 158,
+      "response": "Nekem alapfokú végzettséggel kisvárosban az a legfontosabb, hogy az áfacsökkentés és az 1,8%-os infláció végre ne eméssze fel a fizum, de a vagyonadó engem nem érint, szóval tisztes megélhetésre számítok, ha lesz rendes munkám."
+    },
+    {
+      "i": 159,
+      "response": "A hírek szerint csökkentenék a megélhetési költségeket és jönnek a családtámogatások meg az apákra is több szabadság, szóval ha tényleg megkapjuk, kicsit könnyebb lesz a hónap vége, de a vagyonadó és az, hogy az uniós pénzeket is el lehet szúrni, bennem is van, úgyhogy óvatosan örülök csak."
+    },
+    {
+      "i": 160,
+      "response": "Nekem alapfokú végzettséggel kisvárosban nem ugrik be a fizu attól, hogy erősödött a forint, és ha az üzemanyag tényleg olcsóbb lesz, az csak a napi túlélésensegít, de rendes tartalékot így se látok magam előtt. A következő évben inkább azon szorongok, hogy lesz-e stabil munkám, mert az ígéreteken kívül nem sok konkrétum ér el egyáltalán hozzám."
+    },
+    {
+      "i": 161,
+      "response": "Nyugdíjas háztartásként a forint erősödése és az alacsony infláció nekem most jól jön, de az emelkedő kamatkörnyezet és a budapesti lakhatási válság miatt nem érzem teljesen biztonságban a pénztárcánkat, ha a gyerekeken vagy a lakáson keresztül ér minket a piaci nyomás."
+    },
+    {
+      "i": 162,
+      "response": "Nyugdíjas falusi emberként a csökkenő infláció és az ígért áfacsökkentés nekem is könnyebbséget hozhat, de a szárazságtól tartok, mert ha a kertem és a tárolt vízellátás bajba kerül, az nekem extra kiadás, nem úszom meg a városi lakhatási válságokat, de a forint erősödése a gyerekeknek küldött kisebb támogatásomnál is jól jön."
+    },
+    {
+      "i": 163,
+      "response": "Budapesti diplomásként nyugtató, hogy az infláció lecsökkent és a forint erősödött, meg az uniós pénzek is mozgolódnak, szóval a családi kasszánkban végre nem a drágulástól kell rettegni, de a nyári szárazság és a bizonytalan kormányváltás miatt óvatosan tervezek, és nem költekezem túl magam."
+    },
+    {
+      "i": 164,
+      "response": "A forint mostanában elég erős és az infláció is alacsony, szóval a napi bevásárlás és a nyaraláshoz való pénzváltás kifejezetten jó most, viszont ha a régióban emelkednek a kamatok, a változó hitelünk törlesztője még fájhat, és a vagyonadó híre is bizonytalanná teszi, mennyire marad meg a megtakarításunk. Összességében óvatosan optimista vagyok, de tartok a kamat- és adóv"
+    },
+    {
+      "i": 165,
+      "response": "A békebeli kisvárosi életünkön most sokat segít, hogy végre 1,8 százalékra lassult az infláció és olcsóbb lett az üzemanyag, de az EKB miatti kamatemelés miatt a változó hitelünk törlesztője izgalmassá teheti a következő egy évet. Összességében bizakodóbb vagyok, mint tavaly ilyenkor, mert ha az uniós pénzek tényleg megjönnek és csökken az áfa, a mi pénztárcánk is könny"
+    },
+    {
+      "i": 166,
+      "response": "Nekem középfokú végzettséggel, nagyvárosban élőként eddig is azt éreztem, hogy az alapkamat tartása miatt a hiteleim nem lesznek olcsóbbak, de az euró 350 alatti árfolyama és a felszabaduló uniós pénzek híre kicsit megnyugtat, hátha a kormányváltás után tényleg csökkennek a megélhetési költségek és több marad a pénztárcámban. Bízom benne, hogy a benzinár is"
+    },
+    {
+      "i": 167,
+      "response": "Nekem nyugdíjasnak alapfokú végzettséggel a városban azt se tudom, hogy a vagyonadó engem érint-e, de az uniós pénzek és az ígért áfacsökkentés miatt talán nem lesz rosszabb a megélhetés, csak azt sajnálom, hogy a meleg miatt többet költök majd áramra a ventillátorra."
+    },
+    {
+      "i": 168,
+      "response": "Nekem alapfokú végzettséggel kisvárosban nem túl acélosak a kilátásaim, mert a vagyonadó meg az átvilágítások inkább a gazdagokat érintik, de a forint erősödés és az ígért áfacsökkentés meg a családtámogatások talán kicsit könnyebbítik a mindennapi kiadásokon, ha tényleg megvalósul."
+    },
+    {
+      "i": 169,
+      "response": "Nekem alapfokú végzettséggel, nagyvárosban élő nyomorgó családként jól jönne az áfacsökkentés és a nyugodtabb gazdaság, de a vagyonadó meg a költségvetés átvilágítása miatt még kivárok, nem hiszek rögtön a javulásban. A forint erősödése meg az alacsony infláció azért ad egy kis levegőt a hónap végén, de a tartalékunk az nincs, úgyhogy óvatosan ör"
+    },
+    {
+      "i": 170,
+      "response": "Budapesti középfokú végzettségűként nekem a forint erősödése és a benzin árcsökkenése már most könnyít a pénztárcámon, de a vagyonadó és a költségvetés átalakítása miatt kivárok, mert nem tudom, a családtámogatások tényleg megérkeznek-e a jövő évi terhek mellett. Összességében óvatosan bizakodó vagyok, de még nem érzem stabilnak a helyzetet."
+    },
+    {
+      "i": 171,
+      "response": "Egyetemista diplomás fejjel Budapesten az albérletárak mellett még mindig szívás lesz megélni, de a forint erősödése és az ígért áfacsökkentés meg az uniós pénzek miatt talán nem lesz rosszabb, mint most, sőt lassan stabilabbá válhat a helyzetem. A változó kamatos hitelektől egyelőre tartok, de hitelt úgysem veszek fel, így a lakhatási válság a legnagyobb tényleges anyagi nyomás rajtam."
+    },
+    {
+      "i": 172,
+      "response": "Falun középfokú végzettséggel élve nekem a vagyonadó valószínűleg nem fog a nyakamba szakadni, viszont az ígért családtámogatásokból és az erősödő forint miatti olcsóbb üzemanyagból talán kevesebbet költök majd, szóval a következő egy évben stabilabbnak érzem a pénztárcánkat, ha tényleg megkapjuk ezeket a segítségeket."
+    },
+    {
+      "i": 173,
+      "response": "Nyugdíjas falusi emberként a forint erősödése és a benzin árának ígért csökkenése jól jönne a szűkös hónapokban, de a jósolt hőség és szárazság miatt a kertem is kevesebbet teremhet, úgyhogy óvatosan reménykedem, hogy nem lesz rosszabb a helyzetünk, mint most."
+    },
+    {
+      "i": 174,
+      "response": "Falun élve és felsőfokú végzettséggel a forint erősödése meg a lecsökkent infláció nekem is könnyebbség, de tartok tőle, hogy az uniós pénzek elszívása vagy a költségvetés átvilágítása miatt jövőre mégis befagyhatnak a támogatások, úgyhogy óvatosan költök, és nem tervezek nagyobb kiadást."
+    },
+    {
+      "i": 175,
+      "response": "Budapestin lakóként jól jön, hogy erősödött a forint meg jönnek az uniós pénzek, de a vagyonadó meg a dráguló hitelek miatt én inkább szorosabbra húzom a nadrágszíjat, mert nem tudom, mennyit visznek el tőlünk a változások."
+    },
+    {
+      "i": 176,
+      "response": "Nekem már nyugdíjas falusi emberként a vagyonadó nem fáj, de az áfacsökkentés és a mérsékelt infláció jól jönne a bevásárlásnál, ha tényleg megérzem az árakon; egyébként óvatosan várom, mit hoz a költségvetés átvilágítása, mert attól tartok, a nyugdíj körül is lehetnek változások."
+    },
+    {
+      "i": 177,
+      "response": "Nyugdíjas kisvárosi értelmiségiként a forint erősödéséből és az alacsonyan tartott kamatokból leginkább azt látom, hogy a megtakarításaim nem hoznak sokat, de a nyári utazásra váltott euró most kevesebbe kerül, és ha az ígért megélhetési költségcsökkentés tényleg megjön, akkor a következő egy évben talán nem szorulok majd annyira a végére."
+    },
+    {
+      "i": 178,
+      "response": "Nyugdíjas budapestiként a májusi 1,8 százalékos infláció és a forint erősödése nyugtat meg, mert végre nem emésztik fel a rezsiszámláim az öregségi ellátásomat, de a tervezett vagyonadó miatt azt sem tartom kizártnak, hogy valamivel kevesebb marad a megtakarításainkból, ha a lakásunk után is kell fizetni."
+    },
+    {
+      "i": 179,
+      "response": "Albérletben lakunk a városban, és hiába ígérnek áfacsökkentést meg családtámogatást, azt látom, hogy a lakhatás egyre drágább, szóval az elkövetkező évben is szűkmarkúan kell beosztanom a fizetést. A benzin olcsóbb lehet, az uniós pénzek megjöhetnek, de én ebből a vagyonadóból és a bizonytalan költségvetésből egyelőre nem érzek több pénzt a zsebemben."
+    },
+    {
+      "i": 180,
+      "response": "Nekem középfokú végzettséggel falun nem igazán látszik még a zsebemen a brüsszeli milliárdok ígérete, de ha tényleg csökken a benzinár és jön valami áfacsökkentés, az legalább a napi költekezésen könnyíthet egy kicsit. A vagyonadó engem nem érint, de az alapkamat tartása és a külföldi kamatemelési hírek miatt hitelt semmiképp nem vennék fel mostanában."
+    }
+  ]
+}

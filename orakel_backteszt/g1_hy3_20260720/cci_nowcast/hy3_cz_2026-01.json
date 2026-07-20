@@ -1,0 +1,959 @@
+{
+  "run": "G1/4 CZ CCI nowcast 2026-01",
+  "model": "tencent/Hy3",
+  "provider": "siliconflow",
+  "date": "2026-07-20",
+  "protocol": "orakel_cz_nowcast.py változatlanul (N=60, SSR linear + OpenAI-small)",
+  "flag": "CLEAN",
+  "flag_note": "target-ablak >= 2025-08",
+  "corpus_files": {
+    "corpus_cz_2026_01.json": "625890b8349a86eb085f7b426f87079c306cd373eb9ff85011674b13887a881d"
+  },
+  "gt": 1.1,
+  "per_seed": [
+    {
+      "seed": 1,
+      "n_sent": 60,
+      "ssr_score": 3.138338426942264,
+      "nowcast": 6.916921347113192,
+      "sentences": [
+        "Máme se s manželem z práce zhruba průměrně, takže ty rostoucí mzdy a zpomalená inflace nám konečně trochu uleví v rozpočtu, ale bojím se zdražení nájmu a energií, které nám ty přidalé peníze zase sebere. Celkově to vidím spíš nadějně, hlavně že nezdražuje jídlo jako před rokem, ale klidnější budu, až uvidím, jestli nám opravdu zbyde víc než loni.",
+        "Mzdy nám snad porostou a inflace je konečně nízko, takže bychom se mohli dýchnout, ale bojím se těch dražších energií a zdražených hypoték, takže moc neutrácet nebudeme a radši si něco necháme na horší časy.",
+        "S rostoucí průměrnou mzdou a zpomalením inflace se máme doma líp než před rokem, ale zdražení nájmů a hypoték spolu s vysokým schodkem rozpočtu mě děsí, že tohle klidné období nemusí vydržet celý rok. Jako vysokoškolák na Moravě s odloženými úsporami doufám v stabilitu sazeb od ČNB, ale politické sliby bez jasného financování mi kalí optimismus.",
+        "Průměrná mzda sice roste a inflace zvolňuje, ale s dražšími nájmy, hrozbou zdražení energií a nedostupným bydlením bude náš rodinný rozpočet za rok spíš tak tak vyrovnaný než že bychom se výrazněji zlepšili. Nová vláda slibuje levnější energie a nízké daně, ale podle kritiky chybí peníze na jejich plány, takže moc nevěřím, že se nám reálně uleví.",
+        "Ceny nájmů a hypoték mi jdou proti klesající inflaci, takže i když mám práci a mzda asi poroste, reálně se s rodinou moc nepoleví, spíš budeme počítat každou korunu kvůli dražšímu bydlení a hrozbě dražších energií.",
+        "Jako pražský důchodce sice vítám zpomalení inflace a pár stovek navíc k důchodu, ale obávám se, že dražší energie kvůli světové situaci a nejisté sliby nové vlády s obřím schodkem moji domácnost spíš přiškrtí než polepší.",
+        "Jako mladý bez vysoké školy na Moravě vidím ty sliby o růstu mezd fajn, ale bojím se, že nájmy zdraží skoro o deset procent a se šedesáti miliardama schodku nakonec zaplatím všechno z vlastní kapsy.",
+        "Jako Pražák se středoškolským vzděláním vidím naše vyhlídky spíš pesimisticky, protože zdražení nájmů a hypoték spolu s rostoucími cenami bytů a hrozbou dražších energií slušně žere to, co nám přidaly průměrné mzdy, a reálně nám konce měsíce budou těsnější.",
+        "Jako důchodce na venkově vidím naše finance spíš neutrálně až opatrně, protože sice inflace klesla a mzdy vnoučatům rostou, ale hrozící dražší energie a vysoký státní schodek mi říkají, že žádné velké uvolnění peněženky nečekám.",
+        "Jako důchodce s vysokoškolským vzděláním vidím naše finance jako celkem stabilní díky zvýšenému důchodu a nízké inflaci, ale obávám se zimních mrazů, růstu nájmů u známých i hrozby dražších energií, které by mohly naši úsporu snadno zkomplikovat.",
+        "Jako důchodce na Moravě vidím naše finance spíš stabilně díky zvýšenému důchodu a nízké inflaci, ale obávám se zdražení energií kvůli světové situaci a lednovým výpadkům proudu, takže raději šetřím na horší časy.",
+        "Mzdy nám sice slibují růst a inflace je konečně nízko, ale bojím se zdražování nájmů a energií i toho, že nová vláda a velký schodek rozpočtu naše peníze za rok zase provětrají. Pro střední třídu tady venku v Čechách to nevypadá na žádné velké uvolnění, spíš budeme muset počítat každou korunu dál.",
+        "Jako důchodce s nízkým vzděláním vidím naše vyhlídky celkem klidné, důchod nám sice moc nepřidal, ale s levnějšími energiemi a nízkou inflací vystačíme, i když se pořád bojím, aby se zase nezvedly ceny plynu kvůli té válce na Blízkém východě.",
+        "Jako mladý člověk se základním vzděláním na Moravě vidím ty sliby o růstu mezd a levnějších energiích fajn, ale s minimální mzdou sotva vyjdu a drahé hypotéky mě od vlastního bydlení stejně drží daleko, takže za rok budeme asi pořád tak tak.",
+        "Jako důchodce v Praze mám sice o pár stovek vyšší penzi, ale s nájmy, co zdraží o devět procent, a dražšími byty kolem sebe vidím naše vyhlídky spíš bledě, protože na tyhle ceny v hlavním městě s obyčejným důchodem nestačím. Vláda slibuje, že nás sblíží, ale když čtu, že utrácejí ve velkém a nikdo neví, kde na to vezmou, tak se bojím, že za rok bud",
+        "Jako Pražan se středoškolským vzděláním vidím naše finance spíš rozporuplně: mzda sice roste a inflace klesla, takže mám o něco víc v peněžence, ale drahé hypotéky a rostoucí ceny pražských bytů nám definitivně zavřely dveře k vlastnímu bydlení a bojím se, aby se kvůli energiím zase nezvýšily výdaje. Na další rok proto počítám s tím, že budeme šetřit a zůstaneme v pod",
+        "Jako člověk se základním vzděláním na Moravě vidím ty vyhlídky smíšeně – mzda a minimální mzda sice rostou a inflace je nízká, ale bojím se zdražení energií kvůli světu a hypotéky i byty jsou pro nás nedosažitelné, takže rozpočet domácnosti zůstane napnutý.",
+        "Nájem nám asi zase zvednou skoro o deset procent a hypotéku bychom si teď kvůli sazbám přes pět procent ani nevzali, takže i když průměrná mzda roste a inflace klesá, reálně se cítím spíš zahučený v drahém bydlení a s obavami z dražších energií, takže našetřit letos moc nepůjde.",
+        "Jako Pražan s vysokoškolským vzděláním vidím naše finance spíš opatrně: růst mezd a stabilní sazby nás trochu uklidňují, ale dražší hypotéky, zdražování pražských bytů a hrozba růstu cen energií nám na příští rok přidělávají starosti s rozpočtem.",
+        "Jako pražská domácnost s vysokoškolským vzděláním sice vidím, že inflace klesla a průměrné mzdy rostou, ale obávám se, že zdražení nájmů o šest až devět procent a hrozba dražších energií nás reálně připraví o pocit zlepšení, zatímco vládní sliby a vysoký rozpočtový schodek ve mně budí spíš nejistotu než klid.",
+        "Jako Pražák se středoškolským vzděláním vidím naše vyhlídky rozporuplně: mzdy sice rostou a inflace je nízká, ale zdražení nájmů o šest až devět procent a dražší hypotéky nám život v hlavním městě stejně citelně prodraží. Pokud zůstaneme v podnájmu, budeme každou korunu počítat víc než dřív, i když se celkově ekonomice daří.",
+        "Jako mladý bez vysoké školy mimo Prahu vidím naše vyhlídky rozpačitě, protože sice mzdy a minimální mzda rostou a inflace klesla, ale nájmy zdraží skoro o deset procent a hypotéky jsou pro nás nedosažitelné, takže z výhledu růstu ekonomiky moc neucítíme.",
+        "Jako mladý bez vysoké školy z venkova vidím ty sliby o růstu mezd a nízké inflaci fajn, ale s dražšími hypotékami a rostoucími cenami bytů se k vlastnímu bydlení stejně nejspíš nepřiblížím, takže můj rozpočet zůstane napnutý a závislý na tom, co vydělám teď.",
+        "Jako důchodce na Moravě vítám, že mi valorizace přidala přes šest set korun a inflace je nízká, ale obávám se, že dražší nájmy pro děti, hrozba růstu cen energií a schodek rozpočtu 310 miliard mi doma klid neudělají, takže za rok budeme spíš šetřit než utrácet.",
+        "Jako mladý člověk se středoškolským vzděláním na Moravě vidím růst mezd sice pozitivně, ale bojím se, že zdražování nájmů o šest až devět procent mi i přes vládní sliby o levnějších energiích stejně sežere většinu rozpočtu a na vlastní bydlení nemám vůbec šanci.",
+        "Jako důchodce na Moravě mám sice trochu vyšší penzi po valorizaci, ale bojím se, že kvůli hrozbě drahých energií a novému rozpočtovému schodku 310 miliard mi reálně moc peněz na živobytí nezbude. Vládní sliby o levnějším bydlení a stabilních daních zní hezky, ale u nás v regionu cítím spíš nejistotu, jestli ty ceny zase neskočí nahoru.",
+        "Jako Pražák se středoškolským vzděláním vidím naše vyhlídky rozpačitě, protože i když průměrná mzda roste a ČNB slibuje klid, tak nám nájmy zdraží o šest až devět procent, energie můžou kvůli světu znovu vyskočit a hypotéky už jsou skoro na pěti procentech, takže s rozpočtem budeme spíš šetřit než si něco dopřávat.",
+        "Celkem mě těší, že inflace zpomalila a mzdy mají růst, ale bojím se, že zdražování nájmů a hypoték spolu s hrozbou dražších energií naše rozpočty stejně utáhnou, takže do roka moc volných peněz neuvidíme.",
+        "Jako student v Praze se děsím, že nájmy zdraží o čtvrtinu víc než mi případně porostou příjmy, a při rostoucích cenách energií a nejistých slibech nové vlády vidím naše rozpočty spíš směřovat k větším škrtům než k nějakému klidnému spoření.",
+        "Jako důchodce na venkově v Čechách vidím naše finance spíš stabilně, protože inflace konečně klesla a slibují levnější energie i zastropování důchodového věku, ale obávám se, že ten vysoký schodek rozpočtu a rostoucí ceny bytů nás mladší rodinu moc nepomůžou.",
+        "Jako důchodce na Moravě vidím naše finance celkem stabilně díky zvýšeným důchodům a nízké inflaci, ale obávám se zimních výpadků proudu a hrozícího zdražení energií, které by nás při našich úsporách mohly zaskočit.",
+        "Ceny nájmů mi asi zase naběhnou rychleji než výplata, takže sice máme s manželkou přes padesát tisíc hrubého dohromady a inflace je konečně nízko, ale každý měsíc budeme muset víc šetřit na bydlení, než abychom si něco odložili.</think:6124c78e>",
+        "Jako šedesátník v Čechách vidím naše finance spíš stabilně, protože inflace konečně klesla a důchody mají zůstat bez zvyšování věku, ale obávám se, že sliby nové vlády o levnějších energiích a nízkých daních se můžou rozkymácet, když ekonomové varují, že na to nejsou peníze. Na běžný život nám to stačí, ale žádné velké rezervy si neušetříme, když všechno kolem zdra",
+        "Jako důchodce na venkově jsem rád, že mi vláda zastropovala důchodový věk a nezvyšuje daně, ale bojím se, že až se vrátí dražší energie, moje kupní síla z těch pár stovek navíc zase zmizí. Celkově čekám, že sice vydržíme, ale žádné velké volno utrácet nebude, spíš budeme dál šetřit za každou korunu.",
+        "Mzda mi prý poroste a inflace je nízko, takže bychom měli vyjít líp než v posledních letech, ale bojím se, aby zdražení nájmu a hrozba dražších energií tyhle přísliby zase nesmazaly. Celkově jsem spíš opatrně doufající, ale každá další vlna drahoty nás doma hned zabolí.",
+        "Jako mladý na Moravě se středoškolským vzděláním vidím naše vyhlídky rozpačitě, protože sice mzdy a minimální mzda rostou a inflace klesla, ale dražší energie, nájmy i hypotéky nám reálně seberou víc než si přilepšíme, takže s bídou vyjdeme a o vlastním bydlení si můžeme nechat zdát.",
+        "Nájmy u nás na Moravě zase letí nahoru o skoro deset procent, takže i když mi minimální mzda vzrostla, z výplatní pásky skoro nic nezůstane, a bojím se, že pokud zdraží energie, bude to s rozpočtem domácnosti ještě těžší než loni.",
+        "Hypotéky a nájmy zase jdou nahoru, takže i když průměrná mzda roste a inflace je nízká, má domácnost bude spíš šetřit, protože se bojím zdražení energií a dalšího rozkmitání cen, což nás na Moravě s naším středoškolským platem potáhne dolů.",
+        "Jako důchodce na Moravě mám sice trochu vyšší penzi po valorizaci, ale obavy z dražších energií kvůli mrazům a napětí na Blízkém východě i z dražšího nájmu mi kalí radost z růstu mezd jinde, takže za rok budu nejspíš počítat každou korunu víc než dřív.",
+        "Jako mladý Pražan se sice těším na růst mzdy a zkrocenou inflaci, ale bojím se, že zdražení nájmů o šest až devět procent a dražší energie mi reálně sebere většinu toho přídavku, takže s rozpočtem budu spíš na štrejchu než v klidu.",
+        "Jako mladý bez vlastního bytu na Moravě vidím pár korun navíc díky vyšší minimální mzdě a nízké inflaci, ale bojím se, že dražší nájmy a hrozící růst cen energií mi z výdělku moc nezanechají.",
+        "I když se prý mzdy a kupní síla zvedají, tak s tím, že nájmy letos zdraží skoro o deset procent a hypotéky zase rostou, vidím naše rodinné finance spíš na šoupnutí než na zlepšení, hlavně když za ty mrazy a ledovku naskáčou vyšší účty za topení a elektřinu.",
+        "Jako Pražan s vysokou mzdou vidím naše finance celkem stabilně díky růstu reálných příjmů a nízké inflaci, ale drahé a nedostupné bydlení i hrozba zdražení energií nás nutí šetřit a odkládat plány na vlastní byt.",
+        "Jako důchodce na venkově v Čechách vidím naši situaci celkem stabilní díky nízké inflaci a silné koruně, ale obávám se zimních účtů za elektřinu po těch mrazech a možného zdražení energií, takže moc neutrácíme a raději šetříme.",
+        "S důchodem zvýšeným o necelých sedm stovek sotva pokryju dražší topení po tuhých mrazech a rostoucí ceny všeho, takže za rok budu spíš šetřit každou korunu a doufat, že energie znovu nezdraží.",
+        "Průměrná mzda přes 50 tisíc a zpomalení inflace mi dávají naději, že se konečně nadechneme, ale růst nájmů o devět procent a hrozba zdražení energií nás v bytě v Čechách pořád drží ve střehu. Celkově čekám, že sice budeme mít o něco víc v peněžence než loni, ale žádné velké polevování v rozpočtu si kvůli nejistotě dovolit nebudeme.",
+        "Jako domácnost na Moravě s vysokoškolským zázemím vnímám příští rok spíš stabilně díky nízké inflaci a růstu mezd, ale obávám se, že sliby o nízkých daních a levnějších energiích narazí na vysoký schodek rozpočtu a nakonec se někde prostě zaplatí z našich kapes.",
+        "Sice čtu, že mzdy rostou a inflace klesá, ale zdražení hypoték, růst nájmů a hrozba dražších energií mi rodinný rozpočet spíš ztíží, takže se cítím v nejistotě a budu šetřit, dokud se situace neuklidní.",
+        "Jako mladý na Moravě bez vysoké školy vidím ty sliby o růstu mezd a levnějších energiích fajn, ale bojím se, že po těch mrazech a se zdraženýma hypotékama i hrozbou dražšího plynu mi v kapse moc nezbyde, hlavně když nikdo pořádně neví, jak Babiš zaplatí ty svý plány.",
+        "Jako důchodce z venkova vidím naše finance celkem stabilně, důchod nám sice zvedli jen o pár stovek, ale s cenami, co teď tolik nerostou, se s manželkou nějak vyjdeme, i když dražší energie a nájmy nás trochu tíží. Do budoucna moc neutrácíme a doufám, že vláda udrží daně nízko, abychom se nemuseli bát o penzi.",
+        "Jako důchodce na Moravě vidím naše vyhlídky spíš opatrně: důchod nám sice mírně vzrostl a inflace je nízká, ale hrozba dražších energií i zdražující se nájmy nás mohou snadno připravit o ten křehký klid v rozpočtu. Věřím slibům o zastropování věku a levnějším proudění, ale po zkušenostech s novou vládou raději nečekám zázraky a šetřím, co se",
+        "Jako vysokoškolák na Moravě vidím naši situaci celkem stabilní díky rostoucím mzdám a nízké inflaci, ale bojím se, že dražší nájmy a hrozba růstu cen energií nám z výdělku moc nezanedbají, takže s rozpočtem budeme spíš opatrní.",
+        "Jako důchodce v Čechách vidím naše vyhlídky spíš opatrně, důchod sice mírně vzrostl a inflace je teď nízká, ale bojím se zdražování nájmů, energií a dalších věcí, takže s penězi budeme muset šetřit a nic velkého si nebudeme dopřávat.",
+        "Jako důchodce věřím, že díky zvýšenému důchodu a nízké inflaci vyjdu s penězi o něco lépe než dřív, ale mrazy a dražší nájmy v okolí mě můžou překvapit, takže se spíš držím zpátky a nečekám žádné velké plány.",
+        "Jako důchodce na Moravě vidím naše vyhlídky celkem klidné, důchod nám sice moc nepřidal, ale s tou nízkou inflací a sliby vlády o levnějších energiích se aspoň nebojím, že nás doma něco zničehonic položí na lopatky, i když se trochu hlídám kvůli hrozbě dražších plyn a elektřiny.",
+        "Slyším, že mzdy i kupní síla by měly růst a inflace konečně polevila, ale jako Pražák mě děsí další zdražování nájmů a bytů a hrozba dražších energií, takže za rok budeme sice mít na papíře víc peněz, ale reálně nám skoro všechno sebere bydlení a účty.",
+        "Mzdy sice asi trochu porostou a inflace je teď nízká, ale s dražšími nájmy a hypotékami, což se nás jako nájemníků v Čechách dost tvrdě dotkne, moc neušetříme a budeme spíš počítat každou korunu. Navíc se bojím, aby se kvůli té situaci na Blízkém východě nevrátily drahé energie a naše domácí rozpočty zase nezhoršily.",
+        "Ceny energií a nájmů zase stoupají, hypotéky zdražily a vláda hlásí nižší daně, ale já v tom moc reálného zlevnění pro naši domácnost nevidím, takže spíš šetříme a doufáme, že mzda alespoň udrží krok s drahotou.",
+        "Jako důchodce z venkova vidím ty slibované růsty mezd a zpomalení inflace spíš s mírným optimismem, ale bojím se, že dražší energie, rostoucí nájmy u dětí a ten obří státní schodek nakonec stejně vezmou víc, než mi přidá valorizace, takže s rozpočtem budeme muset šetřit dál.",
+        "Mzdy sice asi trochu porostou a inflace klesá, ale s dražšími hypotékami, hrozbou zdražení energií a neslavným stavem rozpočtu se bojím, že našetřit na bydlení nebo si něco odložit letos moc nepůjde. Spíš budeme počítat každou korunu, abychom vyšli, když se ceny zase můžou otočit nahoru."
+      ]
+    },
+    {
+      "seed": 2,
+      "n_sent": 60,
+      "ssr_score": 3.1214655244055947,
+      "nowcast": 6.073276220279733,
+      "sentences": [
+        "Jako důchodce na Moravě vidím naše finance spíš stabilní, protože slibované zmrazení důchodového věku a levnější energie nám pomůžou, ale mrazy a výpadky proudu nás děsí kvůli účtům za topení. Věřím, že inflace zůstane nízká a kupní síla se nezhorší, i když byty pro děti zůstanou nedostupné.",
+        "Inflace sice klesla a mzdy rostou, ale bojím se zdražování nájmů a energií, takže s naším základním vzděláním na Moravě to vidím spíš na šetření a žádný velký klid v rozpočtu.",
+        "I když průměrná mzda roste a vláda slibuje levnější energie, bojím se, že zdražování nájmů, hypoték a hrozba dražších energií nás reálně přidusí, takže s rozpočtem budeme muset šetřit víc než dřív.",
+        "Jako důchodce z venkova vidím naše vyhlídky spíš neutrálně až mírně pesimisticky, protože přidání k důchodu je sotva pár stovek, zatímco nájmy, energie a mrazy nás tlačí výdaje nahoru, takže sotva udržíme současný standard. Vládní sliby o levnějších energiích a zastropování důchodového věku jsou sice uklidňující, ale schodek rozpočtu a hrozba dražší ropy mi kaz",
+        "Mzdy sice rostou a inflace klesla, ale bojím se zdražení nájmů a energií, takže s penězi budeme muset šetřit a nic moc navíc si nejspíš nedopřejeme.",
+        "Jako člověk se základním vzděláním na Moravě vidím naši situaci celkem stabilní díky vyšší minimální mzdě a zpomalení inflace, ale bojím se zdražování nájmů a energií, protože s naším rozpočtem by nás každá neočekávaná spotřeba dostala do potíží.",
+        "Celkem věřím, že díky nižší inflaci a růstu mezd nám doma trochu oddechnou peníze, ale bojím se, aby dražší energie a hypotéky zase všechno nevzaly, když vláda slibuje hodně věcí, na které prý nemá jasný plán.",
+        "Jako důchodce v Čechách vidím naše vyhlídky spíš opatrně, protože i když inflace zpomalila a důchod nám trochu přidal, hrozící zdražení energií a dražší nájmy nás můžou snadno připravit o tyhle malé zisky. Vládní sliby o levnějším životě zatím beru s rezervou, hlavně když slyším kritiku, že chybí peníze na jejich plány.",
+        "Jako člověk se základním vzděláním na Moravě vidím naši domácnost spíš nejistě, protože i když inflace klesla a minimální mzda stoupla, bojím se zdražování energií a že vládní sliby levnějšího života se nakonec nezaplatí z našich kapes.",
+        "Důchod mi sice trochu zvedli a ceny prý nerostou tak jako dřív, ale nájmy a hypotéky okolo zdražují a nevím, co provede nová vláda, takže se na další rok spíš bojím, abych s penězi vyšla.",
+        "Jako člověk se středoškolským vzděláním na Moravě vidím naši domácnost celkem stabilně díky zpomalení inflace a růstu mezd, ale bojím se dalšího zdražování hypoték a bydlení, takže za rok moc neušetříme.",
+        "Slyším, že mzdy rostou a inflace klesá, ale zdražování nájmů a hrozba dražších energií nás na Moravě stejně nejspíš udrží tak tak nad vodou, takže za rok budeme finančně spíš na stejné nule jako teď.",
+        "Mzdy sice slibují růst a inflace zpomalila, ale drahé hypotéky a rostoucí ceny bytů v Praze nám zavřely dveře k vlastnímu bydlení a bojím se, že zimní výdaje za elektřinu a hrozba dražších energií nás stejně nepustí z místa. Na další rok vidím naši situaci spíš jako přežívání bez většího zlepšení, hlavně když vláda sype peníze do schodku a nikdo pořádně",
+        "Ceny energií a nájmů mi jdou nahoru, takže i když prý mzdy rostou a inflace klesla, mám z toho spíš obavu, že měsíčně moc neukřímžím a budeme žít tak nějak na doraz.",
+        "Jako důchodce s vysokoškolským vzděláním na Moravě vidím naše finance spíš stabilní díky zvýšenému důchodu a nízké inflaci, ale obávám se zdražování energií a nájmů, které by mohly naše úspory snadno erodovat. Celkově čekám, že sice vyjdeme, ale bez velké rezervy a s nutností hlídat každou korunu.",
+        "Jako Pražák se základním vzděláním vidím naše finance spíš bledě, protože sice prý mzdy rostou, ale nájmy zdraží skoro o deset procent a ceny bytů i energií letí nahoru, takže s rozpočtem budeme šetřit každou korunu. Vláda slibuje levnější energie a nižší daně, ale moc jim nevěřím, když odborníci říkají, že na to nemají peníze.",
+        "Slyším, že mzdy i důchody rostou a inflace zvolňuje, ale zdražování nájmů a hrozba dražších energií mi rodinný rozpočet stejně příliš neulehčí, takže dalších dvanáct měsíců vidím spíš jako dohadování se, co zrovna odložit, abychom vyšli.",
+        "I když se prý mzdy a kupní síla zvedají, tak zdražení nájmů o skoro deset procent a dražší hypotéky nás na Moravě pořádně zatlačí, takže za rok budeme spíš jen tak tak vydělávat na živobytí a o nějakém šetření si můžeme nechat zdát.",
+        "Slyším, že mzdy rostou a inflace konečně spadla, takže naše kupní síla se asi trochu zlepší, ale bojím se zdražení energií kvůli Blízkému východu a rostoucích hypoték, navíc mi jako střední třídě v Čechách nedává nová vláda s obřím schodkem rozpočtu moc naději, že to vydrží dlouhodobě stabilní.",
+        "Mzdy sice prý rostou a inflace klesá, ale dražší hypotéky, zvyšující se nájmy a strach z dražších energií mi kazí radost, takže za rok budeme nejspíš s penězi vychozovat skoro stejně napnutě jako teď. Vládní sliby o levnějším bydlení a energiích zatím nevidím na svém výplatním lístku ani v účtech za byt.",
+        "Jako Pražák se středoškolským vzděláním vidím naše vyhlídky rozpačitě: mzda sice možná poroste, ale dražší nájmy a hrozící energie nás stejně přidusí, takže sotva udržíme současný standard.",
+        "Mám zprávy o růstu mezd a nižší inflaci, takže mi penězzůstane víc než loni, ale bojím se, že zdražení nájmů v Praze mi ten zisk vezme a rozpočet bude pořád našponovaný. Věřím slibům vlády o levnějších energiích, ale mrazy a výpadky proudu mě děsí, že zas něco připlatím za topení.",
+        "Ceny nájmů a energií mi zase lezou nahoru rychleji, než mi rostou příjmy, takže i když prý mzdy celkově rostou, za rok budeme s manželkou spíš šetřit a žít od výplaty k výplatě s menší rezervou než dřív.",
+        "Slyším, že mzdy rostou a inflace konečně klesla, ale zdražování nájmů a dražší hypotéky nás pořád tlačí, takže za rok budeme spíš tak tak vyrovnaní, jestli nepřijde nějaká mimořádná výdaj za energie nebo auto.",
+        "Jako důchodce na Moravě vidím naše vyhlídky spíš opatrně, protože i když nám důchody trochu přidali, bojím se zdražování energií a nájmů, což nám může zbytek peněz na živobytí zase sebrat.",
+        "Má domácnost by na tom měla být líp díky rostoucím mzdám a nižší inflaci, ale bojím se zdražení energií a vyšších hypoték, takže každou korunu radši počítám dopředu. Vládní schodek a politické tahanice mě navíc utvrzují v tom, že žádné velké jistoty se letos nedočkáme.",
+        "Jako důchodce na vesnici v Čechách vidím naše finance spíš opatrně, protože i když inflace klesla a mzdy prý rostou, hrozící zdražení energií a mráz nás zasáhnou v rozpočtu víc než sliby politiků, takže budeme šetřit hlavně na topení a službách.",
+        "Ceny energií a nájmů zase straší a hypotéky zdražily, takže i když průměrná mzda roste a inflace je nízko, má rodina peněz na rozhazování míň než loni a spíš budeme šetřit. Za rok vidím naši situaci tak na vlásku – pokud se plyn a elektřina kvůli světu nezblázní, vyjdeme, ale klidný rozhodně nejsem.",
+        "Mzdy prý rostou a inflace klesá, takže by se nám mohlo trochu ulevit, ale bojím se, aby kvůli dražším energiím a nesmyslnému schodku rozpočtu zase nepřišly vyšší výdaje, co nám to vzápětí sebere.",
+        "Důchod mi sice trochu přidalo, ale s hrozbou dražších energií a zdražováním všeho okolo se bojím, že za rok budu s penězi vyhlížet ještě hůř než teď. Jako starý člověk na Moravě se spoléhám jen na ten valorizovaný důchod a moc nevěřím, že mi vláda nebo kdo koliv opravdu uleví.",
+        "Máme s manželem oba práci a minimální mzda s tou naší sice není, ale s nájmem co zdraží o skoro deset procent a hypotékou co zas vyskočila nám konce měsíce budou těsnější, i když se v novinách píše, že mzdy rostou. Bojím se hlavně těch energií, kdyby zase zdražily jako dřív, tak to na Moravě v těch mrazech letos nezaplatíme.",
+        "Jako důchodce z venkova vidím příští rok s obavami, protože i když mi důchod trochu přidal a inflace je nízká, zdražení nájmů a hrozba dražších energií mi můžou zbytek peněz snadno sebrat, zatímco sliby nové vlády o levnějším životě zatím vypadají jen jako planá slova bez krytí.",
+        "Mzdy prý rostou a inflace konečně spadla, takže se snad trochu vydechneme, ale bojím se, aby kvůli drahým energiím a zdraženým hypotékám zase nepřišly výdaje, na které naše peníze nestačí.",
+        "I když průměrná mzda roste a inflace klesá, tak zdražení nájmů, hypoték a pražských bytů mi rodinný rozpočet v Praze stejně víc utáhne než ty příjmy nahoru, a bojím se, že kvůli drahým energiím zase budeme našetřený kačku dávat jen za topení a světlo.",
+        "Hypotéky i nájmy nám zdražují a energie můžou zase vyskočit, takže i když inflace teď padá, naše domácnost bude spíš šetřit a moc volného neuvidíme. Vládní sliby o levnějším bydlení a energiích jsou fajn, ale zatím to v našem kraji nepociťuju a obávám se, že rok bude těžký.",
+        "Jako důchodce z vesnice mimo Prahu vidím příští rok celkem klidně, protože mi důchod trochu přidalo a inflace konečně spadla, ale pořád mám strach z drahých energií, když se zase kvůli světu zvednou ceny plynu a elektřiny.",
+        "Mzdy sice rostou a inflace konečně spadla, ale s dražšími nájmy a nedostupným bydlením na Moravě moc nepocítím zlepšení, takže za rok budeme s manželkou spíš tak tak vyjíždět a šetřit na každém nákupu. Vládní sliby o levnějších energiích zní fajn, ale po těch mrazech a s rostoucím schodkem mám strach, že nás zase něco zaskočí.",
+        "Jako důchodce s valorizovaným důchodem necelých 22 tisíc korun vnímám, že růst mezd a sliby o levnějších energiích se mě přímo netýkají, a při zdražování nájmů či služeb kvůli mrazům čekám spíš stagnaci až mírné zhoršení naší životní úrovně. Vládní plány bez zvyšování daní zní sice uklidňující, ale s rostoucími hypotékami a cenami bydlení se cítím",
+        "Zprávy o růstu mezd a nízké inflaci zní sice povzbudivě, ale obavy z dražších energií a zdražení hypoték mě na Moravě stejně drží v šetření a nevím, jestli s rodinným rozpočtem v klidu vyjdeme, když se něco z těch hrozeb opravdu naplní.",
+        "Jako mladý na Moravě bez vysoké školy vidím naše vyhlídky rozpačitě, protože sice mzdy a minimální mzda rostou, ale dražší nájmy a hrozba zdražení energií nám stejně sebere většinu toho, co bychom ušetřili.",
+        "Jako pražský důchodce s vysokoškolským vzděláním vidím na příští rok spíš mírný klid díky zvýšenému důchodu a nízké inflaci, ale rostoucí ceny bytů a nájmů ve městě mě znepokojují, pokud bych musel řešit bydlení nebo pomáhat dětem. Celkově se cítím bezpečněji než v době inflační vlny, ale obávám se, že nová vláda slibuje víc, než za",
+        "Jako důchodce na venkově Čech vidím naše vyhlídky spíš s obavami, protože i když důchod trochu stoupl a inflace zpomalila, hrozící zdražení energií a dražší nájmy nám můžou ten kousek kupní síly zase sebrat. Věřit, že nová vláda to nějak zázračně spraví, zatím nemůžu, když čtu, že rozpočet má ještě větší schodek a nikdo pořádně neví, kde na to vez",
+        "S hypotékami i nájmy, co zase rostou, a s hrozbou dražších energií se bojím, že s mými příjmy na základním vzdělání rodina moc nevydělá, a spíš budeme šetřit každou korunu než si polepšíme. Vládní sliby o levnějším životě zatím nevidím doma na účtu, takže do roka čekám spíš ztížené vyžití než klid.",
+        "Jako domácnost na Moravě vidím naše vyhlídky celkem stabilní díky růstu mezd a nízké inflaci, ale bojím se zdražování nájmů a hrozících energií, takže radši šetříme a odkládáme plány na vlastní bydlení.",
+        "Hypotéky zdražily a nájmy půjdou nahoru o skoro deset procent, takže i když mám o něco vyšší mzdu, obávám se, že nás to s bydlením a energiemi pořádně zatíží a moc si neoddychneme. Vláda slibuje levnější energie a nižší daně, ale podle těch zpráv o schodku a kritice ekonomů moc nevěřím, že to u nás doma do roka pocítíme jako reálnou úlevu.",
+        "Jako důchodce na Moravě mám sice trochu vyšší penzi po valorizaci a levnější zboží díky nízké inflaci, ale bojím se, že drahé energie a zdražující nájmy mi zrovna tyhle úspory seberou, takže za rok budu nejspíš s penězi vychaázenět jen tak tak.",
+        "Jako důchodce na vsi vidím příští rok celkem klidně, důchod mi trochu přidal a ceny prý rostou míň, ale bojím se, aby nás zase nepřekvapily drahé energie nebo výpadky proudu jako teď v tom mraze.",
+        "Nájmy nám asi zase pěkně naskočí a s mou základní školou mzda těžko dožene dražší bydlení i hrozící energie, takže za rok budeme s penězi spíš na štrejchu než v klidu. Vládní sliby o levnějším životě sice slyším, ale v našem kraji se jich moc nechytilo.",
+        "Jako důchodce na Moravě se bojím, že dražší nájmy a energie mi i přes sliby nové vlády o levnějším proudu seberou většinu peněz, co mi zůstane po drahém zimním topení.",
+        "Slyším, že mzdy mají růst a inflace klesat, ale bojím se, že dražší nájmy a hrozba zdražení energií nám na Moravě stejně sebere většinu toho přidání, takže s rozpočtem budeme spíš jen tak tak vycházet.",
+        "Jako mladý člověk se středoškolským vzděláním na Moravě vidím naše vyhlídky spíš bledě, protože nájmy i ceny bydlení rostou rychleji než moje mzda a hypotéky jsou teď moc drahé, takže si ani nešetřím na vlastní bydlení. Navíc mě děsí, že energie můžou znovu zdražit a vládní sliby levnějších věcí zatím moc nevidím v peněžence.",
+        "Jako mladý Pražan se středoškolským vzděláním vidím naše vyhlídky dost bledě, protože nám sice mírně rostou mzdy, ale dražší nájmy a hrozící energie nám život v Praze stejně prodraží a na vlastní bydlení ani nepomyslím.",
+        "Průměrná mzda sice roste a inflace je nízká, takže by se nám mohlo trochu ulevit, ale bojím se, že dražší energie kvůli Blízkému východu a zdražené hypotéky nám na Moravě rodinný rozpočet zas sevřou, takže moc volna s penězi nečekám.",
+        "Důchod se mi sice trochu zvedl a inflace je teď nízká, ale bojím se, že se vrátí drahé energie kvůli těm mrazům a neklidům ve světě, takže za rok můžu mít s penězi zase potíže. Celkově to vidím tak napůl, aspoň že zatím v obchodě tolik nezdražuje, ale vládní dluhy a sliby mě moc neuklidňují.",
+        "Průměrná mzda sice roste a inflace konečně spadla, ale s dražšími hypotékami, zvyšujícími se nájmy a hrozbou dražších energií mám strach, že našemu rodinnému rozpočtu se reálně neuleví a budeme muset šetřit víc než dřív.",
+        "Jako Pražák s vysokou školou sice vidím, že mi reálná mzda asi trochu poroste, ale s dražšími hypotékami, rostoucími nájmy a hrozbou zdražení energií mám pocit, že měsíčně moc neušetřím a bydlení tu pro nás zůstává hlavní finanční pastí. Celkově jsou vyhlídky nejisté – pár korun navíc v příjmu mi sežere životní náklady ve městě.",
+        "Slyším, že mzdy mají růst a důchody taky trochu přidaly, ale s dražšími hypotékami, rostoucími nájmy a hrozbou dražších energií se bojím, že nám doma peníze stejně moc nezbydou a budeme muset každou korunu hlídat.",
+        "Jako domácnost s vysokoškolským vzděláním v Čechách vidím příští rok celkem nadějně díky růstu mezd a zpomalení inflace, ale obávám se zdražení hypoték a energií, takže rozpočet budeme muset hlídat víc než dřív.",
+        "Jako mladý na Moravě s průměrným výdělkem vidím příští rok celkem nadějně díky rostoucím mzdám a nízké inflaci, ale bojím se zdražování hypoték a energií, takže o vlastním bydlení zatím ani nepřemýšlím.",
+        "Jako důchodce na Moravě vidím, že mi sice důchod trochu přidali a inflace je nízko, ale bojím se těch mrazů a zpráv o drahých energiích, takže za rok budu rád, když v klidu zaplatím složenky a nebudu muset sahat do úspor."
+      ]
+    },
+    {
+      "seed": 3,
+      "n_sent": 60,
+      "ssr_score": 3.114049506223863,
+      "nowcast": 5.702475311193145,
+      "sentences": [
+        "Vláda sice slibuje levnější energie a nulový růst daní, ale s rostoucími cenami plynu kvůli Blízkému východu a dražšími hypotékami se bojím, že s mou základní školou a výdělkem na Moravě budu spíš šetřit každou korunu než se mít líp.",
+        "Jako důchodce na Moravě vítám, že mám o pár stovek víc a inflace je nízko, ale bojím se, že zdražování nájmů a nejistá politická situace s novou vládou a vysokým schodkem mi zbytek úspor za rok zase sežerou.",
+        "Jako důchodce na Moravě vítám sliby o zastropování důchodového věku a levnějších energiích, ale obávám se, že hrozící zdražování plynu kvůli Blízkému východu a kritizované Babišovy plány bez pokrytí nákladů mohou moji kupní sílu spíš ohrozit než zlepšit. Celkově čekám spíš opatrný stagnující rok, kde každá koruna navíc za teplo nebo jídlo bude bolet.",
+        "Jako mladý vysokoškolák v Praze vidím své výdělky spíš optimisticky díky rostoucím mzdám, ale kvůli drahým hypotékám a předraženým pražským bytům vím, že si vlastní bydlení za rok rozhodně nepořídím a rozpočet mi provětrá hlavně nájem a energie v tuhé zimě.",
+        "Jako šedesátník na venkově Čech vidím naše vyhlídky spíš pesimisticky, protože zdražování nájmů a hrozba dražších energií při schodkovém rozpočtu a nejasných slibech nové vlády sotva pokryjeme z našich stálých příjmů. Doufám, že nízká inflace vydrží, ale obávám se, že za rok budeme s penězi vyškrtnutí víc než teď.",
+        "Jako středně starý na Moravě vidím naše finance celkem stabilně díky růstu mezd a nízké inflaci, ale obávám se zdražování nájmů a energií, které nám můžou slušně prohloubit výdaje. Vládní sliby o levnějším bydlení zatím vnímám spíš jako planá slova, když ceny bytů a hypoték jdou nahoru.",
+        "Jako vysokoškolák na Moravě vidím naše finance spíš neutrálně až opatrně: mzda nám sice reálně roste díky nízké inflaci, ale zdražení nájmu o skoro deset procent a hrozba dražších energií nás stejně budou tlačit, takže žádné velké polevování v rozpočtu nečekám.",
+        "Celkem mě těší, že mzdy rostou a inflace konečně spadla, ale bojím se, že dražší nájmy a hrozící růst cen energií nám zrovna v Čechách mimo Prahu srazí reálný zisk našeho rozpočtu skoro k nule. Vládní sliby o levnějším bydlení a nízkých daních zní fajn, ale s tím schodkem 310 miliard a varováními ekonomů moc nevěřím, že se nás to do roka reálně dotkne poz",
+        "Jako rodina na Moravě vidím příští rok celkem nadějně díky rostoucím mzdám a nízké inflaci, ale obávám se zdražení hypoték a drahého bydlení, takže každou korunu budeme muset hlídat.",
+        "Jako důchodce na Moravě vítám, že inflace zpomalila a důchod mi trochu přidal, ale bojím se, že sliby nové vlády o levnějším životě se moc neprojeví a s rostoucími nájmy či energiemi budu muset šetřit ještě víc než dosud.",
+        "Slyším, že mzdy mají růst a inflace konečně zpomalila, ale s dražšími nájmy a hrozbou zdražení energií se bojím, že na Moravě s průměrným středoškolským platem reálně moc neujedeme a spíš budeme počítat každou korunu.",
+        "Jako mladý vysokoškolák v Čechách vidím naše vyhlídky spíš napjatě, protože nájmy i hypotéky zdražují rychleji než moje budoucí mzda a hrozící růst cen energií nám může snadno sebrat ten kousek klidu z nízké inflace.",
+        "Jako mladý vysokoškolák v Čechách vidím na příští rok světlo na konci tunelu díky rostoucím mzdám a nízké inflaci, ale bojím se, že dražší energie a nedostupné bydlení můj rozpočet pořádně prověří, než si stihnu našetřit na vlastní život.",
+        "Mzdy sice rostou a inflace je konečně nízko, ale zdražování nájmů a hypoték nás s manželkou pořád tlačí, takže za rok vidím naše finance spíš na štíru, i když se celkově má líp než v krizi. Bojím se hlavně, aby se kvůli Blízkému východu nevrátily drahé energie a sebere nám to, co jsme zatím ušetřili.",
+        "Jako mladý bez vyššího vzdělání z venkova vidím naše vyhlídky spíš bledě, protože nájmy a energie zdražují rychleji než moje mzda a hypotéku si stejně nemůžu dovolit. Sice mám o trochu vyšší minimální mzdu, ale obávám se, že s rostoucími cenami a nejistou politikou nám moc peněz na úspory nezbyde.",
+        "Mzdy nám sice slibují růst pět až sedm procent a inflace je konečně nízko, ale s dražšími hypotékami, zvyšujícími se nájmy a rozpočtovým schodkem 310 miliard se bojím, že nás to reálně moc nepomůže a našetřit pořád skoro nic nejde.",
+        "Zprávy o růstu mezd a nízké inflaci mi dávají naději, že naše kupní síla se zlepší, ale obavy z dražších energií a zdražení hypoték nás nutí šetřit a nepočítat s velkým přebytkem. Celkově čekám spíš klidné přežití než nějaké výrazné zbohatnutí.",
+        "Mzdy sice rostou a inflace konečně spadla, ale dražší hypotéky, zdražující nájmy a ten obří schodek rozpočtu mi dělají starosti, takže za rok budeme nejspíš tak tak vyjít, ale na nějaké větší úspory nebo pohodu to nevidím. Jako člověk se základním vzděláním v regionu mimo Prahu se bojím, že sliby vlády o levnějším životě se k nám domů moc neprojeví.",
+        "Jako mladý vysokoškolák v Čechách vidím naši domácnost spíš stabilně díky rostoucím mzdám a nízké inflaci, ale kvůli zdraženým hypotékám a hrozbě dražších energií se bojím, že si vlastní bydlení ani za rok nebudeme moct dovolit.",
+        "Důchod mi sice o pár stovek stoupl, ale kvůli hrozbě dražších energií a vysokému schodku rozpočtu čekám, že reálně ušetřit nepůjdu a budu muset víc hlídat každou korunu. Celkově vidím naše finance spíš napjatě, hlavně kdyby se naplnily obavy z dražší elektřiny přes zimu.",
+        "Slyším, že mzdy porostou a inflace klesá, ale zároveň nám nájmy zdraží víc než výdělky a hrozí dražší energie, takže za rok budeme sotva na nule a každou korunu budeme muset hlídat. Věřím sice slibům o levnější elektřině a zastropovaném důchodovém věku, ale politické handry a chybějící placení Babišových plánů ve mně budí spíš obavu než klid.",
+        "Jako důchodce na Moravě vidím naše vyhlídky spíš opatrně, protože zdražování nájmů a hrozba dražších energií nás víc tíží než slibované levnější vládní balíčky, ačkoli růst minimální mzdy dětem trochu pomůže. Pokud se ceny plynu a elektřiny zase otočí nahoru, budeme muset víc šetřit hlavně na jídle a topení.",
+        "Ceny nájmů a energií nám asi zase nateplou víc než výplata, takže i když prý mzdy rostou a inflace padá, měsíčně budeme šetřit na každým rohu a žít od výplaty k výplatě. Babišova vláda s velkým schodkem a dražšíma hypotékama mě neuklidňuje, spíš čekám, že za rok budem na tom hůř než teď.",
+        "Jako důchodce s průměrnou penzí vidím příští rok celkem klidně díky nízké inflaci a stabilitě sazeb, ale obávám se, že dražší energie a zdražující nájmy nám i tak seberejí většinu z těch pár stovek, co nám přidalo valorizování.",
+        "Jako Moravan se středoškolským vzděláním vidím naše finance na příští rok celkem nadějně, protože mzdy rostou a inflace konečně spadla, ale bojím se, že sliby levnějších energií a nízkých daní od nové vlády můžou skončit prázdnou kasou a nakonec za to zaplatíme my.",
+        "Jako důchodce s nízkým vzděláním vidím naši situaci celkem klidnou, důchod nám sice moc nepřidal, ale inflace je teď nízká a mrazy s dražšími energiemi nás trochu tíží, tak doufám, že vláda udrží ceny a nedojde k dalšímu zdražování.",
+        "Jako rodina na Moravě vidím další rok dost nejistě, protože nám zdražují nájmy i energie a hypotéky jsou zase dražší, takže i když mzdy rostou, reálně nám doma moc peněz navíc nezbyde. Vládní sliby o levnějším bydlení a nulovém zvyšování daní jsou sice fajn, ale podle mě se za ten obří schodek rozpočtu a drahé energie stejně nakonec všichni nějak zapravíme.",
+        "Slyším, že mzdy rostou a energie by mohly zlevnit, ale s nájmem, co zdraží o devět procent, a hypotékou nad pět procent moc volna v rodinném rozpočtu nevidím, takže spíš přežívám než šetřím.",
+        "Jako důchodce na Moravě vidím příští rok celkem stabilně, protože mi valorizace i zastropování důchodového věku trochu uleví a inflace je konečně nízko, ale mrazy a dražší energie s nájmy mě pořád drží v obavách, abychom s manželkou vyšli.",
+        "S nájmem, co má zdražit o šest až devět procent, a hrozbou dražších energií se bojím, že nám s výplatou moc nezbude, i když slibují levnější energie a žádné daně nahoru. Nová vláda a rozpočet se schodkem 310 miliard mi moc jistoty nedávají, takže na další rok spíš šetříme a žijeme z ruky do huby.",
+        "Jako důchodce z venkova vidím naši situaci celkem stabilní díky zvýšenému důchodu a nízké inflaci, ale obávám se zimních výpadků proudu a hrozeb zdražení energií, které by nás mohly potrápit. Věřím slibům o nezvyšování daní, ale politické řeči kolem Babiše a chybějících peněz ve státním plánu mě spíš znervózňují než uklidňují.",
+        "Ceny energií zase hrozí růstem a hypotéky zdražily, takže se bojím, že i když mzdy i důchody trochu rostou, na konci roku budeme doma spíš šetřit než si něco přidat. Hlavně ty mrazy a výpadky proudu nás na Moravě potrápily, takže rezervu radši nechám být a moc do budoucna nevěřím.",
+        "Jako mladý bez vysoké školy na Moravě vidím růst mezd a nižší inflaci fajn, ale skokové zdražení nájmů a dražší hypotéky mě děsí, protože z vlastního bydlení nebo nájmu budu mít v příštím roce spíš menší reálný zisk než pocit zlepšení. K tomu hrozba dražších energií kvůli světu venku mi kazí pocit, že by se nám doma mělo výrazně ulevit.",
+        "Jako mladý bez vysoké školy v Čechách vidím, že sice mi může trochu přilepšit vyšší minimální mzda, ale růst nájmů a dražší hypotéky mě děsí, takže za rok budu spíš sotva vycházet s penězi a o vlastním bydlení si můžu nechat zdát. Vládní sliby o levnějších energiích zní fajn, ale věřím jim míň než zprávám, že zase můžou zdražit kvůli té situ",
+        "Důchod mi sice trochu přidalo, ale s hrozbou dražších energií v těchhle mrazech a nejistotou kolem cen se bojím, že s penězi vyjdeme tak tak a na nějaké radovánky nebude.",
+        "Slyším, že mzdy mají růst a inflace konečně spadla, ale s dražšími hypotékami, rostoucími nájmy a schodkem rozpočtu mám spíš obavu, že nás na Moravě reálně moc volna v peněžence nečeká. Vládní sliby o levnějších energiích a nulovém zvyšování daní zní fajn, ale když ekonomové říkají, že na to nejsou peníze, budu radši počítat s tím, že bud",
+        "Minimální mzda sice stoupla, ale s dražšími nájmy a hrozbou růstu cen energií moc neušetřím, takže za rok budeme tak tak s provozem domácnosti vyjít.",
+        "Máme tu sice růst mezd a nižší inflaci, což je fajn, ale bojím se zdražení hypoték a energií kvůli těm mrazům a napětí na Blízkém východě, takže za rok budeme spíš jen tak tak vyrovnávat rodinný rozpočet.",
+        "Zprávy o zdražování nájmů a hypoték mě děsí, protože bydlení mimo Prahu je pro nás s průměrným výdělkem pořád těžko udržitelné, a i když vláda slibuje levnější energie a nízkou inflaci, ten obří schodek rozpočtu mi nedává jistotu, že nás za rok něco zase nepřekvapí. Naše domácnost bude spíš šetřit a doufat, že mzdy aspoň trochu stíhnou růst životní",
+        "Jako důchodci s vysokoškolským vzděláním vidím naše vyhlídky spíš opatrně, protože sliby levnějších energií a zastropování důchodového věku jsou sice uklidňující, ale hrozící růst cen plynu a zdražování nájmů nás může při fixních příjmech snadno překvapit. Věřím, že reálné mzdy jinde rostou, ale my se musíme připravit spíš na šetření než na z",
+        "Jako mladý bez maturity na Moravě vidím naše vyhlídky dost bledě, protože nájmy a ceny energií rostou rychleji než moje mzda a o vlastní bydlení si můžu nechat jen zdát. Vládní sliby o levnějším životě zní fajn, ale podle zpráv o drahých bytech a zdražujících hypotékách se nás to reálně asi moc nepomůže.",
+        "Jako pražská domácnost s vysokoškolským vzděláním vidím naše finance spíš napjatě, protože růst nájmů a cen bytů nás dožene dřív než případný růst mezd, ačkoli inflace teď zvolnila. Bojím se hlavně toho, že dražší energie kvůli situaci na Blízkém východě nám v zimě zase prohloubí výdaje, které teď sotva stíháme.",
+        "Hypotéky a nájmy nám jdou nahoru rychleji než výdělky, takže i když inflace klesá, za rok budeme spíš šetřit každou korunu a bojíme se, aby zase nezdražily energie.",
+        "Mzdy nám sice rostou a inflace konečně zpomalila, takže se máme o kousek líp než před rokem, ale s nájmem, co zdraží skoro o deset procent, a hrozbou dražších energií bude rozpočet domácnosti pořád napnutý a žádné velké uvolnění nečekám.",
+        "Ceny energií a nájmů mi zase mlátí do rozpočtu víc, než mi pomůže růst mzdy, takže za rok budeme spíš šetřit a doufat, že ty sliby o levnějším bydlení nejsou jen na papíře.",
+        "Mzdy sice rostou a inflace je nízká, ale jako nájemník na Moravě se bojím, že zdražení nájmů a dražší energie i hypotéky nám s manželkou reálně vyžerou většinu toho přidání, takže za rok budeme spíš tak nějak svoji.",
+        "Mám důchod sice o pár stovek vyšší a inflace je teď nízká, takže na běžné věci mi to víc vychází, ale kvůli drahým nájmům a nejistým slibům vlády se bojím, že za rok budu s penězi pořád na štrejchu.",
+        "Ceny energií a nájmů mi jdou proti klesající inflaci a růstu mezd, takže i když se průměrně vede líp, doma moc volného v rozpočtu neuvidím, spíš budu počítat každou korunu. Hypotéky zdražily a nová vláda slibuje sblížení, ale podle kritiky chybí peníze na její plány, takže do roka čekám spíš nejistotu než klid.",
+        "Slyším, že mzdy i reálná kupní síla jdou nahoru a inflace konečně spadla, takže jako vysokoškolák na Moravě vidím naše rozpočty stabilnější, ale bojím se zdražení energií, nájmů a hypoték, což nám ty zisky zase sebere. Na další rok si proto držím hlavu v klidu, ale šetřit budeme dál, než se uklidní svět i ceny bydlení.",
+        "Minimální mzda sice stoupla a inflace je teď nízká, ale bojím se zdražení energií i hypoték, takže za rok budeme sotva vyjít s penězi, když něco zas skočí nahoru. Vlastní bydlení si stejně nemůžeme dovolit, takže radši šetřím každou korunu na horší časy.",
+        "Jako mladý vysokoškolák bez hypotéky mě sice těší rostoucí mzdy a nízká inflace, ale zdražující nájmy a hrozba dražších energií mi na příští rok spíš křesťují rozpočet, takže budu muset hodně šetřit a počítat s tím, že na větší radosti nebude.",
+        "Jako vysokoškolák na Moravě sice vidím inflační uklidnění a růst minimální mzdy jinde, ale s nájmy zdražujícími rychleji než mzdy a hrozbou dražších energií se cítím finančně spíš zranitelný, takže rodinný rozpočet na příští rok spíš utáhnu a velké výdaje odložím.",
+        "Jako důchodce na Moravě vidím naše finance celkem stabilně díky zvýšenému důchodu a slibovaným levnějším energiím, ale bojím se, že mrazy, výpadky proudu a hrozící zdražování plynu nás zbytečně překvapí a rozpočet nás utáhne. Vláda sice slibuje, že daně nezvedne, ale ten obrovský schodek a drahé byty pro mladé v rodině mě znervózňují, jestli nám penze oprav",
+        "Jako mladý vysokoškolák na Moravě vidím naší domácnost celkem stabilně díky nízké inflaci a růstu mezd, ale bojím se zdražení energií a hypoték, protože vlastní bydlení je pro nás stejně nedosažitelné a úspory nám kvůli vyšším sazbám moc nevydělají.",
+        "Slyším, že mzdy rostou a inflace konečně spadla, takže na Moravě jako vysokoškolák doufám v mírně lepší životní úroveň, ale bojím se zdražení nájmů i energií a nejisté vládní politiky, takže na velké utrácení nebo bydlení nejspíš nebudeme mít.",
+        "Jako člověk se základním vzděláním na Moravě vidím ty sliby o levnějších energiích a růstu mezd sice ráda, ale bojím se, že drahé bydlení, dražší hypotéky a hrozba zdražení energií nás stejně nepustí z těch zúžených rozpočtů, co máme teď.",
+        "Důchod mi sice trochu přidali, ale bojím se, že kvůli dražším nájmům a hrozbě růstu cen energií mi na konci měsíce moc nezbude, takže na nějaké větší výdaje ani nepomyslím. Vláda sice slibuje levnější energie a žádné daně, ale jako důchodce na vsi na Moravě to spíš beru s obavami, jestli to vůbec pocítím v penězi.",
+        "Inflation sice zpomalila a mzda mi asi trochu stoupne, ale zdražení nájmů a hypoték spolu s lednovým růstem sazeb nás doma citelně přitlačí, takže za rok budeme spíš šetřit než si polepšovat. Vládní sliby o levnějších energiích a nízkém schodku beru s rezervou, když vidím, že rozpočet je ještě o 24 miliard vyšší než původně.",
+        "Slyším, že mzdy rostou a inflace konečně spadla, takže s prominutím asi trochu víc vydělám a nebudu tolik krvácet za nákupy, ale s drahými hypotékami a rostoucími cenami bytů se nám o vlastním bydlení na Moravě ani nezdá a bojím se, co udělá ten obří schodek rozpočtu s našimi daněmi.",
+        "Ceny energií a nájmů mi zase hrozí sebrat to, co si polepším díky růstu mezd, a se zdraženými hypotékami a drahými byty vůbec nevidím šanci pořídit si vlastní bydlení, takže se spíš soustředím na to, abychom s rodinou vyšli každý měsíc a něco málo ušetřili. Vládní sliby o levnějším životě zatím beru s rezervou, když slyším, že nikdo pořádn"
+      ]
+    }
+  ],
+  "mean_nowcast": 6.23089095952869,
+  "abs_err": 5.13089095952869,
+  "flash_reference": {
+    "file": "cz_nowcast_2026-01.json",
+    "nowcast": 2.7574056742285524,
+    "abs_err": 1.6574056742285523
+  },
+  "cost": {
+    "n_calls": 180,
+    "n_api_calls": 180,
+    "n_cache_hits": 0,
+    "calls_per_min_limit": 100.0,
+    "elapsed_s": 125.0,
+    "prompt_chars": 472128,
+    "completion_chars": 47133,
+    "est_prompt_tokens": 147540,
+    "est_completion_tokens": 14729
+  },
+  "raw_stream": [
+    {
+      "i": 1,
+      "response": "Máme se s manželem z práce zhruba průměrně, takže ty rostoucí mzdy a zpomalená inflace nám konečně trochu uleví v rozpočtu, ale bojím se zdražení nájmu a energií, které nám ty přidalé peníze zase sebere. Celkově to vidím spíš nadějně, hlavně že nezdražuje jídlo jako před rokem, ale klidnější budu, až uvidím, jestli nám opravdu zbyde víc než loni."
+    },
+    {
+      "i": 2,
+      "response": "Mzdy nám snad porostou a inflace je konečně nízko, takže bychom se mohli dýchnout, ale bojím se těch dražších energií a zdražených hypoték, takže moc neutrácet nebudeme a radši si něco necháme na horší časy."
+    },
+    {
+      "i": 3,
+      "response": "S rostoucí průměrnou mzdou a zpomalením inflace se máme doma líp než před rokem, ale zdražení nájmů a hypoték spolu s vysokým schodkem rozpočtu mě děsí, že tohle klidné období nemusí vydržet celý rok. Jako vysokoškolák na Moravě s odloženými úsporami doufám v stabilitu sazeb od ČNB, ale politické sliby bez jasného financování mi kalí optimismus."
+    },
+    {
+      "i": 4,
+      "response": "Ceny nájmů a hypoték mi jdou proti klesající inflaci, takže i když mám práci a mzda asi poroste, reálně se s rodinou moc nepoleví, spíš budeme počítat každou korunu kvůli dražšímu bydlení a hrozbě dražších energií."
+    },
+    {
+      "i": 5,
+      "response": "Jako pražský důchodce sice vítám zpomalení inflace a pár stovek navíc k důchodu, ale obávám se, že dražší energie kvůli světové situaci a nejisté sliby nové vlády s obřím schodkem moji domácnost spíš přiškrtí než polepší."
+    },
+    {
+      "i": 6,
+      "response": "Jako mladý bez vysoké školy na Moravě vidím ty sliby o růstu mezd fajn, ale bojím se, že nájmy zdraží skoro o deset procent a se šedesáti miliardama schodku nakonec zaplatím všechno z vlastní kapsy."
+    },
+    {
+      "i": 7,
+      "response": "Průměrná mzda sice roste a inflace zvolňuje, ale s dražšími nájmy, hrozbou zdražení energií a nedostupným bydlením bude náš rodinný rozpočet za rok spíš tak tak vyrovnaný než že bychom se výrazněji zlepšili. Nová vláda slibuje levnější energie a nízké daně, ale podle kritiky chybí peníze na jejich plány, takže moc nevěřím, že se nám reálně uleví."
+    },
+    {
+      "i": 8,
+      "response": "Jako Pražák se středoškolským vzděláním vidím naše vyhlídky spíš pesimisticky, protože zdražení nájmů a hypoték spolu s rostoucími cenami bytů a hrozbou dražších energií slušně žere to, co nám přidaly průměrné mzdy, a reálně nám konce měsíce budou těsnější."
+    },
+    {
+      "i": 9,
+      "response": "Jako důchodce na venkově vidím naše finance spíš neutrálně až opatrně, protože sice inflace klesla a mzdy vnoučatům rostou, ale hrozící dražší energie a vysoký státní schodek mi říkají, že žádné velké uvolnění peněženky nečekám."
+    },
+    {
+      "i": 10,
+      "response": "Jako důchodce na Moravě vidím naše finance spíš stabilně díky zvýšenému důchodu a nízké inflaci, ale obávám se zdražení energií kvůli světové situaci a lednovým výpadkům proudu, takže raději šetřím na horší časy."
+    },
+    {
+      "i": 11,
+      "response": "Jako důchodce s vysokoškolským vzděláním vidím naše finance jako celkem stabilní díky zvýšenému důchodu a nízké inflaci, ale obávám se zimních mrazů, růstu nájmů u známých i hrozby dražších energií, které by mohly naši úsporu snadno zkomplikovat."
+    },
+    {
+      "i": 12,
+      "response": "Mzdy nám sice slibují růst a inflace je konečně nízko, ale bojím se zdražování nájmů a energií i toho, že nová vláda a velký schodek rozpočtu naše peníze za rok zase provětrají. Pro střední třídu tady venku v Čechách to nevypadá na žádné velké uvolnění, spíš budeme muset počítat každou korunu dál."
+    },
+    {
+      "i": 13,
+      "response": "Jako důchodce s nízkým vzděláním vidím naše vyhlídky celkem klidné, důchod nám sice moc nepřidal, ale s levnějšími energiemi a nízkou inflací vystačíme, i když se pořád bojím, aby se zase nezvedly ceny plynu kvůli té válce na Blízkém východě."
+    },
+    {
+      "i": 14,
+      "response": "Jako mladý člověk se základním vzděláním na Moravě vidím ty sliby o růstu mezd a levnějších energiích fajn, ale s minimální mzdou sotva vyjdu a drahé hypotéky mě od vlastního bydlení stejně drží daleko, takže za rok budeme asi pořád tak tak."
+    },
+    {
+      "i": 15,
+      "response": "Jako důchodce v Praze mám sice o pár stovek vyšší penzi, ale s nájmy, co zdraží o devět procent, a dražšími byty kolem sebe vidím naše vyhlídky spíš bledě, protože na tyhle ceny v hlavním městě s obyčejným důchodem nestačím. Vláda slibuje, že nás sblíží, ale když čtu, že utrácejí ve velkém a nikdo neví, kde na to vezmou, tak se bojím, že za rok bud"
+    },
+    {
+      "i": 16,
+      "response": "Jako člověk se základním vzděláním na Moravě vidím ty vyhlídky smíšeně – mzda a minimální mzda sice rostou a inflace je nízká, ale bojím se zdražení energií kvůli světu a hypotéky i byty jsou pro nás nedosažitelné, takže rozpočet domácnosti zůstane napnutý."
+    },
+    {
+      "i": 17,
+      "response": "Jako Pražan s vysokoškolským vzděláním vidím naše finance spíš opatrně: růst mezd a stabilní sazby nás trochu uklidňují, ale dražší hypotéky, zdražování pražských bytů a hrozba růstu cen energií nám na příští rok přidělávají starosti s rozpočtem."
+    },
+    {
+      "i": 18,
+      "response": "Nájem nám asi zase zvednou skoro o deset procent a hypotéku bychom si teď kvůli sazbám přes pět procent ani nevzali, takže i když průměrná mzda roste a inflace klesá, reálně se cítím spíš zahučený v drahém bydlení a s obavami z dražších energií, takže našetřit letos moc nepůjde."
+    },
+    {
+      "i": 19,
+      "response": "Jako Pražan se středoškolským vzděláním vidím naše finance spíš rozporuplně: mzda sice roste a inflace klesla, takže mám o něco víc v peněžence, ale drahé hypotéky a rostoucí ceny pražských bytů nám definitivně zavřely dveře k vlastnímu bydlení a bojím se, aby se kvůli energiím zase nezvýšily výdaje. Na další rok proto počítám s tím, že budeme šetřit a zůstaneme v pod"
+    },
+    {
+      "i": 20,
+      "response": "Jako pražská domácnost s vysokoškolským vzděláním sice vidím, že inflace klesla a průměrné mzdy rostou, ale obávám se, že zdražení nájmů o šest až devět procent a hrozba dražších energií nás reálně připraví o pocit zlepšení, zatímco vládní sliby a vysoký rozpočtový schodek ve mně budí spíš nejistotu než klid."
+    },
+    {
+      "i": 21,
+      "response": "Jako mladý bez vysoké školy mimo Prahu vidím naše vyhlídky rozpačitě, protože sice mzdy a minimální mzda rostou a inflace klesla, ale nájmy zdraží skoro o deset procent a hypotéky jsou pro nás nedosažitelné, takže z výhledu růstu ekonomiky moc neucítíme."
+    },
+    {
+      "i": 22,
+      "response": "Jako Pražák se středoškolským vzděláním vidím naše vyhlídky rozporuplně: mzdy sice rostou a inflace je nízká, ale zdražení nájmů o šest až devět procent a dražší hypotéky nám život v hlavním městě stejně citelně prodraží. Pokud zůstaneme v podnájmu, budeme každou korunu počítat víc než dřív, i když se celkově ekonomice daří."
+    },
+    {
+      "i": 23,
+      "response": "Jako mladý bez vysoké školy z venkova vidím ty sliby o růstu mezd a nízké inflaci fajn, ale s dražšími hypotékami a rostoucími cenami bytů se k vlastnímu bydlení stejně nejspíš nepřiblížím, takže můj rozpočet zůstane napnutý a závislý na tom, co vydělám teď."
+    },
+    {
+      "i": 24,
+      "response": "Jako důchodce na Moravě vítám, že mi valorizace přidala přes šest set korun a inflace je nízká, ale obávám se, že dražší nájmy pro děti, hrozba růstu cen energií a schodek rozpočtu 310 miliard mi doma klid neudělají, takže za rok budeme spíš šetřit než utrácet."
+    },
+    {
+      "i": 25,
+      "response": "Jako mladý člověk se středoškolským vzděláním na Moravě vidím růst mezd sice pozitivně, ale bojím se, že zdražování nájmů o šest až devět procent mi i přes vládní sliby o levnějších energiích stejně sežere většinu rozpočtu a na vlastní bydlení nemám vůbec šanci."
+    },
+    {
+      "i": 26,
+      "response": "Celkem mě těší, že inflace zpomalila a mzdy mají růst, ale bojím se, že zdražování nájmů a hypoték spolu s hrozbou dražších energií naše rozpočty stejně utáhnou, takže do roka moc volných peněz neuvidíme."
+    },
+    {
+      "i": 27,
+      "response": "Jako Pražák se středoškolským vzděláním vidím naše vyhlídky rozpačitě, protože i když průměrná mzda roste a ČNB slibuje klid, tak nám nájmy zdraží o šest až devět procent, energie můžou kvůli světu znovu vyskočit a hypotéky už jsou skoro na pěti procentech, takže s rozpočtem budeme spíš šetřit než si něco dopřávat."
+    },
+    {
+      "i": 28,
+      "response": "Jako důchodce na Moravě mám sice trochu vyšší penzi po valorizaci, ale bojím se, že kvůli hrozbě drahých energií a novému rozpočtovému schodku 310 miliard mi reálně moc peněz na živobytí nezbude. Vládní sliby o levnějším bydlení a stabilních daních zní hezky, ale u nás v regionu cítím spíš nejistotu, jestli ty ceny zase neskočí nahoru."
+    },
+    {
+      "i": 29,
+      "response": "Jako student v Praze se děsím, že nájmy zdraží o čtvrtinu víc než mi případně porostou příjmy, a při rostoucích cenách energií a nejistých slibech nové vlády vidím naše rozpočty spíš směřovat k větším škrtům než k nějakému klidnému spoření."
+    },
+    {
+      "i": 30,
+      "response": "Jako důchodce na venkově v Čechách vidím naše finance spíš stabilně, protože inflace konečně klesla a slibují levnější energie i zastropování důchodového věku, ale obávám se, že ten vysoký schodek rozpočtu a rostoucí ceny bytů nás mladší rodinu moc nepomůžou."
+    },
+    {
+      "i": 31,
+      "response": "Jako důchodce na Moravě vidím naše finance celkem stabilně díky zvýšeným důchodům a nízké inflaci, ale obávám se zimních výpadků proudu a hrozícího zdražení energií, které by nás při našich úsporách mohly zaskočit."
+    },
+    {
+      "i": 32,
+      "response": "Ceny nájmů mi asi zase naběhnou rychleji než výplata, takže sice máme s manželkou přes padesát tisíc hrubého dohromady a inflace je konečně nízko, ale každý měsíc budeme muset víc šetřit na bydlení, než abychom si něco odložili.</think:6124c78e>"
+    },
+    {
+      "i": 33,
+      "response": "Mzda mi prý poroste a inflace je nízko, takže bychom měli vyjít líp než v posledních letech, ale bojím se, aby zdražení nájmu a hrozba dražších energií tyhle přísliby zase nesmazaly. Celkově jsem spíš opatrně doufající, ale každá další vlna drahoty nás doma hned zabolí."
+    },
+    {
+      "i": 34,
+      "response": "Jako důchodce na venkově jsem rád, že mi vláda zastropovala důchodový věk a nezvyšuje daně, ale bojím se, že až se vrátí dražší energie, moje kupní síla z těch pár stovek navíc zase zmizí. Celkově čekám, že sice vydržíme, ale žádné velké volno utrácet nebude, spíš budeme dál šetřit za každou korunu."
+    },
+    {
+      "i": 35,
+      "response": "Jako šedesátník v Čechách vidím naše finance spíš stabilně, protože inflace konečně klesla a důchody mají zůstat bez zvyšování věku, ale obávám se, že sliby nové vlády o levnějších energiích a nízkých daních se můžou rozkymácet, když ekonomové varují, že na to nejsou peníze. Na běžný život nám to stačí, ale žádné velké rezervy si neušetříme, když všechno kolem zdra"
+    },
+    {
+      "i": 36,
+      "response": "Jako mladý na Moravě se středoškolským vzděláním vidím naše vyhlídky rozpačitě, protože sice mzdy a minimální mzda rostou a inflace klesla, ale dražší energie, nájmy i hypotéky nám reálně seberou víc než si přilepšíme, takže s bídou vyjdeme a o vlastním bydlení si můžeme nechat zdát."
+    },
+    {
+      "i": 37,
+      "response": "Nájmy u nás na Moravě zase letí nahoru o skoro deset procent, takže i když mi minimální mzda vzrostla, z výplatní pásky skoro nic nezůstane, a bojím se, že pokud zdraží energie, bude to s rozpočtem domácnosti ještě těžší než loni."
+    },
+    {
+      "i": 38,
+      "response": "Jako mladý bez vlastního bytu na Moravě vidím pár korun navíc díky vyšší minimální mzdě a nízké inflaci, ale bojím se, že dražší nájmy a hrozící růst cen energií mi z výdělku moc nezanechají."
+    },
+    {
+      "i": 39,
+      "response": "Hypotéky a nájmy zase jdou nahoru, takže i když průměrná mzda roste a inflace je nízká, má domácnost bude spíš šetřit, protože se bojím zdražení energií a dalšího rozkmitání cen, což nás na Moravě s naším středoškolským platem potáhne dolů."
+    },
+    {
+      "i": 40,
+      "response": "Jako důchodce na Moravě mám sice trochu vyšší penzi po valorizaci, ale obavy z dražších energií kvůli mrazům a napětí na Blízkém východě i z dražšího nájmu mi kalí radost z růstu mezd jinde, takže za rok budu nejspíš počítat každou korunu víc než dřív."
+    },
+    {
+      "i": 41,
+      "response": "Jako mladý Pražan se sice těším na růst mzdy a zkrocenou inflaci, ale bojím se, že zdražení nájmů o šest až devět procent a dražší energie mi reálně sebere většinu toho přídavku, takže s rozpočtem budu spíš na štrejchu než v klidu."
+    },
+    {
+      "i": 42,
+      "response": "Jako Pražan s vysokou mzdou vidím naše finance celkem stabilně díky růstu reálných příjmů a nízké inflaci, ale drahé a nedostupné bydlení i hrozba zdražení energií nás nutí šetřit a odkládat plány na vlastní byt."
+    },
+    {
+      "i": 43,
+      "response": "I když se prý mzdy a kupní síla zvedají, tak s tím, že nájmy letos zdraží skoro o deset procent a hypotéky zase rostou, vidím naše rodinné finance spíš na šoupnutí než na zlepšení, hlavně když za ty mrazy a ledovku naskáčou vyšší účty za topení a elektřinu."
+    },
+    {
+      "i": 44,
+      "response": "Jako důchodce na venkově v Čechách vidím naši situaci celkem stabilní díky nízké inflaci a silné koruně, ale obávám se zimních účtů za elektřinu po těch mrazech a možného zdražení energií, takže moc neutrácíme a raději šetříme."
+    },
+    {
+      "i": 45,
+      "response": "S důchodem zvýšeným o necelých sedm stovek sotva pokryju dražší topení po tuhých mrazech a rostoucí ceny všeho, takže za rok budu spíš šetřit každou korunu a doufat, že energie znovu nezdraží."
+    },
+    {
+      "i": 46,
+      "response": "Sice čtu, že mzdy rostou a inflace klesá, ale zdražení hypoték, růst nájmů a hrozba dražších energií mi rodinný rozpočet spíš ztíží, takže se cítím v nejistotě a budu šetřit, dokud se situace neuklidní."
+    },
+    {
+      "i": 47,
+      "response": "Jako domácnost na Moravě s vysokoškolským zázemím vnímám příští rok spíš stabilně díky nízké inflaci a růstu mezd, ale obávám se, že sliby o nízkých daních a levnějších energiích narazí na vysoký schodek rozpočtu a nakonec se někde prostě zaplatí z našich kapes."
+    },
+    {
+      "i": 48,
+      "response": "Průměrná mzda přes 50 tisíc a zpomalení inflace mi dávají naději, že se konečně nadechneme, ale růst nájmů o devět procent a hrozba zdražení energií nás v bytě v Čechách pořád drží ve střehu. Celkově čekám, že sice budeme mít o něco víc v peněžence než loni, ale žádné velké polevování v rozpočtu si kvůli nejistotě dovolit nebudeme."
+    },
+    {
+      "i": 49,
+      "response": "Jako důchodce z venkova vidím naše finance celkem stabilně, důchod nám sice zvedli jen o pár stovek, ale s cenami, co teď tolik nerostou, se s manželkou nějak vyjdeme, i když dražší energie a nájmy nás trochu tíží. Do budoucna moc neutrácíme a doufám, že vláda udrží daně nízko, abychom se nemuseli bát o penzi."
+    },
+    {
+      "i": 50,
+      "response": "Jako vysokoškolák na Moravě vidím naši situaci celkem stabilní díky rostoucím mzdám a nízké inflaci, ale bojím se, že dražší nájmy a hrozba růstu cen energií nám z výdělku moc nezanedbají, takže s rozpočtem budeme spíš opatrní."
+    },
+    {
+      "i": 51,
+      "response": "Jako důchodce na Moravě vidím naše vyhlídky spíš opatrně: důchod nám sice mírně vzrostl a inflace je nízká, ale hrozba dražších energií i zdražující se nájmy nás mohou snadno připravit o ten křehký klid v rozpočtu. Věřím slibům o zastropování věku a levnějším proudění, ale po zkušenostech s novou vládou raději nečekám zázraky a šetřím, co se"
+    },
+    {
+      "i": 52,
+      "response": "Jako mladý na Moravě bez vysoké školy vidím ty sliby o růstu mezd a levnějších energiích fajn, ale bojím se, že po těch mrazech a se zdraženýma hypotékama i hrozbou dražšího plynu mi v kapse moc nezbyde, hlavně když nikdo pořádně neví, jak Babiš zaplatí ty svý plány."
+    },
+    {
+      "i": 53,
+      "response": "Jako důchodce v Čechách vidím naše vyhlídky spíš opatrně, důchod sice mírně vzrostl a inflace je teď nízká, ale bojím se zdražování nájmů, energií a dalších věcí, takže s penězi budeme muset šetřit a nic velkého si nebudeme dopřávat."
+    },
+    {
+      "i": 54,
+      "response": "Ceny energií a nájmů zase stoupají, hypotéky zdražily a vláda hlásí nižší daně, ale já v tom moc reálného zlevnění pro naši domácnost nevidím, takže spíš šetříme a doufáme, že mzda alespoň udrží krok s drahotou."
+    },
+    {
+      "i": 55,
+      "response": "Jako důchodce věřím, že díky zvýšenému důchodu a nízké inflaci vyjdu s penězi o něco lépe než dřív, ale mrazy a dražší nájmy v okolí mě můžou překvapit, takže se spíš držím zpátky a nečekám žádné velké plány."
+    },
+    {
+      "i": 56,
+      "response": "Slyším, že mzdy i kupní síla by měly růst a inflace konečně polevila, ale jako Pražák mě děsí další zdražování nájmů a bytů a hrozba dražších energií, takže za rok budeme sice mít na papíře víc peněz, ale reálně nám skoro všechno sebere bydlení a účty."
+    },
+    {
+      "i": 57,
+      "response": "Jako důchodce na Moravě vidím naše vyhlídky celkem klidné, důchod nám sice moc nepřidal, ale s tou nízkou inflací a sliby vlády o levnějších energiích se aspoň nebojím, že nás doma něco zničehonic položí na lopatky, i když se trochu hlídám kvůli hrozbě dražších plyn a elektřiny."
+    },
+    {
+      "i": 58,
+      "response": "Mzdy sice asi trochu porostou a inflace je teď nízká, ale s dražšími nájmy a hypotékami, což se nás jako nájemníků v Čechách dost tvrdě dotkne, moc neušetříme a budeme spíš počítat každou korunu. Navíc se bojím, aby se kvůli té situaci na Blízkém východě nevrátily drahé energie a naše domácí rozpočty zase nezhoršily."
+    },
+    {
+      "i": 59,
+      "response": "Jako důchodce z venkova vidím ty slibované růsty mezd a zpomalení inflace spíš s mírným optimismem, ale bojím se, že dražší energie, rostoucí nájmy u dětí a ten obří státní schodek nakonec stejně vezmou víc, než mi přidá valorizace, takže s rozpočtem budeme muset šetřit dál."
+    },
+    {
+      "i": 60,
+      "response": "Mzdy sice asi trochu porostou a inflace klesá, ale s dražšími hypotékami, hrozbou zdražení energií a neslavným stavem rozpočtu se bojím, že našetřit na bydlení nebo si něco odložit letos moc nepůjde. Spíš budeme počítat každou korunu, abychom vyšli, když se ceny zase můžou otočit nahoru."
+    },
+    {
+      "i": 61,
+      "response": "Jako důchodce na Moravě vidím naše finance spíš stabilní, protože slibované zmrazení důchodového věku a levnější energie nám pomůžou, ale mrazy a výpadky proudu nás děsí kvůli účtům za topení. Věřím, že inflace zůstane nízká a kupní síla se nezhorší, i když byty pro děti zůstanou nedostupné."
+    },
+    {
+      "i": 62,
+      "response": "Inflace sice klesla a mzdy rostou, ale bojím se zdražování nájmů a energií, takže s naším základním vzděláním na Moravě to vidím spíš na šetření a žádný velký klid v rozpočtu."
+    },
+    {
+      "i": 63,
+      "response": "I když průměrná mzda roste a vláda slibuje levnější energie, bojím se, že zdražování nájmů, hypoték a hrozba dražších energií nás reálně přidusí, takže s rozpočtem budeme muset šetřit víc než dřív."
+    },
+    {
+      "i": 64,
+      "response": "Jako člověk se základním vzděláním na Moravě vidím naši situaci celkem stabilní díky vyšší minimální mzdě a zpomalení inflace, ale bojím se zdražování nájmů a energií, protože s naším rozpočtem by nás každá neočekávaná spotřeba dostala do potíží."
+    },
+    {
+      "i": 65,
+      "response": "Mzdy sice rostou a inflace klesla, ale bojím se zdražení nájmů a energií, takže s penězi budeme muset šetřit a nic moc navíc si nejspíš nedopřejeme."
+    },
+    {
+      "i": 66,
+      "response": "Celkem věřím, že díky nižší inflaci a růstu mezd nám doma trochu oddechnou peníze, ale bojím se, aby dražší energie a hypotéky zase všechno nevzaly, když vláda slibuje hodně věcí, na které prý nemá jasný plán."
+    },
+    {
+      "i": 67,
+      "response": "Jako důchodce z venkova vidím naše vyhlídky spíš neutrálně až mírně pesimisticky, protože přidání k důchodu je sotva pár stovek, zatímco nájmy, energie a mrazy nás tlačí výdaje nahoru, takže sotva udržíme současný standard. Vládní sliby o levnějších energiích a zastropování důchodového věku jsou sice uklidňující, ale schodek rozpočtu a hrozba dražší ropy mi kaz"
+    },
+    {
+      "i": 68,
+      "response": "Jako člověk se středoškolským vzděláním na Moravě vidím naši domácnost celkem stabilně díky zpomalení inflace a růstu mezd, ale bojím se dalšího zdražování hypoték a bydlení, takže za rok moc neušetříme."
+    },
+    {
+      "i": 69,
+      "response": "Jako člověk se základním vzděláním na Moravě vidím naši domácnost spíš nejistě, protože i když inflace klesla a minimální mzda stoupla, bojím se zdražování energií a že vládní sliby levnějšího života se nakonec nezaplatí z našich kapes."
+    },
+    {
+      "i": 70,
+      "response": "Jako důchodce v Čechách vidím naše vyhlídky spíš opatrně, protože i když inflace zpomalila a důchod nám trochu přidal, hrozící zdražení energií a dražší nájmy nás můžou snadno připravit o tyhle malé zisky. Vládní sliby o levnějším životě zatím beru s rezervou, hlavně když slyším kritiku, že chybí peníze na jejich plány."
+    },
+    {
+      "i": 71,
+      "response": "Důchod mi sice trochu zvedli a ceny prý nerostou tak jako dřív, ale nájmy a hypotéky okolo zdražují a nevím, co provede nová vláda, takže se na další rok spíš bojím, abych s penězi vyšla."
+    },
+    {
+      "i": 72,
+      "response": "Slyším, že mzdy rostou a inflace klesá, ale zdražování nájmů a hrozba dražších energií nás na Moravě stejně nejspíš udrží tak tak nad vodou, takže za rok budeme finančně spíš na stejné nule jako teď."
+    },
+    {
+      "i": 73,
+      "response": "Ceny energií a nájmů mi jdou nahoru, takže i když prý mzdy rostou a inflace klesla, mám z toho spíš obavu, že měsíčně moc neukřímžím a budeme žít tak nějak na doraz."
+    },
+    {
+      "i": 74,
+      "response": "Mzdy sice slibují růst a inflace zpomalila, ale drahé hypotéky a rostoucí ceny bytů v Praze nám zavřely dveře k vlastnímu bydlení a bojím se, že zimní výdaje za elektřinu a hrozba dražších energií nás stejně nepustí z místa. Na další rok vidím naši situaci spíš jako přežívání bez většího zlepšení, hlavně když vláda sype peníze do schodku a nikdo pořádně"
+    },
+    {
+      "i": 75,
+      "response": "Jako důchodce s vysokoškolským vzděláním na Moravě vidím naše finance spíš stabilní díky zvýšenému důchodu a nízké inflaci, ale obávám se zdražování energií a nájmů, které by mohly naše úspory snadno erodovat. Celkově čekám, že sice vyjdeme, ale bez velké rezervy a s nutností hlídat každou korunu."
+    },
+    {
+      "i": 76,
+      "response": "Slyším, že mzdy i důchody rostou a inflace zvolňuje, ale zdražování nájmů a hrozba dražších energií mi rodinný rozpočet stejně příliš neulehčí, takže dalších dvanáct měsíců vidím spíš jako dohadování se, co zrovna odložit, abychom vyšli."
+    },
+    {
+      "i": 77,
+      "response": "Jako Pražák se základním vzděláním vidím naše finance spíš bledě, protože sice prý mzdy rostou, ale nájmy zdraží skoro o deset procent a ceny bytů i energií letí nahoru, takže s rozpočtem budeme šetřit každou korunu. Vláda slibuje levnější energie a nižší daně, ale moc jim nevěřím, když odborníci říkají, že na to nemají peníze."
+    },
+    {
+      "i": 78,
+      "response": "I když se prý mzdy a kupní síla zvedají, tak zdražení nájmů o skoro deset procent a dražší hypotéky nás na Moravě pořádně zatlačí, takže za rok budeme spíš jen tak tak vydělávat na živobytí a o nějakém šetření si můžeme nechat zdát."
+    },
+    {
+      "i": 79,
+      "response": "Jako Pražák se středoškolským vzděláním vidím naše vyhlídky rozpačitě: mzda sice možná poroste, ale dražší nájmy a hrozící energie nás stejně přidusí, takže sotva udržíme současný standard."
+    },
+    {
+      "i": 80,
+      "response": "Slyším, že mzdy rostou a inflace konečně spadla, takže naše kupní síla se asi trochu zlepší, ale bojím se zdražení energií kvůli Blízkému východu a rostoucích hypoték, navíc mi jako střední třídě v Čechách nedává nová vláda s obřím schodkem rozpočtu moc naději, že to vydrží dlouhodobě stabilní."
+    },
+    {
+      "i": 81,
+      "response": "Mám zprávy o růstu mezd a nižší inflaci, takže mi penězzůstane víc než loni, ale bojím se, že zdražení nájmů v Praze mi ten zisk vezme a rozpočet bude pořád našponovaný. Věřím slibům vlády o levnějších energiích, ale mrazy a výpadky proudu mě děsí, že zas něco připlatím za topení."
+    },
+    {
+      "i": 82,
+      "response": "Mzdy sice prý rostou a inflace klesá, ale dražší hypotéky, zvyšující se nájmy a strach z dražších energií mi kazí radost, takže za rok budeme nejspíš s penězi vychozovat skoro stejně napnutě jako teď. Vládní sliby o levnějším bydlení a energiích zatím nevidím na svém výplatním lístku ani v účtech za byt."
+    },
+    {
+      "i": 83,
+      "response": "Ceny nájmů a energií mi zase lezou nahoru rychleji, než mi rostou příjmy, takže i když prý mzdy celkově rostou, za rok budeme s manželkou spíš šetřit a žít od výplaty k výplatě s menší rezervou než dřív."
+    },
+    {
+      "i": 84,
+      "response": "Jako důchodce na Moravě vidím naše vyhlídky spíš opatrně, protože i když nám důchody trochu přidali, bojím se zdražování energií a nájmů, což nám může zbytek peněz na živobytí zase sebrat."
+    },
+    {
+      "i": 85,
+      "response": "Slyším, že mzdy rostou a inflace konečně klesla, ale zdražování nájmů a dražší hypotéky nás pořád tlačí, takže za rok budeme spíš tak tak vyrovnaní, jestli nepřijde nějaká mimořádná výdaj za energie nebo auto."
+    },
+    {
+      "i": 86,
+      "response": "Má domácnost by na tom měla být líp díky rostoucím mzdám a nižší inflaci, ale bojím se zdražení energií a vyšších hypoték, takže každou korunu radši počítám dopředu. Vládní schodek a politické tahanice mě navíc utvrzují v tom, že žádné velké jistoty se letos nedočkáme."
+    },
+    {
+      "i": 87,
+      "response": "Důchod mi sice trochu přidalo, ale s hrozbou dražších energií a zdražováním všeho okolo se bojím, že za rok budu s penězi vyhlížet ještě hůř než teď. Jako starý člověk na Moravě se spoléhám jen na ten valorizovaný důchod a moc nevěřím, že mi vláda nebo kdo koliv opravdu uleví."
+    },
+    {
+      "i": 88,
+      "response": "Jako důchodce na vesnici v Čechách vidím naše finance spíš opatrně, protože i když inflace klesla a mzdy prý rostou, hrozící zdražení energií a mráz nás zasáhnou v rozpočtu víc než sliby politiků, takže budeme šetřit hlavně na topení a službách."
+    },
+    {
+      "i": 89,
+      "response": "Mzdy prý rostou a inflace klesá, takže by se nám mohlo trochu ulevit, ale bojím se, aby kvůli dražším energiím a nesmyslnému schodku rozpočtu zase nepřišly vyšší výdaje, co nám to vzápětí sebere."
+    },
+    {
+      "i": 90,
+      "response": "Ceny energií a nájmů zase straší a hypotéky zdražily, takže i když průměrná mzda roste a inflace je nízko, má rodina peněz na rozhazování míň než loni a spíš budeme šetřit. Za rok vidím naši situaci tak na vlásku – pokud se plyn a elektřina kvůli světu nezblázní, vyjdeme, ale klidný rozhodně nejsem."
+    },
+    {
+      "i": 91,
+      "response": "Jako důchodce z venkova vidím příští rok s obavami, protože i když mi důchod trochu přidal a inflace je nízká, zdražení nájmů a hrozba dražších energií mi můžou zbytek peněz snadno sebrat, zatímco sliby nové vlády o levnějším životě zatím vypadají jen jako planá slova bez krytí."
+    },
+    {
+      "i": 92,
+      "response": "Máme s manželem oba práci a minimální mzda s tou naší sice není, ale s nájmem co zdraží o skoro deset procent a hypotékou co zas vyskočila nám konce měsíce budou těsnější, i když se v novinách píše, že mzdy rostou. Bojím se hlavně těch energií, kdyby zase zdražily jako dřív, tak to na Moravě v těch mrazech letos nezaplatíme."
+    },
+    {
+      "i": 93,
+      "response": "Mzdy prý rostou a inflace konečně spadla, takže se snad trochu vydechneme, ale bojím se, aby kvůli drahým energiím a zdraženým hypotékám zase nepřišly výdaje, na které naše peníze nestačí."
+    },
+    {
+      "i": 94,
+      "response": "I když průměrná mzda roste a inflace klesá, tak zdražení nájmů, hypoték a pražských bytů mi rodinný rozpočet v Praze stejně víc utáhne než ty příjmy nahoru, a bojím se, že kvůli drahým energiím zase budeme našetřený kačku dávat jen za topení a světlo."
+    },
+    {
+      "i": 95,
+      "response": "Jako důchodce z vesnice mimo Prahu vidím příští rok celkem klidně, protože mi důchod trochu přidalo a inflace konečně spadla, ale pořád mám strach z drahých energií, když se zase kvůli světu zvednou ceny plynu a elektřiny."
+    },
+    {
+      "i": 96,
+      "response": "Hypotéky i nájmy nám zdražují a energie můžou zase vyskočit, takže i když inflace teď padá, naše domácnost bude spíš šetřit a moc volného neuvidíme. Vládní sliby o levnějším bydlení a energiích jsou fajn, ale zatím to v našem kraji nepociťuju a obávám se, že rok bude těžký."
+    },
+    {
+      "i": 97,
+      "response": "Zprávy o růstu mezd a nízké inflaci zní sice povzbudivě, ale obavy z dražších energií a zdražení hypoték mě na Moravě stejně drží v šetření a nevím, jestli s rodinným rozpočtem v klidu vyjdeme, když se něco z těch hrozeb opravdu naplní."
+    },
+    {
+      "i": 98,
+      "response": "Mzdy sice rostou a inflace konečně spadla, ale s dražšími nájmy a nedostupným bydlením na Moravě moc nepocítím zlepšení, takže za rok budeme s manželkou spíš tak tak vyjíždět a šetřit na každém nákupu. Vládní sliby o levnějších energiích zní fajn, ale po těch mrazech a s rostoucím schodkem mám strach, že nás zase něco zaskočí."
+    },
+    {
+      "i": 99,
+      "response": "Jako mladý na Moravě bez vysoké školy vidím naše vyhlídky rozpačitě, protože sice mzdy a minimální mzda rostou, ale dražší nájmy a hrozba zdražení energií nám stejně sebere většinu toho, co bychom ušetřili."
+    },
+    {
+      "i": 100,
+      "response": "Jako důchodce s valorizovaným důchodem necelých 22 tisíc korun vnímám, že růst mezd a sliby o levnějších energiích se mě přímo netýkají, a při zdražování nájmů či služeb kvůli mrazům čekám spíš stagnaci až mírné zhoršení naší životní úrovně. Vládní plány bez zvyšování daní zní sice uklidňující, ale s rostoucími hypotékami a cenami bydlení se cítím"
+    },
+    {
+      "i": 101,
+      "response": "Jako pražský důchodce s vysokoškolským vzděláním vidím na příští rok spíš mírný klid díky zvýšenému důchodu a nízké inflaci, ale rostoucí ceny bytů a nájmů ve městě mě znepokojují, pokud bych musel řešit bydlení nebo pomáhat dětem. Celkově se cítím bezpečněji než v době inflační vlny, ale obávám se, že nová vláda slibuje víc, než za"
+    },
+    {
+      "i": 102,
+      "response": "Hypotéky zdražily a nájmy půjdou nahoru o skoro deset procent, takže i když mám o něco vyšší mzdu, obávám se, že nás to s bydlením a energiemi pořádně zatíží a moc si neoddychneme. Vláda slibuje levnější energie a nižší daně, ale podle těch zpráv o schodku a kritice ekonomů moc nevěřím, že to u nás doma do roka pocítíme jako reálnou úlevu."
+    },
+    {
+      "i": 103,
+      "response": "Jako domácnost na Moravě vidím naše vyhlídky celkem stabilní díky růstu mezd a nízké inflaci, ale bojím se zdražování nájmů a hrozících energií, takže radši šetříme a odkládáme plány na vlastní bydlení."
+    },
+    {
+      "i": 104,
+      "response": "Jako důchodce na venkově Čech vidím naše vyhlídky spíš s obavami, protože i když důchod trochu stoupl a inflace zpomalila, hrozící zdražení energií a dražší nájmy nám můžou ten kousek kupní síly zase sebrat. Věřit, že nová vláda to nějak zázračně spraví, zatím nemůžu, když čtu, že rozpočet má ještě větší schodek a nikdo pořádně neví, kde na to vez"
+    },
+    {
+      "i": 105,
+      "response": "Jako důchodce na vsi vidím příští rok celkem klidně, důchod mi trochu přidal a ceny prý rostou míň, ale bojím se, aby nás zase nepřekvapily drahé energie nebo výpadky proudu jako teď v tom mraze."
+    },
+    {
+      "i": 106,
+      "response": "S hypotékami i nájmy, co zase rostou, a s hrozbou dražších energií se bojím, že s mými příjmy na základním vzdělání rodina moc nevydělá, a spíš budeme šetřit každou korunu než si polepšíme. Vládní sliby o levnějším životě zatím nevidím doma na účtu, takže do roka čekám spíš ztížené vyžití než klid."
+    },
+    {
+      "i": 107,
+      "response": "Jako důchodce na Moravě mám sice trochu vyšší penzi po valorizaci a levnější zboží díky nízké inflaci, ale bojím se, že drahé energie a zdražující nájmy mi zrovna tyhle úspory seberou, takže za rok budu nejspíš s penězi vychaázenět jen tak tak."
+    },
+    {
+      "i": 108,
+      "response": "Jako důchodce na Moravě se bojím, že dražší nájmy a energie mi i přes sliby nové vlády o levnějším proudu seberou většinu peněz, co mi zůstane po drahém zimním topení."
+    },
+    {
+      "i": 109,
+      "response": "Nájmy nám asi zase pěkně naskočí a s mou základní školou mzda těžko dožene dražší bydlení i hrozící energie, takže za rok budeme s penězi spíš na štrejchu než v klidu. Vládní sliby o levnějším životě sice slyším, ale v našem kraji se jich moc nechytilo."
+    },
+    {
+      "i": 110,
+      "response": "Slyším, že mzdy mají růst a inflace klesat, ale bojím se, že dražší nájmy a hrozba zdražení energií nám na Moravě stejně sebere většinu toho přidání, takže s rozpočtem budeme spíš jen tak tak vycházet."
+    },
+    {
+      "i": 111,
+      "response": "Jako mladý Pražan se středoškolským vzděláním vidím naše vyhlídky dost bledě, protože nám sice mírně rostou mzdy, ale dražší nájmy a hrozící energie nám život v Praze stejně prodraží a na vlastní bydlení ani nepomyslím."
+    },
+    {
+      "i": 112,
+      "response": "Jako mladý člověk se středoškolským vzděláním na Moravě vidím naše vyhlídky spíš bledě, protože nájmy i ceny bydlení rostou rychleji než moje mzda a hypotéky jsou teď moc drahé, takže si ani nešetřím na vlastní bydlení. Navíc mě děsí, že energie můžou znovu zdražit a vládní sliby levnějších věcí zatím moc nevidím v peněžence."
+    },
+    {
+      "i": 113,
+      "response": "Průměrná mzda sice roste a inflace je nízká, takže by se nám mohlo trochu ulevit, ale bojím se, že dražší energie kvůli Blízkému východu a zdražené hypotéky nám na Moravě rodinný rozpočet zas sevřou, takže moc volna s penězi nečekám."
+    },
+    {
+      "i": 114,
+      "response": "Průměrná mzda sice roste a inflace konečně spadla, ale s dražšími hypotékami, zvyšujícími se nájmy a hrozbou dražších energií mám strach, že našemu rodinnému rozpočtu se reálně neuleví a budeme muset šetřit víc než dřív."
+    },
+    {
+      "i": 115,
+      "response": "Důchod se mi sice trochu zvedl a inflace je teď nízká, ale bojím se, že se vrátí drahé energie kvůli těm mrazům a neklidům ve světě, takže za rok můžu mít s penězi zase potíže. Celkově to vidím tak napůl, aspoň že zatím v obchodě tolik nezdražuje, ale vládní dluhy a sliby mě moc neuklidňují."
+    },
+    {
+      "i": 116,
+      "response": "Slyším, že mzdy mají růst a důchody taky trochu přidaly, ale s dražšími hypotékami, rostoucími nájmy a hrozbou dražších energií se bojím, že nám doma peníze stejně moc nezbydou a budeme muset každou korunu hlídat."
+    },
+    {
+      "i": 117,
+      "response": "Jako domácnost s vysokoškolským vzděláním v Čechách vidím příští rok celkem nadějně díky růstu mezd a zpomalení inflace, ale obávám se zdražení hypoték a energií, takže rozpočet budeme muset hlídat víc než dřív."
+    },
+    {
+      "i": 118,
+      "response": "Jako Pražák s vysokou školou sice vidím, že mi reálná mzda asi trochu poroste, ale s dražšími hypotékami, rostoucími nájmy a hrozbou zdražení energií mám pocit, že měsíčně moc neušetřím a bydlení tu pro nás zůstává hlavní finanční pastí. Celkově jsou vyhlídky nejisté – pár korun navíc v příjmu mi sežere životní náklady ve městě."
+    },
+    {
+      "i": 119,
+      "response": "Jako mladý na Moravě s průměrným výdělkem vidím příští rok celkem nadějně díky rostoucím mzdám a nízké inflaci, ale bojím se zdražování hypoték a energií, takže o vlastním bydlení zatím ani nepřemýšlím."
+    },
+    {
+      "i": 120,
+      "response": "Jako důchodce na Moravě vidím, že mi sice důchod trochu přidali a inflace je nízko, ale bojím se těch mrazů a zpráv o drahých energiích, takže za rok budu rád, když v klidu zaplatím složenky a nebudu muset sahat do úspor."
+    },
+    {
+      "i": 121,
+      "response": "Vláda sice slibuje levnější energie a nulový růst daní, ale s rostoucími cenami plynu kvůli Blízkému východu a dražšími hypotékami se bojím, že s mou základní školou a výdělkem na Moravě budu spíš šetřit každou korunu než se mít líp."
+    },
+    {
+      "i": 122,
+      "response": "Jako důchodce na Moravě vítám, že mám o pár stovek víc a inflace je nízko, ale bojím se, že zdražování nájmů a nejistá politická situace s novou vládou a vysokým schodkem mi zbytek úspor za rok zase sežerou."
+    },
+    {
+      "i": 123,
+      "response": "Jako důchodce na Moravě vítám sliby o zastropování důchodového věku a levnějších energiích, ale obávám se, že hrozící zdražování plynu kvůli Blízkému východu a kritizované Babišovy plány bez pokrytí nákladů mohou moji kupní sílu spíš ohrozit než zlepšit. Celkově čekám spíš opatrný stagnující rok, kde každá koruna navíc za teplo nebo jídlo bude bolet."
+    },
+    {
+      "i": 124,
+      "response": "Jako mladý vysokoškolák v Praze vidím své výdělky spíš optimisticky díky rostoucím mzdám, ale kvůli drahým hypotékám a předraženým pražským bytům vím, že si vlastní bydlení za rok rozhodně nepořídím a rozpočet mi provětrá hlavně nájem a energie v tuhé zimě."
+    },
+    {
+      "i": 125,
+      "response": "Jako šedesátník na venkově Čech vidím naše vyhlídky spíš pesimisticky, protože zdražování nájmů a hrozba dražších energií při schodkovém rozpočtu a nejasných slibech nové vlády sotva pokryjeme z našich stálých příjmů. Doufám, že nízká inflace vydrží, ale obávám se, že za rok budeme s penězi vyškrtnutí víc než teď."
+    },
+    {
+      "i": 126,
+      "response": "Jako rodina na Moravě vidím příští rok celkem nadějně díky rostoucím mzdám a nízké inflaci, ale obávám se zdražení hypoték a drahého bydlení, takže každou korunu budeme muset hlídat."
+    },
+    {
+      "i": 127,
+      "response": "Jako mladý vysokoškolák v Čechách vidím naše vyhlídky spíš napjatě, protože nájmy i hypotéky zdražují rychleji než moje budoucí mzda a hrozící růst cen energií nám může snadno sebrat ten kousek klidu z nízké inflace."
+    },
+    {
+      "i": 128,
+      "response": "Jako mladý bez vyššího vzdělání z venkova vidím naše vyhlídky spíš bledě, protože nájmy a energie zdražují rychleji než moje mzda a hypotéku si stejně nemůžu dovolit. Sice mám o trochu vyšší minimální mzdu, ale obávám se, že s rostoucími cenami a nejistou politikou nám moc peněz na úspory nezbyde."
+    },
+    {
+      "i": 129,
+      "response": "Jako vysokoškolák na Moravě vidím naše finance spíš neutrálně až opatrně: mzda nám sice reálně roste díky nízké inflaci, ale zdražení nájmu o skoro deset procent a hrozba dražších energií nás stejně budou tlačit, takže žádné velké polevování v rozpočtu nečekám."
+    },
+    {
+      "i": 130,
+      "response": "Jako důchodce na Moravě vítám, že inflace zpomalila a důchod mi trochu přidal, ale bojím se, že sliby nové vlády o levnějším životě se moc neprojeví a s rostoucími nájmy či energiemi budu muset šetřit ještě víc než dosud."
+    },
+    {
+      "i": 131,
+      "response": "Jako středně starý na Moravě vidím naše finance celkem stabilně díky růstu mezd a nízké inflaci, ale obávám se zdražování nájmů a energií, které nám můžou slušně prohloubit výdaje. Vládní sliby o levnějším bydlení zatím vnímám spíš jako planá slova, když ceny bytů a hypoték jdou nahoru."
+    },
+    {
+      "i": 132,
+      "response": "Slyším, že mzdy mají růst a inflace konečně zpomalila, ale s dražšími nájmy a hrozbou zdražení energií se bojím, že na Moravě s průměrným středoškolským platem reálně moc neujedeme a spíš budeme počítat každou korunu."
+    },
+    {
+      "i": 133,
+      "response": "Jako mladý vysokoškolák v Čechách vidím na příští rok světlo na konci tunelu díky rostoucím mzdám a nízké inflaci, ale bojím se, že dražší energie a nedostupné bydlení můj rozpočet pořádně prověří, než si stihnu našetřit na vlastní život."
+    },
+    {
+      "i": 134,
+      "response": "Mzdy nám sice slibují růst pět až sedm procent a inflace je konečně nízko, ale s dražšími hypotékami, zvyšujícími se nájmy a rozpočtovým schodkem 310 miliard se bojím, že nás to reálně moc nepomůže a našetřit pořád skoro nic nejde."
+    },
+    {
+      "i": 135,
+      "response": "Mzdy sice rostou a inflace je konečně nízko, ale zdražování nájmů a hypoték nás s manželkou pořád tlačí, takže za rok vidím naše finance spíš na štíru, i když se celkově má líp než v krizi. Bojím se hlavně, aby se kvůli Blízkému východu nevrátily drahé energie a sebere nám to, co jsme zatím ušetřili."
+    },
+    {
+      "i": 136,
+      "response": "Zprávy o růstu mezd a nízké inflaci mi dávají naději, že naše kupní síla se zlepší, ale obavy z dražších energií a zdražení hypoték nás nutí šetřit a nepočítat s velkým přebytkem. Celkově čekám spíš klidné přežití než nějaké výrazné zbohatnutí."
+    },
+    {
+      "i": 137,
+      "response": "Celkem mě těší, že mzdy rostou a inflace konečně spadla, ale bojím se, že dražší nájmy a hrozící růst cen energií nám zrovna v Čechách mimo Prahu srazí reálný zisk našeho rozpočtu skoro k nule. Vládní sliby o levnějším bydlení a nízkých daních zní fajn, ale s tím schodkem 310 miliard a varováními ekonomů moc nevěřím, že se nás to do roka reálně dotkne poz"
+    },
+    {
+      "i": 138,
+      "response": "Jako mladý vysokoškolák v Čechách vidím naši domácnost spíš stabilně díky rostoucím mzdám a nízké inflaci, ale kvůli zdraženým hypotékám a hrozbě dražších energií se bojím, že si vlastní bydlení ani za rok nebudeme moct dovolit."
+    },
+    {
+      "i": 139,
+      "response": "Mzdy sice rostou a inflace konečně spadla, ale dražší hypotéky, zdražující nájmy a ten obří schodek rozpočtu mi dělají starosti, takže za rok budeme nejspíš tak tak vyjít, ale na nějaké větší úspory nebo pohodu to nevidím. Jako člověk se základním vzděláním v regionu mimo Prahu se bojím, že sliby vlády o levnějším životě se k nám domů moc neprojeví."
+    },
+    {
+      "i": 140,
+      "response": "Jako důchodce na Moravě vidím naše vyhlídky spíš opatrně, protože zdražování nájmů a hrozba dražších energií nás víc tíží než slibované levnější vládní balíčky, ačkoli růst minimální mzdy dětem trochu pomůže. Pokud se ceny plynu a elektřiny zase otočí nahoru, budeme muset víc šetřit hlavně na jídle a topení."
+    },
+    {
+      "i": 141,
+      "response": "Důchod mi sice o pár stovek stoupl, ale kvůli hrozbě dražších energií a vysokému schodku rozpočtu čekám, že reálně ušetřit nepůjdu a budu muset víc hlídat každou korunu. Celkově vidím naše finance spíš napjatě, hlavně kdyby se naplnily obavy z dražší elektřiny přes zimu."
+    },
+    {
+      "i": 142,
+      "response": "Jako důchodce s průměrnou penzí vidím příští rok celkem klidně díky nízké inflaci a stabilitě sazeb, ale obávám se, že dražší energie a zdražující nájmy nám i tak seberejí většinu z těch pár stovek, co nám přidalo valorizování."
+    },
+    {
+      "i": 143,
+      "response": "Slyším, že mzdy porostou a inflace klesá, ale zároveň nám nájmy zdraží víc než výdělky a hrozí dražší energie, takže za rok budeme sotva na nule a každou korunu budeme muset hlídat. Věřím sice slibům o levnější elektřině a zastropovaném důchodovém věku, ale politické handry a chybějící placení Babišových plánů ve mně budí spíš obavu než klid."
+    },
+    {
+      "i": 144,
+      "response": "Ceny nájmů a energií nám asi zase nateplou víc než výplata, takže i když prý mzdy rostou a inflace padá, měsíčně budeme šetřit na každým rohu a žít od výplaty k výplatě. Babišova vláda s velkým schodkem a dražšíma hypotékama mě neuklidňuje, spíš čekám, že za rok budem na tom hůř než teď."
+    },
+    {
+      "i": 145,
+      "response": "Jako důchodce s nízkým vzděláním vidím naši situaci celkem klidnou, důchod nám sice moc nepřidal, ale inflace je teď nízká a mrazy s dražšími energiemi nás trochu tíží, tak doufám, že vláda udrží ceny a nedojde k dalšímu zdražování."
+    },
+    {
+      "i": 146,
+      "response": "Jako Moravan se středoškolským vzděláním vidím naše finance na příští rok celkem nadějně, protože mzdy rostou a inflace konečně spadla, ale bojím se, že sliby levnějších energií a nízkých daní od nové vlády můžou skončit prázdnou kasou a nakonec za to zaplatíme my."
+    },
+    {
+      "i": 147,
+      "response": "Jako důchodce na Moravě vidím příští rok celkem stabilně, protože mi valorizace i zastropování důchodového věku trochu uleví a inflace je konečně nízko, ale mrazy a dražší energie s nájmy mě pořád drží v obavách, abychom s manželkou vyšli."
+    },
+    {
+      "i": 148,
+      "response": "Slyším, že mzdy rostou a energie by mohly zlevnit, ale s nájmem, co zdraží o devět procent, a hypotékou nad pět procent moc volna v rodinném rozpočtu nevidím, takže spíš přežívám než šetřím."
+    },
+    {
+      "i": 149,
+      "response": "Jako rodina na Moravě vidím další rok dost nejistě, protože nám zdražují nájmy i energie a hypotéky jsou zase dražší, takže i když mzdy rostou, reálně nám doma moc peněz navíc nezbyde. Vládní sliby o levnějším bydlení a nulovém zvyšování daní jsou sice fajn, ale podle mě se za ten obří schodek rozpočtu a drahé energie stejně nakonec všichni nějak zapravíme."
+    },
+    {
+      "i": 150,
+      "response": "S nájmem, co má zdražit o šest až devět procent, a hrozbou dražších energií se bojím, že nám s výplatou moc nezbude, i když slibují levnější energie a žádné daně nahoru. Nová vláda a rozpočet se schodkem 310 miliard mi moc jistoty nedávají, takže na další rok spíš šetříme a žijeme z ruky do huby."
+    },
+    {
+      "i": 151,
+      "response": "Jako důchodce z venkova vidím naši situaci celkem stabilní díky zvýšenému důchodu a nízké inflaci, ale obávám se zimních výpadků proudu a hrozeb zdražení energií, které by nás mohly potrápit. Věřím slibům o nezvyšování daní, ale politické řeči kolem Babiše a chybějících peněz ve státním plánu mě spíš znervózňují než uklidňují."
+    },
+    {
+      "i": 152,
+      "response": "Ceny energií zase hrozí růstem a hypotéky zdražily, takže se bojím, že i když mzdy i důchody trochu rostou, na konci roku budeme doma spíš šetřit než si něco přidat. Hlavně ty mrazy a výpadky proudu nás na Moravě potrápily, takže rezervu radši nechám být a moc do budoucna nevěřím."
+    },
+    {
+      "i": 153,
+      "response": "Důchod mi sice trochu přidalo, ale s hrozbou dražších energií v těchhle mrazech a nejistotou kolem cen se bojím, že s penězi vyjdeme tak tak a na nějaké radovánky nebude."
+    },
+    {
+      "i": 154,
+      "response": "Jako mladý bez vysoké školy v Čechách vidím, že sice mi může trochu přilepšit vyšší minimální mzda, ale růst nájmů a dražší hypotéky mě děsí, takže za rok budu spíš sotva vycházet s penězi a o vlastním bydlení si můžu nechat zdát. Vládní sliby o levnějších energiích zní fajn, ale věřím jim míň než zprávám, že zase můžou zdražit kvůli té situ"
+    },
+    {
+      "i": 155,
+      "response": "Jako mladý bez vysoké školy na Moravě vidím růst mezd a nižší inflaci fajn, ale skokové zdražení nájmů a dražší hypotéky mě děsí, protože z vlastního bydlení nebo nájmu budu mít v příštím roce spíš menší reálný zisk než pocit zlepšení. K tomu hrozba dražších energií kvůli světu venku mi kazí pocit, že by se nám doma mělo výrazně ulevit."
+    },
+    {
+      "i": 156,
+      "response": "Minimální mzda sice stoupla, ale s dražšími nájmy a hrozbou růstu cen energií moc neušetřím, takže za rok budeme tak tak s provozem domácnosti vyjít."
+    },
+    {
+      "i": 157,
+      "response": "Máme tu sice růst mezd a nižší inflaci, což je fajn, ale bojím se zdražení hypoték a energií kvůli těm mrazům a napětí na Blízkém východě, takže za rok budeme spíš jen tak tak vyrovnávat rodinný rozpočet."
+    },
+    {
+      "i": 158,
+      "response": "Slyším, že mzdy mají růst a inflace konečně spadla, ale s dražšími hypotékami, rostoucími nájmy a schodkem rozpočtu mám spíš obavu, že nás na Moravě reálně moc volna v peněžence nečeká. Vládní sliby o levnějších energiích a nulovém zvyšování daní zní fajn, ale když ekonomové říkají, že na to nejsou peníze, budu radši počítat s tím, že bud"
+    },
+    {
+      "i": 159,
+      "response": "Zprávy o zdražování nájmů a hypoték mě děsí, protože bydlení mimo Prahu je pro nás s průměrným výdělkem pořád těžko udržitelné, a i když vláda slibuje levnější energie a nízkou inflaci, ten obří schodek rozpočtu mi nedává jistotu, že nás za rok něco zase nepřekvapí. Naše domácnost bude spíš šetřit a doufat, že mzdy aspoň trochu stíhnou růst životní"
+    },
+    {
+      "i": 160,
+      "response": "Jako mladý bez maturity na Moravě vidím naše vyhlídky dost bledě, protože nájmy a ceny energií rostou rychleji než moje mzda a o vlastní bydlení si můžu nechat jen zdát. Vládní sliby o levnějším životě zní fajn, ale podle zpráv o drahých bytech a zdražujících hypotékách se nás to reálně asi moc nepomůže."
+    },
+    {
+      "i": 161,
+      "response": "Jako důchodci s vysokoškolským vzděláním vidím naše vyhlídky spíš opatrně, protože sliby levnějších energií a zastropování důchodového věku jsou sice uklidňující, ale hrozící růst cen plynu a zdražování nájmů nás může při fixních příjmech snadno překvapit. Věřím, že reálné mzdy jinde rostou, ale my se musíme připravit spíš na šetření než na z"
+    },
+    {
+      "i": 162,
+      "response": "Hypotéky a nájmy nám jdou nahoru rychleji než výdělky, takže i když inflace klesá, za rok budeme spíš šetřit každou korunu a bojíme se, aby zase nezdražily energie."
+    },
+    {
+      "i": 163,
+      "response": "Jako pražská domácnost s vysokoškolským vzděláním vidím naše finance spíš napjatě, protože růst nájmů a cen bytů nás dožene dřív než případný růst mezd, ačkoli inflace teď zvolnila. Bojím se hlavně toho, že dražší energie kvůli situaci na Blízkém východě nám v zimě zase prohloubí výdaje, které teď sotva stíháme."
+    },
+    {
+      "i": 164,
+      "response": "Mzdy nám sice rostou a inflace konečně zpomalila, takže se máme o kousek líp než před rokem, ale s nájmem, co zdraží skoro o deset procent, a hrozbou dražších energií bude rozpočet domácnosti pořád napnutý a žádné velké uvolnění nečekám."
+    },
+    {
+      "i": 165,
+      "response": "Ceny energií a nájmů mi zase mlátí do rozpočtu víc, než mi pomůže růst mzdy, takže za rok budeme spíš šetřit a doufat, že ty sliby o levnějším bydlení nejsou jen na papíře."
+    },
+    {
+      "i": 166,
+      "response": "Mzdy sice rostou a inflace je nízká, ale jako nájemník na Moravě se bojím, že zdražení nájmů a dražší energie i hypotéky nám s manželkou reálně vyžerou většinu toho přidání, takže za rok budeme spíš tak nějak svoji."
+    },
+    {
+      "i": 167,
+      "response": "Slyším, že mzdy i reálná kupní síla jdou nahoru a inflace konečně spadla, takže jako vysokoškolák na Moravě vidím naše rozpočty stabilnější, ale bojím se zdražení energií, nájmů a hypoték, což nám ty zisky zase sebere. Na další rok si proto držím hlavu v klidu, ale šetřit budeme dál, než se uklidní svět i ceny bydlení."
+    },
+    {
+      "i": 168,
+      "response": "Mám důchod sice o pár stovek vyšší a inflace je teď nízká, takže na běžné věci mi to víc vychází, ale kvůli drahým nájmům a nejistým slibům vlády se bojím, že za rok budu s penězi pořád na štrejchu."
+    },
+    {
+      "i": 169,
+      "response": "Minimální mzda sice stoupla a inflace je teď nízká, ale bojím se zdražení energií i hypoték, takže za rok budeme sotva vyjít s penězi, když něco zas skočí nahoru. Vlastní bydlení si stejně nemůžeme dovolit, takže radši šetřím každou korunu na horší časy."
+    },
+    {
+      "i": 170,
+      "response": "Ceny energií a nájmů mi jdou proti klesající inflaci a růstu mezd, takže i když se průměrně vede líp, doma moc volného v rozpočtu neuvidím, spíš budu počítat každou korunu. Hypotéky zdražily a nová vláda slibuje sblížení, ale podle kritiky chybí peníze na její plány, takže do roka čekám spíš nejistotu než klid."
+    },
+    {
+      "i": 171,
+      "response": "Jako mladý vysokoškolák bez hypotéky mě sice těší rostoucí mzdy a nízká inflace, ale zdražující nájmy a hrozba dražších energií mi na příští rok spíš křesťují rozpočet, takže budu muset hodně šetřit a počítat s tím, že na větší radosti nebude."
+    },
+    {
+      "i": 172,
+      "response": "Jako vysokoškolák na Moravě sice vidím inflační uklidnění a růst minimální mzdy jinde, ale s nájmy zdražujícími rychleji než mzdy a hrozbou dražších energií se cítím finančně spíš zranitelný, takže rodinný rozpočet na příští rok spíš utáhnu a velké výdaje odložím."
+    },
+    {
+      "i": 173,
+      "response": "Jako důchodce na Moravě vidím naše finance celkem stabilně díky zvýšenému důchodu a slibovaným levnějším energiím, ale bojím se, že mrazy, výpadky proudu a hrozící zdražování plynu nás zbytečně překvapí a rozpočet nás utáhne. Vláda sice slibuje, že daně nezvedne, ale ten obrovský schodek a drahé byty pro mladé v rodině mě znervózňují, jestli nám penze oprav"
+    },
+    {
+      "i": 174,
+      "response": "Jako mladý vysokoškolák na Moravě vidím naší domácnost celkem stabilně díky nízké inflaci a růstu mezd, ale bojím se zdražení energií a hypoték, protože vlastní bydlení je pro nás stejně nedosažitelné a úspory nám kvůli vyšším sazbám moc nevydělají."
+    },
+    {
+      "i": 175,
+      "response": "Slyším, že mzdy rostou a inflace konečně spadla, takže na Moravě jako vysokoškolák doufám v mírně lepší životní úroveň, ale bojím se zdražení nájmů i energií a nejisté vládní politiky, takže na velké utrácení nebo bydlení nejspíš nebudeme mít."
+    },
+    {
+      "i": 176,
+      "response": "Důchod mi sice trochu přidali, ale bojím se, že kvůli dražším nájmům a hrozbě růstu cen energií mi na konci měsíce moc nezbude, takže na nějaké větší výdaje ani nepomyslím. Vláda sice slibuje levnější energie a žádné daně, ale jako důchodce na vsi na Moravě to spíš beru s obavami, jestli to vůbec pocítím v penězi."
+    },
+    {
+      "i": 177,
+      "response": "Jako člověk se základním vzděláním na Moravě vidím ty sliby o levnějších energiích a růstu mezd sice ráda, ale bojím se, že drahé bydlení, dražší hypotéky a hrozba zdražení energií nás stejně nepustí z těch zúžených rozpočtů, co máme teď."
+    },
+    {
+      "i": 178,
+      "response": "Inflation sice zpomalila a mzda mi asi trochu stoupne, ale zdražení nájmů a hypoték spolu s lednovým růstem sazeb nás doma citelně přitlačí, takže za rok budeme spíš šetřit než si polepšovat. Vládní sliby o levnějších energiích a nízkém schodku beru s rezervou, když vidím, že rozpočet je ještě o 24 miliard vyšší než původně."
+    },
+    {
+      "i": 179,
+      "response": "Slyším, že mzdy rostou a inflace konečně spadla, takže s prominutím asi trochu víc vydělám a nebudu tolik krvácet za nákupy, ale s drahými hypotékami a rostoucími cenami bytů se nám o vlastním bydlení na Moravě ani nezdá a bojím se, co udělá ten obří schodek rozpočtu s našimi daněmi."
+    },
+    {
+      "i": 180,
+      "response": "Ceny energií a nájmů mi zase hrozí sebrat to, co si polepším díky růstu mezd, a se zdraženými hypotékami a drahými byty vůbec nevidím šanci pořídit si vlastní bydlení, takže se spíš soustředím na to, abychom s rodinou vyšli každý měsíc a něco málo ušetřili. Vládní sliby o levnějším životě zatím beru s rezervou, když slyším, že nikdo pořádn"
+    }
+  ]
+}

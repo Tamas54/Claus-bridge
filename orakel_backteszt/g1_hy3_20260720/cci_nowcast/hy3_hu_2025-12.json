@@ -1,0 +1,959 @@
+{
+  "run": "G1/4 HU CCI nowcast 2025-12",
+  "model": "tencent/Hy3",
+  "provider": "siliconflow",
+  "date": "2026-07-20",
+  "protocol": "orakel_hu_nowcast.py változatlanul (N=60, SSR linear + OpenAI-small)",
+  "flag": "CLEAN",
+  "flag_note": "target-ablak >= 2025-08",
+  "corpus_files": {
+    "corpus_hu_2025_12.json": "15b19c13399a41390f15fce10b56666cab5be05044132ab636ad362108e8cbab"
+  },
+  "gt": -19.4,
+  "per_seed": [
+    {
+      "seed": 1,
+      "n_sent": 60,
+      "ssr_score": 2.8102585713676085,
+      "nowcast": -9.487071431619576,
+      "sentences": [
+        "A 14. havi nyugdíj meg a megállt infláció jól jön nekem, de ha sokat fűtök télen, a gáz ára megmarja a nyugdíjam, úgyhogy takarékoskodnom kell, de valahogy kijövök belőle.",
+        "A fizetésem talán kicsit emelkedik a bérmegállapodás nyomán, de az áram- és gázárak miatt tartok tőle, hogy télen csúnyán megnő a rezsinköltségünk, úgyhogy összességében alig lesz több pénzünk a hó végére. A lakásárak meg csak azoknak felfelé, akik már birtokban vannak, nekünk meg jobban be kell osztani, ha nem akarunk adósságba süllyedni.",
+        "A nyugdíjam januártól ugyan keveset emelkedik, de a 13. és a 14. havi részlet megérkezése, meg az árrésstop miatt végre egy kicsit könnyebb lesz kijönni a havi fixből, csak a lakásárak és a bizonytalan gazdasági hírek miatt nem merek nagyobb kiadásokba vágni.",
+        "A falun nekem se fizuemelés, se extra segítség nem várható, az alapkamat magas maradt és a gáz ára iszonyatosan megugrik a támogatott keret felett, úgyhogy jövőre még szűkebbre kell húznom a nadrágszíjat, mint idén. Az árrésstop talán pár élelmiszeren segít, de az egész éves kilátásom szerintem rosszabb lesz, mint a mostani gyenge év volt.",
+        "A boltban azért érzem, hogy lassult az infláció, de a kormányzati árbeavatkozások és a hírekben emlegetett megszorítások miatt óvatos vagyok, nem hiszem, hogy könnyebb lenne megélni jövőre, inkább takarékoskodnom kell, ha nem akarok szűkölködni.",
+        "Nekem már csak a nyugdíjamra kell figyelnem, a 14. havi részlet meg a családi kedvezmény mást nem érint, de azért jól jönne, ha tényleg olcsóbbak lennének a boltok az árrésstop miatt, mert a gyenge GDP meg a drágaság így is szűken tartja a spórolt forintjaimat.",
+        "Nekem alapfokú végzettséggel Budapesten nem igazán jön össze a családi adókedvezmény vagy az szja-mentesség, szóval az árrésstop meg a csökkent üzemanyagár jelenti az egyetlen látható könnyebbséget, de a gyenge gazdaság miatt állásban sem leszek biztos, így inkább szűkösen, de kihúzom valahogy a következő egy évben.",
+        "Budapesti alapfokú végzettségűként a minimálbér-emelés és a családi adókedvezmény javít valamit a helyzetünkön, meg az árrésstop is könnyít a bevásárláson, de a 6,5 százalékos hitelkamat és a bizonytalan gazdasági hírek miatt nem érzem azt, hogy végre kényelmesen megélnénk. Lakáshitelt ugyan nem tervezünk most, de így is óvatosan számolok, mert azt mondják, lassul",
+        "A februári 13. és 14. havi nyugdíjrészlet meg a januári emelés jól jön, de a gáz árának hétszeresére ugrása miatt fázós télen tartok tőle, hogy az energiaszámla viszi el a többletet, így összességében alig leszünk előrébb.",
+        "Budapesti középfokú végzettségűként a bérem talán a minimálbér-emeléssel picit jobban alakul jövőre, de az infláció lassulása ellenére is drágábban élünk, és a gazdasági hírek inkább bizonytalanságot adnak, így óvatosan költök, mert tartok a gyenge GDP miatti megszorításoktól.",
+        "Nekem alapfokú végzettséggel falun nehéz lesz kijönni a pénzből, mert a lakásárak az egekbe szöktek és a hitel is drága maradt, a nyugdíjasokon segítenek, de mi meg csak a drágulást meg az adóemelésről szóló híreket látjuk. A forint erősödése jó hír, de azt nem érzem a boltban, úgyhogy tartok tőle, hogy jövőre is szűken leszünk.",
+        "A nyugdíjamat jól jön a februári 13. és 14. havi részlet, meg az árrésstop is könnyít a bevásárláson, de a fűtésszámlától tartok, mert ha túlhasználjuk a gázt a kemény télen, az árak miatt csúnyán elszállhat a költség. Összességében úgy érzem, kijövünk a pénzünkből, de spórolósan kell élnünk, mert az alapkamat és a bizonytalan hírek nem nyug",
+        "Nyugdíjasként a 13. és a megígért 14. havi részlet, meg a stabil forint miatt kicsit nyugodtabb vagyok, de az infláció lassulása ellenére is drágállom a bevásárlást, és a lakásárak száguldása csak azt jelzi, hogy a megtakarításom ereje nem nő igazán.",
+        "Nekem alapfokú végzettséggel, nagyvárosban az a legnyomasztóbb, hogy az áram meg a gáz az olcsó keret felett szinte behajítja a pénztárcámat, miközben a lakásárak az Otthon Start miatt elszálltak, szóval hitelt sem egyszerű fölvenni értelmesen; az árrésstop jó, de összességében jövőre is szerényen, óvatosan gazdálkodva élek majd, mert nem érzem, hogy jobban keresnék, cs",
+        "Budapesten az albérletárak az Otthon Start miatt is elszálltak, a 6,5 százalékos kamatnál meg alig kapok a megtakarításomra, úgyhogy jövőre is csak a napi betevőn és a rezsin jár az eszem, nem lesz mit félretenni. A 14. havi nyugdíj még nem is engem érint, nekem meg a mostani drágulásokkal kell megbirkóznom, amíg dolgozom.",
+        "Nyugdíjként a 3,6 százalékos emelés épp csak a drágulást hozza utol, a fűtésszámlák meg a fagyos tél miatt azért rendesen megnyomták a költségeimet, úgyhogy jövőre is inkább takarékoskodva, de kijövök a rezsiből és az alapélelmiszerből, többre nem számítok.",
+        "Nekem középfokú végzettséggel Budapesten a bérem talán a minimálbér környékére kúszik fel a 11%-os emeléssel, de az áram és gáz ára feletti drágulás meg az árrésstop ellenére is érzékelhető bolti áremelkedések miatt alig marad több a zsebemben, és lakást venni a 3%-os hitellel sem álmodok, mert nincs előtakarékosságom és az árak amúgy is magasak.",
+        "A kisebb infláció és a januári adókedvezmény megkönnyíti valamelyest a mindennapokat, de a gyenge GDP meg a gázáram drágulása miatt attól tartok, jövőre is csak spórolósan jutok ki a pénzből. A nyugdíjemelés még messze van, addig meg a kisvárosi fizum nem nagyon nő, szóval óvatosan kell gazdálkodnom.",
+        "A minimálbér-emelés és a családi adókedvezmény növelése kicsit könnyíti a mindennapokat, de az árrésstop ellenére is érzem a drágulást a boltban, meg ha túlhasználjuk a gázt télen, abból jó nagyot fog fájni a számla, úgyhogy inkább takarékoskodva, bizonytalanul nézek a jövő évre.",
+        "A bérem talán kicsit emelkedik a minimálbérhez igazodva, de az áram és gáz drágulása meg a lakásárak szaladása miatt jobban kell számolgatnom, mint eddig, így inkább csak tartani tudom a szintet, de nem érzem magam biztonságban.",
+        "Nekem, mint alapfokú végzettségű kisvárosi fiatalnak a 3 százalékos Otthon Start hitel jó lehetőségnek tűnik lakásra, de a lakásárak 15 százalékos emelkedése és a gyenge gazdasági adatok miatt félek, hogy alig lesz állás és a fizetésem nem fogja tartani a lépést a kiadásokkal. A forint erősödése meg az árrésstop megkönnyebbülés, de a kormányzati megszorításokról szóló hí",
+        "A bérem a minimálbér emelésével kicsit nő, és örülök, hogy az árrésstop miatt a bevásárlás olcsóbb lett, de a 6,5%-os alapkamat miatt nem merek hitelt felvenni, és a gyenge GDP meg a kiszivárgott megszorításos hírek miatt bizonytalannak érzem a jövőt. Alapvetően kijövünk a szűkösből, de nagyobb előrelépésre vagy megtakarításra nem számítok ebben az évben.",
+        "Nekem alapfokú végzettséggel falun nehéz állandó jó munkát találni, szóval a gyenge gazdasági hírek miatt inkább kevesebb pénzre számítok, bár az árrésstop és az olcsóbb üzemanyag kicsit könnyít a napi kiadásokon.",
+        "Nekünk középfokú végzettséggel, nagyvárosban élőként az segít, hogy az árrésstop miatt a bevásárlás olcsóbb lett és a családi adókedvezményt is emelték, de a gyenge gazdasági hírek miatt tartok tőle, hogy a fizetésem nem fogja tartani a lépést az apróbb drágulásokkal, így azért óvatosabban költök majd, mint egy éve.",
+        "A családi adókedvezmény megemelése és az árrésstop nekünk kisvárosi középosztálybelieknek könnyít a mindennapokon, de a lakásárak 15 százalékos ugrása miatt az Otthon Start hitellel sem látok reális esélyt nagyobb lépésre, így inkább a meglevőt tartjuk össze, mintsem hogy előre szaladjunk. A forint erősödése nyugtat, de a GDP alig mozdul, úgyhogy óvatosan költök majd,",
+        "Kisvárosi diplomásként a bérem talán lassan követi a minimálbér-emelést, de az Otthon Start miatt elszállt lakásárak és a dráguló túláram-fogyasztás miatt reálisan alig lesz több a megtakarításunk, legfeljebb az árrésstop tartja a napi bevásárlást elviselhetőn.",
+        "Nekem már nyugdíjas koromban nem nagyot dob az emelt minimálbér, a 6,5 százalékos alapkamat meg a dráguló lakások is csak azt jelzik, hogy a befektetett pénzem kevés kamatot hoz, az élelmiszer és a téli fűtés meg egyre többe kerül, szóval jövőre is szűken, de kijövök a fix jövedelmemből, ha nem lesz nagyobb betegség vagy váratlan kiadás.",
+        "Budapesten középfokú végzettséggel és családdal azt látom, hogy a rezsiemelés meg a 15-19 százalékos lakásár-drágulás rendesen benyomja a költségeimet, miközben a gyenge GDP meg a kiszivárgott megszorításos hírek miatt nem érzem biztosnak a jövő évi pénztárcámat. A forint erősödése meg a nyugdíjas rokonok pluszpénze jó, de nekem megmaradt munkavállaló",
+        "A nyugdíjam ugyan 3,6 százalékkal meg a 14. havi negyede is jön, de az élelmiszerek és főleg a gáz a fölözön áron az egekbe szökik, úgyhogy spórolnom kell, ha nem akarok télen kihűlni a faluban. Alapjában véve kijövünk valahogy, de biztosan szorosabb lesz a gyeplő, mint eddig volt.",
+        "A bérmegállapodás miatt jövőre talán egy kicsit több marad a zsebemben, de a lakásárak elszállása és a gyenge gazdasági növekedés miatt inkább óvatosan költök, mert nem érzem stabilnak a helyzetet.",
+        "Nekem még nem jár nyugdíj, de az árrésstop és az olcsóbb üzemanyag könnyít egy kicsit a mindennapokon, viszont a gyenge gazdasági hírek és a kiszivárgott megszorításos pletykák miatt óvatosan költök, mert tartok tőle, hogy idén mégiscsak kevesebb marad a végére.",
+        "Nekem nyugdíjasnak a 14. havi nyugdíj jövő évi negyedrésze meg a lassult infláció kis levegőt ad, de a gyenge GDP és a lakásárak száguldása miatt azt érzem, hogy a mindennapi kiadásainkat alig fogjuk tudni kényelmesen kijönni, spórolni továbbra sem nagyon tudok.",
+        "Örülök, hogy megjön a 13. meg a 14. havi nyugdíj, de az áram és a gáz drágulása, meg a kormányzati megszorításokról szóló hírek miatt tartok tőle, hogy a nyugdíjamból jövőre is alig fogok kijönni, ha nem vigyázok nagyon a fűtésre.",
+        "Nekem középfokú végzettséggel, gyerek nélkül egy nagyvárosban azt jelenti ez a helyzet, hogy az infláció lassulása és az árrésstop jól jön a bevásárlásnál, de a 6,5 százalékos alapkamat miatt a hitelfelvétel vagy a megtakarítás sem igazán könnyű, szóval óvatosan költekezünk, és nem számítok nagy anyagi előrelépésre egy év alatt.",
+        "A 13. és 14. havi nyugdíjjal meg a meghosszabbított árrésstoppal most kicsit könnyebb lesz kijönni a fixből, de a gyenge GDP-hírek és a magas alapkamat miatt nem érzem biztosnak, hogy év végéig nem drágul meg megint valami váratlant.",
+        "Nekem kisvárosi középfokúként a családi adókedvezmény emelése és az árrésstop jól jön, de az áram és gáz drágulása, meg a bizonytalan gazdasági hírek miatt inkább szűkösen, óvatosan gazdálkodva látom a következő évet.",
+        "Nyugdíjasként a 13. és a 14. havi részlet, meg a rezsitámogatás tartása jól jön, de az infláció és a lakossági fogyasztás gyengesége miatt óvatosan költök, mert ha túlhasználom az áramot vagy gázt, jövőre keményen belém fog marni a drágulás.",
+        "Nyugdíjasként örülök a 13. és 14. havi pénznek, de az áram és gáz árának ugrása miatt, ha csak egy kicsit is túlfogyasztok, a rezsiszámlák felemészthetik a pluszt, úgyhogy spórolós, bizonytalan évnek nézek elébe.",
+        "Nyugdíjas budapestiként a 13. és 14. havi pénz nekem is jól jön, de hogy a gáz a támogatáson felül hétszeresére drágul, az megijeszt, mert a rezsiből az úgyis sokat visz el télen, és az árrésstop ellenére is érzem, hogy drágábban vásárolok. Összességében úgy látom, a megélhetésünk épp hogy kijön, de egy nagyobb kiadás vagy hidegebb tél rögtön boríthat",
+        "A bérmegállapodás és az árrésstop miatt a bevásárlásaink valamivel olcsóbbak lettek, de a gyenge GDP és a gázáram-túlfogyasztás drágulása miatt óvatosabbul költök, mert nem érzem biztosnak a jövő évi pénztárcánkat.",
+        "A nyugdíjam januártól csak 3,6 százalékkal emelkedik, miközben az áram és gáz a támogatáson felül szinte behajthatatlanul drágul, úgyhogy spórolnom kell, ha nem akarom, hogy a rezsi felfalja a 13. és 14. havi pénzt is. A gyenge gazdasági hírek meg a bizonytalan árak miatt inkább a biztosra megyek, és nem költök feleslegesen semmire ebben az évben.",
+        "Alapfokú végzettséggel Budapesten nehéz lesz előrébb lépni, mert a gyenge GDP miatt alig lesznek új melók és a 6,5%-os kamat miatt a hitel is drága marad, szóval csak azt látom, hogy a megélhetésünk épp hogy kijön, de nem lesz több pénz a zsebünkben. Jó, hogy lassult az infláció és olcsóbb lett az üzemanyag, de az, hogy a nyugdíjasoknak jár a 14. havi, nekünk fi",
+        "A minimálbér-emelés és a nagyobb családi adókedvezmény kicsit könnyít a mi kasszánkon, de az Otthon Start miatt elszállt lakásárak és a lassú gazdaság miatt nem érzem, hogy ténylegesen jobban élnénk egy év múlva, csak kevésbé csúszunk lefelé.",
+        "Budapesti diplomásként a forint erősödése és az árrésstop jót tett a pénztárcámnak, de a lakásárak 19 százalékos drágulása miatt költözni vagy nagyobbat lépni esélytelen, és a gyenge GDP meg a kiszivárgott megszorítási hírek miatt óvatosabban költök majd, mint tavaly.",
+        "Nyugdíjas háztartásként a februári 13. és 14. havi nyugdíj plusz az árrésstop miatti árcsökkenés most kifejezetten jól jön, de a gyenge GDP és a magas, 6,5 százalékos alapkamat miatt nem várok érdemi javulást, legfeljebb a megszorítások enyhülését.",
+        "A nyugdíjam 3,6 százalékkal emelkedik, és februárban megjön a 13. meg a 14. havi első része is, úgyhogy rövid távon könnyebb lesz kijönni a fizetésből, de az árrésstop ellenére is érzem, hogy a boltban drágább minden, és a gyenge gazdaság miatt nem vagyok nyugodt, hogy ez így is marad.",
+        "Falun élve és diplomásként azért megvagyok, de a gáz hétszeres drágulása a támogatott keret felett télvíz idején keményen bele tudná rúgni a pénztárcánkba, úgyhogy óvatosan számolok, és a családi adókedvezmény emelésében bízom, mert a gyenge gazdasági hírek mellett máshonnan nem várok sok többletet.",
+        "Nekem középfokú végzettséggel, gyerekek nélkül nem jár a januári szja-mentesség, de az árrésstop miatt a boltban végre kevesebbet hagyok a pénztárcámban, és a forint erősödése is segít, úgyhogy óvatosan bizakodó vagyok, bár a gyenge GDP miatt azt érzem, nem lesz nagy ugrás, csak talán nem szorulunk annyira, mint idén.",
+        "Nyugdíjként a 3,6 százalékos emelés és a 13–14. havi támogatás jól jön, de a falusi ház fűtésekor a gáz árának hétszeresére ugrása igazi veszély, így az idén inkább takarékoskodással és a rezsifigyeléssel lesz biztonságos az anyagi helyzetünk.",
+        "A kisvárosi középkorúként a bérem vagy nyugdíjam kis emelése és az árrésstop miatt a bevásárlás olcsóbb lett, de a gyenge gazdasági hírek miatt óvatosan költök, mert tartok a jövő évi drágulástól és a bizonytalanságtól.",
+        "A bérmegállapodás és a családi adókedvezmény javítana a pénztárcánkon, de a lakásárak 15 százalékos ugrása és a gyenge gazdasági kilátások miatt óvatosan tervezek, mert az alapvető kiadásaink így is simán elszaladhatnak.",
+        "Nekünk középfokú végzettséggel, kisvárosban élőknek a béremelés és az árrésstop jól jön, de a lakásárak elszállása miatt az Otthon Start sem segít álmainkon, és ha túlhasználjuk az áramot, jövőre kellemetlenül nagyot üt a számla. Összességében tartjuk a szintet, de nagyobb lendületet vagy megtakarítást én nem látok a következő évben.",
+        "Az árrésstop jó, hogy egy kicsit olcsóbb lett a kaja a boltban, de ha a gáz és az áram aztán tél végén ráugrik a támogatás felett, nekünk falun az húzós lesz, meg a hírekben szódtak a megszorításokról is, úgyhogy jövőre inkább takarékosabban élünk, mintsem bővülne a pénztárcánk.",
+        "Falun élő diplomásként a bérem nem feltétlenül követi a minimálbér-emelést, az árrésstop ellenére is érzem, hogy az alapélelmiszerek és a fűtés télen átviszi a keretet, ráadásul a gyenge GDP és a kormányzati megszorításos hírek miatt óvatosabban költök, mint egy éve. A nyugdíjas szüleimnek jó a 13–14. havi pótlék, de nekem a következő évben inkább stagnáló, kicsit",
+        "Nekem középfokú végzettséggel, bérlakásban Budapesten az a legnyugtatóbb, hogy az infláció lassult és a forint stabil maradt, de a gyenge GDP miatt nem várok fizuemelést, és a hitel vagy saját lakás csak az Otthon Starttal látszik elérhetőnek, ha párok leszünk. Alapvetően kijövök a béremből, de nagyobb ugrásra vagy megtakarításra a következő évben nem számítok.",
+        "Budapesti alapfokú végzettségűként nekem a lassult infláció, az árrésstop és a nem emelkedő rezsi-támogatás ad egy kis fellélegzést, de a gyenge GDP meg a túlhasználat után szökő gáz- és áramár miatt csak arra számítok, hogy épp nem szegényedünk el jobban, mint idén.",
+        "A nyugdíjemelés, a 13. és a 14. havi első részlete meg a bővített árrésstop jól jön, de a gáz és áram drágulása miatt, ha keményebb lesz a tél vagy sokat fűtök, simán elviheti a többletet a rezsi; összességében kb. ugyanott tartok, mint eddig, csak jobban kell figyelni a költésre.",
+        "A stabilizálódott forint és a lassult infláció mellett a rezsitúllépés drágulása és a magas alapkamat miatt óvatosan költök, de a családi adókedvezmény emelése kicsit könnyít a jövő évi terveimen.",
+        "A nyugdíjamra jövőre rájön a 14. havi negyede, és a forint is erősödött, szóval kicsit nyugodtabban nézek a jövő évnek, de a lakásárak meg az áram meg gáz drágulása miatt azért nem dőzsölhetünk, ha többet fűtünk vagy fogy a villany.",
+        "Falun felsőfokúként stabil a bevételem, de a lakásárak elszállása és a támogatáson felüli gázár hétszeresének réme miatt óvatosabb leszek a költéssel, és a gyenge GDP meg a kormányzati megszorítások hírei inkább bizonytalanságot adnak, mint fellendülést. A fix 3%-os hitel és a nyugdíjemelés jó, de a saját pénztárcámban inkább az árrésstop ideiglenes nyomása és"
+      ]
+    },
+    {
+      "seed": 2,
+      "n_sent": 60,
+      "ssr_score": 2.851532508203862,
+      "nowcast": -7.423374589806908,
+      "sentences": [
+        "A nyugdíjam most jobban megmarad a 13. és a 14. havi részlet miatt, meg a forint is erősebb, de az árrésstop ellenére is drágábbak a boltok és a lakásárak szaladtak, úgyhogy óvatosan költök, mert a kormányzati megszorításos hírek nem nyugtatnak meg. Alapvetően kijövök a pénzemből, de tartalékot nem nagyon tudok képezni, ha az infláció nem áll le rendesen.",
+        "A bérem nem emelkedik a minimálbérhez hasonlóan, a 6,5 százalékos alapkammal meg marha drága a hitel, úgyhogy az árrésstop ellenére is inkább szorosabbra húzom a nadrágszíjat, mintsem hogy nagyobb kiadásba vágjak bele jövőre.",
+        "Nekem kisvárosi alapfokú emberként az jön be, hogy az árrésstop meg a családi adókedvezmény kicsit könnyít a mindennapokon, de a gyenge gazdasági hírek miatt tartok tőle, hogy a jövőre is alig lesz több pénz a zsebemben, csak drágább nem lesz annyira.",
+        "A nyugdíjam a 3,6 százalékos emeléssel és a februári 13–14. havi pénzekkel egyelőre megkönnyebbülést hoz, de a gáz és áram árának drasztikus emelkedése miatt a téli fűtésszámlákkal jövőre simán el fogunk szaladni, úgyhogy spórolnom kell, mint a tatár.",
+        "Az árrésstop meg a lassult infláció kicsit könnyített a bevásárláson, de a lakásárak meg a bizonytalan gazdasági hírek miatt nem merek túl sok jóra számítani, így igyekezünk takarékoskodni, nehogy szűküljön a hónap vége.",
+        "Nekem alapfokú végzettséggel, falun élve a minimálbér-emelés meg az árrésstop jól jön, de a gáz árának hétszeresére ugrása télen rendesen megüti a pénztárcánkat, úgyhogy csak úgy jövünk ki a következő egy évben, ha nagyon figyelünk a fűtésre. A lakásárak meg a hitel hírek minket nem érintenek, mert nincs pénzünk új házra, maradunk a régi tanyán.",
+        "Nekem alapfokú végzettséggel és ennyi bizonytalan gazdasági hír mellett legfeljebb a minimálbér-emelés jelent kis levegőt, de az árrésstop meg a lassuló infláció eddig alig látszik a boltban, szóval inkább csak túlélősre veszem a következő évet. Az Otthon Startot nézegetem, de 50 millióból ebben a nagyvárosban albérletnél többre úgysem futja nekem.",
+        "A minimálbér-emelés és a családi adókedvezmény jövőre kicsit több pénzt hagy a zsebemben, de falun élőként félek, hogy az áram- és gázárak kiugrása meg az infláció simán elviszi ezt a különbséget, ha nem vigyázok a fogyasztással. Összességében stagnálásra számítok, legfeljebb hajszálnyi javulásra, de biztosan nem érezni majd könnyűnek a megélhetést.",
+        "A nyugdíjam most jövőre meglesz a 13. havi és a 14. részlete is, meg az infláció is lejjebb ment, úgyhogy egyelőre nyugodtabb vagyok, de a gazdaság gyenge hírei meg a kormányzati megszorításos pletykák miatt azért nem merek nagyobb kiadásokba fogni.",
+        "A kétgyerekes családi adókedvezmény és a minimálbér-emelés kicsit könnyít a költségvetésünkön, de a lakásárak elszállása és a bizonytalan gazdasági hírek miatt nem érzem biztosnak, hogy év végére is előrébb leszünk.",
+        "Nekem alapfokú végzettséggel, nagyvárosban élőként a 11 százalékos minimálbér-emelés jól jön, de azt látom a hírekből, hogy az ország gazdasága alig mozdul és az árak még mindig nem álltak teljesen helyre, úgyhogy óvatosan költök, mert nem érzem biztosnak a jövő évi pénztárcámat.",
+        "Nekem középfokú végzettséggel kisvárosban alig van rendes munkám, az infláció meg a lakásárak elszálltak, úgyhogy a következő évben legfeljebb a napi megélhetésre gyűrök, saját lakásról vagy nagyobb spórolásról szó sem lehet. A politikai ígérgetések meg a megszorításos hírek csak bizonytalanabbá teszik, hogy egyáltalán mi vár ránk.",
+        "A bérem talán picit emelkedik a megállapodás miatt, és jó, hogy olcsóbb lett a kaja az árrésstoppal, de a tél és a dráguló lakásárak miatt így sem látok sok jóit a faluban, mert albérletről vagy saját házról szó sem lehet ezekkel az árakkal.",
+        "A bérem szerencsére a minimálbér-emeléssel és az árrésstoppal együtt kicsit többet ér majd, de az áram- és gázárak kiugrása miatt főleg télen fogunk szorítani a fogunkon, úgyhogy óvatosan költök, amíg nem látom, ez a politikai adóemelés-balhé belecsap-e a valós pénztárcánkba is.",
+        "A bérem nem nő nagyot, de a 13. havi és a jövő évi részleges 14. havi nyugdíj a szüleimnek kicsit könnyít a családi kiadásokon, viszont az árrésstop ellenére is tartok tőle, hogy a megszorításos hírek és a lakásárak elszállása miatt szűkebb lesz a mi költségvetésünk. A fagyok miatt a fűtésszámla is benyelte a maradék tartalékot, úgyhogy jö",
+        "Nekem középfokú végzettséggel, gyerek nélkül nem jár az szja-mentesség, az áram- és gázártámogatás szigorítása meg pont akkor fogja fájni a pénztárcámat, ha a hideg miatt többet fűtök, úgyhogy az elkövetkező évben inkább szorosabbra kell húznom a nadrágszíjat, mert a gazdasági hírek nem sok jót ígérnek.",
+        "A faluban élő középfokú végzettségű családanyaként az árrésstopnak örülök, mert a bevásárlás olcsóbb lett, de a lakásárak 15 százalékos ugrása miatt az Otthon Start hitellel sem látok reális esélyt közelebb kerülni egy saját házhoz, és a gyenge GDP meg a magas 6,5 százalékos alapkamat miatt jövőre is inkább a napi megélhetésért fogok küzdeni, mintsem hogy előre t",
+        "Nekem nyugdíjasnak az jön be, hogy megint kapok 13. és egy kis 14. havit, meg az árrésstop miatt a boltban is kevesebbet kell fizetnem, szóval a következő évben biztosan könnyebb lesz kijönni a pénzből, mint tavaly. A gyenge GDP meg a bizonytalan hírek kicsit nyugtalanítanak, de egyelőre a saját pénztárcámban érzem a kormány segítségét.",
+        "A nyugdíjemelés és a 14. havi nyugdíj elindulása jól jön, de az infláció lassulása ellenére is aggaszt, hogy az áram és gáz a támogatáson felül az egekbe szökik, meg a híresztelt megszorítások is bizonytalanná teszik a jövő évi költekezést. Összességében takarékosabban kell majd élnem, de a biztosnak tűnő nyugdíjemeléssel és a fűtés okos csö",
+        "A nyugdíjam mellé megjött a 13. meg a 14. havi első része, és az árrésstop miatt a boltban is kevesebbet kértek a kenyérért meg a cukrért, úgyhogy a fagyos tél ellenére is kijövök a pénzből, de a gyenge gazdasági híreken meg a drága tűzifán még mindig izgulok, nehogy nyáron is csak a drágulás maradjon.",
+        "Lakásárat nézve elment mellettem az Otthon Start lehetősége, mert csak felmentek az árak, és ha jövőre túllépjük a támogatott rezsikitet, az áram és gáz ára tökön szúrja a büdzsénket, úgyhogy azt érzem, hogy hiába lassult az infláció, a mi megélhetésünk nem lesz könnyebb, inkább szorosabbra kell húzni a nadrágszíjat.",
+        "Nyugdíjas korúként jól jött, hogy jövőre megkapom a 13. és a 14. havi nyugdíj részletét, meg a rezsitámogatás is marad, de félek, mert ha többet fűtök vagy főzök a megengedettnél, az áram és gáz ára az egekbe szökik, és a hírekben emlegetett adóemelésről meg megszorításról is rosszat sejtek.",
+        "A boltban azért érzem, hogy a kormányzati árstopok miatt pár dolog olcsóbb lett, és a gyerek után januártól több adókedvezmény jár, de a hírekben látott gyenge GDP meg a lefelé módosított kilátások miatt nem merek nagyobb kiadásokba vágni, inkább takarékoskodom, mert azt sem tudom, meddig marad ez a relatív nyugalom a pénztárcámban.",
+        "Nekem még nem jár nyugdíj, de az árrésstop meg a forint stabilizálódása talán tartja valamennyire a boltban a létfenntartás árát, viszont a híresztelt megszorítások és adóemelések miatt félek, hogy a jövő évben kevesebb marad a kezünkben, ha tényleg ráterhelik a kisembereket.",
+        "Nekünk középfokú végzettséggel, városban élőként a béremmel talán kijövünk a megemelt családi kedvezménnyel és az árrésstoppal, de a 6,5%-os alapkamat miatt a hitelünk költségei nem könnyülnek, és a gyenge GDP meg a kiszivárgott megszorításos hírek eléggé bizonytalanná teszik a jövőt.",
+        "A bérem a minimálbér-emeléssel és a családi adókedvezménnyel kicsit több lesz, de a lakásárak száguldása és a gázárak drasztikus emelkedése miatt nem érzem, hogy valójában előrébb lennénk, inkább csak a helyünkön maradunk. A fix 3%-os hitel jó lehetőség, de ennyi megtakarítással albérletben élve lakást venni még így is álom marad.",
+        "A 13. és a 14. havi nyugdíj részlete, meg az árrésstop miatti árcsökkenés most könnyít egy kicsit a falusi költségvetésünkön, de a gyenge gazdaság és a kormányzati megszorításokról szóló hírek miatt óvatos maradok, nem érzem biztosnak a jövő évi pénzügyi nyugalmunkat.",
+        "Nekem alapfokú végzettséggel Budapesten nem igazán jön plusz pénz a családi adókedvezményből vagy a nyugdíj-kiegészítésekből, viszont az árrésstop és a nyomott infláció miatt a boltban egyelőre nem szívok annyira, csak azt remélem, hogy nem jön be semmilyen rejtett adóemelés vagy a gázáram drágulása, mert abból én járnék a legrosszabbul.",
+        "Nekem nincs nyugdíjam, úgyhogy a 13-14. havi meg a lakásdrágulás nem segít, viszont az árrésstop és a benzin olcsóbbodása miatt a napi bevásárlás és a városban autózás kevésbé fáj, szóval valahogy kijövök, de nagyobb tartalékra nem számítok. A gyenge GDP meg a lakásárak szaladása miatt nem érzem, hogy jobban laknék vagy gazdagodnék egy év múlva.",
+        "Nekem középfokú végzettséggel falun nem sokat jelent a nyugdíjasok 14. havi pénze vagy a kétgyerekes anyák adómentessége, az meg kifejezetten rossz, hogy ha túlhasználjuk az áramot vagy gázt, az az őrületbe kerül – a 3%-os hitel jó lenne, de 50 millióért nálunk semmit sem lehet kezdeni, szóval jövőre is csak a napi megélhetésért és az árrésstopos élelmis",
+        "Nyugdíjasként a 13. és 14. havi juttatásokkal és a stabil áram-gáz támogatással egyelőre kiszámítható a megélhetésünk, de a gyenge GDP és a túlhasználás utáni durva áremelkedés miatt azt érzem, hogy a takarékoskodás továbbra is kényszer, nem választás lesz.",
+        "A fix 3 százalékos Otthon Starttal talán végre tudunk nézni egy nagyobb lakást, de a lakásárak 15-19 százalékos ugrása és az alapkamat változatlansága miatt a megtakarításaink ereje gyenge marad, és a gyenge gazdasági kilátások sem nyugtatnak meg a jövő évi pénztárcánkat illetően.",
+        "A nyugdíjemelés meg a bérmegállapodás jól jön, de ha túl sokat fűtünk, a gáz ára miatt simán elviszi a megtakarítást, úgyhogy óvatosan kell gazdálkodnom jövőre. Alapfokú végzettséggel és kisvárosban azt érzem, a drágaság még így is szorít, nem lesz túl sok a pénz a zsebemben.",
+        "A bérem a minimálbér-emeléssel és a családi adókedvezménnyel kicsit több lesz, de az áram és gáz ára a támogatáson felül agyoncsapna minket, ha nem vigyázunk a fogyasztással, úgyhogy jövőre is szorosan kell gazdálkodnom a kisvárosi fizetésből.",
+        "A nyugdíjas szüleimnek jól jön a 13. és 14. havi pénz meg a januári emelés, nekem meg a faluban az árrésstop könnyít egy kicsit a bevásárláson, de az Otthon Start miatti lakásár-emelkedés engem már nem érint, úgyhogy alapvetően stabilnak érzem a helyzetünket, csak a téli számlákkal kell majd spórolni.",
+        "Lakásdrágulás és a gáz árának hétszeresére ugrása miatt tartok tőle, hogy a rezsiköltségek és a megélhetés egyre jobban megy a zsebembe, miközben a bérem nem biztos, hogy tartani tudja a lépést az árakkal. A forint erősödése meg a decemberi alacsonyabb infláció kicsit megnyugtat, de a gyenge GDP és a bizonytalan hírek miatt óvatosan költök majd idén.",
+        "A minimálbér-emelés jól jönne, ha találok községben rendes munkát, de a lakásárak száguldása és a gyenge GDP miatt inkább úgy érzem, csak sodródunk, és a fűtésre vagy bevásárlásra is kevesebb marad, ha nem lesz jobb állásom. A forint erősödése meg a kamatok tartása engem nem vigasztal, amíg itt falun alig van stabil kereset.",
+        "Nekünk jól jön a januártól emelt családi adókedvezmény és az Olthon Start olcsó hitel, de az alacsony növekedés, a magas 6,5%-os alapkamat és a vártnál makacsabb infláció miatt óvatosan költünk, mert nem érzem stabilnak a jövő évi anyagi helyzetünket.",
+        "Nyugdíjasént úgy látom, a lassuló gazdaság és a még mindig magasabb infláció miatt a boltban érzett árváltozások ellenére is szűkebb lesz a hónap vége, de a beígért 14. havi nyugdíj elkezdése és a stabil forint ad egy kis reményt, hogy nem kell nagyobb lemondásokat tennünk.",
+        "Nyugdíjként a 3,6 százalékos emelés és a beígért 14. havi részlet nem sokat segít, ha az élelmiszer-árrésstop ellenére is szaladnak az árak, és a gáz ára a támogatás felett az egekbe szökik, úgyhogy jövőre is szorosan kell majd fognom a gyeplőt, ha nem akarok a megtakarításaimhoz nyúlni.",
+        "A nyugdíjamra jön a 13. és a 14. havi első része, az jól jön, de tartok tőle, hogy az árak megint csak felmennek, és a rezsi is drágább lesz, ha többet fűtök, úgyhogy alig lesz több pénzem a hónap végén.",
+        "A 3,6 százalékos nyugdíjemelés és a februári 13. plusz 14. havi részlet egyelőre fellélegzést ad, de mivel az áram és gáz a támogatás felett drasztikusan drágul, tartok tőle, hogy a téli számlák hamar elviszik a pluszt, így az év többi részében szűkösebben fogok gazdálkodni.",
+        "A bérmegállapodás és a családi adókedvezmény miatt a nettómból több marad, de az áram- és gázárak drasztikus emelkedése a támogatott keret felett, meg a boltokban érzékelhető árváltozások miatt összességében alig leszünk előrébb, ha nem figyelünk nagyon a fogyasztásra. A gyenge GDP meg a kiszivárgott megszorításos hírek sem nyugtatnak meg, így óvatosan költök majd",
+        "Nálunk két gyerek mellett jól jön az emelt adókedvezmény és a béremelés, de tartok tőle, hogy ha átmegyünk a gázár-támogatás feletti keretünkön, a hétszeres ár tönkreteheti a költségvetést, úgyhogy spórolós télre számítok. A forint erősödése és az árrésstop meg kicsit nyugtat, de a gyenge gazdasági hírek miatt nem merek bővítgetni.",
+        "A nyugdíjam januártól kicsit emelkedik és megjön a 13. meg a 14. havi részlet is, de a téli számlák és a drága élelmiszerek miatt azért szűken, takarékoskodva kell majd kijönnöm egész évben.",
+        "Nekem, mint fiatal középfokú végzettségűnek a 3%-os Otthon Start jól jönne, ha lakáson gondolkoznék, de az infláció és a gyenge GDP miatt inkább úgy érzem, alig lesz több pénzünk a pénztárcában, és az áram/gáz drágulása meg az árrésstop lejárta után még szűkebbre kell húzni a nadrágszíjat.",
+        "A gyenge GDP és a magas kamat miatt nem várok nagy előrelépést, de az árrésstop és a nyugdíjemelések, meg a 13. havi pénz kicsit könnyítenek a családi költségvetésen, szóval valahogy kijövünk, de szoros lesz.",
+        "Nyugdíjas háztartásként a 3,6 százalékos emelés és a februári 13.–14. havi pénz kellemesen segít, de mivel az áram- és gázárak a keret felett az egekbe szöknek, ha csak egy kicsit is többet fűtök vagy főzök, máris elviszi a megtakarítást a rezsi; az árrésstop meg a forinterősödés azért ad némi nyugalmat a bevásárlásnál. Összességében stabilnak érzem a hely",
+        "Nekem nyugdíjasnak az jó hír, hogy jön a 14. havi nyugdíj részlete és az áruházi árrésstop miatt talán kevesebbet kell fizetnem a boltban, de az infláció még mindig magasabb a tervezettnél, meg a lakásárak az egekben, úgyhogy óvatosan költök, mert nem tudom, meddig tart ki a pénzem ha beteg leszek vagy drágább lesz a tél.",
+        "A mi falusi háztartásunknak az árrésstop és a három százalékos Otthon Start hitel jól jönne, ha költözni vagy felújítani akarnánk, de a gáz árának hétszeres drágulása miatt a fagyos télen jobban oda kell figyelni a fűtésre, meg a kormányzati megszorításos hírek sem nyugtatnak meg teljesen. Összességében stabilnak érzem a helyzetünket, de nem árt a takarékosság, mert bármik",
+        "Budapesti diplomásként a gyenge gazdasági kilátások és a kiszivárgott megszorítások híre miatt óvatosabbá váltam, de az árrésstop és a lassuló infláció most kicsit könnyít a mindennapi bevásárlásokon, így a következő egy évben inkább stagnáló, mint romló anyagi helyzetre számítok.",
+        "A fizetésem a bérmegállapodás és a családi kedvezmény miatt talán kicsit több lesz, de az energiaárak brutális drágulása és a gyenge gazdasági hírek miatt óvatosabban költök, és igyekszem kihasználni az árrésstopos termékeket meg az Otthon Startot, ha lakáson gondolkodom. Alapvetően kiegyensúlyozottnak látom a helyzetünket, de a tartalékainkat inkább nem nyúlom meg, mert bizonytalan, mi jön a",
+        "A bérem talán egy kicsit emelkedik a megállapodás miatt, és jól jön a családi adókedvezmény is, de az áram és gáz drágulása meg a bizonytalan gazdaság miatt azt érzem, alig fogok előrébb lenni, és jobban kell majd figyelni minden forintra.",
+        "Nekem alapfokú végzettséggel, városban élőként a boltban az árrésstop meg a csökkent üzemanyagár kicsit könnyít a mindennapokon, de nyugdíjemelés meg 14. havi csak a szüleimet érinti, úgyhogy én inkább azon szorongok, hogy a fizum nem nagyon mozdul, és ha jönnek az extra rezsik a fagyok miatt, az viszi el a spórolt kevés pénzt.",
+        "A minimálbér-emelés és az alacsony infláció jól jön, de a gáz megdrágulása meg a 1300 milliárdos megszorításról szóló hírek miatt óvatos vagyok, nem érzem biztosnak, hogy kijövünk majd egy fillérre pontosan a fizetésből. A 3 százalékos Otthon Start meg a 13-14. havi nyugdíj részlet jó, de nekünk most inkább a napi rezsi és bolti árak nyomják a pénztárcát.",
+        "A minimálbér-emelés és az üzemanyagárak csökkenése nekünk is könnyít valamit a falusi költségvetésen, de az árrésstop ellenére is tartok tőle, hogy a lakásárak és a gáz ára a támogatáson túl ránk szabadul, ha többet fűtünk, szóval csak óvatosan költekezünk jövőre.",
+        "A bérmegállapodás és az árrésstop miatt egyelőre könnyebb megjönni a végére, de a gyenge GDP és a politikai adóemelési hírek miatt bizonytalan, hogy egy év múlva is ennyire kiszámítható lesz-e a pénztárcánk.",
+        "Budapesti középfokú végzettségűként úgy látom, a lassú gazdaság és a lakásárak 19 százalékos emelkedése mellett az áram- és gáztámogatás megmaradása megkönnyíti a téli számlákat, de az Otthon Start miatti drágulás miatt lakásvásárlásra nem igazán van esélyünk, így a pénztárcánk inkább csak a driftelő infláció és az árrésstop miatt marad valamennyire egyben, nagy javulást",
+        "Budapesti középfokú végzettségűként az árrésstop és a lassult infláció miatt a bevásárlásoknál kicsit könnyebb most a helyzet, de az Otthon Start hitel nélkül és a kiszivárgott megszorításos hírek miatt bizonytalan, hogy egy év múlva nem jönnek-e ránk plusz terhek. Összességében tartom a szintet, de nem érzem azt, hogy sokkal jobban állnánk majd, mint most.",
+        "A nyugdíjam ugyan csak kicsit emelkedik, de az árrésstop és a megmaradt rezsitámogatás miatt egyelőre kijövök a pénzemből, csak azt kell vigyáznom, hogy ne fogyasszak túl sok áramot vagy gázt, mert afelett az már nagyon drága lenne. Összességében nem leszünk gazdagabbak, de stabilan meglesz a mindennapi betevőnk, ha takarékoskodunk."
+      ]
+    },
+    {
+      "seed": 3,
+      "n_sent": 60,
+      "ssr_score": 2.805125362995612,
+      "nowcast": -9.743731850219394,
+      "sentences": [
+        "Budapesten a lakásárak elszálltak és az energia túlfogyasztásaért az egekbe szökik majd a számla, úgyhogy hiába lett valamivel kisebb az infláció meg emelkedett a minimálbér környezete, én a középfokú végzettségemmel inkább szűkebben fogok gazdálkodni, mintsem hogy fellélegeznék. A 14. havi nyugdíj még csak a nyugdíjasokat segíti, nekem meg a mostani bizonytalan GDP és",
+        "A nyugdíjemelés meg a 13. meg a 14. havi részlet jól jön, de a rezsi drágulása feletti mennyiségnél és a boltokban maradt drágulásnál tartok tőle, hogy az összes spórolt pénzünk hamar elolvad, ha nem nagyon figyelünk a fűtésre és a villanyra.",
+        "Nekem még tíz-húsz évig kell dolgoznom, úgyhogy a 14. havi nyugdíj engem most nem vigasztal, viszont az árrésstop meg a pár terméknél olcsóbb boltok kicsit könnyítenek a mindennapi kiadásokon, de a lakásárak szaladása és a magas kamatok miatt hitelt felvenni vagy költözni eszembe sincs. Alapvetően stagnáló, óvatos költekezéssel túlélhető évnek látom a következőt, de",
+        "Felsőfokú végzettséggel és fiatalon egy nagyvárosban alig van esélyem saját lakáshoz a 15-19 százalékos áremelkedés miatt, a gyenge GDP meg a magas alapkamat meg a dráguló rezsitúllépés meg a bérem erősödését is lenyomja, úgyhogy a következő évben inkább a túlélésre és a spórolásra játszom, nem a gyarapodásra.",
+        "A minimálbér-emelés jól jön, mert így talán kijövünk a rezsi és az élelmiszer árából Budapesten, de az infláció és a bizonytalan gazdasági hírek miatt nem merek nagyobb kiadásokra gondolni, csak a napi megélhetésre figyelek.",
+        "A nyugdíj kiegészítések miatt jövőre több pénzünk lesz, és az árrésstop is könnyít a bevásárláson, de az alapkamat magas maradt meg a lakásárak szaladtak el, úgyhogy spórolósan, de biztonságosabban nézünk az elkövetkező évnek.",
+        "Kisvárosi középfokúként alig van tartalékom, a lakásárak elszálltak és a gáz ára hétköznapi fogyasztás felett rémisztően drágul, szóval egy fagyos tél után inkább szorítom a szám, mintsem hogy jobban látnám a jövő évet. A GDP gyenge és az infláció is marakszik, úgy érzem, csak a túlélésre játszom, nem a gyarapodásra.",
+        "A forint erősödése és az árrésstop megkönnyíti a bevásárlást, de az energiaár-emelés és a gyenge GDP miatt óvatosabb leszek a nagyobb kiadásoknál, így alapvetően kiegyensúlyozottnak, de bizonytalanabbnak látom a jövő évi pénztárcánkat.",
+        "Nekem alapfokú végzettséggel és városban élve a minimálbér-emelés jól jön, de a lakásárak 15-19 százalékos szökése miatt albérletre vagy saját lakásra sosem lesz elég, és a gyenge gazdasági hírek meg a kiszivárgott megszorításos pletykák miatt inkább szorítva várom a következő évet.",
+        "Nekem már nyugdíjasként jól jön, hogy februárban megjön a 13. havi és a 14. havi első része is, mert a mindennapi szűkösbejövetelnél ez kicsit fellélegzést ad, de az árak és a drágaság miatt azért tartok tőle, hogy egy év múlva is alig lesz több a maradék a hónap végén.",
+        "Nekünk falun középfokú végzettséggel az árrésstop meg a januártól nagyobb családi adókedvezmény könnyít egy kicsit a mindennapokon, de a gyenge GDP és a bizonytalan kilátások miatt nem merek nagyobb költekezésbe vagy hitelfelvételbe belevágni, maradok a takarékoskodós vonalon.",
+        "A 3,6 százalékos nyugdíjemelés és a februári 13–14. havi pénz kicsit könnyít a télen, de az árrésstop ellenére is érzem a boltban, hogy az élelmiszer drágább maradt, mint amennyivel a nyugdíjam nő, úgyhogy falusi nyugdíjasként inkább takarékoskodva, fűtéssel és bevásárlással számolva élünk majd túl ezt az évet.",
+        "A bérem talán kicsit emelkedik a minimálbér körüli korrekciók miatt, de a gáz ára felettünk lévő fogyasztásnál az egekbe szökhet, úgyhogy igyekszünk majd takarékoskodni, mert a biztosabb megélhetésen kívül nem sok jóra számítok.",
+        "Nyugdíjas koromra a 14. havi nyugdíj fokozatos bevezetése és az árrésstop húznak felfelé, de a lassú gazdaság és a még mindig magasabb infláció miatt óvatosan költök, így a falusi életem anyagilag stabil, de szűkös marad.",
+        "Nekem alapfokú végzettséggel falun nagyon kevés a stabil meló, a GDP alig nőtt, és ha a gázt vagy áramot túlhasználjuk, jövőre az ára az egekbe szökik, úgyhogy csak spórolással és szerencsével úszhatom meg, hogy ne csússzunk le anyagilag. A nyugdíjasoknak jár a plusz pénz, de én meg a családom legfeljebb az szja-mentes anyákra számíthatunk, ha lesz két gyerekünk",
+        "Budapesti alapfokú végzettségűként az árrésstop miatt a boltban kicsit kevesebbet költök, de az Otthon Start miatt az amúgy is drága lakások még inkább elszálltak, úgyhogy saját lakást nemigen vehetek, és a 6,5 százalékos kamat mellett a megtakarításom sem gyarapszik érezhetően. A nyugdíjemelés és a 13-14. havi támogatás jól jön majd, de a mindennapi megélhetéshez az",
+        "A nyugdíjam nem nőtt érdemben, az árrésstop meg a rezsitámogatás tartja csak a víz felett a háztartást, de a fagyos télen a gáz ára feletti résznél már rettegek, hogy ha sokat fűtök, az egész éves pénzem elmegy; a 14. havi nyugdíj meg még évekig csak ígéret marad nekem.",
+        "Nyugdíjasért a 13. és 14. havi pénz meg a maradó ártámogatás jól jön, de a gáz árának drágulásától tartok, ha sokat fűtök a hidegben, meg azért az infláció is maradt valamennyire, szóval spórolósabban kell élnem jövőre.",
+        "Felsőfokú végzettséggel és budapestiként a bérem talán emelkedhet a megállapodások nyomán, de a 19%-os lakásár-robbanás miatt albérletről vagy saját lakásról álmodni is nevetséges, és az áram/gáz ártámogatás feletti drágulás meg az infláció miatt a hónap végére simán kicsúszhat a kezemből a pénz.",
+        "A minimálbér-emelés jövőre jól jön, ha találok vagy tartok egy jobb fizetésű melót a faluban, de az infláció még mindig ott lohol mögötte, és a hitellel vagy bármi drágább cuccal így se lesz egyszerű kijönni a pénzből. Alapvetően bizonytalanul nézek a következő évnek neki, mert a gazdasági hírek inkább lehúzósak, és itt vidéken kevés a stabil állás.",
+        "Nekem nyugdíjas falusi emberként a 14. havi nyugdíj első része meg az árrésstop miatt olcsóbb élelmiszerek jól jönnek, de az áram- és gázár ugrik, ha túlfogyasztok, úgyhogy takarékoskodnom kell a fűtéssel, hogy ne csússzak le anyagilag. Összességében stabilabbnak érzem a helyzetem, mint tavaly, csak a rezsi felett kell jobban vigyáznom.",
+        "A gáz árának hétszeres drágulása felettünk simán beteríthet, ha keményebb télünk lesz, és a gyenge gazdasági kilátások miatt a fizetésemből alig lesz több, szóval jövőre szorosabbra kell húzni a nadrágszíjat. Az árrésstop meg a nyugdíjas rokonoknak jó, de nekünk megmarad a bizonytalanság, hogy meddig tartják ezt az árakat kordában.",
+        "Nekem alapfokú végzettséggel, nagyvárosban azért a minimálbér-emelés és az árrésstop kicsit könnyít a mindennapokon, de a gyenge GDP és a bizonytalan hírek miatt nem merek nagyobb kiadásokba vágni, inkább csak arra számítok, hogy nem lesz sokkal rosszabb, de nem is jobb a helyzetünk.",
+        "A falusi életünkön sokat segít, hogy az árrésstop miatt a boltban olcsóbb lett pár alapcikk és megmarad az áram-gáz támogatásunk, de a gyenge GDP és az infláció miatt óvatosabban költünk, mert tartok tőle, hogy a jövőre ígért béremelés nálunk elmarad vagy elviszi az áremelkedés. Összességében kijövünk a rezsiből és a mindennapokból, de nagyobb beruházásra vagy előrelépésre",
+        "Nyugdíjas budapestiként a 14. havi nyugdíj részleges jövő évi bevezetésének örülök, de az infláció lassulása ellenére is fáj a budapesti lakásárak 19 százalékos drágulása és a magas 6,5 százalékos kamat, így a mindennapi kiadásokon spórolnom kell, és tartalékból élek majd, ha a rezsi vagy az élelmiszer tovább szalad.",
+        "Budapesti középfokú végzettségűként nekem még nincs nyugdíjam, de az árrésstop és a forint erősödése miatt a boltban kicsit kevesebből megúszom, viszont az alapkamat és a gyenge gazdasági hírek miatt nem érzem, hogy sokkal több pénz maradna a zsebemben jövőre.",
+        "Nekem még pár évet kell dolgoznom, de a boltban érzem az árrésstopot meg a gázártámogatást, így a szűkös falusi keretünkön azért nem úgy csúszik el minden, mint régen, csak a lakásárak az eszembe, hogy a gyereknek sosem lesz sajátja. A jövő évre úgy saccolom, ha a forint erős marad és nem drágul meg őrült módon a villany a kedvezmény felett, megéljük valahogy, de nagy lakást ígér",
+        "Nálunk a kisvárosban a fizetés nem nőtt, de a lakásárak és minden más drágul, úgyhogy a gyenge gazdasági hírek miatt inkább szorosabbra kell húzni a nadrágszíjat, mintsem hogy jobbra számítanék egy éven belül. A nyugdíjas rokonoknak jó a 14. havi meg a forinterősödés, de nekünk aktív korban csak a bizonytalanság és a spórolás marad.",
+        "A forint erősödése és az árrésstop miatt talán egy kicsit kevesebbet költök bevásárlásra, de a gyenge GDP és a bizonytalan politikai hírek miatt inkább takarékoskodom, mert nem érzem stabilnak a jövő évi pénzügyeimet. A családi adókedvezmény emelése nekünk két gyerekkel segít, de attól félek, valahol máshol visszaveszik az állam.",
+        "Örülök a 14. havi nyugdíj elkezdésének és hogy a boltban a régi árakhoz képest most olcsóbb lett pár dolog, de azt hallom, lehet adóemelés és kevés a pénz az országban, úgyhogy a télen meg a mindennapokon kívül nemigen merek nagyobb kiadásra számítani.",
+        "Budapesti diplomásként a forint erősödése és az árrésstop miatt egyelőre stabilnak érzem a pénztárcánkat, de a rezsi áram- és gázáremelése, meg a 6,5 százalékos alapkamat miatt a tartalékainkat nem merjük mozgósítani, így óvatosan költünk a gyenge GDP mellett is.",
+        "A nyugdíjemelés meg a meghosszabbított árrésstop kicsit könnyít a mindennapokon, de a gyenge gazdaság és a drágult lakások miatt nem érzem biztonságban magam, így jövőre is szűken, de kijövök a rezsiből és az alapvető élelmiszerekből.",
+        "A minimálbér-emelés jól jönne, ha kapnám, de a gáz árának hétszeresése a támogatáson túl és a lakásárak elszállása miatt inkább úgy érzem, jövőre is csak a napi megélhetésre gyűrködünk, nem lesz több pénz a zsebünkben.",
+        "A minimálbér-emelés és a nagyobb családi adókedvezmény jól jönne a kisvárosi fizetésünkön, de az alapkamat magas maradt, az infláció még mindig viszi a pénzt, és bizonytalan, mit hoz a politika, úgyhogy tartalékot alig tudok képezni, inkább a napi megélhetésért küzdök.",
+        "Középfokú végzettséggel kisvárosban nem lesz könnyebb a következő év, mert az infláció még mindig nem állt meg rendesen, a lakásárak az Otthon Start miatt elszálltak, az alapkamat is magas maradt, úgyhogy a mindennapi kiadásokkal és a hitellel vigyázni kell, hátha a 14. havi nyugdíj első részlete vagy a fix 3 százalékos hitel segít valamennyit a nyakunkon.",
+        "Nekem már nincs gyerekem 40 alatt, meg nyugdíjas se vagyok, úgyhogy az új támogatások mellett én csak azt látom, hogy az alapkamat magas maradt, az energia meg a kvótán túl az egekbe szalad majd, szóval jövőre is szorosan kell fogni a gatyát, ha nem akarunk mínuszosak lenni.",
+        "A boltban azért érzem, hogy a mostani árrésstop meg a lassult infláció jót tett a pénztárcámnak, de a lakásárak Budapesten az egekben vannak, és a gyenge gazdasági hírek miatt tartok tőle, hogy jövőre megint nehezebb lesz kijönni a rezsivel meg a bevásárlással.",
+        "A 13. és 14. havi nyugdíj megérkezése jól jön, de az infláció még mindig magasabb a kormány ígéreténél, és ha sokat fűtök a kemény tél miatt, a gáz ára simán lenullázhatja a pluszt. Összességében úgy érzem, éppen kijövök a nyugdíjból, de egy nagyobb váratlan kiadást már nem bírna el a pénztárcám.",
+        "A családi adókedvezmény emelése és az árrésstop jól jön a pénztárcánknak, de az ingatlanárak szaladása és a túlfogyasztás utáni drasztikus rezsi emiatt tartok tőle, hogy egy nagyobb kiadás vagy költözés simán lenullázza a spóroltakat.",
+        "Budapesti albérletből és alkalmi munkákból élek, szóval a rezsiemelés meg a bizonytalan gazdasági hírek miatt inkább szorítom a költségeket, de az árrésstopnak köszönhetően a bevásárlás most kevésbé fáj; összességében túlélhetőnek látom a következő évet, de nagyobb kiadást nem mernék vállalni.",
+        "A nyugdíjam ugyan kicsit emelkedik és a 13-14. havi pénz is segít, de az áram- és gázárak drasztikus emelése a támogatás felett, meg a lakásárak elszállása miatt óvatosan költök, mert a télen már így is sokat visz el a fűtés, így jövőre is szűken, de kijövök a pénzből.",
+        "A boltban azért érzem, hogy a kibővített árrésstop kicsit könnyít a bevásárláson, és a férjem bérminimuma is emelkedik jövőre, de a gyenge GDP meg a bizonytalan politikai hírek miatt nem merek nagyobb dolgokra, például lakásfelújításra bevállalkozni, szóval tartalékolunk, ahogy tudunk.",
+        "Nálunk a kisvárosi felsőfokú kétkeresősként a januári adókedvezmény-emelés és a befagyasztott rezsitámogatás kicsit könnyít a mindennapokon, de a 0,3 százalékos GDP és a túlhasználat után hétszeres gázár miatt óvatosan költök, és nem tervezek nagyobb rizikót jövőre.",
+        "Budapesten a lakásárak elszáltak, így albérletbe megmaradni is egyre nehezebb, de a forint erősödése meg a kisebb infláció miatt a napi bevásárlásnál már nem érzem annyira a szorítást, szóval valahogy kijövünk, de nagyobb tartalékot nemigen tudok képezni.",
+        "Nekem alapfokú végzettséggel falun a bérem valószínűleg nem nő annyit, mint amennyivel az élelmiszer és a lakhatás drágult, szóval jövőre is szűkmarkúan kell gazdálkodnom, még ha a családi kedvezmény meg a minimálbér-emelés kicsit segít is. A hírekből nem látom, hogy jobban keresnék majd, inkább azt érzem, hogy a gyenge gazdaság miatt mi, kisemberek maradunk a legszűkebb pály",
+        "A bérem nem minimálbéres, szóval a megállapodás engem kevésbé érint, viszont az árrésstop és a családi adókedvezmény kicsit könnyít a mindennapokon, csak tartok tőle, hogy az infláció és a lakásárak tovább szívják a pénzt, ha bármit is költözni vagy felújítani kellene. Összességében stagnálásra számítok: nehezen, de kijövünk a fix rezsitámogatással, de nagyob",
+        "A nyugdíjam 3,6 százalékkal emelkedik, és megjön a 13. meg az első 14. havi részlet is, úgyhogy a kisvárosi megélhetésünkön nem fog az infláció nagyon túltenni, de azért az áram- és gázárak miatt télen jobban oda kell figyelni a fűtésre. Alapfokú nyugdíjasemberként így is jobban állok, mint sok fiatal, aki lakást akarna venni, mert azok az árak az egekben vannak.",
+        "A nyugdíjam a 13. és a 14. havi részlettel most kicsit kisöpörhetőbb, de ha a gázfogyasztásom átcsúszik a támogatott keret fölé, az a hétszeres ár miatt simán elviheti az egész többletet, úgyhogy fűteni alig merek majd, és spórolni kell. A forint erősödése jó hír, de a lakásárak és a gyenge gazdaság miatt nyugdíjasként én már nem érzek biztonságot",
+        "A nyugdíjemelés meg a lassult infláció jól jön, de az alapkamat magas maradt és a gazdaság is gyenge, úgyhogy csak óvatosan költekezünk, nehogy beszoruljunk télen a számlákkal.",
+        "Nekünk falusi középsulis családanyaként az jól jön, hogy januártól több a családi adókedvezmény és az szja-mentesség is közelebb került, de a lakásárak elszálltak és a 6,5 százalékos hitel mellett nemigen lesz egyről a másikra, szóval óvatosan költjük a keveset, ami megmarad.",
+        "Nyugdíjasként a 3,6 százalékos emelés és a februári 13–14. havi támogatás jól jön, de mivel a gáz ára a támogatott keret felett hétszeresére drágul, és a gazdasági hírek inkább bizonytalanságot sugallnak, óvatosan költök, és igyekszem a fűtéssel spórolni, hogy kijöjjek a fix jövedelemből.",
+        "Nekem még nincs nyugdíjam, de a rezsitől tartok, mert ha csak egy kicsit is többet fűtök a kemény fagyok miatt, a támogatás felett az áram és a gáz ára szinte lenullázza a családi adókedvezmény emelését; az árrésstop meg a fix lakáshitel jó, de lakást úgysem tudok venni, így a pénztárcámban jövőre leginkább a drágaság és a bizonytalan GDP miatt nem lesz nagyobb mozg",
+        "Frissebb diplomásként Budapesten a bérem talán picit nő az emelésekkel, de a 19%-os lakásár-robbanás miatt albérletből sosem lesz saját otthonom, és ha túlfogyasztjuk az áramot, jövőre simán ráfizethetünk; összességében stabilan, de szűkösen látom a következő évet.",
+        "A gáz és áram ára felett a drágulás miatt tartok tőle, hogy a téli számlák behúzzák a gyomrom, de a januári családi adókedvezmény kicsit könnyít a hónap végi rostán, szóval ahogy eddig, úgy most is spórolósan, de kijövünk a falusi életből.",
+        "Nekem nyugdíjas falusi emberként a februári 13. és 14. havi nyugdíjrészlet meg az árrésstop hosszabbítása kifejezetten jól jön, mert így a rezsit és az élelmiszert ki tudom fizetni nyugodtabban, de a gyenge GDP-n meg a bizonytalan politikai híreken nem árt azért spóroltan élni, mert az árak bármikor megugorhatnak.",
+        "Nekünk még nem jár nyugdíj, de a bérem nem nő, az áram és gáz meg a támogatáson felül az egekbe megy, úgyhogy jövőre szűkebb lesz a hónap vége, hiába csökkent valamelyest az infláció. A családi adókedvezmény emelése kicsit segít, de azt már most látom, hogy a téli számlákkal meg a mindennapi drágulással többet fogunk visszafogni magunkból, mint idén.",
+        "A nyugdíjam a 3,6 százalékos emeléssel és a maradó ártámogatással épp csak tartja a lépést az árakkal, de a lakásárak elszállása és a hitelkamatok magasan tartása miatt nincs esélyem arra, hogy a gyerekeknek segítsek pesti lakáshoz jutni, így összességében kényelmesen, de szorosan gazdálkodva látom a következő évet.",
+        "Nyugdíjas háztartásként a 14. havi nyugdíj jövő évi negyedével és a változatlan rezsitámogatással kicsit könnyebbülünk, de az enyhén lassuló infláció és a kedvezményes keret feletti drasztikus gázár miatt továbbra is szorosan kell gazdálkodnom, így az anyagi helyzetem inkább csak stagnál, mintsem javulna érdemben.",
+        "Öregemberként jól jön, hogy januártól emelik a nyugdíjam és elindul a 14. havi, megmarad az áram-gáz támogatás is, de a faluban így is szűken élünk, mert az árak még mindig magasak és a gáz ára rémiszt, ha túlhasználjuk a kedvezményt. Alapfokúként nemigen értem a politikai híreket, de a saját pénztárcámból azt érzem, ha csak a legszükségesebbet vesszük, kij",
+        "A pénztárcámnak jót tesz, hogy lassult az infláció és olcsóbb lett az üzemanyag meg pár élelmiszer az árrésstop miatt, de a lakásárak 15-19 százalékos ugrása miatt az Otthon Startos hitellel sem látok reális esélyt közelítőn saját ingatlanra, és a gyenge GDP miatt inkább takarékoskodva, bizonytalanul nézek a jövő évnek ezekbe a hónapjaiba."
+      ]
+    }
+  ],
+  "mean_nowcast": -8.884725957215293,
+  "abs_err": 10.515274042784705,
+  "flash_reference": {
+    "file": "hu_nowcast_2025-12.json",
+    "nowcast": -15.098174396910968,
+    "abs_err": 4.30182560308903
+  },
+  "cost": {
+    "n_calls": 180,
+    "n_api_calls": 180,
+    "n_cache_hits": 0,
+    "calls_per_min_limit": 100.0,
+    "elapsed_s": 126.2,
+    "prompt_chars": 501499,
+    "completion_chars": 52994,
+    "est_prompt_tokens": 156718,
+    "est_completion_tokens": 16560
+  },
+  "raw_stream": [
+    {
+      "i": 1,
+      "response": "A fizetésem talán kicsit emelkedik a bérmegállapodás nyomán, de az áram- és gázárak miatt tartok tőle, hogy télen csúnyán megnő a rezsinköltségünk, úgyhogy összességében alig lesz több pénzünk a hó végére. A lakásárak meg csak azoknak felfelé, akik már birtokban vannak, nekünk meg jobban be kell osztani, ha nem akarunk adósságba süllyedni."
+    },
+    {
+      "i": 2,
+      "response": "A 14. havi nyugdíj meg a megállt infláció jól jön nekem, de ha sokat fűtök télen, a gáz ára megmarja a nyugdíjam, úgyhogy takarékoskodnom kell, de valahogy kijövök belőle."
+    },
+    {
+      "i": 3,
+      "response": "A nyugdíjam januártól ugyan keveset emelkedik, de a 13. és a 14. havi részlet megérkezése, meg az árrésstop miatt végre egy kicsit könnyebb lesz kijönni a havi fixből, csak a lakásárak és a bizonytalan gazdasági hírek miatt nem merek nagyobb kiadásokba vágni."
+    },
+    {
+      "i": 4,
+      "response": "A boltban azért érzem, hogy lassult az infláció, de a kormányzati árbeavatkozások és a hírekben emlegetett megszorítások miatt óvatos vagyok, nem hiszem, hogy könnyebb lenne megélni jövőre, inkább takarékoskodnom kell, ha nem akarok szűkölködni."
+    },
+    {
+      "i": 5,
+      "response": "A falun nekem se fizuemelés, se extra segítség nem várható, az alapkamat magas maradt és a gáz ára iszonyatosan megugrik a támogatott keret felett, úgyhogy jövőre még szűkebbre kell húznom a nadrágszíjat, mint idén. Az árrésstop talán pár élelmiszeren segít, de az egész éves kilátásom szerintem rosszabb lesz, mint a mostani gyenge év volt."
+    },
+    {
+      "i": 6,
+      "response": "Nekem már csak a nyugdíjamra kell figyelnem, a 14. havi részlet meg a családi kedvezmény mást nem érint, de azért jól jönne, ha tényleg olcsóbbak lennének a boltok az árrésstop miatt, mert a gyenge GDP meg a drágaság így is szűken tartja a spórolt forintjaimat."
+    },
+    {
+      "i": 7,
+      "response": "A februári 13. és 14. havi nyugdíjrészlet meg a januári emelés jól jön, de a gáz árának hétszeresére ugrása miatt fázós télen tartok tőle, hogy az energiaszámla viszi el a többletet, így összességében alig leszünk előrébb."
+    },
+    {
+      "i": 8,
+      "response": "Nekem alapfokú végzettséggel Budapesten nem igazán jön össze a családi adókedvezmény vagy az szja-mentesség, szóval az árrésstop meg a csökkent üzemanyagár jelenti az egyetlen látható könnyebbséget, de a gyenge gazdaság miatt állásban sem leszek biztos, így inkább szűkösen, de kihúzom valahogy a következő egy évben."
+    },
+    {
+      "i": 9,
+      "response": "Budapesti alapfokú végzettségűként a minimálbér-emelés és a családi adókedvezmény javít valamit a helyzetünkön, meg az árrésstop is könnyít a bevásárláson, de a 6,5 százalékos hitelkamat és a bizonytalan gazdasági hírek miatt nem érzem azt, hogy végre kényelmesen megélnénk. Lakáshitelt ugyan nem tervezünk most, de így is óvatosan számolok, mert azt mondják, lassul"
+    },
+    {
+      "i": 10,
+      "response": "Budapesti középfokú végzettségűként a bérem talán a minimálbér-emeléssel picit jobban alakul jövőre, de az infláció lassulása ellenére is drágábban élünk, és a gazdasági hírek inkább bizonytalanságot adnak, így óvatosan költök, mert tartok a gyenge GDP miatti megszorításoktól."
+    },
+    {
+      "i": 11,
+      "response": "Nyugdíjasként a 13. és a megígért 14. havi részlet, meg a stabil forint miatt kicsit nyugodtabb vagyok, de az infláció lassulása ellenére is drágállom a bevásárlást, és a lakásárak száguldása csak azt jelzi, hogy a megtakarításom ereje nem nő igazán."
+    },
+    {
+      "i": 12,
+      "response": "Nekem alapfokú végzettséggel falun nehéz lesz kijönni a pénzből, mert a lakásárak az egekbe szöktek és a hitel is drága maradt, a nyugdíjasokon segítenek, de mi meg csak a drágulást meg az adóemelésről szóló híreket látjuk. A forint erősödése jó hír, de azt nem érzem a boltban, úgyhogy tartok tőle, hogy jövőre is szűken leszünk."
+    },
+    {
+      "i": 13,
+      "response": "A nyugdíjamat jól jön a februári 13. és 14. havi részlet, meg az árrésstop is könnyít a bevásárláson, de a fűtésszámlától tartok, mert ha túlhasználjuk a gázt a kemény télen, az árak miatt csúnyán elszállhat a költség. Összességében úgy érzem, kijövünk a pénzünkből, de spórolósan kell élnünk, mert az alapkamat és a bizonytalan hírek nem nyug"
+    },
+    {
+      "i": 14,
+      "response": "Nekem alapfokú végzettséggel, nagyvárosban az a legnyomasztóbb, hogy az áram meg a gáz az olcsó keret felett szinte behajítja a pénztárcámat, miközben a lakásárak az Otthon Start miatt elszálltak, szóval hitelt sem egyszerű fölvenni értelmesen; az árrésstop jó, de összességében jövőre is szerényen, óvatosan gazdálkodva élek majd, mert nem érzem, hogy jobban keresnék, cs"
+    },
+    {
+      "i": 15,
+      "response": "Budapesten az albérletárak az Otthon Start miatt is elszálltak, a 6,5 százalékos kamatnál meg alig kapok a megtakarításomra, úgyhogy jövőre is csak a napi betevőn és a rezsin jár az eszem, nem lesz mit félretenni. A 14. havi nyugdíj még nem is engem érint, nekem meg a mostani drágulásokkal kell megbirkóznom, amíg dolgozom."
+    },
+    {
+      "i": 16,
+      "response": "Nyugdíjként a 3,6 százalékos emelés épp csak a drágulást hozza utol, a fűtésszámlák meg a fagyos tél miatt azért rendesen megnyomták a költségeimet, úgyhogy jövőre is inkább takarékoskodva, de kijövök a rezsiből és az alapélelmiszerből, többre nem számítok."
+    },
+    {
+      "i": 17,
+      "response": "A kisebb infláció és a januári adókedvezmény megkönnyíti valamelyest a mindennapokat, de a gyenge GDP meg a gázáram drágulása miatt attól tartok, jövőre is csak spórolósan jutok ki a pénzből. A nyugdíjemelés még messze van, addig meg a kisvárosi fizum nem nagyon nő, szóval óvatosan kell gazdálkodnom."
+    },
+    {
+      "i": 18,
+      "response": "Nekem középfokú végzettséggel Budapesten a bérem talán a minimálbér környékére kúszik fel a 11%-os emeléssel, de az áram és gáz ára feletti drágulás meg az árrésstop ellenére is érzékelhető bolti áremelkedések miatt alig marad több a zsebemben, és lakást venni a 3%-os hitellel sem álmodok, mert nincs előtakarékosságom és az árak amúgy is magasak."
+    },
+    {
+      "i": 19,
+      "response": "A minimálbér-emelés és a családi adókedvezmény növelése kicsit könnyíti a mindennapokat, de az árrésstop ellenére is érzem a drágulást a boltban, meg ha túlhasználjuk a gázt télen, abból jó nagyot fog fájni a számla, úgyhogy inkább takarékoskodva, bizonytalanul nézek a jövő évre."
+    },
+    {
+      "i": 20,
+      "response": "A bérem talán kicsit emelkedik a minimálbérhez igazodva, de az áram és gáz drágulása meg a lakásárak szaladása miatt jobban kell számolgatnom, mint eddig, így inkább csak tartani tudom a szintet, de nem érzem magam biztonságban."
+    },
+    {
+      "i": 21,
+      "response": "A bérem a minimálbér emelésével kicsit nő, és örülök, hogy az árrésstop miatt a bevásárlás olcsóbb lett, de a 6,5%-os alapkamat miatt nem merek hitelt felvenni, és a gyenge GDP meg a kiszivárgott megszorításos hírek miatt bizonytalannak érzem a jövőt. Alapvetően kijövünk a szűkösből, de nagyobb előrelépésre vagy megtakarításra nem számítok ebben az évben."
+    },
+    {
+      "i": 22,
+      "response": "Nekem alapfokú végzettséggel falun nehéz állandó jó munkát találni, szóval a gyenge gazdasági hírek miatt inkább kevesebb pénzre számítok, bár az árrésstop és az olcsóbb üzemanyag kicsit könnyít a napi kiadásokon."
+    },
+    {
+      "i": 23,
+      "response": "Nekem, mint alapfokú végzettségű kisvárosi fiatalnak a 3 százalékos Otthon Start hitel jó lehetőségnek tűnik lakásra, de a lakásárak 15 százalékos emelkedése és a gyenge gazdasági adatok miatt félek, hogy alig lesz állás és a fizetésem nem fogja tartani a lépést a kiadásokkal. A forint erősödése meg az árrésstop megkönnyebbülés, de a kormányzati megszorításokról szóló hí"
+    },
+    {
+      "i": 24,
+      "response": "Nekünk középfokú végzettséggel, nagyvárosban élőként az segít, hogy az árrésstop miatt a bevásárlás olcsóbb lett és a családi adókedvezményt is emelték, de a gyenge gazdasági hírek miatt tartok tőle, hogy a fizetésem nem fogja tartani a lépést az apróbb drágulásokkal, így azért óvatosabban költök majd, mint egy éve."
+    },
+    {
+      "i": 25,
+      "response": "Kisvárosi diplomásként a bérem talán lassan követi a minimálbér-emelést, de az Otthon Start miatt elszállt lakásárak és a dráguló túláram-fogyasztás miatt reálisan alig lesz több a megtakarításunk, legfeljebb az árrésstop tartja a napi bevásárlást elviselhetőn."
+    },
+    {
+      "i": 26,
+      "response": "A nyugdíjam ugyan 3,6 százalékkal meg a 14. havi negyede is jön, de az élelmiszerek és főleg a gáz a fölözön áron az egekbe szökik, úgyhogy spórolnom kell, ha nem akarok télen kihűlni a faluban. Alapjában véve kijövünk valahogy, de biztosan szorosabb lesz a gyeplő, mint eddig volt."
+    },
+    {
+      "i": 27,
+      "response": "Nekem már nyugdíjas koromban nem nagyot dob az emelt minimálbér, a 6,5 százalékos alapkamat meg a dráguló lakások is csak azt jelzik, hogy a befektetett pénzem kevés kamatot hoz, az élelmiszer és a téli fűtés meg egyre többe kerül, szóval jövőre is szűken, de kijövök a fix jövedelmemből, ha nem lesz nagyobb betegség vagy váratlan kiadás."
+    },
+    {
+      "i": 28,
+      "response": "A családi adókedvezmény megemelése és az árrésstop nekünk kisvárosi középosztálybelieknek könnyít a mindennapokon, de a lakásárak 15 százalékos ugrása miatt az Otthon Start hitellel sem látok reális esélyt nagyobb lépésre, így inkább a meglevőt tartjuk össze, mintsem hogy előre szaladjunk. A forint erősödése nyugtat, de a GDP alig mozdul, úgyhogy óvatosan költök majd,"
+    },
+    {
+      "i": 29,
+      "response": "Nekem még nem jár nyugdíj, de az árrésstop és az olcsóbb üzemanyag könnyít egy kicsit a mindennapokon, viszont a gyenge gazdasági hírek és a kiszivárgott megszorításos pletykák miatt óvatosan költök, mert tartok tőle, hogy idén mégiscsak kevesebb marad a végére."
+    },
+    {
+      "i": 30,
+      "response": "A bérmegállapodás miatt jövőre talán egy kicsit több marad a zsebemben, de a lakásárak elszállása és a gyenge gazdasági növekedés miatt inkább óvatosan költök, mert nem érzem stabilnak a helyzetet."
+    },
+    {
+      "i": 31,
+      "response": "Budapesten középfokú végzettséggel és családdal azt látom, hogy a rezsiemelés meg a 15-19 százalékos lakásár-drágulás rendesen benyomja a költségeimet, miközben a gyenge GDP meg a kiszivárgott megszorításos hírek miatt nem érzem biztosnak a jövő évi pénztárcámat. A forint erősödése meg a nyugdíjas rokonok pluszpénze jó, de nekem megmaradt munkavállaló"
+    },
+    {
+      "i": 32,
+      "response": "Nekem nyugdíjasnak a 14. havi nyugdíj jövő évi negyedrésze meg a lassult infláció kis levegőt ad, de a gyenge GDP és a lakásárak száguldása miatt azt érzem, hogy a mindennapi kiadásainkat alig fogjuk tudni kényelmesen kijönni, spórolni továbbra sem nagyon tudok."
+    },
+    {
+      "i": 33,
+      "response": "Örülök, hogy megjön a 13. meg a 14. havi nyugdíj, de az áram és a gáz drágulása, meg a kormányzati megszorításokról szóló hírek miatt tartok tőle, hogy a nyugdíjamból jövőre is alig fogok kijönni, ha nem vigyázok nagyon a fűtésre."
+    },
+    {
+      "i": 34,
+      "response": "Nekem kisvárosi középfokúként a családi adókedvezmény emelése és az árrésstop jól jön, de az áram és gáz drágulása, meg a bizonytalan gazdasági hírek miatt inkább szűkösen, óvatosan gazdálkodva látom a következő évet."
+    },
+    {
+      "i": 35,
+      "response": "Nekem középfokú végzettséggel, gyerek nélkül egy nagyvárosban azt jelenti ez a helyzet, hogy az infláció lassulása és az árrésstop jól jön a bevásárlásnál, de a 6,5 százalékos alapkamat miatt a hitelfelvétel vagy a megtakarítás sem igazán könnyű, szóval óvatosan költekezünk, és nem számítok nagy anyagi előrelépésre egy év alatt."
+    },
+    {
+      "i": 36,
+      "response": "A 13. és 14. havi nyugdíjjal meg a meghosszabbított árrésstoppal most kicsit könnyebb lesz kijönni a fixből, de a gyenge GDP-hírek és a magas alapkamat miatt nem érzem biztosnak, hogy év végéig nem drágul meg megint valami váratlant."
+    },
+    {
+      "i": 37,
+      "response": "Nyugdíjasként a 13. és a 14. havi részlet, meg a rezsitámogatás tartása jól jön, de az infláció és a lakossági fogyasztás gyengesége miatt óvatosan költök, mert ha túlhasználom az áramot vagy gázt, jövőre keményen belém fog marni a drágulás."
+    },
+    {
+      "i": 38,
+      "response": "Nyugdíjasként örülök a 13. és 14. havi pénznek, de az áram és gáz árának ugrása miatt, ha csak egy kicsit is túlfogyasztok, a rezsiszámlák felemészthetik a pluszt, úgyhogy spórolós, bizonytalan évnek nézek elébe."
+    },
+    {
+      "i": 39,
+      "response": "Nyugdíjas budapestiként a 13. és 14. havi pénz nekem is jól jön, de hogy a gáz a támogatáson felül hétszeresére drágul, az megijeszt, mert a rezsiből az úgyis sokat visz el télen, és az árrésstop ellenére is érzem, hogy drágábban vásárolok. Összességében úgy látom, a megélhetésünk épp hogy kijön, de egy nagyobb kiadás vagy hidegebb tél rögtön boríthat"
+    },
+    {
+      "i": 40,
+      "response": "A bérmegállapodás és az árrésstop miatt a bevásárlásaink valamivel olcsóbbak lettek, de a gyenge GDP és a gázáram-túlfogyasztás drágulása miatt óvatosabbul költök, mert nem érzem biztosnak a jövő évi pénztárcánkat."
+    },
+    {
+      "i": 41,
+      "response": "A nyugdíjam januártól csak 3,6 százalékkal emelkedik, miközben az áram és gáz a támogatáson felül szinte behajthatatlanul drágul, úgyhogy spórolnom kell, ha nem akarom, hogy a rezsi felfalja a 13. és 14. havi pénzt is. A gyenge gazdasági hírek meg a bizonytalan árak miatt inkább a biztosra megyek, és nem költök feleslegesen semmire ebben az évben."
+    },
+    {
+      "i": 42,
+      "response": "A minimálbér-emelés és a nagyobb családi adókedvezmény kicsit könnyít a mi kasszánkon, de az Otthon Start miatt elszállt lakásárak és a lassú gazdaság miatt nem érzem, hogy ténylegesen jobban élnénk egy év múlva, csak kevésbé csúszunk lefelé."
+    },
+    {
+      "i": 43,
+      "response": "A nyugdíjam 3,6 százalékkal emelkedik, és februárban megjön a 13. meg a 14. havi első része is, úgyhogy rövid távon könnyebb lesz kijönni a fizetésből, de az árrésstop ellenére is érzem, hogy a boltban drágább minden, és a gyenge gazdaság miatt nem vagyok nyugodt, hogy ez így is marad."
+    },
+    {
+      "i": 44,
+      "response": "Budapesti diplomásként a forint erősödése és az árrésstop jót tett a pénztárcámnak, de a lakásárak 19 százalékos drágulása miatt költözni vagy nagyobbat lépni esélytelen, és a gyenge GDP meg a kiszivárgott megszorítási hírek miatt óvatosabban költök majd, mint tavaly."
+    },
+    {
+      "i": 45,
+      "response": "Alapfokú végzettséggel Budapesten nehéz lesz előrébb lépni, mert a gyenge GDP miatt alig lesznek új melók és a 6,5%-os kamat miatt a hitel is drága marad, szóval csak azt látom, hogy a megélhetésünk épp hogy kijön, de nem lesz több pénz a zsebünkben. Jó, hogy lassult az infláció és olcsóbb lett az üzemanyag, de az, hogy a nyugdíjasoknak jár a 14. havi, nekünk fi"
+    },
+    {
+      "i": 46,
+      "response": "Nyugdíjas háztartásként a februári 13. és 14. havi nyugdíj plusz az árrésstop miatti árcsökkenés most kifejezetten jól jön, de a gyenge GDP és a magas, 6,5 százalékos alapkamat miatt nem várok érdemi javulást, legfeljebb a megszorítások enyhülését."
+    },
+    {
+      "i": 47,
+      "response": "Falun élve és diplomásként azért megvagyok, de a gáz hétszeres drágulása a támogatott keret felett télvíz idején keményen bele tudná rúgni a pénztárcánkba, úgyhogy óvatosan számolok, és a családi adókedvezmény emelésében bízom, mert a gyenge gazdasági hírek mellett máshonnan nem várok sok többletet."
+    },
+    {
+      "i": 48,
+      "response": "Nekem középfokú végzettséggel, gyerekek nélkül nem jár a januári szja-mentesség, de az árrésstop miatt a boltban végre kevesebbet hagyok a pénztárcámban, és a forint erősödése is segít, úgyhogy óvatosan bizakodó vagyok, bár a gyenge GDP miatt azt érzem, nem lesz nagy ugrás, csak talán nem szorulunk annyira, mint idén."
+    },
+    {
+      "i": 49,
+      "response": "A kisvárosi középkorúként a bérem vagy nyugdíjam kis emelése és az árrésstop miatt a bevásárlás olcsóbb lett, de a gyenge gazdasági hírek miatt óvatosan költök, mert tartok a jövő évi drágulástól és a bizonytalanságtól."
+    },
+    {
+      "i": 50,
+      "response": "Nyugdíjként a 3,6 százalékos emelés és a 13–14. havi támogatás jól jön, de a falusi ház fűtésekor a gáz árának hétszeresére ugrása igazi veszély, így az idén inkább takarékoskodással és a rezsifigyeléssel lesz biztonságos az anyagi helyzetünk."
+    },
+    {
+      "i": 51,
+      "response": "A bérmegállapodás és a családi adókedvezmény javítana a pénztárcánkon, de a lakásárak 15 százalékos ugrása és a gyenge gazdasági kilátások miatt óvatosan tervezek, mert az alapvető kiadásaink így is simán elszaladhatnak."
+    },
+    {
+      "i": 52,
+      "response": "Nekünk középfokú végzettséggel, kisvárosban élőknek a béremelés és az árrésstop jól jön, de a lakásárak elszállása miatt az Otthon Start sem segít álmainkon, és ha túlhasználjuk az áramot, jövőre kellemetlenül nagyot üt a számla. Összességében tartjuk a szintet, de nagyobb lendületet vagy megtakarítást én nem látok a következő évben."
+    },
+    {
+      "i": 53,
+      "response": "Az árrésstop jó, hogy egy kicsit olcsóbb lett a kaja a boltban, de ha a gáz és az áram aztán tél végén ráugrik a támogatás felett, nekünk falun az húzós lesz, meg a hírekben szódtak a megszorításokról is, úgyhogy jövőre inkább takarékosabban élünk, mintsem bővülne a pénztárcánk."
+    },
+    {
+      "i": 54,
+      "response": "Budapesti alapfokú végzettségűként nekem a lassult infláció, az árrésstop és a nem emelkedő rezsi-támogatás ad egy kis fellélegzést, de a gyenge GDP meg a túlhasználat után szökő gáz- és áramár miatt csak arra számítok, hogy épp nem szegényedünk el jobban, mint idén."
+    },
+    {
+      "i": 55,
+      "response": "Falun élő diplomásként a bérem nem feltétlenül követi a minimálbér-emelést, az árrésstop ellenére is érzem, hogy az alapélelmiszerek és a fűtés télen átviszi a keretet, ráadásul a gyenge GDP és a kormányzati megszorításos hírek miatt óvatosabban költök, mint egy éve. A nyugdíjas szüleimnek jó a 13–14. havi pótlék, de nekem a következő évben inkább stagnáló, kicsit"
+    },
+    {
+      "i": 56,
+      "response": "Nekem középfokú végzettséggel, bérlakásban Budapesten az a legnyugtatóbb, hogy az infláció lassult és a forint stabil maradt, de a gyenge GDP miatt nem várok fizuemelést, és a hitel vagy saját lakás csak az Otthon Starttal látszik elérhetőnek, ha párok leszünk. Alapvetően kijövök a béremből, de nagyobb ugrásra vagy megtakarításra a következő évben nem számítok."
+    },
+    {
+      "i": 57,
+      "response": "A stabilizálódott forint és a lassult infláció mellett a rezsitúllépés drágulása és a magas alapkamat miatt óvatosan költök, de a családi adókedvezmény emelése kicsit könnyít a jövő évi terveimen."
+    },
+    {
+      "i": 58,
+      "response": "A nyugdíjamra jövőre rájön a 14. havi negyede, és a forint is erősödött, szóval kicsit nyugodtabban nézek a jövő évnek, de a lakásárak meg az áram meg gáz drágulása miatt azért nem dőzsölhetünk, ha többet fűtünk vagy fogy a villany."
+    },
+    {
+      "i": 59,
+      "response": "A nyugdíjemelés, a 13. és a 14. havi első részlete meg a bővített árrésstop jól jön, de a gáz és áram drágulása miatt, ha keményebb lesz a tél vagy sokat fűtök, simán elviheti a többletet a rezsi; összességében kb. ugyanott tartok, mint eddig, csak jobban kell figyelni a költésre."
+    },
+    {
+      "i": 60,
+      "response": "Falun felsőfokúként stabil a bevételem, de a lakásárak elszállása és a támogatáson felüli gázár hétszeresének réme miatt óvatosabb leszek a költéssel, és a gyenge GDP meg a kormányzati megszorítások hírei inkább bizonytalanságot adnak, mint fellendülést. A fix 3%-os hitel és a nyugdíjemelés jó, de a saját pénztárcámban inkább az árrésstop ideiglenes nyomása és"
+    },
+    {
+      "i": 61,
+      "response": "A nyugdíjam most jobban megmarad a 13. és a 14. havi részlet miatt, meg a forint is erősebb, de az árrésstop ellenére is drágábbak a boltok és a lakásárak szaladtak, úgyhogy óvatosan költök, mert a kormányzati megszorításos hírek nem nyugtatnak meg. Alapvetően kijövök a pénzemből, de tartalékot nem nagyon tudok képezni, ha az infláció nem áll le rendesen."
+    },
+    {
+      "i": 62,
+      "response": "Az árrésstop meg a lassult infláció kicsit könnyített a bevásárláson, de a lakásárak meg a bizonytalan gazdasági hírek miatt nem merek túl sok jóra számítani, így igyekezünk takarékoskodni, nehogy szűküljön a hónap vége."
+    },
+    {
+      "i": 63,
+      "response": "A bérem nem emelkedik a minimálbérhez hasonlóan, a 6,5 százalékos alapkammal meg marha drága a hitel, úgyhogy az árrésstop ellenére is inkább szorosabbra húzom a nadrágszíjat, mintsem hogy nagyobb kiadásba vágjak bele jövőre."
+    },
+    {
+      "i": 64,
+      "response": "A nyugdíjam a 3,6 százalékos emeléssel és a februári 13–14. havi pénzekkel egyelőre megkönnyebbülést hoz, de a gáz és áram árának drasztikus emelkedése miatt a téli fűtésszámlákkal jövőre simán el fogunk szaladni, úgyhogy spórolnom kell, mint a tatár."
+    },
+    {
+      "i": 65,
+      "response": "Nekem kisvárosi alapfokú emberként az jön be, hogy az árrésstop meg a családi adókedvezmény kicsit könnyít a mindennapokon, de a gyenge gazdasági hírek miatt tartok tőle, hogy a jövőre is alig lesz több pénz a zsebemben, csak drágább nem lesz annyira."
+    },
+    {
+      "i": 66,
+      "response": "A kétgyerekes családi adókedvezmény és a minimálbér-emelés kicsit könnyít a költségvetésünkön, de a lakásárak elszállása és a bizonytalan gazdasági hírek miatt nem érzem biztosnak, hogy év végére is előrébb leszünk."
+    },
+    {
+      "i": 67,
+      "response": "A nyugdíjam most jövőre meglesz a 13. havi és a 14. részlete is, meg az infláció is lejjebb ment, úgyhogy egyelőre nyugodtabb vagyok, de a gazdaság gyenge hírei meg a kormányzati megszorításos pletykák miatt azért nem merek nagyobb kiadásokba fogni."
+    },
+    {
+      "i": 68,
+      "response": "Nekem alapfokú végzettséggel és ennyi bizonytalan gazdasági hír mellett legfeljebb a minimálbér-emelés jelent kis levegőt, de az árrésstop meg a lassuló infláció eddig alig látszik a boltban, szóval inkább csak túlélősre veszem a következő évet. Az Otthon Startot nézegetem, de 50 millióból ebben a nagyvárosban albérletnél többre úgysem futja nekem."
+    },
+    {
+      "i": 69,
+      "response": "Nekem alapfokú végzettséggel, falun élve a minimálbér-emelés meg az árrésstop jól jön, de a gáz árának hétszeresére ugrása télen rendesen megüti a pénztárcánkat, úgyhogy csak úgy jövünk ki a következő egy évben, ha nagyon figyelünk a fűtésre. A lakásárak meg a hitel hírek minket nem érintenek, mert nincs pénzünk új házra, maradunk a régi tanyán."
+    },
+    {
+      "i": 70,
+      "response": "A minimálbér-emelés és a családi adókedvezmény jövőre kicsit több pénzt hagy a zsebemben, de falun élőként félek, hogy az áram- és gázárak kiugrása meg az infláció simán elviszi ezt a különbséget, ha nem vigyázok a fogyasztással. Összességében stagnálásra számítok, legfeljebb hajszálnyi javulásra, de biztosan nem érezni majd könnyűnek a megélhetést."
+    },
+    {
+      "i": 71,
+      "response": "Nekem alapfokú végzettséggel, nagyvárosban élőként a 11 százalékos minimálbér-emelés jól jön, de azt látom a hírekből, hogy az ország gazdasága alig mozdul és az árak még mindig nem álltak teljesen helyre, úgyhogy óvatosan költök, mert nem érzem biztosnak a jövő évi pénztárcámat."
+    },
+    {
+      "i": 72,
+      "response": "A bérem talán picit emelkedik a megállapodás miatt, és jó, hogy olcsóbb lett a kaja az árrésstoppal, de a tél és a dráguló lakásárak miatt így sem látok sok jóit a faluban, mert albérletről vagy saját házról szó sem lehet ezekkel az árakkal."
+    },
+    {
+      "i": 73,
+      "response": "A bérem szerencsére a minimálbér-emeléssel és az árrésstoppal együtt kicsit többet ér majd, de az áram- és gázárak kiugrása miatt főleg télen fogunk szorítani a fogunkon, úgyhogy óvatosan költök, amíg nem látom, ez a politikai adóemelés-balhé belecsap-e a valós pénztárcánkba is."
+    },
+    {
+      "i": 74,
+      "response": "Nekem középfokú végzettséggel kisvárosban alig van rendes munkám, az infláció meg a lakásárak elszálltak, úgyhogy a következő évben legfeljebb a napi megélhetésre gyűrök, saját lakásról vagy nagyobb spórolásról szó sem lehet. A politikai ígérgetések meg a megszorításos hírek csak bizonytalanabbá teszik, hogy egyáltalán mi vár ránk."
+    },
+    {
+      "i": 75,
+      "response": "Nekem középfokú végzettséggel, gyerek nélkül nem jár az szja-mentesség, az áram- és gázártámogatás szigorítása meg pont akkor fogja fájni a pénztárcámat, ha a hideg miatt többet fűtök, úgyhogy az elkövetkező évben inkább szorosabbra kell húznom a nadrágszíjat, mert a gazdasági hírek nem sok jót ígérnek."
+    },
+    {
+      "i": 76,
+      "response": "A bérem nem nő nagyot, de a 13. havi és a jövő évi részleges 14. havi nyugdíj a szüleimnek kicsit könnyít a családi kiadásokon, viszont az árrésstop ellenére is tartok tőle, hogy a megszorításos hírek és a lakásárak elszállása miatt szűkebb lesz a mi költségvetésünk. A fagyok miatt a fűtésszámla is benyelte a maradék tartalékot, úgyhogy jö"
+    },
+    {
+      "i": 77,
+      "response": "A faluban élő középfokú végzettségű családanyaként az árrésstopnak örülök, mert a bevásárlás olcsóbb lett, de a lakásárak 15 százalékos ugrása miatt az Otthon Start hitellel sem látok reális esélyt közelebb kerülni egy saját házhoz, és a gyenge GDP meg a magas 6,5 százalékos alapkamat miatt jövőre is inkább a napi megélhetésért fogok küzdeni, mintsem hogy előre t"
+    },
+    {
+      "i": 78,
+      "response": "Nekem nyugdíjasnak az jön be, hogy megint kapok 13. és egy kis 14. havit, meg az árrésstop miatt a boltban is kevesebbet kell fizetnem, szóval a következő évben biztosan könnyebb lesz kijönni a pénzből, mint tavaly. A gyenge GDP meg a bizonytalan hírek kicsit nyugtalanítanak, de egyelőre a saját pénztárcámban érzem a kormány segítségét."
+    },
+    {
+      "i": 79,
+      "response": "A nyugdíjemelés és a 14. havi nyugdíj elindulása jól jön, de az infláció lassulása ellenére is aggaszt, hogy az áram és gáz a támogatáson felül az egekbe szökik, meg a híresztelt megszorítások is bizonytalanná teszik a jövő évi költekezést. Összességében takarékosabban kell majd élnem, de a biztosnak tűnő nyugdíjemeléssel és a fűtés okos csö"
+    },
+    {
+      "i": 80,
+      "response": "A nyugdíjam mellé megjött a 13. meg a 14. havi első része, és az árrésstop miatt a boltban is kevesebbet kértek a kenyérért meg a cukrért, úgyhogy a fagyos tél ellenére is kijövök a pénzből, de a gyenge gazdasági híreken meg a drága tűzifán még mindig izgulok, nehogy nyáron is csak a drágulás maradjon."
+    },
+    {
+      "i": 81,
+      "response": "Lakásárat nézve elment mellettem az Otthon Start lehetősége, mert csak felmentek az árak, és ha jövőre túllépjük a támogatott rezsikitet, az áram és gáz ára tökön szúrja a büdzsénket, úgyhogy azt érzem, hogy hiába lassult az infláció, a mi megélhetésünk nem lesz könnyebb, inkább szorosabbra kell húzni a nadrágszíjat."
+    },
+    {
+      "i": 82,
+      "response": "Nyugdíjas korúként jól jött, hogy jövőre megkapom a 13. és a 14. havi nyugdíj részletét, meg a rezsitámogatás is marad, de félek, mert ha többet fűtök vagy főzök a megengedettnél, az áram és gáz ára az egekbe szökik, és a hírekben emlegetett adóemelésről meg megszorításról is rosszat sejtek."
+    },
+    {
+      "i": 83,
+      "response": "A boltban azért érzem, hogy a kormányzati árstopok miatt pár dolog olcsóbb lett, és a gyerek után januártól több adókedvezmény jár, de a hírekben látott gyenge GDP meg a lefelé módosított kilátások miatt nem merek nagyobb kiadásokba vágni, inkább takarékoskodom, mert azt sem tudom, meddig marad ez a relatív nyugalom a pénztárcámban."
+    },
+    {
+      "i": 84,
+      "response": "Nekem még nem jár nyugdíj, de az árrésstop meg a forint stabilizálódása talán tartja valamennyire a boltban a létfenntartás árát, viszont a híresztelt megszorítások és adóemelések miatt félek, hogy a jövő évben kevesebb marad a kezünkben, ha tényleg ráterhelik a kisembereket."
+    },
+    {
+      "i": 85,
+      "response": "A 13. és a 14. havi nyugdíj részlete, meg az árrésstop miatti árcsökkenés most könnyít egy kicsit a falusi költségvetésünkön, de a gyenge gazdaság és a kormányzati megszorításokról szóló hírek miatt óvatos maradok, nem érzem biztosnak a jövő évi pénzügyi nyugalmunkat."
+    },
+    {
+      "i": 86,
+      "response": "Nekünk középfokú végzettséggel, városban élőként a béremmel talán kijövünk a megemelt családi kedvezménnyel és az árrésstoppal, de a 6,5%-os alapkamat miatt a hitelünk költségei nem könnyülnek, és a gyenge GDP meg a kiszivárgott megszorításos hírek eléggé bizonytalanná teszik a jövőt."
+    },
+    {
+      "i": 87,
+      "response": "A bérem a minimálbér-emeléssel és a családi adókedvezménnyel kicsit több lesz, de a lakásárak száguldása és a gázárak drasztikus emelkedése miatt nem érzem, hogy valójában előrébb lennénk, inkább csak a helyünkön maradunk. A fix 3%-os hitel jó lehetőség, de ennyi megtakarítással albérletben élve lakást venni még így is álom marad."
+    },
+    {
+      "i": 88,
+      "response": "Nekem középfokú végzettséggel falun nem sokat jelent a nyugdíjasok 14. havi pénze vagy a kétgyerekes anyák adómentessége, az meg kifejezetten rossz, hogy ha túlhasználjuk az áramot vagy gázt, az az őrületbe kerül – a 3%-os hitel jó lenne, de 50 millióért nálunk semmit sem lehet kezdeni, szóval jövőre is csak a napi megélhetésért és az árrésstopos élelmis"
+    },
+    {
+      "i": 89,
+      "response": "Nekem alapfokú végzettséggel Budapesten nem igazán jön plusz pénz a családi adókedvezményből vagy a nyugdíj-kiegészítésekből, viszont az árrésstop és a nyomott infláció miatt a boltban egyelőre nem szívok annyira, csak azt remélem, hogy nem jön be semmilyen rejtett adóemelés vagy a gázáram drágulása, mert abból én járnék a legrosszabbul."
+    },
+    {
+      "i": 90,
+      "response": "Nyugdíjasként a 13. és 14. havi juttatásokkal és a stabil áram-gáz támogatással egyelőre kiszámítható a megélhetésünk, de a gyenge GDP és a túlhasználás utáni durva áremelkedés miatt azt érzem, hogy a takarékoskodás továbbra is kényszer, nem választás lesz."
+    },
+    {
+      "i": 91,
+      "response": "Nekem nincs nyugdíjam, úgyhogy a 13-14. havi meg a lakásdrágulás nem segít, viszont az árrésstop és a benzin olcsóbbodása miatt a napi bevásárlás és a városban autózás kevésbé fáj, szóval valahogy kijövök, de nagyobb tartalékra nem számítok. A gyenge GDP meg a lakásárak szaladása miatt nem érzem, hogy jobban laknék vagy gazdagodnék egy év múlva."
+    },
+    {
+      "i": 92,
+      "response": "A fix 3 százalékos Otthon Starttal talán végre tudunk nézni egy nagyobb lakást, de a lakásárak 15-19 százalékos ugrása és az alapkamat változatlansága miatt a megtakarításaink ereje gyenge marad, és a gyenge gazdasági kilátások sem nyugtatnak meg a jövő évi pénztárcánkat illetően."
+    },
+    {
+      "i": 93,
+      "response": "A bérem a minimálbér-emeléssel és a családi adókedvezménnyel kicsit több lesz, de az áram és gáz ára a támogatáson felül agyoncsapna minket, ha nem vigyázunk a fogyasztással, úgyhogy jövőre is szorosan kell gazdálkodnom a kisvárosi fizetésből."
+    },
+    {
+      "i": 94,
+      "response": "A nyugdíjemelés meg a bérmegállapodás jól jön, de ha túl sokat fűtünk, a gáz ára miatt simán elviszi a megtakarítást, úgyhogy óvatosan kell gazdálkodnom jövőre. Alapfokú végzettséggel és kisvárosban azt érzem, a drágaság még így is szorít, nem lesz túl sok a pénz a zsebemben."
+    },
+    {
+      "i": 95,
+      "response": "A nyugdíjas szüleimnek jól jön a 13. és 14. havi pénz meg a januári emelés, nekem meg a faluban az árrésstop könnyít egy kicsit a bevásárláson, de az Otthon Start miatti lakásár-emelkedés engem már nem érint, úgyhogy alapvetően stabilnak érzem a helyzetünket, csak a téli számlákkal kell majd spórolni."
+    },
+    {
+      "i": 96,
+      "response": "Nekünk jól jön a januártól emelt családi adókedvezmény és az Olthon Start olcsó hitel, de az alacsony növekedés, a magas 6,5%-os alapkamat és a vártnál makacsabb infláció miatt óvatosan költünk, mert nem érzem stabilnak a jövő évi anyagi helyzetünket."
+    },
+    {
+      "i": 97,
+      "response": "Lakásdrágulás és a gáz árának hétszeresére ugrása miatt tartok tőle, hogy a rezsiköltségek és a megélhetés egyre jobban megy a zsebembe, miközben a bérem nem biztos, hogy tartani tudja a lépést az árakkal. A forint erősödése meg a decemberi alacsonyabb infláció kicsit megnyugtat, de a gyenge GDP és a bizonytalan hírek miatt óvatosan költök majd idén."
+    },
+    {
+      "i": 98,
+      "response": "Nyugdíjasént úgy látom, a lassuló gazdaság és a még mindig magasabb infláció miatt a boltban érzett árváltozások ellenére is szűkebb lesz a hónap vége, de a beígért 14. havi nyugdíj elkezdése és a stabil forint ad egy kis reményt, hogy nem kell nagyobb lemondásokat tennünk."
+    },
+    {
+      "i": 99,
+      "response": "A minimálbér-emelés jól jönne, ha találok községben rendes munkát, de a lakásárak száguldása és a gyenge GDP miatt inkább úgy érzem, csak sodródunk, és a fűtésre vagy bevásárlásra is kevesebb marad, ha nem lesz jobb állásom. A forint erősödése meg a kamatok tartása engem nem vigasztal, amíg itt falun alig van stabil kereset."
+    },
+    {
+      "i": 100,
+      "response": "A nyugdíjamra jön a 13. és a 14. havi első része, az jól jön, de tartok tőle, hogy az árak megint csak felmennek, és a rezsi is drágább lesz, ha többet fűtök, úgyhogy alig lesz több pénzem a hónap végén."
+    },
+    {
+      "i": 101,
+      "response": "Nyugdíjként a 3,6 százalékos emelés és a beígért 14. havi részlet nem sokat segít, ha az élelmiszer-árrésstop ellenére is szaladnak az árak, és a gáz ára a támogatás felett az egekbe szökik, úgyhogy jövőre is szorosan kell majd fognom a gyeplőt, ha nem akarok a megtakarításaimhoz nyúlni."
+    },
+    {
+      "i": 102,
+      "response": "A 3,6 százalékos nyugdíjemelés és a februári 13. plusz 14. havi részlet egyelőre fellélegzést ad, de mivel az áram és gáz a támogatás felett drasztikusan drágul, tartok tőle, hogy a téli számlák hamar elviszik a pluszt, így az év többi részében szűkösebben fogok gazdálkodni."
+    },
+    {
+      "i": 103,
+      "response": "A nyugdíjam januártól kicsit emelkedik és megjön a 13. meg a 14. havi részlet is, de a téli számlák és a drága élelmiszerek miatt azért szűken, takarékoskodva kell majd kijönnöm egész évben."
+    },
+    {
+      "i": 104,
+      "response": "A bérmegállapodás és a családi adókedvezmény miatt a nettómból több marad, de az áram- és gázárak drasztikus emelkedése a támogatott keret felett, meg a boltokban érzékelhető árváltozások miatt összességében alig leszünk előrébb, ha nem figyelünk nagyon a fogyasztásra. A gyenge GDP meg a kiszivárgott megszorításos hírek sem nyugtatnak meg, így óvatosan költök majd"
+    },
+    {
+      "i": 105,
+      "response": "A gyenge GDP és a magas kamat miatt nem várok nagy előrelépést, de az árrésstop és a nyugdíjemelések, meg a 13. havi pénz kicsit könnyítenek a családi költségvetésen, szóval valahogy kijövünk, de szoros lesz."
+    },
+    {
+      "i": 106,
+      "response": "Nálunk két gyerek mellett jól jön az emelt adókedvezmény és a béremelés, de tartok tőle, hogy ha átmegyünk a gázár-támogatás feletti keretünkön, a hétszeres ár tönkreteheti a költségvetést, úgyhogy spórolós télre számítok. A forint erősödése és az árrésstop meg kicsit nyugtat, de a gyenge gazdasági hírek miatt nem merek bővítgetni."
+    },
+    {
+      "i": 107,
+      "response": "Nekem, mint fiatal középfokú végzettségűnek a 3%-os Otthon Start jól jönne, ha lakáson gondolkoznék, de az infláció és a gyenge GDP miatt inkább úgy érzem, alig lesz több pénzünk a pénztárcában, és az áram/gáz drágulása meg az árrésstop lejárta után még szűkebbre kell húzni a nadrágszíjat."
+    },
+    {
+      "i": 108,
+      "response": "Nekem nyugdíjasnak az jó hír, hogy jön a 14. havi nyugdíj részlete és az áruházi árrésstop miatt talán kevesebbet kell fizetnem a boltban, de az infláció még mindig magasabb a tervezettnél, meg a lakásárak az egekben, úgyhogy óvatosan költök, mert nem tudom, meddig tart ki a pénzem ha beteg leszek vagy drágább lesz a tél."
+    },
+    {
+      "i": 109,
+      "response": "Nyugdíjas háztartásként a 3,6 százalékos emelés és a februári 13.–14. havi pénz kellemesen segít, de mivel az áram- és gázárak a keret felett az egekbe szöknek, ha csak egy kicsit is többet fűtök vagy főzök, máris elviszi a megtakarítást a rezsi; az árrésstop meg a forinterősödés azért ad némi nyugalmat a bevásárlásnál. Összességében stabilnak érzem a hely"
+    },
+    {
+      "i": 110,
+      "response": "A bérem talán egy kicsit emelkedik a megállapodás miatt, és jól jön a családi adókedvezmény is, de az áram és gáz drágulása meg a bizonytalan gazdaság miatt azt érzem, alig fogok előrébb lenni, és jobban kell majd figyelni minden forintra."
+    },
+    {
+      "i": 111,
+      "response": "A mi falusi háztartásunknak az árrésstop és a három százalékos Otthon Start hitel jól jönne, ha költözni vagy felújítani akarnánk, de a gáz árának hétszeres drágulása miatt a fagyos télen jobban oda kell figyelni a fűtésre, meg a kormányzati megszorításos hírek sem nyugtatnak meg teljesen. Összességében stabilnak érzem a helyzetünket, de nem árt a takarékosság, mert bármik"
+    },
+    {
+      "i": 112,
+      "response": "A fizetésem a bérmegállapodás és a családi kedvezmény miatt talán kicsit több lesz, de az energiaárak brutális drágulása és a gyenge gazdasági hírek miatt óvatosabban költök, és igyekszem kihasználni az árrésstopos termékeket meg az Otthon Startot, ha lakáson gondolkodom. Alapvetően kiegyensúlyozottnak látom a helyzetünket, de a tartalékainkat inkább nem nyúlom meg, mert bizonytalan, mi jön a"
+    },
+    {
+      "i": 113,
+      "response": "Budapesti diplomásként a gyenge gazdasági kilátások és a kiszivárgott megszorítások híre miatt óvatosabbá váltam, de az árrésstop és a lassuló infláció most kicsit könnyít a mindennapi bevásárlásokon, így a következő egy évben inkább stagnáló, mint romló anyagi helyzetre számítok."
+    },
+    {
+      "i": 114,
+      "response": "Nekem alapfokú végzettséggel, városban élőként a boltban az árrésstop meg a csökkent üzemanyagár kicsit könnyít a mindennapokon, de nyugdíjemelés meg 14. havi csak a szüleimet érinti, úgyhogy én inkább azon szorongok, hogy a fizum nem nagyon mozdul, és ha jönnek az extra rezsik a fagyok miatt, az viszi el a spórolt kevés pénzt."
+    },
+    {
+      "i": 115,
+      "response": "A bérmegállapodás és az árrésstop miatt egyelőre könnyebb megjönni a végére, de a gyenge GDP és a politikai adóemelési hírek miatt bizonytalan, hogy egy év múlva is ennyire kiszámítható lesz-e a pénztárcánk."
+    },
+    {
+      "i": 116,
+      "response": "A minimálbér-emelés és az üzemanyagárak csökkenése nekünk is könnyít valamit a falusi költségvetésen, de az árrésstop ellenére is tartok tőle, hogy a lakásárak és a gáz ára a támogatáson túl ránk szabadul, ha többet fűtünk, szóval csak óvatosan költekezünk jövőre."
+    },
+    {
+      "i": 117,
+      "response": "A minimálbér-emelés és az alacsony infláció jól jön, de a gáz megdrágulása meg a 1300 milliárdos megszorításról szóló hírek miatt óvatos vagyok, nem érzem biztosnak, hogy kijövünk majd egy fillérre pontosan a fizetésből. A 3 százalékos Otthon Start meg a 13-14. havi nyugdíj részlet jó, de nekünk most inkább a napi rezsi és bolti árak nyomják a pénztárcát."
+    },
+    {
+      "i": 118,
+      "response": "Budapesti középfokú végzettségűként úgy látom, a lassú gazdaság és a lakásárak 19 százalékos emelkedése mellett az áram- és gáztámogatás megmaradása megkönnyíti a téli számlákat, de az Otthon Start miatti drágulás miatt lakásvásárlásra nem igazán van esélyünk, így a pénztárcánk inkább csak a driftelő infláció és az árrésstop miatt marad valamennyire egyben, nagy javulást"
+    },
+    {
+      "i": 119,
+      "response": "Budapesti középfokú végzettségűként az árrésstop és a lassult infláció miatt a bevásárlásoknál kicsit könnyebb most a helyzet, de az Otthon Start hitel nélkül és a kiszivárgott megszorításos hírek miatt bizonytalan, hogy egy év múlva nem jönnek-e ránk plusz terhek. Összességében tartom a szintet, de nem érzem azt, hogy sokkal jobban állnánk majd, mint most."
+    },
+    {
+      "i": 120,
+      "response": "A nyugdíjam ugyan csak kicsit emelkedik, de az árrésstop és a megmaradt rezsitámogatás miatt egyelőre kijövök a pénzemből, csak azt kell vigyáznom, hogy ne fogyasszak túl sok áramot vagy gázt, mert afelett az már nagyon drága lenne. Összességében nem leszünk gazdagabbak, de stabilan meglesz a mindennapi betevőnk, ha takarékoskodunk."
+    },
+    {
+      "i": 121,
+      "response": "Budapesten a lakásárak elszálltak és az energia túlfogyasztásaért az egekbe szökik majd a számla, úgyhogy hiába lett valamivel kisebb az infláció meg emelkedett a minimálbér környezete, én a középfokú végzettségemmel inkább szűkebben fogok gazdálkodni, mintsem hogy fellélegeznék. A 14. havi nyugdíj még csak a nyugdíjasokat segíti, nekem meg a mostani bizonytalan GDP és"
+    },
+    {
+      "i": 122,
+      "response": "A nyugdíjemelés meg a 13. meg a 14. havi részlet jól jön, de a rezsi drágulása feletti mennyiségnél és a boltokban maradt drágulásnál tartok tőle, hogy az összes spórolt pénzünk hamar elolvad, ha nem nagyon figyelünk a fűtésre és a villanyra."
+    },
+    {
+      "i": 123,
+      "response": "A minimálbér-emelés jól jön, mert így talán kijövünk a rezsi és az élelmiszer árából Budapesten, de az infláció és a bizonytalan gazdasági hírek miatt nem merek nagyobb kiadásokra gondolni, csak a napi megélhetésre figyelek."
+    },
+    {
+      "i": 124,
+      "response": "Felsőfokú végzettséggel és fiatalon egy nagyvárosban alig van esélyem saját lakáshoz a 15-19 százalékos áremelkedés miatt, a gyenge GDP meg a magas alapkamat meg a dráguló rezsitúllépés meg a bérem erősödését is lenyomja, úgyhogy a következő évben inkább a túlélésre és a spórolásra játszom, nem a gyarapodásra."
+    },
+    {
+      "i": 125,
+      "response": "Nekem még tíz-húsz évig kell dolgoznom, úgyhogy a 14. havi nyugdíj engem most nem vigasztal, viszont az árrésstop meg a pár terméknél olcsóbb boltok kicsit könnyítenek a mindennapi kiadásokon, de a lakásárak szaladása és a magas kamatok miatt hitelt felvenni vagy költözni eszembe sincs. Alapvetően stagnáló, óvatos költekezéssel túlélhető évnek látom a következőt, de"
+    },
+    {
+      "i": 126,
+      "response": "A nyugdíj kiegészítések miatt jövőre több pénzünk lesz, és az árrésstop is könnyít a bevásárláson, de az alapkamat magas maradt meg a lakásárak szaladtak el, úgyhogy spórolósan, de biztonságosabban nézünk az elkövetkező évnek."
+    },
+    {
+      "i": 127,
+      "response": "Kisvárosi középfokúként alig van tartalékom, a lakásárak elszálltak és a gáz ára hétköznapi fogyasztás felett rémisztően drágul, szóval egy fagyos tél után inkább szorítom a szám, mintsem hogy jobban látnám a jövő évet. A GDP gyenge és az infláció is marakszik, úgy érzem, csak a túlélésre játszom, nem a gyarapodásra."
+    },
+    {
+      "i": 128,
+      "response": "Nekem már nyugdíjasként jól jön, hogy februárban megjön a 13. havi és a 14. havi első része is, mert a mindennapi szűkösbejövetelnél ez kicsit fellélegzést ad, de az árak és a drágaság miatt azért tartok tőle, hogy egy év múlva is alig lesz több a maradék a hónap végén."
+    },
+    {
+      "i": 129,
+      "response": "Nekem alapfokú végzettséggel és városban élve a minimálbér-emelés jól jön, de a lakásárak 15-19 százalékos szökése miatt albérletre vagy saját lakásra sosem lesz elég, és a gyenge gazdasági hírek meg a kiszivárgott megszorításos pletykák miatt inkább szorítva várom a következő évet."
+    },
+    {
+      "i": 130,
+      "response": "A forint erősödése és az árrésstop megkönnyíti a bevásárlást, de az energiaár-emelés és a gyenge GDP miatt óvatosabb leszek a nagyobb kiadásoknál, így alapvetően kiegyensúlyozottnak, de bizonytalanabbnak látom a jövő évi pénztárcánkat."
+    },
+    {
+      "i": 131,
+      "response": "Nekünk falun középfokú végzettséggel az árrésstop meg a januártól nagyobb családi adókedvezmény könnyít egy kicsit a mindennapokon, de a gyenge GDP és a bizonytalan kilátások miatt nem merek nagyobb költekezésbe vagy hitelfelvételbe belevágni, maradok a takarékoskodós vonalon."
+    },
+    {
+      "i": 132,
+      "response": "Nyugdíjas koromra a 14. havi nyugdíj fokozatos bevezetése és az árrésstop húznak felfelé, de a lassú gazdaság és a még mindig magasabb infláció miatt óvatosan költök, így a falusi életem anyagilag stabil, de szűkös marad."
+    },
+    {
+      "i": 133,
+      "response": "A bérem talán kicsit emelkedik a minimálbér körüli korrekciók miatt, de a gáz ára felettünk lévő fogyasztásnál az egekbe szökhet, úgyhogy igyekszünk majd takarékoskodni, mert a biztosabb megélhetésen kívül nem sok jóra számítok."
+    },
+    {
+      "i": 134,
+      "response": "A 3,6 százalékos nyugdíjemelés és a februári 13–14. havi pénz kicsit könnyít a télen, de az árrésstop ellenére is érzem a boltban, hogy az élelmiszer drágább maradt, mint amennyivel a nyugdíjam nő, úgyhogy falusi nyugdíjasként inkább takarékoskodva, fűtéssel és bevásárlással számolva élünk majd túl ezt az évet."
+    },
+    {
+      "i": 135,
+      "response": "A nyugdíjam nem nőtt érdemben, az árrésstop meg a rezsitámogatás tartja csak a víz felett a háztartást, de a fagyos télen a gáz ára feletti résznél már rettegek, hogy ha sokat fűtök, az egész éves pénzem elmegy; a 14. havi nyugdíj meg még évekig csak ígéret marad nekem."
+    },
+    {
+      "i": 136,
+      "response": "Nyugdíjasért a 13. és 14. havi pénz meg a maradó ártámogatás jól jön, de a gáz árának drágulásától tartok, ha sokat fűtök a hidegben, meg azért az infláció is maradt valamennyire, szóval spórolósabban kell élnem jövőre."
+    },
+    {
+      "i": 137,
+      "response": "Nekem alapfokú végzettséggel falun nagyon kevés a stabil meló, a GDP alig nőtt, és ha a gázt vagy áramot túlhasználjuk, jövőre az ára az egekbe szökik, úgyhogy csak spórolással és szerencsével úszhatom meg, hogy ne csússzunk le anyagilag. A nyugdíjasoknak jár a plusz pénz, de én meg a családom legfeljebb az szja-mentes anyákra számíthatunk, ha lesz két gyerekünk"
+    },
+    {
+      "i": 138,
+      "response": "Budapesti alapfokú végzettségűként az árrésstop miatt a boltban kicsit kevesebbet költök, de az Otthon Start miatt az amúgy is drága lakások még inkább elszálltak, úgyhogy saját lakást nemigen vehetek, és a 6,5 százalékos kamat mellett a megtakarításom sem gyarapszik érezhetően. A nyugdíjemelés és a 13-14. havi támogatás jól jön majd, de a mindennapi megélhetéshez az"
+    },
+    {
+      "i": 139,
+      "response": "Felsőfokú végzettséggel és budapestiként a bérem talán emelkedhet a megállapodások nyomán, de a 19%-os lakásár-robbanás miatt albérletről vagy saját lakásról álmodni is nevetséges, és az áram/gáz ártámogatás feletti drágulás meg az infláció miatt a hónap végére simán kicsúszhat a kezemből a pénz."
+    },
+    {
+      "i": 140,
+      "response": "Nekem nyugdíjas falusi emberként a 14. havi nyugdíj első része meg az árrésstop miatt olcsóbb élelmiszerek jól jönnek, de az áram- és gázár ugrik, ha túlfogyasztok, úgyhogy takarékoskodnom kell a fűtéssel, hogy ne csússzak le anyagilag. Összességében stabilabbnak érzem a helyzetem, mint tavaly, csak a rezsi felett kell jobban vigyáznom."
+    },
+    {
+      "i": 141,
+      "response": "A gáz árának hétszeres drágulása felettünk simán beteríthet, ha keményebb télünk lesz, és a gyenge gazdasági kilátások miatt a fizetésemből alig lesz több, szóval jövőre szorosabbra kell húzni a nadrágszíjat. Az árrésstop meg a nyugdíjas rokonoknak jó, de nekünk megmarad a bizonytalanság, hogy meddig tartják ezt az árakat kordában."
+    },
+    {
+      "i": 142,
+      "response": "Budapesti középfokú végzettségűként nekem még nincs nyugdíjam, de az árrésstop és a forint erősödése miatt a boltban kicsit kevesebből megúszom, viszont az alapkamat és a gyenge gazdasági hírek miatt nem érzem, hogy sokkal több pénz maradna a zsebemben jövőre."
+    },
+    {
+      "i": 143,
+      "response": "Nekem alapfokú végzettséggel, nagyvárosban azért a minimálbér-emelés és az árrésstop kicsit könnyít a mindennapokon, de a gyenge GDP és a bizonytalan hírek miatt nem merek nagyobb kiadásokba vágni, inkább csak arra számítok, hogy nem lesz sokkal rosszabb, de nem is jobb a helyzetünk."
+    },
+    {
+      "i": 144,
+      "response": "A minimálbér-emelés jövőre jól jön, ha találok vagy tartok egy jobb fizetésű melót a faluban, de az infláció még mindig ott lohol mögötte, és a hitellel vagy bármi drágább cuccal így se lesz egyszerű kijönni a pénzből. Alapvetően bizonytalanul nézek a következő évnek neki, mert a gazdasági hírek inkább lehúzósak, és itt vidéken kevés a stabil állás."
+    },
+    {
+      "i": 145,
+      "response": "A falusi életünkön sokat segít, hogy az árrésstop miatt a boltban olcsóbb lett pár alapcikk és megmarad az áram-gáz támogatásunk, de a gyenge GDP és az infláció miatt óvatosabban költünk, mert tartok tőle, hogy a jövőre ígért béremelés nálunk elmarad vagy elviszi az áremelkedés. Összességében kijövünk a rezsiből és a mindennapokból, de nagyobb beruházásra vagy előrelépésre"
+    },
+    {
+      "i": 146,
+      "response": "Nyugdíjas budapestiként a 14. havi nyugdíj részleges jövő évi bevezetésének örülök, de az infláció lassulása ellenére is fáj a budapesti lakásárak 19 százalékos drágulása és a magas 6,5 százalékos kamat, így a mindennapi kiadásokon spórolnom kell, és tartalékból élek majd, ha a rezsi vagy az élelmiszer tovább szalad."
+    },
+    {
+      "i": 147,
+      "response": "Nekem még pár évet kell dolgoznom, de a boltban érzem az árrésstopot meg a gázártámogatást, így a szűkös falusi keretünkön azért nem úgy csúszik el minden, mint régen, csak a lakásárak az eszembe, hogy a gyereknek sosem lesz sajátja. A jövő évre úgy saccolom, ha a forint erős marad és nem drágul meg őrült módon a villany a kedvezmény felett, megéljük valahogy, de nagy lakást ígér"
+    },
+    {
+      "i": 148,
+      "response": "Örülök a 14. havi nyugdíj elkezdésének és hogy a boltban a régi árakhoz képest most olcsóbb lett pár dolog, de azt hallom, lehet adóemelés és kevés a pénz az országban, úgyhogy a télen meg a mindennapokon kívül nemigen merek nagyobb kiadásra számítani."
+    },
+    {
+      "i": 149,
+      "response": "A forint erősödése és az árrésstop miatt talán egy kicsit kevesebbet költök bevásárlásra, de a gyenge GDP és a bizonytalan politikai hírek miatt inkább takarékoskodom, mert nem érzem stabilnak a jövő évi pénzügyeimet. A családi adókedvezmény emelése nekünk két gyerekkel segít, de attól félek, valahol máshol visszaveszik az állam."
+    },
+    {
+      "i": 150,
+      "response": "Nálunk a kisvárosban a fizetés nem nőtt, de a lakásárak és minden más drágul, úgyhogy a gyenge gazdasági hírek miatt inkább szorosabbra kell húzni a nadrágszíjat, mintsem hogy jobbra számítanék egy éven belül. A nyugdíjas rokonoknak jó a 14. havi meg a forinterősödés, de nekünk aktív korban csak a bizonytalanság és a spórolás marad."
+    },
+    {
+      "i": 151,
+      "response": "Budapesti diplomásként a forint erősödése és az árrésstop miatt egyelőre stabilnak érzem a pénztárcánkat, de a rezsi áram- és gázáremelése, meg a 6,5 százalékos alapkamat miatt a tartalékainkat nem merjük mozgósítani, így óvatosan költünk a gyenge GDP mellett is."
+    },
+    {
+      "i": 152,
+      "response": "A nyugdíjemelés meg a meghosszabbított árrésstop kicsit könnyít a mindennapokon, de a gyenge gazdaság és a drágult lakások miatt nem érzem biztonságban magam, így jövőre is szűken, de kijövök a rezsiből és az alapvető élelmiszerekből."
+    },
+    {
+      "i": 153,
+      "response": "A minimálbér-emelés jól jönne, ha kapnám, de a gáz árának hétszeresése a támogatáson túl és a lakásárak elszállása miatt inkább úgy érzem, jövőre is csak a napi megélhetésre gyűrködünk, nem lesz több pénz a zsebünkben."
+    },
+    {
+      "i": 154,
+      "response": "A minimálbér-emelés és a nagyobb családi adókedvezmény jól jönne a kisvárosi fizetésünkön, de az alapkamat magas maradt, az infláció még mindig viszi a pénzt, és bizonytalan, mit hoz a politika, úgyhogy tartalékot alig tudok képezni, inkább a napi megélhetésért küzdök."
+    },
+    {
+      "i": 155,
+      "response": "Középfokú végzettséggel kisvárosban nem lesz könnyebb a következő év, mert az infláció még mindig nem állt meg rendesen, a lakásárak az Otthon Start miatt elszálltak, az alapkamat is magas maradt, úgyhogy a mindennapi kiadásokkal és a hitellel vigyázni kell, hátha a 14. havi nyugdíj első részlete vagy a fix 3 százalékos hitel segít valamennyit a nyakunkon."
+    },
+    {
+      "i": 156,
+      "response": "A boltban azért érzem, hogy a mostani árrésstop meg a lassult infláció jót tett a pénztárcámnak, de a lakásárak Budapesten az egekben vannak, és a gyenge gazdasági hírek miatt tartok tőle, hogy jövőre megint nehezebb lesz kijönni a rezsivel meg a bevásárlással."
+    },
+    {
+      "i": 157,
+      "response": "Nekem már nincs gyerekem 40 alatt, meg nyugdíjas se vagyok, úgyhogy az új támogatások mellett én csak azt látom, hogy az alapkamat magas maradt, az energia meg a kvótán túl az egekbe szalad majd, szóval jövőre is szorosan kell fogni a gatyát, ha nem akarunk mínuszosak lenni."
+    },
+    {
+      "i": 158,
+      "response": "A családi adókedvezmény emelése és az árrésstop jól jön a pénztárcánknak, de az ingatlanárak szaladása és a túlfogyasztás utáni drasztikus rezsi emiatt tartok tőle, hogy egy nagyobb kiadás vagy költözés simán lenullázza a spóroltakat."
+    },
+    {
+      "i": 159,
+      "response": "A 13. és 14. havi nyugdíj megérkezése jól jön, de az infláció még mindig magasabb a kormány ígéreténél, és ha sokat fűtök a kemény tél miatt, a gáz ára simán lenullázhatja a pluszt. Összességében úgy érzem, éppen kijövök a nyugdíjból, de egy nagyobb váratlan kiadást már nem bírna el a pénztárcám."
+    },
+    {
+      "i": 160,
+      "response": "Budapesti albérletből és alkalmi munkákból élek, szóval a rezsiemelés meg a bizonytalan gazdasági hírek miatt inkább szorítom a költségeket, de az árrésstopnak köszönhetően a bevásárlás most kevésbé fáj; összességében túlélhetőnek látom a következő évet, de nagyobb kiadást nem mernék vállalni."
+    },
+    {
+      "i": 161,
+      "response": "A nyugdíjam ugyan kicsit emelkedik és a 13-14. havi pénz is segít, de az áram- és gázárak drasztikus emelése a támogatás felett, meg a lakásárak elszállása miatt óvatosan költök, mert a télen már így is sokat visz el a fűtés, így jövőre is szűken, de kijövök a pénzből."
+    },
+    {
+      "i": 162,
+      "response": "A boltban azért érzem, hogy a kibővített árrésstop kicsit könnyít a bevásárláson, és a férjem bérminimuma is emelkedik jövőre, de a gyenge GDP meg a bizonytalan politikai hírek miatt nem merek nagyobb dolgokra, például lakásfelújításra bevállalkozni, szóval tartalékolunk, ahogy tudunk."
+    },
+    {
+      "i": 163,
+      "response": "Nálunk a kisvárosi felsőfokú kétkeresősként a januári adókedvezmény-emelés és a befagyasztott rezsitámogatás kicsit könnyít a mindennapokon, de a 0,3 százalékos GDP és a túlhasználat után hétszeres gázár miatt óvatosan költök, és nem tervezek nagyobb rizikót jövőre."
+    },
+    {
+      "i": 164,
+      "response": "Budapesten a lakásárak elszáltak, így albérletbe megmaradni is egyre nehezebb, de a forint erősödése meg a kisebb infláció miatt a napi bevásárlásnál már nem érzem annyira a szorítást, szóval valahogy kijövünk, de nagyobb tartalékot nemigen tudok képezni."
+    },
+    {
+      "i": 165,
+      "response": "Nekem alapfokú végzettséggel falun a bérem valószínűleg nem nő annyit, mint amennyivel az élelmiszer és a lakhatás drágult, szóval jövőre is szűkmarkúan kell gazdálkodnom, még ha a családi kedvezmény meg a minimálbér-emelés kicsit segít is. A hírekből nem látom, hogy jobban keresnék majd, inkább azt érzem, hogy a gyenge gazdaság miatt mi, kisemberek maradunk a legszűkebb pály"
+    },
+    {
+      "i": 166,
+      "response": "A bérem nem minimálbéres, szóval a megállapodás engem kevésbé érint, viszont az árrésstop és a családi adókedvezmény kicsit könnyít a mindennapokon, csak tartok tőle, hogy az infláció és a lakásárak tovább szívják a pénzt, ha bármit is költözni vagy felújítani kellene. Összességében stagnálásra számítok: nehezen, de kijövünk a fix rezsitámogatással, de nagyob"
+    },
+    {
+      "i": 167,
+      "response": "A nyugdíjemelés meg a lassult infláció jól jön, de az alapkamat magas maradt és a gazdaság is gyenge, úgyhogy csak óvatosan költekezünk, nehogy beszoruljunk télen a számlákkal."
+    },
+    {
+      "i": 168,
+      "response": "A nyugdíjam 3,6 százalékkal emelkedik, és megjön a 13. meg az első 14. havi részlet is, úgyhogy a kisvárosi megélhetésünkön nem fog az infláció nagyon túltenni, de azért az áram- és gázárak miatt télen jobban oda kell figyelni a fűtésre. Alapfokú nyugdíjasemberként így is jobban állok, mint sok fiatal, aki lakást akarna venni, mert azok az árak az egekben vannak."
+    },
+    {
+      "i": 169,
+      "response": "A nyugdíjam a 13. és a 14. havi részlettel most kicsit kisöpörhetőbb, de ha a gázfogyasztásom átcsúszik a támogatott keret fölé, az a hétszeres ár miatt simán elviheti az egész többletet, úgyhogy fűteni alig merek majd, és spórolni kell. A forint erősödése jó hír, de a lakásárak és a gyenge gazdaság miatt nyugdíjasként én már nem érzek biztonságot"
+    },
+    {
+      "i": 170,
+      "response": "Frissebb diplomásként Budapesten a bérem talán picit nő az emelésekkel, de a 19%-os lakásár-robbanás miatt albérletből sosem lesz saját otthonom, és ha túlfogyasztjuk az áramot, jövőre simán ráfizethetünk; összességében stabilan, de szűkösen látom a következő évet."
+    },
+    {
+      "i": 171,
+      "response": "Nyugdíjasként a 3,6 százalékos emelés és a februári 13–14. havi támogatás jól jön, de mivel a gáz ára a támogatott keret felett hétszeresére drágul, és a gazdasági hírek inkább bizonytalanságot sugallnak, óvatosan költök, és igyekszem a fűtéssel spórolni, hogy kijöjjek a fix jövedelemből."
+    },
+    {
+      "i": 172,
+      "response": "Nekünk falusi középsulis családanyaként az jól jön, hogy januártól több a családi adókedvezmény és az szja-mentesség is közelebb került, de a lakásárak elszálltak és a 6,5 százalékos hitel mellett nemigen lesz egyről a másikra, szóval óvatosan költjük a keveset, ami megmarad."
+    },
+    {
+      "i": 173,
+      "response": "Nekem még nincs nyugdíjam, de a rezsitől tartok, mert ha csak egy kicsit is többet fűtök a kemény fagyok miatt, a támogatás felett az áram és a gáz ára szinte lenullázza a családi adókedvezmény emelését; az árrésstop meg a fix lakáshitel jó, de lakást úgysem tudok venni, így a pénztárcámban jövőre leginkább a drágaság és a bizonytalan GDP miatt nem lesz nagyobb mozg"
+    },
+    {
+      "i": 174,
+      "response": "A gáz és áram ára felett a drágulás miatt tartok tőle, hogy a téli számlák behúzzák a gyomrom, de a januári családi adókedvezmény kicsit könnyít a hónap végi rostán, szóval ahogy eddig, úgy most is spórolósan, de kijövünk a falusi életből."
+    },
+    {
+      "i": 175,
+      "response": "A nyugdíjam a 3,6 százalékos emeléssel és a maradó ártámogatással épp csak tartja a lépést az árakkal, de a lakásárak elszállása és a hitelkamatok magasan tartása miatt nincs esélyem arra, hogy a gyerekeknek segítsek pesti lakáshoz jutni, így összességében kényelmesen, de szorosan gazdálkodva látom a következő évet."
+    },
+    {
+      "i": 176,
+      "response": "Nekünk még nem jár nyugdíj, de a bérem nem nő, az áram és gáz meg a támogatáson felül az egekbe megy, úgyhogy jövőre szűkebb lesz a hónap vége, hiába csökkent valamelyest az infláció. A családi adókedvezmény emelése kicsit segít, de azt már most látom, hogy a téli számlákkal meg a mindennapi drágulással többet fogunk visszafogni magunkból, mint idén."
+    },
+    {
+      "i": 177,
+      "response": "Nekem nyugdíjas falusi emberként a februári 13. és 14. havi nyugdíjrészlet meg az árrésstop hosszabbítása kifejezetten jól jön, mert így a rezsit és az élelmiszert ki tudom fizetni nyugodtabban, de a gyenge GDP-n meg a bizonytalan politikai híreken nem árt azért spóroltan élni, mert az árak bármikor megugorhatnak."
+    },
+    {
+      "i": 178,
+      "response": "Nyugdíjas háztartásként a 14. havi nyugdíj jövő évi negyedével és a változatlan rezsitámogatással kicsit könnyebbülünk, de az enyhén lassuló infláció és a kedvezményes keret feletti drasztikus gázár miatt továbbra is szorosan kell gazdálkodnom, így az anyagi helyzetem inkább csak stagnál, mintsem javulna érdemben."
+    },
+    {
+      "i": 179,
+      "response": "Öregemberként jól jön, hogy januártól emelik a nyugdíjam és elindul a 14. havi, megmarad az áram-gáz támogatás is, de a faluban így is szűken élünk, mert az árak még mindig magasak és a gáz ára rémiszt, ha túlhasználjuk a kedvezményt. Alapfokúként nemigen értem a politikai híreket, de a saját pénztárcámból azt érzem, ha csak a legszükségesebbet vesszük, kij"
+    },
+    {
+      "i": 180,
+      "response": "A pénztárcámnak jót tesz, hogy lassult az infláció és olcsóbb lett az üzemanyag meg pár élelmiszer az árrésstop miatt, de a lakásárak 15-19 százalékos ugrása miatt az Otthon Startos hitellel sem látok reális esélyt közelítőn saját ingatlanra, és a gyenge GDP miatt inkább takarékoskodva, bizonytalanul nézek a jövő évnek ezekbe a hónapjaiba."
+    }
+  ]
+}

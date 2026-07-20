@@ -1,0 +1,959 @@
+{
+  "run": "G1/4 CZ CCI nowcast 2026-05",
+  "model": "tencent/Hy3",
+  "provider": "siliconflow",
+  "date": "2026-07-20",
+  "protocol": "orakel_cz_nowcast.py változatlanul (N=60, SSR linear + OpenAI-small)",
+  "flag": "CLEAN",
+  "flag_note": "target-ablak >= 2025-08",
+  "corpus_files": {
+    "corpus_cz_2026_05.json": "db6eeedfd34a126ab5999634f01afec2f665c33bad12773600d7c45764e03c8f"
+  },
+  "gt": -7.6,
+  "per_seed": [
+    {
+      "seed": 1,
+      "n_sent": 60,
+      "ssr_score": 2.74846923788847,
+      "nowcast": -12.576538105576507,
+      "sentences": [
+        "Ceny potravin jako máslo nebo brambory nás pořád dost tlačí, i když elektřina zlevnila, ale s mzdou pod průměrem a rostoucím nájemným moc volna v rozpočtu nečekám a spíš budeme šetřit. Pokud koruna oslabí a hypotéky zůstanou drahé, o nějakém výrazném zlepšení našich financí v příštím roce si můžu nechat jen zdát.",
+        "Jídlo pořád zdražuje a hypotéku si kvůli vysokým sazbám ani neodvážím refinancovat, takže s rozpočtem budeme spíš šetřit a doufat, že nám aspoň zůstanou ty levnější energie. Státní dluhy a hádky ve Sněmovně mě nejspíš nepotěší žádnou pomocí, takže se musíme spolehnout sami na sebe.",
+        "S platebními povinnostmi jako hypotéka kolem pěti procent a dražší jídlo i nájem sice ušetřím trochu za energie, ale vládní chaos a rušení slibů u daní i důchodů mi nedávají žádnou jistotu, že za rok nebudeme s penězi ještě víc na štíru.",
+        "Jako OSVČ mě děsí růst odvodů od roku 2026 a vysoké sazby hypoték, takže rozpočet utáhnu jen těžko a o vlastním bydlení můžeme zatím nechat sny, i když inflace zpomalila. Vládní sliby o důchodech a rozpočtu mi přijdou jako další chaos, který mě osobně finančně nejistí.",
+        "S hypotékou okolo pěti procent a zdražujícími se potravinami jako brambory nebo mléko moc volného v rozpočtu neuvidím, navíc sliby o nižších daních nebo důchodech se rozpadají, takže spíš šetřím a doufám, že koruna neoslabí moc rychle.",
+        "Jako důchodce v Praze vidím naše finance spíš pesimisticky, protože růst penze o necelých sedm stovek sotva pokryje drahé brambory, máslo a mléko, a zrušení slíbeného vyrovnání důchodů nás zbytečně připravilo o jistotu. Obávám se, že při vysokých cenách a nejisté koruně nám za rok moc peněz navíc v peněžence prostě nezbude.",
+        "Jako mladý bez maturity na Moravě vidím naše vyhlídky bledě, protože hypotéky i odvody rostou a vláda sliby o důchodech i daních vezme zpět, takže sotva udržíme rodinný rozpočet, natož abychom si něco našetřili.",
+        "Jako Pražák se středoškolským vzděláním vidím naše vyhlídky spíš pesimisticky, protože nájem nám dál roste, jídlo jako brambory nebo máslo je pořád drahé a státní dluhy i ustupování od důchodové reformy mi naznačují, že za rok budeme mít v peněžence ještě míň klidu.",
+        "Jako důchodce z venkova vidím naše finance spíš pesimisticky, protože slíbené vyrovnání penzí nedostaneme a zdražování jídla jako brambory nám žere i to malé zvýšení důchodu. S rostoucími nájmy a nejistotou kolem státního dluhu se bojím, že nám na konci měsíce nezbyde skoro nic navíc.",
+        "Jako důchodce s vysokoškolským vzděláním vidím naše vyhlídky spíš opatrně, protože navzdory mírnému zvýšení důchodů a zpomalení inflace mě znepokojují rostoucí státní schodek, politické rušení slibů a očekávané oslabení koruny, které může zdražit běžné nákupy. Naštěstí už nemáme hypotéku ani děti na výdajích, takže nás tolik nezasáhnou vysok",
+        "Zlevnění elektřiny a plynu s mírným růstem důchodu nám s manželkou trochu uleví u měsíčních výdajů, ale dražší nájem, brambory i máslo a nejistota kolem dalších vládních slibů mě dělají opatrným, takže žijeme spíš skromněji a bez velkých plánů.",
+        "Jako středně starý člověk v Čechách vidím naši domácnost spíš v šetření než v rozkvětu, protože i když potraviny mírně zlevňují a energie klesly, drahé bydlení, vysoké hypotéky a nejistota kolem slibů o důchodech nás nutí držet se zkrátka. Na příští rok moc nevěřím zlepšení, hlavně když vláda couvá z věcí, na které jsme slyšeli, a náklady",
+        "Jako důchodce s jen základním vzděláním vidím naše vyhlídky spíš bledě, protože i když důchod od ledna trochu stoupne, zdražují brambory, máslo i mléko a sliby politiků o penzích zase obcházejí, takže sotva vyjdeme s penězi do konce měsíce. Koruna má navíc oslabit a na lepší hypotéky nebo úspory pro děti nemáme ani pomyšlení, takže se budeme muset hodně uskromňovat.",
+        "Jako mladý bez vzdělání na Moravě vidím naše vyhlídky bledě, protože nájmy pořád rostou, hypotéky jsou pro nás nedosažitelné a stát podle zpráv jen zvyšuje odvody a odkládá sliby, takže zůstaneme v podnájmu a budeme počítat každou korunu za jídlo.",
+        "Jako důchodce v Praze se bojím, že bez slíbeného vyrovnání penzí a se zdraženým máslem, bramborami i nájmem sotva vyjdeme, i když nám elektřina trochu ubrala. Za rok budeme podle mě s penězi ještě víc na štrejchu, hlavně až koruna oslabí a všechno zase podraží.",
+        "Jako Pražák se středoškolským vzděláním vidím naše vyhlídky spíš pesimisticky, protože nájmy pořád rostou a hypotéky zůstávají nedosažitelné, zatímco levnější elektřina nám neutáhne drahotu jídla a bydlení. Bojím se, že další rok budeme jen šetřit a žít od výplaty k výplatě, než se něco v ekonomice konečně obrátí k lepšímu.",
+        "Jako člověk se základním vzděláním na Moravě vidím naše vyhlídky bledě, protože jídlo pořád zdražuje, hypotéku ani úspory si nemůžeme vylepšit kvůli vysokým sazbám a stát si podle zpráv s penězi taky neví rady, takže budeme muset hodně šetřit.",
+        "Ceny potravin jako brambory nebo máslo nám dál zatěžují rozpočet a s hypotékou přes pět procent ani nepomýšlíme na stěhování, takže i když elektřina zlevnila a inflace zpomalila, za rok budeme spíš jen taktak vyjíždět. Koruna má navíc oslabit a nájem nám roste, takže na větší finanční volnost moc nesázím.",
+        "Jako Pražan s vysokoškolským vzděláním vidím naše vyhlídky spíš opatrně, protože i když energie zlevnila a inflace zpomalila, růst nájmů, nové hypotéční limity a neustálé rušení vládních slibů mě nutí šetřit a nevěřit, že se nám reálně uleví. Obávám se, že kvůli schodku rozpočtu a oslabující koruně nás ještě čekají vyšší odvody nebo daně, což naše dom",
+        "Jako pražská domácnost s vysokoškolským vzděláním vidím příští rok celkem stabilní, ale bez výrazného zlepšení: levnější energie nám trochu uleví, zato růst nájmů a nejistota kolem koruny a státního schodku nás nutí držet se zpátky a neutrácet za zbytečnosti.",
+        "Jako Pražák se středoškolským vzděláním vidím naše vyhlídky spíš napjatě, protože nájem nám dál roste a jídlo zůstává drahé, i když koruna má podle všeho ještě oslabit a státní dluhy mě děsí kvůli budoucím daním. Doufám, že levnější elektřina nám trochu uleví, ale celkově čekám, že s rozpočtem budeme muset šetřit víc než letos.",
+        "Jako mladý bez vysoké školy v Čechách vidím naše vyhlídky spíš bledě, protože nájmy pořád rostou, jídlo jako brambory nebo máslo je drahé a na vlastní bydlení s hypotékou za skoro pět procent a přísnými limity nemáme šanci. Doufám akorát, že zlevnění elektřiny trochu uleví rodinnému rozpočtu, než nás zas dožene oslabující koruna a drahé nájemné.",
+        "Jako mladý bez vysoké školy vidím naše vyhlídky spíš bledě, protože drahé nájmy, vysoké hypotéky i rostoucí ceny jídla nám s rodinou moc neumožní něco ušetřit, zatímco vláda sliby ruší a dluhy nám hází na bedra.",
+        "Jako důchodce s vysokoškolským vzděláním na Moravě vidím naše finance jako stabilní díky mírnému zvýšení důchodu, ale rostoucí ceny potravin jako brambory nebo máslo nás nutí víc šetřit a obávám se, že oslabující koruna a vysoký státní schodek mohou životní náklady ještě zhoršit.",
+        "Jako mladý bez vysokoškoláku na Moravě vidím naše rodinné finance spíš pesimisticky, protože drahé hypotéky a slibované zdražení odvodů nás brzdí v jakémkoli plánu na vlastní bydlení, zatímco státní dluhy a oslabující koruna mi připomínají, že za všechno jednou zaplatíme my. Inflace sice zpomalila, ale pocit, že vláda ruší sliby a nechává budoucnost na nás, ve mně budí",
+        "Vyšší důchod a zpomalení inflace mi sice trochu uleví, ale zklamání z nevyplacených penzí a slibů vlády mě nutí šetřit a moc do budoucna nedoufat, zvlášť když máslo a další potraviny pořád zdražují. Na Moravě vycházím z toho, co mám, a bojím se, aby koruna oslabila a životní náklady zase neskočily nahoru.",
+        "Elektřina s plynem sice zlevnily a inflace je konečně nízko, ale růst nájmů v Praze, dražší jídlo i vyšší odvody nám doma žádnou velkou úsporu nepřinesou, takže rozpočet budeme muset hlídat skoro stejně napjatě jako doteď.",
+        "S hypotékou kolem pěti procent a dražšími potravinami jako brambory nebo máslo moc volného v rozpočtu nevidím, a když vláda sliby o důchodech i daních ruší a schodek roste, mám spíš strach, že nás za rok budou tlačit další výdaje a žádné zlevnění se nekoná.",
+        "Jako student v Praze vidím příštích 12 měsíců dost napjatě, protože drahé bydlení, vysoké hypotéky a zdražené jídlo jako brambory nebo máslo mi životní náklady zvedají rychleji, než stačí růst moje kapesné nebo brigádní výdělky. Koruna navíc slábne a státní dluh roste, takže se bojím, že za rok budu mít z peněz ještě míň než teď.",
+        "Snažím se užít s tím, co mám, ale s rostoucím nájemným, drahým máslem a bramborami i nejistými důchody se bojím, že za rok budu muset ještě víc šetřit a žít z minima.",
+        "Jako důchodce na Moravě vidím příští rok celkem stabilně díky navýšení důchodu, ale zdražování potravin jako brambory nebo máslo mi životní náklady znatelně zatěžuje a slibované mimořádné vyrovnání penzí mi chybí. Obávám se, že rostoucí státní schodek a nejistá koruna ještě víc prodraží běžný provoz domácnosti.",
+        "Jako domácnost s vysokoškolským vzděláním v Čechách vidím naše finance spíš napjatě, protože vysoké hypotéky kolem pěti procent a rostoucí odvody živnostníkům i nejistota kolem důchodů nám berou pocit, že se náš životní standard zlepší, i když průměrná mzda mírně stoupla. Obávám se, že při schodku rozpočtu a oslabování koruny nás čeká spíš šetření než nějaké",
+        "Jako důchodce z venkova vidím příští rok docela černě, protože slibované důchody nám sebrali a základní jídla jako máslo nebo brambory pořád zdražují, takže s klidnou repo sazbou a dražším nájmem moc neušetřím. Koruna sice teď drží, ale když prý oslabí, bude v obchodech ještě hůř, takže budu muset hodně šetřit na všem možném.",
+        "Důchod se sice od ledna trochu zvedl a elektřina zlevnila, ale brambory a mléko pořád draží a nájem roste, takže s penězi budeme muset šetřit skoro stejně jako doteď. Bojím se hlavně slibů politiků o důchodech, protože z těch zpráv je jasné, že nic moc neplatí a na pořádnou jistotu se nemůžu spolehnout.",
+        "Hypotéky zůstávají drahé a nájmy pořád rostou, takže s průměrným výdělkem a rodinnými náklady moc volného neuvidím, i když zlevnění energií trochu pomůže. Spíš budeme šetřit a doufat, že ceny potravin jako máslo konečně sednou, než nás státní dluhy a odvody zase doženou.",
+        "Jako mladý bez vysoké školy na Moravě vidím naše vyhlídky dost bledě, protože hypotéky i jídlo jsou pořád moc drahé a koruna má jít dolů, takže s průměrnou mzdou sotva ušetřím na něco kromě nájmu a základních věcí.",
+        "Jako mladý bez vysoké školy na Moravě vidím naše vyhlídky docela bledě, protože nájem roste, hypotéku si kvůli novým limitům a sazbám nejspíš nevezmeme a málo placená práce nás u průměrné mzdy moc nezachrání. Zlevnění elektřiny nás sice trochu uleví, ale máslo a další drahoty nás pořád tlačí a na vlastní bydlení si jen tak nesáhneme.",
+        "Ceny potravin jako brambory nebo mléko mi kvůli drahotě na nákupu pořádně zatopí, i když energie zlevnily, takže s průměrnou mzdou na Moravě vyjdeme tak tak a bojím se, aby další růst nájmů a oslabení koruny naši domácnost úplně nezatlačily do kouta.",
+        "Jako důchodce na Moravě vidím příští rok docela černo, protože ceny jídla jako brambory nebo máslo dál letí nahoru a slíbené vyrovnání důchodů nám zrušili, takže s malou penzí sotva vyjdeme a koruna ještě asi oslabí. Naštěstí by měl průměrný důchod od ledna trochu stoupnout, ale to nás před drahotou moc nezachrání.",
+        "Jako mladý Pražan se středoškolským vzděláním vidím naše rodinné finance spíš pesimisticky, protože drahé nájemné v Praze a žádná úleva u hypoték nás tlačí, zatímco zlevnění energií sotva pokryje zdražení jídla jako brambory a mléko. Státní dluhy a rušení slibů nás neuklidňují, takže na větší úspory nebo bydlení vlastním nevidím v příštím roce šanci.",
+        "Jako mladý se středoškolským vzděláním na Moravě vidím naše vyhlídky spíš bledě, protože při drahých hypotékách a rostoucím nájmu se s průměrným výdělkem těžko ušetří na vlastní bydlení a státní dluhy mi přijdou jako další břemeno do budoucna. Zlevnění elektřiny nám sice trochu uleví, ale drahé jídlo a nejistota kolem slibů vlády mě nutí počítat každou korunu",
+        "Hypotéky zůstávají drahé a ceny jídla i nájmů pořád rostou, takže s průměrným výdělkem moc volných peněz nebude, a když vláda navíc ruší slíbené důchody a kope se v rozpočtu, tak se na příští rok dívám spíš s obavami než s klidem.",
+        "Ceny potravin a nájmů nám sice dál rostou a hypotéky zůstávají drahé, ale díky levnější elektřině a zpomalení inflace to pro naši pražskou domácnost vidím spíš na mírné přežití bez velkých úspor než na zhoršení. Obávám se ale slibů politiků i oslabující koruny, takže moc nevěřím, že za rok budeme na tom výrazně líp.",
+        "Jako důchodce z venkova vidím příští rok docela bledě, protože slíbené vyrovnání penzí padlo a přidáno mám jen pár stovek, zatímco máslo a další věci pořád zdražují a úspory mi nevydělají kvůli sazbám ČNB skoro nic. Budu muset víc šetřit a spoléhat na to, co mám, protože vláda sliby nedodržela a na horizontu nevidím žádnou pořádnou úlevu.",
+        "Penze mi sice od ledna trochu stoupne, ale zrušené mimořádné vyrovnání a zdražené brambory či mléko mi životní úspory stejně sežerou, takže se budu muset víc uskromnit a doufat, že elektřina zůstane levnější. Na nějaké větší výdaje nebo pomoc dětem nemůžu v téhle nejisté době vůbec pomyslet.",
+        "Jakožto OSVČ mě děsí růst odvodů od roku 2026 a vysoké hypotéky i nájmy, takže i když energie zlevnily a inflace zpomalila, reálně čekám, že naše domácnost bude spíš šetřit a žádné velké volno nebude. Státní dluh a nejistota kolem penzí navíc budí pocit, že se na stát moc spolehnout nedá.",
+        "Jako domácnost na Moravě vidím příští rok s obavami, protože rostoucí schodek, větší odvody a neustálé rušení slibů nás tlačí k úsporám, i když nám zatím mírně oddechly energie a potraviny. Pokud koruna oslabí a nájmy dál porostou, bude nám každá koruna navíc chybět.",
+        "Ceny energií sice konečně trochu klesly a inflace je nízká, ale růst nájmů, dražší potraviny jako brambory či máslo a hrozba oslabení koruny mě děsí, že s naším rozpočtem jakožto domácnosti ve středních Čechách nevystačíme bez omezování. Výhled na příští rok je pro nás spíš nejistý a opatrný, protože státní dluh a politické handrkování o rozpočtu naznačují, že ž",
+        "Jako mladý bez vysoké školy na Moravě vidím naše vyhlídky spíš bledě, protože drahé jídlo i hypotéky s novými limity nám znemožňují spořit a koruna zřejmě ještě oslabí, takže s výdaji moc nepohneme.",
+        "Jako důchodce z venkova vidím dalších dvanáct měsíců dost bledě, když vláda couvla od slibovaných peněz a jídlo jako brambory či máslo pořád drahé zůstává, i když nám elektřina trochu odlehčila. Bojím se, že s rostoucím nájmem a nejistou korunou nám na konci měsíce bude zbývat čím dál míň.",
+        "Jako důchodce na Moravě vidím naše vyhlídky celkem stabilní díky mírnému zvýšení penze a zlevnění energií, ale zklamání z nevyplacených slíbených důchodů a růst nájmů nás nutí šetřit a moc se nespoléhat na vládní sliby.",
+        "Inflace sice zpomalila, ale zdražování základních potravin jako brambor nebo mléka a vysoké sazby hypoték nás tlačí k opatrnosti, takže s vidinou stagnujících mezd a rostoucího státního dluhu čekám spíš utahování opasků než zlepšení.",
+        "Sice mi od ledna trochu přidali k důchodu a zlevnila elektřina, ale pořád mě tlačí drahé jídlo jako máslo nebo brambory a nervózní jsem z toho, jak politici zase mění sliby u penzí, takže na rok dopředu vidím naši domácnost spíš tak, že sotva vyjdeme a musíme se hodně hlídat.",
+        "Jako důchodce v Čechách vidím naše vyhlídky spíš bledě, protože nám zrušili slíbené doplatky penzí a zdražování jídla jako brambory nebo máslo nám žere skromný rozpočet, zatímco stát se topí v dluzích a na nás moc nehledí. Doufám, že zlevnění elektřiny a plynu nám aspoň trochu uleví, ale s rostoucím nájmem a nejistou korunou se bojím, abychom s manželkou vy",
+        "Jako důchodce na Moravě vidím naše vyhlídky spíš pesimisticky, protože i když nám důchod trochu stoupl, málo to pokryje drahé potraviny a slibované dorovnání penzí nám vláda zrušila, takže s korunou, co zřejmě oslabí, budeme šetřit každou korunu.",
+        "Jako pražská domácnost s vysokoškolským vzděláním vidím příští rok celkem stabilně díky zlevnění energií a nižší inflaci, ale rostoucí nájmy a vysoké hypotéky nás drží v obezřetnosti, zatímco politické rušení slibů u důchodů a daní ve mně budí nedůvěru k dlouhodobému plánování.",
+        "Hypotéky jsou pro nás bez úlevy moc drahé, takže o vlastním bydlení ani neuvažujeme, a i když energie zlevnila, pořád nás tlačí drahé jídlo a růst nájmů, takže s rozpočtem budeme spíš šetřit a žít od výplaty k výplatě. Důvěra v vládu je u nás pryč, když ruší sliby u důchodů a daní, takže do budoucna moc nevěřím, že se nám bude výrazně lí",
+        "Sice nám trochu odlehčí levnější elektřina a plyn, ale drahé jídlo, rostoucí nájem a vysoké hypotéky nás drží v šachu, takže za rok budeme spíš jen dál šetřit a nečekám, že nám s naším rozpočtem nějak výrazně vydechneme.",
+        "Jako důchodce v Čechách vidím příští rok celkem stabilně díky mírnému zvýšení penze a zlevnění energií, ale růst cen potravin jako brambory nebo máslo mi stejně znatelně zatěžuje denní rozpočet. Hypotéky ani bydlení mě už neřeší, ale obávám se, že politické handlování kolem rozpočtu a odklady reforem můžou naše příjmy do budoucna ještě zkomplikovat.",
+        "Hypotéky jsou pro nás mimo hru a ceny potravin i bydlení pořád vysoko, takže s vyššími odvody a politickým rošádováním kolem slibů čekám, že následující rok budeme spíš šetřit a žádné velké finanční volno si neuděláme."
+      ]
+    },
+    {
+      "seed": 2,
+      "n_sent": 60,
+      "ssr_score": 2.7652513153098157,
+      "nowcast": -11.737434234509214,
+      "sentences": [
+        "Jako důchodce na Moravě vidím příští rok celkem klidně, protože zlevnění elektřiny a mírná inflace mi trochu uleví, ale rostoucí nájem a nejistota kolem důchodových slibů vlády mě udržují v opatrnosti, abych neutratil víc, než mám.",
+        "Jako člověk se základním vzděláním na Moravě vidím další rok spíš černě, protože jídlo jako brambory nebo máslo pořád zdražuje a vláda slíbené peníze důchodcům i nám nedala, takže sotva vyjdeme s penězi, než zase něco přidají na daních nebo odvodech.",
+        "Jako OSVČ s vysokoškolským vzděláním mě děsí hlavně růst odvodů od roku 2026 a neustálé politické otáčení u daní i důchodů, takže na rok dopředu vidím naši domácnost spíš v režimu šetření a obav z dalšího zdražování jídla i energií. S korunou mířící k 25 za euro a státním deficitním bincem se bojím, že reálně našetřit nepůjde a každá koruna bud",
+        "Vyšší důchod nám sice trochu pomohl, ale drahé nájemné a pořád drahé jídlo jako máslo nás drží tak tak nad vodou, takže na nějaké ulehčení v příštím roce moc nevěřím. Nejvíc mě znervózňuje, že vláda sliby o penzích bere zpátky, takže se bojím, abychom za rok nebyli na tom hůř.",
+        "Jako člověk se základním vzděláním na Moravě vidím naše rodinné finance spíš černě, protože hypotéky zůstávají drahé, slibované důchody a úlevy vláda ruší a zdražují nám brambory i mléko, takže do roka moc ušetřit nemůžem.",
+        "Jako člověk se základním vzděláním na Moravě vidím naše vyhlídky spíš bledě, protože zdražené jídlo jako brambory nebo máslo nám žere peníze a sliby politiků o důchodech a daních se zase jen hroutí, takže se budeme muset hodně uskromňovat.",
+        "Hypotéky i nájmy nás dál tlačí, zlevnění elektřiny sice pomůže, ale drahé jídlo a nejistota kolem slibů vlády mi nedávají moc naději, že do roka výrazně uvolníme rodinný rozpočet.",
+        "Důchod mi sice od ledna trochu stoupl a potraviny jako máslo zvolna zlevňují, ale slibované mimořádné vyrovnání penzí padlo a ceny základních věcí jako brambory pořád rostou, takže za rok budu spíš jen taktak vycházet a s klidným srdcem do budoucna nehledím.",
+        "Jako živnostník z Moravy se bojím, že vyšší odvody v roce 2026 nám srazí rodinný rozpočet, zatímco zlevnění elektřiny a másla sotva pokryje růst nájmů a každodenní drahotu. Vládní sliby o důchodech a daních vidím jako plané řeči, takže do budoucna moc nevěřím, že se nám bude žít výrazně líp.",
+        "Jako důchodce v Čechách vidím naše vyhlídky bledě, protože nám slíbené doplacení penzí zrušili a přitom brambory i mléko zdražily, takže s fixním důchodem sotva vyjdeme s penězi na jídlo a bydlení. Elektřina sice zlevnila, ale nájmy rostou a státní dluhy mi vůbec nevěstí, že by nám v příštím roce někdo přidal.",
+        "Brambory a mléko nám v obchodech pořádně zdražují a koruna má jít ještě dolů, takže s platem na Moravě moc nevyděláme a našetřit se letos určitě nebude; nájem nám zároveň roste, takže budeme spíš šetřit na každém rohu a doufat, že elektřina zůstane levnější.",
+        "Hypotéky jsou pro nás na Moravě pořád moc drahé a s novými limity se k vlastnímu bydlení nejspíš vůbec nepřiblížíme, takže radši šetříme, ale z dražšího másla a nejistých slibů politiků mám z domácnosti spíš obavu než klid.",
+        "Jako Pražák se základním vzděláním vidím naše rodinné finance spíš černě, protože drahé jídlo jako brambory nebo mléko a vysoké hypotéky nás tlačí, zatímco státní dluhy a rušení slibů mi nedávají naději, že se nám uleví. Příští rok budeme muset hodně šetřit, abychom vůbec vyšli s penězi.",
+        "Sice nám trochu oddechly energie a potraviny jako máslo zlevňují, ale zdražení nájmů, brambor a mléka s vysokýma hypotékama nás stejně drží ve stoje, takže za rok budeme spíš šetřit než si něco užívat. Státní dluhy a nejistota kolem důchodů mě navíc děsí, že nás z daní ještě víc obere, než aby nám pomohla.",
+        "Jako důchodce na Moravě vnímám, že mírné zvýšení důchodu od ledna 2026 sice pomůže, ale drahé brambory, máslo a další potraviny spolu s oslabující korunou a rostoucím nájemným mé reálné úspory dál ukrajují, takže za rok budu spíš počítat každou korunu než spořit.",
+        "Jako Pražák se základním vzděláním vidím naše vyhlídky spíš bledě, protože nájmy pořád rostou a hypotéku si s novými limity ani nevezmeme, takže budeme dál žít od výplaty k výplatě a doufat, že levnější elektřina nás aspoň trochu podrží. Vláda sliby kolem důchodů a daní ruší, státní dluh bobtná a koruna má oslabit, takže mám strach, aby nás za rok nezaskočily je",
+        "Ceny potravin i energií sice konečně trochu polevily, ale drahé nájmy, vysoké hypotéky a neustálé rušení slibů vládou mi kazí pocit jistoty, takže příští rok budeme spíš šetřit a doufat, že nás nějaká další daňová nebo odvodová změna úplně nezruinuje.",
+        "Jako rodina na Moravě vidím další rok hlavně v šetření, protože drahé jídlo, růst nájmů a vysoké hypotéky nám žádný velký klid nedají, i když elektřina trochu zlevnila. Koruna půjde prý dolů a sliby o důchodech se ruší, takže spoléhám jen na naše výplaty a bojím se, co ještě přijde.",
+        "Ceny potravin a nájmů nám dál rostou, zatímco státní sliby o důchodech a daních se hroutí, takže s vysokoškolským příjmem sice vydržíme, ale reálně se má domácnost nezlepší a spíš zbytečně tlačíme na úspory.",
+        "Jako člověk se základním vzděláním na Moravě vidím příští rok docela černě, protože brambory a máslo dál zdražují, koruna asi oslabí a žádné větší přidání se nechystá, takže s rozpočtem budeme muset hodně šetřit. Hypotéky i tak zůstanou drahé a sliby politiků o důchodech zase vzaly za své, takže na klidný život teď moc nesázím.",
+        "Jako Pražák se středoškolským vzděláním vidím naše vyhlídky spíš napjatě, protože nájmy pořád rostou a hypotéky i odvody jsou vysoké, takže levnější energie nám moc nepomůžou, když jídlo a bydlení žerou většinu výplaty.",
+        "Elektřina s plynem sice zlevnili, ale nájem mi v Praze pořád roste a z drahého másla i jídla se rodina nevzpamatuje, takže za rok budem spíš šetřit každou korunu a dopředu moc nevidím. Koruna má oslabit a hypotéky jsou pro nás stejně nedosažitelné, takže s vlastním bydlením ani úsporami moc nepohnem.",
+        "Hypotéky zůstávají drahé a státní dluh i rušení slibů mě děsí, takže sice mám z průměrné mzdy co ušetřit, ale spíš šetřím každou korunu a do budoucna moc nevěřím, že se nám výrazně uleví.",
+        "Ceny potravin jako máslo nebo brambory pořád tlačí rodinný rozpočet nahoru a růst nájmů nám žádnou úlevu nepřinese, takže i když elektřina zlevnila, za rok budeme spíš šetřit každou korunu než si něco výrazně polepšit.",
+        "S důchodem o pár stovek vyšším sice vycházím líp než loni, ale drahé máslo, brambory a slibované mimořádné penze, co nakonec nedorazily, mě fakt zklamaly, takže se bojím, aby nás další zdražování a oslabující koruna zase nepřitlačily ke zdi. Naštěstí elektřina zlevnila, ale jinak na příští rok moc klidu nevidím, hlavně když stát dělá dluhy a na nás",
+        "S hypotékou kolem pěti procent a rostoucími cenami jídla jako jsou brambory nebo máslo vidím naše rodinné výdaje spíš nahoru, takže pokud koruna oslabí a inflace zase zrychlí, budeme muset hodně šetřit a nic moc navíc si neodložíme.",
+        "Důchod mi sice od ledna trochu stoupl a elektřina zlevnila, ale zdražení nájmu, brambor a másla i to, že slíbené doplatky penzí nakonec nedostaneme, mě dál tlačí a za rok moc volna v rozpočtu nečekám. Koruna navíc asi oslabí a ceny můžou zase růst, takže s penězi budu muset šetřit skoro každou korunu.",
+        "Hypotéky zůstávají drahé a jídlo pořád zdražuje, takže sice ušetříme trochu za elektřinu a plyn, ale měsíčně budeme spíš šetřit každou korunu a do ničeho velkého se nepustíme.",
+        "Ceny potravin a nájmů pořád rostou, zatímco hypotéky i koruna slibují spíš zhoršení, takže za rok budeme s penězi vyhlížet hůř než teď, i když nám elektřina trochu odlehčila. Důchodová reforma se odkládá až k roku 2027, takže se na stát nejspíš nemůžeme spolehnout, že nám do budoucna nějak výrazně uleví.",
+        "Jako důchodce na Moravě vidím příští rok celkem stabilně díky mírnému růstu penze a zlevnění energií, ale zklamání z nevyplacených důchodů a dražší nájem mě nutí šetřit a moc nevěřit slibům vlády.",
+        "Jako člověk se základním vzděláním na Moravě vidím naši domácnost spíš černě, protože zdražování jídla jako brambory nebo máslo nás tlačí víc než pár korun u důchodů a levnější elektřina, a bojím se, že s oslabující korunou a vyššími odvody bude zbytek roku ještě těžší.",
+        "Vyšší důchod a levnější elektřina s plynem nám sice trochu uleví, ale zdražování potravin jako brambory nebo máslo a zrušení slíbených mimořádných penzí měnící naši situaci k lepšímu moc nevěstí, takže příští rok spíš jen tak tak vyjdeme.",
+        "S hypotékou na pět procent a zdraženým máslem i bramborami na nákupu moc neušetřím, takže příští rok budeme spíš dál šetřit každou korunu a doufat, že se sazby i ceny potravin konečně uklidní. Výhled státního rozpočtu a odkládání důchodových změn mě navíc utvrzuje, že se na stát moc spolehnout nemůžu a musím si hlídat vlastní kapsu.",
+        "Jako Pražák se středoškolským vzděláním vidím naše vyhlídky spíš bledě, protože nájmy pořád rostou, jídlo jako brambory nebo máslo je drahé a hypotéku si kvůli vysokým sazbám nemůžeme ani pořádně vzít, takže budeme muset hodně šetřit a doufat, že koruna moc neoslabí.",
+        "Jako rodina na Moravě vidím další rok těžko – potraviny a nájem nám pořád rostou, zlevnění energií to skoro nevyváží a s rostoucími odvody i státním dluhem mám strach, že nám na živobytí zbude míň než letos.",
+        "S vyšším důchodem od ledna sice trochu vydechnu, ale pořád mě tlačí drahé jídlo jako máslo nebo brambory a rostoucí nájem, takže do roka moc volných korun neuvidím a spíš budu počítat každou korunu.",
+        "Jako domácnost na Moravě vidím dalších 12 měsíců docela bledě, protože vysoké hypotéky, dražší nájem a nejistota kolem daní a důchodů nám ukrajují rezervu, i když potraviny a energie teď mírně zlevnily. Bojím se, že s oslabující korunou a rostoucím státním dluhem nás zlevnění u másla moc nezachrání.",
+        "Jako důchodce s vysokoškolským vzděláním vidím naše finance spíš pesimisticky, protože slibované důchodové úlevy se ruší a zdražování potravin jako máslo či brambory dál žere rozpočet, zatímco koruna má oslabit a státní dluh roste. Příští rok tedy počítám s tím, že budeme muset víc šetřit a spoléhat jen na sebe, ne na státní pomoc.",
+        "Ceny energií sice konečně klesly a inflace zpomalila, ale drahé nájmy, zdražené jídlo jako máslo či brambory a vysoké hypotéky nám na Moravě moc volnosti v rodinném rozpočtu nedávají, takže spíš šetříme a bojíme se, co udělá oslabující koruna a další výdaje.",
+        "Jako mladý člověk se středoškolským vzděláním na Moravě vidím naše rodinné finance spíš napjatě, protože nájmy pořád rostou a hypotéky i úroky zůstávají vysoké, takže zlevnění energií nás moc nezachrání, když stát podle zpráv jenom zvyšuje dluhy a sliby nedodržuje. Na další rok moc nevěřím, že se nám bude výrazně ulevovat, spíš počítám s tím, že bud",
+        "Jako pražský důchodce s vysokoškolským vzděláním vidím naše finance spíš pesimisticky, protože nás zklamalo nevyplacení slíbených důchodů a drahé brambory s máslem dál žerou rozpočet, zatímco nájem nám roste a státní dluhy naznačují, že příští rok nebude líp.",
+        "Jako důchodce z venkova vidím další rok docela neurčitě, protože i když mi důchod od ledna trochu stoupl, zdražování potravin jako brambory a mléko i zrušený slibovaný jednorázový výdaj mi zrovna klid nepřidají. Budu muset víc hlídat každou korunu a spoléhat hlavně na to, co mám, protože státní rozpočet a sliby politiků vypadají spíš jako další nejistota než jistota.",
+        "Jelikož jídlo pořád zdražuje a nájem taky roste, budeme s manželkou muset víc šetřit, i když nám trochu pomůže levnější elektřina a plyn. Na nějaké větší výdaje nebo úspory moc nevidím, hlavně když vláda couvá ze slibů a státní dluh pořád naskakuje.",
+        "Ceny potravin a nájmů nám dál rostou, takže i když nám elektřina trochu zlevnila, měsíčně stejně utratíme víc než loni a s tímhle rozpočtovým chaosem ve státě se bojím, že nás zase někde na daních nebo odvodech něco překvapí. Naštěstí máme práci a hypotéku zafixovanou, takže to přežijeme, ale šetřit budeme muset víc než dřív.",
+        "Ceny potravin jako brambory nebo máslo nám dál žerou rozpočet a s drahými hypotékami i nejistotou kolem důchodů nečekám, že nám doma zbyde o moc víc než teď, spíš budeme muset ještě víc šetřit.",
+        "Jako důchodce na Moravě vidím ty vyhlídky celkem nejistě, protože i když mi důchod trochu přidal a energie zlevnily, pořád mě trápí drahé brambory, máslo a nájem, a vláda sliby u penzí zase jen odkládá, takže se bojím, abychom s manželkou vyšli.",
+        "Elektřina s plynem sice zlevnili, ale jídlo jako brambory nebo máslo je pořád drahé a penze nám nevrátí, co slíbili, takže s fixním důchodem vyjdeme tak tak a šetřit budem muset ještě víc než loni. Na další rok moc nevidím naději, že by se nám doma uvolnily ruce, spíš se bojím, aby nás ty ceny potravin a nájmů úplně nezatlačily do kouta.",
+        "Sice je inflace zpomalená a elektřina zlevnila, ale drahý nájem a nejistota kvůli rušení slibů o důchodech mě děsí, že s naším základním vzděláním a výdělkem v Čechách mimo Prahu tyhle roky sotva vyjdeme a na nějaké šetření nebo hypotéku můžeme zapomenout.",
+        "Důchod mi sice trochu přidali, ale po těch slibech, co je vláda zase neplní, a s drahými bramborami a mlíkem se bojím, že mi to na živobytí za rok moc nevydrží. Koruna má jít dolů a ceny rostou dál, takže jako důchodce na Moravě vidím naše vyhlídky spíš bledě.",
+        "Jako člověk se základním vzděláním na Moravě vidím naše vyhlídky spíš bledě, protože zdražení jídla jako brambory nebo máslo nás tlačí a hypotéku i nájem si kvůli novým limitům a rostoucím cenám stejně nemůžeme dovolit, i když nám elektřina trochu zlevnila.",
+        "Jako mladý člověk se středoškolským vzděláním na Moravě vidím naše rodinné finance spíš pesimisticky, protože zdražování potravin jako brambory nebo mléko nás tlačí, a šance na vlastní bydlení s hypotékami přes pět procent a přísnými limity je pro nás v nedohlednu. Obávám se, že státní dluhy a rušení slibů nás jenom připraví o jistotu, že se nám za rok bude žít líp než teď",
+        "Jako mladý Pražan se střední školou vidím naše rodinné finance spíš bledě, protože hypotéky i ceny bytů jsou pořád vysoko, máslo a další věci zdražily a stát podle zpráv jen rozhazuje peníze a sliby nedodržuje, takže se málo co ušetří a život v Praze bude dál drahý.",
+        "Jako člověk se základním vzděláním na Moravě vidím dalších 12 měsíců docela bledě, protože drahé nájmy, brambory i mléko nám žerou peněženku a hypotéku si kvůli vysokým sazbám a limitům ČNB stejně nemůžeme vzít, zatímco vláda sliby o důchodech i úlevách jen bere zpět.",
+        "Jako důchodce s nízkým vzděláním vidím naše vyhlídky spíš bledě, protože i když důchod od ledna trochu stoupne, drahé jídlo jako brambory nebo máslo a rostoucí nájem nám to stejně vezmou, a slibované mimořádné peníze nám ještě ke všemu sebrali. Bojím se, abychom s manželkou na konci měsíce vůbec vyšli, když stát dělá dluhy a ceny pořád skáčou",
+        "S hypotékou na hraně nových limitů a zdražujícím jídlem i nájmem vidím naše rodinné finance spíš na štíru, protože mzda sice roste, ale státní dluhy a vyšší odvody mi berou jistotu, že na konci měsíce něco reálně ušetříme. Pokud koruna oslabí k 25 za euro a ceny potravin dál letí nahoru, budeme muset šetřit na všem, co není nutné k životu.",
+        "Jako pražská domácnost s hypotékou kolem pěti procent a rostoucím nájemným i cenami potravin vidím dalších 12 měsíců spíš jako období šetření a nejistoty, protože koruna má oslabit a levnější energie nám reálně nepokryje zdražování všeho ostatního.",
+        "Jako Moravák se základním vzděláním vidím naši domácnost za rok v mrákotách, protože brambory a máslo dál draží, nájem roste a slíbené důchody ani úlevy od vlády nakonec nedorazily, takže sotva vyjdeme s měsíčním.",
+        "Jako OSVČ se mě od příštího roku citelně dotknou vyšší odvody a vysoký schodek rozpočtu mi nedává naději na uvolnění daní, takže s rostoucím nájmem a drahými bramborami s máslem budu spíš šetřit a moc si nevěřím, že se nám s rodinou životní úroveň zlepší.",
+        "Jako mladý bez vysoké školy na Moravě vidím naše rodinné finance spíš bledě, protože zdražení jídla a nájmů žere peněženku rychleji, než roste výdělek, a státní dluhy i rušení slibů mi nedávají naději, že se nám brzy uleví. Hypotéku si teď stejně nemůžeme nechat zdát, takže zbývá šetřit na horší časy a doufat, že elektřina zůstane levnější.",
+        "Jako důchodce na Moravě vidím ty vyšší důchody sice fajn, ale s tím, jak stát utrácí a sliby se ruší, mám strach, že za rok mi zdražení nájmu a jídla ty pár stovek navíc sežere a budu sotva vycházet."
+      ]
+    },
+    {
+      "seed": 3,
+      "n_sent": 60,
+      "ssr_score": 2.718801313309395,
+      "nowcast": -14.059934334530254,
+      "sentences": [
+        "Elektřina s plynem sice zlevnili, ale máslo, brambory a nájem nás dál ženou do minusu, takže s naším základním vzděláním a výdělkem na Moravě moc neušetříme a budeme se spíš jen snažit vyjít. Vláda sliby o důchodech a daních bere zpět, takže na nějakou jistotu od státu moc nesázím a hlavně koukám, abychom měli na běžný život.",
+        "Jako důchodce na Moravě vidím naše vyhlídky spíš bledě, když slíbené vyrovnání penzí padlo a nájmy s potravinami dál rostou, zatímco stát si jen nabaluje dluhy a koruna má jít dolů. Budeme muset víc šetřit za každou korunu, protože se žádné zlevnění energií našich každodenních výdajů moc nechytá.",
+        "Jako důchodce na Moravě vidím příštích 12 měsíců celkem stabilně díky lednovému zvýšení penze a levnější elektřině, ale zdražování brambor, másla a nájmů mi stejně kousek té jistoty sebere a sliby politiků o důchodech mě spíš jen naštvaly.",
+        "Jako mladý vysokoškolák v Praze vidím naše rodinné finance spíš napjatě, protože drahé jídlo a vysoké hypotéky nám berou rezervy, zatímco slibované úlevy od vlády se podle zpráv zase odkládají a koruna má jít dolů. Příští rok čekám, že s rostoucími odvody a nejistotou kolem rozpočtu budeme muset hodně šetřit, než se něco zlepší.",
+        "Jako důchodce z venkova vidím naše vyhlídky spíš bledě, protože i když nám důchody od ledna trochu stouply, drahé brambory, mléko i máslo a zrušené mimořádné vyrovnání penzí nám z kapsy zase rychle vytáhnou stejně nebo víc, než jsme dostali. Bojím se, že s tímhle tlakem cen a sliby politiků, co se ruší, budeme muset hodně šetřit a zbytek roku moc neoddechn",
+        "Inflation sice zpomalila a máslo i důchody trochu polevily, ale pořád platíme přemrštěné ceny brambor a mléka a hypotéky jsou drahé, takže za rok to u nás bude takové dojití mezi výdaji, co nepustí, a mzdou, co sotva stačí. Vládní sliby o penzích vzaly za své a státní dluhy rostou, takže se spíš bojím, že nás z něčeho takového ještě nějaká daň nebo poplatek",
+        "Rodinný rozpočet sice trochu uleví levnější elektřina a plyn, ale růst nájmů, drahé hypotéky i zdražení potravin jako brambory nás tlačí k šetření, a když vidím ten obří státní schodek a rušení slibů politiků, mám z našich financí i budoucna spíš obavu než klid.",
+        "S hypotékou kolem pěti procent a růstem nájmů i cen másla vidím naše měsíční výdaje spíš nahoře, takže rozpočet utáhneme jen těžko a na větší rezervu můžeme letos zapomenout.",
+        "Jako středoškolsky vzdělaný Moravan v předproduchodovém věku vidím naše rodinné finance spíš pesimisticky, protože zdražování základních potravin a růst odvodů srážejí rozpočet, zatímco státní dluh a rušení slibů o důchodech mi ubírají jistotu do budoucna. Pokud koruna oslabí a hypotéky zůstanou drahé, za rok budeme s větší pravděpodobností šetřit na každ",
+        "Jako důchodce na Moravě vidím naše vyhlídky spíš bledě, protože nám zrušili slíbené mimořádné vyrovnání penzí a zdražují brambory s máslem, zatímco nájmy rostou a koruna má podle zpráv ještě oslabit. Větší úlevu od státu nečekám, takže budeme muset s manželkou ještě víc šetřit na jídle a energiích, i když elektřina zrovna zlevnila.",
+        "Jako živnostník se bojím, že vyšší odvody v roce 2026 nám s manželkou znatelně ztenčí rozpočet, a i když máslo mírně zlevňuje, drahé bydlení a hypotéky nás drží v nejistotě, takže na větší úspory moc nesázím. Vládní sliby o důchodech a daních mi přijdou jako další otočka, takže se radši budeme muset spoléhat sami na sebe.",
+        "Jako mladý vysokoškolák v Čechách vidím naše rodinné finance spíš napjatě, protože zdražování potravin jako brambory nebo máslo a chystané vyšší odvody pro OSVČ nás tlačí, zatímco inflace sice zpomalila, ale stabilní jistotu do budoucna kvůli rušeným slibům vlády a rostoucímu schodku nečekám.",
+        "Jako mladý vysokoškolák v Čechách vidím naše rodinné finance spíš napjatě, protože drahé hypotéky a rostoucí nájemné s bramborami nám žádnou úlevu nedávají, i když inflace zpomalila a energie zlevnily. Bojím se, že další rok budeme muset hodně šetřit, zatímco stát podle zpráv jen zvyšuje dluhy a ruší sliby, což mě nejspíš do budoucna ještě víc zatíží.",
+        "Inflation sice zpomalila a energie zlevnily, ale drahé jídlo, rostoucí nájem a vysoké hypotéky nám žádný velký finanční vzdech nepřinesou, takže dalších dvanáct měsíců budeme spíš šetřit a doufat, že mzda stihne růst cen.",
+        "Jako mladý bez vzdělání v Čechách vidím naše vyhlídky bledě, protože ceny jídla jako máslo nebo brambory pořád rostou a stát si jen naloží dluhy, zatímco nám na nic z těch slibů nesáhne. Za rok se bojím, že s bydlením a drahými základy doma sotva vyjdeme, hlavně když vláda mění pravidla, jak se jí zachce.",
+        "Státní dluhy a rušení slibů ohledně penzí mě děsí, že na důchod nebudu mít jistotu, a i když energie zlevnila, drahé jídlo a vysoké hypotéky nás teď i za rok nepustí z každodenního šetření.",
+        "S inflací sice zpomalující na dvě procenta, ale s drahými bramborami, máslem a hypotékou kolem pěti procent vidím naše rodinné finance spíš na štíru, a jestli vláda couvá z důchodových slibů a zvyšuje odvody, tak se ani moc nepomůžeme těmi pár stovkami k důchodu navíc. Na velké investice nebo změnu bydlení v příštím roce rozhodně nepomýšlím, budeme se muset držet zpátky",
+        "Máslo i brambory pořád stojí majlant a když vláda couvá od slibů a hypotéky zůstávají drahé, tak na žádný velký úspory z naší výplaty nevěřím, spíš budeme dál šetřit na jídle a modlit se, aby koruna nespadla moc dolů.",
+        "Jako mladý vysokoškolák v Čechách vidím naše vyhlídky dost neurčitě – sice elektřina zlevnila a inflace zpomalila, ale drahé nájemné, rostoucí ceny jídla jako brambory a máslo a nepřístupné hypotéky s vysokými sazbami nám moc neumožňují si dlouhodobě spořit nebo pořídit vlastní bydlení. Obávám se, že pokud koruna oslabí a odvody OSVČ později vzrostou, bude nás",
+        "Jako důchodce s vysokoškolským vzděláním vidím naše vyhlídky spíš pesimisticky, protože i když nám důchod mírně stoupl a energie zlevnily, každodenní nákupy jako brambory nebo máslo dál drasticky zdražují a slibované mimořádné vyrovnání penzí nám vláda bez omluvy sebrala. Obávám se, že příští rok budeme muset víc šetřit na jídle, abychom utáhli rostoucí",
+        "Ceny energií sice klesly a inflace je nízká, ale růst nájmů, dražší hypotéky i vyšší odvody mě znepokojují víc než politické sliby, které stejně vidím být porušované, takže naši domácnost čeká spíš šetření než zlepšení rozpočtu.",
+        "Důchod nám sice od ledna trochu stoupl, ale s bramborami, máslem a mlékem pořád drahýma a slíbený jednorázový doplatek nám sebrali, takže na další rok moc nevidím a budeme muset hodně šetřit za jídlem. Koruna má navíc oslabit, takže se bojím, že nákupy ještě zdraží a z našeho starého rozpočtu nic moc nezbyde.",
+        "Hypotéky i nájmy dál rostou a stát se podle zpráv jen zadlužuje, takže i když nám energie trochu zlevnily, obávám se, že s dražšími potravinami a vyššími odvody nám doma peněz na konci měsíce spíš ubude než přibude.",
+        "Jako důchodce s vysokoškolským vzděláním vidím naše finance do roka celkem stabilní díky zvýšenému důchodu a levnějším energiím, ale mrzí mě, že slíbené vyrovnání penzí nedostaneme a drahé brambory s máslem nám každodenní rozpočet pořád citelně zatěžují.",
+        "Hypotéky i odvody zůstávají vysoké a koruna má podle všeho oslabit, takže i když potraviny zlevňují, pro naši domácnost na Moravě vidím příští rok spíš jako další období šetření bez většího finančního klidu.",
+        "Jako důchodce s osmdesáti korunami navíc měsíčně a zrušeným slibem o vyrovnání penzí vidím naše vyhlídky bledě, hlavně když nájmy pořád rostou a stát si žije na dluh, ze kterého budeme platit my i vnoučata.",
+        "Jako domácnost na Moravě vidím příští rok docela napjatě, protože i když inflace zpomalila, pořád nás tlačí drahé jídlo jako brambory nebo máslo a státní dluhy i rušení slibů kolem penzí mi nedávají moc naději, že se nám bude výrazněji ulevovat. Koruna sice zatím drží, ale pokud oslabí k 25 za euro, bude z našeho středoškolského platu každá koruna navíc utopená v draž",
+        "Ceny potravin jako máslo nebo brambory pořád rostou a hypotéky jsou pro nás nedosažitelné, takže i když elektřina zlevnila, za rok vidím naši domácnost spíš tak, že budeme dál šetřit a nic moc si nepřidáme. Koruna má podle zpráv oslabit a stát má obří schodek, takže se bojím, že nás čeká spíš další zdražování než zlepšení.",
+        "Jako důchodce z Moravy vidím naše vyhlídky spíš bledě, protože zatímco energie sice zlevnila, potraviny jako brambory nebo máslo dál zdražují a slibované důchodové vyrovnání se nekoná, takže s pevným příjmem budeme muset víc šetřit. K tomu koruna asi oslabí a nájmy rostou, takže za rok budeme mít v peněžence určitě hůř než teď.",
+        "Elektřina i plyn sice zlevnily, ale drahé brambory, máslo a hlavně rostoucí nájem nás i při mírné inflaci pořádně tlačí, takže s vyššími výdaji a žádným zázračným růstem příjmů vidím naše rozpočty spíš našponované než klidné.",
+        "Jako důchodce z venkova vidím naše finance spíš pesimisticky, protože růst penze o pár stovek nestačí na drahé máslo, brambory a nájem, a zrušení slíbeného doplatku nás zbytečně připravilo o jistotu. S korunou, co má oslabit, a státním dluhem se bojím, že nám za rok bude s penězi ještě tíž.",
+        "Státní dluhy a vyšší odvody mě děsí, že budeme mít doma míň peněz, i když důchody trochu stouply a elektřina zlevnila, drahé jídlo a nájmy nás stejně tlačí a do ničeho lepšího teď nevidím.",
+        "Jako mladý bez hypotéky mě zprávy o dražším jídle a vyšších odvodech pro OSVČ spíš děsí, protože i s průměrnou mzdou budu mít doma na Moravě sotva na nutné výdaje a o spoření si můžu nechat zdát.",
+        "Jako mladý bez vzdělání v Čechách vidím naše vyhlídky bledě, protože nájmy pořád rostou a jídlo jako máslo nebo brambory je pořád drahé, zatímco slušnou práci skoro neseženu a na hypotéku si můžu nechat jen zdát. Vláda sliby kolem peněz jen bere zpět, takže se budeme muset pořádně uskromnit, abychom vůbec vyšli.",
+        "Jako důchodce z venkova vidím další rok docela bledě – slíbené mimořádné vyrovnání penzí nám vzali, koruna má oslabit a nájmy i máslo pořád tlačí ceny nahoru, takže i s těmi pár stovkami navíc od ledna budu počítat každou korunu.",
+        "Jako domácnost na Moravě vidím dalších dvanáct měsíců dost nejistě, protože zdražování potravin jako brambory a mléko i rostoucí nájemné nás tlačí víc než levnější energie, a sliby o důchodech se ruší, takže se musíme držet při zdi a šetřit. Hypotéky jsou pro nás i děti nedosažitelné a s vyššími odvody pro OSVČ v rodině to bude s rozpočtem ještě těžší.",
+        "Máslo a brambory pořád strašně bijou do rodinného rozpočtu, takže i když inflace zpomalila, za rok všechno stejně utratím skoro za stejné peníze a na nějakou velkou rezervu nebo hypotéku s těmi sazbami ani nepomyslím.",
+        "Hypotéky jsou pro nás teď mimo hru a zdražování jídla jako brambory nebo máslo dál žere rozpočet, takže dalších dvanáct měsíců vidím spíš jako šetření a hlídání každé koruny, než že by se nám výrazně ulevilo.",
+        "Ceny energií sice klesly a inflace je nízko, ale drahé brambory, rostoucí nájem a vyšší odvody mi žádný velký klid nedají, takže rozpočet utáhneme tak tak a na nějaké šetření ani nepomyslím. Vláda sliby ruší a dluhy naskakují, takže se spíš bojím, co nás ještě překvapí, než abych čekal zlepšení.",
+        "Jako důchodce s vysokoškolským vzděláním vnímám příštích 12 měsíců celkem stabilně díky mírnému růstu penze a zlevnění energií, ale mrzí mě, že slíbené doplacení důchodů odpadlo a nájmy i máslo pořád zdražují, takže s rozpočtem musím počítat opatrně. Obávám se však, že vládní schodek a politické handrkování o rozpočet naznačují, že za pár let na nás",
+        "Jako mladý bez vzdělání na Moravě vidím naše vyhlídky blbě, ceny jídla jako máslo nebo brambory pořád rostou a nájem taky, zatímco vláda jen ruší sliby a na lepší výdělky nebo bydlení si sotva dosáhneme. Koruna má zeslábnout a hypotéky jsou moc drahé, takže si ani nemůžeme nic pořídit a budeme spíš jen tak tak vycházet.",
+        "Jako pražská domácnost s vysokoškolským vzděláním vidím příští rok celkem stabilně díky zlevnění energií a nízké inflaci, ale růst nájmů a dražší potraviny jako brambory nás citelně tlačí a bojím se, že slibované změny ve výdajích státu nás na daních nebo službách ještě doženou.",
+        "Elektřina sice zlevnila, ale s dražšími bramborami, máslem a růstem nájmu nám v peněžence moc nezbude, a když stát tahá dál obří schodky, mám strach, že nás za rok zas dožene nějaké zdražování nebo vyšší daně. Na hypotéku teď ani nepomyslím, se sazbami přes pět procent a limity ČNB bychom si vzít pořádné bydlení stejně nemohli.",
+        "Hypotéky jsou pořád moc drahé a nájem nám roste rychleji než mzda, takže za rok budeme spíš šetřit než utrácet, i když energie zlevnily a inflace je konečně nízko. Státní dluh a hádky ve Sněmovně mě znervózňují, protože se bojím, že nás z toho vytřískají zase my jako střední třída.",
+        "Jako člověk ve středním věku bez vysoké školy vidím naše rodinné finance spíš pesimisticky, protože zdražování jídla jako brambory nebo máslo nás tlačí a hypotéku i se sazbami kolem pěti procent si teď vůbec nemůžeme vzít na lepší bydlení, zatímco slibované úlevy od vlády se zase odkládají. Za rok budeme podle mě šetřit víc než dřív, protože i když inflace zpomalila,",
+        "Elektřina s plynem sice zlevnili, ale drahý nájem, zdražený brambory a mléko a vyšší odvody nás s průměrným výdělkem na Moravě pořádně tlačí, takže na další rok moc volných peněz nečekám a budeme muset šetřit hlavně na jídle a bydlení. Hypotéky i koruna nám moc nepomůžou, takže spíš přežíváme než že by se nám ulevilo.",
+        "Jako důchodce s jenom základní školou vidím naše finance spíš černě, když vláda couvla od slíbených penzí a máslo i jídlo pořád drahý zůstávají, takže příští rok budem muset šetřit každou korunu a doufat, že nás s tím inflatecí úplně nepotopí.",
+        "S hypotékou stále nad pěti procenty a zdražujícími potravinami i nájmy vidím naše rodinné finance spíš napnuté, i když zpomalení inflace a levnější energie nám alespoň trochu ulevují. Obávám se ale, že žádné výrazné zlepšení se v příštím roce nekoná, spíš budeme muset dál šetřit.",
+        "Jako domácnost na Moravě s vysokoškolským zázemím vidím další rok spíš v šetření, protože drahé hypotéky, zdražené jídlo a oslabující koruna nám žádný klidný růst reálných příjmů nejspíš nepřinesou. Vládní sliby o důchodech a daních se rozpadají a státní dluh roste, takže se radši připravujeme, že si každou korunu pohlídáme sami.",
+        "Stát se topí v dluzích a sliby se ruší, takže se bojím, že nám daně a odvody ještě vyskočí, zatímco nájmy a jídlo jako brambory dál žerou peněženku, takže příští rok budeme spíš šetřit než si něco dopřát.",
+        "Jako mladý vysokoškolák v Čechách vidím naše vyhlídky spíš neurčitě, protože dražší potraviny a vysoké ceny bydlení s přísnými hypotékami mi znepříjemňují rozpočet, zatímco státní dluh a politické hádky mě děsí z budoucích daní.",
+        "Jako domácnost na Moravě vidím dalších 12 měsíců s rozpaky – sice nám trochu odlehčí levnější energie a mírně vyšší důchody rodičům, ale rušení slibů u daní i důchodů, dražší nájem a máslo nás drží v obavách, že reálně neušetříme. Hypotéku bychom kvůli novým limitům ČNB stejně nedostali, takže o vlastním bydlení pro děti můžeme nechat sny.",
+        "Jako důchodce na Moravě vidím příští rok celkem stabilně díky růstu penze a levnějším energiím, ale obávám se zdražování nájmů a slibů politiků, co zase jen couvají, takže moc neutrácet a šetřit se vyplatí.",
+        "Jako mladý vysokoškolák na Moravě vidím příští rok docela nejistě, protože i když inflace zpomalila, ceny základních potravin pořád rostou a státní dluhy i rušení slibů mi naznačují, že naše generace zaplatí za dnešní nesystémové kroky, takže radši šetřím a nepočítám s žádnými většími příjmy navíc.",
+        "Bydlet v nájmu nás kvůli růstu nájmů i vysokým hypotékám dál tlačí rozpočet, a i když energie zlevnily, drahé jídlo a nejistota kolem slibů politiků mě děsí, že s vysokoškolským platem na Moravě moc neušetříme. Za rok vidím spíš stagnaci s rizikem, že koruna oslabí a zdraží nám i další věci, takže se budeme muset hodně hlídat.",
+        "Jako člověk se základním vzděláním na Moravě vidím naše vyhlídky spíš bledě, když máslo, brambory a hypotéky pořád táhnou peníze z kapsy a vláda sliby o důchodech i daních jen ruší, takže se budeme muset víc uskrovňovat.",
+        "Důchod mi sice od ledna trochu přidali a elektřina zlevnila, ale s drahými bramborami a mlíkem a rostoucím nájmem mi doma moc peněz nezbude, takže na další rok se dívám spíš s obavami. Vládní sliby kolem důchodů se mění, tak nevím, jestli za rok zas něco nedostanu ubráno, a to mě jako důchodce z Moravy moc neklidní.",
+        "Ceny potravin jako máslo nebo brambory pořád dost lezou a nájem nám roste, takže i když elektřina zlevnila, měsíčně moc ušetřit nebudeme, a s vyhlídkou oslabující koruny a vyšších odvodů od roku 2026 se spíš bojím, že náš rodinný rozpočet zůstane napnutý na krev.",
+        "Když vidím, že brambory i máslo dál zdražují, hypotéky zůstávají drahé a stát si dělá dluhy, co chce, tak se bojím, že s naším platem na Moravě vyjdeme s bídou a na nějaké spoření můžeme rovnou zapomenout.",
+        "Jako domácnost se středoškolsky vzdělaným příjmem v Čechách vidím další rok spíš jako přežívání — potraviny jako brambory nebo máslo nám žerou rozpočet, bydlení a hypotéky zůstávají drahé a vládní sliby o levnějším životě se podle zpráv zase rozpadly, takže na větší úspory moc nesázím."
+      ]
+    }
+  ],
+  "mean_nowcast": -12.791302224871991,
+  "abs_err": 5.1913022248719916,
+  "flash_reference": {
+    "file": "cz_nowcast_2026-05.json",
+    "nowcast": -14.79123532986435,
+    "abs_err": 7.19123532986435
+  },
+  "cost": {
+    "n_calls": 180,
+    "n_api_calls": 180,
+    "n_cache_hits": 0,
+    "calls_per_min_limit": 100.0,
+    "elapsed_s": 125.5,
+    "prompt_chars": 490774,
+    "completion_chars": 50472,
+    "est_prompt_tokens": 153366,
+    "est_completion_tokens": 15772
+  },
+  "raw_stream": [
+    {
+      "i": 1,
+      "response": "Jídlo pořád zdražuje a hypotéku si kvůli vysokým sazbám ani neodvážím refinancovat, takže s rozpočtem budeme spíš šetřit a doufat, že nám aspoň zůstanou ty levnější energie. Státní dluhy a hádky ve Sněmovně mě nejspíš nepotěší žádnou pomocí, takže se musíme spolehnout sami na sebe."
+    },
+    {
+      "i": 2,
+      "response": "S platebními povinnostmi jako hypotéka kolem pěti procent a dražší jídlo i nájem sice ušetřím trochu za energie, ale vládní chaos a rušení slibů u daní i důchodů mi nedávají žádnou jistotu, že za rok nebudeme s penězi ještě víc na štíru."
+    },
+    {
+      "i": 3,
+      "response": "Ceny potravin jako máslo nebo brambory nás pořád dost tlačí, i když elektřina zlevnila, ale s mzdou pod průměrem a rostoucím nájemným moc volna v rozpočtu nečekám a spíš budeme šetřit. Pokud koruna oslabí a hypotéky zůstanou drahé, o nějakém výrazném zlepšení našich financí v příštím roce si můžu nechat jen zdát."
+    },
+    {
+      "i": 4,
+      "response": "Jako OSVČ mě děsí růst odvodů od roku 2026 a vysoké sazby hypoték, takže rozpočet utáhnu jen těžko a o vlastním bydlení můžeme zatím nechat sny, i když inflace zpomalila. Vládní sliby o důchodech a rozpočtu mi přijdou jako další chaos, který mě osobně finančně nejistí."
+    },
+    {
+      "i": 5,
+      "response": "S hypotékou okolo pěti procent a zdražujícími se potravinami jako brambory nebo mléko moc volného v rozpočtu neuvidím, navíc sliby o nižších daních nebo důchodech se rozpadají, takže spíš šetřím a doufám, že koruna neoslabí moc rychle."
+    },
+    {
+      "i": 6,
+      "response": "Jako důchodce z venkova vidím naše finance spíš pesimisticky, protože slíbené vyrovnání penzí nedostaneme a zdražování jídla jako brambory nám žere i to malé zvýšení důchodu. S rostoucími nájmy a nejistotou kolem státního dluhu se bojím, že nám na konci měsíce nezbyde skoro nic navíc."
+    },
+    {
+      "i": 7,
+      "response": "Jako Pražák se středoškolským vzděláním vidím naše vyhlídky spíš pesimisticky, protože nájem nám dál roste, jídlo jako brambory nebo máslo je pořád drahé a státní dluhy i ustupování od důchodové reformy mi naznačují, že za rok budeme mít v peněžence ještě míň klidu."
+    },
+    {
+      "i": 8,
+      "response": "Jako důchodce v Praze vidím naše finance spíš pesimisticky, protože růst penze o necelých sedm stovek sotva pokryje drahé brambory, máslo a mléko, a zrušení slíbeného vyrovnání důchodů nás zbytečně připravilo o jistotu. Obávám se, že při vysokých cenách a nejisté koruně nám za rok moc peněz navíc v peněžence prostě nezbude."
+    },
+    {
+      "i": 9,
+      "response": "Jako mladý bez maturity na Moravě vidím naše vyhlídky bledě, protože hypotéky i odvody rostou a vláda sliby o důchodech i daních vezme zpět, takže sotva udržíme rodinný rozpočet, natož abychom si něco našetřili."
+    },
+    {
+      "i": 10,
+      "response": "Zlevnění elektřiny a plynu s mírným růstem důchodu nám s manželkou trochu uleví u měsíčních výdajů, ale dražší nájem, brambory i máslo a nejistota kolem dalších vládních slibů mě dělají opatrným, takže žijeme spíš skromněji a bez velkých plánů."
+    },
+    {
+      "i": 11,
+      "response": "Jako důchodce s vysokoškolským vzděláním vidím naše vyhlídky spíš opatrně, protože navzdory mírnému zvýšení důchodů a zpomalení inflace mě znepokojují rostoucí státní schodek, politické rušení slibů a očekávané oslabení koruny, které může zdražit běžné nákupy. Naštěstí už nemáme hypotéku ani děti na výdajích, takže nás tolik nezasáhnou vysok"
+    },
+    {
+      "i": 12,
+      "response": "Jako důchodce v Praze se bojím, že bez slíbeného vyrovnání penzí a se zdraženým máslem, bramborami i nájmem sotva vyjdeme, i když nám elektřina trochu ubrala. Za rok budeme podle mě s penězi ještě víc na štrejchu, hlavně až koruna oslabí a všechno zase podraží."
+    },
+    {
+      "i": 13,
+      "response": "Jako mladý bez vzdělání na Moravě vidím naše vyhlídky bledě, protože nájmy pořád rostou, hypotéky jsou pro nás nedosažitelné a stát podle zpráv jen zvyšuje odvody a odkládá sliby, takže zůstaneme v podnájmu a budeme počítat každou korunu za jídlo."
+    },
+    {
+      "i": 14,
+      "response": "Jako středně starý člověk v Čechách vidím naši domácnost spíš v šetření než v rozkvětu, protože i když potraviny mírně zlevňují a energie klesly, drahé bydlení, vysoké hypotéky a nejistota kolem slibů o důchodech nás nutí držet se zkrátka. Na příští rok moc nevěřím zlepšení, hlavně když vláda couvá z věcí, na které jsme slyšeli, a náklady"
+    },
+    {
+      "i": 15,
+      "response": "Jako důchodce s jen základním vzděláním vidím naše vyhlídky spíš bledě, protože i když důchod od ledna trochu stoupne, zdražují brambory, máslo i mléko a sliby politiků o penzích zase obcházejí, takže sotva vyjdeme s penězi do konce měsíce. Koruna má navíc oslabit a na lepší hypotéky nebo úspory pro děti nemáme ani pomyšlení, takže se budeme muset hodně uskromňovat."
+    },
+    {
+      "i": 16,
+      "response": "Ceny potravin jako brambory nebo máslo nám dál zatěžují rozpočet a s hypotékou přes pět procent ani nepomýšlíme na stěhování, takže i když elektřina zlevnila a inflace zpomalila, za rok budeme spíš jen taktak vyjíždět. Koruna má navíc oslabit a nájem nám roste, takže na větší finanční volnost moc nesázím."
+    },
+    {
+      "i": 17,
+      "response": "Jako Pražák se středoškolským vzděláním vidím naše vyhlídky spíš pesimisticky, protože nájmy pořád rostou a hypotéky zůstávají nedosažitelné, zatímco levnější elektřina nám neutáhne drahotu jídla a bydlení. Bojím se, že další rok budeme jen šetřit a žít od výplaty k výplatě, než se něco v ekonomice konečně obrátí k lepšímu."
+    },
+    {
+      "i": 18,
+      "response": "Jako pražská domácnost s vysokoškolským vzděláním vidím příští rok celkem stabilní, ale bez výrazného zlepšení: levnější energie nám trochu uleví, zato růst nájmů a nejistota kolem koruny a státního schodku nás nutí držet se zpátky a neutrácet za zbytečnosti."
+    },
+    {
+      "i": 19,
+      "response": "Jako člověk se základním vzděláním na Moravě vidím naše vyhlídky bledě, protože jídlo pořád zdražuje, hypotéku ani úspory si nemůžeme vylepšit kvůli vysokým sazbám a stát si podle zpráv s penězi taky neví rady, takže budeme muset hodně šetřit."
+    },
+    {
+      "i": 20,
+      "response": "Jako Pražan s vysokoškolským vzděláním vidím naše vyhlídky spíš opatrně, protože i když energie zlevnila a inflace zpomalila, růst nájmů, nové hypotéční limity a neustálé rušení vládních slibů mě nutí šetřit a nevěřit, že se nám reálně uleví. Obávám se, že kvůli schodku rozpočtu a oslabující koruně nás ještě čekají vyšší odvody nebo daně, což naše dom"
+    },
+    {
+      "i": 21,
+      "response": "Jako Pražák se středoškolským vzděláním vidím naše vyhlídky spíš napjatě, protože nájem nám dál roste a jídlo zůstává drahé, i když koruna má podle všeho ještě oslabit a státní dluhy mě děsí kvůli budoucím daním. Doufám, že levnější elektřina nám trochu uleví, ale celkově čekám, že s rozpočtem budeme muset šetřit víc než letos."
+    },
+    {
+      "i": 22,
+      "response": "Jako mladý bez vysoké školy vidím naše vyhlídky spíš bledě, protože drahé nájmy, vysoké hypotéky i rostoucí ceny jídla nám s rodinou moc neumožní něco ušetřit, zatímco vláda sliby ruší a dluhy nám hází na bedra."
+    },
+    {
+      "i": 23,
+      "response": "Jako důchodce s vysokoškolským vzděláním na Moravě vidím naše finance jako stabilní díky mírnému zvýšení důchodu, ale rostoucí ceny potravin jako brambory nebo máslo nás nutí víc šetřit a obávám se, že oslabující koruna a vysoký státní schodek mohou životní náklady ještě zhoršit."
+    },
+    {
+      "i": 24,
+      "response": "Jako mladý bez vysoké školy v Čechách vidím naše vyhlídky spíš bledě, protože nájmy pořád rostou, jídlo jako brambory nebo máslo je drahé a na vlastní bydlení s hypotékou za skoro pět procent a přísnými limity nemáme šanci. Doufám akorát, že zlevnění elektřiny trochu uleví rodinnému rozpočtu, než nás zas dožene oslabující koruna a drahé nájemné."
+    },
+    {
+      "i": 25,
+      "response": "Jako mladý bez vysokoškoláku na Moravě vidím naše rodinné finance spíš pesimisticky, protože drahé hypotéky a slibované zdražení odvodů nás brzdí v jakémkoli plánu na vlastní bydlení, zatímco státní dluhy a oslabující koruna mi připomínají, že za všechno jednou zaplatíme my. Inflace sice zpomalila, ale pocit, že vláda ruší sliby a nechává budoucnost na nás, ve mně budí"
+    },
+    {
+      "i": 26,
+      "response": "Elektřina s plynem sice zlevnily a inflace je konečně nízko, ale růst nájmů v Praze, dražší jídlo i vyšší odvody nám doma žádnou velkou úsporu nepřinesou, takže rozpočet budeme muset hlídat skoro stejně napjatě jako doteď."
+    },
+    {
+      "i": 27,
+      "response": "Vyšší důchod a zpomalení inflace mi sice trochu uleví, ale zklamání z nevyplacených penzí a slibů vlády mě nutí šetřit a moc do budoucna nedoufat, zvlášť když máslo a další potraviny pořád zdražují. Na Moravě vycházím z toho, co mám, a bojím se, aby koruna oslabila a životní náklady zase neskočily nahoru."
+    },
+    {
+      "i": 28,
+      "response": "S hypotékou kolem pěti procent a dražšími potravinami jako brambory nebo máslo moc volného v rozpočtu nevidím, a když vláda sliby o důchodech i daních ruší a schodek roste, mám spíš strach, že nás za rok budou tlačit další výdaje a žádné zlevnění se nekoná."
+    },
+    {
+      "i": 29,
+      "response": "Snažím se užít s tím, co mám, ale s rostoucím nájemným, drahým máslem a bramborami i nejistými důchody se bojím, že za rok budu muset ještě víc šetřit a žít z minima."
+    },
+    {
+      "i": 30,
+      "response": "Jako důchodce na Moravě vidím příští rok celkem stabilně díky navýšení důchodu, ale zdražování potravin jako brambory nebo máslo mi životní náklady znatelně zatěžuje a slibované mimořádné vyrovnání penzí mi chybí. Obávám se, že rostoucí státní schodek a nejistá koruna ještě víc prodraží běžný provoz domácnosti."
+    },
+    {
+      "i": 31,
+      "response": "Jako student v Praze vidím příštích 12 měsíců dost napjatě, protože drahé bydlení, vysoké hypotéky a zdražené jídlo jako brambory nebo máslo mi životní náklady zvedají rychleji, než stačí růst moje kapesné nebo brigádní výdělky. Koruna navíc slábne a státní dluh roste, takže se bojím, že za rok budu mít z peněz ještě míň než teď."
+    },
+    {
+      "i": 32,
+      "response": "Jako domácnost s vysokoškolským vzděláním v Čechách vidím naše finance spíš napjatě, protože vysoké hypotéky kolem pěti procent a rostoucí odvody živnostníkům i nejistota kolem důchodů nám berou pocit, že se náš životní standard zlepší, i když průměrná mzda mírně stoupla. Obávám se, že při schodku rozpočtu a oslabování koruny nás čeká spíš šetření než nějaké"
+    },
+    {
+      "i": 33,
+      "response": "Jako důchodce z venkova vidím příští rok docela černě, protože slibované důchody nám sebrali a základní jídla jako máslo nebo brambory pořád zdražují, takže s klidnou repo sazbou a dražším nájmem moc neušetřím. Koruna sice teď drží, ale když prý oslabí, bude v obchodech ještě hůř, takže budu muset hodně šetřit na všem možném."
+    },
+    {
+      "i": 34,
+      "response": "Důchod se sice od ledna trochu zvedl a elektřina zlevnila, ale brambory a mléko pořád draží a nájem roste, takže s penězi budeme muset šetřit skoro stejně jako doteď. Bojím se hlavně slibů politiků o důchodech, protože z těch zpráv je jasné, že nic moc neplatí a na pořádnou jistotu se nemůžu spolehnout."
+    },
+    {
+      "i": 35,
+      "response": "Hypotéky zůstávají drahé a nájmy pořád rostou, takže s průměrným výdělkem a rodinnými náklady moc volného neuvidím, i když zlevnění energií trochu pomůže. Spíš budeme šetřit a doufat, že ceny potravin jako máslo konečně sednou, než nás státní dluhy a odvody zase doženou."
+    },
+    {
+      "i": 36,
+      "response": "Jako mladý bez vysoké školy na Moravě vidím naše vyhlídky dost bledě, protože hypotéky i jídlo jsou pořád moc drahé a koruna má jít dolů, takže s průměrnou mzdou sotva ušetřím na něco kromě nájmu a základních věcí."
+    },
+    {
+      "i": 37,
+      "response": "Jako důchodce na Moravě vidím příští rok docela černo, protože ceny jídla jako brambory nebo máslo dál letí nahoru a slíbené vyrovnání důchodů nám zrušili, takže s malou penzí sotva vyjdeme a koruna ještě asi oslabí. Naštěstí by měl průměrný důchod od ledna trochu stoupnout, ale to nás před drahotou moc nezachrání."
+    },
+    {
+      "i": 38,
+      "response": "Ceny potravin jako brambory nebo mléko mi kvůli drahotě na nákupu pořádně zatopí, i když energie zlevnily, takže s průměrnou mzdou na Moravě vyjdeme tak tak a bojím se, aby další růst nájmů a oslabení koruny naši domácnost úplně nezatlačily do kouta."
+    },
+    {
+      "i": 39,
+      "response": "Jako mladý bez vysoké školy na Moravě vidím naše vyhlídky docela bledě, protože nájem roste, hypotéku si kvůli novým limitům a sazbám nejspíš nevezmeme a málo placená práce nás u průměrné mzdy moc nezachrání. Zlevnění elektřiny nás sice trochu uleví, ale máslo a další drahoty nás pořád tlačí a na vlastní bydlení si jen tak nesáhneme."
+    },
+    {
+      "i": 40,
+      "response": "Jako mladý Pražan se středoškolským vzděláním vidím naše rodinné finance spíš pesimisticky, protože drahé nájemné v Praze a žádná úleva u hypoték nás tlačí, zatímco zlevnění energií sotva pokryje zdražení jídla jako brambory a mléko. Státní dluhy a rušení slibů nás neuklidňují, takže na větší úspory nebo bydlení vlastním nevidím v příštím roce šanci."
+    },
+    {
+      "i": 41,
+      "response": "Hypotéky zůstávají drahé a ceny jídla i nájmů pořád rostou, takže s průměrným výdělkem moc volných peněz nebude, a když vláda navíc ruší slíbené důchody a kope se v rozpočtu, tak se na příští rok dívám spíš s obavami než s klidem."
+    },
+    {
+      "i": 42,
+      "response": "Jako mladý se středoškolským vzděláním na Moravě vidím naše vyhlídky spíš bledě, protože při drahých hypotékách a rostoucím nájmu se s průměrným výdělkem těžko ušetří na vlastní bydlení a státní dluhy mi přijdou jako další břemeno do budoucna. Zlevnění elektřiny nám sice trochu uleví, ale drahé jídlo a nejistota kolem slibů vlády mě nutí počítat každou korunu"
+    },
+    {
+      "i": 43,
+      "response": "Ceny potravin a nájmů nám sice dál rostou a hypotéky zůstávají drahé, ale díky levnější elektřině a zpomalení inflace to pro naši pražskou domácnost vidím spíš na mírné přežití bez velkých úspor než na zhoršení. Obávám se ale slibů politiků i oslabující koruny, takže moc nevěřím, že za rok budeme na tom výrazně líp."
+    },
+    {
+      "i": 44,
+      "response": "Jako domácnost na Moravě vidím příští rok s obavami, protože rostoucí schodek, větší odvody a neustálé rušení slibů nás tlačí k úsporám, i když nám zatím mírně oddechly energie a potraviny. Pokud koruna oslabí a nájmy dál porostou, bude nám každá koruna navíc chybět."
+    },
+    {
+      "i": 45,
+      "response": "Jako důchodce z venkova vidím příští rok docela bledě, protože slíbené vyrovnání penzí padlo a přidáno mám jen pár stovek, zatímco máslo a další věci pořád zdražují a úspory mi nevydělají kvůli sazbám ČNB skoro nic. Budu muset víc šetřit a spoléhat na to, co mám, protože vláda sliby nedodržela a na horizontu nevidím žádnou pořádnou úlevu."
+    },
+    {
+      "i": 46,
+      "response": "Penze mi sice od ledna trochu stoupne, ale zrušené mimořádné vyrovnání a zdražené brambory či mléko mi životní úspory stejně sežerou, takže se budu muset víc uskromnit a doufat, že elektřina zůstane levnější. Na nějaké větší výdaje nebo pomoc dětem nemůžu v téhle nejisté době vůbec pomyslet."
+    },
+    {
+      "i": 47,
+      "response": "Jakožto OSVČ mě děsí růst odvodů od roku 2026 a vysoké hypotéky i nájmy, takže i když energie zlevnily a inflace zpomalila, reálně čekám, že naše domácnost bude spíš šetřit a žádné velké volno nebude. Státní dluh a nejistota kolem penzí navíc budí pocit, že se na stát moc spolehnout nedá."
+    },
+    {
+      "i": 48,
+      "response": "Jako mladý bez vysoké školy na Moravě vidím naše vyhlídky spíš bledě, protože drahé jídlo i hypotéky s novými limity nám znemožňují spořit a koruna zřejmě ještě oslabí, takže s výdaji moc nepohneme."
+    },
+    {
+      "i": 49,
+      "response": "Ceny energií sice konečně trochu klesly a inflace je nízká, ale růst nájmů, dražší potraviny jako brambory či máslo a hrozba oslabení koruny mě děsí, že s naším rozpočtem jakožto domácnosti ve středních Čechách nevystačíme bez omezování. Výhled na příští rok je pro nás spíš nejistý a opatrný, protože státní dluh a politické handrkování o rozpočtu naznačují, že ž"
+    },
+    {
+      "i": 50,
+      "response": "Jako důchodce na Moravě vidím naše vyhlídky celkem stabilní díky mírnému zvýšení penze a zlevnění energií, ale zklamání z nevyplacených slíbených důchodů a růst nájmů nás nutí šetřit a moc se nespoléhat na vládní sliby."
+    },
+    {
+      "i": 51,
+      "response": "Jako důchodce z venkova vidím dalších dvanáct měsíců dost bledě, když vláda couvla od slibovaných peněz a jídlo jako brambory či máslo pořád drahé zůstává, i když nám elektřina trochu odlehčila. Bojím se, že s rostoucím nájmem a nejistou korunou nám na konci měsíce bude zbývat čím dál míň."
+    },
+    {
+      "i": 52,
+      "response": "Inflace sice zpomalila, ale zdražování základních potravin jako brambor nebo mléka a vysoké sazby hypoték nás tlačí k opatrnosti, takže s vidinou stagnujících mezd a rostoucího státního dluhu čekám spíš utahování opasků než zlepšení."
+    },
+    {
+      "i": 53,
+      "response": "Sice mi od ledna trochu přidali k důchodu a zlevnila elektřina, ale pořád mě tlačí drahé jídlo jako máslo nebo brambory a nervózní jsem z toho, jak politici zase mění sliby u penzí, takže na rok dopředu vidím naši domácnost spíš tak, že sotva vyjdeme a musíme se hodně hlídat."
+    },
+    {
+      "i": 54,
+      "response": "Jako pražská domácnost s vysokoškolským vzděláním vidím příští rok celkem stabilně díky zlevnění energií a nižší inflaci, ale rostoucí nájmy a vysoké hypotéky nás drží v obezřetnosti, zatímco politické rušení slibů u důchodů a daní ve mně budí nedůvěru k dlouhodobému plánování."
+    },
+    {
+      "i": 55,
+      "response": "Jako důchodce v Čechách vidím naše vyhlídky spíš bledě, protože nám zrušili slíbené doplatky penzí a zdražování jídla jako brambory nebo máslo nám žere skromný rozpočet, zatímco stát se topí v dluzích a na nás moc nehledí. Doufám, že zlevnění elektřiny a plynu nám aspoň trochu uleví, ale s rostoucím nájmem a nejistou korunou se bojím, abychom s manželkou vy"
+    },
+    {
+      "i": 56,
+      "response": "Jako důchodce na Moravě vidím naše vyhlídky spíš pesimisticky, protože i když nám důchod trochu stoupl, málo to pokryje drahé potraviny a slibované dorovnání penzí nám vláda zrušila, takže s korunou, co zřejmě oslabí, budeme šetřit každou korunu."
+    },
+    {
+      "i": 57,
+      "response": "Hypotéky jsou pro nás bez úlevy moc drahé, takže o vlastním bydlení ani neuvažujeme, a i když energie zlevnila, pořád nás tlačí drahé jídlo a růst nájmů, takže s rozpočtem budeme spíš šetřit a žít od výplaty k výplatě. Důvěra v vládu je u nás pryč, když ruší sliby u důchodů a daní, takže do budoucna moc nevěřím, že se nám bude výrazně lí"
+    },
+    {
+      "i": 58,
+      "response": "Sice nám trochu odlehčí levnější elektřina a plyn, ale drahé jídlo, rostoucí nájem a vysoké hypotéky nás drží v šachu, takže za rok budeme spíš jen dál šetřit a nečekám, že nám s naším rozpočtem nějak výrazně vydechneme."
+    },
+    {
+      "i": 59,
+      "response": "Jako důchodce v Čechách vidím příští rok celkem stabilně díky mírnému zvýšení penze a zlevnění energií, ale růst cen potravin jako brambory nebo máslo mi stejně znatelně zatěžuje denní rozpočet. Hypotéky ani bydlení mě už neřeší, ale obávám se, že politické handlování kolem rozpočtu a odklady reforem můžou naše příjmy do budoucna ještě zkomplikovat."
+    },
+    {
+      "i": 60,
+      "response": "Hypotéky jsou pro nás mimo hru a ceny potravin i bydlení pořád vysoko, takže s vyššími odvody a politickým rošádováním kolem slibů čekám, že následující rok budeme spíš šetřit a žádné velké finanční volno si neuděláme."
+    },
+    {
+      "i": 61,
+      "response": "Jako důchodce na Moravě vidím příští rok celkem klidně, protože zlevnění elektřiny a mírná inflace mi trochu uleví, ale rostoucí nájem a nejistota kolem důchodových slibů vlády mě udržují v opatrnosti, abych neutratil víc, než mám."
+    },
+    {
+      "i": 62,
+      "response": "Jako člověk se základním vzděláním na Moravě vidím další rok spíš černě, protože jídlo jako brambory nebo máslo pořád zdražuje a vláda slíbené peníze důchodcům i nám nedala, takže sotva vyjdeme s penězi, než zase něco přidají na daních nebo odvodech."
+    },
+    {
+      "i": 63,
+      "response": "Jako člověk se základním vzděláním na Moravě vidím naše rodinné finance spíš černě, protože hypotéky zůstávají drahé, slibované důchody a úlevy vláda ruší a zdražují nám brambory i mléko, takže do roka moc ušetřit nemůžem."
+    },
+    {
+      "i": 64,
+      "response": "Jako OSVČ s vysokoškolským vzděláním mě děsí hlavně růst odvodů od roku 2026 a neustálé politické otáčení u daní i důchodů, takže na rok dopředu vidím naši domácnost spíš v režimu šetření a obav z dalšího zdražování jídla i energií. S korunou mířící k 25 za euro a státním deficitním bincem se bojím, že reálně našetřit nepůjde a každá koruna bud"
+    },
+    {
+      "i": 65,
+      "response": "Jako člověk se základním vzděláním na Moravě vidím naše vyhlídky spíš bledě, protože zdražené jídlo jako brambory nebo máslo nám žere peníze a sliby politiků o důchodech a daních se zase jen hroutí, takže se budeme muset hodně uskromňovat."
+    },
+    {
+      "i": 66,
+      "response": "Hypotéky i nájmy nás dál tlačí, zlevnění elektřiny sice pomůže, ale drahé jídlo a nejistota kolem slibů vlády mi nedávají moc naději, že do roka výrazně uvolníme rodinný rozpočet."
+    },
+    {
+      "i": 67,
+      "response": "Vyšší důchod nám sice trochu pomohl, ale drahé nájemné a pořád drahé jídlo jako máslo nás drží tak tak nad vodou, takže na nějaké ulehčení v příštím roce moc nevěřím. Nejvíc mě znervózňuje, že vláda sliby o penzích bere zpátky, takže se bojím, abychom za rok nebyli na tom hůř."
+    },
+    {
+      "i": 68,
+      "response": "Důchod mi sice od ledna trochu stoupl a potraviny jako máslo zvolna zlevňují, ale slibované mimořádné vyrovnání penzí padlo a ceny základních věcí jako brambory pořád rostou, takže za rok budu spíš jen taktak vycházet a s klidným srdcem do budoucna nehledím."
+    },
+    {
+      "i": 69,
+      "response": "Jako živnostník z Moravy se bojím, že vyšší odvody v roce 2026 nám srazí rodinný rozpočet, zatímco zlevnění elektřiny a másla sotva pokryje růst nájmů a každodenní drahotu. Vládní sliby o důchodech a daních vidím jako plané řeči, takže do budoucna moc nevěřím, že se nám bude žít výrazně líp."
+    },
+    {
+      "i": 70,
+      "response": "Hypotéky jsou pro nás na Moravě pořád moc drahé a s novými limity se k vlastnímu bydlení nejspíš vůbec nepřiblížíme, takže radši šetříme, ale z dražšího másla a nejistých slibů politiků mám z domácnosti spíš obavu než klid."
+    },
+    {
+      "i": 71,
+      "response": "Brambory a mléko nám v obchodech pořádně zdražují a koruna má jít ještě dolů, takže s platem na Moravě moc nevyděláme a našetřit se letos určitě nebude; nájem nám zároveň roste, takže budeme spíš šetřit na každém rohu a doufat, že elektřina zůstane levnější."
+    },
+    {
+      "i": 72,
+      "response": "Jako důchodce v Čechách vidím naše vyhlídky bledě, protože nám slíbené doplacení penzí zrušili a přitom brambory i mléko zdražily, takže s fixním důchodem sotva vyjdeme s penězi na jídlo a bydlení. Elektřina sice zlevnila, ale nájmy rostou a státní dluhy mi vůbec nevěstí, že by nám v příštím roce někdo přidal."
+    },
+    {
+      "i": 73,
+      "response": "Jako Pražák se základním vzděláním vidím naše rodinné finance spíš černě, protože drahé jídlo jako brambory nebo mléko a vysoké hypotéky nás tlačí, zatímco státní dluhy a rušení slibů mi nedávají naději, že se nám uleví. Příští rok budeme muset hodně šetřit, abychom vůbec vyšli s penězi."
+    },
+    {
+      "i": 74,
+      "response": "Jako důchodce na Moravě vnímám, že mírné zvýšení důchodu od ledna 2026 sice pomůže, ale drahé brambory, máslo a další potraviny spolu s oslabující korunou a rostoucím nájemným mé reálné úspory dál ukrajují, takže za rok budu spíš počítat každou korunu než spořit."
+    },
+    {
+      "i": 75,
+      "response": "Sice nám trochu oddechly energie a potraviny jako máslo zlevňují, ale zdražení nájmů, brambor a mléka s vysokýma hypotékama nás stejně drží ve stoje, takže za rok budeme spíš šetřit než si něco užívat. Státní dluhy a nejistota kolem důchodů mě navíc děsí, že nás z daní ještě víc obere, než aby nám pomohla."
+    },
+    {
+      "i": 76,
+      "response": "Jako Pražák se základním vzděláním vidím naše vyhlídky spíš bledě, protože nájmy pořád rostou a hypotéku si s novými limity ani nevezmeme, takže budeme dál žít od výplaty k výplatě a doufat, že levnější elektřina nás aspoň trochu podrží. Vláda sliby kolem důchodů a daní ruší, státní dluh bobtná a koruna má oslabit, takže mám strach, aby nás za rok nezaskočily je"
+    },
+    {
+      "i": 77,
+      "response": "Ceny potravin i energií sice konečně trochu polevily, ale drahé nájmy, vysoké hypotéky a neustálé rušení slibů vládou mi kazí pocit jistoty, takže příští rok budeme spíš šetřit a doufat, že nás nějaká další daňová nebo odvodová změna úplně nezruinuje."
+    },
+    {
+      "i": 78,
+      "response": "Jako rodina na Moravě vidím další rok hlavně v šetření, protože drahé jídlo, růst nájmů a vysoké hypotéky nám žádný velký klid nedají, i když elektřina trochu zlevnila. Koruna půjde prý dolů a sliby o důchodech se ruší, takže spoléhám jen na naše výplaty a bojím se, co ještě přijde."
+    },
+    {
+      "i": 79,
+      "response": "Ceny potravin a nájmů nám dál rostou, zatímco státní sliby o důchodech a daních se hroutí, takže s vysokoškolským příjmem sice vydržíme, ale reálně se má domácnost nezlepší a spíš zbytečně tlačíme na úspory."
+    },
+    {
+      "i": 80,
+      "response": "Jako Pražák se středoškolským vzděláním vidím naše vyhlídky spíš napjatě, protože nájmy pořád rostou a hypotéky i odvody jsou vysoké, takže levnější energie nám moc nepomůžou, když jídlo a bydlení žerou většinu výplaty."
+    },
+    {
+      "i": 81,
+      "response": "Jako člověk se základním vzděláním na Moravě vidím příští rok docela černě, protože brambory a máslo dál zdražují, koruna asi oslabí a žádné větší přidání se nechystá, takže s rozpočtem budeme muset hodně šetřit. Hypotéky i tak zůstanou drahé a sliby politiků o důchodech zase vzaly za své, takže na klidný život teď moc nesázím."
+    },
+    {
+      "i": 82,
+      "response": "Elektřina s plynem sice zlevnili, ale nájem mi v Praze pořád roste a z drahého másla i jídla se rodina nevzpamatuje, takže za rok budem spíš šetřit každou korunu a dopředu moc nevidím. Koruna má oslabit a hypotéky jsou pro nás stejně nedosažitelné, takže s vlastním bydlením ani úsporami moc nepohnem."
+    },
+    {
+      "i": 83,
+      "response": "Ceny potravin jako máslo nebo brambory pořád tlačí rodinný rozpočet nahoru a růst nájmů nám žádnou úlevu nepřinese, takže i když elektřina zlevnila, za rok budeme spíš šetřit každou korunu než si něco výrazně polepšit."
+    },
+    {
+      "i": 84,
+      "response": "Hypotéky zůstávají drahé a státní dluh i rušení slibů mě děsí, takže sice mám z průměrné mzdy co ušetřit, ale spíš šetřím každou korunu a do budoucna moc nevěřím, že se nám výrazně uleví."
+    },
+    {
+      "i": 85,
+      "response": "Důchod mi sice od ledna trochu stoupl a elektřina zlevnila, ale zdražení nájmu, brambor a másla i to, že slíbené doplatky penzí nakonec nedostaneme, mě dál tlačí a za rok moc volna v rozpočtu nečekám. Koruna navíc asi oslabí a ceny můžou zase růst, takže s penězi budu muset šetřit skoro každou korunu."
+    },
+    {
+      "i": 86,
+      "response": "S hypotékou kolem pěti procent a rostoucími cenami jídla jako jsou brambory nebo máslo vidím naše rodinné výdaje spíš nahoru, takže pokud koruna oslabí a inflace zase zrychlí, budeme muset hodně šetřit a nic moc navíc si neodložíme."
+    },
+    {
+      "i": 87,
+      "response": "Ceny potravin a nájmů pořád rostou, zatímco hypotéky i koruna slibují spíš zhoršení, takže za rok budeme s penězi vyhlížet hůř než teď, i když nám elektřina trochu odlehčila. Důchodová reforma se odkládá až k roku 2027, takže se na stát nejspíš nemůžeme spolehnout, že nám do budoucna nějak výrazně uleví."
+    },
+    {
+      "i": 88,
+      "response": "S důchodem o pár stovek vyšším sice vycházím líp než loni, ale drahé máslo, brambory a slibované mimořádné penze, co nakonec nedorazily, mě fakt zklamaly, takže se bojím, aby nás další zdražování a oslabující koruna zase nepřitlačily ke zdi. Naštěstí elektřina zlevnila, ale jinak na příští rok moc klidu nevidím, hlavně když stát dělá dluhy a na nás"
+    },
+    {
+      "i": 89,
+      "response": "Hypotéky zůstávají drahé a jídlo pořád zdražuje, takže sice ušetříme trochu za elektřinu a plyn, ale měsíčně budeme spíš šetřit každou korunu a do ničeho velkého se nepustíme."
+    },
+    {
+      "i": 90,
+      "response": "Jako důchodce na Moravě vidím příští rok celkem stabilně díky mírnému růstu penze a zlevnění energií, ale zklamání z nevyplacených důchodů a dražší nájem mě nutí šetřit a moc nevěřit slibům vlády."
+    },
+    {
+      "i": 91,
+      "response": "Jako člověk se základním vzděláním na Moravě vidím naši domácnost spíš černě, protože zdražování jídla jako brambory nebo máslo nás tlačí víc než pár korun u důchodů a levnější elektřina, a bojím se, že s oslabující korunou a vyššími odvody bude zbytek roku ještě těžší."
+    },
+    {
+      "i": 92,
+      "response": "Vyšší důchod a levnější elektřina s plynem nám sice trochu uleví, ale zdražování potravin jako brambory nebo máslo a zrušení slíbených mimořádných penzí měnící naši situaci k lepšímu moc nevěstí, takže příští rok spíš jen tak tak vyjdeme."
+    },
+    {
+      "i": 93,
+      "response": "S hypotékou na pět procent a zdraženým máslem i bramborami na nákupu moc neušetřím, takže příští rok budeme spíš dál šetřit každou korunu a doufat, že se sazby i ceny potravin konečně uklidní. Výhled státního rozpočtu a odkládání důchodových změn mě navíc utvrzuje, že se na stát moc spolehnout nemůžu a musím si hlídat vlastní kapsu."
+    },
+    {
+      "i": 94,
+      "response": "S vyšším důchodem od ledna sice trochu vydechnu, ale pořád mě tlačí drahé jídlo jako máslo nebo brambory a rostoucí nájem, takže do roka moc volných korun neuvidím a spíš budu počítat každou korunu."
+    },
+    {
+      "i": 95,
+      "response": "Ceny potravin jako brambory nebo máslo nám dál žerou rozpočet a s drahými hypotékami i nejistotou kolem důchodů nečekám, že nám doma zbyde o moc víc než teď, spíš budeme muset ještě víc šetřit."
+    },
+    {
+      "i": 96,
+      "response": "Jako pražský důchodce s vysokoškolským vzděláním vidím naše finance spíš pesimisticky, protože nás zklamalo nevyplacení slíbených důchodů a drahé brambory s máslem dál žerou rozpočet, zatímco nájem nám roste a státní dluhy naznačují, že příští rok nebude líp."
+    },
+    {
+      "i": 97,
+      "response": "Ceny energií sice konečně klesly a inflace zpomalila, ale drahé nájmy, zdražené jídlo jako máslo či brambory a vysoké hypotéky nám na Moravě moc volnosti v rodinném rozpočtu nedávají, takže spíš šetříme a bojíme se, co udělá oslabující koruna a další výdaje."
+    },
+    {
+      "i": 98,
+      "response": "Jako Pražák se středoškolským vzděláním vidím naše vyhlídky spíš bledě, protože nájmy pořád rostou, jídlo jako brambory nebo máslo je drahé a hypotéku si kvůli vysokým sazbám nemůžeme ani pořádně vzít, takže budeme muset hodně šetřit a doufat, že koruna moc neoslabí."
+    },
+    {
+      "i": 99,
+      "response": "Ceny potravin a nájmů nám dál rostou, takže i když nám elektřina trochu zlevnila, měsíčně stejně utratíme víc než loni a s tímhle rozpočtovým chaosem ve státě se bojím, že nás zase někde na daních nebo odvodech něco překvapí. Naštěstí máme práci a hypotéku zafixovanou, takže to přežijeme, ale šetřit budeme muset víc než dřív."
+    },
+    {
+      "i": 100,
+      "response": "Jako domácnost na Moravě vidím dalších 12 měsíců docela bledě, protože vysoké hypotéky, dražší nájem a nejistota kolem daní a důchodů nám ukrajují rezervu, i když potraviny a energie teď mírně zlevnily. Bojím se, že s oslabující korunou a rostoucím státním dluhem nás zlevnění u másla moc nezachrání."
+    },
+    {
+      "i": 101,
+      "response": "Jako důchodce s vysokoškolským vzděláním vidím naše finance spíš pesimisticky, protože slibované důchodové úlevy se ruší a zdražování potravin jako máslo či brambory dál žere rozpočet, zatímco koruna má oslabit a státní dluh roste. Příští rok tedy počítám s tím, že budeme muset víc šetřit a spoléhat jen na sebe, ne na státní pomoc."
+    },
+    {
+      "i": 102,
+      "response": "Jako důchodce z venkova vidím další rok docela neurčitě, protože i když mi důchod od ledna trochu stoupl, zdražování potravin jako brambory a mléko i zrušený slibovaný jednorázový výdaj mi zrovna klid nepřidají. Budu muset víc hlídat každou korunu a spoléhat hlavně na to, co mám, protože státní rozpočet a sliby politiků vypadají spíš jako další nejistota než jistota."
+    },
+    {
+      "i": 103,
+      "response": "Jelikož jídlo pořád zdražuje a nájem taky roste, budeme s manželkou muset víc šetřit, i když nám trochu pomůže levnější elektřina a plyn. Na nějaké větší výdaje nebo úspory moc nevidím, hlavně když vláda couvá ze slibů a státní dluh pořád naskakuje."
+    },
+    {
+      "i": 104,
+      "response": "Jako mladý člověk se středoškolským vzděláním na Moravě vidím naše rodinné finance spíš napjatě, protože nájmy pořád rostou a hypotéky i úroky zůstávají vysoké, takže zlevnění energií nás moc nezachrání, když stát podle zpráv jenom zvyšuje dluhy a sliby nedodržuje. Na další rok moc nevěřím, že se nám bude výrazně ulevovat, spíš počítám s tím, že bud"
+    },
+    {
+      "i": 105,
+      "response": "Jako důchodce na Moravě vidím ty vyhlídky celkem nejistě, protože i když mi důchod trochu přidal a energie zlevnily, pořád mě trápí drahé brambory, máslo a nájem, a vláda sliby u penzí zase jen odkládá, takže se bojím, abychom s manželkou vyšli."
+    },
+    {
+      "i": 106,
+      "response": "Jako rodina na Moravě vidím další rok těžko – potraviny a nájem nám pořád rostou, zlevnění energií to skoro nevyváží a s rostoucími odvody i státním dluhem mám strach, že nám na živobytí zbude míň než letos."
+    },
+    {
+      "i": 107,
+      "response": "Sice je inflace zpomalená a elektřina zlevnila, ale drahý nájem a nejistota kvůli rušení slibů o důchodech mě děsí, že s naším základním vzděláním a výdělkem v Čechách mimo Prahu tyhle roky sotva vyjdeme a na nějaké šetření nebo hypotéku můžeme zapomenout."
+    },
+    {
+      "i": 108,
+      "response": "Důchod mi sice trochu přidali, ale po těch slibech, co je vláda zase neplní, a s drahými bramborami a mlíkem se bojím, že mi to na živobytí za rok moc nevydrží. Koruna má jít dolů a ceny rostou dál, takže jako důchodce na Moravě vidím naše vyhlídky spíš bledě."
+    },
+    {
+      "i": 109,
+      "response": "Elektřina s plynem sice zlevnili, ale jídlo jako brambory nebo máslo je pořád drahé a penze nám nevrátí, co slíbili, takže s fixním důchodem vyjdeme tak tak a šetřit budem muset ještě víc než loni. Na další rok moc nevidím naději, že by se nám doma uvolnily ruce, spíš se bojím, aby nás ty ceny potravin a nájmů úplně nezatlačily do kouta."
+    },
+    {
+      "i": 110,
+      "response": "Jako člověk se základním vzděláním na Moravě vidím naše vyhlídky spíš bledě, protože zdražení jídla jako brambory nebo máslo nás tlačí a hypotéku i nájem si kvůli novým limitům a rostoucím cenám stejně nemůžeme dovolit, i když nám elektřina trochu zlevnila."
+    },
+    {
+      "i": 111,
+      "response": "Jako mladý Pražan se střední školou vidím naše rodinné finance spíš bledě, protože hypotéky i ceny bytů jsou pořád vysoko, máslo a další věci zdražily a stát podle zpráv jen rozhazuje peníze a sliby nedodržuje, takže se málo co ušetří a život v Praze bude dál drahý."
+    },
+    {
+      "i": 112,
+      "response": "Jako mladý člověk se středoškolským vzděláním na Moravě vidím naše rodinné finance spíš pesimisticky, protože zdražování potravin jako brambory nebo mléko nás tlačí, a šance na vlastní bydlení s hypotékami přes pět procent a přísnými limity je pro nás v nedohlednu. Obávám se, že státní dluhy a rušení slibů nás jenom připraví o jistotu, že se nám za rok bude žít líp než teď"
+    },
+    {
+      "i": 113,
+      "response": "Jako člověk se základním vzděláním na Moravě vidím dalších 12 měsíců docela bledě, protože drahé nájmy, brambory i mléko nám žerou peněženku a hypotéku si kvůli vysokým sazbám a limitům ČNB stejně nemůžeme vzít, zatímco vláda sliby o důchodech i úlevách jen bere zpět."
+    },
+    {
+      "i": 114,
+      "response": "Jako Moravák se základním vzděláním vidím naši domácnost za rok v mrákotách, protože brambory a máslo dál draží, nájem roste a slíbené důchody ani úlevy od vlády nakonec nedorazily, takže sotva vyjdeme s měsíčním."
+    },
+    {
+      "i": 115,
+      "response": "Jako pražská domácnost s hypotékou kolem pěti procent a rostoucím nájemným i cenami potravin vidím dalších 12 měsíců spíš jako období šetření a nejistoty, protože koruna má oslabit a levnější energie nám reálně nepokryje zdražování všeho ostatního."
+    },
+    {
+      "i": 116,
+      "response": "Jako důchodce s nízkým vzděláním vidím naše vyhlídky spíš bledě, protože i když důchod od ledna trochu stoupne, drahé jídlo jako brambory nebo máslo a rostoucí nájem nám to stejně vezmou, a slibované mimořádné peníze nám ještě ke všemu sebrali. Bojím se, abychom s manželkou na konci měsíce vůbec vyšli, když stát dělá dluhy a ceny pořád skáčou"
+    },
+    {
+      "i": 117,
+      "response": "S hypotékou na hraně nových limitů a zdražujícím jídlem i nájmem vidím naše rodinné finance spíš na štíru, protože mzda sice roste, ale státní dluhy a vyšší odvody mi berou jistotu, že na konci měsíce něco reálně ušetříme. Pokud koruna oslabí k 25 za euro a ceny potravin dál letí nahoru, budeme muset šetřit na všem, co není nutné k životu."
+    },
+    {
+      "i": 118,
+      "response": "Jako OSVČ se mě od příštího roku citelně dotknou vyšší odvody a vysoký schodek rozpočtu mi nedává naději na uvolnění daní, takže s rostoucím nájmem a drahými bramborami s máslem budu spíš šetřit a moc si nevěřím, že se nám s rodinou životní úroveň zlepší."
+    },
+    {
+      "i": 119,
+      "response": "Jako důchodce na Moravě vidím ty vyšší důchody sice fajn, ale s tím, jak stát utrácí a sliby se ruší, mám strach, že za rok mi zdražení nájmu a jídla ty pár stovek navíc sežere a budu sotva vycházet."
+    },
+    {
+      "i": 120,
+      "response": "Jako mladý bez vysoké školy na Moravě vidím naše rodinné finance spíš bledě, protože zdražení jídla a nájmů žere peněženku rychleji, než roste výdělek, a státní dluhy i rušení slibů mi nedávají naději, že se nám brzy uleví. Hypotéku si teď stejně nemůžeme nechat zdát, takže zbývá šetřit na horší časy a doufat, že elektřina zůstane levnější."
+    },
+    {
+      "i": 121,
+      "response": "Elektřina s plynem sice zlevnili, ale máslo, brambory a nájem nás dál ženou do minusu, takže s naším základním vzděláním a výdělkem na Moravě moc neušetříme a budeme se spíš jen snažit vyjít. Vláda sliby o důchodech a daních bere zpět, takže na nějakou jistotu od státu moc nesázím a hlavně koukám, abychom měli na běžný život."
+    },
+    {
+      "i": 122,
+      "response": "Jako důchodce na Moravě vidím naše vyhlídky spíš bledě, když slíbené vyrovnání penzí padlo a nájmy s potravinami dál rostou, zatímco stát si jen nabaluje dluhy a koruna má jít dolů. Budeme muset víc šetřit za každou korunu, protože se žádné zlevnění energií našich každodenních výdajů moc nechytá."
+    },
+    {
+      "i": 123,
+      "response": "Jako důchodce na Moravě vidím příštích 12 měsíců celkem stabilně díky lednovému zvýšení penze a levnější elektřině, ale zdražování brambor, másla a nájmů mi stejně kousek té jistoty sebere a sliby politiků o důchodech mě spíš jen naštvaly."
+    },
+    {
+      "i": 124,
+      "response": "Jako mladý vysokoškolák v Praze vidím naše rodinné finance spíš napjatě, protože drahé jídlo a vysoké hypotéky nám berou rezervy, zatímco slibované úlevy od vlády se podle zpráv zase odkládají a koruna má jít dolů. Příští rok čekám, že s rostoucími odvody a nejistotou kolem rozpočtu budeme muset hodně šetřit, než se něco zlepší."
+    },
+    {
+      "i": 125,
+      "response": "S hypotékou kolem pěti procent a růstem nájmů i cen másla vidím naše měsíční výdaje spíš nahoře, takže rozpočet utáhneme jen těžko a na větší rezervu můžeme letos zapomenout."
+    },
+    {
+      "i": 126,
+      "response": "Jako důchodce z venkova vidím naše vyhlídky spíš bledě, protože i když nám důchody od ledna trochu stouply, drahé brambory, mléko i máslo a zrušené mimořádné vyrovnání penzí nám z kapsy zase rychle vytáhnou stejně nebo víc, než jsme dostali. Bojím se, že s tímhle tlakem cen a sliby politiků, co se ruší, budeme muset hodně šetřit a zbytek roku moc neoddechn"
+    },
+    {
+      "i": 127,
+      "response": "Inflation sice zpomalila a máslo i důchody trochu polevily, ale pořád platíme přemrštěné ceny brambor a mléka a hypotéky jsou drahé, takže za rok to u nás bude takové dojití mezi výdaji, co nepustí, a mzdou, co sotva stačí. Vládní sliby o penzích vzaly za své a státní dluhy rostou, takže se spíš bojím, že nás z něčeho takového ještě nějaká daň nebo poplatek"
+    },
+    {
+      "i": 128,
+      "response": "Rodinný rozpočet sice trochu uleví levnější elektřina a plyn, ale růst nájmů, drahé hypotéky i zdražení potravin jako brambory nás tlačí k šetření, a když vidím ten obří státní schodek a rušení slibů politiků, mám z našich financí i budoucna spíš obavu než klid."
+    },
+    {
+      "i": 129,
+      "response": "Jako středoškolsky vzdělaný Moravan v předproduchodovém věku vidím naše rodinné finance spíš pesimisticky, protože zdražování základních potravin a růst odvodů srážejí rozpočet, zatímco státní dluh a rušení slibů o důchodech mi ubírají jistotu do budoucna. Pokud koruna oslabí a hypotéky zůstanou drahé, za rok budeme s větší pravděpodobností šetřit na každ"
+    },
+    {
+      "i": 130,
+      "response": "Jako důchodce na Moravě vidím naše vyhlídky spíš bledě, protože nám zrušili slíbené mimořádné vyrovnání penzí a zdražují brambory s máslem, zatímco nájmy rostou a koruna má podle zpráv ještě oslabit. Větší úlevu od státu nečekám, takže budeme muset s manželkou ještě víc šetřit na jídle a energiích, i když elektřina zrovna zlevnila."
+    },
+    {
+      "i": 131,
+      "response": "Jako živnostník se bojím, že vyšší odvody v roce 2026 nám s manželkou znatelně ztenčí rozpočet, a i když máslo mírně zlevňuje, drahé bydlení a hypotéky nás drží v nejistotě, takže na větší úspory moc nesázím. Vládní sliby o důchodech a daních mi přijdou jako další otočka, takže se radši budeme muset spoléhat sami na sebe."
+    },
+    {
+      "i": 132,
+      "response": "Jako mladý vysokoškolák v Čechách vidím naše rodinné finance spíš napjatě, protože zdražování potravin jako brambory nebo máslo a chystané vyšší odvody pro OSVČ nás tlačí, zatímco inflace sice zpomalila, ale stabilní jistotu do budoucna kvůli rušeným slibům vlády a rostoucímu schodku nečekám."
+    },
+    {
+      "i": 133,
+      "response": "Jako mladý vysokoškolák v Čechách vidím naše rodinné finance spíš napjatě, protože drahé hypotéky a rostoucí nájemné s bramborami nám žádnou úlevu nedávají, i když inflace zpomalila a energie zlevnily. Bojím se, že další rok budeme muset hodně šetřit, zatímco stát podle zpráv jen zvyšuje dluhy a ruší sliby, což mě nejspíš do budoucna ještě víc zatíží."
+    },
+    {
+      "i": 134,
+      "response": "Inflation sice zpomalila a energie zlevnily, ale drahé jídlo, rostoucí nájem a vysoké hypotéky nám žádný velký finanční vzdech nepřinesou, takže dalších dvanáct měsíců budeme spíš šetřit a doufat, že mzda stihne růst cen."
+    },
+    {
+      "i": 135,
+      "response": "Státní dluhy a rušení slibů ohledně penzí mě děsí, že na důchod nebudu mít jistotu, a i když energie zlevnila, drahé jídlo a vysoké hypotéky nás teď i za rok nepustí z každodenního šetření."
+    },
+    {
+      "i": 136,
+      "response": "Jako mladý bez vzdělání v Čechách vidím naše vyhlídky bledě, protože ceny jídla jako máslo nebo brambory pořád rostou a stát si jen naloží dluhy, zatímco nám na nic z těch slibů nesáhne. Za rok se bojím, že s bydlením a drahými základy doma sotva vyjdeme, hlavně když vláda mění pravidla, jak se jí zachce."
+    },
+    {
+      "i": 137,
+      "response": "Máslo i brambory pořád stojí majlant a když vláda couvá od slibů a hypotéky zůstávají drahé, tak na žádný velký úspory z naší výplaty nevěřím, spíš budeme dál šetřit na jídle a modlit se, aby koruna nespadla moc dolů."
+    },
+    {
+      "i": 138,
+      "response": "S inflací sice zpomalující na dvě procenta, ale s drahými bramborami, máslem a hypotékou kolem pěti procent vidím naše rodinné finance spíš na štíru, a jestli vláda couvá z důchodových slibů a zvyšuje odvody, tak se ani moc nepomůžeme těmi pár stovkami k důchodu navíc. Na velké investice nebo změnu bydlení v příštím roce rozhodně nepomýšlím, budeme se muset držet zpátky"
+    },
+    {
+      "i": 139,
+      "response": "Ceny energií sice klesly a inflace je nízká, ale růst nájmů, dražší hypotéky i vyšší odvody mě znepokojují víc než politické sliby, které stejně vidím být porušované, takže naši domácnost čeká spíš šetření než zlepšení rozpočtu."
+    },
+    {
+      "i": 140,
+      "response": "Důchod nám sice od ledna trochu stoupl, ale s bramborami, máslem a mlékem pořád drahýma a slíbený jednorázový doplatek nám sebrali, takže na další rok moc nevidím a budeme muset hodně šetřit za jídlem. Koruna má navíc oslabit, takže se bojím, že nákupy ještě zdraží a z našeho starého rozpočtu nic moc nezbyde."
+    },
+    {
+      "i": 141,
+      "response": "Jako mladý vysokoškolák v Čechách vidím naše vyhlídky dost neurčitě – sice elektřina zlevnila a inflace zpomalila, ale drahé nájemné, rostoucí ceny jídla jako brambory a máslo a nepřístupné hypotéky s vysokými sazbami nám moc neumožňují si dlouhodobě spořit nebo pořídit vlastní bydlení. Obávám se, že pokud koruna oslabí a odvody OSVČ později vzrostou, bude nás"
+    },
+    {
+      "i": 142,
+      "response": "Jako důchodce s vysokoškolským vzděláním vidím naše vyhlídky spíš pesimisticky, protože i když nám důchod mírně stoupl a energie zlevnily, každodenní nákupy jako brambory nebo máslo dál drasticky zdražují a slibované mimořádné vyrovnání penzí nám vláda bez omluvy sebrala. Obávám se, že příští rok budeme muset víc šetřit na jídle, abychom utáhli rostoucí"
+    },
+    {
+      "i": 143,
+      "response": "Hypotéky i nájmy dál rostou a stát se podle zpráv jen zadlužuje, takže i když nám energie trochu zlevnily, obávám se, že s dražšími potravinami a vyššími odvody nám doma peněz na konci měsíce spíš ubude než přibude."
+    },
+    {
+      "i": 144,
+      "response": "Hypotéky i odvody zůstávají vysoké a koruna má podle všeho oslabit, takže i když potraviny zlevňují, pro naši domácnost na Moravě vidím příští rok spíš jako další období šetření bez většího finančního klidu."
+    },
+    {
+      "i": 145,
+      "response": "Jako důchodce s vysokoškolským vzděláním vidím naše finance do roka celkem stabilní díky zvýšenému důchodu a levnějším energiím, ale mrzí mě, že slíbené vyrovnání penzí nedostaneme a drahé brambory s máslem nám každodenní rozpočet pořád citelně zatěžují."
+    },
+    {
+      "i": 146,
+      "response": "Jako důchodce s osmdesáti korunami navíc měsíčně a zrušeným slibem o vyrovnání penzí vidím naše vyhlídky bledě, hlavně když nájmy pořád rostou a stát si žije na dluh, ze kterého budeme platit my i vnoučata."
+    },
+    {
+      "i": 147,
+      "response": "Jako domácnost na Moravě vidím příští rok docela napjatě, protože i když inflace zpomalila, pořád nás tlačí drahé jídlo jako brambory nebo máslo a státní dluhy i rušení slibů kolem penzí mi nedávají moc naději, že se nám bude výrazněji ulevovat. Koruna sice zatím drží, ale pokud oslabí k 25 za euro, bude z našeho středoškolského platu každá koruna navíc utopená v draž"
+    },
+    {
+      "i": 148,
+      "response": "Ceny potravin jako máslo nebo brambory pořád rostou a hypotéky jsou pro nás nedosažitelné, takže i když elektřina zlevnila, za rok vidím naši domácnost spíš tak, že budeme dál šetřit a nic moc si nepřidáme. Koruna má podle zpráv oslabit a stát má obří schodek, takže se bojím, že nás čeká spíš další zdražování než zlepšení."
+    },
+    {
+      "i": 149,
+      "response": "Elektřina i plyn sice zlevnily, ale drahé brambory, máslo a hlavně rostoucí nájem nás i při mírné inflaci pořádně tlačí, takže s vyššími výdaji a žádným zázračným růstem příjmů vidím naše rozpočty spíš našponované než klidné."
+    },
+    {
+      "i": 150,
+      "response": "Jako důchodce z Moravy vidím naše vyhlídky spíš bledě, protože zatímco energie sice zlevnila, potraviny jako brambory nebo máslo dál zdražují a slibované důchodové vyrovnání se nekoná, takže s pevným příjmem budeme muset víc šetřit. K tomu koruna asi oslabí a nájmy rostou, takže za rok budeme mít v peněžence určitě hůř než teď."
+    },
+    {
+      "i": 151,
+      "response": "Státní dluhy a vyšší odvody mě děsí, že budeme mít doma míň peněz, i když důchody trochu stouply a elektřina zlevnila, drahé jídlo a nájmy nás stejně tlačí a do ničeho lepšího teď nevidím."
+    },
+    {
+      "i": 152,
+      "response": "Jako důchodce z venkova vidím naše finance spíš pesimisticky, protože růst penze o pár stovek nestačí na drahé máslo, brambory a nájem, a zrušení slíbeného doplatku nás zbytečně připravilo o jistotu. S korunou, co má oslabit, a státním dluhem se bojím, že nám za rok bude s penězi ještě tíž."
+    },
+    {
+      "i": 153,
+      "response": "Jako mladý bez hypotéky mě zprávy o dražším jídle a vyšších odvodech pro OSVČ spíš děsí, protože i s průměrnou mzdou budu mít doma na Moravě sotva na nutné výdaje a o spoření si můžu nechat zdát."
+    },
+    {
+      "i": 154,
+      "response": "Jako mladý bez vzdělání v Čechách vidím naše vyhlídky bledě, protože nájmy pořád rostou a jídlo jako máslo nebo brambory je pořád drahé, zatímco slušnou práci skoro neseženu a na hypotéku si můžu nechat jen zdát. Vláda sliby kolem peněz jen bere zpět, takže se budeme muset pořádně uskromnit, abychom vůbec vyšli."
+    },
+    {
+      "i": 155,
+      "response": "Jako důchodce z venkova vidím další rok docela bledě – slíbené mimořádné vyrovnání penzí nám vzali, koruna má oslabit a nájmy i máslo pořád tlačí ceny nahoru, takže i s těmi pár stovkami navíc od ledna budu počítat každou korunu."
+    },
+    {
+      "i": 156,
+      "response": "Jako domácnost na Moravě vidím dalších dvanáct měsíců dost nejistě, protože zdražování potravin jako brambory a mléko i rostoucí nájemné nás tlačí víc než levnější energie, a sliby o důchodech se ruší, takže se musíme držet při zdi a šetřit. Hypotéky jsou pro nás i děti nedosažitelné a s vyššími odvody pro OSVČ v rodině to bude s rozpočtem ještě těžší."
+    },
+    {
+      "i": 157,
+      "response": "Máslo a brambory pořád strašně bijou do rodinného rozpočtu, takže i když inflace zpomalila, za rok všechno stejně utratím skoro za stejné peníze a na nějakou velkou rezervu nebo hypotéku s těmi sazbami ani nepomyslím."
+    },
+    {
+      "i": 158,
+      "response": "Hypotéky jsou pro nás teď mimo hru a zdražování jídla jako brambory nebo máslo dál žere rozpočet, takže dalších dvanáct měsíců vidím spíš jako šetření a hlídání každé koruny, než že by se nám výrazně ulevilo."
+    },
+    {
+      "i": 159,
+      "response": "Jako důchodce s vysokoškolským vzděláním vnímám příštích 12 měsíců celkem stabilně díky mírnému růstu penze a zlevnění energií, ale mrzí mě, že slíbené doplacení důchodů odpadlo a nájmy i máslo pořád zdražují, takže s rozpočtem musím počítat opatrně. Obávám se však, že vládní schodek a politické handrkování o rozpočet naznačují, že za pár let na nás"
+    },
+    {
+      "i": 160,
+      "response": "Ceny energií sice klesly a inflace je nízko, ale drahé brambory, rostoucí nájem a vyšší odvody mi žádný velký klid nedají, takže rozpočet utáhneme tak tak a na nějaké šetření ani nepomyslím. Vláda sliby ruší a dluhy naskakují, takže se spíš bojím, co nás ještě překvapí, než abych čekal zlepšení."
+    },
+    {
+      "i": 161,
+      "response": "Elektřina sice zlevnila, ale s dražšími bramborami, máslem a růstem nájmu nám v peněžence moc nezbude, a když stát tahá dál obří schodky, mám strach, že nás za rok zas dožene nějaké zdražování nebo vyšší daně. Na hypotéku teď ani nepomyslím, se sazbami přes pět procent a limity ČNB bychom si vzít pořádné bydlení stejně nemohli."
+    },
+    {
+      "i": 162,
+      "response": "Hypotéky jsou pořád moc drahé a nájem nám roste rychleji než mzda, takže za rok budeme spíš šetřit než utrácet, i když energie zlevnily a inflace je konečně nízko. Státní dluh a hádky ve Sněmovně mě znervózňují, protože se bojím, že nás z toho vytřískají zase my jako střední třída."
+    },
+    {
+      "i": 163,
+      "response": "Jako pražská domácnost s vysokoškolským vzděláním vidím příští rok celkem stabilně díky zlevnění energií a nízké inflaci, ale růst nájmů a dražší potraviny jako brambory nás citelně tlačí a bojím se, že slibované změny ve výdajích státu nás na daních nebo službách ještě doženou."
+    },
+    {
+      "i": 164,
+      "response": "Jako mladý bez vzdělání na Moravě vidím naše vyhlídky blbě, ceny jídla jako máslo nebo brambory pořád rostou a nájem taky, zatímco vláda jen ruší sliby a na lepší výdělky nebo bydlení si sotva dosáhneme. Koruna má zeslábnout a hypotéky jsou moc drahé, takže si ani nemůžeme nic pořídit a budeme spíš jen tak tak vycházet."
+    },
+    {
+      "i": 165,
+      "response": "Jako člověk ve středním věku bez vysoké školy vidím naše rodinné finance spíš pesimisticky, protože zdražování jídla jako brambory nebo máslo nás tlačí a hypotéku i se sazbami kolem pěti procent si teď vůbec nemůžeme vzít na lepší bydlení, zatímco slibované úlevy od vlády se zase odkládají. Za rok budeme podle mě šetřit víc než dřív, protože i když inflace zpomalila,"
+    },
+    {
+      "i": 166,
+      "response": "Jako důchodce s jenom základní školou vidím naše finance spíš černě, když vláda couvla od slíbených penzí a máslo i jídlo pořád drahý zůstávají, takže příští rok budem muset šetřit každou korunu a doufat, že nás s tím inflatecí úplně nepotopí."
+    },
+    {
+      "i": 167,
+      "response": "Elektřina s plynem sice zlevnili, ale drahý nájem, zdražený brambory a mléko a vyšší odvody nás s průměrným výdělkem na Moravě pořádně tlačí, takže na další rok moc volných peněz nečekám a budeme muset šetřit hlavně na jídle a bydlení. Hypotéky i koruna nám moc nepomůžou, takže spíš přežíváme než že by se nám ulevilo."
+    },
+    {
+      "i": 168,
+      "response": "S hypotékou stále nad pěti procenty a zdražujícími potravinami i nájmy vidím naše rodinné finance spíš napnuté, i když zpomalení inflace a levnější energie nám alespoň trochu ulevují. Obávám se ale, že žádné výrazné zlepšení se v příštím roce nekoná, spíš budeme muset dál šetřit."
+    },
+    {
+      "i": 169,
+      "response": "Jako domácnost na Moravě s vysokoškolským zázemím vidím další rok spíš v šetření, protože drahé hypotéky, zdražené jídlo a oslabující koruna nám žádný klidný růst reálných příjmů nejspíš nepřinesou. Vládní sliby o důchodech a daních se rozpadají a státní dluh roste, takže se radši připravujeme, že si každou korunu pohlídáme sami."
+    },
+    {
+      "i": 170,
+      "response": "Stát se topí v dluzích a sliby se ruší, takže se bojím, že nám daně a odvody ještě vyskočí, zatímco nájmy a jídlo jako brambory dál žerou peněženku, takže příští rok budeme spíš šetřit než si něco dopřát."
+    },
+    {
+      "i": 171,
+      "response": "Jako mladý vysokoškolák v Čechách vidím naše vyhlídky spíš neurčitě, protože dražší potraviny a vysoké ceny bydlení s přísnými hypotékami mi znepříjemňují rozpočet, zatímco státní dluh a politické hádky mě děsí z budoucích daní."
+    },
+    {
+      "i": 172,
+      "response": "Jako důchodce na Moravě vidím příští rok celkem stabilně díky růstu penze a levnějším energiím, ale obávám se zdražování nájmů a slibů politiků, co zase jen couvají, takže moc neutrácet a šetřit se vyplatí."
+    },
+    {
+      "i": 173,
+      "response": "Jako domácnost na Moravě vidím dalších 12 měsíců s rozpaky – sice nám trochu odlehčí levnější energie a mírně vyšší důchody rodičům, ale rušení slibů u daní i důchodů, dražší nájem a máslo nás drží v obavách, že reálně neušetříme. Hypotéku bychom kvůli novým limitům ČNB stejně nedostali, takže o vlastním bydlení pro děti můžeme nechat sny."
+    },
+    {
+      "i": 174,
+      "response": "Ceny potravin jako máslo nebo brambory pořád dost lezou a nájem nám roste, takže i když elektřina zlevnila, měsíčně moc ušetřit nebudeme, a s vyhlídkou oslabující koruny a vyšších odvodů od roku 2026 se spíš bojím, že náš rodinný rozpočet zůstane napnutý na krev."
+    },
+    {
+      "i": 175,
+      "response": "Jako mladý vysokoškolák na Moravě vidím příští rok docela nejistě, protože i když inflace zpomalila, ceny základních potravin pořád rostou a státní dluhy i rušení slibů mi naznačují, že naše generace zaplatí za dnešní nesystémové kroky, takže radši šetřím a nepočítám s žádnými většími příjmy navíc."
+    },
+    {
+      "i": 176,
+      "response": "Jako domácnost se středoškolsky vzdělaným příjmem v Čechách vidím další rok spíš jako přežívání — potraviny jako brambory nebo máslo nám žerou rozpočet, bydlení a hypotéky zůstávají drahé a vládní sliby o levnějším životě se podle zpráv zase rozpadly, takže na větší úspory moc nesázím."
+    },
+    {
+      "i": 177,
+      "response": "Jako člověk se základním vzděláním na Moravě vidím naše vyhlídky spíš bledě, když máslo, brambory a hypotéky pořád táhnou peníze z kapsy a vláda sliby o důchodech i daních jen ruší, takže se budeme muset víc uskrovňovat."
+    },
+    {
+      "i": 178,
+      "response": "Bydlet v nájmu nás kvůli růstu nájmů i vysokým hypotékám dál tlačí rozpočet, a i když energie zlevnily, drahé jídlo a nejistota kolem slibů politiků mě děsí, že s vysokoškolským platem na Moravě moc neušetříme. Za rok vidím spíš stagnaci s rizikem, že koruna oslabí a zdraží nám i další věci, takže se budeme muset hodně hlídat."
+    },
+    {
+      "i": 179,
+      "response": "Důchod mi sice od ledna trochu přidali a elektřina zlevnila, ale s drahými bramborami a mlíkem a rostoucím nájmem mi doma moc peněz nezbude, takže na další rok se dívám spíš s obavami. Vládní sliby kolem důchodů se mění, tak nevím, jestli za rok zas něco nedostanu ubráno, a to mě jako důchodce z Moravy moc neklidní."
+    },
+    {
+      "i": 180,
+      "response": "Když vidím, že brambory i máslo dál zdražují, hypotéky zůstávají drahé a stát si dělá dluhy, co chce, tak se bojím, že s naším platem na Moravě vyjdeme s bídou a na nějaké spoření můžeme rovnou zapomenout."
+    }
+  ]
+}

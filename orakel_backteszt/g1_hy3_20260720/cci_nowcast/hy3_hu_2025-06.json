@@ -1,0 +1,959 @@
+{
+  "run": "G1/4 HU CCI nowcast 2025-06",
+  "model": "tencent/Hy3",
+  "provider": "siliconflow",
+  "date": "2026-07-20",
+  "protocol": "orakel_hu_nowcast.py változatlanul (N=60, SSR linear + OpenAI-small)",
+  "flag": "GRAY",
+  "flag_note": "target-ablak 2025-06 a cutoff-farok GRAY sávjában (G0a)",
+  "corpus_files": {
+    "corpus_hu_2025_06.json": "dbea15129f0ba893b3f527fb3125a57fbd6a3fec1e11a721cb136787f0e893e2"
+  },
+  "gt": -29.7,
+  "per_seed": [
+    {
+      "seed": 1,
+      "n_sent": 60,
+      "ssr_score": 2.5648525611337876,
+      "nowcast": -21.757371943310623,
+      "sentences": [
+        "A nyugdíjam alig emelkedett, a zöldség, a tojás meg a kávé meg aztán elszállt az árával, úgyhogy a falusi kis pénzemből jövőre is csak spórolással, a drága holmik kiiktatásával jutok majd épp a gázra és az élelmre. A hírekből meg azt látom, hogy az árak nem igazán akarnak megnyugodni, hiába dicsekednek a béremeléssel, nekem abból nem futja többre",
+        "A gázár meg a bevásárlás így is viszi a fizetésünk nagyját, a kormány meg lejjebb vette a növekedést, úgyhogy jövőre is inkább szorításra és takarékoskodásra számítok, nem lesz könnyebb.",
+        "Falun élünk középfokú végzettséggel, a gázár nekünk még belefér a kedvezményesbe, de az élelmiszer 6 százalékos drágulása és az infláció miatt egyre szűkebb a hónap vége, így a következő évben legfeljebb stagnáló, inkább feszítettebb anyagi helyzetre számítok. Lakásár-robbanásról meg albérletdrágulásról csak a hírekben hallok, nekünk szerencsére saját ház",
+        "Nekem Budapesten alapfokú végzettséggel, fix de nem túl nagy fizetésből élve nagyon nem ígérkezik jónak a következő egy év: az élelmiszer és a gáz ára szalad, a lakhatás meg az alapkaják viszik a pénzem több mint felét, és ha ennyire lassul a gazdaság, nem várok se fizetésemelést, se könnyebbséget. Tartalékom alig van, úgyhogy szűkösen, napi számolgatással lesz csak meg a következ",
+        "A nyugdíjam alig emelkedett, miközben a szárazság miatt az élelmiszerárak biztosan tovább szaladnak fel, úgyhogy a következő egy évben még szűkebben kell gazdálkodnom, mint eddig. A lakásdrágulás meg a magas kamatok csak azt erősítik bennem, hogy itt a kisvárosban kell kihúznom, mert máshol már meg sem tudnék élni.",
+        "A kávé, a tojás és a zöldségek ára miatt már most is alig jut a fizetésből a hónap végére, és ha a gazdaság csak 1 százalékot nő, nekem meg nem emelnek rendesen, jövőre is ugyanilyen szorításban fogunk élni. Az árrésstop jó, de az élelmiszer és a rezsi mellett ez csak csepp a tengerben, tartalékot nem igazán tudunk képezni.",
+        "Nekem ugyan megvan a nyugdíjam és a kisvárosi lakásom, de az élelmiszer- és gyógyszerárak azt eszik meg, amit eddig félre tudtam tenni, úgyhogy jövőre is csak spórolással és óvatosan költve jutok majd előre. Azt látom a hírekből, hogy az országnak sincs túl sok tartaléka, szóval jobb nem számítani semmi nagy segítségre.",
+        "A fizetésem alig ment fel, de az élelmiszer, a gáz meg a kávé annyira drágult, hogy alig jut valami félre, így a következő egy évben csak arra számítok, hogy szűkebben kell gazdálkodnom, mint eddig. Ha így megy tovább az infláció, Budapesten meg a rezsivel együtt még a mindennapi bevásárlás is húzós lesz.",
+        "A faluban élünk, így megússzuk a budapesti albérlet- és lakásáőrületet, de a bevásárlásnál meg a rezsinél azt érzem, hogy a keresetem nem nagyon tartja a lépést a drágulással, szóval a következő egy évben inkább csak szűkösen, takarékoskodva jövünk ki a pénzünkből.",
+        "A kávé, a tojás és a zöldségek ára az egekben, a lakhatás meg viszi a fizetés felét, úgyhogy hiába lett kicsit magasabb a minimálbér, én egy fillért sem érzek meg belőle, és jövőre is csak arra számítok, hogy szűkebben fogunk jönni ki, mint idén.",
+        "Falun középfokú végzettséggel alig lesz több a fizum, miközben az élelmiszer meg a gáz folyamatosan drágul, úgyhogy a következő évben is csak a napi megélhetésért fogok küzdeni, félretenni vagy lakást venni esélytelen.",
+        "Albérletre és rezsire megy a fizetésem nagyja, az élelmiszer- és gázárak meg csak szaladnak fel, úgyhogy a következő egy évben legfeljebb nullszaldóra járok, lakást venni meg a magas árak és bizonytalan gazdaság miatt nem merek belevágni.",
+        "Kisvárosban élve a lakhatás még nem visz el mindent, de az aszály miatt az élelmiszerárak további drágulásától tartok, miközben a gyenge növekedés és az alacsonyabb béremelési várakozások miatt a jövedelmünk alig fog lépést tartani a kiadásokkal. Összességében takarékoskodnunk kell, mert az anyagi biztonságunk a következő egy évben inkább szűkül, mintsem javul.",
+        "Falun élünk alapfokú végzettséggel, a keresetünk alig mozdul, de a gáz meg a zöldség ára az egekben van, úgyhogy a következő egy évben csak szorítani tudunk a költségeken, jobbra nem számítok.",
+        "Azt látom, hogy bár az átlagkeresetek emelkednek, nekem a boltban az élelmiszer- és gázárak növekedése jobban fáj, mint a fizetésem emelkedése, szóval a következő egy évben inkább szűkösebben fogunk jönni ki, mint most. A rezsi meg az albérletárak mellett még a szárazság miatti drágulást is én fizetem meg a pénztárcámból, úgyhogy nem várok jobbulást.",
+        "Nyugdíjasemberként a 9 százalékos minimálbéremelés nekem keveset jelent, miközben az élelmiszerek és a gáz ára is folyamatosan nő, úgyhogy a következő egy évben szűkebben kell gazdálkodnom, és a rezsi meg a bevásárlás viszi majd az egész pénzem.",
+        "Budapesten albérletből élek, és hiába emelkedett a minimálbér, a lakhatás és az élelmiszerek drágulása simán elviszi a többletet, szóval a következő egy évben legfeljebb nullszaldóra járok, de inkább folyamatos szűkölésre számítok. Az Otthon Start ígéretében nem hiszek, nekem most a hónapról hónapra való kijövetel is küzdelem.",
+        "Nekem alapfokú végzettséggel, kisvárosban is alig jut a fizetésből megélhetésre, az élelmiszer- és gázárak meg csak szaladnak fel, szóval a következő egy évben még szorosabbra kell húzni a nadrágszíjat, mert nem látom, honnan lenne több pénz a hónap végére.",
+        "Falun alapfokú végzettséggel alig lesz több a fizum, de a gáz meg az élelmiszer annyira drágul, hogy jövőre is csak a lakhatás meg a kajálás viszi el szinte minden pénzem, így nem látok semmi javulást, max hogy kihúzzuk valahogy.",
+        "A fizetésem legfeljebb a minimálbér körüli emelést követi, de az élelmiszer- és gázárak tovább kúsznak fel, meg a szárazság is ráver az árakra, úgyhogy a következő egy évben csak szorítani tudom a nadrágszíjat, jobbra nem számítok.",
+        "Nekem alapfokú végzettséggel kisvárosban amúgy se nagy a kereseti lehetőségem, és ha az élelmiszer meg a lakások ennyire drágulnak, meg az albérletért is vagyonokat kérnek, akkor inkább csak a szűkölködés lesz a következő évben, nem hogy előre lépnénk.",
+        "A gáz meg az élelmiszer ára úgy elszállt, hogy a fizetésem emelése alig látszik meg a pénztárcámon, így a következő egy évben legfeljebb arra számítok, hogy épp kijövünk a rezsi és a bevásárlás után, de nagyobb tartalékot gyűjteni nem nagyon tudunk.",
+        "Falun alapfokú végzettséggel és kevés pénzzel azt látom, hogy a drogériai és kajaárstop jó, de a szárazság miatt az élelmiszer drága marad, szóval jövőre is alig lesz mit félretenni.",
+        "A hírekből ítélve az aszály és az élelmiszerárak miatt még szűkebb lesz a hónap vége, a 0,2 százalékos növekedés és a magas albérletárak mellett pedig alig lesz mozgásterünk, hiába ígérnek reálbér-emelést. Tartalékot gyűjteni nem nagyon látom reálisnak, inkább a napi megélhetésért fogunk küzdeni.",
+        "Lakásra és gázra meg élelmire megy az egész fizetés, az árak meg csak szaladnak felfelé, úgyhogy a következő egy évben legfeljebb annyi lesz, hogy éppen kijövünk a szorításból, de félretenni vagy nagyobbat lépni eszembe se merjen.",
+        "A minimálbér és az átlagkereset ugyan emelkedett, de a zöldség-gyümölcs árak és a napi bevásárlás drágasága miatt én meg sem érzem az emelést, úgyhogy a következő évben is csak szűkösen, fillérbaszón jövök ki a kisvárosi nyugdíjas előtt álló fizetésemből. Azt várom, hogy az Otthon Start vagy valami támogatás segítene, de a hírek alapján a gazdaság alig mozdul, szó",
+        "Nyugdíjaséveimet élem, a jövedelmem fix marad, miközben az élelmiszer- és gázárak megint szaladnak fel, úgyhogy a következő egy évben még szorosabbra kell húznom a nadrágszíjat, ha nem akarok a megtakarításaimhoz nyúlni. A hatósági gázár kedvezménye még segít, de az aszály miatti drágulás a konyhában mindennap érezteti a hatását.",
+        "Nyugdíjas koromban a keresetem ugyan nem nőtt a minimálbérhez vagy átlagbérekhez, de az élelmiszerek és a lakások drágulása miatt azt érzem, hogy a takarékoskodás ellenére is egyre szűkebb lesz a hónap vége, és az otthonom felújítására vagy költözésre esélyem sincs ezekkel az árakkal.",
+        "Falun felsőfokú végzettséggel is azt látom, hogy az élelmiszer- és lakhatási kiadások viszik a jövedelmünk nagyját, a keresetem legfeljebb a drágulást éri utol, így a következő egy évben leginkább csak átvészelni tudjuk, megtakarítani alig lesz miből.",
+        "A gáz meg az élelem folyamatosan drágul, a lakásárak meg elszálltak, úgyhogy nekem kisvárosi középosztálybeliként csak arra látok esélyt, hogy valahogy összekuporgassuk a rezsit és a bevásárlást, de nyugodt anyagi gyarapodásra nem számítok. Az Otthon Start jó hangzik, de a mi korosztályunknak meg a kisvárosi fizetéseknek már alig segít valamin az ilyen bejelentés.",
+        "Nálunk a faluban a minimálbéremmel alig jutok a hónap végére, mert az élelmiszer és a tűzifa meg a kávé meg a tojás is folyton drágul, úgyhogy a következő egy évben is csak szűken, spórolással húzzuk majd ki, nem várok semmi nagy javulást.",
+        "A nyugdíjamból és a megtakarításomból élünk, de az élelmiszer- és kávéárak meg a magas gázár miatt egyre szűkebb a hónap vége, és ha a gazdaság csak 1 százalékot nő, nem számítok arra, hogy könnyebb lenne a helyzetünk. Az új lakhatási támogatás nekünk már nem sokat segít, így inkább takarékoskodni kell, mint tervezni nagyobb kiadást.",
+        "A nyugdíjam alig emelkedett, miközben a zöldség, a gyümölcs meg a gáz ára az egekbe szökött, úgyhogy a következő egy évben csak úgy tudom kijönni a pénzből, ha még jobban szűkítem a bevásárlást és lemondok a felesleges kiadásokról. Nem látok javulást, mert az infláció megint gyorsul, a gazdaság meg alig mozdul, így azt érzem, egyre nehezebb lesz megőrizni a ny",
+        "A kisvárosi fizetésemből alig jut valami, mert az élelmiszer és a lakhatás viszi a pénzünk több mint felét, a gáz is drágult, szóval jövőre is csak a nélkülözést meg a spórolást látom magunk előtt. Azt remélem, hogy az ígért lakhatási támogatás tényleg segít valamit, de a hírekből nem érzem, hogy könnyebb lenne az életünk.",
+        "Nekem alapfokú végzettséggel és városi albérletben ez a drágulás meg a gázár-emelés már így is lenyomja a nyakam, a fizuem legfeljebb a minimálbér környékén mozog, úgyhogy a következő évben csak úgy jövök ki a szűkösől, ha még jobban megszorítom az élelmet meg a villanyt. Tartalékra vagy nagyobb ugrásra nem számítok, mert az infláció és a lakhatási árak simán elvis",
+        "A nyugdíjam alig emelkedett, de a tojás, a kávé meg a csokoládé annyira megdrágult, hogy a falusi kis pénzemből alig jut majd ki a télre, ha így maradnak az árak. Az aszály is rontotta a helyzetet, mert a zöldség is drágább lett a piacon, úgyhogy jövőre is szorosan kell gazdálkodnom.",
+        "Falun élünk középfokú végzettséggel, a keresetünk alig nő, miközben a gáz, a kávé, a tojás és a zöldség is drágább lett, úgyhogy a következő egy évben csak szorítani tudjuk a nadrágszíjat, mert az aszály és az áremelkedések miatt kevesebb pénz marad a mindennapokon túl.",
+        "Nekem ugyan van egy kis nyugdíjam, de azt látom, hogy a boltban meg a gázszámlánál nem a hivatalos számokat érzem, hanem hogy minden drágább lett, úgyhogy a következő évben is szűken, fillérekből fogok kijönni, ha nem is költök semmi feleslegesre.",
+        "A gáz meg az élelmiszer ára tovább emészti a pénzt, a fizum meg alig mozdul, úgyhogy a falusi házra szánt kevés megtakarításunk is csak fogy majd, nem gyarapszik. Ha jön is valami Otthon Start, az nekünk itt községen nem sokat segít, mert mi már rég megvagyunk a lakással, csak megélni egyre nehezebb.",
+        "Nálunk a kisvárosban is azt érzem, hogy a boltban folyamatosan többet hagyok ott a fizetésből, mint egy éve, a tojás és a kávé ára megőrjít, és bár a férjem fizuja kicsit emelkedett, azt a pluszt simán elviszi a rezsi és az élelmiszer, úgyhogy a következő évben legfeljebb arra számítok, hogy nem leszünk egyre szűkebbre szabva, de soha nem jut majd igazán tartalékra.",
+        "Budapesten nyugdíjasaként egyre nehezebben jövök ki a pénzből, mert az élelmiszer meg a gáz ára folyton szalad felfelé, és hiába ígérnek árrésstopot, a boltban én csak azt látom, hogy drágább lett minden; a következő évben is csak szorítanom kell az övet, mert a nyugdíjam nem követi az inflációt.",
+        "Bár a hírek szerint emelkednek a keresetek, nekem a kisvárosi felsőfokúként is inkább azt érzem, hogy a gáz és az élelmiszer ára az én pénztárcámból is egyre nagyobb szeletet hasít ki, úgyhogy a következő egy évben legfeljebb stagnáló, de inkább szűkülő anyagi mozgásterre számítok.",
+        "A boltban még mindig húsz százalékkal drágábban látom a kosaram, mint egy éve, és mivel a gazdaság alig mozdul, attól tartok, jövőre is csak szűkösebben jövünk ki a fizetésből, ha nem kapunk valami rendes segítséget vagy béremelést.",
+        "Budapesten középfokú végzettséggel alig lesz több a fizum, miközben az élelmiszer és a gáz drágul, a lakásárak meg elszálltak, szóval a következő évben csak arra számítok, hogy szűkebb lesz a hónap vége és egy fillért sem tudok félretenni.",
+        "Falun élünk alapfokú végzettséggel, a keresetünk alig mozdul, de a gáz meg az élelmiszer annyit drágult, hogy jövőre is csak a legszükségesebbekre lesz pénzünk, félretenni meg eszembe se jusson.",
+        "A nyugdíjam nem nő úgy, ahogy az árak szaladnak, a zöldség és a tojás is drágább lett a szárazság miatt, úgyhogy a következő egy évben csak szorosabbra kell húznom a nadrágszíjat, mert az élelmiszer és a rezsi viszi el szinte minden fillért.",
+        "A nyugdíjam alig mozdul, miközben az élelmiszer és a gáz egyre drágább, szóval a következő egy évben csak szorosabbra kell húznom a nadrágszíjat, mert az árak gyorsabban szaladnak, mint amit a pénzem bír.",
+        "A gáz meg az élelmiszer állandóan drágul, meg az albérlet is elviszi a fizetés felét, úgyhogy a következő egy évben csak spórolással és szűkölködéssel tudom kihúzni, jobbra nem számítok.",
+        "Albérletre meg a drágább élelmiszerekre elviszi a fizu nagyját, hiába emelkedett a keresetem, a hírekben ígért reálbér-növekedést a saját bevásárlólistámon nem érzem, szóval jövőre is csak arra számítok, hogy hónapról hónapra jövök ki valahogy.",
+        "Nyugdíjas koromban az élelmiszer- és lakhatási árak folytonos drágulása miatt már így is alig jövök ki a pénzemből, és ha a boltokban tovább szaladnak az árak, jövőre még a gyógyszeremről vagy a fűtésről is le kell majd mondani. Budapesten albérletet vagy új lakást úgysem engedhetek meg magamnak, szerencsém van, hogy a saját otthonom van, de a rezsi és a kaja elviszi a nyugdíjam",
+        "Nyugdíjas háztartásként a rezsikedvezmény és az árrésstop jól jön, de a zöldség-gyümölcs árak és a lakásdrágulás miatt úgy érzem, a megtakarításaink értéke folyamatosan apad, és a következő évben is csak arra lesz elég, hogy épp megőrizzük a szintünket, komolyabb kockázatot nem vállalhatunk.",
+        "A fizetésem ugyan emelkedett, de az élelmiszer- és gázárak megugrása meg a kormány lejjebb vett növekedési várakozása miatt inkább szűkösebbre vesszük a gyeplőt, mert nem érzem biztosnak a jövő évi pénztárcánkat. A kisvárosi költségeinket nehéz kigazdálni, ha a boltban húsz százalékos drágulást látok a valóságban, szóval tartalékolni és óvatosan kö",
+        "A nyugdíjamból alig jövök ki, mert az élelmiszer meg a gáz egyre drágább, és hiába ígérnek megállított árakat a drogériában, azt érzem, hogy jövőre is csak szorítgatnom kell a költségeken, ha nem akarok adósságba keveredni.",
+        "Alig keresek 300 ezer alatt havonta, a zöldség, a kávé meg a tojás ára az egekben van, és az albérlet is viszi a pénzem több mint felét, úgyhogy a következő egy évben csak arra számítok, hogy szűkösen jövök ki, hiába emelkedtek valamennyit a fizuk. Az Otthon Start meg a drogériás árrésstop legfeljebb pár ezer forintot hagy nálam, de a hőségmeg a drágulás mellett nem látok reális esélyt",
+        "Budapesten albérletért és rezsivel meg az élelmiszerrel elviszik a fizetésem nagyját, a hírek meg azt mondják, alig nő a gazdaság és még mindig drágának érzem a boltot, szóval a következő egy évben csak arra számítok, hogy szorosabbra kell húzni a nadrágszíjat. Az árrésstop jó, ha tényleg tartják, de a kávé meg a tojás árától én nem leszek gazdagabb.",
+        "A nyugdíjam alig emelkedik, a boltban meg azt érzem, mintha negyedével többe kerülne minden, úgyhogy a következő egy évben legfeljebb a szűkös megélhetésre számítok, nagyobb tartalékot gyűjteni nem tudok. A rezsi és az élelmiszer ára miatt folyton számolgatnom kell, nemhogy előre lépnénk, csak megmaradjunk a faluban.",
+        "Nálunk a faluban a fizu nem nagyon mozdul a minimálbér környékén, a zöldség- meg gyümölcsárak meg az aszály miatt alaposan megtaposnak, szóval a következő egy évben inkább csak szorítani fogok a napi bevásárláson, mintsem hogy jobban látnám magunkat anyagilag.",
+        "A nyugdíjam alig emelkedik, de az élelmiszer meg a rezsi továbbra is az egekben van, úgyhogy a következő egy évben is szűkmarkúan, fillérbaszóan kell beosztanom a pénzt, hogy kijöjjek a hazai árak között. Az Otthon Start engem már nem érint, a lakhatásom fix, de az aszály miatti drágulást én is megérzem a boltban minden héten.",
+        "Lakásra vagy nagyobb felújításra nem nagy az esély, mert az árak szaladnak, de a minimálbér-emelés és a rögzített gázár miatt a mindennapokban talán nem leszünk sokkal rosszabbul, csak a zöldség és a nyári hőségszámla fogja meg a pénztárcánkat.",
+        "Budapesti diplomásként a fizetésem talán tartja a szintet, de az, hogy az élelmiszer és a lakhatás a jövedelem több mint felét viszi el, és a boltban még mindig húsz százalékos drágulást érzek, nem sok megtakarításra ad lehetőséget, így a következő egy évben inkább csak stabil túlélésre, nem pedig előrejutásra számítok."
+      ]
+    },
+    {
+      "seed": 2,
+      "n_sent": 60,
+      "ssr_score": 2.5040300480556317,
+      "nowcast": -24.798497597218415,
+      "sentences": [
+        "Falun élve a gázár kedvezménye még segít, de az élelmiszerek 6 százalékos drágulása és a lakásárak elszabadulása miatt úgy érzem, a fizetésem emelkedése alig tart lépést a valós megélhetési költségekkel, így a következő egy évben inkább szűkösen, de kis odafigyeléssel kijövünk a pénzünkből.",
+        "Albérletre és élelmiszerre megy el szinte az egész fizetésem, az árak csak nőnek, a gazdaság meg alig mozdul, úgyhogy a következő egy évben legfeljebb annyi lesz, hogy épp nem merülünk el adósságban, de soha nem jut majd félre tennivaló.",
+        "A nyugdíjam alig emelkedett, miközben a kávé, a tojás és a rezsi az egekbe ment, úgyhogy a következő egy évben csak úgy jövök ki a szűkös keretből, ha szigorúan spórolok és lemondok a felesleges kiadásokról. Az alapkamat magas tartása miatt a megtakarításaim sem hoznak érdemi többletet, így inkább a napi túlélésre játszom.",
+        "A falusi házunk rezsije és az élelmiszerárak az egekben járnak, miközben a gazdaság alig mozdul, úgyhogy a következő egy évben inkább szorosra húzzuk a nadrágszíjat, és semmire sem számítok, ami érdemben könnyítene a megélhetésünkön.",
+        "Nyugdíjasemberként a lakásárak és albérletárak elszállása miatt jól járok, hogy a saját otthonomban lakom, de a rezsiemelkedéstől és a szárazság miatti drágulástól tartok, így a jövő évi kilátásaim óvatosak, a megtakarításaimra leszek utalva.",
+        "Nyugdíjas felsőfokúként a fix jövedelmemmel a drogériai árrésstop és a befagyasztott gázár még épp megvéd pár fillért, de az élelmiszer-drágulás és a lefelé módosított növekedési várakozás miatt jövőre is szűkösen, az árak után kullogva fogok gazdálkodni.",
+        "A nyugdíjam alig emelkedik, miközben a gáz meg az élelmiszer egyre drágább, úgyhogy jövőre is szorosan kell majd fogjam a költekezést, és tartalékból élni nemigen tudok.",
+        "Nekem már nyugdíjas koromban falun is egyre nehezebb kijönni a pénzből, mert az élelmiszer és a gáz ára folyamat emelkedik, a nyugdíj meg alig mozdul, úgyhogy a következő egy évben még szorosabbra kell húznom a nadrágszíjat. Azt érzem, nemhogy jobb lenne, de még rosszabb lesz a helyzet, mert a hírek szerint is csak drágul minden, ami az életben tartásomhoz k",
+        "Albérletben élő diplomásként egyre kevesebb marad a fizetésből, mert az árak és a lakhatás szívja fel a jövedelmem nagy részét, így a következő egy évben legfeljebb stagnáló, inkább szűkülő anyagi mozgásterem lehet. Nem tervezek nagyobb kiadást vagy lakásvásárlást, mert az árak és a bizonytalan gazdaság mellett egyszerűen nem fér bele a büdzsémbe.",
+        "Nyugdíjas koromban a kávé, a tojás és a zöldség drágulása meg a lakhatási költségek miatt alig marad valamim a hónap végére, úgyhogy a következő egy évben is szűkmarkúan, csak a legfontosabbakra költök, mert az áremelkedésekből nekem nem jut a keresetnövekedésből.",
+        "A minimálbér ugyan kicsit emelkedett, de azt látom, hogy a kávé, a tojás és a zöldségek is egyre drágábbak, meg a gáz is húsz százalékkal ment fel, úgyhogy a következő egy évben inkább szűkösebben fogok gazdálkodni, mintsem hogy jobban érezném magam anyagilag. Lakhatásra és kajára megy el szinte minden, ami megmaradna, abból meg alig jut valami.",
+        "Falun élve a gázárak kedvezménye még tart, de az élelmiszer- és drogériai árrésstop ellenére is azt érzem, hogy a lakásárak és a gyenge növekedés miatt egy fillért sem látok a saját jövőbeli mozgásterünkből, így jövőre is csak takarékoskodva, befagyasztott kiadásokkal úszom meg.",
+        "A gázár és az árrésstopok kicsit könnyítenek a mindennapokon, de az élelmiszer-drágulás és a lakásárak száguldása mellett nem érzem, hogy javulna a helyzetünk, inkább csak lavírozunk és igyekszünk megőrizni a mostani szintet. A bizonytalan gazdasági növekedés miatt nem tervezek nagyobb kiadást, mert fogalmam sincs, mi jöhet még.",
+        "Nyugdíjasemberként úgy látom, hiába ígérnek béremelést másoknak, nekem a boltban azt érzem, hogy a tojás meg a kávé ára az egekbe szökött, és a gázszámla is egyre többet visz el, szóval a következő egy évben csak szorosabbra kell húznom a nadrágszíjat, mert az infláció simán elviszi a kevés pénzemet.",
+        "Budapesten albérletben és rezsivel együtt már most is alig jövünk ki a fizetésből, a gáz árának húsz százalékos ugrása és az élelmiszer-drágulás meg a gyenge növekedés miatt jövőre csak szorosabbra húznám az övet, nem várok semmi javulást.",
+        "Lakásdrágulás és 20 százaléknak tűnő drágulás mellett alig emelkedett a fizum, így kisvárosi középfokúként egy fillérből sem leszek könnyebb, és albérletről vagy saját otthonról sem álmodhatok egy év múlva sem.",
+        "Nekem középfokú végzettséggel kisvárosban nem igazán jut eszembe, hogyan jönnék ki jobban: az élelmiszer meg a gáz ára szalad, a lakásárak meg elszálltak, szóval a következő egy évben inkább szorítanom kell a nadrágszíjon, mintsem hogy jobbra fordulna a helyzetünk.",
+        "A fizetésem talán egy kicsit emelkedett a minimálbér körüli hírek miatt, de az élelmiszer- és albérletárak meg a hőség miatti rezsiterhek annyira elviszik a pénzt, hogy a következő egy évben legfeljebb nullszaldóra játszom, tartalékot gyűjteni nem nagyon látok esélyt.",
+        "A nyugdíjam alig emelkedik, miközben a boltban húsz százalékos drágulást érzek és a szárazság miatt a kertem is alig terem, úgyhogy jövőre is csak spórolással, a napi bevásárlást átgondolva jutok ki a pénzemből. Lakásárstop meg hitelmegfontolások ide vagy oda, nekem falun nincs mit újítani, csak azt látom, hogy a rezsi és az élelmiszer viszi el a keveset, amim",
+        "Kisvárosban élve és diplomásként talán elvagyok valahogy, de az élelmiszer- és kávéárak meg a 6,5%-os alapkamat miatt semmire sem tudok spórolni, és ha a gazdaság tényleg csak 1%-ot nő, jövőre is ugyanilyen szorításban maradok.",
+        "Nekem alapfokú végzettséggel kisvárosban 300 ezer alatti nyugdíjból vagy fizuból tengődöm, a zöldség meg a gáz is drágább lett, úgyhogy a következő évben is csak azon járok az eszemmel, honnan csippentsek le, hogy ne ússzunk el. Az Otthon Start meg a hőség meg a gyenge gazdaság nem nekem segít, hanem csak a túlélésre játszom.",
+        "Falun élünk, de az élelmiszer- és gázárak megugrása miatt a bevásárlás és a fűtés szinte felemészt mindent, a fizetésem meg nem tart lépést a drágulással, úgyhogy a következő egy évben csak arra számítok, hogy még szorosabbra kell húzni a nadrágszíjat. Az árrésstop a drogériánál kicsit segít, de összességében egyre nehezebb kijönni a havi fixből.",
+        "A fizetésem alig győzi a dráguló élelmiszert és a rezsit, az aszály meg a lakásárak csak rontják a helyzetet, így a következő egy évben legfeljebb arra számítok, hogy átcsúszunk valahogy, de tartalékot képezni esélytelen.",
+        "A keresetem alig mozdul, de az élelmiszer és a gáz annyival drágább, hogy a végén mindig kevesebb marad a hónapban, így jövőre is csak a napi megélhetésért fogok küzdeni, tartalékra nem nagyon számítok.",
+        "Nekem alapfokú végzettséggel és városi albérletben ez a lakásdrágulás meg az élelmiszer- és gázáremelkedés teljesen lenullázza a minimálbér-emelést, úgyhogy a következő egy évben csak a napi megélhetésért fogok küzdeni, félretenni vagy lakást venni eszembe se jusson.",
+        "Nyugdíjas felsőfokúként a fix jövedelmem mellett egyre jobban érzem, hogy az élelmiszer- és lakhatási költségek elviszik a pénzem javát, így a következő egy évben legfeljebb a takarékoskodással tudom tartani a lépést, de anyagilag szűkebbre fogom kell húznom a nadrágszíjat.",
+        "Budapesten albérletben élve és középfokú végzettséggel azt látom, hogy a lakhatás, a rezsi meg az élelmiszer ára folyamatosan emészti fel a fizetésem, és a kormány is alig vár növekedést jövőre, úgyhogy egy fillérem sem marad tartaléknak, max a hogyan jövünk ki a hónap végére kérdés lesz előttünk.",
+        "Falun élünk alapfokú végzettséggel, de az élelmiszer- és gázárak tovább nőnek, a fizetésemből meg alig futja, úgyhogy a következő évben csak spórolással és szűkölködéssel jövök ki a pénzből, nem várok semmi javulást.",
+        "A lakásárak és albérleti díjak az egekben, a zöldség-gyümölcs meg a napi bevásárlás még mindig vagyosan drága, szóval hiába csökkent hivatalosan az infláció, én csak azt érzem, hogy egyre szűkebb a keretünk, és jövőre is inkább a túlélésre játszunk, mintsem bármi nagyobb előrelépésre.",
+        "Budapesten albérletben élve és középfokú végzettséggel a 300 ezer alatti fizetésemből egyre kevésbé jövök ki, mert az élelmiszer, a gáz és a lakhatás ára szalad, miközben a gazdaság alig mozdul — jövőre is inkább a spórolás és a bizonytalanság lesz a jellemző, mint a fellélegzés.",
+        "A nyugdíjam nem nagyon mozdul, a kávé, a tojás meg a gáz meg az albérlet meg a rezsi viszont egyre többet visz el, úgyhogy a következő egy évben csak szorosabbra kell húznom a nadrágszíjat, mert azt érzem, a pénzem kevesebbet ér, mint egy éve.",
+        "A gáz meg a kávé, tojás ára az egekben, a fizum meg alig mozdul, úgyhogy a következő egy évben csak spórolással és szorítással jutok majd ki a boltból és a rezsiszámlák alól. Tartalékom nincs, ha bármi nagyobb kiadás jön, azt már nem tudom kigazdálkodni.",
+        "A minimálbér emelése jól jön, de az élelmiszer- és gázárak száguldása meg a 20 százalékos drágulás-érzet miatt reálisan alig lesz több pénzem a hónap végén, így csak takarékoskodva és fesztiválokról lemondva jövök ki a következő egy évben.",
+        "A fizetésem alig mozdul, miközben a zöldség, a tojás meg a kávé az egekbe ment, úgyhogy a következő egy évben csak azzal tudok kijönni, ha még szűkebbre húzom a nadrágszíjat és lemondok a rendes nyaralásról is. Az árrésstop jól hangzik, de a tavaszi fagy meg a szárazság miatt azért a boltban nem érzem, hogy olcsóbb lenne bármi is.",
+        "Albérletre és rezsire meg megy el szinte minden, amit középfokú végzettséggel keresek, az élelmiszerárak meg az aszály miatt csak nőnek, úgyhogy a következő egy évben legfeljebb sodródok, de egyről a kettőre biztos nem jutok. Lakást venni meg esélytelen, amikor negyedével drágultak a lakások és a bank is 6,5 százalékon tartja a kamatot.",
+        "A gáz meg a zöldség ára az egekben van, a nyugdíjam meg alig emelkedett, úgyhogy jövőre is szűken, de valahogy kijövök a szorításból, csak vigyáznom kell minden fillérrel.",
+        "A fizetésem talán picit emelkedett, de az élelmiszer- és gázárak meg a rezsi úgy elviszik a pénzt, hogy egy nagyvárosi családként egyre szűkebbre kell húzni a nadrágszíjat, és jövőre is inkább csak a megélhetésért küzdök, nem a gyarapodásért.",
+        "A fizetésem alig mozdul, miközben a gáz, az élelmiszer meg a kávé is egyre drágább, úgyhogy a következő évben csak szorítani tudok a költségeken, nagyobb javulásra nem számítok. Lakhatásra meg úgyse tudnék váltani, mert az árak az egekben, albérletet meg főleg nem engedhetek meg magamnak itt a kisvárosban sem.",
+        "A nyugdíjam alig emelkedett, miközben a zöldség, a tojás és a kávé ára az egekbe szökött, úgyhogy az jön el, hogy spórolnom kell az élelmisen, mert a rezsi és a bolt is egyre többet visz el a keretemből. Nem várok javulást, mert a hírek szerint a gazdaság is csak lassabban fog nőni, nekem meg csak kevesebb marad a hónap végére.",
+        "A nyugdíjam nem nagyon mozdul, miközben a gáz meg az élelmiszer ára szalad fel, úgyhogy a következő egy évben még szűkebben kell gazdálkodnom, mint eddig, és jobban oda kell figyelnem minden forintra. A hírek alapján nem várok semmi javulást, inkább azt érzem, hogy az állam is csak vergődik, és mi, idősek fizetjük meg a leggyakrabban a számlát.",
+        "Budapesti diplomásként a fizum talán egy kicsit emelkedett, de az albérlet, a dráguló élelmiszer és a gázáremelés miatt reálisan nem várok javulást, inkább azt, hogy szűkebb lesz a hónap vége és még a megtakarításról is le kell mondanom.",
+        "Falun ugyan kevesebb a lakhatási költségünk, mint a városban, de az élelmiszer- és gázárak elszállása meg a 6 százalék feletti élelmiszer-infláció simán lenullázza a keresetemmel ígért 9 százalékos emelést, úgyhogy a következő egy évben inkább szűkösebben, mint kényelmesen fogunk gazdálkodni.",
+        "A fizetésem talán pár százalékot emelkedik, de az aszály miatt az élelmiszer meg a gáz télen úgyis lenyomja a torkomon a kedvezményes árat, úgyhogy jövő nyárig csak szűkösen, tartalékok nélkül fogunk kijönni a pénzünkből.",
+        "A falun középfokú végzettséggel alig emelkedik a fizum, miközben a tojás, a kávé meg a lakhatás viszi a pénzünk több mint felét, szóval jövőre is csak a napi túlélésre gyűrűzünk, az Otthon Start meg úgysem nekünk segít, hanem a budapesti középosztálynak.",
+        "Budapesti diplomásként a fizetésem talán tartja a szintet, de az élelmiszer- és albérletárak miatt a hónap végére alig marad, így a következő egy évben inkább csak a megcsappant tartalékainkat próbáljuk védeni, mintsem előre jutni. Ha a zöldség, kávé meg a rezsi így megy tovább, a nyaralást vagy a kultúrát simán el kell majd engednünk.",
+        "A zöldség és gyümölcs ára az egekben, meg a lakások is drágulnak, nekünk meg alig emelkedett a fizetésünk, úgyhogy jövőre is csak a napi megélhetésért küzdünk, félretenni meg eszembe se jusson. Az aszály meg a fagy miatt a piacon is szívjuk a fogunkat, így inkább még szűkebbre kell húzni a nadrágszíjat.",
+        "A lakásárak és az albérletköltségek az egekben, az infláció megint felpörgött, főleg az élelmiszer és a gáz drágul — így a következő egy évben legfeljebb arra számítok, hogy a fizetésem egyre kevésbé lesz elég ugyanarra a színvonalra, mint most.",
+        "Budapesti albérletben és folyton dráguló élelmiszerekkel, plusz a gáz árának húsz százalékos ugrásával egyre szűkebb a mozgásterem, úgyhogy a következő egy évben inkább a megúszást várom: ha a fizetésem nem emelkedik érdemben, csak a tartalékaim fogyatkoznak és a napi szintű spórolás marad.",
+        "A nyugdíjam alig emelkedik, miközben a zöldség, a tojás meg a gáz is egyre drágább, úgyhogy a következő egy évben még szorosabbra kell húznom a nadrágszíjat, és csak a legmuszájabb dolgokra költök. Azt érzem, hiába mondja a kormány, hogy javul a helyzet, a falusi boltban nekem csak az számít, amit a kezembe veszek, és az egyre kisebbet fog a pénz.",
+        "A nyugdíjam alig mozdul, miközben a kávé, a tojás meg a zöldség is egyre drágább, úgyhogy a következő egy évben is csak spórolással, a napi bevásárlásokon szorítva fogok tudni kijönni a pénzemből. Lakásra már úgysem gondolhatok, az meg csak rosszabb, hogy a rezsi és az élelem viszi a jövedelmem nagy részét.",
+        "Budapesti diplomásként a fizetésem talán tartja az iramot, de a lakásárak és az élelmiszer-költségek elszállása miatt reálisan alig lesz több a megtakarításom, és ha bármi váratlan kiadás jön, máris szűkül a mozgásterünk. A következő egy évben inkább óvatos költekezéssel, mint fellélegzéssel számolok.",
+        "Felsőfokú végzettséggel és városi lakással a rezsi meg a drágult élelmiszer (kávé, tojás, csoki) már most lenyomja a fizetésem, és ha a hírben írt 55 százalékos alapkiadás nem csökken, a következő egy évben csak arra lesz pénzünk, hogy megússzuk a hónapokat, nyaralásról vagy nagyobb vásárlásról le kell mondjunk.",
+        "Nekem alapfokú végzettséggel és kisvárosi fizetésből ez a 9 százalékos minimálbér-emelés is alig látszik, mert a tojás, a kávé és a gáz ára meg a hőség miatti drágulás simán elviszi a többletet, úgyhogy a következő egy évben legfeljebb nullán leszünk, de inkább szűkebben húzzuk majd a szánkat.",
+        "A fizetésem alig mozdul, de az albérlet meg az élelmiszer annyira drága lett, hogy csak arra figyelek, ne csússzak be; az Otthon Start jó lenne, de nekem alapfokú végzettséggel és budapesti árakkal csoda lenne, ha jobban látnám a jövő évet.",
+        "Nyugdíjasemberként egyre rosszabbul látom a következő egy évet, mert a gáz és az élelmiszerek drágulása, meg hogy a fizetésem nem tart lépést a bolti árakkal, szépen felemészti a pénzem, hiába ígérnek infláció feletti emelést másoknak. Az árrésstop a drogériában jó, de a rezsicsökkenés helyett inkább emelkedést érzek a saját bőrömön.",
+        "Nálunk a faluban a fizetés alig mozdul, az élelmiszer meg azért drágul, amit a boltban magam is látok, szóval a következő évben is csak szűken, fillérbaszásig fogunk kijönni a pénzből. A gázár tartása segít valamit, de az aszály és a drágulás miatt inkább rosszabbul félek, mint jobban.",
+        "A mi falusi házunkon a gáz meg a kaja ára még így is az egekben van, a minimálbér-emelés alig látszik a boltban, úgyhogy a következő egy évben legfeljebb arra számítok, hogy épp kijövünk a szűkösül, de nagyobb biztonságot vagy megtakarítást nem látok magunk előtt.",
+        "Nyugdíjas koromban a gázár kedvezménye még tart, de az albérletválság és a boltban érzett drágulás miatt nem látok javulást, a pénzem pont arra lesz elég, hogy megéljek, de félre tenni nem tudok.",
+        "A faluban alig van rendes munkalehetőség, a keresetem nem nagy, az meg hogy negyedével drágultak a lakások és az élelmiszer is folyton drágul, nekem azt jelenti, hogy jövőre is csak spórolással, adósság nélkül alig tudom kihozni a hónapokat. Az Otthon Start jó hangzik, de nekünk úgysem jut abból semmi, így az anyagi kilátásaim inkább rosszak, mintsem biztatók.",
+        "Budapesten középfokú végzettséggel alig látok előrelépést, mert a lakásárak és a gáz meg az élelmiszerek drágulása folyamatosan viszi el a fizetésem, szóval a következő egy évben inkább csak szűkösebben fogunk gazdálkodni, mintsem hogy jobban állnánk."
+      ]
+    },
+    {
+      "seed": 3,
+      "n_sent": 60,
+      "ssr_score": 2.4738494717253268,
+      "nowcast": -26.30752641373366,
+      "sentences": [
+        "Budapesten középkategóriás fizetésből nyögünk, a gáz meg az élelmiszer drágulása miatt a rezsit és a bevásárlást alig bírjuk kifizetni, úgyhogy a következő egy évben legfeljebb arra számítok, hogy szűkebb lesz a hónap vége, nem hogy előre lépünk. Az árrésstopon kívül semmi nem segít, a keresetem meg messze elmarad attól a 20 százalékos drágulástól, amit a boltban érzek.",
+        "A nyugdíjam alig emelkedik, a zöldség, gyümölcs meg a drogériai cuccok még így is drágábbak a faluban, úgyhogy a következő egy évben csak úgy jövök ki a pénzből, ha még jobban megszorítom magam és a fűtést is kevesebbet fűtöm télen. Nem várok semmi nagy javulást, mert az árak nálunk nem úgy csökkennek, ahogy a híradóban mondják.",
+        "A fizetésem talán egy kicsit emelkedett, de az élelmiszer- és gázárak meg a lakásdrágulás mellett egyre szűkebb a hónap vége, és amíg ilyen gyorsan szaladnak el az árak, nem látom, hogy jövőre könnyebb lenne megélni. A hírek alapján inkább takarékoskodnom kell, mert a gazdaság sem úgy áll, hogy hamar javulna a helyzetünk.",
+        "Kisvárosban középfokú végzettséggel alig lesz több a fizum, mint amennyivel az élelmiszer és a rezsi drágul, szóval inkább szűkösen, mintsem biztonságban látom a következő egy évünket. Albérletről vagy saját lakásról meg ne is álmodjak, annyira elszálltak az árak, maradok a szüleimnél és spórolok, ahogy tudok.",
+        "A nyugdíjam nem emelkedikrendesen, a zöldség és gyümölcs meg az élelmiszer megmaradt drága, szóval jövőre is szorosan kell gazdálkodnom, nem lesz több pénz a kezemben, csak kevesebb. Az árrésstop jó, ha tartják a drogériáknál, de a lakásárakat meg az inflációt látva én meg a falusi házamnál maradok, mert máshol úgysem lenne esélyem költözni.",
+        "Nyugdíjasértelmezésben alig emelkedik a jövedelmem, miközben a gáz meg az élelmiszer folyamatosan drágul, úgyhogy a következő egy évben csak úgy tudom kijönni a pénzből, ha még jobban szűkítem a bevásárlást és a fűtést. A lakásárak és a rezsi így is az egekben, nekem meg csak fogyni látszik a tartalékom.",
+        "A fizetésem talán egy kicsit emelkedett, de az élelmiszer meg a lakhatás annyira drágul, hogy azt érzem, jövőre is alig jut majd valamire a családnak, ha így megy tovább. A hőség és az időjárás miatt az árak csak rosszabbak lesznek, szóval nem látok előrébb lépést a pénztárcámban.",
+        "Budapesten nyugdíjasént az árrésstop meg a büntetések jók, de a zöldség, a tojás és a kávé drágulása meg a hőség miatti számlák úgy elviszik a pénzem, hogy alig marad, és mivel a gazdaság is alig mozdul, nem várok semmi javulást a következő egy évben.",
+        "Nyugdíjból élek, ami alig emelkedik, az élelmiszer meg a rezsi megint drágább lett, úgyhogy a következő évben is csak szűkösen, fillérbaszóan jövök ki a pénzemből, tartalékra nem is számíthatok.",
+        "Bár a fizetésem az átlag emelkedésével talán lépést tart, a kávé, tojás és albérletárak mellett a jövedelmem fele-nagy része elmegy lakhatásra és élelmiszerre, így a következő egy évben legfeljebb stagnáló, szűkös anyagi helyzetre számítok, nagyobb megtakarításra alig lesz esélyem.",
+        "A kávé, tojás meg minden alapvető cucc folyamatosan drágul, miközben a fizum nem nagyon mozdul, úgyhogy a következő egy évben szűkösebben fogunk gazdálkodni, és jobban oda kell figyelni minden forintra, ha nem akarunk adósságba csúszni.",
+        "Nyugdíjas háztartásként a gázárak befagyasztása és az árrésstopok kicsit megkönnyítik a mindennapokat, de a zöldség-gyümölcs drágulása és a valóságban még mindig 20 százalékosnak érzett drágulás miatt inkább óvatosan, takarékosan tervezek a következő egy évben.",
+        "Budapesten középfokú végzettséggel alig keresek többet a minimálbér emelésével, miközben a kávé, a tojás és a gáz is száguld felfelé, meg a lakások ára elszállt, úgyhogy a következő egy évben csak arra számítok, hogy egyre szűkebb lesz a hónap vége és esélytelen lesz külön költözni.",
+        "Felsőfokú végzettséggel is alig lesz több pénzem a hónap végén, mert a budapesti albérlet és a drága élelmiszerek viszik el a keresetem nagy részét, szóval a következő egy évben inkább csak a túlélésre játszom, nem a megtakarításra.",
+        "Nálunk a faluban a fizu nem nagyon mozdul, a boltban meg úgy érzem, mintha még mindig húsz százalékkal drágább lenne minden, szóval a következő évben csak arra számítok, hogy szűkösebben jövünk ki, mint eddig. Az árrésstop jóleső hír drogériánál, de azt látom, hogy a rezsi és az élelmiszer viszi el az egész keresetet.",
+        "Nálunk a fizu nem nőtt az infláció után, az élelmiszer meg a gáz meg az eszement árak miatt hónapról hónapra jövünk ki, így a következő egy évben legfeljebb annyi lesz, hogy valahogy átvészeljük, de semmi tartalékra nem számítok.",
+        "A fizetésem nem nagyon mozdul, miközben az élelmiszer, a gáz meg a kávé is folyamat drágul, úgyhogy a következő egy évben szűkebbre kell fognom a költést, és alig marad majd valami a végére. A gazdasági lassulás meg az infláció gyorsulása nem sok jót ígér, így inkább tartalékolni próbálok, de lehet, hogy a megtakarításaink is olvadni fognak.",
+        "Albérletre és élelmiszerre megy el a fizu nagyja, a drágulás meg simán lenyomja a minimálbér-emelést, szóval a következő évben csak vegetálni fogok anyagilag, nem lesz tartalékom semmire.",
+        "Budapesti albérletben élek, és havi 170–210 ezerért csak a lakhatás megy el, miközben az élelmiszer meg a rezsi viszi a jövedelmem nagy részét, úgyhogy a minimálbér 9 százalékos emelése alig segít, inkább csak a túlélést várom a következő évben, nem hogy előre lépést.",
+        "Falun alapfokú végzettséggel dolgozni meg a gáz és az élelmiszerek árát nézni elég ijesztő, mert a fizum nem nő, de a boltban meg a számlánál egyre kevesebből kell kijönnöm, szóval a következő egy évben csak szorítani tudok a költségeken, többre nem számítok.",
+        "A fizetésem alig mozdult a minimálbérhez képest, miközben a gáz, a kávé meg a tojás ára az egekbe szökött, úgyhogy a következő egy évben csak szorítani tudok a napi bevásárláson, mert az albérlet és az élelmiszer már most is a jövedelmünk több mint felét viszi el. Nem várok semmi javulást, inkább attól félek, hogy a nyári aszály miatt ősszel megint ugranak az élelmiszerárak.",
+        "Nálunk falun a minimálbér-emelés alig látszik meg, mert az élelmiszer meg a tűzifa drágább lett a szárazság miatt, és ha a gazdaság csak 1 százalékot nő, apámék fizetése sem fog igazán emelkedni, szóval jövő nyárig szűken, de kijövünk.",
+        "A nyugdíjam alig emelkedett, miközben a zöldség, a gyümölcs és a gáz is drágább lett, úgyhogy a falusi házunk rezsijét is alig tudom kifizetni, jövőre még szűkebbre kell húznom a nadrágszíjat. Az albérletárakat meg a fesztiválokat látom a hírekben, de azok nekem már nem fontosak, nekem a mindennapi megélhetés a tét.",
+        "Nyugdíjas kisvárosi emberként úgy látom, a rezsikedvezmény még tart, de az aszály miatt drágább zöldség és a napi vásárlásokban érzett húsz százalékos drágulás simán elviszi a keretem, szóval a következő egy évben inkább szűkösen, de kijövök a pénzemből.",
+        "Nekem alapfokú végzettséggel és városi megélhetéssel a fizu nem nagyon követi az árakat, a zöldség, a kávé meg a gáz is annyit drágult, hogy a maradék pénzből alig lesz valami, szóval a következő egy évben csak spórolással és szűkölködéssel látom a háztartásunkat.",
+        "A fizetésem talán picit emelkedett, de az élelmiszer-, gáz- és lakhatási árak gyorsabban szaladnak el mellettem, úgyhogy a következő egy évben inkább szorosabbra kell húznom a nadrágszíjat, mintsem hogy előre lépnék anyagilag.",
+        "Albérletre és rezsire megy a fizu nagyja, az élelmiszer- és gázárak meg tovább kúsznak fel, szóval a következő egy évben simán benézhet a végére, ha nem vigyázok a költéssel. A keresetem alig nő, az infláció meg utolér, úgyhogy nem várok semmi javulást a pénztárcámban.",
+        "Albérletre és rezsire meg az elszállt élelmiszerárakra megy a fizu nagyja, úgyhogy a következő egy évben max arra lesz, hogy megússzam a hónap végét, félretenni vagy nagyobb bulira (pl. Sziget) gondolni szinte esélytelen. A keresetem alig nő, de a lakhatás meg a kávé-tojás meg a többi cucc visz el mindent, szóval nem látok előrébb lépést.",
+        "Hát őszintén szólva nem látom rózsásan, mert a lakásár- és albérletdrágulás meg az élelmiszerárak mellett a fizetésem nem nagyon mozdul, a 0,2 százalékos növekedés meg alig érezhető a saját pénztárcámban. Ha így megy tovább, jövő nyárig csak spórolással úszom meg, hogy ne csússzak be anyagilag.",
+        "A fizuem alig emelkedett, de a zöldség, gyümölcs meg a többi cucc folyamatosan drágul, a gazdaság meg alig mozdul, úgyhogy a következő egy évben leginkább csak a takarékoskodásra és a túlélésre számítok, nem lesz könnyebb.",
+        "A nyugdíjam alig emelkedik, miközben a gáz és az élelmiszer ára folyamatosan szalad fel, úgyhogy a következő egy évben még szorosabbra kell húznom a nadrágszíjat, és csak a legszükségesebbre költök. A hőség meg az aszály miatt a zöldség is drága lett, így jobban félek a pénztárcám gyűrögetésétől, mint a sport- vagy celebhírektől.",
+        "Felsőfokú végzettséggel is alig lesz normális keresetem falun, a lakásárak meg az élelmiszerárak száguldanak, szóval a következő egy évben inkább a túlélésre játszom, mintsem hogy bármit félre tudjak tenni.",
+        "A fizetésem talán kicsit emelkedett a minimálbér miatt, de a boltban meg a rezsiben érzem, hogy tízből hármat ugyanazért a kosárért is többet hagyok ott, szóval jövőre is csak spórolással és óvatosan költekezve jövök ki a rezsin és a bevásárláson. A hírek szerint már alig van infláció, de nekem a saját pénztárcámban nem ezt mutatja, így nem várok nagy fellélegz",
+        "Budapesten középfokú végzettséggel azt látom, hogy az élelmiszer- és gázárak megint szaladnak el, a lakhatás meg főleg, így a pénzem egyre kevesebbre lesz elég, és tartalékot sem nagyon tudok képezni a következő egy évben. A kormány ígérgetései meg a lakásdrágulási rekord mellett nekem nem hogy jobb, inkább rosszabb lesz a helyzetünk.",
+        "A nyugdíjam alig emelkedik, de az élelmiszer meg a gáz annyival drágább lett, hogy jobban kell számolgatnom, mit veszek meg, így a következő egy évben csak arra számítok, hogy szűkebb lesz a hónap vége, mint eddig.",
+        "A gáz és az élelmiszer ára miatt már most is alig jut meg a fizetésből, és ha így megy tovább, jövőre még a drogériai stop sem fogja megvédeni a pénztárcánkat a szűküléstől. Lakásra, albérletre úgysem tudunk gondolni, szóval csak az a kérdés, hogyan húzzuk ki újabb egy évig valahogy.",
+        "A gáz meg az élelmiszer annyira drágult, hogy hiába emelkedett a fizum, a végén kevesebb marad a hónap végére, szóval jövőre is spórolósra vesszük a dolgokat, nem látok előre semmi nagy javulást.",
+        "A nyugdíjam nem nőtt úgy, ahogy az élelmiszer és a rezsi drágul, úgyhogy a következő egy évben még szűkebben kell gazdálkodnom, mint eddig, mert a boltban érzett árak csak följebb mennek.",
+        "Lakásdrágulás és albérletválság mellett az, hogy az élelmiszer és lakhatás viszi a jövedelmünk 55 százalékát, nekem is egyre szűkebb mozgásteret hagy, így a következő évben legfeljebb arra számítok, hogy épp kijövünk a rezsi és a bevásárlás árából, de nagyobb megtakarításról vagy nyugodtabb anyagi helyzetről szó sem lehet.",
+        "Budapesten albérletből és középfokú fizuból élni egyre nyomorultabb, mert hiába ígérgetnek árrésstopot, a boltban meg a rezsinél simán érzem, hogy húsz százalékkal drágább minden, mint egy éve, és azt se látom, honnan lenne több pénzem jövőre. Ha az Otthon Startból nem lesz nekem is valami kézzelfogható, csak a túlélés megy, megélhetési tartalékot gyűjteni esélytelen.",
+        "A nyugdíjam nem fog lépést tartani a gázzal és az élelmiszerrel, úgyhogy jövőre is szorosan kell majd gazdálkodnom, ha nem akarok a megtakarításaimból élni. Az, hogy a kormány is alig vár növekedést, nekem csak azt jelzi, hogy olcsóbb nem lesz az élet, inkább még nehezebb.",
+        "A nyugdíjam alig emelkedik, miközben a hírek szerint alig nő a gazdaság és magas marad a kamat meg az albérletárak körüli drágulás, úgyhogy a következő egy évben inkább szűkösebben, óvatosabban kell gazdálkodnom, mint eddig.",
+        "Budapesti diplomásként úgy érzem, hiába a hivatalosan lassuló infláció, a boltban és a rezsicsöpörtnél hónapról hónapra több megy el a fizetésből, úgyhogy a következő egy évben inkább szorosabb költségvetéssel és tartalékolással készülök, mintsem hogy javulást várjak.",
+        "Budapesten albérletből és a napi bevásárlásból élek, az meg hogy az élelmiszer meg a gáz is folyton drágul, a lakhatás meg viszi a fizetés felét, nekem nem lesz könnyebb, csak szorosabban kell majd kötnöm a nyelvet. Ha nem kapok valami több pénzt, jövő nyárig csak a víz felett maradok, de nem lesz semmire félretettem.",
+        "Falun élünk alapfokú végzettséggel, a minimálbér emelése jól jön, de az élelmiszer- és lakhatási drágulás miatt alig marad pénzünk, így a következő egy évben is csak napi megélhetésre, nem nagyobb tervekre futja.",
+        "Nekem nyugdíjas falusi emberként nem sokat jelent a minimálbér-emelés, a boltban meg azt látom, hogy a tojás meg a kávé az egekbe szökött, úgyhogy a következő egy évben csak szorítanom kell a nadrágszíjon, mert a rezsiből és az élelmiszerből kevés marad. Azt érzem, hiába ígérgetnek, az én pénzemre nem lesz jobb idő, csak drágább.",
+        "Öregemberként a kisvárosi nyugdíjamból alig jövök ki a drága élelmiszerekből és a gázszámlából, úgyhogy a következő egy évben még szűkebbre kell húznom a nadrágszíjat, mert az árak csak szaladnak feljebb. Az Otthon Start meg a minimálbér-emelés nem nekem való, én csak azt látom, hogy a pénzem egyre kevesebbet ér.",
+        "Hiába csökken hivatalosan az infláció, a boltban és a gázszámlánál én még mindig húsz százalékos drágulást érzek, a nyugdíjam meg alig mozdul, úgyhogy a következő egy évben csak szorosabbra kell húznom a nadrágszíjat, ha nem akarok az albérletvagy rezsi miatt bajba kerülni.",
+        "Lakástörlesztésről vagy saját albérletről ne is álmodjak, mert az árak szaladnak el, a gázmeg a kaja meg úgyis viszi a fizum felét, úgyhogy a következő egy évben csak azt nézem majd, hogyan jöjjek ki havi szinten anélkül, hogy a szüleimhez kelljen visszaköltöznöm.",
+        "A gáz és az élelmiszer ára miatt már most is alig jut a nyugdíjból, ha így megy tovább, jövőre csak a legszükségesebbre lesz pénzünk, nyaralásról vagy nagyobb kiadásról pedig szó sem lehet.",
+        "Nyugdíjas Budapesten úgy látom, hiába ígérnek reálbér-emelkedést máshol, nekem az élelmiszer- és lakhatási kiadások viszik a pénzem nagy részét, és a hírekben látott drágulások miatt a következő évben is szűkösen, de kihúzom valahogy.",
+        "Falun élünk, úgyhogy a lakásár- és albérletőrület szerencsére nem közvetlenül minket sújt, de az élelmiszer- és drogériai árak meg a szárazság miatti drágulás már így is a jövedelmünk felét viszi el, szóval a következő egy évben legfeljebb arra számítok, hogy szűkösebben gazdálkodunk, és semmi tartalékot nem tudunk képezni.",
+        "Nyugdíjas háztartásként a rezsi és az élelmiszerek ára továbbra is az egekben van, a hivatalos infláció meg a valós drágulás közötti szakadék miatt pedig reálértéken inkább szűkül a keretem, mintsem hogy fellélegeznék – a következő egy évben legfeljebb arra számítok, hogy az árrésstopok miatt nem romlik tovább drasztikusan a helyzet, de jobb sem lesz.",
+        "Budapesten középfokú végzettséggel alig látom a fizetésem emelkedését az árak mellett, a hírekben írt 55 százalékos lakhatás- és élelmiszerár elviszi a pénzünk felét, úgyhogy a következő egy évben legfeljebb nullszaldóra játszom, tartalékot gyűjteni nem nagyon tudok.",
+        "Nekem alapfokú végzettséggel kisvárosban amúgy sincs sok pénzem, és ha az élelmiszer meg a rezsi viszi a jövedelem nagy részét, meg az árak csak szaladnak fel, akkor jövőre is csak úgy jövök ki, ha nagyon szorítom a költségeket és nem engedhetek meg magamnak semmi extrát.",
+        "Nekem kisvárosban középfokú végzettséggel alig lesz több a fizum, miközben a tojás, a kávé és a rezsi is szalad felfelé, úgyhogy a következő egy évben csak arra lesz elég, hogy épp megússzuk a hónap végét, spórolni vagy nagyobb dolgokra gondolni nem nagyon fogok tudni.",
+        "A fizetésem alig nőtt, de az albérlet meg az élelmiszer az egekben van, és ha a gazdaság csak 1 százalékot növekszik jövőre, én biztosan nem fogok kiengedni, hanem még szorosabbra húzom a nadrágszíjat. Tartalékom nincs, úgyhogy ha a gáz vagy a boltok árai tovább csúsznak felfelé, csak a hónapról hónapra való túlélés marad.",
+        "A lakhatás és az élelmiszer már most is a fizetésünk több mint felét viszi el, az infláció és a gázár meg csak szalad felfelé, úgyhogy a következő egy évben legfeljebb arra számítok, hogy szűkebb lesz a hónap vége, és még a megtakarításról is le kell mondanunk.",
+        "Azt látom, hogy az élelmiszer meg a lakhatás viszi a fizetésünk több mint felét, a hírekben meg azt mondják, lassul a gazdaság, úgyhogy jövőre is csak spórolással és szorítással jutunk majd előre, nem lesz könnyebb.",
+        "Budapesten alapfokú végzettséggel és kevés pénzzel élek, a lakások negyedével drágultak, az élelmiszer meg a rezsi is emészti a keresetem, szóval a következő egy évben inkább még szorosabbra kell húznom a nadrágszíjat, mintsem hogy jobbra számítsak."
+      ]
+    }
+  ],
+  "mean_nowcast": -24.2877986514209,
+  "abs_err": 5.412201348579099,
+  "flash_reference": {
+    "file": "hu_nowcast_2025-06.json",
+    "nowcast": -35.44240023810228,
+    "abs_err": 5.742400238102281
+  },
+  "cost": {
+    "n_calls": 180,
+    "n_api_calls": 180,
+    "n_cache_hits": 0,
+    "calls_per_min_limit": 100.0,
+    "elapsed_s": 126.5,
+    "prompt_chars": 474256,
+    "completion_chars": 50599,
+    "est_prompt_tokens": 148205,
+    "est_completion_tokens": 15812
+  },
+  "raw_stream": [
+    {
+      "i": 1,
+      "response": "A gázár meg a bevásárlás így is viszi a fizetésünk nagyját, a kormány meg lejjebb vette a növekedést, úgyhogy jövőre is inkább szorításra és takarékoskodásra számítok, nem lesz könnyebb."
+    },
+    {
+      "i": 2,
+      "response": "Falun élünk középfokú végzettséggel, a gázár nekünk még belefér a kedvezményesbe, de az élelmiszer 6 százalékos drágulása és az infláció miatt egyre szűkebb a hónap vége, így a következő évben legfeljebb stagnáló, inkább feszítettebb anyagi helyzetre számítok. Lakásár-robbanásról meg albérletdrágulásról csak a hírekben hallok, nekünk szerencsére saját ház"
+    },
+    {
+      "i": 3,
+      "response": "A nyugdíjam alig emelkedett, a zöldség, a tojás meg a kávé meg aztán elszállt az árával, úgyhogy a falusi kis pénzemből jövőre is csak spórolással, a drága holmik kiiktatásával jutok majd épp a gázra és az élelmre. A hírekből meg azt látom, hogy az árak nem igazán akarnak megnyugodni, hiába dicsekednek a béremeléssel, nekem abból nem futja többre"
+    },
+    {
+      "i": 4,
+      "response": "A nyugdíjam alig emelkedett, miközben a szárazság miatt az élelmiszerárak biztosan tovább szaladnak fel, úgyhogy a következő egy évben még szűkebben kell gazdálkodnom, mint eddig. A lakásdrágulás meg a magas kamatok csak azt erősítik bennem, hogy itt a kisvárosban kell kihúznom, mert máshol már meg sem tudnék élni."
+    },
+    {
+      "i": 5,
+      "response": "Nekem Budapesten alapfokú végzettséggel, fix de nem túl nagy fizetésből élve nagyon nem ígérkezik jónak a következő egy év: az élelmiszer és a gáz ára szalad, a lakhatás meg az alapkaják viszik a pénzem több mint felét, és ha ennyire lassul a gazdaság, nem várok se fizetésemelést, se könnyebbséget. Tartalékom alig van, úgyhogy szűkösen, napi számolgatással lesz csak meg a következ"
+    },
+    {
+      "i": 6,
+      "response": "A kávé, a tojás és a zöldségek ára miatt már most is alig jut a fizetésből a hónap végére, és ha a gazdaság csak 1 százalékot nő, nekem meg nem emelnek rendesen, jövőre is ugyanilyen szorításban fogunk élni. Az árrésstop jó, de az élelmiszer és a rezsi mellett ez csak csepp a tengerben, tartalékot nem igazán tudunk képezni."
+    },
+    {
+      "i": 7,
+      "response": "A kávé, a tojás és a zöldségek ára az egekben, a lakhatás meg viszi a fizetés felét, úgyhogy hiába lett kicsit magasabb a minimálbér, én egy fillért sem érzek meg belőle, és jövőre is csak arra számítok, hogy szűkebben fogunk jönni ki, mint idén."
+    },
+    {
+      "i": 8,
+      "response": "Nekem ugyan megvan a nyugdíjam és a kisvárosi lakásom, de az élelmiszer- és gyógyszerárak azt eszik meg, amit eddig félre tudtam tenni, úgyhogy jövőre is csak spórolással és óvatosan költve jutok majd előre. Azt látom a hírekből, hogy az országnak sincs túl sok tartaléka, szóval jobb nem számítani semmi nagy segítségre."
+    },
+    {
+      "i": 9,
+      "response": "A fizetésem alig ment fel, de az élelmiszer, a gáz meg a kávé annyira drágult, hogy alig jut valami félre, így a következő egy évben csak arra számítok, hogy szűkebben kell gazdálkodnom, mint eddig. Ha így megy tovább az infláció, Budapesten meg a rezsivel együtt még a mindennapi bevásárlás is húzós lesz."
+    },
+    {
+      "i": 10,
+      "response": "A faluban élünk, így megússzuk a budapesti albérlet- és lakásáőrületet, de a bevásárlásnál meg a rezsinél azt érzem, hogy a keresetem nem nagyon tartja a lépést a drágulással, szóval a következő egy évben inkább csak szűkösen, takarékoskodva jövünk ki a pénzünkből."
+    },
+    {
+      "i": 11,
+      "response": "Falun középfokú végzettséggel alig lesz több a fizum, miközben az élelmiszer meg a gáz folyamatosan drágul, úgyhogy a következő évben is csak a napi megélhetésért fogok küzdeni, félretenni vagy lakást venni esélytelen."
+    },
+    {
+      "i": 12,
+      "response": "Albérletre és rezsire megy a fizetésem nagyja, az élelmiszer- és gázárak meg csak szaladnak fel, úgyhogy a következő egy évben legfeljebb nullszaldóra járok, lakást venni meg a magas árak és bizonytalan gazdaság miatt nem merek belevágni."
+    },
+    {
+      "i": 13,
+      "response": "Falun élünk alapfokú végzettséggel, a keresetünk alig mozdul, de a gáz meg a zöldség ára az egekben van, úgyhogy a következő egy évben csak szorítani tudunk a költségeken, jobbra nem számítok."
+    },
+    {
+      "i": 14,
+      "response": "Nyugdíjasemberként a 9 százalékos minimálbéremelés nekem keveset jelent, miközben az élelmiszerek és a gáz ára is folyamatosan nő, úgyhogy a következő egy évben szűkebben kell gazdálkodnom, és a rezsi meg a bevásárlás viszi majd az egész pénzem."
+    },
+    {
+      "i": 15,
+      "response": "Kisvárosban élve a lakhatás még nem visz el mindent, de az aszály miatt az élelmiszerárak további drágulásától tartok, miközben a gyenge növekedés és az alacsonyabb béremelési várakozások miatt a jövedelmünk alig fog lépést tartani a kiadásokkal. Összességében takarékoskodnunk kell, mert az anyagi biztonságunk a következő egy évben inkább szűkül, mintsem javul."
+    },
+    {
+      "i": 16,
+      "response": "Nekem alapfokú végzettséggel, kisvárosban is alig jut a fizetésből megélhetésre, az élelmiszer- és gázárak meg csak szaladnak fel, szóval a következő egy évben még szorosabbra kell húzni a nadrágszíjat, mert nem látom, honnan lenne több pénz a hónap végére."
+    },
+    {
+      "i": 17,
+      "response": "Azt látom, hogy bár az átlagkeresetek emelkednek, nekem a boltban az élelmiszer- és gázárak növekedése jobban fáj, mint a fizetésem emelkedése, szóval a következő egy évben inkább szűkösebben fogunk jönni ki, mint most. A rezsi meg az albérletárak mellett még a szárazság miatti drágulást is én fizetem meg a pénztárcámból, úgyhogy nem várok jobbulást."
+    },
+    {
+      "i": 18,
+      "response": "Falun alapfokú végzettséggel alig lesz több a fizum, de a gáz meg az élelmiszer annyira drágul, hogy jövőre is csak a lakhatás meg a kajálás viszi el szinte minden pénzem, így nem látok semmi javulást, max hogy kihúzzuk valahogy."
+    },
+    {
+      "i": 19,
+      "response": "A fizetésem legfeljebb a minimálbér körüli emelést követi, de az élelmiszer- és gázárak tovább kúsznak fel, meg a szárazság is ráver az árakra, úgyhogy a következő egy évben csak szorítani tudom a nadrágszíjat, jobbra nem számítok."
+    },
+    {
+      "i": 20,
+      "response": "Budapesten albérletből élek, és hiába emelkedett a minimálbér, a lakhatás és az élelmiszerek drágulása simán elviszi a többletet, szóval a következő egy évben legfeljebb nullszaldóra járok, de inkább folyamatos szűkölésre számítok. Az Otthon Start ígéretében nem hiszek, nekem most a hónapról hónapra való kijövetel is küzdelem."
+    },
+    {
+      "i": 21,
+      "response": "Nekem alapfokú végzettséggel kisvárosban amúgy se nagy a kereseti lehetőségem, és ha az élelmiszer meg a lakások ennyire drágulnak, meg az albérletért is vagyonokat kérnek, akkor inkább csak a szűkölködés lesz a következő évben, nem hogy előre lépnénk."
+    },
+    {
+      "i": 22,
+      "response": "Falun alapfokú végzettséggel és kevés pénzzel azt látom, hogy a drogériai és kajaárstop jó, de a szárazság miatt az élelmiszer drága marad, szóval jövőre is alig lesz mit félretenni."
+    },
+    {
+      "i": 23,
+      "response": "A gáz meg az élelmiszer ára úgy elszállt, hogy a fizetésem emelése alig látszik meg a pénztárcámon, így a következő egy évben legfeljebb arra számítok, hogy épp kijövünk a rezsi és a bevásárlás után, de nagyobb tartalékot gyűjteni nem nagyon tudunk."
+    },
+    {
+      "i": 24,
+      "response": "A hírekből ítélve az aszály és az élelmiszerárak miatt még szűkebb lesz a hónap vége, a 0,2 százalékos növekedés és a magas albérletárak mellett pedig alig lesz mozgásterünk, hiába ígérnek reálbér-emelést. Tartalékot gyűjteni nem nagyon látom reálisnak, inkább a napi megélhetésért fogunk küzdeni."
+    },
+    {
+      "i": 25,
+      "response": "Lakásra és gázra meg élelmire megy az egész fizetés, az árak meg csak szaladnak felfelé, úgyhogy a következő egy évben legfeljebb annyi lesz, hogy éppen kijövünk a szorításból, de félretenni vagy nagyobbat lépni eszembe se merjen."
+    },
+    {
+      "i": 26,
+      "response": "Nyugdíjas koromban a keresetem ugyan nem nőtt a minimálbérhez vagy átlagbérekhez, de az élelmiszerek és a lakások drágulása miatt azt érzem, hogy a takarékoskodás ellenére is egyre szűkebb lesz a hónap vége, és az otthonom felújítására vagy költözésre esélyem sincs ezekkel az árakkal."
+    },
+    {
+      "i": 27,
+      "response": "Nyugdíjaséveimet élem, a jövedelmem fix marad, miközben az élelmiszer- és gázárak megint szaladnak fel, úgyhogy a következő egy évben még szorosabbra kell húznom a nadrágszíjat, ha nem akarok a megtakarításaimhoz nyúlni. A hatósági gázár kedvezménye még segít, de az aszály miatti drágulás a konyhában mindennap érezteti a hatását."
+    },
+    {
+      "i": 28,
+      "response": "A gáz meg az élelem folyamatosan drágul, a lakásárak meg elszálltak, úgyhogy nekem kisvárosi középosztálybeliként csak arra látok esélyt, hogy valahogy összekuporgassuk a rezsit és a bevásárlást, de nyugodt anyagi gyarapodásra nem számítok. Az Otthon Start jó hangzik, de a mi korosztályunknak meg a kisvárosi fizetéseknek már alig segít valamin az ilyen bejelentés."
+    },
+    {
+      "i": 29,
+      "response": "Falun felsőfokú végzettséggel is azt látom, hogy az élelmiszer- és lakhatási kiadások viszik a jövedelmünk nagyját, a keresetem legfeljebb a drágulást éri utol, így a következő egy évben leginkább csak átvészelni tudjuk, megtakarítani alig lesz miből."
+    },
+    {
+      "i": 30,
+      "response": "A minimálbér és az átlagkereset ugyan emelkedett, de a zöldség-gyümölcs árak és a napi bevásárlás drágasága miatt én meg sem érzem az emelést, úgyhogy a következő évben is csak szűkösen, fillérbaszón jövök ki a kisvárosi nyugdíjas előtt álló fizetésemből. Azt várom, hogy az Otthon Start vagy valami támogatás segítene, de a hírek alapján a gazdaság alig mozdul, szó"
+    },
+    {
+      "i": 31,
+      "response": "A nyugdíjamból és a megtakarításomból élünk, de az élelmiszer- és kávéárak meg a magas gázár miatt egyre szűkebb a hónap vége, és ha a gazdaság csak 1 százalékot nő, nem számítok arra, hogy könnyebb lenne a helyzetünk. Az új lakhatási támogatás nekünk már nem sokat segít, így inkább takarékoskodni kell, mint tervezni nagyobb kiadást."
+    },
+    {
+      "i": 32,
+      "response": "Nálunk a faluban a minimálbéremmel alig jutok a hónap végére, mert az élelmiszer és a tűzifa meg a kávé meg a tojás is folyton drágul, úgyhogy a következő egy évben is csak szűken, spórolással húzzuk majd ki, nem várok semmi nagy javulást."
+    },
+    {
+      "i": 33,
+      "response": "A nyugdíjam alig emelkedett, miközben a zöldség, a gyümölcs meg a gáz ára az egekbe szökött, úgyhogy a következő egy évben csak úgy tudom kijönni a pénzből, ha még jobban szűkítem a bevásárlást és lemondok a felesleges kiadásokról. Nem látok javulást, mert az infláció megint gyorsul, a gazdaság meg alig mozdul, így azt érzem, egyre nehezebb lesz megőrizni a ny"
+    },
+    {
+      "i": 34,
+      "response": "Nekem alapfokú végzettséggel és városi albérletben ez a drágulás meg a gázár-emelés már így is lenyomja a nyakam, a fizuem legfeljebb a minimálbér környékén mozog, úgyhogy a következő évben csak úgy jövök ki a szűkösől, ha még jobban megszorítom az élelmet meg a villanyt. Tartalékra vagy nagyobb ugrásra nem számítok, mert az infláció és a lakhatási árak simán elvis"
+    },
+    {
+      "i": 35,
+      "response": "A kisvárosi fizetésemből alig jut valami, mert az élelmiszer és a lakhatás viszi a pénzünk több mint felét, a gáz is drágult, szóval jövőre is csak a nélkülözést meg a spórolást látom magunk előtt. Azt remélem, hogy az ígért lakhatási támogatás tényleg segít valamit, de a hírekből nem érzem, hogy könnyebb lenne az életünk."
+    },
+    {
+      "i": 36,
+      "response": "Falun élünk középfokú végzettséggel, a keresetünk alig nő, miközben a gáz, a kávé, a tojás és a zöldség is drágább lett, úgyhogy a következő egy évben csak szorítani tudjuk a nadrágszíjat, mert az aszály és az áremelkedések miatt kevesebb pénz marad a mindennapokon túl."
+    },
+    {
+      "i": 37,
+      "response": "Nekem ugyan van egy kis nyugdíjam, de azt látom, hogy a boltban meg a gázszámlánál nem a hivatalos számokat érzem, hanem hogy minden drágább lett, úgyhogy a következő évben is szűken, fillérekből fogok kijönni, ha nem is költök semmi feleslegesre."
+    },
+    {
+      "i": 38,
+      "response": "A nyugdíjam alig emelkedett, de a tojás, a kávé meg a csokoládé annyira megdrágult, hogy a falusi kis pénzemből alig jut majd ki a télre, ha így maradnak az árak. Az aszály is rontotta a helyzetet, mert a zöldség is drágább lett a piacon, úgyhogy jövőre is szorosan kell gazdálkodnom."
+    },
+    {
+      "i": 39,
+      "response": "Budapesten nyugdíjasaként egyre nehezebben jövök ki a pénzből, mert az élelmiszer meg a gáz ára folyton szalad felfelé, és hiába ígérnek árrésstopot, a boltban én csak azt látom, hogy drágább lett minden; a következő évben is csak szorítanom kell az övet, mert a nyugdíjam nem követi az inflációt."
+    },
+    {
+      "i": 40,
+      "response": "A gáz meg az élelmiszer ára tovább emészti a pénzt, a fizum meg alig mozdul, úgyhogy a falusi házra szánt kevés megtakarításunk is csak fogy majd, nem gyarapszik. Ha jön is valami Otthon Start, az nekünk itt községen nem sokat segít, mert mi már rég megvagyunk a lakással, csak megélni egyre nehezebb."
+    },
+    {
+      "i": 41,
+      "response": "A boltban még mindig húsz százalékkal drágábban látom a kosaram, mint egy éve, és mivel a gazdaság alig mozdul, attól tartok, jövőre is csak szűkösebben jövünk ki a fizetésből, ha nem kapunk valami rendes segítséget vagy béremelést."
+    },
+    {
+      "i": 42,
+      "response": "Nálunk a kisvárosban is azt érzem, hogy a boltban folyamatosan többet hagyok ott a fizetésből, mint egy éve, a tojás és a kávé ára megőrjít, és bár a férjem fizuja kicsit emelkedett, azt a pluszt simán elviszi a rezsi és az élelmiszer, úgyhogy a következő évben legfeljebb arra számítok, hogy nem leszünk egyre szűkebbre szabva, de soha nem jut majd igazán tartalékra."
+    },
+    {
+      "i": 43,
+      "response": "Bár a hírek szerint emelkednek a keresetek, nekem a kisvárosi felsőfokúként is inkább azt érzem, hogy a gáz és az élelmiszer ára az én pénztárcámból is egyre nagyobb szeletet hasít ki, úgyhogy a következő egy évben legfeljebb stagnáló, de inkább szűkülő anyagi mozgásterre számítok."
+    },
+    {
+      "i": 44,
+      "response": "Falun élünk alapfokú végzettséggel, a keresetünk alig mozdul, de a gáz meg az élelmiszer annyit drágult, hogy jövőre is csak a legszükségesebbekre lesz pénzünk, félretenni meg eszembe se jusson."
+    },
+    {
+      "i": 45,
+      "response": "Budapesten középfokú végzettséggel alig lesz több a fizum, miközben az élelmiszer és a gáz drágul, a lakásárak meg elszálltak, szóval a következő évben csak arra számítok, hogy szűkebb lesz a hónap vége és egy fillért sem tudok félretenni."
+    },
+    {
+      "i": 46,
+      "response": "A nyugdíjam alig mozdul, miközben az élelmiszer és a gáz egyre drágább, szóval a következő egy évben csak szorosabbra kell húznom a nadrágszíjat, mert az árak gyorsabban szaladnak, mint amit a pénzem bír."
+    },
+    {
+      "i": 47,
+      "response": "A nyugdíjam nem nő úgy, ahogy az árak szaladnak, a zöldség és a tojás is drágább lett a szárazság miatt, úgyhogy a következő egy évben csak szorosabbra kell húznom a nadrágszíjat, mert az élelmiszer és a rezsi viszi el szinte minden fillért."
+    },
+    {
+      "i": 48,
+      "response": "A gáz meg az élelmiszer állandóan drágul, meg az albérlet is elviszi a fizetés felét, úgyhogy a következő egy évben csak spórolással és szűkölködéssel tudom kihúzni, jobbra nem számítok."
+    },
+    {
+      "i": 49,
+      "response": "Albérletre meg a drágább élelmiszerekre elviszi a fizu nagyját, hiába emelkedett a keresetem, a hírekben ígért reálbér-növekedést a saját bevásárlólistámon nem érzem, szóval jövőre is csak arra számítok, hogy hónapról hónapra jövök ki valahogy."
+    },
+    {
+      "i": 50,
+      "response": "Nyugdíjas háztartásként a rezsikedvezmény és az árrésstop jól jön, de a zöldség-gyümölcs árak és a lakásdrágulás miatt úgy érzem, a megtakarításaink értéke folyamatosan apad, és a következő évben is csak arra lesz elég, hogy épp megőrizzük a szintünket, komolyabb kockázatot nem vállalhatunk."
+    },
+    {
+      "i": 51,
+      "response": "Nyugdíjas koromban az élelmiszer- és lakhatási árak folytonos drágulása miatt már így is alig jövök ki a pénzemből, és ha a boltokban tovább szaladnak az árak, jövőre még a gyógyszeremről vagy a fűtésről is le kell majd mondani. Budapesten albérletet vagy új lakást úgysem engedhetek meg magamnak, szerencsém van, hogy a saját otthonom van, de a rezsi és a kaja elviszi a nyugdíjam"
+    },
+    {
+      "i": 52,
+      "response": "A nyugdíjamból alig jövök ki, mert az élelmiszer meg a gáz egyre drágább, és hiába ígérnek megállított árakat a drogériában, azt érzem, hogy jövőre is csak szorítgatnom kell a költségeken, ha nem akarok adósságba keveredni."
+    },
+    {
+      "i": 53,
+      "response": "A fizetésem ugyan emelkedett, de az élelmiszer- és gázárak megugrása meg a kormány lejjebb vett növekedési várakozása miatt inkább szűkösebbre vesszük a gyeplőt, mert nem érzem biztosnak a jövő évi pénztárcánkat. A kisvárosi költségeinket nehéz kigazdálni, ha a boltban húsz százalékos drágulást látok a valóságban, szóval tartalékolni és óvatosan kö"
+    },
+    {
+      "i": 54,
+      "response": "Nálunk a faluban a fizu nem nagyon mozdul a minimálbér környékén, a zöldség- meg gyümölcsárak meg az aszály miatt alaposan megtaposnak, szóval a következő egy évben inkább csak szorítani fogok a napi bevásárláson, mintsem hogy jobban látnám magunkat anyagilag."
+    },
+    {
+      "i": 55,
+      "response": "Alig keresek 300 ezer alatt havonta, a zöldség, a kávé meg a tojás ára az egekben van, és az albérlet is viszi a pénzem több mint felét, úgyhogy a következő egy évben csak arra számítok, hogy szűkösen jövök ki, hiába emelkedtek valamennyit a fizuk. Az Otthon Start meg a drogériás árrésstop legfeljebb pár ezer forintot hagy nálam, de a hőségmeg a drágulás mellett nem látok reális esélyt"
+    },
+    {
+      "i": 56,
+      "response": "A nyugdíjam alig emelkedik, a boltban meg azt érzem, mintha negyedével többe kerülne minden, úgyhogy a következő egy évben legfeljebb a szűkös megélhetésre számítok, nagyobb tartalékot gyűjteni nem tudok. A rezsi és az élelmiszer ára miatt folyton számolgatnom kell, nemhogy előre lépnénk, csak megmaradjunk a faluban."
+    },
+    {
+      "i": 57,
+      "response": "Lakásra vagy nagyobb felújításra nem nagy az esély, mert az árak szaladnak, de a minimálbér-emelés és a rögzített gázár miatt a mindennapokban talán nem leszünk sokkal rosszabbul, csak a zöldség és a nyári hőségszámla fogja meg a pénztárcánkat."
+    },
+    {
+      "i": 58,
+      "response": "Budapesten albérletért és rezsivel meg az élelmiszerrel elviszik a fizetésem nagyját, a hírek meg azt mondják, alig nő a gazdaság és még mindig drágának érzem a boltot, szóval a következő egy évben csak arra számítok, hogy szorosabbra kell húzni a nadrágszíjat. Az árrésstop jó, ha tényleg tartják, de a kávé meg a tojás árától én nem leszek gazdagabb."
+    },
+    {
+      "i": 59,
+      "response": "A nyugdíjam alig emelkedik, de az élelmiszer meg a rezsi továbbra is az egekben van, úgyhogy a következő egy évben is szűkmarkúan, fillérbaszóan kell beosztanom a pénzt, hogy kijöjjek a hazai árak között. Az Otthon Start engem már nem érint, a lakhatásom fix, de az aszály miatti drágulást én is megérzem a boltban minden héten."
+    },
+    {
+      "i": 60,
+      "response": "Budapesti diplomásként a fizetésem talán tartja a szintet, de az, hogy az élelmiszer és a lakhatás a jövedelem több mint felét viszi el, és a boltban még mindig húsz százalékos drágulást érzek, nem sok megtakarításra ad lehetőséget, így a következő egy évben inkább csak stabil túlélésre, nem pedig előrejutásra számítok."
+    },
+    {
+      "i": 61,
+      "response": "Albérletre és élelmiszerre megy el szinte az egész fizetésem, az árak csak nőnek, a gazdaság meg alig mozdul, úgyhogy a következő egy évben legfeljebb annyi lesz, hogy épp nem merülünk el adósságban, de soha nem jut majd félre tennivaló."
+    },
+    {
+      "i": 62,
+      "response": "Falun élve a gázár kedvezménye még segít, de az élelmiszerek 6 százalékos drágulása és a lakásárak elszabadulása miatt úgy érzem, a fizetésem emelkedése alig tart lépést a valós megélhetési költségekkel, így a következő egy évben inkább szűkösen, de kis odafigyeléssel kijövünk a pénzünkből."
+    },
+    {
+      "i": 63,
+      "response": "A nyugdíjam alig emelkedett, miközben a kávé, a tojás és a rezsi az egekbe ment, úgyhogy a következő egy évben csak úgy jövök ki a szűkös keretből, ha szigorúan spórolok és lemondok a felesleges kiadásokról. Az alapkamat magas tartása miatt a megtakarításaim sem hoznak érdemi többletet, így inkább a napi túlélésre játszom."
+    },
+    {
+      "i": 64,
+      "response": "Nyugdíjasemberként a lakásárak és albérletárak elszállása miatt jól járok, hogy a saját otthonomban lakom, de a rezsiemelkedéstől és a szárazság miatti drágulástól tartok, így a jövő évi kilátásaim óvatosak, a megtakarításaimra leszek utalva."
+    },
+    {
+      "i": 65,
+      "response": "A falusi házunk rezsije és az élelmiszerárak az egekben járnak, miközben a gazdaság alig mozdul, úgyhogy a következő egy évben inkább szorosra húzzuk a nadrágszíjat, és semmire sem számítok, ami érdemben könnyítene a megélhetésünkön."
+    },
+    {
+      "i": 66,
+      "response": "A nyugdíjam alig emelkedik, miközben a gáz meg az élelmiszer egyre drágább, úgyhogy jövőre is szorosan kell majd fogjam a költekezést, és tartalékból élni nemigen tudok."
+    },
+    {
+      "i": 67,
+      "response": "Nekem már nyugdíjas koromban falun is egyre nehezebb kijönni a pénzből, mert az élelmiszer és a gáz ára folyamat emelkedik, a nyugdíj meg alig mozdul, úgyhogy a következő egy évben még szorosabbra kell húznom a nadrágszíjat. Azt érzem, nemhogy jobb lenne, de még rosszabb lesz a helyzet, mert a hírek szerint is csak drágul minden, ami az életben tartásomhoz k"
+    },
+    {
+      "i": 68,
+      "response": "Nyugdíjas felsőfokúként a fix jövedelmemmel a drogériai árrésstop és a befagyasztott gázár még épp megvéd pár fillért, de az élelmiszer-drágulás és a lefelé módosított növekedési várakozás miatt jövőre is szűkösen, az árak után kullogva fogok gazdálkodni."
+    },
+    {
+      "i": 69,
+      "response": "Albérletben élő diplomásként egyre kevesebb marad a fizetésből, mert az árak és a lakhatás szívja fel a jövedelmem nagy részét, így a következő egy évben legfeljebb stagnáló, inkább szűkülő anyagi mozgásterem lehet. Nem tervezek nagyobb kiadást vagy lakásvásárlást, mert az árak és a bizonytalan gazdaság mellett egyszerűen nem fér bele a büdzsémbe."
+    },
+    {
+      "i": 70,
+      "response": "Nyugdíjas koromban a kávé, a tojás és a zöldség drágulása meg a lakhatási költségek miatt alig marad valamim a hónap végére, úgyhogy a következő egy évben is szűkmarkúan, csak a legfontosabbakra költök, mert az áremelkedésekből nekem nem jut a keresetnövekedésből."
+    },
+    {
+      "i": 71,
+      "response": "Falun élve a gázárak kedvezménye még tart, de az élelmiszer- és drogériai árrésstop ellenére is azt érzem, hogy a lakásárak és a gyenge növekedés miatt egy fillért sem látok a saját jövőbeli mozgásterünkből, így jövőre is csak takarékoskodva, befagyasztott kiadásokkal úszom meg."
+    },
+    {
+      "i": 72,
+      "response": "A minimálbér ugyan kicsit emelkedett, de azt látom, hogy a kávé, a tojás és a zöldségek is egyre drágábbak, meg a gáz is húsz százalékkal ment fel, úgyhogy a következő egy évben inkább szűkösebben fogok gazdálkodni, mintsem hogy jobban érezném magam anyagilag. Lakhatásra és kajára megy el szinte minden, ami megmaradna, abból meg alig jut valami."
+    },
+    {
+      "i": 73,
+      "response": "A gázár és az árrésstopok kicsit könnyítenek a mindennapokon, de az élelmiszer-drágulás és a lakásárak száguldása mellett nem érzem, hogy javulna a helyzetünk, inkább csak lavírozunk és igyekszünk megőrizni a mostani szintet. A bizonytalan gazdasági növekedés miatt nem tervezek nagyobb kiadást, mert fogalmam sincs, mi jöhet még."
+    },
+    {
+      "i": 74,
+      "response": "Nyugdíjasemberként úgy látom, hiába ígérnek béremelést másoknak, nekem a boltban azt érzem, hogy a tojás meg a kávé ára az egekbe szökött, és a gázszámla is egyre többet visz el, szóval a következő egy évben csak szorosabbra kell húznom a nadrágszíjat, mert az infláció simán elviszi a kevés pénzemet."
+    },
+    {
+      "i": 75,
+      "response": "Budapesten albérletben és rezsivel együtt már most is alig jövünk ki a fizetésből, a gáz árának húsz százalékos ugrása és az élelmiszer-drágulás meg a gyenge növekedés miatt jövőre csak szorosabbra húznám az övet, nem várok semmi javulást."
+    },
+    {
+      "i": 76,
+      "response": "Lakásdrágulás és 20 százaléknak tűnő drágulás mellett alig emelkedett a fizum, így kisvárosi középfokúként egy fillérből sem leszek könnyebb, és albérletről vagy saját otthonról sem álmodhatok egy év múlva sem."
+    },
+    {
+      "i": 77,
+      "response": "Nekem középfokú végzettséggel kisvárosban nem igazán jut eszembe, hogyan jönnék ki jobban: az élelmiszer meg a gáz ára szalad, a lakásárak meg elszálltak, szóval a következő egy évben inkább szorítanom kell a nadrágszíjon, mintsem hogy jobbra fordulna a helyzetünk."
+    },
+    {
+      "i": 78,
+      "response": "A fizetésem talán egy kicsit emelkedett a minimálbér körüli hírek miatt, de az élelmiszer- és albérletárak meg a hőség miatti rezsiterhek annyira elviszik a pénzt, hogy a következő egy évben legfeljebb nullszaldóra játszom, tartalékot gyűjteni nem nagyon látok esélyt."
+    },
+    {
+      "i": 79,
+      "response": "Nekem alapfokú végzettséggel kisvárosban 300 ezer alatti nyugdíjból vagy fizuból tengődöm, a zöldség meg a gáz is drágább lett, úgyhogy a következő évben is csak azon járok az eszemmel, honnan csippentsek le, hogy ne ússzunk el. Az Otthon Start meg a hőség meg a gyenge gazdaság nem nekem segít, hanem csak a túlélésre játszom."
+    },
+    {
+      "i": 80,
+      "response": "A nyugdíjam alig emelkedik, miközben a boltban húsz százalékos drágulást érzek és a szárazság miatt a kertem is alig terem, úgyhogy jövőre is csak spórolással, a napi bevásárlást átgondolva jutok ki a pénzemből. Lakásárstop meg hitelmegfontolások ide vagy oda, nekem falun nincs mit újítani, csak azt látom, hogy a rezsi és az élelmiszer viszi el a keveset, amim"
+    },
+    {
+      "i": 81,
+      "response": "A fizetésem alig győzi a dráguló élelmiszert és a rezsit, az aszály meg a lakásárak csak rontják a helyzetet, így a következő egy évben legfeljebb arra számítok, hogy átcsúszunk valahogy, de tartalékot képezni esélytelen."
+    },
+    {
+      "i": 82,
+      "response": "Kisvárosban élve és diplomásként talán elvagyok valahogy, de az élelmiszer- és kávéárak meg a 6,5%-os alapkamat miatt semmire sem tudok spórolni, és ha a gazdaság tényleg csak 1%-ot nő, jövőre is ugyanilyen szorításban maradok."
+    },
+    {
+      "i": 83,
+      "response": "A keresetem alig mozdul, de az élelmiszer és a gáz annyival drágább, hogy a végén mindig kevesebb marad a hónapban, így jövőre is csak a napi megélhetésért fogok küzdeni, tartalékra nem nagyon számítok."
+    },
+    {
+      "i": 84,
+      "response": "Falun élünk, de az élelmiszer- és gázárak megugrása miatt a bevásárlás és a fűtés szinte felemészt mindent, a fizetésem meg nem tart lépést a drágulással, úgyhogy a következő egy évben csak arra számítok, hogy még szorosabbra kell húzni a nadrágszíjat. Az árrésstop a drogériánál kicsit segít, de összességében egyre nehezebb kijönni a havi fixből."
+    },
+    {
+      "i": 85,
+      "response": "Nyugdíjas felsőfokúként a fix jövedelmem mellett egyre jobban érzem, hogy az élelmiszer- és lakhatási költségek elviszik a pénzem javát, így a következő egy évben legfeljebb a takarékoskodással tudom tartani a lépést, de anyagilag szűkebbre fogom kell húznom a nadrágszíjat."
+    },
+    {
+      "i": 86,
+      "response": "Nekem alapfokú végzettséggel és városi albérletben ez a lakásdrágulás meg az élelmiszer- és gázáremelkedés teljesen lenullázza a minimálbér-emelést, úgyhogy a következő egy évben csak a napi megélhetésért fogok küzdeni, félretenni vagy lakást venni eszembe se jusson."
+    },
+    {
+      "i": 87,
+      "response": "Falun élünk alapfokú végzettséggel, de az élelmiszer- és gázárak tovább nőnek, a fizetésemből meg alig futja, úgyhogy a következő évben csak spórolással és szűkölködéssel jövök ki a pénzből, nem várok semmi javulást."
+    },
+    {
+      "i": 88,
+      "response": "Budapesten albérletben élve és középfokú végzettséggel azt látom, hogy a lakhatás, a rezsi meg az élelmiszer ára folyamatosan emészti fel a fizetésem, és a kormány is alig vár növekedést jövőre, úgyhogy egy fillérem sem marad tartaléknak, max a hogyan jövünk ki a hónap végére kérdés lesz előttünk."
+    },
+    {
+      "i": 89,
+      "response": "A lakásárak és albérleti díjak az egekben, a zöldség-gyümölcs meg a napi bevásárlás még mindig vagyosan drága, szóval hiába csökkent hivatalosan az infláció, én csak azt érzem, hogy egyre szűkebb a keretünk, és jövőre is inkább a túlélésre játszunk, mintsem bármi nagyobb előrelépésre."
+    },
+    {
+      "i": 90,
+      "response": "Budapesten albérletben élve és középfokú végzettséggel a 300 ezer alatti fizetésemből egyre kevésbé jövök ki, mert az élelmiszer, a gáz és a lakhatás ára szalad, miközben a gazdaság alig mozdul — jövőre is inkább a spórolás és a bizonytalanság lesz a jellemző, mint a fellélegzés."
+    },
+    {
+      "i": 91,
+      "response": "A nyugdíjam nem nagyon mozdul, a kávé, a tojás meg a gáz meg az albérlet meg a rezsi viszont egyre többet visz el, úgyhogy a következő egy évben csak szorosabbra kell húznom a nadrágszíjat, mert azt érzem, a pénzem kevesebbet ér, mint egy éve."
+    },
+    {
+      "i": 92,
+      "response": "A gáz meg a kávé, tojás ára az egekben, a fizum meg alig mozdul, úgyhogy a következő egy évben csak spórolással és szorítással jutok majd ki a boltból és a rezsiszámlák alól. Tartalékom nincs, ha bármi nagyobb kiadás jön, azt már nem tudom kigazdálkodni."
+    },
+    {
+      "i": 93,
+      "response": "A minimálbér emelése jól jön, de az élelmiszer- és gázárak száguldása meg a 20 százalékos drágulás-érzet miatt reálisan alig lesz több pénzem a hónap végén, így csak takarékoskodva és fesztiválokról lemondva jövök ki a következő egy évben."
+    },
+    {
+      "i": 94,
+      "response": "A gáz meg a zöldség ára az egekben van, a nyugdíjam meg alig emelkedett, úgyhogy jövőre is szűken, de valahogy kijövök a szorításból, csak vigyáznom kell minden fillérrel."
+    },
+    {
+      "i": 95,
+      "response": "A fizetésem talán picit emelkedett, de az élelmiszer- és gázárak meg a rezsi úgy elviszik a pénzt, hogy egy nagyvárosi családként egyre szűkebbre kell húzni a nadrágszíjat, és jövőre is inkább csak a megélhetésért küzdök, nem a gyarapodásért."
+    },
+    {
+      "i": 96,
+      "response": "Albérletre és rezsire meg megy el szinte minden, amit középfokú végzettséggel keresek, az élelmiszerárak meg az aszály miatt csak nőnek, úgyhogy a következő egy évben legfeljebb sodródok, de egyről a kettőre biztos nem jutok. Lakást venni meg esélytelen, amikor negyedével drágultak a lakások és a bank is 6,5 százalékon tartja a kamatot."
+    },
+    {
+      "i": 97,
+      "response": "A fizetésem alig mozdul, miközben a zöldség, a tojás meg a kávé az egekbe ment, úgyhogy a következő egy évben csak azzal tudok kijönni, ha még szűkebbre húzom a nadrágszíjat és lemondok a rendes nyaralásról is. Az árrésstop jól hangzik, de a tavaszi fagy meg a szárazság miatt azért a boltban nem érzem, hogy olcsóbb lenne bármi is."
+    },
+    {
+      "i": 98,
+      "response": "A fizetésem alig mozdul, miközben a gáz, az élelmiszer meg a kávé is egyre drágább, úgyhogy a következő évben csak szorítani tudok a költségeken, nagyobb javulásra nem számítok. Lakhatásra meg úgyse tudnék váltani, mert az árak az egekben, albérletet meg főleg nem engedhetek meg magamnak itt a kisvárosban sem."
+    },
+    {
+      "i": 99,
+      "response": "A nyugdíjam nem nagyon mozdul, miközben a gáz meg az élelmiszer ára szalad fel, úgyhogy a következő egy évben még szűkebben kell gazdálkodnom, mint eddig, és jobban oda kell figyelnem minden forintra. A hírek alapján nem várok semmi javulást, inkább azt érzem, hogy az állam is csak vergődik, és mi, idősek fizetjük meg a leggyakrabban a számlát."
+    },
+    {
+      "i": 100,
+      "response": "Budapesti diplomásként a fizum talán egy kicsit emelkedett, de az albérlet, a dráguló élelmiszer és a gázáremelés miatt reálisan nem várok javulást, inkább azt, hogy szűkebb lesz a hónap vége és még a megtakarításról is le kell mondanom."
+    },
+    {
+      "i": 101,
+      "response": "A nyugdíjam alig emelkedett, miközben a zöldség, a tojás és a kávé ára az egekbe szökött, úgyhogy az jön el, hogy spórolnom kell az élelmisen, mert a rezsi és a bolt is egyre többet visz el a keretemből. Nem várok javulást, mert a hírek szerint a gazdaság is csak lassabban fog nőni, nekem meg csak kevesebb marad a hónap végére."
+    },
+    {
+      "i": 102,
+      "response": "Falun ugyan kevesebb a lakhatási költségünk, mint a városban, de az élelmiszer- és gázárak elszállása meg a 6 százalék feletti élelmiszer-infláció simán lenullázza a keresetemmel ígért 9 százalékos emelést, úgyhogy a következő egy évben inkább szűkösebben, mint kényelmesen fogunk gazdálkodni."
+    },
+    {
+      "i": 103,
+      "response": "A zöldség és gyümölcs ára az egekben, meg a lakások is drágulnak, nekünk meg alig emelkedett a fizetésünk, úgyhogy jövőre is csak a napi megélhetésért küzdünk, félretenni meg eszembe se jusson. Az aszály meg a fagy miatt a piacon is szívjuk a fogunkat, így inkább még szűkebbre kell húzni a nadrágszíjat."
+    },
+    {
+      "i": 104,
+      "response": "A fizetésem talán pár százalékot emelkedik, de az aszály miatt az élelmiszer meg a gáz télen úgyis lenyomja a torkomon a kedvezményes árat, úgyhogy jövő nyárig csak szűkösen, tartalékok nélkül fogunk kijönni a pénzünkből."
+    },
+    {
+      "i": 105,
+      "response": "A lakásárak és az albérletköltségek az egekben, az infláció megint felpörgött, főleg az élelmiszer és a gáz drágul — így a következő egy évben legfeljebb arra számítok, hogy a fizetésem egyre kevésbé lesz elég ugyanarra a színvonalra, mint most."
+    },
+    {
+      "i": 106,
+      "response": "A falun középfokú végzettséggel alig emelkedik a fizum, miközben a tojás, a kávé meg a lakhatás viszi a pénzünk több mint felét, szóval jövőre is csak a napi túlélésre gyűrűzünk, az Otthon Start meg úgysem nekünk segít, hanem a budapesti középosztálynak."
+    },
+    {
+      "i": 107,
+      "response": "Budapesti diplomásként a fizetésem talán tartja a szintet, de az élelmiszer- és albérletárak miatt a hónap végére alig marad, így a következő egy évben inkább csak a megcsappant tartalékainkat próbáljuk védeni, mintsem előre jutni. Ha a zöldség, kávé meg a rezsi így megy tovább, a nyaralást vagy a kultúrát simán el kell majd engednünk."
+    },
+    {
+      "i": 108,
+      "response": "Budapesti albérletben és folyton dráguló élelmiszerekkel, plusz a gáz árának húsz százalékos ugrásával egyre szűkebb a mozgásterem, úgyhogy a következő egy évben inkább a megúszást várom: ha a fizetésem nem emelkedik érdemben, csak a tartalékaim fogyatkoznak és a napi szintű spórolás marad."
+    },
+    {
+      "i": 109,
+      "response": "A nyugdíjam alig mozdul, miközben a kávé, a tojás meg a zöldség is egyre drágább, úgyhogy a következő egy évben is csak spórolással, a napi bevásárlásokon szorítva fogok tudni kijönni a pénzemből. Lakásra már úgysem gondolhatok, az meg csak rosszabb, hogy a rezsi és az élelem viszi a jövedelmem nagy részét."
+    },
+    {
+      "i": 110,
+      "response": "A nyugdíjam alig emelkedik, miközben a zöldség, a tojás meg a gáz is egyre drágább, úgyhogy a következő egy évben még szorosabbra kell húznom a nadrágszíjat, és csak a legmuszájabb dolgokra költök. Azt érzem, hiába mondja a kormány, hogy javul a helyzet, a falusi boltban nekem csak az számít, amit a kezembe veszek, és az egyre kisebbet fog a pénz."
+    },
+    {
+      "i": 111,
+      "response": "Budapesti diplomásként a fizetésem talán tartja az iramot, de a lakásárak és az élelmiszer-költségek elszállása miatt reálisan alig lesz több a megtakarításom, és ha bármi váratlan kiadás jön, máris szűkül a mozgásterünk. A következő egy évben inkább óvatos költekezéssel, mint fellélegzéssel számolok."
+    },
+    {
+      "i": 112,
+      "response": "Felsőfokú végzettséggel és városi lakással a rezsi meg a drágult élelmiszer (kávé, tojás, csoki) már most lenyomja a fizetésem, és ha a hírben írt 55 százalékos alapkiadás nem csökken, a következő egy évben csak arra lesz pénzünk, hogy megússzuk a hónapokat, nyaralásról vagy nagyobb vásárlásról le kell mondjunk."
+    },
+    {
+      "i": 113,
+      "response": "Nekem alapfokú végzettséggel és kisvárosi fizetésből ez a 9 százalékos minimálbér-emelés is alig látszik, mert a tojás, a kávé és a gáz ára meg a hőség miatti drágulás simán elviszi a többletet, úgyhogy a következő egy évben legfeljebb nullán leszünk, de inkább szűkebben húzzuk majd a szánkat."
+    },
+    {
+      "i": 114,
+      "response": "Nyugdíjas koromban a gázár kedvezménye még tart, de az albérletválság és a boltban érzett drágulás miatt nem látok javulást, a pénzem pont arra lesz elég, hogy megéljek, de félre tenni nem tudok."
+    },
+    {
+      "i": 115,
+      "response": "A fizetésem alig mozdul, de az albérlet meg az élelmiszer annyira drága lett, hogy csak arra figyelek, ne csússzak be; az Otthon Start jó lenne, de nekem alapfokú végzettséggel és budapesti árakkal csoda lenne, ha jobban látnám a jövő évet."
+    },
+    {
+      "i": 116,
+      "response": "A mi falusi házunkon a gáz meg a kaja ára még így is az egekben van, a minimálbér-emelés alig látszik a boltban, úgyhogy a következő egy évben legfeljebb arra számítok, hogy épp kijövünk a szűkösül, de nagyobb biztonságot vagy megtakarítást nem látok magunk előtt."
+    },
+    {
+      "i": 117,
+      "response": "Budapesten középfokú végzettséggel alig látok előrelépést, mert a lakásárak és a gáz meg az élelmiszerek drágulása folyamatosan viszi el a fizetésem, szóval a következő egy évben inkább csak szűkösebben fogunk gazdálkodni, mintsem hogy jobban állnánk."
+    },
+    {
+      "i": 118,
+      "response": "Nálunk a faluban a fizetés alig mozdul, az élelmiszer meg azért drágul, amit a boltban magam is látok, szóval a következő évben is csak szűken, fillérbaszásig fogunk kijönni a pénzből. A gázár tartása segít valamit, de az aszály és a drágulás miatt inkább rosszabbul félek, mint jobban."
+    },
+    {
+      "i": 119,
+      "response": "A faluban alig van rendes munkalehetőség, a keresetem nem nagy, az meg hogy negyedével drágultak a lakások és az élelmiszer is folyton drágul, nekem azt jelenti, hogy jövőre is csak spórolással, adósság nélkül alig tudom kihozni a hónapokat. Az Otthon Start jó hangzik, de nekünk úgysem jut abból semmi, így az anyagi kilátásaim inkább rosszak, mintsem biztatók."
+    },
+    {
+      "i": 120,
+      "response": "Nyugdíjasemberként egyre rosszabbul látom a következő egy évet, mert a gáz és az élelmiszerek drágulása, meg hogy a fizetésem nem tart lépést a bolti árakkal, szépen felemészti a pénzem, hiába ígérnek infláció feletti emelést másoknak. Az árrésstop a drogériában jó, de a rezsicsökkenés helyett inkább emelkedést érzek a saját bőrömön."
+    },
+    {
+      "i": 121,
+      "response": "Kisvárosban középfokú végzettséggel alig lesz több a fizum, mint amennyivel az élelmiszer és a rezsi drágul, szóval inkább szűkösen, mintsem biztonságban látom a következő egy évünket. Albérletről vagy saját lakásról meg ne is álmodjak, annyira elszálltak az árak, maradok a szüleimnél és spórolok, ahogy tudok."
+    },
+    {
+      "i": 122,
+      "response": "A nyugdíjam alig emelkedik, a zöldség, gyümölcs meg a drogériai cuccok még így is drágábbak a faluban, úgyhogy a következő egy évben csak úgy jövök ki a pénzből, ha még jobban megszorítom magam és a fűtést is kevesebbet fűtöm télen. Nem várok semmi nagy javulást, mert az árak nálunk nem úgy csökkennek, ahogy a híradóban mondják."
+    },
+    {
+      "i": 123,
+      "response": "Budapesten középkategóriás fizetésből nyögünk, a gáz meg az élelmiszer drágulása miatt a rezsit és a bevásárlást alig bírjuk kifizetni, úgyhogy a következő egy évben legfeljebb arra számítok, hogy szűkebb lesz a hónap vége, nem hogy előre lépünk. Az árrésstopon kívül semmi nem segít, a keresetem meg messze elmarad attól a 20 százalékos drágulástól, amit a boltban érzek."
+    },
+    {
+      "i": 124,
+      "response": "A fizetésem talán egy kicsit emelkedett, de az élelmiszer- és gázárak meg a lakásdrágulás mellett egyre szűkebb a hónap vége, és amíg ilyen gyorsan szaladnak el az árak, nem látom, hogy jövőre könnyebb lenne megélni. A hírek alapján inkább takarékoskodnom kell, mert a gazdaság sem úgy áll, hogy hamar javulna a helyzetünk."
+    },
+    {
+      "i": 125,
+      "response": "Nyugdíjasértelmezésben alig emelkedik a jövedelmem, miközben a gáz meg az élelmiszer folyamatosan drágul, úgyhogy a következő egy évben csak úgy tudom kijönni a pénzből, ha még jobban szűkítem a bevásárlást és a fűtést. A lakásárak és a rezsi így is az egekben, nekem meg csak fogyni látszik a tartalékom."
+    },
+    {
+      "i": 126,
+      "response": "A nyugdíjam nem emelkedikrendesen, a zöldség és gyümölcs meg az élelmiszer megmaradt drága, szóval jövőre is szorosan kell gazdálkodnom, nem lesz több pénz a kezemben, csak kevesebb. Az árrésstop jó, ha tartják a drogériáknál, de a lakásárakat meg az inflációt látva én meg a falusi házamnál maradok, mert máshol úgysem lenne esélyem költözni."
+    },
+    {
+      "i": 127,
+      "response": "A fizetésem talán egy kicsit emelkedett, de az élelmiszer meg a lakhatás annyira drágul, hogy azt érzem, jövőre is alig jut majd valamire a családnak, ha így megy tovább. A hőség és az időjárás miatt az árak csak rosszabbak lesznek, szóval nem látok előrébb lépést a pénztárcámban."
+    },
+    {
+      "i": 128,
+      "response": "Budapesten nyugdíjasént az árrésstop meg a büntetések jók, de a zöldség, a tojás és a kávé drágulása meg a hőség miatti számlák úgy elviszik a pénzem, hogy alig marad, és mivel a gazdaság is alig mozdul, nem várok semmi javulást a következő egy évben."
+    },
+    {
+      "i": 129,
+      "response": "Nyugdíjból élek, ami alig emelkedik, az élelmiszer meg a rezsi megint drágább lett, úgyhogy a következő évben is csak szűkösen, fillérbaszóan jövök ki a pénzemből, tartalékra nem is számíthatok."
+    },
+    {
+      "i": 130,
+      "response": "Bár a fizetésem az átlag emelkedésével talán lépést tart, a kávé, tojás és albérletárak mellett a jövedelmem fele-nagy része elmegy lakhatásra és élelmiszerre, így a következő egy évben legfeljebb stagnáló, szűkös anyagi helyzetre számítok, nagyobb megtakarításra alig lesz esélyem."
+    },
+    {
+      "i": 131,
+      "response": "A kávé, tojás meg minden alapvető cucc folyamatosan drágul, miközben a fizum nem nagyon mozdul, úgyhogy a következő egy évben szűkösebben fogunk gazdálkodni, és jobban oda kell figyelni minden forintra, ha nem akarunk adósságba csúszni."
+    },
+    {
+      "i": 132,
+      "response": "Nyugdíjas háztartásként a gázárak befagyasztása és az árrésstopok kicsit megkönnyítik a mindennapokat, de a zöldség-gyümölcs drágulása és a valóságban még mindig 20 százalékosnak érzett drágulás miatt inkább óvatosan, takarékosan tervezek a következő egy évben."
+    },
+    {
+      "i": 133,
+      "response": "Nálunk a faluban a fizu nem nagyon mozdul, a boltban meg úgy érzem, mintha még mindig húsz százalékkal drágább lenne minden, szóval a következő évben csak arra számítok, hogy szűkösebben jövünk ki, mint eddig. Az árrésstop jóleső hír drogériánál, de azt látom, hogy a rezsi és az élelmiszer viszi el az egész keresetet."
+    },
+    {
+      "i": 134,
+      "response": "Budapesten középfokú végzettséggel alig keresek többet a minimálbér emelésével, miközben a kávé, a tojás és a gáz is száguld felfelé, meg a lakások ára elszállt, úgyhogy a következő egy évben csak arra számítok, hogy egyre szűkebb lesz a hónap vége és esélytelen lesz külön költözni."
+    },
+    {
+      "i": 135,
+      "response": "Felsőfokú végzettséggel is alig lesz több pénzem a hónap végén, mert a budapesti albérlet és a drága élelmiszerek viszik el a keresetem nagy részét, szóval a következő egy évben inkább csak a túlélésre játszom, nem a megtakarításra."
+    },
+    {
+      "i": 136,
+      "response": "Nálunk a fizu nem nőtt az infláció után, az élelmiszer meg a gáz meg az eszement árak miatt hónapról hónapra jövünk ki, így a következő egy évben legfeljebb annyi lesz, hogy valahogy átvészeljük, de semmi tartalékra nem számítok."
+    },
+    {
+      "i": 137,
+      "response": "Albérletre és élelmiszerre megy el a fizu nagyja, a drágulás meg simán lenyomja a minimálbér-emelést, szóval a következő évben csak vegetálni fogok anyagilag, nem lesz tartalékom semmire."
+    },
+    {
+      "i": 138,
+      "response": "Budapesti albérletben élek, és havi 170–210 ezerért csak a lakhatás megy el, miközben az élelmiszer meg a rezsi viszi a jövedelmem nagy részét, úgyhogy a minimálbér 9 százalékos emelése alig segít, inkább csak a túlélést várom a következő évben, nem hogy előre lépést."
+    },
+    {
+      "i": 139,
+      "response": "A fizetésem nem nagyon mozdul, miközben az élelmiszer, a gáz meg a kávé is folyamat drágul, úgyhogy a következő egy évben szűkebbre kell fognom a költést, és alig marad majd valami a végére. A gazdasági lassulás meg az infláció gyorsulása nem sok jót ígér, így inkább tartalékolni próbálok, de lehet, hogy a megtakarításaink is olvadni fognak."
+    },
+    {
+      "i": 140,
+      "response": "Nálunk falun a minimálbér-emelés alig látszik meg, mert az élelmiszer meg a tűzifa drágább lett a szárazság miatt, és ha a gazdaság csak 1 százalékot nő, apámék fizetése sem fog igazán emelkedni, szóval jövő nyárig szűken, de kijövünk."
+    },
+    {
+      "i": 141,
+      "response": "Falun alapfokú végzettséggel dolgozni meg a gáz és az élelmiszerek árát nézni elég ijesztő, mert a fizum nem nő, de a boltban meg a számlánál egyre kevesebből kell kijönnöm, szóval a következő egy évben csak szorítani tudok a költségeken, többre nem számítok."
+    },
+    {
+      "i": 142,
+      "response": "Nyugdíjas kisvárosi emberként úgy látom, a rezsikedvezmény még tart, de az aszály miatt drágább zöldség és a napi vásárlásokban érzett húsz százalékos drágulás simán elviszi a keretem, szóval a következő egy évben inkább szűkösen, de kijövök a pénzemből."
+    },
+    {
+      "i": 143,
+      "response": "A fizetésem alig mozdult a minimálbérhez képest, miközben a gáz, a kávé meg a tojás ára az egekbe szökött, úgyhogy a következő egy évben csak szorítani tudok a napi bevásárláson, mert az albérlet és az élelmiszer már most is a jövedelmünk több mint felét viszi el. Nem várok semmi javulást, inkább attól félek, hogy a nyári aszály miatt ősszel megint ugranak az élelmiszerárak."
+    },
+    {
+      "i": 144,
+      "response": "Nekem alapfokú végzettséggel és városi megélhetéssel a fizu nem nagyon követi az árakat, a zöldség, a kávé meg a gáz is annyit drágult, hogy a maradék pénzből alig lesz valami, szóval a következő egy évben csak spórolással és szűkölködéssel látom a háztartásunkat."
+    },
+    {
+      "i": 145,
+      "response": "A fizetésem talán picit emelkedett, de az élelmiszer-, gáz- és lakhatási árak gyorsabban szaladnak el mellettem, úgyhogy a következő egy évben inkább szorosabbra kell húznom a nadrágszíjat, mintsem hogy előre lépnék anyagilag."
+    },
+    {
+      "i": 146,
+      "response": "A nyugdíjam alig emelkedett, miközben a zöldség, a gyümölcs és a gáz is drágább lett, úgyhogy a falusi házunk rezsijét is alig tudom kifizetni, jövőre még szűkebbre kell húznom a nadrágszíjat. Az albérletárakat meg a fesztiválokat látom a hírekben, de azok nekem már nem fontosak, nekem a mindennapi megélhetés a tét."
+    },
+    {
+      "i": 147,
+      "response": "Albérletre és rezsire megy a fizu nagyja, az élelmiszer- és gázárak meg tovább kúsznak fel, szóval a következő egy évben simán benézhet a végére, ha nem vigyázok a költéssel. A keresetem alig nő, az infláció meg utolér, úgyhogy nem várok semmi javulást a pénztárcámban."
+    },
+    {
+      "i": 148,
+      "response": "Hát őszintén szólva nem látom rózsásan, mert a lakásár- és albérletdrágulás meg az élelmiszerárak mellett a fizetésem nem nagyon mozdul, a 0,2 százalékos növekedés meg alig érezhető a saját pénztárcámban. Ha így megy tovább, jövő nyárig csak spórolással úszom meg, hogy ne csússzak be anyagilag."
+    },
+    {
+      "i": 149,
+      "response": "Albérletre és rezsire meg az elszállt élelmiszerárakra megy a fizu nagyja, úgyhogy a következő egy évben max arra lesz, hogy megússzam a hónap végét, félretenni vagy nagyobb bulira (pl. Sziget) gondolni szinte esélytelen. A keresetem alig nő, de a lakhatás meg a kávé-tojás meg a többi cucc visz el mindent, szóval nem látok előrébb lépést."
+    },
+    {
+      "i": 150,
+      "response": "A fizuem alig emelkedett, de a zöldség, gyümölcs meg a többi cucc folyamatosan drágul, a gazdaság meg alig mozdul, úgyhogy a következő egy évben leginkább csak a takarékoskodásra és a túlélésre számítok, nem lesz könnyebb."
+    },
+    {
+      "i": 151,
+      "response": "Felsőfokú végzettséggel is alig lesz normális keresetem falun, a lakásárak meg az élelmiszerárak száguldanak, szóval a következő egy évben inkább a túlélésre játszom, mintsem hogy bármit félre tudjak tenni."
+    },
+    {
+      "i": 152,
+      "response": "A nyugdíjam alig emelkedik, miközben a gáz és az élelmiszer ára folyamatosan szalad fel, úgyhogy a következő egy évben még szorosabbra kell húznom a nadrágszíjat, és csak a legszükségesebbre költök. A hőség meg az aszály miatt a zöldség is drága lett, így jobban félek a pénztárcám gyűrögetésétől, mint a sport- vagy celebhírektől."
+    },
+    {
+      "i": 153,
+      "response": "A fizetésem talán kicsit emelkedett a minimálbér miatt, de a boltban meg a rezsiben érzem, hogy tízből hármat ugyanazért a kosárért is többet hagyok ott, szóval jövőre is csak spórolással és óvatosan költekezve jövök ki a rezsin és a bevásárláson. A hírek szerint már alig van infláció, de nekem a saját pénztárcámban nem ezt mutatja, így nem várok nagy fellélegz"
+    },
+    {
+      "i": 154,
+      "response": "A nyugdíjam alig emelkedik, de az élelmiszer meg a gáz annyival drágább lett, hogy jobban kell számolgatnom, mit veszek meg, így a következő egy évben csak arra számítok, hogy szűkebb lesz a hónap vége, mint eddig."
+    },
+    {
+      "i": 155,
+      "response": "Budapesten középfokú végzettséggel azt látom, hogy az élelmiszer- és gázárak megint szaladnak el, a lakhatás meg főleg, így a pénzem egyre kevesebbre lesz elég, és tartalékot sem nagyon tudok képezni a következő egy évben. A kormány ígérgetései meg a lakásdrágulási rekord mellett nekem nem hogy jobb, inkább rosszabb lesz a helyzetünk."
+    },
+    {
+      "i": 156,
+      "response": "A gáz és az élelmiszer ára miatt már most is alig jut meg a fizetésből, és ha így megy tovább, jövőre még a drogériai stop sem fogja megvédeni a pénztárcánkat a szűküléstől. Lakásra, albérletre úgysem tudunk gondolni, szóval csak az a kérdés, hogyan húzzuk ki újabb egy évig valahogy."
+    },
+    {
+      "i": 157,
+      "response": "A nyugdíjam nem nőtt úgy, ahogy az élelmiszer és a rezsi drágul, úgyhogy a következő egy évben még szűkebben kell gazdálkodnom, mint eddig, mert a boltban érzett árak csak följebb mennek."
+    },
+    {
+      "i": 158,
+      "response": "A gáz meg az élelmiszer annyira drágult, hogy hiába emelkedett a fizum, a végén kevesebb marad a hónap végére, szóval jövőre is spórolósra vesszük a dolgokat, nem látok előre semmi nagy javulást."
+    },
+    {
+      "i": 159,
+      "response": "Lakásdrágulás és albérletválság mellett az, hogy az élelmiszer és lakhatás viszi a jövedelmünk 55 százalékát, nekem is egyre szűkebb mozgásteret hagy, így a következő évben legfeljebb arra számítok, hogy épp kijövünk a rezsi és a bevásárlás árából, de nagyobb megtakarításról vagy nyugodtabb anyagi helyzetről szó sem lehet."
+    },
+    {
+      "i": 160,
+      "response": "A nyugdíjam nem fog lépést tartani a gázzal és az élelmiszerrel, úgyhogy jövőre is szorosan kell majd gazdálkodnom, ha nem akarok a megtakarításaimból élni. Az, hogy a kormány is alig vár növekedést, nekem csak azt jelzi, hogy olcsóbb nem lesz az élet, inkább még nehezebb."
+    },
+    {
+      "i": 161,
+      "response": "A nyugdíjam alig emelkedik, miközben a hírek szerint alig nő a gazdaság és magas marad a kamat meg az albérletárak körüli drágulás, úgyhogy a következő egy évben inkább szűkösebben, óvatosabban kell gazdálkodnom, mint eddig."
+    },
+    {
+      "i": 162,
+      "response": "Budapesten albérletből és a napi bevásárlásból élek, az meg hogy az élelmiszer meg a gáz is folyton drágul, a lakhatás meg viszi a fizetés felét, nekem nem lesz könnyebb, csak szorosabban kell majd kötnöm a nyelvet. Ha nem kapok valami több pénzt, jövő nyárig csak a víz felett maradok, de nem lesz semmire félretettem."
+    },
+    {
+      "i": 163,
+      "response": "Budapesten albérletből és középfokú fizuból élni egyre nyomorultabb, mert hiába ígérgetnek árrésstopot, a boltban meg a rezsinél simán érzem, hogy húsz százalékkal drágább minden, mint egy éve, és azt se látom, honnan lenne több pénzem jövőre. Ha az Otthon Startból nem lesz nekem is valami kézzelfogható, csak a túlélés megy, megélhetési tartalékot gyűjteni esélytelen."
+    },
+    {
+      "i": 164,
+      "response": "Budapesti diplomásként úgy érzem, hiába a hivatalosan lassuló infláció, a boltban és a rezsicsöpörtnél hónapról hónapra több megy el a fizetésből, úgyhogy a következő egy évben inkább szorosabb költségvetéssel és tartalékolással készülök, mintsem hogy javulást várjak."
+    },
+    {
+      "i": 165,
+      "response": "Falun élünk alapfokú végzettséggel, a minimálbér emelése jól jön, de az élelmiszer- és lakhatási drágulás miatt alig marad pénzünk, így a következő egy évben is csak napi megélhetésre, nem nagyobb tervekre futja."
+    },
+    {
+      "i": 166,
+      "response": "Öregemberként a kisvárosi nyugdíjamból alig jövök ki a drága élelmiszerekből és a gázszámlából, úgyhogy a következő egy évben még szűkebbre kell húznom a nadrágszíjat, mert az árak csak szaladnak feljebb. Az Otthon Start meg a minimálbér-emelés nem nekem való, én csak azt látom, hogy a pénzem egyre kevesebbet ér."
+    },
+    {
+      "i": 167,
+      "response": "Hiába csökken hivatalosan az infláció, a boltban és a gázszámlánál én még mindig húsz százalékos drágulást érzek, a nyugdíjam meg alig mozdul, úgyhogy a következő egy évben csak szorosabbra kell húznom a nadrágszíjat, ha nem akarok az albérletvagy rezsi miatt bajba kerülni."
+    },
+    {
+      "i": 168,
+      "response": "Nekem nyugdíjas falusi emberként nem sokat jelent a minimálbér-emelés, a boltban meg azt látom, hogy a tojás meg a kávé az egekbe szökött, úgyhogy a következő egy évben csak szorítanom kell a nadrágszíjon, mert a rezsiből és az élelmiszerből kevés marad. Azt érzem, hiába ígérgetnek, az én pénzemre nem lesz jobb idő, csak drágább."
+    },
+    {
+      "i": 169,
+      "response": "A gáz és az élelmiszer ára miatt már most is alig jut a nyugdíjból, ha így megy tovább, jövőre csak a legszükségesebbre lesz pénzünk, nyaralásról vagy nagyobb kiadásról pedig szó sem lehet."
+    },
+    {
+      "i": 170,
+      "response": "Lakástörlesztésről vagy saját albérletről ne is álmodjak, mert az árak szaladnak el, a gázmeg a kaja meg úgyis viszi a fizum felét, úgyhogy a következő egy évben csak azt nézem majd, hogyan jöjjek ki havi szinten anélkül, hogy a szüleimhez kelljen visszaköltöznöm."
+    },
+    {
+      "i": 171,
+      "response": "Nyugdíjas Budapesten úgy látom, hiába ígérnek reálbér-emelkedést máshol, nekem az élelmiszer- és lakhatási kiadások viszik a pénzem nagy részét, és a hírekben látott drágulások miatt a következő évben is szűkösen, de kihúzom valahogy."
+    },
+    {
+      "i": 172,
+      "response": "Falun élünk, úgyhogy a lakásár- és albérletőrület szerencsére nem közvetlenül minket sújt, de az élelmiszer- és drogériai árak meg a szárazság miatti drágulás már így is a jövedelmünk felét viszi el, szóval a következő egy évben legfeljebb arra számítok, hogy szűkösebben gazdálkodunk, és semmi tartalékot nem tudunk képezni."
+    },
+    {
+      "i": 173,
+      "response": "Nyugdíjas háztartásként a rezsi és az élelmiszerek ára továbbra is az egekben van, a hivatalos infláció meg a valós drágulás közötti szakadék miatt pedig reálértéken inkább szűkül a keretem, mintsem hogy fellélegeznék – a következő egy évben legfeljebb arra számítok, hogy az árrésstopok miatt nem romlik tovább drasztikusan a helyzet, de jobb sem lesz."
+    },
+    {
+      "i": 174,
+      "response": "Budapesten középfokú végzettséggel alig látom a fizetésem emelkedését az árak mellett, a hírekben írt 55 százalékos lakhatás- és élelmiszerár elviszi a pénzünk felét, úgyhogy a következő egy évben legfeljebb nullszaldóra játszom, tartalékot gyűjteni nem nagyon tudok."
+    },
+    {
+      "i": 175,
+      "response": "Nekem alapfokú végzettséggel kisvárosban amúgy sincs sok pénzem, és ha az élelmiszer meg a rezsi viszi a jövedelem nagy részét, meg az árak csak szaladnak fel, akkor jövőre is csak úgy jövök ki, ha nagyon szorítom a költségeket és nem engedhetek meg magamnak semmi extrát."
+    },
+    {
+      "i": 176,
+      "response": "Azt látom, hogy az élelmiszer meg a lakhatás viszi a fizetésünk több mint felét, a hírekben meg azt mondják, lassul a gazdaság, úgyhogy jövőre is csak spórolással és szorítással jutunk majd előre, nem lesz könnyebb."
+    },
+    {
+      "i": 177,
+      "response": "A lakhatás és az élelmiszer már most is a fizetésünk több mint felét viszi el, az infláció és a gázár meg csak szalad felfelé, úgyhogy a következő egy évben legfeljebb arra számítok, hogy szűkebb lesz a hónap vége, és még a megtakarításról is le kell mondanunk."
+    },
+    {
+      "i": 178,
+      "response": "Nekem kisvárosban középfokú végzettséggel alig lesz több a fizum, miközben a tojás, a kávé és a rezsi is szalad felfelé, úgyhogy a következő egy évben csak arra lesz elég, hogy épp megússzuk a hónap végét, spórolni vagy nagyobb dolgokra gondolni nem nagyon fogok tudni."
+    },
+    {
+      "i": 179,
+      "response": "A fizetésem alig nőtt, de az albérlet meg az élelmiszer az egekben van, és ha a gazdaság csak 1 százalékot növekszik jövőre, én biztosan nem fogok kiengedni, hanem még szorosabbra húzom a nadrágszíjat. Tartalékom nincs, úgyhogy ha a gáz vagy a boltok árai tovább csúsznak felfelé, csak a hónapról hónapra való túlélés marad."
+    },
+    {
+      "i": 180,
+      "response": "Budapesten alapfokú végzettséggel és kevés pénzzel élek, a lakások negyedével drágultak, az élelmiszer meg a rezsi is emészti a keresetem, szóval a következő egy évben inkább még szorosabbra kell húznom a nadrágszíjat, mintsem hogy jobbra számítsak."
+    }
+  ]
+}

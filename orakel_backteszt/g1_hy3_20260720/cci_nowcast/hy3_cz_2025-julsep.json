@@ -1,0 +1,959 @@
+{
+  "run": "G1/4 CZ CCI nowcast 2025-julsep",
+  "model": "tencent/Hy3",
+  "provider": "siliconflow",
+  "date": "2026-07-20",
+  "protocol": "orakel_cz_nowcast.py változatlanul (N=60, SSR linear + OpenAI-small)",
+  "flag": "GRAY",
+  "flag_note": "ablak 2025-07..09; a 2025-07 GRAY sávban",
+  "corpus_files": {
+    "corpus_cz_2025_julsep.json": "6a2945d548afbe76a5c7b5287323608529f478390c4661e0fe3abcc4ae82220d"
+  },
+  "gt": -7.5,
+  "per_seed": [
+    {
+      "seed": 1,
+      "n_sent": 60,
+      "ssr_score": 2.9037347715914508,
+      "nowcast": -4.8132614204274615,
+      "sentences": [
+        "Jako důchodce na Moravě vidím příští rok dost nejistě, protože všechny ty volební sliby na zvýšení penzí a levnější jídlo zatím znějí jen jako honba za hlasy a já se bojím, že ceny i daně zůstanou vysoké a můj měsíční rozpočet dál neutáhne.",
+        "Jako rodina na Moravě se středoškolským vzděláním vidím naše finance spíš bledě, protože ceny energií a bydlení pořád tlačí na rozpočet a z těch politických slibů v kampani mám spíš pocit, že si každý jen hraje na hrdinu, než aby nám reálně pomohl uživit se normální prací.",
+        "Jako důchodce na Moravě vidím naše finance spíš černě, protože politici jen hádají a straší rozpočtem, zatímco ceny rostou a nikdo z nich mi neříká, co bude za rok opravdu s penzí a výdaji. Doufám, že po volbách něco slíbí, ale moc tomu nevěřím, když ani pořádně nevím, co která strana chystá.",
+        "Jako Pražák se základním vzděláním vidím ty volby a sliby o zlevnění energií a potravin, ale moc tomu nevěřím, protože ceny tu pořád rostou a moje peněz na měsíc moc nezbývá, takže příští rok čekám spíš další šetření než nějaké zlepšení.",
+        "Jako středoškolák v Čechách mimo Prahu vidím naše rodinné finance spíš pesimisticky, protože všechny strany slibují levnější energie a vyšší mzdy, ale z kampaňových hádek mám spíš pocit, že ceny zůstanou vysoko a žádné reálné ulehčení do roka nepřijde.",
+        "Podle těch zpráv všechno srší jen politika a hádky, ale nikdo z těch pánů a paní nemluví o tom, co mě v Čechách trápí – jestli zdraží elektřina nebo jestli budu mít na nájem, takže se bojím, že za rok budeme s manželkou pořád počítat každou korunu a nic moc lepšího nečekám.",
+        "Slyším sliby o zlevnění energií a vyšších důchodech i varování před bilionovými dírami v rozpočtu, ale jako domácnost v Čechách s vysokoškolským vzděláním se spíš bojím, že ať vyhrají kteříkoliv, naše reálné výdaje na bydlení a potraviny příští rok zase stoupnou a žádná z těch kampaní mi nezaručí klidný rozpočet.",
+        "Jako člověk se základním vzděláním v Čechách vidím naše rodinné peníze spíš černě, protože strany slibují lacinější jídlo, ale experti říkají, že to nemají promyšlené, a já se bojím, že po volbách zase budeme platit za jejich spory a drahotu.",
+        "Jako důchodce na vesnici v Čechách vidím naše finance spíš černě, protože ceny v obchodech pořád rostou a politici jen slibují, takže se bojím, že za rok s penzí nevyjdeme tak snadno jako teď.",
+        "Uprostřed té předvolební hádky o bilionové sliby a kdo komu lže mě naše rodinné finance spíš děsí, protože ceny v obchodech pořád rostou a já nevěřím, že po volbách někdo fakticky sníží naše výdaje, takže na další rok čekám spíš šetření než zlepšení.",
+        "Z těch volebních řečí o levnějším bydlení a vyšších mzdách mám spíš obavy než naději, protože na Moravě žiju z výplaty do výplaty a nikdo z těch kandidátů zatím neříkal nic konkrétního, co by mi reálně ulevilo v rodinném rozpočtu.",
+        "Jako rodina se středoškolským vzděláním na Moravě vidím naše finance spíš bledě, protože ceny potravin a energií pořád tlačí rozpočet ke dnu a sliby všech stran v kampani mi přijdou jako prázdná slova, co realitu doma nezmění. Pokud se po volbách nic zásadně nezlevní, budeme muset šetřit ještě víc než letos.",
+        "Jako důchodce na venkově vidím naše finance spíš černě, protože ceny pořád rostou a sliby politiků o levnějších energiích a zastropování důchodového věku mi připadají jako předvolební řečnění, na které nemůžu moc spoléhat. Pokud se nic nezmění, budeme muset ještě víc šetřit, abychom vyšli s penězi na léky a základní věci.",
+        "Jako Pražan s vysokoškolským vzděláním vidím naši domácnost v příštím roce spíš opatrně, protože předvolební handrkování o rozpočtu a sliby bez krytí mi nedávají jistotu, že ceny a daně v hlavním městě nezůstanou vysoké nebo ještě nepřitvrdí.",
+        "Politici slibují růst a zvyšování platů, ale z těch předvolebních hádek a planých slibů mám spíš obavu, že naše domácnost bude muset šetřit dál a žádné reálné zlepšení rozpočtu v příštím roce nepocítíme.",
+        "Jako člověk se základním vzděláním na Moravě vidím naše finance spíš bledě, protože v těch předvolebních řečech od Fialy i Babiše slýchám jen sliby o růstu a daních, ale nikdo mi neříká, jestli zvládneme zaplatit energie a nákupy, což nás teď nejvíc tlačí. Doufám, že po volbách něco zlevní, ale moc tomu nevěřím, když se pořád jen hádají, kdo je hor",
+        "Podle těch politických slibů všichni tvrdí, že bude líp a potraviny zlevní, ale já z vlastní zkušenosti vím, že ceny pořád rostou a žádná strana mi pořádně nevysvětlila, jak to sakra zaplatí, takže na další rok spíš šetřím každou korunu a moc nevěřím, že se nám doma uvolní.",
+        "Jako důchodce na venkově vidím naše finance spíš černě, protože ceny pořád rostou a sliby všech těch politiků v televizi mi přijdou jako prázdná slova, takže se budeme muset ještě víc uskromňovat.",
+        "Jako pražská domácnost s vysokoškolským vzděláním vidím dalších 12 měsíců spíš neurčitě, protože předvolební handrkování o rozpočtu a EU mi neříká, jestli se náklady na bydlení a život v hlavním městě konečně uklidní, nebo zase naskočí další daně a drahota.",
+        "Jako šedesátník na Moravě vidím naše rodinné finance spíš pesimisticky, protože politici se před volbami jen hádají o kampaních a hrozbách, ale nikdo z nich mi neříká, jak se zvednou důchody a zastaví drahota za jídlo a energie. Bojím se, že příští rok budeme muset ještě víc šetřit, ať vyhraje kdokoli.",
+        "Já už jsem v důchodu a po těch zprávách o největším propadu mezd v historii se bojím, že s penzí nevystačím, když i v obchodech vidím, že kilo zeleniny a uzenina na mítinku za pár korun je spíš jenom show než normální život. Doufám, že po volbách něco zlevní, ale podle těch hádek v televizi moc nevěřím, že se nám starým na vesnici bude žít do roka líp.",
+        "Z těch zpráv mám spíš pocit, že se politici jen hádají a slibují, ale ceny a energie nás dál tlačí a já s nízkým vzděláním nevidím, že by se mi za rok doma ušetřilo nebo přidalo, spíš počítám každou korunu dál.",
+        "Jako důchodce s vysokoškolským vzděláním na Moravě vidím naše rodinné finance spíš pesimisticky, protože sliby o „bavorských platech“ znějí hezky, ale zatím cítím jen drahotu a politické handrkování, co mi v penzi nepřidá jistotu na rok dopředu.",
+        "Jako mladý člověk se středoškolským vzděláním na Moravě vidím naše rodinné finance spíš nejistě, protože předvolební sliby o levnějších energiích a bytech znějí fajn, ale zatím je to jen hádky v debatách a já nevím, jestli se nám reálně uleví, než za rok zase všechno zdraží.",
+        "Jako šedesátník na Moravě se děsím, že bez jasných slibů o zastropování důchodového věku a levnějších energiích mi za rok penze sotva vydrží na nájem a jídlo, a volební kecy na TikToku mě v tom mém klidu nijak neuklidní.",
+        "Ty volební řeči o bambilionech a zastropování věku odchodu do důchodu zní hezky, ale já zatím vidím naše rodinné finance spíš napjatě, protože ceny v obchodech pořád rostou a plat mi neutáhne všechno, co potřebujeme, takže se bojím, co přinese další rok bez ohledu na to, kdo vyhraje.",
+        "Jako středoškolák na Moravě vidím naše rodinné finance spíš pesimisticky, protože předvolební sliby o nižších daních a vyšších důchodech znějí fajn, ale ceny energií a bydlení pořád rostou a nikdo z těch pánů mi nezaručí, že za rok nebudeme šetřit ještě víc.",
+        "Podle těch předvolebních keců mám pocit, že ať vyhraje kdo chce, tak na nás s partnerem jakožto mladou domácnost s průměrným výdělkem mimo Prahu žádné zlevnění ani klidný růst peněz nečeká, spíš budeme dál počítat každou korunu a doufat, že nás nějaká další vládní změna úplně nezruinuje.",
+        "Volební sliby o levnějších potravinách a bavorských platech zatím beru s rezervou, protože z kampaně cítím spíš křik než konkrétní plán, a tak se na příští rok spíš chystám šetřit a držet se stávajícího rozpočtu, než abych čekal nějaké výrazné zlepšení.",
+        "Jako na Moravě žijící člověk se středoškolským vzděláním vidím naše rodinné finance spíš pesimisticky, protože předvolební sliby o bezúročných půjčkách a hypotékách znějí lákavě, ale všechny ty hádky a útoky mi spíš nahánějí strach, že ceny a životní náklady zůstanou vysoké a náš rozpočet to neutáhne.",
+        "Jako rodina na Moravě se středoškolským vzděláním vidím naše finance spíš bledě, protože politici se jen hádají a slibují, ale ceny a výdaje doma pořád rostou a nikdo z nich nám reálně nepomohl ušetřit. Nejspíš budeme muset ještě víc šetřit, ať už vyhrají ve volbách ti nebo oni.",
+        "Podle těch předvolebních řečí o levnějším životě a bydlení mám spíš obavu, že jako mladý na Moravě s průměrným vzděláním budu za rok pořád počítat každou korunu a žádná reálná změna se u nás doma nejspíš neukáže.",
+        "Těch slibů o levnějším životě a nižších daních slyším z každý strany plný zprávy, ale s mojím základním vzděláním a cenami v Čechách mimo Prahu mám spíš strach, že za rok budeme s penězi vyškrtnutý jako doteď a nic se nezlepší.",
+        "Jako důchodce s vysokoškolským vzděláním vidím naše rodinné finance spíš neutrálně až opatrně, protože sliby politiků o zvýšení důchodů nebo snížení daní znějí hezky, ale podle kampaní kolem sebe mám pocit, že žádná strana pořádně neřeší reálné zdražování a jistotu našich úspor na venkově v Čechách.",
+        "Jako rodina na Moravě se středoškolským vzděláním vidím naše finance spíš napjatě, protože předvolební sliby všech stran znějí fajn, ale nikdo z těch kandidátů zatím neříká nic konkrétního, co by mi reálně ulevilo od drahoty a hypotéky za rok. Nejlíp by nám bylo, kdyby po volbách konečně někdo přestal jen hrát politické divadlo a začal řešit ceny bydlení a energií",
+        "Z těch volebních zpráv mám spíš pocit, že žádná strana neříká jasně, jak reálně zlevní energie nebo bydlení v Praze, takže jako domácnost s vysokoškolským příjmem čekám spíš další tlak na rozpočet a žádné výrazné ulehčení v příštím roce.",
+        "Já jako člověk se základním vzděláním v Čechách mimo Prahu vidím naše rodinné finance spíš bledě, protože v těch předvolebních řečech od Fialy i Babiše slibují jenom věci, co nás v běžném životě moc neuleví, a ceny i tak dál rostou. Než se po volbách něco ukáže, budeme muset šetřit každou korunu a doufat, že nás nová vláda nezatíží dalšími daněmi.",
+        "Jako mladý bez vysoké školy v regionu mimo Prahu vidím naše finance spíš bledě, protože politici jen slibují snižování daní nebo zdražování řeší jinými hesly, ale ceny bydlení a energií nás dál tlačí a já nevěřím, že se to za rok reálně zlepší.",
+        "Jako mladý bez vysoké školy na Moravě vidím naše finance spíš bledě, když slyším o největším propadu reálných mezd v historii a politici místo jasných řešení jen hážou špínu v předvolebních debatách. Doufám, že po volbách někdo konečně něco udělá s cenami a výdělky, ale teď se spíš bojím, že sotva udržíme rodinný rozpočet pohromadě.",
+        "Podle toho, co slibují v kampani, se bojíme, že ceny energií a bydlení zůstanou vysoko a žádná z stran nám na Moravě reálně neulehčí rozpočet, takže příští rok budeme spíš šetřit a doufat, že nás nějaká vláda nepřekvapí novými daněmi.",
+        "Podle těch zpráv o největším propadu reálných mezd v historii, co srazil naši životní úroveň o sedm let zpátky, moc nevěřím, že se náš rodinný rozpočet do roka výrazně zlepší, spíš budeme dál šetřit a doufat, že volby něco změní, než aby to bylo horší.",
+        "Jako Pražák s vysokoškolským vzděláním vidím naše rodinné finance spíš napjatě, protože sliby o „bavorských platech“ znějí fajn, ale v realitě ceny bydlení a energií v hlavním městě pořád drtí rozpočet a na reálné zlevnění teď moc nevěřím.",
+        "Podle těch kampaní a slibů nevím, co bude, ale jako mladý se středoškolským vzděláním v Čechách mimo Prahu mám spíš strach, že platy moc nepůjdou nahoru a život nás dál bude stát majlant, ať vyhraje kdokoli.",
+        "Jakožto domácnost s vysokoškolským vzděláním v Čechách vidím naše finance spíš pesimisticky, protože zprávy o největším propadu reálných mezd v historii a předvolebním handrkování o nesplnitelných slibech naznačují, že si za rok nepolepšíme a spíš budeme dál šetřit.",
+        "Jako šedesátník na Moravě vidím naše rodinné finance spíš pesimisticky, protože předvolební kampaň slibuje bavorské platy i levnější život, ale zatím cítím jen nejistotu a obavy, že po volbách se s daněmi a cenami nic nezlepší. Na příští rok se raději chystám šetřit a moc nevěřím, že nová vláda naší penzi s inflací nějak výrazně uleví.",
+        "Volební kecy a sliby o bezúročných půjčkách mě neuklidňují, spíš mám strach, že ať vyhraje kdokoli, ceny a energie nás další rok znovu potáhnou a s naším středoškolským platem v regionu to bude našetřeno jen těžko.",
+        "Jako Pražák se středoškolským vzděláním vidím naše rodinné finance spíš pesimisticky, protože sliby všech stran o levnějších potravinách a nižších daních znějí populisticky a experti přiznávají, že chybí reálný plán, takže čekám, že ceny a výdaje zůstanou vysoké.",
+        "Z těch politických řečí kolem voleb mám spíš pocit, že nikdo pořádně neřeší naše každodenní výdaje na jídlo a energie, takže na příští rok moc nevěřím, že by se nám doma ušetřilo, a budeme muset dál šetřit každou korunu.",
+        "Jako Pražák s vysokoškolským vzděláním vidím rozpočet domácnosti spíš napjatě, protože předvolební hádky o ničem a sliby „bambilionů“ mě nepřesvědčily, že po volbách někdo skutečně sníží ceny bydlení nebo energií, takže spíš šetřím a čekám, co z té politiky vyleze.",
+        "Z těch politických keců v televizi a novinách mám spíš pocit, že se nic nezlevní a naše rodinný rozpočet zůstane napnutý k prasknutí, takže příští rok budeme muset šetřit ještě víc než teď.",
+        "Jako důchodce s vysokoškolským vzděláním na Moravě vidím naše rodinné finance spíš pesimisticky, protože předvolební kampaň slibuje jen další hádky a daně, zatímco ceny a nejistota zůstávají vysoké a nikdo z kandidátů mi neukazuje reálné řešení pro klidný život za penzi.",
+        "Z těch volebních slibů a hádek mám spíš obavy, že ceny a energie zůstanou vysoko a náš důchod s tím moc nepohne, takže příští rok budeme muset šetřit ještě víc než teď.",
+        "Z těch volebních zpráv mám spíš pocit, že se politici hádají a slibují, ale nikdo mi neřekl, jestli zlevní nájmy nebo potraviny, takže na příští rok čekám, že s naším základním vzděláním a výdělkem v Čechách mimo Prahu budeme šetřit každou korunu jako doposud.",
+        "Z těch předvolebních slibů o západních mzdách a prosperitě mám spíš pocit, že příští rok budeme šetřit jako dosud, protože reálně se našim výdajům na Moravě neulevilo a nová vláda zatím neukázala, že by nám v peněžence něco konkrétního přidala.",
+        "Jako mladý člověk se středoškolským vzděláním na Moravě vidím naše rodinné finance spíš bledě, protože politici slibují hory doly, ale z těch hádek a nejasných plánů kolem voleb mám pocit, že ceny a životní náklady nám stejně ještě rok zůstanou vysoké.",
+        "Jako mladý se středoškolským vzděláním v Čechách vidím naše rodinné finance spíš bledě, když slyším o největším propadu reálných mezd v historii a politici místo jasných řešení jen házejí vinu jeden na druhého, takže do roka moc zlepšení nečekám.",
+        "Tyhle předvolební řeči o prosperitě a populistických slibech mi přijdou jako házení pískem do očí, protože jako domácnost v Čechách mimo Prahu reálně čekám, že nás další rok budou táhnout ceny a daně, až budeme muset šetřit na všem možném. Bez ohledu na to, kdo vyhraje, moc nevěřím, že se nám do roka výrazně uleví.",
+        "Jako mladý bez vysokoškoláku na Moravě vidím naše rodinné peníze spíš černě, protože v těch předvolebních kecách o ekonomice a bydlení nevidím nic, co by reálně zlevnilo život, a všechno mi přijde jen jako hon na voliče.",
+        "Jako důchodce na venkově v Čechách vidím naše rodinné finance spíš bledě, protože zprávy pořád mluví o největším propadu mezd v historii a politici jen slibují, místo aby něco udělali pro naše každodenní drahotu. Bojím se, že za rok budeme s penzí vyházet ještě víc za jídlo a energie a nic z volebních řečí nám reálně nepomůže.",
+        "Jako mladý člověk se středoškolským vzděláním v regionu mimo Prahu vidím naše rodinné finance spíš bledě, protože v těch volebních kecrech od politiků pořád slibují levnější energie a zastropování důchodů, ale nikdo z nich mi neříká, jak sehnat slušně placenou práci a uživit se za rok, když ceny v obchodech pořád šlapou nahoru."
+      ]
+    },
+    {
+      "seed": 2,
+      "n_sent": 60,
+      "ssr_score": 2.681037839692037,
+      "nowcast": -15.948108015398144,
+      "sentences": [
+        "Jako důchodce na Moravě vidím naše vyhlídky spíš bledě, protože politici místo jistoty slibují jen levné volební guláše a nikdo pořádně neříká, odkud vezme peníze na energie a zdražované věci. Bojím se, že s naším skromným rozpočtem nás další rok jen těžko udrží nad vodou, ať už vyhrají ti nebo oni.",
+        "Jako šedesátník vím, že slyším hodně slibů o levnějším životě a vyšších důchodech, ale dokud se po volbách něco reálně nezmění, moje domácnost bude muset šetřit dál a počítat každou korunu.",
+        "Jako důchodce na Moravě vidím naše finance spíš černě, protože všechny ty volební sliby o levnějších energiích a vyšších mzdách jsou jen kecy politiků a já se bojím, že za rok budu mít z penze sotva na jídlo a léky.",
+        "Podle těch volebních keců nikdo moc neříká, jak se zlevní život, takže čekám, že s penězi na domácnost budeme šetřit dál a nic zásadního se nezlepší, dokud se po volbách neukáže nějaký reálný plán.",
+        "Upřímně, s touhle divokou kampaní a pořád dokola jenom hádkami o moc se bojím, že ceny energií a nájmů zůstanou vysoké a já s první málo placenou prací na Moravě sotva vyjdu, takže na nějakou rezervu můžu zapomenout.",
+        "Jako člověk se základním vzděláním na Moravě vidím naši domácnost spíš černě, protože všechny ty volební hádky a sliby o levnějších energiích zatím nic neřeší a já se bojím, že ceny budou dál růst a peněz na živobytí bude mít míň.",
+        "Jako důchodce s vysokoškolským vzděláním na Moravě vidím naše rodinné finance spíš pesimisticky, protože sliby stran o levnějších potravinách a nižších daních působí nereálně a ceny v obchodech i energie nás dál tlačí k úsporám. Pokud po volbách vznikne rozhádaná vláda bez jasného plánu, obávám se, že s naším rozpočtem nehneme a budeme muset šetřit ještě víc než letos",
+        "Jako Pražan se středoškolským vzděláním vidím naše rodinné finance spíš pesimisticky, protože předvolební hádky a nejistota kolem EU či NATO nahánějí strach z dražšího života a nikdo z těch pánů nenabízí jasný plán, jak nám ulevit od cen v metropoli. Bojím se, že příští rok budeme muset ještě víc šetřit, než je teď pro nás příjemné.",
+        "Podle předvolebních slibů všech stran by mělo zlevnit bydlení i energie, ale z kampaní mám spíš pocit, že se jen hádají a nic konkrétního pro naši kapsu na Moravě neudělají, takže za rok budeme s rozpočtem pořád na štíru.",
+        "Volební sliby o levnějších potravinách a bezúročních půjčkách znějí hezky, ale experti píšou, že strany nemají reálný plán, takže se spíš bojím, že za rok budeme s penězi našetřící domácnosti na tom stejně těsno jako teď.",
+        "Z těch zpráv mám spíš pocit, že ceny a byrokracie dál tíží naši peněženku a žádná strana neříká jasně, jak nám na Moravě reálně zvednout příjem, takže na další rok čekám spíš šetření než zlepšení. Volby mě neuklidňují, když vidím jen hádky a sliby, co moc nevěřím, že zastaví zdražování.",
+        "Jako Pražák se středoškolským vzděláním vidím naše rodinné finance spíš černě, protože politici jen házejí hlínou a slibují, ale nikdo pořádně neříká, jak zastaví drahotu a rozpočtový armagedon, takže se bojím, že za rok budeme s rozpočtem ještě víc na šrot.",
+        "Slyším sliby o nižších daních i vyšších platech učitelů, ale zatím nevím, kdo vlastně vyhraje a co z toho bude pro naši kapsu, takže se spíš bojím, že energie a nákupy zůstanou drahé a my budeme muset šetřit dál.",
+        "Jako důchodce s vysokoškolským vzděláním v regionu mimo Prahu vidím naše rodinné finance spíš pesimisticky, protože předvolební handrkování o „rozpočtovém armagedonu“ a sliby populistů naznačují, že ceny a nejistota spíš porostou než že by se nám ulevilo. Za rok se obávám, že s fixním příjmem a dražšími energiemi sotva udržíme stávající životní úroveň.",
+        "Jako důchodce s vysokoškolským vzděláním na Moravě vidím naše finanční vyhlídky spíš pesimisticky, protože předvolební hádky o zastropování důchodového věku a levných energiích mi připadají jako prázdné sliby a ceny v obchodech pořád rostou rychleji, než stačí pokrýt moje penze. Bojím se, že bez jasného a zodpovědného řešení od nové vlády nám za rok s man",
+        "Jako důchodce na Moravě vidím naše rodinné finance spíš černě, protože sliby stran o levnějších potravinách a zastavení drahoty podle zpráv postrádají reálný plán a já se bojím, že za rok budeme s penzí vycházet ještě hůř než teď.",
+        "Jako šedesátník na Moravě sleduju předvolební sliby na vyšší důchody a nižší daně s velkou dávkou skepticismu, protože po letech zkušeností vím, že v praxi mi nejspíš zůstanou rostoucí ceny a můj rozpočet bude za rok pořád napjatý stejně jako teď.",
+        "Jako pražská domácnost s vysokoškolským vzděláním vidím naše finance spíš napjatě, protože předvolební sliby levnějšího života a nižších daní zatím působí jako prázdná hádka politiků, zatímco reálné výdaje v metropoli dál rostou a jasný plán vlády ani opozice není vidět.",
+        "Z těch předvolebních řečí a slibů mám spíš pocit, že nikdo pořádně neřeší naše každodenní výdaje, takže na příští rok moc nevěřím, že nám doma zbude víc peněz než teď. Sousedé v práci taky pořád říkají, že je všechno dražší, a já se spíš bojím, abychom vůbec udrželi stávající standard.",
+        "Jako šedesátník na Moravě s vysokoškolským vzděláním vidím naše rodinné finance spíš pesimisticky, protože předvolební sliby o nižších cenách a vyšších důchodech zatím působí jen jako prázdná hesla a reálně nám konce penzí sotva splývají. Za rok čekám spíš další zdražování a napětí v rozpočtu, ať už vyhraje kdokoli, když žádná strana neukazuje jasný,",
+        "Jako šedesátník v kraji mimo Prahu vidím naše rodinné finance spíš pesimisticky, protože politici jen slibují levnější život a důstojné důchody, ale zprávy o největším propadu reálných mezd v historii a drahých plánech bez škrtů mě děsí, že za rok budeme s penzí sotva vystačovat.",
+        "Z těch zpráv o největším propadu reálných mezd v historii a pořádnejch politických hádkách bez jasnýho řešení mám strach, že s penězma na Moravě do roka nehneme a spíš nás to ještě víc utáhne.",
+        "Podle těch volebních slibů všichni tvrdí, že potraviny i bydlení zlevní, ale já jako mladý bez vysoké školy v Čechách mimo Prahu spíš čekám, že za rok budu mít peněz ještě míň než teď a žádná debata o saunách nebo kokainu mi nájem nezaplatí.",
+        "Z těch předvolebních hádek a slibů mám spíš obavy, že po volbách nic moc nezlevní a rozpočet nás doma bude dál táhnout za vlasy, takže na dalších 12 měsíců moc volna v penězích nečekám.",
+        "Podle těch zpráv mám z voleb spíš obavy, protože politici se jen hádají a straší rozpočtovým armagedonem, takže čekám, že naše rodinné výdaje zůstanou napjaté a o nějakém zlepšení si zatím nedělám iluze.",
+        "Jako rodina se středoškolským vzděláním na Moravě vidím naše finance spíš pesimisticky, protože politici jen hádají v debatách a slibují bambiliony, ale žádný jasný program na zlevnění energií nebo bydlení nevidím, takže se bojím, že nám peněz na konci měsíce ještě ubude.",
+        "Jako rodina na Moravě se středoškolským vzděláním vidím naše finance spíš napjatě, protože volební sliby o levnějším bydlení a půjčkách zní fajn, ale pořád nevím, jestli se reálně něco zlevní, a každodenní výdaje nás teď tlačí víc než tyhle debaty.",
+        "Jako rodina na Moravě se děsím, že po těch vyhrocených volbách a slibech jako 75 tisíc pro učitele budeme zase my platit vyšší daně a dražší nákupy, takže za rok budeme spíš počítat každou korunu než šetřit.",
+        "Jako Pražák se středoškolským vzděláním vidím naše rodinné finance spíš pesimisticky, protože zprávy pořád omílají největší propad reálných mezd v historii a politici místo jasného plánu na zlevnění života jen házejí blátem v kampani. Bojím se, že bez ohledu na výsledek voleb nás v příštím roce čeká další šetření a drahota v metropoli se nezlepší.",
+        "Podle těch volebních keců o bavorských platech a levnějším životě mám spíš pocit, že nic moc reálného nepřijde a jako mladý student mimo Prahu budu muset sáhnout hlouběji do kapsy, takže naše domácnost za rok zas tak neušetří.",
+        "Jako mladý bez vysoké školy v Praze vidím naši domácnost v nejistotě, protože ceny bydlení a energií pořád rostou a politici jen slibují, ale nic konkrétního pro lidi jako jsem já neříkají. Na příští rok moc nevěřím, že nám zbude víc peněz, spíš budeme muset ještě víc šetřit.",
+        "Z těch zpráv mám spíš pocit, že se strany jen předhánějí v slibech a osobních útocích, ale nikdo pořádně neříká, jak zlevní energie nebo jestli budou další daně, takže naše domácnost bude spíš šetřit a doufat, že nás do roka nějaká vláda nepřekvapí dalším zdražováním.",
+        "Jako mladý s maturitou na Moravě vidím kolem sebe jen politický kravál a vzájemné napadání, takže mám z toho chaosu spíš strach, že ceny a životní náklady zůstanou vysoké a moje domácnost na tom za rok bude finančně stejně napjatě jako teď.",
+        "Jako důchodce s vysokoškolským vzděláním v Čechách vidím naše finance spíš pesimisticky, protože předvolební handrkování o dotacích a EU nic neřeší a obávám se, že ceny a daně zůstanou vysoké i bez ohledu na to, kdo vyhraje.",
+        "Jako člověk se základním vzděláním na Moravě vidím naše rodinné peníze spíš černě, protože politici se jen hádají a straší rozpočtovým armagedonem, a já se bojím, že ceny zase vyskočí a my s babkou nevyjdeme. Věřím, že po volbách se snad něco změní, ale zatím nevím, komu vlastně uvěřit, aby nám opravdu ulevil.",
+        "Z těch zpráv mě děsí, že prý máme největší propad reálných mezd v historii a ceny pořád vysoko, takže na příští rok moc nevěřím, že s naším středoškolským platem v regionu vyjdeme líp než teď. Spíš počítám, že budeme dál šetřit na jídle a energiích a doufat, že volby aspoň trochu zastaví zdražování.",
+        "Jako důchodce se středoškolským vzděláním v regionu vidím naše finance spíš nejistě, protože předvolební řeči o referendech a změnách v EU či NATO mě děsí zdražováním a dalším tlakem na naše úspory, takže za rok moc nečekám zlepšení, spíš šetření na každém rohu.",
+        "Z těch volebních slibů mám spíš pocit, že nikdo pořádně neříká, odkud vezme peníze, takže se bojím, že na běžný život v naší domácnosti nás čeká spíš další šetření než zlepšení.",
+        "Z těch politických řečí kolem voleb mám spíš obavy, protože slibují levné energie a zastropování důchodu, ale nikdo pořádně neříká, odkud na to vezme peníze, a já se bojím, že na konci roku zase sáhnu hlouběji do kapsy. Rozpočet domácnosti teď držím jen tak tak a jestli ceny zůstanou vysoko, dalších dvanáct měsíců bude hodně o šetření.",
+        "Slyším pořád jen hádky politiků a sliby, co nevím, jestli platí, a bojím se, že ceny a byrokracie nás dál budou tlačit, takže s naším základním vzděláním a výdělkem moc ušetřit nemůžeme a spíš to vidím bledě.",
+        "Jako mladý bez vysokoškolského titulu na Moravě vidím naše rodinné peníze spíš černě, protože volební sliby o levnějším jídle a půjčkách zní fajn, ale každodenní drahota v obchodech se zatím nelepší a nevím, jestli nová vláda něco reálně změní.",
+        "Jako na Moravě žijící člověk se středoškolským vzděláním vidím naše rodinné finance spíš černě, protože ceny pořád tlačí na rozpočet a sliby všech těch stran v televizi mi přijdou jako prázdná slova, co na konci měsíce nepomůžou zaplatit složenky. Doufám, že po volbách aspoň přestanou ty hádky a něco reálně zlevní, ale moc si od toho neslibuju.",
+        "Jako důchodce s vysokoškolským vzděláním vidím naše rodinné finance spíš pesimisticky, protože předvolební kampaň slibuje jen levné body a žádná strana neříká jasně, jak zastavit růst cen energií a potravin, které nás každý měsíc tlačí do úspor z minima. Pokud po volbách vznikne vláda bez jasného hospodářského plánu, obávám se, že s naším fixním příjmem nevystačíme bez",
+        "Jako důchodce na vesnici v Čechách vidím naše rodinné finance spíš černě, protože politici místo jasných plánů na zastavení drahoty jen házejí špínu a já se bojím, že s penzí nevystačím ani na jídlo a léky. V příštím roce čekám, že budeme muset šetřit ještě víc, ať už volby dopadnou jakkoli.",
+        "Jako důchodce na venkově koukám na ty předvolební sliby o levnějších potravinách a energiích s velkou nedůvěrou, takže se spíš bojím, že s mým fixním příjmem příští rok ještě víc utáhneme opasek a nic z těch řečí nám reálně nepomůže.",
+        "Jako důchodce na Moravě vidím naše peníze na příští rok bledě, protože v těch politických kecách o platách a Referendech pořád nic nevidím, co by mi doopravdy zlevnilo jídlo a léky v obchodě.",
+        "Z těch předvolebních keců v televizi a novinách mám spíš pocit, že nikdo pořádně neříká, co udělá s cenami a daněmi, takže se naši domácnosti na Moravě spíš bojím, že za rok budeme mít peněz ještě míň než teď.",
+        "Podle těch volebních řečí všichni slibují zlevnění a vyšší důchody, ale já z toho křiku a vzájemného obviňování vidím spíš to, že se žádná velká úleva pro naši kapsu do roka nekoná a budeme muset s rozpočtem šetřit dál.",
+        "Jako důchodce na Moravě vidím na příští rok svoji situaci bledě, protože všechny ty sliby ve zprávách o levnějším životě mi přijdou jako plané řeči politiků a já se bojím, že ceny potravin a energií zase vyskočí a moje penze na to stačit nebude.",
+        "Jako důchodce na venkově v Čechách vidím příštích 12 měsíců spíš černě, protože ceny pořád rostou a volební sliby mi připadají jako prázdné řeči, takže budu muset hodně šetřit, abych vyšel s penzí.",
+        "Jako důchodce na venkově v Čechách vidím naše finance spíš nejistě, protože všechny ty volební sliby znějí hezky, ale ceny energií a živobytí pořád rostou a nikdo z těch politiků mi neříká, co se skutečně změní, až budu platit svoje účty.",
+        "Jako důchodce s vysokoškolským vzděláním na Moravě vidím naše rodinné finance spíš napjatě, protože sliby o zvýšení důchodů a zastropování věku znějí lákavě, ale z dosavadních zpráv a politických třenic mám obavu, že reálné zlepšení za rok nepocítíme a spíš nás čeká další zdražování.",
+        "Slyším samé sliby o levnějším životě a bavorských platech, ale z těch volebních hádek a útoků mám spíš obavu, že se ceny energií i nákupů nezklidní a s naším středoškolským platem v Čechách to za rok bude pořád na šrot.",
+        "Jako důchodce na Moravě sleduju ty předvolební řeči o levnějším životě a daních, ale zatím vidím jen sliby a drahotu kolem sebe, takže se bojím, že s penzí vyjdeme tak tak a další rok bude pro naši domácnost hodně napnutý.",
+        "Jako mladý vysokoškolák v Čechách mimo Prahu vidím naše rodinné finance spíš napjatě, protože ceny bydlení a energií pořád tíží rozpočet a z těch volebních slibů zatím neplynou žádné konkrétní úlevy, které bychom doma cítili hned.",
+        "Ty voliče jen koupou bambilionama a hádaj se v telce, ale zpráva o největším propadu mezd v historii mě fakt děsí, protože s běžnou školou na Moravě žiju od výplaty k výplatě a za rok vidím spíš další šetření než zlepšení.",
+        "Jako Pražák se středoškolským vzděláním vidím naši domácnost spíš pesimisticky, protože ve volebních zprávách pořád slyším jen hádky a sliby, ale nic konkrétního, co by zlevnilo bydlení nebo život v hlavním městě, takže za rok čekám, že sotva udržíme rozpočet.",
+        "Jako Pražák se základním vzděláním vidím naše rodinné peníze spíš černě, protože politici v té kampani jen hádají a slibujou, ale o to, jak zlevní život v drahé Praze, mi nikdo moc neřekl. Bojím se, že za rok budem s rozpočtem pořád na šrot a ani ty volební kecy nás nezachrání.",
+        "Po těch všech slibech v předvolebních debatách a nejistotě, kdo vlastně sestaví vládu a jestli neskončíme v referendu o EU, vidím naše rodinné finance spíš bez velkého zlepšení a bojím se, že ceny bydlení i energií zůstanou vysoko, takže budeme muset dál šetřit každou korunu.",
+        "Podle těch zpráv o největším propadu reálných mezd v historii a že jsme sedm let zpátky se bojím, že s penězi vyjdeme tak tak a žádné zlepšení v příštím roce nečekám, když politici řeší jen hádky a billboardy místo našich účtů."
+      ]
+    },
+    {
+      "seed": 3,
+      "n_sent": 60,
+      "ssr_score": 3.005942905860956,
+      "nowcast": 0.2971452930478069,
+      "sentences": [
+        "Jako důchodce na Moravě vidím naše finance spíš pesimisticky, protože sliby o nižších cenách energií a levnějším bydlení znějí fajn, ale s tímhle politickým pletichařením a drahotou kolem se obávám, že nám penze sotva vydrží na běžné věci.",
+        "Jako vysokoškolák na Moravě sleduju předvolební sliby kolem daní a cen bydlení s velkou nedůvěrou, takže čekám, že naše domácnost bude muset šetřit až do dalšího jara, než se uklidní, kdo vlastně bude vládnout a co z těch řečí o levnějším životě skutečně platí.",
+        "Jako důchodce na Moravě vidím naše rodinné finance spíš černě, protože vláda i opozice jen házejí špínu a slibují modré z nebe, zatímco v obchodech pořád všechno zdražuje a z těch sedmimiliardových sporů s Agrofertem nám na účet ani koruna nekápne. Pokud se po volbách nic nezmění, za rok budeme šetřit na každém rohlíku ještě víc než teď.",
+        "Jako člověk se základním vzděláním na Moravě vidím naše finance spíš černě, protože ceny energií a bydlení pořád rostou a politici v těch debatách řeší jen hádky a volby, místo aby nám řekli, co reálně uleví v peněžence. Doufám, že po volbách něco slíbí, ale moc nevěřím, že se nám za rok bude doma žít levněji.",
+        "Jako mladý Pražan se střední školou vidím naše rodinné finance spíš napjatě, protože ceny v Praze pořád rostou a z těch politických slibů v novinách mi není jasné, jestli nás za rok nečeká spíš škrtání nebo ještě dražší život.",
+        "Jako mladý vysokoškolák na Moravě vidím naše rodinné finance spíš napjatě, protože předvolební sliby o bezúročných půjčkách a levných vlacích zní fajn, ale všichni se jen hádají a nikdo pořádně neříká, jak se zvednou ceny nebo jestli budu mít po škole práci. Na další rok spíš počítám s tím, že šetřit budeme muset dál a žádné velké volné peníze nečekám",
+        "Jako člověk se základním vzděláním na Moravě vidím naše rodinné finance spíš černě, protože ceny potravin pořád tlačí rozpočet a politici jen hádají, místo aby nám řekli, co bude za rok s penězi doopravdy.",
+        "Podle těch slibů stran o nižších daních a levnějším životě by to mohlo být za rok líp, ale zatím vidím jen hádky a kampaně, takže naše rodinné výdaje spíš zůstanou napnuté k prasknutí a reálně čekám, že se moc neuleví.",
+        "Upřímně, podle těch volebních řečí o bavorských platech a prosperitě moc nevěřím, že se mi se středoškolským vzděláním v Čechách mimo Prahu za rok výrazně polepší, spíš počítám s tím, že rozpočet doma zůstane napnutý jako teď.",
+        "Jako pražská domácnost s vysokoškolským vzděláním vidím příštích 12 měsíců dost nejistě, protože předvolební handrkování o programech a sliby bez konkrétních čísel mi neříkají, jestli zase neskočí ceny bydlení nebo daně, a já se bojím, že po volbách se spíš bude šetřit na nás než na státní správě.",
+        "Z těch předvolebních slibů a hádek kolem rozpočtu mám spíš obavu, že se naše životní náklady nezlepší a hypotéku ani běžný provoz domácnosti nebudeme mít o moc levnější, takže příští rok počítám spíš s utahováním opasku.",
+        "Jako důchodce s vysokoškolským vzděláním vidím naše vyhlídky spíš pesimisticky, protože předvolební sliby o zlevnění energií a potravin zatím nic neřeší a ceny v obchodech dál zůstávají vysoko oproti mému fixed příjmu. Doufám, že po volbách někdo konečně přestane jen řvát a udělá rozumnou pomoc pro lidi nad 60, ale moc v to nevěřím.",
+        "Politici před volbami slibují bavorské platy nebo platy učitelům 75 tisíc, ale podle zpráv o největším propadu reálných mezd v historii mám spíš obavu, že náš rodinný rozpočet zůstane napjatý a žádné zlevnění nebo růst příjmů se nás v příštím roce reálně nedotkne.",
+        "Z těch předvolebních řečí mám spíš obavy než klid, protože pořád slyším jen hádky o grafech a dotacích, ale nikdo mi neříká, jestli zase nezdraží energie a jídlo, takže na další rok moc optimismu nemám a budu radši šetřit, co se dá.",
+        "Upřímně řečeno, z těch samých hádek politiků a prázdných slibů v novinách mám spíš obavu, že za rok budeme s manželkou pořád počítat každou korunu a žádné bavorské platy ani zlevnění energií se nás tady v Čechách nejspíš nechytí.",
+        "Z těch volebních řečí a slibů mám spíš obavy než naději, protože ceny energií a běžného života pořád tlačí na náš důchod a nikdo z těch pánů mi neříká, že to za rok bude fakt klidnější a levnější.",
+        "Jako šedesátník na Moravě vidím naše rodinné finance spíš černě, protože ceny energií a zdražování nás dál tlačí a politici jen slibují, ale žádný jasný program nevidím, takže se bojím, že s důchodem nevystačíme. Pokud se po volbách nic nezmění, za rok budeme šetřit na úkor léků a běžného života ještě víc než teď.",
+        "Jako mladý bez vzdělání na Moravě vidím naše finance spíš bledě, protože ceny pořád rostou a politici v těch debatách řeší volby a dovolené, ale ne jak by se nám tady uživilo za normální výdělek.",
+        "Jako důchodce se základním vzděláním v kraji mimo Prahu vidím naše finance spíš bledě, protože politici slibují všelijaké věci, ale ceny v obchodech pořád rostou a já nevím, jestli se mé penze vůbec udrží s tím, co bude za rok.",
+        "Z těch předvolebních řečí mám spíš pocit, že ani jedni pořádně neříkají, kde na své sliby vezmou peníze, takže se bojím, že naše rodinné výdaje zůstanou vysoké a reálný příjem se za rok moc nepohne.",
+        "Jako mladý člověk se středoškolským vzděláním na Moravě vidím naše rodinné finance spíš nejistě, protože předvolební kecy slibují všechno možné, ale nikdo pořádně neříká, jak nás ochrání před drahotou a jestli nás nečeká průšvih, kdyby se táhlo z EU.",
+        "Jako důchodce na Moravě vidím naše finance spíš černě, když slyším, že reálné mzdy klesly nejvíc v historii a politici jen hádají a slibují, ale nic konkrétního pro lidi jako já neřeší, takže za rok budem s penězi ještě víc na štrejchu.",
+        "Podle těch slibů všech stran by to mělo být levnější a důchody vyšší, ale já z toho mám spíš strach, že po volbách zase nic moc nebude a s naším rozpočtem v Čechách mimo Prahu to do roka zůstane nahoře.",
+        "Jako mladý bez vysoké školy v regionu mimo Prahu vidím příštích 12 měsíců dost nejistě, protože politici ve volbách slibují levné energie a důchody, ale nikdo pořádně neříká, odkud na to vezme, a já se bojím, že mi neutrhnou plat, ale životní náklady zůstanou vysoké.",
+        "Jako člověk na Moravě se středoškolským vzděláním vidím naše rodinné finance spíš bledě, protože politici místo řešení drahého života jen hádají v debatách a slibují levnější jídlo bez reálného plánu, takže se bojím, že s penězi na rok dopředu nevyjdeme o moc líp než teď.",
+        "Jako mladý se středoškolským vzděláním na Moravě vidím naše rodinné finance spíš bledě, protože ceny pořád tlačí na rozpočet a politici jen slibují růst nebo zvyšování platů, ale reálně nevím, jestli se nám za rok bude žít líp nebo zase hůř.",
+        "Volební kecy politiků mě neuvěřejí, protože drahý život v Čechách mimo Prahu pořád tlačí na naše konto a s mojí základní školou moc nevydělám, takže na příští rok moc optimistický nejsem.",
+        "Politická hádka a nejistota před volbami mě vůbec neuklidňují, takže se na příští rok spíš bojím o naše penze a rozpočet a budu šetřit každou korunu, dokud nebude jasné, kdo a jak nás bude řídit.",
+        "Jako člověk se základním vzděláním na Moravě vidím naše finance spíš bledě, protože všechny ty volební sliby na levnější jídlo a bydlení znějí pěkně, ale experti říkají, že to nemají promyšlené, a já se bojím, že za rok budeme pořád počítat každou korunu.",
+        "Jako mladý vysokoškolák v Čechách mimo Prahu vidím naše rodinné finance spíš napjatě, protože předvolební sliby jako snížení daní nebo zastropování důchodového věku zatím nic konkrétního neřeší a ceny kolem nás dál rostou, takže za rok moc nečekám zlepšení.",
+        "Já jakožto člověk se základním vzděláním na Moravě vidím naše rodinné finance spíš bledě, protože v debatách pořád jen slibují levnější potraviny, ale experti říkají, že to nemají promyšlené, a mně peněz na konci měsíce stejně moc nezbývá. Za rok čekám, že s cenami a byrokracií budeme jako dřív, akorát s víc nervem z těch volebních řečí.",
+        "Jako pražský důchodce se středoškolákem vidím naše finance spíš pesimisticky, protože zprávy o největším propadu reálných mezd v historii a drahotě mě děsí, a ať vyhrají Babiš s bezúročkami nebo Fiala s eurem, moc nevěřím, že mi to v penzi za rok reálně polepší.",
+        "Z těch zpráv vidím, že reálné mzdy jsou pořád sedm let zpátky a politici jen házejí jeden na druhého, takže se bojím, že za rok budu s penězi doma pořád na štrejchu a nic moc levnějšího nebude.",
+        "Jako Pražan se základním vzděláním vidím naše rodinné finance spíš bledě, protože ceny v hlavním městě pořád rostou a z těch politických řečí kolem voleb nemám pocit, že by nám někdo reálně pomohl ušetřit. Pokud zůstanou drahota a byrokracie jako teď, za rok budeme s rozpočtem pořád na šrot.",
+        "Já už jsem v důchodu a s těma slibama stran o levnějších potravinách a vyšších důchodech moc nevěřím, takže si myslím, že s penězma vyjdeme tak tak jako teď a žádný velký zlepšení nečekám.",
+        "Podle těch předvolebních hádek o rozpočtu a slibech kolem babišovských 75 tisíc pro učitele nevím, jestli po volbách nedojde k škrtům nebo naopak k populistickým výdajům, takže naše domácnost spíš šetří a čeká, co která vláda skutečně udělá s daněmi a cenami.",
+        "Podle těch slibů od Babiše i Maláčové o vyšších mzdách a levnějším bydlení by to snad mohlo být o kousek lepší, ale s mým základním vzděláním a mimo Prahu mám spíš strach, že ceny zůstanou vysoké a já s rodinou vyjdeme tak tak jako teď.",
+        "Jako mladý bez vysoké školy na Moravě vidím naše rodinné peníze spíš černě, protože kampaně slibují všechno možné, ale ceny a bydlení nás dál tlačí a nikdo z těch pánů mi neříká, jak reálně ušetřím za energie a jídlo.",
+        "Podle těch zpráv o největším propadu reálných mezd v historii a planých slibech všech stran mám strach, že s naším rozpočtem to příští rok nebude o moc lepší a budeme muset dál šetřit na každém nákupu. Nevěřím, že po volbách cokoli zásadně zlevní, spíš počítám s tím, že se prostě budeme muset nějak protlouct dál.",
+        "Z těch slibů na levnější život a nižší daně v předvolebních hádkách moc nevěřím, že se nám na Moravě doma reálně uleví, a tak počítám, že příští rok budeme muset s rozpočtem šetřit skoro stejně napjatě jako teď.",
+        "Jako student vysoké školy v Praze žiju z mála a sleduju, že strany slibují levnější potraviny, ale experti říkají, že to jsou jen prázdné sliby, takže se spíš bojím, že mi za rok peněz na nájem a jídlo ještě víc ubude. Volby mě znepokojují, protože podle debat nevím, jestli nová vláda vůbec bude řešit reálně naši situaci, a já můžu jen doufat, že nebudu muset kvůli drahotě",
+        "Podle těch zpráv mi přijde, že všechny strany jen slibují levnější život, ale reálně máme největší propad mezd v historii a já jako mladý student z Čech moc nevěřím, že se za rok moje domácnost nějak výrazně zlepší, spíš budeme dál šetřit.",
+        "Podle těch slibů všech stran kolem levnějších potravin a energií nevím, čemu věřit, takže se spíš bojím, že rozpočet naší domácnosti zůstane napnutý a budeme muset dál šetřit, ať vyhrají jakkoliv.",
+        "Jako Pražák se středoškolským vzděláním vidím naše rodinné finance spíš pesimisticky, protože kolem samých politických hádek a strašení východní hrozbou ceny bydlení i života v hlavním městě dál rostou a nikdo z těch pánů v debatách neříká, jak nám reálně uleví v rozpočtu.",
+        "Jako člověk se základním vzděláním na Moravě vidím naše rodinné finance spíš černě, protože slyším o největším propadu reálných mezd v historii a politici místo jasné pomoci jen slibují a hádají se v předvolební kampani. Bojím se, že za rok budeme mít od našich výplat ještě míň než teď a sotva vyjdeme s nájmem a nákupy.",
+        "Jako mladý se středoškolským vzděláním v Čechách vidím naše rodinné peníze spíš napnuté, protože politici slibují růst a bavorské platy, ale zprávy plné hádek a drahých plánů mi nedávají moc naději, že se nám do roka reálně uleví.",
+        "Z těch volebních řečí a slibů o levnějších energiích a daních zatím nic konkrétního pro naši kapsu nevidím, takže se spíš bojím, že za rok budeme s penězi vychozí jako dneska, akorát dražší mrkev a uzeninu už na mítincích nejspíš neseženem.",
+        "Jako důchodce se základním vzděláním vidím naše finance spíš černě, protože zprávy pořád mluví o největším propadu mezd v historii a politici jen slibují, ale nic konkrétního pro lidi jako jsem já neudělali, takže za rok budeme sotva vycházet s penězi.",
+        "Jako mladý vysokoškolák v regionu mimo Prahu vidím naše rodinné finance spíš napjatě, protože předvolební sliby o slevách a důchodech zatím nic reálně nezměnily a ceny základních věcí jako jídlo pořád tlačí rozpočet ke dnu. Doufám, že po volbách něco zlevní, ale podle těch hádek politiků spíš čekám, že další rok budeme šetřit skoro na všechno.",
+        "Upřímně řečeno, z těchhle zpráv mám z domácnosti spíš obavy, protože se pořád jen hádají o volbách a nikdo pořádně nemluví o tom, jak zlevní energie nebo jestli budou penze v klidu, takže na další rok moc nevěřím, že nám zbude víc než na nejnutnější věci.",
+        "Jako mladý bez maturity mimo Prahu vidím naše finance spíš bledě, protože politici jen hádají v debatách a slibují drahé věci, ale nikdo mi neříká, jestli budu mít za rok jistou práci a na nájem.",
+        "Z těch politických slibů jako zvýšení důchodů nebo platů učitelů mám spíš pocit, že to jsou jen předvolební řeči, a když se dívám na naše výdaje za jídlo a energie tady na Moravě, tak na příští rok moc optimismu necítím a budeme muset šetřit ještě víc.",
+        "Ty voličský hádky a sliby mě vůbec neuklidňují, když vidím, že stát tahá z Agrofertu miliardy a ceny pořád rostou, tak se bojím, že s naším základním vzděláním a výdělkem v Čechách mimo Prahu nám za rok moc peněz na rodinu nezbude.",
+        "Jako mladý bez vysoké školy na Moravě vidím naše vyhlídky nejisté, protože politici slibují hory doly, ale ceny potravin jako na mítincích SPD ukazují, že slevy jsou jen na oko a žádná strana zatím reálně neřeší, co budeme mít v peněžence za rok.",
+        "Jako důchodce se středoškolským vzděláním vidím naše rodinné finance spíš pesimisticky, protože v těch předvolebních řečech o levnějším životě a důstojných důchodech mi připadá hlavně křik a sliby, zatímco v obchodech a za energie pořád platíme víc, než co s námi vydrží. Pokud se po volbách nic reálně nezmění, za rok budeme s penězi na měsíc ještě víc počít",
+        "Jako důchodce s vysokoškolským vzděláním na Moravě vidím naše rodinné finance spíš pesimisticky, protože sliby politiků o růstu a levnějších potravinách působí populisticky a reálně čekám, že s inflací a zdražováním nás příští rok zasáhnou další škrty v penzích i službách.",
+        "Slyším pořád jen politické handrkování a kampaně, ale zpráva o největším propadu reálných mezd v historii mě fakt děsí, takže na dalších 12 měsíců čekám, že s naším rozpočtem v Čechách moc nehneme a budeme spíš šetřit než utrácet.",
+        "Jako důchodce s vysokoškolským vzděláním na Moravě vidím naše rodinné finance spíš nejistě, protože předvolební sliby jako růst nebo přidávání učitelům znějí hezky, ale nikdo z těch stran kolem se nemluví jasně o tom, co bude s penzemi a cenami pro lidi jako jsem já. Obávám se, že za rok budeme šetřit víc než teď, ať už vyhraje kdokoli, kdo z těchhle hlasitých",
+        "Volební řeči o zlevnění energií a bydlení slibují skoro všichni, ale jakožto rodina se středoškolským vzděláním na Moravě moc nevěřím, že se nám za rok reálně uleví, spíš čekám, že rozpočet zůstane napnutý jako teď.",
+        "Z těch předvolebních řečí o „bavorských platech“ a slibech opozice mám spíš pocit, že v příštím roce můj rozpočet zůstane napnutý a o reálné zlepšení se nejspíš neopřu, dokud se situace po volbách neuklidní a někdo nezačne fakticky řešit ceny a daně."
+      ]
+    }
+  ],
+  "mean_nowcast": -6.821408047592599,
+  "abs_err": 0.6785919524074009,
+  "flash_reference": {
+    "file": "cz_nowcast_2025-julsep.json",
+    "nowcast": -7.084837151108481,
+    "abs_err": 0.41516284889151933
+  },
+  "cost": {
+    "n_calls": 180,
+    "n_api_calls": 180,
+    "n_cache_hits": 0,
+    "calls_per_min_limit": 100.0,
+    "elapsed_s": 126.3,
+    "prompt_chars": 895658,
+    "completion_chars": 46465,
+    "est_prompt_tokens": 279893,
+    "est_completion_tokens": 14520
+  },
+  "raw_stream": [
+    {
+      "i": 1,
+      "response": "Jako důchodce na Moravě vidím příští rok dost nejistě, protože všechny ty volební sliby na zvýšení penzí a levnější jídlo zatím znějí jen jako honba za hlasy a já se bojím, že ceny i daně zůstanou vysoké a můj měsíční rozpočet dál neutáhne."
+    },
+    {
+      "i": 2,
+      "response": "Jako důchodce na Moravě vidím naše finance spíš černě, protože politici jen hádají a straší rozpočtem, zatímco ceny rostou a nikdo z nich mi neříká, co bude za rok opravdu s penzí a výdaji. Doufám, že po volbách něco slíbí, ale moc tomu nevěřím, když ani pořádně nevím, co která strana chystá."
+    },
+    {
+      "i": 3,
+      "response": "Jako rodina na Moravě se středoškolským vzděláním vidím naše finance spíš bledě, protože ceny energií a bydlení pořád tlačí na rozpočet a z těch politických slibů v kampani mám spíš pocit, že si každý jen hraje na hrdinu, než aby nám reálně pomohl uživit se normální prací."
+    },
+    {
+      "i": 4,
+      "response": "Jako Pražák se základním vzděláním vidím ty volby a sliby o zlevnění energií a potravin, ale moc tomu nevěřím, protože ceny tu pořád rostou a moje peněz na měsíc moc nezbývá, takže příští rok čekám spíš další šetření než nějaké zlepšení."
+    },
+    {
+      "i": 5,
+      "response": "Podle těch zpráv všechno srší jen politika a hádky, ale nikdo z těch pánů a paní nemluví o tom, co mě v Čechách trápí – jestli zdraží elektřina nebo jestli budu mít na nájem, takže se bojím, že za rok budeme s manželkou pořád počítat každou korunu a nic moc lepšího nečekám."
+    },
+    {
+      "i": 6,
+      "response": "Jako středoškolák v Čechách mimo Prahu vidím naše rodinné finance spíš pesimisticky, protože všechny strany slibují levnější energie a vyšší mzdy, ale z kampaňových hádek mám spíš pocit, že ceny zůstanou vysoko a žádné reálné ulehčení do roka nepřijde."
+    },
+    {
+      "i": 7,
+      "response": "Slyším sliby o zlevnění energií a vyšších důchodech i varování před bilionovými dírami v rozpočtu, ale jako domácnost v Čechách s vysokoškolským vzděláním se spíš bojím, že ať vyhrají kteříkoliv, naše reálné výdaje na bydlení a potraviny příští rok zase stoupnou a žádná z těch kampaní mi nezaručí klidný rozpočet."
+    },
+    {
+      "i": 8,
+      "response": "Jako důchodce na vesnici v Čechách vidím naše finance spíš černě, protože ceny v obchodech pořád rostou a politici jen slibují, takže se bojím, že za rok s penzí nevyjdeme tak snadno jako teď."
+    },
+    {
+      "i": 9,
+      "response": "Z těch volebních řečí o levnějším bydlení a vyšších mzdách mám spíš obavy než naději, protože na Moravě žiju z výplaty do výplaty a nikdo z těch kandidátů zatím neříkal nic konkrétního, co by mi reálně ulevilo v rodinném rozpočtu."
+    },
+    {
+      "i": 10,
+      "response": "Uprostřed té předvolební hádky o bilionové sliby a kdo komu lže mě naše rodinné finance spíš děsí, protože ceny v obchodech pořád rostou a já nevěřím, že po volbách někdo fakticky sníží naše výdaje, takže na další rok čekám spíš šetření než zlepšení."
+    },
+    {
+      "i": 11,
+      "response": "Jako člověk se základním vzděláním v Čechách vidím naše rodinné peníze spíš černě, protože strany slibují lacinější jídlo, ale experti říkají, že to nemají promyšlené, a já se bojím, že po volbách zase budeme platit za jejich spory a drahotu."
+    },
+    {
+      "i": 12,
+      "response": "Jako Pražan s vysokoškolským vzděláním vidím naši domácnost v příštím roce spíš opatrně, protože předvolební handrkování o rozpočtu a sliby bez krytí mi nedávají jistotu, že ceny a daně v hlavním městě nezůstanou vysoké nebo ještě nepřitvrdí."
+    },
+    {
+      "i": 13,
+      "response": "Jako rodina se středoškolským vzděláním na Moravě vidím naše finance spíš bledě, protože ceny potravin a energií pořád tlačí rozpočet ke dnu a sliby všech stran v kampani mi přijdou jako prázdná slova, co realitu doma nezmění. Pokud se po volbách nic zásadně nezlevní, budeme muset šetřit ještě víc než letos."
+    },
+    {
+      "i": 14,
+      "response": "Jako důchodce na venkově vidím naše finance spíš černě, protože ceny pořád rostou a sliby politiků o levnějších energiích a zastropování důchodového věku mi připadají jako předvolební řečnění, na které nemůžu moc spoléhat. Pokud se nic nezmění, budeme muset ještě víc šetřit, abychom vyšli s penězi na léky a základní věci."
+    },
+    {
+      "i": 15,
+      "response": "Politici slibují růst a zvyšování platů, ale z těch předvolebních hádek a planých slibů mám spíš obavu, že naše domácnost bude muset šetřit dál a žádné reálné zlepšení rozpočtu v příštím roce nepocítíme."
+    },
+    {
+      "i": 16,
+      "response": "Jako důchodce na venkově vidím naše finance spíš černě, protože ceny pořád rostou a sliby všech těch politiků v televizi mi přijdou jako prázdná slova, takže se budeme muset ještě víc uskromňovat."
+    },
+    {
+      "i": 17,
+      "response": "Jako člověk se základním vzděláním na Moravě vidím naše finance spíš bledě, protože v těch předvolebních řečech od Fialy i Babiše slýchám jen sliby o růstu a daních, ale nikdo mi neříká, jestli zvládneme zaplatit energie a nákupy, což nás teď nejvíc tlačí. Doufám, že po volbách něco zlevní, ale moc tomu nevěřím, když se pořád jen hádají, kdo je hor"
+    },
+    {
+      "i": 18,
+      "response": "Podle těch politických slibů všichni tvrdí, že bude líp a potraviny zlevní, ale já z vlastní zkušenosti vím, že ceny pořád rostou a žádná strana mi pořádně nevysvětlila, jak to sakra zaplatí, takže na další rok spíš šetřím každou korunu a moc nevěřím, že se nám doma uvolní."
+    },
+    {
+      "i": 19,
+      "response": "Jako pražská domácnost s vysokoškolským vzděláním vidím dalších 12 měsíců spíš neurčitě, protože předvolební handrkování o rozpočtu a EU mi neříká, jestli se náklady na bydlení a život v hlavním městě konečně uklidní, nebo zase naskočí další daně a drahota."
+    },
+    {
+      "i": 20,
+      "response": "Já už jsem v důchodu a po těch zprávách o největším propadu mezd v historii se bojím, že s penzí nevystačím, když i v obchodech vidím, že kilo zeleniny a uzenina na mítinku za pár korun je spíš jenom show než normální život. Doufám, že po volbách něco zlevní, ale podle těch hádek v televizi moc nevěřím, že se nám starým na vesnici bude žít do roka líp."
+    },
+    {
+      "i": 21,
+      "response": "Jako šedesátník na Moravě vidím naše rodinné finance spíš pesimisticky, protože politici se před volbami jen hádají o kampaních a hrozbách, ale nikdo z nich mi neříká, jak se zvednou důchody a zastaví drahota za jídlo a energie. Bojím se, že příští rok budeme muset ještě víc šetřit, ať vyhraje kdokoli."
+    },
+    {
+      "i": 22,
+      "response": "Z těch zpráv mám spíš pocit, že se politici jen hádají a slibují, ale ceny a energie nás dál tlačí a já s nízkým vzděláním nevidím, že by se mi za rok doma ušetřilo nebo přidalo, spíš počítám každou korunu dál."
+    },
+    {
+      "i": 23,
+      "response": "Jako důchodce s vysokoškolským vzděláním na Moravě vidím naše rodinné finance spíš pesimisticky, protože sliby o „bavorských platech“ znějí hezky, ale zatím cítím jen drahotu a politické handrkování, co mi v penzi nepřidá jistotu na rok dopředu."
+    },
+    {
+      "i": 24,
+      "response": "Jako mladý člověk se středoškolským vzděláním na Moravě vidím naše rodinné finance spíš nejistě, protože předvolební sliby o levnějších energiích a bytech znějí fajn, ale zatím je to jen hádky v debatách a já nevím, jestli se nám reálně uleví, než za rok zase všechno zdraží."
+    },
+    {
+      "i": 25,
+      "response": "Jako šedesátník na Moravě se děsím, že bez jasných slibů o zastropování důchodového věku a levnějších energiích mi za rok penze sotva vydrží na nájem a jídlo, a volební kecy na TikToku mě v tom mém klidu nijak neuklidní."
+    },
+    {
+      "i": 26,
+      "response": "Ty volební řeči o bambilionech a zastropování věku odchodu do důchodu zní hezky, ale já zatím vidím naše rodinné finance spíš napjatě, protože ceny v obchodech pořád rostou a plat mi neutáhne všechno, co potřebujeme, takže se bojím, co přinese další rok bez ohledu na to, kdo vyhraje."
+    },
+    {
+      "i": 27,
+      "response": "Jako na Moravě žijící člověk se středoškolským vzděláním vidím naše rodinné finance spíš pesimisticky, protože předvolební sliby o bezúročných půjčkách a hypotékách znějí lákavě, ale všechny ty hádky a útoky mi spíš nahánějí strach, že ceny a životní náklady zůstanou vysoké a náš rozpočet to neutáhne."
+    },
+    {
+      "i": 28,
+      "response": "Volební sliby o levnějších potravinách a bavorských platech zatím beru s rezervou, protože z kampaně cítím spíš křik než konkrétní plán, a tak se na příští rok spíš chystám šetřit a držet se stávajícího rozpočtu, než abych čekal nějaké výrazné zlepšení."
+    },
+    {
+      "i": 29,
+      "response": "Podle těch předvolebních keců mám pocit, že ať vyhraje kdo chce, tak na nás s partnerem jakožto mladou domácnost s průměrným výdělkem mimo Prahu žádné zlevnění ani klidný růst peněz nečeká, spíš budeme dál počítat každou korunu a doufat, že nás nějaká další vládní změna úplně nezruinuje."
+    },
+    {
+      "i": 30,
+      "response": "Jako rodina na Moravě se středoškolským vzděláním vidím naše finance spíš bledě, protože politici se jen hádají a slibují, ale ceny a výdaje doma pořád rostou a nikdo z nich nám reálně nepomohl ušetřit. Nejspíš budeme muset ještě víc šetřit, ať už vyhrají ve volbách ti nebo oni."
+    },
+    {
+      "i": 31,
+      "response": "Jako středoškolák na Moravě vidím naše rodinné finance spíš pesimisticky, protože předvolební sliby o nižších daních a vyšších důchodech znějí fajn, ale ceny energií a bydlení pořád rostou a nikdo z těch pánů mi nezaručí, že za rok nebudeme šetřit ještě víc."
+    },
+    {
+      "i": 32,
+      "response": "Podle těch předvolebních řečí o levnějším životě a bydlení mám spíš obavu, že jako mladý na Moravě s průměrným vzděláním budu za rok pořád počítat každou korunu a žádná reálná změna se u nás doma nejspíš neukáže."
+    },
+    {
+      "i": 33,
+      "response": "Těch slibů o levnějším životě a nižších daních slyším z každý strany plný zprávy, ale s mojím základním vzděláním a cenami v Čechách mimo Prahu mám spíš strach, že za rok budeme s penězi vyškrtnutý jako doteď a nic se nezlepší."
+    },
+    {
+      "i": 34,
+      "response": "Jako důchodce s vysokoškolským vzděláním vidím naše rodinné finance spíš neutrálně až opatrně, protože sliby politiků o zvýšení důchodů nebo snížení daní znějí hezky, ale podle kampaní kolem sebe mám pocit, že žádná strana pořádně neřeší reálné zdražování a jistotu našich úspor na venkově v Čechách."
+    },
+    {
+      "i": 35,
+      "response": "Jako rodina na Moravě se středoškolským vzděláním vidím naše finance spíš napjatě, protože předvolební sliby všech stran znějí fajn, ale nikdo z těch kandidátů zatím neříká nic konkrétního, co by mi reálně ulevilo od drahoty a hypotéky za rok. Nejlíp by nám bylo, kdyby po volbách konečně někdo přestal jen hrát politické divadlo a začal řešit ceny bydlení a energií"
+    },
+    {
+      "i": 36,
+      "response": "Z těch volebních zpráv mám spíš pocit, že žádná strana neříká jasně, jak reálně zlevní energie nebo bydlení v Praze, takže jako domácnost s vysokoškolským příjmem čekám spíš další tlak na rozpočet a žádné výrazné ulehčení v příštím roce."
+    },
+    {
+      "i": 37,
+      "response": "Podle toho, co slibují v kampani, se bojíme, že ceny energií a bydlení zůstanou vysoko a žádná z stran nám na Moravě reálně neulehčí rozpočet, takže příští rok budeme spíš šetřit a doufat, že nás nějaká vláda nepřekvapí novými daněmi."
+    },
+    {
+      "i": 38,
+      "response": "Jako mladý bez vysoké školy v regionu mimo Prahu vidím naše finance spíš bledě, protože politici jen slibují snižování daní nebo zdražování řeší jinými hesly, ale ceny bydlení a energií nás dál tlačí a já nevěřím, že se to za rok reálně zlepší."
+    },
+    {
+      "i": 39,
+      "response": "Jako mladý bez vysoké školy na Moravě vidím naše finance spíš bledě, když slyším o největším propadu reálných mezd v historii a politici místo jasných řešení jen hážou špínu v předvolebních debatách. Doufám, že po volbách někdo konečně něco udělá s cenami a výdělky, ale teď se spíš bojím, že sotva udržíme rodinný rozpočet pohromadě."
+    },
+    {
+      "i": 40,
+      "response": "Já jako člověk se základním vzděláním v Čechách mimo Prahu vidím naše rodinné finance spíš bledě, protože v těch předvolebních řečech od Fialy i Babiše slibují jenom věci, co nás v běžném životě moc neuleví, a ceny i tak dál rostou. Než se po volbách něco ukáže, budeme muset šetřit každou korunu a doufat, že nás nová vláda nezatíží dalšími daněmi."
+    },
+    {
+      "i": 41,
+      "response": "Podle těch zpráv o největším propadu reálných mezd v historii, co srazil naši životní úroveň o sedm let zpátky, moc nevěřím, že se náš rodinný rozpočet do roka výrazně zlepší, spíš budeme dál šetřit a doufat, že volby něco změní, než aby to bylo horší."
+    },
+    {
+      "i": 42,
+      "response": "Podle těch kampaní a slibů nevím, co bude, ale jako mladý se středoškolským vzděláním v Čechách mimo Prahu mám spíš strach, že platy moc nepůjdou nahoru a život nás dál bude stát majlant, ať vyhraje kdokoli."
+    },
+    {
+      "i": 43,
+      "response": "Jako Pražák s vysokoškolským vzděláním vidím naše rodinné finance spíš napjatě, protože sliby o „bavorských platech“ znějí fajn, ale v realitě ceny bydlení a energií v hlavním městě pořád drtí rozpočet a na reálné zlevnění teď moc nevěřím."
+    },
+    {
+      "i": 44,
+      "response": "Jakožto domácnost s vysokoškolským vzděláním v Čechách vidím naše finance spíš pesimisticky, protože zprávy o největším propadu reálných mezd v historii a předvolebním handrkování o nesplnitelných slibech naznačují, že si za rok nepolepšíme a spíš budeme dál šetřit."
+    },
+    {
+      "i": 45,
+      "response": "Volební kecy a sliby o bezúročných půjčkách mě neuklidňují, spíš mám strach, že ať vyhraje kdokoli, ceny a energie nás další rok znovu potáhnou a s naším středoškolským platem v regionu to bude našetřeno jen těžko."
+    },
+    {
+      "i": 46,
+      "response": "Jako šedesátník na Moravě vidím naše rodinné finance spíš pesimisticky, protože předvolební kampaň slibuje bavorské platy i levnější život, ale zatím cítím jen nejistotu a obavy, že po volbách se s daněmi a cenami nic nezlepší. Na příští rok se raději chystám šetřit a moc nevěřím, že nová vláda naší penzi s inflací nějak výrazně uleví."
+    },
+    {
+      "i": 47,
+      "response": "Z těch politických keců v televizi a novinách mám spíš pocit, že se nic nezlevní a naše rodinný rozpočet zůstane napnutý k prasknutí, takže příští rok budeme muset šetřit ještě víc než teď."
+    },
+    {
+      "i": 48,
+      "response": "Z těch politických řečí kolem voleb mám spíš pocit, že nikdo pořádně neřeší naše každodenní výdaje na jídlo a energie, takže na příští rok moc nevěřím, že by se nám doma ušetřilo, a budeme muset dál šetřit každou korunu."
+    },
+    {
+      "i": 49,
+      "response": "Jako Pražák se středoškolským vzděláním vidím naše rodinné finance spíš pesimisticky, protože sliby všech stran o levnějších potravinách a nižších daních znějí populisticky a experti přiznávají, že chybí reálný plán, takže čekám, že ceny a výdaje zůstanou vysoké."
+    },
+    {
+      "i": 50,
+      "response": "Jako Pražák s vysokoškolským vzděláním vidím rozpočet domácnosti spíš napjatě, protože předvolební hádky o ničem a sliby „bambilionů“ mě nepřesvědčily, že po volbách někdo skutečně sníží ceny bydlení nebo energií, takže spíš šetřím a čekám, co z té politiky vyleze."
+    },
+    {
+      "i": 51,
+      "response": "Z těch volebních slibů a hádek mám spíš obavy, že ceny a energie zůstanou vysoko a náš důchod s tím moc nepohne, takže příští rok budeme muset šetřit ještě víc než teď."
+    },
+    {
+      "i": 52,
+      "response": "Jako důchodce s vysokoškolským vzděláním na Moravě vidím naše rodinné finance spíš pesimisticky, protože předvolební kampaň slibuje jen další hádky a daně, zatímco ceny a nejistota zůstávají vysoké a nikdo z kandidátů mi neukazuje reálné řešení pro klidný život za penzi."
+    },
+    {
+      "i": 53,
+      "response": "Z těch volebních zpráv mám spíš pocit, že se politici hádají a slibují, ale nikdo mi neřekl, jestli zlevní nájmy nebo potraviny, takže na příští rok čekám, že s naším základním vzděláním a výdělkem v Čechách mimo Prahu budeme šetřit každou korunu jako doposud."
+    },
+    {
+      "i": 54,
+      "response": "Z těch předvolebních slibů o západních mzdách a prosperitě mám spíš pocit, že příští rok budeme šetřit jako dosud, protože reálně se našim výdajům na Moravě neulevilo a nová vláda zatím neukázala, že by nám v peněžence něco konkrétního přidala."
+    },
+    {
+      "i": 55,
+      "response": "Jako mladý člověk se středoškolským vzděláním na Moravě vidím naše rodinné finance spíš bledě, protože politici slibují hory doly, ale z těch hádek a nejasných plánů kolem voleb mám pocit, že ceny a životní náklady nám stejně ještě rok zůstanou vysoké."
+    },
+    {
+      "i": 56,
+      "response": "Jako mladý se středoškolským vzděláním v Čechách vidím naše rodinné finance spíš bledě, když slyším o největším propadu reálných mezd v historii a politici místo jasných řešení jen házejí vinu jeden na druhého, takže do roka moc zlepšení nečekám."
+    },
+    {
+      "i": 57,
+      "response": "Tyhle předvolební řeči o prosperitě a populistických slibech mi přijdou jako házení pískem do očí, protože jako domácnost v Čechách mimo Prahu reálně čekám, že nás další rok budou táhnout ceny a daně, až budeme muset šetřit na všem možném. Bez ohledu na to, kdo vyhraje, moc nevěřím, že se nám do roka výrazně uleví."
+    },
+    {
+      "i": 58,
+      "response": "Jako mladý bez vysokoškoláku na Moravě vidím naše rodinné peníze spíš černě, protože v těch předvolebních kecách o ekonomice a bydlení nevidím nic, co by reálně zlevnilo život, a všechno mi přijde jen jako hon na voliče."
+    },
+    {
+      "i": 59,
+      "response": "Jako důchodce na venkově v Čechách vidím naše rodinné finance spíš bledě, protože zprávy pořád mluví o největším propadu mezd v historii a politici jen slibují, místo aby něco udělali pro naše každodenní drahotu. Bojím se, že za rok budeme s penzí vyházet ještě víc za jídlo a energie a nic z volebních řečí nám reálně nepomůže."
+    },
+    {
+      "i": 60,
+      "response": "Jako mladý člověk se středoškolským vzděláním v regionu mimo Prahu vidím naše rodinné finance spíš bledě, protože v těch volebních kecrech od politiků pořád slibují levnější energie a zastropování důchodů, ale nikdo z nich mi neříká, jak sehnat slušně placenou práci a uživit se za rok, když ceny v obchodech pořád šlapou nahoru."
+    },
+    {
+      "i": 61,
+      "response": "Jako šedesátník vím, že slyším hodně slibů o levnějším životě a vyšších důchodech, ale dokud se po volbách něco reálně nezmění, moje domácnost bude muset šetřit dál a počítat každou korunu."
+    },
+    {
+      "i": 62,
+      "response": "Jako důchodce na Moravě vidím naše finance spíš černě, protože všechny ty volební sliby o levnějších energiích a vyšších mzdách jsou jen kecy politiků a já se bojím, že za rok budu mít z penze sotva na jídlo a léky."
+    },
+    {
+      "i": 63,
+      "response": "Jako důchodce na Moravě vidím naše vyhlídky spíš bledě, protože politici místo jistoty slibují jen levné volební guláše a nikdo pořádně neříká, odkud vezme peníze na energie a zdražované věci. Bojím se, že s naším skromným rozpočtem nás další rok jen těžko udrží nad vodou, ať už vyhrají ti nebo oni."
+    },
+    {
+      "i": 64,
+      "response": "Jako člověk se základním vzděláním na Moravě vidím naši domácnost spíš černě, protože všechny ty volební hádky a sliby o levnějších energiích zatím nic neřeší a já se bojím, že ceny budou dál růst a peněz na živobytí bude mít míň."
+    },
+    {
+      "i": 65,
+      "response": "Podle těch volebních keců nikdo moc neříká, jak se zlevní život, takže čekám, že s penězi na domácnost budeme šetřit dál a nic zásadního se nezlepší, dokud se po volbách neukáže nějaký reálný plán."
+    },
+    {
+      "i": 66,
+      "response": "Upřímně, s touhle divokou kampaní a pořád dokola jenom hádkami o moc se bojím, že ceny energií a nájmů zůstanou vysoké a já s první málo placenou prací na Moravě sotva vyjdu, takže na nějakou rezervu můžu zapomenout."
+    },
+    {
+      "i": 67,
+      "response": "Podle předvolebních slibů všech stran by mělo zlevnit bydlení i energie, ale z kampaní mám spíš pocit, že se jen hádají a nic konkrétního pro naši kapsu na Moravě neudělají, takže za rok budeme s rozpočtem pořád na štíru."
+    },
+    {
+      "i": 68,
+      "response": "Jako důchodce s vysokoškolským vzděláním na Moravě vidím naše rodinné finance spíš pesimisticky, protože sliby stran o levnějších potravinách a nižších daních působí nereálně a ceny v obchodech i energie nás dál tlačí k úsporám. Pokud po volbách vznikne rozhádaná vláda bez jasného plánu, obávám se, že s naším rozpočtem nehneme a budeme muset šetřit ještě víc než letos"
+    },
+    {
+      "i": 69,
+      "response": "Volební sliby o levnějších potravinách a bezúročních půjčkách znějí hezky, ale experti píšou, že strany nemají reálný plán, takže se spíš bojím, že za rok budeme s penězi našetřící domácnosti na tom stejně těsno jako teď."
+    },
+    {
+      "i": 70,
+      "response": "Jako Pražan se středoškolským vzděláním vidím naše rodinné finance spíš pesimisticky, protože předvolební hádky a nejistota kolem EU či NATO nahánějí strach z dražšího života a nikdo z těch pánů nenabízí jasný plán, jak nám ulevit od cen v metropoli. Bojím se, že příští rok budeme muset ještě víc šetřit, než je teď pro nás příjemné."
+    },
+    {
+      "i": 71,
+      "response": "Jako Pražák se středoškolským vzděláním vidím naše rodinné finance spíš černě, protože politici jen házejí hlínou a slibují, ale nikdo pořádně neříká, jak zastaví drahotu a rozpočtový armagedon, takže se bojím, že za rok budeme s rozpočtem ještě víc na šrot."
+    },
+    {
+      "i": 72,
+      "response": "Slyším sliby o nižších daních i vyšších platech učitelů, ale zatím nevím, kdo vlastně vyhraje a co z toho bude pro naši kapsu, takže se spíš bojím, že energie a nákupy zůstanou drahé a my budeme muset šetřit dál."
+    },
+    {
+      "i": 73,
+      "response": "Jako důchodce s vysokoškolským vzděláním v regionu mimo Prahu vidím naše rodinné finance spíš pesimisticky, protože předvolební handrkování o „rozpočtovém armagedonu“ a sliby populistů naznačují, že ceny a nejistota spíš porostou než že by se nám ulevilo. Za rok se obávám, že s fixním příjmem a dražšími energiemi sotva udržíme stávající životní úroveň."
+    },
+    {
+      "i": 74,
+      "response": "Z těch zpráv mám spíš pocit, že ceny a byrokracie dál tíží naši peněženku a žádná strana neříká jasně, jak nám na Moravě reálně zvednout příjem, takže na další rok čekám spíš šetření než zlepšení. Volby mě neuklidňují, když vidím jen hádky a sliby, co moc nevěřím, že zastaví zdražování."
+    },
+    {
+      "i": 75,
+      "response": "Jako šedesátník na Moravě sleduju předvolební sliby na vyšší důchody a nižší daně s velkou dávkou skepticismu, protože po letech zkušeností vím, že v praxi mi nejspíš zůstanou rostoucí ceny a můj rozpočet bude za rok pořád napjatý stejně jako teď."
+    },
+    {
+      "i": 76,
+      "response": "Jako důchodce na Moravě vidím naše rodinné finance spíš černě, protože sliby stran o levnějších potravinách a zastavení drahoty podle zpráv postrádají reálný plán a já se bojím, že za rok budeme s penzí vycházet ještě hůř než teď."
+    },
+    {
+      "i": 77,
+      "response": "Jako důchodce s vysokoškolským vzděláním na Moravě vidím naše finanční vyhlídky spíš pesimisticky, protože předvolební hádky o zastropování důchodového věku a levných energiích mi připadají jako prázdné sliby a ceny v obchodech pořád rostou rychleji, než stačí pokrýt moje penze. Bojím se, že bez jasného a zodpovědného řešení od nové vlády nám za rok s man"
+    },
+    {
+      "i": 78,
+      "response": "Jako pražská domácnost s vysokoškolským vzděláním vidím naše finance spíš napjatě, protože předvolební sliby levnějšího života a nižších daní zatím působí jako prázdná hádka politiků, zatímco reálné výdaje v metropoli dál rostou a jasný plán vlády ani opozice není vidět."
+    },
+    {
+      "i": 79,
+      "response": "Z těch předvolebních řečí a slibů mám spíš pocit, že nikdo pořádně neřeší naše každodenní výdaje, takže na příští rok moc nevěřím, že nám doma zbude víc peněz než teď. Sousedé v práci taky pořád říkají, že je všechno dražší, a já se spíš bojím, abychom vůbec udrželi stávající standard."
+    },
+    {
+      "i": 80,
+      "response": "Jako šedesátník na Moravě s vysokoškolským vzděláním vidím naše rodinné finance spíš pesimisticky, protože předvolební sliby o nižších cenách a vyšších důchodech zatím působí jen jako prázdná hesla a reálně nám konce penzí sotva splývají. Za rok čekám spíš další zdražování a napětí v rozpočtu, ať už vyhraje kdokoli, když žádná strana neukazuje jasný,"
+    },
+    {
+      "i": 81,
+      "response": "Jako šedesátník v kraji mimo Prahu vidím naše rodinné finance spíš pesimisticky, protože politici jen slibují levnější život a důstojné důchody, ale zprávy o největším propadu reálných mezd v historii a drahých plánech bez škrtů mě děsí, že za rok budeme s penzí sotva vystačovat."
+    },
+    {
+      "i": 82,
+      "response": "Z těch zpráv o největším propadu reálných mezd v historii a pořádnejch politických hádkách bez jasnýho řešení mám strach, že s penězma na Moravě do roka nehneme a spíš nás to ještě víc utáhne."
+    },
+    {
+      "i": 83,
+      "response": "Podle těch volebních slibů všichni tvrdí, že potraviny i bydlení zlevní, ale já jako mladý bez vysoké školy v Čechách mimo Prahu spíš čekám, že za rok budu mít peněz ještě míň než teď a žádná debata o saunách nebo kokainu mi nájem nezaplatí."
+    },
+    {
+      "i": 84,
+      "response": "Z těch předvolebních hádek a slibů mám spíš obavy, že po volbách nic moc nezlevní a rozpočet nás doma bude dál táhnout za vlasy, takže na dalších 12 měsíců moc volna v penězích nečekám."
+    },
+    {
+      "i": 85,
+      "response": "Podle těch zpráv mám z voleb spíš obavy, protože politici se jen hádají a straší rozpočtovým armagedonem, takže čekám, že naše rodinné výdaje zůstanou napjaté a o nějakém zlepšení si zatím nedělám iluze."
+    },
+    {
+      "i": 86,
+      "response": "Jako rodina se středoškolským vzděláním na Moravě vidím naše finance spíš pesimisticky, protože politici jen hádají v debatách a slibují bambiliony, ale žádný jasný program na zlevnění energií nebo bydlení nevidím, takže se bojím, že nám peněz na konci měsíce ještě ubude."
+    },
+    {
+      "i": 87,
+      "response": "Jako rodina na Moravě se středoškolským vzděláním vidím naše finance spíš napjatě, protože volební sliby o levnějším bydlení a půjčkách zní fajn, ale pořád nevím, jestli se reálně něco zlevní, a každodenní výdaje nás teď tlačí víc než tyhle debaty."
+    },
+    {
+      "i": 88,
+      "response": "Jako rodina na Moravě se děsím, že po těch vyhrocených volbách a slibech jako 75 tisíc pro učitele budeme zase my platit vyšší daně a dražší nákupy, takže za rok budeme spíš počítat každou korunu než šetřit."
+    },
+    {
+      "i": 89,
+      "response": "Podle těch volebních keců o bavorských platech a levnějším životě mám spíš pocit, že nic moc reálného nepřijde a jako mladý student mimo Prahu budu muset sáhnout hlouběji do kapsy, takže naše domácnost za rok zas tak neušetří."
+    },
+    {
+      "i": 90,
+      "response": "Jako Pražák se středoškolským vzděláním vidím naše rodinné finance spíš pesimisticky, protože zprávy pořád omílají největší propad reálných mezd v historii a politici místo jasného plánu na zlevnění života jen házejí blátem v kampani. Bojím se, že bez ohledu na výsledek voleb nás v příštím roce čeká další šetření a drahota v metropoli se nezlepší."
+    },
+    {
+      "i": 91,
+      "response": "Jako mladý bez vysoké školy v Praze vidím naši domácnost v nejistotě, protože ceny bydlení a energií pořád rostou a politici jen slibují, ale nic konkrétního pro lidi jako jsem já neříkají. Na příští rok moc nevěřím, že nám zbude víc peněz, spíš budeme muset ještě víc šetřit."
+    },
+    {
+      "i": 92,
+      "response": "Jako důchodce s vysokoškolským vzděláním v Čechách vidím naše finance spíš pesimisticky, protože předvolební handrkování o dotacích a EU nic neřeší a obávám se, že ceny a daně zůstanou vysoké i bez ohledu na to, kdo vyhraje."
+    },
+    {
+      "i": 93,
+      "response": "Z těch zpráv mám spíš pocit, že se strany jen předhánějí v slibech a osobních útocích, ale nikdo pořádně neříká, jak zlevní energie nebo jestli budou další daně, takže naše domácnost bude spíš šetřit a doufat, že nás do roka nějaká vláda nepřekvapí dalším zdražováním."
+    },
+    {
+      "i": 94,
+      "response": "Jako mladý s maturitou na Moravě vidím kolem sebe jen politický kravál a vzájemné napadání, takže mám z toho chaosu spíš strach, že ceny a životní náklady zůstanou vysoké a moje domácnost na tom za rok bude finančně stejně napjatě jako teď."
+    },
+    {
+      "i": 95,
+      "response": "Jako člověk se základním vzděláním na Moravě vidím naše rodinné peníze spíš černě, protože politici se jen hádají a straší rozpočtovým armagedonem, a já se bojím, že ceny zase vyskočí a my s babkou nevyjdeme. Věřím, že po volbách se snad něco změní, ale zatím nevím, komu vlastně uvěřit, aby nám opravdu ulevil."
+    },
+    {
+      "i": 96,
+      "response": "Z těch zpráv mě děsí, že prý máme největší propad reálných mezd v historii a ceny pořád vysoko, takže na příští rok moc nevěřím, že s naším středoškolským platem v regionu vyjdeme líp než teď. Spíš počítám, že budeme dál šetřit na jídle a energiích a doufat, že volby aspoň trochu zastaví zdražování."
+    },
+    {
+      "i": 97,
+      "response": "Jako důchodce se středoškolským vzděláním v regionu vidím naše finance spíš nejistě, protože předvolební řeči o referendech a změnách v EU či NATO mě děsí zdražováním a dalším tlakem na naše úspory, takže za rok moc nečekám zlepšení, spíš šetření na každém rohu."
+    },
+    {
+      "i": 98,
+      "response": "Z těch politických řečí kolem voleb mám spíš obavy, protože slibují levné energie a zastropování důchodu, ale nikdo pořádně neříká, odkud na to vezme peníze, a já se bojím, že na konci roku zase sáhnu hlouběji do kapsy. Rozpočet domácnosti teď držím jen tak tak a jestli ceny zůstanou vysoko, dalších dvanáct měsíců bude hodně o šetření."
+    },
+    {
+      "i": 99,
+      "response": "Z těch volebních slibů mám spíš pocit, že nikdo pořádně neříká, odkud vezme peníze, takže se bojím, že na běžný život v naší domácnosti nás čeká spíš další šetření než zlepšení."
+    },
+    {
+      "i": 100,
+      "response": "Slyším pořád jen hádky politiků a sliby, co nevím, jestli platí, a bojím se, že ceny a byrokracie nás dál budou tlačit, takže s naším základním vzděláním a výdělkem moc ušetřit nemůžeme a spíš to vidím bledě."
+    },
+    {
+      "i": 101,
+      "response": "Jako mladý bez vysokoškolského titulu na Moravě vidím naše rodinné peníze spíš černě, protože volební sliby o levnějším jídle a půjčkách zní fajn, ale každodenní drahota v obchodech se zatím nelepší a nevím, jestli nová vláda něco reálně změní."
+    },
+    {
+      "i": 102,
+      "response": "Jako na Moravě žijící člověk se středoškolským vzděláním vidím naše rodinné finance spíš černě, protože ceny pořád tlačí na rozpočet a sliby všech těch stran v televizi mi přijdou jako prázdná slova, co na konci měsíce nepomůžou zaplatit složenky. Doufám, že po volbách aspoň přestanou ty hádky a něco reálně zlevní, ale moc si od toho neslibuju."
+    },
+    {
+      "i": 103,
+      "response": "Jako důchodce na vesnici v Čechách vidím naše rodinné finance spíš černě, protože politici místo jasných plánů na zastavení drahoty jen házejí špínu a já se bojím, že s penzí nevystačím ani na jídlo a léky. V příštím roce čekám, že budeme muset šetřit ještě víc, ať už volby dopadnou jakkoli."
+    },
+    {
+      "i": 104,
+      "response": "Jako důchodce na venkově koukám na ty předvolební sliby o levnějších potravinách a energiích s velkou nedůvěrou, takže se spíš bojím, že s mým fixním příjmem příští rok ještě víc utáhneme opasek a nic z těch řečí nám reálně nepomůže."
+    },
+    {
+      "i": 105,
+      "response": "Z těch předvolebních keců v televizi a novinách mám spíš pocit, že nikdo pořádně neříká, co udělá s cenami a daněmi, takže se naši domácnosti na Moravě spíš bojím, že za rok budeme mít peněz ještě míň než teď."
+    },
+    {
+      "i": 106,
+      "response": "Jako důchodce na Moravě vidím naše peníze na příští rok bledě, protože v těch politických kecách o platách a Referendech pořád nic nevidím, co by mi doopravdy zlevnilo jídlo a léky v obchodě."
+    },
+    {
+      "i": 107,
+      "response": "Jako důchodce s vysokoškolským vzděláním vidím naše rodinné finance spíš pesimisticky, protože předvolební kampaň slibuje jen levné body a žádná strana neříká jasně, jak zastavit růst cen energií a potravin, které nás každý měsíc tlačí do úspor z minima. Pokud po volbách vznikne vláda bez jasného hospodářského plánu, obávám se, že s naším fixním příjmem nevystačíme bez"
+    },
+    {
+      "i": 108,
+      "response": "Podle těch volebních řečí všichni slibují zlevnění a vyšší důchody, ale já z toho křiku a vzájemného obviňování vidím spíš to, že se žádná velká úleva pro naši kapsu do roka nekoná a budeme muset s rozpočtem šetřit dál."
+    },
+    {
+      "i": 109,
+      "response": "Jako důchodce na venkově v Čechách vidím příštích 12 měsíců spíš černě, protože ceny pořád rostou a volební sliby mi připadají jako prázdné řeči, takže budu muset hodně šetřit, abych vyšel s penzí."
+    },
+    {
+      "i": 110,
+      "response": "Jako důchodce na Moravě vidím na příští rok svoji situaci bledě, protože všechny ty sliby ve zprávách o levnějším životě mi přijdou jako plané řeči politiků a já se bojím, že ceny potravin a energií zase vyskočí a moje penze na to stačit nebude."
+    },
+    {
+      "i": 111,
+      "response": "Jako důchodce na venkově v Čechách vidím naše finance spíš nejistě, protože všechny ty volební sliby znějí hezky, ale ceny energií a živobytí pořád rostou a nikdo z těch politiků mi neříká, co se skutečně změní, až budu platit svoje účty."
+    },
+    {
+      "i": 112,
+      "response": "Slyším samé sliby o levnějším životě a bavorských platech, ale z těch volebních hádek a útoků mám spíš obavu, že se ceny energií i nákupů nezklidní a s naším středoškolským platem v Čechách to za rok bude pořád na šrot."
+    },
+    {
+      "i": 113,
+      "response": "Jako důchodce na Moravě sleduju ty předvolební řeči o levnějším životě a daních, ale zatím vidím jen sliby a drahotu kolem sebe, takže se bojím, že s penzí vyjdeme tak tak a další rok bude pro naši domácnost hodně napnutý."
+    },
+    {
+      "i": 114,
+      "response": "Jako důchodce s vysokoškolským vzděláním na Moravě vidím naše rodinné finance spíš napjatě, protože sliby o zvýšení důchodů a zastropování věku znějí lákavě, ale z dosavadních zpráv a politických třenic mám obavu, že reálné zlepšení za rok nepocítíme a spíš nás čeká další zdražování."
+    },
+    {
+      "i": 115,
+      "response": "Ty voliče jen koupou bambilionama a hádaj se v telce, ale zpráva o největším propadu mezd v historii mě fakt děsí, protože s běžnou školou na Moravě žiju od výplaty k výplatě a za rok vidím spíš další šetření než zlepšení."
+    },
+    {
+      "i": 116,
+      "response": "Jako mladý vysokoškolák v Čechách mimo Prahu vidím naše rodinné finance spíš napjatě, protože ceny bydlení a energií pořád tíží rozpočet a z těch volebních slibů zatím neplynou žádné konkrétní úlevy, které bychom doma cítili hned."
+    },
+    {
+      "i": 117,
+      "response": "Jako Pražák se středoškolským vzděláním vidím naši domácnost spíš pesimisticky, protože ve volebních zprávách pořád slyším jen hádky a sliby, ale nic konkrétního, co by zlevnilo bydlení nebo život v hlavním městě, takže za rok čekám, že sotva udržíme rozpočet."
+    },
+    {
+      "i": 118,
+      "response": "Po těch všech slibech v předvolebních debatách a nejistotě, kdo vlastně sestaví vládu a jestli neskončíme v referendu o EU, vidím naše rodinné finance spíš bez velkého zlepšení a bojím se, že ceny bydlení i energií zůstanou vysoko, takže budeme muset dál šetřit každou korunu."
+    },
+    {
+      "i": 119,
+      "response": "Jako Pražák se základním vzděláním vidím naše rodinné peníze spíš černě, protože politici v té kampani jen hádají a slibujou, ale o to, jak zlevní život v drahé Praze, mi nikdo moc neřekl. Bojím se, že za rok budem s rozpočtem pořád na šrot a ani ty volební kecy nás nezachrání."
+    },
+    {
+      "i": 120,
+      "response": "Podle těch zpráv o největším propadu reálných mezd v historii a že jsme sedm let zpátky se bojím, že s penězi vyjdeme tak tak a žádné zlepšení v příštím roce nečekám, když politici řeší jen hádky a billboardy místo našich účtů."
+    },
+    {
+      "i": 121,
+      "response": "Jako důchodce na Moravě vidím naše finance spíš pesimisticky, protože sliby o nižších cenách energií a levnějším bydlení znějí fajn, ale s tímhle politickým pletichařením a drahotou kolem se obávám, že nám penze sotva vydrží na běžné věci."
+    },
+    {
+      "i": 122,
+      "response": "Jako vysokoškolák na Moravě sleduju předvolební sliby kolem daní a cen bydlení s velkou nedůvěrou, takže čekám, že naše domácnost bude muset šetřit až do dalšího jara, než se uklidní, kdo vlastně bude vládnout a co z těch řečí o levnějším životě skutečně platí."
+    },
+    {
+      "i": 123,
+      "response": "Jako člověk se základním vzděláním na Moravě vidím naše finance spíš černě, protože ceny energií a bydlení pořád rostou a politici v těch debatách řeší jen hádky a volby, místo aby nám řekli, co reálně uleví v peněžence. Doufám, že po volbách něco slíbí, ale moc nevěřím, že se nám za rok bude doma žít levněji."
+    },
+    {
+      "i": 124,
+      "response": "Jako mladý Pražan se střední školou vidím naše rodinné finance spíš napjatě, protože ceny v Praze pořád rostou a z těch politických slibů v novinách mi není jasné, jestli nás za rok nečeká spíš škrtání nebo ještě dražší život."
+    },
+    {
+      "i": 125,
+      "response": "Jako člověk se základním vzděláním na Moravě vidím naše rodinné finance spíš černě, protože ceny potravin pořád tlačí rozpočet a politici jen hádají, místo aby nám řekli, co bude za rok s penězi doopravdy."
+    },
+    {
+      "i": 126,
+      "response": "Podle těch slibů stran o nižších daních a levnějším životě by to mohlo být za rok líp, ale zatím vidím jen hádky a kampaně, takže naše rodinné výdaje spíš zůstanou napnuté k prasknutí a reálně čekám, že se moc neuleví."
+    },
+    {
+      "i": 127,
+      "response": "Jako důchodce na Moravě vidím naše rodinné finance spíš černě, protože vláda i opozice jen házejí špínu a slibují modré z nebe, zatímco v obchodech pořád všechno zdražuje a z těch sedmimiliardových sporů s Agrofertem nám na účet ani koruna nekápne. Pokud se po volbách nic nezmění, za rok budeme šetřit na každém rohlíku ještě víc než teď."
+    },
+    {
+      "i": 128,
+      "response": "Jako mladý vysokoškolák na Moravě vidím naše rodinné finance spíš napjatě, protože předvolební sliby o bezúročných půjčkách a levných vlacích zní fajn, ale všichni se jen hádají a nikdo pořádně neříká, jak se zvednou ceny nebo jestli budu mít po škole práci. Na další rok spíš počítám s tím, že šetřit budeme muset dál a žádné velké volné peníze nečekám"
+    },
+    {
+      "i": 129,
+      "response": "Upřímně, podle těch volebních řečí o bavorských platech a prosperitě moc nevěřím, že se mi se středoškolským vzděláním v Čechách mimo Prahu za rok výrazně polepší, spíš počítám s tím, že rozpočet doma zůstane napnutý jako teď."
+    },
+    {
+      "i": 130,
+      "response": "Jako pražská domácnost s vysokoškolským vzděláním vidím příštích 12 měsíců dost nejistě, protože předvolební handrkování o programech a sliby bez konkrétních čísel mi neříkají, jestli zase neskočí ceny bydlení nebo daně, a já se bojím, že po volbách se spíš bude šetřit na nás než na státní správě."
+    },
+    {
+      "i": 131,
+      "response": "Z těch předvolebních slibů a hádek kolem rozpočtu mám spíš obavu, že se naše životní náklady nezlepší a hypotéku ani běžný provoz domácnosti nebudeme mít o moc levnější, takže příští rok počítám spíš s utahováním opasku."
+    },
+    {
+      "i": 132,
+      "response": "Z těch volebních řečí a slibů mám spíš obavy než naději, protože ceny energií a běžného života pořád tlačí na náš důchod a nikdo z těch pánů mi neříká, že to za rok bude fakt klidnější a levnější."
+    },
+    {
+      "i": 133,
+      "response": "Z těch předvolebních řečí mám spíš obavy než klid, protože pořád slyším jen hádky o grafech a dotacích, ale nikdo mi neříká, jestli zase nezdraží energie a jídlo, takže na další rok moc optimismu nemám a budu radši šetřit, co se dá."
+    },
+    {
+      "i": 134,
+      "response": "Upřímně řečeno, z těch samých hádek politiků a prázdných slibů v novinách mám spíš obavu, že za rok budeme s manželkou pořád počítat každou korunu a žádné bavorské platy ani zlevnění energií se nás tady v Čechách nejspíš nechytí."
+    },
+    {
+      "i": 135,
+      "response": "Politici před volbami slibují bavorské platy nebo platy učitelům 75 tisíc, ale podle zpráv o největším propadu reálných mezd v historii mám spíš obavu, že náš rodinný rozpočet zůstane napjatý a žádné zlevnění nebo růst příjmů se nás v příštím roce reálně nedotkne."
+    },
+    {
+      "i": 136,
+      "response": "Jako důchodce s vysokoškolským vzděláním vidím naše vyhlídky spíš pesimisticky, protože předvolební sliby o zlevnění energií a potravin zatím nic neřeší a ceny v obchodech dál zůstávají vysoko oproti mému fixed příjmu. Doufám, že po volbách někdo konečně přestane jen řvát a udělá rozumnou pomoc pro lidi nad 60, ale moc v to nevěřím."
+    },
+    {
+      "i": 137,
+      "response": "Jako mladý bez vzdělání na Moravě vidím naše finance spíš bledě, protože ceny pořád rostou a politici v těch debatách řeší volby a dovolené, ale ne jak by se nám tady uživilo za normální výdělek."
+    },
+    {
+      "i": 138,
+      "response": "Z těch předvolebních řečí mám spíš pocit, že ani jedni pořádně neříkají, kde na své sliby vezmou peníze, takže se bojím, že naše rodinné výdaje zůstanou vysoké a reálný příjem se za rok moc nepohne."
+    },
+    {
+      "i": 139,
+      "response": "Jako šedesátník na Moravě vidím naše rodinné finance spíš černě, protože ceny energií a zdražování nás dál tlačí a politici jen slibují, ale žádný jasný program nevidím, takže se bojím, že s důchodem nevystačíme. Pokud se po volbách nic nezmění, za rok budeme šetřit na úkor léků a běžného života ještě víc než teď."
+    },
+    {
+      "i": 140,
+      "response": "Jako důchodce se základním vzděláním v kraji mimo Prahu vidím naše finance spíš bledě, protože politici slibují všelijaké věci, ale ceny v obchodech pořád rostou a já nevím, jestli se mé penze vůbec udrží s tím, co bude za rok."
+    },
+    {
+      "i": 141,
+      "response": "Jako mladý člověk se středoškolským vzděláním na Moravě vidím naše rodinné finance spíš nejistě, protože předvolební kecy slibují všechno možné, ale nikdo pořádně neříká, jak nás ochrání před drahotou a jestli nás nečeká průšvih, kdyby se táhlo z EU."
+    },
+    {
+      "i": 142,
+      "response": "Podle těch slibů všech stran by to mělo být levnější a důchody vyšší, ale já z toho mám spíš strach, že po volbách zase nic moc nebude a s naším rozpočtem v Čechách mimo Prahu to do roka zůstane nahoře."
+    },
+    {
+      "i": 143,
+      "response": "Jako důchodce na Moravě vidím naše finance spíš černě, když slyším, že reálné mzdy klesly nejvíc v historii a politici jen hádají a slibují, ale nic konkrétního pro lidi jako já neřeší, takže za rok budem s penězi ještě víc na štrejchu."
+    },
+    {
+      "i": 144,
+      "response": "Jako mladý bez vysoké školy v regionu mimo Prahu vidím příštích 12 měsíců dost nejistě, protože politici ve volbách slibují levné energie a důchody, ale nikdo pořádně neříká, odkud na to vezme, a já se bojím, že mi neutrhnou plat, ale životní náklady zůstanou vysoké."
+    },
+    {
+      "i": 145,
+      "response": "Jako člověk na Moravě se středoškolským vzděláním vidím naše rodinné finance spíš bledě, protože politici místo řešení drahého života jen hádají v debatách a slibují levnější jídlo bez reálného plánu, takže se bojím, že s penězi na rok dopředu nevyjdeme o moc líp než teď."
+    },
+    {
+      "i": 146,
+      "response": "Volební kecy politiků mě neuvěřejí, protože drahý život v Čechách mimo Prahu pořád tlačí na naše konto a s mojí základní školou moc nevydělám, takže na příští rok moc optimistický nejsem."
+    },
+    {
+      "i": 147,
+      "response": "Jako mladý se středoškolským vzděláním na Moravě vidím naše rodinné finance spíš bledě, protože ceny pořád tlačí na rozpočet a politici jen slibují růst nebo zvyšování platů, ale reálně nevím, jestli se nám za rok bude žít líp nebo zase hůř."
+    },
+    {
+      "i": 148,
+      "response": "Politická hádka a nejistota před volbami mě vůbec neuklidňují, takže se na příští rok spíš bojím o naše penze a rozpočet a budu šetřit každou korunu, dokud nebude jasné, kdo a jak nás bude řídit."
+    },
+    {
+      "i": 149,
+      "response": "Jako člověk se základním vzděláním na Moravě vidím naše finance spíš bledě, protože všechny ty volební sliby na levnější jídlo a bydlení znějí pěkně, ale experti říkají, že to nemají promyšlené, a já se bojím, že za rok budeme pořád počítat každou korunu."
+    },
+    {
+      "i": 150,
+      "response": "Jako mladý vysokoškolák v Čechách mimo Prahu vidím naše rodinné finance spíš napjatě, protože předvolební sliby jako snížení daní nebo zastropování důchodového věku zatím nic konkrétního neřeší a ceny kolem nás dál rostou, takže za rok moc nečekám zlepšení."
+    },
+    {
+      "i": 151,
+      "response": "Z těch zpráv vidím, že reálné mzdy jsou pořád sedm let zpátky a politici jen házejí jeden na druhého, takže se bojím, že za rok budu s penězi doma pořád na štrejchu a nic moc levnějšího nebude."
+    },
+    {
+      "i": 152,
+      "response": "Jako Pražan se základním vzděláním vidím naše rodinné finance spíš bledě, protože ceny v hlavním městě pořád rostou a z těch politických řečí kolem voleb nemám pocit, že by nám někdo reálně pomohl ušetřit. Pokud zůstanou drahota a byrokracie jako teď, za rok budeme s rozpočtem pořád na šrot."
+    },
+    {
+      "i": 153,
+      "response": "Jako pražský důchodce se středoškolákem vidím naše finance spíš pesimisticky, protože zprávy o největším propadu reálných mezd v historii a drahotě mě děsí, a ať vyhrají Babiš s bezúročkami nebo Fiala s eurem, moc nevěřím, že mi to v penzi za rok reálně polepší."
+    },
+    {
+      "i": 154,
+      "response": "Já jakožto člověk se základním vzděláním na Moravě vidím naše rodinné finance spíš bledě, protože v debatách pořád jen slibují levnější potraviny, ale experti říkají, že to nemají promyšlené, a mně peněz na konci měsíce stejně moc nezbývá. Za rok čekám, že s cenami a byrokracií budeme jako dřív, akorát s víc nervem z těch volebních řečí."
+    },
+    {
+      "i": 155,
+      "response": "Já už jsem v důchodu a s těma slibama stran o levnějších potravinách a vyšších důchodech moc nevěřím, takže si myslím, že s penězma vyjdeme tak tak jako teď a žádný velký zlepšení nečekám."
+    },
+    {
+      "i": 156,
+      "response": "Podle těch předvolebních hádek o rozpočtu a slibech kolem babišovských 75 tisíc pro učitele nevím, jestli po volbách nedojde k škrtům nebo naopak k populistickým výdajům, takže naše domácnost spíš šetří a čeká, co která vláda skutečně udělá s daněmi a cenami."
+    },
+    {
+      "i": 157,
+      "response": "Jako mladý bez vysoké školy na Moravě vidím naše rodinné peníze spíš černě, protože kampaně slibují všechno možné, ale ceny a bydlení nás dál tlačí a nikdo z těch pánů mi neříká, jak reálně ušetřím za energie a jídlo."
+    },
+    {
+      "i": 158,
+      "response": "Podle těch slibů od Babiše i Maláčové o vyšších mzdách a levnějším bydlení by to snad mohlo být o kousek lepší, ale s mým základním vzděláním a mimo Prahu mám spíš strach, že ceny zůstanou vysoké a já s rodinou vyjdeme tak tak jako teď."
+    },
+    {
+      "i": 159,
+      "response": "Podle těch zpráv o největším propadu reálných mezd v historii a planých slibech všech stran mám strach, že s naším rozpočtem to příští rok nebude o moc lepší a budeme muset dál šetřit na každém nákupu. Nevěřím, že po volbách cokoli zásadně zlevní, spíš počítám s tím, že se prostě budeme muset nějak protlouct dál."
+    },
+    {
+      "i": 160,
+      "response": "Z těch slibů na levnější život a nižší daně v předvolebních hádkách moc nevěřím, že se nám na Moravě doma reálně uleví, a tak počítám, že příští rok budeme muset s rozpočtem šetřit skoro stejně napjatě jako teď."
+    },
+    {
+      "i": 161,
+      "response": "Jako student vysoké školy v Praze žiju z mála a sleduju, že strany slibují levnější potraviny, ale experti říkají, že to jsou jen prázdné sliby, takže se spíš bojím, že mi za rok peněz na nájem a jídlo ještě víc ubude. Volby mě znepokojují, protože podle debat nevím, jestli nová vláda vůbec bude řešit reálně naši situaci, a já můžu jen doufat, že nebudu muset kvůli drahotě"
+    },
+    {
+      "i": 162,
+      "response": "Podle těch slibů všech stran kolem levnějších potravin a energií nevím, čemu věřit, takže se spíš bojím, že rozpočet naší domácnosti zůstane napnutý a budeme muset dál šetřit, ať vyhrají jakkoliv."
+    },
+    {
+      "i": 163,
+      "response": "Podle těch zpráv mi přijde, že všechny strany jen slibují levnější život, ale reálně máme největší propad mezd v historii a já jako mladý student z Čech moc nevěřím, že se za rok moje domácnost nějak výrazně zlepší, spíš budeme dál šetřit."
+    },
+    {
+      "i": 164,
+      "response": "Jako Pražák se středoškolským vzděláním vidím naše rodinné finance spíš pesimisticky, protože kolem samých politických hádek a strašení východní hrozbou ceny bydlení i života v hlavním městě dál rostou a nikdo z těch pánů v debatách neříká, jak nám reálně uleví v rozpočtu."
+    },
+    {
+      "i": 165,
+      "response": "Jako člověk se základním vzděláním na Moravě vidím naše rodinné finance spíš černě, protože slyším o největším propadu reálných mezd v historii a politici místo jasné pomoci jen slibují a hádají se v předvolební kampani. Bojím se, že za rok budeme mít od našich výplat ještě míň než teď a sotva vyjdeme s nájmem a nákupy."
+    },
+    {
+      "i": 166,
+      "response": "Jako mladý se středoškolským vzděláním v Čechách vidím naše rodinné peníze spíš napnuté, protože politici slibují růst a bavorské platy, ale zprávy plné hádek a drahých plánů mi nedávají moc naději, že se nám do roka reálně uleví."
+    },
+    {
+      "i": 167,
+      "response": "Z těch volebních řečí a slibů o levnějších energiích a daních zatím nic konkrétního pro naši kapsu nevidím, takže se spíš bojím, že za rok budeme s penězi vychozí jako dneska, akorát dražší mrkev a uzeninu už na mítincích nejspíš neseženem."
+    },
+    {
+      "i": 168,
+      "response": "Jako důchodce se základním vzděláním vidím naše finance spíš černě, protože zprávy pořád mluví o největším propadu mezd v historii a politici jen slibují, ale nic konkrétního pro lidi jako jsem já neudělali, takže za rok budeme sotva vycházet s penězi."
+    },
+    {
+      "i": 169,
+      "response": "Jako mladý vysokoškolák v regionu mimo Prahu vidím naše rodinné finance spíš napjatě, protože předvolební sliby o slevách a důchodech zatím nic reálně nezměnily a ceny základních věcí jako jídlo pořád tlačí rozpočet ke dnu. Doufám, že po volbách něco zlevní, ale podle těch hádek politiků spíš čekám, že další rok budeme šetřit skoro na všechno."
+    },
+    {
+      "i": 170,
+      "response": "Jako mladý bez maturity mimo Prahu vidím naše finance spíš bledě, protože politici jen hádají v debatách a slibují drahé věci, ale nikdo mi neříká, jestli budu mít za rok jistou práci a na nájem."
+    },
+    {
+      "i": 171,
+      "response": "Z těch politických slibů jako zvýšení důchodů nebo platů učitelů mám spíš pocit, že to jsou jen předvolební řeči, a když se dívám na naše výdaje za jídlo a energie tady na Moravě, tak na příští rok moc optimismu necítím a budeme muset šetřit ještě víc."
+    },
+    {
+      "i": 172,
+      "response": "Upřímně řečeno, z těchhle zpráv mám z domácnosti spíš obavy, protože se pořád jen hádají o volbách a nikdo pořádně nemluví o tom, jak zlevní energie nebo jestli budou penze v klidu, takže na další rok moc nevěřím, že nám zbude víc než na nejnutnější věci."
+    },
+    {
+      "i": 173,
+      "response": "Ty voličský hádky a sliby mě vůbec neuklidňují, když vidím, že stát tahá z Agrofertu miliardy a ceny pořád rostou, tak se bojím, že s naším základním vzděláním a výdělkem v Čechách mimo Prahu nám za rok moc peněz na rodinu nezbude."
+    },
+    {
+      "i": 174,
+      "response": "Jako mladý bez vysoké školy na Moravě vidím naše vyhlídky nejisté, protože politici slibují hory doly, ale ceny potravin jako na mítincích SPD ukazují, že slevy jsou jen na oko a žádná strana zatím reálně neřeší, co budeme mít v peněžence za rok."
+    },
+    {
+      "i": 175,
+      "response": "Jako důchodce s vysokoškolským vzděláním na Moravě vidím naše rodinné finance spíš pesimisticky, protože sliby politiků o růstu a levnějších potravinách působí populisticky a reálně čekám, že s inflací a zdražováním nás příští rok zasáhnou další škrty v penzích i službách."
+    },
+    {
+      "i": 176,
+      "response": "Jako důchodce se středoškolským vzděláním vidím naše rodinné finance spíš pesimisticky, protože v těch předvolebních řečech o levnějším životě a důstojných důchodech mi připadá hlavně křik a sliby, zatímco v obchodech a za energie pořád platíme víc, než co s námi vydrží. Pokud se po volbách nic reálně nezmění, za rok budeme s penězi na měsíc ještě víc počít"
+    },
+    {
+      "i": 177,
+      "response": "Slyším pořád jen politické handrkování a kampaně, ale zpráva o největším propadu reálných mezd v historii mě fakt děsí, takže na dalších 12 měsíců čekám, že s naším rozpočtem v Čechách moc nehneme a budeme spíš šetřit než utrácet."
+    },
+    {
+      "i": 178,
+      "response": "Volební řeči o zlevnění energií a bydlení slibují skoro všichni, ale jakožto rodina se středoškolským vzděláním na Moravě moc nevěřím, že se nám za rok reálně uleví, spíš čekám, že rozpočet zůstane napnutý jako teď."
+    },
+    {
+      "i": 179,
+      "response": "Jako důchodce s vysokoškolským vzděláním na Moravě vidím naše rodinné finance spíš nejistě, protože předvolební sliby jako růst nebo přidávání učitelům znějí hezky, ale nikdo z těch stran kolem se nemluví jasně o tom, co bude s penzemi a cenami pro lidi jako jsem já. Obávám se, že za rok budeme šetřit víc než teď, ať už vyhraje kdokoli, kdo z těchhle hlasitých"
+    },
+    {
+      "i": 180,
+      "response": "Z těch předvolebních řečí o „bavorských platech“ a slibech opozice mám spíš pocit, že v příštím roce můj rozpočet zůstane napnutý a o reálné zlepšení se nejspíš neopřu, dokud se situace po volbách neuklidní a někdo nezačne fakticky řešit ceny a daně."
+    }
+  ]
+}
