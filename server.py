@@ -2067,6 +2067,100 @@ async def api_delphoi_topup(request):
                                           str(data.get("note") or "")))
 
 
+# ── PYTHIA P4: PÉNZ-ÚT (Stripe test-mode) — a topup-stub mögötti valódi út ──
+# Checkout-indítás az Echolot-proxyn át jön (X-Delphoi-Key); a webhook
+# PUBLIKUS (a Stripe hívja), az auth maga az aláírás (STRIPE_WEBHOOK_SECRET).
+# Árlista: delphoi_price_config (MOD2/A5) — admin-CRUD X-Delphoi-Key mögött.
+# Kulcsok CSAK env-ből (STRIPE_SECRET_KEY / STRIPE_WEBHOOK_SECRET), logba SOHA.
+
+@mcp.custom_route("/api/delphoi/stripe/prices", methods=["GET", "POST"])
+async def api_delphoi_stripe_prices(request):
+    """Kredit-árlista admin-CRUD (MOD2/A5). GET ?origin=&active=1 → lista;
+    POST {origin, pack_key, credits, currency, unit_amount[, stripe_price_id,
+    stripe_product_id, active]} → upsert az (origin, pack_key, currency)
+    kulcson. ÁRAK = PLACEHOLDER — Kommandant-döntés."""
+    denied = _delphoi_auth(request)
+    if denied is not None:
+        return denied
+    from plugins import delphoi_stripe as _dstripe
+    if request.method == "GET":
+        origin = request.query_params.get("origin", "").strip().lower()
+        only_active = request.query_params.get("active", "") == "1"
+        return JSONResponse({"ok": True, "prices": _dstripe.list_prices(
+            get_db, origin=origin, only_active=only_active)})
+    try:
+        data = await request.json()
+    except Exception:  # noqa: BLE001
+        return JSONResponse({"ok": False, "error": "bad_json"}, status_code=400)
+    res = _dstripe.upsert_price(get_db, dict(data or {}))
+    return JSONResponse(res, status_code=200 if res.get("ok") else 400)
+
+
+@mcp.custom_route("/api/delphoi/stripe/prices/{price_id}", methods=["DELETE"])
+async def api_delphoi_stripe_price_delete(request):
+    """Árlista-sor törlése (admin-CRUD D-je) — X-Delphoi-Key mögött."""
+    denied = _delphoi_auth(request)
+    if denied is not None:
+        return denied
+    from plugins import delphoi_stripe as _dstripe
+    try:
+        price_id = int(request.path_params.get("price_id", "0"))
+    except (TypeError, ValueError):
+        return JSONResponse({"ok": False, "error": "bad_price_id"}, status_code=400)
+    res = _dstripe.delete_price(get_db, price_id)
+    return JSONResponse(res, status_code=200 if res.get("ok") else 404)
+
+
+@mcp.custom_route("/api/delphoi/stripe/checkout", methods=["POST"])
+async def api_delphoi_stripe_checkout(request):
+    """Stripe Checkout Session létrehozás a kredit-csomagra (a tényleges
+    pénzmozgás útja — az Echolot session-auth proxyja hívja, owner_key
+    user-mappinggel). Body: {user_id, origin, pack_key, currency,
+    success_url, cancel_url}. STRIPE_SECRET_KEY nélkül 503 (a pénz-út alszik)."""
+    denied = _delphoi_auth(request)
+    if denied is not None:
+        return denied
+    from plugins import delphoi_stripe as _dstripe
+    try:
+        data = await request.json()
+    except Exception:  # noqa: BLE001
+        return JSONResponse({"ok": False, "error": "bad_json"}, status_code=400)
+    res = await asyncio.to_thread(
+        _dstripe.create_checkout_session, get_db,
+        str(data.get("user_id") or ""),
+        str(data.get("origin") or "echolot"),
+        str(data.get("pack_key") or ""),
+        str(data.get("currency") or ""),
+        str(data.get("success_url") or ""),
+        str(data.get("cancel_url") or ""))
+    if res.get("ok"):
+        return JSONResponse(res)
+    status = {"stripe_disabled": 503, "unknown_pack": 404,
+              "stripe_error": 502}.get(res.get("error"), 400)
+    return JSONResponse(res, status_code=status)
+
+
+@mcp.custom_route("/api/delphoi/stripe/webhook", methods=["POST"])
+async def api_delphoi_stripe_webhook(request):
+    """Stripe webhook — PUBLIKUS route, az auth az aláírás-ellenőrzés
+    (STRIPE_WEBHOOK_SECRET; test-mode: stripe listen forward secretje).
+    checkout.session.completed(paid) / async_payment_succeeded → jóváírás
+    (reason='topup:stripe:<event_id>' — a UNIQUE(user_id, reason) miatt a
+    replay nem duplikál); payment_failed/expired → napló, NINCS jóváírás.
+    Rossz aláírás → 400, semmi nem íródik. Secret nélkül 503 (alszik)."""
+    secret = os.environ.get("STRIPE_WEBHOOK_SECRET", "")
+    if not secret:
+        return JSONResponse({"ok": False, "error": "stripe_webhook_disabled"},
+                            status_code=503)
+    from plugins import delphoi_stripe as _dstripe
+    payload = await request.body()
+    sig_header = request.headers.get("stripe-signature", "")
+    res = await asyncio.to_thread(
+        _dstripe.process_webhook, get_db, payload, sig_header, secret)
+    status = int(res.pop("http_status", 200) or 200)
+    return JSONResponse(res, status_code=status)
+
+
 # ── PYTHIA B3: API-kulcs kezelés (Echolot-proxy útja, X-Delphoi-Key mögött) ──
 # A kulcs a delphoi_users.user_id-hoz kötődik (MOD2/A2); a user_id paraméter az
 # eredet-oldali external_id (Echolot: 'user:<id>' — a meglévő owner_key minta).

@@ -21,4 +21,7 @@ python-pptx>=0.6.23
 # jinja2 nélkül f-string sablon, weasyprint nélkül HTML a PDF-fallback.
 jinja2>=3.1,<4.0
 weasyprint>=60
+# PYTHIA P4 (pénz-út): Stripe-Python SDK — NOTSTROM-fallbackkal fut a kódban
+# (plugins/delphoi_stripe.py: SDK nélkül sima REST-hívás httpx-szel).
+stripe>=15,<16
 
