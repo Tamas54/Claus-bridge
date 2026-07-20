@@ -29,7 +29,8 @@ import numpy as np
 # megfogalmazásra való érzékenységet (a paper 4–6 halmazt ajánl).
 
 # Angol vásárlási-szándék halmazok — a forrás-repo (MIT) anchorjainak reimplementációja,
-# market-research kompatibilitáshoz.
+# market-research kompatibilitáshoz. A G0d (PYTHIA) kör az agreement + financial_outlook
+# kategóriákkal egészítette ki (a HU-séma ekvivalense).
 REFERENCE_SETS_EN = {
     "purchase_intent": [
         "I would definitely not buy this",
@@ -45,9 +46,24 @@ REFERENCE_SETS_EN = {
         "Very interested in purchasing",
         "Extremely interested in purchasing",
     ],
+    "agreement": [
+        "I completely disagree with this.",
+        "I mostly disagree.",
+        "I'm torn — I really can't decide.",
+        "I mostly agree.",
+        "I completely agree with this.",
+    ],
+    "financial_outlook": [
+        "My household's financial situation is going to get much worse.",
+        "My household's financial situation is going to get a bit worse.",
+        "My household's financial situation is going to stay about the same.",
+        "My household's financial situation is going to get a bit better.",
+        "My household's financial situation is going to get much better.",
+    ],
 }
 
 # Cseh attitűd-halmazok — a cseh CCI-panelhez (fogyasztói bizalom).
+# G0d: + "souhlas" (egyetértés-Likert, a HU "egyetertes" ekvivalense).
 REFERENCE_SETS_CZ = {
     "financni_vyhled": [
         "Finanční situace mé domácnosti se hodně zhorší.",
@@ -55,6 +71,13 @@ REFERENCE_SETS_CZ = {
         "Finanční situace mé domácnosti zůstane zhruba stejná.",
         "Finanční situace mé domácnosti se mírně zlepší.",
         "Finanční situace mé domácnosti se hodně zlepší.",
+    ],
+    "souhlas": [
+        "Rozhodně s tím nesouhlasím.",
+        "Spíše nesouhlasím.",
+        "Tak napůl, nedokážu se rozhodnout.",
+        "Spíše souhlasím.",
+        "Naprosto s tím souhlasím.",
     ],
 }
 
@@ -88,6 +111,7 @@ REFERENCE_SETS_HU = {
 }
 
 # Lengyel pénzügyi-kilátás anchor — a PL CCI-bónuszhoz.
+# G0d: + "zgoda" (egyetértés-Likert, CBOS-regiszter: "trudno powiedzieć" közép).
 REFERENCE_SETS_PL = {
     "perspektywa_finansowa": [
         "Sytuacja finansowa mojego gospodarstwa domowego znacznie się pogorszy.",
@@ -95,6 +119,90 @@ REFERENCE_SETS_PL = {
         "Sytuacja finansowa mojego gospodarstwa domowego pozostanie mniej więcej taka sama.",
         "Sytuacja finansowa mojego gospodarstwa domowego nieco się poprawi.",
         "Sytuacja finansowa mojego gospodarstwa domowego znacznie się poprawi.",
+    ],
+    "zgoda": [
+        "Zdecydowanie się z tym nie zgadzam.",
+        "Raczej się nie zgadzam.",
+        "Trudno powiedzieć, nie potrafię się zdecydować.",
+        "Raczej się zgadzam.",
+        "Całkowicie się z tym zgadzam.",
+    ],
+}
+
+# ── G0d (OPERATION PYTHIA): új nyelvi horgony-készletek ──────────────────
+# Szerkezet = a HU-séma (egyetértés-Likert + háztartási anyagi kilátás), a
+# megfogalmazás NATÍV survey-regiszter (nem tükörfordítás; minőség-minta: PT).
+# 1 → 5: erősen negatív/elutasító → erősen pozitív/támogató.
+
+# Francia — "foyer" (háztartás), a francia kérdőív-regiszter szerint.
+REFERENCE_SETS_FR = {
+    "accord": [
+        "Je ne suis pas du tout d'accord avec cela.",
+        "Je suis plutôt en désaccord.",
+        "C'est mitigé, je n'arrive pas à me décider.",
+        "Je suis plutôt d'accord.",
+        "Je suis entièrement d'accord avec cela.",
+    ],
+    "perspective_financiere": [
+        "La situation financière de mon foyer va fortement se dégrader.",
+        "La situation financière de mon foyer va légèrement se dégrader.",
+        "La situation financière de mon foyer va rester à peu près la même.",
+        "La situation financière de mon foyer va légèrement s'améliorer.",
+        "La situation financière de mon foyer va nettement s'améliorer.",
+    ],
+}
+
+# Spanyol — "hogar" (a CIS-kérdőívek háztartás-terminusa).
+REFERENCE_SETS_ES = {
+    "acuerdo": [
+        "No estoy nada de acuerdo con esto.",
+        "Más bien no estoy de acuerdo.",
+        "Ni lo uno ni lo otro, no sabría decidirme.",
+        "Estoy bastante de acuerdo.",
+        "Estoy totalmente de acuerdo con esto.",
+    ],
+    "perspectiva_financiera": [
+        "La situación económica de mi hogar va a empeorar mucho.",
+        "La situación económica de mi hogar va a empeorar un poco.",
+        "La situación económica de mi hogar va a seguir más o menos igual.",
+        "La situación económica de mi hogar va a mejorar un poco.",
+        "La situación económica de mi hogar va a mejorar mucho.",
+    ],
+}
+
+# Német — "Teils, teils" a klasszikus német survey-közép (a HU "is-is" natív párja).
+REFERENCE_SETS_DE = {
+    "zustimmung": [
+        "Dem stimme ich überhaupt nicht zu.",
+        "Ich stimme eher nicht zu.",
+        "Teils, teils — ich kann mich nicht entscheiden.",
+        "Ich stimme eher zu.",
+        "Dem stimme ich voll und ganz zu.",
+    ],
+    "finanzielle_aussicht": [
+        "Die finanzielle Lage meines Haushalts wird sich deutlich verschlechtern.",
+        "Die finanzielle Lage meines Haushalts wird sich etwas verschlechtern.",
+        "Die finanzielle Lage meines Haushalts wird in etwa gleich bleiben.",
+        "Die finanzielle Lage meines Haushalts wird sich etwas verbessern.",
+        "Die finanzielle Lage meines Haushalts wird sich deutlich verbessern.",
+    ],
+}
+
+# Olasz — "famiglia" (az ISTAT fogyasztói felmérés háztartás-terminusa).
+REFERENCE_SETS_IT = {
+    "accordo": [
+        "Non sono affatto d'accordo con questo.",
+        "Tendenzialmente non sono d'accordo.",
+        "Un po' sì e un po' no, non riesco a decidermi.",
+        "Tutto sommato sono d'accordo.",
+        "Sono completamente d'accordo con questo.",
+    ],
+    "prospettiva_finanziaria": [
+        "La situazione economica della mia famiglia peggiorerà di molto.",
+        "La situazione economica della mia famiglia peggiorerà un po'.",
+        "La situazione economica della mia famiglia resterà più o meno la stessa.",
+        "La situazione economica della mia famiglia migliorerà un po'.",
+        "La situazione economica della mia famiglia migliorerà di molto.",
     ],
 }
 
@@ -128,6 +236,30 @@ REFERENCE_SETS_PRICE = {
         "Ceny będą rosły, ale wolniej niż w minionym roku.",
         "Ceny będą rosły mniej więcej w takim samym tempie jak dotąd.",
         "Ceny będą rosły dużo szybciej niż dotąd.",
+    ],
+    # G0d-kiegészítés (ES/DE/EN — a G1–G2 új országokhoz). FR/IT ár-horgony
+    # SZÁNDÉKOSAN nincs itt: a delphoi.REFERENCE_SETS_PRICE_EXTRA-ban él, és a
+    # delphoi._anchor_set ELŐBB ezt a dictet nézi — ide másolva némán átvenné.
+    "ES": [
+        "Los precios en las tiendas, la energía y el combustible más bien van a bajar en los próximos 12 meses.",
+        "Los precios se van a quedar más o menos como están.",
+        "Los precios van a subir, pero más despacio que el año pasado.",
+        "Los precios van a seguir subiendo más o menos al mismo ritmo que hasta ahora.",
+        "Los precios van a subir mucho más deprisa que hasta ahora.",
+    ],
+    "DE": [
+        "Die Preise in den Geschäften, für Energie und Kraftstoff werden in den nächsten 12 Monaten eher sinken.",
+        "Die Preise werden ungefähr so bleiben wie bisher.",
+        "Die Preise werden steigen, aber langsamer als im vergangenen Jahr.",
+        "Die Preise werden ungefähr im gleichen Tempo weiter steigen wie bisher.",
+        "Die Preise werden viel schneller steigen als bisher.",
+    ],
+    "EN": [
+        "Prices in the shops, energy and fuel are more likely to fall over the next 12 months.",
+        "Prices are going to stay roughly where they are.",
+        "Prices will go up, but more slowly than in the past year.",
+        "Prices will keep rising at about the same pace as now.",
+        "Prices will rise much faster than they have so far.",
     ],
 }
 
@@ -171,6 +303,44 @@ REFERENCE_SETS_BUSINESS = {
         "Die Geschäftslage meines Unternehmens wird sich in den nächsten 12 Monaten stark verbessern.",
     ],
 }
+
+# ── G0d: nyelv-regiszter + kanonikus kategória-térkép ────────────────────
+# A per-nyelv dictek kulcsnevei NATÍVAK (meglévő konvenció); ez a térkép adja
+# a szemantikai ekvivalenciát (tesztek + többnyelvű hívók számára).
+# Nyelvkód = ISO 639-1 (a delphoi COUNTRY_PANEL_CONFIG "lang" mezőjével azonos: cs, nem cz).
+REFERENCE_SETS_BY_LANG = {
+    "hu": REFERENCE_SETS_HU,
+    "en": REFERENCE_SETS_EN,
+    "cs": REFERENCE_SETS_CZ,
+    "pt": REFERENCE_SETS_PT,
+    "pl": REFERENCE_SETS_PL,
+    "fr": REFERENCE_SETS_FR,
+    "es": REFERENCE_SETS_ES,
+    "de": REFERENCE_SETS_DE,
+    "it": REFERENCE_SETS_IT,
+}
+
+# Kanonikus kategória → nyelvenkénti natív kulcsnév. A PT-nek nincs egyetértés-
+# halmaza (a PT a minőség-referencia, nem célnyelv a G0d-körben).
+ANCHOR_CATEGORY_KEYS = {
+    "agreement": {
+        "hu": "egyetertes", "en": "agreement", "cs": "souhlas", "pl": "zgoda",
+        "fr": "accord", "es": "acuerdo", "de": "zustimmung", "it": "accordo",
+    },
+    "financial_outlook": {
+        "hu": "anyagi_varakozas", "en": "financial_outlook", "cs": "financni_vyhled",
+        "pt": "perspetiva_financeira", "pl": "perspektywa_finansowa",
+        "fr": "perspective_financiere", "es": "perspectiva_financiera",
+        "de": "finanzielle_aussicht", "it": "prospettiva_finanziaria",
+    },
+}
+
+
+def get_anchor_set(lang: str, category: str) -> list[str]:
+    """Kanonikus kategórianévvel ('agreement' | 'financial_outlook') adja vissza a
+    natív horgony-halmazt. KeyError, ha a nyelv/kategória nincs lefedve."""
+    key = ANCHOR_CATEGORY_KEYS[category][lang]
+    return REFERENCE_SETS_BY_LANG[lang][key]
 
 
 def _l2_normalize(x: np.ndarray) -> np.ndarray:
