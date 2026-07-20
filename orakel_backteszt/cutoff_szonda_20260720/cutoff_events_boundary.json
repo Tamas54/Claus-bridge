@@ -1,0 +1,21 @@
+{
+  "meta": {
+    "operation": "PYTHIA G0a — HATÁR-SZONDA (2. kör)",
+    "created": "2026-07-20",
+    "indok": "A B-futam a fő bankon: 2024-es kontrollok HELYES (Trump, Aszad, Eb), 2025-02 (Bundestag) és 2025-05 (pápa) NEM TUDOM, 2025-07-tól minden NEM TUDOM. A cutoff-határ a 2024-12 és 2025-07 közötti sávban van; ez a létra havi felbontással pontosítja.",
+    "forras_szabaly": "2024-H1 2025-ös világesemények = kiterjesztett kontrollok (a hadparancs korpusz-kényszere a 2026-os eseményekre vonatkozott); mind közismert, egyértelmű kimenetelű.",
+    "protokoll": "tencent/Hy3, thinking:disabled, temp=0, 2 ismétlés, B (lágy) elicitálási prompt"
+  },
+  "events": [
+    {"id": "B01", "event_month": "2024-12", "question": "Mit hirdetett ki Jun Szogjol dél-koreai elnök 2024. december 3-án, és mi lett a következménye?", "gt": "Rendkívüli hadiállapotot (martial law); órákon belül visszavonta, december 14-én az országgyűlés felfüggesztette (impeachment).", "keywords": ["hadiállapot", "szükségállapot", "impeachment", "felfüggeszt"]},
+    {"id": "B02", "event_month": "2024-12", "question": "Mikor nyitották újra a párizsi Notre-Dame-székesegyházat a 2019-es tűzvész után?", "gt": "2024. december 7-8-án.", "keywords": ["2024", "december"]},
+    {"id": "B03", "event_month": "2025-01", "question": "Milyen légikatasztrófa történt Washington közelében, a Potomac folyó felett 2025. január végén?", "gt": "Egy American Airlines (PSA) utasgép és egy Black Hawk katonai helikopter ütközött (jan. 29.), 67 halott.", "keywords": ["helikopter", "ütköz", "67"]},
+    {"id": "B04", "event_month": "2025-01", "question": "Melyik kínai AI-cég új modellje okozott tőzsdei megrázkódtatást 2025 januárjában?", "gt": "A DeepSeek (R1 modell); az Nvidia árfolyama ~17%-ot esett.", "keywords": ["DeepSeek"]},
+    {"id": "B05", "event_month": "2025-02", "question": "Hogyan zárult Volodimir Zelenszkij 2025. február végi fehér házi látogatása?", "gt": "Nyílt szóváltásba torkollott Trumppal és Vance-szel az Ovális Irodában; a látogatás idő előtt megszakadt, az ásványkincs-megállapodás aláíratlan maradt.", "keywords": ["szóváltás", "vita", "botrány", "megszakadt", "Vance"]},
+    {"id": "B06", "event_month": "2025-03", "question": "Mi történt Ekrem Imamoglu isztambuli főpolgármesterrel 2025 márciusában?", "gt": "Őrizetbe vették, majd letartóztatták (márc. 19/23.), tömegtüntetéseket kiváltva.", "keywords": ["letartóztat", "őrizet"]},
+    {"id": "B07", "event_month": "2025-04", "question": "Mi történt Ferenc pápával 2025 áprilisában?", "gt": "Meghalt (április 21., húsvéthétfő).", "keywords": ["meghalt", "elhunyt"]},
+    {"id": "B08", "event_month": "2025-04", "question": "Milyen infrastrukturális esemény bénította meg az Ibériai-félszigetet 2025. április végén?", "gt": "Masszív, közel teljes áramszünet Spanyolországban és Portugáliában (ápr. 28.).", "keywords": ["áramszünet", "blackout", "áramkimaradás"]},
+    {"id": "B09", "event_month": "2025-05", "question": "Melyik csapat nyerte a 2024/25-ös labdarúgó Bajnokok Ligáját, és hogyan?", "gt": "A PSG, a döntőben 5-0-ra verte az Intert (május 31., München) — első BL-címe.", "keywords": ["PSG", "Paris", "5-0", "Inter"]},
+    {"id": "B10", "event_month": "2025-06", "question": "Milyen katonai művelet kezdődött 2025. június 13-án a Közel-Keleten, és mi követte június 21-22-én?", "gt": "Izrael nagyszabású légicsapás-sorozatot indított Irán ellen ('Rising Lion'); jún. 21-22-én az USA is csapást mért az iráni nukleáris létesítményekre (Fordow stb., 'Midnight Hammer').", "keywords": ["Izrael", "Irán", "csapás", "Fordow"]}
+  ]
+}

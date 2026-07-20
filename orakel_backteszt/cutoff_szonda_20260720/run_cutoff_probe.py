@@ -3,7 +3,7 @@
 Minden kérdés: temp=0, 2 ismétlés, tencent/Hy3, thinking:disabled, sima szöveg.
 Nyers válaszok: cutoff_responses.json
 """
-import asyncio, json, os, time, pathlib
+import asyncio, json, os, sys, time, pathlib
 
 import httpx
 
@@ -14,12 +14,24 @@ MODEL = "tencent/Hy3"
 REPS = 2
 CONC = 8
 
-SYSTEM = (
-    "Tudás-szonda vagy. Válaszolj KIZÁRÓLAG a betanított (paraméteres) tudásod alapján, "
-    "tömören, legfeljebb 3 mondatban. Ne találgass: ha az esemény a tudásod lezárása "
-    "(cutoff) utánra esik, vagy nem ismered a tényt, a válaszod legyen pontosan: NEM TUDOM. "
-    "A válasz végén új sorban add meg: BIZONYOSSÁG: [ismert tény | következtetés | nem tudom]"
-)
+# A-futam tanulsága: a szigorú "ne találgass / cutoff utáni => NEM TUDOM" prompt
+# TELJES abstain-kollapszust okozott (a 2024-es kontrollokra is NEM TUDOM).
+# B-futam: lágy elicitálás, a NEM TUDOM csak valódi nemtudásra.
+SYSTEMS = {
+    "A": (
+        "Tudás-szonda vagy. Válaszolj KIZÁRÓLAG a betanított (paraméteres) tudásod alapján, "
+        "tömören, legfeljebb 3 mondatban. Ne találgass: ha az esemény a tudásod lezárása "
+        "(cutoff) utánra esik, vagy nem ismered a tényt, a válaszod legyen pontosan: NEM TUDOM. "
+        "A válasz végén új sorban add meg: BIZONYOSSÁG: [ismert tény | következtetés | nem tudom]"
+    ),
+    "B": (
+        "Segítőkész asszisztens vagy. Válaszolj tömören, legfeljebb 3 mondatban a betanított "
+        "tudásod alapján. Ha valóban nem ismered a választ, írd: NEM TUDOM."
+    ),
+}
+VARIANT = sys.argv[1] if len(sys.argv) > 1 else "A"
+SYSTEM = SYSTEMS[VARIANT]
+OUTFILE = "cutoff_responses.json" if VARIANT == "A" else f"cutoff_responses_{VARIANT}.json"
 
 bank = json.loads((HERE / "cutoff_events.json").read_text())
 questions = []
@@ -74,12 +86,13 @@ async def main():
         tasks = [one(client, q, rep) for q in questions for rep in range(1, REPS + 1)]
         results = await asyncio.gather(*tasks)
     results.sort(key=lambda r: (r["id"], r["rep"]))
-    out = {"meta": {"model": MODEL, "reps": REPS, "temp": 0,
+    out = {"meta": {"model": MODEL, "reps": REPS, "temp": 0, "variant": VARIANT,
+                    "system_prompt": SYSTEM,
                     "run_at": time.strftime("%Y-%m-%dT%H:%M:%S"),
                     "n_questions": len(questions), "n_calls": len(results),
                     "n_errors": sum(1 for r in results if r.get("answer") is None)},
            "responses": results}
-    (HERE / "cutoff_responses.json").write_text(
+    (HERE / OUTFILE).write_text(
         json.dumps(out, ensure_ascii=False, indent=1))
     print(f"kész: {out['meta']}")
 
