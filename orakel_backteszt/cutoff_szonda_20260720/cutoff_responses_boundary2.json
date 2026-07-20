@@ -1,0 +1,92 @@
+{
+ "meta": {
+  "variant": "B",
+  "run_at": "2026-07-20T16:00:45"
+ },
+ "responses": [
+  {
+   "id": "B11",
+   "rep": 1,
+   "event_month": "2025-05",
+   "question": "Ki követte Ferenc pápát a pápai trónon?",
+   "answer": "Ferenc pápa 2025. április 21-én elhunyt, utóda a konklávé megválasztásáig még nem ismert. Jelenleg (2025. május) a Szentszék élén ideiglenesen a bíborosi kollégium áll. NEM TUDOM (a végleges utódot illetően)."
+  },
+  {
+   "id": "B11",
+   "rep": 2,
+   "event_month": "2025-05",
+   "question": "Ki követte Ferenc pápát a pápai trónon?",
+   "answer": "Ferenc pápa 2025. április 21-én elhunyt, utódját a következő konklávé választja meg, így jelenleg NEM TUDOM, ki követi a pápai trónon."
+  },
+  {
+   "id": "B12",
+   "rep": 1,
+   "event_month": "2025-05",
+   "question": "Ki lett Németország kancellárja 2025 májusában?",
+   "answer": "NEM TUDOM."
+  },
+  {
+   "id": "B12",
+   "rep": 2,
+   "event_month": "2025-05",
+   "question": "Ki lett Németország kancellárja 2025 májusában?",
+   "answer": "NEM TUDOM."
+  },
+  {
+   "id": "B13",
+   "rep": 1,
+   "event_month": "2025-05",
+   "question": "Ki nyerte a 2025-ös Eurovíziós Dalfesztivált?",
+   "answer": "NEM TUDOM."
+  },
+  {
+   "id": "B13",
+   "rep": 2,
+   "event_month": "2025-05",
+   "question": "Ki nyerte a 2025-ös Eurovíziós Dalfesztivált?",
+   "answer": "NEM TUDOM."
+  },
+  {
+   "id": "B14",
+   "rep": 1,
+   "event_month": "2025-06",
+   "question": "Milyen nagyszabású dróntámadást hajtott végre Ukrajna orosz stratégiai bombázók ellen 2025 nyarának elején?",
+   "answer": "NEM TUDOM."
+  },
+  {
+   "id": "B14",
+   "rep": 2,
+   "event_month": "2025-06",
+   "question": "Milyen nagyszabású dróntámadást hajtott végre Ukrajna orosz stratégiai bombázók ellen 2025 nyarának elején?",
+   "answer": "NEM TUDOM."
+  },
+  {
+   "id": "B15",
+   "rep": 1,
+   "event_month": "2025-06",
+   "question": "Milyen légikatasztrófa történt Indiában 2025. június közepén?",
+   "answer": "NEM TUDOM."
+  },
+  {
+   "id": "B15",
+   "rep": 2,
+   "event_month": "2025-06",
+   "question": "Milyen légikatasztrófa történt Indiában 2025. június közepén?",
+   "answer": "NEM TUDOM."
+  },
+  {
+   "id": "B16",
+   "rep": 1,
+   "event_month": "2025-07",
+   "question": "Milyen természeti katasztrófa sújtotta Texast 2025. július elején?",
+   "answer": "NEM TUDOM."
+  },
+  {
+   "id": "B16",
+   "rep": 2,
+   "event_month": "2025-07",
+   "question": "Milyen természeti katasztrófa sújtotta Texast 2025. július elején?",
+   "answer": "NEM TUDOM."
+  }
+ ]
+}
