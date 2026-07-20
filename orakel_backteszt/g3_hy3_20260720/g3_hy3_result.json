@@ -41,6 +41,48 @@
         "std": 3.9034116132201873,
         "corpus": "corpus_hu_pre_2025_09.json"
       }
+    },
+    "2025-11": {
+      "industry": {
+        "balances": [
+          12.27,
+          19.04,
+          19.04
+        ],
+        "mean": 16.78333333333333,
+        "std": 3.191408605755284,
+        "corpus": "corpus_hu_pre_2025_11.json"
+      },
+      "services": {
+        "balances": [
+          28.25,
+          22.24,
+          23.46
+        ],
+        "mean": 24.649999999999995,
+        "std": 2.59385170483331,
+        "corpus": "corpus_hu_pre_2025_11.json"
+      },
+      "retail": {
+        "balances": [
+          7.3,
+          9.05,
+          12.56
+        ],
+        "mean": 9.636666666666668,
+        "std": 2.187088373970187,
+        "corpus": "corpus_hu_pre_2025_11.json"
+      },
+      "construction": {
+        "balances": [
+          30.07,
+          26.06,
+          33.38
+        ],
+        "mean": 29.836666666666662,
+        "std": 2.9929287031638814,
+        "corpus": "corpus_hu_pre_2025_11.json"
+      }
     }
   }
 }
