@@ -32,7 +32,7 @@ def test_evaluate_alert_on_price():
     rep = ng.evaluate(_models({"id": "tencent/Hy3", "pricing": {"input_price": "0.35"}}))
     assert rep["alert"] is True
     assert rep["price"] == 0.35
-    assert "NEM $0" in rep["reason"]
+    assert "plafon FÖLÉ" in rep["reason"]
 
 
 def test_evaluate_alert_on_missing_model():
@@ -130,3 +130,11 @@ def test_register_tools_adds_no_tools(get_db):
     app = FakeApp()
     ng.register_tools(app, {"get_db": get_db})
     assert app.tools == []   # tool-count fegyelem: az őr nem MCP-tool
+
+
+def test_evaluate_price_within_ceiling_is_ok(monkeypatch):
+    # Kommandant 07-21: "már nem is ingyenes... maradunk rajta" — plafonon belül csend.
+    monkeypatch.setenv("NULLTARIF_MAX_USD", "0.60")
+    rep = ng.evaluate(_models({"id": "tencent/Hy3", "pricing": {"output_price": "0.528"}}))
+    assert rep["alert"] is False
+    assert rep["price"] == 0.528

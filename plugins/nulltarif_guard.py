@@ -101,10 +101,15 @@ def evaluate(models: list, guard_model: str = "") -> dict:
                 "price_known": False, "alert": True,
                 "reason": f"a(z) {target} ELTŰNT a SiliconFlow /models listáról"}
     price, known = model_price(entry)
-    if known and price > 0:
+    # 2026-07-21, Kommandant: a Hy3 fizetőssé vált ($0.132/M in, $0.528/M out)
+    # és "maradunk rajta" — az ár>0 önmagában már NEM riasztás; a plafon fölé
+    # kúszó ár az (NULLTARIF_MAX_USD, default 0 = a régi szigorú $0-őrzés).
+    ceiling = float(os.environ.get("NULLTARIF_MAX_USD", "0"))
+    if known and price > ceiling:
         return {"model": target, "exists": True, "price": price,
                 "price_known": True, "alert": True,
-                "reason": f"a(z) {target} ára már NEM $0 (talált ár: {price})"}
+                "reason": f"a(z) {target} ára a plafon FÖLÉ ment "
+                          f"(talált ár: {price}, elfogadott max: {ceiling})"}
     return {"model": target, "exists": True, "price": price,
             "price_known": known, "alert": False,
             "reason": "OK — a modell él" + ("" if known else " (ár-mező nincs a listában — létezés-őrzés)")}
