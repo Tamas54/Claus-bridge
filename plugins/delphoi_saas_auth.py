@@ -65,7 +65,7 @@ __plugin_meta__ = {
 
 _DEPS: dict | None = None
 
-LOGIN_TOKEN_TTL = 15 * 60            # magic-link: 15 perc
+LOGIN_TOKEN_TTL = 60 * 60            # magic-link: 60 perc (KLARTEXT: nyugodt első látogató se fusson lejáratba)
 SESSION_TOKEN_TTL = 30 * 24 * 3600   # session: 30 nap
 
 LOGIN_PREFIX = "lgn"
@@ -304,7 +304,7 @@ def magic_link(token: str) -> str:
 _EMAIL_SUBJECT = "Your sign-in link"
 _EMAIL_BODY_HTML = """\
 <p>Hi,</p>
-<p>Click the link below to sign in. It works once and expires in 15 minutes.</p>
+<p>Click the link below to sign in. It works once and expires in 60 minutes.</p>
 <p><a href="{link}">{link}</a></p>
 <p>If you didn't request this, you can safely ignore this email.</p>
 """
