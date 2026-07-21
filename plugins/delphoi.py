@@ -444,6 +444,16 @@ REFERENCE_SETS_REGARD = {
         "Dopo le notizie recenti la mia opinione è un po' migliorata.",
         "Dopo le notizie recenti la mia opinione è molto migliorata.",
     ],
+    # EN — UK és US közös (mindkét konfig lang="en"; a korpuszt a source_prefixes
+    # választja szét). Kézzel írt natív mondatok (static-copy-no-MT), a hu-készlet
+    # szerkezeti párja. Kommandant-parancs 2026-07-21 (US/UK kirakat-bővítés).
+    "en": [
+        "After the recent news, my opinion of them has become much worse.",
+        "After the recent news, my opinion of them has become somewhat worse.",
+        "The recent news has not changed my opinion of them.",
+        "After the recent news, my opinion of them has become somewhat better.",
+        "After the recent news, my opinion of them has become much better.",
+    ],
 }
 
 # Ár/inflációs várakozás (1=csökkenő árak … 5=sokkal gyorsabb drágulás) — a
@@ -463,6 +473,8 @@ REFERENCE_SETS_PRICE_EXTRA = {
         "I prezzi continueranno a salire più o meno allo stesso ritmo.",
         "I prezzi saliranno molto più velocemente di prima.",
     ],
+    # EN ár-horgony ITT NINCS: az ssr.REFERENCE_SETS_PRICE["EN"] (G0d) él, és a
+    # _anchor_set előbb azt a dictet nézi — ide másolva némán felülírnánk.
 }
 
 # Növekedési hangulat / gazdasági közérzet (1=sokkal romlik … 5=sokkal javul).
@@ -495,6 +507,14 @@ REFERENCE_SETS_GROWTH = {
         "La situazione economica del paese migliorerà un po' l'anno prossimo.",
         "La situazione economica del paese migliorerà molto l'anno prossimo.",
     ],
+    # EN (UK/US közös).
+    "en": [
+        "The country's economy will be in much worse shape a year from now.",
+        "The country's economy will get somewhat worse over the next year.",
+        "The country's economy will stay about the same.",
+        "The country's economy will get somewhat better over the next year.",
+        "The country's economy will be in much better shape a year from now.",
+    ],
 }
 
 # A nowcast-kérdés sablonjai (lang, kind) szerint — a persona EGY őszinte,
@@ -516,6 +536,11 @@ NOWCAST_QUESTIONS = {
         "Alla luce delle notizie sopra, in che direzione cambia la tua opinione su: {entity}? "
         "Rispondi con UNA sola frase onesta, dal tuo punto di vista."
     ),
+    # EN — UK/US közös (kézzel írt natív mondatok, static-copy-no-MT).
+    ("en", "regard"): (
+        "Taking the news above as a whole, which way does it move your opinion of: {entity}? "
+        "Answer with ONE honest sentence, from your own point of view."
+    ),
     ("hu", "price"): (
         "A fenti hírhelyzet fényében mit vársz: hogyan alakulnak a bolti árak, a rezsi és az "
         "üzemanyag a következő 12 hónapban? Válaszolj EGYETLEN őszinte mondattal."
@@ -532,6 +557,10 @@ NOWCAST_QUESTIONS = {
         "Alla luce delle notizie sopra: come cambieranno secondo te i prezzi, le bollette e i "
         "carburanti nei prossimi 12 mesi? Rispondi con UNA sola frase onesta."
     ),
+    ("en", "price"): (
+        "In light of the news above, what do you expect: how will everyday prices, energy "
+        "bills and fuel change over the next 12 months? Answer with ONE honest sentence."
+    ),
     ("hu", "growth"): (
         "A fenti hírhelyzet fényében milyennek látod az ország gazdasági kilátásait a következő "
         "évre — a saját közérzeted szerint? Válaszolj EGYETLEN őszinte mondattal."
@@ -547,6 +576,10 @@ NOWCAST_QUESTIONS = {
     ("it", "growth"): (
         "Alla luce delle notizie sopra: come vedi le prospettive economiche del paese per il "
         "prossimo anno — secondo il tuo sentire? Rispondi con UNA sola frase onesta."
+    ),
+    ("en", "growth"): (
+        "In light of the news above, how do you see the country's economic prospects for the "
+        "year ahead — going by your own gut feeling? Answer with ONE honest sentence."
     ),
 }
 
@@ -644,10 +677,14 @@ _SEED_ENTITIES = [
     ("pl-inflacios-varakozas", "PL", "sentiment_expectation", "Inflációs várakozás — hangulat (PL)", 0),
     ("fr-novekedesi-hangulat", "FR", "sentiment_expectation", "Növekedési hangulat / gazdasági közérzet (FR)", 0),
     ("it-novekedesi-hangulat", "IT", "sentiment_expectation", "Növekedési hangulat / gazdasági közérzet (IT)", 0),
-    # 2. KÖR — flag mögött (durvább lean vállalva, ha élesítjük)
-    ("keir-starmer", "UK", "politician", "Keir Starmer megítélése", 0),
-    ("nigel-farage", "UK", "politician", "Nigel Farage megítélése", 0),
-    ("Q22686", "US", "politician", "Donald Trump megítélése", 0),
+    # 2. KÖR — UK/US kirakat: enabled=1 a Kommandant-parancsra (2026-07-21,
+    # US/UK KIRAKAT-BŐVÍTÉS). A seed INSERT OR IGNORE — meglévő DB-sorokat NEM
+    # flippel; élesben a run_first_nowcast_uk_us.py (repo-gyökér) végzi az
+    # UPDATE-et + az egyszeri első futást. Lean-kontextus: COUNTRY_PANEL_CONFIG
+    # UK/US (G3), korpusz: lang='en' + uk_/us_ source-prefix.
+    ("keir-starmer", "UK", "politician", "Keir Starmer megítélése", 1),
+    ("nigel-farage", "UK", "politician", "Nigel Farage megítélése", 1),
+    ("Q22686", "US", "politician", "Donald Trump megítélése", 1),
 ]
 
 

@@ -115,11 +115,14 @@ def test_g4_country_entities_registered_disabled(feed_db):
 
 
 def test_enabled_set_unchanged(feed_db):
-    """FLIP NINCS: az engedélyezett kör pontosan az első menet 8 entitása."""
+    """Az engedélyezett kör = az első menet 8 entitása + a UK/US kirakat-kör
+    (Trump/Starmer/Farage — Kommandant-parancs 2026-07-21). fr/it/pl-flip
+    továbbra sincs (azokra nem szólt parancs)."""
     conn = feed_db()
     enabled = {r["entity_key"] for r in conn.execute(
         "SELECT entity_key FROM delphoi_entity_nowcast WHERE enabled=1")}
     conn.close()
     assert enabled == {"Q124488292", "tisza-part", "Q387006", "Q948",
                        "Q3052772", "Q451791", "hu-inflacios-varakozas",
-                       "hu-novekedesi-hangulat"}
+                       "hu-novekedesi-hangulat",
+                       "keir-starmer", "nigel-farage", "Q22686"}
