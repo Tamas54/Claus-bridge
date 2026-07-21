@@ -238,10 +238,14 @@ def _lean_balance(leans: list[str]) -> float | None:
 def coverage_score(get_db, country: str, window_days: int = 7, corpus: dict | None = None) -> dict:
     """0..1 coverage az ország hír-ablakára. Komponensek és az adat-bázis
     ('basis') explicit a kimenetben — a szám sosem magyarázat nélküli."""
+    prefixes: tuple = ()
     try:
         from plugins.delphoi import COUNTRY_PANEL_CONFIG
         cfg = COUNTRY_PANEL_CONFIG.get(str(country or "").upper())
         lang = cfg["lang"] if cfg else str(country or "").lower()
+        # G3: UK/US — az 'en' nyelvi réteg globális; a coverage az ország
+        # forrás-szegmensét (uk_*/us_*) méri, nem a globál-EN folyamot.
+        prefixes = tuple((cfg or {}).get("source_prefixes") or ())
     except Exception:  # noqa: BLE001
         lang = str(country or "").lower()
 
@@ -261,6 +265,10 @@ def coverage_score(get_db, country: str, window_days: int = 7, corpus: dict | No
             except Exception:  # noqa: BLE001
                 continue
             for a in (content.get("articles") or []):
+                if prefixes:
+                    sid = str(a.get("source_id") or a.get("source") or "")
+                    if not sid.startswith(prefixes):
+                        continue
                 title = (a.get("title") or "").strip()
                 key = title.lower()[:48]
                 if not title or key in seen:

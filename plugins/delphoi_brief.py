@@ -77,22 +77,16 @@ def _fg_countries() -> tuple:
 
 # ---------------------------------------------------------------------------
 # DIMENZIÓ-BANK — natív SSR-referenciakészletek (1 → 5: negatív → pozitív).
-# appeal: a delphoi.REFERENCE_SETS_APPEAL (hu/cs/pt/pl) + itt az en;
+# appeal: a delphoi.REFERENCE_SETS_APPEAL (hu/cs/pt/pl/fr/de/en — G3);
 # purchase_intent: en = ssr.REFERENCE_SETS_EN["purchase_intent"], hu itt;
 # clarity / credibility / price_sensitivity: új készletek hu+en
 # (a REFERENCE_SETS_PRICE tapasztalati-regiszter mintájára).
 # ---------------------------------------------------------------------------
 DIMENSION_BANK: dict = {
-    "appeal": {
-        "en": [
-            "This does not appeal to me at all, I would definitely not choose it.",
-            "It is not really attractive to me.",
-            "I am neutral about it, maybe yes, maybe no.",
-            "It is quite attractive, I would probably give it a try.",
-            "It is very attractive, I would definitely choose it.",
-        ],
-        # hu/cs/pt/pl: futásidőben a delphoi.REFERENCE_SETS_APPEAL-ból (import).
-    },
+    # appeal: NINCS saját bank-sor — minden nyelv (hu/cs/pt/pl/fr/de/en)
+    # futásidőben a delphoi.REFERENCE_SETS_APPEAL-ból oldódik fel (G3: az en
+    # inline másolat oda költözött — EGY forrás).
+    "appeal": {},
     "clarity": {
         "hu": [
             "Egyáltalán nem értem, hogy miről szól — teljesen zavaros.",
@@ -173,9 +167,9 @@ def get_dimension_anchors(dimension: str, lang: str) -> list[str]:
     for fb in ("en", "hu"):
         if fb in bank:
             return list(bank[fb])
-        if dimension == "appeal" and fb == "hu":
+        if dimension == "appeal":
             from plugins import delphoi
-            return list(delphoi.REFERENCE_SETS_APPEAL["hu"])
+            return list(delphoi.REFERENCE_SETS_APPEAL[fb])
         if dimension == "purchase_intent" and fb == "en":
             from plugins import ssr
             return list(ssr.REFERENCE_SETS_EN["purchase_intent"])

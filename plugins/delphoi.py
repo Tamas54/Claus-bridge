@@ -210,11 +210,14 @@ COUNTRY_PANEL_CONFIG: dict = {
     },
 }
 
-# A FOGÁS (fizetős fókuszcsoport) validált ország-köre — D5.1: HU/CZ/PT/PL.
-# A nowcast-országok (FR/IT) fókuszcsoportra env-kapuval nyithatók, ha az
-# anchor-készletük validálva lesz.
+# A FOGÁS (fizetős fókuszcsoport) ország-köre — Kommandant-parancs 2026-07-21:
+# a nemzetközi user a saját piacát méri → HU/CZ/PT/PL + FR/DE/UK/US. FIGYELEM:
+# a fókuszcsoport-panel elérhetősége NEM azonos a backteszt-validációval —
+# választási/CCI backteszt HU/CZ/PT/FR/IT-n van; DE/UK/US "panel available,
+# backtest validation in progress" (az aipolling methodology-oldal jelöli).
 FG_COUNTRIES = tuple(
-    c.strip().upper() for c in os.environ.get("DELPHOI_FG_COUNTRIES", "HU,CZ,PT,PL").split(",") if c.strip())
+    c.strip().upper() for c in os.environ.get(
+        "DELPHOI_FG_COUNTRIES", "HU,CZ,PT,PL,FR,DE,UK,US").split(",") if c.strip())
 
 # CZ/PT panel-konfig — a fókuszcsoport-ághoz (a nowcast-seed nem hivatkozik
 # rájuk). Marginálisok: Eurostat-közeli durvább készlet; média: perzisztens
@@ -249,6 +252,83 @@ COUNTRY_PANEL_CONFIG["PT"] = {
         ("segue os media públicos (RTP)", 0.20, "közmédia"),
         ("consome conteúdo político nas redes sociais", 0.20, "közösségi"),
         ("quase não segue notícias políticas", 0.12, "alig"),
+    ],
+}
+
+# ── G3 (ORSZÁG-BŐVÍTÉS, 2026-07-21): DE/UK/US panel-konfig a FOGÁS-ághoz ──
+# DE: a lean_konfig_tervek.md terve kódban; marginálisok Eurostat-lekérdezésből
+#   (statdata MCP, 2026-07-21): demo_pjangroup 2025 (18+ bázis 69,58M; a 18-19
+#   sáv a 15-19 csoport 2/5-e), edat_lfs_9913 2024 (ED0-2 16,3 / ED3-4 50,1 /
+#   ED5-8 33,6%), ilc_lvho01 2024 degurba (Cities 38,9 / Towns 42,4 / Rural 18,6).
+#   Az ARD/ZDF gremiengesteuert → intézményi, NEM mindenkori-kormány derivált.
+# UK: Eurostat nem szolgál friss UK-t (G0c) → STATIKUS, ONS-alapú kvóták:
+#   kor = ONS mid-2023 population estimates (18+ durva sávok); iskola = Census
+#   2021 (England&Wales, Level 4+) + OECD EAG (25-64 tertiary ~45-50%) →
+#   degree-or-higher 0.45; település = ONS/DEFRA rural-urban classification
+#   közeli becslés. A BBC Royal Charter-intézményi.
+# US: STATIKUS, Census/ACS-alapú kvóták: kor = Census Bureau 2023 national
+#   population estimates (18+); iskola = ACS 2023 educational attainment (25+:
+#   HS-or-less ~36 / some college-associate ~28 / BA+ ~36); település = Census
+#   2020 urban-rural (80/20) + metró-bontás. Média-tengelyek a UK-minta szerint:
+#   Fox/CNN/hálózati/közösségi (Pew news-platform mérések szelleme, nincs
+#   közmédia-tengely — az USA-ban nincs releváns elérésű public broadcaster).
+# UK/US lang="en" → a nyelvi korpusz GLOBÁLIS; a source_prefixes kulcs mondja
+# meg a build_country_corpus-nak, mely Echolot forrás-szegmens az országé.
+COUNTRY_PANEL_CONFIG["DE"] = {
+    "lang": "de",
+    "priming": ("LAGE (2026): Bundeskanzler Friedrich Merz (CDU/CSU–SPD-Koalition) "
+                "seit Mai 2025; stärkste Oppositionskraft die AfD. Der öffentlich-"
+                "rechtliche Rundfunk (ARD/ZDF) ist institutionell, gremiengesteuert."),
+    "dims": {
+        "age": [("18-29", 0.157), ("30-39", 0.157), ("40-49", 0.150), ("50-59", 0.170), ("60+", 0.366)],
+        "settlement": [("Großstadt", 0.39), ("Mittelstadt/Vorort", 0.42), ("ländlich", 0.19)],
+        "edu": [("ohne Berufs-/Studienabschluss", 0.16), ("Lehre/Abitur/Fachschule", 0.50), ("Hochschulabschluss", 0.34)],
+    },
+    "media": [
+        ("folgt linksliberalen Medien (SZ, Spiegel, Zeit, taz)", 0.26, "baloldali"),
+        ("folgt konservativen/rechten Medien (FAZ, Welt, Bild, NIUS)", 0.24, "jobboldali"),
+        ("folgt dem öffentlich-rechtlichen Rundfunk (ARD, ZDF, DLF)", 0.20, "közmédia"),
+        ("konsumiert politische Inhalte in sozialen Medien", 0.18, "közösségi"),
+        ("verfolgt politische Nachrichten kaum", 0.12, "alig"),
+    ],
+}
+COUNTRY_PANEL_CONFIG["UK"] = {
+    "lang": "en",
+    "source_prefixes": ("uk_",),   # Echolot: 53 uk_* forrás; a nyelvi 'en' korpusz globális!
+    "priming": ("SITUATION (2026): Keir Starmer's Labour government (since July 2024); "
+                "main opposition Conservatives, with Reform UK rising. The BBC is "
+                "institutional, governed by Royal Charter."),
+    "dims": {
+        "age": [("18-29", 0.18), ("30-39", 0.17), ("40-49", 0.16), ("50-59", 0.16), ("60+", 0.33)],
+        "settlement": [("London/major city", 0.30), ("town/suburban", 0.45), ("rural", 0.25)],
+        "edu": [("no degree", 0.55), ("degree or higher", 0.45)],
+    },
+    "media": [
+        ("follows left-liberal media (Guardian, Mirror, Independent)", 0.24, "baloldali"),
+        ("follows right-leaning media (Telegraph, Times, Daily Mail, Sun, GB News)", 0.28, "jobboldali"),
+        ("follows the BBC", 0.22, "közmédia"),
+        ("consumes political content on social media", 0.16, "közösségi"),
+        ("hardly follows political news", 0.10, "alig"),
+    ],
+}
+COUNTRY_PANEL_CONFIG["US"] = {
+    "lang": "en",
+    "source_prefixes": ("us_",),   # Echolot: 39 us_* forrás
+    "priming": ("SITUATION (2026): President Donald Trump (Republican) is in his second "
+                "term since January 2025; Democrats are the opposition, with midterm "
+                "elections due in November 2026. Cable news is sharply polarized; there "
+                "is no public broadcaster with significant reach."),
+    "dims": {
+        "age": [("18-29", 0.20), ("30-39", 0.17), ("40-49", 0.16), ("50-59", 0.16), ("60+", 0.31)],
+        "settlement": [("big city/urban core", 0.31), ("suburban/small metro", 0.49), ("rural", 0.20)],
+        "edu": [("high school or less", 0.36), ("some college/associate", 0.28), ("bachelor's or higher", 0.36)],
+    },
+    "media": [
+        ("follows liberal-leaning media (CNN, MSNBC, NYT, Washington Post)", 0.24, "baloldali"),
+        ("follows right-leaning media (Fox News, NY Post, Newsmax, talk radio)", 0.24, "jobboldali"),
+        ("follows network/local TV news (ABC, CBS, NBC, local stations)", 0.20, "hálózati"),
+        ("gets political content mainly from social media (Facebook/YouTube/TikTok/X)", 0.22, "közösségi"),
+        ("hardly follows political news", 0.10, "alig"),
     ],
 }
 
@@ -872,15 +952,24 @@ def build_country_corpus(get_db, country: str, window_days: int = 7,
     kompakt, ÁLTALÁNOS hír-kontextus (nem entitás-szűrt!) + determinista
     corpus_hash. A `news` (Echolot hírfolyam) a legszélesebb merítés — sok
     forrásból, per-nyelv szűrve. Visszaad: {context, corpus_hash, window_start,
-    window_end, snapshot_ids, days}."""
+    window_end, snapshot_ids, days}.
+
+    G3 ORSZÁG-TUDATOSSÁG (UK/US): az 'en' nyelvi korpusz GLOBÁLIS — a konfig
+    `source_prefixes` kulcsa (pl. ('uk_',)) esetén CSAK a 'news' signal megy be,
+    cikkei az Echolot forrás-prefixre szűrve (uk_*/us_*); a brief/trending
+    globál-EN jel, ország-attribúció nélkül KIMARAD. Vállalt kompromisszum: a
+    napi en-snapshot 40 globális cikkéből a uk_/us_ részhalmaz kicsi — a
+    lefedettség vékonyabb, a coverage-őr ezt jelzi."""
     cfg = COUNTRY_PANEL_CONFIG.get(country)
     lang = cfg["lang"] if cfg else country.lower()
+    prefixes = tuple((cfg or {}).get("source_prefixes") or ())
+    signals = "('news')" if prefixes else "('brief','trending','news')"
     conn = get_db()
     try:
         # *3: naponta 3 releváns signal (brief/trending/news) fér az ablakba.
         rows = conn.execute(
             "SELECT id, date_iso, signal_type, content FROM press_snapshots "
-            "WHERE lang=? AND signal_type IN ('brief','trending','news') "
+            f"WHERE lang=? AND signal_type IN {signals} "
             "ORDER BY date_iso DESC LIMIT ?", (lang, window_days * 3)).fetchall()
     finally:
         conn.close()
@@ -915,6 +1004,10 @@ def build_country_corpus(get_db, country: str, window_days: int = 7,
         elif r["signal_type"] == "news":
             # A hírfolyam fejléc-szintű, de a legszélesebb merítés (sok forrás).
             for a in (content.get("articles") or []):
+                if prefixes:
+                    sid = str(a.get("source_id") or a.get("source") or "")
+                    if not sid.startswith(prefixes):
+                        continue
                 title = (a.get("title") or "").strip()
                 k = title.lower()[:48]
                 if title and k not in seen_titles and len(news_heads) < 18:
@@ -1566,6 +1659,30 @@ REFERENCE_SETS_APPEAL = {
         "Jest to dość atrakcyjne, pewnie bym spróbował.",
         "Jest to bardzo atrakcyjne, na pewno bym to wybrał.",
     ],
+    # G3 (2026-07-21): fr/de/en — natív survey-regiszter, kézzel írt (static-
+    # copy-no-MT elv). Az en szövege a delphoi_brief DIMENSION_BANK appeal/en
+    # készletével AZONOS (ott futásidőben innen oldódik fel — EGY forrás).
+    "fr": [
+        "Cela ne m'intéresse pas du tout, je ne le choisirais certainement pas.",
+        "Ce n'est pas vraiment attirant pour moi.",
+        "Je suis partagé, peut-être oui, peut-être non.",
+        "C'est assez attirant, j'essaierais probablement.",
+        "C'est très attirant, je le choisirais certainement.",
+    ],
+    "de": [
+        "Das interessiert mich überhaupt nicht, ich würde es sicher nicht wählen.",
+        "Es ist für mich nicht besonders reizvoll.",
+        "Ich bin unentschieden, vielleicht ja, vielleicht nein.",
+        "Es ist ziemlich reizvoll, ich würde es wahrscheinlich ausprobieren.",
+        "Es ist sehr reizvoll, ich würde es auf jeden Fall wählen.",
+    ],
+    "en": [
+        "This does not appeal to me at all, I would definitely not choose it.",
+        "It is not really attractive to me.",
+        "I am neutral about it, maybe yes, maybe no.",
+        "It is quite attractive, I would probably give it a try.",
+        "It is very attractive, I would definitely choose it.",
+    ],
 }
 
 # Kérdés-sablonok (lang, input_kind). A persona EGY szabad mondatot ír
@@ -1632,12 +1749,61 @@ FG_QUESTIONS = {
     ("pl", "yt_title"): (
         "Z tych tytułów wideo możesz obejrzeć TYLKO JEDNO wideo:\n{stimulus}\n\n"
         "Odpowiedz DOKŁADNIE tak:\nWYBÓR: <numer wybranego tytułu>\nPOWÓD: <krótkie zdanie>"),
+    # G3 (2026-07-21): fr/de/en készletek — FR/DE/UK/US FG-regisztrációhoz.
+    ("fr", "product_desc"): (
+        "Tu vois cette description de produit :\n« {stimulus} »\n\n"
+        "Honnêtement, de ton point de vue : à quel point cela t'attire-t-il ? "
+        "Réponds par UNE seule phrase honnête."),
+    ("fr", "concept"): (
+        "Tu vois ce concept :\n« {stimulus} »\n\n"
+        "Honnêtement : à quel point cela te plaît-il ? Réponds par UNE seule phrase."),
+    ("fr", "pitch"): (
+        "Tu entends ce pitch :\n« {stimulus} »\n\nRéponds EXACTEMENT ainsi :\n"
+        "RÉACTION : <une phrase honnête>\nFLOU : <un mot resté flou, ou '-'>"),
+    ("fr", "ab_test"): (
+        "Tu vois ce texte :\n« {stimulus} »\n\nRéponds EXACTEMENT ainsi :\n"
+        "RÉACTION : <une phrase honnête>\nCHOIX : <oui/non>"),
+    ("fr", "yt_title"): (
+        "Parmi ces titres de vidéos, tu ne peux regarder qu'UNE SEULE vidéo :\n{stimulus}\n\n"
+        "Réponds EXACTEMENT ainsi :\nCHOIX : <numéro du titre choisi>\nRAISON : <une phrase courte>"),
+    ("de", "product_desc"): (
+        "Du siehst diese Produktbeschreibung:\n„{stimulus}“\n\n"
+        "Ehrlich, aus deiner Sicht: wie ansprechend ist das für dich? "
+        "Antworte mit EINEM ehrlichen Satz."),
+    ("de", "concept"): (
+        "Du siehst dieses Konzept:\n„{stimulus}“\n\n"
+        "Ehrlich: wie gut gefällt es dir? Antworte mit EINEM Satz."),
+    ("de", "pitch"): (
+        "Du hörst diesen Pitch:\n„{stimulus}“\n\nAntworte GENAU so:\n"
+        "REAKTION: <ein ehrlicher Satz>\nUNKLAR: <ein Wort, das unklar blieb, oder '-'>"),
+    ("de", "ab_test"): (
+        "Du siehst diesen Text:\n„{stimulus}“\n\nAntworte GENAU so:\n"
+        "REAKTION: <ein ehrlicher Satz>\nWAHL: <ja/nein>"),
+    ("de", "yt_title"): (
+        "Von diesen Videotiteln kannst du dir nur EIN EINZIGES Video ansehen:\n{stimulus}\n\n"
+        "Antworte GENAU so:\nWAHL: <Nummer des gewählten Titels>\nGRUND: <ein kurzer Satz>"),
+    ("en", "product_desc"): (
+        "You see this product description:\n“{stimulus}”\n\n"
+        "Honestly, from your own point of view: how appealing is this to you? "
+        "Answer with ONE honest sentence."),
+    ("en", "concept"): (
+        "You see this concept:\n“{stimulus}”\n\n"
+        "Honestly: how much do you like it? Answer with ONE honest sentence."),
+    ("en", "pitch"): (
+        "You hear this pitch:\n“{stimulus}”\n\nAnswer EXACTLY like this:\n"
+        "REACTION: <one honest sentence>\nUNCLEAR: <a word or phrase that was not clear, or '-'>"),
+    ("en", "ab_test"): (
+        "You see this text:\n“{stimulus}”\n\nAnswer EXACTLY like this:\n"
+        "REACTION: <one honest sentence>\nCHOICE: <yes if you would click/choose it; no if not>"),
+    ("en", "yt_title"): (
+        "Out of these video titles you can watch ONLY ONE video:\n{stimulus}\n\n"
+        "Answer EXACTLY like this:\nCHOICE: <number of the chosen title>\nREASON: <one short sentence>"),
 }
 
 # yt_title niche-illesztett néző-mix (memory: 50% casual / 35% téma / 15% rajongó)
 YT_VIEWER_MIX = [("alkalmi néző", 0.50), ("a témát követő néző", 0.35), ("elkötelezett rajongó", 0.15)]
 
-_CHOICE_YES = ("igen", "ano", "sim", "tak", "yes")
+_CHOICE_YES = ("igen", "ano", "sim", "tak", "yes", "oui", "ja")
 
 
 def _parse_structured(text: str, key_variants: tuple) -> str | None:
@@ -1958,8 +2124,10 @@ async def process_job(deps: dict, job_id: str, chat_fn=None, embed_fn=None,
         rows = []          # task-szint: ssr_score = k minta átlaga; choice = többség
         sample_rows = []   # minta-szint: nyers reakciók (delphoi_panel_responses)
         ssr_texts, ssr_refs = [], []   # ssr_refs: (task_idx, sample_row_idx)
-        _CHOICE_KEYS = ("VÁLASZTÁS", "VOLBA", "ESCOLHA", "WYBÓR", "WYBOR", "CHOICE")
-        _REACT_KEYS = ("REAKCIÓ", "REAKCE", "REAÇÃO", "REACAO", "REAKCJA")
+        _CHOICE_KEYS = ("VÁLASZTÁS", "VOLBA", "ESCOLHA", "WYBÓR", "WYBOR", "CHOICE",
+                        "CHOIX", "WAHL")
+        _REACT_KEYS = ("REAKCIÓ", "REAKCE", "REAÇÃO", "REACAO", "REAKCJA",
+                       "RÉACTION", "REACTION", "REAKTION")
         for i, (p, vid, sample_texts) in enumerate(ok_results):
             seg_label = bucket_of.get(p.get("media", ""), "egyéb")
             row = {"persona_idx": i, "segment": seg_label, "variant_id": vid,
@@ -1981,7 +2149,8 @@ async def process_job(deps: dict, job_id: str, chat_fn=None, embed_fn=None,
                     ssr_texts.append(_parse_structured(text, _REACT_KEYS) or text)
                     ssr_refs.append((i, len(sample_rows) - 1))
                 elif kind == "pitch":
-                    unclears.append(_parse_structured(text, ("HOMÁLYOS", "NEJASNÉ", "NEJASNE", "CONFUSO", "NIEJASNE")))
+                    unclears.append(_parse_structured(text, ("HOMÁLYOS", "NEJASNÉ", "NEJASNE", "CONFUSO",
+                                                             "NIEJASNE", "FLOU", "UNKLAR", "UNCLEAR")))
                     ssr_texts.append(_parse_structured(text, _REACT_KEYS) or text)
                     ssr_refs.append((i, len(sample_rows) - 1))
                 else:
