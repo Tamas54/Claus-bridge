@@ -78,7 +78,9 @@ SESSION_PREFIX = "ses"
 
 ROUTE_PATHS = ("/saas/auth/request-link", "/saas/auth/verify", "/saas/me",
                "/saas/keys", "/saas/keys/{key_id}/revoke",
-               "/saas/submit", "/saas/jobs/{job_id}", "/saas/precheck")
+               "/saas/submit", "/saas/jobs/{job_id}", "/saas/precheck",
+               "/saas/jobs/{job_id}/track", "/saas/tracking",
+               "/saas/tracking/{brief_id}")
 
 # ---------------------------------------------------------------------------
 # SÉMA — egyszer-használatos login-tokenek (a token maga sosem kerül DB-be,
@@ -773,16 +775,233 @@ async def handle_submit(request) -> JSONResponse:
 
 async def handle_job(request) -> JSONResponse:
     """GET /saas/jobs/{job_id} — állapot/eredmény, CSAK a tulajdonosnak.
-    Aggregátum megy ki (a delphoi.get_job eleve aggregátum-only)."""
+    Aggregátum megy ki (a delphoi.get_job eleve aggregátum-only).
+    K5: a payload 'weekly' blokkja a "Run this weekly" gomb állapota+ára —
+    defenzív, a hiánya sosem hiba."""
     deps = _DEPS or {}
     get_db = deps["get_db"]
     sess = _session_from_request(request)
     if not sess:
         return _err("invalid_session", 401)
     from plugins import delphoi
-    res = delphoi.get_job(get_db, request.path_params.get("job_id", ""),
-                          sess["email"])
+    job_id = request.path_params.get("job_id", "")
+    res = delphoi.get_job(get_db, job_id, sess["email"])
+    if res.get("ok"):
+        try:
+            row = _own_job_row(get_db, job_id, sess["email"])
+            st = _weekly_state(get_db, sess["email"], row) if row else None
+            if st:
+                tr = st["tracking"] or {}
+                res["weekly"] = {"cost": st["cost"],
+                                 "tracked": bool(tr.get("active")),
+                                 "next_run": tr.get("next_run") or "",
+                                 "brief_id": st["weekly_brief_id"]}
+        except Exception:  # noqa: BLE001 — a heti-blokk hiánya nem hiba
+            logger.exception("SIBYLLE: weekly-state enrich failed (job=%s)", job_id)
     return JSONResponse(res, status_code=200 if res.get("ok") else 404)
+
+
+# ---------------------------------------------------------------------------
+# K5 — HETI KÖVETÉS ("Run this weekly"). A séma a B1-é (delphoi_brief +
+# delphoi_tracking), a futtató a meglévő 06:50-es cron-tick — itt CSAK a
+# bekapcsolás/lista/szünet vékony rétege él, session-auth mögött.
+# ---------------------------------------------------------------------------
+def _own_job_row(get_db, job_id: str, email: str):
+    """A job sora, CSAK a tulajdonosnak — különben None."""
+    conn = get_db()
+    try:
+        row = conn.execute("SELECT * FROM delphoi_jobs WHERE id=?",
+                           (job_id,)).fetchone()
+    finally:
+        conn.close()
+    if not row or row["user_id"] != str(email):
+        return None
+    return row
+
+
+def _weekly_state(get_db, email: str, job_row) -> dict | None:
+    """A job heti-változatának állapota: a brief specje tracking='weekly'-vel
+    → spec_hash → létezik-e már a heti brief + tracking-sora. None, ha a
+    jobhoz nem tartozik brief (nem követhető)."""
+    from plugins import delphoi, delphoi_brief
+    panel_spec = json.loads(job_row["panel_spec"] or "{}")
+    brief_id = panel_spec.get("brief_id") or ""
+    if not brief_id:
+        return None
+    conn = get_db()
+    try:
+        brow = conn.execute("SELECT user_id, spec_json FROM delphoi_briefs "
+                            "WHERE brief_id=?", (brief_id,)).fetchone()
+        if not brow or brow["user_id"] != str(email):
+            return None
+        weekly_spec = dict(json.loads(brow["spec_json"]), tracking="weekly")
+        whash = delphoi_brief.spec_hash(weekly_spec)
+        wrow = conn.execute(
+            "SELECT brief_id FROM delphoi_briefs WHERE user_id=? AND spec_hash=?",
+            (str(email), whash)).fetchone()
+        tr = None
+        if wrow:
+            tr = conn.execute(
+                "SELECT cadence, next_run, active FROM delphoi_tracking "
+                "WHERE brief_id=?", (wrow["brief_id"],)).fetchone()
+    finally:
+        conn.close()
+    variants = (json.loads(job_row["input_variants"])
+                if job_row["input_variants"] else None)
+    return {"spec": weekly_spec, "hash": whash,
+            "cost": delphoi.job_cost(panel_spec, variants),
+            "weekly_brief_id": wrow["brief_id"] if wrow else "",
+            "tracking": dict(tr) if tr else None}
+
+
+async def handle_job_track(request) -> JSONResponse:
+    """POST /saas/jobs/{job_id}/track — heti követés az eredeti kérdésből.
+    A brief-út (delphoi_brief.save_brief) menti a weekly-briefet, a
+    delphoi_tracking sora aktiválódik; az első ismételt futás +7 nap múlva
+    (a mostani eredmény a friss pont — az kerül a idősor elejére).
+    Idempotens: aktív követésre already=True."""
+    deps = _DEPS or {}
+    get_db = deps["get_db"]
+    sess = _session_from_request(request)
+    if not sess:
+        return _err("invalid_session", 401)
+    from plugins import delphoi_brief, delphoi_tracking
+    job_id = request.path_params.get("job_id", "")
+    job_row = _own_job_row(get_db, job_id, sess["email"])
+    if not job_row:
+        return _err("not_found", 404)
+    st = _weekly_state(get_db, sess["email"], job_row)
+    if st is None:
+        return JSONResponse(
+            {"ok": False, "error": "not_trackable",
+             "message": "This run can't be repeated automatically — "
+                        "ask it again from the question box instead."},
+            status_code=400)
+    now = datetime.now(timezone.utc)
+    next_run = delphoi_tracking.next_run_after("weekly", now)
+    if st["tracking"] and st["tracking"].get("active"):
+        return JSONResponse({"ok": True, "already": True,
+                             "brief_id": st["weekly_brief_id"],
+                             "cadence": "weekly", "cost": st["cost"],
+                             "next_run": st["tracking"].get("next_run") or ""})
+    wid = st["weekly_brief_id"]
+    if not wid:
+        saved = delphoi_brief.save_brief(get_db, sess["email"], st["spec"])
+        if not saved.get("ok"):
+            return JSONResponse(saved, status_code=400)
+        wid = saved["brief_id"]
+    conn = get_db()
+    try:
+        # aktiválás + a heti ritmus indítása mostantól számítva (+7 nap) —
+        # a save_brief next_run=most sora itt kap végleges értéket
+        conn.execute(
+            "INSERT OR REPLACE INTO delphoi_tracking (brief_id, cadence, next_run, active) "
+            "VALUES (?, 'weekly', ?, 1)", (wid, next_run))
+        # idősor-mag: a MOSTANI kész futás az első pont (ha még nincs ott)
+        if job_row["status"] == "done" and not conn.execute(
+                "SELECT 1 FROM delphoi_brief_runs WHERE brief_id=? AND job_id=?",
+                (wid, job_id)).fetchone():
+            overall = None
+            try:
+                overall = (json.loads(job_row["result_json"] or "{}")
+                           or {}).get("overall_score")
+            except ValueError:
+                pass
+            conn.execute(
+                "INSERT INTO delphoi_brief_runs (brief_id, job_id, run_at, "
+                "spec_hash, overall_score) VALUES (?, ?, ?, ?, ?)",
+                (wid, job_id, job_row["completed_at"] or now.isoformat(),
+                 st["hash"], overall))
+        conn.commit()
+    finally:
+        conn.close()
+    logger.info("SIBYLLE K5: weekly tracking ON (%s, job=%s, brief=%s, cost=%d)",
+                mask_email(sess["email"]), job_id, wid, st["cost"])
+    return JSONResponse({"ok": True, "already": False, "brief_id": wid,
+                         "cadence": "weekly", "cost": st["cost"],
+                         "next_run": next_run})
+
+
+async def handle_tracking_list(request) -> JSONResponse:
+    """GET /saas/tracking — a user követett kérdései (fiók-oldal listája):
+    goal, kadencia, következő futás, aktív-e, futásonkénti kredit-ár."""
+    deps = _DEPS or {}
+    get_db = deps["get_db"]
+    sess = _session_from_request(request)
+    if not sess:
+        return _err("invalid_session", 401)
+    from plugins import delphoi, delphoi_brief
+    conn = get_db()
+    try:
+        rows = conn.execute(
+            "SELECT t.brief_id, t.cadence, t.next_run, t.active, b.spec_json, "
+            "  (SELECT COUNT(*) FROM delphoi_brief_runs r WHERE r.brief_id=t.brief_id) AS n_runs, "
+            "  (SELECT MAX(r.run_at) FROM delphoi_brief_runs r WHERE r.brief_id=t.brief_id) AS last_run_at "
+            "FROM delphoi_tracking t JOIN delphoi_briefs b ON b.brief_id=t.brief_id "
+            "WHERE b.user_id=? ORDER BY t.active DESC, t.next_run ASC",
+            (str(sess["email"]),)).fetchall()
+    finally:
+        conn.close()
+    items = []
+    for r in rows:
+        try:
+            spec = json.loads(r["spec_json"])
+            _, _, panel_spec, variants = delphoi_brief.brief_to_job_args(spec)
+            cost = delphoi.job_cost(panel_spec, variants)
+        except Exception:  # noqa: BLE001 — sérült spec nem töri a listát
+            spec, cost = {}, None
+        items.append({"brief_id": r["brief_id"], "cadence": r["cadence"],
+                      "next_run": r["next_run"], "active": bool(r["active"]),
+                      "goal": spec.get("goal") or "",
+                      "country": spec.get("country") or "",
+                      "n": spec.get("n"), "cost": cost,
+                      "n_runs": r["n_runs"], "last_run_at": r["last_run_at"]})
+    return JSONResponse({"ok": True, "items": items})
+
+
+async def handle_tracking_set(request) -> JSONResponse:
+    """POST /saas/tracking/{brief_id} {active: bool} — szünet/folytatás a
+    delphoi_tracking active flagjén. Folytatáskor a következő futás +1
+    kadencia mostantól (nem torlódik fel a kihagyott időszak)."""
+    deps = _DEPS or {}
+    get_db = deps["get_db"]
+    sess = _session_from_request(request)
+    if not sess:
+        return _err("invalid_session", 401)
+    try:
+        data = await request.json()
+    except Exception:  # noqa: BLE001
+        data = {}
+    want_active = 1 if data.get("active") else 0
+    from plugins import delphoi_tracking
+    brief_id = request.path_params.get("brief_id", "")
+    conn = get_db()
+    try:
+        row = conn.execute(
+            "SELECT t.cadence, t.active, b.user_id FROM delphoi_tracking t "
+            "JOIN delphoi_briefs b ON b.brief_id=t.brief_id WHERE t.brief_id=?",
+            (brief_id,)).fetchone()
+        if not row or row["user_id"] != str(sess["email"]):
+            return _err("not_found", 404)
+        next_run = None
+        if want_active and not row["active"]:
+            next_run = delphoi_tracking.next_run_after(
+                row["cadence"], datetime.now(timezone.utc))
+            conn.execute("UPDATE delphoi_tracking SET active=1, next_run=? "
+                         "WHERE brief_id=?", (next_run, brief_id))
+        else:
+            conn.execute("UPDATE delphoi_tracking SET active=? WHERE brief_id=?",
+                         (want_active, brief_id))
+        conn.commit()
+    finally:
+        conn.close()
+    logger.info("SIBYLLE K5: tracking %s (%s, brief=%s)",
+                "resume" if want_active else "pause",
+                mask_email(sess["email"]), brief_id)
+    out = {"ok": True, "brief_id": brief_id, "active": bool(want_active)}
+    if next_run:
+        out["next_run"] = next_run
+    return JSONResponse(out)
 
 
 # ---------------------------------------------------------------------------
@@ -815,5 +1034,8 @@ def register_tools(app, deps):
     custom_route("/saas/precheck", methods=["POST"])(handle_precheck)
     custom_route("/saas/submit", methods=["POST"])(handle_submit)
     custom_route("/saas/jobs/{job_id}", methods=["GET"])(handle_job)
+    custom_route("/saas/jobs/{job_id}/track", methods=["POST"])(handle_job_track)
+    custom_route("/saas/tracking", methods=["GET"])(handle_tracking_list)
+    custom_route("/saas/tracking/{brief_id}", methods=["POST"])(handle_tracking_set)
     logger.info("delphoi_saas_auth betoltve — utak: %s (dev_mode=%s)",
                 ", ".join(ROUTE_PATHS), dev_mode())
