@@ -30,9 +30,14 @@ __plugin_meta__ = {
 
 _DEPS: dict | None = None
 
-GUARD_MODEL = os.environ.get("NULLTARIF_GUARD_MODEL", "tencent/Hy3")
+# Az őr azt a modellt figyeli, amelyen a motor TÉNYLEGESEN fut (env-lánc):
+GUARD_MODEL = (os.environ.get("NULLTARIF_GUARD_MODEL")
+               or os.environ.get("DELPHOI_NOWCAST_MODEL")
+               or "tencent/Hy3")
 SF_MODELS_URL = os.environ.get(
     "NULLTARIF_MODELS_URL", "https://api.siliconflow.com/v1/models")
+SF_CHAT_URL = os.environ.get(
+    "NULLTARIF_CHAT_URL", "https://api.siliconflow.com/v1/chat/completions")
 
 # Cron-előkészítés (a seed a deploykor fut, ld. seed_cron):
 CRON_RECIPE_NAME = "nulltarif_guard_daily"
@@ -105,6 +110,28 @@ def evaluate(models: list, guard_model: str = "") -> dict:
             "reason": "OK — a modell él" + ("" if known else " (ár-mező nincs a listában — létezés-őrzés)")}
 
 
+async def _default_probe_model(model: str, deps: dict | None = None) -> tuple[bool, str]:
+    """Élő 1-tokenes hívás — a 2026-07-21-i vakfolt zárása: a tencent/Hy3 úgy
+    halt meg (402/20015), hogy a /models listán VÉGIG szerepelt. A létezés-őrzés
+    ezért kevés: naponta ténylegesen meg kell szólítani a modellt."""
+    import httpx
+    body = {"model": model, "max_tokens": 8,
+            "messages": [{"role": "user", "content": "Reply with: ok"}],
+            "thinking": {"type": "disabled"}}
+    try:
+        async with httpx.AsyncClient(timeout=45) as client:
+            r = await client.post(SF_CHAT_URL, json=body,
+                                  headers={"Authorization": f"Bearer {_api_key(deps)}"})
+        if r.status_code != 200:
+            return False, f"HTTP {r.status_code}: {r.text[:160]}"
+        content = (r.json().get("choices") or [{}])[0].get("message", {}).get("content", "")
+        if not (content or "").strip():
+            return False, "200 OK, de ÜRES válasz-tartalom"
+        return True, "élő hívás OK"
+    except Exception as e:  # noqa: BLE001
+        return False, f"{type(e).__name__}: {e}"
+
+
 async def _default_send_telegram(text: str) -> bool:
     """A Feldwebel-út: TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID env, sendMessage
     (a server.py _telegram_push mintája)."""
@@ -126,10 +153,11 @@ async def _default_send_telegram(text: str) -> bool:
         return False
 
 
-async def daily_check(deps: dict | None = None, send_fn=None, fetch_fn=None) -> dict:
-    """A napi őr-futás: /models lekérés → evaluate → riasztás ha kell.
-    fetch_fn/send_fn injektálható (teszt: mock). A lekérés hibája is HANGOS
-    (alert=True, fetch_error) — a néma őr rosszabb, mint a téves riasztás."""
+async def daily_check(deps: dict | None = None, send_fn=None, fetch_fn=None,
+                      probe_fn=None) -> dict:
+    """A napi őr-futás: /models lekérés → evaluate → élő próbahívás → riasztás.
+    fetch_fn/send_fn/probe_fn injektálható (teszt: mock). A lekérés hibája is
+    HANGOS (alert=True) — a néma őr rosszabb, mint a téves riasztás."""
     ts = datetime.now(timezone.utc).isoformat()
     try:
         models = await (fetch_fn() if fetch_fn else _default_fetch_models(deps))
@@ -138,6 +166,16 @@ async def daily_check(deps: dict | None = None, send_fn=None, fetch_fn=None) -> 
         report = {"model": GUARD_MODEL, "exists": None, "price": None,
                   "price_known": False, "alert": True,
                   "reason": f"/models lekérés hiba: {type(e).__name__}: {e}"}
+    if not report["alert"]:
+        # Lista-létezés + $0 önmagában kevés (07-21: Hy3 402 a listán maradva) —
+        # a modellt élőben is megszólítjuk.
+        ok, detail = await (probe_fn(report["model"]) if probe_fn
+                            else _default_probe_model(report["model"], deps))
+        report["probe_ok"] = ok
+        if not ok:
+            report["alert"] = True
+            report["reason"] = (f"a(z) {report['model']} a listán él, de az élő "
+                                f"hívás ELHAL: {detail}")
     report["checked_at"] = ts
     if report["alert"]:
         msg = ("🚨 <b>NULLTARIF-ŐR RIASZTÁS</b>\n"

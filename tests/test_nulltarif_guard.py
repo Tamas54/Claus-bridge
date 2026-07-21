@@ -42,7 +42,7 @@ def test_evaluate_alert_on_missing_model():
     assert "ELTŰNT" in rep["reason"]
 
 
-def _run_daily(models=None, raise_fetch=False):
+def _run_daily(models=None, raise_fetch=False, probe=(True, "élő hívás OK")):
     sent = []
 
     async def fake_fetch():
@@ -54,7 +54,11 @@ def _run_daily(models=None, raise_fetch=False):
         sent.append(text)
         return True
 
-    report = asyncio.run(ng.daily_check(send_fn=fake_send, fetch_fn=fake_fetch))
+    async def fake_probe(model):
+        return probe
+
+    report = asyncio.run(ng.daily_check(send_fn=fake_send, fetch_fn=fake_fetch,
+                                        probe_fn=fake_probe))
     return report, sent
 
 
@@ -81,6 +85,24 @@ def test_daily_check_fetch_error_is_loud_alert():
     assert report["alert"] is True
     assert "lekérés hiba" in report["reason"]
     assert len(sent) == 1
+
+
+def test_daily_check_dead_model_on_green_list_alerts():
+    # 2026-07-21: a tencent/Hy3 a /models listán maradt, miközben minden hívás
+    # 402/20015-tel halt el — a létezés+ár őrzés ezt NEM látta. Az élő próba igen.
+    report, sent = _run_daily([{"id": ng.GUARD_MODEL, "price": 0}],
+                              probe=(False, "HTTP 402: code 20015"))
+    assert report["alert"] is True
+    assert report["probe_ok"] is False
+    assert "élő" in report["reason"] and "402" in report["reason"]
+    assert len(sent) == 1
+
+
+def test_daily_check_probe_ok_is_recorded():
+    report, sent = _run_daily([{"id": ng.GUARD_MODEL, "price": 0}])
+    assert report["alert"] is False
+    assert report["probe_ok"] is True
+    assert sent == []
 
 
 def test_seed_cron_idempotent(get_db):
