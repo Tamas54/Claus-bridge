@@ -20,6 +20,11 @@ E-mail magic-link auth az aipolling.io-hoz — a Bridge-oldali fele:
       az /ask-út: a B3 delphoi_submit_brief LÉPÉSEI session-auth mögött
       (delphoi_brief validál, delphoi.create_job atomi kredit-levonással,
       process_job háttérben) — a brief/motor-réteg az egy igazságforrás.
+  POST /saas/precheck {question, n?}
+      K1 élő kérdés-ellenőr: LLM-MENTES scope-heurisztika (+ EN-kiegészítés)
+      + kredit- és futásidő-becslés. Nyitott, de rate-limitelt (gépelés
+      közben hívja a storefront); piros verdikt konkrét átfogalmazási
+      javaslattal tér vissza — sosem tilt, csak figyelmeztet.
 
 REGISZTRÁCIÓ: a register_tools(app, deps) az app.custom_route()-tal veszi fel a
 route-okat — server.py-módosítás NÉLKÜL. SORREND-INVARIÁNS: a plugin-discovery
@@ -73,7 +78,7 @@ SESSION_PREFIX = "ses"
 
 ROUTE_PATHS = ("/saas/auth/request-link", "/saas/auth/verify", "/saas/me",
                "/saas/keys", "/saas/keys/{key_id}/revoke",
-               "/saas/submit", "/saas/jobs/{job_id}")
+               "/saas/submit", "/saas/jobs/{job_id}", "/saas/precheck")
 
 # ---------------------------------------------------------------------------
 # SÉMA — egyszer-használatos login-tokenek (a token maga sosem kerül DB-be,
@@ -487,6 +492,145 @@ async def handle_key_revoke(request) -> JSONResponse:
     return JSONResponse(res, status_code=200 if res.get("ok") else 404)
 
 
+# ---------------------------------------------------------------------------
+# K1 — ÉLŐ KÉRDÉS-ELLENŐR (/saas/precheck). LLM-MENTES: a delphoi_scopegate
+# HEURISZTIKA-útja + EN-kiegészítő kulcsszó-réteg (a storefront angol kérdéseit
+# a HU-központú alaplista gyengén fedné). Nyitott végpont, saját rate-limittel
+# (gépelés közben hívja a storefront — session ilyenkor még nincs).
+# ---------------------------------------------------------------------------
+_EN_STRUCTURAL_HARD = (
+    "market share", "stock price", "share price", "exchange rate",
+    "interest rate", "yield curve", "quarterly earnings", "revenue growth",
+)
+_EN_STRUCTURAL_SOFT = (
+    "inflation rate", "unemployment rate", "growth rate", "price target",
+    "how much will", "what percentage", "by how many percent",
+)
+
+# Piros verdikt → KONKRÉT átfogalmazási javaslat a talált kulcsszó-osztályhoz.
+_RED_SUGGESTIONS = (
+    (("gdp", "growth", "forecast", "előrejelzés", "elorejelzes", "inflation",
+      "unemployment", "kibocsátás", "kibocsatas"),
+     "Do people feel the economy is getting better or worse?"),
+    (("stock", "share price", "árfolyam", "arfolyam", "exchange rate",
+      "interest rate", "yield", "hozamgörbe", "hozamgorbe"),
+     "How confident do people feel about their own finances right now?"),
+    (("szektor", "sector", "iparág", "iparag", "industry", "b2b",
+      "supply chain", "beszállító", "beszallito", "értéklánc", "erteklanc",
+      "vertikum", "ágazat", "agazat"),
+     "How would this message land with the people who buy from this industry?"),
+)
+_RED_DEFAULT_SUGGESTION = "How do people feel about this — hopeful or worried?"
+
+PRECHECK_MESSAGES = {
+    "green": "Opinion question — we can measure this.",
+    "yellow": ("Partly measurable — we can read the mood around this, "
+               "but not the hard numbers in it. Treat with care."),
+    "red": "This depends on hard data, not public mood — our method can't read it.",
+}
+
+
+def precheck_scope(text: str) -> dict:
+    """A scopegate-heurisztika + EN-kiegészítés, EN verdikt-kulcsokkal.
+    LLM-hívás NINCS (a Hy3-ítész a job-felvétel útján marad)."""
+    from plugins import delphoi_scopegate as sg
+    heur = sg.heuristic_scope(text)
+    low = " ".join(str(text or "").lower().split())
+    en_hard = sorted({p for p in _EN_STRUCTURAL_HARD if p in low})
+    en_soft = sorted({p for p in _EN_STRUCTURAL_SOFT if p in low})
+    n_soft = len(heur["structural_soft"]) + len(en_soft)
+    if heur["structural_hard"] or en_hard or n_soft >= 2:
+        verdict = "red"
+    elif n_soft:
+        verdict = "yellow"
+    else:
+        verdict = "green"
+    found = heur["structural_hard"] + heur["structural_soft"] + en_hard + en_soft
+    return {"verdict": verdict, "found": found}
+
+
+def _red_suggestion(found: list[str]) -> str:
+    haystack = " ".join(found)
+    for keys, suggestion in _RED_SUGGESTIONS:
+        if any(k in haystack for k in keys):
+            return suggestion
+    return _RED_DEFAULT_SUGGESTION
+
+
+def rate_limit_precheck(ip: str, now: float | None = None) -> bool:
+    """Külön ablak a prechecknek (gépelés közbeni hívások): env
+    DELPHOI_SAAS_PRECHECK_MAX (120) / DELPHOI_SAAS_PRECHECK_WINDOW_SEC (60)."""
+    try:
+        limit = max(1, int(os.environ.get("DELPHOI_SAAS_PRECHECK_MAX", "120")))
+    except ValueError:
+        limit = 120
+    try:
+        window = max(5, int(os.environ.get("DELPHOI_SAAS_PRECHECK_WINDOW_SEC", "60")))
+    except ValueError:
+        window = 60
+    t = now if now is not None else time.monotonic()
+    key = f"p:{ip}"
+    hits = [h for h in _RL_HITS.get(key, []) if t - h < window]
+    ok = len(hits) < limit
+    if ok:
+        hits.append(t)
+    _RL_HITS[key] = hits
+    return ok
+
+
+async def handle_precheck(request) -> JSONResponse:
+    """POST /saas/precheck {question, n?, dimensions?, custom_questions?,
+    stimuli?} → LLM-mentes elő-verdikt + kredit- és idő-becslés. Nyitott,
+    de rate-limitelt; a végleges kapu a submit-út scope/validátor-rétege."""
+    deps = _DEPS or {}
+    if not rate_limit_precheck(_client_ip(request)):
+        return _err("rate_limited", 429)
+    try:
+        data = await request.json()
+    except Exception:  # noqa: BLE001
+        return _err("bad_json")
+    question = str(data.get("question") or "").strip()[:800]
+    if not question:
+        return _err("empty_question")
+
+    from plugins import delphoi, delphoi_brief
+
+    def _num(key: str, dflt: int, lo: int, hi: int) -> int:
+        try:
+            return max(lo, min(hi, int(data.get(key) or dflt)))
+        except (TypeError, ValueError):
+            return dflt
+
+    n = _num("n", 100, 1, delphoi.n_max())
+    n_dims = _num("dimensions", 1, 1, 5)
+    n_custom = _num("custom_questions", 0, 0, 3)
+    n_stim = _num("stimuli", 1, 1, 8)
+
+    scope = precheck_scope(question)
+    verdict = scope["verdict"]
+    eta_s = delphoi.estimate_runtime_seconds(delphoi.job_call_count({"n_per_cell": n}))
+    out = {
+        "ok": True, "verdict": verdict,
+        "message": PRECHECK_MESSAGES[verdict],
+        "credit_estimate": delphoi_brief.estimate_credits(n, n_dims, n_custom, n_stim),
+        "eta_seconds": eta_s, "eta_minutes": max(1, round(eta_s / 60)),
+        "n": n, "n_max": delphoi.n_max(),
+    }
+    if verdict == "red":
+        out["suggestion"] = _red_suggestion(scope["found"])
+    # Kapacitás-előjelzés: a felvételkori kemény kapu (handle_submit) emberi
+    # előképe — itt csak warning, ott 429 a levonás ELŐTT.
+    try:
+        if (delphoi.estimate_job_embed_tokens({"n_per_cell": n})
+                > delphoi.embed_budget_remaining(deps["get_db"])):
+            out["capacity_warning"] = (
+                "Today's measuring capacity is nearly used up — a panel this "
+                "size would exceed it. Try a smaller panel, or run it tomorrow.")
+    except Exception:  # noqa: BLE001 — a kapacitás-jelzés hiánya nem hiba
+        pass
+    return JSONResponse(out)
+
+
 async def handle_submit(request) -> JSONResponse:
     """POST /saas/submit {spec} — az /ask-út. A B3 delphoi_submit_brief
     LÉPÉS-SORRENDJE session-auth mögött: validál → scope-verdikt (LLM-mentes)
@@ -524,6 +668,18 @@ async def handle_submit(request) -> JSONResponse:
         return JSONResponse({"ok": False, "error": "insufficient_credits",
                              "cost": cost, "balance": balance,
                              "credit_estimate": estimate}, status_code=402)
+    # MOD1-C: embed-büdzsé-kapu a FELVÉTELKOR (N×k-becslés) — a levonás ELŐTT,
+    # emberi üzenettel. A futás-közbeni charge_embed_budget marad a végső őr;
+    # ez a kapu a "levontuk, aztán bukott" utat zárja ki.
+    if (delphoi.estimate_job_embed_tokens(panel_spec)
+            > delphoi.embed_budget_remaining(get_db)):
+        return JSONResponse({
+            "ok": False, "error": "capacity_exhausted",
+            "message": ("Today's measuring capacity is nearly used up — a panel "
+                        "this size would exceed it. Nothing was charged. Try a "
+                        "smaller panel now, or run this one tomorrow "
+                        "(capacity resets daily)."),
+        }, status_code=429)
     saved = delphoi_brief.save_brief(get_db, ref, canonical)
     brief_id = saved.get("brief_id") if saved.get("ok") else ""
     panel_spec["brief_id"] = brief_id
@@ -587,6 +743,7 @@ def register_tools(app, deps):
     custom_route("/saas/me", methods=["GET"])(handle_me)
     custom_route("/saas/keys", methods=["GET", "POST"])(handle_keys)
     custom_route("/saas/keys/{key_id}/revoke", methods=["POST"])(handle_key_revoke)
+    custom_route("/saas/precheck", methods=["POST"])(handle_precheck)
     custom_route("/saas/submit", methods=["POST"])(handle_submit)
     custom_route("/saas/jobs/{job_id}", methods=["GET"])(handle_job)
     logger.info("delphoi_saas_auth betoltve — utak: %s (dev_mode=%s)",
