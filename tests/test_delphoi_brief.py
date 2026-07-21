@@ -94,8 +94,15 @@ def test_unknown_dimension_rejected():
 
 
 def test_invalid_country_rejected():
-    errs = db_mod.validate_brief(_valid_spec(country="DE"))
+    # G3: DE/UK/US már validált FG-ország — a kapu ismeretlen országon él tovább
+    errs = db_mod.validate_brief(_valid_spec(country="RO"))
     assert any("ország" in e for e in errs)
+
+
+def test_g3_countries_accepted():
+    # G3 (2026-07-21): FR/DE/UK/US brief-validátoron átmegy
+    for c in ("FR", "DE", "UK", "US"):
+        assert db_mod.validate_brief(_valid_spec(country=c)) == [], c
 
 
 def test_n_bounds():

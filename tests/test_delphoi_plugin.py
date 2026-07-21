@@ -106,8 +106,9 @@ def test_invalid_inputs(fg_db):
     assert delphoi.create_job(fg_db, "user:13", "product_desc", "", {})["ok"] is False
     assert delphoi.create_job(fg_db, "user:13", "ab_test", "", {"country": "HU"},
                               ["csak egy"])["ok"] is False
+    # G3: DE már validált FG-ország — a kapu ismeretlen országon él tovább
     assert "nem validált ország" in delphoi.create_job(
-        fg_db, "user:13", "product_desc", "x", {"country": "DE"})["error"]
+        fg_db, "user:13", "product_desc", "x", {"country": "RO"})["error"]
 
 
 def test_register_tools_full_set(fg_db, fake_app):

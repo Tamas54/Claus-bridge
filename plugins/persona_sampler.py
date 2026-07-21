@@ -142,9 +142,32 @@ COUNTRY_QUOTAS: dict = {
         "source": "Eurostat-marginálisok (G0c mátrix-verifikáció) — delphoi.COUNTRY_PANEL_CONFIG['IT'] a kanonikus tár",
         "loader": _delphoi_dims("IT"),
     },
+    # G3 (ORSZÁG-BŐVÍTÉS, 2026-07-21): DE Eurostat-lekérdezésből, UK/US
+    # dokumentált statikus kvóták — kanonikus tár mindhármnál a
+    # delphoi.COUNTRY_PANEL_CONFIG (részletes forrás-kommentek ott).
+    "DE": {
+        "status": "live",
+        "source": ("Eurostat-lekérdezés 2026-07-21 (statdata MCP): demo_pjangroup 2025 (kor, 18+ bázis 69,58M) "
+                   "+ edat_lfs_9913 2024 (ISCED-sávok) + ilc_lvho01 2024 (degurba) — "
+                   "delphoi.COUNTRY_PANEL_CONFIG['DE'] a kanonikus tár"),
+        "loader": _delphoi_dims("DE"),
+    },
+    "UK": {
+        "status": "live",
+        "source": ("STATIKUS ONS-alapú kvóták (Eurostat nem szolgál friss UK-t, ONS nincs a statdata-rétegen): "
+                   "ONS mid-2023 population estimates (kor) + Census 2021/OECD EAG (végzettség) + "
+                   "ONS/DEFRA rural-urban classification (település) — delphoi.COUNTRY_PANEL_CONFIG['UK']"),
+        "loader": _delphoi_dims("UK"),
+    },
+    "US": {
+        "status": "live",
+        "source": ("STATIKUS Census/ACS-alapú kvóták: Census Bureau 2023 population estimates (kor) + "
+                   "ACS 2023 educational attainment 25+ (végzettség) + Census 2020 urban-rural (település) — "
+                   "delphoi.COUNTRY_PANEL_CONFIG['US']"),
+        "loader": _delphoi_dims("US"),
+    },
     # Többi célország — a G0c ország-mátrix tölti fel (loader vagy literal dims):
     "CZ": {"status": "todo", "source": _EUROSTAT_TODO, "loader": None},
-    "DE": {"status": "todo", "source": _EUROSTAT_TODO, "loader": None},
     "ES": {"status": "todo", "source": _EUROSTAT_TODO, "loader": None},
     "PL": {"status": "todo", "source": _EUROSTAT_TODO, "loader": None},
     "PT": {"status": "todo", "source": _EUROSTAT_TODO, "loader": None},

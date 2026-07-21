@@ -44,7 +44,8 @@ def test_sample_country_personas_deterministic_and_case_insensitive():
 
 
 def test_todo_countries_are_registered_but_reject_loudly():
-    for c in ("CZ", "DE", "ES", "PL", "PT"):
+    # G3: DE/UK/US kikerült a todo-ból (élesítve 2026-07-21)
+    for c in ("CZ", "ES", "PL", "PT"):
         assert c in ps.COUNTRY_QUOTAS, f"hiányzó regiszter-sor: {c}"
         assert ps.COUNTRY_QUOTAS[c]["status"] == "todo"
         try:
@@ -55,9 +56,11 @@ def test_todo_countries_are_registered_but_reject_loudly():
 
 
 def test_fr_it_live_from_delphoi_canonical():
-    # G2: FR/IT a delphoi.COUNTRY_PANEL_CONFIG-ból töltődik (EGY forrás, lusta import)
+    # G2: FR/IT a delphoi.COUNTRY_PANEL_CONFIG-ból töltődik (EGY forrás, lusta
+    # import); G3: DE (Eurostat-lekérdezés) + UK/US (dokumentált statikus
+    # kvóták) ugyanezen az úton élesek.
     from plugins import delphoi
-    for c in ("FR", "IT"):
+    for c in ("FR", "IT", "DE", "UK", "US"):
         assert ps.COUNTRY_QUOTAS[c]["status"] == "live"
         dims = ps.get_country_dims(c)
         cfg = delphoi.COUNTRY_PANEL_CONFIG[c]
