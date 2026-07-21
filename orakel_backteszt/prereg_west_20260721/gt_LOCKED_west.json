@@ -1,0 +1,92 @@
+{
+  "op": "OPERATION G2-WEST — US/UK/DE GROUND TRUTH + ELOREJELZES-SZABALY PRE-REGISZTRACIO",
+  "date_locked": "2026-07-21T14:25+02:00",
+  "model": "tencent/Hy3-preview (a tencent/Hy3 2026-07-21-tol 402/20015 — verifikalva; Flash-hivas TILOS)",
+  "flag_rule": "cutoff_szonda_20260720/cutoff_jegyzokonyv.md: target-ablak >= 2025-08 -> CLEAN. Minden alabbi korpusz-ablak >= 2026-06-15, minden target 2026-07/08 -> CLEAN. Hy3-preview cutoff-minivalidacio a futasok elott (cutoff_preview_probe.json) — ha a preview ismerne 2026-07-os Michigan-erteket, a backteszt ERVENYTELEN.",
+  "backtest": {
+    "US_MICHIGAN_2026-07_PRELIM": {
+      "gt": 54.4,
+      "published": "2026-07-17",
+      "gt_source": "UMich Surveys of Consumers July 2026 preliminary (Bloomberg 2026-07-17; AdvisorPerspectives dshort 2026-07-17; FXStreet). FRED UMCSENT meg lag-os (utolso gepi obs 2026-05=44.8, last_updated 2026-06-26).",
+      "baseline_2026-06_final": 49.5,
+      "baseline_published": "2026-06-26",
+      "components": {"current": {"2026-06": 47.7, "2026-07P": 54.9}, "expectations": {"2026-06": 50.7, "2026-07P": 54.0}},
+      "inflation_1y_exp": {"2026-06": 4.6, "2026-07P": 4.2},
+      "umcsent_12m_series_2025-07_2026-06": [61.7, 58.2, 55.1, 53.6, 51.0, 52.9, 56.4, 56.6, 53.3, 49.8, 44.8, 49.5],
+      "umcsent_12m_mean": 53.575,
+      "corpus_windows": {
+        "us_junT_PROXY": ["2026-06-21", "2026-06-25"],
+        "us_julP": ["2026-06-15", "2026-07-14"]
+      },
+      "window_rationale": "junT: us_ suru zona kezdete (06-22 elott ures) -> a jun-final publikacio (06-26) ELOTTI utolso nap, GT-echo kizarva; PROXY-cimke: a jun fieldwork (05-26..06-22) farkat fedi csak. julP: G2-szabaly [M-1 ho 15 -> M ho 14], a prelim fieldwork ~06-24..07-14, a korpusz-ablak vege < 07-17 publikacio -> pre-outcome. A jun-final ertek (49.5, publ. 06-26) a julP ablakban hirkent jelen lehet — ez BASELINE-tudas, a valos jul. valaszadok is ismertek; a TARGET (54.4) a korpusz-ablak vege utan szuletett.",
+      "eval_rules_preregistered": {
+        "mom_direction_cci": "pred = sign(ssr_balance(us_julP) - ssr_balance(us_junT)); gt_dir = sign(54.4 - 49.5) = +1. Masodlagos orszem: ugyanez kategorikus szaldoval.",
+        "mom_direction_inflexp": "pred = sign(price_score(us_julP) - price_score(us_junT)); gt_dir = sign(4.2 - 4.6) = -1.",
+        "level_sign_secondary": "pred = sign(ssr_balance(us_julP)) vs gt_sign = sign(54.4 - 53.575) = +1. VARAKOZAS elore rogzitve: a panel-szaldo a G2-minta szerint valoszinuleg negativ (hir-doom-skew) -> ez a szabaly a G2 ar-cellak mintajara varhatoan szisztematikus-offset miss; informativ retegek a MoM-irany es a rang.",
+        "abs_error": "NEM ertelmezett — Michigan-skalara nincs kalibracio; a szint-reteg kalibracio nelkul nem idezheto (konszilencia-doktrina)."
+      }
+    }
+  },
+  "prereg_targets": {
+    "UK_GFK_2026-07": {
+      "gt": null, "gt_release": "2026-07-24 (NIQ/GfK press release, pentek)",
+      "gt_scale": "overall index (5 reszszaldo atlaga, balance-jellegu)",
+      "baseline_series_2026": {"2025-12": -17, "2026-01": -16, "2026-02": -19, "2026-03": -21, "2026-04": -25, "2026-05": -23, "2026-06": -23},
+      "baseline_source": "NIQ news-center 2026 kozlemenyek (jan: 'up one point to -16'; marc: -21, febr. implikalt -19; maj: 'up two points to -23'; jun: 'stay at -23')",
+      "corpus_window": ["2026-06-21", "2026-07-15"],
+      "window_rationale": "GfK UK fieldwork jellemzoen a honap elso fele (~07-01..07-15); uk_ suru zona 06-21-tol; ablak vege < 07-24 publikacio -> pre-outcome.",
+      "eval": "sign(panel ssr_balance) vs sign(GT); |e| a balance-skalan (informativ, kalibracios celra); MoM-irany NEM regisztralt (nincs juniusi panel — a juniusi fieldwork korpusz-fedes nelkuli)."
+    },
+    "DE_EUROSTAT_CCI_2026-07": {
+      "gt": null, "gt_release": "~2026-07-30 (EC BCS orszag-szintu publikacio; EA/EU flash 07-23)",
+      "gt_indicator": "ei_bsco_m BS-CSMCI SA BAL, geo=DE",
+      "baseline_series_2025-08_2026-06": {"2025-08": -10.6, "2025-09": -9.2, "2025-10": -10.8, "2025-11": -11.4, "2025-12": -12.1, "2026-01": -9.8, "2026-02": -10.8, "2026-03": -13.6, "2026-04": -17.8, "2026-05": -16.0, "2026-06": -14.6},
+      "baseline_source": "Eurostat ei_bsco_m a statdata/Makron MCP-retegen, lekerdezve 2026-07-21",
+      "corpus_window": ["2026-06-21", "2026-07-14"],
+      "window_rationale": "G2-szabaly [M-1 15 -> M 14], de nyelvi reteg 06-21-tol el; EU-felmeres fieldwork a honap elso 2-3 hete; ablak vege < publikacio -> pre-outcome.",
+      "eval": "G2-formatum: sign(panel ssr_balance) vs sign(GT) + |e| a szaldo-skalan + kategorikus orszem. Ez a cella a validalt FR/IT protokoll 1:1 klonja nemet horgonyokkal."
+    },
+    "DE_EUROSTAT_INFLEXP_2026-07": {
+      "gt": null, "gt_release": "~2026-07-30",
+      "gt_indicator": "ei_bsco_m BS-PT-NY SA BAL, geo=DE",
+      "baseline_series_2025-08_2026-06": {"2025-08": 31.9, "2025-09": 33.4, "2025-10": 33.0, "2025-11": 33.3, "2025-12": 35.1, "2026-01": 29.7, "2026-02": 31.1, "2026-03": 49.2, "2026-04": 50.5, "2026-05": 42.6, "2026-06": 37.4},
+      "corpus_window": ["2026-06-21", "2026-07-14"],
+      "eval": "G2 ar-protokoll: price_score (1..5) regisztralva; sign(price_score-3) vs sign(GT) (a G2-ben bizonyitott szisztematikus offset-tudattal); a pont-ertek kalibracios nyersanyag."
+    },
+    "DE_KONSUMKLIMA_2026-08": {
+      "gt": null, "gt_release": "2026-07-24 (NIM/GfK Konsumklima, augusztusi elorejelzes)",
+      "baseline": {"2026-07_forecast": -29.2, "2026-06_revised": -29.7, "published": "2026-06-25"},
+      "baseline_source": "NIM kozlemeny 2026-06-25 (lebensmittelzeitung/NIM: +0.5 pont -29.2-re)",
+      "corpus_window": ["2026-06-21", "2026-07-14"],
+      "eval": "ugyanaz a DE CCI-panel-ertek; sign-teszt + z-pozicio; MoM-irany NEM regisztralt (nincs juniusi panel). Elsodlegesen a kereszt-orszag ranghoz jarul hozza."
+    },
+    "US_CB_2026-07": {
+      "gt": null, "gt_release": "2026-07-28 (utolso keddi CB-publikacio)",
+      "baseline": {"2026-06": 91.2, "2026-05_revised": 90.6, "published": "2026-06-30"},
+      "baseline_source": "Conference Board / PRNewswire 2026-06-30; investingLive: 91.2 vs 94.8 vart",
+      "corpus_window_now": ["2026-07-01", "2026-07-21"],
+      "eval": "MoM-irany: pred = sign(ssr_balance(us_now) - ssr_balance(us_junT)) vs gt_dir = sign(CB_2026-07 - 91.2). CAVEAT elore rogzitve: a junT proxy-cella a CB juniusi fieldworkjet (cutoff ~06-18) NEM fedi — gyenge lab, a cella emiatt csak masodlagos bizonyitek."
+    },
+    "US_MICHIGAN_2026-07_FINAL": {
+      "gt": null, "gt_release": "2026-07-31 (pentek)",
+      "baseline_prelim": 54.4,
+      "corpus_window_now": ["2026-07-01", "2026-07-21"],
+      "eval": "Prelim->final drift irany: pred = sign(ssr_balance(us_now) - ssr_balance(us_julP)) vs gt_dir = sign(final - 54.4). Motivacio: a prelim-interjuk >70%-a a 07-07-i iranyi csapas-ujraindulas es a benzinar-visszagyorsulas ELOTT keszult (Bloomberg-caveat) — a ket ablak deltaja pontosan ezt az info-shiftet meri. Inflexp-ag: pred = sign(price_score(us_now) - price_score(us_julP)) vs gt_dir = sign(final_1y_infl - 4.2)."
+    },
+    "CROSS_COUNTRY_RANK_2026-07": {
+      "cells": ["us_julP", "uk_jul", "de_jul"],
+      "rule": "Predikcio: a harom julius-ablakos CCI-panel ssr_balance-rangsora. GT-rangsor: z_i = (GT_i - mean(series_i)) / sd(series_i) a fent zarolt sajat idosoron (US: umcsent_12m; UK: 2025-12..2026-06 7 pont; DE: BS-CSMCI 11 pont), GT_i = a juliusi kiadas (US: final, ha 07-31-ig megjon, kulonben prelim; UK: GfK jul; DE: Eurostat jul). Ertekeles: 3 paronkenti rang-talalat. Ez a G1/G2-ben validalt RANG-reteg tesztje.",
+      "series_note": "az idosorok FENT zarolva; UK-sor rovidebb (7 pont) — dokumentalt korlatozas"
+    }
+  },
+  "protocol": {
+    "cci": "G2-klon: persona-only + korpusz-grounding, MONDAT+KATEGORIA kettos formatum, N=60/seed, seeds=[1,2,3], SSR linear + text-embedding-3-small; anchor: ssr.REFERENCE_SETS_EN['financial_outlook'] (US/UK), ssr.REFERENCE_SETS_DE['finanzielle_aussicht'] (DE)",
+    "inflexp": "G2-klon: 2-soros PRICES/FINANCES ill. PREISE/FINANZEN protokoll, N=40/seed; ar-anchor: ssr.REFERENCE_SETS_PRICE['EN'] / ['DE']",
+    "personas": "persona_sampler.sample_country_personas('US'/'UK'/'DE') — G3 orszag-bovites (commit 3403695), KL<0.05 tesztekkel bizonyitva",
+    "model_params": "temp=0.8, max_tokens=160, thinking:disabled, response_format nelkul",
+    "cells": {
+      "us_junT": ["cci", "inflexp"], "us_julP": ["cci", "inflexp"], "us_now": ["cci", "inflexp"],
+      "uk_jul": ["cci"], "de_jul": ["cci", "inflexp"]
+    }
+  }
+}
