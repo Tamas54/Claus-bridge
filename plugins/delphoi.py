@@ -684,6 +684,8 @@ _SEED_ENTITIES = [
     # UK/US (G3), korpusz: lang='en' + uk_/us_ source-prefix.
     ("keir-starmer", "UK", "politician", "Keir Starmer megítélése", 1),
     ("nigel-farage", "UK", "politician", "Nigel Farage megítélése", 1),
+    # Kommandant 2026-07-21: Burnham az új brit miniszterelnök — a falra vele.
+    ("andy-burnham", "UK", "politician", "Andy Burnham megítélése", 1),
     ("Q22686", "US", "politician", "Donald Trump megítélése", 1),
 ]
 

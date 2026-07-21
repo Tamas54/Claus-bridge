@@ -125,4 +125,5 @@ def test_enabled_set_unchanged(feed_db):
     assert enabled == {"Q124488292", "tisza-part", "Q387006", "Q948",
                        "Q3052772", "Q451791", "hu-inflacios-varakozas",
                        "hu-novekedesi-hangulat",
-                       "keir-starmer", "nigel-farage", "Q22686"}
+                       "keir-starmer", "nigel-farage", "andy-burnham",
+                       "Q22686"}

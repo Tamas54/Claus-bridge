@@ -43,6 +43,7 @@ import asyncio
 import json
 import os
 import sqlite3
+from datetime import datetime, timezone
 import sys
 
 # Repo-gyökér a sys.path-ra (plugins.delphoi importhoz)
@@ -63,6 +64,7 @@ NEW_ENTITIES = [
     ("Q22686", "US"),
     ("keir-starmer", "UK"),
     ("nigel-farage", "UK"),
+    ("andy-burnham", "UK"),   # Kommandant 07-21: az új brit miniszterelnök
 ]
 
 
@@ -81,7 +83,24 @@ def flip_enabled(conn) -> list[str]:
     INSERT OR IGNORE-ja a meglévő DB-sorokat nem éri el — ez itt a flip útja).
     Visszaadja a ténylegesen átbillentett kulcsokat (idempotens)."""
     flipped = []
+    seed = {k: row for row in delphoi._SEED_ENTITIES for k in [row[0]]}
     for key, country in NEW_ENTITIES:
+        row = conn.execute(
+            "SELECT 1 FROM delphoi_entity_nowcast WHERE entity_key=? AND country=?",
+            (key, country)).fetchone()
+        if row is None and key in seed:
+            # Élő DB-ben még nem létező, utólag seedelt entitás (pl. andy-burnham
+            # 07-21): itt kap sort, egyenesen enabled=1-gyel.
+            _, c, etype, label, _en = seed[key]
+            delphoi.validate_display_label(label)
+            conn.execute(
+                "INSERT INTO delphoi_entity_nowcast (entity_key, country, "
+                "entity_type, display_label, enabled, created_at) "
+                "VALUES (?,?,?,?,1,?)",
+                (key, c, etype, label,
+                 datetime.now(timezone.utc).isoformat()))
+            flipped.append(key)
+            continue
         cur = conn.execute(
             "UPDATE delphoi_entity_nowcast SET enabled=1 "
             "WHERE entity_key=? AND country=? AND enabled=0", (key, country))
