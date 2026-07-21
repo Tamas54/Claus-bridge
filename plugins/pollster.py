@@ -21,7 +21,8 @@ import json
 import logging
 import os
 import random
-from collections import Counter
+import time
+from collections import Counter, deque
 from datetime import datetime, timezone
 
 logger = logging.getLogger(__name__)
@@ -41,6 +42,151 @@ def _provider() -> tuple:
                 os.environ.get("ORAKEL_OPENAI_MODEL", "gpt-4o"),
                 False)  # OpenAI has no "thinking" param
     return (SF_URL, SF_KEY, MODEL, True)
+
+
+# ============================================================
+# MOD1-C (KLARTEXT K1) — TPM-TUDATOS FAN-OUT
+# ============================================================
+# SiliconFlow L1-keret: 10 000 kérés/perc (RPM) és 400 000 token/perc (TPM).
+# A pacer HÁROM féket kombinál:
+#   1. PONTOS csúszóablakos kérés-büdzsé (RPM): bármely 60 mp-es ablakban a
+#      kérésszám ≤ safety×RPM — nem token-bucket-közelítés, hanem esemény-napló;
+#   2. ugyanilyen csúszóablakos token-büdzsé (TPM);
+#   3. adaptív (AIMD) konkurencia: 429-re felezés, sikersorozatra +1.
+# A garanciát a test_klartext_k1 szimulált órával bizonyítja (N=1000 × k=3).
+
+def rate_limits() -> dict:
+    """Env-vezérelt keret-konfig — a pacer ÉS a futásidő-becslő
+    (delphoi.estimate_runtime_seconds) EGY forrásból olvas."""
+    def _i(name: str, dflt: int) -> int:
+        try:
+            return max(1, int(os.environ.get(name, str(dflt))))
+        except ValueError:
+            return dflt
+    try:
+        safety = float(os.environ.get("DELPHOI_RATE_SAFETY", "0.8"))
+    except ValueError:
+        safety = 0.8
+    return {
+        "rpm": _i("DELPHOI_RPM_LIMIT", 10_000),
+        "tpm": _i("DELPHOI_TPM_LIMIT", 400_000),
+        "safety": min(1.0, max(0.1, safety)),
+        "tokens_per_call": _i("DELPHOI_TOKENS_PER_CALL", 750),
+        "latency_s": _i("DELPHOI_CALL_LATENCY_S", 8),
+        "conc_start": _i("DELPHOI_CONCURRENCY", int(os.environ.get("ORAKEL_CONCURRENCY", "8") or 8)),
+        "conc_min": _i("DELPHOI_CONCURRENCY_MIN", 2),
+        "conc_max": _i("DELPHOI_CONCURRENCY_MAX", 32),
+    }
+
+
+class _SlidingBudget:
+    """Pontos csúszóablakos büdzsé: az utolsó window_s mp-ben elköltött
+    mennyiség sosem lépi túl a limitet (esemény-napló, nem közelítés)."""
+
+    def __init__(self, limit: float, window_s: float = 60.0):
+        self.limit = float(limit)
+        self.window_s = float(window_s)
+        self._events: deque = deque()      # (t, amount)
+        self._sum = 0.0
+
+    def _prune(self, now: float) -> None:
+        while self._events and self._events[0][0] <= now - self.window_s:
+            self._sum -= self._events.popleft()[1]
+
+    def wait_time(self, now: float, amount: float) -> float:
+        """0.0 = mehet most; különben ennyi mp múlva lesz elég hely."""
+        self._prune(now)
+        if self._sum + amount <= self.limit:
+            return 0.0
+        need = self._sum + amount - self.limit
+        freed = 0.0
+        for t, amt in self._events:
+            freed += amt
+            if freed >= need:
+                return max(0.001, t + self.window_s - now)
+        return self.window_s   # elméleti ág: amount önmagában > limit
+
+    def add(self, now: float, amount: float) -> None:
+        self._prune(now)
+        self._events.append((now, amount))
+        self._sum += amount
+
+
+class RatePacer:
+    """RPM+TPM csúszóablak + AIMD-konkurencia. Az óra és az altató
+    injektálható (a teszt szimulált órával bizonyítja a keret-tartást)."""
+
+    AIMD_SUCCESS_STEP = 20    # ennyi sikeres hívás után nő a konkurencia +1-gyel
+
+    def __init__(self, rpm: float, tpm: float, conc_start: int = 8,
+                 conc_min: int = 2, conc_max: int = 32, clock=None, sleep=None):
+        self._clock = clock or time.monotonic
+        self._sleep = sleep or asyncio.sleep
+        self._req = _SlidingBudget(rpm)
+        self._tok = _SlidingBudget(tpm)
+        self._conc_min = max(1, int(conc_min))
+        self._conc_max = max(self._conc_min, int(conc_max))
+        self.concurrency = min(self._conc_max, max(self._conc_min, int(conc_start)))
+        self._active = 0
+        self._successes = 0
+        self._lock = asyncio.Lock()
+        self.stats = {"acquired": 0, "throttled": 0, "rate_limited": 0}
+
+    async def acquire(self, tokens: int) -> None:
+        while True:
+            async with self._lock:
+                if self._active < self.concurrency:
+                    now = self._clock()
+                    wait = max(self._req.wait_time(now, 1),
+                               self._tok.wait_time(now, float(tokens)))
+                    if wait <= 0:
+                        self._req.add(now, 1)
+                        self._tok.add(now, float(tokens))
+                        self._active += 1
+                        self.stats["acquired"] += 1
+                        return
+                else:
+                    wait = 0.05
+            self.stats["throttled"] += 1
+            await self._sleep(min(max(wait, 0.05), 2.0))
+
+    def release(self, ok: bool = True) -> None:
+        self._active = max(0, self._active - 1)
+        if ok:
+            self._successes += 1
+            if self._successes >= self.AIMD_SUCCESS_STEP and self.concurrency < self._conc_max:
+                self.concurrency += 1
+                self._successes = 0
+
+    def on_rate_limited(self) -> None:
+        """429 a motortól → multiplikatív visszavágás (AIMD)."""
+        self.stats["rate_limited"] += 1
+        self._successes = 0
+        self.concurrency = max(self._conc_min, self.concurrency // 2)
+
+    def slot(self, tokens: int):
+        """Async kontextus: acquire → hívás → release (kivételnél is)."""
+        pacer = self
+
+        class _Slot:
+            async def __aenter__(self):
+                await pacer.acquire(tokens)
+                return pacer
+
+            async def __aexit__(self, exc_type, exc, tb):
+                pacer.release(ok=exc_type is None)
+                return False
+
+        return _Slot()
+
+
+def make_pacer(clock=None, sleep=None) -> RatePacer:
+    """Éles pacer az env-konfigból (safety-vel leszorított keretek)."""
+    rl = rate_limits()
+    return RatePacer(rpm=rl["rpm"] * rl["safety"], tpm=rl["tpm"] * rl["safety"],
+                     conc_start=rl["conc_start"], conc_min=rl["conc_min"],
+                     conc_max=rl["conc_max"], clock=clock, sleep=sleep)
+
 
 # HU adult-population marginals, KSH-grounded (sampled independently as a v0
 # simplification — joint correlations not yet modelled).
@@ -158,12 +304,14 @@ def _parse_party(text: str) -> str:
 
 
 async def _chat(client, prompt: str, max_tokens: int = 260, temperature: float = 0.8,
-                retries: int = 4, model: str | None = None) -> str:
+                retries: int = 4, model: str | None = None, pacer=None) -> str:
     """One Non-Think call over a SHARED client, with exponential backoff —
     the proven teszterek/ pattern. Retries on exception AND empty content (a motor
     rate-limit alatt néha üreset ad). A `model` paraméter felülírja a modellnevet;
     None esetén a _provider() default-ja az útvonal. NINCS silent fallback:
-    kimerült retry = hangos RuntimeError (exception + log), NEM modell-csere."""
+    kimerült retry = hangos RuntimeError (exception + log), NEM modell-csere.
+    pacer: opcionális RatePacer — 429-nél on_rate_limited() (AIMD-visszavágás);
+    a slot-kezelés (acquire/release) a HÍVÓ dolga, a _chat csak jelez."""
     url, _key, provider_model, use_think = _provider()
     model = model or provider_model
     body = {"model": model, "messages": [{"role": "user", "content": prompt}]}
@@ -182,6 +330,10 @@ async def _chat(client, prompt: str, max_tokens: int = 260, temperature: float =
     for attempt in range(retries):
         try:
             r = await client.post(url, json=body)
+            # 429 → AIMD-jelzés a pacernek (getattr: a teszt-fake kliensek
+            # válaszán nincs status_code — az nem hiba)
+            if pacer is not None and getattr(r, "status_code", None) == 429:
+                pacer.on_rate_limited()
             r.raise_for_status()
             content = (r.json()["choices"][0]["message"].get("content") or "").strip()
             if content:

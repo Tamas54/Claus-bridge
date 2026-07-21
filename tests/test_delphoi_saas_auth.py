@@ -87,8 +87,10 @@ def test_login_token_roundtrip_and_single_use(auth_db):
 
 
 def test_login_token_expiry(auth_db):
+    # a TTL-hez kötve (KLARTEXT: 15→60 perc) — a teszt nem hardcode-ol percet
     import time
-    tok = saa.issue_login_token(auth_db, "a@b.io", now=time.time() - 16 * 60)
+    tok = saa.issue_login_token(auth_db, "a@b.io",
+                                now=time.time() - (saa.LOGIN_TOKEN_TTL + 60))
     assert saa.consume_login_token(auth_db, tok) is None
 
 

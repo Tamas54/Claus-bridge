@@ -57,7 +57,11 @@ TRACKING_CADENCES = ("none", "weekly", "monthly")
 REPORT_LANGS = ("hu", "en")
 REPORT_FORMATS = ("pdf", "json", "csv")
 MAX_CUSTOM_QUESTIONS = 3
-MIN_N, MAX_N = 30, 500
+MIN_N = 30
+# MOD1 (KLARTEXT): a felső N-plafon env-vezérelt — DELPHOI_N_MAX, API-default
+# 2000 (a storefront UI-plafonja 1000, ugyanezen env kisebb defaulttal); a
+# motor-oldali őr (delphoi.n_max + create_job) ugyanebből az env-ből él.
+MAX_N = int(os.environ.get("DELPHOI_N_MAX", "2000") or 2000)
 MAX_STIMULI = 8
 
 _EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")

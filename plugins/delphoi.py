@@ -110,6 +110,84 @@ def embed_budget() -> int:
         return 2_000_000
 
 
+# ---------------------------------------------------------------------------
+# MOD1 (KLARTEXT K1) — N-plafon, nowcast-N, futásidő-becslés a pacing-konfigból.
+# ---------------------------------------------------------------------------
+def n_max() -> int:
+    """DELPHOI_N_MAX — a fizetős panel felső N-korlátja. API-default 2000;
+    a storefront (aipolling) UI-plafonja 1000 — UGYANEZT az env-et olvassa,
+    csak kisebb defaulttal. A delphoi_brief.MAX_N is ebből az env-ből él."""
+    try:
+        return max(30, int(os.environ.get("DELPHOI_N_MAX", "2000")))
+    except ValueError:
+        return 2000
+
+
+def nowcast_n() -> int:
+    """DELPHOI_NOWCAST_N — a heti nowcast panel-N-je. NEM user-állítható
+    (MOD1-C): a cron és a tool-default is innen olvas; explicit n-t csak
+    admin-hívás adhat."""
+    try:
+        return max(10, int(os.environ.get("DELPHOI_NOWCAST_N", "60")))
+    except ValueError:
+        return 60
+
+
+RUNTIME_OVERHEAD_S = 45   # korpusz-építés + embedding + aggregálás fix ráhagyása
+
+
+def job_call_count(panel_spec: dict) -> int:
+    """A job TÉNYLEGES LLM-hívásszáma: N × seedek × k minta. (A variánsok
+    between-subject osztoznak a personákon — a hívásszámot nem szorozzák.)"""
+    n = max(30, int(panel_spec.get("n_per_cell", 30)))
+    n_seeds = 3 if int(panel_spec.get("n_seeds", 1)) >= 3 else 1
+    return n * n_seeds * fg_samples()
+
+
+def estimate_runtime_seconds(n_calls: int) -> int:
+    """f(N) futásidő-becslés a pollster-pacing KONFIGJÁBÓL számolva (nem tipp):
+    áteresztés/perc = min(konkurencia-fék, TPM-fék, RPM-fék), + fix overhead.
+    A watchdog (×2) és a /saas/precheck ETA-ja is ezt használja."""
+    import math
+    from plugins import pollster
+    rl = pollster.rate_limits()
+    cpm = max(1.0, min(rl["conc_max"] * 60.0 / max(1, rl["latency_s"]),
+                       rl["tpm"] * rl["safety"] / max(1, rl["tokens_per_call"]),
+                       rl["rpm"] * rl["safety"]))
+    return int(math.ceil(max(0, int(n_calls)) / cpm * 60.0)) + RUNTIME_OVERHEAD_S
+
+
+def embed_tokens_per_response() -> int:
+    """DELPHOI_EMBED_TOKENS_PER_RESPONSE — felvételkori becslés válaszonként
+    (konzervatív: a 260-token-plafonú reakciók tipikusan ~50–125 tokent adnak)."""
+    try:
+        return max(1, int(os.environ.get("DELPHOI_EMBED_TOKENS_PER_RESPONSE", "100")))
+    except ValueError:
+        return 100
+
+
+def estimate_job_embed_tokens(panel_spec: dict) -> int:
+    """Job-FELVÉTELKORI embed-becslés N×k alapján (+ horgony-készlet-ráhagyás).
+    Konzervatív felső becslés — yt_title (embedding nélkül) is ezzel megy át."""
+    return job_call_count(panel_spec) * embed_tokens_per_response() + 500
+
+
+def embed_budget_remaining(get_db) -> int:
+    """A MAI embed-büdzsé maradéka — a felvételkori kapu (handle_submit) és a
+    precheck olvassa; a futás-közbeni charge_embed_budget marad a végső őr."""
+    day = datetime.now(timezone.utc).date().isoformat()
+    conn = get_db()
+    try:
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS delphoi_embed_usage "
+            "(day TEXT PRIMARY KEY, tokens INTEGER NOT NULL DEFAULT 0)")
+        row = conn.execute("SELECT tokens FROM delphoi_embed_usage WHERE day=?",
+                           (day,)).fetchone()
+    finally:
+        conn.close()
+    return max(0, embed_budget() - (int(row["tokens"]) if row else 0))
+
+
 # A nowcast szentiment-entitásainak kalibrációs kulcsa (G4-registry, cci-domén
 # cellák). A regard-domén cellái még nincsenek a registry-ben — ott a
 # calibrate() explicit no_entry-metával raw-t ad (a plumbing így is látszik).
@@ -1105,15 +1183,18 @@ def _iso_target_window(predicted: datetime | None = None) -> str:
 
 
 async def run_entity_nowcast(deps: dict, entity_key: str = "", country: str = "",
-                             n: int = 60, seed: int = 42, window_days: int = 7,
+                             n: int | None = None, seed: int = 42, window_days: int = 7,
                              dry_run: bool = False, chat_fn=None, embed_fn=None,
                              samples: int | None = None) -> dict:
     """A heti nowcast: enabled regiszter-sorok (szűrhető) → ország-korpusz →
     kvótás panel → Hy3 fan-out (personánként k minta, P2 variancia-őr) →
     SSR-linear → direction ∈ [-1,1] → ÚJ ledger-sor (INSERT — más út a
-    triggerek miatt nincs is). samples=None → DELPHOI_NOWCAST_SAMPLES env."""
+    triggerek miatt nincs is). samples=None → DELPHOI_NOWCAST_SAMPLES env.
+    n=None → DELPHOI_NOWCAST_N env (MOD1-C: a heti nowcast N-je NEM
+    user-állítható — a cron mindig az env-értéket kapja)."""
     from plugins import persona_sampler, pollster, ssr
 
+    n = int(n) if n else nowcast_n()
     get_db = deps["get_db"]
     conn = get_db()
     try:
@@ -1374,12 +1455,13 @@ def register_tools(app, deps):
 
     @app.tool()
     async def delphoi_entity_nowcast_run(entity_key: str = "", country: str = "",
-                                         n: int = 60, dry_run: bool = False) -> str:
+                                         n: int = 0, dry_run: bool = False) -> str:
         """DELPHOI entitás-nowcast futtatása (KIRAKAT). A szintetikus panel az ország
         datált hír-korpuszán ítéli meg az entitás irányát (RELATÍV jel, nem abszolút %).
-        Üres szűrők = minden engedélyezett entitás. dry_run=True: számol, de nem ír ledgerbe."""
+        Üres szűrők = minden engedélyezett entitás. dry_run=True: számol, de nem ír ledgerbe.
+        n=0 → DELPHOI_NOWCAST_N env (a heti nowcast N-je nem user-állítható)."""
         rep = await run_entity_nowcast(deps, entity_key=entity_key, country=country,
-                                       n=n, dry_run=dry_run)
+                                       n=n or None, dry_run=dry_run)
         return json.dumps(rep, ensure_ascii=False, indent=1)
 
     @app.tool()
@@ -1849,6 +1931,11 @@ def create_job(get_db, user_id: str, input_kind: str, input_text: str,
     if int(panel_spec.get("n_per_cell", 30)) < 30:
         # KEMÉNY ALSÓ KORLÁT (D5.1): kis minta zajt adna el mérésként.
         panel_spec = dict(panel_spec, n_per_cell=30)
+    if int(panel_spec.get("n_per_cell", 30)) > n_max():
+        # MOD1 FELSŐ PLAFON (DELPHOI_N_MAX) — motor-szintű őr, a brief-validátor
+        # (delphoi_brief.MAX_N) ugyanebből az env-ből él.
+        return {"ok": False, "error": f"n_per_cell a plafon felett: "
+                f"{int(panel_spec.get('n_per_cell'))} (max {n_max()})"}
     if input_kind in ("ab_test", "yt_title") and (not input_variants or len(input_variants) < 2):
         return {"ok": False, "error": f"{input_kind}: legalább 2 variáns kell"}
     cost = job_cost(panel_spec, input_variants)
@@ -1892,19 +1979,46 @@ def _fail_job(get_db, job_id: str, error: str) -> None:
     logger.warning("delphoi job %s failed (%s) — kredit visszaírva", job_id, error[:120])
 
 
+def watchdog_deadline_minutes(panel_spec: dict) -> int:
+    """MOD1-C: a watchdog-határidő f(N) — max(30 perc, becsült futásidő × 2).
+    Az 1000-es panel nem 'ragadt' csak mert a fix 30 percnél tovább fut."""
+    import math
+    try:
+        est = estimate_runtime_seconds(job_call_count(panel_spec or {}))
+    except Exception:  # noqa: BLE001 — becslő-hiba nem ölhet ártatlan jobot
+        return WATCHDOG_MINUTES
+    return max(WATCHDOG_MINUTES, int(math.ceil(est * 2 / 60.0)))
+
+
 def watchdog_sweep(get_db) -> int:
     """Ragadt 'running' jobok (worker-halál) → failed + refund. Minden
-    API-hívás és a cron is futtatja — olcsó, idempotens."""
-    cutoff = (datetime.now(timezone.utc) - timedelta(minutes=WATCHDOG_MINUTES)).isoformat()
+    API-hívás és a cron is futtatja — olcsó, idempotens. A határidő
+    jobonkénti f(N): watchdog_deadline_minutes(panel_spec)."""
+    now = datetime.now(timezone.utc)
     conn = get_db()
     try:
-        stuck = [r["id"] for r in conn.execute(
-            "SELECT id FROM delphoi_jobs WHERE status='running' AND started_at < ?",
-            (cutoff,)).fetchall()]
+        running = [(r["id"], r["started_at"], r["panel_spec"]) for r in conn.execute(
+            "SELECT id, started_at, panel_spec FROM delphoi_jobs "
+            "WHERE status='running' AND started_at IS NOT NULL").fetchall()]
     finally:
         conn.close()
-    for jid in stuck:
-        _fail_job(get_db, jid, f"watchdog: {WATCHDOG_MINUTES} perce ragadt running-ban")
+    stuck: list[tuple[str, int]] = []
+    for jid, started_at, spec_json in running:
+        try:
+            spec = json.loads(spec_json or "{}")
+        except ValueError:
+            spec = {}
+        deadline = watchdog_deadline_minutes(spec)
+        try:
+            started = datetime.fromisoformat(str(started_at))
+        except (TypeError, ValueError):
+            continue   # értelmezhetetlen started_at → nem ítélünk vakon
+        if started.tzinfo is None:
+            started = started.replace(tzinfo=timezone.utc)
+        if now - started > timedelta(minutes=deadline):
+            stuck.append((jid, deadline))
+    for jid, deadline in stuck:
+        _fail_job(get_db, jid, f"watchdog: {deadline} perce ragadt running-ban")
     return len(stuck)
 
 
@@ -2059,7 +2173,7 @@ async def process_job(deps: dict, job_id: str, chat_fn=None, embed_fn=None,
             from plugins.llm_cache import LLMCache, cache_key
             cache = LLMCache()
 
-        async def _ask(client, p, stimulus, iteration):
+        async def _ask(client, p, stimulus, iteration, pacer=None):
             prompt = _fg_prompt(p, cfg, kind, stimulus) + ctx_line
             if cache is not None:
                 from plugins.llm_cache import cache_key as _ck
@@ -2070,7 +2184,8 @@ async def process_job(deps: dict, job_id: str, chat_fn=None, embed_fn=None,
             if chat_fn is not None:
                 text = await chat_fn(prompt)
             else:
-                text = await pollster._chat(client, prompt, temperature=temp, model=FG_MODEL)
+                text = await pollster._chat(client, prompt, temperature=temp,
+                                            model=FG_MODEL, pacer=pacer)
             if cache is not None and text:
                 cache.set(key, text, model=FG_MODEL)
             return text
@@ -2087,18 +2202,23 @@ async def process_job(deps: dict, job_id: str, chat_fn=None, embed_fn=None,
                 results.append((p, vid, sample_texts))
         else:
             import httpx
-            sem = asyncio.Semaphore(CONCURRENCY)
+            # MOD1-C: a fix Semaphore helyett TPM-tudatos pacer (RPM+TPM
+            # csúszóablak + AIMD-konkurencia) — N=1000×k=3 is keretben marad.
+            pacer = pollster.make_pacer()
+            call_tokens = pollster.rate_limits()["tokens_per_call"]
             async with httpx.AsyncClient(
                     headers={"Authorization": f"Bearer {pollster._provider()[1]}"}, timeout=90) as client:
                 async def _one(t_idx, p, stim, s_i, j):
-                    async with sem:
-                        try:
+                    try:
+                        async with pacer.slot(call_tokens):
                             # a pollster._chat már FG_RETRIES-nél többet (4) retry-zik
                             # exponenciális backoffal — a retry-küszöb ott érvényesül
-                            return (t_idx, await _ask(client, p, stim, _fg_iteration(s_i, j, p["id"])))
-                        except Exception as e:  # noqa: BLE001
-                            logger.warning("delphoi fg persona %s/minta %d halott: %s", p["id"], j, e)
-                            return (t_idx, None)
+                            return (t_idx, await _ask(client, p, stim,
+                                                      _fg_iteration(s_i, j, p["id"]),
+                                                      pacer=pacer))
+                    except Exception as e:  # noqa: BLE001
+                        logger.warning("delphoi fg persona %s/minta %d halott: %s", p["id"], j, e)
+                        return (t_idx, None)
                 flat = await asyncio.gather(*[
                     _one(i, p, stim, s_i, j)
                     for i, (p, _vid, stim, s_i) in enumerate(tasks) for j in range(k)])
@@ -2284,6 +2404,12 @@ def get_job(get_db, job_id: str, user_id: str) -> dict:
     for col in ("scope_verdict", "coverage_score"):
         if col in row.keys():
             out[col] = row[col]
+    # MOD1: a panel N-je a payload első szintjén (a riport-oldalnak) — a
+    # panel_spec JSON-ból olvasva; KÜLÖN n_panel-oszlop/migráció NEM kell.
+    try:
+        out["n_panel"] = int(json.loads(row["panel_spec"]).get("n_per_cell", 0)) or None
+    except (TypeError, ValueError, KeyError):
+        pass
     if row["status"] == "done" and row["result_json"]:
         out["result"] = json.loads(row["result_json"])
     if row["status"] == "failed":
