@@ -27,6 +27,17 @@ prompt-JSON kimenet + lenient parse; LLM-hiba esetén determinista NOTSTROM
 
 Artefakt-tár: DELPHOI_REPORTS_DIR env; default a BRIDGE_DB_PATH melletti
 reports/ könyvtár (Railway-n a /data volume alatt marad a DB mellett).
+
+KLARTEXT K5 (kirakat-polír): a riport ugyanazt a nyelvet beszéli, mint az
+aipolling eredmény-oldal —
+  - verdikt-mondat ELÖL (az aipolling app/verdict.py sávhatárainak portja:
+    ±0.25 / ±0.7 a semleges ponthoz képest);
+  - emberi szegmens-címkék (SEGMENT_LABELS: media-diet kulcs → mondat);
+  - belső zsargon KI a default szekciókból (SSR/korpusz/persona) — a technikai
+    tények a módszertan-lapra költöznek, NEM vesznek el;
+  - a módszertan-lap a riport VÉGÉN, <details>-be csukva (nyomtatásban külön
+    lapon, nyitva — print-CSS + beforeprint-helper).
+A nyers persona-tilalom és a módszertan-lap teljessége változatlan.
 """
 from __future__ import annotations
 
@@ -77,13 +88,20 @@ STRINGS: dict = {
         "goal_label": "A megrendelés célja",
         "ch_exec": "Vezetői összefoglaló",
         "ch_dimensions": "Eredmények dimenziónként",
-        "ch_segments": "Szegmens-bontás",
+        "ch_segments": "Kire hogyan hatott",
         "ch_timeseries": "Idősor — gördülő mérés",
-        "ch_mood": "Szintetizált hangulatkép (aggregált)",
-        "ch_exploratory": "Exploratív fejezet — nem validált",
+        "ch_mood": "A panel hangulata",
+        "ch_exploratory": "Az Ön saját kérdései — próba-jelleggel",
         "ch_methodology": "Módszertan-lap",
         "ch_scope": "Mit mértünk — és mit nem",
         "ch_disclaimer": "Jognyilatkozat",
+        # K5 — verdikt-sáv (az aipolling verdict.py sávhatárainak hu-párja)
+        "verdict_clear_pos": "Ez tetszik az embereknek — egyértelműen pozitív fogadtatás.",
+        "verdict_mild_pos": "Az emberek inkább mellette vannak — enyhén pozitív.",
+        "verdict_split": "Az emberek megosztottak — se nem talál be, se nem bukik el.",
+        "verdict_mild_neg": "Így még nem talál be — enyhén negatív.",
+        "verdict_clear_neg": "Ezt az emberek elutasítják — egyértelműen negatív.",
+        "proof_summary": "Bizonyíték és módszertan (auditálóknak)",
         "baseline_label": "viszonyítási alap",
         "score_label": "jel",
         "vs_baseline": "eltérés a bázistól",
@@ -93,22 +111,21 @@ STRINGS: dict = {
         "choice_rate": "választás-arány",
         "share": "részesedés",
         "ranking": "rangsor",
-        "unclear_top": "leggyakoribb homályos kifejezések (aggregált)",
+        "unclear_top": "a panel számára leggyakrabban homályos kifejezések",
         "clear_ratio": "a panel ekkora hányadának volt világos",
         "run_at": "futás ideje",
         "overall_score": "összesített jel",
-        "dim_measured": "mért dimenzió (SSR-horgonyzott)",
-        "dim_pending": ("ebben a futásban nem mért — a dimenzió natív "
-                        "SSR-horgonykészlete készen áll, a motor-út a következő "
-                        "körben élesedik"),
-        "exploratory_badge": "exploratív — nem validált",
-        "exploratory_note": ("Az alábbi saját kérdések SSR-horgony nélkül, "
-                             "validálatlan exploratív kérdésként rögzültek. "
-                             "Eredményük tájékoztató jellegű, nem mérés."),
-        "exploratory_pending": ("A kérdések a briefben rögzítve; kiértékelésük "
-                                "az exploratív motor-út élesítésekor fut le."),
-        "mood_note": ("A hangulatkép a panel AGGREGÁLT reakcióiból készült "
-                      "gépi szintézis — szó szerinti válasz nem szerepel benne."),
+        "dim_measured": "ebben a futásban mérve",
+        "dim_pending": ("ebben a futásban nem mértük — ez a dimenzió a "
+                        "következő körben élesedik"),
+        "exploratory_badge": "próba-kérdés — nem mérés",
+        "exploratory_note": ("Az alábbi saját kérdések próba-jelleggel futottak, "
+                             "a validált mérőskálákon kívül. Az eredményük "
+                             "tájékoztató jellegű, nem mérés."),
+        "exploratory_pending": ("A kérdéseket rögzítettük; a kiértékelésük egy "
+                                "következő fejlesztési körben fut le."),
+        "mood_note": ("Ez a hangulatkép a panel egészét összegzi. Egyetlen "
+                      "panel-tag válasza sem szerepel benne szó szerint."),
         "meth_n": "Panel-méret (kért / teljesült)",
         "meth_quota": "Kvóta-forrás",
         "meth_panel_version": "Panel-verzió",
@@ -120,28 +137,33 @@ STRINGS: dict = {
         "meth_corpus_hash": "Korpusz-lenyomat (SHA256)",
         "meth_coverage": "Kitöltési arány (coverage)",
         "meth_scope": "Scope-verdikt",
+        "meth_scoring": "Pontozás",
+        "meth_scoring_val": ("SSR — szemantikus hasonlóság-illesztés natív "
+                             "horgonyszövegekre (1–5); a saját kérdések horgony "
+                             "nélkül, exploratívként futnak"),
         "meth_calibration": "Kalibrációs verzió",
         "meth_contamination": "Kontamináció-státusz",
         "meth_na": "n/a (e futásban nem rögzült)",
         "contamination_none": "nem vizsgált ebben a futásban",
-        "scope_measured": ("MÉRTÜK: a szöveg/koncepció keltette RELATÍV reakciót "
-                           "egy demográfiai kvótákkal mintavételezett szintetikus "
-                           "panelen — irány, rangsor, szegmensek közti dőlés."),
-        "scope_not_measured": ("NEM MÉRTÜK: valós populáció abszolút arányait "
-                               "(ez nem közvélemény-kutatás); strukturális/"
-                               "mechanikus kimeneteket (piaci részesedés, "
-                               "forgalom, GDP — scope-törvény); és nem "
-                               "helyettesíti a valós piackutatást."),
+        "scope_measured": ("MÉRTÜK: azt, hogy a szöveg vagy koncepció milyen "
+                           "RELATÍV reakciót vált ki egy, az ország valós "
+                           "összetételét tükröző virtuális panelen — irányt, "
+                           "rangsort, csoportok közti dőlést."),
+        "scope_not_measured": ("NEM MÉRTÜK: valós népesség abszolút arányait "
+                               "(ez nem közvélemény-kutatás); kemény üzleti "
+                               "számokat (piaci részesedés, forgalom, GDP); "
+                               "és nem helyettesíti a valós piackutatást."),
         "verify_label": "A nyilvános track record integritás-ellenőrzése",
         "product_link_label": "Új mérés indítása",
         "series_note": "A jel RELATÍV (1–5 skálán a 3,0 semleges ponthoz mérve).",
         "notstrom_summary": ("Az összesített jel {score} az 1–5 skálán "
-                             "(bázis: {baseline}). A panel {n} szintetikus "
-                             "résztvevővel futott le, {country} kvóták szerint. "
-                             "A részletes bontást a riport fejezetei tartalmazzák."),
-        "notstrom_mood": ("A panel aggregált reakciója a semleges ponthoz képest "
-                          "{tilt} irányba dől; a legerősebb jel a(z) {top} "
-                          "szegmensből érkezett."),
+                             "(a semleges pont: {baseline}). A panel {n} "
+                             "virtuális résztvevővel futott le, a(z) {country} "
+                             "népesség valós összetételét tükrözve. A részletes "
+                             "bontást a riport fejezetei tartalmazzák."),
+        "notstrom_mood": ("A panel egészének reakciója a semleges ponthoz "
+                          "képest {tilt} irányba dől; a legerősebb jel ettől a "
+                          "csoporttól érkezett: {top}."),
         "tilt_pos": "pozitív", "tilt_neg": "negatív", "tilt_neutral": "semleges",
     },
     "en": {
@@ -151,13 +173,20 @@ STRINGS: dict = {
         "goal_label": "Brief goal",
         "ch_exec": "Executive summary",
         "ch_dimensions": "Results by dimension",
-        "ch_segments": "Segment breakdown",
+        "ch_segments": "How each group reacted",
         "ch_timeseries": "Time series — rolling measurement",
-        "ch_mood": "Synthesized mood picture (aggregated)",
-        "ch_exploratory": "Exploratory chapter — not validated",
+        "ch_mood": "The mood of the panel",
+        "ch_exploratory": "Your own questions — exploratory",
         "ch_methodology": "Methodology sheet",
         "ch_scope": "What we measured — and what we did not",
         "ch_disclaimer": "Disclaimer",
+        # K5 — verdict band (same thresholds as the aipolling result page)
+        "verdict_clear_pos": "People like this — clearly positive.",
+        "verdict_mild_pos": "People lean toward this — mildly positive.",
+        "verdict_split": "People are split — this neither lands nor falls flat.",
+        "verdict_mild_neg": "As it stands, this doesn't quite land — mildly negative.",
+        "verdict_clear_neg": "People push back on this — clearly negative.",
+        "proof_summary": "Proof & methodology (for auditors)",
         "baseline_label": "baseline",
         "score_label": "signal",
         "vs_baseline": "vs baseline",
@@ -167,24 +196,21 @@ STRINGS: dict = {
         "choice_rate": "choice rate",
         "share": "share",
         "ranking": "ranking",
-        "unclear_top": "most frequent unclear terms (aggregated)",
+        "unclear_top": "terms the panel most often found unclear",
         "clear_ratio": "of the panel found it clear",
         "run_at": "run at",
         "overall_score": "overall signal",
-        "dim_measured": "measured dimension (SSR-anchored)",
-        "dim_pending": ("not measured in this run — the native SSR anchor set "
-                        "for this dimension is ready; the engine path goes live "
+        "dim_measured": "measured in this run",
+        "dim_pending": ("not measured in this run — this dimension goes live "
                         "in the next iteration"),
-        "exploratory_badge": "exploratory — not validated",
-        "exploratory_note": ("The custom questions below were recorded as "
-                             "unvalidated exploratory questions, without SSR "
-                             "anchors. Their output is indicative, not a "
-                             "measurement."),
-        "exploratory_pending": ("The questions are recorded in the brief; they "
-                                "will be evaluated once the exploratory engine "
-                                "path goes live."),
-        "mood_note": ("The mood picture is a machine synthesis of the panel's "
-                      "AGGREGATED reactions — no verbatim response appears in it."),
+        "exploratory_badge": "exploratory — not a measurement",
+        "exploratory_note": ("Your own questions below ran as exploratory "
+                             "questions, outside the validated scales. Their "
+                             "output is indicative, not a measurement."),
+        "exploratory_pending": ("The questions are recorded; they will be "
+                                "evaluated in an upcoming iteration."),
+        "mood_note": ("This mood picture sums up the panel as a whole. No "
+                      "single panelist's answer appears in it word for word."),
         "meth_n": "Panel size (requested / completed)",
         "meth_quota": "Quota source",
         "meth_panel_version": "Panel version",
@@ -196,28 +222,34 @@ STRINGS: dict = {
         "meth_corpus_hash": "Corpus fingerprint (SHA256)",
         "meth_coverage": "Completion ratio (coverage)",
         "meth_scope": "Scope verdict",
+        "meth_scoring": "Scoring",
+        "meth_scoring_val": ("SSR — semantic-similarity rating against native "
+                             "anchor texts (1–5); custom questions run "
+                             "unanchored, as exploratory"),
         "meth_calibration": "Calibration version",
         "meth_contamination": "Contamination status",
         "meth_na": "n/a (not recorded for this run)",
         "contamination_none": "not examined in this run",
-        "scope_measured": ("WE MEASURED: the RELATIVE reaction your text/concept "
-                           "triggers on a quota-sampled synthetic panel — "
-                           "direction, ranking, tilt between segments."),
+        "scope_measured": ("WE MEASURED: the RELATIVE reaction your text or "
+                           "concept triggers on a virtual panel matched to the "
+                           "country's real make-up — direction, ranking, and "
+                           "the tilt between groups."),
         "scope_not_measured": ("WE DID NOT MEASURE: absolute proportions of a "
                                "real population (this is not an opinion poll); "
-                               "structural/mechanical outcomes (market share, "
-                               "revenue, GDP — scope law); and it is no "
-                               "substitute for real market research."),
+                               "hard business numbers (market share, revenue, "
+                               "GDP); and it is no substitute for real market "
+                               "research."),
         "verify_label": "Integrity check of the public track record",
         "product_link_label": "Launch a new measurement",
         "series_note": "The signal is RELATIVE (on a 1–5 scale against the 3.0 neutral point).",
         "notstrom_summary": ("The overall signal is {score} on the 1–5 scale "
-                             "(baseline: {baseline}). The panel ran with {n} "
-                             "synthetic participants under {country} quotas. "
-                             "See the report chapters for the detailed breakdown."),
-        "notstrom_mood": ("The panel's aggregated reaction tilts {tilt} of the "
-                          "neutral point; the strongest signal came from the "
-                          "{top} segment."),
+                             "(neutral point: {baseline}). The panel ran with "
+                             "{n} virtual panelists, matched to the real "
+                             "make-up of {country}. See the report chapters "
+                             "for the detailed breakdown."),
+        "notstrom_mood": ("The panel as a whole tilts {tilt} relative to the "
+                          "neutral point; the strongest signal came from this "
+                          "group: {top}."),
         "tilt_pos": "positive", "tilt_neg": "negative", "tilt_neutral": "neutral",
     },
 }
@@ -233,6 +265,51 @@ QUOTA_SOURCES = {
     "PL": {"hu": "Eurostat-közeli marginálisok (durvább készlet)",
            "en": "Eurostat-based marginals (coarser set)"},
 }
+
+
+# ---------------------------------------------------------------------------
+# K5 — EMBERI SZEGMENS-CÍMKÉK (media-diet kulcs → mondat) + VERDIKT-PORT.
+# A tábla az aipolling app/verdict.py SEGMENT_LABELS párja (en 1:1, hu kézzel);
+# ismeretlen kulcs érintetlenül megy át — a motor-szótár az igazságforrás.
+# ---------------------------------------------------------------------------
+SEGMENT_LABELS: dict = {
+    "hu": {
+        "baloldali": "Baloldali sajtót olvas",
+        "jobboldali": "Jobboldali sajtót olvas",
+        "közmédia": "Közmédiát néz",
+        "közösségi": "Főleg közösségi médiából tájékozódik",
+        "alig": "Alig követi a híreket",
+        "egyéb": "Egyéb hírfogyasztás",
+    },
+    "en": {
+        "baloldali": "Reads left-leaning news",
+        "jobboldali": "Reads right-leaning news",
+        "közmédia": "Watches public television",
+        "közösségi": "Social media is their main source",
+        "alig": "Barely follows the news",
+        "egyéb": "Other news habits",
+    },
+}
+
+
+def humanize_segment(key, lang: str) -> str:
+    k = str(key or "")
+    return (SEGMENT_LABELS.get(lang) or SEGMENT_LABELS["hu"]).get(k, k)
+
+
+def verdict_key(score: float, base: float = 3.0) -> str:
+    """Az aipolling app/verdict.py verdict_sentence sávhatárainak portja
+    (±0.25 / ±0.7) — a mondat maga a STRINGS-ből jön, nyelvenként."""
+    d = float(score) - float(base)
+    if d >= 0.7:
+        return "verdict_clear_pos"
+    if d >= 0.25:
+        return "verdict_mild_pos"
+    if d > -0.25:
+        return "verdict_split"
+    if d > -0.7:
+        return "verdict_mild_neg"
+    return "verdict_clear_neg"
 
 
 def _t(lang: str, key: str) -> str:
@@ -329,7 +406,9 @@ def _synth_prompt(agg: dict, goal: str, lang: str) -> str:
             "report. Input: the aggregated panel result as JSON (no raw "
             "responses exist for you). Rules: the signal is RELATIVE (1–5 "
             "scale, 3.0 neutral); never claim absolute population percentages; "
-            "never invent quotes; write in English.\n\n"
+            "never invent quotes; avoid internal jargon — never write "
+            "'corpus', 'persona' or 'SSR'; say 'the day's news' and "
+            "'panelist' instead; write in English.\n\n"
             f"Brief goal: {goal or '(not given)'}\n"
             f"Aggregated result JSON:\n{payload}\n\n"
             'Return ONLY a JSON object, nothing else: {"summary": "<exactly 3 '
@@ -341,7 +420,9 @@ def _synth_prompt(agg: dict, goal: str, lang: str) -> str:
         "írod. Bemenet: az aggregált panel-eredmény JSON-ban (nyers válasz "
         "nem létezik számodra). Szabályok: a jel RELATÍV (1–5 skála, 3,0 a "
         "semleges pont); soha ne állíts abszolút populációs százalékot; soha "
-        "ne találj ki idézetet; magyarul írj.\n\n"
+        "ne találj ki idézetet; kerüld a belső zsargont — a 'korpusz', "
+        "'persona', 'SSR' szó TILOS, mondd úgy: 'a napi hírek', 'panel-tag'; "
+        "magyarul írj.\n\n"
         f"A brief célja: {goal or '(nincs megadva)'}\n"
         f"Aggregált eredmény JSON:\n{payload}\n\n"
         'KIZÁRÓLAG egy JSON-objektumot adj vissza, semmi mást: '
@@ -357,7 +438,7 @@ def _notstrom_synthesis(agg: dict, lang: str) -> dict:
     baseline = (agg.get("baseline") or {}).get("value", 3.0)
     panel = agg.get("panel") or {}
     segs = agg.get("segments") or []
-    top = segs[0]["segment"] if segs else "—"
+    top = humanize_segment(segs[0]["segment"], lang) if segs else "—"
     if score is None:
         tilt = s["tilt_neutral"]
     else:
@@ -434,8 +515,28 @@ dl.meth { display: grid; grid-template-columns: 16rem 1fr; gap: 0.25rem 0.9rem;
 dl.meth dt { color: #5a616b; }
 dl.meth dd { margin: 0; }
 code { font-family: 'DejaVu Sans Mono', monospace; font-size: 0.82em; }
-@media print { body { padding: 1.2cm 1.4cm; } }
+.verdict-line { font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1.45rem; font-weight: 700; line-height: 1.3; margin: 0 0 0.5rem; }
+#verdict { margin: 0 0 1.2rem; }
+details.proof { margin-top: 2.2rem; border-top: 1px solid #c9ccd1;
+  padding-top: 0.8rem; }
+details.proof summary { cursor: pointer; font-size: 1.05rem; font-weight: 700; }
+details.proof > dl.meth { margin-top: 0.8rem; }
+@media print {
+  body { padding: 1.2cm 1.4cm; }
+  details.proof { page-break-before: always; border-top: 0; }
+  details.proof > * { display: block; }
+}
 """
+
+# Nyomtatás-segéd: a böngésző a csukott <details>-t nem nyomtatná — a
+# beforeprint kinyitja (a WeasyPrint-utat a print-CSS display-szabálya fedi).
+# KÜLÖN konstans, mert a _SHELL NOTSTROM-útja str.format — kapcsos zárójel a
+# sablonba nem kerülhet.
+_PRINT_HELPER = ("<script>window.addEventListener('beforeprint',function()"
+                 "{var d=document.querySelectorAll('details');"
+                 "for(var i=0;i<d.length;i++)d[i].setAttribute('open','');});"
+                 "</script>")
 
 _SHELL = """<!doctype html>
 <html lang="{lang}">
@@ -455,6 +556,7 @@ _SHELL = """<!doctype html>
   <p>{footer_text}</p>
   <p><a href="{verify_url}">{verify_label}</a> · <a href="{product_url}">{product_label}</a></p>
 </footer>
+{print_helper}
 </body>
 </html>
 """
@@ -505,7 +607,8 @@ def _dimensions_body(data: dict, lang: str) -> str:
                     f"{_e(bval)} — {_e(bnote)}</span></p>")
             if agg.get("variants"):
                 head = (f"<tr><th>{_e(_t(lang, 'variant'))}</th>"
-                        f"<th>{_e(_t(lang, 'choice_rate'))}</th><th>SSR</th>"
+                        f"<th>{_e(_t(lang, 'choice_rate'))}</th>"
+                        f"<th>{_e(_t(lang, 'score_label'))} (1–5)</th>"
                         f"<th>{_e(_t(lang, 'n_label'))}</th></tr>")
                 body = "".join(
                     f"<tr><td>{_e(v.get('variant'))}</td>"
@@ -547,7 +650,7 @@ def _segments_body(agg: dict, lang: str) -> str:
     head = (f"<tr><th>{_e(_t(lang, 'segment'))}</th><th>{_e(_t(lang, 'n_label'))}</th>"
             f"<th>{_e(_t(lang, 'score_label'))}</th><th>{_e(_t(lang, 'vs_baseline'))}</th></tr>")
     body = "".join(
-        f"<tr><td>{_e(s.get('segment'))}</td><td>{s.get('n')}</td>"
+        f"<tr><td>{_e(humanize_segment(s.get('segment'), lang))}</td><td>{s.get('n')}</td>"
         f"<td>{s.get('score')}</td>"
         f"<td>{'+' if (s.get('vs_baseline') or 0) >= 0 else ''}{s.get('vs_baseline')}</td></tr>"
         for s in segs)
@@ -607,6 +710,7 @@ def _methodology_body(data: dict, lang: str) -> str:
         (_t(lang, "meth_corpus_hash"), panel.get("corpus_hash") or _t(lang, "meth_na")),
         (_t(lang, "meth_coverage"), job.get("coverage_score") if job.get("coverage_score") is not None else _t(lang, "meth_na")),
         (_t(lang, "meth_scope"), job.get("scope_verdict") or _t(lang, "meth_na")),
+        (_t(lang, "meth_scoring"), _t(lang, "meth_scoring_val")),
         (_t(lang, "meth_calibration"), _calibration_version()),
         (_t(lang, "meth_contamination"), contamination),
     ]
@@ -614,13 +718,33 @@ def _methodology_body(data: dict, lang: str) -> str:
     return f'<dl class="meth">{dl}</dl>'
 
 
+def _verdict_lead(agg: dict, lang: str) -> str:
+    """K5: verdikt-mondat ELÖL — az aipolling eredmény-oldal nyitó sora, a
+    riport nyelvén. Jel nélküli (pl. rangsor-) futásnál üres string."""
+    score = agg.get("overall_score")
+    if score is None:
+        return ""
+    bval = (agg.get("baseline") or {}).get("value", 3.0)
+    bnum = float(bval) if isinstance(bval, (int, float)) else 3.0
+    d = float(score) - bnum
+    return (f'<section id="verdict">'
+            f'<p class="verdict-line">{_e(_t(lang, verdict_key(float(score), bnum)))}</p>'
+            f"{_scale_bar(float(score), bnum)}"
+            f'<p class="baseline-note">{float(score):.2f} / 5 · '
+            f"{_e(_t(lang, 'vs_baseline'))}: {d:+.2f} · "
+            f"{_e(_t(lang, 'baseline_label'))}: {_e(bval)}</p></section>")
+
+
 def render_html(data: dict, synth: dict, brand: dict, lang: str) -> str:
     """A teljes riport-HTML. Brand-agnosztikus (A1): név/lábléc/disclaimer/URL
-    a brand-configból; minden link a public_base_url-ből (A4)."""
+    a brand-configból; minden link a public_base_url-ből (A4).
+    K5-sorrend: verdikt → fejezetek → scope → jognyilatkozat → módszertan-lap
+    a VÉGÉN, <details>-be csukva (nyomtatásban külön lap, nyitva)."""
     agg = data["aggregate"]
     brief = data.get("brief") or {}
     base = str(brand["public_base_url"]).rstrip("/")
     sections = [
+        _verdict_lead(agg, lang),
         _sec("exec-summary", _t(lang, "ch_exec"), f"<p>{_e(synth.get('summary'))}</p>"),
         _sec("dimensions", _t(lang, "ch_dimensions"), _dimensions_body(data, lang)),
         _sec("segments", _t(lang, "ch_segments"), _segments_body(agg, lang)),
@@ -634,13 +758,19 @@ def render_html(data: dict, synth: dict, brand: dict, lang: str) -> str:
     if brief.get("custom_questions"):
         sections.append(_sec("exploratory", _t(lang, "ch_exploratory"),
                              _exploratory_body(brief, agg, lang)))
-    sections.append(_sec("methodology", _t(lang, "ch_methodology"),
-                         _methodology_body(data, lang)))
     sections.append(_sec("scope", _t(lang, "ch_scope"),
                          f"<p>{_e(_t(lang, 'scope_measured'))}</p>"
                          f"<p>{_e(_t(lang, 'scope_not_measured'))}</p>"))
     sections.append(_sec("disclaimer", _t(lang, "ch_disclaimer"),
                          f"<p>{_e(brand['disclaimer_text'])}</p>"))
+    # Módszertan-lap a legvégén, összecsukva — a teljessége változatlan
+    # (N, kvóta, panel-verzió, modell, grounding, korpusz-hash, coverage,
+    # scope, pontozás, kalibráció, kontamináció).
+    sections.append(
+        f'<details class="proof" id="methodology">'
+        f"<summary>{_e(_t(lang, 'proof_summary'))}</summary>"
+        f"<h2>{_e(_t(lang, 'ch_methodology'))}</h2>"
+        f"{_methodology_body(data, lang)}</details>")
     goal = brief.get("goal") or ""
     meta_bits = [f"{_e(_t(lang, 'job_label'))}: <code>{_e(data['job_id'])}</code>",
                  f"{_e(_t(lang, 'generated_at'))}: "
@@ -659,6 +789,7 @@ def render_html(data: dict, synth: dict, brand: dict, lang: str) -> str:
         "verify_label": _e(_t(lang, "verify_label")),
         "product_url": _e(f"{base}/delphoi"),
         "product_label": _e(_t(lang, "product_link_label")),
+        "print_helper": _PRINT_HELPER,
     }
     return _render_shell(ctx)
 

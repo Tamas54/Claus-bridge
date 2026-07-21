@@ -220,6 +220,78 @@ def test_synthesis_notstrom_on_llm_failure(report_db):
     assert "3.80" in html or "3,80" in html or "3.8" in html
 
 
+# ── KLARTEXT K5 — kirakat-polír invariánsok ────────────────────────────────
+
+def test_k5_verdict_sentence_first(report_db):
+    """A verdikt-mondat a riport ELEJÉN áll, a vezetői összefoglaló ELŐTT —
+    3.8-as jel (d=+0.8) → 'egyértelműen pozitív' sáv, hu és en nyelven is."""
+    job_id = _mk_done_job(report_db, job_id="dlph-k5v")
+    html = open(_gen(report_db, job_id, formats=[])["artifacts"]["html"],
+                encoding="utf-8").read()
+    s = delphoi_report.STRINGS["hu"]
+    assert s["verdict_clear_pos"] in html
+    assert html.index(s["verdict_clear_pos"]) < html.index(s["ch_exec"])
+    html_en = open(_gen(report_db, job_id, lang="en", formats=[])
+                   ["artifacts"]["html"], encoding="utf-8").read()
+    assert delphoi_report.STRINGS["en"]["verdict_clear_pos"] in html_en
+
+
+def test_k5_verdict_band_port_matches_aipolling():
+    """A sávhatárok az aipolling verdict.py portja: ±0.25 / ±0.7."""
+    vk = delphoi_report.verdict_key
+    assert vk(3.8) == "verdict_clear_pos"
+    assert vk(3.3) == "verdict_mild_pos"
+    assert vk(3.0) == "verdict_split"
+    assert vk(2.6) == "verdict_mild_neg"
+    assert vk(2.2) == "verdict_clear_neg"
+
+
+def test_k5_segments_humanized_no_engine_keys(report_db):
+    """EN riport: emberi szegmens-címkék; a motor-kulcs ('baloldali') nem
+    jelenik meg. Ismeretlen kulcs érintetlenül megy át."""
+    job_id = _mk_done_job(report_db, job_id="dlph-k5s")
+    html = open(_gen(report_db, job_id, lang="en", formats=[])
+                ["artifacts"]["html"], encoding="utf-8").read()
+    assert "Reads left-leaning news" in html
+    assert "Reads right-leaning news" in html
+    assert "baloldali" not in html and "jobboldali" not in html
+    assert delphoi_report.humanize_segment("űrhajós", "en") == "űrhajós"
+
+
+def test_k5_methodology_last_collapsed_and_complete(report_db):
+    """A módszertan-lap a riport VÉGÉN, <details>-ben — de a teljessége nem
+    csorbul (N, modell, panel-verzió, korpusz-hash, coverage, scope)."""
+    job_id = _mk_done_job(report_db, job_id="dlph-k5m")
+    html = open(_gen(report_db, job_id, formats=[])["artifacts"]["html"],
+                encoding="utf-8").read()
+    det = html.index('<details class="proof"')
+    assert det > html.index('id="scope"')
+    assert det > html.index('id="disclaimer"')
+    tail = html[det:]
+    s = delphoi_report.STRINGS["hu"]
+    for key in ("meth_n", "meth_model", "meth_panel_version",
+                "meth_corpus_hash", "meth_coverage", "meth_scope"):
+        assert s[key] in tail, key
+    assert "abc123" in tail and "tencent/Hy3|non-think" in tail
+    # nyomtatás: külön lap + a csukott details kinyitása (print-CSS + helper)
+    assert "page-break-before: always" in html
+    assert "beforeprint" in html
+
+
+def test_k5_no_jargon_before_proof_block(report_db):
+    """A default szekciókban (a details-blokk ELŐTT) nincs belső zsargon —
+    hu és en riportban sem."""
+    job_id = _mk_done_job(report_db, job_id="dlph-k5j")
+    for lang, words in (("hu", ("ssr", "korpusz", "persona", "kvóta")),
+                        ("en", ("ssr", "corpus", "persona", "quota"))):
+        html = open(_gen(report_db, job_id, lang=lang, formats=[])
+                    ["artifacts"]["html"], encoding="utf-8").read()
+        body = html[:html.index('<details class="proof"')].lower()
+        body = body[body.index("</header>"):]      # a CSS-blokk nem copy
+        for w in words:
+            assert w not in body, f"{lang}: {w}"
+
+
 def test_parse_llm_json_lenient():
     p = delphoi_report.parse_llm_json
     assert p('{"summary": "a", "mood": "b"}') == {"summary": "a", "mood": "b"}
