@@ -1,0 +1,459 @@
+{
+  "cell": "us_B",
+  "lang": "en",
+  "corpus_window": [
+    "2026-07-15",
+    "2026-07-22"
+  ],
+  "n": 59,
+  "lean_dist": {
+    "analytical": 2,
+    "center_left": 19,
+    "center": 35,
+    "center_right": 3
+  },
+  "cat_dist": {
+    "foreign": 54,
+    "general": 1,
+    "sport": 4
+  },
+  "pool_lean_counts_full": {
+    "analytical": 27,
+    "center": 10387,
+    "center_left": 3482,
+    "center_right": 198,
+    "left": 5
+  },
+  "pool_cat_counts_full": {
+    "economy": 76,
+    "entertainment": 51,
+    "foreign": 12553,
+    "general": 808,
+    "global": 9,
+    "lifestyle": 72,
+    "politics": 147,
+    "sport": 377,
+    "tech": 6
+  },
+  "source_prefix_counts": {
+    "us_": 14099
+  },
+  "items": [
+    {
+      "text": "Californians may get a new way to sue big companies. Some Democrats are nervous — Californians may soon have another way to sue big companies. That makes some Democrats nervous, but several didn’t vote.",
+      "source": "CalMatters",
+      "lean": "analytical",
+      "date": "2026-07-15",
+      "category": "foreign"
+    },
+    {
+      "text": "City Council joins the chorus demanding Boutros' resignation as US attorney — <p>After a surprisingly emotional debate, the City Council approved a resolution Wednesday demanding the resignation of <a class=\"Link\" href=\"https://chicago.suntimes.com/immigration/2026/06/08/broadview-six-andrew-boutr",
+      "source": "Chicago Sun-Times",
+      "lean": "center_left",
+      "date": "2026-07-15",
+      "category": "foreign"
+    },
+    {
+      "text": "Kroger makes a major change to shopping points rewards — There is a bit of pre-work involved to use your points.",
+      "source": "Cleveland.com / Plain Dealer",
+      "lean": "center",
+      "date": "2026-07-15",
+      "category": "foreign"
+    },
+    {
+      "text": "Las Vegas Grand Prix settle 2023 class action lawsuit loose water cover incident — Las Vegas Grand Prix’s and its parent company have agreed to pay over $3 million as part of a class action lawsuit tied to a practice session of the inaugural 2023 race where a loose water valve cover caused an hourslong",
+      "source": "Las Vegas Review-Journal",
+      "lean": "center_right",
+      "date": "2026-07-15",
+      "category": "foreign"
+    },
+    {
+      "text": "Police Say Young Boy’s Escape Exposed Disturbing Conditions Inside Guardians’ Home — A 5-year-old Pennsylvania boy escaped from a Swatara Township home where police allege he spent much of his time confined inside a makeshift prison-like bedroom.",
+      "source": "MLive (Michigan)",
+      "lean": "center",
+      "date": "2026-07-15",
+      "category": "foreign"
+    },
+    {
+      "text": "1994 N.J. boys tennis final Top 20: HS historical project — These teams were the best of the best in the 1994 boys tennis season.",
+      "source": "NJ.com / Star-Ledger",
+      "lean": "center",
+      "date": "2026-07-15",
+      "category": "foreign"
+    },
+    {
+      "text": "Elite N.J. club soccer team dominates, advances to national championship game — Star-studded squad is led by group of All-State girls soccer standouts, D1 commits.",
+      "source": "NJ.com / Star-Ledger",
+      "lean": "center",
+      "date": "2026-07-15",
+      "category": "foreign"
+    },
+    {
+      "text": "Cheaper smartphones might become less available soon — Skyrocketing memory costs have made manufacturing smartphones expensive.",
+      "source": "PennLive / Patriot-News",
+      "lean": "center",
+      "date": "2026-07-15",
+      "category": "foreign"
+    },
+    {
+      "text": "Tennessee man arrested after disturbing act involving dead woman’s body — A Tennessee man was arrested after dragging, running over, and abandoning a missing woman’s body outside a motel.",
+      "source": "PennLive / Patriot-News",
+      "lean": "center",
+      "date": "2026-07-15",
+      "category": "foreign"
+    },
+    {
+      "text": "Miss Manners: Neighbors run generators 24 hours a day during power outage; surely that’s overkill? — What do you think the etiquette should be?",
+      "source": "Syracuse.com / Post-Standard",
+      "lean": "center",
+      "date": "2026-07-15",
+      "category": "foreign"
+    },
+    {
+      "text": "1 dead and 3 missing after boat carrying mostly family members sinks near Alcatraz Island — Authorities in San Francisco say one person has died, three people are missing and 16 others have been rescued from waters off the city after a pontoon boat sank",
+      "source": "The Philadelphia Inquirer",
+      "lean": "center_left",
+      "date": "2026-07-15",
+      "category": "foreign"
+    },
+    {
+      "text": "AP Top International News at 3:31 p.m. EDT — AP Top International News at 3:31 p.m. EDT",
+      "source": "The Philadelphia Inquirer",
+      "lean": "center_left",
+      "date": "2026-07-15",
+      "category": "foreign"
+    },
+    {
+      "text": "Philly’s World Cup summer is showing us what belonging looks like. Will that feeling outlast the tournament? — The pride we’ve experienced over the last month doesn’t have to be seasonal. It doesn’t need a stadium ticket or a festival permit, writes Saadia Khan.",
+      "source": "The Philadelphia Inquirer",
+      "lean": "center_left",
+      "date": "2026-07-15",
+      "category": "foreign"
+    },
+    {
+      "text": "WA Democrats split on vote to cut U.S. military aid to Israel — The measure drew significant Democratic support, demonstrating a sharp and rapid shift in attitude toward Israel within the party and the U.S.",
+      "source": "The Seattle Times",
+      "lean": "center",
+      "date": "2026-07-15",
+      "category": "foreign"
+    },
+    {
+      "text": "Longtime Danville animal shelter director accused of falsifying records in her role as the city’s humane investigator — Paulette Dean has resigned from that position; she remains director of the shelter.",
+      "source": "Cardinal News (Virginia)",
+      "lean": "center",
+      "date": "2026-07-16",
+      "category": "foreign"
+    },
+    {
+      "text": "Cleveland to keep Flock cameras after City Council vote — Cleveland’s Flock cameras survived a passionate City Council debate Wednesday, with members approving a new contract for the controversial license plate reader system in a 9-6 decision.",
+      "source": "Cleveland.com / Plain Dealer",
+      "lean": "center",
+      "date": "2026-07-16",
+      "category": "foreign"
+    },
+    {
+      "text": "Water restrictions increase for some Oakland County communities — GLWA has not identified what type of disruption happened at the North Service Center pump station in Troy, but it has led to low water pressure in Auburn Hills, Lake Orion, Orion Township, parts of Oakland Township, the",
+      "source": "MLive (Michigan)",
+      "lean": "center",
+      "date": "2026-07-16",
+      "category": "foreign"
+    },
+    {
+      "text": "Pilot dies after plane crashes into pond in Mass. state park Thursday morning — Officials also confirmed the pilot was the only person inside the plane when it crashed.",
+      "source": "MassLive (Massachusetts)",
+      "lean": "center",
+      "date": "2026-07-16",
+      "category": "foreign"
+    },
+    {
+      "text": "God-tier pasta, Italian sandwiches await at this humble N.J. shop born from home cooking | Review — This humble spot is a must for Italian foodies who enjoy simply brilliant cooking",
+      "source": "NJ.com / Star-Ledger",
+      "lean": "center",
+      "date": "2026-07-16",
+      "category": "foreign"
+    },
+    {
+      "text": "Changes coming to the Times’ ballot recommendations | Column",
+      "source": "Tampa Bay Times",
+      "lean": "center_left",
+      "date": "2026-07-16",
+      "category": "foreign"
+    },
+    {
+      "text": "Will Tampa school zone speed cameras share data with ICE? City says no",
+      "source": "Tampa Bay Times",
+      "lean": "center_left",
+      "date": "2026-07-16",
+      "category": "foreign"
+    },
+    {
+      "text": "AP Top Business News at 4:30 p.m. EDT — AP Top Business News at 4:30 p.m. EDT",
+      "source": "The Philadelphia Inquirer",
+      "lean": "center_left",
+      "date": "2026-07-16",
+      "category": "foreign"
+    },
+    {
+      "text": "AP Top Political News at 11:39 a.m. EDT — AP Top Political News at 11:39 a.m. EDT",
+      "source": "The Philadelphia Inquirer",
+      "lean": "center_left",
+      "date": "2026-07-16",
+      "category": "foreign"
+    },
+    {
+      "text": "More than 500 acres of Burlington County farmland could be protected from development — With tens of thousands of acres already protected, Burlington County is taking steps to preserve even more active farmland.",
+      "source": "The Philadelphia Inquirer",
+      "lean": "center_left",
+      "date": "2026-07-16",
+      "category": "foreign"
+    },
+    {
+      "text": "Seattle Times endorsements: Aug. 4, 2026, primary — The Seattle Times editorial board recommendations are offered for consideration as you, the voter, do your homework.",
+      "source": "The Seattle Times",
+      "lean": "center",
+      "date": "2026-07-16",
+      "category": "foreign"
+    },
+    {
+      "text": "90 Day's Armando Breaks Down in Tears Over Daughter's Health Battle — 90 Day Fiancé’s Armando Niedermeier-Rubio broke down in tears as he discussed his daughter Hannah’s mysterious medical issue. “I don’t want to lose her,” Armando, 37, said while fighting back tears via an Instagram vlog",
+      "source": "Us Weekly",
+      "lean": "center",
+      "date": "2026-07-16",
+      "category": "general"
+    },
+    {
+      "text": "Westlake residents, city officials celebrate 5th anniversary of Community Services Center — The 5th anniversary of the Westlake Community Services Center on July 15 attracted 144 community members and about two dozen city officials.",
+      "source": "Cleveland.com / Plain Dealer",
+      "lean": "center",
+      "date": "2026-07-17",
+      "category": "foreign"
+    },
+    {
+      "text": "Displaced Lahaina residents to return for 3-day homecoming event — More than 100 former Lahaina residents displaced by the August 2023 wildfire will return to their hometown this weekend for the inaugural Lahaina Homecoming, a three-day event organizers describe not as a celebration, bu",
+      "source": "Honolulu Star-Advertiser",
+      "lean": "center",
+      "date": "2026-07-17",
+      "category": "foreign"
+    },
+    {
+      "text": "Hear that rumble? Las Vegas may see some monsoon storms today — A wave of monsoon moisture is expected to arrive in Southern Nevada today, bringing a 30 percent chance of thunderstorms to Las Vegas, the National Weather Service said.",
+      "source": "Las Vegas Review-Journal",
+      "lean": "center_right",
+      "date": "2026-07-17",
+      "category": "foreign"
+    },
+    {
+      "text": "Jurors reach verdict 7 years after Old Jefferson triple shooting left 1 dead, 2 wounded — Seven years after a deadly triple shooting inside an Old Jefferson home that authorities say was fueled by a drug debt, Jefferson Parish jurors voted to convict the man accused of carrying out the violence, according to",
+      "source": "NOLA.com / Times-Picayune",
+      "lean": "center",
+      "date": "2026-07-17",
+      "category": "foreign"
+    },
+    {
+      "text": "NOAA satellite that tracks Atlantic, Gulf Coast hurricanes back in service after brief outage — A satellite key to tracking hurricanes in the Atlantic basin has returned to delivering data after briefly being out of service, the National Oceanic and Atmospheric Administration announced Thursday.",
+      "source": "NOLA.com / Times-Picayune",
+      "lean": "center",
+      "date": "2026-07-17",
+      "category": "foreign"
+    },
+    {
+      "text": "Steelton mayor announces resignation — She was first elected in 2021 and reelected last November.",
+      "source": "PennLive / Patriot-News",
+      "lean": "center",
+      "date": "2026-07-17",
+      "category": "foreign"
+    },
+    {
+      "text": "AP Top Political News at 11:44 p.m. EDT — AP Top Political News at 11:44 p.m. EDT",
+      "source": "The Philadelphia Inquirer",
+      "lean": "center_left",
+      "date": "2026-07-17",
+      "category": "foreign"
+    },
+    {
+      "text": "Poor air quality caused by wildfires prompts Pirates-Guardians to attempt Saturday doubleheader — The Cleveland Guardians and Pittsburgh Pirates will play a doubleheader on Saturday after the opening game of the weekend series between the teams was postponed on Friday night because of poor air quality from wildfires",
+      "source": "The Philadelphia Inquirer",
+      "lean": "center_left",
+      "date": "2026-07-17",
+      "category": "sport"
+    },
+    {
+      "text": "At least 20 children and 1 adult were killed in a school bus crash in Uganda, police say — At least 20 children and one adult were killed when an elementary school bus crashed in the East African country of Uganda.",
+      "source": "The Seattle Times",
+      "lean": "center",
+      "date": "2026-07-17",
+      "category": "foreign"
+    },
+    {
+      "text": "Face-to-face encounters impose a moral responsibility — On a mission to evacuate refugees from the Congo years ago, Sasha Chanoff and his colleague were faced with an impossible choice: Evacuate only the 112 people on their list, or at great risk, attempt to evacuate them, pl",
+      "source": "WBUR (Boston)",
+      "lean": "center_left",
+      "date": "2026-07-17",
+      "category": "foreign"
+    },
+    {
+      "text": "These road-ready beards stole the spotlight at Muskegon’s Bike Time 2026 — Muskegon’s Bike Time 2026 featured a beard competition, celebrating the deep connection between biker culture and facial hair.",
+      "source": "MLive (Michigan)",
+      "lean": "center",
+      "date": "2026-07-18",
+      "category": "foreign"
+    },
+    {
+      "text": "N.J. wrestler wins Fargo national championship after eligibility issue cost her final HS season — Team New Jersey member won individual title in 95-pound division out in North Dakota.",
+      "source": "NJ.com / Star-Ledger",
+      "lean": "center",
+      "date": "2026-07-18",
+      "category": "sport"
+    },
+    {
+      "text": "Family, friends hold vigil for 17-year-old fatally stabbed in Washington Square Park — \"Why did you take my baby?\" his mother asked. Mourners released purple and white balloons, lit candles, held up posters and played his favorite songs.",
+      "source": "Syracuse.com / Post-Standard",
+      "lean": "center",
+      "date": "2026-07-18",
+      "category": "foreign"
+    },
+    {
+      "text": "AP Top Sports News at 1:09 p.m. EDT — AP Top Sports News at 1:09 p.m. EDT",
+      "source": "The Philadelphia Inquirer",
+      "lean": "center_left",
+      "date": "2026-07-18",
+      "category": "foreign"
+    },
+    {
+      "text": "Saquon Barkley’s home in Malvern burglarized, police say — Officers were called to Barkley's home about 5:10 a.m. to reports of a burglary in progress, according to a police narrative. The investigation is ongoing.",
+      "source": "The Philadelphia Inquirer",
+      "lean": "center_left",
+      "date": "2026-07-18",
+      "category": "foreign"
+    },
+    {
+      "text": "JD Crowe: ‘Bring Elder Home’: Alabama town prays for release of teenager caught in ICE ‘hell’ — Agents ignored this young man's documentation and put his life on ICE.",
+      "source": "AL.com (Alabama)",
+      "lean": "center",
+      "date": "2026-07-19",
+      "category": "foreign"
+    },
+    {
+      "text": "LETTER: Gov. Lombardo sees red",
+      "source": "Las Vegas Review-Journal",
+      "lean": "center_right",
+      "date": "2026-07-19",
+      "category": "foreign"
+    },
+    {
+      "text": "Sterlingfest returns with a lineup featuring Gretchen Wilson and Great White — Sterlingfest returns with Gretchen Wilson, Great White headlining three-day music festival.",
+      "source": "MLive (Michigan)",
+      "lean": "center",
+      "date": "2026-07-19",
+      "category": "foreign"
+    },
+    {
+      "text": "You won’t believe how much Spain just made for winning the World Cup — Spain defeated Argentina in the World Cup final on Sunday. Here's how much Spain made for winning.",
+      "source": "MassLive (Massachusetts)",
+      "lean": "center",
+      "date": "2026-07-19",
+      "category": "sport"
+    },
+    {
+      "text": "Dear Abby: Couple’s argument results in wife not wanting to be touched. ‘Feels like she hates me’ — He's suggested therapy. She just says \"I don't know.\"",
+      "source": "The Oregonian / OregonLive",
+      "lean": "center",
+      "date": "2026-07-19",
+      "category": "foreign"
+    },
+    {
+      "text": "AP Top Sports News at 7:28 p.m. EDT — AP Top Sports News at 7:28 p.m. EDT",
+      "source": "The Philadelphia Inquirer",
+      "lean": "center_left",
+      "date": "2026-07-19",
+      "category": "sport"
+    },
+    {
+      "text": "Shakira, Madonna and many Muppets take the World Cup stage, along with BTS and Bieber — Madonna opened the World Cup halftime show with her 2000 dance-pop hit “Music,” joined by star Brazilian soccer players of yesteryear, Ronaldo and Ronaldinho",
+      "source": "The Philadelphia Inquirer",
+      "lean": "center_left",
+      "date": "2026-07-19",
+      "category": "foreign"
+    },
+    {
+      "text": "California reading scores are up, thanks to literacy investments. Can the state do more? — In 2023 California allocated $500 million in grants for schools to hire literacy coaches and take other steps to boost reading skills.",
+      "source": "CalMatters",
+      "lean": "analytical",
+      "date": "2026-07-20",
+      "category": "foreign"
+    },
+    {
+      "text": "Desperate for cash, Northeast Ohio schools rewrite the playbook for winning voter support — Facing budget pressures and recent ballot losses, several school districts are asking voters for funding in new ways this fall.",
+      "source": "Cleveland.com / Plain Dealer",
+      "lean": "center",
+      "date": "2026-07-20",
+      "category": "foreign"
+    },
+    {
+      "text": "The Browns traded Myles Garrett and got a wrecking ball in return; here's why that's not a downgrade — Verse is heading into just his third NFL season and has already earned a Pro Bowl selection and Defensive Rookie of the Year honors.",
+      "source": "Cleveland.com / Plain Dealer",
+      "lean": "center",
+      "date": "2026-07-20",
+      "category": "foreign"
+    },
+    {
+      "text": "Andy Burnham takes office as British prime minister, promising stability — LONDON >> Andy Burnham became Britain’s seventh prime minister in a decade today, pledging to reshape its politics to deliver a new economic model and revive a nation “fed up” with a revolving door of leaders.",
+      "source": "Honolulu Star-Advertiser",
+      "lean": "center",
+      "date": "2026-07-20",
+      "category": "foreign"
+    },
+    {
+      "text": "LSU’s Lane Kiffin believes SEC move to 9-game slate isn’t ‘right play,’ and one coach agrees — TAMPA, Fla. — Lane Kiffin wasn’t in the room Monday when one of the first eyebrow-raising comments of SEC media days was offered, but Missouri coach Eli Drinkwitz credited the LSU coach as the leader of the opposition pa",
+      "source": "NOLA.com / Times-Picayune",
+      "lean": "center",
+      "date": "2026-07-20",
+      "category": "foreign"
+    },
+    {
+      "text": "HOKA drops member-exclusive Rincon 5 - What are runners saying about the new shoe? — Whether you’re logging daily training miles, squeezing in a quick workout, or simply looking for an ultra-comfortable walking shoe, the Rincon 5 delivers.",
+      "source": "Syracuse.com / Post-Standard",
+      "lean": "center",
+      "date": "2026-07-20",
+      "category": "foreign"
+    },
+    {
+      "text": "Pedestrian is in critical condition after being hit by pickup in Geddes — The incident happened just after 5 a.m. on Monday, deputies said.",
+      "source": "Syracuse.com / Post-Standard",
+      "lean": "center",
+      "date": "2026-07-20",
+      "category": "foreign"
+    },
+    {
+      "text": "AP Top Political News at 11:40 a.m. EDT — AP Top Political News at 11:40 a.m. EDT",
+      "source": "The Philadelphia Inquirer",
+      "lean": "center_left",
+      "date": "2026-07-20",
+      "category": "foreign"
+    },
+    {
+      "text": "Guyana launches criminal probe as crews scour waters for survivors after ferry capsizes — The search for survivors continues in Guyana after a ferry believed to be overloaded capsized over the weekend",
+      "source": "The Philadelphia Inquirer",
+      "lean": "center_left",
+      "date": "2026-07-20",
+      "category": "foreign"
+    },
+    {
+      "text": "What the Sixers are saying about the Jaylen Brown trade, from ‘Oh, snap!’ to ‘It’s going to be special’ — There were entertaining stories about how various Sixers found out about the blockbuster trade, illustrating how stunning the move was even to those close to it.",
+      "source": "The Philadelphia Inquirer",
+      "lean": "center_left",
+      "date": "2026-07-20",
+      "category": "foreign"
+    },
+    {
+      "text": "Country music star married in secretive ceremony months after abruptly cancelling tour — The 31-year-old singer was reportedly married in a weekend ceremony.",
+      "source": "The Oregonian / OregonLive",
+      "lean": "center",
+      "date": "2026-07-21",
+      "category": "foreign"
+    }
+  ],
+  "built": "2026-07-21",
+  "source_db": "ELES prod Echolot DB (railway ssh glistening-luck, file:/data/echolot.db?mode=ro)",
+  "build_rule": "title>15, cim-dedupe, lead 220 char, RANDOM(1200) nyers minta a prod-bol, MAXN=60 lean-cap: proporcionalis kvota + dominans lean <=60% + datum-stride ritkitas"
+}

@@ -1,0 +1,445 @@
+{
+  "cell": "us_A",
+  "lang": "en",
+  "corpus_window": [
+    "2026-07-09",
+    "2026-07-15"
+  ],
+  "n": 58,
+  "lean_dist": {
+    "center_right": 3,
+    "center": 34,
+    "center_left": 18,
+    "analytical": 2,
+    "left": 1
+  },
+  "cat_dist": {
+    "foreign": 56,
+    "general": 2
+  },
+  "pool_lean_counts_full": {
+    "analytical": 23,
+    "center": 9026,
+    "center_left": 2885,
+    "center_right": 213,
+    "left": 4
+  },
+  "pool_cat_counts_full": {
+    "foreign": 11674,
+    "general": 477
+  },
+  "source_prefix_counts": {
+    "us_": 12151
+  },
+  "items": [
+    {
+      "text": "‘Poker Brat’ eliminated from WSOP Main Event, starts social media war with rival — Phil Hellmuth busted the World Series of Poker Main Event short of the money then attacked the criteria used to determine the WSOP Player of the Year.",
+      "source": "Las Vegas Review-Journal",
+      "lean": "center_right",
+      "date": "2026-07-09",
+      "category": "foreign"
+    },
+    {
+      "text": "$10 Kalshi Promo Code MASSLIVE1 updated for MLB on Thursday in SC, GA and FL — Use Kalshi referral code MASSLIVE1 for a $10 bonus. Legally trade on the slate of MLB matchups on Thursday night.",
+      "source": "MassLive (Massachusetts)",
+      "lean": "center",
+      "date": "2026-07-09",
+      "category": "foreign"
+    },
+    {
+      "text": "Bad summer air quality is likely here to stay in Colorado. It’s time to make a plan to deal with it. — Experts suggest being mindful of changes in air quality, knowing your risk and having an emergency plan for when it gets too bad",
+      "source": "The Colorado Sun",
+      "lean": "center",
+      "date": "2026-07-09",
+      "category": "foreign"
+    },
+    {
+      "text": "AP Top Headlines at 6:01 p.m. EDT — AP Top Headlines at 6:01 p.m. EDT",
+      "source": "The Philadelphia Inquirer",
+      "lean": "center_left",
+      "date": "2026-07-09",
+      "category": "foreign"
+    },
+    {
+      "text": "Ohio judge grants preliminary injunction for men’s, women’s hoops players suing NCAA for eligibility — An Ohio judge has granted a preliminary injunction for 24 men’s and women’s college basketball players suing the NCAA to be eligible, claiming the new age-based model unfairly shuts them out of further competition",
+      "source": "The Philadelphia Inquirer",
+      "lean": "center_left",
+      "date": "2026-07-09",
+      "category": "foreign"
+    },
+    {
+      "text": "Man shot by Federal Way police was reportedly holding ‘realistic’ BB gun — The 19-year-old man, who remains at Harborview Medical Center in critical condition, was shot by three officers on June 24.",
+      "source": "The Seattle Times",
+      "lean": "center",
+      "date": "2026-07-09",
+      "category": "foreign"
+    },
+    {
+      "text": "Ex U.S. Ski Team Member TJ Lanning Dead at 41: Impact ‘Far Beyond His Years’ — Former U.S. ski team member TJ Lanning has died, the team confirmed on Tuesday, July 7. He was 41. No cause of death has been released as of publication. “We are deeply saddened by the passing of TJ Lanning, a former U.S",
+      "source": "Us Weekly",
+      "lean": "center",
+      "date": "2026-07-09",
+      "category": "general"
+    },
+    {
+      "text": "Taylor Parker's Victim's Mother Says Killer Is Not ‘Crazy,' But Is 'Evil’ — Nearly six years after Taylor Parker killed pregnant friend Reagan Simmons-Hancock and her daughter Braxlynn Sage, the victim’s mother insisted that the killer is “evil” and not “crazy.” While speaking to NewsNation’s Ch",
+      "source": "Us Weekly",
+      "lean": "center",
+      "date": "2026-07-09",
+      "category": "general"
+    },
+    {
+      "text": "Alabama police department to teens: Cut it out — Recent incidents took it to the next level, police said.",
+      "source": "AL.com (Alabama)",
+      "lean": "center",
+      "date": "2026-07-10",
+      "category": "foreign"
+    },
+    {
+      "text": "Owala’s new ‘Moodboard’ tumbler Color Drop features a retro 3D design — Owala's new Moodboard Color Drop features a matte 3D geometric design, patented FreeSip technology and a cup holder-friendly 40-ounce tumbler.",
+      "source": "AL.com (Alabama)",
+      "lean": "center",
+      "date": "2026-07-10",
+      "category": "foreign"
+    },
+    {
+      "text": "Esto es lo que significa para California el proyecto de ley federal de vivienda ‘único en la vida’ — El proyecto de ley federal de vivienda aborda muchos aspectos menores. Sus partidarios esperan que contribuya a paliar la escasez de vivienda tanto en California como en el resto del país.",
+      "source": "CalMatters",
+      "lean": "analytical",
+      "date": "2026-07-10",
+      "category": "foreign"
+    },
+    {
+      "text": "When Japan’s justice system trapped an American, a Cleveland friend got to work: Justice B. Hill — Columnist Justice B. Hill reflects on a Cleveland friend trying to help an American who remains detained in Japan’s justice system.",
+      "source": "Cleveland.com / Plain Dealer",
+      "lean": "center",
+      "date": "2026-07-10",
+      "category": "foreign"
+    },
+    {
+      "text": "Builders bring 15 new projects to market in May — Las Vegas area homebuilders unveiled 15 new for-sale product lines to market in May, bringing 1,633 lots into the market. Home Builders Research reported that’s about 2.5 months worth of inventory at May’s pace.",
+      "source": "Las Vegas Review-Journal",
+      "lean": "center_right",
+      "date": "2026-07-10",
+      "category": "foreign"
+    },
+    {
+      "text": "Man on flight to Germany almost sucked out of plane shortly after takeoff — A Malta Air flight to Germany was forced to return after a window shattered, nearly ejecting a passenger through the opening.",
+      "source": "LehighValleyLive (Express-Times)",
+      "lean": "center",
+      "date": "2026-07-10",
+      "category": "foreign"
+    },
+    {
+      "text": "Sterling Heights unveils new $10 million Athletic Hub — The city of Sterling Heights will celebrate the grand opening of its new Sterling Heights Athletic Hub on July 11, with a ribbon-cutting ceremony and community open house.",
+      "source": "MLive (Michigan)",
+      "lean": "center",
+      "date": "2026-07-10",
+      "category": "foreign"
+    },
+    {
+      "text": "Original muralists come home to Balmy Alley with a grant to save their work — With a new grant, a group of artists will return to Balmy Alley to restore some of their old murals Original muralists come home to Balmy Alley with a grant to save their work",
+      "source": "Mission Local (SF)",
+      "lean": "center_left",
+      "date": "2026-07-10",
+      "category": "foreign"
+    },
+    {
+      "text": "Dear Annie: Wife excluded by in-laws searches for family connection — Is it normal for large families to feel exclusionary? How do I fill my cup during get-togethers with his family, or should I simply show up and not fill up?",
+      "source": "NJ.com / Star-Ledger",
+      "lean": "center",
+      "date": "2026-07-10",
+      "category": "foreign"
+    },
+    {
+      "text": "Guest Column: For addicts on the streets, treatment works better than incarceration — John was caught in the unyielding cycle of addiction. Over time, the disease cost him his job, his family and his home. Surviving on the streets of New Orleans, he sought shelter from the elements in an abandoned buildin",
+      "source": "NOLA.com / Times-Picayune",
+      "lean": "center",
+      "date": "2026-07-10",
+      "category": "foreign"
+    },
+    {
+      "text": "AP Top International News at 10:49 p.m. EDT — AP Top International News at 10:49 p.m. EDT",
+      "source": "The Philadelphia Inquirer",
+      "lean": "center_left",
+      "date": "2026-07-10",
+      "category": "foreign"
+    },
+    {
+      "text": "DOJ charges three major egg suppliers with price fixing — The price of eggs is almost 65% cheaper than it was in March of last year when it hit an all-time high of $6.23 a dozen. But behind the scenes, executives at America’s three largest egg producers were secretly colluding",
+      "source": "WBUR (Boston)",
+      "lean": "center_left",
+      "date": "2026-07-10",
+      "category": "foreign"
+    },
+    {
+      "text": "Trump and Iran’s supreme leader trade threats as mediators try to save their crumbling deal — Trump has threatened further missile attacks on Iran. This follows calls for his assassination at the funeral of Iranian Supreme Leader Ayatollah Ali Khamenei. Iran’s new leader, Mojtaba Khamenei, vowed on Saturday to av",
+      "source": "Anchorage Daily News",
+      "lean": "center",
+      "date": "2026-07-11",
+      "category": "foreign"
+    },
+    {
+      "text": "New York Times journalists subpoenaed as Trump escalates pressure on media — The Trump administration issued subpoenas Friday to several journalists for The New York Times, after the news outlet reported this past week on security concerns involving President Donald Trump’s new Qatari-donated Air",
+      "source": "Honolulu Star-Advertiser",
+      "lean": "center",
+      "date": "2026-07-11",
+      "category": "foreign"
+    },
+    {
+      "text": "Taxpayers on the hook? Developers seek billions over failed Southern Nevada city — A blockbuster trial between California developers and state regulators began this week. Experts say it could upend Nevada water law as they know it.",
+      "source": "Las Vegas Review-Journal",
+      "lean": "center_right",
+      "date": "2026-07-11",
+      "category": "foreign"
+    },
+    {
+      "text": "Global flavors fuse with premium pours at Motu Lakeshore Wine Bar in Muskegon — Motu Lakeshore Wine Bar & Prohibition Cocktail Lounge offers global-inspired small plates and drinks on Muskegon's waterfront.",
+      "source": "MLive (Michigan)",
+      "lean": "center",
+      "date": "2026-07-11",
+      "category": "foreign"
+    },
+    {
+      "text": "7 most expensive homes sold in Piscataway area, June 29-July 5 — A single-family home in Piscataway that sold for $726,000 tops the list of the most expensive residential real estate sales in Piscataway area in the past week.",
+      "source": "NJ.com / Star-Ledger",
+      "lean": "center",
+      "date": "2026-07-11",
+      "category": "foreign"
+    },
+    {
+      "text": "AP Top Headlines at 1:57 a.m. EDT — AP Top Headlines at 1:57 a.m. EDT",
+      "source": "The Philadelphia Inquirer",
+      "lean": "center_left",
+      "date": "2026-07-11",
+      "category": "foreign"
+    },
+    {
+      "text": "Bo Bichette held out of Mets' lineup for second straight game with leg soreness — Bo Bichette has been held out of the Mets’ lineup for a second straight day because of soreness in his legs and right ankle, and the infielder may sit through the All-Star break",
+      "source": "The Philadelphia Inquirer",
+      "lean": "center_left",
+      "date": "2026-07-11",
+      "category": "foreign"
+    },
+    {
+      "text": "South Africa World Cup midfielder Jayden Adams dies at the age of 25 — South Africa midfielder Jayden Adams has died",
+      "source": "The Philadelphia Inquirer",
+      "lean": "center_left",
+      "date": "2026-07-11",
+      "category": "foreign"
+    },
+    {
+      "text": "Philon, Broome shine once again for 76ers in NBA Summer League — Philon and Broome battled through rough shooting days to push the 76ers to 2-0 in NBA Summer League",
+      "source": "AL.com (Alabama)",
+      "lean": "center",
+      "date": "2026-07-12",
+      "category": "foreign"
+    },
+    {
+      "text": "Are Bluetooth headphones bad for you? Yes, if you constantly crank them up, doctors say — Wireless. Wireless. Wireless.",
+      "source": "NOLA.com / Times-Picayune",
+      "lean": "center",
+      "date": "2026-07-12",
+      "category": "foreign"
+    },
+    {
+      "text": "US Senator Lindsey Graham has died after a brief and unexpected illness, his office says in a statement — US Senator Lindsey Graham has died after a brief and unexpected illness, his office says in a statement.",
+      "source": "The Oregonian / OregonLive",
+      "lean": "center",
+      "date": "2026-07-12",
+      "category": "foreign"
+    },
+    {
+      "text": "AP Top International News at 9:42 p.m. EDT — AP Top International News at 9:42 p.m. EDT",
+      "source": "The Philadelphia Inquirer",
+      "lean": "center_left",
+      "date": "2026-07-12",
+      "category": "foreign"
+    },
+    {
+      "text": "Diamondbacks overcome Ohtani's 22nd homer, beat sloppy Dodgers 5-3 for 3-game sweep — Ildemaro Vargas had two hits, including a go-ahead single in the sixth inning, and the Arizona Diamondbacks overcame Shohei Ohtani’s 22nd home run in a 5-3 victory over the sloppy Los Angeles Dodgers that finished a thre",
+      "source": "The Philadelphia Inquirer",
+      "lean": "center_left",
+      "date": "2026-07-12",
+      "category": "foreign"
+    },
+    {
+      "text": "🐶 The art of finding lost dogs | Morning Newsletter — A Delco woman is known for being an expert at finding missing dogs in the Philly area. Plus: Philly Dems critique Freedom Fuel gas, dive bar Tattooed Mom says the city put a halt to its live events.",
+      "source": "The Philadelphia Inquirer",
+      "lean": "center_left",
+      "date": "2026-07-12",
+      "category": "foreign"
+    },
+    {
+      "text": "‘I go further’: The sober obsessive behind one of San Francisco’s most influential bars — Josh Harris shepherded Trick Dog to international fame. Now he’s betting it all on Quik Dog, a “sports bar inside a family restaurant.”",
+      "source": "The San Francisco Standard",
+      "lean": "center",
+      "date": "2026-07-12",
+      "category": "foreign"
+    },
+    {
+      "text": "Former Alabama defensive back stays in ‘NFL Top 100’ — The Green Bay Packers safety came in at No. 70 in this year’s poll of NFL players.",
+      "source": "AL.com (Alabama)",
+      "lean": "center",
+      "date": "2026-07-13",
+      "category": "foreign"
+    },
+    {
+      "text": "Movie theaters in Chicago where you can watch ‘The Odyssey’ in its full IMAX glory — <p>Christopher Nolan has spent nearly two decades pushing IMAX technology to new heights. The journey began with the legendary opening bank-heist sequence in “The Dark Knight” and culminates with “The Odyssey,” the first",
+      "source": "Chicago Sun-Times",
+      "lean": "center_left",
+      "date": "2026-07-13",
+      "category": "foreign"
+    },
+    {
+      "text": "Kirtland schools seeks to renew operating levy in November — Kirtland Schools voters will decide in November whether to renew a five-year property tax generating about $2.28 million annually.",
+      "source": "Cleveland.com / Plain Dealer",
+      "lean": "center",
+      "date": "2026-07-13",
+      "category": "foreign"
+    },
+    {
+      "text": "Volkswagen CEO says 50,000 more job cuts may be needed — BERLIN >> Volkswagen may need to cut about 50,000 more jobs to match the competitiveness of rivals, its CEO told staff in an internal memo, effectively confirming for the first time that the automaker is looking to reduc",
+      "source": "Honolulu Star-Advertiser",
+      "lean": "center",
+      "date": "2026-07-13",
+      "category": "foreign"
+    },
+    {
+      "text": "Miss Manners: Friend throws perfect parties. How can I reciprocate in my meager home? — Why is this even a contest?",
+      "source": "LehighValleyLive (Express-Times)",
+      "lean": "center",
+      "date": "2026-07-13",
+      "category": "foreign"
+    },
+    {
+      "text": "Rosa Parks Circle adds 6 summer programs in downtown Grand Rapids — New weekly activities include Zumba classes, skating nights, and alcohol-free socials. Special Events Manager Evette Pittman says the additions reflect community demand for inclusive downtown programming.",
+      "source": "MLive (Michigan)",
+      "lean": "center",
+      "date": "2026-07-13",
+      "category": "foreign"
+    },
+    {
+      "text": "Celtics rookie showcases stunning development in Hornets win — Dillon Mitchell is making progress in an unexpected area during Celtics Summer League.",
+      "source": "MassLive (Massachusetts)",
+      "lean": "center",
+      "date": "2026-07-13",
+      "category": "foreign"
+    },
+    {
+      "text": "$50 Polymarket referral code “OREGON” extends invite bonus to politics — Polymarket invite code OREGON unlocks a $50 bonus on $20, now extended to politics. See live Polymarket All-Star Game and 2028 Republican nominee odds.",
+      "source": "The Oregonian / OregonLive",
+      "lean": "center",
+      "date": "2026-07-13",
+      "category": "foreign"
+    },
+    {
+      "text": "AP Top Health News at 11:35 a.m. EDT — AP Top Health News at 11:35 a.m. EDT",
+      "source": "The Philadelphia Inquirer",
+      "lean": "center_left",
+      "date": "2026-07-13",
+      "category": "foreign"
+    },
+    {
+      "text": "🏡 Buying a home in Haddonfield | Inquirer South Jersey — And what we know about the Freedom Fuel stations across the region.",
+      "source": "The Philadelphia Inquirer",
+      "lean": "center_left",
+      "date": "2026-07-13",
+      "category": "foreign"
+    },
+    {
+      "text": "Who is Darline Graham Nordone, Sen. Lindsey Graham's sister? — Darline Graham Nordone has been appointed to fill the Senate term of her late brother, Lindsey Graham, who died over the weekend",
+      "source": "The Philadelphia Inquirer",
+      "lean": "center_left",
+      "date": "2026-07-13",
+      "category": "foreign"
+    },
+    {
+      "text": "In Texas Schools, a Crisis of Arrests of Kids as Young as 10 — Editor’s Note: This story was supported by grants from the Fund for Investigative Journalism and the Center for Health Journalism at the University of Southern California. Seated inside a Starbucks café last February, Gr",
+      "source": "The Texas Observer",
+      "lean": "left",
+      "date": "2026-07-13",
+      "category": "foreign"
+    },
+    {
+      "text": "Alabama shut out for Tuesday night’s MLB All-Star Game — Fifty-six players with Alabama baseball roots have been selected for the Midsummer Classic since 1933.",
+      "source": "AL.com (Alabama)",
+      "lean": "center",
+      "date": "2026-07-14",
+      "category": "foreign"
+    },
+    {
+      "text": "Letter: An electorate that truly represents the people",
+      "source": "Anchorage Daily News",
+      "lean": "center",
+      "date": "2026-07-14",
+      "category": "foreign"
+    },
+    {
+      "text": "A new review of the SAT at University of California is coming by June 2027 — A growing number of professors are pushing the UC to reinstate the SAT for undergraduate admissions, which the Board of Regents removed from the admissions process in 2020.",
+      "source": "CalMatters",
+      "lean": "analytical",
+      "date": "2026-07-14",
+      "category": "foreign"
+    },
+    {
+      "text": "Downtown weather bell to shine again — <h3>Good morning, Chicago. ✶</h3><h3></h3><p>🔎 <b>Below</b>: South Loop restaurant Reserv is facing eviction as its former workers say they're owed thousands in unpaid wages.</p><p>🗞️ <b>Plus</b>: Help for the city's fad",
+      "source": "Chicago Sun-Times",
+      "lean": "center_left",
+      "date": "2026-07-14",
+      "category": "foreign"
+    },
+    {
+      "text": "Country star cancels shows, shares heartbreaking news: ‘Dad suddenly went home to Jesus’ — He shared the tragic news on social media.",
+      "source": "Cleveland.com / Plain Dealer",
+      "lean": "center",
+      "date": "2026-07-14",
+      "category": "foreign"
+    },
+    {
+      "text": "Ronayne read the Declaration of Independence and then planned his own abusive tax — County Executive Chris Ronayne campaigned on no tax hikes without a public vote. Now he's pushing a 0.15% sales tax increase for Progressive Field and Rocket Arena—without asking voters.",
+      "source": "Cleveland.com / Plain Dealer",
+      "lean": "center",
+      "date": "2026-07-14",
+      "category": "foreign"
+    },
+    {
+      "text": "Grand Haven Harbor Island cleanup costs surprise city council — More than $370,000 was recently approved for the remediation of the island, the contaminated former home of the J.B. Sims coal-powered electric power plant.",
+      "source": "MLive (Michigan)",
+      "lean": "center",
+      "date": "2026-07-14",
+      "category": "foreign"
+    },
+    {
+      "text": "NBC host gives health update after previously revealing cancer diagnosis on air — She shared the news on her Instagram page on Sunday.",
+      "source": "The Oregonian / OregonLive",
+      "lean": "center",
+      "date": "2026-07-14",
+      "category": "foreign"
+    },
+    {
+      "text": "AP Top Political News at 3:11 p.m. EDT — AP Top Political News at 3:11 p.m. EDT",
+      "source": "The Philadelphia Inquirer",
+      "lean": "center_left",
+      "date": "2026-07-14",
+      "category": "foreign"
+    },
+    {
+      "text": "Mystery bidder buys T. rex nicknamed 'Gus' for a record $50 million — A Tyrannosaurus rex fossil billed as one of the world’s largest and most complete specimens has sold for a record $50.1 million at an auction",
+      "source": "The Philadelphia Inquirer",
+      "lean": "center_left",
+      "date": "2026-07-14",
+      "category": "foreign"
+    },
+    {
+      "text": "‘The Ring’ star Daveigh Chase, who died at 35 while homeless, leaves behind six-figure estate — Court filings note that Daveigh Chase died without a will, is only survived by her parents, and confirm that she was homeless at the time of her death.",
+      "source": "The Seattle Times",
+      "lean": "center",
+      "date": "2026-07-14",
+      "category": "foreign"
+    }
+  ],
+  "built": "2026-07-21",
+  "source_db": "ELES prod Echolot DB (railway ssh glistening-luck, file:/data/echolot.db?mode=ro)",
+  "build_rule": "title>15, cim-dedupe, lead 220 char, RANDOM(1200) nyers minta a prod-bol, MAXN=60 lean-cap: proporcionalis kvota + dominans lean <=60% + datum-stride ritkitas"
+}

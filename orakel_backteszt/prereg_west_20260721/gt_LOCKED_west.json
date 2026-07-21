@@ -3,6 +3,25 @@
   "date_locked": "2026-07-21T14:25+02:00",
   "model": "tencent/Hy3-preview (a tencent/Hy3 2026-07-21-tol 402/20015 — verifikalva; Flash-hivas TILOS)",
   "flag_rule": "cutoff_szonda_20260720/cutoff_jegyzokonyv.md: target-ablak >= 2025-08 -> CLEAN. Minden alabbi korpusz-ablak >= 2026-06-15, minden target 2026-07/08 -> CLEAN. Hy3-preview cutoff-minivalidacio a futasok elott (cutoff_preview_probe.json) — ha a preview ismerne 2026-07-os Michigan-erteket, a backteszt ERVENYTELEN.",
+  "amendment_1_2026-07-21_pre_run": {
+    "when": "2026-07-21 ~15:00 CET, MINDEN modell-futas ELOTT (Hy3-preview hivas meg 0 db a harnessben)",
+    "trigger": "korpusz-epites kozbeni forras-audit leletek (evidencia: korpusz_audit.md 5. pont + build-log)",
+    "findings": [
+      "SQLITE LIKE-WILDCARD BUG: a 'uk_%'/'us_%' mintakban az _ joker — az ukrainska_pravda_en is matchelt a uk_-ra; fix: ESCAPE '!' minden prefix-szuresben. A G0c-matrix es a prod build_country_corpus ugyanigy szurhet — TODO-jelzes a riportban.",
+      "IR FORRASOK a uk_ prefixben (Irish Independent/Irish Times/RTE/TheJournal.ie — Irorszag, nem UK): kizarva a GfK UK panel-korpuszbol; a belfasti (NI) forrasok maradnak.",
+      "DE nyelvi reteg 31%-a nem-nemet forras (osztrak/svajci/del-tiroli + sport/celeb): a prereg-korpusz de_ prefixre szukitve; MELLEKLELET: a Tagesspiegel source_id-ja 'hu_tag', az NZZ-e 'hu_nzz' — id-nevter-szemet, javitasi javaslat a riportban.",
+      "US REZSIM-TORES: a us_ reteg 2026-07-08-ig Us Weekly-monokultura (06-21..25: 95% celeb-mag; 39-forrasos multi-rezsim CSAK 2026-07-09-tol el)."
+    ],
+    "consequences": {
+      "us_junT_PROXY": "EJTVE — celeb-monokultura korpuszbol MoM-proxy nem epitheto; a Michigan jun-final->jul-prelim MoM-IRANY BACKTESZT NEM FEDHETO, kimondva.",
+      "us_julP": "EJTVE — a [06-15..07-14] ablak tulnyomo resze monokultura-zona; helyette us_A.",
+      "us_A": "[2026-07-09 -> 07-14] (6 nap, ~12k cikk, 39 forras). BACKTESZT-cella REDUKALT hatokorrel: Michigan 2026-07 prelim (publ. 07-17, pre-outcome OK), DE csak a level-sign szabaly + nyers panel-ertek — a fieldwork (06-24..07-14) KESEI ~harmadat fedi, es a prelim-interjuk >70%-a 07-07 elotti (Bloomberg-caveat) -> korpusz-kikotes cimke kotelezo.",
+      "us_B": "[2026-07-15 -> 07-21] (7 nap, ~19k cikk). PREREG-par: Michigan final-drift = sign(panel(us_B)-panel(us_A)) vs sign(final-54.4); inflexp-ag ugyanigy 4.2-hoz kepest; CB-julius ag MASODLAGOS/exploratory (nincs juniusi baseline-panel, a delta a juliusi hir-shift proxyja).",
+      "uk_jul, de_jul": "ablak valtozatlan, szures javitva (ESCAPE + ir-kizaras ill. de_ prefix).",
+      "cross_country_rank": "cellak: us_A / uk_jul / de_jul — a us_A rovidebb ablaka dokumentalt korlatozas."
+    },
+    "integrity_note": "Az eredeti backtest-blokk (lent) TORTENETI hivatkozaskent valtozatlanul marad; ami belole ervenyben van: a GT-ertekek, az idosorok, a level_sign_secondary szabaly (us_A-ra alkalmazva) es az inflexp-iranyok. A MoM-agak a fenti okbol halottak."
+  },
   "backtest": {
     "US_MICHIGAN_2026-07_PRELIM": {
       "gt": 54.4,

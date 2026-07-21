@@ -1,0 +1,464 @@
+{
+  "cell": "de_jul",
+  "lang": "de",
+  "corpus_window": [
+    "2026-06-21",
+    "2026-07-15"
+  ],
+  "n": 60,
+  "lean_dist": {
+    "right": 8,
+    "left": 15,
+    "center": 36,
+    "unknown": 1
+  },
+  "cat_dist": {
+    "general": 58,
+    "economy": 1,
+    "entertainment": 1
+  },
+  "pool_lean_counts_full": {
+    "center": 24042,
+    "left": 9261,
+    "right": 5702,
+    "unknown": 464
+  },
+  "pool_cat_counts_full": {
+    "economy": 2048,
+    "entertainment": 897,
+    "foreign": 826,
+    "general": 35639,
+    "lifestyle": 1,
+    "politics": 1,
+    "sport": 1,
+    "tech": 56
+  },
+  "source_prefix_counts": {
+    "de_": 39469
+  },
+  "items": [
+    {
+      "text": "Abschiebungen werden ausgeweitet – Bis zu drei Flüge monatlich nach Afghanistan geplant — Nach Berichten über geheime Verhandlungen zwischen dem Innenministerium und den Taliban sollen Abschiebungen nach Afghanistan deutlich ausgeweitet werden. Künftig könnten bis zu drei Charterflüge monatlich stattfinden.",
+      "source": "Die Welt",
+      "lean": "right",
+      "date": "2026-06-21",
+      "category": "general"
+    },
+    {
+      "text": "Brände: Großbrand auf Müllanlage",
+      "source": "Die Zeit",
+      "lean": "left",
+      "date": "2026-06-21",
+      "category": "general"
+    },
+    {
+      "text": "Behörden von Los Angeles rufen Ausnahmezustand wegen Brand in einem Lagerhaus aus — Wegen Rauchbildung durch einen seit Tagen nicht zu bändigenden Brand in einem Lagerhaus haben die Behörden in der US-Metropole Los Angeles den Ausnahmezustand ausgerufen. Damit werde sichergestellt, „dass der Stadt die R",
+      "source": "Stern",
+      "lean": "center",
+      "date": "2026-06-21",
+      "category": "general"
+    },
+    {
+      "text": "Warnemünder Händler schlägt Alarm: „Viele Läden im Ort machen Verluste“ — Das Ostseebad Warnemünde gilt als einer der attraktivsten Gewerbestandorte in Rostock, doch veränderte Bedingungen sorgen für Herausforderungen. Hohe Mieten und Betriebskosten machen den Unternehmern zu schaffen.",
+      "source": "Sächsische Zeitung",
+      "lean": "center",
+      "date": "2026-06-21",
+      "category": "general"
+    },
+    {
+      "text": "Trend: Der Pyjama als Alltagsoutfit: Mode war nie bequemer",
+      "source": "Die Zeit",
+      "lean": "left",
+      "date": "2026-06-22",
+      "category": "general"
+    },
+    {
+      "text": "König Ludwig II.: Unbekannte beschmieren „Kini“-Denkmal — König Ludwig II., Erbauer von Schlössern wie Neuschwanstein und Linderhof, ist seit 140 Jahren tot. Das neue Denkmal für den „Märchenkönig“ scheint nicht jedem zu gefallen.",
+      "source": "Stern",
+      "lean": "center",
+      "date": "2026-06-22",
+      "category": "general"
+    },
+    {
+      "text": "Ausschuss zum Anschlag: Islamistischer Gefährder soll Attentäter in Solingen besucht haben — Bei der Vernehmung von Hendrik Wüst werden Dokumente vom Anschlagswochenende vorgelegt, wonach Issa al H. Kontakt zu islamistischen Gefährdern gehabt haben soll. Das erschüttert die Einzeltätertheorie.",
+      "source": "Rheinische Post",
+      "lean": "center",
+      "date": "2026-06-23",
+      "category": "general"
+    },
+    {
+      "text": "Strafprozess: Griff in Asservatenkammer: Polizeibedienstete vor Gericht — Insgesamt soll die Frau sechsmal zugegriffen und fast 200.000 Euro an sich gebracht haben.",
+      "source": "Stern",
+      "lean": "center",
+      "date": "2026-06-23",
+      "category": "general"
+    },
+    {
+      "text": "Der 41-Grad-Schock – was jetzt wichtig ist und wann sogar der Ventilator gefährlich wird — Wenn das Thermometer auf 40 Grad Celsius und mehr klettert, wird aus dem Sommer eine Bewährungsprobe – für Wohnungen, Autos, Elektrogeräte und den Arbeitsplatz. Was Mieter, Arbeitnehmer und Autofahrer jetzt wissen müssen",
+      "source": "Die Welt",
+      "lean": "right",
+      "date": "2026-06-24",
+      "category": "general"
+    },
+    {
+      "text": "Fußball-Weltmeisterschaft: Musiala: Darum macht mir das «Zocken» mit Wirtz so viel Spaß",
+      "source": "Die Zeit",
+      "lean": "left",
+      "date": "2026-06-24",
+      "category": "general"
+    },
+    {
+      "text": "Kritik an Kurs der Regierung: Studie: Erneuerbare Energien sind Jobmotor - Gefahr droht — Eine Untersuchung sieht einen Beschäftigungsrekord bei erneuerbaren Energien. Die sich abzeichnende energiepolitische Kursänderung der Bundesregierung könne aber viele Arbeitsplätze kosten.",
+      "source": "Stern",
+      "lean": "center",
+      "date": "2026-06-24",
+      "category": "general"
+    },
+    {
+      "text": "Theater Magdeburg gewinnt ZukunftsGut-Preis für innovative Kulturarbeit — Mit den 25.000 Euro Preisgeld wird das Konzept partizipativer Projekte erweitert, um auch künftig Bürger ins Geschehen einzubeziehen und Grenzen zu überwinden.",
+      "source": "Berliner Zeitung",
+      "lean": "center",
+      "date": "2026-06-25",
+      "category": "general"
+    },
+    {
+      "text": "Anpassung statt Verbote: Social-Media-Altersgrenze 13? Experten sehen bessere Hebel — Familienministerin Karin Prien setzt auf eine Altersgrenze von 13 Jahren für soziale Medien. Experten sehen andere Maßnahmen als entscheidend an.",
+      "source": "Stern",
+      "lean": "center",
+      "date": "2026-06-25",
+      "category": "general"
+    },
+    {
+      "text": "Für 40 Prozent an Panzerbauer: KNDS-Beteiligung kann Bund 7,2 Milliarden Euro kosten — Um die Rüstungsanstrengungen zu stärken, beteiligt sich der Bund am deutsch-französischen Panzerbauer KNDS. Unterlagen aus dem Haushaltsausschuss zeigen, dass die Regierung am Ende mehr als 7 Milliarden Euro zahlen könnt",
+      "source": "n-tv — Politik",
+      "lean": "center",
+      "date": "2026-06-25",
+      "category": "general"
+    },
+    {
+      "text": "Jugendproteste in Kenia: Polizei riegelt das Zentrum von Nairobi ab — Zum Jahrestag ihrer ersten Protestbewegungen vor zwei Jahren demonstriert die Generation Z in Kenia gegen Polizeigewalt. Genau zu der kommt es dann. mehr...",
+      "source": "taz — Politik",
+      "lean": "left",
+      "date": "2026-06-25",
+      "category": "general"
+    },
+    {
+      "text": "EU will wehrfähigen Ukrainern keinen Schutzstatus mehr gewähren — Für Ukrainer könnte es schwerer werden, Schutz in der EU zu bekommen. Die EU-Kommission kündigte am Freitag an, ukrainische Männer im wehrfähigen Alter von einer Regelung für einen automatischen Anspruch auf Schutz in de",
+      "source": "Die Welt",
+      "lean": "right",
+      "date": "2026-06-26",
+      "category": "general"
+    },
+    {
+      "text": "Bundeshaushalt: Etat steht: Klingbeil spart Milliarden – muss aber Rücklage antasten — Bundesfinanzminister Lars Klingbeil ist es nach Handelsblatt-Informationen gelungen, die 21-Milliarden-Lücke im Haushalt 2027 zu schließen. Dafür spart Berlin an vielen Stellen.",
+      "source": "Handelsblatt — Politik",
+      "lean": "center",
+      "date": "2026-06-26",
+      "category": "economy"
+    },
+    {
+      "text": "Thüringens Innenminister Maier fordert AfD-Verbotsverfahren — Thüringens Innenminister Georg Maier (SPD) hat sich für einen neuen Anlauf für ein AfD-Verbotsverfahren ausgesprochen. „Meines Erachtens ist spätestens jetzt der Zeitpunkt gekommen, konkrete Schritte zur Einleitung eines",
+      "source": "Stern",
+      "lean": "center",
+      "date": "2026-06-26",
+      "category": "general"
+    },
+    {
+      "text": "Hitze in der Hauptstadt: Berliner Polizei setzt Wasserwerfer ein - zur Abkühlung",
+      "source": "Die Zeit",
+      "lean": "left",
+      "date": "2026-06-27",
+      "category": "general"
+    },
+    {
+      "text": "Taucher im Einsatz: 27-jähriger Mann ertrinkt im Neckar — Polizei und Rettungskräfte werden zum Neckar gerufen, wo eine hilflose Person im Wasser gemeldet wird. Trotz anschließender Rettungsaktion und Reanimation stirbt der Mann.",
+      "source": "Stern",
+      "lean": "center",
+      "date": "2026-06-27",
+      "category": "general"
+    },
+    {
+      "text": "Unglück in Frankreich: Elf Tote bei Flugzeugabsturz nahe Nancy — Am Samstagmittag ist es im Osten Frankreichs zu einem Flugzeugabsturz gekommen. Dabei sind laut Behördenangaben elf Menschen ums Leben gekommen. Was bislang zu dem Unglück bekannt ist.",
+      "source": "Rheinische Post",
+      "lean": "center",
+      "date": "2026-06-28",
+      "category": "general"
+    },
+    {
+      "text": "Deutschland übernimmt die Kontrolle – Undav, Wirtz und Havertz drücken Paraguay hinten rein — Deutschland startet in die K.-o.-Runde der Fußball-WM. Die DFB-Elf wird der Favoritenrolle gegen Paraguay in den ersten Minuten gerecht. Verfolgen Sie die Partie hier im Liveticker.",
+      "source": "Die Welt",
+      "lean": "right",
+      "date": "2026-06-29",
+      "category": "general"
+    },
+    {
+      "text": "Salat mit gerösteten Walnüssen und Granatapfelsirup-Tahini-Dressing: Ein paradiesischer Salat — Welche Frucht hat zur Verbannung von Adam und Eva aus dem Paradies geführt? Es könnte offenbar der Granatapfel gewesen sein. Für diesen Salat ist sein Sirup essenziell.",
+      "source": "Die Zeit",
+      "lean": "left",
+      "date": "2026-06-29",
+      "category": "general"
+    },
+    {
+      "text": "Willkommen in der Heißzeit: Hitze-Rekorde in Deutschland fallen in immer kürzeren Abständen — Phasen längerer Hitze gab es schon immer, behauptet manch einer. Das stimmt – nur dass in immer kürzeren Abständen immer öfter Temperaturrekorde fallen. Eine Übersicht für Deutschland passt zu dem Trend: Was 1976 als Hit",
+      "source": "Sächsische Zeitung",
+      "lean": "center",
+      "date": "2026-06-29",
+      "category": "general"
+    },
+    {
+      "text": "Gäste und Themen vom 30. Juni 2026 - Wer ist heute Abend bei Markus Lanz zu Gast? — Lesen Sie hier, wer heute Abend bei Markus Lanz zu Gast ist und worüber diskutiert wird.",
+      "source": "Bild — Unterhaltung",
+      "lean": "unknown",
+      "date": "2026-06-30",
+      "category": "entertainment"
+    },
+    {
+      "text": "Rekord-Hitzewelle im Liveticker: DWD warnt vor Unwettern mit Starkregen und Hagel — Am Wochenende hat der Wetterdienst die bisher höchste Temperatur in Deutschland am Tag und in der Nacht gemessen. Wir informieren Sie in unserem Liveticker über alle aktuellen Entwicklungen.",
+      "source": "Sächsische Zeitung",
+      "lean": "center",
+      "date": "2026-06-30",
+      "category": "general"
+    },
+    {
+      "text": "Staatsbürgerschaft bei Geburt: Alle im Land Geborenen sind US-Bürger – Oberste Richter weisen Trump in die Schranken — Niederlage für den Präsidenten: Wer in den USA geboren wird, erhält weiterhin automatisch das Bürgerrecht – unabhängig davon, ob die Eltern eine Aufenthaltserlaubnis haben.",
+      "source": "Süddeutsche Zeitung — Politik",
+      "lean": "left",
+      "date": "2026-06-30",
+      "category": "general"
+    },
+    {
+      "text": "Unwetter-Folgen: Starkregen überflutet Straßen – Zugverkehr lahmgelegt",
+      "source": "Die Zeit",
+      "lean": "left",
+      "date": "2026-07-01",
+      "category": "general"
+    },
+    {
+      "text": "Geburtenrate so niedrig wie seit fast 30 Jahren nicht mehr — In Deutschland bekommen Frauen immer weniger Kinder. Die Geburtenrate ist 2025 erneut gesunken. Die Unterschiede zwischen Ost und West sind groß - ein Bundesland sticht hervor.",
+      "source": "ZDF Heute",
+      "lean": "center",
+      "date": "2026-07-01",
+      "category": "general"
+    },
+    {
+      "text": "Was Merz als „großen Sprung“ verkauft, ist nur der Anlauf – mit ungewissem Ausgang — Schwarz-Rot kommt nach mehr als einem Jahr im Arbeitsmodus an und legt mehr als 30 konkrete Reformvorhaben vor. Doch die Umsetzung wird nicht leicht – sofort wird auch im eigenen Lager Kritik laut.",
+      "source": "Die Welt",
+      "lean": "right",
+      "date": "2026-07-02",
+      "category": "general"
+    },
+    {
+      "text": "Bündnisverteidigung: US-General Donahue tritt ab: Nato „stärker als je zuvor“ — General Donahue, Kommandeur des US-Heeres in Europa und Afrika, verlässt seinen Posten in Wiesbaden vorzeitig. Er geht mit anerkennenden Worten für die europäischen Verbündeten.",
+      "source": "Stern",
+      "lean": "center",
+      "date": "2026-07-02",
+      "category": "general"
+    },
+    {
+      "text": "Oberlichtenau: Spielmannszug zeigt WM-Programm bei öffentlicher Generalprobe — Der Spielmannszug Oberlichtenau lädt zur öffentlichen Generalprobe vor der Weltmeisterschaft. Am 3. Juli zeigt die Band ihr WM-Programm auf dem heimischen Sportplatz. Im niederländischen Kerkrade will sie ihren Titel ver",
+      "source": "Sächsische Zeitung",
+      "lean": "center",
+      "date": "2026-07-02",
+      "category": "general"
+    },
+    {
+      "text": "Schwarz-rot und die Attest-Regelung: Das Krankenschein-Fiasko — Das Reformpaket von SPD und Union bekommt viel Lob, doch der Ärger über die verpflichtende Krankschreibung ab Tag eins droht den Erfolg zu überlagern. Kippt die Regelung wieder?",
+      "source": "Der Spiegel — Politik",
+      "lean": "left",
+      "date": "2026-07-03",
+      "category": "general"
+    },
+    {
+      "text": "Hochzeit des Jahres?: Angebliche Hochzeit von Swift und Kelce: Kommen die Gäste? — Seit Wochen brodelt die Gerüchteküche rund um die Hochzeit von Taylor Swift und Travis Kelce. Jetzt soll die ganz große Party anstehen. Rund um den Madison Square Garden ist viel los.",
+      "source": "Stern",
+      "lean": "center",
+      "date": "2026-07-03",
+      "category": "general"
+    },
+    {
+      "text": "Verkehr: Sperrung wegen Hitzeschäden: Langer Rückstau auf der A10",
+      "source": "Die Zeit",
+      "lean": "left",
+      "date": "2026-07-04",
+      "category": "general"
+    },
+    {
+      "text": "Die besten Podcasts Deutschlands: Aktuelle Top 10 bei Spotify und iTunes (4.7.2026) — Welche Podcasts sind aktuell in Deutschland am beliebtesten? Hier finden Sie die täglichen Podcastcharts von Spotify und Apple iTunes.",
+      "source": "Sächsische Zeitung",
+      "lean": "center",
+      "date": "2026-07-04",
+      "category": "general"
+    },
+    {
+      "text": "WM 2026 live: Klopp bestätigt Bundestrainer-Gespräche – Kap Verde gleicht gegen Argentinien aus — Die K.-o.-Runde der Fußball-WM in den USA, Mexiko und Kanada hat begonnen. Seit Sonntag kämpfen die Nationen im Sechzehntelfinale ums Weiterkommen. Verfolgen Sie alle Entwicklungen hier im Liveticker.",
+      "source": "Sächsische Zeitung",
+      "lean": "center",
+      "date": "2026-07-04",
+      "category": "general"
+    },
+    {
+      "text": "Grüne werfen Wirtschaftsministerin Reiche „Arbeitsverweigerung“ vor — Die Grünen sehen Verzögerungen bei der geplanten EEG-Novelle. Sie wollen Wirtschaftsministerin Reiche deswegen in den Bundestags-Ausschuss zitieren. „Die Uhr tickt“, sagt ein Energiepolitiker.",
+      "source": "Die Welt",
+      "lean": "right",
+      "date": "2026-07-05",
+      "category": "general"
+    },
+    {
+      "text": "Unfälle: Pedelec-Fahrer nach Unfall in Lebensgefahr — Beim Überqueren einer Straße wird ein Pedelec-Fahrer von einem Auto angefahren.",
+      "source": "Stern",
+      "lean": "center",
+      "date": "2026-07-05",
+      "category": "general"
+    },
+    {
+      "text": "Herbststaffel „The Masked Singer“: Diese Änderungen stehen an — „The Masked Singer“ startet im Herbst 2026 mit neuem Modus, 16 Masken und einer weiteren großen Änderung.",
+      "source": "Stern",
+      "lean": "center",
+      "date": "2026-07-06",
+      "category": "general"
+    },
+    {
+      "text": "Unternehmen widerspricht: Bundesnetzagentur wirft Ebay drei Regelbrüche vor — Ebay macht seinen Nutzern das Leben gleich dreifach schwer, beklagt die Bundesnetzagentur: Beim Melden rechtswidriger Inhalte, bei Informationen über Sperren und bei der Nachverfolgbarkeit von Händlern. Das Unternehmen w",
+      "source": "n-tv — Politik",
+      "lean": "center",
+      "date": "2026-07-06",
+      "category": "general"
+    },
+    {
+      "text": "Der müde Zar? Warum Putin immer stärker an das alte Politbüro erinnert — Der Kreml zeigt Putin in Militäruniform als entschlossenen Oberbefehlshaber. Doch der Auftritt wirkt ungewöhnlich kraftlos. Wie sieht die russische Strategie aus?",
+      "source": "Berliner Zeitung",
+      "lean": "center",
+      "date": "2026-07-07",
+      "category": "general"
+    },
+    {
+      "text": "Demografie: Lebenserwartung: Abstand zwischen Frauen und Männern sinkt",
+      "source": "Die Zeit",
+      "lean": "left",
+      "date": "2026-07-07",
+      "category": "general"
+    },
+    {
+      "text": "Rauschgifthandel: Polizei warnt: Werbepäckchen mit Drogen im Briefkasten — Berliner Drogenhändler werden immer dreister. Werbeflyer für Lieferdienste von Cannabis, Kokain und Ecstasy kursieren schon länger. Nun sollen Kunden mit Drogen in Probierportionen gelockt werden.",
+      "source": "Stern",
+      "lean": "center",
+      "date": "2026-07-07",
+      "category": "general"
+    },
+    {
+      "text": "Diese deutsche Mannschaft spielt jetzt um einen Titel — In der Nachspielzeit des EM-Halbfinales sichert sich die deutsche U19-Nationalmannschaft den Sieg – und damit die große Chance auf den ersten Titel seit 2014. Im Finale geht es nun gegen den Rekordchampion.",
+      "source": "Die Welt",
+      "lean": "right",
+      "date": "2026-07-08",
+      "category": "general"
+    },
+    {
+      "text": "Fußball-Bundesliga: Nach WM-Aus: Karl beim FC Bayern zurück auf dem Rasen",
+      "source": "Die Zeit",
+      "lean": "left",
+      "date": "2026-07-08",
+      "category": "general"
+    },
+    {
+      "text": "Aktuelle Stunde: Bundestag distanziert sich von Gewalt bei Anti-AfD-Protest — Bei den Demonstrationen gegen den Erfurter AfD-Parteitag wurden laut Polizei mehrere Journalisten verletzt. Deshalb hat sich auch der Bundestag mit den Übergriffen beschäftigt.",
+      "source": "Stern",
+      "lean": "center",
+      "date": "2026-07-08",
+      "category": "general"
+    },
+    {
+      "text": "WM 2026 live: Schweiz gegen Kolumbien in der Verlängerung – Messi und Argentinien mit Mega-Comeback gegen Ägypten — Die Achtelfinal-Runde der Fußball-WM in den USA, Mexiko und Kanada ist in vollem Gange. Das Sportliche wird allerdings durch eine politische Einmischung Trumps in den Schatten gestellt. Verfolgen Sie alle Entwicklungen h",
+      "source": "Sächsische Zeitung",
+      "lean": "center",
+      "date": "2026-07-08",
+      "category": "general"
+    },
+    {
+      "text": "Polizeibeauftragter: Grenzkontrollen so \"auf Dauer nicht tragbar\" — Seit fast zwei Jahren gibt es an allen deutschen Grenzen Einreisekontrollen. Der Polizeibeauftragte des Bundes betrachtet das \"mit wachsender Sorge\". Innenminister Dobrindt weist Kritik erneut zurück. Von C. Kornmeier un",
+      "source": "Tagesschau (ARD)",
+      "lean": "center",
+      "date": "2026-07-08",
+      "category": "general"
+    },
+    {
+      "text": "Spieler bei der WM: Warten auf Momente — Das Viertelfinale beginnt. In jeder Partie ist ein Favorit zu sehen. Und ein Trainer, der dafür sorgt, dass er glänzt. Denn ohne seine Mitspieler ist selbst Messi nichts.",
+      "source": "Die Zeit",
+      "lean": "left",
+      "date": "2026-07-09",
+      "category": "general"
+    },
+    {
+      "text": "Iran-Krieg: Irans oberster Führer Chamenei beerdigt — Fast eine Woche lang dauerten die staatlich organisierten Trauerfeiern für das getötete iranische Staatsoberhaupt Ajatollah Ali Chamenei. Das Land steuert in eine politisch ungewisse Zukunft.",
+      "source": "Stern",
+      "lean": "center",
+      "date": "2026-07-09",
+      "category": "general"
+    },
+    {
+      "text": "Roland Kaiser verrät: Dieser Hit mit DDR-Geschichte darf bei keinem seiner Konzerte fehlen — „Sieben Fässer Wein“? Eher nein: In einer launigen Fragerunde erzählt der Sänger Roland Kaiser, ob er vor Auftritten noch aufgeregt ist und was er danach am liebsten zu sich nimmt.",
+      "source": "Berliner Zeitung",
+      "lean": "center",
+      "date": "2026-07-10",
+      "category": "general"
+    },
+    {
+      "text": "Brandsätze hergestellt?: Spezialkräfte überwältigen 38-Jährigen — Nach Hinweisen auf eine Gefährdungslage nehmen Spezialkräfte einen Mann fest. Im Haus werden mutmaßlich brennbare Gegenstände entdeckt.",
+      "source": "Stern",
+      "lean": "center",
+      "date": "2026-07-10",
+      "category": "general"
+    },
+    {
+      "text": "Dieser bittere Torwartpatzer beendet Norwegens WM-Märchen — Kurz nach Anpfiff der Verlängerung geht England in Führung. Rogers‘ eigentlich harmlosen Schuss lässt Norwegens Torwart vor die Füße von Bellingham abprallen, der zum 2:1 abstaubt. Sehen Sie das Tor hier im Video.",
+      "source": "Die Welt",
+      "lean": "right",
+      "date": "2026-07-11",
+      "category": "general"
+    },
+    {
+      "text": "Personalprobleme der Bundeswehr: Wer soll denn die Panzer künftig fahren? — Die Bundeswehr muss wachsen. Doch seit Boris Pistorius im Amt ist, sind unterm Strich nur 2.300 Soldaten dazugekommen. Und das ist nicht das einzige Problem.",
+      "source": "Die Zeit",
+      "lean": "left",
+      "date": "2026-07-11",
+      "category": "general"
+    },
+    {
+      "text": "Polio: Wohl letzte Nutzerin einer Eisernen Lunge gestorben — Sie überlebte Polio, lebte Jahrzehnte mit einer Eisernen Lunge und wurde so zum Symbol einer vergangenen Ära. Mit Martha Lillards Tod endet ein außergewöhnliches Kapitel der Medizingeschichte.",
+      "source": "Sächsische Zeitung",
+      "lean": "center",
+      "date": "2026-07-11",
+      "category": "general"
+    },
+    {
+      "text": "Polizeiticker Kreis Bautzen: Aktuelle Meldungen am 11.07.2026 aus Bautzen, Kamenz und Hoyerswerda — Verkehrsunfälle, Sperrungen, Vermisstenmeldung, Gewaltdelikte oder anderweitige Verbrechen - aktuelle Polizei- und Verkehrsmeldungen in Bautzen, Bischofswerda, Kamenz und der Region in unserem Ticker.",
+      "source": "Sächsische Zeitung",
+      "lean": "center",
+      "date": "2026-07-12",
+      "category": "general"
+    },
+    {
+      "text": "Iran-Krieg: US-Iran-Rahmenabkommen: Was hat Trump überhaupt erreicht?",
+      "source": "Die Zeit",
+      "lean": "left",
+      "date": "2026-07-13",
+      "category": "general"
+    },
+    {
+      "text": "Hohe Brandgefahr: Wie man sich bei einem Waldbrand verhalten soll — Eigene Sicherheit geht vor: Wer ein Feuer im Wald bemerkt, sollte nur löschen, wenn keine Gefahr besteht. Tipps für das richtige Verhalten.",
+      "source": "Stern",
+      "lean": "center",
+      "date": "2026-07-13",
+      "category": "general"
+    },
+    {
+      "text": "Forschung: Neue Art von Bärenhunden in Spanien entdeckt — Sie wirken wie eine Mischung aus Hund und Bär: Bärenhunde. Die Entdeckung einer bislang unbekannten, ausgestorbenen Art wirft ein neues Licht auf eine verlorene Tierwelt",
+      "source": "Stern",
+      "lean": "center",
+      "date": "2026-07-14",
+      "category": "general"
+    }
+  ],
+  "built": "2026-07-21",
+  "source_db": "ELES prod Echolot DB (railway ssh glistening-luck, file:/data/echolot.db?mode=ro)",
+  "build_rule": "title>15, cim-dedupe, lead 220 char, RANDOM(1200) nyers minta a prod-bol, MAXN=60 lean-cap: proporcionalis kvota + dominans lean <=60% + datum-stride ritkitas"
+}

@@ -47,3 +47,22 @@ fedi csak — PROXY-cella, a jegyzőkönyvben így címkézve.
 A `COUNTRY_PANEL_CONFIG['DE']`-nek nincs source_prefixes kulcsa → a de nyelvi korpusz
 osztrák/svájci forrásokat is tartalmazhat. A korpusz-fájlban forrás-lista dokumentálva;
 a prod panel-út ugyanígy működik, tehát a prereg a valós üzemi utat teszteli.
+
+## 5. KORPUSZ-ÉPÍTÉS KÖZBENI PÓT-LELETEK (2026-07-21, a futások ELŐTT — lásd gt_LOCKED_west.json amendment_1)
+
+1. **SQLite LIKE-wildcard bug:** a `LIKE 'uk_%'` mintában az `_` joker — az
+   `ukrainska_pravda_en` forrás is a uk_ szegmensbe matchelt. Fix: `ESCAPE '!'`.
+   Az 1. pont hónap-számai a bugos mintával készültek (felülbecslés ~1-7%); a
+   cellaépítés már escape-elt. A prod `build_country_corpus` + G0c-matrix
+   ugyanezt a mintát használhatja → TODO a riportban.
+2. **Ír források a uk_ prefixben** (Irish Independent, Irish Times, RTÉ,
+   TheJournal.ie — ~23% a uk_ pool-ból): a GfK **UK** panel-korpuszból kizárva;
+   Belfast/NI marad.
+3. **de nyelvi réteg ≠ DE ország:** 31% osztrák/svájci/dél-tiroli + sport/celeb
+   forrás; a prereg-korpusz `de_` prefixre szűkítve (30 forrás, 36k cikk/early-ablak).
+   Mellék-lelet: Tagesspiegel id=`hu_tag`, NZZ id=`hu_nzz` — id-névtér-szemét.
+4. **us_ rezsim-törés:** 2026-07-08-ig a us_ réteg Us Weekly-monokultúra
+   (06-21..25: 95% celeb; a 39-forrásos multi-rezsim **2026-07-09-től** él:
+   1,6-2,6k/nap). Következmény: a Michigan jún→júl MoM-irány backteszt **nem
+   fedhető** (kimondva); a backteszt a redukált level-sign rétegre szűkül
+   (us_A cella), a fő bizonyíték-forma az előregisztrált us_A/us_B drift-pár.

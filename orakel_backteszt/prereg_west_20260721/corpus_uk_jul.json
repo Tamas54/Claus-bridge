@@ -1,0 +1,465 @@
+{
+  "cell": "uk_jul",
+  "lang": "en",
+  "corpus_window": [
+    "2026-06-21",
+    "2026-07-16"
+  ],
+  "n": 60,
+  "lean_dist": {
+    "left": 4,
+    "center": 29,
+    "right": 5,
+    "center_right": 8,
+    "center_left": 14
+  },
+  "cat_dist": {
+    "general": 7,
+    "foreign": 51,
+    "tech": 2
+  },
+  "pool_lean_counts_full": {
+    "center": 8520,
+    "center_left": 4209,
+    "center_right": 2495,
+    "left": 1042,
+    "right": 1329
+  },
+  "pool_cat_counts_full": {
+    "economy": 27,
+    "foreign": 14370,
+    "general": 2971,
+    "lifestyle": 1,
+    "politics": 1,
+    "sport": 2,
+    "tech": 223
+  },
+  "source_prefix_counts": {
+    "uk_": 17595
+  },
+  "items": [
+    {
+      "text": "The Makerfield Test — Andy Burnham will need to do more than follow the rules if he wants to lead Britain",
+      "source": "New Statesman",
+      "lean": "left",
+      "date": "2026-06-21",
+      "category": "general"
+    },
+    {
+      "text": "Los Angeles mayor declares emergency to fight Boyle Heights warehouse fire — Karen Bass declares emergency to ensure city gets resources to combat potential biohazard",
+      "source": "The Independent — World",
+      "lean": "center",
+      "date": "2026-06-21",
+      "category": "foreign"
+    },
+    {
+      "text": "CBS Mornings facing ‘worst June ever’ as ratings plunge after Scott Pelley’s firing and Bari Weiss upheaval — Viewership fell by several hundred thousand from the June average in the immediate aftermath of Scott Pelley’s firing",
+      "source": "The Independent — World",
+      "lean": "center",
+      "date": "2026-06-23",
+      "category": "foreign"
+    },
+    {
+      "text": "Gen Z’s newest fad is watching TV in movie theaters. Here’s why — Reality TV watch parties have long been common, but screening episodes in theaters is making that shared viewing experience more immersive",
+      "source": "The Independent — World",
+      "lean": "center",
+      "date": "2026-06-24",
+      "category": "foreign"
+    },
+    {
+      "text": "The NHS puberty-blockers trial is an unforgivable betrayal — The post The NHS puberty-blockers trial is an unforgivable betrayal appeared first on spiked .",
+      "source": "spiked Online",
+      "lean": "right",
+      "date": "2026-06-24",
+      "category": "general"
+    },
+    {
+      "text": "AI-generated George Washington run by conservative PragerU is a feature on Trump’s ‘Freedom Truck’ as it tours US — Mobile museums from controversial right-wing group feature AI-generated depictions of American historical figures",
+      "source": "The Independent — World",
+      "lean": "center",
+      "date": "2026-06-26",
+      "category": "foreign"
+    },
+    {
+      "text": "Natalie Wildgoose: 'I'm particularly inspired by that desolate nature on the moors' — Recently seen touring with LYR and the Leeds singer-songwriter Chris Brain, Natalie Wildgoose is a folk singer on the up. Currently dividing her time between North Yorkshire and London, she released her latest EP, Rural",
+      "source": "The Yorkshire Post",
+      "lean": "center_right",
+      "date": "2026-06-27",
+      "category": "foreign"
+    },
+    {
+      "text": "Britain can’t talk about religion — We will soon find ourselves defined by religious conflict and unable even to think about it",
+      "source": "New Statesman",
+      "lean": "left",
+      "date": "2026-06-28",
+      "category": "general"
+    },
+    {
+      "text": "Burnham latest: Makerfield MP vows to ‘lift Britain back up’ with radical 10-year plan to raise living standards — The former mayor of Greater Manchester will make the case for devolution and argue that Britain needs a ‘circuit breaker’",
+      "source": "The Independent — UK",
+      "lean": "center",
+      "date": "2026-06-29",
+      "category": "general"
+    },
+    {
+      "text": "Shocking new evidence reveals true brutality of American War of Independence — The American War of Independence was particularly atrocity-prone because it had a unique combination of features",
+      "source": "The Independent — Science",
+      "lean": "center",
+      "date": "2026-06-30",
+      "category": "tech"
+    },
+    {
+      "text": "Virginia councilman’s plea for more sidewalks earns him TikTok fame — A Virginia councilman has earned viral fame on TikTok for his pledge to bring more sidewalks to his local community.",
+      "source": "The Independent — World",
+      "lean": "center",
+      "date": "2026-07-01",
+      "category": "foreign"
+    },
+    {
+      "text": "Ukraine-Russia war latest: Poland scrambles jets as eight killed in Putin’s major aerial attack on Kyiv — Massive attack on Kyiv comes hours after Ukraine said Putin wanted to capture the capital again",
+      "source": "The Independent — World",
+      "lean": "center",
+      "date": "2026-07-02",
+      "category": "foreign"
+    },
+    {
+      "text": "'They wanted me to repent': Inside the push to ban conversion practices — Introduced to the assembly on Tuesday, the bill contains provisions that could see a two year sentence imposed on people who conduct conversion practices in NI.",
+      "source": "BBC News — UK",
+      "lean": "center",
+      "date": "2026-07-04",
+      "category": "general"
+    },
+    {
+      "text": "Flock of sheep wander on to A90 during morning rush hour — The southbound carriageway of the road at Aberdeen was closed for about half an hour.",
+      "source": "BBC News — Scotland",
+      "lean": "center",
+      "date": "2026-07-07",
+      "category": "general"
+    },
+    {
+      "text": "TV tonight: six people join an Amish community for this new reality series — How will the group cope when they leave behind the trappings of modern society? Plus: a double bill of a cracking gay dating show. Here’s what to watch this evening 10pm, TLC Tapping into the cultural obsession with trad",
+      "source": "The Guardian — Culture",
+      "lean": "left",
+      "date": "2026-07-07",
+      "category": "general"
+    },
+    {
+      "text": "Louth manager Gavin Devlin on ‘the birth of Sam Mulroy’, the influence of Mickey Harte and being wary of ‘under the radar’ Mayo",
+      "source": "Irish Independent — Sport",
+      "lean": "center",
+      "date": "2026-07-08",
+      "category": "foreign"
+    },
+    {
+      "text": "Police appeal for Northumberland man with facial tattoos missing since Monday — John, whose surname has not been disclosed, was last seen in the Waverley area of Bedlington on Monday",
+      "source": "ChronicleLive (Newcastle)",
+      "lean": "center",
+      "date": "2026-07-09",
+      "category": "foreign"
+    },
+    {
+      "text": "Trump makes two astonishing verbal gaffes at NATO sparking wild 'dementia' allegations — Donald Trump made two astonishing verbal gaffes while speaking alongside Ukrainian President Volodymyr Zelensky at a NATO summit Wednesday.",
+      "source": "Daily Mail — News",
+      "lean": "right",
+      "date": "2026-07-09",
+      "category": "foreign"
+    },
+    {
+      "text": "Murder probe launched as man stabbed to death in fight on south London street — Three arrested after man dies in hospital with stab wound after fight in Thornton Heath",
+      "source": "Evening Standard (London)",
+      "lean": "center_right",
+      "date": "2026-07-09",
+      "category": "foreign"
+    },
+    {
+      "text": "Andy Burnham moves step closer to becoming Prime Minister — The Merseyside-born politician could become PM in less than two weeks",
+      "source": "Liverpool Echo",
+      "lean": "center_left",
+      "date": "2026-07-09",
+      "category": "foreign"
+    },
+    {
+      "text": "Farrell calls on his Test rookies to 'rip into' Japan — Andy Farrell has called for his four debutants to \"rip into\" Japan on in Saturday's Nations Championship clash, after the Ireland head coach named an experimental line-up for this weekend's game in Newcastle.",
+      "source": "RTÉ Sport",
+      "lean": "center",
+      "date": "2026-07-09",
+      "category": "foreign"
+    },
+    {
+      "text": "Emma Little-Pengelly: I saw nothing to make me think Donaldson was dangerous — 'I have just been so deeply sickened and repulsed by what has come out, I think everybody has'",
+      "source": "Belfast Live",
+      "lean": "center",
+      "date": "2026-07-10",
+      "category": "foreign"
+    },
+    {
+      "text": "Boy, 16, dies in second lake tragedy in just seven weeks — A 16-year-old boy has died after getting into difficulty at Swanholme Lakes in Lincolnshire",
+      "source": "Birmingham Mail",
+      "lean": "center_left",
+      "date": "2026-07-10",
+      "category": "foreign"
+    },
+    {
+      "text": "State pensioners will get second DWP payment in July — Under DWP payment schedules, claimants with National Insurance (NI) numbers ending in digits between 60 to 79 are normally paid on Thursdays.",
+      "source": "Birmingham Mail",
+      "lean": "center_left",
+      "date": "2026-07-10",
+      "category": "foreign"
+    },
+    {
+      "text": "Ann Widdecombe live: Police launch murder investigation into 'suspicious' death — Ann Widdecombe, former Conservative MP, died aged 78",
+      "source": "ChronicleLive (Newcastle)",
+      "lean": "center",
+      "date": "2026-07-10",
+      "category": "foreign"
+    },
+    {
+      "text": "Kyle Joseph finally seals Hull City exit as promotion hero makes Middlesbrough move — The popular frontman has sealed his Teesside transfer",
+      "source": "Hull Daily Mail (Hull Live)",
+      "lean": "center",
+      "date": "2026-07-10",
+      "category": "foreign"
+    },
+    {
+      "text": "Large gangs of yobs 'starting fires and intimidating people' in Croxteth — A police inspector has released a statement about the problems in Croxteth",
+      "source": "Liverpool Echo",
+      "lean": "center_left",
+      "date": "2026-07-10",
+      "category": "foreign"
+    },
+    {
+      "text": "SE Systems announces 150 jobs nationwide — Sustainable energy supplier SE Systems has announced the creation of 150 jobs over the next two years.",
+      "source": "RTÉ News — Business",
+      "lean": "center",
+      "date": "2026-07-10",
+      "category": "foreign"
+    },
+    {
+      "text": "'Impressive transformation' of York cemetery facing 'dismal outlook' as changes approved — The transformation of York’s main cemetery a year on from finance and maintenance woes has been praised as changes to the way it is run were approved.",
+      "source": "The Yorkshire Post",
+      "lean": "center_right",
+      "date": "2026-07-10",
+      "category": "foreign"
+    },
+    {
+      "text": "Inside Carlton boss's three weeks of chaos when his 'd*** pic' scandal erupted on a family holiday to Italy - as judge orders AFL and club to hand over bombshell secret files — A new Supreme Court of Victoria order has laid bare exactly what investigators, lawyers and now the courts believe is the critical window at the heart of the Luke Sayers legal battle.",
+      "source": "Daily Mail — News",
+      "lean": "right",
+      "date": "2026-07-11",
+      "category": "foreign"
+    },
+    {
+      "text": "Ex-teacher's cafe so busy it had to double its staff in the first week — The new health-focused space opened just a few weeks ago in New Brighton",
+      "source": "Liverpool Echo",
+      "lean": "center_left",
+      "date": "2026-07-11",
+      "category": "foreign"
+    },
+    {
+      "text": "County Durham college named among country's top apprenticeship providers — East Durham College has been named among the country’s leading apprenticeship providers after recording a seventy five per cent achievement rate, well above the national average.",
+      "source": "The Northern Echo",
+      "lean": "center",
+      "date": "2026-07-11",
+      "category": "foreign"
+    },
+    {
+      "text": "North East schoolboy uses art to help town's bid to be first UK Town of Culture 2028 — A school pupil's colourful vision of his \"dream day\" is helping to put his town on the national map as part of its bid to become the first ever UK Town of Culture 2028.",
+      "source": "The Northern Echo",
+      "lean": "center",
+      "date": "2026-07-11",
+      "category": "foreign"
+    },
+    {
+      "text": "Rangers stalwart edges towards Ibrox exit door as Derek McInnes begins summer clearout — Rangers duo garnering transfer interest.",
+      "source": "The Scotsman",
+      "lean": "center_right",
+      "date": "2026-07-11",
+      "category": "foreign"
+    },
+    {
+      "text": "Wimbledon start times changed as singles finals put back by two hours — The All England Club has broken with tradition in recent years",
+      "source": "Wales Online",
+      "lean": "center_left",
+      "date": "2026-07-11",
+      "category": "foreign"
+    },
+    {
+      "text": "First patients enrolled in record-breaking Ebola treatment trial in DRC — Two drugs are being trialled in the Ituri region in a programme set up just six weeks after the outbreak was declared, with hopes it will reduce mortality rates There is no approved drug to help the medical teams scrabbl",
+      "source": "The Guardian — Science",
+      "lean": "left",
+      "date": "2026-07-12",
+      "category": "tech"
+    },
+    {
+      "text": "Two people taken to hospital after air ambulance called to incident on beach — Two people have been taken to hospital following an incident on Seaton Carew beach. Their conditions remain unknown at this stage.",
+      "source": "The Northern Echo",
+      "lean": "center",
+      "date": "2026-07-12",
+      "category": "foreign"
+    },
+    {
+      "text": "Farage: Widdecombe murder raises fresh questions over MP security — Fears over personal protection for Reform’s eight MPs and other senior figures in the party have been heightened by the murder of Ann Widdecombe in her home in Devon",
+      "source": "The i Paper (iNews)",
+      "lean": "center",
+      "date": "2026-07-12",
+      "category": "foreign"
+    },
+    {
+      "text": "How much will Jannik Sinner and Alexander Zverev earn? Wimbledon final prize money — Wimbledon 2026 will feature a record-breaking prize pot as Jannik Sinner looks to defend his title against Alexander Zverev",
+      "source": "Wales Online",
+      "lean": "center_left",
+      "date": "2026-07-12",
+      "category": "foreign"
+    },
+    {
+      "text": "Woman, 68, uses app to lose nearly 4 stone after doctor's warning — Beth Hilgartner turned to her smartphone for help after being told by her doctor that her blood levels, cholesterol and blood glucose had reached dangerous levels",
+      "source": "Birmingham Mail",
+      "lean": "center_left",
+      "date": "2026-07-13",
+      "category": "foreign"
+    },
+    {
+      "text": "Inside twisted brothers' sickening den of depravity where police found DOZENS of rotting bodies and piles of bones hidden behind secret door: 'Haunted to my core' — Once inside the building inspectors noticed 'a strong odor of decomposition'. Then, behind a hidden door they discovered an unthinkable scene...",
+      "source": "Daily Mail — News",
+      "lean": "right",
+      "date": "2026-07-13",
+      "category": "foreign"
+    },
+    {
+      "text": "Andoni Iraola makes Liverpool transfer admission after Yan Diomande update — The Spaniard was speaking to external media for the first time",
+      "source": "Evening Standard (London)",
+      "lean": "center_right",
+      "date": "2026-07-13",
+      "category": "foreign"
+    },
+    {
+      "text": "100 neighbours push back against plans for eight-person HMO in Walkden — The property would be the only of its kind in a 100-metre radius, according to town planners - but neighbours aren't happy.",
+      "source": "Manchester Evening News",
+      "lean": "center_left",
+      "date": "2026-07-13",
+      "category": "foreign"
+    },
+    {
+      "text": "Volkswagen CEO says 50,000 more job cuts may be needed — Volkswagen may need to cut about 50,000 more jobs to match the competitiveness of rivals, its CEO told staff in an internal memo, effectively confirming for the first time that the automaker is looking to reduce up to 10",
+      "source": "RTÉ News — Business",
+      "lean": "center",
+      "date": "2026-07-13",
+      "category": "foreign"
+    },
+    {
+      "text": "Prestwick Airport's financial results revealed — The financial results of Prestwick Airport, which has been owned by the Scottish Government since 2013, have been revealed",
+      "source": "The Herald (Glasgow)",
+      "lean": "center_left",
+      "date": "2026-07-13",
+      "category": "foreign"
+    },
+    {
+      "text": "Cummins team is making engines driven by AI — Dom Coles says Cummins is becoming ‘an AI company that makes diesel engines’ – but insists the technology will always sit beside people, not above them.",
+      "source": "The Northern Echo",
+      "lean": "center",
+      "date": "2026-07-13",
+      "category": "foreign"
+    },
+    {
+      "text": "Popular book fair returning to town — A book fair offering thousands of literary treasures is set to return.",
+      "source": "The Northern Echo",
+      "lean": "center",
+      "date": "2026-07-13",
+      "category": "foreign"
+    },
+    {
+      "text": "Why learning agility is the most critical skill for future growth — The ability to learn, unlearn and relearn at pace is now a source of competitive advantage. writes Alison Campbell",
+      "source": "The Scotsman",
+      "lean": "center_right",
+      "date": "2026-07-13",
+      "category": "foreign"
+    },
+    {
+      "text": "Fried eggs will be tastier when you add 1 tablespoon of simple ingredient to the pan — There's a simple fried egg trick that can help you achieve consistently great results every time.",
+      "source": "Wales Online",
+      "lean": "center_left",
+      "date": "2026-07-13",
+      "category": "foreign"
+    },
+    {
+      "text": "Donegal man who crashed into fire engine in Derry and caused £100k in damage granted bail",
+      "source": "Belfast Telegraph",
+      "lean": "center",
+      "date": "2026-07-14",
+      "category": "foreign"
+    },
+    {
+      "text": "Trump backs down over threat to levy tolls on shipping in Strait of Hormuz",
+      "source": "Belfast Telegraph",
+      "lean": "center",
+      "date": "2026-07-14",
+      "category": "foreign"
+    },
+    {
+      "text": "New glamping 'hideaway' pods added at popular North East holiday park — Verdant Parks has ploughed £2m into upgrades at two of its sites",
+      "source": "ChronicleLive (Newcastle)",
+      "lean": "center",
+      "date": "2026-07-14",
+      "category": "foreign"
+    },
+    {
+      "text": "Squad member stunned into excruciating silence after baby-faced Republican stifles her constitutional crusade — 'Every Democrat in the House has signed on to my bill, but I'm still waiting for my Republican colleagues to join,' Pressley told her audience. Then Brandon Gill spoke up.",
+      "source": "Daily Mail — News",
+      "lean": "right",
+      "date": "2026-07-14",
+      "category": "foreign"
+    },
+    {
+      "text": "Lidl to drop 'premium' ice cream maker that rivals Ninja - but for £180 less — This gadget will create cooling treats to help beat the upcoming 29C heat.",
+      "source": "Daily Record (Scotland)",
+      "lean": "center_left",
+      "date": "2026-07-14",
+      "category": "foreign"
+    },
+    {
+      "text": "London travel news LIVE: Tube and Overground latest updates after trackside fire as Southern trains cancelled — The Weaver Line remains suspended between Hackney Downs and Chingford",
+      "source": "Evening Standard (London)",
+      "lean": "center_right",
+      "date": "2026-07-14",
+      "category": "foreign"
+    },
+    {
+      "text": "Lidl's travel cabin bag that fits on Ryanair, British Airways and Jet2 for under £20 — Pack smart with the supermarket's cabin bag that lands in stores this week.",
+      "source": "Daily Record (Scotland)",
+      "lean": "center_left",
+      "date": "2026-07-15",
+      "category": "foreign"
+    },
+    {
+      "text": "Pilot leaves cheeky two-word message in the air during flight — The message was spotted by flight tracking website Flightradar24 after the Ravenair aircraft took off from Liverpool at 11.30am on Saturday, before flying over the Wirral peninsula, Cheshire and north Wales",
+      "source": "Dublin Live",
+      "lean": "center",
+      "date": "2026-07-15",
+      "category": "foreign"
+    },
+    {
+      "text": "'I live in York but I don't take the Minster for granted - it has everything' — Jeremy Walker has been the head teacher at the award-winning St Peter’s School based in York since January 2019. He was previously the principal of King’s School, Rochester, in Kent.",
+      "source": "The Yorkshire Post",
+      "lean": "center_right",
+      "date": "2026-07-15",
+      "category": "foreign"
+    },
+    {
+      "text": "Big wooden planter 'brilliant' for veg, herbs and flowers is cheaper than Amazon — The deep planter has legs to minimise users having to bend over for long periods of time",
+      "source": "Wales Online",
+      "lean": "center_left",
+      "date": "2026-07-15",
+      "category": "foreign"
+    },
+    {
+      "text": "England v Argentina referee Ismail Elfath sparks surprise and conspiracy theory — The MLS official is the man in the middle for Wednesday's semi-final in Atlanta",
+      "source": "Wales Online — Sport",
+      "lean": "center",
+      "date": "2026-07-15",
+      "category": "foreign"
+    }
+  ],
+  "built": "2026-07-21",
+  "source_db": "ELES prod Echolot DB (railway ssh glistening-luck, file:/data/echolot.db?mode=ro)",
+  "build_rule": "title>15, cim-dedupe, lead 220 char, RANDOM(1200) nyers minta a prod-bol, MAXN=60 lean-cap: proporcionalis kvota + dominans lean <=60% + datum-stride ritkitas"
+}
