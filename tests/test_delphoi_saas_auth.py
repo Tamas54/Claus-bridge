@@ -428,3 +428,86 @@ def test_register_tools_tolerates_fake_app(auth_db, fake_app):
     """FakeApp (nincs custom_route) → nem robban, csak hangos log."""
     saa.register_tools(fake_app, {"get_db": auth_db})
     assert fake_app.tools == {}   # MCP-toolt NEM regisztrál (tool-count fegyelem)
+
+
+# ── K2 kész-értesítő: "Your answer is ready" a job-done-kor ────────────────
+
+def _mk_job(auth_db, email):
+    delphoi.ensure_welcome(auth_db, email)
+    created = delphoi.create_job(auth_db, email, "concept", "Would this land?",
+                                 {"country": "HU", "n_per_cell": 30})
+    assert created.get("ok"), created
+    return created["job_id"]
+
+
+def test_run_and_notify_sends_ready_email_on_done(auth_db, monkeypatch):
+    monkeypatch.setenv("DELPHOI_SAAS_SITE_URL", "https://aipolling.io")
+    email = "ready@t.io"
+    job_id = _mk_job(auth_db, email)
+    sent = {}
+
+    async def fake_process(run_deps, jid):
+        conn = auth_db()
+        conn.execute("UPDATE delphoi_jobs SET status='done', result_json='{}' "
+                     "WHERE id=?", (jid,))
+        conn.commit()
+        conn.close()
+
+    async def fake_send(to="", subject="", body="", body_type=""):
+        sent.update(to=to, subject=subject, body=body)
+        return json.dumps({"status": "sent"})
+
+    monkeypatch.setattr(delphoi, "process_job", fake_process)
+    deps = {"capture_state": {"_send_email_func": fake_send}}
+    asyncio.run(saa._run_and_notify({"get_db": auth_db}, job_id, email, deps))
+    assert sent["to"] == email
+    assert sent["subject"] == "Your answer is ready"
+    assert f"https://aipolling.io/ask/job/{job_id}" in sent["body"]
+
+
+def test_run_and_notify_silent_on_failed_and_on_email_error(auth_db, monkeypatch):
+    email = "fail@t.io"
+    job_id = _mk_job(auth_db, email)
+    calls = []
+
+    async def fake_process_fail(run_deps, jid):
+        delphoi._fail_job(auth_db, jid, "teszt-hiba")
+
+    async def fake_send(**kw):
+        calls.append(kw)
+        return json.dumps({"status": "sent"})
+
+    monkeypatch.setattr(delphoi, "process_job", fake_process_fail)
+    deps = {"capture_state": {"_send_email_func": fake_send}}
+    # failed → NINCS levél (a refund-üzenet a felületen él)
+    asyncio.run(saa._run_and_notify({"get_db": auth_db}, job_id, email, deps))
+    assert calls == []
+
+    # done + robbanó transzport → a hiba elnyelve, sosem propagál
+    job2 = _mk_job(auth_db, email)
+
+    async def fake_process_done(run_deps, jid):
+        conn = auth_db()
+        conn.execute("UPDATE delphoi_jobs SET status='done', result_json='{}' "
+                     "WHERE id=?", (jid,))
+        conn.commit()
+        conn.close()
+
+    async def boom(**kw):
+        raise RuntimeError("smtp le")
+
+    monkeypatch.setattr(delphoi, "process_job", fake_process_done)
+    asyncio.run(saa._run_and_notify(
+        {"get_db": auth_db}, job2, email,
+        {"capture_state": {"_send_email_func": boom}}))   # nem dob
+
+
+def test_site_base_derivation(monkeypatch):
+    monkeypatch.setenv("DELPHOI_SAAS_SITE_URL", "https://aipolling.io/")
+    assert saa._site_base() == "https://aipolling.io"
+    monkeypatch.delenv("DELPHOI_SAAS_SITE_URL", raising=False)
+    monkeypatch.setenv("DELPHOI_SAAS_LOGIN_URL",
+                       "https://aipolling.io/auth/callback")
+    assert saa._site_base() == "https://aipolling.io"
+    monkeypatch.setenv("DELPHOI_SAAS_LOGIN_URL", "https://bridge/saas/auth/verify")
+    assert saa._site_base() == ""

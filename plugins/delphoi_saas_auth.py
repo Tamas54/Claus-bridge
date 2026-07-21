@@ -315,21 +315,22 @@ _EMAIL_BODY_HTML = """\
 """
 
 
-async def send_magic_email(deps: dict, email: str, link: str) -> tuple[bool, str]:
-    """(ok, hiba-ok). A cím a logokba CSAK maszkolva kerül."""
-    body = _EMAIL_BODY_HTML.format(link=link)
+async def _send_html_email(deps: dict, email: str, subject: str,
+                           body: str) -> tuple[bool, str]:
+    """(ok, hiba-ok) — a közös transzport (capture_send_email → gmail direkt).
+    A cím a logokba CSAK maszkolva kerül."""
     cs = (deps or {}).get("capture_state") or {}
     fn = cs.get("_send_email_func")
     if fn is not None:
         try:
-            res = await fn(to=email, subject=_EMAIL_SUBJECT, body=body,
+            res = await fn(to=email, subject=subject, body=body,
                            body_type="html")
             data = json.loads(res)
             if data.get("status") == "sent":
                 return True, ""
             return False, str(data.get("error") or "send_failed")
         except Exception as e:  # noqa: BLE001
-            logger.error("SIBYLLE: magic-link kuldes hiba (%s): %s",
+            logger.error("SIBYLLE: e-mail kuldes hiba (%s): %s",
                          mask_email(email), type(e).__name__)
             return False, f"{type(e).__name__}"
     svc = cs.get("gmail_service")
@@ -341,7 +342,7 @@ async def send_magic_email(deps: dict, email: str, link: str) -> tuple[bool, str
         def _send():
             msg = MIMEText(body, "html")
             msg["to"] = email
-            msg["subject"] = _EMAIL_SUBJECT
+            msg["subject"] = subject
             raw = base64.urlsafe_b64encode(msg.as_bytes()).decode()
             return svc.users().messages().send(userId="me", body={"raw": raw}).execute()
 
@@ -351,6 +352,72 @@ async def send_magic_email(deps: dict, email: str, link: str) -> tuple[bool, str
         logger.error("SIBYLLE: gmail direkt kuldes hiba (%s): %s",
                      mask_email(email), type(e).__name__)
         return False, f"{type(e).__name__}"
+
+
+async def send_magic_email(deps: dict, email: str, link: str) -> tuple[bool, str]:
+    return await _send_html_email(deps, email, _EMAIL_SUBJECT,
+                                  _EMAIL_BODY_HTML.format(link=link))
+
+
+# ---------------------------------------------------------------------------
+# K2 KÉSZ-ÉRTESÍTŐ (KLARTEXT) — "Your answer is ready" a job-done-kor.
+# A horog a SaaS-út túloldalán ül (handle_submit háttér-taskját csomagolja);
+# a pollster/delphoi core-fan-out ÉRINTETLEN, és a levél-hiba SOSEM érinti
+# magát a futást. Csak 'done'-ra megy levél (a failed-refund a felületen él).
+# ---------------------------------------------------------------------------
+_READY_SUBJECT = "Your answer is ready"
+_READY_BODY_HTML = """\
+<p>Your run <code>{job_id}</code> has finished — the answer is ready.</p>
+<p><a href="{link}">{link}</a></p>
+<p>If the page asks you to sign in, use this e-mail address — your runs are
+saved to your account.</p>
+"""
+
+
+def _site_base() -> str:
+    """A frontend publikus originje a kész-levél linkjéhez:
+    DELPHOI_SAAS_SITE_URL, különben a login-URL-ből származtatva."""
+    base = (os.environ.get("DELPHOI_SAAS_SITE_URL") or "").rstrip("/")
+    if base:
+        return base
+    login = (os.environ.get("DELPHOI_SAAS_LOGIN_URL") or "").rstrip("/")
+    suffix = "/auth/callback"
+    return login[:-len(suffix)] if login.endswith(suffix) else ""
+
+
+async def send_job_ready_email(deps: dict, email: str, job_id: str) -> tuple[bool, str]:
+    base = _site_base()
+    link = f"{base}/ask/job/{job_id}" if base else ""
+    body = (_READY_BODY_HTML.format(job_id=job_id, link=link) if link else
+            f"<p>Your run <code>{job_id}</code> has finished — sign in to "
+            "your account to read the answer.</p>")
+    return await _send_html_email(deps, email, _READY_SUBJECT, body)
+
+
+async def _run_and_notify(run_deps: dict, job_id: str, email: str,
+                          deps: dict) -> None:
+    """Futás + kész-értesítő. process_job önmagát védi (fail→auto-refund);
+    itt csak a végállapotot olvassuk vissza és levelezünk — defenzíven."""
+    from plugins import delphoi
+    try:
+        await delphoi.process_job(run_deps, job_id)
+    finally:
+        try:
+            st = delphoi.get_job(run_deps["get_db"], job_id, email)
+            if st.get("status") != "done":
+                return
+            if dev_mode():
+                logger.info("SIBYLLE DEV: job %s done — levél kihagyva", job_id)
+                return
+            sent, why = await send_job_ready_email(deps, email, job_id)
+            if sent:
+                logger.info("SIBYLLE: kesz-ertesito elkuldve (%s, job=%s)",
+                            mask_email(email), job_id)
+            else:
+                logger.warning("SIBYLLE: kesz-ertesito NEM ment (%s, job=%s): %s",
+                               mask_email(email), job_id, why)
+        except Exception:  # noqa: BLE001 — a levél sosem dönti el a futást
+            logger.exception("SIBYLLE: kesz-ertesito hiba (job=%s)", job_id)
 
 
 # ---------------------------------------------------------------------------
@@ -690,7 +757,9 @@ async def handle_submit(request) -> JSONResponse:
     run_deps = {k: deps.get(k) for k in (
         "get_db", "siliconflow_api_key", "siliconflow_base_url",
         "siliconflow_timeout", "siliconflow_models")}
-    asyncio.create_task(delphoi.process_job(run_deps, job_id))
+    # K2: futás + "Your answer is ready" levél a job-done-kor — a horog
+    # ITT csomagol, a delphoi core érintetlen.
+    asyncio.create_task(_run_and_notify(run_deps, job_id, ref, deps))
     logger.info("SIBYLLE: /saas/submit job=%s (user=%s, cost=%d)",
                 job_id, mask_email(ref), created["cost"])
     return JSONResponse({
