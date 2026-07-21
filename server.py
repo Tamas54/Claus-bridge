@@ -8992,7 +8992,7 @@ async def _cron_loop():
         # feeds the echolot RAG + global signals; the rest only per-language
         # brief+news. Per-lang gate → each missing language is seeded independently.
         _langs = [x.strip() for x in os.environ.get(
-            "DELPHOI_CORPUS_LANGS", "hu,pl,fr,it").split(",") if x.strip()]
+            "DELPHOI_CORPUS_LANGS", "hu,pl,fr,it,de,en").split(",") if x.strip()]
         from plugins.daily_press_review import fetch_and_store_press_review, _snapshot_stored
         for _i, _lg in enumerate(_langs):
             _primary = (_i == 0)
@@ -9141,7 +9141,7 @@ async def _cron_loop():
                         # lang is primary (feeds the echolot RAG + global signals);
                         # the rest capture per-language brief + news only.
                         _langs = [x.strip() for x in os.environ.get(
-                            "DELPHOI_CORPUS_LANGS", "hu,pl,fr,it").split(",") if x.strip()]
+                            "DELPHOI_CORPUS_LANGS", "hu,pl,fr,it,de,en").split(",") if x.strip()]
                         for _i, _lg in enumerate(_langs):
                             pr = await fetch_and_store_press_review(
                                 lang=_lg, localized_only=(_i > 0))
