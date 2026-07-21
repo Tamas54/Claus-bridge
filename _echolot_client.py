@@ -145,6 +145,7 @@ async def fetch_news(
     limit: int = 30,
     language: str = "",
     source_type: str = "",
+    source_prefix: str = "",
 ) -> dict:
     """GET /api/news (sphere-OR-filter, recency-ordered)."""
     return await _get("/api/news", {
@@ -153,6 +154,7 @@ async def fetch_news(
         "limit": limit,
         "language": language,
         "source_type": source_type,
+        "source_prefix": source_prefix,
     })
 
 

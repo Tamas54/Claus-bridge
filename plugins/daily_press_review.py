@@ -328,7 +328,30 @@ async def _capture_snapshot(day_iso: str, brief_html: str, lang: str = "hu",
                 logger.warning("snapshot %s %s failed: %s", sig, day_iso, e)
 
         # news is language-filtered → always safe to capture per-lang
-        await _grab("news", ec.fetch_news(days=1, limit=40, language=lang))
+        if lang == "en":
+            # EN-rétegzés: a recency-top a mindenkori "ébren lévő" időzónát
+            # tükrözi (hajnalban au_*), a UK/US-korpusz üresre szűrődne — ezért
+            # országprefix-kvóta fésülődik a globális merítés mellé.
+            async def _en_news():
+                base = await ec.fetch_news(days=1, limit=40, language=lang)
+                arts = list(base.get("articles") or [])
+                seen = {a.get("url") for a in arts}
+                for pref in ("uk_", "us_"):
+                    try:
+                        extra = await ec.fetch_news(days=1, limit=15, language=lang,
+                                                    source_prefix=pref)
+                        for a in extra.get("articles") or []:
+                            if a.get("url") not in seen:
+                                seen.add(a.get("url"))
+                                arts.append(a)
+                    except Exception as e:  # noqa: BLE001
+                        logger.warning("snapshot news %s quota failed: %s", pref, e)
+                base["articles"] = arts
+                base["count"] = len(arts)
+                return base
+            await _grab("news", _en_news())
+        else:
+            await _grab("news", ec.fetch_news(days=1, limit=40, language=lang))
 
         if localized_only:
             return n  # non-primary lang: only the per-language signals (brief + news)
