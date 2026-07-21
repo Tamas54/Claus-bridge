@@ -1,0 +1,203 @@
+{
+  "op": "G2-WEST ELOREGISZTRALT JOSLATOK — a GT-kiadasok ELOTT commitolva",
+  "generated": "2026-07-21T14:51:35+02:00",
+  "model": "tencent/Hy3-preview",
+  "rules_locked_in": "gt_LOCKED_west.json (commit 8ec6e31) + amendment_1 (commit 6ca49bc) — MINDEN szabaly a futasok elott",
+  "panel_cells": {
+    "us_A": {
+      "ssr_balance_mean": -35.54,
+      "ssr_balance_seeds": [
+        -32.8,
+        -38.1,
+        -35.7
+      ],
+      "ssr_balance_sd": 2.15,
+      "cat_balance_seeds": [
+        -69.5,
+        -75.0,
+        -71.7
+      ],
+      "cat_balance_mean": -72.05,
+      "corpus_file": [
+        "corpus_us_A.json"
+      ],
+      "corpus_sha256": {
+        "corpus_us_A.json": "067609742f471c55cb9c3397eeee36d344a18f9df66897ed44e654335b64a829"
+      },
+      "corpus_window": [
+        "2026-07-09",
+        "2026-07-15"
+      ],
+      "run_ts": "2026-07-21T14:39:15+02:00",
+      "price_score_mean": 2.628,
+      "price_score_seeds": [
+        2.682,
+        2.576,
+        2.625
+      ],
+      "price_score_sd": 0.043
+    },
+    "us_B": {
+      "ssr_balance_mean": -41.07,
+      "ssr_balance_seeds": [
+        -41.3,
+        -38.7,
+        -43.1
+      ],
+      "ssr_balance_sd": 1.8,
+      "cat_balance_seeds": [
+        -85.0,
+        -80.0,
+        -86.7
+      ],
+      "cat_balance_mean": -83.89,
+      "corpus_file": [
+        "corpus_us_B.json"
+      ],
+      "corpus_sha256": {
+        "corpus_us_B.json": "c4fc68b63508e2a4a0dd33600da376a618996ab861fc118c13b880c5900d81c1"
+      },
+      "corpus_window": [
+        "2026-07-15",
+        "2026-07-22"
+      ],
+      "run_ts": "2026-07-21T14:42:51+02:00",
+      "price_score_mean": 2.72,
+      "price_score_seeds": [
+        2.662,
+        2.595,
+        2.903
+      ],
+      "price_score_sd": 0.132
+    },
+    "uk_jul": {
+      "ssr_balance_mean": -38.34,
+      "ssr_balance_seeds": [
+        -41.2,
+        -33.8,
+        -40.0
+      ],
+      "ssr_balance_sd": 3.25,
+      "cat_balance_seeds": [
+        -85.0,
+        -78.3,
+        -78.3
+      ],
+      "cat_balance_mean": -80.56,
+      "corpus_file": [
+        "corpus_uk_jul.json"
+      ],
+      "corpus_sha256": {
+        "corpus_uk_jul.json": "e24aa0762921521b4701594aa4f045da858c1809666d5a73f74c0b48060a233c"
+      },
+      "corpus_window": [
+        "2026-06-21",
+        "2026-07-16"
+      ],
+      "run_ts": "2026-07-21T14:46:28+02:00"
+    },
+    "de_jul": {
+      "ssr_balance_mean": -50.26,
+      "ssr_balance_seeds": [
+        -50.6,
+        -50.2,
+        -50.0
+      ],
+      "ssr_balance_sd": 0.24,
+      "cat_balance_seeds": [
+        -95.0,
+        -98.3,
+        -90.0
+      ],
+      "cat_balance_mean": -94.44,
+      "corpus_file": [
+        "corpus_de_jul.json"
+      ],
+      "corpus_sha256": {
+        "corpus_de_jul.json": "e433200fbc33e6d8a4a3ff9a1ba5a9f39564c910a8520e3e72c500b2e609f565"
+      },
+      "corpus_window": [
+        "2026-06-21",
+        "2026-07-15"
+      ],
+      "run_ts": "2026-07-21T14:48:28+02:00",
+      "price_score_mean": 2.073,
+      "price_score_seeds": [
+        2.095,
+        2.033,
+        2.092
+      ],
+      "price_score_sd": 0.028
+    }
+  },
+  "predictions": [
+    {
+      "id": "P1_MICHIGAN_FINAL_DRIFT",
+      "target": "UMich consumer sentiment 2026-07 FINAL vs prelim 54.4",
+      "gt_arrives": "2026-07-31",
+      "prediction": "final < 54.4 (lefele revizio) — pred_dir = sign(-41.07 - -35.54) = -",
+      "pred_dir": "-",
+      "delta_ssr": -5.53,
+      "sentinel_categorical_delta": -11.84,
+      "eval_rule": "talalat, ha sign(final - 54.4) == pred_dir; final == 54.4 eseten semleges"
+    },
+    {
+      "id": "P2_MICHIGAN_FINAL_INFL_DRIFT",
+      "target": "UMich 1y inflation expectation 2026-07 FINAL vs prelim 4.2%",
+      "gt_arrives": "2026-07-31",
+      "prediction": "final 1y-infl > 4.2% (felfele) — pred_dir = sign(2.72 - 2.628) = +",
+      "pred_dir": "+",
+      "delta_price_score": 0.092,
+      "eval_rule": "talalat, ha sign(final_infl - 4.2) == pred_dir"
+    },
+    {
+      "id": "P3_CB_JULY_SECONDARY",
+      "target": "Conference Board CCI 2026-07 vs 2026-06 = 91.2",
+      "gt_arrives": "2026-07-28",
+      "prediction": "CB 2026-07 < 91.2 — pred_dir = - (us_B-us_A delta)",
+      "pred_dir": "-",
+      "caveat": "MASODLAGOS/exploratory — nincs juniusi baseline-panel (us_ monokultura-zona); a delta a juliuson BELULI hir-shift proxyja",
+      "eval_rule": "talalat, ha sign(CB_jul - 91.2) == pred_dir"
+    },
+    {
+      "id": "P4_UK_GFK_JULY",
+      "target": "GfK/NIQ UK consumer confidence 2026-07 (baseline 2026-06 = -23)",
+      "gt_arrives": "2026-07-24",
+      "prediction": "panel ssr_balance = -38.34 (nyers, kalibralatlan); sign = -; kategorikus -80.56",
+      "eval_rule": "sign(GT) vs sign(panel) + |e| = |GT - ssr_balance| a szaldo-skalan (kalibracios nyersanyag; G2-precedens szerint tulloves varhato); MoM-irany NEM regisztralt"
+    },
+    {
+      "id": "P5_DE_EUROSTAT_CCI_JULY",
+      "target": "Eurostat ei_bsco_m BS-CSMCI DE 2026-07 (baseline 2026-06 = -14.6)",
+      "gt_arrives": "~2026-07-30",
+      "prediction": "panel ssr_balance = -50.26 (nyers); sign = -; kategorikus -94.44",
+      "eval_rule": "G2-formatum: sign + |e|; a validalt FR/IT protokoll 1:1 nemet klonja — ez a nemet 'first dense-zone target' teszt"
+    },
+    {
+      "id": "P6_DE_INFLEXP_JULY",
+      "target": "Eurostat BS-PT-NY DE 2026-07 (baseline 2026-06 = +37.4)",
+      "gt_arrives": "~2026-07-30",
+      "prediction": "price_score = 2.073/5 (nyers); sign(score-3) = -",
+      "eval_rule": "sign(score-3) vs sign(GT) — G2-ben bizonyitott szisztematikus offset-tudattal regisztralva; a pont-ertek kalibracios nyersanyag"
+    },
+    {
+      "id": "P7_DE_KONSUMKLIMA_AUG",
+      "target": "NIM/GfK Konsumklima 2026-08 elorejelzes (baseline 2026-07 = -29.2)",
+      "gt_arrives": "2026-07-24",
+      "prediction": "ugyanaz a DE-panel: ssr_balance = -50.26; sign = -",
+      "eval_rule": "sign + z-pozicio; MoM-irany NEM regisztralt"
+    },
+    {
+      "id": "P8_CROSS_COUNTRY_RANK",
+      "target": "pesszimizmus-rangsor a juliusi kiadasokban (z-normalizalt, kepletek a gt_LOCKED-ban)",
+      "gt_arrives": "2026-07-24..31",
+      "prediction": "legpesszimistabb -> legkevesbe: DE (-50.26) > UK (-38.34) > US (-35.54)",
+      "pred_rank": [
+        "DE",
+        "UK",
+        "US"
+      ],
+      "eval_rule": "3 paronkenti z-rang-talalat: z_i=(GT_jul_i - mean(series_i))/sd(series_i) a zarolt idosorokon (US: umcsent 12m; UK: 7 pont; DE: BS-CSMCI 11 pont)"
+    }
+  ]
+}

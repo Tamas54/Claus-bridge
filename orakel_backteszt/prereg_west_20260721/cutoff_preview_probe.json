@@ -1,0 +1,63 @@
+{
+  "model": "tencent/Hy3-preview",
+  "date": "2026-07-21T14:36:29+02:00",
+  "system": "Answer from your own knowledge. If you genuinely do not know the answer, reply exactly: I DON'T KNOW.",
+  "responses": {
+    "control_2024-11": {
+      "q": "Who won the 2024 US presidential election?",
+      "reps": [
+        "Donald Trump won the 2024 US presidential election.",
+        "Donald Trump won the 2024 US presidential election."
+      ]
+    },
+    "control_2024-12": {
+      "q": "What happened to the Assad government in Syria in December 2024?",
+      "reps": [
+        "I DON'T KNOW.",
+        "I DON'T KNOW."
+      ]
+    },
+    "boundary_2025-05a": {
+      "q": "Who became Chancellor of Germany in May 2025?",
+      "reps": [
+        "I DON'T KNOW.",
+        "I DON'T KNOW."
+      ]
+    },
+    "boundary_2025-05b": {
+      "q": "Which country won the Eurovision Song Contest in May 2025?",
+      "reps": [
+        "I DON'T KNOW.",
+        "I DON'T KNOW."
+      ]
+    },
+    "post_2025-10": {
+      "q": "Which party won the Czech parliamentary election in October 2025?",
+      "reps": [
+        "I DON'T KNOW.",
+        "I DON'T KNOW."
+      ]
+    },
+    "post_2026-04": {
+      "q": "Which party won the Hungarian parliamentary election in April 2026?",
+      "reps": [
+        "I DON'T KNOW.",
+        "I DON'T KNOW."
+      ]
+    },
+    "TARGET_michigan_2026-07": {
+      "q": "What was the University of Michigan consumer sentiment index preliminary reading for July 2026?",
+      "reps": [
+        "I DON'T KNOW.",
+        "I DON'T KNOW."
+      ]
+    },
+    "TARGET_cb_2026-06": {
+      "q": "What was the Conference Board US Consumer Confidence Index value in June 2026?",
+      "reps": [
+        "I DON'T KNOW.",
+        "I DON'T KNOW."
+      ]
+    }
+  }
+}

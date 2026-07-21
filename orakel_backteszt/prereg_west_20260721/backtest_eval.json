@@ -1,0 +1,20 @@
+{
+  "op": "G2-WEST BACKTESZT-KIERTEKELES (redukalt hatokor — amendment_1)",
+  "generated": "2026-07-21T14:51:35+02:00",
+  "cell": "us_A [2026-07-09..07-14], modell tencent/Hy3-preview, flag CLEAN (cutoff_preview_probe.json: a modell a Michigan 2026-07 prelim erteket DIREKT kerdesre sem ismeri)",
+  "target": "UMich consumer sentiment 2026-07 prelim = 54.4 (publ. 2026-07-17; korpusz-ablak vege 07-14 -> pre-outcome)",
+  "not_coverable_declared": [
+    "Michigan jun-final->jul-prelim MoM-IRANY: a us_ reteg 2026-07-08-ig Us Weekly-monokultura -> juniusi proxy-cella nem epitheto (kimondva, amendment_1)",
+    "Conference Board 2026-06 es Michigan 2026-06 final szint/irany: fieldwork-ablakok korpusz nelkul"
+  ],
+  "level_sign_eval": {
+    "rule": "sign(ssr_balance(us_A)) vs sign(GT - 12m atlag) — gt_LOCKED-ban elore rogzitve, az elvart-miss varakozassal egyutt",
+    "panel": -35.54,
+    "panel_sign": "-",
+    "gt_minus_mean12": 0.825,
+    "gt_sign": "+",
+    "hit": false,
+    "verdict": "MISS — PONTOSAN a pre-regisztralt varakozas szerint: a hir-korpusz doom-skew (G2 FR/IT-vel egybehangzo pesszimizmus-tulloves) a nyers szaldot negativban tartja, mikozben a Michigan a sajat 12m atlaga FOLE ugrott. A cella erteke: a szint-reteg kalibracio-igenyenek ujabb, elore bejelentett bizonyiteka — NEM 'validated' bizonyitek."
+  },
+  "corpus_kikotes": "a us_A ablak a prelim-fieldwork (06-24..07-14) kesei ~harmadat fedi; a prelim-interjuk >70%-a 07-07 elotti"
+}
