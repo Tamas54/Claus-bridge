@@ -170,6 +170,15 @@ ok("nem őrszem" in p["megjegyzes"], "a nézet kimondja, hogy nem őrszem")
 
 conn.close()
 
+szakasz("Temporál — a mai dátum")
+
+import inspect  # noqa: E402
+forras = inspect.getsource(chat._stream_answer)
+ok("MAI DÁTUM" in forras, "a rendszerprompt megkapja a mai dátumot")
+ok("elavult" in forras, "…azzal, hogy a belső időérzékelés elavult")
+ok("datetime.now(timezone.utc)" in forras, "futásidejű, nem beégetett")
+
+
 print("\n" + "═" * 60)
 if hibak:
     print(f"PIROS — {len(hibak)} bukás:")

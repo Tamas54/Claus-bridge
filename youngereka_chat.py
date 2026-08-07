@@ -896,6 +896,25 @@ async def _stream_answer(instance: str, session_id: str, text: str,
 
         system = chat_profile(instance)["prompt"]
 
+        # MAI DÁTUM. Enélkül a modell a tanítási adataiból tippel, és
+        # MAGABIZTOSAN téved: Anna első kérdésére („milyen nap van ma?")
+        # 2025. július 14-et mondott 2026. augusztus 7-én. Pont az a
+        # hibafajta, amit a promptja tilt — és egy elsőéves nem tudja
+        # megkülönböztetni a magabiztos tévedést a tudástól.
+        # A Bridge az ai_query-útra régóta injektál temporál-direktívát;
+        # a chat-út lemaradt róla.
+        _ma = datetime.now(timezone.utc)
+        _napok = ("hétfő", "kedd", "szerda", "csütörtök", "péntek",
+                  "szombat", "vasárnap")
+        system += (
+            f"\n\nMAI DÁTUM: {_ma:%Y. %m. %d}. ({_napok[_ma.weekday()]}), "
+            f"{_ma:%H:%M} UTC.\n"
+            "Ez a futásidejű dátum, és ez az igaz — a saját belső "
+            "időérzékelésed elavult, azt NE használd. Ha időhöz kötött "
+            "kérdés jön (mai nap, aktuális esemény, határidő), ebből "
+            "számolj. Ha valami a tudásod lezárása utánról való, mondd "
+            "meg, hogy arról nincs friss információd.")
+
         # A becenév-elhagyás DETERMINISZTIKUS: nem modell dönti el, hogy
         # kérte-e. A prompt „azonnal és véglegesen"-t ígér — a véglegeshez
         # ez a szabály és a jegyzet kell, különben a következő
