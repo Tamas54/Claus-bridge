@@ -8983,6 +8983,38 @@ async def family_chat(instance: str = "", session_id: str = "", limit: int = 20,
     finally:
         conn.close()
 
+def _hq_ertesites(fajta: str, kire: str, indok: str) -> None:
+    """ÖNÉRTESÍTÉS: minden érzékeny HQ-művelet push-t küld a Kommandantnak.
+
+    Ha valaki MÁS használja a linkjét, ő tudja meg elsőként. Ezért nem
+    elég a napló — az csak akkor derül ki, ha valaki belenéz.
+    """
+    cimek = {"olvasas": "Nyers beszélgetés olvasva",
+             "ablak": "Ablak nyitva a web-clausnak",
+             "kiloves": "Vendég kilőve"}
+    szoveg = (f"HAUPTQUARTIER — {cimek.get(fajta, fajta)}\n"
+              f"Érintett: {kire}\nIndok: {indok}\n\n"
+              f"Ha ezt NEM te csináltad, forgasd a HQ_TOKEN-t és a HQ_PIN-t.")
+    try:
+        conn = get_db()
+        conn.execute("INSERT INTO messages (sender, recipient, subject, "
+                     "message, priority, timestamp) VALUES (?,?,?,?,?,?)",
+                     ("system", "kommandant", cimek.get(fajta, fajta),
+                      szoveg, "urgent", now()))
+        conn.commit(); conn.close()
+    except Exception as e:  # noqa: BLE001
+        logger.warning("HQ-önértesítés (bridge) bukott: %s", e)
+    # Telegram-push: ez az, ami ODAÉR hozzá. A Bridge-üzenet csak akkor
+    # derül ki, ha belenéz — egy idegen használat viszont AZONNAL kell.
+    try:
+        import asyncio as _a
+        _a.get_running_loop().create_task(_telegram_push(szoveg))
+    except RuntimeError:
+        pass
+    except Exception as e:  # noqa: BLE001
+        logger.warning("HQ-önértesítés (telegram) bukott: %s", e)
+
+
 def _yr_vendeg_ertesites(sponsor: str, nev: str, guest_id: str) -> None:
     """„Anna meghívott egy vendéget." — ennyi, és nem több.
 
@@ -9023,6 +9055,7 @@ try:
         # A Bridge saját üzenet-táblájára megy — csak azt mondja meg, HOGY
         # történt meghívás, nem azt, kivel beszél a vendég.
         ertesit=_yr_vendeg_ertesites,
+        hq_ertesit=_hq_ertesites,
     )
 except Exception as _yr_e:  # noqa: BLE001
     logger.error("YoungeReka chat-felület bekötése bukott (a Bridge megy "

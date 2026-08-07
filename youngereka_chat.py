@@ -49,13 +49,22 @@ from starlette.responses import (HTMLResponse, JSONResponse, RedirectResponse,
 import youngereka_budget as budget
 import youngereka_docs as docs
 import youngereka_guest as guest
+import youngereka_hq as hq
 import youngereka_memory as memory
 from youngereka_access import chat_profile, resolve_instance_from_path
 
 logger = logging.getLogger("bridge.yr_chat")
 
 COOKIE_NAME = "yr_session"
-COOKIE_MAX_AGE = 90 * 24 * 3600  # 90 nap
+COOKIE_MAX_AGE = 90 * 24 * 3600  # 90 nap — a családi felületeken
+
+#: A Hauptquartier ugyanazon az URL-en HÁROM ember magánéletét nyitja,
+#: ezért egy felejtett élő munkamenet ára itt sokkal nagyobb.
+HQ_COOKIE_MAX_AGE = 7 * 24 * 3600
+
+
+def _cookie_max_age(instance: str) -> int:
+    return HQ_COOKIE_MAX_AGE if instance == "kommandant" else COOKIE_MAX_AGE
 
 #: Az utolsó ennyi üzenet megy fel kontextusként. Efölött összefoglalás —
 #: az a fázis 2.
@@ -113,6 +122,7 @@ def ensure_schema(conn: sqlite3.Connection) -> None:
     budget.ensure_schema(conn)
     memory.ensure_schema(conn)
     guest.ensure_schema(conn)
+    hq.ensure_schema(conn)
     conn.commit()
 
 
@@ -285,11 +295,13 @@ def _load_files(conn, file_ids: list[str], instance: str) -> list[dict]:
 # ============================================================
 
 def install(mcp, *, get_db, api_key: str, base_url: str, models: dict,
-            upload_dir: pathlib.Path, ai_task_fn=None, ertesit=None) -> None:
+            upload_dir: pathlib.Path, ai_task_fn=None, ertesit=None,
+            hq_ertesit=None) -> None:
     _CFG.update(get_db=get_db, api_key=api_key, base_url=base_url,
                 models=models, upload_dir=upload_dir,
                 ai_task_fn=getattr(ai_task_fn, "fn", ai_task_fn),
-                ertesit=ertesit or (lambda *a: None))
+                ertesit=ertesit or (lambda *a: None),
+                hq_ertesit=hq_ertesit or (lambda *a: None))
 
     img_dir = upload_dir / "yr_chat"
     try:
@@ -329,11 +341,12 @@ def install(mcp, *, get_db, api_key: str, base_url: str, models: dict,
         if not instance:
             logger.warning("yr_chat: érvénytelen token a belépésnél")
             return _forbidden()
-        expiry = int(time.time()) + COOKIE_MAX_AGE
+        elettartam = _cookie_max_age(instance)
+        expiry = int(time.time()) + elettartam
         resp = RedirectResponse("/chat", status_code=302)
         resp.set_cookie(
             COOKIE_NAME, _sign(instance, expiry),
-            max_age=COOKIE_MAX_AGE, httponly=True, samesite="lax",
+            max_age=elettartam, httponly=True, samesite="lax",
             secure=True, path="/chat")
         logger.info("yr_chat: %s belépett", instance)
         try:
@@ -849,6 +862,19 @@ async def _stream_answer(instance: str, session_id: str, text: str,
 
         first = _is_first_message(conn, session_id)
 
+        # A PIN a LEHETŐ LEGKORÁBBAN esik ki: se a modellhez, se a
+        # naplóba, se az üzenet-táblába nem kerülhet be.
+        pin_ok = False
+        if instance == "kommandant":
+            text, pin_ok = hq.strip_pin(text)
+            if pin_ok:
+                hq.unlock(conn, instance)
+                yield _sse("status", {"message":
+                                      f"PIN elfogadva — {hq.UNLOCK_PERC} percig nyitva."})
+            if not text.strip() and not file_ids:
+                yield _sse("done", {"budget": budget.budget_state(conn, instance)})
+                return
+
         # --- mellékletek ---
         files = _load_files(conn, file_ids, instance)
         images: list[bytes] = []
@@ -943,6 +969,10 @@ async def _stream_answer(instance: str, session_id: str, text: str,
                        "NE használd, sehol, az első üzenetben sem. "
                        "Köszönj a nevén vagy simán.")
         system += memory.recall_block(conn, instance)
+        # A KÉPESSÉGLISTA KÓDBÓL. A prompt így soha nem állíthat többet,
+        # mint ami be van kötve — ez a „szükség esetén megnézhetem"
+        # hibaosztály gyökere volt.
+        system += hq.capability_block(instance, conn)
 
         if not first:
             # A „kis hercegnő" CSAK az első üzenetben. Enélkül a modell
@@ -955,6 +985,30 @@ async def _stream_answer(instance: str, session_id: str, text: str,
         messages += history
         messages.append({"role": "user",
                          "content": docs.vision_content(user_text, images)})
+
+        # --- ESZKÖZ-KÖR (csak ott, ahol tényleg van eszköz) ---
+        #
+        # Nem streamelő elő-kör: ha a modell eszközt hív, végrehajtjuk, az
+        # eredményt visszatesszük a beszélgetésbe, és UTÁNA streamelünk.
+        # Így a tool-hívás nem töri meg a folyamot, és a hiba is kezelhető.
+        if instance in hq.TOOLS_FOR:
+            for _kor in range(3):
+                hivasok, kozbenso = await _tool_kor(alias, model_id, messages)
+                if not hivasok:
+                    break
+                messages.append(kozbenso)
+                for h in hivasok:
+                    try:
+                        argok = json.loads(h["function"].get("arguments") or "{}")
+                    except json.JSONDecodeError:
+                        argok = {}
+                    yield _sse("tool", {"name": h["function"]["name"]})
+                    ered = await hq.dispatch(conn, instance,
+                                             h["function"]["name"], argok,
+                                             ertesit=_CFG.get("hq_ertesit"))
+                    messages.append({"role": "tool", "tool_call_id": h["id"],
+                                     "content": json.dumps(ered, ensure_ascii=False,
+                                                           default=str)[:12000]})
 
         # --- hívás ---
         full, usage, err = "", {}, None
@@ -1025,6 +1079,39 @@ async def _stream_answer(instance: str, session_id: str, text: str,
             conn.close()
         except Exception:  # noqa: BLE001
             pass
+
+
+async def _tool_kor(alias: str, model_id: str, messages: list):
+    """Egy nem-streamelő kör eszközökkel. (tool_calls, asszisztens-üzenet).
+
+    Ha a modell nem hív eszközt, üres listát ad — a hívó ilyenkor
+    továbbmegy a normál streamelésre.
+    """
+    api_key = _CFG.get("api_key") or ""
+    if not api_key:
+        return [], None
+    payload = {"model": model_id, "messages": messages, "max_tokens": 1200,
+               "temperature": 0.3, "tools": hq.openai_tools(),
+               **_agent_extra(alias)}
+    try:
+        async with httpx.AsyncClient(timeout=_timeout_for(alias)) as client:
+            r = await client.post(f"{_CFG['base_url']}/chat/completions",
+                                  headers={"Authorization": f"Bearer {api_key}",
+                                           "Content-Type": "application/json"},
+                                  json=payload)
+            if r.status_code != 200:
+                logger.warning("tool-kör HTTP %d: %s", r.status_code, r.text[:200])
+                return [], None
+            uz = (r.json().get("choices") or [{}])[0].get("message") or {}
+            hivasok = uz.get("tool_calls") or []
+            if not hivasok:
+                return [], None
+            return hivasok, {"role": "assistant",
+                             "content": uz.get("content") or "",
+                             "tool_calls": hivasok}
+    except Exception as e:  # noqa: BLE001
+        logger.warning("tool-kör bukott (a válasz eszköz nélkül megy): %s", e)
+        return [], None
 
 
 async def _call_model(alias: str, model_id: str, messages: list):
