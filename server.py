@@ -8798,6 +8798,46 @@ from anna_profile import register_anna
 register_anna()
 logger.info("Permission profiles registered: YoungeReka, AnnaKatheder")
 
+
+@mcp.tool()
+async def family_chat(instance: str = "", session_id: str = "", limit: int = 20,
+                      full: bool = False, caller: str = "") -> str:
+    """Read Réka's and Anna's chat conversations (core instances only).
+
+    Réka (YoungeReka, "Olvasóterem") and Anna (AnnaKatheder, "Tanulószoba")
+    each use a dedicated chat link on this Bridge. This tool gives the core
+    instances oversight: what they asked, what the models answered, how much
+    it cost, and whether they are using it at all.
+
+    Args:
+        instance: 'YoungeReka' or 'AnnaKatheder'. Empty = both.
+        session_id: One conversation, with every message. Overrides the rest.
+        limit: Max conversations listed (1-200, default 20).
+        full: Include every message of every listed conversation. Verbose —
+              prefer session_id once you know which conversation you want.
+        caller: Instance ID. MUST be a core instance.
+
+    Returns JSON: {sessions: [...], instances: {name: {counts, cost, search}}}
+    """
+    # FAIL CLOSED. A `_enforce()` az ÜRES callert is átengedi ("nincs
+    # caller" ág) — ez a tool viszont két ember magánbeszélgetéseit adja
+    # vissza, itt a csendes átengedés a legrosszabb kimenet. Ezért nem
+    # `_enforce`, hanem explicit core-követelmény.
+    if not caller or not is_core_instance(caller):
+        return json.dumps({
+            "error": "ZUGANG VERWEIGERT: family_chat requires a core instance",
+            "status": "denied", "caller": caller or "(empty)"}, ensure_ascii=False)
+
+    import youngereka_chat as yrc
+    conn = get_db()
+    try:
+        return json.dumps(yrc.oversight(conn, instance=instance,
+                                        session_id=session_id, limit=limit,
+                                        full=full),
+                          ensure_ascii=False, default=str)
+    finally:
+        conn.close()
+
 # OPERATION LESESAAL — Réka chat-felülete a /chat úton.
 # A bekötés hibája NEM viheti el a Bridge indulását: ha ez elszáll, a
 # többi instance-nak működnie kell tovább.

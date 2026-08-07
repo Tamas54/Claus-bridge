@@ -227,10 +227,52 @@ ok("AnnaKatheder" not in YOUNGEREKA_PROFILE.visible_message_senders,
 
 
 # ============================================================
+
+
+# ============================================================
+szakasz("Rálátás — csak core instance")
+
+from permissions import is_core_instance                  # noqa: E402
+
+conn2 = sqlite3.connect(tmp / "o.db"); conn2.row_factory = sqlite3.Row
+chat.ensure_schema(conn2)
+for inst, cim in (("YoungeReka", "Réka dolga"), ("AnnaKatheder", "Anna dolga")):
+    sid = str(uuid.uuid4())
+    conn2.execute("INSERT INTO yr_chat_sessions (id,instance,title,created_at,"
+                  "updated_at) VALUES (?,?,?,?,?)",
+                  (sid, inst, cim, chat._now(), chat._now()))
+    conn2.execute("INSERT INTO yr_chat_messages (id,session_id,role,content,"
+                  "cost_usd,created_at) VALUES (?,?,?,?,?,?)",
+                  (str(uuid.uuid4()), sid, "user", f"{cim} szövege", 0.01, chat._now()))
+conn2.commit()
+
+o = chat.oversight(conn2)
+ok(len(o["sessions"]) == 2, f"a rálátás MINDKETTŐT látja ({len(o['sessions'])})")
+ok(set(o["instances"]) == {"YoungeReka", "AnnaKatheder"},
+   "mindkét instance összesítve")
+ok(o["instances"]["YoungeReka"]["beszelgetes"] == 1
+   and o["instances"]["AnnaKatheder"]["uzenet"] == 1, "darabszámok stimmelnek")
+ok(len(chat.oversight(conn2, instance="AnnaKatheder")["sessions"]) == 1,
+   "instance-re szűrve csak az egyik")
+egy = chat.oversight(conn2, session_id=o["sessions"][0]["id"])
+ok("messages" in egy and egy["messages"][0]["content"].endswith("szövege"),
+   "egy beszélgetés teljes szövege lekérhető")
+ok("error" in chat.oversight(conn2, session_id="nincs-ilyen"),
+   "ismeretlen session → hiba, nem üres siker")
+conn2.close()
+
+ok(is_core_instance("web-claus") and is_core_instance("cli-claus"),
+   "web-claus és cli-claus core → rálátás jár nekik")
+ok(not is_core_instance("YoungeReka") and not is_core_instance("AnnaKatheder"),
+   "a két lány NEM core → a family_chat tool nekik zárva")
+ok("family_chat" not in YOUNGEREKA_PROFILE.tool_permissions
+   and "family_chat" not in ANNA_PROFILE.tool_permissions,
+   "a family_chat egyik profilban sincs felsorolva → alapértelmezés DENY")
+
 print("\n" + "═" * 60)
 if hibak:
     print(f"PIROS — {len(hibak)} bukás:")
     for h in hibak:
         print("   ·", h)
     sys.exit(1)
-print("MIND ZÖLD — a két link elkülönül.")
+print("MIND ZÖLD — a két link elkülönül, a rálátás core-only.")

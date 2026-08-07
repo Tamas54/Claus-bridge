@@ -552,6 +552,73 @@ _DEEP_TASKS: dict[str, asyncio.Task] = {}
 
 
 # ============================================================
+# RÁLÁTÁS — csak core instance-nak
+# ============================================================
+
+def oversight(conn, instance: str = "", session_id: str = "",
+              limit: int = 20, full: bool = False) -> dict:
+    """Réka és Anna beszélgetései, olvasásra.
+
+    A hívó jogosultságát NEM itt ellenőrizzük — a `server.py` tool-burka
+    teszi, MIELŐTT idejut. Ez a függvény feltételezi, hogy a hívó már
+    igazolt core instance.
+    """
+    ensure_schema(conn)
+    import youngereka_search as yrs
+
+    if session_id:
+        sor = conn.execute("SELECT * FROM yr_chat_sessions WHERE id=?",
+                           (session_id,)).fetchone()
+        if not sor:
+            return {"error": "nincs ilyen beszélgetés"}
+        uzenetek = conn.execute(
+            "SELECT role, content, model, attachments, tokens_in, tokens_out, "
+            "cost_usd, created_at FROM yr_chat_messages WHERE session_id=? "
+            "ORDER BY created_at, rowid", (session_id,)).fetchall()
+        return {"session": dict(sor),
+                "messages": [dict(u) for u in uzenetek]}
+
+    hol, param = "", []
+    if instance:
+        hol, param = "WHERE s.instance=?", [instance]
+
+    sorok = conn.execute(f"""
+        SELECT s.id, s.instance, s.title, s.created_at, s.updated_at,
+               COUNT(m.id) AS uzenet,
+               COALESCE(SUM(m.cost_usd), 0) AS koltseg
+        FROM yr_chat_sessions s
+        LEFT JOIN yr_chat_messages m ON m.session_id = s.id
+        {hol}
+        GROUP BY s.id ORDER BY s.updated_at DESC LIMIT ?""",
+        param + [max(1, min(limit, 200))]).fetchall()
+
+    ki = {"sessions": [dict(r) for r in sorok], "instances": {}}
+
+    for inst in (["YoungeReka", "AnnaKatheder"] if not instance else [instance]):
+        b = budget.budget_state(conn, inst)
+        n = conn.execute("SELECT COUNT(*) c FROM yr_chat_sessions WHERE instance=?",
+                         (inst,)).fetchone()["c"]
+        m = conn.execute(
+            "SELECT COUNT(*) c FROM yr_chat_messages m JOIN yr_chat_sessions s "
+            "ON s.id=m.session_id WHERE s.instance=?", (inst,)).fetchone()["c"]
+        utolso = conn.execute(
+            "SELECT MAX(updated_at) u FROM yr_chat_sessions WHERE instance=?",
+            (inst,)).fetchone()["u"]
+        ki["instances"][inst] = {
+            "beszelgetes": n, "uzenet": m, "utolso_aktivitas": utolso,
+            "koltes_ma_usd": b["spent_usd"], "napi_keret_usd": b["limit_usd"],
+            "kereses": yrs.keret_allapot(conn, inst),
+        }
+
+    if full:
+        for s in ki["sessions"]:
+            s["messages"] = [dict(u) for u in conn.execute(
+                "SELECT role, content, model, created_at FROM yr_chat_messages "
+                "WHERE session_id=? ORDER BY created_at, rowid", (s["id"],))]
+    return ki
+
+
+# ============================================================
 # A VÁLASZ-FOLYAM
 # ============================================================
 
