@@ -389,6 +389,7 @@ def install(mcp, *, get_db, api_key: str, base_url: str, models: dict,
                 # A címzett NEVE innen megy a felületre, NEM a HTML-ből —
                 # különben a vendég lapjának forrásában is ott állna.
                 "veszkinek": "Tamás",
+                "veszszam": __import__("youngereka_notruf").tamas_szam(),
                 "kutatas": prof["kutatas_gomb"],
             }, ensure_ascii=False)
             return HTMLResponse(html.replace("/*__PROFIL__*/null", beallitas))

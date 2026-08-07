@@ -177,6 +177,28 @@ ok(not vesz["pin"], "a vészjelzéshez NEM kell PIN")
 
 conn.close()
 
+szakasz("Telefonszám — koppintható")
+
+os.environ["NOTRUF_TAMAS_SZAM"] = "+36 30 391 1579"
+r = asyncio.run(notruf.send(conn, "YoungeReka", "Réka", "tamas", "",
+                            telegram_push=_push_ok, event=chat.event))
+ok("tel:+36303911579" in r["uzenet"],
+   "sikernél KOPPINTHATÓ tel: link (szóköz nélkül a sémában)")
+ok("+36 30 391 1579" in r["uzenet"], "…olvashatóan is kiírva")
+r = asyncio.run(notruf.send(conn, "YoungeReka", "Réka", "tamas", "",
+                            telegram_push=_push_bukik, event=chat.event))
+ok("tel:+36303911579" in r["uzenet"], "bukásnál is koppintható")
+ok("Hívd fel most" in r["uzenet"], "…és az utasítás egyértelmű")
+ok("tel:112" in notruf.krizis_blokk() and "tel:116123" in notruf.krizis_blokk(),
+   "a krízis-számok is koppinthatók")
+del os.environ["NOTRUF_TAMAS_SZAM"]
+r = asyncio.run(notruf.send(conn, "YoungeReka", "Réka", "tamas", "",
+                            telegram_push=_push_bukik, event=chat.event))
+ok("tel:" not in r["uzenet"].split("Ha most kell")[0],
+   "szám nélkül NEM hazudik számot")
+ok("telefonon" in r["uzenet"], "…hanem szám nélkül irányít")
+
+
 szakasz("A folyam SZABAD VÁLTOZÓI — a néma üzemzavar ellen")
 
 # 2026-08-07: a `_tool_kor` `instance`-t használt, de nem kapta meg

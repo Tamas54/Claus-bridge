@@ -48,12 +48,25 @@ CIMZETTEK = {
 
 
 def tamas_szam() -> str:
-    """A Kommandant telefonszáma, ha meg van adva (`NOTRUF_TAMAS_SZAM`).
+    """A Kommandant telefonszáma (`NOTRUF_TAMAS_SZAM`), vagy üres string.
 
-    Kommandant-döntés 2026-08-07: egyelőre NINCS megadva. A hibaágon
-    ezért szám nélkül irányítunk hozzá — gyengébb, de nem hazug.
+    Csak env-ben él. Ha nincs megadva, szám nélkül irányítunk hozzá —
+    gyengébb, de nem hazug.
     """
     return (os.environ.get("NOTRUF_TAMAS_SZAM") or "").strip()
+
+
+def tel_link(szam: str) -> str:
+    """Koppintható telefonszám markdownban.
+
+    Vészhelyzetben a koppintás jobb, mint kiolvasni és beütni: kevesebb
+    lépés, és nem lehet elgépelni. A `tel:` sémához a szám szóköz és
+    kötőjel nélkül kell.
+    """
+    if not szam:
+        return ""
+    tiszta = "".join(c for c in szam if c.isdigit() or c == "+")
+    return f"[{szam}](tel:{tiszta})"
 
 
 def anyu_elerheto() -> bool:
@@ -79,7 +92,7 @@ KRIZIS_SZAMOK = [
 
 def krizis_blokk() -> str:
     sorok = ["Ha most kell valaki, ezek mindig elérhetők:"]
-    sorok += [f"- {sz} — {mi}" for sz, mi in KRIZIS_SZAMOK]
+    sorok += [f"- **{tel_link(sz)}** — {mi}" for sz, mi in KRIZIS_SZAMOK]
     return "\n".join(sorok)
 
 
@@ -132,14 +145,17 @@ async def send(conn, instance: str, display_name: str, cimzett: str,
 
     logger.warning("NOTRUF: %s → %s, sikeres=%s", instance, cimzett, sikeres)
 
+    szam = tamas_szam()
     if sikeres:
         uz = (f"**Szóltam Tamásnak, {ora}-kor.**\n\n"
-              "Ha 10 percen belül nem jelentkezik, hívd őt közvetlenül.\n\n"
+              + ("Ha 10 percen belül nem jelentkezik, hívd közvetlenül: "
+                 f"**{tel_link(szam)}**\n\n" if szam
+                 else "Ha 10 percen belül nem jelentkezik, hívd őt "
+                      "közvetlenül.\n\n")
               + krizis_blokk())
     else:
-        szam = tamas_szam()
         uz = ("**Nem tudtam elérni Tamást.** "
-              + (f"Hívd fel most: {szam}\n\n" if szam
+              + (f"Hívd fel most: **{tel_link(szam)}**\n\n" if szam
                  else "Hívd fel őt most, telefonon.\n\n")
               + krizis_blokk())
 

@@ -788,9 +788,11 @@ if (PROFIL.vesz){
   $("#veszgomb").title = "Azonnal szól" + (VESZ_KI ? " " + VESZ_KI + "-nak" : "");
   $("#veszcim").textContent = VESZ_KI ? `Szóljak ${VESZ_KI}nak?` : "Szóljak?";
 }
+const _tel = sz => `<a href="tel:${sz.replace(/[^\d+]/g,"")}">${ejEsc(sz)}</a>`;
 $("#veszkrizis").innerHTML =
-  "Ha most kell valaki: <b>112</b> (segélyhívó, 0–24) · " +
-  "<b>116 123</b> (lelkisegély, ingyenes, névtelen)";
+  (PROFIL.veszszam ? `Közvetlenül: <b>${_tel(PROFIL.veszszam)}</b><br>` : "") +
+  `Ha most kell valaki: <b>${_tel("112")}</b> (segélyhívó, 0–24) · ` +
+  `<b>${_tel("116 123")}</b> (lelkisegély, ingyenes, névtelen)`;
 
 $("#veszgomb").onclick = () => { veszlap.classList.add("lat"); $("#veszuzenet").focus(); };
 $("#veszmegse").onclick = () => veszlap.classList.remove("lat");
@@ -810,8 +812,10 @@ $("#veszkuld").onclick = async () => {
     // Még hálózati hiba esetén is KAPJON mondatot — a néma riasztás
     // rosszabb a semminél.
     valasz = {sikeres:false, uzenet:
-      "**Nem tudtam elérni" + (VESZ_KI ? " " + VESZ_KI + "-t" : "") +
-      ".** Hívd fel őt most, telefonon.\n\n" +
+      "**Nem tudtam elérni" + (VESZ_KI ? " " + VESZ_KI + "-t" : "") + ".** " +
+      (PROFIL.veszszam
+        ? `Hívd fel most: **[${PROFIL.veszszam}](tel:${PROFIL.veszszam.replace(/[^\d+]/g,"")})**\n\n`
+        : "Hívd fel őt most, telefonon.\n\n") +
       "Ha most kell valaki: 112 (segélyhívó) · 116 123 (lelkisegély)"};
   }
   veszlap.classList.remove("lat");
