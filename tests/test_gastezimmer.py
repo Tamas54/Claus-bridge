@@ -260,6 +260,20 @@ ok(guest.invite(conn, gid, "X").get("id") is not None
 ok(chat_profile(gid)["prompt"] is GUEST_PROMPT,
    "a vendég profilja marad vendég-profil")
 
+# ============================================================
+szakasz("A LAP FORRÁSA is semleges")
+
+# A rendszerprompt szivárgása ellen hiába védekezünk, ha a kiszolgált
+# HTML statikus szövege elárulja, hogy létezik egy „Olvasóterem" nevű
+# felület valakinek. A személyre szólót a PROFIL adja, a statikus alap
+# semleges. (Élő mérés fogta meg, 2026-08-07.)
+html = (ROOT / "youngereka_chat.html").read_text(encoding="utf-8")
+for tiltott in ("Olvasóterem", "Tanulószoba", "Réka", "Anna", "hercegn",
+                "csodakirályn", "kutatói asszisztens", "Tamás", "Kommandant"):
+    ok(tiltott not in html, f"a HTML statikus szövegében NINCS: {tiltott!r}")
+ok("/*__PROFIL__*/null" in html, "a profil-beszúrási pont megvan")
+
+
 conn.close()
 
 print("\n" + "═" * 60)

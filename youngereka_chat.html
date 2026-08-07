@@ -4,14 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="light">
-<title>Olvasóterem</title>
+<title>Asszisztens</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 /* ─────────────────────────────────────────────────────────────
-   H&E — hematoxilin-eozin. A paletta abból a világból jön, amiben
-   Réka dolgozik. Egyetlen akcent (eozin-rózsa), takarékosan.
+   H&E — hematoxilin-eozin. Egyetlen akcent (eozin-rózsa),
+   takarékosan. (A paletta a mikroszkópia világából jön.)
    ───────────────────────────────────────────────────────────── */
 :root{
   --papir:#FBFAF7;
@@ -313,7 +313,7 @@ main{flex:1;display:flex;flex-direction:column;min-width:0;position:relative}
 <div id="app">
   <aside id="oldalsav">
     <header>
-      <h1 id="cim">Olvasóterem<span id="alcim">Réka · kutatói asszisztens</span></h1>
+      <h1 id="cim">Asszisztens<span id="alcim"></span></h1>
     </header>
     <button id="uj">+ Új beszélgetés</button>
     <div id="lista"></div>
@@ -324,7 +324,7 @@ main{flex:1;display:flex;flex-direction:column;min-width:0;position:relative}
   <main>
     <div id="mfej">
       <button id="fiok" aria-label="Beszélgetések">☰</button>
-      <b id="mcim">Olvasóterem</b>
+      <b id="mcim">Asszisztens</b>
     </div>
     <div id="keret"><i></i></div>
 
@@ -368,7 +368,7 @@ main{flex:1;display:flex;flex-direction:column;min-width:0;position:relative}
    Ha valamiért nem cserélődik ki, a null-ág értelmes alapértelmezést ad —
    üres felület helyett. */
 const PROFIL = /*__PROFIL__*/null || {
-  cim:"Olvasóterem", alcim:"", koszones:"Szia.", motto:"", ures:[],
+  cim:"Asszisztens", alcim:"", koszones:"Szia.", motto:"", ures:[],
   melyseg:true, kutatas:true
 };
 </script>
@@ -383,8 +383,8 @@ let munkamenet = null;      // aktuális session id
 let csatolt = [];           // {file_id, filename, label}
 let dolgozik = false;
 
-/* A markdown-renderelő CDN-ről jön. Ha nem ér ide, ne nyers markdownt
-   lásson Réka — egy szűk tartalék fut helyette. */
+/* A markdown-renderelő CDN-ről jön. Ha nem ér ide, ne nyers markdown
+   látsszon — egy szűk tartalék fut helyette. */
 function md(t){
   if (window.marked?.parse) {
     return marked.parse(t, {breaks:true, gfm:true});
