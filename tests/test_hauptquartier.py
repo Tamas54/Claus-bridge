@@ -71,7 +71,8 @@ nevek = {t["name"] for t in hq.TOOLS}
 ok(all(n in hq_blokk for n in nevek),
    f"minden katalógus-eszköz megjelenik ({len(nevek)} db)")
 hq.TOOLS.append({"name": "kiserleti_eszkoz", "pin": False,
-                 "leiras": "teszt", "params": {"type": "object", "properties": {}}})
+                 "kinek": {"kommandant"}, "leiras": "teszt",
+                 "params": {"type": "object", "properties": {}}})
 ok("kiserleti_eszkoz" in hq.capability_block("kommandant", conn),
    "új eszköz AUTOMATIKUSAN megjelenik a promptban (nincs kézi lista)")
 hq.TOOLS.pop()
@@ -137,9 +138,17 @@ ok(not hq.unlocked(conn, "kommandant"), "3: 15 perc után újra ZÁRVA")
 r = asyncio.run(_hiv("beszelgetes_olvasas", {"kire": "YoungeReka", "indok": "x"}))
 ok(r.get("zarva") is True, "3: …és az olvasás megint megtagadva")
 
-# más profil egyáltalán nem kap eszközt
-r = asyncio.run(hq.dispatch(conn, "YoungeReka", "jelenlet", {}))
-ok("hiba" in r, "más profilon SEMMILYEN eszköz nem fut")
+# A HQ-eszközök MÁS profilon nem futnak. (A `veszjelzes` külön eset:
+# az MINDEN családi felületen ott van — lásd test_notruf.)
+for hq_only in ("jelenlet", "vendeglista", "beszelgetes_olvasas",
+                "ablak_nyitas", "vendeg_kiloves"):
+    r = asyncio.run(hq.dispatch(conn, "YoungeReka", hq_only, {}))
+    ok("hiba" in r, f"Réka felületén a {hq_only} NEM fut")
+r = asyncio.run(hq.dispatch(conn, "guest-abc", "veszjelzes", {}))
+ok("hiba" in r, "vendégnél a veszjelzes sem fut")
+# A veszjelzes viszont Rékánál IGENIS fut — ez a NOTRUF lényege
+r = asyncio.run(hq.dispatch(conn, "YoungeReka", "veszjelzes", {}))
+ok(r.get("_notruf") is True, "…de a veszjelzes Rékánál FUT")
 
 
 # ============================================================

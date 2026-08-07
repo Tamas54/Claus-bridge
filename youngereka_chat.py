@@ -51,6 +51,7 @@ import youngereka_docs as docs
 import youngereka_guest as guest
 import youngereka_hq as hq
 import youngereka_memory as memory
+import youngereka_notruf as notruf
 from youngereka_access import chat_profile, resolve_instance_from_path
 
 logger = logging.getLogger("bridge.yr_chat")
@@ -61,6 +62,14 @@ COOKIE_MAX_AGE = 90 * 24 * 3600  # 90 nap — a családi felületeken
 #: A Hauptquartier ugyanazon az URL-en HÁROM ember magánéletét nyitja,
 #: ezért egy felejtett élő munkamenet ára itt sokkal nagyobb.
 HQ_COOKIE_MAX_AGE = 7 * 24 * 3600
+
+
+_NEVEK = {"YoungeReka": "Réka", "AnnaKatheder": "Anna",
+          "Bella": "Bella", "kommandant": "Tamás"}
+
+
+def _nev(instance: str) -> str:
+    return _NEVEK.get(instance, instance)
 
 
 def _cookie_max_age(instance: str) -> int:
@@ -296,12 +305,13 @@ def _load_files(conn, file_ids: list[str], instance: str) -> list[dict]:
 
 def install(mcp, *, get_db, api_key: str, base_url: str, models: dict,
             upload_dir: pathlib.Path, ai_task_fn=None, ertesit=None,
-            hq_ertesit=None) -> None:
+            hq_ertesit=None, telegram_push=None) -> None:
     _CFG.update(get_db=get_db, api_key=api_key, base_url=base_url,
                 models=models, upload_dir=upload_dir,
                 ai_task_fn=getattr(ai_task_fn, "fn", ai_task_fn),
                 ertesit=ertesit or (lambda *a: None),
-                hq_ertesit=hq_ertesit or (lambda *a: None))
+                hq_ertesit=hq_ertesit or (lambda *a: None),
+                telegram_push=telegram_push)
 
     img_dir = upload_dir / "yr_chat"
     try:
@@ -375,6 +385,10 @@ def install(mcp, *, get_db, api_key: str, base_url: str, models: dict,
                 "koszones": prof["koszones"], "motto": prof["mottó"],
                 "ures": prof["ures"],
                 "melyseg": prof["melyseg_gomb"],
+                "vesz": _who(request) in __import__("youngereka_notruf").JOGOSULT,
+                # A címzett NEVE innen megy a felületre, NEM a HTML-ből —
+                # különben a vendég lapjának forrásában is ott állna.
+                "veszkinek": "Tamás",
                 "kutatas": prof["kutatas_gomb"],
             }, ensure_ascii=False)
             return HTMLResponse(html.replace("/*__PROFIL__*/null", beallitas))
@@ -462,6 +476,37 @@ def install(mcp, *, get_db, api_key: str, base_url: str, models: dict,
             return JSONResponse({"messages": msgs})
         finally:
             conn.close()
+
+    # ---------- VÉSZJELZÉS ----------
+    #
+    # Ő indítja. A gép nem figyel. A beszélgetésből SEMMI nem megy át —
+    # csak amit ő maga ír mellé, ha ír.
+
+    @mcp.custom_route("/chat/api/notruf", methods=["POST"])
+    async def yr_notruf(request: Request):
+        instance = _who(request)
+        if not instance:
+            return JSONResponse({"error": "forbidden"}, status_code=403)
+        if instance not in notruf.JOGOSULT:
+            return JSONResponse(
+                {"error": "Ezen a felületen nincs vészjelzés.",
+                 "krizis": notruf.krizis_blokk()}, status_code=403)
+        try:
+            body = await request.json()
+        except Exception:  # noqa: BLE001
+            body = {}
+        conn = get_db()
+        try:
+            r = await notruf.send(conn, instance, _nev(instance),
+                                  (body.get("cimzett") or "tamas"),
+                                  (body.get("uzenet") or ""),
+                                  telegram_push=_CFG["telegram_push"],
+                                  event=event)
+        finally:
+            conn.close()
+        # 200 akkor is, ha a küldés bukott — a felhasználónak a MONDAT
+        # kell, nem egy HTTP-hibakód. A néma riasztás rosszabb a semminél.
+        return JSONResponse(r)
 
     # ---------- vendégszoba ----------
     #
@@ -991,7 +1036,7 @@ async def _stream_answer(instance: str, session_id: str, text: str,
         # Nem streamelő elő-kör: ha a modell eszközt hív, végrehajtjuk, az
         # eredményt visszatesszük a beszélgetésbe, és UTÁNA streamelünk.
         # Így a tool-hívás nem töri meg a folyamot, és a hiba is kezelhető.
-        if instance in hq.TOOLS_FOR:
+        if hq.tools_for(instance):
             for _kor in range(3):
                 hivasok, kozbenso = await _tool_kor(alias, model_id, messages)
                 if not hivasok:
@@ -1006,6 +1051,13 @@ async def _stream_answer(instance: str, session_id: str, text: str,
                     ered = await hq.dispatch(conn, instance,
                                              h["function"]["name"], argok,
                                              ertesit=_CFG.get("hq_ertesit"))
+                    if ered.get("_notruf"):
+                        ered = await notruf.send(
+                            conn, instance, _nev(instance), "tamas",
+                            ered.get("uzenet") or "",
+                            telegram_push=_CFG["telegram_push"], event=event)
+                        yield _sse("notruf", {"ok": ered["sikeres"],
+                                              "message": ered["uzenet"]})
                     messages.append({"role": "tool", "tool_call_id": h["id"],
                                      "content": json.dumps(ered, ensure_ascii=False,
                                                            default=str)[:12000]})
@@ -1091,7 +1143,7 @@ async def _tool_kor(alias: str, model_id: str, messages: list):
     if not api_key:
         return [], None
     payload = {"model": model_id, "messages": messages, "max_tokens": 1200,
-               "temperature": 0.3, "tools": hq.openai_tools(),
+               "temperature": 0.3, "tools": hq.openai_tools(instance),
                **_agent_extra(alias)}
     try:
         async with httpx.AsyncClient(timeout=_timeout_for(alias)) as client:

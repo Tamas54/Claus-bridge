@@ -44,9 +44,10 @@ logger = logging.getLogger("bridge.yr_hq")
 #: Egy PIN-megadás ennyi ideig old fel.
 UNLOCK_PERC = 15
 
-#: Melyik profil kap eszközöket. A többinél a lista ÜRES, és a
-#: `capability_block` ezt ki is mondja — így nem ígérhetnek semmit.
-TOOLS_FOR = {"kommandant"}
+#: Kinek van eszköze. A vendégnek NINCS — nála a `capability_block`
+#: ezt ki is mondja, így nem ígérhet semmit.
+CSALAD = {"YoungeReka", "AnnaKatheder", "Bella", "kommandant"}
+TOOLS_FOR = CSALAD
 
 
 def ensure_schema(conn: sqlite3.Connection) -> None:
@@ -149,7 +150,29 @@ def unlock_remaining(conn, instance: str) -> int:
 
 TOOLS: list[dict] = [
     {
+        # OPERATION NOTRUF. MINDEN családi felületen ott van, mert a
+        # vészjelzést a felhasználó indítja — nem a gép figyel.
+        # Elfogultság: INKÁBB SÜLJÖN EL. Egy téves riasztás ára egy
+        # telefonhívás; a kimaradté nem ez.
+        "name": "veszjelzes",
+        "pin": False,
+        "kinek": CSALAD,
+        "leiras": "VÉSZJELZÉS: azonnal szól Tamásnak. Akkor hívd, ha a "
+                  "felhasználó bajban van és segítséget kér — pl. „nagy baj "
+                  "van”, „segíts”, „szólj Tamásnak”. Ha EGYÉRTELMŰ a kérés, "
+                  "hívd AZONNAL, ne kérdezz vissza. Ha bizonytalan a jel, "
+                  "előbb kérdezd meg tőle, hogy szóljak-e — és ha nemet mond, "
+                  "fogadd el. A beszélgetésből SEMMI nem megy át: csak amit "
+                  "ő maga üzen, ha üzen.",
+        "params": {"type": "object", "properties": {
+            "uzenet": {"type": "string",
+                       "description": "Amit ŐMAGA üzen. Üresen is mehet. "
+                                      "SOHA ne írj ide olyat, amit te "
+                                      "emeltél ki a beszélgetésből."}}},
+    },
+    {
         "name": "jelenlet",
+        "kinek": {"kommandant"},
         "pin": False,
         "leiras": "Ki használja a felületeit, mióta nem írt, változott-e a "
                   "ritmusa, mennyit költött, volt-e hiba. TARTALOM NÉLKÜL.",
@@ -160,6 +183,7 @@ TOOLS: list[dict] = [
     },
     {
         "name": "vendeglista",
+        "kinek": {"kommandant"},
         "pin": False,
         "leiras": "Kit hívtak meg vendégnek, mikor, él-e még a meghívás. "
                   "A vendégek beszélgetéseit SENKI nem olvashatja.",
@@ -167,6 +191,7 @@ TOOLS: list[dict] = [
     },
     {
         "name": "beszelgetes_olvasas",
+        "kinek": {"kommandant"},
         "pin": True,
         "leiras": "NYERS beszélgetés-szöveg. Az érintett értesítést kap róla, "
                   "és naplósor keletkezik. Csak kifejezett kérésre.",
@@ -180,6 +205,7 @@ TOOLS: list[dict] = [
     },
     {
         "name": "ablak_nyitas",
+        "kinek": {"kommandant"},
         "pin": True,
         "leiras": "Ablakot nyit a web-clausnak, hogy ő is olvashasson nyers "
                   "tartalmat. Enélkül web-claus csak jelenlét-adatot lát.",
@@ -191,6 +217,7 @@ TOOLS: list[dict] = [
     },
     {
         "name": "vendeg_kiloves",
+        "kinek": {"kommandant"},
         "pin": True,
         "leiras": "Egy vendég hozzáférésének azonnali megszüntetése.",
         "params": {"type": "object", "properties": {
@@ -202,10 +229,16 @@ TOOLS: list[dict] = [
 _BY_NAME = {t["name"]: t for t in TOOLS}
 
 
-def openai_tools() -> list[dict]:
+def tools_for(instance: str) -> list[dict]:
+    """Az adott profil eszközei. Ez az EGYETLEN szűrő — a katalógus
+    `kinek` mezője dönt, nem egy külön lista, amit el lehet felejteni."""
+    return [t for t in TOOLS if instance in t.get("kinek", set())]
+
+
+def openai_tools(instance: str) -> list[dict]:
     return [{"type": "function", "function": {
         "name": t["name"], "description": t["leiras"], "parameters": t["params"]}}
-        for t in TOOLS]
+        for t in tools_for(instance)]
 
 
 def capability_block(instance: str, conn=None) -> str:
@@ -215,7 +248,8 @@ def capability_block(instance: str, conn=None) -> str:
     be van kötve, mert a listát az `TOOLS` katalógus adja. Ha egy eszköz
     onnan hiányzik, itt sem jelenik meg.
     """
-    if instance not in TOOLS_FOR:
+    sajat = tools_for(instance)
+    if not sajat:
         return (
             "\n\nAMI A KEZEDBEN VAN\n"
             "Ezen a felületen NINCS eszközöd: nem érsz el emailt, naptárat, "
@@ -233,14 +267,16 @@ def capability_block(instance: str, conn=None) -> str:
              "Ezek VALÓDI eszközök, hívd őket, ha kell. Ami nincs a "
              "listán, azt NEM tudod — arra az ELSŐ mondatod legyen a "
              "nemleges, ne ígérj utánanézést."]
-    szabad = [t for t in TOOLS if not t["pin"]]
-    zart = [t for t in TOOLS if t["pin"]]
-    sorok.append("\nBármikor:")
-    sorok += [f"- {t['name']} — {t['leiras']}" for t in szabad]
-    sorok.append("\nCSAK PIN után (a Kommandant beírja a chatbe):")
-    sorok += [f"- {t['name']} — {t['leiras']}" for t in zart]
+    szabad = [t for t in sajat if not t["pin"]]
+    zart = [t for t in sajat if t["pin"]]
+    if szabad:
+        sorok.append("\nBármikor:")
+        sorok += [f"- {t['name']} — {t['leiras']}" for t in szabad]
+    if zart:
+        sorok.append("\nCSAK PIN után (a Kommandant beírja a chatbe):")
+        sorok += [f"- {t['name']} — {t['leiras']}" for t in zart]
 
-    if conn is not None:
+    if conn is not None and zart:
         maradt = unlock_remaining(conn, instance)
         sorok.append(f"\nPIN-állapot: {'FELOLDVA, még ' + str(maradt) + ' perc'
                                        if maradt else 'ZÁRVA'}.")
@@ -248,14 +284,23 @@ def capability_block(instance: str, conn=None) -> str:
             sorok.append("Ha zárt eszközt kérne, mondd meg, hogy ehhez be "
                          "kell írnia a PIN-t — és NE hívd meg a tool-t.")
 
-    sorok.append(
-        "\nVISELKEDÉS\n"
-        "Alapból JELENLÉT-adattal válaszolj („írtak-e?” → számok).\n"
+    if instance == "kommandant":
+        sorok.append(
+            "\nVISELKEDÉS\n"
+            "Alapból JELENLÉT-adattal válaszolj („írtak-e?” → számok).\n"
         "Nyers tartalmat CSAK kifejezett kérésre olvass, indokkal. Magadtól "
         "SOHA ne idézz, ne összegezz és ne hozz fel részletet belőle, és NE "
         "AJÁNLD FEL az olvasást — ha kéri, megy, de ne tereld arra.\n"
-        "Ami NINCS bekötve: email, naptár, fájlrendszer, token-forgatás, "
-        "üzenetküldés. Ezekre azonnal mondd meg, hogy nem éred el.")
+            "Ami NINCS bekötve: email, naptár, fájlrendszer, "
+            "token-forgatás. Ezekre azonnal mondd meg, hogy nem éred el.")
+    else:
+        sorok.append(
+            "\nEZEN KÍVÜL NINCS eszközöd: nem érsz el emailt, naptárat, "
+            "fájlrendszert, más felhasználók beszélgetéseit. Ha olyat "
+            "kérne, az ELSŐ mondatod legyen a nemleges. Tiltott "
+            "fordulatok: megnézem / utánanézek a rendszerben / szükség "
+            "esetén megnézhetem / mindjárt ellenőrzöm. Ezek ígéretek, és "
+            "nem tudod betartani.")
     return "\n".join(sorok)
 
 
@@ -269,8 +314,14 @@ async def dispatch(conn, instance: str, name: str, args: dict,
     t = _BY_NAME.get(name)
     if not t:
         return {"hiba": f"Nincs ilyen eszköz: {name}"}
-    if instance not in TOOLS_FOR:
-        return {"hiba": "Ezen a felületen nincs eszköz."}
+
+    # NÉV SZERINT kell egyeznie, nem elég, hogy VAN valamilyen eszköze.
+    # Egy korábbi változat csak azt nézte, üres-e a készlete — és mivel a
+    # `veszjelzes` MINDEN családi felületen ott van, a készlet sosem volt
+    # üres, tehát Réka modellje elérhette volna a `jelenlet`-et is,
+    # mindenkiről. A teszt fogta meg (2026-08-07).
+    if instance not in t.get("kinek", set()):
+        return {"hiba": "Ez az eszköz ezen a felületen nincs bekötve."}
 
     if t["pin"]:
         if not pin_configured():
@@ -288,6 +339,11 @@ async def dispatch(conn, instance: str, name: str, args: dict,
     import youngereka_guest as yrg
 
     try:
+        if name == "veszjelzes":
+            # A NOTRUF-ot a hívó (chat-réteg) bonyolítja le, mert neki van
+            # kéznél a display_name és a Telegram-küldő. Itt csak jelezzük.
+            return {"_notruf": True, "uzenet": (args.get("uzenet") or "")}
+
         if name == "jelenlet":
             return yrc.presence(conn, instance=(args.get("kire") or "").strip())
 

@@ -9056,6 +9056,7 @@ try:
         # történt meghívás, nem azt, kivel beszél a vendég.
         ertesit=_yr_vendeg_ertesites,
         hq_ertesit=_hq_ertesites,
+        telegram_push=_telegram_push,
     )
 except Exception as _yr_e:  # noqa: BLE001
     logger.error("YoungeReka chat-felület bekötése bukott (a Bridge megy "

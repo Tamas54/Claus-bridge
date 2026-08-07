@@ -153,6 +153,43 @@ main{flex:1;display:flex;flex-direction:column;min-width:0;position:relative}
 }
 .forrasok a{font-size:13.5px;color:var(--hematoxilin);text-underline-offset:2px}
 .forrasok a:hover{color:var(--eozin)}
+/* ── VÉSZJELZÉS — mindig látható, nem menü mélyén ── */
+#veszgomb{
+  border:1px solid var(--eozin);background:#fff;color:var(--eozin);
+  border-radius:7px;padding:7px 12px;cursor:pointer;
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;
+  text-transform:uppercase;transition:background .15s,color .15s;
+}
+#veszgomb:hover{background:var(--eozin);color:#fff}
+#veszgomb[hidden]{display:none}
+#veszlap{
+  position:fixed;inset:0;background:rgba(42,35,82,.5);z-index:80;
+  display:none;place-items:center;padding:20px;
+}
+#veszlap.lat{display:grid}
+#veszdoboz{
+  background:#fff;border-radius:14px;padding:22px;max-width:440px;width:100%;
+  box-shadow:0 12px 48px rgba(42,35,82,.3);
+}
+#veszdoboz h2{margin:0 0 6px;font-size:19px;font-weight:600}
+#veszdoboz p{margin:0 0 14px;font-size:14.5px;color:var(--halvany);line-height:1.5}
+#veszdoboz textarea{
+  width:100%;border:1px solid var(--vonal);border-radius:9px;padding:10px 12px;
+  font:inherit;font-size:15px;resize:vertical;min-height:74px;color:inherit;
+}
+#veszsor{display:flex;gap:9px;margin-top:14px}
+#veszkuld{
+  flex:1;border:0;background:var(--eozin);color:#fff;border-radius:8px;
+  padding:11px;cursor:pointer;font-size:15.5px;font-weight:600;
+}
+#veszmegse{
+  border:1px solid var(--vonal);background:#fff;border-radius:8px;
+  padding:11px 16px;cursor:pointer;font-size:15px;
+}
+#veszdoboz .krizis{
+  margin-top:14px;padding-top:12px;border-top:1px solid var(--vonal);
+  font-size:13px;color:var(--halvany);line-height:1.6;
+}
 #vendeg{border-top:1px solid var(--vonal);padding:12px 16px 14px}
 #vendeg.rejt{display:none}
 #vendeg h2{
@@ -346,6 +383,7 @@ main{flex:1;display:flex;flex-direction:column;min-width:0;position:relative}
                     title="Lassabb, de mélyebb elemzés">Gondolkodj rajta alaposan</button>
             <button class="modgomb" id="utananez" aria-pressed="false"
                     title="Több körös keresés — percekig tart, közben tudsz mást csinálni">Alapos utánajárás</button>
+            <button class="ikon" id="veszgomb" hidden>Vészjelzés</button>
             <button id="kuld">Küldés</button>
           </div>
         </div>
@@ -356,6 +394,17 @@ main{flex:1;display:flex;flex-direction:column;min-width:0;position:relative}
 </div>
 
 <div id="takaro"></div>
+<div id="veszlap"><div id="veszdoboz">
+  <h2 id="veszcim">Szóljak?</h2>
+  <p>Most rögtön kap egy értesítést. A beszélgetésedből semmit nem küldök
+     el — csak azt, amit ide beírsz. Üresen is elmehet.</p>
+  <textarea id="veszuzenet" placeholder="Ha akarsz, írj mellé valamit… (nem kötelező)"></textarea>
+  <div id="veszsor">
+    <button id="veszkuld">Igen, szólj</button>
+    <button id="veszmegse">Mégse</button>
+  </div>
+  <div class="krizis" id="veszkrizis"></div>
+</div></div>
 <div id="ejto"><div><b>Engedd el</b><span>PDF · KÉP · TÁBLÁZAT · SZÖVEG</span></div></div>
 
 <input type="file" id="fajl" multiple hidden
@@ -647,6 +696,7 @@ async function _kuldes(){
         if (esem === "session"){ munkamenet = a.id; }
         else if (esem === "status"){ allapot(a.message); }
         else if (esem === "notes"){ emlekBetolt(); }
+        else if (esem === "notruf"){ allapot(a.ok ? "Szóltam." : "A jelzés nem ment át — hívd fel.", !a.ok); }
         else if (esem === "search"){
           if (a.sources?.length){
             const f = document.createElement("div");
@@ -727,6 +777,50 @@ async function utanajaras(kerdes, fileIds){
     kikapcsol("#utananez");
   }
 }
+
+/* ── VÉSZJELZÉS ──
+   Ő indítja. A gép nem figyel. Ezért a gomb MINDIG látszik, nem menü
+   mélyén — és a párbeszéd kimondja, hogy a beszélgetésből semmi nem megy. */
+const veszlap = $("#veszlap");
+const VESZ_KI = PROFIL.veszkinek || "";      // a nevet a szerver adja
+if (PROFIL.vesz){
+  $("#veszgomb").hidden = false;
+  $("#veszgomb").title = "Azonnal szól" + (VESZ_KI ? " " + VESZ_KI + "-nak" : "");
+  $("#veszcim").textContent = VESZ_KI ? `Szóljak ${VESZ_KI}nak?` : "Szóljak?";
+}
+$("#veszkrizis").innerHTML =
+  "Ha most kell valaki: <b>112</b> (segélyhívó, 0–24) · " +
+  "<b>116 123</b> (lelkisegély, ingyenes, névtelen)";
+
+$("#veszgomb").onclick = () => { veszlap.classList.add("lat"); $("#veszuzenet").focus(); };
+$("#veszmegse").onclick = () => veszlap.classList.remove("lat");
+veszlap.onclick = e => { if (e.target === veszlap) veszlap.classList.remove("lat"); };
+
+$("#veszkuld").onclick = async () => {
+  const gomb = $("#veszkuld");
+  gomb.disabled = true; gomb.textContent = "Küldöm…";
+  const uz = $("#veszuzenet").value;
+  let valasz;
+  try {
+    const r = await fetch("/chat/api/notruf", {method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({cimzett:"tamas", uzenet:uz})});
+    valasz = await r.json();
+  } catch(e){
+    // Még hálózati hiba esetén is KAPJON mondatot — a néma riasztás
+    // rosszabb a semminél.
+    valasz = {sikeres:false, uzenet:
+      "**Nem tudtam elérni" + (VESZ_KI ? " " + VESZ_KI + "-t" : "") +
+      ".** Hívd fel őt most, telefonon.\n\n" +
+      "Ha most kell valaki: 112 (segélyhívó) · 116 123 (lelkisegély)"};
+  }
+  veszlap.classList.remove("lat");
+  $("#veszuzenet").value = "";
+  gomb.disabled = false; gomb.textContent = "Igen, szólj neki";
+  uresElrejt();
+  sorHozzaad("assistant", valasz.uzenet || "Elküldtem.");
+  gorget();
+};
 
 /* ── vendégszoba ──
    FONTOS: a meghívó CSAK azt látja, hogy a meghívás él-e. Se beszélgetés,
