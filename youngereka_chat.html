@@ -153,6 +153,29 @@ main{flex:1;display:flex;flex-direction:column;min-width:0;position:relative}
 }
 .forrasok a{font-size:13.5px;color:var(--hematoxilin);text-underline-offset:2px}
 .forrasok a:hover{color:var(--eozin)}
+#vendeg{border-top:1px solid var(--vonal);padding:12px 16px 14px}
+#vendeg.rejt{display:none}
+#vendeg h2{
+  font-family:var(--mono);font-size:10px;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--halvany);margin:0 0 8px;font-weight:400;
+}
+#vendeg p{font-size:12.5px;color:var(--halvany);margin:0 0 8px;line-height:1.45}
+#vendeg button.fo{
+  width:100%;padding:8px 12px;border:1px solid var(--vonal);background:#fff;
+  border-radius:7px;cursor:pointer;font-size:13.5px;text-align:left;
+}
+#vendeg button.fo:hover{border-color:var(--eozin);color:var(--eozin)}
+.vlink{
+  font-family:var(--mono);font-size:11px;word-break:break-all;background:#F7F5F1;
+  border:1px solid var(--vonal);border-left:3px solid var(--eozin);
+  border-radius:3px;padding:8px 10px;margin:0 0 8px;line-height:1.5;
+}
+.vsor{display:flex;align-items:center;gap:8px;font-size:13.5px;padding:5px 0}
+.vsor span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vsor button{border:0;background:none;cursor:pointer;color:var(--halvany);
+  font-family:var(--mono);font-size:10.5px;text-decoration:underline;
+  text-underline-offset:2px;padding:0}
+.vsor button:hover{color:var(--eozin)}
 #emlek{border-top:1px solid var(--vonal);padding:12px 16px 14px;max-height:38vh;overflow-y:auto}
 #emlek h2{
   font-family:var(--mono);font-size:10px;letter-spacing:.09em;
@@ -294,6 +317,7 @@ main{flex:1;display:flex;flex-direction:column;min-width:0;position:relative}
     </header>
     <button id="uj">+ Új beszélgetés</button>
     <div id="lista"></div>
+    <div id="vendeg" class="rejt"></div>
     <div id="emlek" class="rejt"></div>
   </aside>
 
@@ -677,6 +701,61 @@ async function utanajaras(kerdes, fileIds){
   }
 }
 
+/* ── vendégszoba ──
+   FONTOS: a meghívó CSAK azt látja, hogy a meghívás él-e. Se beszélgetés,
+   se jelenlét, se költés. Ha ide valaha bekerül egy „mit csinál a
+   vendégem" mező, ez a felület megfigyelő-állássá válik. */
+async function vendegBetolt(){
+  const d = $("#vendeg");
+  try {
+    const r = await fetch("/chat/api/guest");
+    if (!r.ok) { d.classList.add("rejt"); return; }
+    const v = await r.json();
+    if (!v.allowed){ d.classList.add("rejt"); return; }
+    d.classList.remove("rejt");
+    if (v.guests?.length){
+      d.innerHTML = "<h2>Vendéged</h2>" + v.guests.map(g =>
+        `<div class="vsor"><span>${ejEsc(g.display_name)}</span>` +
+        `<button data-id="${ejEsc(g.id)}">visszavonás</button></div>`).join("");
+      d.querySelectorAll(".vsor button").forEach(b => b.onclick = async () => {
+        if (!confirm("Biztosan visszavonod? A linkje azonnal megszűnik. "
+                     + "Nem kap róla értesítést.")) return;
+        await fetch("/chat/api/guest/revoke", {method:"POST",
+          headers:{"Content-Type":"application/json"},
+          body: JSON.stringify({id:b.dataset.id})});
+        vendegBetolt();
+      });
+    } else {
+      d.innerHTML = `<h2>Vendégszoba</h2>
+        <p>Megoszthatod valakivel — kap egy saját linket. A beszélgetéseitekbe
+        egyikőtök sem lát bele. Bármikor visszavonhatod.</p>
+        <button class="fo" id="meghiv">+ Vendég meghívása</button>`;
+      $("#meghiv").onclick = vendegMeghiv;
+    }
+  } catch(e){ d.classList.add("rejt"); }
+}
+
+async function vendegMeghiv(){
+  const nev = prompt("Minek hívjam? (csak te látod)");
+  if (nev === null) return;
+  try {
+    const r = await fetch("/chat/api/guest/invite", {method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({name:nev})});
+    const v = await r.json();
+    if (!r.ok){ alert(v.error || "Nem sikerült."); return; }
+    const teljes = location.origin + v.url;
+    $("#vendeg").innerHTML =
+      `<h2>A link — csak most látod</h2>
+       <div class="vlink">${ejEsc(teljes)}</div>
+       <p>Másold ki és küldd el neki. Ez a link többé nem jelenik meg;
+       ha elveszik, vond vissza és hívd meg újra.</p>
+       <button class="fo" id="kesz">Kimásoltam</button>`;
+    $("#kesz").onclick = () => vendegBetolt();
+    try { navigator.clipboard.writeText(teljes); } catch(e){}
+  } catch(e){ alert("Nem sikerült a meghívás."); }
+}
+
 /* ── emlékezet: amit megjegyeztem róla, és amit törölhet ── */
 async function emlekBetolt(){
   const doboz = $("#emlek");
@@ -732,6 +811,7 @@ function uresRajzol(cim, motto){
 profiltAlkalmaz();
 listaBetolt();
 emlekBetolt();
+vendegBetolt();
 szoveg.focus();
 </script>
 </body>

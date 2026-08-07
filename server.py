@@ -8800,8 +8800,29 @@ logger.info("Permission profiles registered: YoungeReka, AnnaKatheder")
 
 
 @mcp.tool()
+async def family_chat_kill(guest_id: str, caller: str = "") -> str:
+    """Terminate a guest invite (core instances only) — Stellwerk kill switch.
+
+    Args:
+        guest_id: The guest profile id from family_chat(guests=True).
+        caller: Instance ID. MUST be a core instance.
+    """
+    if not caller or not is_core_instance(caller):
+        return json.dumps({"error": "ZUGANG VERWEIGERT", "status": "denied"},
+                          ensure_ascii=False)
+    import youngereka_guest as yrg
+    conn = get_db()
+    try:
+        n = yrg.kill(conn, guest_id)
+        return json.dumps({"killed": n, "guest_id": guest_id}, ensure_ascii=False)
+    finally:
+        conn.close()
+
+
+@mcp.tool()
 async def family_chat(instance: str = "", session_id: str = "", limit: int = 20,
-                      full: bool = False, caller: str = "") -> str:
+                      full: bool = False, guests: bool = False,
+                      caller: str = "") -> str:
     """Read Réka's and Anna's chat conversations (core instances only).
 
     Réka (YoungeReka, "Olvasóterem") and Anna (AnnaKatheder, "Tanulószoba")
@@ -8812,6 +8833,12 @@ async def family_chat(instance: str = "", session_id: str = "", limit: int = 20,
     Args:
         instance: 'YoungeReka' or 'AnnaKatheder'. Empty = both.
         session_id: One conversation, with every message. Overrides the rest.
+        guests: List guest profiles instead — who invited whom, when, and
+                whether the invite is still alive. Deliberately contains NO
+                conversation content: guests are outside the breakglass
+                scope (v2.2 §B.5), and neither the sponsor nor the
+                Kommandant may read what a guest writes. Use the returned
+                id with `family_chat_kill` to terminate an invite.
         limit: Max conversations listed (1-200, default 20).
         full: Include every message of every listed conversation. Verbose —
               prefer session_id once you know which conversation you want.
@@ -8831,12 +8858,42 @@ async def family_chat(instance: str = "", session_id: str = "", limit: int = 20,
     import youngereka_chat as yrc
     conn = get_db()
     try:
+        if guests:
+            import youngereka_guest as yrg
+            return json.dumps({"guests": yrg.all_guests(conn),
+                               "note": "A vendégek beszélgetéseit senki nem "
+                                       "olvashatja — sem a meghívó, sem te. "
+                                       "Kilövés: family_chat_kill(guest_id)."},
+                              ensure_ascii=False, default=str)
         return json.dumps(yrc.oversight(conn, instance=instance,
                                         session_id=session_id, limit=limit,
                                         full=full),
                           ensure_ascii=False, default=str)
     finally:
         conn.close()
+
+def _yr_vendeg_ertesites(sponsor: str, nev: str, guest_id: str) -> None:
+    """„Anna meghívott egy vendéget." — ennyi, és nem több.
+
+    A Kommandant a `family_chat(guests=True)` toolból tudja kilőni. Olvasási
+    jogot NEM ad: a vendégek a vészüveg hatályán KÍVÜL vannak (v2.2 §B.5).
+    """
+    try:
+        conn = get_db()
+        conn.execute(
+            "INSERT INTO messages (sender, recipient, subject, message, "
+            "priority, timestamp) VALUES (?,?,?,?,?,?)",
+            ("system", "kommandant", "Vendég meghívva",
+             f"{sponsor} meghívott egy vendéget: „{nev}” ({guest_id}).\n\n"
+             f"Nem kell jóváhagynod. Ha ki akarod lőni: "
+             f"family_chat(guests=True) → a vendég azonosítója.\n\n"
+             f"A vendég beszélgetéseit sem te, sem a meghívó nem olvashatja.",
+             "info", now()))
+        conn.commit()
+        conn.close()
+    except Exception as e:  # noqa: BLE001
+        logger.warning("vendég-értesítés bukott: %s", e)
+
 
 # OPERATION LESESAAL — Réka chat-felülete a /chat úton.
 # A bekötés hibája NEM viheti el a Bridge indulását: ha ez elszáll, a
@@ -8851,6 +8908,10 @@ try:
         models=SILICONFLOW_MODELS,
         upload_dir=UPLOAD_DIR,
         ai_task_fn=ai_task,
+        # PFÖRTNER-pótlás: a Kommandant ÉRTESÜL a vendég-meghívásról.
+        # A Bridge saját üzenet-táblájára megy — csak azt mondja meg, HOGY
+        # történt meghívás, nem azt, kivel beszél a vendég.
+        ertesit=_yr_vendeg_ertesites,
     )
 except Exception as _yr_e:  # noqa: BLE001
     logger.error("YoungeReka chat-felület bekötése bukott (a Bridge megy "

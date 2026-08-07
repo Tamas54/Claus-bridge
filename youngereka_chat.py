@@ -48,6 +48,7 @@ from starlette.responses import (HTMLResponse, JSONResponse, RedirectResponse,
 
 import youngereka_budget as budget
 import youngereka_docs as docs
+import youngereka_guest as guest
 import youngereka_memory as memory
 from youngereka_access import chat_profile, resolve_instance_from_path
 
@@ -111,6 +112,7 @@ def ensure_schema(conn: sqlite3.Connection) -> None:
         )""")
     budget.ensure_schema(conn)
     memory.ensure_schema(conn)
+    guest.ensure_schema(conn)
     conn.commit()
 
 
@@ -180,14 +182,28 @@ def _forbidden() -> Response:
 # MODELLVÁLASZTÁS
 # ============================================================
 
+def _TOKEN_MAP_VALUES() -> set:
+    """Az ÉLŐ családi instance-ok. A kaszkád-halálhoz kell: ha a meghívó
+    tokenje eltűnt (forgatás, törlés), a vendége sem léphet be."""
+    from youngereka_access import _token_map
+    return set(_token_map().values())
+
+
 def _fallback_for(has_images: bool) -> str:
     """Keret felett ide váltunk. Képnél látó modell kell — a V4-Pro
     képre HTTP 400-at ad (mérés 2026-08-07)."""
     return "gemma" if has_images else "deepseek"
 
 
+def _budget_limit_for(instance: str) -> float:
+    """A vendégé 2.0 USD, a családé 5.0 (env-ből felülírható)."""
+    if (instance or "").startswith("guest-"):
+        return guest.NAPI_KERET_USD
+    return budget.daily_budget_usd()
+
+
 def _resolve_model(conn, instance: str, requested: str, has_images: bool) -> tuple[str, bool]:
-    if budget.budget_state(conn, instance)["exhausted"]:
+    if budget.spent_today(conn, instance) >= _budget_limit_for(instance):
         return _fallback_for(has_images), True
     return requested, False
 
@@ -251,10 +267,11 @@ def _load_files(conn, file_ids: list[str], instance: str) -> list[dict]:
 # ============================================================
 
 def install(mcp, *, get_db, api_key: str, base_url: str, models: dict,
-            upload_dir: pathlib.Path, ai_task_fn=None) -> None:
+            upload_dir: pathlib.Path, ai_task_fn=None, ertesit=None) -> None:
     _CFG.update(get_db=get_db, api_key=api_key, base_url=base_url,
                 models=models, upload_dir=upload_dir,
-                ai_task_fn=getattr(ai_task_fn, "fn", ai_task_fn))
+                ai_task_fn=getattr(ai_task_fn, "fn", ai_task_fn),
+                ertesit=ertesit or (lambda *a: None))
 
     img_dir = upload_dir / "yr_chat"
     try:
@@ -277,7 +294,20 @@ def install(mcp, *, get_db, api_key: str, base_url: str, models: dict,
         # `/chat/yr-{token}` és `/chat/an-{token}` — a prefix csak
         # emberi címke, az identitást KIZÁRÓLAG a token dönti el.
         token = request.path_params.get("token", "")
-        instance = resolve_instance_from_path(token)
+        prefix = request.path_params.get("prefix", "")
+        if prefix == "gs":
+            # Vendég: DB-ből, négy kapun át (visszavonás / abszolút lejárat /
+            # tétlenség / KASZKÁD a meghívóra). A kaszkád belépéskor dől el,
+            # nem takarító-feladatként — így redeploy nélkül azonnal hat.
+            conn = get_db()
+            try:
+                instance = guest.resolve(
+                    conn, token,
+                    sponsor_el=lambda sp: sp in _TOKEN_MAP_VALUES())
+            finally:
+                conn.close()
+        else:
+            instance = resolve_instance_from_path(token)
         if not instance:
             logger.warning("yr_chat: érvénytelen token a belépésnél")
             return _forbidden()
@@ -332,9 +362,15 @@ def install(mcp, *, get_db, api_key: str, base_url: str, models: dict,
                 kereses = yrs.keret_allapot(conn, instance)
             except Exception:  # noqa: BLE001
                 kereses = {"elfogyott": False}
+            b = budget.budget_state(conn, instance)
+            hatar = _budget_limit_for(instance)
+            if hatar != b["limit_usd"]:      # vendég: 2.0, nem 5.0
+                b = {"spent_usd": b["spent_usd"], "limit_usd": hatar,
+                     "ratio": round(b["spent_usd"] / hatar, 4) if hatar else 0.0,
+                     "exhausted": b["spent_usd"] >= hatar}
             return JSONResponse({
                 "sessions": [dict(r) for r in rows],
-                "budget": budget.budget_state(conn, instance),
+                "budget": b,
                 "search": kereses,
             })
         finally:
@@ -384,6 +420,76 @@ def install(mcp, *, get_db, api_key: str, base_url: str, models: dict,
                     d["attachments"] = []
                 msgs.append(d)
             return JSONResponse({"messages": msgs})
+        finally:
+            conn.close()
+
+    # ---------- vendégszoba ----------
+    #
+    # SZIMMETRIA: ezek a végpontok a meghívónak KIZÁRÓLAG azt mondják meg,
+    # hogy a meghívás ÉL-E. Se beszélgetés, se jelenlét, se költés, se
+    # utolsó belépés. Ha ide valaha bekerül egy „mit csinál a vendégem"
+    # mező, azzal ez a felület megfigyelő-állássá válik.
+
+    @mcp.custom_route("/chat/api/guest", methods=["GET"])
+    async def yr_guest_list(request: Request):
+        instance = _who(request)
+        if not instance:
+            return JSONResponse({"error": "forbidden"}, status_code=403)
+        if instance.startswith("guest-"):
+            # Vendég nem hívhat vendéget — a gráf zárt marad.
+            return JSONResponse({"guests": [], "allowed": False})
+        conn = get_db()
+        try:
+            return JSONResponse({"guests": guest.aktiv_vendegek(conn, instance),
+                                 "allowed": True,
+                                 "max": guest.MAX_AKTIV_VENDEG})
+        finally:
+            conn.close()
+
+    @mcp.custom_route("/chat/api/guest/invite", methods=["POST"])
+    async def yr_guest_invite(request: Request):
+        instance = _who(request)
+        if not instance or instance.startswith("guest-"):
+            return JSONResponse({"error": "forbidden"}, status_code=403)
+        try:
+            body = await request.json()
+        except Exception:  # noqa: BLE001
+            body = {}
+        conn = get_db()
+        try:
+            r = guest.invite(conn, instance, body.get("name") or "")
+        finally:
+            conn.close()
+        if "error" in r:
+            return JSONResponse(r, status_code=400)
+
+        # A Kommandant ÉRTESÜL a meghívásról (v2.2 §B.1) — de csak arról,
+        # HOGY történt, nem arról, kivel beszél a vendég.
+        try:
+            _CFG["ertesit"](instance, r["display_name"], r["id"])
+        except Exception as e:  # noqa: BLE001
+            logger.warning("vendég-értesítés bukott: %s", e)
+
+        # A NYERS token EGYSZER, itt. Utána már csak a hash van meg.
+        return JSONResponse({
+            "id": r["id"], "display_name": r["display_name"],
+            "url": f"/chat/{r['token']}", "expires_at": r["expires_at"]})
+
+    @mcp.custom_route("/chat/api/guest/revoke", methods=["POST"])
+    async def yr_guest_revoke(request: Request):
+        instance = _who(request)
+        if not instance or instance.startswith("guest-"):
+            return JSONResponse({"error": "forbidden"}, status_code=403)
+        try:
+            body = await request.json()
+        except Exception:  # noqa: BLE001
+            body = {}
+        conn = get_db()
+        try:
+            # `revoke` mindig sponsor-ra szűr: más vendégét a guest_id
+            # ismerete sem vonja vissza.
+            return JSONResponse({"revoked": guest.revoke(
+                conn, instance, body.get("id") or "")})
         finally:
             conn.close()
 
