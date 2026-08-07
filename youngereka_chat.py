@@ -748,7 +748,8 @@ def install(mcp, *, get_db, api_key: str, base_url: str, models: dict,
         async def _run():
             try:
                 await fn(title=docs.title_from(question, 80),
-                         description=question + "\n\n" + REKA_CHAT_PROMPT,
+                         description=question + "\n\n"
+                                     + chat_profile(instance)["prompt"],
                          context="\n\n".join(ctx_parts),
                          assigned_by=instance, deep_research=True)
             except Exception as e:  # noqa: BLE001
@@ -1038,7 +1039,7 @@ async def _stream_answer(instance: str, session_id: str, text: str,
         # Így a tool-hívás nem töri meg a folyamot, és a hiba is kezelhető.
         if hq.tools_for(instance):
             for _kor in range(3):
-                hivasok, kozbenso = await _tool_kor(alias, model_id, messages)
+                hivasok, kozbenso = await _tool_kor(instance, alias, model_id, messages)
                 if not hivasok:
                     break
                 messages.append(kozbenso)
@@ -1133,7 +1134,7 @@ async def _stream_answer(instance: str, session_id: str, text: str,
             pass
 
 
-async def _tool_kor(alias: str, model_id: str, messages: list):
+async def _tool_kor(instance: str, alias: str, model_id: str, messages: list):
     """Egy nem-streamelő kör eszközökkel. (tool_calls, asszisztens-üzenet).
 
     Ha a modell nem hív eszközt, üres listát ad — a hívó ilyenkor

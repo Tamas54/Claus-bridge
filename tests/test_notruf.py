@@ -177,6 +177,41 @@ ok(not vesz["pin"], "a vészjelzéshez NEM kell PIN")
 
 conn.close()
 
+szakasz("A folyam SZABAD VÁLTOZÓI — a néma üzemzavar ellen")
+
+# 2026-08-07: a `_tool_kor` `instance`-t használt, de nem kapta meg
+# paraméterként. NameError → MINDEN chat-üzenet hibára futott, MINDEN
+# profilon, élesben. A szintaxis-ellenőrzés ezt NEM fogja meg.
+import symtable   # noqa: E402
+
+src = (ROOT / "youngereka_chat.py").read_text(encoding="utf-8")
+st = symtable.symtable(src, "youngereka_chat.py", "exec")
+MODUL = {sym.get_name() for sym in st.get_symbols()}
+BEEPITETT = set(dir(__builtins__)) | {"__import__", "self"}
+
+
+def _fak(t):
+    yield t
+    for c in t.get_children():
+        yield from _fak(c)
+
+
+gyanus = []
+for f in _fak(st):
+    if f.get_type() != "function":
+        continue
+    for sym in f.get_symbols():
+        n = sym.get_name()
+        if sym.is_global() and n not in MODUL and n not in BEEPITETT:
+            gyanus.append(f"{f.get_name()}(): {n}")
+ok(not gyanus, f"nincs ismeretlen globális név egyetlen függvényben sem "
+               f"({gyanus[:4] if gyanus else 'tiszta'})")
+
+import inspect   # noqa: E402
+sig = inspect.signature(chat._tool_kor)
+ok("instance" in sig.parameters, "a _tool_kor MEGKAPJA az instance-t")
+
+
 print("\n" + "═" * 60)
 if hibak:
     print(f"PIROS — {len(hibak)} bukás:")
