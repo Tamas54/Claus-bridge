@@ -47,7 +47,7 @@ from youngereka_profile import register_youngereka
 
 # OPERATION LESESAAL — Réka token-alapú hozzáférése (chat + scoped MCP).
 # A token az URL path-ban ül, a hívó modell nem látja és nem hamisíthatja.
-from youngereka_access import YRScopeMiddleware
+from youngereka_access import YRScopeMiddleware, authenticated
 
 # Echolot — multi-sphere news context (separate Railway instance, REST)
 try:
@@ -8800,6 +8800,75 @@ logger.info("Permission profiles registered: YoungeReka, AnnaKatheder")
 
 
 @mcp.tool()
+async def family_presence(instance: str = "", caller: str = "", auth: str = "") -> str:
+    """Presence and usage rhythm for Réka and Anna — NO conversation content.
+
+    This is the routine oversight path. It answers "who is using it, how
+    often, since when, at what cost, with what errors" — and deliberately
+    nothing about WHAT they wrote. Available to core instances on the
+    ordinary MCP path, no window needed.
+
+    The value is the CHANGE, not the number: "Anna has not logged in for
+    eight days, before that twice a day" is a signal; the raw count is not.
+
+    NOT a watchman: this only runs when called. For continuous alerting
+    use cron + Feldwebel.
+
+    Args:
+        instance: 'YoungeReka' or 'AnnaKatheder'. Empty = both.
+        caller: Instance ID. Must be a core instance.
+        auth: Filled automatically on the token path. Not needed here.
+    """
+    if not caller or not is_core_instance(caller):
+        return json.dumps({"error": "ZUGANG VERWEIGERT: family_presence "
+                                    "requires a core instance",
+                           "status": "denied"}, ensure_ascii=False)
+    import youngereka_chat as yrc
+    conn = get_db()
+    try:
+        return json.dumps(yrc.presence(conn, instance=instance),
+                          ensure_ascii=False, default=str)
+    finally:
+        conn.close()
+
+
+@mcp.tool()
+async def oversight_open(instance: str, reason: str, minutes: int = 30,
+                         caller: str = "", auth: str = "") -> str:
+    """Open a time-limited window for web-claus to read raw conversations.
+
+    „Velem együtt" — mellette, nem helyette. web-claus never reads raw
+    content on its own: the Kommandant opens a window, in the same
+    session, with a stated reason. Every read inside it is audited.
+
+    Args:
+        instance: Whose conversations the window covers.
+        reason: MANDATORY. Goes into oversight_audit.
+        minutes: Window length, 1-240 (default 30).
+        caller: MUST resolve to 'kommandant'.
+        auth: Filled automatically on the /mcp/km-{token} path. REQUIRED.
+    """
+    # Ablakot CSAK a hitelesített Kommandant nyithat. Enélkül web-claus
+    # sajátmagának nyitna ablakot, és az egész „velem együtt" díszlet.
+    if caller != "kommandant" or not authenticated({"auth": auth}):
+        return json.dumps({
+            "error": "ZUGANG VERWEIGERT: oversight_open requires the "
+                     "Kommandant on the token path (/mcp/km-{token})",
+            "status": "denied"}, ensure_ascii=False)
+    if not (reason or "").strip():
+        return json.dumps({"error": "reason is mandatory", "status": "denied"},
+                          ensure_ascii=False)
+    import youngereka_chat as yrc
+    conn = get_db()
+    try:
+        return json.dumps(yrc.window_open(conn, instance, reason.strip(),
+                                          max(1, min(int(minutes), 240))),
+                          ensure_ascii=False, default=str)
+    finally:
+        conn.close()
+
+
+@mcp.tool()
 async def family_chat_kill(guest_id: str, caller: str = "") -> str:
     """Terminate a guest invite (core instances only) — Stellwerk kill switch.
 
@@ -8822,7 +8891,7 @@ async def family_chat_kill(guest_id: str, caller: str = "") -> str:
 @mcp.tool()
 async def family_chat(instance: str = "", session_id: str = "", limit: int = 20,
                       full: bool = False, guests: bool = False,
-                      caller: str = "") -> str:
+                      reason: str = "", caller: str = "", auth: str = "") -> str:
     """Read Réka's and Anna's chat conversations (core instances only).
 
     Réka (YoungeReka, "Olvasóterem") and Anna (AnnaKatheder, "Tanulószoba")
@@ -8855,7 +8924,42 @@ async def family_chat(instance: str = "", session_id: str = "", limit: int = 20,
             "error": "ZUGANG VERWEIGERT: family_chat requires a core instance",
             "status": "denied", "caller": caller or "(empty)"}, ensure_ascii=False)
 
+    # NYERS TARTALOM: session_id vagy full=True. Erre az `is_core_instance`
+    # KEVÉS — a `caller` szabad szöveg, tehát bárki beírhatja, hogy
+    # `web-claus`. (2026-08-07: élesben igazolt lyuk, egy idegen kliens
+    # `caller="web-claus", full=True`-val kiolvasta volna a beszélgetéseket.)
+    # Nyers tartalomhoz TOKENES út kell, kötelező indokkal, naplózva.
+    nyers = bool(session_id) or bool(full)
     import youngereka_chat as yrc
+    if nyers:
+        if not authenticated({"auth": auth}):
+            return json.dumps({
+                "error": "ZUGANG VERWEIGERT: nyers beszélgetés-tartalomhoz "
+                         "tokenes út kell (/mcp/km-{token} vagy "
+                         "/mcp/wc-{token}). A jelenlét-adat token nélkül is "
+                         "elérhető: family_presence.",
+                "status": "denied"}, ensure_ascii=False)
+        if not (reason or "").strip():
+            return json.dumps({
+                "error": "nyers tartalomhoz a `reason` kötelező — "
+                         "az oversight_audit sorba kerül",
+                "status": "denied"}, ensure_ascii=False)
+        if caller == "web-claus":
+            # „Velem együtt": web-claus SOHA nem olvas önállóan nyerset.
+            conn0 = get_db()
+            try:
+                nyitva = yrc.window_is_open(conn0, instance or "", session_id)
+            finally:
+                conn0.close()
+            if not nyitva:
+                return json.dumps({
+                    "error": "ZUGANG VERWEIGERT: web-claus csak a Kommandant "
+                             "által NYITOTT ablakban olvashat nyers tartalmat. "
+                             "Kérd meg, hogy futtassa: oversight_open(instance, "
+                             "reason). Jelenlét-adat ablak nélkül is megy: "
+                             "family_presence.",
+                    "status": "denied"}, ensure_ascii=False)
+
     conn = get_db()
     try:
         if guests:
@@ -8865,10 +8969,15 @@ async def family_chat(instance: str = "", session_id: str = "", limit: int = 20,
                                        "olvashatja — sem a meghívó, sem te. "
                                        "Kilövés: family_chat_kill(guest_id)."},
                               ensure_ascii=False, default=str)
-        return json.dumps(yrc.oversight(conn, instance=instance,
-                                        session_id=session_id, limit=limit,
-                                        full=full),
-                          ensure_ascii=False, default=str)
+        eredmeny = yrc.oversight(conn, instance=instance,
+                                 session_id=session_id, limit=limit, full=full)
+        if nyers:
+            # Minden nyers olvasás naplósorral zár. A lány felé menő
+            # értesítés NEM különbözteti meg, hogy a Kommandant vagy az
+            # asszisztense nézte meg — számára ugyanaz az esemény.
+            yrc.audit(conn, caller=caller, instance=instance or "*",
+                      session_id=session_id, reason=reason.strip())
+        return json.dumps(eredmeny, ensure_ascii=False, default=str)
     finally:
         conn.close()
 

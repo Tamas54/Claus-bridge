@@ -42,6 +42,40 @@ _TOKEN_ENV = {
     "AN_TOKEN": "AnnaKatheder",   # Anna  — KATHEDER (tanulótárs)
 }
 
+#: STÁB-tokenek — MCP-út, NEM chat-felület.
+#:
+#: Miért külön térkép: a chat-cookie aláírókulcsa a `_TOKEN_ENV`-ből
+#: származik. Ha a stáb-tokenek is odakerülnének, egy web-claus
+#: token-forgatás kiléptetné a lányokat is. Külön élettartam, külön kulcs.
+_STAFF_TOKEN_ENV = {
+    "WC_TOKEN": "web-claus",
+    "KM_TOKEN": "kommandant",
+}
+
+#: Folyamat-indításkor generált, kívülről KITALÁLHATATLAN jelölő.
+#:
+#: Ez a különbség a „hitelesített identitás" és a „beírtam magamról"
+#: között. A `force_caller()` beleteszi a payloadba, amikor a kérés a
+#: TOKENES úton jött. Egy hívó, aki csak a `caller` stringet írja át,
+#: ezt nem tudja megadni — a nyers tartalmat kérő toolok ezt nézik.
+#:
+#: Folyamatonként új: egy restart minden korábbi jelölőt érvénytelenít.
+#: Ez nem baj, mert kérésenként képződik és kérésen belül fogy el.
+AUTH_FIELD = "auth"
+AUTH_NONCE = __import__("secrets").token_hex(24)
+
+
+def _staff_map() -> dict[str, str]:
+    out: dict[str, str] = {}
+    for env_name, instance in _STAFF_TOKEN_ENV.items():
+        tok = (os.environ.get(env_name) or "").strip()
+        if len(tok) >= 16:
+            out[tok] = instance
+        elif tok:
+            logger.warning("%s túl rövid (%d karakter) — kihagyva",
+                           env_name, len(tok))
+    return out
+
 
 def _token_map() -> dict[str, str]:
     """token → instance_id. Üres/hiányzó env var NEM kerül a térképbe.
@@ -62,7 +96,7 @@ def _token_map() -> dict[str, str]:
     return out
 
 
-def resolve_instance_from_path(token: str) -> str | None:
+def resolve_instance_from_path(token: str, staff: bool = True) -> str | None:
     """token → instance_id, vagy None ha érvénytelen.
 
     Konstans idejű összehasonlítás (`hmac.compare_digest`): a naiv `==`
@@ -72,7 +106,10 @@ def resolve_instance_from_path(token: str) -> str | None:
     """
     if not token:
         return None
-    for known, instance in _token_map().items():
+    terkep = dict(_token_map())
+    if staff:
+        terkep.update(_staff_map())
+    for known, instance in terkep.items():
         if hmac.compare_digest(token, known):
             return instance
     return None
@@ -113,6 +150,9 @@ def force_caller(body, instance: str):
             for f in _IDENTITY_FIELDS:
                 if f in args or f == "caller":
                     args[f] = instance
+            # A HITELESÍTÉS jelölője. Csak innen kerülhet a payloadba —
+            # aki a `caller` stringet hamisítja, ezt nem tudja megadni.
+            args[AUTH_FIELD] = AUTH_NONCE
             params["arguments"] = args
         out["params"] = params
 
@@ -142,7 +182,7 @@ class YRScopeMiddleware:
     indítási út (és vele a healthcheck) változatlan marad.
     """
 
-    PREFIX = "/mcp/yr-"
+    PREFIX = "/mcp/"
 
     def __init__(self, app):
         self.app = app
@@ -152,11 +192,16 @@ class YRScopeMiddleware:
             await self.app(scope, receive, send)
             return
         path = scope.get("path", "")
-        if not path.startswith(self.PREFIX):
+        if not path.startswith(self.PREFIX) or path == "/mcp":
             await self.app(scope, receive, send)
             return
 
-        token = path[len(self.PREFIX):].split("/")[0]
+        # `/mcp/yr-…`, `/mcp/an-…`, `/mcp/wc-…`, `/mcp/km-…`
+        maradek = path[len(self.PREFIX):].split("/")[0]
+        if "-" not in maradek:
+            await self.app(scope, receive, send)   # a sima /mcp út
+            return
+        _, token = maradek.split("-", 1)
         instance = resolve_instance_from_path(token)
         if not instance:
             logger.warning("scoped MCP: érvénytelen token")
@@ -608,3 +653,16 @@ def chat_profile(instance: str) -> dict:
     if (instance or "").startswith("guest-"):
         return GUEST_CHAT_PROFILE
     return CHAT_PROFILES.get(instance) or CHAT_PROFILES["YoungeReka"]
+
+
+def authenticated(args) -> bool:
+    """Igaz, ha a hívás a TOKENES úton jött.
+
+    Ezt a nyers tartalmat visszaadó toolok kérdezik. Az `is_core_instance`
+    önmagában KEVÉS: a `caller` szabad szöveg, tehát bárki beírhatja, hogy
+    `web-claus`. A jelölő viszont folyamat-indításkor generált véletlen,
+    amit csak a `force_caller()` tesz be — és az csak a token mögött fut.
+    """
+    if not isinstance(args, dict):
+        return False
+    return hmac.compare_digest(str(args.get(AUTH_FIELD) or ""), AUTH_NONCE)

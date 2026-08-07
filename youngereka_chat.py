@@ -318,6 +318,15 @@ def install(mcp, *, get_db, api_key: str, base_url: str, models: dict,
             max_age=COOKIE_MAX_AGE, httponly=True, samesite="lax",
             secure=True, path="/chat")
         logger.info("yr_chat: %s belépett", instance)
+        try:
+            conn = get_db()
+            try:
+                event(conn, instance, "login",
+                      (request.headers.get("user-agent") or "")[:120])
+            finally:
+                conn.close()
+        except Exception:  # noqa: BLE001
+            pass
         return resp
 
     @mcp.custom_route("/chat", methods=["GET"])
@@ -939,6 +948,7 @@ async def _stream_answer(instance: str, session_id: str, text: str,
                     err = payload
 
         if err and not full:
+            event(conn, instance, "error", err[:150])
             yield _sse("error", {"message": err})
             return
 
@@ -1061,3 +1071,190 @@ def _human_error(status: int, raw: str) -> str:
         return ("A modell szolgáltatója most hibázik. "
                 "Ez nem a te fájlodon múlik — próbáld újra pár perc múlva.")
     return f"A modell HTTP {status}-t adott vissza. Próbáld újra."
+
+
+# ============================================================
+# JELENLÉT, ABLAK, NAPLÓ  (v2.3)
+# ============================================================
+#
+# A rutin-út a JELENLÉT: ki használja, milyen ritmusban, mennyibe kerül.
+# Tartalom nélkül. A nyers szöveg kivétel, és a kivétel a Kommandant
+# kezéből nyílik — nem az asszisztenséből.
+
+def ensure_oversight_schema(conn) -> None:
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS chat_events (
+          id         TEXT PRIMARY KEY,
+          instance   TEXT NOT NULL,
+          kind       TEXT NOT NULL,        -- login | message | error
+          detail     TEXT,
+          created_at TIMESTAMP NOT NULL
+        )""")
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_chat_events "
+                 "ON chat_events(instance, created_at)")
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS oversight_audit (
+          id         TEXT PRIMARY KEY,
+          caller     TEXT NOT NULL,
+          instance   TEXT NOT NULL,
+          session_id TEXT,
+          reason     TEXT NOT NULL,
+          created_at TIMESTAMP NOT NULL
+        )""")
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS oversight_windows (
+          id         TEXT PRIMARY KEY,
+          instance   TEXT NOT NULL,
+          reason     TEXT NOT NULL,
+          opened_by  TEXT NOT NULL,
+          opened_at  TIMESTAMP NOT NULL,
+          expires_at TIMESTAMP NOT NULL
+        )""")
+    conn.commit()
+
+
+def event(conn, instance: str, kind: str, detail: str = "") -> None:
+    """Bázisvonal-esemény. Sose dob — a napló hibája nem viheti el a választ."""
+    try:
+        ensure_oversight_schema(conn)
+        conn.execute("INSERT INTO chat_events (id, instance, kind, detail, "
+                     "created_at) VALUES (?,?,?,?,?)",
+                     (str(uuid.uuid4()), instance, kind, detail[:200], _now()))
+        conn.commit()
+    except Exception as e:  # noqa: BLE001
+        logger.warning("chat_events írás bukott: %s", e)
+
+
+def audit(conn, caller: str, instance: str, session_id: str, reason: str) -> None:
+    """Nyers olvasás naplósora. KÖTELEZŐ minden tartalom-olvasásnál."""
+    try:
+        ensure_oversight_schema(conn)
+        conn.execute("INSERT INTO oversight_audit (id, caller, instance, "
+                     "session_id, reason, created_at) VALUES (?,?,?,?,?,?)",
+                     (str(uuid.uuid4()), caller, instance, session_id or "",
+                      reason, _now()))
+        conn.commit()
+        logger.info("oversight_audit: %s olvasott %s (%s)", caller, instance, reason)
+    except Exception as e:  # noqa: BLE001
+        logger.error("oversight_audit írás BUKOTT — %s", e)
+
+
+def window_open(conn, instance: str, reason: str, minutes: int) -> dict:
+    ensure_oversight_schema(conn)
+    from datetime import timedelta
+    most = datetime.now(timezone.utc)
+    vege = most + timedelta(minutes=minutes)
+    wid = str(uuid.uuid4())
+    conn.execute("INSERT INTO oversight_windows (id, instance, reason, "
+                 "opened_by, opened_at, expires_at) VALUES (?,?,?,?,?,?)",
+                 (wid, instance or "*", reason, "kommandant",
+                  most.isoformat(), vege.isoformat()))
+    conn.commit()
+    logger.info("oversight-ablak nyitva: %s, %d perc (%s)", instance, minutes, reason)
+    return {"id": wid, "instance": instance or "*", "reason": reason,
+            "expires_at": vege.isoformat(), "minutes": minutes}
+
+
+def window_is_open(conn, instance: str, session_id: str = "") -> bool:
+    """Van-e ÉLŐ ablak. Ha `instance` üres, a session tulajdonosát nézzük."""
+    try:
+        ensure_oversight_schema(conn)
+        if not instance and session_id:
+            sor = conn.execute("SELECT instance FROM yr_chat_sessions WHERE id=?",
+                               (session_id,)).fetchone()
+            instance = sor["instance"] if sor else ""
+        most = datetime.now(timezone.utc).isoformat()
+        sor = conn.execute(
+            "SELECT 1 FROM oversight_windows WHERE expires_at > ? "
+            "AND (instance = ? OR instance = '*') LIMIT 1",
+            (most, instance or "*")).fetchone()
+        return sor is not None
+    except Exception as e:  # noqa: BLE001
+        logger.warning("ablak-ellenőrzés bukott (zárva vesszük): %s", e)
+        return False
+
+
+def presence(conn, instance: str = "") -> dict:
+    """Jelenlét és ritmus — TARTALOM NÉLKÜL.
+
+    Szándékosan nem ad vissza se címet, se üzenetet. Az érték a
+    VÁLTOZÁS: „nyolc napja nem lépett be, előtte napi kétszer".
+    """
+    ensure_schema(conn)
+    ensure_oversight_schema(conn)
+    import youngereka_search as yrs
+    from datetime import timedelta
+
+    most = datetime.now(timezone.utc)
+    ki: dict = {"most": most.isoformat(), "instances": {}}
+    nevek = [instance] if instance else ["YoungeReka", "AnnaKatheder"]
+
+    for inst in nevek:
+        sor = conn.execute(
+            "SELECT COUNT(*) db, MAX(m.created_at) utolso, MIN(m.created_at) elso "
+            "FROM yr_chat_messages m JOIN yr_chat_sessions s ON s.id=m.session_id "
+            "WHERE s.instance=? AND m.role='user'", (inst,)).fetchone()
+        utolso = sor["utolso"]
+        napok_ota = None
+        if utolso:
+            try:
+                d = datetime.fromisoformat(utolso)
+                napok_ota = round((most - (d if d.tzinfo else
+                                   d.replace(tzinfo=timezone.utc))).total_seconds()
+                                  / 86400, 2)
+            except (ValueError, TypeError):
+                pass
+
+        # Ritmus: napi átlag az utolsó 14 napban, és az azt megelőző 14-ben.
+        # A KETTŐ KÜLÖNBSÉGE a jel, nem a szám maga.
+        def _db(tol, ig):
+            return conn.execute(
+                "SELECT COUNT(*) c FROM yr_chat_messages m "
+                "JOIN yr_chat_sessions s ON s.id=m.session_id "
+                "WHERE s.instance=? AND m.role='user' AND m.created_at>=? "
+                "AND m.created_at<?", (inst, tol, ig)).fetchone()["c"]
+
+        t0 = (most - timedelta(days=14)).isoformat()
+        t1 = (most - timedelta(days=28)).isoformat()
+        friss, korabbi = _db(t0, most.isoformat()), _db(t1, t0)
+
+        # Napszak: hány üzenet ment 00:00–05:00 között (helyi UTC)
+        hajnali = conn.execute(
+            "SELECT COUNT(*) c FROM yr_chat_messages m "
+            "JOIN yr_chat_sessions s ON s.id=m.session_id "
+            "WHERE s.instance=? AND m.role='user' AND m.created_at>=? "
+            "AND CAST(substr(m.created_at,12,2) AS INTEGER) < 5",
+            (inst, t0)).fetchone()["c"]
+
+        b = budget.budget_state(conn, inst)
+        ki["instances"][inst] = {
+            "uzenet_osszesen": sor["db"],
+            "elso_uzenet": sor["elso"],
+            "utolso_uzenet": utolso,
+            "napja_nem_irt": napok_ota,
+            "uzenet_utolso_14_nap": friss,
+            "uzenet_elozo_14_nap": korabbi,
+            "valtozas": (None if not korabbi else
+                         round((friss - korabbi) / korabbi, 2)),
+            "hajnali_uzenet_14_nap": hajnali,
+            "koltes_ma_usd": b["spent_usd"],
+            "napi_keret_usd": b["limit_usd"],
+            "kereses": yrs.keret_allapot(conn, inst),
+            "belepes_uj_eszkozrol": conn.execute(
+                "SELECT COUNT(*) c FROM chat_events WHERE instance=? "
+                "AND kind='login' AND created_at>=?", (inst, t0)).fetchone()["c"],
+            "hiba_14_nap": conn.execute(
+                "SELECT COUNT(*) c FROM chat_events WHERE instance=? "
+                "AND kind='error' AND created_at>=?", (inst, t0)).fetchone()["c"],
+        }
+
+    ki["nyitott_ablakok"] = [dict(r) for r in conn.execute(
+        "SELECT instance, reason, opened_by, expires_at FROM oversight_windows "
+        "WHERE expires_at > ?", (most.isoformat(),))]
+    ki["utolso_olvasasok"] = [dict(r) for r in conn.execute(
+        "SELECT caller, instance, reason, created_at FROM oversight_audit "
+        "ORDER BY created_at DESC LIMIT 10")]
+    ki["megjegyzes"] = ("Tartalom NINCS ebben a nézetben. A jel a VÁLTOZÁS, "
+                        "nem a szám. Ez nem őrszem: csak akkor néz oda, ha "
+                        "kérdezed.")
+    return ki
