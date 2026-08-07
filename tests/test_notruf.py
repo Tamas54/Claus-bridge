@@ -199,6 +199,40 @@ ok("tel:" not in r["uzenet"].split("Ha most kell")[0],
 ok("telefonon" in r["uzenet"], "…hanem szám nélkül irányít")
 
 
+szakasz("MARKER-SZIVÁRGÁS — amit a felhasználó SOHA nem láthat")
+
+# Élesben megtörtént: a Kimi a tool-hívást SZÖVEGKÉNT írta ki
+# („<|tool_call_begin|>functions.jelenlet:0…"), és az a felhasználó
+# buborékjában landolt. Kétféle védelem kell, és mindkettő önállóan is:
+#   1. a tool-körben KINYERJÜK a szövegből (a Bridge meglévő parserével)
+#   2. a streamből KIVÁGJUK, hogy sose látszódjon
+SZIVARGAS = ("Ellenőrzöm a jelenlétüket.<|tool_calls_section_begin|>"
+             "<|tool_call_begin|>functions.jelenlet:0<|tool_call_argument_begin|>"
+             "{}<|tool_call_end|><|tool_calls_section_end|>")
+
+kiad, puf, vagva = chat._marker_vago(SZIVARGAS, "")
+ok(vagva, "a vágó felismeri a marker kezdetét")
+ok(kiad == "Ellenőrzöm a jelenlétüket.", f"csak a tiszta rész marad: {kiad!r}")
+ok("tool_call" not in kiad, "MARKER NEM megy ki a felhasználóhoz")
+
+# darabokra törve is (a stream így érkezik)
+kiad_ossz, puf, vagva = "", "", False
+for i in range(0, len(SZIVARGAS), 7):
+    if vagva:
+        break
+    k, puf, vagva = chat._marker_vago(SZIVARGAS[i:i + 7], puf)
+    kiad_ossz += k
+ok("tool_call" not in kiad_ossz and "DSML" not in kiad_ossz,
+   f"DARABOLVA is tiszta: {kiad_ossz!r}")
+
+for minta in ("<｜｜DSML｜｜invoke", "<function_calls>", "tool_calls_section"):
+    k, _, v = chat._marker_vago("szöveg " + minta + " maradék", "")
+    ok(v and minta not in k, f"felismeri: {minta[:18]!r}")
+
+k, _, v = chat._marker_vago("Ez egy sima mondat < ötnél kisebb.", "")
+ok(not v, "ártatlan < jel NEM vágja el a választ")
+
+
 szakasz("A folyam SZABAD VÁLTOZÓI — a néma üzemzavar ellen")
 
 # 2026-08-07: a `_tool_kor` `instance`-t használt, de nem kapta meg

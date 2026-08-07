@@ -1097,6 +1097,14 @@ async def _stream_answer(instance: str, session_id: str, text: str,
             yield _sse("error", {"message": err})
             return
 
+        # ÜRES VÁLASZ: a marker-vágás után maradhat nulla szöveg. Néma
+        # buborék helyett mondjuk meg, mi történt — és ha eszközt hívtunk,
+        # annak az eredményét mindenképp közöljük.
+        if not full.strip():
+            full = ("Megvan az adat, de a válasz megfogalmazása félbeszakadt. "
+                    "Kérdezd újra, kérlek — vagy fogalmazd egy kicsit másképp.")
+            yield _sse("delta", {"t": full})
+
         # --- könyvelés ---
         tin = int(usage.get("prompt_tokens") or 0)
         tout = int(usage.get("completion_tokens") or 0)
@@ -1158,14 +1166,59 @@ async def _tool_kor(instance: str, alias: str, model_id: str, messages: list):
                 return [], None
             uz = (r.json().get("choices") or [{}])[0].get("message") or {}
             hivasok = uz.get("tool_calls") or []
+            tartalom = uz.get("content") or ""
+
+            # A Kimi és a V4-Pro SiliconFlow-n RENDSZERESEN szövegként írja
+            # ki a tool-hívást (`<|tool_call_begin|>functions.NAME…`) a
+            # strukturált `tool_calls` mező helyett. A Bridge-ben már van
+            # erre parser — azt használjuk, nem írunk másodikat.
+            if not hivasok and tartalom:
+                try:
+                    from server import _extract_text_marker_tool_calls
+                    for nev, argok in _extract_text_marker_tool_calls(tartalom):
+                        hivasok.append({
+                            "id": f"txt_{len(hivasok)}",
+                            "type": "function",
+                            "function": {"name": nev,
+                                         "arguments": json.dumps(argok,
+                                                                 ensure_ascii=False)}})
+                    if hivasok:
+                        logger.info("tool-kör: %d hívás a SZÖVEGBŐL kinyerve "
+                                    "(marker-szivárgás)", len(hivasok))
+                except Exception as e:  # noqa: BLE001
+                    logger.warning("marker-parser bukott: %s", e)
+
             if not hivasok:
                 return [], None
-            return hivasok, {"role": "assistant",
-                             "content": uz.get("content") or "",
+            return hivasok, {"role": "assistant", "content": tartalom,
                              "tool_calls": hivasok}
     except Exception as e:  # noqa: BLE001
         logger.warning("tool-kör bukott (a válasz eszköz nélkül megy): %s", e)
         return [], None
+
+
+#: Ha ezek bármelyike felbukkan a streamben, a modell tool-hívást ír
+#: szövegként. A felhasználó ezt SOHA nem láthatja.
+_MARKER_ELEJE = re.compile(
+    r"(<\|tool_call|<｜｜?DSML｜|tool_calls_section|<function_calls>)")
+
+
+def _marker_vago(darab: str, puffer: str) -> tuple[str, str, bool]:
+    """(kiadható, új_puffer, vágtunk_e).
+
+    A markerek darabokra törve érkeznek, ezért puffereljük a gyanús
+    farkat: amint egy marker eleje felbukkan, onnantól semmit nem adunk ki.
+    """
+    egyben = puffer + darab
+    m = _MARKER_ELEJE.search(egyben)
+    if m:
+        return egyben[:m.start()], "", True
+    # A vége lehet egy marker félbevágott eleje — tartsuk vissza
+    farok = egyben[-12:]
+    if "<" in farok:
+        vagas = egyben.rfind("<")
+        return egyben[:vagas], egyben[vagas:], False
+    return egyben, "", False
 
 
 async def _call_model(alias: str, model_id: str, messages: list):
@@ -1199,6 +1252,7 @@ async def _call_model(alias: str, model_id: str, messages: list):
                                    resp.status_code, raw[:300])
                     yield "error", _human_error(resp.status_code, raw)
                     return
+                puffer, levagva = "", False
                 async for line in resp.aiter_lines():
                     if not line.startswith("data:"):
                         continue
@@ -1213,8 +1267,16 @@ async def _call_model(alias: str, model_id: str, messages: list):
                         yield "usage", d["usage"]
                     for ch in d.get("choices") or []:
                         piece = (ch.get("delta") or {}).get("content")
-                        if piece:
-                            yield "delta", piece
+                        if not piece:
+                            continue
+                        if levagva:
+                            continue          # marker után már semmit
+                        kiad, puffer, levagva = _marker_vago(piece, puffer)
+                        if levagva:
+                            logger.info("marker-szivárgás a streamben — "
+                                        "a maradék elvágva (%s)", model_id)
+                        if kiad:
+                            yield "delta", kiad
     except httpx.TimeoutException:
         yield "error", ("A modell most nagyon lassú, és megszakadt a válasz. "
                         "Próbáld újra — ha alapos gondolkodást kértél, "
