@@ -124,22 +124,40 @@ def _now() -> str:
 # COOKIE — aláírt, nem kitalálható
 # ============================================================
 
-def _secret() -> bytes:
-    """A cookie aláírókulcsa MINDEN token-env-ből származik.
+def _secret(instance: str) -> bytes:
+    """A cookie aláírókulcsa az adott személy SAJÁT tokenjéből származik.
 
-    A forrás a `_TOKEN_ENV`, nem egy kézzel karbantartott lista: így egy
-    új külsős felvételekor nem lehet elfelejteni ide is beírni. Ha a
-    Kommandant bármelyik tokent forgatja, minden korábbi cookie azonnal
-    érvénytelen — ez a kívánt viselkedés.
+    Korábban közös volt (az összes token együtt), és annak két baja volt:
+
+    (a) Réka tokenjének forgatása kiléptette Annát és Bellát is —
+        collateral, amit csak dokumentáltam, javítani kellett volna.
+    (b) Új személy felvétele MINDENKIT kiléptetett. Bella hozzáadása
+        emiatt „mellékhatásként" tolta volna ki a lányokat.
+
+    Személyenkénti kulccsal mindkettő megszűnik, ÉS a lényegi védelem
+    megmarad: ha a Kommandant Réka tokenjét cseréli, Réka minden korábbi
+    cookie-ja meghal — beleértve azt is, amit valaki más kapott, amikor
+    tévedésből az ő linkjét küldtük ki. Pontosan ez a forgatás célja.
+
+    Token nélküli instance (nincs env, vagy vendég) → a folyamat
+    egyedi kulcsa, tehát a cookie-ja nem hamisítható, de restartkor
+    érvénytelen. Vendégnél ez rendben van: a `gs-` linkjét újranyithatja.
     """
-    from youngereka_access import _TOKEN_ENV
-    raw = "|".join(sorted((os.environ.get(k) or "") for k in _TOKEN_ENV))
-    return hashlib.sha256(("yr-chat-v1|" + raw).encode()).digest()
+    from youngereka_access import token_for
+    sajat = token_for(instance)
+    if not sajat:
+        sajat = "no-token|" + _VENDEG_KULCS
+    return hashlib.sha256(("yr-chat-v2|" + instance + "|" + sajat).encode()).digest()
+
+
+#: Vendég-cookie kulcsa. Folyamat-indításkor generált — a vendég a
+#: `gs-` linkjével bármikor újranyit, tehát a restart nem probléma.
+_VENDEG_KULCS = __import__("secrets").token_hex(16)
 
 
 def _sign(instance: str, expiry: int) -> str:
     msg = f"{instance}|{expiry}".encode()
-    sig = hmac.new(_secret(), msg, hashlib.sha256).hexdigest()[:32]
+    sig = hmac.new(_secret(instance), msg, hashlib.sha256).hexdigest()[:32]
     return f"{instance}|{expiry}|{sig}"
 
 

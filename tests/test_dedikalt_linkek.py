@@ -346,6 +346,33 @@ ok("MÁS FELHASZNÁLÓK BESZÉLGETÉSEIHEZ SEM" in BELLA_CHAT_PROMPT,
    "…és kimondja, hogy másokéba nem lát bele")
 
 
+szakasz("Cookie-kulcs SZEMÉLYENKÉNT — a collateral javítva")
+
+# Korábban a kulcs az ÖSSZES tokenből jött: Réka tokenjének forgatása
+# kiléptette Annát és Bellát is, és egy ÚJ személy felvétele mindenkit.
+r_ck = chat._sign("YoungeReka", 2 ** 31)
+a_ck = chat._sign("AnnaKatheder", 2 ** 31)
+b_ck = chat._sign("Bella", 2 ** 31)
+ok(all(chat._verify(c) for c in (r_ck, a_ck, b_ck)), "mindhárom cookie él")
+
+regi_yr = os.environ["YR_TOKEN"]
+os.environ["YR_TOKEN"] = "UJ_REKA_TOKEN_abcdefgh123456"
+ok(chat._verify(r_ck) is None, "Réka tokenjének cseréje → Réka cookie-ja HALOTT")
+ok(chat._verify(a_ck) == "AnnaKatheder", "…de Anna cookie-ja ÉL (nincs collateral)")
+ok(chat._verify(b_ck) == "Bella", "…és Belláé is")
+os.environ["YR_TOKEN"] = regi_yr
+ok(chat._verify(r_ck) == "YoungeReka", "visszaállítva Rékáé is él")
+
+# ÚJ személy felvétele senkit nem léptet ki
+os.environ["UJ_VALAKI_TOKEN"] = "VALAKI_TOKEN_1234567890ab"
+ok(chat._verify(a_ck) == "AnnaKatheder", "új env-token felvétele NEM lépteti ki Annát")
+del os.environ["UJ_VALAKI_TOKEN"]
+
+# a személyek kulcsa különbözik
+ok(chat._secret("YoungeReka") != chat._secret("AnnaKatheder"),
+   "a két kulcs különbözik")
+
+
 print("\n" + "═" * 60)
 if hibak:
     print(f"PIROS — {len(hibak)} bukás:")
