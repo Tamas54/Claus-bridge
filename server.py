@@ -8794,7 +8794,9 @@ _start_telegram_polling()
 
 # Register permission profiles
 register_youngereka()
-logger.info("Permission profiles registered: YoungeReka")
+from anna_profile import register_anna
+register_anna()
+logger.info("Permission profiles registered: YoungeReka, AnnaKatheder")
 
 # OPERATION LESESAAL — Réka chat-felülete a /chat úton.
 # A bekötés hibája NEM viheti el a Bridge indulását: ha ez elszáll, a

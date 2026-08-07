@@ -266,7 +266,7 @@ main{flex:1;display:flex;flex-direction:column;min-width:0;position:relative}
 <div id="app">
   <aside id="oldalsav">
     <header>
-      <h1>Olvasóterem<span>Réka · kutatói asszisztens</span></h1>
+      <h1 id="cim">Olvasóterem<span id="alcim">Réka · kutatói asszisztens</span></h1>
     </header>
     <button id="uj">+ Új beszélgetés</button>
     <div id="lista"></div>
@@ -275,21 +275,12 @@ main{flex:1;display:flex;flex-direction:column;min-width:0;position:relative}
   <main>
     <div id="mfej">
       <button id="fiok" aria-label="Beszélgetések">☰</button>
-      <b>Olvasóterem</b>
+      <b id="mcim">Olvasóterem</b>
     </div>
     <div id="keret"><i></i></div>
 
     <div id="szal">
-      <div id="ures">
-        <h2>Szia, kis hercegnő.</h2>
-        <p class="alcim">Amit ide beteszel, azt elolvasom</p>
-        <ul>
-          <li><b>Szakcikk PDF-ben</b><span>A szöveget és az ábrákat is látom — a Figure-öket külön kiszedem. Szkennelt cikknél a képet olvasom.</span></li>
-          <li><b>Gélkép, blot, mikroszkópos felvétel</b><span>Telefonnal is fotózhatod, elfordítva is jó. Megnézem, mit mutat és mit nem.</span></li>
-          <li><b>Mérési adat, táblázat</b><span>CSV, Excel. Statisztikánál a mintaszámot, a kontrollt és a teszt feltételeit is átnézem.</span></li>
-          <li><b>Egy kérdés, ami nem hagy nyugodni</b><span>Melyik kontroll döntené el? Elbírja-e az adat a következtetést?</span></li>
-        </ul>
-      </div>
+      <div id="ures"></div>
     </div>
 
     <div id="also">
@@ -323,6 +314,15 @@ main{flex:1;display:flex;flex-direction:column;min-width:0;position:relative}
 <input type="file" id="kamera" accept="image/*" capture="environment" hidden>
 
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script>
+/* A felület-profilt a szerver írja ide be kiszolgáláskor (instance szerint).
+   Ha valamiért nem cserélődik ki, a null-ág értelmes alapértelmezést ad —
+   üres felület helyett. */
+const PROFIL = /*__PROFIL__*/null || {
+  cim:"Olvasóterem", alcim:"", koszones:"Szia.", motto:"", ures:[],
+  melyseg:true, kutatas:true
+};
+</script>
 <script>
 "use strict";
 const $ = s => document.querySelector(s);
@@ -449,9 +449,8 @@ async function munkamenetBetolt(id){
 
 $("#uj").onclick = () => {
   munkamenet = null; csatolt = []; rajzolMellekletek();
-  szal.innerHTML = `<div id="ures">
-      <h2>Új beszélgetés</h2>
-      <p class="alcim">Tiszta lap</p></div>`;
+  szal.innerHTML = '<div id="ures"></div>';
+  uresRajzol("Új beszélgetés", "Tiszta lap");
   allapot(""); listaBetolt(); fiokZar(); szoveg.focus();
 };
 
@@ -652,6 +651,30 @@ async function utanajaras(kerdes, fileIds){
   }
 }
 
+/* ── a felület személyre szabása ── */
+function profiltAlkalmaz(){
+  document.title = PROFIL.cim;
+  $("#cim").firstChild.nodeValue = PROFIL.cim;
+  $("#alcim").textContent = PROFIL.alcim;
+  $("#mcim").textContent = PROFIL.cim;
+  if (!PROFIL.kutatas) $("#utananez").remove();
+  if (!PROFIL.melyseg) $("#gondolkodj").remove();
+  uresRajzol();
+}
+
+function uresRajzol(cim, motto){
+  const u = $("#ures");
+  if (!u) return;
+  u.innerHTML =
+    `<h2>${ejEsc(cim || PROFIL.koszones)}</h2>` +
+    `<p class="alcim">${ejEsc(motto !== undefined ? motto : PROFIL.motto)}</p>` +
+    (PROFIL.ures.length
+      ? "<ul>" + PROFIL.ures.map(([c,l]) =>
+          `<li><b>${ejEsc(c)}</b><span>${ejEsc(l)}</span></li>`).join("") + "</ul>"
+      : "");
+}
+
+profiltAlkalmaz();
 listaBetolt();
 szoveg.focus();
 </script>

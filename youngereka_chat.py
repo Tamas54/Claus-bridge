@@ -48,7 +48,7 @@ from starlette.responses import (HTMLResponse, JSONResponse, RedirectResponse,
 
 import youngereka_budget as budget
 import youngereka_docs as docs
-from youngereka_access import REKA_CHAT_PROMPT, resolve_instance_from_path
+from youngereka_access import chat_profile, resolve_instance_from_path
 
 logger = logging.getLogger("bridge.yr_chat")
 
@@ -121,11 +121,15 @@ def _now() -> str:
 # ============================================================
 
 def _secret() -> bytes:
-    """A cookie aláírókulcsa a tokenekből származik. Ha a Kommandant
-    tokent forgat, minden korábbi cookie azonnal érvénytelen — ez a
-    kívánt viselkedés."""
-    raw = "|".join(sorted(
-        (os.environ.get(k) or "") for k in ("YR_TOKEN",)))
+    """A cookie aláírókulcsa MINDEN token-env-ből származik.
+
+    A forrás a `_TOKEN_ENV`, nem egy kézzel karbantartott lista: így egy
+    új külsős felvételekor nem lehet elfelejteni ide is beírni. Ha a
+    Kommandant bármelyik tokent forgatja, minden korábbi cookie azonnal
+    érvénytelen — ez a kívánt viselkedés.
+    """
+    from youngereka_access import _TOKEN_ENV
+    raw = "|".join(sorted((os.environ.get(k) or "") for k in _TOKEN_ENV))
     return hashlib.sha256(("yr-chat-v1|" + raw).encode()).digest()
 
 
@@ -266,8 +270,10 @@ def install(mcp, *, get_db, api_key: str, base_url: str, models: dict,
 
     # ---------- belépés ----------
 
-    @mcp.custom_route("/chat/yr-{token}", methods=["GET"])
+    @mcp.custom_route("/chat/{prefix}-{token}", methods=["GET"])
     async def yr_chat_enter(request: Request):
+        # `/chat/yr-{token}` és `/chat/an-{token}` — a prefix csak
+        # emberi címke, az identitást KIZÁRÓLAG a token dönti el.
         token = request.path_params.get("token", "")
         instance = resolve_instance_from_path(token)
         if not instance:
@@ -287,7 +293,19 @@ def install(mcp, *, get_db, api_key: str, base_url: str, models: dict,
         if not _who(request):
             return _forbidden()
         try:
-            return HTMLResponse(_HTML_PATH.read_text(encoding="utf-8"))
+            html = _HTML_PATH.read_text(encoding="utf-8")
+            prof = chat_profile(_who(request))
+            # A HTML EGY fájl; a személyre szóló rész itt kerül bele.
+            # `json.dumps` escapel, tehát a profil szövege nem törhet ki
+            # a script-blokkból.
+            beallitas = json.dumps({
+                "cim": prof["cim"], "alcim": prof["alcim"],
+                "koszones": prof["koszones"], "motto": prof["mottó"],
+                "ures": prof["ures"],
+                "melyseg": prof["melyseg_gomb"],
+                "kutatas": prof["kutatas_gomb"],
+            }, ensure_ascii=False)
+            return HTMLResponse(html.replace("/*__PROFIL__*/null", beallitas))
         except FileNotFoundError:
             logger.error("youngereka_chat.html hiányzik: %s", _HTML_PATH)
             return HTMLResponse("A felület fájlja hiányzik a szerverről.",
@@ -391,8 +409,13 @@ def install(mcp, *, get_db, api_key: str, base_url: str, models: dict,
         try:
             # A feldolgozás CPU-kötött (PDF-raszterizálás, kép-átméretezés)
             # — szálba tesszük, hogy ne fagyassza az event loopot.
+            # Anna kurzus-PDF-et tölt fel, nem szakcikket: nála az
+            # ábra-kiemelés csak zajt adna. Réka szakcikkében viszont az
+            # információ fele a Figure-ökben van.
+            kepkorlat = (docs.VISION_MAX_IMAGES
+                         if chat_profile(instance)["abra_kiemeles"] else 4)
             doc = await loop.run_in_executor(
-                None, docs.process_upload, raw, filename)
+                None, docs.process_upload, raw, filename, kepkorlat)
         except Exception as e:  # noqa: BLE001
             logger.warning("yr_chat feldolgozás bukott (%s): %s", filename, e)
             return JSONResponse(
@@ -461,6 +484,13 @@ def install(mcp, *, get_db, api_key: str, base_url: str, models: dict,
         instance = _who(request)
         if not instance:
             return JSONResponse({"error": "forbidden"}, status_code=403)
+        if not chat_profile(instance)["kutatas_gomb"]:
+            # KISKAPU-ZÁRÁS: a gomb nincs kitéve nála, de a végpontot is
+            # zárni kell — a felület elrejtése nem hozzáférés-védelem.
+            return JSONResponse(
+                {"error": "Ez a gomb ezen a felületen nincs bekötve. "
+                          "Kérdezz rá simán — végigmegyünk rajta."},
+                status_code=403)
         fn = _CFG.get("ai_task_fn")
         if fn is None:
             return JSONResponse(
@@ -632,7 +662,7 @@ async def _stream_answer(instance: str, session_id: str, text: str,
         yield _sse("model", {"alias": alias, "model": model_id,
                              "fallback": fell_back, "deep": deep})
 
-        system = REKA_CHAT_PROMPT
+        system = chat_profile(instance)["prompt"]
         if not first:
             # A „kis hercegnő" CSAK az első üzenetben. Enélkül a modell
             # minden válaszba beszúrná, amit a spec kifejezetten tilt.
