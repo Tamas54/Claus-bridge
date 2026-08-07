@@ -8796,7 +8796,9 @@ _start_telegram_polling()
 register_youngereka()
 from anna_profile import register_anna
 register_anna()
-logger.info("Permission profiles registered: YoungeReka, AnnaKatheder")
+from bella_profile import register_bella
+register_bella()
+logger.info("Permission profiles registered: YoungeReka, AnnaKatheder, Bella")
 
 
 @mcp.tool()

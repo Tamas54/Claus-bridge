@@ -22,6 +22,7 @@ sys.path.insert(0, str(ROOT))
 
 os.environ["YR_TOKEN"] = "REKA_TOKEN_1234567890abcdefgh"
 os.environ["AN_TOKEN"] = "ANNA_TOKEN_zyxwvu0987654321ab"
+os.environ["BL_TOKEN"] = "BELLA_TOKEN_qwerty0987654321"
 
 import youngereka_chat as chat                          # noqa: E402
 from youngereka_access import (CHAT_PROFILES, KATHEDER_PROMPT,  # noqa: E402
@@ -268,6 +269,82 @@ ok(not is_core_instance("YoungeReka") and not is_core_instance("AnnaKatheder"),
 ok("family_chat" not in YOUNGEREKA_PROFILE.tool_permissions
    and "family_chat" not in ANNA_PROFILE.tool_permissions,
    "a family_chat egyik profilban sincs felsorolva → alapértelmezés DENY")
+
+szakasz("Bella — saját felület, nulla rálátás")
+
+from bella_profile import BELLA_PROFILE, register_bella   # noqa: E402
+from youngereka_access import BELLA_CHAT_PROMPT           # noqa: E402
+register_bella()
+
+ok(resolve_instance_from_path("BELLA_TOKEN_qwerty0987654321") == "Bella",
+   "BL_TOKEN → Bella")
+b = chat_profile("Bella")
+ok(b["prompt"] is BELLA_CHAT_PROMPT, "saját promptot kap")
+ok(b["cim"] == "Dolgozószoba", f"saját cím: {b['cim']}")
+ok(b["koszones"] == "Szia, Bella.", "NINCS kitalált becenév")
+ok(b["ures"] != chat_profile("YoungeReka")["ures"], "saját üres állapot")
+
+b_deny = {k for k, v in BELLA_PROFILE.tool_permissions.items() if v == Access.DENY}
+ok(b_deny == r_deny,
+   f"a tiltólista AZONOS a lányokéval ({len(b_deny)} tool)")
+
+# A LÉNYEG: nem lát bele a lányokéba
+ok("YoungeReka" not in BELLA_PROFILE.visible_message_senders
+   and "AnnaKatheder" not in BELLA_PROFILE.visible_message_senders,
+   "Bella NEM látja a lányok üzeneteit")
+ok("Bella" not in YOUNGEREKA_PROFILE.visible_message_senders
+   and "Bella" not in ANNA_PROFILE.visible_message_senders,
+   "…és a lányok sem az övét")
+try:
+    check_permission("Bella", "family_chat")
+    ok(False, "Bella family_chat → DENY")
+except PermissionDeniedError:
+    ok(True, "Bella family_chat → DENY (nem lát rá a lányokra)")
+ok(not is_core_instance("Bella"), "Bella nem core instance")
+
+# külön beszélgetések — friss kapcsolaton (a fentit már lezártuk)
+conn3 = sqlite3.connect(tmp / "b.db"); conn3.row_factory = sqlite3.Row
+chat.ensure_schema(conn3)
+for inst, cim in (("Bella", "Bella dolga"), ("YoungeReka", "Réka dolga")):
+    sid_ = str(uuid.uuid4())
+    conn3.execute("INSERT INTO yr_chat_sessions (id,instance,title,created_at,"
+                  "updated_at) VALUES (?,?,?,?,?)",
+                  (sid_, inst, cim, chat._now(), chat._now()))
+conn3.commit()
+
+
+def lat3(inst):
+    return {r["title"] for r in conn3.execute(
+        "SELECT title FROM yr_chat_sessions WHERE instance=?", (inst,))}
+
+
+ok(lat3("Bella") == {"Bella dolga"}, "csak a sajátját látja")
+ok("Bella dolga" not in lat3("YoungeReka"), "Réka nem látja Belláét")
+conn3.close()
+
+# A prompt nem ÁLLÍT róla semmit, amit nem tudunk. (Az „orvos" és a
+# „tanár" szó előfordul — „se orvossal", „ne tanárként" —, de azok nem
+# róla szólnak. A teszt ezért ÁLLÍTÁSOKAT keres, nem szavakat.)
+import re as _re2
+mondatok = [m.strip() for m in _re2.split(r"[.\n]", BELLA_CHAT_PROMPT)
+            if "bella" in m.lower()]
+ok(len(mondatok) <= 2, f"Belláról mindössze {len(mondatok)} mondat szól")
+for m in mondatok:
+    print(f"       „{m.strip()}”")
+allitas = _re2.compile(r"Bella\s+(egy\s+)?\w+(nő|nö|us|ista|ász|ész|tanár|orvos|mérnök)",
+                       _re2.IGNORECASE)
+ok(not allitas.search(BELLA_CHAT_PROMPT),
+   "a prompt NEM állít róla foglalkozást")
+for hely in ("Szabadka", "Újvidék", "Novi Sad", "Vajdaság"):
+    ok(hely.lower() not in BELLA_CHAT_PROMPT.lower(),
+       f"…és lakhelyet sem: {hely!r}")
+ok("unokahúg" not in BELLA_CHAT_PROMPT.lower()
+   and "anyj" not in BELLA_CHAT_PROMPT.lower()
+   and "lánya" not in BELLA_CHAT_PROMPT.lower(),
+   "…és rokoni viszonyt sem talál ki")
+ok("MÁS FELHASZNÁLÓK BESZÉLGETÉSEIHEZ SEM" in BELLA_CHAT_PROMPT,
+   "…és kimondja, hogy másokéba nem lát bele")
+
 
 print("\n" + "═" * 60)
 if hibak:
