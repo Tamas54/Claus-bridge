@@ -48,6 +48,7 @@ from starlette.responses import (HTMLResponse, JSONResponse, RedirectResponse,
 
 import youngereka_budget as budget
 import youngereka_docs as docs
+import youngereka_memory as memory
 from youngereka_access import chat_profile, resolve_instance_from_path
 
 logger = logging.getLogger("bridge.yr_chat")
@@ -109,6 +110,7 @@ def ensure_schema(conn: sqlite3.Connection) -> None:
           created_at  TIMESTAMP NOT NULL
         )""")
     budget.ensure_schema(conn)
+    memory.ensure_schema(conn)
     conn.commit()
 
 
@@ -385,6 +387,43 @@ def install(mcp, *, get_db, api_key: str, base_url: str, models: dict,
         finally:
             conn.close()
 
+    # ---------- emlékezet ----------
+    #
+    # Amit a rendszer megjegyzett, azt LÁTNIA kell és törölnie kell tudnia.
+    # Egy emlékezet, amibe nem lehet belenézni, kellemetlen; egy emlékezet,
+    # amit nem lehet törölni, csapda.
+
+    @mcp.custom_route("/chat/api/notes", methods=["GET"])
+    async def yr_notes(request: Request):
+        instance = _who(request)
+        if not instance:
+            return JSONResponse({"error": "forbidden"}, status_code=403)
+        conn = get_db()
+        try:
+            return JSONResponse({"notes": memory.list_notes(conn, instance)})
+        finally:
+            conn.close()
+
+    @mcp.custom_route("/chat/api/notes/delete", methods=["POST"])
+    async def yr_notes_delete(request: Request):
+        instance = _who(request)
+        if not instance:
+            return JSONResponse({"error": "forbidden"}, status_code=403)
+        try:
+            body = await request.json()
+        except Exception:  # noqa: BLE001
+            body = {}
+        conn = get_db()
+        try:
+            # A `forget` mindig instance-re szűr — más jegyzetét a note_id
+            # ismerete sem törli.
+            n = memory.forget(conn, instance,
+                              note_id=(body.get("id") or ""),
+                              mind=bool(body.get("all")))
+            return JSONResponse({"deleted": n})
+        finally:
+            conn.close()
+
     # ---------- feltöltés ----------
 
     @mcp.custom_route("/chat/api/upload", methods=["POST"])
@@ -639,6 +678,17 @@ async def _tomorito(hosszu: str) -> str:
     return "".join(darabok)
 
 
+async def _jegyzetelo(system: str, user: str) -> str:
+    """Olcsó, nem-gondolkodó hívás a jegyzet-kiemeléshez."""
+    darabok = []
+    async for kind, p in _call_model("deepseek", _model_id("deepseek"), [
+            {"role": "system", "content": system},
+            {"role": "user", "content": user}]):
+        if kind == "delta":
+            darabok.append(p)
+    return "".join(darabok)
+
+
 async def _stream_answer(instance: str, session_id: str, text: str,
                          file_ids: list[str], deep: bool, search: bool = False):
     """SSE-folyam. Minden hiba a folyamon belül, emberi mondatként megy ki
@@ -730,6 +780,18 @@ async def _stream_answer(instance: str, session_id: str, text: str,
                              "fallback": fell_back, "deep": deep})
 
         system = chat_profile(instance)["prompt"]
+
+        # A becenév-elhagyás DETERMINISZTIKUS: nem modell dönti el, hogy
+        # kérte-e. A prompt „azonnal és véglegesen"-t ígér — a véglegeshez
+        # ez a szabály és a jegyzet kell, különben a következő
+        # beszélgetésben visszajön.
+        memory.check_becenev(conn, instance, text)
+        if memory.becenev_tiltva(conn, instance):
+            system += ("\n\nFONTOS: korábban kérte, hogy hagyd el a becenevet. "
+                       "NE használd, sehol, az első üzenetben sem. "
+                       "Köszönj a nevén vagy simán.")
+        system += memory.recall_block(conn, instance)
+
         if not first:
             # A „kis hercegnő" CSAK az első üzenetben. Enélkül a modell
             # minden válaszba beszúrná, amit a spec kifejezetten tilt.
@@ -790,6 +852,15 @@ async def _stream_answer(instance: str, session_id: str, text: str,
         budget.record(conn, instance, cost, model_id, "chat")
 
         yield _sse("done", {"budget": budget.budget_state(conn, instance)})
+
+        # Jegyzet-kiemelés a válasz UTÁN: nem lassítja a beszélgetést, és
+        # ha bukik, a folyam már lezárult — Réka semmit nem vesz észre.
+        try:
+            uj = await memory.extract(conn, instance, text, full, _jegyzetelo)
+            if uj:
+                yield _sse("notes", {"added": uj})
+        except Exception as e:  # noqa: BLE001
+            logger.warning("jegyzetelés bukott: %s", e)
 
     except Exception as e:  # noqa: BLE001
         logger.exception("yr_chat folyam hiba")

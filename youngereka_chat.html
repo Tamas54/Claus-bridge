@@ -153,6 +153,30 @@ main{flex:1;display:flex;flex-direction:column;min-width:0;position:relative}
 }
 .forrasok a{font-size:13.5px;color:var(--hematoxilin);text-underline-offset:2px}
 .forrasok a:hover{color:var(--eozin)}
+#emlek{border-top:1px solid var(--vonal);padding:12px 16px 14px;max-height:38vh;overflow-y:auto}
+#emlek h2{
+  font-family:var(--mono);font-size:10px;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--halvany);margin:0 0 8px;font-weight:400;
+  display:flex;justify-content:space-between;align-items:center;
+}
+#emlek h2 button{
+  border:0;background:none;cursor:pointer;color:var(--halvany);
+  font-family:var(--mono);font-size:10px;letter-spacing:.05em;padding:0;
+  text-decoration:underline;text-underline-offset:2px;
+}
+#emlek h2 button:hover{color:var(--eozin)}
+#emlek:empty,#emlek.rejt{display:none}
+.jegyzet{
+  display:flex;gap:6px;align-items:flex-start;font-size:13px;line-height:1.45;
+  padding:5px 0;border-top:1px solid var(--vonal);color:var(--hematoxilin);
+}
+.jegyzet:first-of-type{border-top:0}
+.jegyzet span{flex:1}
+.jegyzet button{
+  border:0;background:none;cursor:pointer;color:var(--halvany);
+  font-size:14px;line-height:1;padding:0 2px;flex:0 0 auto;
+}
+.jegyzet button:hover{color:var(--eozin)}
 .megjegyzes{
   font-size:13.5px;color:var(--halvany);margin:0 0 10px;
   padding-left:11px;border-left:2px solid var(--vonal);
@@ -270,6 +294,7 @@ main{flex:1;display:flex;flex-direction:column;min-width:0;position:relative}
     </header>
     <button id="uj">+ Új beszélgetés</button>
     <div id="lista"></div>
+    <div id="emlek" class="rejt"></div>
   </aside>
 
   <main>
@@ -570,6 +595,7 @@ async function kuldes(){
 
         if (esem === "session"){ munkamenet = a.id; }
         else if (esem === "status"){ allapot(a.message); }
+        else if (esem === "notes"){ emlekBetolt(); }
         else if (esem === "search"){
           if (a.sources?.length){
             const f = document.createElement("div");
@@ -651,6 +677,35 @@ async function utanajaras(kerdes, fileIds){
   }
 }
 
+/* ── emlékezet: amit megjegyeztem róla, és amit törölhet ── */
+async function emlekBetolt(){
+  const doboz = $("#emlek");
+  try {
+    const r = await fetch("/chat/api/notes");
+    if (!r.ok) { doboz.classList.add("rejt"); return; }
+    const d = await r.json();
+    if (!d.notes?.length){ doboz.classList.add("rejt"); doboz.innerHTML=""; return; }
+    doboz.classList.remove("rejt");
+    doboz.innerHTML =
+      `<h2>Amit megjegyeztem<button id="mindtorol">mind törlése</button></h2>` +
+      d.notes.map(n => `<div class="jegyzet"><span>${ejEsc(n.content)}</span>` +
+        `<button data-id="${ejEsc(n.id)}" aria-label="Elfelejtés" title="Felejtsd el">×</button></div>`).join("");
+    doboz.querySelectorAll(".jegyzet button").forEach(b =>
+      b.onclick = () => emlekTorol({id:b.dataset.id}));
+    $("#mindtorol").onclick = () => {
+      if (confirm("Mindent elfelejtsek, amit rólad megjegyeztem?")) emlekTorol({all:true});
+    };
+  } catch(e){ doboz.classList.add("rejt"); }
+}
+
+async function emlekTorol(mit){
+  try {
+    await fetch("/chat/api/notes/delete", {method:"POST",
+      headers:{"Content-Type":"application/json"}, body: JSON.stringify(mit)});
+  } catch(e){}
+  emlekBetolt();
+}
+
 /* ── a felület személyre szabása ── */
 function profiltAlkalmaz(){
   document.title = PROFIL.cim;
@@ -676,6 +731,7 @@ function uresRajzol(cim, motto){
 
 profiltAlkalmaz();
 listaBetolt();
+emlekBetolt();
 szoveg.focus();
 </script>
 </body>
