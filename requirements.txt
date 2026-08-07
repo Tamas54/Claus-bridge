@@ -15,6 +15,16 @@ numpy>=1.24,<3.0
 scipy>=1.11,<2.0
 python-docx>=1.0.0
 PyPDF2>=3.0.0
+# OPERATION LESESAAL (2026-08-07) — Réka dokumentum-pipeline-ja.
+# PyMuPDF: szövegréteg + SZKENNELT oldal raszterizálása + beágyazott ÁBRÁK
+# kiemelése. A PyPDF2 egyiket sem tudja, és egy szakcikkben az információ
+# fele a Figure-ökben van, nem a bekezdésekben.
+PyMuPDF>=1.24,<2.0
+# Pillow + pillow-heif: telefonos fotó normalizálása (HEIC, MPO-multiframe,
+# EXIF-forgatás) és TELJES EXIF-strip — a GPS ne menjen fel külső API-ra.
+# Ugyanez a normalizáló a task #20 (Agora fotófeltöltés) közös pipeline-ja.
+Pillow>=10.0,<12.0
+pillow-heif>=0.16
 openpyxl>=3.1.0
 python-pptx>=0.6.23
 # PYTHIA B2 (riport-mű): mindkettő NOTSTROM-fallbackkal fut a kódban —

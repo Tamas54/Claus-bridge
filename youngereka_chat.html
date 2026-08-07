@@ -1,0 +1,659 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<title>Olvasóterem</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ─────────────────────────────────────────────────────────────
+   H&E — hematoxilin-eozin. A paletta abból a világból jön, amiben
+   Réka dolgozik. Egyetlen akcent (eozin-rózsa), takarékosan.
+   ───────────────────────────────────────────────────────────── */
+:root{
+  --papir:#FBFAF7;
+  --hematoxilin:#2A2352;
+  --halvany:#6B5FA8;
+  --eozin:#D4547E;
+  --vonal:#E8E4DC;
+  --sans:"Source Sans 3",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --oldalsav:280px;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;background:var(--papir);color:var(--hematoxilin);
+  font-family:var(--sans);font-size:17px;line-height:1.6;
+  -webkit-text-size-adjust:100%;
+}
+:focus-visible{outline:2px solid var(--eozin);outline-offset:2px;border-radius:3px}
+button{font:inherit;color:inherit}
+
+/* ── váz ─────────────────────────────────────────────────── */
+#app{display:flex;height:100dvh;overflow:hidden}
+
+aside{
+  width:var(--oldalsav);flex:0 0 var(--oldalsav);
+  border-right:1px solid var(--vonal);
+  display:flex;flex-direction:column;background:#fff;
+}
+aside header{
+  padding:18px 20px 14px;border-bottom:1px solid var(--vonal);
+}
+aside h1{
+  margin:0;font-size:15px;font-weight:600;letter-spacing:.02em;
+}
+aside h1 span{
+  display:block;font-family:var(--mono);font-size:10.5px;font-weight:400;
+  color:var(--halvany);letter-spacing:.08em;text-transform:uppercase;margin-top:3px;
+}
+#uj{
+  margin:14px 16px 8px;padding:9px 14px;border:1px solid var(--vonal);
+  background:#fff;border-radius:7px;cursor:pointer;font-size:14.5px;
+  text-align:left;width:calc(100% - 32px);transition:border-color .15s,color .15s;
+}
+#uj:hover{border-color:var(--eozin);color:var(--eozin)}
+#lista{flex:1;overflow-y:auto;padding:4px 10px 16px}
+.tetel{
+  display:block;width:100%;text-align:left;border:0;background:none;
+  padding:9px 10px;border-radius:6px;cursor:pointer;font-size:14.5px;
+  color:var(--hematoxilin);white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis;transition:background .12s;
+}
+.tetel:hover{background:#F4F2EE}
+.tetel[aria-current="true"]{background:#F1EFF8;color:var(--halvany);font-weight:600}
+.tetel time{
+  display:block;font-family:var(--mono);font-size:10.5px;color:var(--halvany);
+  opacity:.75;margin-top:2px;
+}
+
+main{flex:1;display:flex;flex-direction:column;min-width:0;position:relative}
+
+/* mobil fejléc */
+#mfej{
+  display:none;align-items:center;gap:12px;padding:10px 14px;
+  border-bottom:1px solid var(--vonal);background:var(--papir);
+  padding-top:max(10px,env(safe-area-inset-top));
+}
+#fiok{
+  border:1px solid var(--vonal);background:#fff;border-radius:7px;
+  padding:7px 11px;cursor:pointer;line-height:1;
+}
+#mfej b{font-size:15px;font-weight:600}
+
+/* ── keret-jelző: csak 70% fölött ─────────────────────────── */
+#keret{display:none;height:2px;background:var(--vonal)}
+#keret i{display:block;height:100%;background:var(--eozin);width:0;transition:width .4s}
+
+/* ── beszélgetés ─────────────────────────────────────────── */
+#szal{flex:1;overflow-y:auto;overscroll-behavior:contain;padding:26px 0 8px}
+.sor{max-width:760px;margin:0 auto 26px;padding:0 22px}
+.cimke{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--halvany);margin-bottom:7px;
+}
+.sor.en .buborek{
+  background:#fff;border:1px solid var(--vonal);border-radius:12px;
+  padding:13px 17px;
+}
+.buborek>*:first-child{margin-top:0}
+.buborek>*:last-child{margin-bottom:0}
+.buborek p{margin:0 0 .85em}
+.buborek h1,.buborek h2,.buborek h3{
+  font-size:1.06em;font-weight:600;margin:1.35em 0 .5em;line-height:1.35;
+}
+.buborek ul,.buborek ol{margin:0 0 .85em;padding-left:1.35em}
+.buborek li{margin-bottom:.3em}
+.buborek code{
+  font-family:var(--mono);font-size:.86em;background:#F4F2EE;
+  padding:.12em .38em;border-radius:4px;
+}
+.buborek pre{
+  background:#F7F5F1;border:1px solid var(--vonal);border-radius:8px;
+  padding:13px 15px;overflow-x:auto;margin:0 0 .9em;
+}
+.buborek pre code{background:none;padding:0;font-size:.84em;line-height:1.55}
+.buborek table{border-collapse:collapse;width:100%;margin:0 0 .9em;font-size:.93em;display:block;overflow-x:auto}
+.buborek th,.buborek td{border:1px solid var(--vonal);padding:6px 10px;text-align:left}
+.buborek th{background:#F7F5F1;font-weight:600}
+.buborek blockquote{
+  margin:0 0 .9em;padding-left:14px;border-left:2px solid var(--vonal);
+  color:var(--halvany);
+}
+.buborek a{color:var(--eozin);text-decoration-thickness:1px;text-underline-offset:2px}
+
+/* ── SZIGNATÚRA: preparátum-címke ─────────────────────────── */
+.preparatum{
+  display:inline-flex;align-items:stretch;margin:0 8px 8px 0;
+  border:1px solid var(--vonal);border-left:3px solid var(--eozin);
+  border-radius:3px;background:#fff;overflow:hidden;max-width:100%;
+}
+.preparatum .nev{
+  padding:6px 11px;font-size:13.5px;font-weight:600;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.preparatum .mit{
+  padding:6px 11px;font-family:var(--mono);font-size:10.5px;
+  letter-spacing:.045em;color:var(--halvany);background:#F7F5F1;
+  border-left:1px solid var(--vonal);display:flex;align-items:center;
+  white-space:nowrap;
+}
+.forrasok{
+  display:flex;flex-wrap:wrap;gap:0 14px;align-items:baseline;
+  margin:0 0 10px;padding:7px 11px;background:#F7F5F1;
+  border-left:2px solid var(--halvany);border-radius:0 4px 4px 0;
+}
+.forrasok span{
+  font-family:var(--mono);font-size:10px;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--halvany);
+}
+.forrasok a{font-size:13.5px;color:var(--hematoxilin);text-underline-offset:2px}
+.forrasok a:hover{color:var(--eozin)}
+.megjegyzes{
+  font-size:13.5px;color:var(--halvany);margin:0 0 10px;
+  padding-left:11px;border-left:2px solid var(--vonal);
+}
+
+/* ── üres állapot ────────────────────────────────────────── */
+#ures{max-width:640px;margin:min(9vh,80px) auto 0;padding:0 26px;}
+#ures h2{font-size:23px;font-weight:600;margin:0 0 6px;letter-spacing:-.01em}
+#ures .alcim{
+  font-family:var(--mono);font-size:11px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--halvany);margin:0 0 24px;
+}
+#ures ul{list-style:none;padding:0;margin:0}
+#ures li{
+  border-top:1px solid var(--vonal);padding:13px 0;font-size:15.5px;
+}
+#ures li:last-child{border-bottom:1px solid var(--vonal)}
+#ures li b{font-weight:600;display:block;margin-bottom:1px}
+#ures li span{color:var(--halvany);font-size:14.5px}
+
+/* ── beviteli sáv ────────────────────────────────────────── */
+#also{
+  border-top:1px solid var(--vonal);background:var(--papir);
+  padding:12px 22px max(12px,env(safe-area-inset-bottom));
+}
+#doboz{max-width:760px;margin:0 auto}
+#mellekletek{display:flex;flex-wrap:wrap;gap:0;margin-bottom:8px}
+#mellekletek:empty{display:none}
+.preparatum button{
+  border:0;background:none;padding:0 10px;cursor:pointer;color:var(--halvany);
+  border-left:1px solid var(--vonal);font-size:15px;line-height:1;
+}
+.preparatum button:hover{color:var(--eozin)}
+#urlap{
+  border:1px solid var(--vonal);border-radius:12px;background:#fff;
+  padding:8px 8px 8px 14px;
+}
+#urlap:focus-within{border-color:var(--halvany)}
+#szoveg{
+  width:100%;border:0;resize:none;font:inherit;background:none;
+  padding:6px 0;max-height:190px;color:inherit;
+}
+#szoveg:focus{outline:none}
+#szoveg::placeholder{color:var(--halvany);opacity:.65}
+#gombsor{display:flex;align-items:center;gap:7px;margin-top:5px;flex-wrap:wrap}
+.ikon,.modgomb{
+  border:1px solid var(--vonal);background:#fff;border-radius:7px;
+  cursor:pointer;transition:border-color .15s,color .15s,background .15s;
+}
+.ikon{padding:7px 10px;line-height:1;font-size:15px}
+.modgomb{
+  padding:6px 12px;font-family:var(--mono);font-size:10.5px;
+  letter-spacing:.05em;text-transform:uppercase;color:var(--halvany);
+}
+.ikon:hover,.modgomb:hover{border-color:var(--halvany)}
+.modgomb[aria-pressed="true"]{
+  border-color:var(--eozin);color:var(--eozin);background:#FDF4F7;
+}
+#kuld{
+  margin-left:auto;border:0;background:var(--hematoxilin);color:#fff;
+  border-radius:8px;padding:9px 20px;cursor:pointer;font-size:15px;
+  transition:background .15s;
+}
+#kuld:hover:not(:disabled){background:var(--halvany)}
+#kuld:disabled{opacity:.4;cursor:default}
+#sugo{
+  font-family:var(--mono);font-size:10.5px;color:var(--halvany);
+  margin:7px 2px 0;min-height:14px;letter-spacing:.03em;
+}
+#sugo.hiba{color:var(--eozin)}
+
+/* dolgozik-jelző */
+.pulzus{display:inline-block;width:7px;height:7px;border-radius:50%;
+  background:var(--eozin);animation:lktet 1.15s ease-in-out infinite;
+  vertical-align:middle;margin-left:2px}
+@keyframes lktet{0%,100%{opacity:.25;transform:scale(.85)}50%{opacity:1;transform:scale(1)}}
+
+/* ejtő-réteg */
+#ejto{
+  position:fixed;inset:0;background:rgba(251,250,247,.94);z-index:60;
+  display:none;place-items:center;text-align:center;padding:30px;
+}
+#ejto.lat{display:grid}
+#ejto div{border:2px dashed var(--eozin);border-radius:16px;padding:44px 54px}
+#ejto b{display:block;font-size:19px;margin-bottom:5px}
+#ejto span{font-family:var(--mono);font-size:11.5px;color:var(--halvany);letter-spacing:.05em}
+
+#takaro{display:none;position:fixed;inset:0;background:rgba(42,35,82,.28);z-index:40}
+
+@media (max-width:820px){
+  body{font-size:16.5px}
+  #mfej{display:flex}
+  aside{
+    position:fixed;left:0;top:0;bottom:0;z-index:50;
+    transform:translateX(-100%);transition:transform .22s ease;
+    box-shadow:0 0 40px rgba(42,35,82,.13);
+  }
+  aside.nyit{transform:none}
+  #takaro.lat{display:block}
+  .sor{padding:0 16px}
+  #also{padding-left:14px;padding-right:14px}
+  #ures{padding:0 18px;margin-top:34px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <aside id="oldalsav">
+    <header>
+      <h1>Olvasóterem<span>Réka · kutatói asszisztens</span></h1>
+    </header>
+    <button id="uj">+ Új beszélgetés</button>
+    <div id="lista"></div>
+  </aside>
+
+  <main>
+    <div id="mfej">
+      <button id="fiok" aria-label="Beszélgetések">☰</button>
+      <b>Olvasóterem</b>
+    </div>
+    <div id="keret"><i></i></div>
+
+    <div id="szal">
+      <div id="ures">
+        <h2>Szia, kis hercegnő.</h2>
+        <p class="alcim">Amit ide beteszel, azt elolvasom</p>
+        <ul>
+          <li><b>Szakcikk PDF-ben</b><span>A szöveget és az ábrákat is látom — a Figure-öket külön kiszedem. Szkennelt cikknél a képet olvasom.</span></li>
+          <li><b>Gélkép, blot, mikroszkópos felvétel</b><span>Telefonnal is fotózhatod, elfordítva is jó. Megnézem, mit mutat és mit nem.</span></li>
+          <li><b>Mérési adat, táblázat</b><span>CSV, Excel. Statisztikánál a mintaszámot, a kontrollt és a teszt feltételeit is átnézem.</span></li>
+          <li><b>Egy kérdés, ami nem hagy nyugodni</b><span>Melyik kontroll döntené el? Elbírja-e az adat a következtetést?</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div id="also">
+      <div id="doboz">
+        <div id="mellekletek"></div>
+        <div id="urlap">
+          <textarea id="szoveg" rows="1" placeholder="Írj, vagy húzz ide egy fájlt…"></textarea>
+          <div id="gombsor">
+            <button class="ikon" id="fajlgomb" aria-label="Fájl csatolása" title="Fájl csatolása">📎</button>
+            <button class="ikon" id="kameragomb" aria-label="Fotó" title="Fotó" hidden>📷</button>
+            <button class="modgomb" id="nezzutana" aria-pressed="false"
+                    title="Keres a weben, és a talált forrásokra hivatkozva válaszol">Nézz utána</button>
+            <button class="modgomb" id="gondolkodj" aria-pressed="false"
+                    title="Lassabb, de mélyebb elemzés">Gondolkodj rajta alaposan</button>
+            <button class="modgomb" id="utananez" aria-pressed="false"
+                    title="Több körös keresés — percekig tart, közben tudsz mást csinálni">Alapos utánajárás</button>
+            <button id="kuld">Küldés</button>
+          </div>
+        </div>
+        <p id="sugo"></p>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div id="takaro"></div>
+<div id="ejto"><div><b>Engedd el</b><span>PDF · KÉP · TÁBLÁZAT · SZÖVEG</span></div></div>
+
+<input type="file" id="fajl" multiple hidden
+       accept=".pdf,.png,.jpg,.jpeg,.heic,.heif,.webp,.gif,.tif,.tiff,.csv,.tsv,.txt,.md,.docx,.xlsx,.pptx,.json,.fasta">
+<input type="file" id="kamera" accept="image/*" capture="environment" hidden>
+
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script>
+"use strict";
+const $ = s => document.querySelector(s);
+const szal=$("#szal"), lista=$("#lista"), szoveg=$("#szoveg"), kuld=$("#kuld"),
+      sugo=$("#sugo"), mellekletek=$("#mellekletek"), oldalsav=$("#oldalsav"),
+      takaro=$("#takaro"), ejto=$("#ejto"), keret=$("#keret");
+
+let munkamenet = null;      // aktuális session id
+let csatolt = [];           // {file_id, filename, label}
+let dolgozik = false;
+
+/* A markdown-renderelő CDN-ről jön. Ha nem ér ide, ne nyers markdownt
+   lásson Réka — egy szűk tartalék fut helyette. */
+function md(t){
+  if (window.marked?.parse) {
+    return marked.parse(t, {breaks:true, gfm:true});
+  }
+  const esc = s => s.replace(/[&<>]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+  return esc(t)
+    .replace(/```([\s\S]*?)```/g, (m,c)=>`<pre><code>${c.trim()}</code></pre>`)
+    .replace(/`([^`]+)`/g, "<code>$1</code>")
+    .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+    .split(/\n{2,}/).map(p=>`<p>${p.replace(/\n/g,"<br>")}</p>`).join("");
+}
+
+function ejEsc(s){
+  return String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+}
+
+/* ── preparátum-címke: pontosan megmondja, mit lát a modell ── */
+function cimkeHTML(m, torolheto){
+  return `<span class="preparatum">
+    <span class="nev">${ejEsc(m.filename)}</span>
+    <span class="mit">${ejEsc(m.label||"")}</span>
+    ${torolheto ? `<button data-id="${ejEsc(m.file_id)}" aria-label="Melléklet eltávolítása">×</button>` : ""}
+  </span>`;
+}
+
+function rajzolMellekletek(){
+  mellekletek.innerHTML = csatolt.map(m => cimkeHTML(m, true)).join("");
+  mellekletek.querySelectorAll("button").forEach(b => b.onclick = () => {
+    csatolt = csatolt.filter(x => x.file_id !== b.dataset.id);
+    rajzolMellekletek();
+  });
+}
+
+function uresElrejt(){ $("#ures")?.remove(); }
+
+function sorHozzaad(szerep, tartalom, mellek){
+  uresElrejt();
+  const el = document.createElement("div");
+  el.className = "sor " + (szerep === "user" ? "en" : "o");
+  const cimke = szerep === "user" ? "Te" : "Asszisztens";
+  el.innerHTML =
+    `<div class="cimke">${cimke}</div>` +
+    ((mellek||[]).length ? `<div>${mellek.map(m=>cimkeHTML(m,false)).join("")}</div>` : "") +
+    `<div class="buborek"></div>`;
+  const b = el.querySelector(".buborek");
+  if (szerep === "user") b.textContent = tartalom;
+  else b.innerHTML = md(tartalom || "");
+  szal.appendChild(el);
+  gorget();
+  return b;
+}
+
+function gorget(){ szal.scrollTop = szal.scrollHeight; }
+
+function allapot(uzenet, hiba){
+  sugo.textContent = uzenet || "";
+  sugo.classList.toggle("hiba", !!hiba);
+}
+
+/* ── keret-jelző: csak 70% fölött látszik ── */
+function keretJelzo(b){
+  if (!b || b.ratio < 0.7) { keret.style.display = "none"; return; }
+  keret.style.display = "block";
+  keret.firstElementChild.style.width = Math.min(100, b.ratio*100) + "%";
+}
+
+/* Keresési kvóta: a gomb kiszürkül, a chat megy tovább. */
+function keresoJelzo(s){
+  const g = $("#nezzutana");
+  if (!g) return;
+  const elfogyott = !!s?.elfogyott;
+  g.disabled = elfogyott;
+  g.style.opacity = elfogyott ? ".45" : "";
+  g.style.cursor = elfogyott ? "default" : "";
+  g.title = elfogyott
+    ? "A mai keresési keret betelt — holnap újra megy."
+    : "Keres a weben, és a talált forrásokra hivatkozva válaszol";
+  if (elfogyott) g.setAttribute("aria-pressed","false");
+}
+
+/* ── beszélgetéslista ── */
+async function listaBetolt(){
+  try {
+    const r = await fetch("/chat/api/sessions");
+    if (!r.ok) return;
+    const d = await r.json();
+    keretJelzo(d.budget); keresoJelzo(d.search);
+    lista.innerHTML = (d.sessions||[]).map(s => `
+      <button class="tetel" data-id="${ejEsc(s.id)}" ${s.id===munkamenet?'aria-current="true"':""}>
+        ${ejEsc(s.title || "Új beszélgetés")}
+        <time>${new Date(s.updated_at).toLocaleDateString("hu-HU",{month:"short",day:"numeric"})}</time>
+      </button>`).join("");
+    lista.querySelectorAll(".tetel").forEach(b =>
+      b.onclick = () => { munkamenetBetolt(b.dataset.id); fiokZar(); });
+  } catch(e){ /* a lista hiánya ne blokkolja a chatet */ }
+}
+
+async function munkamenetBetolt(id){
+  munkamenet = id;
+  szal.innerHTML = "";
+  try {
+    const r = await fetch("/chat/api/session/" + encodeURIComponent(id));
+    if (!r.ok) throw 0;
+    const d = await r.json();
+    (d.messages||[]).forEach(m => sorHozzaad(m.role, m.content, m.attachments));
+  } catch(e){
+    allapot("Ezt a beszélgetést nem sikerült megnyitni.", true);
+  }
+  listaBetolt();
+}
+
+$("#uj").onclick = () => {
+  munkamenet = null; csatolt = []; rajzolMellekletek();
+  szal.innerHTML = `<div id="ures">
+      <h2>Új beszélgetés</h2>
+      <p class="alcim">Tiszta lap</p></div>`;
+  allapot(""); listaBetolt(); fiokZar(); szoveg.focus();
+};
+
+/* ── fiók (mobil) ── */
+const fiokNyit = () => { oldalsav.classList.add("nyit"); takaro.classList.add("lat"); };
+const fiokZar  = () => { oldalsav.classList.remove("nyit"); takaro.classList.remove("lat"); };
+$("#fiok").onclick = fiokNyit;
+takaro.onclick = fiokZar;
+
+/* ── két mód-gomb ── */
+/* A „Gondolkodj rajta alaposan" és az „Alapos utánajárás" kizárja
+   egymást (más kódút). A „Nézz utána" viszont KOMBINÁLHATÓ a
+   gondolkodással — kereséssel is lehet alaposan gondolkodni. */
+function modKapcsol(gomb, kizarja){
+  gomb.onclick = () => {
+    if (gomb.disabled) return;
+    const be = gomb.getAttribute("aria-pressed") === "true";
+    gomb.setAttribute("aria-pressed", be ? "false" : "true");
+    if (!be) (kizarja||[]).forEach(g => g.setAttribute("aria-pressed","false"));
+  };
+}
+modKapcsol($("#gondolkodj"), [$("#utananez")]);
+modKapcsol($("#utananez"), [$("#gondolkodj"), $("#nezzutana")]);
+modKapcsol($("#nezzutana"), [$("#utananez")]);
+
+/* ── feltöltés ── */
+$("#fajlgomb").onclick = () => $("#fajl").click();
+$("#kameragomb").onclick = () => $("#kamera").click();
+if (matchMedia("(pointer:coarse)").matches) $("#kameragomb").hidden = false;
+
+$("#fajl").onchange = e => felkuld([...e.target.files]).then(()=> e.target.value="");
+$("#kamera").onchange = e => felkuld([...e.target.files]).then(()=> e.target.value="");
+
+async function felkuld(fajlok){
+  for (const f of fajlok){
+    allapot(`Feldolgozom: ${f.name}…`);
+    const fd = new FormData(); fd.append("file", f);
+    try {
+      const r = await fetch("/chat/api/upload", {method:"POST", body:fd});
+      const d = await r.json();
+      if (!r.ok){ allapot(d.error || "A feltöltés nem sikerült.", true); continue; }
+      csatolt.push({file_id:d.file_id, filename:d.filename, label:d.label});
+      rajzolMellekletek();
+      allapot((d.notes||[]).join(" "));
+    } catch(e){
+      allapot(`A(z) ${f.name} feltöltése megszakadt. Próbáld újra.`, true);
+    }
+  }
+}
+
+/* ejtés az egész ablakra */
+let ejtoSzamlalo = 0;
+addEventListener("dragenter", e => { e.preventDefault(); if(++ejtoSzamlalo) ejto.classList.add("lat"); });
+addEventListener("dragover", e => e.preventDefault());
+addEventListener("dragleave", () => { if(--ejtoSzamlalo <= 0){ ejtoSzamlalo=0; ejto.classList.remove("lat"); } });
+addEventListener("drop", e => {
+  e.preventDefault(); ejtoSzamlalo=0; ejto.classList.remove("lat");
+  if (e.dataTransfer?.files?.length) felkuld([...e.dataTransfer.files]);
+});
+
+/* ── küldés ── */
+szoveg.addEventListener("input", () => {
+  szoveg.style.height = "auto";
+  szoveg.style.height = Math.min(szoveg.scrollHeight, 190) + "px";
+});
+szoveg.addEventListener("keydown", e => {
+  if (e.key === "Enter" && !e.shiftKey && !matchMedia("(pointer:coarse)").matches){
+    e.preventDefault(); kuldes();
+  }
+});
+kuld.onclick = kuldes;
+
+async function kuldes(){
+  if (dolgozik) return;
+  const t = szoveg.value.trim();
+  if (!t && !csatolt.length) return;
+
+  const mely = $("#gondolkodj").getAttribute("aria-pressed") === "true";
+  const kutat = $("#utananez").getAttribute("aria-pressed") === "true";
+  const keres = $("#nezzutana").getAttribute("aria-pressed") === "true";
+  const fileIds = csatolt.map(m => m.file_id);
+  const mellek = [...csatolt];
+
+  sorHozzaad("user", t || "(melléklet)", mellek);
+  szoveg.value = ""; szoveg.style.height = "auto";
+  csatolt = []; rajzolMellekletek();
+  dolgozik = true; kuld.disabled = true;
+
+  if (kutat) { await utanajaras(t, fileIds); return; }
+
+  const cel = sorHozzaad("assistant", "");
+  cel.innerHTML = '<span class="pulzus"></span>';
+  allapot(mely ? "Alaposan gondolkodik — ez eltarthat egy percig…" : "Gondolkodik…");
+
+  let szoveggyujto = "";
+  try {
+    const r = await fetch("/chat/api/send", {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({session_id:munkamenet, text:t, file_ids:fileIds,
+                            deep:mely, search:keres})
+    });
+    if (!r.ok || !r.body) throw new Error("A szerver nem válaszolt.");
+
+    const olvaso = r.body.getReader(), dekod = new TextDecoder();
+    let puffer = "";
+    while (true){
+      const {done, value} = await olvaso.read();
+      if (done) break;
+      puffer += dekod.decode(value, {stream:true});
+      const darabok = puffer.split("\n\n");
+      puffer = darabok.pop();
+      for (const d of darabok){
+        const esem = (d.match(/^event: (.+)$/m)||[])[1];
+        const adatSor = (d.match(/^data: (.+)$/m)||[])[1];
+        if (!adatSor) continue;
+        let a; try { a = JSON.parse(adatSor); } catch(e){ continue; }
+
+        if (esem === "session"){ munkamenet = a.id; }
+        else if (esem === "status"){ allapot(a.message); }
+        else if (esem === "search"){
+          if (a.sources?.length){
+            const f = document.createElement("div");
+            f.className = "forrasok";
+            f.innerHTML = "<span>Megnyitott források</span>" + a.sources.map(s =>
+              `<a href="${ejEsc(s.url)}" target="_blank" rel="noopener noreferrer">${ejEsc(s.title||s.url)}</a>`
+            ).join("");
+            cel.parentElement.insertBefore(f, cel);
+          }
+          if (a.note) allapot(a.note);
+        }
+        else if (esem === "model"){
+          allapot(a.fallback ? "A napi keret betelt — takarékos modellel megy tovább."
+                             : (a.deep ? "Alaposan gondolkodik…" : "Gondolkodik…"));
+        }
+        else if (esem === "delta"){
+          szoveggyujto += a.t;
+          cel.innerHTML = md(szoveggyujto);
+          gorget();
+        }
+        else if (esem === "error"){
+          if (!szoveggyujto) cel.innerHTML = "";
+          allapot(a.message, true);
+        }
+        else if (esem === "done"){
+          keretJelzo(a.budget); allapot("");
+        }
+      }
+    }
+    if (!szoveggyujto && !sugo.textContent){
+      cel.innerHTML = "";
+      allapot("A modell üres választ adott. Küldd el újra.", true);
+    }
+  } catch(e){
+    if (!szoveggyujto) cel.innerHTML = "";
+    allapot("Megszakadt a kapcsolat. Az üzeneted megvan — küldd el újra.", true);
+  } finally {
+    dolgozik = false; kuld.disabled = false;
+    $("#gondolkodj").setAttribute("aria-pressed","false");
+    listaBetolt(); gorget();
+  }
+}
+
+/* ── alapos utánajárás: aszinkron, közben lehet mást csinálni ── */
+async function utanajaras(kerdes, fileIds){
+  const cel = sorHozzaad("assistant", "");
+  cel.innerHTML = '<em>Utánajárok — több körben keresek. Ez pár percig tart, közben nyugodtan csinálj mást.</em> <span class="pulzus"></span>';
+  allapot("Kutatás fut…");
+  try {
+    const r = await fetch("/chat/api/deep", {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({session_id:munkamenet, text:kerdes, file_ids:fileIds})
+    });
+    const d = await r.json();
+    if (!r.ok){ cel.innerHTML=""; allapot(d.error || "A kutatás nem indult el.", true); return; }
+
+    const tid = d.task_id;
+    for (let i=0; i<180; i++){
+      await new Promise(s => setTimeout(s, 4000));
+      const p = await fetch("/chat/api/deep/" + encodeURIComponent(tid));
+      if (!p.ok) continue;
+      const q = await p.json();
+      if (q.status === "done"){
+        let sz = q.result;
+        try { const j = JSON.parse(sz); sz = j.synthesis || j.result || j.response || sz; } catch(e){}
+        cel.innerHTML = md(String(sz));
+        allapot(""); gorget(); return;
+      }
+      if (q.status === "failed"){
+        cel.innerHTML = ""; allapot("A kutatás elakadt. Kérdezd meg sima küldéssel.", true); return;
+      }
+    }
+    allapot("A kutatás tovább tart a szokásosnál. Nézz vissza később.", true);
+  } catch(e){
+    cel.innerHTML = ""; allapot("A kutatás megszakadt. Próbáld sima küldéssel.", true);
+  } finally {
+    dolgozik = false; kuld.disabled = false;
+    $("#utananez").setAttribute("aria-pressed","false");
+  }
+}
+
+listaBetolt();
+szoveg.focus();
+</script>
+</body>
+</html>

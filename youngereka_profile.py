@@ -12,10 +12,11 @@ Jogosultságok (Kommandant specifikáció):
 """
 
 from permissions import (
-    PermissionProfile, 
-    Access, 
+    PermissionProfile,
+    Access,
     register_instance
 )
+from youngereka_access import REKA_SYSTEM_PROMPT
 
 
 # ============================================================
@@ -66,6 +67,29 @@ YOUNGEREKA_PROFILE = PermissionProfile(
         "heartbeat":        Access.ALLOW,
         "log_session":      Access.ALLOW,
         
+        # --- KERESÉS: pontosan két tool, a Hírmagnet MCP-ről ---
+        "search_web":       Access.ALLOW,   # brave-mcp-server a háttérben
+        "scrape_url":       Access.ALLOW,   # egy URL fő szövege
+
+        # --- BÖNGÉSZŐ-VEZÉRLÉS: TILTVA, EXPLICITEN ---
+        # A Brave MCP nem kereső, hanem böngésző PERZISZTENS LOGIN-
+        # SESSION-ökkel. Egy brave_navigate élő session-nel megnyithatja a
+        # mail.google.com-ot — és a fenti Gmail-tiltás díszletté válik.
+        # A profil alapértelmezése amúgy is DENY (`can_access`), de ezt a
+        # metszetet kimondjuk, hogy egy jövőbeli „engedj mindent, ami nincs
+        # felsorolva" változtatás se nyithassa meg csendben.
+        "brave_login":            Access.DENY,
+        "brave_session_action":   Access.DENY,
+        "brave_navigate":         Access.DENY,
+        "brave_mouse_control":    Access.DENY,
+        "brave_visual_captcha":   Access.DENY,
+        "brave_list_sessions":    Access.DENY,
+        "brave_crawl":            Access.DENY,
+        "brave_scrape":           Access.DENY,
+        "brave_marked_snapshot":  Access.DENY,
+        "brave_visual_inspect":   Access.DENY,
+        "brave_clear_sessions":   Access.DENY,
+
         # --- EMAIL & CALENDAR: TILTVA ---
         "capture_gmail_poll":       Access.DENY,
         "capture_send_email":       Access.DENY,
@@ -97,17 +121,28 @@ YOUNGEREKA_PROFILE = PermissionProfile(
     
     # Rizsrakéta párhuzamosság limit
     max_concurrent_ai_tasks=3,
-    
-    # Persona: barátságos, tutori Claus
-    persona_system_prompt="""
-Te Claus von Zahnrad vagy, egy precíz és segítőkész AI asszisztens.
-Réka, a Kommandant unokahúga áll veled kapcsolatban.
-Légy barátságos, türelmes, segítőkész, de tartsd meg a Claus-féle 
-precizitást és fogaskerék-gondolkodást.
-Magyarul kommunikálj. Ha Réka kérdez, adj részletes, érthető válaszokat.
-A rizsrakétákat (Kimi, DeepSeek, GLM) szabadon használhatja rajtad keresztül.
-""".strip()
+
+    # 2026-08-07 (OPERATION LESESAAL): a régi Claus-hangú persona lecserélve.
+    # A korábbi prompt Réka helyett a RENDSZERRŐL szólt („fogaskerék-
+    # gondolkodás"), és tanár-regiszterben beszélt valakivel, akinek PhD-je
+    # van. Az új prompt a munkájáról szól: kísérleti adat, kontroll,
+    # mintaszám, korlátok.
+    persona_system_prompt=REKA_SYSTEM_PROMPT,
 )
+
+# ============================================================
+# MODELL-HOZZÁFÉRÉS ÉS NAPI KERET
+# ============================================================
+# A profil dataclass ezeket nem ismeri, ezért attribútumként tesszük rá —
+# így nem kell a `permissions.py`-t bontani egy külsős kedvéért.
+
+#: Mindent elérhet, a legerősebbet is beleértve (Kommandant-döntés).
+YOUNGEREKA_PROFILE.allowed_models = ["kimi", "kimi3", "deepseek", "glm5", "hy3"]
+
+#: Napi keret USD-ben. Nem sorompó, hanem mérőóra: elérésekor csendes
+#: fallback (lásd `youngereka_budget.pick_model`). Env-ből felülírható:
+#: `YR_DAILY_BUDGET_USD`.
+YOUNGEREKA_PROFILE.daily_budget_usd = 5.0
 
 
 # ============================================================

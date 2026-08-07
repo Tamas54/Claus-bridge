@@ -45,6 +45,10 @@ from permissions import (
 )
 from youngereka_profile import register_youngereka
 
+# OPERATION LESESAAL — Réka token-alapú hozzáférése (chat + scoped MCP).
+# A token az URL path-ban ül, a hívó modell nem látja és nem hamisíthatja.
+from youngereka_access import YRScopeMiddleware
+
 # Echolot — multi-sphere news context (separate Railway instance, REST)
 try:
     import _echolot_client as echolot_client
@@ -2348,7 +2352,11 @@ async def api_delphoi_report(request):
 # ============================================================
 
 SILICONFLOW_API_KEY = os.environ.get("SILICONFLOW_API_KEY", "")
-SILICONFLOW_BASE_URL = "https://api.siliconflow.com/v1"
+# Env-ből felülírható, hogy a chat-út a szolgáltató nélkül is végigmérhető
+# legyen (füstpróba hamis végponttal), és hogy egy szolgáltató-váltás ne
+# igényeljen kódmódosítást. Alapértelmezés változatlan.
+SILICONFLOW_BASE_URL = os.environ.get(
+    "SILICONFLOW_BASE_URL", "https://api.siliconflow.com/v1")
 SILICONFLOW_TIMEOUT = 360  # 2026-05-11: 220→360s; the statdata_macro 3-step
                             # brave_search fallback chain pushes DeepSeek V4-Pro
                             # reasoner-mode tool-use loop past the old limit.
@@ -8788,6 +8796,24 @@ _start_telegram_polling()
 register_youngereka()
 logger.info("Permission profiles registered: YoungeReka")
 
+# OPERATION LESESAAL — Réka chat-felülete a /chat úton.
+# A bekötés hibája NEM viheti el a Bridge indulását: ha ez elszáll, a
+# többi instance-nak működnie kell tovább.
+try:
+    import youngereka_chat
+    youngereka_chat.install(
+        mcp,
+        get_db=get_db,
+        api_key=SILICONFLOW_API_KEY,
+        base_url=SILICONFLOW_BASE_URL,
+        models=SILICONFLOW_MODELS,
+        upload_dir=UPLOAD_DIR,
+        ai_task_fn=ai_task,
+    )
+except Exception as _yr_e:  # noqa: BLE001
+    logger.error("YoungeReka chat-felület bekötése bukott (a Bridge megy "
+                 "tovább): %s", _yr_e, exc_info=True)
+
 # Initialize Feldwebel
 if FELDWEBEL_ENABLED:
     # Inject ALL tool functions into capture_state for Feldwebel access
@@ -9374,8 +9400,12 @@ def _start_startup_watchdog(port: int, timeout_sec: int = 180):
 if __name__ == "__main__":
     _bridge_port = int(os.environ.get("PORT", 8003))
     _start_startup_watchdog(_bridge_port)
+    from starlette.middleware import Middleware
     mcp.run(
         transport="streamable-http",
         host="0.0.0.0",
-        port=_bridge_port
+        port=_bridge_port,
+        # `/mcp/yr-{token}` → `/mcp`, a caller a tokenből erőltetve (task #24).
+        # A `middleware=` a FastMCP hivatalos horga, az indítási út változatlan.
+        middleware=[Middleware(YRScopeMiddleware)],
     )
