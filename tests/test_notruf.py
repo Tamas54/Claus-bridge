@@ -175,7 +175,34 @@ ok("bizonytalan" in leiras and "kérdezd meg" in leiras,
 ok("fogadd el" in leiras, "3: …és a nemet elfogadja")
 ok(not vesz["pin"], "a vészjelzéshez NEM kell PIN")
 
-conn.close()
+
+szakasz("TESZT-jelölés — csak a Telegramon")
+
+kuldott.clear()
+os.environ["NOTRUF_TESZT"] = "1"
+r = asyncio.run(notruf.send(conn, "YoungeReka", "Réka", "tamas", "próba",
+                            telegram_push=_push_ok, event=chat.event))
+ok("[TESZT]" in kuldott[-1], "a Telegram-üzenet MEG VAN jelölve")
+ok("EZ PRÓBA" in kuldott[-1], "…és megmondja, hogyan kapcsolható ki")
+ok("[TESZT]" not in r["uzenet"],
+   "a FELHASZNÁLÓ felé menő szöveg VÁLTOZATLAN (ott nem segítene)")
+sor = conn.execute("SELECT detail FROM chat_events WHERE kind='notruf_sent' "
+                   "ORDER BY created_at DESC LIMIT 1").fetchone()
+ok("TESZT" not in (sor["detail"] or ""), "…és a napló is változatlan")
+
+del os.environ["NOTRUF_TESZT"]
+r = asyncio.run(notruf.send(conn, "YoungeReka", "Réka", "tamas", "éles",
+                            telegram_push=_push_ok, event=chat.event))
+ok("[TESZT]" not in kuldott[-1], "kikapcsolva NINCS jelölés")
+ok("🚨" in kuldott[-1], "…és visszajön az éles jel")
+
+for ertek in ("0", "", "nem", "false"):
+    os.environ["NOTRUF_TESZT"] = ertek
+    asyncio.run(notruf.send(conn, "YoungeReka", "Réka", "tamas", "",
+                            telegram_push=_push_ok, event=chat.event))
+    ok("[TESZT]" not in kuldott[-1], f"NOTRUF_TESZT={ertek!r} → ÉLES (fail-safe)")
+os.environ.pop("NOTRUF_TESZT", None)
+
 
 szakasz("Telefonszám — koppintható")
 
@@ -198,6 +225,8 @@ ok("tel:" not in r["uzenet"].split("Ha most kell")[0],
    "szám nélkül NEM hazudik számot")
 ok("telefonon" in r["uzenet"], "…hanem szám nélkül irányít")
 
+
+conn.close()
 
 szakasz("MARKER-SZIVÁRGÁS — amit a felhasználó SOHA nem láthat")
 

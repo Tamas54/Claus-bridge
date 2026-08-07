@@ -118,8 +118,21 @@ async def send(conn, instance: str, display_name: str, cimzett: str,
     mikor = datetime.now(timezone.utc)
     ora = mikor.strftime("%H:%M")
 
+    # TESZT-JELÖLÉS — csak a Telegram-üzenetben.
+    #
+    # Riasztás-fásulás ellen: ha a teszt-jelzések ugyanúgy néznek ki, mint
+    # az élesek, egy nap félvállról veszed az igazit. A jelölés CSAK a
+    # push-ba kerül (Kommandant, 2026-08-07: „csak a telegramra kell") —
+    # a napló és a felhasználó felé menő szöveg változatlan, mert ott a
+    # megkülönböztetés nem segít, viszont zajt csinálna.
+    teszt = (os.environ.get("NOTRUF_TESZT") or "").strip().lower() in (
+        "1", "true", "igen", "yes")
+
     # A jelzés törzse. A beszélgetésből SEMMI — csak amit ő maga írt.
-    torzs = (f"🚨 VÉSZJELZÉS — {display_name} — {ora}\n\n")
+    torzs = ("⚠️ [TESZT] " if teszt else "🚨 ") + f"VÉSZJELZÉS — {display_name} — {ora}\n\n"
+    if teszt:
+        torzs += ("EZ PRÓBA — a NOTRUF_TESZT be van kapcsolva a szerveren. "
+                  "Ha ezt éles jelzésnek hitted volna, kapcsold ki.\n\n")
     if (kisero or "").strip():
         torzs += f"Üzenete:\n„{kisero.strip()[:1500]}”\n\n"
     else:
