@@ -116,7 +116,15 @@ def resolve_instance_from_path(token: str, staff: bool = True) -> str | None:
 
 
 #: Amit a hívó magáról állíthatna. Mindet felülírjuk.
-_IDENTITY_FIELDS = ("caller", "instance", "assigned_by", "sender",
+#
+# FIGYELEM: a puszta `instance` NINCS a listán, és ez szándékos.
+# Több tool (family_chat, family_presence, oversight_open) `instance`
+# néven a CÉLT nevezi meg, nem a hívót — a felülírás kilőné a saját
+# paraméterüket. (2026-08-07: az `oversight_open(instance="YoungeReka")`
+# emiatt „kommandant"-ra nyitott ablakot, és a nyitott ablakos olvasás
+# némán elbukott.) Az identitás-hamisítás ellen a `caller`, a
+# `sender`, az `assigned_by` és az `instance_id` felülírása véd.
+_IDENTITY_FIELDS = ("caller", "assigned_by", "sender",
                     "uploaded_by", "updated_by", "instance_id")
 
 

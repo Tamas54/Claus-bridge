@@ -72,6 +72,16 @@ ok(javitott["params"]["arguments"][AUTH_FIELD] == AUTH_NONCE,
    "…mert a force_caller beírta a folyamat-jelölőt")
 ok(len(AUTH_NONCE) >= 32, f"a jelölő elég hosszú ({len(AUTH_NONCE)} karakter)")
 
+# A tool SAJÁT `instance` paramétere NEM eshet áldozatul: több tool
+# `instance` néven a CÉLT nevezi meg, nem a hívót.
+cel = {"method": "tools/call", "params": {"name": "oversight_open",
+       "arguments": {"caller": "web-claus", "instance": "YoungeReka",
+                     "reason": "teszt"}}}
+ok(force_caller(cel, "kommandant")["params"]["arguments"]["instance"] == "YoungeReka",
+   "a tool `instance` CÉL-paramétere ÉRINTETLEN marad")
+ok(force_caller(cel, "kommandant")["params"]["arguments"]["caller"] == "kommandant",
+   "…miközben a caller felülíródik")
+
 # A hívó által BEÍRT auth mezőt is felülírja
 sajat = {"method": "tools/call", "params": {"name": "family_chat",
          "arguments": {"caller": "web-claus", "auth": "sajat-tipp"}}}

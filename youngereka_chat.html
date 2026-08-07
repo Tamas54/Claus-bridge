@@ -513,12 +513,23 @@ takaro.onclick = fiokZar;
 /* A „Gondolkodj rajta alaposan" és az „Alapos utánajárás" kizárja
    egymást (más kódút). A „Nézz utána" viszont KOMBINÁLHATÓ a
    gondolkodással — kereséssel is lehet alaposan gondolkodni. */
+function nyomva(id){
+  const g = $(id);
+  return !!g && g.getAttribute("aria-pressed") === "true";
+}
+
+function kikapcsol(id){
+  const g = $(id);
+  if (g) g.setAttribute("aria-pressed","false");
+}
+
 function modKapcsol(gomb, kizarja){
+  if (!gomb) return;
   gomb.onclick = () => {
     if (gomb.disabled) return;
     const be = gomb.getAttribute("aria-pressed") === "true";
     gomb.setAttribute("aria-pressed", be ? "false" : "true");
-    if (!be) (kizarja||[]).forEach(g => g.setAttribute("aria-pressed","false"));
+    if (!be) (kizarja||[]).forEach(g => { if (g) g.setAttribute("aria-pressed","false"); });
   };
 }
 modKapcsol($("#gondolkodj"), [$("#utananez")]);
@@ -573,13 +584,29 @@ szoveg.addEventListener("keydown", e => {
 kuld.onclick = kuldes;
 
 async function kuldes(){
+  try { await _kuldes(); }
+  catch(e){
+    // Néma halál helyett látható mondat. Ha ide jutunk, az kódhiba —
+    // de ne egy nem reagáló gombot lásson a felhasználó.
+    dolgozik = false; kuld.disabled = false;
+    allapot("Elakadtam a küldésnél (" + (e && e.message ? e.message : e)
+            + "). Próbáld újra, és ha megint elakad, szólj annak, akitől "
+            + "a linket kaptad.", true);
+  }
+}
+
+async function _kuldes(){
   if (dolgozik) return;
   const t = szoveg.value.trim();
   if (!t && !csatolt.length) return;
 
-  const mely = $("#gondolkodj").getAttribute("aria-pressed") === "true";
-  const kutat = $("#utananez").getAttribute("aria-pressed") === "true";
-  const keres = $("#nezzutana").getAttribute("aria-pressed") === "true";
+  // A profil eltávolíthat gombokat, ezért minden gomb-lekérdezés
+  // NULL-BIZTOS. Enélkül a hiányzó gomb kivételt dobott, és a küldés
+  // némán meghalt, MIELŐTT az üzenet megjelent volna — a felhasználó
+  // annyit látott, hogy a Küldés nem csinál semmit. (Élesben, 2026-08-07.)
+  const mely = nyomva("#gondolkodj");
+  const kutat = nyomva("#utananez");
+  const keres = nyomva("#nezzutana");
   const fileIds = csatolt.map(m => m.file_id);
   const mellek = [...csatolt];
 
@@ -658,7 +685,7 @@ async function kuldes(){
     allapot("Megszakadt a kapcsolat. Az üzeneted megvan — küldd el újra.", true);
   } finally {
     dolgozik = false; kuld.disabled = false;
-    $("#gondolkodj").setAttribute("aria-pressed","false");
+    kikapcsol("#gondolkodj");
     listaBetolt(); gorget();
   }
 }
@@ -697,7 +724,7 @@ async function utanajaras(kerdes, fileIds){
     cel.innerHTML = ""; allapot("A kutatás megszakadt. Próbáld sima küldéssel.", true);
   } finally {
     dolgozik = false; kuld.disabled = false;
-    $("#utananez").setAttribute("aria-pressed","false");
+    kikapcsol("#utananez");
   }
 }
 
