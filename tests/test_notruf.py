@@ -272,7 +272,13 @@ import symtable   # noqa: E402
 src = (ROOT / "youngereka_chat.py").read_text(encoding="utf-8")
 st = symtable.symtable(src, "youngereka_chat.py", "exec")
 MODUL = {sym.get_name() for sym in st.get_symbols()}
-BEEPITETT = set(dir(__builtins__)) | {"__import__", "self"}
+# `builtins` modul, NEM `__builtins__`: főmodulként az utóbbi a modul (és
+# `dir()` a beépített neveket adja), IMPORTÁLVA viszont egy dict — ott
+# `dir()` a dict metódusait adja vissza, tehát az `int`, a `set` és a
+# `ValueError` "ismeretlen globálisnak" látszott. A vizsgálat így
+# szkriptként zöld volt, pytest alatt piros — ugyanarra a kódra.
+import builtins  # noqa: E402
+BEEPITETT = set(dir(builtins)) | {"__import__", "self"}
 
 
 def _fak(t):
@@ -297,10 +303,28 @@ sig = inspect.signature(chat._tool_kor)
 ok("instance" in sig.parameters, "a _tool_kor MEGKAPJA az instance-t")
 
 
-print("\n" + "═" * 60)
-if hibak:
-    print(f"PIROS — {len(hibak)} bukás:")
-    for h in hibak:
-        print("   ·", h)
-    sys.exit(1)
-print("MIND ZÖLD — a vészjelző szól, és nem visz magával semmit.")
+# A fájl szkriptként született: import közben lefuttat mindent, és a végén
+# `sys.exit(1)`-gyel jelez. Pytest alatt ez INTERNALERROR volt — nem egy
+# bukott teszt, hanem a TELJES SVIT GYŰJTÉSÉNEK megállítása, tehát egyetlen
+# fájl elrejtette az összes többit. Innentől mindkét módon működik:
+# `python tests/test_notruf.py` továbbra is kilépési kóddal jelez, a pytest
+# pedig egy rendes tesztet lát.
+
+def test_notruf_ellenorzesek():
+    """A fenti ellenőrzések import közben lefutottak; itt csak az ítélet."""
+    assert hibak == [], "NOTRUF-bukások: " + "; ".join(hibak)
+
+
+def _osszegzes() -> int:
+    print("\n" + "═" * 60)
+    if hibak:
+        print(f"PIROS — {len(hibak)} bukás:")
+        for h in hibak:
+            print("   ·", h)
+        return 1
+    print("MIND ZÖLD — a vészjelző szól, és nem visz magával semmit.")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(_osszegzes())

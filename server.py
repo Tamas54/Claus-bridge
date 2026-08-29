@@ -7126,6 +7126,16 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
                     agent_tasks=parsed_agent_tasks,
                     task_title=title,
                     call_agent_func=_call_agent,
+                    # ESZKÖZ A DISPATCH-ÚTON IS (Kommandant-követelmény,
+                    # 2026-08-24). Eddig ez a hívás eszköz NÉLKÜLI volt: a
+                    # keresésre utasított agent nem tudott keresni, és a
+                    # modell kiírta a tool-hívást SZÖVEGKÉNT — ez volt a
+                    # 395-ös incidens gyökere (kitalált adat, hamis forrás).
+                    # Ugyanaz a hurok, amit a broadcast és a szintézis is
+                    # használ; a dispatcher feladatonként kikapcsolhatóvá
+                    # teszi (`use_tools: False`), és kiírt-de-nem-futott
+                    # hívásnál a futást HIBÁSNAK jelöli a válasz helyett.
+                    run_with_tools_func=_run_agent_with_tools,
                 ))
                 # Store results in DB
                 conn2 = get_db()

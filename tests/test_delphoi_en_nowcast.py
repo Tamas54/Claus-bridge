@@ -85,6 +85,19 @@ def test_en_anchor_set_resolves_without_hu_fallback():
     assert delphoi._anchor_set("price", "en") == ssr.REFERENCE_SETS_PRICE["EN"]
 
 
+# A seed IGAZSÁGFORRÁSA a plugins/delphoi._SEED_ENTITIES. A tesztek korábban
+# beégették a hármat (keir-starmer / nigel-farage / Q22686); amikor a
+# Kommandant 2026-07-21-én felvette Andy Burnhamet, a seed nőtt, a tesztek
+# nem — és mindhárom UK/US teszt elbukott, pedig a KÓD volt helyes.
+# Ezért innentől a listát a forrásból SZÁRMAZTATJUK: egy ötödik entitás
+# felvétele nem bukhat el itt.
+def _seeded_en_keys() -> set[str]:
+    return {
+        row[0] for row in delphoi._SEED_ENTITIES
+        if row[1] in ("UK", "US")
+    }
+
+
 # ── B) flip a seedben + UK életciklus + US prefix-izoláció ─────────────────
 
 def test_uk_us_seed_enabled(en_db):
@@ -93,7 +106,7 @@ def test_uk_us_seed_enabled(en_db):
         "SELECT entity_key, enabled FROM delphoi_entity_nowcast "
         "WHERE country IN ('UK','US')")}
     conn.close()
-    assert rows == {"keir-starmer": 1, "nigel-farage": 1, "Q22686": 1}
+    assert rows == {key: 1 for key in _seeded_en_keys()}
 
 
 def test_uk_nowcast_lifecycle_uses_en_question(en_db):
@@ -136,16 +149,17 @@ def test_first_run_script_flip_idempotent(en_db):
     conn = en_db()
     # prod-szimuláció: a meglévő DB-sorok még enabled=0-val állnak
     conn.execute("UPDATE delphoi_entity_nowcast SET enabled=0 "
-                 "WHERE entity_key IN ('keir-starmer','nigel-farage','Q22686')")
+                 "WHERE entity_key IN ({})".format(
+                     ",".join("'%s'" % k for k, _ in first_run.NEW_ENTITIES)))
     conn.commit()
     flipped = first_run.flip_enabled(conn)
-    assert sorted(flipped) == ["Q22686", "keir-starmer", "nigel-farage"]
+    assert sorted(flipped) == sorted(k for k, _ in first_run.NEW_ENTITIES)
     assert first_run.flip_enabled(conn) == []          # idempotens
     enabled = {r["entity_key"] for r in conn.execute(
         "SELECT entity_key FROM delphoi_entity_nowcast WHERE enabled=1 "
         "AND country IN ('UK','US')")}
     conn.close()
-    assert enabled == {"keir-starmer", "nigel-farage", "Q22686"}
+    assert enabled == {k for k, _ in first_run.NEW_ENTITIES}
 
 
 def test_first_run_script_skips_already_chained(en_db, capsys):
@@ -157,7 +171,9 @@ def test_first_run_script_skips_already_chained(en_db, capsys):
     results = asyncio.run(first_run.first_runs({"get_db": en_db}))
     assert results == []
     out = capsys.readouterr().out
-    assert out.count("SKIP") == 3
+    # Szintén a forrásból, nem beégetve: ahány entitást a szkript ismer,
+    # annyi SKIP-nek kell lennie.
+    assert out.count("SKIP") == len(first_run.NEW_ENTITIES)
 
 
 def test_first_run_script_preflight_reports_corpus(en_db):
@@ -166,3 +182,17 @@ def test_first_run_script_preflight_reports_corpus(en_db):
     assert pf["entities"]["keir-starmer"]["corpus_ok"] is True     # uk_ hírek élnek
     assert pf["entities"]["Q22686"]["corpus_ok"] is False          # us_ forrás nincs
     assert pf["entities"]["nigel-farage"]["source_prefixes"] == ["uk_"]
+
+
+def test_a_ket_entitas_lista_nem_csuszhat_szet():
+    """`delphoi._SEED_ENTITIES` (UK/US része) és `first_run.NEW_ENTITIES` két
+    külön lista, és egyeznie KELL: a seed viszi be a sorokat, a szkript
+    flippeli őket enabled=1-re. Ha csak az egyikbe kerül be egy új entitás,
+    az vagy sosem kap első futást, vagy egy nem létező sorra próbál flippelni
+    — mindkettő némán.
+
+    Ez a teszt egy VALÓDI leletből született: az `andy-burnham` felvétele
+    (Kommandant, 2026-07-21) MINDKÉT listába bekerült, de a tesztek beégetve
+    hármat vártak, és hetekig pirosan álltak. A robusztusság-próba során
+    kiderült, hogy a két lista összekötése hiányzik."""
+    assert _seeded_en_keys() == {key for key, _ in first_run.NEW_ENTITIES}

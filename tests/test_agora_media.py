@@ -159,7 +159,16 @@ def test_kartograph_regional_chart():
     }
     png, alt = ch.kartograph_regional_chart(regional, "ukrajnai tűzszünet", "hu")
     assert png and png[:4] == b"\x89PNG"
-    assert "regional_framing" in alt and len(alt) >= 10
+    # Az alt EMBERNEK szól, nem a rendszernek. A korábbi sor azt követelte,
+    # hogy tartalmazza a `regional_framing` belső azonosítót — ez szemben állt
+    # a két sorral lejjebb futó tartalmi guarddal, ami pont az ilyen belső
+    # azonosítókat tiltja (_INTERNAL_ID_RE). A két állítás egyszerre nem
+    # teljesülhetett; a kód a helyes, a követelmény volt elavult.
+    assert len(alt) >= 40, alt
+    assert "ukrajnai tűzszünet" in alt, "az alt nem nevezi meg a témát"
+    assert "Echolot" in alt, "az alt nem nevezi meg az adatforrást"
+    # és NEM szivárogtat belső azonosítót — ez az, amit a guard is mér
+    assert "regional_framing" not in alt
     # az alt átmegy a tartalmi guardon (a media_guard is ezt futtatja)
     ok, why, _ = content_guard(alt, "")
     assert ok, f"alt guard-bukás: {why}"
