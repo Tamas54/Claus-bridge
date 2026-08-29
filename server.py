@@ -80,6 +80,14 @@ except ImportError:
 BRAVE_MCP_URL = os.getenv("BRAVE_MCP_URL", "").strip()
 BRAVE_MCP_ENABLED = bool(BRAVE_MCP_URL)
 
+# SearXNG — self-hosted metasearch (own Railway instance, JSON API).
+# Sits between brave-mcp and the DDG-html scrape in `_web_search`. Measured from
+# the Railway egress IP, one call answers from brave + google cse + bing + qwant
+# (duckduckgo and startpage CAPTCHA there and get suspended), and being ours it
+# never throttles us the way the DDG-html endpoint does (the 202 anti-burst).
+SEARXNG_URL = os.getenv("SEARXNG_URL", "").strip().rstrip("/")
+SEARXNG_ENABLED = bool(SEARXNG_URL)
+
 # Feldwebel — Telegram command system + smart triage + briefing
 try:
     from feldwebel import init_feldwebel, BridgeContext
@@ -3927,7 +3935,7 @@ WEB_SEARCH_TOOL_DEF = {
     "function": {
         "name": "web_search",
         "description": (
-            "Deep-research web search via DuckDuckGo (+ Brave fallback). Use for "
+            "Deep-research web search (brave-mcp → SearXNG → DuckDuckGo chain). Use for "
             "detailed sourcing, statistics, fact-checking, long-form articles, "
             "anything needing depth. Returns a list of result snippets with URLs."
         ),
@@ -5504,6 +5512,68 @@ async def _brave_search(query: str, api_key: str) -> list:
         return []
 
 
+async def _searxng_search(query: str, limit: int = 5) -> list:
+    """Self-hosted SearXNG JSON API. Returns [{title, url, snippet}], possibly empty.
+
+    Never raises: a dead SearXNG must degrade to the next tier, not kill the search.
+    """
+    if not SEARXNG_ENABLED:
+        return []
+    import httpx
+    try:
+        async with httpx.AsyncClient(timeout=20, follow_redirects=True) as client:
+            r = await client.get(
+                f"{SEARXNG_URL}/search",
+                params={"q": query, "format": "json"},
+                headers={"User-Agent": "claus-bridge/1.0", "Accept": "application/json"},
+            )
+        if r.status_code != 200:
+            logger.warning("SearXNG status %d for %r: %s",
+                           r.status_code, query[:60], r.text[:200])
+            return []
+        results = []
+        for item in (r.json().get("results") or []):
+            url = (item.get("url") or "").strip()
+            if not url:
+                continue
+            results.append({
+                "title": (item.get("title") or "").strip(),
+                "url": url,
+                "snippet": (item.get("content") or "").strip(),
+            })
+            if len(results) >= limit:
+                break
+        logger.info("SearXNG search %r -> %d results", query[:60], len(results))
+        return results
+    except Exception as e:
+        logger.warning("SearXNG failed for %r: %s: %s", query[:60], type(e).__name__, e)
+        return []
+
+
+async def _fetch_page_contents(urls: list, limit: int = 2) -> list:
+    """De-tagged body text of the first `limit` candidate URLs — the deep half of
+    a web search. Shared by the SearXNG and DDG tiers."""
+    import httpx, re, random
+    page_contents = []
+    for url in urls[:limit]:
+        if not url or not url.startswith("http"):
+            continue
+        try:
+            async with httpx.AsyncClient(timeout=10, follow_redirects=True) as client:
+                resp = await client.get(url, headers={"User-Agent": random.choice(DDG_USER_AGENTS)})
+            text = resp.text
+            text = re.sub(r'<script[^>]*>.*?</script>', '', text, flags=re.DOTALL)
+            text = re.sub(r'<style[^>]*>.*?</style>', '', text, flags=re.DOTALL)
+            text = re.sub(r'<[^>]+>', ' ', text)
+            text = re.sub(r'\s+', ' ', text).strip()
+            if len(text) > 200:
+                page_contents.append(f"[Forrás: {url[:80]}]\n{text[:2000]}")
+                logger.info("Page fetched: %s (%d chars)", url[:60], len(text))
+        except Exception as e:
+            logger.debug("Page fetch failed %s: %s", url[:40], e)
+    return page_contents
+
+
 # ── Brave-MCP-server (Tamas54/brave-mcp-server) — generic Bridge layer ──────
 async def _brave_mcp_call(tool_name: str, arguments: dict, timeout: float = 60.0) -> dict | None:
     """Call brave-mcp-server JSON-RPC `tools/call`. Returns parsed result dict or None.
@@ -5619,7 +5689,28 @@ async def _web_search(query: str) -> str:
             _web_search_cache_put(query, output)
             logger.info("brave-mcp-search %r → %d results", query[:60], len(brave_mcp_results))
             return output
-        logger.info("brave-mcp-search %r empty/failed, falling back to DDG-html", query[:60])
+        logger.info("brave-mcp-search %r empty/failed, falling back to SearXNG", query[:60])
+
+    # Tier 2: our own SearXNG. Multi-engine aggregation in a single call and no
+    # anti-bot throttle against us, so it runs *before* the DDG-html tier rather
+    # than after it. Produces the same shape as the DDG path (snippets + deep
+    # page fetch) so downstream agents see no difference.
+    if SEARXNG_ENABLED:
+        searx_hits = await _searxng_search(query, limit=5)
+        if searx_hits:
+            urls = [h["url"] for h in searx_hits]
+            search_results = [
+                f"[{i+1}] {h['title']}\n    {h['snippet']}"
+                for i, h in enumerate(searx_hits)
+            ]
+            page_contents = await _fetch_page_contents(urls)
+            output = "KERESÉSI TALÁLATOK:\n" + "\n".join(search_results)
+            if page_contents:
+                output += "\n\nRÉSZLETES TARTALOM:\n" + "\n\n".join(page_contents)
+            output = _stamp_fetched_at(output)
+            _web_search_cache_put(query, output)
+            return output
+        logger.info("SearXNG %r empty/failed, falling back to DDG-html", query[:60])
 
     brave_key = os.environ.get("BRAVE_SEARCH_API_KEY", "").strip()
 
@@ -5709,28 +5800,16 @@ async def _web_search(query: str) -> str:
                 ]
 
         if not search_results:
-            failure_msg = f"No results found. (DDG status={ddg_status}, anomaly={ddg_anomaly}, Brave={'configured' if brave_key else 'not configured'})"
+            failure_msg = (
+                f"No results found. (SearXNG={'configured' if SEARXNG_ENABLED else 'not configured'}, "
+                f"DDG status={ddg_status}, anomaly={ddg_anomaly}, "
+                f"Brave={'configured' if brave_key else 'not configured'})"
+            )
             _web_search_cache_put(query, failure_msg)  # cache failures briefly to avoid retry-storms
             return failure_msg
 
         # Step 3: Fetch top 2 page contents for deeper data
-        page_contents = []
-        for url in urls[:2]:
-            if not url or not url.startswith("http"):
-                continue
-            try:
-                async with httpx.AsyncClient(timeout=10, follow_redirects=True) as client:
-                    resp = await client.get(url, headers={"User-Agent": random.choice(DDG_USER_AGENTS)})
-                text = resp.text
-                text = re.sub(r'<script[^>]*>.*?</script>', '', text, flags=re.DOTALL)
-                text = re.sub(r'<style[^>]*>.*?</style>', '', text, flags=re.DOTALL)
-                text = re.sub(r'<[^>]+>', ' ', text)
-                text = re.sub(r'\s+', ' ', text).strip()
-                if len(text) > 200:
-                    page_contents.append(f"[Forrás: {url[:80]}]\n{text[:2000]}")
-                    logger.info("Page fetched: %s (%d chars)", url[:60], len(text))
-            except Exception as e:
-                logger.debug("Page fetch failed %s: %s", url[:40], e)
+        page_contents = await _fetch_page_contents(urls)
 
         output = "KERESÉSI TALÁLATOK:\n" + "\n".join(search_results)
         if page_contents:
@@ -5743,7 +5822,7 @@ async def _web_search(query: str) -> str:
 
 @mcp.tool()
 async def debug_web_search(query: str, caller: str = "") -> str:
-    """Diagnostic web_search probe — runs the same DDG (+ Brave fallback) flow as
+    """Diagnostic web_search probe — runs the same DDG (+ SearXNG + Brave) flow as
     the production agents but returns raw HTTP metrics in JSON instead of
     pre-digested search results. Use to diagnose IP-blocks, rate-limits, or
     regex failures without needing Railway runtime logs.
@@ -5751,6 +5830,7 @@ async def debug_web_search(query: str, caller: str = "") -> str:
     Returns a JSON object with:
       - ddg.status, ddg.body_len, ddg.anomaly_signal, ddg.results_count
       - ddg.first_titles, ddg.user_agent_used, ddg.headers_subset
+      - searxng.status, searxng.results_count, searxng.engines, searxng.elapsed_ms
       - brave.attempted, brave.status, brave.results_count (if BRAVE_SEARCH_API_KEY set)
       - elapsed_ms, query
     """
@@ -5809,6 +5889,34 @@ async def debug_web_search(query: str, caller: str = "") -> str:
         }
     except Exception as e:
         out["ddg"] = {"exception": f"{type(e).__name__}: {e}"}
+
+    # SearXNG probed unconditionally: a dead instance must be visible here even
+    # while DDG happens to be healthy, otherwise the outage only surfaces on the
+    # day DDG throttles us.
+    if not SEARXNG_ENABLED:
+        out["searxng"] = {"attempted": False, "status_msg": "SEARXNG_URL not set"}
+    else:
+        t_sx = time.time()
+        try:
+            async with httpx.AsyncClient(timeout=20, follow_redirects=True) as client:
+                r = await client.get(
+                    f"{SEARXNG_URL}/search",
+                    params={"q": query, "format": "json"},
+                    headers={"User-Agent": "claus-bridge/1.0", "Accept": "application/json"},
+                )
+            sx = {"attempted": True, "url": SEARXNG_URL, "status": r.status_code,
+                  "elapsed_ms": int((time.time() - t_sx) * 1000)}
+            if r.status_code == 200:
+                items = r.json().get("results") or []
+                sx["results_count"] = len(items)
+                sx["first_titles"] = [(it.get("title") or "")[:120] for it in items[:3]]
+                sx["engines"] = sorted({e for it in items[:10] for e in (it.get("engines") or [])})
+            else:
+                sx["body_first_200"] = r.text[:200]
+            out["searxng"] = sx
+        except Exception as e:
+            out["searxng"] = {"attempted": True, "url": SEARXNG_URL,
+                              "exception": f"{type(e).__name__}: {e}"}
 
     # Brave fallback if DDG failed and key configured
     brave_key = os.environ.get("BRAVE_SEARCH_API_KEY", "").strip()

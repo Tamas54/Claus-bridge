@@ -92,7 +92,7 @@ TOOLS = [
         "name": "web_fetch", "description": "Statikus weboldal HTML-tartalmának letöltése URL alapján (HTML strippelve, 6000 karakterig). Gyors és olcsó. JS-rendered SPA-knál (Eurostat newsroom, MNB-honlap) használj `web_scrape`-et.",
         "parameters": {"type": "object", "properties": {"url": {"type": "string", "description": "A letöltendő URL"}}, "required": ["url"]}}},
     {"type": "function", "function": {
-        "name": "web_search", "description": "Web-keresés (Brave Search engine + DDG fallback). Akkor jó, ha friss adatra (Eurostat flash, MNB-közlemény, ECB döntés), részletes forrásokra, vagy nem-hír jellegű információra van szükség. Visszaad cím + URL + leírás találatokat.",
+        "name": "web_search", "description": "Web-keresés (brave-mcp → saját SearXNG → DDG lánc). Akkor jó, ha friss adatra (Eurostat flash, MNB-közlemény, ECB döntés), részletes forrásokra, vagy nem-hír jellegű információra van szükség. Visszaad cím + URL + leírás találatokat.",
         "parameters": {"type": "object", "properties": {"query": {"type": "string", "description": "Keresési kifejezés"}}, "required": ["query"]}}},
     {"type": "function", "function": {
         "name": "web_scrape", "description": "JS-rendered weboldal teljes markdown-tartalma (headless Brave-böngészőn, Puppeteer-rel). ERŐSEBB mint web_fetch — kezeli a JavaScript-rendelt SPA-kat (Eurostat newsroom, MNB-honlap, ECB press release-ek). Tipikus minta: web_search → talált URL → web_scrape.",
@@ -251,7 +251,7 @@ SZABÁLYOK az agentekhez:
 - Ha a Kommandant azt mondja "adj ki feladatot", "kérdezd meg", "nézzen utána", "elemezze", vagy BÁRMILYEN agentet említ név szerint → AZONNAL hívd a megfelelő tool-t! NE keress Gmail-ben, NE válaszolj szövegben!
 - Az agentek önálló AI modellek, NEM email kontaktok — SOHA ne keress rájuk a Gmail-ben!
 - **ai_query**: egyszerű kérdés egy agentnek (NEM tud webet keresni, csak a tudásából válaszol)
-- **ai_task**: kutatás, elemzés, aktuális adatok keresése — WEB SEARCH KÉPES! Az agentek DuckDuckGo-val keresnek.
+- **ai_task**: kutatás, elemzés, aktuális adatok keresése — WEB SEARCH KÉPES! Az agentek a brave-mcp → SearXNG → DDG láncon keresnek.
 - Ha AKTUÁLIS/FRISS adatokat kell keresni (közvélemény-kutatás, árak, hírek) → MINDIG ai_task-ot használj, NE ai_query-t!
 - KÖZGAZDASÁGI ADATOKHOZ van 5 dedikált tool — EZEKET HASZNÁLD, NE ai_task-ot!
   * mnb_rates — MNB hivatalos árfolyamok (EUR/HUF, USD/HUF stb.)
