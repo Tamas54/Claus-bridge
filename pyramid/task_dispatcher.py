@@ -47,6 +47,62 @@ def looks_like_unhandled_tool_call(text: str) -> str | None:
     return None
 
 
+# A `_call_agent` / `_run_single_agent` útvonalak tipizálatlan hibái: a
+# tartalom maga kezdődik ezekkel. Nincs `error` kulcsuk, de bizonyítottan
+# hibásak — a felszínen ezeket sem szabad sikernek látni.
+ERROR_RESPONSE_PREFIXES = ("ERROR:", "TIMEOUT", "(no response)")
+
+
+def result_error_code(result) -> str:
+    """A tipizált hibakód egy dispatch-eredményből; "" ha a futás rendben volt.
+
+    S-002 MÁSODIK FELE: a `dispatch_parallel_tasks` már ma is ad `error`
+    kulcsot (`unhandled_tool_call`, vagy a kivétel típusneve), de a hívó
+    eddig CSAK a `response`-t olvasta ki — a tipizált rész a földre esett,
+    és a hibás futás sikeresként jelent meg egy réteggel feljebb.
+
+    Ez a függvény az EGY gazda arra a kérdésre, hogy „hibás volt-e ez az
+    eredmény": a tipizált kulcs elsőbbséget élvez, de a csak-szövegben
+    jelzett hiba sem tűnhet el (`error_response`).
+    """
+    resp = None
+    if isinstance(result, dict):
+        code = str(result.get("error") or "").strip()
+        if code:
+            return code
+        resp = result.get("response")
+    else:
+        resp = result
+    if isinstance(resp, str) and resp.strip().startswith(ERROR_RESPONSE_PREFIXES):
+        return "error_response"
+    if resp is None or (isinstance(resp, str) and not resp.strip()):
+        return "empty_response"
+    return ""
+
+
+def partition_results(results) -> tuple[dict, dict]:
+    """(usable, failed) szétválasztás egy dispatch-eredményhalmazon.
+
+    `usable`: {agent_id: eredmény} — ezek mehetnek tovább (tárolás, szintézis).
+    `failed`: {agent_id: hibakód} — ezek NEM. A hívó ebből tudja eldönteni,
+    hogy a futás egészben, részben vagy egyáltalán nem hibás.
+    """
+    usable, failed = {}, {}
+    for agent_id, result in (results or {}).items():
+        code = result_error_code(result)
+        if code:
+            failed[agent_id] = code
+        else:
+            usable[agent_id] = result
+    return usable, failed
+
+
+def all_failed(results) -> bool:
+    """Igaz, ha volt eredmény, és EGYETLEN agent sem adott értékelhetőt."""
+    usable, failed = partition_results(results)
+    return bool(failed) and not usable
+
+
 async def dispatch_parallel_tasks(
     agent_tasks: Dict[str, dict],
     task_title: str = "",

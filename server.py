@@ -45,6 +45,14 @@ from permissions import (
 )
 from youngereka_profile import register_youngereka
 
+# S-002 — fail-closed ütemezett kimenetek: a recipe `required_tools` mezője
+# eddig deklarált-de-ellenőrizetlen volt. Lásd recipe_health.py fejlécét.
+import recipe_health
+
+# S-006 — a jelenlét a MUNKA mellékhatása, nem külön bejelentés.
+# Lásd presence.py fejlécét.
+import presence
+
 # OPERATION LESESAAL — Réka token-alapú hozzáférése (chat + scoped MCP).
 # A token az URL path-ban ül, a hívó modell nem látja és nem hamisíthatja.
 from youngereka_access import YRScopeMiddleware, authenticated
@@ -359,7 +367,45 @@ def init_db():
         );
     """)
     conn.commit()
+
+    # ── S-002 (2. fél): tipizált hibakód az AI-futásokon ────────────────
+    # A `CREATE TABLE IF NOT EXISTS` a MEGLÉVŐ (production) táblákat nem
+    # bővíti, ezért kell külön, idempotens oszlop-migráció. Additív, default
+    # ''-lel: a régi sorok érintetlenek maradnak, és '' azt jelenti, hogy
+    # „nincs FELJEGYZETT tipizált hiba" — a migráció ELŐTTI sorokra ez nem
+    # bizonyítja, hogy hibátlanok voltak, csak azt, hogy nem mértük.
+    _ensure_column(conn, "ai_task_results", "error_code", "TEXT DEFAULT ''")
+    _ensure_column(conn, "ai_tasks", "error_code", "TEXT DEFAULT ''")
+
+    # S-002: a kihagyás-ledger bootkor jöjjön létre, hogy a `get_status`
+    # forró útján az OLVASÓ ne futtasson DDL-t minden hívásra.
+    try:
+        recipe_health.ensure_schema(conn)
+    except Exception as e:  # noqa: BLE001
+        logger.error("recipe_skips schema init failed: %s", e)
     conn.close()
+
+
+def _ensure_column(conn, table: str, column: str, decl: str) -> bool:
+    """Idempotens, additív oszlop-hozzáadás. True, ha az oszlop létezik utána.
+
+    PRAGMA-val kérdez, nem „próbáld és kapd el" mintával: egy elnyelt kivétel
+    pont azt a néma sikert termelné, ami ellen ez az egész munka szól.
+    """
+    try:
+        cols = {row[1] for row in conn.execute(f"PRAGMA table_info({table})")}
+        if not cols:
+            logger.warning("_ensure_column: table %s does not exist", table)
+            return False
+        if column in cols:
+            return True
+        conn.execute(f"ALTER TABLE {table} ADD COLUMN {column} {decl}")
+        conn.commit()
+        logger.info("Schema migration: %s.%s added", table, column)
+        return True
+    except Exception as e:  # noqa: BLE001
+        logger.error("_ensure_column failed for %s.%s: %s", table, column, e)
+        return False
 
 
 def now():
@@ -997,16 +1043,28 @@ async def read_ai_task_results(task_id: int = 0, limit: int = 10, caller: str = 
         if not task:
             conn.close()
             return json.dumps({"error": f"AI task #{task_id} not found"})
-        results = conn.execute(
-            "SELECT agent, role, content, timestamp FROM ai_task_results WHERE task_id = ? ORDER BY id",
-            (task_id,)
-        ).fetchall()
+        # S-002 (2. fél): a tipizált hibakód a felszínre is kijön — a hívó ne
+        # csak egy "ERROR: ..." szövegdarabból tudja kitalálni, hogy a futás
+        # elhasalt. Fallback a migrálatlan DB-re: a READER sosem törhet el.
+        try:
+            results = conn.execute(
+                "SELECT agent, role, content, COALESCE(error_code, '') AS error_code, timestamp "
+                "FROM ai_task_results WHERE task_id = ? ORDER BY id",
+                (task_id,)
+            ).fetchall()
+        except sqlite3.OperationalError as e:
+            logger.warning("read_ai_task_results: error_code column missing (%s) — legacy query", e)
+            results = conn.execute(
+                "SELECT agent, role, content, timestamp FROM ai_task_results WHERE task_id = ? ORDER BY id",
+                (task_id,)
+            ).fetchall()
         conn.close()
         return json.dumps({
             "task_id": task_id,
             "title": task["title"],
             "description": task["description"],
             "status": task["status"],
+            "error_code": (task["error_code"] if "error_code" in task.keys() else ""),
             "created_at": task["created_at"],
             "completed_at": task["completed_at"],
             "results": [dict(r) for r in results],
@@ -1422,13 +1480,43 @@ async def heartbeat(instance: str, session_info: str = "") -> str:
         return denied
     conn = get_db()
     ts = now()
-    conn.execute(
-        "INSERT OR REPLACE INTO heartbeats (instance, last_seen, session_info) VALUES (?, ?, ?)",
-        (instance, ts, session_info)
-    )
+    # S-006: az explicit heartbeat változatlanul működik — csak megcímkézzük,
+    # hogy a get_status meg tudja különböztetni a BEJELENTETT jelenlétet a
+    # munkából SZÁRMAZTATOTTÓL.
+    if presence.ensure_schema(conn):
+        conn.execute(
+            "INSERT OR REPLACE INTO heartbeats (instance, last_seen, session_info, last_activity_source) "
+            "VALUES (?, ?, ?, 'heartbeat')",
+            (instance, ts, session_info)
+        )
+    else:
+        conn.execute(
+            "INSERT OR REPLACE INTO heartbeats (instance, last_seen, session_info) VALUES (?, ?, ?)",
+            (instance, ts, session_info)
+        )
     conn.commit()
     conn.close()
     return json.dumps({"status": "alive", "instance": instance, "timestamp": ts})
+
+
+def _presence_view(heartbeat_rows) -> dict:
+    """`heartbeats` sorok → a „ki van online" nézet.
+
+    S-006: a `last_activity_source` additív mező — megmondja, hogy az adott
+    `last_seen` MUNKÁBÓL származik (`tool:...`) vagy BEJELENTÉSBŐL
+    (`heartbeat`). Ha az oszlop még nincs meg (régi DB), a kulcs kimarad,
+    a `last_seen`/`session_info` szerződés változatlan.
+    """
+    out = {}
+    for h in heartbeat_rows:
+        entry = {"last_seen": h["last_seen"], "session_info": h["session_info"]}
+        try:
+            if "last_activity_source" in h.keys() and h["last_activity_source"]:
+                entry["last_activity_source"] = h["last_activity_source"]
+        except (AttributeError, IndexError, KeyError):
+            pass
+        out[h["instance"]] = entry
+    return out
 
 
 @mcp.tool()
@@ -1452,12 +1540,14 @@ async def get_status(caller: str = "") -> str:
 
     conn.close()
     return json.dumps({
-        "instances": {h["instance"]: {"last_seen": h["last_seen"], "session_info": h["session_info"]} for h in heartbeats_rows},
+        "instances": _presence_view(heartbeats_rows),
         "unread": {"cli-claus": unread_cli, "web-claus": unread_web, "kommandant": unread_kmd},
         "open_tasks": open_tasks,
         "open_discussions": open_discussions,
         "total_messages": total_messages,
         "total_memory_entries": total_memory,
+        # S-002: a kihagyott ütemezett futások itt látszanak, nem csak logban.
+        "skipped_runs_24h": recipe_health.recent_skips(get_db, hours=24),
         "recent_sessions": [dict(s) for s in last_session]
     }, ensure_ascii=False)
 
@@ -1538,12 +1628,14 @@ async def api_status(request):
     last_session = conn.execute("SELECT instance, summary, timestamp FROM session_logs ORDER BY timestamp DESC LIMIT 3").fetchall()
     conn.close()
     return JSONResponse({
-        "instances": {h["instance"]: {"last_seen": h["last_seen"], "session_info": h["session_info"]} for h in heartbeats_rows},
+        "instances": _presence_view(heartbeats_rows),
         "unread": {"cli-claus": unread_cli, "web-claus": unread_web, "kommandant": unread_kmd},
         "open_tasks": open_tasks,
         "open_discussions": open_discussions,
         "total_messages": total_messages,
         "total_memory_entries": total_memory,
+        # S-002: a dashboard is lássa a kimaradt ütemezett futásokat.
+        "skipped_runs_24h": recipe_health.recent_skips(get_db, hours=24),
         "recent_sessions": [dict(s) for s in last_session]
     })
 
@@ -6717,10 +6809,17 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
                 + "\n".join(rejected)
             )
             ts = now()
+            # S-002 (2. fél): a degradált sor eddig TIPIZÁLATLAN volt — a
+            # recipe-poller ránézett és „executed"-et mondott, mert a szövege
+            # nem "ERROR:"-ral kezdődik. A kód mostantól a sorral utazik.
             conn.execute(
-                "INSERT INTO ai_task_results (task_id, agent, role, content, timestamp) VALUES (?, ?, ?, ?, ?)",
-                (task_id, "szintézis", "Koordinátori összefoglaló (degraded — 0 értékelhető eredmény)", diagnostic, ts)
+                "INSERT INTO ai_task_results (task_id, agent, role, content, error_code, timestamp) "
+                "VALUES (?, ?, ?, ?, ?, ?)",
+                (task_id, "szintézis", "Koordinátori összefoglaló (degraded — 0 értékelhető eredmény)",
+                 diagnostic, "no_usable_agent_result", ts)
             )
+            conn.execute("UPDATE ai_tasks SET error_code = ? WHERE id = ?",
+                         ("no_usable_agent_result", task_id))
             conn.commit()
             logger.warning("AI task #%d synthesis degraded: 0/%d agents usable",
                            task_id, len(results))
@@ -6922,7 +7021,8 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
 
     if parsed_agent_tasks and PYRAMID_ENABLED:
         # DISPATCH MODE: each agent gets a different task
-        from pyramid.task_dispatcher import dispatch_parallel_tasks
+        from pyramid.task_dispatcher import (
+            dispatch_parallel_tasks, result_error_code, partition_results)
 
         # Per-agent deep_research scoping. A globális deep_research=True NEM
         # jelenti azt, hogy mind a 3 agent multi-round loopot futtat — az 3x
@@ -7138,20 +7238,56 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
                     run_with_tools_func=_run_agent_with_tools,
                 ))
                 # Store results in DB
+                # S-002 (2. fél): a `result` TIPIZÁLT hibamezőit eddig eldobtuk
+                # — csak a `response` szöveg került be, és egy hibás futás
+                # sikeresként jelent meg a felszínen. Az `error_code` mostantól
+                # a sorral együtt utazik.
                 conn2 = get_db()
+                _usable, agent_errors = partition_results(results)
                 for agent_id, result in results.items():
                     content = result.get("response", "(no response)") if isinstance(result, dict) else str(result)
+                    err_code = agent_errors.get(agent_id, "")
                     conn2.execute(
-                        "INSERT INTO ai_task_results (task_id, agent, role, content, timestamp) VALUES (?, ?, ?, ?, ?)",
-                        (task_id, agent_id, "Pyramid dispatch", content, now())
+                        "INSERT INTO ai_task_results (task_id, agent, role, content, error_code, timestamp) "
+                        "VALUES (?, ?, ?, ?, ?, ?)",
+                        (task_id, agent_id, "Pyramid dispatch", content, err_code, now())
                     )
                 conn2.commit()
-                # Per-agent file rendering when output_format requested
+                if agent_errors:
+                    logger.error("AI task #%d dispatch agent errors: %s", task_id, agent_errors)
+                # Per-agent file rendering when output_format requested.
+                # A `startswith("ERROR:")` szűrő helyett a tipizált kód dönt —
+                # ugyanaz a gazda, mint a szintézisnél és a státusznál.
                 if output_format and output_format in OUTPUT_FORMAT_DIRECTIVES:
                     for agent_id, result in results.items():
                         c = result.get("response", "") if isinstance(result, dict) else str(result)
-                        if c and not c.startswith("ERROR:"):
+                        if c and not result_error_code(result):
                             _maybe_render_output_file(task_id, agent_id, c, output_format, title)
+
+                # ── A futás állapota: HIBÁS futás nem lehet 'completed' ──
+                # Ha EGYETLEN agent sem adott használható eredményt, a task
+                # NEM completed. A cron- és a recipe-poller is ezt olvassa;
+                # eddig mindkettő „executed"-et jelentett egy olyan futásra,
+                # aminek az egyetlen kimenete egy UnhandledToolCall hibaszöveg
+                # volt.
+                _all_failed = bool(agent_errors) and not _usable
+                if _all_failed:
+                    _codes = ",".join(sorted(set(agent_errors.values())))
+                    conn2.execute(
+                        "UPDATE ai_tasks SET status = 'failed', error_code = ?, completed_at = ? WHERE id = ?",
+                        (_codes, now(), task_id))
+                    conn2.commit()
+                    conn2.close()
+                    logger.error(
+                        "AI task #%d dispatch FAILED: %d/%d agent hibás (%s) — nincs szintézis, "
+                        "nincs kimenet. A hiányt jelentjük, nem pótoljuk.",
+                        task_id, len(agent_errors), len(results), _codes)
+                    return
+                if agent_errors:
+                    conn2.execute(
+                        "UPDATE ai_tasks SET error_code = ? WHERE id = ?",
+                        ("partial_agent_failure", task_id))
+                    conn2.commit()
 
                 # Single-agent dispatch (e.g. cron daily_news_brief with cron_model="glm5"):
                 # there is no "ELTÉRŐ feladat" to synthesize — the koordinátori prompt
@@ -7169,13 +7305,61 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
                 # Each agent received a DIFFERENT prompt in dispatch mode, so the synthesis
                 # has to acknowledge the divergent fókuszok, not pretend agreement.
                 try:
+                    # ── A SZINTÉZIS NEM EHET HIBASZÖVEGET ────────────────
+                    # S-002 (2. fél): eddig MINDEN agent `response`-a bekerült
+                    # a szintézis-promptba, a hibásaké is — így egy
+                    # "ERROR: UnhandledToolCall..." sor a szintetizáló BEMENETE
+                    # lett, ami aztán munkaként prezentálta. A broadcast-út ezt
+                    # már 2026 óta helyesen csinálja (`_classify_agent_result`
+                    # + `_clean_synthesis_output` + rejection_note); itt UGYANAZT
+                    # a gazdát használjuk, nem egy másodikat építünk.
                     parts = []
+                    rejected = []
                     for agent_id, result in results.items():
                         agent_prompt = parsed_agent_tasks.get(agent_id, {}).get("prompt", "")
                         agent_resp = result.get("response", "") if isinstance(result, dict) else str(result)
+                        err_code = result_error_code(result)
+                        cls, reason = _classify_agent_result(agent_resp)
+                        if err_code or cls != "ok":
+                            rejected.append(f"[{agent_id}] — {err_code or cls}: {reason}")
+                            logger.warning(
+                                "AI task #%d dispatch synthesis filter: %s kiszűrve (%s / %s)",
+                                task_id, agent_id, err_code or cls, reason)
+                            continue
                         research_tag = " (deep_research mode)" if agent_research_flags.get(agent_id) else ""
-                        parts.append(f"=== [{agent_id}]{research_tag} FELADAT ===\n{agent_prompt}\n\n=== [{agent_id}] EREDMÉNY ===\n{agent_resp}")
+                        parts.append(
+                            f"=== [{agent_id}]{research_tag} FELADAT ===\n{agent_prompt}\n\n"
+                            f"=== [{agent_id}] EREDMÉNY ===\n{_clean_synthesis_output(agent_resp)}")
+                    if not parts:
+                        # Degradált út — a broadcast-úttal azonos: nem hívjuk a
+                        # szintetizálót, hanem MEGNEVEZZÜK a hiányt.
+                        diagnostic = (
+                            "(Egyik al-agent sem adott értékelhető választ — koordinátori "
+                            "szintézis kihagyva.)\n\n## Elutasított eredmények\n"
+                            + "\n".join(rejected)
+                        )
+                        conn2.execute(
+                            "INSERT INTO ai_task_results (task_id, agent, role, content, error_code, timestamp) "
+                            "VALUES (?, ?, ?, ?, ?, ?)",
+                            (task_id, "szintézis",
+                             "Koordinátori összefoglaló (degraded — 0 értékelhető eredmény)",
+                             diagnostic, "no_usable_agent_result", now()))
+                        conn2.execute(
+                            "UPDATE ai_tasks SET status = 'failed', error_code = ?, completed_at = ? WHERE id = ?",
+                            ("no_usable_agent_result", now(), task_id))
+                        conn2.commit()
+                        conn2.close()
+                        logger.error("AI task #%d dispatch synthesis degraded: 0/%d agent értékelhető",
+                                     task_id, len(results))
+                        return
                     synthesis_input = "\n\n---\n\n".join(parts)
+                    if rejected:
+                        synthesis_input += (
+                            "\n\n---\n\nFIGYELEM — AZ ALÁBBI AL-AGENTEK NEM ADTAK ÉRTÉKELHETŐ "
+                            "EREDMÉNYT, a Bridge KISZŰRTE őket: " + "; ".join(rejected)
+                            + ". Ne találd ki helyettük a nézőpontjukat — ha fontos, "
+                            "jelezd, hogy hiányzik."
+                        )
                     research_note = ""
                     if research_agents:
                         research_note = (
@@ -7588,7 +7772,27 @@ _capture_state = {
     "gmail_service": None,
     "calendar_service": None,
     "capture_running": False,
+    # S-002 — liveness-nyomok. A `*_service is not None` önmagában HAZUDHAT
+    # (a _init_google_services előbb írja be a klienst, mint hogy hitelesítené),
+    # ezért a TÉNYLEGES hívások kimenetelét is feljegyezzük. Ezekre épül a
+    # recipe_health próba.
+    "gmail_last_ok": None,
+    "gmail_last_error": None,
+    "calendar_last_ok": None,
+    "calendar_last_error": None,
 }
+
+# ── S-002: egészség-próbák bekötése a required_tools nevekre ──
+# A recipe-k a rövid neveket deklarálják (`gmail_poll`), a tool-ok a hosszút
+# (`capture_gmail_poll`) viselik — mindkettő ugyanarra a próbára mutat.
+_gmail_probe = recipe_health.capture_service_probe(
+    _capture_state, "gmail_service", "gmail_last_ok", "gmail_last_error")
+_calendar_probe = recipe_health.capture_service_probe(
+    _capture_state, "calendar_service", "calendar_last_ok", "calendar_last_error")
+for _alias in ("gmail_poll", "capture_gmail_poll", "gmail"):
+    recipe_health.register_probe(_alias, _gmail_probe)
+for _alias in ("calendar_poll", "capture_calendar_poll", "calendar"):
+    recipe_health.register_probe(_alias, _calendar_probe)
 
 
 def _init_google_services():
@@ -7622,8 +7826,19 @@ def _init_google_services():
 
         profile = _capture_state["gmail_service"].users().getProfile(userId="me").execute()
         logger.info("Google services initialized: %s", profile.get("emailAddress"))
+        _capture_state["gmail_last_ok"] = now()
+        _capture_state["calendar_last_ok"] = now()
         return True
     except Exception as e:
+        # A szolgáltatás-mezőket VISSZAÁLLÍTJUK. Korábban a `build()` eredménye
+        # bent maradt, ha a rá következő `getProfile()` hasalt el (visszavont
+        # token esetén pont ez történik) — a capture_status ilyenkor
+        # `gmail_connected: true`-t mondott egy halott kliensre. A függvény
+        # amúgy is False-szal tér vissza; az állapotnak ezzel kell egyeznie.
+        _capture_state["gmail_service"] = None
+        _capture_state["calendar_service"] = None
+        _capture_state["gmail_last_error"] = now()
+        _capture_state["calendar_last_error"] = now()
         logger.error("Google init failed: %s (type: %s)", e, type(e).__name__)
         import traceback
         logger.error("Google init traceback:\n%s", traceback.format_exc())
@@ -7953,9 +8168,14 @@ async def capture_gmail_poll(max_results: int = 10, caller: str = "") -> str:
             except Exception as e:
                 logger.error("Failed to process message %s: %s", stub.get("id"), e)
 
+        # S-002: liveness-nyom — a Gmail API tényleg válaszolt.
+        _capture_state["gmail_last_ok"] = now()
         return json.dumps({"count": len(events), "events": events}, ensure_ascii=False)
 
     except Exception as e:
+        # S-002: liveness-nyom — a hívás elhasalt. A recipe_health próba ebből
+        # tudja, hogy a tool halott, akkor is, ha a service-objektum megvan.
+        _capture_state["gmail_last_error"] = now()
         return json.dumps({"error": str(e)})
 
 
@@ -8076,9 +8296,13 @@ async def capture_calendar_poll(caller: str = "") -> str:
             _bridge_capture_event(f"🌅 Reggeli briefing — {today_str}", briefing_body, "normal")
             await _telegram_push(f"🌅 <b>Reggeli briefing</b> — {today_str}\n\n{briefing_body}")
 
+        # S-002: liveness-nyom — a Calendar API tényleg válaszolt.
+        _capture_state["calendar_last_ok"] = now()
         return json.dumps({"count": len(events_out), "events": events_out}, ensure_ascii=False)
 
     except Exception as e:
+        # S-002: liveness-nyom — a hívás elhasalt.
+        _capture_state["calendar_last_error"] = now()
         return json.dumps({"error": str(e)})
 
 
@@ -8798,6 +9022,20 @@ def _init_google_services_with_timeout(timeout_sec: int = 60):
 
 _migrate_db_to_volume()
 init_db()
+
+# ── S-006: jelenlét a MUNKÁBÓL ──────────────────────────────────────────
+# Egyetlen fogóhely (FastMCP on_call_tool) minden tool-híváson — a 89
+# hívóhely megpatkolása helyett. A `heartbeat` tool változatlanul működik;
+# ez csak azt szünteti meg, hogy a jelenlét KÜLÖN bejelentést igényeljen.
+try:
+    _pres_conn = get_db()
+    presence.ensure_schema(_pres_conn)
+    _pres_conn.close()
+    mcp.add_middleware(presence.build_middleware(get_db))
+    logger.info("Presence middleware registered (throttle=%ds)", presence.throttle_seconds())
+except Exception as _pres_e:  # noqa: BLE001 — a jelenlét sosem akadályozhatja a bootot
+    logger.error("Presence middleware NOT registered: %s", _pres_e)
+
 _init_google_services_with_timeout()
 _start_capture_background()
 _start_telegram_polling()
@@ -9133,6 +9371,16 @@ try:
         "ai_task_func": ai_task,
         # Operation Kabare: prefetch helper eleri a gmail/calendar service-t
         "capture_state": _capture_state,
+        # ── A JOGOSULTSÁGI RÉTEG (2026-08-29) ──────────────────────────
+        # Eddig EGYETLEN permission-hívható sem volt ebben a dictben, ezért
+        # a plugin-toolok (nevezetesen a recipe-CRUD) a `_enforce` 34
+        # hívóhelye MELLETT mentek el — nem tiltás volt, hanem hiány.
+        # Ugyanaz a két függvény megy be, amit a server.py sajat tooljai
+        # használnak; NINCS második mechanizmus.
+        #   enforce_func       — profil-alapú tiltás (üres callert átengedi)
+        #   authenticated_func — a hívás a TOKENES úton jött-e (/mcp/km-…)
+        "enforce_func": _enforce,
+        "authenticated_func": authenticated,
     }
     _loaded_plugins = discover_and_register(mcp, _plugin_deps)
     if _loaded_plugins:
@@ -9200,7 +9448,16 @@ except Exception as _dte:  # noqa: BLE001
 
 # Operation Zahnrad — Cron Scheduler
 def _cron_matches(schedule: str, dt: datetime) -> bool:
-    """Simple crontab matcher: 'minute hour day month weekday'. Supports: number, *, ranges (1-5), lists (1,3,5)."""
+    """Simple crontab matcher: 'minute hour day month weekday'. Supports: number, *, ranges (1-5), lists (1,3,5).
+
+    NEM DOB. A `*/5` (step) szintaxist ez a matcher nem ismeri: korábban az
+    `int("*/5")` ValueError-t dobott, ami a `_cron_loop` KÖZÖS try-ágán
+    landolt — vagyis EGY rossz sor az ÖSSZES ütemezett recipe futását
+    megállította, percenként, csendben. Egy nem értelmezhető mező mostantól
+    „nem illeszkedik" (a saját sorát némítja el, nem a többiekét).
+    Az ilyen kifejezés BEÍRÁSÁT a `plugins.recipes.validate_cron_schedule`
+    fogja meg — ez itt a második öv a MÁR BENT LÉVŐ sorokra.
+    """
     parts = schedule.strip().split()
     if len(parts) != 5:
         return False
@@ -9211,19 +9468,23 @@ def _cron_matches(schedule: str, dt: datetime) -> bool:
         (parts[3], dt.month),
         (parts[4], dt.isoweekday() % 7),  # 0=sunday in crontab
     ]
-    for pattern, value in checks:
-        if pattern == "*":
-            continue
-        if "-" in pattern:
-            lo, hi = pattern.split("-", 1)
-            if not (int(lo) <= value <= int(hi)):
-                return False
-        elif "," in pattern:
-            if value not in [int(x) for x in pattern.split(",")]:
-                return False
-        else:
-            if int(pattern) != value:
-                return False
+    try:
+        for pattern, value in checks:
+            if pattern == "*":
+                continue
+            if "-" in pattern:
+                lo, hi = pattern.split("-", 1)
+                if not (int(lo) <= value <= int(hi)):
+                    return False
+            elif "," in pattern:
+                if value not in [int(x) for x in pattern.split(",")]:
+                    return False
+            else:
+                if int(pattern) != value:
+                    return False
+    except ValueError:
+        logger.error("Cron: nem értelmezhető kifejezés, a sor kihagyva: %r", schedule)
+        return False
     return True
 
 
@@ -9326,7 +9587,7 @@ async def _cron_loop():
             conn = get_db()
             recipes = conn.execute(
                 "SELECT id, name, cron_schedule, cron_model, cron_delivery, cron_last_run, "
-                "cron_deep_research, cron_deep_thinking "
+                "cron_deep_research, cron_deep_thinking, required_tools "
                 "FROM pyramid_recipes WHERE cron_enabled = 1 AND cron_schedule IS NOT NULL AND enabled = 1"
             ).fetchall()
             conn.close()
@@ -9376,6 +9637,34 @@ async def _cron_loop():
                 conn.execute("UPDATE pyramid_recipes SET cron_last_run = ? WHERE id = ?", (now_dt.isoformat(), r["id"]))
                 conn.commit()
                 conn.close()
+
+                # ══ S-002: FAIL-CLOSED KAPU ══════════════════════════════
+                # A `required_tools` 5,5 hétig deklarált-de-ellenőrizetlen
+                # volt: a daily_briefing minden reggel briefet gyártott halott
+                # Gmail és Naptár mellett, és semmit nem jelzett. Itt állunk
+                # meg: ha egy KÖTELEZŐ tool bizonyítottan halott, NEM születik
+                # kimenet — a hiányt jelentjük, nem töltjük ki.
+                # A kapu csak POZITÍV halál-bizonyítékra zár; a próbázatlan
+                # tool (UNKNOWN) átmegy, különben az első deploy elnémítaná az
+                # összes ütemezést. Részletek: recipe_health.py.
+                _verdict = recipe_health.check_required_tools(
+                    r["name"], r["required_tools"] if "required_tools" in r.keys() else None)
+                if not _verdict.ok:
+                    recipe_health.record_skip(get_db, _verdict, trigger="cron")
+                    logger.error(
+                        "Cron SKIP: %s — reason=%s dead=%s (nem készült kimenet)",
+                        r["name"], _verdict.reason_code, _verdict.dead_tools)
+                    # Ott jelezzük, ahová a kimenet ment volna: a hallgatás a
+                    # legrosszabb hibajelzés.
+                    if r["cron_delivery"] in ("telegram", "both"):
+                        await _telegram_push(
+                            f"⛔ <b>{r['name']}</b> — KIMARADT\n\n"
+                            f"Ok (kód): <code>{_verdict.reason_code}</code>\n"
+                            f"Halott tool(ok): <b>{', '.join(_verdict.dead_tools)}</b>\n\n"
+                            "Nem készült brief, mert a bemenetei nem éltek. "
+                            "Hiányzó adatból nem gyártunk kimenetet."
+                        )
+                    continue
 
                 # ── Market brief special-case (PLAN_20260531.md §4) ──
                 # A `market_brief*` recipe does NOT go through the generic
@@ -9591,11 +9880,34 @@ async def _cron_loop():
                             await asyncio.sleep(2)
                             conn = get_db()
                             row2 = conn.execute(
-                                "SELECT content FROM ai_task_results WHERE task_id = ? ORDER BY id DESC LIMIT 1",
+                                "SELECT content, COALESCE(error_code, '') AS error_code "
+                                "FROM ai_task_results WHERE task_id = ? ORDER BY id DESC LIMIT 1",
                                 (task_id,)
                             ).fetchone()
-                            status = conn.execute("SELECT status FROM ai_tasks WHERE id = ?", (task_id,)).fetchone()
+                            status = conn.execute(
+                                "SELECT status, COALESCE(error_code, '') AS error_code "
+                                "FROM ai_tasks WHERE id = ?", (task_id,)).fetchone()
                             conn.close()
+                            # S-002 (2. fél): egy HIBÁS futás nem mehet ki
+                            # briefként. Eddig a legutolsó sor tartalma ment
+                            # Telegramra „📋 <recipe> (scheduled)" fejléccel —
+                            # akkor is, ha az a tartalom egy
+                            # "ERROR: UnhandledToolCall..." szöveg volt.
+                            _failed = (status and status["status"] == "failed") or \
+                                      (row2 and row2["error_code"])
+                            if _failed:
+                                _code = (status["error_code"] if status and status["error_code"]
+                                         else (row2["error_code"] if row2 else "")) or "unknown"
+                                await _telegram_push(
+                                    f"⛔ <b>{r['name']}</b> — HIBÁS FUTÁS, nincs brief\n\n"
+                                    f"Ok (kód): <code>{_code}</code>\n"
+                                    f"Task: #{task_id}\n\n"
+                                    "A futás nem adott értékelhető eredményt. "
+                                    "A hiányt jelentjük, nem pótoljuk."
+                                )
+                                logger.error("Cron NOT delivered (failed run): %s (task #%d, %s)",
+                                             r["name"], task_id, _code)
+                                break
                             if row2:
                                 content = row2["content"] or ""
                                 msg = f"📋 <b>{r['name']}</b> (scheduled)\n\n{content[:3800]}"

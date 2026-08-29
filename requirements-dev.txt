@@ -1,0 +1,14 @@
+# Test-only dependencies.
+#
+# Deliberately a SEPARATE file from requirements.txt: railpack installs
+# requirements.txt into the production image (verified in the Railway build
+# log: `pip install -r requirements.txt`), and the production image has no
+# business carrying a test runner. Adding pytest there would change what gets
+# deployed; adding it here does not.
+-r requirements.txt
+
+# Upper bound on purpose. This repo has already been bitten once by an
+# unpinned dependency pulling a breaking major on rebuild — see the comment at
+# the top of requirements.txt. A pytest major bump should be a decision, not a
+# surprise red build on an unrelated commit.
+pytest>=8.2,<10

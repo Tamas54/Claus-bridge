@@ -21,7 +21,14 @@ tehát ami itt nincs felsorolva, az tiltva van. Egy holnap felvett Bridge-tool
 a SIaBot számára NEM jelenik meg magától — ez a helyes bukás-irány, és
 ugyanaz a szabály, mint a héj oldalán a READ_ONLY_TOOLS allow-listája.
 
-⚠️ A SIaBot SZÁNDÉKOSAN NEM CORE INSTANCE. A `CORE_INSTANCES` tagjai
+⚠️⚠️ ÁLLAPOT 2026-08-29 ESTE: a `siabot` IDEIGLENESEN BEKERÜLT a
+`CORE_INSTANCES`-be (`permissions.py`), mert a héjnak recepteket kell tudnia
+létrehozni, és a Bridge különben nem fogadja el a hívóját. EMIATT EZ A PROFIL
+MA NEM HAT — alszik. A piacra lépés napján a `CORE_INSTANCES`-ből törlendő a
+`siabot`, és EZ a fájl importálandó a `server.py`-ban; a tesztek addig is
+őrzik, hogy a tartalma helyes maradjon.
+
+⚠️ A SIaBot SZÁNDÉKOSAN NEM LENNE CORE INSTANCE. A `CORE_INSTANCES` tagjai
 (web-claus, cli-claus, kommandant, feldwebel) megkerülik a szűrőket; ha a
 SIaBot közéjük kerülne, ez az egész fájl dísz lenne.
 """

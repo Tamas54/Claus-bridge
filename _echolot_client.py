@@ -73,6 +73,37 @@ class EcholotError(Exception):
     pass
 
 
+class EcholotRedirectError(EcholotError):
+    """3xx ott, ahol NEM követünk redirectet — NEVESÍTETT hiba.
+
+    A régi `if resp.status_code >= 400` kapu minden 3xx-et SIKERNEK vett.
+    Az Echolot `/` útvonala 2026-07 óta 301-gyel megy `/hu/`-ra
+    (`_lang_path_middleware`), a 301 törzse pedig 17 bájt „Moved
+    Permanently" — a top-story regex ezen 0 találatot adott, a hívó nem
+    kapott hibát, és az Agora-sorszolgálat 2026-07-12 óta minden körben
+    `no_stories`-szal állt le. Némán. A néma siker a legrosszabb hiba
+    (házszabály), ezért a 3xx innentől SAJÁT NEVŰ kivétel.
+    """
+
+
+def _raise_on_redirect(resp: "httpx.Response", label: str) -> None:
+    """3xx → EcholotRedirectError. Két helyen kell:
+
+    * ahol SZÁNDÉKOSAN nem követünk redirectet (POST-ok: a 301 eldobná a
+      törzset; JSON-API: ott a redirect konfigurációs hiba) — ez a valódi
+      hibajelzés;
+    * ahol követünk (`follow_redirects=True`) — ott a 3xx elvileg
+      elérhetetlen, de a kapu így ŐRZI a beállítást: ha valaki kiveszi a
+      `follow_redirects`-et, hangos hiba lesz belőle, nem üres eredmény.
+    """
+    if 300 <= resp.status_code < 400:
+        loc = resp.headers.get("location") or "(nincs Location)"
+        raise EcholotRedirectError(
+            f"{label} HTTP {resp.status_code} redirect → {loc!r}: a válasz "
+            f"törzse ({len(resp.content)} bájt) NEM a kért tartalom "
+            f"(a hívó nem követ redirectet)")
+
+
 async def _get(path: str, params: dict[str, Any]) -> dict:
     """GET ECHOLOT_URL+path with params, with request-coalescing.
 
@@ -112,6 +143,7 @@ async def _get(path: str, params: dict[str, Any]) -> dict:
             try:
                 async with httpx.AsyncClient(timeout=TIMEOUT) as client:
                     resp = await client.get(url, params=clean)
+                _raise_on_redirect(resp, "api")
                 if resp.status_code >= 400:
                     raise EcholotError(f"HTTP {resp.status_code}: {resp.text[:300]}")
                 data = resp.json()
@@ -275,6 +307,7 @@ async def mcp_call(tool: str, arguments: dict[str, Any], timeout: float | None =
         try:
             async with httpx.AsyncClient(timeout=timeout or MCP_TIMEOUT) as client:
                 resp = await client.post(url, json=payload, headers=headers)
+            _raise_on_redirect(resp, "MCP")
             if resp.status_code >= 400:
                 raise EcholotError(f"MCP HTTP {resp.status_code}: {_mask_keys(resp.text[:300])}")
             data = resp.json()
@@ -313,6 +346,7 @@ async def register_operator(display_name: str, contact: str, type_: str = "indiv
             f"{ECHOLOT_URL}/operators/register",
             json={"display_name": display_name, "contact": contact, "type": type_},
         )
+    _raise_on_redirect(resp, "register")
     if resp.status_code >= 400:
         raise EcholotError(f"register HTTP {resp.status_code}: {resp.text[:200]}")
     return resp.json()
@@ -371,7 +405,14 @@ async def get_top_story_links(limit: int = 12) -> list[dict]:
     last_err: Exception | None = None
     for attempt in (1, 2):
         try:
-            async with httpx.AsyncClient(timeout=max(TIMEOUT, 30.0)) as client:
+            # follow_redirects=True KÖTELEZŐ: a `/` 301-gyel megy `/hu/`-ra
+            # (Echolot `_lang_path_middleware`), és a 301 17 bájtos törzsén a
+            # lenti story-regex 0 találatot ad. Ugyanígy csinálja a testvér-
+            # hívás (get_story_markdown). Ha a domain átáll
+            # (ECHOLOT_PUBLIC_ORIGIN), a canonical-host 301 még EGY ugrást
+            # tesz a láncba — a httpx alap max_redirects=20, tehát elbírja.
+            async with httpx.AsyncClient(timeout=max(TIMEOUT, 30.0),
+                                         follow_redirects=True) as client:
                 resp = await client.get(f"{ECHOLOT_URL}/", headers={"Accept": "text/html"})
             break
         except (httpx.TransportError, httpx.TimeoutException) as e:
@@ -381,6 +422,7 @@ async def get_top_story_links(limit: int = 12) -> list[dict]:
             await asyncio.sleep(1.0)
     if resp is None:
         raise EcholotError(f"homepage transport error: {last_err}")
+    _raise_on_redirect(resp, "homepage")
     if resp.status_code >= 400:
         raise EcholotError(f"homepage HTTP {resp.status_code}")
     seen: set[str] = set()
@@ -417,6 +459,7 @@ async def get_story_markdown(story_id: str, slug: str = "story") -> dict:
             if attempt == 2:
                 raise EcholotError(f"story transport error: {e}")
             await asyncio.sleep(1.0)
+    _raise_on_redirect(resp, "story")
     if resp.status_code >= 400:
         raise EcholotError(f"story HTTP {resp.status_code}: {story_id}")
     md = resp.text

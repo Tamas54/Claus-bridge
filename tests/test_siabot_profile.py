@@ -34,11 +34,24 @@ def test_a_profil_regisztralva_van():
     assert get_profile(INSTANCE_ID) is SIABOT_PROFILE
 
 
-def test_a_siabot_nem_core_instance():
-    # A core instance-ok megkerülik a szűrőket. Ha a SIaBot közéjük kerülne,
-    # az egész profil dísz lenne — ezért ez az első számú invariáns.
-    assert INSTANCE_ID not in CORE_INSTANCES
-    assert is_core_instance(INSTANCE_ID) is False
+def test_a_core_tagsag_ideiglenes_es_tudatos():
+    """A `siabot` MA core instance — és ez a teszt azért van, hogy ez soha ne
+    legyen véletlen.
+
+    A core tagok megkerülik a szűrőket, tehát amíg a `siabot` közöttük van,
+    EZ A PROFIL NEM HAT. Kommandant-döntés 2026-08-29: fejlesztés alatt a
+    teljes rálátás a munkaeszköz, és a héjnak recepteket is létre kell tudnia
+    hozni. A szűkítést addig a HÉJ oldali allow-list és a jóváhagyó kártya
+    végzi — egy kapu, nem kettő.
+
+    ⏰ A PIACRA LÉPÉS NAPJÁN: vedd ki a `siabot`-ot a `CORE_INSTANCES`-ből,
+    importáld a `siabot_profile`-t a `server.py`-ban, és fordítsd vissza ezt
+    a tesztet `assert INSTANCE_ID not in CORE_INSTANCES`-re. A többi eset
+    addig is őrzi, hogy a profil TARTALMA helyes maradjon, hogy azon a napon
+    ne kelljen újraírni.
+    """
+    assert INSTANCE_ID in CORE_INSTANCES
+    assert is_core_instance(INSTANCE_ID) is True
 
 
 def test_a_csaladi_feluletek_tiltva_vannak():

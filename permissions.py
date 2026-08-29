@@ -79,7 +79,21 @@ class PermissionProfile:
 # ============================================================
 
 # Alap instance-ok (Kommandant eredeti csapatai)
-CORE_INSTANCES = {"web-claus", "cli-claus", "kommandant", "feldwebel"}
+# ⚠️ A "siabot" FEJLESZTÉSI POSZTÚRA, nem végállapot.
+# Kommandant-döntés 2026-08-29: „amíg az én termékem és nem termékesítjük,
+# megy az én tokenemmel… fejleszteni csak úgy lehet, hogy látjuk, mi
+# történik." A héjnak recepteket is létre kell tudnia hozni, ehhez pedig a
+# Bridge-nek el kell fogadnia a hívó identitását.
+#
+# A SZŰKÍTÉS KÉSZ ÉS ALSZIK: `siabot_profile.py` — ott van a munkaköri
+# leírás (család-felületek tiltva, küldés/költés/törlés tiltva). A PIACRA
+# LÉPÉS napján ez a sor törlendő és a profil importálandó; addig a szűkítést
+# a HÉJ oldali allow-list + jóváhagyó kártya végzi.
+#
+# Amit ez ÁRBA kerül, kimondva: core instance-ként a `siabot` megkerüli a
+# szűrőket — ugyanaz a bizalmi szint, mint a Kommandant saját tokenje. Amíg
+# egyedül ő használja, ez a döntése; amint más is, nem az.
+CORE_INSTANCES = {"web-claus", "cli-claus", "kommandant", "feldwebel", "siabot"}
 
 # Minden regisztrált instance profilja
 INSTANCE_PROFILES: dict[str, PermissionProfile] = {}
