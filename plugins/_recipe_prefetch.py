@@ -230,26 +230,109 @@ def _fetch_open_tasks(get_db, limit: int = 10) -> list:
 # ── Hirmagnet friss hirek (opcionalis, csak szoveg, NEM adat) ─────────
 
 async def _fetch_hirmagnet_trending(limit: int = 8) -> list:
-    """Trending magyar hirek — ha elerheto a Hirmagnet API kulcs."""
-    import os
-    api_key = os.environ.get("HIRMAGNET_API_KEY", "")
-    if not api_key:
-        return []
+    """Trending magyar hirek AZ ECHOLOT SAJAT KLIENSEVEL.
+
+    ⚠️ MIT VALTOTT LE, ES MIERT (2026-08-30). A korabbi valtozat a
+    `hirmagnet.hu/api/trending` vegpontot hivta egy `HIRMAGNET_API_KEY`
+    fejleccel — csakhogy az a kulcs a produkcioban NINCS BEALLITVA, tehat a
+    fuggveny mar az ELSO soran `[]`-vel tert vissza. Mindig. Az Echolot adatai
+    SOHA nem voltak benne a napi hirbriefben, es ezt semmi nem jelezte: minden
+    hibaag `logger.debug` + `[]` volt.
+
+    Kozben a Bridge-nek VAN mukodo Echolot-kliense (`_echolot_client`,
+    `ECHOLOT_URL` beallitva) — ugyanaz, amit a tobbi tool is hasznal.
+
+    A hiany mostantol NEM nema: ha az Echolot nem valaszol, a visszaadott lista
+    egyetlen `_error` tetelt tartalmaz, amit a prompt lat, es a brief kiirja.
+    """
     try:
-        async with httpx.AsyncClient(timeout=10) as client:
-            resp = await client.get(
-                f"https://hirmagnet.hu/api/trending?limit={limit}",
-                headers={"X-API-Key": api_key, "User-Agent": "ClausBridge/1.0"},
-            )
-        if resp.status_code != 200:
-            return []
-        data = json.loads(resp.text)
-        items = data.get("articles", []) or data.get("items", []) or []
-        return [{"title": a.get("title", ""), "source": a.get("source", ""),
-                 "url": a.get("url", "")} for a in items[:limit]]
-    except Exception as e:
-        logger.debug("Hirmagnet fetch skipped: %s", e)
-        return []
+        import _echolot_client as echolot_client
+    except ImportError as e:
+        logger.error("Echolot-kliens nem importalhato: %s", e)
+        return [{"_error": f"az Echolot-kliens nem importalhato: {e}"}]
+    if not getattr(echolot_client, "ECHOLOT_URL", ""):
+        logger.error("ECHOLOT_URL nincs beallitva — a brief Echolot nelkul keszul")
+        return [{"_error": "ECHOLOT_URL nincs beallitva"}]
+    # ⚠️ `fetch_news`, NEM `get_trending`. A trending-vegpont KULCSSZAVAKAT ad
+    # ("peter" 16 forras, "trump" 14, "budapesten" 11) — az egy sulyozott
+    # temalista, nem hirlista. Egy hirbriefbe CIMEK kellenek, es a kulcsszavas
+    # valasz pont az a fajta "nem ures, tehat jo" adat, ami atcsuszik minden
+    # naiv ellenorzesen. A `fetch_news` valodi cikkeket ad.
+    try:
+        data = await echolot_client.fetch_news(spheres=["hu_press"], days=1, limit=limit)
+    except Exception as e:  # noqa: BLE001
+        logger.error("Echolot fetch_news hiba: %s: %s", type(e).__name__, e)
+        return [{"_error": f"az Echolot nem valaszolt: {type(e).__name__}: {e}"}]
+    items = data.get("articles") or data.get("items") or data.get("results") or []
+    if not items:
+        logger.warning("Echolot URES cikklistat adott (kulcsok: %s)", list(data)[:8])
+        return [{"_error": "az Echolot valaszolt, de nem adott cikket"}]
+    out = []
+    for a in items[:limit]:
+        if not isinstance(a, dict):
+            continue
+        title = (a.get("title") or "").strip()
+        if not title:
+            continue
+        out.append({
+            "title": title,
+            "source": a.get("source") or a.get("sphere") or "Echolot",
+            "url": a.get("url") or a.get("link") or "",
+            "published": a.get("published_at") or a.get("published") or "",
+        })
+    if not out:
+        # Volt valasz, volt tetel, de egyetlen CIM sem — ez nem siker.
+        return [{"_error": "az Echolot adott teteleket, de egyikben sem volt cim"}]
+    return out
+
+
+# ══ ADAT-UT PROBA ═══════════════════════════════════════════════════════
+#
+# MIERT SZULETETT (2026-08-30): a `daily_news_brief` prefetchere a
+# `hirmagnet.hu/api/trending`-et hivta egy kulccsal, ami a produkcioban NINCS
+# beallitva — tehat mar az ELSO soran `[]`-vel tert vissza. MINDIG. Az Echolot
+# adatai SOHA nem voltak benne a briefben, es semmi nem jelezte: egy ures lista
+# nem hiba, csak ures. Az onjavitas sem csaphatott le ra, mert nem TORTENT
+# hiba — csak nem tortent adat.
+#
+# A tanulsag altalanos: AZ ADAT HIANYA NEM HIBA, AMIG VALAKI KI NEM MONDJA,
+# HOGY OTT KELLENE LENNIE. Ezert deklaraljuk, mely szekcioknak KELL tartalmat
+# adniuk, es a proba EZT meri — nem azt, hogy a fuggveny lefutott-e.
+
+#: recipe -> {szekcio: emberi leiras}. Ami itt szerepel, annak URESEN HIBA.
+REQUIRED_SECTIONS = {
+    "daily_news_brief": {
+        "fx_ecb": "ECB napi devizaarfolyamok",
+        "market_yahoo": "Yahoo Finance kvotok",
+        "hirmagnet_news": "Echolot magyar hirek",
+    },
+}
+
+
+async def probe_sections(recipe: str) -> dict:
+    """{szekcio: (ok, reszlet)} — a recept adat-utjanak elesben merese."""
+    required = REQUIRED_SECTIONS.get(recipe)
+    if not required:
+        return {}
+    fn = globals().get(f"prefetch_{recipe}")
+    if fn is None:
+        return {"_prefetcher": (False, f"nincs prefetch_{recipe} fuggveny")}
+    try:
+        raw = await fn({})
+        payload = json.loads(raw) if isinstance(raw, str) else (raw or {})
+    except Exception as e:  # noqa: BLE001
+        return {"_prefetcher": (False, f"{type(e).__name__}: {e}")}
+    out = {}
+    for key, label in required.items():
+        val = payload.get(key)
+        if isinstance(val, list) and val and isinstance(val[0], dict) and val[0].get("_error"):
+            out[key] = (False, f"{label}: {val[0]['_error']}")
+        elif not val:
+            out[key] = (False, f"{label}: URES — a brief e nelkul keszulne el")
+        else:
+            n = len(val) if isinstance(val, (list, dict)) else 1
+            out[key] = (True, f"{label}: {n} tetel")
+    return out
 
 
 # ── Fo prefetch funkciok recipe-kent ──────────────────────────────────

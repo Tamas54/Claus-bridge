@@ -9125,6 +9125,46 @@ selfdiag.register_probe("brave_mcp", "endpoint",
                             "endpoint", None, "BRAVE_MCP_URL nincs beállítva")
                         if not BRAVE_MCP_ENABLED else
                         selfdiag.ProbeResult("endpoint", True, "konfigurálva"))
+# ⭐ ADAT-UT PROBA — a Kommandant leletére (2026-08-30):
+# "erre már le kellett volna csapnia az önjavító eszköznek".
+# Igaza volt, és a MIÉRT a fontos: a `daily_news_brief` Echolot-szekciója
+# hónapok óta ÜRES volt, mert a prefetcher egy nem létező API-kulcsot várt és
+# csendben `[]`-t adott. Az önjavítás nem csaphatott le rá, mert NEM TÖRTÉNT
+# HIBA — csak nem történt adat.
+#
+# AZ ADAT HIÁNYA NEM HIBA, AMÍG VALAKI KI NEM MONDJA, HOGY OTT KELLENE LENNIE.
+# Ezért a receptek deklarálják a KÖTELEZŐ szekcióikat, és ez a próba azokat
+# méri — nem azt, hogy a függvény lefutott-e.
+def _probe_prefetch(recipe: str):
+    def _p() -> selfdiag.ProbeResult:
+        import asyncio as _a
+        try:
+            from plugins import _recipe_prefetch as _pf
+        except Exception as e:  # noqa: BLE001
+            return selfdiag.ProbeResult(recipe, None, f"prefetch modul: {type(e).__name__}: {e}")
+        try:
+            # Saját event loop: a próba szinkron kontextusból is hívható.
+            sections = _a.new_event_loop().run_until_complete(_pf.probe_sections(recipe))
+        except Exception as e:  # noqa: BLE001
+            return selfdiag.ProbeResult(recipe, False, f"a prefetch elhasalt: {type(e).__name__}: {e}")
+        if not sections:
+            return selfdiag.ProbeResult(recipe, None, "a recept nem deklarál kötelező szekciót")
+        bad = [d for ok, d in sections.values() if not ok]
+        if bad:
+            return selfdiag.ProbeResult(recipe, False, " · ".join(bad)[:380])
+        return selfdiag.ProbeResult(
+            recipe, True, " · ".join(d for _ok, d in sections.values())[:380])
+    return _p
+
+
+try:
+    from plugins._recipe_prefetch import REQUIRED_SECTIONS as _PF_REQUIRED
+    for _r in _PF_REQUIRED:
+        selfdiag.register_probe("prefetch", _r, _probe_prefetch(_r))
+except Exception as _e:  # noqa: BLE001
+    logger.warning("prefetch-próbák nem regisztrálhatók: %s", _e)
+    selfdiag.declare_component("prefetch")
+
 # Bejelentve, DE nincs rá próba — hogy a hiány LÁTSZÓDJON a `diagnose_all`-ban.
 # Ez nem mulasztás-lista, hanem a mérőeszköz határa, kimondva.
 for _c in ("telegram", "stripe"):
