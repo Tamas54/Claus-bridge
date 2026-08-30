@@ -229,60 +229,79 @@ def _fetch_open_tasks(get_db, limit: int = 10) -> list:
 
 # ── Hirmagnet friss hirek (opcionalis, csak szoveg, NEM adat) ─────────
 
-async def _fetch_hirmagnet_trending(limit: int = 8) -> list:
-    """Trending magyar hirek AZ ECHOLOT SAJAT KLIENSEVEL.
+async def _fetch_echolot_press_review(limit: int = 10) -> dict:
+    """HIRSZEMLE az Echolotbol — KLASZTEREZETT sztorik, forrasszammal.
 
-    ⚠️ MIT VALTOTT LE, ES MIERT (2026-08-30). A korabbi valtozat a
-    `hirmagnet.hu/api/trending` vegpontot hivta egy `HIRMAGNET_API_KEY`
-    fejleccel — csakhogy az a kulcs a produkcioban NINCS BEALLITVA, tehat a
-    fuggveny mar az ELSO soran `[]`-vel tert vissza. Mindig. Az Echolot adatai
-    SOHA nem voltak benne a napi hirbriefben, es ezt semmi nem jelezte: minden
-    hibaag `logger.debug` + `[]` volt.
+    ⚠️ HAROM ROSSZ VALASZ, MIRE EZ MEGLETT (2026-08-30, Kommandant-lelet):
+      1. `hirmagnet.hu/api/trending` egy NEM LETEZO API-kulccsal → mindig `[]`.
+         Az Echolot adatai SOHA nem voltak benne a briefben.
+      2. `get_trending` → KULCSSZAVAK ("peter" 16 forras, "trump" 14,
+         "budapesten" 11). Sulyozott temalista, nem hirlista.
+      3. `fetch_news(hu_press)` → valodi cimek, DE frissesseg szerint: Witcher 3
+         gameplay-video es homorodalmasi utak keverve a belpolitikaval. Ez
+         hirFOLYAM, nem hirSZEMLE.
+    A szemle az, ami a napi LAPSZAMBAN van: klaszterezett sztorik aszerint
+    rangsorolva, HANY FUGGETLEN FORRAS hozta. 13 sztori, source_count 6/6/6/4...
 
-    Kozben a Bridge-nek VAN mukodo Echolot-kliense (`_echolot_client`,
-    `ECHOLOT_URL` beallitva) — ugyanaz, amit a tobbi tool is hasznal.
-
-    A hiany mostantol NEM nema: ha az Echolot nem valaszol, a visszaadott lista
-    egyetlen `_error` tetelt tartalmaz, amit a prompt lat, es a brief kiirja.
+    ⚠️ ES A LAPSZAM ~21:55 UTC-kor FAGY. A 14:14-es cron tehat a TEGNAPIT kapja.
+    Ezt NEM elhallgatni kell, hanem kimondani — az S-007 tanulsaga: a bot
+    tegnapi lapszamot adott el "mai top sztorik" cimke alatt, iranyforditassal
+    egyutt. Ezert ad ez a fuggveny KET blokkot: a lapszamot a SAJAT datumaval,
+    es kulon a MAI friss teteleket a korpuszbol.
     """
+    out = {"edition_date": None, "edition_is_today": False,
+           "top_stories": [], "fresh_today": [], "_error": None}
     try:
         import _echolot_client as echolot_client
     except ImportError as e:
-        logger.error("Echolot-kliens nem importalhato: %s", e)
-        return [{"_error": f"az Echolot-kliens nem importalhato: {e}"}]
+        out["_error"] = f"az Echolot-kliens nem importalhato: {e}"
+        return out
     if not getattr(echolot_client, "ECHOLOT_URL", ""):
-        logger.error("ECHOLOT_URL nincs beallitva — a brief Echolot nelkul keszul")
-        return [{"_error": "ECHOLOT_URL nincs beallitva"}]
-    # ⚠️ `fetch_news`, NEM `get_trending`. A trending-vegpont KULCSSZAVAKAT ad
-    # ("peter" 16 forras, "trump" 14, "budapesten" 11) — az egy sulyozott
-    # temalista, nem hirlista. Egy hirbriefbe CIMEK kellenek, es a kulcsszavas
-    # valasz pont az a fajta "nem ures, tehat jo" adat, ami atcsuszik minden
-    # naiv ellenorzesen. A `fetch_news` valodi cikkeket ad.
+        out["_error"] = "ECHOLOT_URL nincs beallitva"
+        return out
+
+    from datetime import date as _date, timedelta as _td
+    today = _date.today()
+    for d_ in (today, today - _td(days=1)):
+        try:
+            raw = await echolot_client.mcp_call("get_daily_edition", {"date": d_.isoformat()})
+        except Exception as e:  # noqa: BLE001
+            logger.warning("Echolot lapszam (%s) hiba: %s", d_, e)
+            continue
+        try:
+            env = json.loads(raw) if isinstance(raw, str) else (raw or {})
+            payload = env.get("payload")
+            if isinstance(payload, str):
+                payload = json.loads(payload)
+            stories = (payload or {}).get("top_stories") or []
+        except Exception as e:  # noqa: BLE001
+            logger.warning("Echolot lapszam (%s) feldolgozasi hiba: %s", d_, e)
+            continue
+        if stories:
+            out["edition_date"] = d_.isoformat()
+            out["edition_is_today"] = (d_ == today)
+            out["top_stories"] = [
+                {"title": (st.get("title") or "").strip(),
+                 "source_count": st.get("source_count"),
+                 "story_id": st.get("story_id") or st.get("id") or "",
+                 "url": st.get("url") or ""}
+                for st in stories[:limit] if (st.get("title") or "").strip()
+            ]
+            break
+
+    # A MAI friss tetelek KULON — a lapszam fagyott, a korpusz nem.
     try:
-        data = await echolot_client.fetch_news(spheres=["hu_press"], days=1, limit=limit)
+        data = await echolot_client.fetch_news(spheres=["hu_press"], days=1, limit=6)
+        out["fresh_today"] = [
+            {"title": (a.get("title") or "").strip(),
+             "source": a.get("source") or "", "url": a.get("url") or ""}
+            for a in (data.get("articles") or [])[:6] if (a.get("title") or "").strip()
+        ]
     except Exception as e:  # noqa: BLE001
-        logger.error("Echolot fetch_news hiba: %s: %s", type(e).__name__, e)
-        return [{"_error": f"az Echolot nem valaszolt: {type(e).__name__}: {e}"}]
-    items = data.get("articles") or data.get("items") or data.get("results") or []
-    if not items:
-        logger.warning("Echolot URES cikklistat adott (kulcsok: %s)", list(data)[:8])
-        return [{"_error": "az Echolot valaszolt, de nem adott cikket"}]
-    out = []
-    for a in items[:limit]:
-        if not isinstance(a, dict):
-            continue
-        title = (a.get("title") or "").strip()
-        if not title:
-            continue
-        out.append({
-            "title": title,
-            "source": a.get("source") or a.get("sphere") or "Echolot",
-            "url": a.get("url") or a.get("link") or "",
-            "published": a.get("published_at") or a.get("published") or "",
-        })
-    if not out:
-        # Volt valasz, volt tetel, de egyetlen CIM sem — ez nem siker.
-        return [{"_error": "az Echolot adott teteleket, de egyikben sem volt cim"}]
+        logger.warning("Echolot friss lekeres hiba: %s", e)
+
+    if not out["top_stories"] and not out["fresh_today"]:
+        out["_error"] = "sem lapszam, sem friss cikk nem erkezett az Echolottol"
     return out
 
 
@@ -304,7 +323,7 @@ REQUIRED_SECTIONS = {
     "daily_news_brief": {
         "fx_ecb": "ECB napi devizaarfolyamok",
         "market_yahoo": "Yahoo Finance kvotok",
-        "hirmagnet_news": "Echolot magyar hirek",
+        "echolot_hirszemle": "Echolot hirszemle (klaszterezett sztorik)",
     },
 }
 
@@ -325,7 +344,24 @@ async def probe_sections(recipe: str) -> dict:
     out = {}
     for key, label in required.items():
         val = payload.get(key)
-        if isinstance(val, list) and val and isinstance(val[0], dict) and val[0].get("_error"):
+        # A hirszemle DICT (lapszam + friss), nem lista — a hiba a `_error`
+        # mezoben all, es "van adat" = van legalabb EGY sztori vagy friss cikk.
+        # ⚠️ CSAK a hirszemle-ALAKRA. Az elso valtozat MINDEN dictet
+        # hirszemlenek nezett, es ettol az `fx_ecb` (ECB-arfolyamok, szinten
+        # dict) PIROSRA valtott "se lapszam, se friss cikk" uzenettel — a
+        # proba a sajat tulzott altalanositasa miatt hazudott hibat.
+        _is_review = isinstance(val, dict) and (
+            "top_stories" in val or "fresh_today" in val or "_error" in val)
+        if _is_review:
+            if val.get("_error"):
+                out[key] = (False, f"{label}: {val['_error']}")
+            elif not (val.get("top_stories") or val.get("fresh_today")):
+                out[key] = (False, f"{label}: URES — se lapszam, se friss cikk")
+            else:
+                out[key] = (True, f"{label}: {len(val.get('top_stories') or [])} sztori "
+                                  f"({val.get('edition_date')}) + "
+                                  f"{len(val.get('fresh_today') or [])} friss")
+        elif isinstance(val, list) and val and isinstance(val[0], dict) and val[0].get("_error"):
             out[key] = (False, f"{label}: {val[0]['_error']}")
         elif not val:
             out[key] = (False, f"{label}: URES — a brief e nelkul keszulne el")
@@ -365,12 +401,12 @@ async def prefetch_daily_news_brief(deps: dict) -> str:
     ecb, market, news = await asyncio.gather(
         _fetch_ecb_rates(),
         _fetch_market_basket(),
-        _fetch_hirmagnet_trending(limit=8),
+        _fetch_echolot_press_review(limit=10),
     )
     return json.dumps({
         "fx_ecb": ecb,
         "market_yahoo": market,
-        "hirmagnet_news": news,
+        "echolot_hirszemle": news,
         "fetched_at": datetime.now(timezone.utc).isoformat(),
     }, ensure_ascii=False, indent=2)
 
