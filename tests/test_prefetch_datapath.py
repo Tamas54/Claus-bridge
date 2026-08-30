@@ -206,3 +206,21 @@ def test_world_stories_carry_sphere_and_source_count(fake_prefetch):
     out = _run(pf.probe_sections("daily_news_brief"))
     assert out["echolot_hirszemle"][0] is True
     assert "vilag" in out["echolot_hirszemle"][1]
+
+
+def test_lead_less_items_are_marked_as_such():
+    """A CÍM ÖNMAGÁBAN NEM AZONOSÍT EGY HÍRT. Élő példa ugyanerről a napról:
+    a "paksi fenékküszöb" és a "dunai fenékküszöb" CÍMBŐL két külön dolognak
+    látszik — a LEAD-ből derül ki, hogy ugyanaz a létesítmény.
+
+    A lapszám-sztorik hoznak leadet, a `/api/news` friss cikkei NEM. A kettőt
+    nem szabad egyformán kezelni, és a jelölő AZ ADATBAN van, nem csak a
+    promptban — hogy bármely jövőbeli fogyasztó (deduplikáció, tényellenőrzés,
+    összevetés) lássa, hogy ez a blokk kevesebbet tud."""
+    import inspect
+    from plugins.daily_press_review import structured_press_review
+    src = inspect.getsource(structured_press_review)
+    assert '"title_only": True' in src, \
+        "a lead nélküli friss tételek nincsenek megjelölve — a cím-only és a " \
+        "cím+lead adat összemosódik"
+    assert '"lead": ""' in src, "hiányzik az üres lead-mező, ami a hiányt kimondja"

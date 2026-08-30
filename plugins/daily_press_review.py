@@ -495,9 +495,25 @@ async def structured_press_review(date_iso: str | None = None, limit: int = 10,
         try:
             import _echolot_client as echolot_client
             data = await echolot_client.fetch_news(spheres=["hu_press"], days=1, limit=6)
+            # ⚠️ `title_only`: a `/api/news` NEM ad leadet (mezoi: title, url,
+            # source_name, category, spheres, published_at). A lapszam-sztorik
+            # IGEN — es a kettot nem szabad egyformanak kezelni.
+            #
+            # MIERT SZAMIT EZ: a CIM onmagaban nem azonosit egy hirt. Elo pelda
+            # ugyanerrol a naprol: a "paksi fenekkuszob" es a "dunai fenekkuszob"
+            # cimbol KET KULON dolognak latszik — a LEAD-bol derul ki, hogy
+            # ugyanaz a letesitmeny. Aki csak a cimbol indul ki, tevedni fog;
+            # ezt a hibat en magam kovettem el ezen a napon.
+            #
+            # Ezert a jelolo AZ ADATBAN van, nem csak a promptban: barmely
+            # jovobeli fogyaszto (deduplikacio, tenyellenorzes, osszevetes)
+            # lassa, hogy ez a blokk KEVESEBBET tud a masiknal.
             out["fresh_today"] = [
                 {"title": (a.get("title") or "").strip(),
-                 "source": a.get("source") or "", "url": a.get("url") or ""}
+                 "lead": "",
+                 "title_only": True,
+                 "source": a.get("source_name") or a.get("source") or "",
+                 "url": a.get("url") or ""}
                 for a in (data.get("articles") or [])[:6] if (a.get("title") or "").strip()
             ]
         except Exception as e:  # noqa: BLE001
