@@ -257,7 +257,9 @@ def test_a_makro_kontextus_lefedi_magyarorszagot():
                   if c["tool"] == "get_macro_indicator" and c["args"].get("country") == "HU"}
     for kell in ("cpi", "policy_rate", "unemployment", "gdp_growth"):
         assert kell in hu_mutatok, f"hianyzik a magyar mutato: {kell}"
-    assert "us_macro" in spec["presets"], "nincs amerikai makro"
+    assert ("US", "cpi") in {(c["args"].get("country"), c["args"].get("indicator"))
+                             for c in spec["series"]
+                             if c["tool"] == "get_macro_indicator"}, "nincs amerikai makró"
     assert "hu_markets" in spec["presets"], "nincs magyar tozsdei adat"
     regiok = {c["args"].get("region") for c in spec["series"]
               if c["tool"] == "get_economic_calendar"}
@@ -482,3 +484,27 @@ def test_sikeres_elsodleges_eseten_nincs_csere_uzenet(monkeypatch, tmp_path):
     result = asyncio.run(mb.generate_market_brief("morning"))
     assert result["ok"] is True
     assert "tartalék motor" not in result["telegram_text"]
+
+
+def test_minden_regio_RATAT_kap_nem_szintet():
+    """EGY ELV, HAROM REGIO. A `us_macro` preset nyers FRED-sorokat ad: GDP
+    SZINTET milliard dollarban es CPI INDEXPONTOT. A brief ebbol azt irta, hogy
+    "az amerikai inflacio juliusban 332,813-as indexerteken allt" es "a masodik
+    negyedeves amerikai GDP 32 486 milliard dollar" — mindketto igaz szam es
+    hasznalhatatlan mondat. Ratakent: US CPI 3,30%, core 2,47%.
+    """
+    spec = json.loads(mb._build_data_context())
+    par = {(c["args"].get("country"), c["args"].get("indicator"))
+           for c in spec["series"] if c["tool"] == "get_macro_indicator"}
+    for orszag in ("HU", "EA", "US"):
+        for mutato in ("cpi", "core_cpi", "policy_rate", "unemployment"):
+            assert (orszag, mutato) in par, f"hianyzik: {orszag}/{mutato}"
+    assert "us_macro" not in spec["presets"], \
+        "a nyers FRED-szintek visszakerultek — a modell indexpontot ir inflacionak"
+
+
+def test_a_szint_es_a_forras_szabaly_a_promptban_van():
+    p = mb._build_prompt("morning", "2026-08-30T06:30Z", "2026-08-30T12:30Z", "")
+    assert "INDEX-SZINT NEM INFLACIO" in p
+    assert "MINDEN SZAMNAK LEGYEN FORRAS-SORA" in p, \
+        "egy szam forras-sor nelkul is bekerulhet a szemlebe"

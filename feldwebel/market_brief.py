@@ -265,7 +265,14 @@ def _build_data_context() -> str:
         # szintezis ket egymas utani probaban prozat adott JSON helyett.
         # Ezert a HU/EA reszt a magas szintu `get_macro_indicator` adja —
         # ugyanaz az adat, egy szamban, forrascimkevel.
-        "presets": ["us_macro", "markets", "hu_markets"],
+        # Az `us_macro` preset SZANDEKOSAN nincs itt: nyers FRED-SOROKAT ad
+        # (GDP szint milliard dollarban, CPIAUCSL INDEXPONT). A brief ebbol azt
+        # irta, hogy "az amerikai inflacio juliusban 332,813-as indexerteken
+        # allt" es "a masodik negyedeves amerikai GDP 32 486 milliard dollar" —
+        # mindketto igaz szam es hasznalhatatlan mondat. Ratakent ugyanez:
+        # US CPI 3,30%, core 2,47% (merve 2026-08-30). Ugyanaz a magas szintu
+        # `get_macro_indicator`, mint a HU/EA resznel — egy elv, harom regio.
+        "presets": ["markets", "hu_markets"],
         "series": [
             {"tool": "get_macro_indicator", "args": {"country": "HU", "indicator": i}}
             # `gdp_growth`, NEM `gdp`: az utobbi SZINTET ad (HU 2026-Q2:
@@ -277,6 +284,13 @@ def _build_data_context() -> str:
             {"tool": "get_macro_indicator", "args": {"country": "EA", "indicator": i}}
             for i in ("cpi", "core_cpi", "policy_rate", "unemployment",
                       "gdp_growth")
+        ] + [
+            {"tool": "get_macro_indicator", "args": {"country": "US", "indicator": i}}
+            # `gdp_growth` az USA-ra NINCS (a resolver `None`-t ad, merve) —
+            # ezert nem is kerjuk. Egy hianyzo sor jobb, mint egy szint, amit a
+            # modell novekedesnek olvas.
+            for i in ("cpi", "core_cpi", "policy_rate", "unemployment",
+                      "bond_yield_10y")
         ] + [
             {"tool": "mnb_rates", "args": {}},
             # A SZINT NEM MONDJA MEG AZ IRANYT. A `get_macro_indicator
@@ -428,6 +442,16 @@ def _build_prompt(session: str, asof_iso: str, valid_until_iso: str, calendar_ra
         "able to tell an authoritative series from a scraped one.\n"
         "  * `telegram_digest` — 4-6 sentences: what is driving markets today, "
         "why this regime and risk budget, what to watch intraday.\n\n"
+        "⚠️ INDEX-SZINT NEM INFLACIO. An index point (CPIAUCSL = 332.8) or a "
+        "GDP level in billions is NOT a rate and must never be written as one. "
+        "If you only have a level and no percentage, either omit the figure or "
+        "name it for what it is ('az árindex 332,8 ponton') — never dress it up "
+        "as inflation or growth.\n\n"
+        "⚠️ MINDEN SZAMNAK LEGYEN FORRAS-SORA. Every figure that appears in "
+        "`macro_review` must be traceable to one line in `sources`. If you "
+        "cannot name where a number came from, DO NOT WRITE IT. (2026-08-30: "
+        "the brief stated 'az euróövezeti infláció 0,2%-ra lassult' with no "
+        "corresponding source line — and the figure was wrong.)\n\n"
         "⚠️ A SZINT NEM MONDJA MEG AZ IRANYT. Never characterise a CHANGE — "
         "\"tartotta\", \"csökkentette\", \"emelte\", \"gyorsult\", \"mérséklődött\" — "
         "unless the data blocks contain TWO observations (or an explicit "
