@@ -291,3 +291,56 @@ def test_serialised_by_design():
     thread-affin). Az egyidejűség nulla nyereség ÉS aktív kockázat: hideg
     szerveren 5-ből 3 egyidejű kérés üresen jött vissza."""
     assert server._LIGHTPANDA_SEMAPHORE._value == 1
+
+
+# ── 7. A Host-fejléc — ez ölte volna meg NÉMÁN az egész fokot ────────────
+
+def test_host_header_is_localhost_not_the_internal_name(lp):
+    """A Lightpanda MCP-szervere DNS-rebinding-védelmet futtat: a Host fejléc
+    CSAK `localhost:<port>` vagy IP-literál lehet, minden más 403 — és nincs
+    kapcsoló, ami feloldaná. A Railway privát hálóján a cím
+    `<svc>.railway.internal`, tehát a naiv hívás NÉMÁN 403-at kap. Élesben
+    pontosan ez történt, a bekötés napján, 11 ms alatt."""
+    lp.response = _ok(ARTICLE)
+    _run(server._lightpanda_markdown("https://x.example/"))
+    # a FakeClient a POST-nál csak a session-idet és a content-type-ot naplózza,
+    # ezért itt közvetlenül a fejléc-építést mérjük
+    import httpx
+    captured = {}
+
+    class HeaderSpy(FakeClient):
+        async def post(self, url, json=None, headers=None):
+            captured.update(headers or {})
+            return FakeClient.response
+
+    monkey = HeaderSpy
+    orig = httpx.AsyncClient
+    httpx.AsyncClient = monkey
+    try:
+        _run(server._lightpanda_markdown("https://x.example/"))
+    finally:
+        httpx.AsyncClient = orig
+
+    assert captured.get("Host") == "localhost:8080", (
+        f"a Host fejléc {captured.get('Host')!r} — a Lightpanda ezt 403-mal "
+        f"utasítja el; csak 'localhost:<port>' vagy IP-literál megy át"
+    )
+    assert not any(k.lower() == "origin" for k in captured), (
+        "Origin fejlécet küldtünk — a szerver a puszta JELENLÉTÉRE 403-at ad"
+    )
+
+
+def test_host_port_comes_from_the_url(monkeypatch):
+    import httpx
+    monkeypatch.setattr(server, "LIGHTPANDA_ENABLED", True)
+    monkeypatch.setattr(server, "LIGHTPANDA_URL", "http://lp.railway.internal:9999/mcp")
+    captured = {}
+
+    class HeaderSpy(FakeClient):
+        async def post(self, url, json=None, headers=None):
+            captured.update(headers or {})
+            return _ok(ARTICLE)
+
+    monkeypatch.setattr(httpx, "AsyncClient", HeaderSpy)
+    _run(server._lightpanda_markdown("https://x.example/"))
+    assert captured.get("Host") == "localhost:9999", "a Host portja nem a URL-ből jön"

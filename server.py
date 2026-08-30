@@ -5763,6 +5763,7 @@ async def _lightpanda_markdown(url: str, max_bytes: int = 20000,
     if not LIGHTPANDA_ENABLED:
         return None
     import httpx, asyncio as _asyncio, uuid as _uuid
+    from urllib.parse import urlsplit as _urlsplit
     session_id = f"claus-{_uuid.uuid4().hex[:12]}"
     headers = {
         # Content-Type is MANDATORY — without it the server answers 415.
@@ -5771,6 +5772,18 @@ async def _lightpanda_markdown(url: str, max_bytes: int = 20000,
         "Content-Type": "application/json",
         "Mcp-Session-Id": session_id,
         "User-Agent": "claus-bridge/1.0",
+        # ⚠️ The server runs DNS-rebinding protection: the Host header may ONLY
+        # be `localhost:<port>` or an IP literal, anything else is a flat 403
+        # (src/mcp/HttpServer.zig:463-478), and there is no flag to relax it.
+        # On Railway's private network the address is `<svc>.railway.internal`,
+        # so the naive call gets a SILENT 403 and the whole tier stays dead —
+        # measured, on the day it was wired up. Host is legitimately
+        # independent of where the connection goes: TCP to the internal name,
+        # header says localhost. The guard defends a browser vector; there is
+        # nothing for it to defend on a private server-to-server call.
+        "Host": f"localhost:{_urlsplit(LIGHTPANDA_URL).port or 8080}",
+        # NEVER send Origin: the server 403s on its mere presence, whatever
+        # the value (HttpServer.zig:458-462).
     }
     payload = {
         "jsonrpc": "2.0", "id": 1, "method": "tools/call",
