@@ -7579,7 +7579,27 @@ async def sf_chat(payload: dict, *, purpose: str = "", attempts: int = 3,
                 # kvóta fojtja a következőt is. Ha van MÁSIK kulcsunk, azzal
                 # próbáljuk újra UGYANAZT a modellt.
                 if err["code"] == "rate_limit":
-                    if _ki + 1 < len(_keys):
+                    # ── KÉT NAGYON KÜLÖNBÖZŐ 429 ──────────────────────────
+                    # A SiliconFlow ugyanazt a `50610` kódot adja arra is,
+                    # hogy MINKET fojtanak (kvóta), és arra is, hogy a
+                    # SZOLGÁLTATÓ van tele ("System is too busy now"). Mérve
+                    # 2026-08-30-án a `glm53f`-en: az utóbbi.
+                    #
+                    # A különbség nem elméleti: kvótánál a MÁSIK KULCS segít,
+                    # szolgáltatói telítettségnél SEMMIT nem old meg — se
+                    # másik kulcs, se másik fiók. Ha ezt összemossuk, a
+                    # rendszer azt a hamis következtetést vonná le, hogy a két
+                    # kulcsunk közös kvótán van, holott a modell van tele.
+                    _busy = "too busy" in err.get("message", "").lower()
+                    if _busy:
+                        notes.append(
+                            f"a(z) `{mid}` a SZOLGÁLTATÓNÁL telített "
+                            f"(\"System is too busy\") — ez nem a mi kvótánk, "
+                            f"kulcsváltás nem segít")
+                        logger.warning(
+                            "sf_chat[%s] %s: szolgáltatói telítettség (nem kvóta)",
+                            purpose or "?", mid)
+                    elif _ki + 1 < len(_keys):
                         _ki += 1
                         notes.append(
                             f"a(z) `{mid}` kvótája kimerült az elsődleges kulcson "
@@ -7588,7 +7608,7 @@ async def sf_chat(payload: dict, *, purpose: str = "", attempts: int = 3,
                             "sf_chat[%s] %s: rate limit, váltás a %d. kulcsra",
                             purpose or "?", mid, _ki + 1)
                         continue
-                    if _ki > 0:
+                    if _ki > 0 and not _busy:
                         # A KULCSVÁLTÁS UTÁN IS FOJTVA. Ez BIZONYÍTÉK: a két
                         # kulcs KÖZÖS KVÓTÁN van (egy fiók két kulcsa), tehát a
                         # rotáció itt nem old meg semmit. Nem tudjuk a fiókot

@@ -633,3 +633,26 @@ def test_a_kozos_kvotat_a_rendszer_maga_meri_meg():
     assert "TARTALÉK KULCS IS fojtva" in chat, \
         "a kozos kvota esete eszrevetlen marad — a rotacio placebonak latszana"
     assert "közös kvótán" in chat, "a jegyzet nem mondja ki a következtetést"
+
+
+def test_a_szolgaltatoi_telitettseg_nem_kvota_kerdes():
+    """A SiliconFlow UGYANAZT a `50610` kódot adja két nagyon különböző dologra:
+
+      * MINKET fojtanak (kvóta)              -> a MÁSIK KULCS segít
+      * a SZOLGÁLTATÓ van tele                -> SEMMI nem segít
+
+    Mérve 2026-08-30-án a `glm53f`-en, a teljes üzenet:
+      "Request was rejected due to rate limiting. Details: System is too busy now."
+    Ez provider-oldali kapacitás. Ha összemossuk a kettőt, a rendszer azt a
+    HAMIS következtetést vonja le, hogy a két kulcsunk közös kvótán van —
+    holott a modell van tele —, és a Kommandant fölöslegesen nyit új fiókot.
+    """
+    chat = _func_source("sf_chat")
+    assert '"too busy"' in chat, "a két 429-fajta nincs megkülönböztetve"
+    # A "közös kvóta" következtetés CSAK akkor mondható ki, ha NEM telítettség:
+    assert "if _ki > 0 and not _busy:" in chat, \
+        "szolgáltatói telítettségre is 'közös kvótát' jelentene"
+    # És a telítettség esetén NEM váltunk kulcsot (fölösleges kör):
+    i_busy = chat.index("if _busy:")
+    i_switch = chat.index("elif _ki + 1 < len(_keys):")
+    assert i_busy < i_switch
