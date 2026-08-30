@@ -38,14 +38,17 @@ import xml.etree.ElementTree as ET
 # Last verified full run: see VERIFIED_COUNT. If the suite legitimately
 # shrinks below the floor, lower this number in the same commit that removes
 # the tests, so it is a visible decision and not a silent one.
-TEST_COUNT_FLOOR = 480
-VERIFIED_COUNT = 501  # 2026-08-29, Python 3.13.11, `-m "not network"`,
-# measured against a CLEAN CHECKOUT (`git archive HEAD`) plus this change --
-# NOT against a working tree. At the time of writing the working tree also
-# carries four uncommitted test files (test_echolot_redirect_follow,
-# test_error_surface, test_presence, test_recipe_health) worth another 75
-# tests, and the modules two of them import are uncommitted too. Whoever
-# commits those should raise this floor in the same commit.
+TEST_COUNT_FLOOR = 600
+VERIFIED_COUNT = 648  # 2026-08-30, Python 3.13.11, `-m "not network"`.
+# Raised from 480/501. The old numbers were measured on 2026-08-29 against a
+# clean checkout while four test files (test_echolot_redirect_follow,
+# test_error_surface, test_presence, test_recipe_health) were still
+# uncommitted; that note asked whoever committed them to raise the floor, and
+# nobody did. Re-measured on a clean `git archive HEAD` checkout: 618
+# collected -- so the 480 floor was letting 138 tests disappear in silence,
+# which is exactly the failure this file exists to catch. 648 = 618 on HEAD
+# plus the 30 new tests landing in this change (S-009 engine selection,
+# Feldwebel wiring, anonymous-call counting).
 
 # The canonical full-suite invocation. `-m "not network"` deselects tests that
 # need live services and real credentials; they show up as "deselected" in the

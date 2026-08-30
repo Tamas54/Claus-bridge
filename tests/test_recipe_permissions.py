@@ -66,13 +66,34 @@ def _extract_func(name: str):
         "logger": __import__("logging").getLogger("test.extracted"),
         "datetime": __import__("datetime").datetime,
         "timedelta": __import__("datetime").timedelta,
+        # A `_enforce` az anonim (caller nélküli) hívásokat toolonként számolja,
+        # hogy a fail-open BIZONYÍTÉK alapján legyen bezárható. A kivágott
+        # függvénynek is kell egy számláló — ez ugyanaz a dict-szerződés, csak
+        # tesztenként tiszta lappal. Ha a névtér hiányos, a kivágás NameError-t
+        # dob: a mérőeszköz hangosan bukik, nem némán mér mást.
+        "_ANON_CALL_COUNTS": {},
     }
     exec(compile(ast.Module(body=[node], type_ignores=[]), "<server.py>", "exec"), ns)
-    return ns[name]
+    return ns[name], ns
 
 
-_ENFORCE = _extract_func("_enforce")
-_CRON_MATCHES = _extract_func("_cron_matches")
+_ENFORCE, _ENFORCE_NS = _extract_func("_enforce")
+_CRON_MATCHES, _ = _extract_func("_cron_matches")
+
+
+def test_az_anonim_hivas_szamlalt():
+    """A kapu ma ÁTENGEDI a caller nélküli hívást (tudatos, ideiglenes) — de
+    NEM NÉMÁN. A számláló az a bizonyíték, ami alapján a lyuk bezárható
+    anélkül, hogy egy valódi élő hívót kizárnánk."""
+    counts = _ENFORCE_NS["_ANON_CALL_COUNTS"]
+    before = counts.get("create_recipe", 0)
+    _ENFORCE("", "create_recipe")
+    _ENFORCE("", "create_recipe")
+    assert counts["create_recipe"] == before + 2, \
+        "az anonim hívás átment, és nyomtalanul — pont ez a néma hiba"
+    _ENFORCE("kommandant", "create_recipe")
+    assert counts["create_recipe"] == before + 2, \
+        "a NEVES hívást nem szabad anonimként számolni"
 
 
 def test_a_meroeszkoz_maga_mukodik():

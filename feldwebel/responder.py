@@ -92,8 +92,11 @@ TOOLS = [
         "name": "web_fetch", "description": "Statikus weboldal HTML-tartalmának letöltése URL alapján (HTML strippelve, 6000 karakterig). Gyors és olcsó. JS-rendered SPA-knál (Eurostat newsroom, MNB-honlap) használj `web_scrape`-et.",
         "parameters": {"type": "object", "properties": {"url": {"type": "string", "description": "A letöltendő URL"}}, "required": ["url"]}}},
     {"type": "function", "function": {
-        "name": "web_search", "description": "Web-keresés (brave-mcp → saját SearXNG → DDG lánc). Akkor jó, ha friss adatra (Eurostat flash, MNB-közlemény, ECB döntés), részletes forrásokra, vagy nem-hír jellegű információra van szükség. Visszaad cím + URL + leírás találatokat.",
-        "parameters": {"type": "object", "properties": {"query": {"type": "string", "description": "Keresési kifejezés"}}, "required": ["query"]}}},
+        "name": "web_search", "description": "Web-keresés (saját SearXNG → brave-mcp → DDG lánc). Akkor jó, ha friss adatra (Eurostat flash, MNB-közlemény, ECB döntés), részletes forrásokra, vagy nem-hír jellegű információra van szükség. Visszaad cím + URL + leírás találatokat. HA A KOMMANDANT MOTORT NEVEZ MEG ('ezt searxng-vel', 'Searrel', 'brave-mcp-vel') → add át az `engine` mezőben, és a válaszodban MONDD KI, melyik motor szolgált ki (a találat végén ott a _bridge_served_by sor).",
+        "parameters": {"type": "object", "properties": {
+            "query": {"type": "string", "description": "Keresési kifejezés"},
+            "engine": {"type": "string", "enum": ["auto", "searxng", "brave-mcp", "ddg", "brave-api"], "description": "Melyik keresőt használja. 'auto' = a lánc dönt. CSAK akkor állítsd be, ha a Kommandant kifejezetten motort nevezett meg — az ő kérése felülírja a lánc-sorrendet.", "default": "auto"},
+        }, "required": ["query"]}}},
     {"type": "function", "function": {
         "name": "web_scrape", "description": "JS-rendered weboldal teljes markdown-tartalma (headless Brave-böngészőn, Puppeteer-rel). ERŐSEBB mint web_fetch — kezeli a JavaScript-rendelt SPA-kat (Eurostat newsroom, MNB-honlap, ECB press release-ek). Tipikus minta: web_search → talált URL → web_scrape.",
         "parameters": {"type": "object", "properties": {
@@ -251,7 +254,8 @@ SZABÁLYOK az agentekhez:
 - Ha a Kommandant azt mondja "adj ki feladatot", "kérdezd meg", "nézzen utána", "elemezze", vagy BÁRMILYEN agentet említ név szerint → AZONNAL hívd a megfelelő tool-t! NE keress Gmail-ben, NE válaszolj szövegben!
 - Az agentek önálló AI modellek, NEM email kontaktok — SOHA ne keress rájuk a Gmail-ben!
 - **ai_query**: egyszerű kérdés egy agentnek (NEM tud webet keresni, csak a tudásából válaszol)
-- **ai_task**: kutatás, elemzés, aktuális adatok keresése — WEB SEARCH KÉPES! Az agentek a brave-mcp → SearXNG → DDG láncon keresnek.
+- **ai_task**: kutatás, elemzés, aktuális adatok keresése — WEB SEARCH KÉPES! Az agentek a SearXNG → brave-mcp → DDG láncon keresnek.
+- **SZERV-VÁLASZTÁS (kötelező):** ha a Kommandant megnevez egy keresőt ("ezt searxng-vel", "a Seart használd", "brave-mcp-vel"), add át a `web_search` `engine` mezőjében. A találat végén ott a `_bridge_served_by` sor — a válaszodban MONDD KI, melyik motor szolgált ki és hány találattal ("SearXNG, 27 találat"). Ha a `_bridge_engine_substituted` sor is ott van, akkor a kért motor NEM felelt: ezt is mondd ki ("a SearXNG nem válaszolt, ezért brave-mcp-vel kerestem"). Néma csere TILOS — a Kommandant szervet parancsolt, nem javaslatot tett.
 - Ha AKTUÁLIS/FRISS adatokat kell keresni (közvélemény-kutatás, árak, hírek) → MINDIG ai_task-ot használj, NE ai_query-t!
 - KÖZGAZDASÁGI ADATOKHOZ van 5 dedikált tool — EZEKET HASZNÁLD, NE ai_task-ot!
   * mnb_rates — MNB hivatalos árfolyamok (EUR/HUF, USD/HUF stb.)
@@ -898,7 +902,9 @@ async def _execute_tool(name: str, args: dict, ctx) -> str:
             return json.dumps({"error": "query required"})
         try:
             from server import _web_search
-            return await _web_search(q)
+            # S-009: a Kommandant kifejezett motor-kérése ("ezt searxng-vel")
+            # eddig itt veszett el — nem volt hova mennie.
+            return await _web_search(q, engine=(args.get("engine") or "auto"))
         except Exception as e:
             return json.dumps({"error": f"web_search exception: {type(e).__name__}: {e}"})
 

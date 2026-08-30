@@ -81,12 +81,38 @@ BRAVE_MCP_URL = os.getenv("BRAVE_MCP_URL", "").strip()
 BRAVE_MCP_ENABLED = bool(BRAVE_MCP_URL)
 
 # SearXNG — self-hosted metasearch (own Railway instance, JSON API).
-# Sits between brave-mcp and the DDG-html scrape in `_web_search`. Measured from
-# the Railway egress IP, one call answers from brave + google cse + bing + qwant
-# (duckduckgo and startpage CAPTCHA there and get suspended), and being ours it
-# never throttles us the way the DDG-html endpoint does (the 202 anti-burst).
+# The FIRST tier of `_web_search` since 2026-08-30: it is the cheapest organ
+# that can carry the load, and being ours it never throttles us the way the
+# DDG-html endpoint does (the 202 anti-burst pattern).
+#
+# Measured 2026-08-30 over 6 rounds from the Railway egress IP: `google cse`
+# (20 hits) and `qwant` (9-10) answer 6/6; `brave` answered 1/6 and is
+# otherwise "Suspended: too many requests"; duckduckgo and mojeek time out and
+# startpage CAPTCHAs. So the instance stands on TWO engines, not four.
+# ⛔ bing is disabled and stays disabled — it ignores the query language from
+# this IP (a Hungarian central-bank question returned Russian gaming pages).
 SEARXNG_URL = os.getenv("SEARXNG_URL", "").strip().rstrip("/")
 SEARXNG_ENABLED = bool(SEARXNG_URL)
+
+# Lightpanda — headless-only browser (Zig, AGPL-3.0), own Railway service,
+# spoken to over its NATIVE MCP server. The middle tier of the FETCH chain:
+#
+#   Tier 1  plain HTTP GET        static pages, ~0 cost
+#   Tier 2  Lightpanda            JS-rendered content pages -> markdown
+#   Tier 3  brave-mcp (Chrome)    session / login / anti-bot / CAPTCHA
+#
+# Lightpanda does not log in and does not click; it renders and returns text.
+# ⚠️ Keep it on the PRIVATE network. Its MCP server has NO authentication
+# whatsoever (measured: zero auth code in src/mcp/HttpServer.zig), so a public
+# URL would let anyone read this service's LP_* env vars via its `getEnv` tool,
+# reach *.railway.internal via SSRF, run arbitrary JS and write files. Point
+# LIGHTPANDA_URL at http://<service>.railway.internal:8080/mcp, never at a
+# public domain, and never put a secret in this service's environment.
+LIGHTPANDA_URL = os.getenv("LIGHTPANDA_URL", "").strip()
+LIGHTPANDA_ENABLED = bool(LIGHTPANDA_URL)
+# Deliberately tighter than the 10 s plain-GET budget: the JS tier must not
+# double the cost of a search round. Measured 0.8-2.1 s on real news pages.
+LIGHTPANDA_TIMEOUT_S = float(os.getenv("LIGHTPANDA_TIMEOUT_S", "8"))
 
 # Feldwebel — Telegram command system + smart triage + briefing
 try:
@@ -424,9 +450,38 @@ def now():
 # PERMISSION HELPERS
 # ============================================================
 
+# How many anonymous (caller-less) calls each tool has seen since boot.
+# Read it from `get_status` / the dashboard before tightening the gate — the
+# decision needs the list of REAL callers, not a guess.
+_ANON_CALL_COUNTS: dict[str, int] = {}
+
+
 def _enforce(caller: str, tool_name: str, **kwargs) -> str | None:
-    """Check permission. Returns error JSON if denied, None if allowed."""
-    if not caller or is_core_instance(caller):
+    """Check permission. Returns error JSON if denied, None if allowed.
+
+    ⚠️ FAIL-OPEN on an empty `caller`, and that is currently DELIBERATE but
+    TEMPORARY. `permissions.py` declares "Alles was nicht erlaubt ist, ist
+    verboten", and this line inverts it: 27 tools are reachable by simply
+    omitting the field. Measured live on 2026-08-30 — `debug_web_search` with
+    `caller="cli-claus-audit"` was denied, the same call with no caller went
+    through and returned full diagnostics.
+
+    Why it is still open (Kommandant decision, 2026-08-30): `caller` defaults
+    to "" on 51 tools, so closing it blind would cut off whichever live client
+    (connector, Telegram, cron) does not send one — and we do not yet know
+    which. So for now every anonymous call is COUNTED and LOGGED with its tool
+    name. After a week the log names the real callers, and the gate can be
+    closed on evidence instead of on a guess.
+    """
+    if not caller:
+        _ANON_CALL_COUNTS[tool_name] = _ANON_CALL_COUNTS.get(tool_name, 0) + 1
+        logger.warning(
+            "ANONIM HÍVÁS (caller nélkül): tool=%s — a jogosultság-kapu ezt "
+            "ÁTENGEDI (fail-open). Eddig %d ilyen hívás erre a toolra.",
+            tool_name, _ANON_CALL_COUNTS[tool_name],
+        )
+        return None
+    if is_core_instance(caller):
         return None
     try:
         access = check_permission(caller, tool_name, **kwargs)
@@ -1556,6 +1611,12 @@ async def get_status(caller: str = "") -> str:
         "total_memory_entries": total_memory,
         # S-002: a kihagyott ütemezett futások itt látszanak, nem csak logban.
         "skipped_runs_24h": recipe_health.recent_skips(get_db, hours=24),
+        # A `caller` nélküli (anonim) hívások toolonként, boot óta. A
+        # jogosultság-kapu ezeket ma ÁTENGEDI; ez a mező adja azt a
+        # bizonyítékot, ami alapján a fail-open bezárható anélkül, hogy egy
+        # valódi élő hívót kizárnánk. Üres dict = senki nem hív caller nélkül.
+        "anonymous_calls_since_boot": dict(sorted(
+            _ANON_CALL_COUNTS.items(), key=lambda kv: -kv[1])),
         "recent_sessions": [dict(s) for s in last_session]
     }, ensure_ascii=False)
 
@@ -3930,18 +3991,76 @@ async def api_upload_download(request):
 # AI TASK EXECUTION (multi-agent with web search)
 # ============================================================
 
+# ── S-009: explicit organ selection ──────────────────────────────────────
+# The user commands an organ ("ezt searxng-vel"); the routing rule is only the
+# default. Aliases are generous on purpose: the instruction arrives in free
+# text from a human or an LLM, and "Sear" is what the Kommandant actually says.
+# Defined here (not next to _web_search) because WEB_SEARCH_TOOL_DEF below
+# builds its enum from it at import time.
+_WEB_SEARCH_ENGINES = ("auto", "searxng", "brave-mcp", "ddg", "brave-api")
+_WEB_SEARCH_ENGINE_ALIASES = {
+    "": "auto", "auto": "auto", "any": "auto", "default": "auto",
+    "searxng": "searxng", "searx": "searxng", "sear": "searxng", "searxg": "searxng",
+    "brave-mcp": "brave-mcp", "brave_mcp": "brave-mcp", "bravemcp": "brave-mcp",
+    "brave": "brave-mcp", "brave mcp": "brave-mcp",
+    "ddg": "ddg", "duckduckgo": "ddg", "duck": "ddg", "ddg-html": "ddg",
+    "brave-api": "brave-api", "brave_api": "brave-api", "braveapi": "brave-api",
+}
+
+
+def _legacy_engine_hint(content: str) -> str:
+    """Pull an `engine` out of a MALFORMED tool-call marker.
+
+    When a model emits a tool call the parser cannot structure, the legacy
+    paths regex the `query` out of the raw text and search anyway. If we only
+    rescue the query, an engine the user explicitly asked for is dropped on
+    exactly the rounds where the model was already sloppy — the silent
+    substitution comes back through the back door. Returns "auto" when absent.
+    """
+    import re as _re
+    m = _re.search(r'"engine"[:\s]*"([^"]+)"', content or "")
+    return m.group(1) if m else "auto"
+
+
+def _normalize_web_engine(engine: str | None) -> tuple[str, str | None]:
+    """(engine, note). `note` is non-None when the requested name was NOT
+    recognised — the caller must then say that it fell back to auto rather
+    than pretend the request was honoured."""
+    raw = (engine or "auto").strip().lower()
+    norm = _WEB_SEARCH_ENGINE_ALIASES.get(raw)
+    if norm is None:
+        return "auto", (
+            f"ismeretlen motor-név: {engine!r} (érvényes: {', '.join(_WEB_SEARCH_ENGINES)})"
+        )
+    return norm, None
+
+
 WEB_SEARCH_TOOL_DEF = {
     "type": "function",
     "function": {
         "name": "web_search",
         "description": (
-            "Deep-research web search (brave-mcp → SearXNG → DuckDuckGo chain). Use for "
+            "Deep-research web search (SearXNG → brave-mcp → DuckDuckGo chain). Use for "
             "detailed sourcing, statistics, fact-checking, long-form articles, "
-            "anything needing depth. Returns a list of result snippets with URLs."
+            "anything needing depth. Returns a list of result snippets with URLs. "
+            "If the user names an engine ('keresd meg searxng-vel', 'brave-mcp-pel'), "
+            "pass it in `engine` — and afterwards SAY which engine served the answer "
+            "(the result carries a _bridge_served_by line)."
         ),
         "parameters": {
             "type": "object",
-            "properties": {"query": {"type": "string", "description": "Search query"}},
+            "properties": {
+                "query": {"type": "string", "description": "Search query"},
+                "engine": {
+                    "type": "string",
+                    "enum": list(_WEB_SEARCH_ENGINES),
+                    "description": (
+                        "Which search organ to use. 'auto' (default) runs the "
+                        "cheapest-first chain. Set it ONLY when the user explicitly "
+                        "asked for an engine — that request overrides the routing."
+                    ),
+                },
+            },
             "required": ["query"],
         },
     },
@@ -4550,15 +4669,51 @@ async def _fetch_url_text(url: str, max_chars: int = 30000) -> str:
         return json.dumps({"error": f"fetch failed: {type(e).__name__}: {e}"})
 
 
-def _stamp_fetched_at(result_str: str) -> str:
+def _stamp_fetched_at(
+    result_str: str,
+    *,
+    served_by: str | None = None,
+    hits: int | None = None,
+    ms: int | None = None,
+    requested: str | None = None,
+    substitution_reason: str | None = None,
+    cache_age_s: float | None = None,
+) -> str:
     """Append a Bridge-observed UTC timestamp to a tool result so agents
     cannot cite a fabricated date for the citation. Agents are instructed
     via the temporal_directive that [tool, date] dates must come from this
-    stamp or from explicit dates inside the tool content — nowhere else."""
+    stamp or from explicit dates inside the tool content — nowhere else.
+
+    S-009: the optional `served_by` block names WHICH organ actually answered.
+    Without it the caller cannot tell that the engine it asked for was swapped,
+    and the swap stays silent — the failure class this stamp exists to prevent.
+    `requested` + `substitution_reason` make the swap explicit and quotable;
+    `cache_age_s` marks an answer that came from the 10-minute cache rather
+    than from a live call.
+    """
     stamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
-    if isinstance(result_str, str):
-        return f"{result_str}\n\n[_bridge_fetched_at: {stamp}]"
-    return result_str
+    if not isinstance(result_str, str):
+        return result_str
+    out = f"{result_str}\n\n[_bridge_fetched_at: {stamp}]"
+    if served_by:
+        parts = [served_by]
+        if hits is not None:
+            parts.append(f"{hits} találat")
+        if ms is not None:
+            parts.append(f"{ms} ms")
+        out += f"\n[_bridge_served_by: {' · '.join(parts)}]"
+        if requested and requested != served_by:
+            reason = substitution_reason or "nem válaszolt"
+            out += (
+                f"\n[_bridge_engine_substituted: a kért motor '{requested}' {reason};"
+                f" a keresést '{served_by}' szolgálta ki. MONDD KI a válaszodban.]"
+            )
+    if cache_age_s is not None:
+        out += (
+            f"\n[_bridge_cache: HIT (age {int(cache_age_s)} s) — ez a válasz korábbi"
+            f" lehívásból származik, nem most készült.]"
+        )
+    return out
 
 
 def _rank_search_hits(query: str, matches_str: str) -> str | None:
@@ -4632,7 +4787,8 @@ async def _dispatch_subagent_tool(name: str, args: dict) -> str:
         q = (args.get("query") or "").strip()
         if not q:
             return json.dumps({"error": "empty query"})
-        return await _web_search(q)
+        # S-009: an explicitly requested engine must survive the dispatch hop.
+        return await _web_search(q, engine=(args.get("engine") or "auto"))
 
     if name == "echolot_query":
         if not ECHOLOT_ENABLED or echolot_client is None:
@@ -5462,26 +5618,43 @@ _WEB_SEARCH_CACHE_TTL = 600  # seconds
 _WEB_SEARCH_CACHE_MAX = 100
 
 
-def _web_search_cache_get(query: str):
+def _web_search_cache_key(query: str, engine: str = "auto") -> str:
+    """Cache key. The engine MUST be part of it (S-009): an `auto` answer may
+    not serve a caller who explicitly asked for a given engine, otherwise the
+    substitution becomes silent again — this time through the cache."""
+    return f"{engine}\x00{query}"
+
+
+def _web_search_cache_get(query: str, engine: str = "auto"):
+    """Returns (body, age_seconds, meta) or None.
+
+    The cache stores the UNSTAMPED body plus its metadata, not the finished
+    string. Storing the finished string would freeze the `_bridge_fetched_at`
+    of the original call into every later hit — the answer would claim to be
+    fresh while being up to 10 minutes old. The age is returned so the caller
+    can say so out loud (same doctrine as the engine substitution: S-009)."""
     import time as _t
+    key = _web_search_cache_key(query, engine)
     with _WEB_SEARCH_CACHE_LOCK:
-        entry = _WEB_SEARCH_CACHE.get(query)
+        entry = _WEB_SEARCH_CACHE.get(key)
         if entry:
-            result, ts = entry
-            if _t.time() - ts < _WEB_SEARCH_CACHE_TTL:
-                return result
-            _WEB_SEARCH_CACHE.pop(query, None)
+            body, ts, meta = entry
+            age = _t.time() - ts
+            if age < _WEB_SEARCH_CACHE_TTL:
+                return body, age, meta
+            _WEB_SEARCH_CACHE.pop(key, None)
     return None
 
 
-def _web_search_cache_put(query: str, result: str) -> None:
+def _web_search_cache_put(query: str, body: str, engine: str = "auto", meta: dict | None = None) -> None:
     import time as _t
+    key = _web_search_cache_key(query, engine)
     with _WEB_SEARCH_CACHE_LOCK:
         if len(_WEB_SEARCH_CACHE) >= _WEB_SEARCH_CACHE_MAX:
             # LRU eviction: drop the oldest entry by timestamp
             oldest_q = min(_WEB_SEARCH_CACHE.items(), key=lambda kv: kv[1][1])[0]
             _WEB_SEARCH_CACHE.pop(oldest_q, None)
-        _WEB_SEARCH_CACHE[query] = (result, _t.time())
+        _WEB_SEARCH_CACHE[key] = (body, _t.time(), meta or {})
 
 
 async def _brave_search(query: str, api_key: str) -> list:
@@ -5550,27 +5723,163 @@ async def _searxng_search(query: str, limit: int = 5) -> list:
         return []
 
 
+# ── Lightpanda — Tier 2 of the fetch chain (JS render → markdown) ──────────
+#
+# The browser work runs on a SINGLE worker thread inside Lightpanda (V8
+# isolates are thread-affine; src/mcp/HttpServer.zig:22). Concurrent requests
+# are queued, not parallelised — measured: 5 concurrent calls took 5.56 s while
+# 5 serial calls took 11.24 s of the same work, i.e. no throughput gain, and a
+# management call sat 5.4 s behind the queue. Worse, on a COLD server over a
+# fast network 3 of 5 concurrent calls came back EMPTY with isError:false.
+# So: one at a time. Extra throughput comes from replicas, not concurrency.
+_LIGHTPANDA_SEMAPHORE = _threading.Semaphore(1)
+
+# The gate. Lightpanda reports blocked pages as success: reuters.com behind
+# DataDome returned an EMPTY string with isError:false and HTTP 200. There is
+# no MCP equivalent of the CLI's --fail-on-http-error, and no HTTP status is
+# exposed at all, so the caller must judge the BODY. 200 is not evidence.
+_LP_MIN_USEFUL_CHARS = 500
+_LP_CONSENT_RE = _re_module.compile(
+    r"adatainak véd|hozzájárul|cookie|süti|consent|privacy preference|"
+    r"we value your privacy|accept all",
+    _re_module.IGNORECASE,
+)
+
+
+async def _lightpanda_markdown(url: str, max_bytes: int = 20000,
+                               timeout: float | None = None) -> str | None:
+    """One page through Lightpanda's native MCP → markdown, or None.
+
+    Returns None for EVERY failure mode (unreachable, RPC error, blocked page,
+    consent wall, suspiciously short body) so the caller can degrade to the
+    plain-GET path. Never raises: a fetch tier must not be able to kill a
+    search round.
+
+    Session hygiene is not optional: every distinct Mcp-Session-Id allocates a
+    browser session worth ~35 MB and nothing evicts it (18 open sessions
+    measured at 993 MB; closing 17 dropped it to 403 MB). We therefore use one
+    id per call and DELETE it in a finally.
+    """
+    if not LIGHTPANDA_ENABLED:
+        return None
+    import httpx, asyncio as _asyncio, uuid as _uuid
+    session_id = f"claus-{_uuid.uuid4().hex[:12]}"
+    headers = {
+        # Content-Type is MANDATORY — without it the server answers 415.
+        # No `initialize` handshake and no Accept header are needed, and the
+        # server never speaks SSE; it always returns plain JSON.
+        "Content-Type": "application/json",
+        "Mcp-Session-Id": session_id,
+        "User-Agent": "claus-bridge/1.0",
+    }
+    payload = {
+        "jsonrpc": "2.0", "id": 1, "method": "tools/call",
+        "params": {
+            "name": "markdown",
+            # `markdown{url}` navigates AND renders in one round trip; a
+            # separate `goto` first costs an extra hop for the same result.
+            "arguments": {"url": url, "maxBytes": max_bytes},
+        },
+    }
+    budget = timeout or LIGHTPANDA_TIMEOUT_S
+    await _asyncio.to_thread(_LIGHTPANDA_SEMAPHORE.acquire)
+    try:
+        async with httpx.AsyncClient(timeout=budget) as client:
+            try:
+                resp = await client.post(LIGHTPANDA_URL, json=payload, headers=headers)
+            finally:
+                # Best effort, and deliberately outside the success path: a
+                # leaked session costs 35 MB whether the call worked or not.
+                try:
+                    await client.request("DELETE", LIGHTPANDA_URL,
+                                         headers={"Mcp-Session-Id": session_id})
+                except Exception:
+                    pass
+        if resp.status_code != 200:
+            logger.warning("lightpanda %s status=%d body=%r",
+                           url[:60], resp.status_code, resp.text[:200])
+            return None
+        data = resp.json()
+        if "error" in data:
+            logger.warning("lightpanda %s rpc_error: %s", url[:60], data["error"])
+            return None
+        result = data.get("result") or {}
+        content = result.get("content") or [{}]
+        text = (content[0].get("text") or "").strip()
+        if result.get("isError"):
+            # The honest failures (DNS, connect refused) do set this.
+            logger.info("lightpanda %s isError: %s", url[:60], text[:120])
+            return None
+        if len(text) < _LP_MIN_USEFUL_CHARS:
+            # Blocked page, 404 body, or the cold-start race that returns an
+            # empty string with isError:false. All three look identical here,
+            # and all three mean "we did not get the article".
+            logger.info("lightpanda %s too short (%d chars) — degrading",
+                        url[:60], len(text))
+            return None
+        if len(text) < 2000 and _LP_CONSENT_RE.search(text[:800]):
+            logger.info("lightpanda %s consent wall — degrading", url[:60])
+            return None
+        return text
+    except Exception as e:
+        logger.warning("lightpanda %s exception: %s: %s", url[:60], type(e).__name__, e)
+        return None
+    finally:
+        _LIGHTPANDA_SEMAPHORE.release()
+
+
+def _looks_js_rendered(text: str, raw_html: str) -> bool:
+    """Did the plain GET come back as an empty JS shell rather than an article?
+
+    Two signals, both cheap: too little extracted prose, or the fingerprints of
+    a client-rendered app. The length test alone is not enough — a nav bar plus
+    a footer clears 200 characters easily while carrying no article at all.
+    """
+    if len(text) < 800:
+        return True
+    return bool(_re_module.search(
+        r'id="root"|id="__next"|__NEXT_DATA__|ng-app|data-reactroot', raw_html))
+
+
 async def _fetch_page_contents(urls: list, limit: int = 2) -> list:
     """De-tagged body text of the first `limit` candidate URLs — the deep half of
-    a web search. Shared by the SearXNG and DDG tiers."""
-    import httpx, re, random
+    a web search. Shared by the SearXNG and DDG tiers.
+
+    Tier 1 is a plain GET with a regex tag-strip. When that comes back looking
+    like a JS shell, Tier 2 (Lightpanda) re-renders the page. The RICHER of the
+    two results wins, not the later one: a fallback that silently returns less
+    than the thing it replaces is a quality regression that no test would see.
+    """
+    import httpx, random
     page_contents = []
     for url in urls[:limit]:
         if not url or not url.startswith("http"):
             continue
+        text, raw = "", ""
         try:
             async with httpx.AsyncClient(timeout=10, follow_redirects=True) as client:
                 resp = await client.get(url, headers={"User-Agent": random.choice(DDG_USER_AGENTS)})
-            text = resp.text
-            text = re.sub(r'<script[^>]*>.*?</script>', '', text, flags=re.DOTALL)
-            text = re.sub(r'<style[^>]*>.*?</style>', '', text, flags=re.DOTALL)
-            text = re.sub(r'<[^>]+>', ' ', text)
-            text = re.sub(r'\s+', ' ', text).strip()
-            if len(text) > 200:
-                page_contents.append(f"[Forrás: {url[:80]}]\n{text[:2000]}")
-                logger.info("Page fetched: %s (%d chars)", url[:60], len(text))
+            raw = resp.text
+            text = _re_module.sub(r'<script[^>]*>.*?</script>', '', raw, flags=_re_module.DOTALL)
+            text = _re_module.sub(r'<style[^>]*>.*?</style>', '', text, flags=_re_module.DOTALL)
+            text = _re_module.sub(r'<[^>]+>', ' ', text)
+            text = _re_module.sub(r'\s+', ' ', text).strip()
         except Exception as e:
-            logger.debug("Page fetch failed %s: %s", url[:40], e)
+            # Not `debug`: a tier that fails invisibly is how a dead fetch layer
+            # survives for weeks. The round continues, but the loss is on record.
+            logger.info("Tier1 plain GET failed %s: %s: %s", url[:60], type(e).__name__, e)
+
+        via = "http"
+        if LIGHTPANDA_ENABLED and _looks_js_rendered(text, raw):
+            lp_text = await _lightpanda_markdown(url)
+            if lp_text and len(lp_text) > len(text):
+                text, via = lp_text, "lightpanda"
+
+        if len(text) > 200:
+            page_contents.append(f"[Forrás: {url[:80]} · via {via}]\n{text[:2000]}")
+            logger.info("Page fetched: %s (%d chars, via %s)", url[:60], len(text), via)
+        else:
+            logger.info("Page unusable: %s (%d chars after %s)", url[:60], len(text), via)
     return page_contents
 
 
@@ -5650,8 +5959,8 @@ async def _brave_mcp_scrape(url: str, wait_time: int = 3000) -> dict | None:
                                  timeout=90.0)
 
 
-async def _web_search(query: str) -> str:
-    """Deep web search: DuckDuckGo (UA-rotated) → top URLs → fetch actual page content.
+async def _web_search(query: str, engine: str = "auto") -> str:
+    """Deep web search over a fallback chain: SearXNG → brave-mcp → DDG-html → Brave API.
 
     Hardened against DDG burst-throttling (the 202 anti-bot pattern observed
     on Railway):
@@ -5659,60 +5968,141 @@ async def _web_search(query: str) -> str:
       - threading.Semaphore(2) caps concurrent DDG hits across all event loops
       - Random 300-800ms jitter inside the critical section spreads timing
       - Brave Search API fallback if BRAVE_SEARCH_API_KEY is set and DDG empty
+
+    `engine` (S-009) lets the CALLER pick the organ instead of inheriting the
+    cheapest-first routing: "auto" (default, the chain above), "searxng",
+    "brave-mcp", "ddg" or "brave-api". An explicit choice is tried FIRST and
+    overrides the routing rule. If it yields nothing the chain still continues
+    — but the substitution is stamped into the output and the agent is told to
+    say it out loud. A silently swapped organ is the bug this parameter exists
+    to kill: the user commanded one engine and got another, with no notice.
     """
-    import httpx, re, urllib.parse, random, asyncio as _asyncio
+    import httpx, re, urllib.parse, random, asyncio as _asyncio, time as _time
 
-    # Cache hit — skip the DDG call entirely
-    cached = _web_search_cache_get(query)
+    t0 = _time.time()
+    requested, engine_note = _normalize_web_engine(engine)
+    # Why each tier did not serve — feeds the spoken substitution notice.
+    outcomes: dict[str, str] = {}
+
+    def _elapsed_ms() -> int:
+        return int((_time.time() - t0) * 1000)
+
+    def _finish(body: str, served_by: str, hits: int, *, cache: bool = True) -> str:
+        """Single exit funnel: cache the raw body, then stamp it."""
+        if cache:
+            _web_search_cache_put(query, body, requested, {"served_by": served_by, "hits": hits})
+        reason = None
+        if requested != "auto" and requested != served_by:
+            reason = outcomes.get(requested) or "nem adott találatot"
+        note = body
+        if engine_note:
+            note = f"[FIGYELEM: {engine_note} — a lánc auto-módban futott.]\n\n{body}"
+        return _stamp_fetched_at(
+            note,
+            served_by=served_by,
+            hits=hits,
+            ms=_elapsed_ms(),
+            requested=requested if requested != "auto" else None,
+            substitution_reason=reason,
+        )
+
+    # Cache hit — skip the live call entirely. Keyed on (engine, query) so an
+    # `auto` answer never silently serves an explicit engine request.
+    cached = _web_search_cache_get(query, requested)
     if cached is not None:
-        logger.info("DDG cache HIT: %r", query[:60])
-        return cached
+        body, age, meta = cached
+        logger.info("web_search cache HIT (engine=%s): %r", requested, query[:60])
+        return _stamp_fetched_at(
+            body,
+            served_by=meta.get("served_by") or requested,
+            hits=meta.get("hits"),
+            cache_age_s=age,
+        )
 
-    # Primary: brave-mcp-server (Brave Search engine + DDG-fallback inside the MCP).
-    # Anti-bot-resistant (Puppeteer + UA-spoof), JS-rendered képes — friss flash
-    # publikációkra mérhetően jobb mint a Bridge-belső DDG-html scraping. Ha a
-    # brave-mcp-server lefagy / leesik / üres, fallback a meglévő DDG-logikára.
-    if BRAVE_MCP_ENABLED:
+    # ── The two "cheap organ" tiers, as closures so the ORDER can follow the
+    # caller's explicit choice instead of a hardcoded priority (S-009). Each
+    # returns (body, hits) or None, and records WHY it did not serve.
+
+    async def _tier_brave_mcp():
+        """brave-mcp-server: Brave engine + DDG fallback inside the MCP.
+        Anti-bot-resistant (Puppeteer + UA-spoof), JS-capable — measurably
+        better on fresh flash publications than Bridge-internal DDG scraping."""
+        if not BRAVE_MCP_ENABLED:
+            outcomes["brave-mcp"] = "nincs konfigurálva (BRAVE_MCP_URL hiányzik)"
+            return None
         try:
-            brave_mcp_results = await _brave_mcp_search(query, limit=5)
+            hits = await _brave_mcp_search(query, limit=5)
         except Exception as e:
-            logger.warning("brave-mcp-search exception, fall through to DDG: %s", e)
-            brave_mcp_results = None
-        if brave_mcp_results:
-            lines = []
-            for i, r in enumerate(brave_mcp_results[:5]):
-                title = (r.get("title") or "").strip()
-                url = (r.get("url") or "").strip()
-                desc = (r.get("description") or "").strip()
-                lines.append(f"[{i+1}] {title}\n    {desc}\n    URL: {url}")
-            output = _stamp_fetched_at("\n".join(lines))
-            _web_search_cache_put(query, output)
-            logger.info("brave-mcp-search %r → %d results", query[:60], len(brave_mcp_results))
-            return output
-        logger.info("brave-mcp-search %r empty/failed, falling back to SearXNG", query[:60])
+            logger.warning("brave-mcp-search exception, falling through: %s", e)
+            outcomes["brave-mcp"] = f"hibára futott ({type(e).__name__})"
+            return None
+        if not hits:
+            outcomes["brave-mcp"] = "üres választ adott"
+            logger.info("brave-mcp-search %r empty/failed", query[:60])
+            return None
+        lines = []
+        for i, r in enumerate(hits[:5]):
+            title = (r.get("title") or "").strip()
+            url = (r.get("url") or "").strip()
+            desc = (r.get("description") or "").strip()
+            lines.append(f"[{i+1}] {title}\n    {desc}\n    URL: {url}")
+        logger.info("brave-mcp-search %r → %d results", query[:60], len(hits))
+        return "\n".join(lines), len(hits)
 
-    # Tier 2: our own SearXNG. Multi-engine aggregation in a single call and no
-    # anti-bot throttle against us, so it runs *before* the DDG-html tier rather
-    # than after it. Produces the same shape as the DDG path (snippets + deep
-    # page fetch) so downstream agents see no difference.
-    if SEARXNG_ENABLED:
-        searx_hits = await _searxng_search(query, limit=5)
-        if searx_hits:
-            urls = [h["url"] for h in searx_hits]
-            search_results = [
-                f"[{i+1}] {h['title']}\n    {h['snippet']}"
-                for i, h in enumerate(searx_hits)
-            ]
-            page_contents = await _fetch_page_contents(urls)
-            output = "KERESÉSI TALÁLATOK:\n" + "\n".join(search_results)
-            if page_contents:
-                output += "\n\nRÉSZLETES TARTALOM:\n" + "\n\n".join(page_contents)
-            output = _stamp_fetched_at(output)
-            _web_search_cache_put(query, output)
-            return output
-        logger.info("SearXNG %r empty/failed, falling back to DDG-html", query[:60])
+    async def _tier_searxng():
+        """Our own SearXNG: multi-engine aggregation in one call, and no
+        anti-bot throttle against us. Same shape as the DDG path (snippets +
+        deep page fetch) so downstream agents see no difference."""
+        if not SEARXNG_ENABLED:
+            outcomes["searxng"] = "nincs konfigurálva (SEARXNG_URL hiányzik)"
+            return None
+        hits = await _searxng_search(query, limit=5)
+        if not hits:
+            outcomes["searxng"] = "nem válaszolt vagy üres találatot adott"
+            logger.info("SearXNG %r empty/failed", query[:60])
+            return None
+        urls = [h["url"] for h in hits]
+        results = [f"[{i+1}] {h['title']}\n    {h['snippet']}" for i, h in enumerate(hits)]
+        page_contents = await _fetch_page_contents(urls)
+        body = "KERESÉSI TALÁLATOK:\n" + "\n".join(results)
+        if page_contents:
+            body += "\n\nRÉSZLETES TARTALOM:\n" + "\n\n".join(page_contents)
+        return body, len(hits)
+
+    _UPPER_TIERS = {"brave-mcp": _tier_brave_mcp, "searxng": _tier_searxng}
+
+    # Routing: "auto" runs the CHEAPEST organ first. Kommandant decision,
+    # 2026-08-30 — this reverses the previous brave-mcp-first order and brings
+    # the live chain in line with the canonical routing rule ("minden flow a
+    # legolcsóbb szerven megy, ami még elbírja"). SearXNG measures 0.8-3.2 s
+    # against our own instance; brave-mcp is a Puppeteer page behind
+    # BRAVE_MAX_CONCURRENCY=2, so it belongs where it earns its cost: the
+    # stubborn, anti-bot-protected pages SearXNG cannot reach.
+    #
+    # An explicit choice moves that organ to the front; when the caller asked
+    # for a LOWER tier (ddg / brave-api) the upper tiers are skipped here and
+    # retried only after the requested one comes up empty — as a SPOKEN
+    # substitution, never a silent one.
+    if requested in ("ddg", "brave-api"):
+        upper_order = []
+    elif requested == "brave-mcp":
+        upper_order = ["brave-mcp", "searxng"]
+    else:
+        upper_order = ["searxng", "brave-mcp"]
+
+    for tier_name in upper_order:
+        got = await _UPPER_TIERS[tier_name]()
+        if got:
+            body, hits = got
+            return _finish(body, tier_name, hits)
 
     brave_key = os.environ.get("BRAVE_SEARCH_API_KEY", "").strip()
+
+    # Declared outside the try so the finally can release the semaphore before
+    # we decide what to return — the late fallback must not hold the DDG slot.
+    lower_body: str | None = None
+    lower_hits = 0
+    lower_served_by = "ddg"
 
     # Acquire semaphore (max 2 concurrent DDG hits Bridge-wide). Use to_thread
     # so multiple event loops can share the same threading.Semaphore safely.
@@ -5789,6 +6179,15 @@ async def _web_search(query: str) -> str:
             except Exception as e:
                 logger.warning("DDG retry exception for %r: %s", query[:60], e)
 
+        if search_results:
+            lower_served_by = "ddg"
+        else:
+            outcomes["ddg"] = (
+                f"nem adott találatot (HTTP {ddg_status}"
+                + (", anti-bot anomália" if ddg_anomaly else "")
+                + ")"
+            )
+
         # Step 2: Brave fallback if DDG was empty / blocked AND key configured
         if not search_results and brave_key:
             brave_hits = await _brave_search(query, brave_key)
@@ -5798,26 +6197,71 @@ async def _web_search(query: str) -> str:
                     f"[{i+1}] {h.get('title', '')}\n    {h.get('snippet', '')}"
                     for i, h in enumerate(brave_hits)
                 ]
-
-        if not search_results:
-            failure_msg = (
-                f"No results found. (SearXNG={'configured' if SEARXNG_ENABLED else 'not configured'}, "
-                f"DDG status={ddg_status}, anomaly={ddg_anomaly}, "
-                f"Brave={'configured' if brave_key else 'not configured'})"
-            )
-            _web_search_cache_put(query, failure_msg)  # cache failures briefly to avoid retry-storms
-            return failure_msg
+                lower_served_by = "brave-api"
+            else:
+                outcomes["brave-api"] = "üres választ adott"
+        elif not brave_key:
+            outcomes["brave-api"] = "nincs konfigurálva (BRAVE_SEARCH_API_KEY hiányzik)"
 
         # Step 3: Fetch top 2 page contents for deeper data
-        page_contents = await _fetch_page_contents(urls)
-
-        output = "KERESÉSI TALÁLATOK:\n" + "\n".join(search_results)
-        if page_contents:
-            output += "\n\nRÉSZLETES TARTALOM:\n" + "\n\n".join(page_contents)
-        _web_search_cache_put(query, output)
-        return output
+        if search_results:
+            page_contents = await _fetch_page_contents(urls)
+            lower_body = "KERESÉSI TALÁLATOK:\n" + "\n".join(search_results)
+            if page_contents:
+                lower_body += "\n\nRÉSZLETES TARTALOM:\n" + "\n\n".join(page_contents)
+            lower_hits = len(search_results)
     finally:
         _WEB_SEARCH_SEMAPHORE.release()
+
+    if lower_body:
+        return _finish(lower_body, lower_served_by, lower_hits)
+
+    # LATE FALLBACK (S-009): the caller explicitly asked for a lower tier and it
+    # came up empty. We do NOT stop here — but we do not swap organs in silence
+    # either: whatever answers now is stamped with the substitution notice.
+    for tier_name in ("searxng", "brave-mcp"):
+        if tier_name in outcomes:      # already tried above
+            continue
+        got = await _UPPER_TIERS[tier_name]()
+        if got:
+            body, hits = got
+            return _finish(body, tier_name, hits)
+
+    tried = ", ".join(f"{k}: {v}" for k, v in outcomes.items()) or "egyetlen fok sem futott"
+    failure_msg = f"Nincs találat. A lánc minden foka elbukott — {tried}"
+    # Cache failures briefly to avoid retry-storms, but do NOT stamp a
+    # served_by: nothing served, and claiming otherwise would be the lie this
+    # whole field exists to prevent.
+    _web_search_cache_put(query, failure_msg, requested, {"served_by": None, "hits": 0})
+    return _stamp_fetched_at(failure_msg)
+
+
+@mcp.tool()
+async def web_search(query: str, engine: str = "auto", caller: str = "") -> str:
+    """Web search over the Bridge's own chain: SearXNG → brave-mcp → DDG → Brave API.
+
+    S-009 — THE SHELL SURFACE. Until now `_web_search` was reachable only from
+    inside the Bridge (sub-agent dispatch, Feldwebel, deep_research). An agent
+    talking to the Bridge over MCP had no way to search at all, and no way to
+    pick an organ. Both are the same requirement: the user must be able to
+    command a specific engine, in every mode, and be told which one answered.
+
+    engine: "auto" (default — cheapest-first chain), "searxng", "brave-mcp",
+    "ddg" or "brave-api". An explicit choice is tried FIRST. If it comes up
+    empty the chain continues, but the result carries a
+    `_bridge_engine_substituted` line — say it out loud rather than presenting
+    another engine's answer as the requested one.
+
+    The result always ends with `_bridge_served_by: <engine> · <n> találat ·
+    <ms> ms`, and `_bridge_cache` when it came from the 10-minute cache.
+    """
+    denied = _enforce(caller, "web_search")
+    if denied:
+        return denied
+    q = (query or "").strip()
+    if not q:
+        return "Üres lekérdezés."
+    return await _web_search(q, engine=engine)
 
 
 @mcp.tool()
@@ -5828,11 +6272,17 @@ async def debug_web_search(query: str, caller: str = "") -> str:
     regex failures without needing Railway runtime logs.
 
     Returns a JSON object with:
+      - brave_mcp.reachable, brave_mcp.results_count, brave_mcp.elapsed_ms
+      - lightpanda.usable, lightpanda.chars, lightpanda.elapsed_ms
       - ddg.status, ddg.body_len, ddg.anomaly_signal, ddg.results_count
       - ddg.first_titles, ddg.user_agent_used, ddg.headers_subset
       - searxng.status, searxng.results_count, searxng.engines, searxng.elapsed_ms
       - brave.attempted, brave.status, brave.results_count (if BRAVE_SEARCH_API_KEY set)
       - elapsed_ms, query
+
+    `brave_mcp`, `searxng` and `lightpanda` are probed on EVERY call, not only
+    when DDG is empty: a tier that is only measured once the tier below it
+    fails is measured on exactly the day it is least useful to find out.
     """
     denied = _enforce(caller, "debug_web_search")
     if denied:
@@ -5890,6 +6340,33 @@ async def debug_web_search(query: str, caller: str = "") -> str:
     except Exception as e:
         out["ddg"] = {"exception": f"{type(e).__name__}: {e}"}
 
+    # brave-mcp probed unconditionally — S-008 blind spot. This is the FIRST
+    # tier of the live chain, and until now the probe did not measure it at
+    # all: a question could be served by brave-mcp while the probe reported
+    # only on SearXNG and DDG, so we could not tell which organ produced a bad
+    # answer. Same argument as SearXNG below: measure the tier that serves.
+    if not BRAVE_MCP_ENABLED:
+        out["brave_mcp"] = {"attempted": False, "status_msg": "BRAVE_MCP_URL not set"}
+    else:
+        t_bm = time.time()
+        try:
+            bm_hits = await _brave_mcp_search(query, limit=5)
+            out["brave_mcp"] = {
+                "attempted": True,
+                "url": BRAVE_MCP_URL,
+                "elapsed_ms": int((time.time() - t_bm) * 1000),
+                # None = transport failure, [] = answered with nothing. The
+                # chain treats both as "fall through", but they are different
+                # outages and the probe must not merge them.
+                "reachable": bm_hits is not None,
+                "results_count": len(bm_hits or []),
+                "first_titles": [(h.get("title") or "")[:120] for h in (bm_hits or [])[:3]],
+            }
+        except Exception as e:
+            out["brave_mcp"] = {"attempted": True, "url": BRAVE_MCP_URL,
+                                "elapsed_ms": int((time.time() - t_bm) * 1000),
+                                "exception": f"{type(e).__name__}: {e}"}
+
     # SearXNG probed unconditionally: a dead instance must be visible here even
     # while DDG happens to be healthy, otherwise the outage only surfaces on the
     # day DDG throttles us.
@@ -5917,6 +6394,33 @@ async def debug_web_search(query: str, caller: str = "") -> str:
         except Exception as e:
             out["searxng"] = {"attempted": True, "url": SEARXNG_URL,
                               "exception": f"{type(e).__name__}: {e}"}
+
+    # Lightpanda probed unconditionally, same argument as the two above. It is
+    # measured against a KNOWN-GOOD static page, not against the query: what we
+    # need to know is whether the render tier is alive, and a probe that can
+    # fail for two different reasons cannot answer that.
+    if not LIGHTPANDA_ENABLED:
+        out["lightpanda"] = {"attempted": False, "status_msg": "LIGHTPANDA_URL not set"}
+    else:
+        t_lp = time.time()
+        probe_url = "https://example.com/"
+        try:
+            md = await _lightpanda_markdown(probe_url, max_bytes=4000)
+            out["lightpanda"] = {
+                "attempted": True,
+                "url": LIGHTPANDA_URL,
+                "probe_url": probe_url,
+                "elapsed_ms": int((time.time() - t_lp) * 1000),
+                # None here means "did not pass the gate" — which covers a dead
+                # service, a blocked page AND the cold-start race that returns
+                # an empty body with isError:false. Deliberately one field: from
+                # the caller's side all three mean the tier did not deliver.
+                "usable": md is not None,
+                "chars": len(md or ""),
+            }
+        except Exception as e:
+            out["lightpanda"] = {"attempted": True, "url": LIGHTPANDA_URL,
+                                 "exception": f"{type(e).__name__}: {e}"}
 
     # Brave fallback if DDG failed and key configured
     brave_key = os.environ.get("BRAVE_SEARCH_API_KEY", "").strip()
@@ -6299,9 +6803,10 @@ async def _deep_research_loop(
             # Legacy query-only fallback when parser found nothing
             if not parsed_calls:
                 queries = re.findall(r'"query"[:\s]*"([^"]+)"', content)[:3]
+                _eng = _legacy_engine_hint(content)
                 for q in queries:
                     logger.info("Deep research round %d (legacy text) query: %s", round_num, q[:80])
-                    sr = await _web_search(q)
+                    sr = await _web_search(q, engine=_eng)
                     aggregated += f"\n[Web search (legacy): {q}]\n{sr}\n"
                     for url in re.findall(r'https?://[^\s\)]+', sr):
                         if url not in sources:
@@ -6493,8 +6998,9 @@ async def _run_agent_with_tools(model_id: str, messages: list, max_rounds: int =
             # Legacy query-only fallback for malformed markers the parser missed
             if not parsed_calls:
                 queries = re.findall(r'"query"[:\s]*"([^"]+)"', content)
+                _eng = _legacy_engine_hint(content)
                 for query in queries[:2]:
-                    sr = await _web_search(query)
+                    sr = await _web_search(query, engine=_eng)
                     search_results += f"\n[Web search (legacy): {query}]\n{sr}\n"
                     logger.info("AI web_search (legacy text-parsed) round %d: %s", round_num, query[:80])
             if search_results:
@@ -6738,8 +7244,9 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
                         # Legacy query-only fallback when parser found nothing structured
                         if not parsed_calls:
                             queries = re.findall(r'"query"[:\s]*"([^"]+)"', content)
+                            _eng = _legacy_engine_hint(content)
                             for query in queries[:2]:
-                                sr = await _web_search(query)
+                                sr = await _web_search(query, engine=_eng)
                                 search_results += f"\n[Web search (legacy): {query}]\n{sr}\n"
                                 logger.info("AI task #%d %s: legacy web_search '%s'",
                                             task_id, agent_name, query[:60])
@@ -7272,8 +7779,9 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
                 # Legacy fallback when parser couldn't structure anything
                 if not parsed_calls:
                     queries = re.findall(r'"query"[:\s]*"([^"]+)"', content)
+                    _eng = _legacy_engine_hint(content)
                     for query in queries[:3]:
-                        sr = await _web_search(query)
+                        sr = await _web_search(query, engine=_eng)
                         search_results += f"\n[Web search (legacy): {query}]\n{sr}\n"
                         logger.info("Dispatch %s: legacy web_search '%s'", model, query[:60])
                 content = ""  # Clear broken marker text
