@@ -267,7 +267,7 @@ def test_a_makro_kontextus_lefedi_magyarorszagot():
     # A MERET is allitas: 69 hivassal a szintezis elesben prozat adott.
     import _statdata_client as _sd
     n = sum(len(_sd.DATA_PRESETS[p]) for p in spec["presets"]) + len(spec["series"])
-    assert n <= 40, f"{n} adathivas — a prompt megint elnyomja a szintezist"
+    assert n <= 45, f"{n} adathivas — a prompt megint elnyomja a szintezist"
 
 
 def test_az_emberi_mezok_nelkul_a_brief_bukik():
@@ -508,3 +508,35 @@ def test_a_szint_es_a_forras_szabaly_a_promptban_van():
     assert "INDEX-SZINT NEM INFLACIO" in p
     assert "MINDEN SZAMNAK LEGYEN FORRAS-SORA" in p, \
         "egy szam forras-sor nelkul is bekerulhet a szemlebe"
+
+
+def test_a_gyorstajekoztatok_mindket_forrasrol_bejonnek():
+    """AZ INTRA-YEAR IGAZSAG A FLASH-KIADVANYOKBAN VAN.
+
+    A strukturalt idosorok az utolso LEZART idoszakig tartanak. A brief EA
+    maginflacioja ezert allt 2025 DECEMBEREN, nyolc honappal a valosag mogott —
+    mikozben az Eurostat flash 2026 JULIUSAT hozta. Amikor a `hu_macro`
+    presetet kivettem, vele estek ki az Eurostat-flashek is; ez a teszt orzi,
+    hogy ne tunjenek el megegyszer.
+
+    Es tobbet ernek, mint amennyinek latszanak: a `description` mezo (merve
+    2026-08-30) ertek + idoszak + ELOZO ERTEK + datum — vagyis az IRANY is
+    levezetheto belole.
+    """
+    spec = json.loads(mb._build_data_context())
+    forrasok = {c["args"]["source"] for c in spec["series"]
+                if c["tool"] == "get_flash_releases"}
+    assert {"ksh", "eurostat"} <= forrasok, \
+        f"hianyzo flash-forras: {forrasok} — az intra-year adat elveszik"
+    temak = {(c["args"]["source"], c["args"]["query"]) for c in spec["series"]
+             if c["tool"] == "get_flash_releases"}
+    assert ("eurostat", "inflation") in temak, "nincs EA inflacios gyorstajekoztato"
+
+
+def test_a_prompt_a_frissebb_idoszakot_valasztja():
+    """A modellnek KI KELL MONDANI, hogy a flash frissebb lehet — kulonben a
+    strukturalt sort veszi ervenyesnek, mert az 'hivatalosabbnak' latszik."""
+    p = mb._build_prompt("morning", "2026-08-30T06:30Z", "2026-08-30T12:30Z", "")
+    assert "GYORSTAJEKOZTATO FRISSEBB" in p
+    assert "Compare the `period` fields" in p, \
+        "nincs eldontesi szabaly a ket forras kozott"

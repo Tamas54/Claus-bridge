@@ -304,12 +304,33 @@ def _build_data_context() -> str:
             {"tool": "yfinance", "args": {"symbol": "^VIX", "action": "quote"}},
             {"tool": "get_economic_calendar", "args": {"days_ahead": 1, "region": "US"}},
             {"tool": "get_economic_calendar", "args": {"days_ahead": 2, "region": "EU"}},
-            # A legfrissebb publikalt HU szam, amig a strukturalt idosor meg nem
-            # frissult — ket flash eleg, nem ot.
+            # ══ GYORSTÁJÉKOZTATÓK — AZ INTRA-YEAR IGAZSÁG ═══════════════
+            # A strukturált idősorok az utolsó LEZÁRT évig tartanak; a mostani
+            # hónap a flash-kiadványokban él. Ezért állt a brief EA
+            # maginflációja 2025 DECEMBERÉN, nyolc hónappal a valóság mögött
+            # (Kommandant-lelet, 2026-08-30) — és ezért kerültek vissza ide az
+            # Eurostat-flashek is, amiket a `hu_macro` preset kivételekor
+            # elveszítettem.
+            #
+            # MIÉRT ÉR TÖBBET, MINT AMENNYINEK LÁTSZIK: nem csak a címben van
+            # szám. A `description` mező mérve (2026-08-30) ezt adja:
+            #   "The euro area annual inflation rate was 2.9% in July 2026,
+            #    UP FROM 2.8% in June. A year earlier, the rate was 2.0%."
+            # Vagyis érték + időszak + ELŐZŐ ÉRTÉK + publikálási dátum. Az
+            # IRÁNY tehát innen levezethető — pontosan az, ami a puszta
+            # szintből hiányzik (lásd az MNB "tartotta/csökkentette" esetet).
             {"tool": "get_flash_releases",
              "args": {"query": "fogyasztói árak", "source": "ksh", "limit": 3}},
             {"tool": "get_flash_releases",
              "args": {"query": "GDP", "source": "ksh", "limit": 3}},
+            {"tool": "get_flash_releases",
+             "args": {"query": "munkanélküliség", "source": "ksh", "limit": 3}},
+            {"tool": "get_flash_releases",
+             "args": {"query": "inflation", "source": "eurostat", "limit": 4}},
+            {"tool": "get_flash_releases",
+             "args": {"query": "unemployment", "source": "eurostat", "limit": 3}},
+            {"tool": "get_flash_releases",
+             "args": {"query": "GDP growth", "source": "eurostat", "limit": 3}},
         ],
     }
     return json.dumps(spec)
@@ -442,6 +463,17 @@ def _build_prompt(session: str, asof_iso: str, valid_until_iso: str, calendar_ra
         "able to tell an authoritative series from a scraped one.\n"
         "  * `telegram_digest` — 4-6 sentences: what is driving markets today, "
         "why this regime and risk budget, what to watch intraday.\n\n"
+        "⚠️ A GYORSTAJEKOZTATO FRISSEBB, MINT AZ IDOSOR. The structured series "
+        "(Eurostat/ECB/KSH tables) stop at the last CLOSED period and can be "
+        "MONTHS behind; the current figure lives in the flash releases "
+        "(`get_flash_releases`), whose `description` carries the value, its "
+        "period, the PREVIOUS value and a publication date. When a structured "
+        "series is marked stale and a flash release covers the same indicator "
+        "with a LATER period, USE THE FLASH and say it is a flash estimate. "
+        "Compare the `period` fields — never assume the structured row is the "
+        "newer one. (2026-08-30: the brief reported euro-area core inflation "
+        "from 2025-12 as 'not updated since', while the flash releases carried "
+        "July 2026.)\n\n"
         "⚠️ INDEX-SZINT NEM INFLACIO. An index point (CPIAUCSL = 332.8) or a "
         "GDP level in billions is NOT a rate and must never be written as one. "
         "If you only have a level and no percentage, either omit the figure or "
