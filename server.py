@@ -48,6 +48,7 @@ from youngereka_profile import register_youngereka
 # S-002 — fail-closed ütemezett kimenetek: a recipe `required_tools` mezője
 # eddig deklarált-de-ellenőrizetlen volt. Lásd recipe_health.py fejlécét.
 import recipe_health
+import selfdiag
 
 # S-006 — a jelenlét a MUNKA mellékhatása, nem külön bejelentés.
 # Lásd presence.py fejlécét.
@@ -2544,6 +2545,17 @@ SILICONFLOW_MODELS = {
     # ítész-pontosságban NEM jobb a K2.7-nél (10/10 mindkettő), a többlet
     # a mély reasoning-ot igénylő KOMPOZÍCIÓS/elemző munkánál térül meg.
     "kimi3": "moonshotai/Kimi-K3",
+    # GLM-5.3-Flash (2026-08-30, Kommandant): a SiliconFlow új modellje,
+    # kód-erős. MÉRVE ugyanaznap: létezik, 200-at ad, tool-hívást is kezel
+    # (~5-7 s egy egyszavas válaszra, mert THINKING-modell — a `reasoning_content`
+    # tele van, a `content` rövid).
+    # ⚠️ A GLM-5.3-család NEM engedi kikapcsolni a gondolkodást:
+    #   thinking={"type":"disabled"} → HTTP 400, code 20015,
+    #   "该模型始终思考，不支持关闭思考；请使用 low、high 或 max"
+    # Ezért NEM kap `thinking` paramétert (a `_model_extra` alapesete üres dict),
+    # és a `sf_chat` önjavítása amúgy is levenné, ha valaki mégis ráküldené.
+    "glm53f": "zai-org/GLM-5.3-Flash",
+    "glm53": "zai-org/GLM-5.3",
 }
 
 # Egyetlen designált research-agent broadcast módban — `deep_research=True`
@@ -6447,6 +6459,54 @@ async def _web_search(query: str, engine: str = "auto") -> str:
     return _stamp_fetched_at(failure_msg)
 
 
+#: Melyik hibakód MELYIK komponensre mutat. A leképezés szándékosan szűk: egy
+#: rossz tipp rosszabb, mint egy őszinte "nem tudom", mert elviszi a keresést.
+_ERROR_COMPONENT = {
+    "empty_response": "siliconflow",
+    "error_response": "siliconflow",
+    "model_unavailable": "siliconflow",
+    "rate_limit": "siliconflow",
+    "server_error": "siliconflow",
+    "auth": "siliconflow",
+    "unhandled_tool_call": "siliconflow",
+    "required_tool_dead": "google",
+    "no_choices": "siliconflow",
+}
+
+
+def _component_for_error(code: str) -> str:
+    return _ERROR_COMPONENT.get((code or "").strip(), "siliconflow")
+
+
+@mcp.tool()
+async def self_diagnose(component: str = "", caller: str = "") -> str:
+    """A Bridge megvizsgálja SAJÁT MAGÁT: mi romlott el, és most is romlott-e.
+
+    Ezt hívd, ha bármi hibát jelez — vagy ha egyszerűen tudni akarod, hogy a
+    rendszer minden szerve él-e. Minden komponens próbáját ÉLESBEN futtatja.
+
+    component: üres = MINDEN komponens; vagy egy név: "siliconflow", "searxng",
+        "google", "database", "echolot", "lightpanda", "brave_mcp".
+
+    Az ítélet háromféle lehet, és a harmadikat sem szégyelljük:
+      persistent — a komponens MOST IS hibás
+      transient  — most minden próbája zöld, tehát a hiba elmúlt
+      degraded   — egy része él, egy része nem
+      unknown    — nincs próba, vagy nem eldönthető
+
+    Az `unmeasured` mező megnevezi azokat a részeket, amikre NINCS
+    mérőeszközünk. A csend és a jó egészség nem ugyanaz: ha valamiről nem
+    tudunk mérni, azt kimondjuk, nem hallgatjuk el.
+    """
+    denied = _enforce(caller, "self_diagnose")
+    if denied:
+        return denied
+    comp = (component or "").strip()
+    if comp:
+        return json.dumps(selfdiag.diagnose(comp).as_dict(), ensure_ascii=False, indent=1)
+    return json.dumps(selfdiag.diagnose_all(), ensure_ascii=False, indent=1)
+
+
 @mcp.tool()
 async def web_search(query: str, engine: str = "auto", caller: str = "") -> str:
     """Web search over the Bridge's own chain: SearXNG → brave-mcp → DDG → Brave API.
@@ -7102,6 +7162,268 @@ async def _deep_research_loop(
     return fallback
 
 
+# ══ ÖNJAVÍTÁS: a szolgáltatói hiba nem lehet "üres válasz" ═══════════════
+#
+# A HIBA, AMI EZT KIVÁLTOTTA (task #407, 2026-08-30 14:14 UTC):
+# a SiliconFlow HTTP 400-at adott a GLM-5.2-re, a kód pedig `json.loads`-szal
+# beolvasta a hibatörzset, nem találta benne a `choices` kulcsot, és ÜRES
+# TARTALOMKÉNT könyvelte el. A Kommandant annyit látott, hogy "empty_response",
+# 0,55 másodperc alatt. A valódi ok — a szolgáltató hibaüzenete — nyomtalanul
+# eldobva. A recept előtte hat napon át hibátlanul futott: egyszeri, ÁTMENETI
+# szolgáltatói hiba volt, amit egy újrapróbálkozás elintézett volna.
+#
+# Két baj volt tehát, és mindkettő külön javítást kíván:
+#   1. a HTTP-státuszt SENKI nem nézte meg  → most tipizált hibát adunk,
+#   2. egy átmeneti hiba VÉGLEGES bukás lett → most újrapróbál, majd modellt vált.
+#
+# A modellváltás KIMONDOTT, nem néma — ugyanaz a doktrína, mint a kereső
+# `served_by` mezőjénél: a rendszer megmondja, ki szolgált ki valójában.
+
+#: Újrapróbálható hibaosztályok. A `bad_request` és az `auth` NEM az: azokon
+#: az újrapróbálkozás csak a kvótát égeti, mert a kérés maga rossz.
+_SF_RETRYABLE = {"rate_limit", "server_error", "model_unavailable", "transport"}
+
+#: Melyik modell mivel helyettesíthető, ha tartósan nem elérhető. A sorrend a
+#: `feedback_synthesis_fallback_order` döntést követi (Kimi → V4-Pro → GLM).
+_SF_FAILOVER = {
+    "zai-org/GLM-5.2": ["deepseek-ai/DeepSeek-V4-Pro", "moonshotai/Kimi-K2.7-Code"],
+    "moonshotai/Kimi-K2.7-Code": ["deepseek-ai/DeepSeek-V4-Pro", "zai-org/GLM-5.2"],
+    "moonshotai/Kimi-K3": ["moonshotai/Kimi-K2.7-Code", "deepseek-ai/DeepSeek-V4-Pro"],
+    "deepseek-ai/DeepSeek-V4-Pro": ["moonshotai/Kimi-K2.7-Code", "zai-org/GLM-5.2"],
+    "tencent/Hy3": ["deepseek-ai/DeepSeek-V4-Pro"],
+    "zai-org/GLM-5.3-Flash": ["zai-org/GLM-5.2", "deepseek-ai/DeepSeek-V4-Pro"],
+    "zai-org/GLM-5.3": ["zai-org/GLM-5.3-Flash", "zai-org/GLM-5.2"],
+}
+
+# ══ ÖNSZABÁLYOZÓ TOKEN-KERET ════════════════════════════════════════════
+#
+# A `max_tokens` értékeink még a 156k-s kontextusablakok korából valók, amikor
+# egy nagy keret drága és kockázatos volt. A mai frontier-modellek 1M
+# kontextussal és 100k+ kimeneti kerettel dolgoznak — a fix 8000 ma nem
+# óvatosság, hanem CSONKOLÁS.
+#
+# És a csonkolás NÉMA: a szolgáltató HTTP 200-at ad, `finish_reason="length"`
+# mellett. A gondolkodó modelleknél a keretet a reasoning eszi meg, és a
+# `content` ÜRESEN jön vissza — pontosan az a "reasoning-only" bukás, amit a
+# `_run_agent_with_tools` docstringje már ismer, csak eddig kézzel emelt
+# konstansokkal védekeztünk ellene. A 200 itt sem bizonyíték.
+#
+# Ezért a keret mostantól MÉRÉSBŐL nő: ha a modell csonkolt, DUPLÁZUNK és
+# újrapróbálunk, a modell saját plafonjáig. A sikeres keretet megjegyezzük,
+# így a következő hívás már onnan indul, nem az alapértékről.
+
+#: Modellenkénti kimeneti PLAFON (a szolgáltató korlátja). Efölé kérni 400-at ér.
+_SF_OUTPUT_CEILING = {
+    "zai-org/GLM-5.3-Flash": 131000,
+    "zai-org/GLM-5.3": 131000,
+    "zai-org/GLM-5.2": 64000,
+    "moonshotai/Kimi-K3": 64000,
+    "moonshotai/Kimi-K2.7-Code": 32000,
+    "deepseek-ai/DeepSeek-V4-Pro": 64000,
+    "tencent/Hy3": 32000,
+}
+#: Ismeretlen modellre óvatos, de nem 2024-es plafon.
+_SF_DEFAULT_CEILING = 32000
+
+#: Amit MÉRÉSBŐL megtanultunk: modellenként az a keret, ami utoljára elég volt.
+#: Processz-élettartamú; a Railway-újraindítás alaphelyzetbe hozza, és ez
+#: rendben van — a tanulás egy kör alatt visszaáll.
+_SF_LEARNED_BUDGET: dict[str, int] = {}
+
+
+def _sf_ceiling(model_id: str) -> int:
+    return _SF_OUTPUT_CEILING.get(model_id, _SF_DEFAULT_CEILING)
+
+
+def _sf_is_truncated(data: dict) -> bool:
+    """A válasz csonkolt-e. HTTP 200 mellett is lehet az.
+
+    Két jel, és a második a fontosabb: a `finish_reason="length"` a
+    szolgáltató bevallása, az ÜRES content + TELE reasoning pedig a gondolkodó
+    modellek tipikus csonkolása, ahol a `finish_reason` néha `stop` marad.
+    """
+    try:
+        ch = (data.get("choices") or [{}])[0]
+        if ch.get("finish_reason") == "length":
+            return True
+        m = ch.get("message", {}) or {}
+        return not (m.get("content") or "").strip() and bool((m.get("reasoning_content") or "").strip())
+    except Exception:  # noqa: BLE001
+        return False
+
+
+#: Paraméterek, amiket egy modell VISSZAUTASÍTHAT. Ha a szolgáltató konkrétan
+#: erre panaszkodik, az önjavítás LEVESZI és újrapróbál — a modellváltás előtt.
+#: Mért eset: a GLM-5.3 a `thinking` paraméterre 400/20015-öt ad
+#: ("该模型始终思考，不支持关闭思考"), pedig maga a modell tökéletesen él.
+#: Modellt váltani emiatt pazarlás lenne; a kérésből egy mezőt kell kivenni.
+_SF_DROPPABLE_PARAMS = {
+    "thinking": ("thinking", "思考", "不支持关闭"),
+    "reasoning_effort": ("reasoning_effort", "reasoning effort"),
+}
+
+
+def _sf_classify(status: int, body: str) -> tuple[str, str]:
+    """(hibakód, emberi üzenet) egy nem-200-as SiliconFlow válaszra.
+
+    A SiliconFlow NEM `{"error": ...}` alakban hibázik, hanem
+    `{"code": 20015, "message": "parameter is invalid", "data": null}` alakban —
+    ezért a korábbi `"error" in data` próba sosem fogta meg, és a hiba üres
+    tartalommá vált. A `parameter is invalid` a házban MÉRT tapasztalat szerint
+    tipikusan azt jelenti, hogy a modell PILLANATNYILAG nem elérhető, nem azt,
+    hogy a kérésünk rossz — ezért ez újrapróbálható.
+    """
+    snippet = (body or "")[:400]
+    low = snippet.lower()
+    if status == 429:
+        return "rate_limit", f"HTTP 429 rate limit — {snippet}"
+    if status >= 500:
+        return "server_error", f"HTTP {status} szolgáltatói hiba — {snippet}"
+    if status in (401, 403):
+        return "auth", f"HTTP {status} hitelesítési hiba — ellenőrizd a SILICONFLOW_API_KEY-t"
+    if status == 400:
+        if "parameter is invalid" in low or "20015" in low or "model" in low:
+            return "model_unavailable", f"HTTP 400 — a modell valószínűleg átmenetileg nem elérhető: {snippet}"
+        return "bad_request", f"HTTP 400 — a kérés hibás: {snippet}"
+    return "http_error", f"HTTP {status} — {snippet}"
+
+
+async def _sf_post_once(client, payload: dict) -> tuple[dict | None, dict | None]:
+    """EGY hívás. `(data, error)` — a kettő közül pontosan az egyik None.
+
+    A státuszkód ellenőrzése itt történik, egy helyen. Ez hiányzott: a hívók
+    `json.loads(resp.text)`-et csináltak, és egy 400-as hibatörzs simán
+    "értelmes" dictté vált, csak épp `choices` nélkül.
+    """
+    import httpx
+    try:
+        resp = await client.post(
+            f"{SILICONFLOW_BASE_URL}/chat/completions",
+            headers={"Authorization": f"Bearer {SILICONFLOW_API_KEY}",
+                     "Content-Type": "application/json"},
+            json=payload,
+        )
+    except Exception as e:
+        return None, {"code": "transport", "message": f"{type(e).__name__}: {e}"}
+    if resp.status_code != 200:
+        code, message = _sf_classify(resp.status_code, resp.text)
+        return None, {"code": code, "message": message, "status": resp.status_code}
+    try:
+        data = resp.json()
+    except Exception as e:
+        return None, {"code": "bad_json",
+                      "message": f"200-as válasz, de nem JSON ({e}): {resp.text[:200]!r}"}
+    if not isinstance(data, dict) or not data.get("choices"):
+        return None, {"code": "no_choices",
+                      "message": f"200-as válasz `choices` nélkül: {str(data)[:300]}"}
+    return data, None
+
+
+def _with_sf_notes(content: str, notes: list) -> str:
+    """A modellváltás/újrapróbálkozás jegyzete a KIMENET végére.
+
+    Ugyanaz a doktrína, mint a kereső `served_by` mezőjénél: ha nem az a szerv
+    szolgált ki, amit kértek, azt ki kell mondani. Egy brief, amit nem a recept
+    modellje írt, önmagában rendben van — az a baj, ha ezt senki nem tudja.
+    """
+    if not notes or not isinstance(content, str):
+        return content
+    return content + "\n\n---\n" + "\n".join(f"_[{n}]_" for n in dict.fromkeys(notes))
+
+
+async def sf_chat(payload: dict, *, purpose: str = "", attempts: int = 3,
+                  failover: bool = True) -> tuple[dict | None, dict | None, list[str]]:
+    """SiliconFlow chat ÖNJAVÍTÁSSAL. `(data, error, notes)`.
+
+    Először újrapróbálja UGYANAZT a modellt (exponenciális várakozással), mert
+    az átmeneti hibák többsége másodperceken belül elmúlik. Ha az sem megy, és
+    van tartalék-modell, ÁTVÁLT — és ezt beírja a `notes`-ba, hogy a hívó
+    KIMONDHASSA. Néma modellváltás nincs: a Kommandantnak tudnia kell, hogy a
+    briefet nem az a modell írta, amit a recept kért.
+    """
+    import asyncio as _a, httpx
+    notes: list[str] = []
+    model = payload.get("model", "")
+    chain = [model] + (_SF_FAILOVER.get(model, []) if failover else [])
+    last_err = None
+    async with httpx.AsyncClient(timeout=SILICONFLOW_TIMEOUT) as client:
+        for mi, mid in enumerate(chain):
+            body = dict(payload)
+            body["model"] = mid
+            if mi > 0:
+                # A tartalék-modellnek a SAJÁT paraméterei kellenek: a Kimi
+                # thinking=disabled nélkül időtúllépésbe fut, a V4-Pro pedig
+                # reasoning_effort nélkül más viselkedést ad. A modell-váltás
+                # nem csak a névé.
+                for k in ("thinking", "reasoning_effort"):
+                    body.pop(k, None)
+                body.update(_model_extra(mid))
+            # ÖNSZABÁLYOZÁS: induljunk onnan, ami ennél a modellnél utoljára
+            # elég volt, de sose a modell plafonja fölött.
+            _ceiling = _sf_ceiling(mid)
+            _asked = int(body.get("max_tokens") or 8000)
+            body["max_tokens"] = min(max(_asked, _SF_LEARNED_BUDGET.get(mid, 0)), _ceiling)
+            for attempt in range(1, attempts + 1):
+                data, err = await _sf_post_once(client, body)
+
+                # CSONKOLÁS: HTTP 200, de a modell nem fért bele. Ez nem
+                # sikeres válasz — duplázunk és újrapróbálunk.
+                if data is not None and _sf_is_truncated(data):
+                    cur = int(body.get("max_tokens") or 8000)
+                    if cur < _ceiling:
+                        nxt = min(cur * 2, _ceiling)
+                        notes.append(
+                            f"a {cur} tokenes keret KEVÉS volt a(z) `{mid}`-nek "
+                            f"(csonkolt válasz) — {nxt}-re emelve, újrapróbálva")
+                        logger.warning("sf_chat[%s] %s: csonkolás, keret %d → %d",
+                                       purpose or "?", mid, cur, nxt)
+                        body["max_tokens"] = nxt
+                        continue
+                    # A plafonon vagyunk: ez már nem keret-kérdés. Ne hazudjuk
+                    # sikernek, de ne is dobjuk el — a hívó eldönti.
+                    notes.append(
+                        f"a válasz a(z) `{mid}` kimeneti PLAFONJÁN ({_ceiling}) is csonkolt")
+
+                if data is not None:
+                    # Amit megtanultunk: a következő hívás innen induljon.
+                    _SF_LEARNED_BUDGET[mid] = max(
+                        _SF_LEARNED_BUDGET.get(mid, 0), int(body.get("max_tokens") or 0))
+                    if mi > 0:
+                        notes.append(
+                            f"MODELLVÁLTÁS: a kért `{model}` nem volt elérhető "
+                            f"({last_err.get('code') if last_err else '?'}), a választ `{mid}` adta"
+                        )
+                    if attempt > 1:
+                        notes.append(f"{attempt}. próbálkozásra sikerült ({mid})")
+                    return data, None, notes
+                last_err = err
+                logger.warning("sf_chat[%s] %s kísérlet %d/%d: %s",
+                               purpose or "?", mid, attempt, attempts, err.get("message", "")[:200])
+
+                # ÖNJAVÍTÁS 1: a szolgáltató megmondta, MELYIK paraméter a baj.
+                # Vedd le, és próbáld újra UGYANAZZAL a modellel — modellt
+                # váltani egy fölösleges mező miatt pazarlás.
+                dropped = None
+                low_msg = err.get("message", "").lower()
+                for param, markers in _SF_DROPPABLE_PARAMS.items():
+                    if param in body and any(m.lower() in low_msg for m in markers):
+                        body.pop(param, None)
+                        dropped = param
+                        break
+                if dropped:
+                    notes.append(f"a `{dropped}` paramétert a(z) `{mid}` visszautasította — levéve, újrapróbálva")
+                    logger.warning("sf_chat[%s] %s: `%s` levéve, újrapróbálás", purpose or "?", mid, dropped)
+                    continue
+
+                if err["code"] not in _SF_RETRYABLE:
+                    break          # rossz kérés / auth: az újrapróbálás csak kvótát éget
+                if attempt < attempts:
+                    await _a.sleep(min(2 ** attempt, 8))
+            if last_err and last_err["code"] not in _SF_RETRYABLE:
+                break              # modellváltás sem segít egy hibás kérésen
+    return None, last_err, notes
+
+
 def _model_extra(model_id: str) -> dict:
     """Per-model SiliconFlow request parameters.
 
@@ -7147,9 +7469,11 @@ async def _run_agent_with_tools(model_id: str, messages: list, max_rounds: int =
     rounds, since the model emits DSML format text instead of structured
     tool_calls, so providing tools would only invite leakage.
     """
-    import httpx
     model_extra = _model_extra(model_id)
     model_can_use_tools = _model_supports_tools(model_id)
+    # A modellváltás nem maradhat a logban: a KIMENETBE kell kerülnie, hogy a
+    # Kommandant lássa, nem az a modell írta a briefet, amit a recept kért.
+    _sf_substitution_notes: list[str] = []
     for round_num in range(max_rounds):
         # Last round: no tools, force text response. V4-Pro: never tools.
         use_tools = model_can_use_tools and (round_num < max_rounds - 1)
@@ -7163,28 +7487,24 @@ async def _run_agent_with_tools(model_id: str, messages: list, max_rounds: int =
         if use_tools:
             payload["tools"] = SUBAGENT_TOOL_DEFS
 
-        async with httpx.AsyncClient(timeout=SILICONFLOW_TIMEOUT) as client:
-            resp = await client.post(
-                f"{SILICONFLOW_BASE_URL}/chat/completions",
-                headers={
-                    "Authorization": f"Bearer {SILICONFLOW_API_KEY}",
-                    "Content-Type": "application/json",
-                },
-                json=payload,
-            )
-        try:
-            data = json.loads(resp.text)
-        except json.JSONDecodeError as je:
-            logger.error("_run_agent_with_tools non-JSON from %s round %d: status=%d, body=%r",
-                         model_id, round_num, resp.status_code, resp.text[:500])
-            return (
-                f"API error: SiliconFlow returned non-JSON body (HTTP {resp.status_code}, "
-                f"round {round_num}). Body preview: {resp.text[:200] or '(empty)'}. "
-                f"Likely cause: gateway 504/timeout under heavy context, or rate-limit. "
-                f"JSON decode error: {je}"
-            )
-        if not isinstance(data, dict) or "error" in data:
-            return f"API error: {data}"
+        # ÖNJAVÍTÁS (2026-08-30): `sf_chat` — státusz-ellenőrzés, újrapróbálás
+        # és modellváltás egy helyen. Ami itt korábban állt, az
+        # `json.loads(resp.text)` volt státusz-vizsgálat NÉLKÜL: a task #407-nél
+        # egy HTTP 400 így vált "üres tartalommá", és a Kommandant annyit
+        # látott, hogy `empty_response`.
+        data, sf_err, sf_notes = await sf_chat(
+            payload, purpose=f"agent_with_tools/{model_id}/round{round_num}")
+        if sf_err is not None:
+            logger.error("_run_agent_with_tools %s round %d VÉGLEG elbukott: %s",
+                         model_id, round_num, sf_err.get("message", "")[:300])
+            # TIPIZÁLT hiba a hívónak, nem üres string. Az `ERROR:` prefixet a
+            # `plugins/recipes.row_error_code` ismeri fel — így a futás HIBÁSNAK
+            # számít, nem "üres válasznak", és a Telegram-üzenet megnevezi az okot.
+            return (f"ERROR: SiliconFlow {sf_err.get('code')} — "
+                    f"{sf_err.get('message', '')[:400]}")
+        for _note in sf_notes:
+            logger.warning("sf_chat note (%s): %s", model_id, _note)
+        _sf_substitution_notes.extend(sf_notes)
 
         choice = data.get("choices", [{}])[0]
         msg = choice.get("message", {})
@@ -7236,7 +7556,7 @@ async def _run_agent_with_tools(model_id: str, messages: list, max_rounds: int =
                     "Synthesis returned empty content + empty reasoning (finish_reason=%s)",
                     fr,
                 )
-            return content
+            return _with_sf_notes(content, _sf_substitution_notes)
 
         # Execute JSON tool calls
         messages.append(msg)
@@ -7931,13 +8251,20 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
                 )
                 return {"response": content, "tokens": {"prompt": 0, "completion": 0}}
 
+            # ÖNJAVÍTÁS: a `sf_chat` nézi a státuszt, újrapróbál és modellt vált.
+            # Korábban itt `json.loads(resp.text)` állt, státusz-vizsgálat NÉLKÜL:
+            # egy 400-as hibatörzs "értelmes" dictté vált, csak `choices` nélkül,
+            # és a hívó üres tartalmat látott. (task #407)
+            _agent_notes: list[str] = []
+
             async def _api(client, payload):
-                resp = await client.post(
-                    f"{SILICONFLOW_BASE_URL}/chat/completions",
-                    headers={"Authorization": f"Bearer {SILICONFLOW_API_KEY}", "Content-Type": "application/json"},
-                    json=payload,
-                )
-                return json.loads(resp.text)
+                data, err, notes = await sf_chat(payload, purpose=f"dispatch/{model}")
+                _agent_notes.extend(notes)
+                if err is not None:
+                    # A hívó a `choices` hiányára "API error: {data}"-t ad —
+                    # most TIPIZÁLT okkal, nem a nyers dict kiírásával.
+                    return {"_sf_error": err}
+                return data
 
             # Step 1: Call with tools
             async with httpx.AsyncClient(timeout=SILICONFLOW_TIMEOUT) as client:
@@ -7952,8 +8279,15 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
                     **agent_extra,
                 })
 
+            if isinstance(data, dict) and data.get("_sf_error"):
+                e = data["_sf_error"]
+                # `ERROR:` prefix — így a `row_error_code` HIBÁS futásnak
+                # minősíti, nem értékelhető válasznak.
+                return {"response": f"ERROR: SiliconFlow {e.get('code')} — {e.get('message','')[:400]}",
+                        "tokens": {"prompt": 0, "completion": 0}}
             if not isinstance(data, dict) or not data.get("choices"):
-                return {"response": f"API error: {data}", "tokens": {"prompt": 0, "completion": 0}}
+                return {"response": f"ERROR: váratlan válasz-alak: {str(data)[:300]}",
+                        "tokens": {"prompt": 0, "completion": 0}}
 
             msg = data["choices"][0].get("message", {})
             content = msg.get("content", "") or ""
@@ -8044,7 +8378,8 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
                         if isinstance(data3, dict) and data3.get("choices"):
                             content = data3["choices"][0].get("message", {}).get("content", "") or content
 
-            return {"response": content, "tokens": {"prompt": 0, "completion": 0}}
+            return {"response": _with_sf_notes(content, _agent_notes),
+                    "tokens": {"prompt": 0, "completion": 0}}
 
         def _run_dispatch():
             loop = asyncio.new_event_loop()
@@ -8620,6 +8955,105 @@ for _alias in ("gmail_poll", "capture_gmail_poll", "gmail"):
     recipe_health.register_probe(_alias, _gmail_probe)
 for _alias in ("calendar_poll", "capture_calendar_poll", "calendar"):
     recipe_health.register_probe(_alias, _calendar_probe)
+
+
+# ══ ÖNVIZSGÁLAT: a Bridge derítse ki magáról, mi a baja ══════════════════
+# A task #407 tanulsága: a rendszer TUDTA, hogy elromlott valami
+# (`empty_response`), de nem tudta megmondani, MI. Az igazi ok — egy egyszeri
+# HTTP 400 a SiliconFlow-tól — csak a Railway-logból derült ki, kézzel.
+# Mostantól minden komponensnek van próbája, és a hiba után a rendszer MÉR,
+# mielőtt jelent. Ami mérhetetlen, azt KIMONDJA (`unmeasured`) — a csend és a
+# jó egészség nem ugyanaz.
+
+def _probe_siliconflow_model(alias: str, model_id: str):
+    def _p() -> selfdiag.ProbeResult:
+        import httpx as _hx
+        if not SILICONFLOW_API_KEY:
+            return selfdiag.ProbeResult(alias, None, "nincs SILICONFLOW_API_KEY")
+        try:
+            r = _hx.post(
+                f"{SILICONFLOW_BASE_URL}/chat/completions",
+                headers={"Authorization": f"Bearer {SILICONFLOW_API_KEY}",
+                         "Content-Type": "application/json"},
+                json={"model": model_id, "messages": [{"role": "user", "content": "ping"}],
+                      "max_tokens": 2000},
+                timeout=45,
+            )
+        except Exception as e:
+            return selfdiag.ProbeResult(alias, False, f"transport: {type(e).__name__}: {e}")
+        if r.status_code == 200:
+            return selfdiag.ProbeResult(alias, True, "200")
+        code, msg = _sf_classify(r.status_code, r.text)
+        # A 429 NEM a modell halála, hanem pillanatnyi torlódás — a különbség
+        # számít: az egyikre várni kell, a másikra modellt váltani.
+        return selfdiag.ProbeResult(alias, False if code != "rate_limit" else None,
+                                    f"{code}: {msg[:200]}")
+    return _p
+
+
+def _probe_http_get(name: str, url: str, timeout: float = 15.0):
+    def _p() -> selfdiag.ProbeResult:
+        import httpx as _hx
+        if not url:
+            return selfdiag.ProbeResult(name, None, "nincs URL konfigurálva")
+        try:
+            r = _hx.get(url, timeout=timeout, follow_redirects=True)
+        except Exception as e:
+            return selfdiag.ProbeResult(name, False, f"transport: {type(e).__name__}: {e}")
+        return selfdiag.ProbeResult(name, 200 <= r.status_code < 400,
+                                    f"HTTP {r.status_code}")
+    return _p
+
+
+def _probe_db() -> selfdiag.ProbeResult:
+    try:
+        n = get_db().execute("SELECT COUNT(*) c FROM shared_memory").fetchone()["c"]
+        return selfdiag.ProbeResult("sqlite", True, f"{n} memória-sor")
+    except Exception as e:
+        return selfdiag.ProbeResult("sqlite", False, f"{type(e).__name__}: {e}")
+
+
+def _probe_google(kind: str, svc_key: str, err_key: str):
+    def _p() -> selfdiag.ProbeResult:
+        if _capture_state.get(svc_key) is not None:
+            return selfdiag.ProbeResult(kind, True, "a szolgáltatás példányosítva")
+        err = _capture_state.get(err_key) or ""
+        if "invalid_grant" in str(err):
+            return selfdiag.ProbeResult(
+                kind, False,
+                "invalid_grant — a refresh token VISSZAVONVA (nem lejárt). "
+                "Új token kell; `In Production` státusz nélkül 7 naponta újra elhal.")
+        return selfdiag.ProbeResult(kind, False, f"nincs szolgáltatás: {str(err)[:200]}")
+    return _p
+
+
+for _a, _m in SILICONFLOW_MODELS.items():
+    selfdiag.register_probe("siliconflow", _a, _probe_siliconflow_model(_a, _m))
+selfdiag.register_probe("searxng", "json_api",
+                        _probe_http_get("json_api", f"{SEARXNG_URL}/search?q=teszt&format=json"
+                                        if SEARXNG_URL else ""))
+selfdiag.register_probe("lightpanda", "mcp",
+                        lambda: selfdiag.ProbeResult(
+                            "mcp", None, "LIGHTPANDA_URL nincs beállítva ezen a service-en")
+                        if not LIGHTPANDA_ENABLED else
+                        selfdiag.ProbeResult("mcp", True, "konfigurálva"))
+selfdiag.register_probe("database", "sqlite", _probe_db)
+selfdiag.register_probe("google", "gmail",
+                        _probe_google("gmail", "gmail_service", "gmail_last_error"))
+selfdiag.register_probe("google", "calendar",
+                        _probe_google("calendar", "calendar_service", "calendar_last_error"))
+_echolot_base = (os.getenv("ECHOLOT_URL", "") or "").rstrip("/")
+selfdiag.register_probe("echolot", "api",
+                        _probe_http_get("api", f"{_echolot_base}/health" if _echolot_base else ""))
+selfdiag.register_probe("brave_mcp", "endpoint",
+                        lambda: selfdiag.ProbeResult(
+                            "endpoint", None, "BRAVE_MCP_URL nincs beállítva")
+                        if not BRAVE_MCP_ENABLED else
+                        selfdiag.ProbeResult("endpoint", True, "konfigurálva"))
+# Bejelentve, DE nincs rá próba — hogy a hiány LÁTSZÓDJON a `diagnose_all`-ban.
+# Ez nem mulasztás-lista, hanem a mérőeszköz határa, kimondva.
+for _c in ("telegram", "stripe"):
+    selfdiag.declare_component(_c)
 
 
 def _init_google_services():
@@ -10687,7 +11121,20 @@ async def _cron_loop():
                             deep_thinking=deep_thinking,
                         )
                     else:
-                        max_tokens = 16000 if model == "glm5" else 8000
+                        # A GLM-5.3-család MÉRHETŐEN token-éhes: a független
+                        # elemzés szerint feladatonként ~47 000 kimeneti token
+                        # (a GPT-5.6 Luna ~20 000), és ALAPBÓL max reasoning-gal
+                        # fut. 16 000-rel a gondolkodás elfogyasztaná a keretet,
+                        # és `finish_reason=length` mellett ÜRES `content` jönne
+                        # vissza — pontosan az a "reasoning-only" bukás, amit a
+                        # `_run_agent_with_tools` docstringje már ismer.
+                        # A modell 131 000 kimeneti tokent enged.
+                        if model in ("glm53f", "glm53"):
+                            max_tokens = 48000
+                        elif model == "glm5":
+                            max_tokens = 16000
+                        else:
+                            max_tokens = 8000
                         agent_tasks = json.dumps({model: {"prompt": prompt, "max_tokens": max_tokens}})
                         result_json = await ai_task(
                             title=f"Cron: {r['name']}",
@@ -10725,10 +11172,34 @@ async def _cron_loop():
                             if _failed:
                                 _code = (status["error_code"] if status and status["error_code"]
                                          else (row2["error_code"] if row2 else "")) or "unknown"
+                                # ÖNVIZSGÁLAT: a hibakód önmagában igaz és
+                                # HASZNÁLHATATLAN. A task #407-nél a Kommandant
+                                # annyit kapott, hogy `empty_response` — az
+                                # igazi ok (egyszeri HTTP 400 a SiliconFlow-tól)
+                                # csak a Railway-logból derült ki, kézzel.
+                                # Mostantól a rendszer MÉR, mielőtt jelent.
+                                _diag_txt = ""
+                                try:
+                                    _d = selfdiag.diagnose(
+                                        _component_for_error(_code), symptom=_code)
+                                    _diag_txt = f"\n\n🔎 <b>Önvizsgálat</b>\n{_d.summary}"
+                                    _bad = [e for e in _d.evidence if e.ok is False]
+                                    if _bad:
+                                        _diag_txt += "\n" + "\n".join(
+                                            f"• {e.name}: {e.detail[:120]}" for e in _bad[:4])
+                                    if _d.missing_probes:
+                                        _diag_txt += ("\n• (erre a részre nincs mérőeszközünk — "
+                                                      "ezt is jelentjük, nem hallgatjuk el)")
+                                except Exception as _de:  # noqa: BLE001
+                                    # Az önvizsgálat SOSE vihet el egy értesítést:
+                                    # a hibajelzés fontosabb, mint a diagnózisa.
+                                    logger.warning("selfdiag a cron-hibaútban elhasalt: %s", _de)
+                                    _diag_txt = "\n\n🔎 Az önvizsgálat maga is elhasalt — lásd a logot."
                                 await _telegram_push(
                                     f"⛔ <b>{r['name']}</b> — HIBÁS FUTÁS, nincs brief\n\n"
                                     f"Ok (kód): <code>{_code}</code>\n"
-                                    f"Task: #{task_id}\n\n"
+                                    f"Task: #{task_id}"
+                                    f"{_diag_txt}\n\n"
                                     "A futás nem adott értékelhető eredményt. "
                                     "A hiányt jelentjük, nem pótoljuk."
                                 )
