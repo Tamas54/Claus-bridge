@@ -401,3 +401,37 @@ def test_pyramid_knows_the_flash_tier():
     # a token-éhes flash NEM indulhat 8000-ről
     assert AGENT_REGISTRY["glm53f"]["default_max_tokens"] >= 48000
     assert AGENT_REGISTRY["dsflash"]["model_id"] in server.SILICONFLOW_MODELS.values()
+
+
+# ── 8. ALIAS-FELOLDÁS a dispatch eszközös ágán ──────────────────────────
+# A pyramid dispatcher az AGENT-ALIAST adja át (`glm5`, `dsflash`, `kimi`), nem
+# a szolgáltató modell-azonosítóját. A `_run_agent_with_tools` eddig nyersen
+# küldte tovább — és a SiliconFlow MINDEN aliasra 400/20012-t ad. MÉRVE:
+#   model=glm5 → 400 · model=dsflash → 400 · model=kimi → 400
+# A régi kód ezt `"API error: {...}"` szövegként adta vissza VÁLASZKÉNT, és a
+# `row_error_code` értékelhető tartalomnak látta. A hibás futás sikeresnek
+# látszott, és a hibaszöveg mehetett ki briefként.
+
+def test_agent_alias_is_resolved_to_a_model_id(monkeypatch):
+    fake = _wire(monkeypatch, [FakeResp(200, "", _ok_payload("kész"))])
+    _run(server._run_agent_with_tools("dsflash", [{"role": "user", "content": "x"}],
+                                      max_rounds=1))
+    sent = fake.calls[0]["model"]
+    assert sent == "deepseek-ai/DeepSeek-V4-Flash", \
+        f"a nyers alias ment ki modellnévként: {sent!r} — a SiliconFlow erre 400/20012-t ad"
+
+
+@pytest.mark.parametrize("alias", ["kimi", "deepseek", "glm5", "glm53f", "dsflash"])
+def test_every_alias_resolves(monkeypatch, alias):
+    fake = _wire(monkeypatch, [FakeResp(200, "", _ok_payload("kész"))])
+    _run(server._run_agent_with_tools(alias, [{"role": "user", "content": "x"}], max_rounds=1))
+    assert fake.calls[0]["model"] == server.SILICONFLOW_MODELS[alias]
+
+
+def test_a_real_model_id_passes_through_unchanged(monkeypatch):
+    """A feloldás nem ronthatja el azt, ami már feloldott — a szintézis-út
+    valódi model_id-t ad át."""
+    fake = _wire(monkeypatch, [FakeResp(200, "", _ok_payload("kész"))])
+    _run(server._run_agent_with_tools("zai-org/GLM-5.2", [{"role": "user", "content": "x"}],
+                                      max_rounds=1))
+    assert fake.calls[0]["model"] == "zai-org/GLM-5.2"

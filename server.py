@@ -7535,6 +7535,17 @@ async def _run_agent_with_tools(model_id: str, messages: list, max_rounds: int =
     rounds, since the model emits DSML format text instead of structured
     tool_calls, so providing tools would only invite leakage.
     """
+    # ⚠️ ALIAS-FELOLDÁS. A pyramid dispatcher az AGENT-ALIAST adja át
+    # (`glm5`, `dsflash`, `kimi`) — nem a szolgáltató modell-azonosítóját. Ez a
+    # függvény eddig NYERSEN küldte tovább, és a SiliconFlow minden aliasra
+    # HTTP 400/20012-t ad ("Model does not exist") — MÉRVE mind a háromra.
+    #
+    # Miért nem derült ki eddig: a régi hibaág `f"API error: {data}"`-t adott
+    # vissza VÁLASZKÉNT, és a `row_error_code` ezt értékelhető tartalomnak
+    # látta (nincs `ERROR:` prefix). A hibás futás sikeresnek látszott, és a
+    # hibaszöveg mehetett ki briefként. A 2026-08-30-i tipizált hiba hozta
+    # felszínre — pontosan azért, mert a szolgáltató üzenetét már nem dobjuk el.
+    model_id = SILICONFLOW_MODELS.get(model_id, model_id)
     model_extra = _model_extra(model_id)
     model_can_use_tools = _model_supports_tools(model_id)
     # A modellváltás nem maradhat a logban: a KIMENETBE kell kerülnie, hogy a
