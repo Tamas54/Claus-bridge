@@ -9041,8 +9041,13 @@ def _probe_siliconflow_model(alias: str, model_id: str):
                 f"{SILICONFLOW_BASE_URL}/chat/completions",
                 headers={"Authorization": f"Bearer {SILICONFLOW_API_KEY}",
                          "Content-Type": "application/json"},
+                # ⚠️ A próba UGYANAZOKKAL a paraméterekkel menjen, amiket a
+                # termék küld — különben mást mér, mint ami élesben fut. A
+                # `dsflash` első éles próbája 23,6 MÁSODPERCET adott, mert a
+                # `_model_extra` nélkül bekapcsolva maradt a gondolkodása;
+                # a termék `thinking=disabled`-del hívja, és ott 4-5 s.
                 json={"model": model_id, "messages": [{"role": "user", "content": "ping"}],
-                      "max_tokens": 2000},
+                      "max_tokens": 2000, **_model_extra(model_id)},
                 timeout=45,
             )
         except Exception as e:

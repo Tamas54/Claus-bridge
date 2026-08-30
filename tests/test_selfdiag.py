@@ -203,3 +203,15 @@ def test_one_red_still_wins_over_many_green():
     selfdiag.register_probe("sf", "halott", _bad("halott", "HTTP 500"))
     d = selfdiag.diagnose("sf", "")
     assert d.verdict is Verdict.DEGRADED
+
+
+def test_model_probe_uses_the_product_parameters():
+    """A MÉRŐESZKÖZ AZT MÉRJE, AMI ÉLESBEN FUT. A `dsflash` első éles próbája
+    23,6 másodpercet adott, mert a próba a `_model_extra` nélkül hívta, és a
+    modell gondolkodása bekapcsolva maradt — a termék `thinking=disabled`-del
+    hívja, ott 4-5 s. Egy próba, ami más paraméterekkel megy, mint a termék,
+    nem a terméket méri."""
+    import server, inspect
+    src = inspect.getsource(server._probe_siliconflow_model)
+    assert "_model_extra(model_id)" in src, \
+        "a modell-próba nem a termék paramétereivel hív"
