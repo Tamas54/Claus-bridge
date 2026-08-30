@@ -122,6 +122,107 @@ def _cron_token_required() -> bool:
             .strip().lower() not in ("0", "off", "false", "no"))
 
 
+# ============================================================
+# MENETREND-IRAS — EGY MOTOR MINDEN FELULETNEK
+# ============================================================
+#
+# MIERT (2026-08-30): a menetrend-irasnak KET implementacioja volt. Az
+# `update_recipe` (ez a fajl) validalt es kapuzott; a Feldwebel sajat
+# `schedule_recipe` aga viszont KOZVETLENUL irt a DB-be, egyetlen
+# `len(parts) != 5` ellenorzessel. A Kommandant Telegramon utemez — vagyis
+# eppen az orizetlen agat hasznalta.
+#
+# Ezen az uton veszett el a reggeli hirbrief 2026-04-10-en: ket utemezes
+# ugyanarra a receptre, a masodik nema modon felulirta az elsot, es a valasz
+# mindketszer ugyanazt a sikert jelentette. A `cron_schedule` EGYETLEN oszlop:
+# egy recept egy idopontban fut.
+#
+# Innentol mindket felulet ITT megy at. A jogosultsagi kapu marad a hivo
+# oldalan (mas a chat es mas a nyilt /mcp fenyegetes-modellje) — de a
+# VALIDACIO es a CSERE KIMONDASA kozos.
+
+def schedule_change_note(name: str, prev: str | None, new: str | None) -> dict:
+    """{replaced_schedule, message} ha a menetrend valtozott, kulonben {}.
+
+    EGY GAZDA: ezt a szoveget ket felulet hasznalja (a Feldwebel Telegramon es
+    az MCP-oldali `update_recipe`). Ket peldany ket kulon megfogalmazassa valna,
+    es a Kommandant ket helyen mast olvasna ugyanarrol a muveletrol.
+    """
+    if prev == new or (not prev and not new):
+        return {}
+    if prev and not new:
+        return {
+            "replaced_schedule": {"from": prev, "to": None},
+            "message": (f"Az utemezes TOROLVE: a(z) '{name}' korabbi `{prev}` "
+                        f"menetrendje megszunt. A recept kezzel tovabbra is "
+                        f"futtathato."),
+        }
+    if prev and new:
+        return {
+            "replaced_schedule": {"from": prev, "to": new},
+            "message": (
+                f"FIGYELEM — CSERE, NEM BOVITES: a(z) '{name}' korabbi `{prev}` "
+                f"menetrendje MEGSZUNT, helyette `{new}` fut. Egy recepthez EGY "
+                f"utemezes tartozik. Ha KET idopontban is kell futnia, MASODIK "
+                f"RECEPT kell — ugyanarra a receptre a masodik utemezes torli az "
+                f"elsot."),
+        }
+    return {}   # nem volt korabbi menetrend: ez az ELSO utemezes, nem csere
+
+
+def apply_schedule(conn, name: str, schedule: str, *, model: str = "",
+                   delivery: str = "") -> dict:
+    """A menetrend beirasa egy receptre. A hivo tranzakciojaban fut.
+
+    Visszaad egy valasz-dictet. Ha volt korabbi, ELTERO menetrend, a valasz
+    `replaced_schedule` + `message` mezoben KIMONDJA, hogy cserelt — soha nem
+    hallgatja el, hogy valami megszunt.
+    """
+    row = conn.execute(
+        "SELECT cron_schedule FROM pyramid_recipes WHERE name = ?", (name,)).fetchone()
+    if row is None:
+        return {"error": f"Recipe '{name}' nem talalhato."}
+    prev = row["cron_schedule"] if not isinstance(row, tuple) else row[0]
+
+    if (schedule or "").strip().lower() in ("off", "none", ""):
+        conn.execute("UPDATE pyramid_recipes SET cron_schedule = NULL, "
+                     "cron_enabled = 0, updated_at = ? WHERE name = ?", (_now(), name))
+        out = {"status": "disabled", "name": name, "cron_schedule": None}
+        note = schedule_change_note(name, prev, None)
+        if note:
+            out.update(note)
+            logger.warning("Recipe %s: cron_schedule TOROLVE (volt: %s)", name, prev)
+        return out
+
+    ok, err = validate_cron_schedule(schedule)
+    if not ok:
+        logger.warning("Recipe %s: cron_schedule elutasitva (%r): %s", name, schedule, err)
+        return {"error": err, "status": "rejected", "reason_code": "invalid_cron_schedule"}
+
+    new = schedule.strip()
+    sets = ["cron_schedule = ?", "cron_enabled = 1", "updated_at = ?"]
+    params: list = [new, _now()]
+    if model:
+        sets.insert(1, "cron_model = ?")
+        params.insert(1, model)
+    if delivery:
+        sets.insert(1, "cron_delivery = ?")
+        params.insert(1, delivery)
+    params.append(name)
+    conn.execute(f"UPDATE pyramid_recipes SET {', '.join(sets)} WHERE name = ?", params)
+
+    out = {"status": "scheduled", "name": name, "cron_schedule": new}
+    if model:
+        out["model"] = model
+    note = schedule_change_note(name, prev, new)
+    if note:
+        out.update(note)
+        logger.warning("Recipe %s: cron_schedule CSERE %s -> %s", name, prev, new)
+    else:
+        out["message"] = f"'{name}' utemezve: {new}."
+    return out
+
+
 def _gate(deps, verb: str, caller: str, auth: str, *,
           mutating: bool, require_token: bool = False) -> str | None:
     """None = mehet. Kulonben a tiltas JSON-je (ugyanaz az alak, mint `_enforce`)."""
@@ -496,19 +597,37 @@ def register_tools(app, deps):
             )
             logger.info("Vertikum-seed: weekly_geopolitics_brief beillesztve")
 
-        # 3) market_brief schedule rows (PLAN_20260531.md §4) — idempotent.
-        #    These rows ONLY carry the cron SCHEDULE; the server's _cron_loop
-        #    special-cases name-prefix "market_brief" → generate_market_brief()
-        #    (strict §3 JSON + push to NOFX), NOT the generic ai_task path.
-        #    Cron is interpreted in Europe/Budapest time. US open 09:00 ET ≈
-        #    15:00 Budapest (CEST); early afternoon ~13:30 ET ≈ 19:30 Budapest.
+        # 3) ECONOMIC BRIEF — idempotens sor + atnevezes a regi `market_brief`-rol.
+        #
+        #    MIERT ATNEVEZES (2026-08-30): a recept "NOFX stratégiai brief" volt,
+        #    egy amerikai reszvenybot bemenete, `cron_delivery='none'`-szal. Ket
+        #    dolog derult ki: (a) a `NOFX_BRIEF_URL` a produkcioban NINCS
+        #    beallitva, tehat a gepi payload egy efemer fajlba ment, amit minden
+        #    deploy elmosott — FOGYASZTOJA NEM VOLT; (b) a Kommandant viszont
+        #    Telegramon MEGKAPJA es EMBERKENT olvassa. Vagyis a brief valodi
+        #    kozonsege vegig egy ember volt, mikozben a neve, a tartalma es a
+        #    menetrendje egy botnak szolt.
+        #
+        #    Ezert: uj nev (economic_brief_*), emberi menetrend (8:30 / 17:30
+        #    Budapest, hetkoznap — hetvegen nincs uj makro- es piaci adat), es a
+        #    tartalom sulypontja a magyar/EU makro-szemlere kerult. A gepi mezok
+        #    megmaradnak: ha a NOFX egyszer eled, a szerzodes valtozatlan.
+        _RENAME = {"market_brief_morning": "economic_brief_morning",
+                   "market_brief_afternoon": "economic_brief_afternoon"}
+        for _old, _new in _RENAME.items():
+            if conn.execute("SELECT 1 FROM pyramid_recipes WHERE name=?", (_old,)).fetchone() \
+                    and not conn.execute("SELECT 1 FROM pyramid_recipes WHERE name=?", (_new,)).fetchone():
+                conn.execute("UPDATE pyramid_recipes SET name=?, updated_at=? WHERE name=?",
+                             (_new, ts2, _old))
+                logger.info("economic_brief: %s -> %s atnevezve", _old, _new)
+
         _mb_rows = [
-            ("market_brief_morning",
-             "NOFX stratégiai brief — reggel, US nyitás előtt (push /brief-re)",
-             "0 15 * * 1-5"),
-            ("market_brief_afternoon",
-             "NOFX stratégiai brief — kora délután (push /brief-re)",
-             "30 19 * * 1-5"),
+            ("economic_brief_morning",
+             "Economic Brief — reggel 8:30: HU/EU/US makró-szemle + piaci helyzet",
+             "30 8 * * 1-5"),
+            ("economic_brief_afternoon",
+             "Economic Brief — délután 17:30: európai zárás + US nap közben",
+             "30 17 * * 1-5"),
         ]
         for mb_name, mb_desc, mb_cron in _mb_rows:
             mb_exists = conn.execute(
@@ -518,12 +637,22 @@ def register_tools(app, deps):
                 conn.execute(
                     "INSERT INTO pyramid_recipes (name, description, required_tools, prompt_template, "
                     "created_by, created_at, updated_at, cron_schedule, cron_model, cron_enabled, cron_delivery) "
-                    "VALUES (?, ?, '[]', ?, 'system', ?, ?, ?, 'deepseek', 1, 'none')",
+                    "VALUES (?, ?, '[]', ?, 'system', ?, ?, ?, 'deepseek', 1, 'telegram')",
                     (mb_name, mb_desc,
                      "(special-cased — runtime: feldwebel.market_brief.generate_market_brief)",
                      ts2, ts2, mb_cron),
                 )
-                logger.info("market_brief-seed: %s (cron=%s) beillesztve", mb_name, mb_cron)
+                logger.info("economic_brief-seed: %s (cron=%s) beillesztve", mb_name, mb_cron)
+            else:
+                # A leiras es a menetrend a KODBOL jon, hogy a ket felulet ne
+                # csusszon szet. A `cron_delivery` 'none'-rol 'telegram'-ra:
+                # a brief EMBERI termek, a kezbesites nem opcio.
+                conn.execute(
+                    "UPDATE pyramid_recipes SET description=?, cron_schedule=?, "
+                    "cron_delivery='telegram', updated_at=? WHERE name=? AND "
+                    "(description<>? OR cron_schedule<>? OR cron_delivery<>'telegram')",
+                    (mb_desc, mb_cron, ts2, mb_name, mb_desc, mb_cron),
+                )
 
         # 4) daily_press_review — pure fetch+store of the Echolot daily brief
         #    into the unified RAG (NO LLM). Special-cased in _cron_loop by name.
@@ -542,6 +671,18 @@ def register_tools(app, deps):
                  ts2, ts2, "0 6 * * *"),
             )
             logger.info("daily_press_review-seed: beillesztve (cron=0 6 * * *)")
+
+        # 5) HIRSZEMLE — KET recept, kanonikus prompttal (plugins/news_brief.py).
+        #    Miert ket sor: a `cron_schedule` EGYETLEN oszlop, tehat egy recept
+        #    egy idopontban fut. A reggeli + delutani briefet 2026-04-10-en
+        #    ugyanarra a sorra irtak, es a masodik nema modon eltorolte az elsot.
+        try:
+            from plugins.news_brief import seed_briefs
+            for _msg in seed_briefs(conn, ts2):
+                logger.info("news_brief-seed: %s", _msg)
+        except Exception as nbe:  # noqa: BLE001
+            logger.error("news_brief seed hiba: %s", nbe)
+
         conn.commit()
     except Exception as me:
         logger.error("Vertikum-migration error: %s", me)
@@ -1047,10 +1188,13 @@ def register_tools(app, deps):
             return denied
 
         conn = get_db()
-        row = conn.execute("SELECT id FROM pyramid_recipes WHERE name = ?", (name,)).fetchone()
+        row = conn.execute(
+            "SELECT id, cron_schedule, cron_enabled FROM pyramid_recipes WHERE name = ?",
+            (name,)).fetchone()
         if not row:
             conn.close()
             return json.dumps({"error": f"Recipe '{name}' nem talalhato."})
+        _prev_schedule = row["cron_schedule"]
 
         updates = []
         params = []
@@ -1131,8 +1275,35 @@ def register_tools(app, deps):
         if cron_schedule and cron_schedule != "none" and cron_enabled:
             cron_info = f", cron={cron_schedule} ({cron_model or 'glm5'})"
         logger.info("Recipe updated: %s (enabled=%s%s)", name, enabled, cron_info)
-        return json.dumps({"status": "updated", "name": name, "enabled": enabled,
-                           "cron_enabled": cron_enabled, "cron_schedule": cron_schedule or None})
+
+        out = {"status": "updated", "name": name, "enabled": enabled,
+               "cron_enabled": cron_enabled, "cron_schedule": cron_schedule or None}
+
+        # ── A CSERE KIMONDASA (2026-08-30) ────────────────────────────────
+        # EGY RECEPTHEZ EGY UTEMEZES TARTOZIK: a `cron_schedule` egyetlen
+        # oszlop ezen a soron. Aki masodszor utemezi ugyanazt a receptet, az
+        # nem HOZZAAD, hanem FELULIR — es errol korabban semmi nem szolt.
+        #
+        # AZ ELO KAR (2026-04-10, a Telegram-jegyzokonyvbol): a Kommandant egy
+        # REGGELI (7:00) es egy DELUTANI (16:00) hirbriefet kert. A Feldwebel
+        # ugyanarra a receptre irta mindkettot; a masodik masodperceken belul
+        # eltorolte az elsot, majd jelentette: "A ket utemezes aktiv." A
+        # reggeli brief SOHA nem letezett, es ez negy es fel honapig nem derult
+        # ki. Klasszikus nema siker: a 200-as valasz nem bizonyitek.
+        #
+        # Ezert a valasz mostantol KIMONDJA a cseret. Nem tiltjuk — a felulíras
+        # legitim muvelet —, de a hivo (agent vagy ember) nem hiheti tobbe,
+        # hogy hozzaadott valamit.
+        # A szoveg gazdaja a `schedule_change_note` — ugyanaz, amit a Feldwebel
+        # Telegram-aga is hasznal. Csak akkor ertelmezzuk, ha a hivo TENYLEG
+        # nyult a menetrendhez (`cron_schedule` ures = nem erintette).
+        if cron_schedule:
+            _new_schedule = None if cron_schedule == "none" else cron_schedule.strip()
+            out.update(schedule_change_note(name, _prev_schedule, _new_schedule))
+            if "replaced_schedule" in out:
+                logger.warning("Recipe %s: cron_schedule %s -> %s",
+                               name, _prev_schedule, _new_schedule)
+        return json.dumps(out, ensure_ascii=False)
 
     @app.tool()
     async def delete_recipe(name: str, caller: str = "", auth: str = "") -> str:

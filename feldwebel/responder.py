@@ -313,6 +313,19 @@ RECIPE-K (workflow template-ek) — FONTOS:
 - "Heti makro riport hétfőn 8-kor" → schedule_recipe(name="weekly_macro_report", cron_schedule="0 8 * * 1", model="all")
 - "Kapcsold ki az ütemezést" → schedule_recipe(name="...", cron_schedule="off")
 - Az ütemezett recipe-k AUTOMATIKUSAN futnak és Telegramra küldik az eredményt
+- ⚠️ EGY RECEPTHEZ EGY ÜTEMEZÉS TARTOZIK. Ha a Kommandant KÉT időpontot kér
+  ugyanarra a dologra (pl. "reggeli ÉS délutáni hírbrief"), akkor KÉT RECEPT
+  kell: a másodikat `create_recipe`-pel hozd létre, és azt ütemezd külön.
+  Ugyanarra a receptre a második ütemezés TÖRLI az elsőt.
+  Ez nem elméleti: 2026-04-10-én pontosan így veszett el a reggeli hírbrief —
+  a bot mindkettőt beírta ugyanarra a sorra, majd jelentette, hogy "a két
+  ütemezés aktív". Négy és fél hónapig nem derült ki.
+- Ha a `schedule_recipe` válaszában van `replaced_schedule`, azt SZÓ SZERINT
+  add tovább a Kommandantnak. Soha ne jelents hozzáadást, ha csere történt.
+- A meglévő briefek: `daily_news_brief` (reggel 7:00), `daily_news_brief_pm`
+  (délután 16:00), `economic_brief_morning` (8:30), `economic_brief_afternoon`
+  (17:30). Ha valamelyik időpontját kell módosítani, a MEGFELELŐ receptet
+  ütemezd — ne írd át a másikat.
 
 FOTÓK ÉS FÁJLOK:
 - A Kommandant Telegramon küldhet fotókat — azok upload #ID-val tárolódnak
@@ -1176,35 +1189,27 @@ async def _execute_tool(name: str, args: dict, ctx) -> str:
         model = args.get("model", "glm5")
         if not recipe_name or not cron_schedule:
             return json.dumps({"error": "name és cron_schedule szükséges"})
+        # EGY MOTOR MINDEN FELULETNEK (2026-08-30). Korabban ez az ag
+        # KOZVETLENUL irt a DB-be, egyetlen `len(parts) != 5` ellenorzessel, es
+        # a valasz sosem mondta ki, ha egy korabbi menetrendet felulirt. A
+        # Kommandant Telegramon utemez — vagyis eppen az orizetlen agat
+        # hasznalta, es 2026-04-10-en igy veszett el a reggeli hirbrief.
+        # Mostantol ugyanaz a `plugins.recipes.apply_schedule` fut itt is, mint
+        # az MCP-oldali `update_recipe`-ban: kozos validacio, kozos csere-jelzes.
         try:
+            from plugins.recipes import apply_schedule
             conn = ctx.get_db()
-            row = conn.execute("SELECT id, name FROM pyramid_recipes WHERE name = ?", (recipe_name,)).fetchone()
-            if not row:
-                conn.close()
-                return json.dumps({"error": f"Recipe '{recipe_name}' nem található"})
-
-            if cron_schedule.lower() == "off":
-                conn.execute("UPDATE pyramid_recipes SET cron_enabled = 0 WHERE name = ?", (recipe_name,))
+            try:
+                out = apply_schedule(conn, recipe_name, cron_schedule,
+                                     model=model, delivery="both")
                 conn.commit()
+            finally:
                 conn.close()
-                return json.dumps({"status": "disabled", "name": recipe_name, "message": f"'{recipe_name}' ütemezés kikapcsolva."})
-
-            parts = cron_schedule.strip().split()
-            if len(parts) != 5:
-                conn.close()
-                return json.dumps({"error": "Cron formátum: 'perc óra nap hónap hétnap', pl. '0 7 * * *'"})
-
-            conn.execute(
-                "UPDATE pyramid_recipes SET cron_schedule = ?, cron_model = ?, cron_enabled = 1, cron_delivery = 'both' WHERE name = ?",
-                (cron_schedule.strip(), model, recipe_name),
-            )
-            conn.commit()
-            conn.close()
-            return json.dumps({
-                "status": "scheduled", "name": recipe_name,
-                "cron_schedule": cron_schedule, "model": model,
-                "message": f"'{recipe_name}' ütemezve: {cron_schedule} ({model}). Eredmény Telegramra jön."
-            }, ensure_ascii=False)
+            if out.get("status") == "scheduled" and "replaced_schedule" not in out:
+                out["message"] = (f"'{recipe_name}' ütemezve: "
+                                  f"{out['cron_schedule']} ({model}). "
+                                  f"Eredmény Telegramra jön.")
+            return json.dumps(out, ensure_ascii=False)
         except Exception as e:
             return json.dumps({"error": str(e)})
 

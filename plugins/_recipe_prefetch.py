@@ -229,7 +229,7 @@ def _fetch_open_tasks(get_db, limit: int = 10) -> list:
 
 # ── Hirmagnet friss hirek (opcionalis, csak szoveg, NEM adat) ─────────
 
-async def _fetch_echolot_press_review(limit: int = 10) -> dict:
+async def _fetch_echolot_press_review(limit: int = 10, session: str = "reggel") -> dict:
     """A napi hirszemle — a KANONIKUS forrasbol.
 
     ⚠️ EGY GAZDA: a szemlet a `plugins.daily_press_review.structured_press_review`
@@ -250,6 +250,7 @@ async def _fetch_echolot_press_review(limit: int = 10) -> dict:
                 "_error": f"a kanonikus szemle nem importalhato: {e}"}
     r = await structured_press_review(limit=limit)
     return {
+        "session": session,
         "edition_date": r["home_date"],
         "edition_is_today": r["home_is_today"],
         "top_stories": r["home_stories"],
@@ -274,12 +275,14 @@ async def _fetch_echolot_press_review(limit: int = 10) -> dict:
 # adniuk, es a proba EZT meri — nem azt, hogy a fuggveny lefutott-e.
 
 #: recipe -> {szekcio: emberi leiras}. Ami itt szerepel, annak URESEN HIBA.
+_NEWS_SECTIONS = {
+    "fx_ecb": "ECB napi devizaarfolyamok",
+    "market_yahoo": "Yahoo Finance kvotok",
+    "echolot_hirszemle": "Echolot hirszemle (klaszterezett sztorik)",
+}
 REQUIRED_SECTIONS = {
-    "daily_news_brief": {
-        "fx_ecb": "ECB napi devizaarfolyamok",
-        "market_yahoo": "Yahoo Finance kvotok",
-        "echolot_hirszemle": "Echolot hirszemle (klaszterezett sztorik)",
-    },
+    "daily_news_brief": _NEWS_SECTIONS,
+    "daily_news_brief_pm": _NEWS_SECTIONS,
 }
 
 
@@ -358,19 +361,36 @@ async def prefetch_daily_briefing(deps: dict) -> str:
     }, ensure_ascii=False, indent=2)
 
 
-async def prefetch_daily_news_brief(deps: dict) -> str:
-    """daily_news_brief: ECB arfolyamok + Yahoo piaci kosar + Hirmagnet hirek."""
+async def _prefetch_news_brief(session: str) -> str:
+    """A hirszemle FACTUAL CONTEXT-je. EGY torzs a reggeli es a delutani briefnek.
+
+    A ket brief ugyanazokat a szekciokat kapja; a `session` mezo mondja meg a
+    modellnek, melyik keretezes ervenyes (a promptot a plugins/news_brief.py
+    allitja elo ugyanabbol a forrasbol). Ket kulon prefetcher ket kulon
+    igazsagot adna ugyanarrol a naprol.
+    """
     ecb, market, news = await asyncio.gather(
         _fetch_ecb_rates(),
         _fetch_market_basket(),
-        _fetch_echolot_press_review(limit=10),
+        _fetch_echolot_press_review(limit=10, session=session),
     )
     return json.dumps({
+        "session": session,
         "fx_ecb": ecb,
         "market_yahoo": market,
         "echolot_hirszemle": news,
         "fetched_at": datetime.now(timezone.utc).isoformat(),
     }, ensure_ascii=False, indent=2)
+
+
+async def prefetch_daily_news_brief(deps: dict) -> str:
+    """Reggeli hirszemle (7:00): ECB + Yahoo + Echolot lapszam."""
+    return await _prefetch_news_brief("reggel")
+
+
+async def prefetch_daily_news_brief_pm(deps: dict) -> str:
+    """Delutani hirszemle (16:00): ugyanaz a torzs, delutani keretezessel."""
+    return await _prefetch_news_brief("delutan")
 
 
 # ── Vertikum-prefetcherek (B integráció, 2026-05-10) ──────────────────
@@ -418,6 +438,7 @@ async def prefetch_weekly_geopolitics_brief(deps: dict) -> str:
 RECIPE_PREFETCHERS = {
     "daily_briefing": prefetch_daily_briefing,
     "daily_news_brief": prefetch_daily_news_brief,
+    "daily_news_brief_pm": prefetch_daily_news_brief_pm,
     "weekly_macro_report": prefetch_weekly_macro_report,
     "weekly_geopolitics_brief": prefetch_weekly_geopolitics_brief,
 }

@@ -39,6 +39,13 @@ def _valid_brief():
             {"symbol": "NVDA", "reason": "earnings tonight", "deadline": "2026-06-05T20:00Z"}
         ],
         "note": "Watch CPI surprise.",
+        # A ket EMBERI mezo. 2026-08-30 ota kotelezo: a brief egyetlen valodi
+        # fogyasztoja a Kommandant a Telegramon, es nelkuluk a kikuldott uzenet
+        # gepi mezok listaja — vagyis szamara URES, akkor is, ha a sema hibatlan.
+        "macro_review": ("MAGYARORSZAG: az inflacio 4,1% [KSH ara0002, 2026-07].\n\n"
+                         "EUROZONA: HICP 2,2% [ECB ICP, 2026-07].\n\n"
+                         "USA: a Fed 3,75% [FRED, 2026-08]."),
+        "telegram_digest": "A piacot ma a CPI-varakozas mozgatja.",
     }
 
 
@@ -158,7 +165,12 @@ def test_generate_success_local_file(monkeypatch, tmp_path):
     out = tmp_path / "brief" / "morning.json"
     assert out.exists()
     written = json.loads(out.read_text())
-    assert mb.validate_brief(written) == []
+    # A WIRE-PAYLOAD alakja: az emberi mezok NELKUL, mert azokat a push elott
+    # szandekosan kiszedjuk. Ezert `require_human=False` — a sajat kiszedesunket
+    # nem jelenthetjuk hianynak.
+    assert mb.validate_brief(written, require_human=False) == []
+    assert "macro_review" not in written and "telegram_digest" not in written, \
+        "az emberi mezok bekerultek a NOFX wire-payloadba"
 
 
 def test_generate_forces_contract_fields(monkeypatch, tmp_path):
@@ -212,3 +224,90 @@ def test_generate_no_ai_query_wired(monkeypatch):
     result = asyncio.run(mb.generate_market_brief("morning"))
     assert result["ok"] is False
     assert "ai_query" in result["error"]
+
+
+# ===========================================================================
+# ECONOMIC BRIEF — 2026-08-30
+# ===========================================================================
+#
+# MIERT VALTOZOTT. Ket lelet ugyanarrol a briefrol:
+#   * a `NOFX_BRIEF_URL` a produkcioban NINCS beallitva, es a `MARKET_BRIEF_DIR`
+#     sem — a gepi payload egy efemer konyvtarba ment, amit minden deploy
+#     elmosott. A NOFX-fogyaszto NEM LETEZETT;
+#   * a Kommandant viszont Telegramon MEGKAPJA es EMBERKENT olvassa.
+# Vagyis a brief valodi kozonsege vegig egy ember volt, mikozben a neve, a
+# tartalma es a menetrendje egy botnak szolt. Ezek a tesztek az uj sulypontot
+# orzik: magyar/EU makro-szemle elol, gepi mezok hatul, EGY renderelo.
+
+def test_a_makro_kontextus_lefedi_magyarorszagot():
+    """A brief HU/EU makrot is kap, nem csak amerikait. Enelkul a "magyar
+    gazdasagi szemle" rovat forras nelkul maradna — es a modell a betanitasi
+    memoriabol potolna."""
+    spec = json.loads(mb._build_data_context())
+    for kell in ("hu_macro", "eu_macro", "us_macro"):
+        assert kell in spec["presets"], f"hianyzik a preset: {kell}"
+    assert "hu_markets" in spec["presets"], "nincs magyar tozsdei adat"
+    regiok = {c["args"].get("region") for c in spec["series"]
+              if c["tool"] == "get_economic_calendar"}
+    assert {"US", "EU"} <= regiok, "csak az amerikai naptart huzzuk"
+
+
+def test_az_emberi_mezok_nelkul_a_brief_bukik():
+    """FAIL-CLOSED: gepi mezok hibatlanul, emberi resz nelkul = a Kommandant
+    egy mezolistat kap. A retry-hurok ezt hibanak veszi es ujraprobal."""
+    for hianyzo in ("macro_review", "telegram_digest"):
+        b = _valid_brief()
+        del b[hianyzo]
+        errs = mb.validate_brief(b)
+        assert any(hianyzo in e for e in errs), f"{hianyzo} hianya atment"
+    ures = _valid_brief()
+    ures["macro_review"] = "   "
+    assert mb.validate_brief(ures), "az URES makro-szemle atment"
+
+
+def test_egy_renderelo_minden_feluletre(monkeypatch, tmp_path):
+    """A Kommandant Telegramon kapja, de itt is olvassa. Ha a ket felulet
+    kulon allitana elo a szoveget, ket kulon briefre csusznanak szet — ezert a
+    generalas eredmenye MAGA hordozza a kikuldott szoveget."""
+    monkeypatch.setattr(mb, "NOFX_BRIEF_URL", "")
+    monkeypatch.setattr(mb, "_BRIEF_DIR", tmp_path / "brief")
+    monkeypatch.setattr(mb, "statdata_client", None)
+    kikuldott = []
+
+    async def _fake_push(text):
+        kikuldott.append(text)
+    monkeypatch.setattr(mb, "_telegram_push_func", _fake_push)
+    mb.set_ai_query(_stub_ai_query([json.dumps(_valid_brief())]))
+
+    result = asyncio.run(mb.generate_market_brief("morning"))
+
+    assert result["ok"] is True
+    assert kikuldott, "semmi nem ment ki Telegramra"
+    assert result["telegram_text"] == kikuldott[0], \
+        "a hivo mas szoveget kap, mint ami Telegramra ment"
+
+
+def test_a_telegram_uzenet_a_gazdasagi_szemleval_kezdodik(monkeypatch):
+    """A SORREND TERMEK-DONTES: a brief celja az emberi szemle; a rezsim/
+    kockazati keret egy botnak keszult mezo, ami ma senkihez nem jut el."""
+    b = _valid_brief()
+    digest = b.pop("telegram_digest")
+    makro = b.pop("macro_review")
+    text = mb.format_brief_telegram(b, digest, makro)
+
+    assert "Economic Brief" in text
+    assert "NOFX" not in text, "a bot neve maradt a fejlecben"
+    assert text.index("Gazdasági szemle") < text.index("Rezsim:"), \
+        "a gepi mezok elore kerultek az emberi szemle ele"
+    assert "KSH ara0002" in text, "a makro-szemle forrascimkei elvesztek"
+    assert len(text) < 4000, "a Telegram-plafon folott vagyunk"
+
+
+def test_a_makro_szemle_nelkuli_regi_brief_sem_dob(monkeypatch):
+    """Visszafele: egy archivalt, emberi mezok nelkuli regi brief renderelese
+    nem eshet szet — csak rovidebb lesz."""
+    b = _valid_brief()
+    b.pop("telegram_digest")
+    b.pop("macro_review")
+    text = mb.format_brief_telegram(b)
+    assert "Economic Brief" in text and "Rezsim:" in text

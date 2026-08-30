@@ -9411,15 +9411,17 @@ def _bridge_capture_event(subject: str, message: str, priority: str = "normal"):
 
 @mcp.tool()
 async def market_brief_now(session: str = "morning", caller: str = "") -> str:
-    """Manually generate + push the strategic market brief for NOFX (test trigger).
+    """Generate the ECONOMIC BRIEF now (the scheduled 8:30 / 17:30 brief, on demand).
 
-    Builds the §3 Strategic Brief (regime / risk budget / tradeable / avoid /
-    exit_flags with the full day's earnings+macro calendar pre-loaded), validates
-    it against the schema, and POSTs it to NOFX (NOFX_BRIEF_URL env var; falls back
-    to a local file if unset). Synthesis runs on DeepSeek V4-Pro.
+    Hungarian + euro-area + US macro review (KSH, MNB, ECB, Eurostat, FRED) plus
+    the market snapshot and the trading-machine fields. Synthesis on DeepSeek
+    V4-Pro, schema-validated with retries.
+
+    The result carries `telegram_text` — the EXACT message that goes to Telegram,
+    so this surface and the chat show the same brief, not two renderings of it.
 
     Args:
-        session: "morning" (pre-US-open framing) or "afternoon" (post-open update).
+        session: "morning" (8:30 framing) or "afternoon" (17:30 framing).
     """
     denied = _enforce(caller, "market_brief_now")
     if denied:
@@ -11058,16 +11060,19 @@ async def _cron_loop():
                 # ai_task→Telegram path: it produces strict §3 JSON and pushes it
                 # to NOFX. The recipe row only carries the SCHEDULE (cron infra
                 # reuse); the session is derived from the recipe name suffix.
-                if r["name"].startswith("market_brief"):
+                # A `market_brief` prefix a REGI nev; a sorokat a
+                # plugins/recipes.py atnevezi `economic_brief_*`-ra. Mindketto
+                # elfogadott, hogy egy regi DB-vel indulo peldany se nemuljon el.
+                if r["name"].startswith(("market_brief", "economic_brief")):
                     try:
                         from feldwebel import market_brief as _mb
                         if _mb._ai_query_func is None:
                             _mb.set_ai_query(ai_query)
                         session = "afternoon" if "afternoon" in r["name"] else "morning"
                         mb_result = await _mb.generate_market_brief(session)
-                        logger.info("Cron market_brief[%s]: ok=%s pushed=%s",
+                        logger.info("Cron economic_brief[%s]: ok=%s telegram=%s",
                                     session, mb_result.get("ok"),
-                                    (mb_result.get("push") or {}).get("pushed"))
+                                    mb_result.get("telegram"))
                         # Transient-failure shield (2026-06-05: the 15:00 run
                         # died on a flaky synthesis and the day's brief was
                         # lost). One delayed background retry; doesn't block

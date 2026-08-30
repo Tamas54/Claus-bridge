@@ -92,10 +92,21 @@ _VALID_UNTIL_HOURS = {"morning": 6, "afternoon": 8}
 # §3 JSON schema — manual validator (no jsonschema dependency; keeps the
 # requirements.txt pin surface small, matching the codebase's minimalism).
 # ---------------------------------------------------------------------------
-def validate_brief(obj: Any) -> list[str]:
+def validate_brief(obj: Any, *, require_human: bool = True) -> list[str]:
     """Return a list of human-readable schema violations (empty == valid).
 
-    Validates against PLAN §3 point 1. Used both for the retry loop and tests.
+    KET ALAK, EGY VALIDATOR (2026-08-30). A brief ket kulonbozo alakban letezik:
+
+      * a MODELL KIMENETE — gepi mezok + a ket emberi mezo
+        (`macro_review`, `telegram_digest`). Ezt a retry-hurok ellenorzi,
+        `require_human=True`-val: ha az emberi resz hianyzik, a brief a
+        Kommandant szamara URES, akarmilyen hibatlan is a tobbi.
+      * a NOFX WIRE-PAYLOAD — ugyanez az emberi mezok NELKUL, mert azok a bot
+        prompt-koltsegvetesebe nem valok. Ezt `require_human=False`-szal kell
+        merni; kulonben a sajat kiszedesunket jelentenenk hibanak.
+
+    A kulonbseg SZANDEKOS, ezert parameter, nem ket kulon fuggveny: igy nem
+    csuszhat szet a ket sema.
     """
     errs: list[str] = []
     if not isinstance(obj, dict):
@@ -167,6 +178,17 @@ def validate_brief(obj: Any) -> list[str]:
                 errs.append(f"exit_flags[{i}].deadline must be a string")
 
     _req("note", (str,))
+
+    # `macro_review` — az EMBERI gazdasagi szemle (magyarul). Kotelezo, mert a
+    # brief egyetlen valodi fogyasztoja a Kommandant a Telegramon: ha ez a mezo
+    # hianyzik, a brief szamára URES, akkor is, ha minden gepi mezo hibatlan.
+    # (A `telegram_digest` mar korabban is kotelezo volt a promptban, de a
+    # validator nem kerte szamon — ezert tudott nelkule is atmenni.)
+    for _human in (("macro_review", "telegram_digest") if require_human else ()):
+        if _human not in obj:
+            errs.append(f"missing required field '{_human}'")
+        elif not isinstance(obj[_human], str) or not obj[_human].strip():
+            errs.append(f"field '{_human}' must be a non-empty string")
     return errs
 
 
@@ -174,16 +196,23 @@ def validate_brief(obj: Any) -> list[str]:
 # Context assembly
 # ---------------------------------------------------------------------------
 def _build_data_context() -> str:
-    """data_context spec for ai_query: macro + market snapshot + VIX + calendar.
+    """data_context spec: HU + EU + US makró, piaci pillanatkép, VIX, naptár.
 
-    Per the implementation map: us_macro + markets presets, plus ^VIX quote and
-    the US economic calendar for today. policy_rates is already inside us_macro.
+    2026-08-30 — EZ MOST MAR GAZDASAGI SZEMLE, NEM CSAK KERESKEDESI JELZES.
+    Korabban `us_macro + markets` volt: egy amerikai reszvenybot bemenete. A
+    Kommandant azonban EMBERKENT olvassa Telegramon, es magyar gazdasagi
+    szemlet var — ezert bekerult a `hu_macro` (KSH CPI/GDP/munkanelkuliseg,
+    MNB/BIS alapkamat, HU HICP + core az ECB SDMX-rol, HU 10Y hozam, KSH es
+    Eurostat flash-kiadasok) es a `hu_markets` (OTP, MOL, MTEL, 4iG, OPUS,
+    EUR/HUF). A `resolve_data_context` az osszes hivast PARHUZAMOSAN futtatja,
+    igy a bovites nem sorosan adodik a keseshez.
     """
     spec = {
-        "presets": ["us_macro", "markets"],
+        "presets": ["hu_macro", "eu_macro", "us_macro", "markets", "hu_markets"],
         "series": [
             {"tool": "yfinance", "args": {"symbol": "^VIX", "action": "quote"}},
             {"tool": "get_economic_calendar", "args": {"days_ahead": 1, "region": "US"}},
+            {"tool": "get_economic_calendar", "args": {"days_ahead": 2, "region": "EU"}},
         ],
     }
     return json.dumps(spec)
@@ -239,6 +268,13 @@ def _build_prompt(session: str, asof_iso: str, valid_until_iso: str, calendar_ra
                 }
             ],
             "note": "one short sentence",
+            "macro_review": (
+                "MAGYAR NYELVU GAZDASAGI SZEMLE, 6-10 mondat, harom bekezdesben: "
+                "(1) MAGYARORSZAG — inflacio (KSH/HICP), alapkamat (MNB), GDP, "
+                "munkanelkuliseg, EUR/HUF, BET-vezetok; (2) EUROZONA — HICP, ECB "
+                "kamat, EUR/USD; (3) USA/GLOBALIS — CPI, Fed, 10Y, olaj, arany. "
+                "MINDEN szamhoz [forras, idoszak] cimke."
+            ),
             "telegram_digest": (
                 "4-6 mondatos MAGYAR nyelvű helyzetértékelés a Kommandantnak: mi "
                 "mozgatja ma a piacot, miért ez a rezsim és kockázati keret, mire "
@@ -262,11 +298,15 @@ def _build_prompt(session: str, asof_iso: str, valid_until_iso: str, calendar_ra
         )
 
     return (
-        f"You are the strategic market-brief generator for an automated US-equities "
-        f"trading bot. Produce the {session.upper()} brief.\n\n"
-        "Use ONLY the freshly-injected NEWS and DATA blocks above (VIX, S&P 500, "
-        "10Y, gold, WTI, policy rates, CPI/GDP/unemployment, economic calendar) plus "
-        "the calendar block below. Do NOT invent numbers, levels, or events.\n\n"
+        f"You produce the daily ECONOMIC BRIEF ({session.upper()} edition). It has "
+        f"TWO audiences: a HUMAN reader (Hungarian, the primary one — he reads it "
+        f"on Telegram) and an automated US-equities trading bot (the machine "
+        f"fields).\n\n"
+        "Use ONLY the freshly-injected NEWS and DATA blocks above (Hungarian and "
+        "euro-area macro from KSH/MNB/ECB/Eurostat, US macro from FRED, VIX, "
+        "S&P 500, 10Y, gold, WTI, EUR/HUF, Budapest equities, economic calendars) "
+        "plus the calendar block below. Do NOT invent numbers, levels, or "
+        "events.\n\n"
         "Decide: market REGIME (risk_on/risk_off/neutral), a risk_budget_pct (0-100), "
         "directional BIAS per asset class, a small TRADEABLE universe (advisory tickers "
         "for the bot to prefer), AVOID windows (macro/earnings, with times), today's key "
@@ -276,12 +316,25 @@ def _build_prompt(session: str, asof_iso: str, valid_until_iso: str, calendar_ra
         f"{cal_block}\n\n"
         f"`asof` MUST be \"{asof_iso}\" and `valid_until` MUST be \"{valid_until_iso}\" "
         f"and `session` MUST be \"{session}\".\n"
-        "Keep `note` to ONE short sentence. Keep every field except `telegram_digest` "
-        "tight (~200 tokens total for the machine fields).\n"
-        "`telegram_digest` is the ONE exception: 4-6 full sentences IN HUNGARIAN, "
-        "written for a human reader — explain what is driving the market today, why "
-        "you chose this regime and risk budget, and what to watch intraday. Use the "
-        "actual numbers from the data blocks.\n\n"
+        "Keep `note` to ONE short sentence. Keep every MACHINE field tight "
+        "(~200 tokens total).\n\n"
+        "TWO fields are for a HUMAN READER and are the point of this brief — the "
+        "Kommandant reads them on Telegram every day. Write both IN HUNGARIAN, "
+        "using the ACTUAL numbers from the data blocks:\n"
+        "  * `macro_review` — a GAZDASAGI SZEMLE: 6-10 sentences in THREE "
+        "paragraphs, separated by a blank line. (1) MAGYARORSZAG: inflation "
+        "(KSH/HICP, core too if present), MNB base rate, GDP, unemployment, "
+        "EUR/HUF, Budapest movers (OTP/MOL/MTEL/4iG/OPUS). (2) EUROZONA: HICP, "
+        "ECB deposit rate, EUR/USD, EA calendar. (3) USA/GLOBALIS: CPI, Fed "
+        "funds, 10Y, VIX, oil, gold. Tag EVERY number `[source, period]`, e.g. "
+        "`[KSH ara0002, 2026-07]` or `[ECB DFR, 2026-08-29]`.\n"
+        "  * `telegram_digest` — 4-6 sentences: what is driving markets today, "
+        "why this regime and risk budget, what to watch intraday.\n\n"
+        "⚠️ HIANYZO ADAT: if a series is absent or came back as an `error` in the "
+        "data blocks, SAY SO explicitly (\"a KSH inflacios adat nem jott meg\") and "
+        "move on. NEVER substitute a number from memory, and never present a "
+        "missing series as if it were zero, unchanged, or unremarkable. A brief "
+        "that quietly omits a dead source is worse than one that names it.\n\n"
         "OUTPUT: a SINGLE JSON object, NOTHING else (no markdown fences, no prose "
         "before or after). It MUST conform exactly to this schema/shape:\n\n"
         f"{schema_example}"
@@ -437,25 +490,44 @@ def _archive_brief(brief: dict) -> Optional[pathlib.Path]:
 _REGIME_EMOJI = {"risk_on": "🟢", "risk_off": "🔴", "neutral": "🟡"}
 
 
-def format_brief_telegram(brief: dict, digest: str = "") -> str:
-    """Render the §3 brief JSON as a compact, human-readable Telegram HTML message.
+#: session -> emberi cimke a fejlecben
+_SESSION_LABEL = {"morning": "reggel", "afternoon": "délután"}
 
-    `digest` is the model's Hungarian situation assessment (human-facing only,
-    stripped from the NOFX wire payload). Stays well under the 4000-char cap
-    _telegram_push enforces.
+
+def format_brief_telegram(brief: dict, digest: str = "",
+                          macro_review: str = "") -> str:
+    """A brief EGYETLEN emberi renderelője — Telegramra ÉS a `market_brief_now`-ba.
+
+    EGY RENDERELO, MINDEN FELULETRE (2026-08-30). Korabban a Telegram ezt a
+    szoveget kapta, a `market_brief_now` MCP-tool viszont a nyers JSON-t adta
+    vissza — ugyanarrol a briefrol ketfele kimenet, ket helyen mas. Mostantol a
+    generalas eredmenye is EZT a szoveget hordozza (`telegram_text`), tehat a
+    Kommandant ugyanazt latja a chatben, mint a telefonjan.
+
+    `digest` es `macro_review` emberi mezok: a NOFX wire-payloadbol kiszedve,
+    de a briefnek EZ a lenyege. 4000 karakteres Telegram-plafon alatt marad.
     """
     session = brief.get("session", "?")
     regime = brief.get("regime", "?")
     emoji = _REGIME_EMOJI.get(regime, "⚪")
     lines = [
-        f"{emoji} <b>NOFX Market Brief — {session}</b> ({brief.get('asof', '?')})",
-        f"Regime: <b>{regime}</b> | Risk budget: <b>{brief.get('risk_budget_pct', '?')}%</b>"
-        f" | Crowd: {brief.get('crowd', '?')}",
+        f"{emoji} <b>Economic Brief — {_SESSION_LABEL.get(session, session)}</b> "
+        f"({brief.get('asof', '?')})",
     ]
+    # A GAZDASAGI SZEMLE ELOL. Ez a brief celja; a kereskedesi mezok a lab.
+    if macro_review:
+        lines.append("")
+        lines.append("📊 <b>Gazdasági szemle</b>")
+        lines.append(macro_review.strip()[:2200])
     if digest:
         lines.append("")
-        lines.append(digest.strip()[:1500])
-        lines.append("")
+        lines.append("🧭 <b>Piaci helyzet</b>")
+        lines.append(digest.strip()[:1200])
+    lines.append("")
+    lines.append(
+        f"Rezsim: <b>{regime}</b> | Kockázati keret: "
+        f"<b>{brief.get('risk_budget_pct', '?')}%</b> | Tömeg: {brief.get('crowd', '?')}"
+    )
     bias = brief.get("bias") or {}
     if bias:
         lines.append("Bias: " + ", ".join(f"{k}={v}" for k, v in bias.items()))
@@ -491,12 +563,13 @@ def format_brief_telegram(brief: dict, digest: str = "") -> str:
     return "\n".join(lines)
 
 
-async def _send_telegram(brief: dict, digest: str = "") -> bool:
+async def _send_telegram(brief: dict, digest: str = "",
+                         macro_review: str = "") -> bool:
     """Best-effort Telegram delivery of the brief; never raises."""
     if _telegram_push_func is None:
         return False
     try:
-        await _telegram_push_func(format_brief_telegram(brief, digest))
+        await _telegram_push_func(format_brief_telegram(brief, digest, macro_review))
         return True
     except Exception as e:  # noqa: BLE001
         logger.warning("market_brief: telegram push failed: %s", e)
@@ -613,14 +686,20 @@ async def generate_market_brief(session: str) -> dict:
         # bot's prompt token budget unaffected), but archive it and render it
         # into the Telegram message.
         digest = str(brief.pop("telegram_digest", "") or "")
+        macro_review = str(brief.pop("macro_review", "") or "")
         size_chars = len(json.dumps(brief, ensure_ascii=False))
         # ~4 chars/token rough heuristic for a token-ish size in the log.
         approx_tokens = size_chars // 4
         push = await _push_to_nofx(brief)
-        archive_path = _archive_brief({**brief, "telegram_digest": digest} if digest else brief)
-        telegram_sent = await _send_telegram(brief, digest)
+        archive_path = _archive_brief(
+            {**brief, "telegram_digest": digest, "macro_review": macro_review})
+        # EGY SZOVEG, MINDEN FELULETRE: ugyanez megy Telegramra es ugyanez
+        # kerul vissza a hivonak (`market_brief_now`). Elobb rendereljuk, hogy
+        # a kettot ne lehessen kulon-kulon eloallitani.
+        text = format_brief_telegram(brief, digest, macro_review)
+        telegram_sent = await _send_telegram(brief, digest, macro_review)
         logger.info(
-            "market_brief[%s] SUCCESS in %d attempt(s): %d chars (~%d tok), pushed=%s, telegram=%s",
+            "economic_brief[%s] SUCCESS in %d attempt(s): %d chars (~%d tok), pushed=%s, telegram=%s",
             session, attempts, size_chars, approx_tokens, push.get("pushed"), telegram_sent,
         )
         return {
@@ -630,6 +709,9 @@ async def generate_market_brief(session: str) -> dict:
             "size_chars": size_chars,
             "approx_tokens": approx_tokens,
             "brief": brief,
+            "macro_review": macro_review,
+            "telegram_digest": digest,
+            "telegram_text": text,
             "push": push,
             "archive": str(archive_path) if archive_path else None,
             "telegram": telegram_sent,
@@ -645,7 +727,7 @@ async def generate_market_brief(session: str) -> dict:
     if _telegram_push_func is not None:
         try:
             await _telegram_push_func(
-                f"⚠️ <b>NOFX Market Brief HIBA</b> — {session}\n"
+                f"⚠️ <b>Economic Brief HIBA</b> — {session}\n"
                 f"{attempts} próbálkozás után sem sikerült a generálás.\n"
                 f"Utolsó hiba: {('; '.join(last_errs[:2]))[:300]}\n"
                 f"Kézi újrapróbálás: market_brief_now('{session}')"
