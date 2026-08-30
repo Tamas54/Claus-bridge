@@ -101,7 +101,7 @@ def test_exploding_prefetcher_is_red(monkeypatch):
     assert "a prefetcher elszállt" in out["_prefetcher"][1]
 
 
-def test_headlines_not_keywords():
+def test_the_review_comes_from_the_edition_not_a_keyword_list():
     """A trending-végpont KULCSSZAVAKAT ad ("peter" 16 forrás, "trump" 14) —
     az egy súlyozott témalista, nem hírlista. Egy hírbriefbe CÍMEK kellenek,
     és a kulcsszavas válasz pont az a "nem üres, tehát jó" adat, ami minden
@@ -116,14 +116,15 @@ def test_headlines_not_keywords():
     # a behúzott eredetire — a docstring bennmaradna, és a teszt a saját
     # mérőeszköze miatt bukna. AST-tal vágjuk le, sor szerint.
     import ast as _ast, textwrap as _tw
-    src = _tw.dedent(inspect.getsource(pf._fetch_echolot_press_review))
+    from plugins.daily_press_review import structured_press_review, _edition_stories
+    src = _tw.dedent(inspect.getsource(_edition_stories))
     _fn = _ast.parse(src).body[0]
     _first = _fn.body[0]
     _skip = (_first.end_lineno
              if isinstance(_first, _ast.Expr) and isinstance(_first.value, _ast.Constant)
              else 0)
     body = "\n".join(src.splitlines()[_skip:])
-    assert "HAROM ROSSZ VALASZ" not in body, "a docstring bennmaradt — a mérce hibás"
+    assert "Ures lista" not in body, "a docstring bennmaradt — a mérce hibás"
     # A HÍRSZEMLE a napi LAPSZÁMBÓL jön (klaszterezett sztorik forrásszámmal),
     # nem a frissesség szerinti hírfolyamból és főleg nem kulcsszavakból.
     assert 'get_daily_edition' in body, "a szemle nem a lapszámból jön"
@@ -188,15 +189,16 @@ def test_serious_spheres_come_first():
     elején 'Dolly Parton airport' (10 forrás) áll a Milo-kiutasítás (20)
     mellett. A KOMOLY szférák kerülnek előre — de a többit nem dobjuk el,
     hogy egy szűk napon is megteljen a rovat."""
-    import inspect, ast as _ast, textwrap as _tw
-    src = _tw.dedent(inspect.getsource(pf._fetch_echolot_press_review))
-    _fn = _ast.parse(src).body[0]
-    _first = _fn.body[0]
-    _skip = (_first.end_lineno if isinstance(_first, _ast.Expr)
-             and isinstance(_first.value, _ast.Constant) else 0)
-    body = "\n".join(src.splitlines()[_skip:])
-    assert "global_anchor" in body and "serious" in body, "nincs szféra-rangsorolás"
-    assert "mapped[:limit]" in body, "a nem-komoly szférák teljesen kiestek"
+    import inspect, textwrap as _tw
+    from plugins.daily_press_review import structured_press_review, SERIOUS_SPHERES
+    assert "global_anchor" in SERIOUS_SPHERES, "nincs komoly-szféra lista"
+    src = _tw.dedent(inspect.getsource(structured_press_review))
+    assert "SERIOUS_SPHERES" in src, "a világ-rovat nem rangsorol szféra szerint"
+    # SORT, nem FILTER: a nem-komoly szférák nem eshetnek ki, különben egy szűk
+    # napon üresen maradna a rovat — és az üres rovat nem termék.
+    assert ".sort(" in src, "nincs rendezés"
+    assert "filter" not in src and "if x[" not in src, \
+        "a nem-komoly szférák kieshetnek — a rovat egy szűk napon üres lenne"
 
 
 def test_world_stories_carry_sphere_and_source_count(fake_prefetch):

@@ -181,26 +181,13 @@ def _topic_md(t: dict) -> str:
     return f"{head}\n{t.get('summary', '')}".rstrip()
 
 
-def _world_markdown(d: dict) -> str:
-    parts = []
-    if d.get("headline"):
-        parts.append(d["headline"])
-    if d.get("lead"):
-        parts.append(d["lead"])
-    parts.extend(_topic_md(t) for t in d.get("topics", []))
-    if d.get("outlook"):
-        parts.append("Kitekintő: " + d["outlook"] if not d["outlook"].lower().startswith("kitekint") else d["outlook"])
-    return "\n\n".join(p for p in parts if p).strip()
-
-
-def _domestic_markdown(d: dict) -> str:
-    parts = []
-    if d.get("local_title"):
-        parts.append(d["local_title"])
-    if d.get("local_lead"):
-        parts.append(d["local_lead"])
-    parts.extend(_topic_md(t) for t in d.get("local_topics", []))
-    return "\n\n".join(p for p in parts if p).strip()
+# ⚠️ ITT ALLT a `_world_markdown` es a `_domestic_markdown` — a renderelt
+# `/brief` oldal parseolt blokkjait alakitottak markdownna. 2026-08-30-an
+# TOROLVE, mert MERVE keresztbe tettek a rovatokat: amit VILAG-kent tartak,
+# az magyar belpolitika volt ("Magyar Peter… fenekkuszob"), az ITTHON pedig
+# igy kezdodott: "🌍 Nemzetkozi lapszemle". A tartalom mostantol a kanonikus
+# `structured_press_review`-bol jon. A holt kod meghagyasa csak meghivasra
+# csabitana — a hiba pontos leirasa tobbet er nala.
 
 
 async def _fetch_brief_html(lang: str, date: str | None = None) -> str:
@@ -401,12 +388,148 @@ def _available_past_dates(html: str) -> list[str]:
     return seen
 
 
-def _store_brief(day_iso: str, html: str) -> int:
-    """Parse one brief HTML and store world + domestic under day_iso. Returns count."""
+# ══ EGYSEGES, STRUKTURALT SAJTOSZEMLE ═══════════════════════════════════
+#
+# EZ A KANONIKUS FORRAS. Ket fogyasztoja van, es ugyanazt kell latniuk:
+#   1. ez a modul  -> a kozos agent-RAG (`echolot` virtualis agent),
+#   2. a `daily_news_brief` prefetchere -> a Kommandant napi hirszemleje.
+#
+# MIERT VALTOTTA LE A RENDERELT OLDAL KAPARASAT (2026-08-30, meressel):
+#   * A `/brief` oldal idonkent BETOLTO-KEPERNYOT ad ("Osszegyujtjuk a friss
+#     hireket…", meta refresh 3) — nulla hir, nulla hiba. A scraper nem
+#     kulonbozteti meg az ures naptol.
+#   * A ket blokk KERESZTBE ment: amit a parser `headline`-kent (VILAG) tarolt,
+#     az magyar belpolitika volt ("Magyar Peter… fenekkuszob"), a `local_title`
+#     (ITTHON) pedig igy kezdodott: "🌍 Nemzetkozi lapszemle". Meg a masodik
+#     blokk topicjai is magyar belpolitikaiak voltak. A VILAG rovatba tehat
+#     naponta magyar belpolitika kerult — a KOZOS korpuszba, amibol az egesz
+#     flotta es kesobb a szintetikus perszonak is olvasnak.
+#   * Nem volt FORRASSZAM: LLM-proza, amibol nem derul ki, hogy egy hirt husz
+#     forras hozott-e vagy egy.
+#
+# A strukturalt lapszam (`get_daily_edition`) mindharmat megoldja: klaszterezett
+# sztorik, SZO SZERINTI cimmel, `source_count`-tal es `sphere`-rel, nyelvenkent.
+
+#: Komoly szferak — a vilag-rovatban ezek kerulnek elore. A tobbit NEM dobjuk
+#: el: egy szuk napon a rovat akkor is teljen meg. Csak a SORREND valtozik.
+SERIOUS_SPHERES = {"global_anchor", "global_analysis", "global_press",
+                   "global_economy", "global_conflict", "global_politics"}
+
+
+async def _edition_stories(date_iso: str, lang: str, limit: int) -> list:
+    """Egy nap lapszamanak top-sztorijai. Ures lista, ha nincs vagy hibas."""
+    try:
+        import _echolot_client as echolot_client
+    except ImportError:
+        return []
+    if not getattr(echolot_client, "ECHOLOT_URL", ""):
+        return []
+    args = {"date": date_iso}
+    if lang:
+        args["lang"] = lang
+    try:
+        raw = await echolot_client.mcp_call("get_daily_edition", args)
+        env = json.loads(raw) if isinstance(raw, str) else (raw or {})
+        payload = env.get("payload")
+        if isinstance(payload, str):
+            payload = json.loads(payload)
+        stories = (payload or {}).get("top_stories") or []
+    except Exception as e:  # noqa: BLE001
+        logger.warning("lapszam (%s/%s) hiba: %s", date_iso, lang, e)
+        return []
+    return [
+        {"title": (st.get("title") or "").strip(),
+         "lead": (st.get("lead") or "").strip()[:240],
+         "sphere": st.get("sphere") or "",
+         "source_count": st.get("source_count") or 0,
+         "story_id": st.get("story_id") or st.get("id") or ""}
+        for st in stories[:limit] if (st.get("title") or "").strip()
+    ]
+
+
+def stories_markdown(stories: list, *, with_sphere: bool = False) -> str:
+    """Sztori-lista -> markdown. A forrasszam MINDIG ott van: az a mertek."""
+    out = []
+    for st in stories:
+        head = f"- **{st['title']}** ({st['source_count']} forrás"
+        if with_sphere and st.get("sphere"):
+            head += f", {st['sphere']}"
+        head += ")"
+        if st.get("lead"):
+            head += f"\n  {st['lead']}"
+        out.append(head)
+    return "\n".join(out).strip()
+
+
+async def structured_press_review(date_iso: str | None = None, limit: int = 10,
+                                  home_lang: str = "hu") -> dict:
+    """A KANONIKUS sajtoszemle egy napra. Sose dob.
+
+    Visszaad: {home_date, home_is_today, home_stories, world_date,
+               world_stories, fresh_today, _error}
+    A `home_*` a sajat nyelvterulet, a `world_*` az ANGOL lapszam (globalis).
+    """
+    from datetime import date as _date, timedelta as _td
+    today = _date.today()
+    wanted = [_date.fromisoformat(date_iso)] if date_iso else [today, today - _td(days=1)]
+    out = {"home_date": None, "home_is_today": False, "home_stories": [],
+           "world_date": None, "world_stories": [], "fresh_today": [], "_error": None}
+
+    for d_ in wanted:
+        st = await _edition_stories(d_.isoformat(), home_lang, limit)
+        if st:
+            out["home_date"] = d_.isoformat()
+            out["home_is_today"] = (d_ == today)
+            out["home_stories"] = st
+            break
+    for d_ in wanted:
+        st = await _edition_stories(d_.isoformat(), "en", limit)
+        if st:
+            st.sort(key=lambda x: (x["sphere"] not in SERIOUS_SPHERES, -x["source_count"]))
+            out["world_date"] = d_.isoformat()
+            out["world_stories"] = st
+            break
+
+    # A MAI friss tetelek — a lapszam fagyott (~21:55 UTC), a korpusz nem.
+    if not date_iso:
+        try:
+            import _echolot_client as echolot_client
+            data = await echolot_client.fetch_news(spheres=["hu_press"], days=1, limit=6)
+            out["fresh_today"] = [
+                {"title": (a.get("title") or "").strip(),
+                 "source": a.get("source") or "", "url": a.get("url") or ""}
+                for a in (data.get("articles") or [])[:6] if (a.get("title") or "").strip()
+            ]
+        except Exception as e:  # noqa: BLE001
+            logger.warning("friss lekeres hiba: %s", e)
+
+    missing = []
+    if not out["home_stories"] and not out["fresh_today"]:
+        missing.append("hazai szemle")
+    if not out["world_stories"]:
+        missing.append("vilag-szemle")
+    if missing:
+        out["_error"] = "hianyzik: " + ", ".join(missing)
+    return out
+
+
+async def _store_brief(day_iso: str, html: str) -> int:
+    """A nap szemleje a KANONIKUS strukturalt forrasbol a kozos RAG-be.
+
+    A `html` parameter megmarad (a hivo ugyis lehuzza a pillanatkepekhez es a
+    datum-navhoz), de a TARTALOM mar nem belole jon — lasd a fenti blokkot:
+    a renderelt oldal kaparasa keresztbe tette a VILAG/ITTHON rovatot, es
+    forrasszam nelkuli LLM-prozat adott.
+    """
     from pyramid.memory_rag import add_to_agent_rag
-    d = extract_brief(html)
-    world = _world_markdown(d)
-    local = _domestic_markdown(d)
+    review = await structured_press_review(date_iso=day_iso)
+    world = stories_markdown(review["world_stories"], with_sphere=True)
+    local = stories_markdown(review["home_stories"])
+    if not world and not local:
+        # A strukturalt forras sem adott semmit — NE tarold a renderelt oldal
+        # tartalmat helyette. A hianyt jelentjuk, nem potoljuk.
+        logger.warning("press_review %s: a strukturalt lapszam URES — nincs RAG-iras", day_iso)
+        return 0
     stored = 0
     if world:
         add_to_agent_rag(
@@ -461,7 +584,7 @@ async def fetch_and_store_press_review(lang: str = "hu", backfill: bool = True,
                 else:
                     if html is None:
                         html = await _fetch_brief_html(lang, date=d)
-                    n = _store_brief(d, html)
+                    n = await _store_brief(d, html)
                     result["stored"] += n
                     result["days"].append({"date": d, "stored": n})
                 # press_snapshots (dated archive) — independently deduped.

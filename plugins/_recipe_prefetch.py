@@ -230,130 +230,34 @@ def _fetch_open_tasks(get_db, limit: int = 10) -> list:
 # ── Hirmagnet friss hirek (opcionalis, csak szoveg, NEM adat) ─────────
 
 async def _fetch_echolot_press_review(limit: int = 10) -> dict:
-    """HIRSZEMLE az Echolotbol — KLASZTEREZETT sztorik, forrasszammal.
+    """A napi hirszemle — a KANONIKUS forrasbol.
 
-    ⚠️ HAROM ROSSZ VALASZ, MIRE EZ MEGLETT (2026-08-30, Kommandant-lelet):
-      1. `hirmagnet.hu/api/trending` egy NEM LETEZO API-kulccsal → mindig `[]`.
-         Az Echolot adatai SOHA nem voltak benne a briefben.
-      2. `get_trending` → KULCSSZAVAK ("peter" 16 forras, "trump" 14,
-         "budapesten" 11). Sulyozott temalista, nem hirlista.
-      3. `fetch_news(hu_press)` → valodi cimek, DE frissesseg szerint: Witcher 3
-         gameplay-video es homorodalmasi utak keverve a belpolitikaval. Ez
-         hirFOLYAM, nem hirSZEMLE.
-    A szemle az, ami a napi LAPSZAMBAN van: klaszterezett sztorik aszerint
-    rangsorolva, HANY FUGGETLEN FORRAS hozta. 13 sztori, source_count 6/6/6/4...
+    ⚠️ EGY GAZDA: a szemlet a `plugins.daily_press_review.structured_press_review`
+    allitja elo, ugyanaz, amit a RAG-be tolto cron is hasznal. Ket kulon
+    implementacio ket kulon igazsagot adna ugyanarrol a napro, es a
+    duplikatumok azok, amik szetcsusznak.
 
-    ⚠️ ES A LAPSZAM ~21:55 UTC-kor FAGY. A 14:14-es cron tehat a TEGNAPIT kapja.
-    Ezt NEM elhallgatni kell, hanem kimondani — az S-007 tanulsaga: a bot
-    tegnapi lapszamot adott el "mai top sztorik" cimke alatt, iranyforditassal
-    egyutt. Ezert ad ez a fuggveny KET blokkot: a lapszamot a SAJAT datumaval,
-    es kulon a MAI friss teteleket a korpuszbol.
+    A mezoneveket a prompt-szerzodes miatt tartjuk meg (`top_stories`,
+    `edition_date`, `edition_is_today`); a kanonikus fuggveny `home_*` neveit
+    ide kepezzuk le.
     """
-    out = {"edition_date": None, "edition_is_today": False,
-           "top_stories": [], "fresh_today": [],
-           # KULPOLITIKA: az Echolot ANGOL lapszama — ugyanaz a klaszterezett,
-           # forrasszam szerint rangsorolt szemle, csak a globalis korpuszon.
-           # Miert a prefetchbe es nem tool-hivasba: egy ures kulpolitikai rovat
-           # NEM termek, akkor sem, ha a hiany oszinte. A prefetch mindig lefut;
-           # a tool-hivas attol fugg, hajlando-e a modell meghivni.
-           "world_edition_date": None, "world_stories": [],
-           "_error": None}
     try:
-        import _echolot_client as echolot_client
-    except ImportError as e:
-        out["_error"] = f"az Echolot-kliens nem importalhato: {e}"
-        return out
-    if not getattr(echolot_client, "ECHOLOT_URL", ""):
-        out["_error"] = "ECHOLOT_URL nincs beallitva"
-        return out
-
-    from datetime import date as _date, timedelta as _td
-    today = _date.today()
-    for d_ in (today, today - _td(days=1)):
-        try:
-            raw = await echolot_client.mcp_call("get_daily_edition", {"date": d_.isoformat()})
-        except Exception as e:  # noqa: BLE001
-            logger.warning("Echolot lapszam (%s) hiba: %s", d_, e)
-            continue
-        try:
-            env = json.loads(raw) if isinstance(raw, str) else (raw or {})
-            payload = env.get("payload")
-            if isinstance(payload, str):
-                payload = json.loads(payload)
-            stories = (payload or {}).get("top_stories") or []
-        except Exception as e:  # noqa: BLE001
-            logger.warning("Echolot lapszam (%s) feldolgozasi hiba: %s", d_, e)
-            continue
-        if stories:
-            out["edition_date"] = d_.isoformat()
-            out["edition_is_today"] = (d_ == today)
-            out["top_stories"] = [
-                {"title": (st.get("title") or "").strip(),
-                 "lead": (st.get("lead") or "").strip()[:240],
-                 "sphere": st.get("sphere") or "",
-                 "source_count": st.get("source_count"),
-                 "story_id": st.get("story_id") or st.get("id") or "",
-                 "url": st.get("url") or ""}
-                for st in stories[:limit] if (st.get("title") or "").strip()
-            ]
-            break
-
-    # KULPOLITIKA — az angol lapszam ugyanazzal a ket-napos visszaleptessel.
-    for d_ in (today, today - _td(days=1)):
-        try:
-            raw = await echolot_client.mcp_call(
-                "get_daily_edition", {"date": d_.isoformat(), "lang": "en"})
-            env = json.loads(raw) if isinstance(raw, str) else (raw or {})
-            payload = env.get("payload")
-            if isinstance(payload, str):
-                payload = json.loads(payload)
-            stories = (payload or {}).get("top_stories") or []
-        except Exception as e:  # noqa: BLE001
-            logger.warning("Echolot VILAG-lapszam (%s) hiba: %s", d_, e)
-            continue
-        if stories:
-            out["world_edition_date"] = d_.isoformat()
-            # ⚠️ A NYERS forrasszam-rangsor kulpolitikanak GYENGE: az angol
-            # lapszam elejen "Dolly Parton airport" (10 forras) es "Tom Cruise
-            # sequel" (8) all a Milo-kiutasitas (20) mellett. Forrasszamban
-            # erosek, kulpolitikai rovatnak hasznalhatatlanok.
-            # A sztori-rekord viszont hordoz `sphere` mezot — a KOMOLY szferak
-            # kerulnek elore, a tobbi utanuk. Nem DOBJUK EL a tobbit: ha egy nap
-            # keves a komoly hir, a rovat akkor is teljen meg. Csak a SORREND
-            # valtozik, es a szferat kiirjuk, hogy latszodjon.
-            serious = {"global_anchor", "global_analysis", "global_press",
-                       "global_economy", "global_conflict", "global_politics"}
-            mapped = [
-                {"title": (st.get("title") or "").strip(),
-                 "lead": (st.get("lead") or "").strip()[:240],
-                 "sphere": st.get("sphere") or "",
-                 "source_count": st.get("source_count") or 0,
-                 "story_id": st.get("story_id") or st.get("id") or ""}
-                for st in stories if (st.get("title") or "").strip()
-            ]
-            mapped.sort(key=lambda x: (x["sphere"] not in serious, -x["source_count"]))
-            out["world_stories"] = mapped[:limit]
-            break
-
-    # A MAI friss tetelek KULON — a lapszam fagyott, a korpusz nem.
-    try:
-        data = await echolot_client.fetch_news(spheres=["hu_press"], days=1, limit=6)
-        out["fresh_today"] = [
-            {"title": (a.get("title") or "").strip(),
-             "source": a.get("source") or "", "url": a.get("url") or ""}
-            for a in (data.get("articles") or [])[:6] if (a.get("title") or "").strip()
-        ]
-    except Exception as e:  # noqa: BLE001
-        logger.warning("Echolot friss lekeres hiba: %s", e)
-
-    missing = []
-    if not out["top_stories"] and not out["fresh_today"]:
-        missing.append("magyar szemle")
-    if not out["world_stories"]:
-        missing.append("vilag-szemle")
-    if missing:
-        out["_error"] = "hianyzik: " + ", ".join(missing)
-    return out
+        from plugins.daily_press_review import structured_press_review
+    except ImportError as e:  # pragma: no cover
+        logger.error("a kanonikus szemle nem importalhato: %s", e)
+        return {"edition_date": None, "edition_is_today": False, "top_stories": [],
+                "world_edition_date": None, "world_stories": [], "fresh_today": [],
+                "_error": f"a kanonikus szemle nem importalhato: {e}"}
+    r = await structured_press_review(limit=limit)
+    return {
+        "edition_date": r["home_date"],
+        "edition_is_today": r["home_is_today"],
+        "top_stories": r["home_stories"],
+        "world_edition_date": r["world_date"],
+        "world_stories": r["world_stories"],
+        "fresh_today": r["fresh_today"],
+        "_error": r["_error"],
+    }
 
 
 # ══ ADAT-UT PROBA ═══════════════════════════════════════════════════════
