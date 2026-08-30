@@ -78,8 +78,11 @@ NOFX_BRIEF_URL = os.environ.get("NOFX_BRIEF_URL", "").strip()
 # Mirrors the bridge convention of a /data volume on Railway, local cwd otherwise.
 _BRIEF_DIR = pathlib.Path(os.environ.get("MARKET_BRIEF_DIR", "data/market_brief"))
 
-# DeepSeek V4-Pro — locked synthesis engine (PLAN §3/§6).
-_BRIEF_MODEL = "deepseek"
+# A szintezis motorja. Alapbol DeepSeek V4-Pro (PLAN §3/§6), de ENV-bol
+# atallithato — igy a pro/flash osszehasonlitas gyoztese deploy nelkul
+# beallithato, es egy rossz valasztas egy env-torlessel visszavonhato.
+# Ervenyes ertekek: a `SILICONFLOW_MODELS` aliasai (deepseek, dsflash, glm53f…).
+_BRIEF_MODEL = os.environ.get("ECONOMIC_BRIEF_MODEL", "deepseek").strip() or "deepseek"
 
 _VALID_SESSIONS = ("morning", "afternoon")
 
@@ -190,6 +193,22 @@ def validate_brief(obj: Any, *, require_human: bool = True) -> list[str]:
         elif not isinstance(obj[_human], str) or not obj[_human].strip():
             errs.append(f"field '{_human}' must be a non-empty string")
     if require_human:
+        # ── CJK-SZIVARGAS ─────────────────────────────────────────────────
+        # A kinai betanitasu modellek magyar szoveg kozben atvaltanak egy-egy
+        # szora. ELESBEN MEGTORTENT (2026-08-30): "a低 VIX vonzó a
+        # részvénypiacnak" — igy ment ki a Kommandantnak. Ez nem stilus-kerdes:
+        # az olvaso nem tudja elolvasni a sajat briefjet. A retry-hurok javitsa.
+        for _f in ("macro_review", "telegram_digest"):
+            _t = obj.get(_f)
+            if isinstance(_t, str):
+                _bad = [c for c in _t if "\u4e00" <= c <= "\u9fff"
+                        or "\u3040" <= c <= "\u30ff"
+                        or "\uac00" <= c <= "\ud7af"]
+                if _bad:
+                    errs.append(
+                        f"field '{_f}' contains non-Latin CJK characters "
+                        f"({''.join(_bad[:6])}) — the Hungarian text must be "
+                        f"readable end to end")
         # `sources` — a PROVENANCIA, EGY BLOKKBAN, A VEGEN. A hazszabaly
         # (feedback_citation_at_end): emberi formatum, egy blokkban, NEM inline.
         # Az elso eles brief minden szam moge kiirt egy `[forras, idoszak]`
@@ -242,6 +261,13 @@ def _build_data_context() -> str:
                       "gdp_growth")
         ] + [
             {"tool": "mnb_rates", "args": {}},
+            # A SZINT NEM MONDJA MEG AZ IRANYT. A `get_macro_indicator
+            # (policy_rate)` csak annyit ad: 5.5. Ebbol a modell azt irta, hogy
+            # az MNB "5,5%-on TARTOTTA" a kamatot — holott CSOKKENTETTE oda.
+            # Ez a hivas `decision_date`-et ES `history`-t is ad, tehat az
+            # irany LEVEZETHETO, nem talalgatas kerdese. (Kommandant-lelet,
+            # 2026-08-30.)
+            {"tool": "get_policy_rates", "args": {"countries": "HU,XM,US"}},
             {"tool": "yfinance", "args": {"symbol": "EURUSD=X", "action": "quote"}},
             {"tool": "yfinance", "args": {"symbol": "^VIX", "action": "quote"}},
             {"tool": "get_economic_calendar", "args": {"days_ahead": 1, "region": "US"}},
@@ -384,6 +410,20 @@ def _build_prompt(session: str, asof_iso: str, valid_until_iso: str, calendar_ra
         "able to tell an authoritative series from a scraped one.\n"
         "  * `telegram_digest` — 4-6 sentences: what is driving markets today, "
         "why this regime and risk budget, what to watch intraday.\n\n"
+        "⚠️ A SZINT NEM MONDJA MEG AZ IRANYT. Never characterise a CHANGE — "
+        "\"tartotta\", \"csökkentette\", \"emelte\", \"gyorsult\", \"mérséklődött\" — "
+        "unless the data blocks contain TWO observations (or an explicit "
+        "history/previous value/change field) that establish it. A single "
+        "current level tells you WHERE a rate is, never HOW IT GOT THERE. The "
+        "same applies to decision dates: quote one only if a `decision_date` "
+        "field carries it. If you have only the level, write only the level.\n"
+        "(2026-08-30: the brief wrote 'az MNB augusztus 25-én 5,5%-on TARTOTTA "
+        "az alapkamatot' from a bare `policy_rate: 5.5`. The MNB had CUT to "
+        "5.5%. One invented direction, and the date was a guess.)\n\n"
+        "⚠️ MAGYARUL, VEGIG. The Hungarian text must contain NO Chinese, "
+        "Japanese or Korean characters — not one. (2026-08-30: 'a低 VIX' "
+        "reached the reader.) If you cannot render a word, write it out in "
+        "Hungarian.\n\n"
         "⚠️ RENDKIVULI ELMOZDULAS — KET FORRAS VAGY NINCS KOMMENTAR: if a daily "
         "move exceeds gold 3%, an equity index 3%, or a major FX pair 1.5%, do "
         "NOT build a narrative on it from a single quote. State the number, say "
@@ -624,13 +664,16 @@ def format_brief_telegram(brief: dict, digest: str = "",
     lines.append(f"Érvényes: {brief.get('valid_until', '?')}")
     # ── FORRASOK: EGY BLOKKBAN, A VEGEN ────────────────────────────────────
     # Nem inline a mondatokban. Lasd a `validate_brief` melletti indoklast.
-    for line in (sources or [])[:12]:
-        if not str(line).strip():
-            continue
-        if "📚" not in "".join(lines[-3:]):
-            lines.append("")
-            lines.append("📚 <b>Források</b>")
-        lines.append(f"  • {str(line).strip()[:160]}")
+    #
+    # ⚠️ AZ ELSO VALTOZAT HIBAJA (2026-08-30): a fejlecet minden sor elott
+    # ujra kereste az utolso HAROM sorban, igy harom forras utan a fejlec
+    # kicsuszott az ablakbol es MEGINT kiirodott. A Kommandant harom "📚
+    # Források" blokkot kapott. A fejlec EGYSZER megy ki, a hurok ELOTT.
+    tiszta = [str(x).strip() for x in (sources or []) if str(x).strip()]
+    if tiszta:
+        lines.append("")
+        lines.append("📚 <b>Források</b>")
+        lines.extend(f"  • {x[:160]}" for x in tiszta[:12])
     return "\n".join(lines)
 
 

@@ -384,3 +384,53 @@ def test_a_gdp_novekedes_kell_nem_a_szint():
                for c in spec["series"] if c["tool"] == "get_macro_indicator"}
     assert ("HU", "gdp_growth") in mutatok
     assert ("HU", "gdp") not in mutatok, "a nyers GDP-SZINT visszakerult"
+
+
+def test_a_forras_fejlec_PONTOSAN_EGYSZER_jelenik_meg():
+    """AZ ELSO ELES VALTOZAT HAROM "📚 Források" BLOKKOT KULDOTT.
+
+    A fejlec-dedup az utolso HAROM sorban kereste a fejlecet; harom forras utan
+    az kicsuszott az ablakbol, es ujra kiirodott. Szabotazs-teszt: 3-nal TOBB
+    forrassal fut, mert harommal a hiba meg nem latszott."""
+    b = _valid_brief()
+    digest = b.pop("telegram_digest")
+    makro = b.pop("macro_review")
+    b.pop("sources")
+    sok = [f"Forras {i} — adat {i}" for i in range(1, 10)]
+    text = mb.format_brief_telegram(b, digest, makro, sok)
+    assert text.count("Források") == 1, \
+        f"{text.count('Források')} forras-fejlec keletkezett egy helyett"
+    for f in sok:
+        assert f in text
+
+
+def test_a_cjk_szivargas_bukast_okoz():
+    """ELESBEN MEGTORTENT: "a低 VIX vonzó a részvénypiacnak" — igy ment ki a
+    Kommandantnak. Nem stilus-kerdes: az olvaso nem tudja elolvasni a sajat
+    briefjet. A retry-hurok javitsa, ne a szem."""
+    b = _valid_brief()
+    b["macro_review"] = "MAGYARORSZAG: a低 VIX vonzo a reszvenypiacnak."
+    errs = mb.validate_brief(b)
+    assert any("CJK" in e for e in errs), "a kinai karakter atment"
+    # A tiszta magyar szoveg NEM bukhat el (szabotazs: ne legyen tulzo a kapu):
+    tiszta = _valid_brief()
+    tiszta["macro_review"] = "MAGYARORSZÁG: az árfolyam 364,67 — ő, ű, ő, éáí."
+    assert mb.validate_brief(tiszta) == []
+
+
+def test_az_irany_ket_megfigyelest_kovetel():
+    """A SZINT NEM MONDJA MEG AZ IRANYT.
+
+    A brief azt irta: "az MNB augusztus 25-en 5,5%-on TARTOTTA az alapkamatot"
+    — egyetlen `policy_rate: 5.5` szintbol. Az MNB CSOKKENTETTE oda. Egy
+    kitalalt irany es egy kitalalt datum, egy mondatban.
+    """
+    p = mb._build_prompt("morning", "2026-08-30T06:30Z", "2026-08-30T12:30Z", "")
+    assert "TWO observations" in p and "tartotta" in p, \
+        "nincs irany-szabaly a promptban"
+    assert "decision_date" in p, "a dontesi datumra nincs szabaly"
+    # És az ADAT is meglegyen hozzá, ne csak a tiltás:
+    spec = json.loads(mb._build_data_context())
+    assert any(c["tool"] == "get_policy_rates" for c in spec["series"]), \
+        "nincs olyan forras, amibol az irany LEVEZETHETO — a tiltas onmagaban " \
+        "csak elnemitja a briefet, nem teszi pontosabba"
