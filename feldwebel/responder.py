@@ -655,6 +655,55 @@ _NO_OP_KEY_MSG = ("Nincs Echolot operátor-kulcs a Feldwebelhez. Kell: "
                   "'echolot_operator_key' kulcs a Bridge shared_memory-ban.")
 
 
+# ══════════════════════════════════════════════════════════════════════════
+# MINDEN GAZDASÁGI ADAT A STATDATA-N ÁT — EGY ÚT, NEM ÖT
+# ══════════════════════════════════════════════════════════════════════════
+#
+# Kommandant, 2026-08-31: "SZÓLTAM, h minden agentic move kapja meg a
+# megfelelő infót."
+#
+# A Feldwebelnek ÖT saját gazdasági implementációja volt, mind közvetlenül egy
+# külső API-ra: policy_rates → dbnomics BIS-tükör, mnb_rates → ECB deviza-XML,
+# market_quote → Yahoo, fred_data → FRED REST, econ_calendar → FRED releases.
+# Egyik sem kapta meg azt, ami a StatData-ban MEGVAN:
+#   * rate-limit kapu + visszatartásos újrapróbálás (a FRED 429/403-at ad
+#     terhelés alatt, és a nyers hívás ilyenkor csak elesik),
+#   * `unit` / `unit_kind` mező (index vs. ráta vs. szint),
+#   * hihetőségi kapu (indexszint sose menjen át rátaként),
+#   * friss forráslánc (a BIS-tükör ~14 hónapot késik),
+#   * hétvége-javított kiadványnaptár.
+#
+# ÉLES KÁR ebből (2026-08-31, 00:22): "Alapkamatok (legutolsó ismert: 2025.
+# június): MNB 6,5% · ECB 2,0% · Fed 4,375%" — mind a három rossz, miközben a
+# StatData ugyanerre 5,5% / 2,25% / 3,75%-ot felelt. Nem adathiány volt: rossz
+# ajtón kopogtunk.
+#
+# A tartalék-ág megmarad (a StatData is lehet elérhetetlen), de KIMONDJA
+# magát: néma visszaesés nincs.
+_ECON_STATDATA_MAP = {
+    "policy_rates":  "get_policy_rates",
+    "mnb_rates":     "mnb_rates",
+    "market_quote":  "yfinance",
+    "fred_data":     "get_fred_data",
+    "econ_calendar": "get_economic_calendar",
+}
+
+
+async def _econ_via_statdata(name: str, args: dict):
+    """A StatData megfelelő toolja, vagy None ha nem elérhető. Sose dob."""
+    tool = _ECON_STATDATA_MAP.get(name)
+    if not tool:
+        return None
+    try:
+        import _statdata_client as _sd
+        if not getattr(_sd, "STATDATA_URL", ""):
+            return None
+        return await _sd._call(tool, args)
+    except Exception as e:  # noqa: BLE001
+        logger.warning("econ tool %s: a StatData nem valaszolt (%s) — tartalek ut", name, e)
+        return None
+
+
 async def _execute_tool(name: str, args: dict, ctx) -> str:
     """Execute a tool and return the result as string."""
     # IMPORTANT: import httpx here to avoid UnboundLocalError —
@@ -1371,6 +1420,24 @@ async def _execute_tool(name: str, args: dict, ctx) -> str:
     # ── Közgazdasági adat-toolok (Makronóm) ──────────────────────────
     if name in ("mnb_rates", "market_quote", "fred_data", "policy_rates", "econ_calendar"):
         logger.info("ECON TOOL CALLED: %s args=%s", name, args)
+        # ELOSZOR A STATDATA. Lasd `_econ_via_statdata` — egy ut, nem ot.
+        # Az argumentum-alak toolonkent elter, ezert itt kepezzuk le.
+        _sd_args = dict(args)
+        if name == "market_quote":
+            _sd_args = {"symbol": args.get("symbol", ""), "action": "quote"}
+        elif name == "econ_calendar":
+            _sd_args = {"days_ahead": int(args.get("days_ahead", 7) or 7),
+                        "region": (args.get("region") or "US").upper()}
+        elif name == "fred_data":
+            _sd_args = {k: v for k, v in args.items() if k in
+                        ("series_id", "limit", "sort_order", "frequency", "units")}
+        _sd_res = await _econ_via_statdata(name, _sd_args)
+        if _sd_res is not None:
+            if isinstance(_sd_res, str):
+                return _sd_res
+            return json.dumps(_sd_res, ensure_ascii=False, default=str)
+        logger.warning("ECON TOOL %s: StatData nem elerheto — TARTALEK ut, az adat "
+                       "elavult lehet", name)
 
     if name == "mnb_rates":
         currencies_filter = [c.strip().upper() for c in args.get("currencies", "").split(",") if c.strip()]
@@ -1496,36 +1563,58 @@ async def _execute_tool(name: str, args: dict, ctx) -> str:
             return json.dumps({"error": f"FRED API hiba: {e}", "series_id": series_id})
 
     if name == "policy_rates":
-        countries = [c.strip().upper() for c in args.get("countries", "HU,XM,US,CZ,PL").split(",") if c.strip()]
+        # ══ A STATDATA-N AT, NEM A NYERS DBNOMICS-TUKRON ═════════════════
+        # ÉLES KÁR (2026-08-31, 00:22): a Kommandant azt kapta, hogy
+        # "Alapkamatok (legutolsó ismert: 2025. június): MNB 6,5% · ECB 2,0% ·
+        # Fed 4,375%". Mind a három ROSSZ — a valóság MNB 5,5% (08-25-i
+        # döntés), ECB 2,25%, Fed 3,50–3,75%.
+        #
+        # AZ OK: ez az ág KÖZVETLENÜL a dbnomics BIS-tükrét hívta, ami MÉRTEN
+        # 14 HÓNAPOT KÉSIK. A StatData `get_policy_rates` ugyanerre a kérdésre
+        # helyesen felel (MNB-scrape + ECB Data Portal + FRED célsáv) — csak
+        # nem azt hívtuk.
+        #
+        # Ez ma este a HARMADIK eset ugyanebből az osztályból: a Feldwebelnek
+        # saját implementációja van valamire, ami máshol már meg van oldva, és
+        # a Kommandant épp az őrizetlen ágat használja. (Lásd a
+        # `schedule_recipe`-et és a `web_search` szerv-választást.)
+        # Ide CSAK akkor jutunk, ha a StatData nem volt elerheto (a fenti
+        # kozos elagazas mar megprobalta). Tartalek: a regi, tukor-alapu ut —
+        # ami KIMONDJA, hogy elavult lehet. Nema visszaeses nincs.
+        countries = args.get("countries", "HU,XM,US,CZ,PL")
+        cc_list = [c.strip().upper() for c in countries.split(",") if c.strip()]
         try:
             results = {}
             async with httpx.AsyncClient(timeout=20) as client:
-                for cc in countries[:8]:  # max 8 countries
+                for cc in cc_list[:8]:
                     url = f"https://api.db.nomics.world/v22/series/BIS/WS_CBPOL/M.{cc}?observations=1&limit=1"
                     resp = await client.get(url, headers={"User-Agent": "ClausBridge/1.0"})
                     data = json.loads(resp.text)
                     series_list = data.get("series", {}).get("docs", [])
                     if series_list:
-                        s = series_list[0]
-                        periods = s.get("period", [])
-                        values = s.get("value", [])
-                        # Data is ascending — take last 6 entries
+                        s0 = series_list[0]
+                        periods = s0.get("period", [])
+                        values = s0.get("value", [])
                         history = []
                         start_idx = max(0, len(periods) - 6)
-                        for i in range(len(periods) - 1, start_idx - 1, -1):
-                            if i < len(values) and values[i] is not None:
-                                history.append({"period": periods[i], "rate": values[i]})
+                        for i2 in range(len(periods) - 1, start_idx - 1, -1):
+                            if i2 < len(values) and values[i2] is not None:
+                                history.append({"period": periods[i2], "rate": values[i2]})
                         if history:
-                            results[cc] = {
-                                "current_rate": history[0]["rate"],
-                                "as_of": history[0]["period"],
-                                "history": history,
-                            }
-            country_names = {"HU": "MNB", "XM": "ECB", "US": "Fed", "CZ": "CNB", "PL": "NBP",
-                            "RO": "BNR", "GB": "BoE", "JP": "BoJ", "CH": "SNB", "TR": "TCMB"}
-            summary = [f"{country_names.get(cc, cc)}: {r['current_rate']}% ({r['as_of']})"
-                       for cc, r in results.items()]
-            return json.dumps({"source": "BIS/DBnomics", "summary": summary, "rates": results}, ensure_ascii=False)
+                            results[cc] = {"current_rate": history[0]["rate"],
+                                           "as_of": history[0]["period"], "history": history}
+            names = {"HU": "MNB", "XM": "ECB", "US": "Fed", "CZ": "CNB", "PL": "NBP",
+                     "RO": "BNR", "GB": "BoE", "JP": "BoJ", "CH": "SNB", "TR": "TCMB"}
+            return json.dumps({
+                "source": "BIS/DBnomics TUKOR — TARTALEK UT",
+                "warning": ("A StatData nem volt elerheto, ezert a dbnomics BIS-tukrebol "
+                            "olvastunk. EZ A TUKOR MERTEN ~14 HONAPOT KESIK. NE idezd "
+                            "aktualis alapkamatkent; mondd ki, hogy a friss ertek most "
+                            "nem volt lekerdezheto."),
+                "summary": [f"{names.get(cc, cc)}: {r['current_rate']}% ({r['as_of']}) [KESHET]"
+                            for cc, r in results.items()],
+                "rates": results,
+            }, ensure_ascii=False)
         except Exception as e:
             return json.dumps({"error": f"DBnomics API hiba: {e}"})
 

@@ -259,3 +259,59 @@ def test_story_comments_write_without_key_fails(monkeypatch, no_op_key_env):
     out = json.loads(asyncio.run(_execute_tool(
         "story_comments", {"story_id": "abc123", "body": "x"}, _Ctx())))
     assert out["error"] == _NO_OP_KEY_MSG
+
+
+# ===========================================================================
+# ALAPKAMAT: A STATDATA-N AT, NEM A NYERS TUKORROL — 2026-08-31
+# ===========================================================================
+#
+# ELES KAR (00:22): a Kommandant azt kapta a bottol, hogy "Alapkamatok
+# (legutolsó ismert: 2025. június): MNB 6,5% · ECB 2,0% · Fed 4,375%". Mind a
+# harom ROSSZ — a valosag MNB 5,5% (2026-08-25-i dontes), ECB 2,25%, Fed
+# 3,50–3,75%.
+#
+# AZ OK NEM ADATHIANY VOLT: a StatData `get_policy_rates` ugyanerre a kerdesre
+# HELYESEN felelt (MNB-scrape + ECB Data Portal + FRED celsav). A Feldwebelnek
+# csak volt egy SAJAT implementacioja, ami kozvetlenul a dbnomics BIS-tukret
+# hivta — az pedig MERTEN ~14 honapot kesik.
+#
+# Ez ma este a HARMADIK eset ugyanebbol az osztalybol (lasd meg:
+# `schedule_recipe` nema felulirasa, `web_search` szerv-valasztas). A minta
+# mindig ugyanaz: van egy jo megoldas, es a Kommandant az orizetlen agat
+# hasznalja.
+
+def test_MINDEN_econ_tool_a_statdatan_at_megy():
+    """EGY UT, NEM OT. A Feldwebelnek OT sajat gazdasagi implementacioja volt,
+    mind kozvetlenul egy kulso API-ra — es egyik sem kapta meg azt, ami a
+    StatData-ban megvan (rate-limit kapu, ujraprobalas, `unit` mezo,
+    hihetosegi kapu, friss forraslanc, hetvege-javitott naptar).
+
+    Ez a teszt azt orzi, hogy a kozos elagazas MINDEGYIKET lefedi, es hogy az
+    egyedi (nyers API-s) agak ELE kerul.
+    """
+    import inspect
+    from feldwebel import responder
+    src = inspect.getsource(responder._execute_tool)
+
+    i_elagazas = src.index("_econ_via_statdata")
+    for tool in ("mnb_rates", "market_quote", "fred_data", "policy_rates", "econ_calendar"):
+        assert tool in responder._ECON_STATDATA_MAP, f"{tool} kimaradt a terkepbol"
+        i_sajat = src.index(f'if name == "{tool}":')
+        assert i_elagazas < i_sajat, \
+            f"a(z) {tool} sajat, nyers API-s aga MEGELOZI a StatData-t"
+
+
+def test_a_tartalek_ut_KIMONDJA_hogy_keshet():
+    """Ha a StatData nem elerheto, a nyers utra esunk vissza — de NEM neman.
+
+    ELES KAR (2026-08-31, 00:22): a Kommandant azt kapta, hogy "Alapkamatok
+    (legutolsó ismert: 2025. június): MNB 6,5% · ECB 2,0% · Fed 4,375%" — mind
+    a harom rossz, miközben a StatData ugyanerre 5,5% / 2,25% / 3,75%-ot
+    felelt. Nem adathiany volt: rossz ajton kopogtunk.
+    """
+    import inspect
+    from feldwebel import responder
+    src = inspect.getsource(responder._execute_tool)
+    assert "TARTALEK ut" in src, "a visszaeses nem naplozott"
+    blokk = src.split('if name == "policy_rates":', 1)[1].split("if name ==", 1)[0]
+    assert "KESHET" in blokk, "a tartalek valasz nem jeloli meg a teteleket"
