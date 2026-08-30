@@ -3328,41 +3328,35 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
 
     try:
         import httpx
-        async with httpx.AsyncClient(timeout=SILICONFLOW_TIMEOUT) as client:
-            resp = await client.post(
-                f"{SILICONFLOW_BASE_URL}/chat/completions",
-                headers={
-                    "Authorization": f"Bearer {SILICONFLOW_API_KEY}",
-                    "Content-Type": "application/json",
-                },
-                json=payload,
-            )
-            raw = resp.text
-            try:
-                data = json.loads(raw) if isinstance(raw, str) else raw
-            except json.JSONDecodeError as je:
-                # SiliconFlow occasionally returns non-JSON bodies — gateway 504,
-                # rate-limit HTML, or empty body when the upstream model times
-                # out under heavy context. Surface the actual status + body
-                # preview so we can diagnose, instead of dumping a useless
-                # "Expecting value: line 1 column 1" to the user. (2026-05-05.)
-                logger.error("SiliconFlow non-JSON response from %s: status=%d, body=%r",
-                             model_id, resp.status_code, raw[:500])
-                return json.dumps({
-                    "error": f"SiliconFlow returned non-JSON body (HTTP {resp.status_code})",
-                    "model": model_id,
-                    "status_code": resp.status_code,
-                    "body_preview": raw[:300] if raw else "(empty)",
-                    "json_decode_error": str(je),
-                    "hint": (
-                        "Common causes: (1) gateway 504/502 timeout — context too large or model overloaded; "
-                        "(2) rate-limit exceeded — wait 30-60s and retry; "
-                        "(3) auth/quota issue — check SILICONFLOW_API_KEY. "
-                        "If body_preview looks like HTML, it's a gateway error. "
-                        "If empty, the upstream model timed out before sending headers."
-                    ),
-                })
-
+        # ══ A VEDETT UTON (2026-08-30) ═══════════════════════════════════════
+        # Ez a hivas KORABBAN kozvetlenul POST-olt httpx-szel, megkerulve a
+        # `sf_chat`-et — es ezzel az EGESZ onjavito reteget: az ujraprobalast,
+        # a modell-atvaltast, a parameter-ledobast, a csonkolas-erzekelest es az
+        # ONSZABALYOZO TOKEN-KERETET.
+        #
+        # ELESBEN MERVE (2026-08-30, Economic Brief): a szintezis haromszor
+        # egymas utan JSON nelkuli valaszt adott, es sem az onjavitas, sem a
+        # keret-adagolo nem szolalt meg. Nem azert, mert elromlottak — hanem
+        # mert SOHA NEM VOLTAK EZEN AZ UTON. A `server.py`-ban 12 kozvetlen
+        # SiliconFlow-POST volt, es ebbol KETTO ment at az `sf_chat`-en.
+        # Az `ai_query` a fo alugynok-belepesi pont: a receptek, a briefek es a
+        # Feldwebel is ide fut be.
+        _n2: list[str] = []          # a masodik kor jegyzetei (ha lesz tool-hivas)
+        _n3: list[str] = []          # a szoveges tool-jelolos ag jegyzetei
+        _sf_data, _sf_err, _sf_notes = await sf_chat(
+            payload, purpose=f"ai_query/{model}")
+        if _sf_err is not None:
+            logger.error("ai_query %s: sf_chat sikertelen: %s",
+                         model_id, str(_sf_err)[:300])
+            return json.dumps({
+                "error": _sf_err.get("message", "SiliconFlow hiba"),
+                "code": _sf_err.get("code"),
+                "model": model_id,
+                "notes": _sf_notes,
+            }, ensure_ascii=False)
+        # A nem-JSON torzs (gateway 504, rate-limit HTML, ures valasz) kezeleset
+        # az `sf_chat` vegzi: tipizalja, ujraprobalja, es ha kell, modellt valt.
+        data = _sf_data
         if not isinstance(data, dict):
             return json.dumps({"error": f"Unexpected response type: {type(data).__name__}", "raw": str(data)[:500]})
 
@@ -3409,20 +3403,19 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
                 "max_tokens": max_tokens,
                 **agent_extra,
             }
-            async with httpx.AsyncClient(timeout=SILICONFLOW_TIMEOUT) as client:
-                resp2 = await client.post(
-                    f"{SILICONFLOW_BASE_URL}/chat/completions",
-                    headers={"Authorization": f"Bearer {SILICONFLOW_API_KEY}",
-                             "Content-Type": "application/json"},
-                    json=payload2,
-                )
-            try:
-                data2 = json.loads(resp2.text)
-            except json.JSONDecodeError:
-                logger.error("SiliconFlow second-round non-JSON response from %s: status=%d, body=%r",
-                             model_id, resp2.status_code, resp2.text[:500])
-                # Keep `content` from the first round (may be empty) and skip the synthesis
+            # A MASODIK KOR IS A VEDETT UTON. Ez a hivas allitja elo a VEGSO
+            # valaszt a tool-eredmenyekbol — vagyis eppen ez a leghosszabb
+            # kimenet, es a legvaloszinubb csonkolas-jelolt. 2026-08-30-ig
+            # kozvetlenul POST-olt, tehat sem az ujraprobalas, sem a keret-
+            # emeles nem vedte. Az Economic Brief harom bukott probaja innen jott.
+            _d2, _e2, _n2 = await sf_chat(payload2, purpose=f"ai_query/{model}/synth")
+            _n2 = list(_n2 or [])
+            if _e2 is not None:
+                logger.error("ai_query %s masodik kor sikertelen: %s",
+                             model_id, str(_e2)[:300])
                 data2 = {}
+            else:
+                data2 = _d2 or {}
             if isinstance(data2, dict) and data2.get("choices"):
                 msg2 = data2["choices"][0].get("message", {})
                 content2 = msg2.get("content", "") or ""
@@ -3461,19 +3454,16 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
                     "max_tokens": max_tokens,
                     **agent_extra,
                 }
-                async with httpx.AsyncClient(timeout=SILICONFLOW_TIMEOUT) as client:
-                    resp3 = await client.post(
-                        f"{SILICONFLOW_BASE_URL}/chat/completions",
-                        headers={"Authorization": f"Bearer {SILICONFLOW_API_KEY}",
-                                 "Content-Type": "application/json"},
-                        json=payload3,
-                    )
-                try:
-                    data3 = json.loads(resp3.text)
-                except json.JSONDecodeError:
-                    logger.error("ai_query text-marker synth non-JSON from %s: status=%d, body=%r",
-                                 model_id, resp3.status_code, resp3.text[:500])
+                # A szoveges tool-jelolos ag szintezise — ugyanaz a vedett ut.
+                _d3, _e3, _n3 = await sf_chat(
+                    payload3, purpose=f"ai_query/{model}/text-synth")
+                _n3 = list(_n3 or [])
+                if _e3 is not None:
+                    logger.error("ai_query %s szoveges szintezis sikertelen: %s",
+                                 model_id, str(_e3)[:300])
                     data3 = {}
+                else:
+                    data3 = _d3 or {}
                 if isinstance(data3, dict) and data3.get("choices"):
                     msg3 = data3["choices"][0].get("message", {})
                     content3 = msg3.get("content", "") or ""
@@ -3521,6 +3511,12 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
         }
         if file_info:
             result_obj["file"] = file_info
+        # NEMA JAVITAS NINCS. Ha az `sf_chat` modellt valtott, keretet emelt vagy
+        # parametert dobott le, azt a hivo LASSA — kulonben a Kommandant azt
+        # hiszi, hogy a briefet az a modell irta, amit a recept kert.
+        _all_notes = list(_sf_notes) + list(_n2) + list(_n3)
+        if _all_notes:
+            result_obj["sf_notes"] = _all_notes
         return json.dumps(result_obj, ensure_ascii=False)
 
     except Exception as e:

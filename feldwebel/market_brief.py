@@ -208,11 +208,34 @@ def _build_data_context() -> str:
     igy a bovites nem sorosan adodik a keseshez.
     """
     spec = {
-        "presets": ["hu_macro", "eu_macro", "us_macro", "markets", "hu_markets"],
+        # A `hu_macro` preset SZANDEKOSAN nincs itt: 46 hivas, es a HETI makro-
+        # riportra van meretezve (12 havi idosorok, GDP-komponensek, flash-ek).
+        # Napi ketszeri briefben ez harom bajt okoz: felfujja a promptot, a
+        # legtobb sor napi bontasban nem mozdul, es elszivja a modell figyelmet
+        # a lenyegrol. Elesben MERVE (2026-08-30): 69 parhuzamos hivassal a
+        # szintezis ket egymas utani probaban prozat adott JSON helyett.
+        # Ezert a HU/EA reszt a magas szintu `get_macro_indicator` adja —
+        # ugyanaz az adat, egy szamban, forrascimkevel.
+        "presets": ["us_macro", "markets", "hu_markets"],
         "series": [
+            {"tool": "get_macro_indicator", "args": {"country": "HU", "indicator": i}}
+            for i in ("cpi", "core_cpi", "policy_rate", "unemployment",
+                      "gdp", "bond_yield_10y")
+        ] + [
+            {"tool": "get_macro_indicator", "args": {"country": "EA", "indicator": i}}
+            for i in ("cpi", "core_cpi", "policy_rate", "unemployment")
+        ] + [
+            {"tool": "mnb_rates", "args": {}},
+            {"tool": "yfinance", "args": {"symbol": "EURUSD=X", "action": "quote"}},
             {"tool": "yfinance", "args": {"symbol": "^VIX", "action": "quote"}},
             {"tool": "get_economic_calendar", "args": {"days_ahead": 1, "region": "US"}},
             {"tool": "get_economic_calendar", "args": {"days_ahead": 2, "region": "EU"}},
+            # A legfrissebb publikalt HU szam, amig a strukturalt idosor meg nem
+            # frissult — ket flash eleg, nem ot.
+            {"tool": "get_flash_releases",
+             "args": {"query": "fogyasztói árak", "source": "ksh", "limit": 3}},
+            {"tool": "get_flash_releases",
+             "args": {"query": "GDP", "source": "ksh", "limit": 3}},
         ],
     }
     return json.dumps(spec)
@@ -638,7 +661,12 @@ async def generate_market_brief(session: str) -> dict:
                 # consumed by thinking, yielding content="" (live smoke,
                 # 2026-06-05). The brief itself stays ~200 tokens; the headroom
                 # is purely for the reasoning budget.
-                max_tokens=8000,
+                # 2026-08-30: 8000-rol emelve. A V4-Pro `reasoning_effort=medium`
+                # gondolkodasi tokenjei EBBE szamitanak bele, es a brief azota
+                # ket TOVABBI emberi mezot ir (`macro_review` 6-10 mondat +
+                # `telegram_digest`). A regi keret a gondolkodasra is szuk lett:
+                # elesben ketszer egymas utan csonkolt, JSON nelkuli valasz jott.
+                max_tokens=16000,
                 caller="feldwebel",
                 # news/data context only needed on the first attempt; retries are
                 # pure JSON-repair on already-fetched facts already inside the model
@@ -661,8 +689,27 @@ async def generate_market_brief(session: str) -> dict:
         last_text = text
         brief = _extract_json_object(text)
         if brief is None:
-            last_errs = ["response did not contain a parseable JSON object"]
-            logger.warning("market_brief[%s] attempt %d: no JSON object in response", session, attempts)
+            # A HIBAFELULET MONDJA MEG, MI TORTENT (2026-08-30). Korabban ennyi
+            # allt a naploban: "no JSON object in response". Igaz volt, es
+            # hasznalhatatlan — nem lehetett megkulonboztetni a HAROM okot:
+            #   * a modell prozat irt JSON helyett,
+            #   * a valasz CSONKOLT (max_tokens elfogyott, tipikusan a V4-Pro
+            #     gondolkodasi tokenjeire),
+            #   * a valasz URES (a szolgaltato hibaja).
+            # Mindharomra mas a teendo, ezert most a hossz + a ket veg latszik.
+            _n = len(text or "")
+            _alak = ("URES" if _n == 0 else
+                     "CSONKOLT-JSON" if (text.lstrip()[:1] in "{[" and
+                                         text.rstrip()[-1:] not in "}]") else
+                     "PROZA" if text.lstrip()[:1] not in "{[" else "EGYEB")
+            last_errs = [f"response did not contain a parseable JSON object "
+                         f"({_alak}, {_n} kar)"]
+            logger.warning(
+                "market_brief[%s] attempt %d: nincs JSON — alak=%s hossz=%d\n"
+                "  ELEJE: %s\n  VEGE:  %s",
+                session, attempts, _alak, _n,
+                (text or "")[:300].replace("\n", " "),
+                (text or "")[-300:].replace("\n", " "))
             continue
 
         # Force the contract fields the bot relies on (defensive — the model
@@ -724,12 +771,29 @@ async def generate_market_brief(session: str) -> dict:
     )
     # Never fail silently: the Kommandant must know a scheduled brief died
     # (2026-06-05: the 15:00 cron run failed transiently and nobody noticed).
+    # ÖNVIZSGÁLAT A HIBAJELZÉSBEN (2026-08-30). A Kommandant leletе: "az
+    # önjavító funkció és az automatikus token adagoló IS elbukott… meg az is,
+    # hogy saját maga megmondja, mi a baja." Igaza volt: a jelzés eddig ennyit
+    # tudott — "response did not contain a parseable JSON object". Igaz, és
+    # használhatatlan. Mostantól a bukás UTÁN lemérjük a komponenst, és a mérés
+    # eredménye MEGY BELE az üzenetbe. Ha a diagnózis maga hasal el, a jelzés
+    # attól még kimegy — a hallgatás a legrosszabb hibajelzés.
+    _dg = ""
+    try:
+        import selfdiag
+        d = selfdiag.diagnose("siliconflow", "brief_no_json")
+        _dg = f"\n\n🔎 <b>Önvizsgálat:</b> {d.summary[:500]}"
+    except Exception as de:  # noqa: BLE001
+        logger.warning("market_brief: az önvizsgálat nem futott le: %s", de)
+        _dg = "\n\n🔎 Önvizsgálat: nem futott le (a mérőeszköz maga hibázott)."
+
     if _telegram_push_func is not None:
         try:
             await _telegram_push_func(
                 f"⚠️ <b>Economic Brief HIBA</b> — {session}\n"
                 f"{attempts} próbálkozás után sem sikerült a generálás.\n"
-                f"Utolsó hiba: {('; '.join(last_errs[:2]))[:300]}\n"
+                f"Utolsó hiba: {('; '.join(last_errs[:2]))[:300]}"
+                f"{_dg}\n\n"
                 f"Kézi újrapróbálás: market_brief_now('{session}')"
             )
         except Exception as te:  # noqa: BLE001
@@ -739,6 +803,7 @@ async def generate_market_brief(session: str) -> dict:
         "session": session,
         "attempts": attempts,
         "error": "schema validation failed after retries",
+        "diagnosis": _dg.strip(),
         "validation_errors": last_errs,
         "last_response_preview": (last_text or "")[:500],
     }

@@ -244,12 +244,26 @@ def test_a_makro_kontextus_lefedi_magyarorszagot():
     gazdasagi szemle" rovat forras nelkul maradna — es a modell a betanitasi
     memoriabol potolna."""
     spec = json.loads(mb._build_data_context())
-    for kell in ("hu_macro", "eu_macro", "us_macro"):
-        assert kell in spec["presets"], f"hianyzik a preset: {kell}"
+    # A LEFEDETTSEGET merjuk, nem a preset NEVET: a HU/EA reszt a magas szintu
+    # `get_macro_indicator` adja, mert a `hu_macro` preset 46 hivasa a HETI
+    # riportra van meretezve. Ha valaki holnap masik forrasra cserel, a teszt
+    # attol meg jo kerdest tesz fel: benne van-e Magyarorszag?
+    orszagok = {c["args"].get("country") for c in spec["series"]
+                if c["tool"] == "get_macro_indicator"}
+    assert {"HU", "EA"} <= orszagok, "a magyar/eurozonas makro nincs a briefben"
+    hu_mutatok = {c["args"]["indicator"] for c in spec["series"]
+                  if c["tool"] == "get_macro_indicator" and c["args"].get("country") == "HU"}
+    for kell in ("cpi", "policy_rate", "unemployment", "gdp"):
+        assert kell in hu_mutatok, f"hianyzik a magyar mutato: {kell}"
+    assert "us_macro" in spec["presets"], "nincs amerikai makro"
     assert "hu_markets" in spec["presets"], "nincs magyar tozsdei adat"
     regiok = {c["args"].get("region") for c in spec["series"]
               if c["tool"] == "get_economic_calendar"}
     assert {"US", "EU"} <= regiok, "csak az amerikai naptart huzzuk"
+    # A MERET is allitas: 69 hivassal a szintezis elesben prozat adott.
+    import _statdata_client as _sd
+    n = sum(len(_sd.DATA_PRESETS[p]) for p in spec["presets"]) + len(spec["series"])
+    assert n <= 40, f"{n} adathivas — a prompt megint elnyomja a szintezist"
 
 
 def test_az_emberi_mezok_nelkul_a_brief_bukik():

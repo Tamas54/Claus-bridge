@@ -435,3 +435,91 @@ def test_a_real_model_id_passes_through_unchanged(monkeypatch):
     _run(server._run_agent_with_tools("zai-org/GLM-5.2", [{"role": "user", "content": "x"}],
                                       max_rounds=1))
     assert fake.calls[0]["model"] == "zai-org/GLM-5.2"
+
+
+# ===========================================================================
+# A KERULOUT — 2026-08-30
+# ===========================================================================
+#
+# A KOMMANDANT LELETE: "az önjavító funkció és az automatikus token adagoló IS
+# elbukott. Meg az is, h saját maga megmondja mi a baja."
+#
+# Igaza volt, de nem ugy, ahogy latszott: NEM romlottak el. SOHA NEM VOLTAK
+# AZON AZ UTON. A `server.py`-ban 12 kozvetlen SiliconFlow-POST allt, es ebbol
+# KETTO ment at az `sf_chat`-en. Az `ai_query` — a fo alugynok-belepesi pont,
+# amit a receptek, a briefek es a Feldwebel is hasznal — harom sajat POST-tal
+# kerulte meg az ujraprobalast, a modell-atvaltast, a parameter-ledobast, a
+# csonkolas-erzekelest ES az onszabalyozo token-keretet.
+#
+# Elesben ez ugy nezett ki, hogy az Economic Brief haromszor egymas utan JSON
+# nelkuli valaszt adott, es semmi nem szolalt meg.
+#
+# Ezek a tesztek a HUZALOZAST merik, nem a logikat: a legjobb onjavito reteg is
+# nulla, ha nincs rakotve arra a csore, ami elromlik.
+
+import ast as _ast
+import os as _os
+
+
+def _server_tree():
+    root = _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
+    with open(_os.path.join(root, "server.py"), encoding="utf-8") as fh:
+        src = fh.read()
+    return src, _ast.parse(src)
+
+
+def _func_source(name: str) -> str:
+    src, tree = _server_tree()
+    lines = src.split("\n")
+    for n in _ast.walk(tree):
+        if isinstance(n, (_ast.FunctionDef, _ast.AsyncFunctionDef)) and n.name == name:
+            return "\n".join(lines[n.lineno - 1:n.end_lineno])
+    raise AssertionError(f"nincs {name}() a server.py-ban")
+
+
+def test_ai_query_nem_kerul_ki_az_sf_chat_mellett():
+    """AZ ONJAVITAS CSAK AZON A CSOVON VED, AMIRE RA VAN KOTVE."""
+    src = _func_source("ai_query")
+    assert "chat/completions" not in src, (
+        "az `ai_query` megint kozvetlenul POST-ol a SiliconFlow-ra — ezzel "
+        "kikerüli az ujraprobalast, a modell-atvaltast es az onszabalyozo "
+        "token-keretet. Hivd az `sf_chat`-et.")
+    assert src.count("await sf_chat(") >= 3, (
+        "az `ai_query` haromfele hivast indit (fo kor + ket szintezis); "
+        "mindharomnak a vedett uton kell mennie")
+
+
+def test_a_kerulout_nem_novekedhet():
+    """RACSNI: a maradek kozvetlen POST-ok szama nem nohet.
+
+    2026-08-30-i allapot: 8 kerulout maradt (`_reply`, `_discuss_agent`,
+    2x `_api_call`, `_p`, `_analyze_image`, 2x `_handle_telegram_message`),
+    plusz maga az `_sf_post_once`, ami AZ `sf_chat` belseje. Ezek megnevezett,
+    hatralevo munkak — de uj nem jöhet hozzajuk eszrevetlenul.
+    """
+    src, tree = _server_tree()
+    fns = [(n.lineno, n.end_lineno, n.name) for n in _ast.walk(tree)
+           if isinstance(n, (_ast.FunctionDef, _ast.AsyncFunctionDef))]
+    hol = []
+    for i, line in enumerate(src.split("\n"), 1):
+        if "chat/completions" in line:
+            o = sorted((f for f in fns if f[0] <= i <= f[1]), key=lambda x: x[1] - x[0])
+            hol.append(o[0][2] if o else "(modul)")
+    kerulout = [h for h in hol if h != "_sf_post_once"]
+    assert len(kerulout) <= 8, (
+        f"uj SiliconFlow-kerulout keletkezett ({len(kerulout)} > 8): {kerulout}. "
+        f"Minden uj hivas az `sf_chat`-en menjen at.")
+    assert "ai_query" not in kerulout
+
+
+def test_a_brief_hibajelzese_onvizsgalatot_is_kuld():
+    """A jelzes mondja meg, MI a baj — ne csak azt, hogy baj van."""
+    import inspect
+    from feldwebel import market_brief as _mb
+    src = inspect.getsource(_mb.generate_market_brief)
+    assert "selfdiag" in src and "diagnose(" in src, \
+        "a brief bukasakor nem fut onvizsgalat"
+    assert "Önvizsgálat" in src, "a diagnozis nem kerul bele a Telegram-uzenetbe"
+    # És ha maga a mérőeszköz hasal el, a jelzés attól még menjen ki:
+    assert "a mérőeszköz maga hibázott" in src, \
+        "az onvizsgalat kivetele elnemithatja a hibajelzest"
