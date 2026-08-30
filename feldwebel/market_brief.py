@@ -766,6 +766,10 @@ async def generate_market_brief(session: str) -> dict:
                 # HOSSZABB makró-szemlét ír — és egyedüliként vezette le
                 # helyesen az MNB kamatvágás IRÁNYÁT a history-ból.
                 no_thinking=True,
+                # ESZKÖZÖK NÉLKÜL: minden adat már a promptban van. A
+                # tool-készlet itt nem segítség, hanem csábítás — élesben
+                # emiatt ment a modell tool-hívó módba a kért JSON helyett.
+                no_tools=True,
                 # news/data context only needed on the first attempt; retries are
                 # pure JSON-repair on already-fetched facts already inside the model
                 # response. Re-injecting wastes tokens and slows the retry.

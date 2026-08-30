@@ -3120,7 +3120,7 @@ async def statdata_flash(query: str = "", source: str = "all", limit: int = 15,
 async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature: float = 0.7,
                    max_tokens: int = 20000, caller: str = "",
                    deep_research: bool = False, deep_thinking: bool = False,
-                   no_thinking: bool = False,
+                   no_thinking: bool = False, no_tools: bool = False,
                    output_format: str = "",
                    news_context: str = "", data_context: str = "") -> str:
     """Query a SiliconFlow AI sub-agent (Kimi-K2.7, DeepSeek-V4-Pro, or GLM-5.2).
@@ -3147,6 +3147,11 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
             Use for press review, market briefs, fact-checking, anything where
             1-shot search isn't enough. Slower (~30-90s), uses real DDG.
         deep_thinking: Enable reasoning mode for DeepSeek (reasoning_effort=high).
+        no_tools: Omit the sub-agent tool set from this call. For a pure
+            synthesis over already-injected data, the tool set is not help but
+            temptation: measured on the Economic Brief, the model went into
+            tool-calling mode instead of writing the requested JSON and
+            returned empty/prose three times running.
         no_thinking: Force thinking OFF for this call, whatever the model's
             default is. For structured-output work (strict JSON, extraction,
             rendering) reasoning is pure overhead — measured on the Economic
@@ -3344,9 +3349,21 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
         "messages": messages,
         "temperature": temperature,
         "max_tokens": max_tokens,
-        "tools": SUBAGENT_TOOL_DEFS,
         **agent_extra,
     }
+    # ══ TISZTA SZINTÉZIS: ESZKÖZÖK NÉLKÜL (2026-08-30) ═══════════════════
+    # Az `ai_query` eddig MINDEN hívásba betette a tool-készletet. Van, ahol ez
+    # a lényeg — és van, ahol kifejezetten árt: ha a hívó MÁR BEINJEKTÁLTA az
+    # összes adatot, a tool-készlet csak csábítás.
+    #
+    # ÉLESBEN MÉRVE (Economic Brief): a `tools` jelenlétében a V4-Pro
+    # gondolkodás NÉLKÜL tool-hívó módba ment a kért JSON helyett, és három
+    # egymás utáni próbán ÜRES / PRÓZA / ÜRES választ adott — miközben
+    # ugyanaz a modell, ugyanazzal a prompttal, tool-készlet NÉLKÜL 34 s alatt
+    # hibátlan briefet írt. A gondolkodás korábban "átlátott" ezen; kikapcsolva
+    # a csábítás felülkerekedett.
+    if not no_tools:
+        payload["tools"] = SUBAGENT_TOOL_DEFS
 
     try:
         import httpx

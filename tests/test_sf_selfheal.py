@@ -571,3 +571,21 @@ def test_a_brief_gondolkodas_nelkul_hiv():
     src = inspect.getsource(_mb.generate_market_brief)
     assert "no_thinking=True" in src, \
         "a brief megint gondolkodó módban hív — 3,2x lassabb, 4,3x drágább"
+
+
+def test_a_tiszta_szintezis_eszkozok_nelkul_hiv():
+    """ELESBEN MERVE: a `tools` keszlet jelenleteben a V4-Pro gondolkodas
+    NELKUL tool-hivo modba ment a kert JSON helyett — harom proban URES /
+    PROZA / URES. Ugyanaz a modell, ugyanaz a prompt, tool-keszlet NELKUL:
+    34 s, hibatlan brief.
+
+    A `tools` nem semleges alapertelmezes: ha minden adat mar a promptban van,
+    a keszlet nem segitseg, hanem csabitas.
+    """
+    src = _func_source("ai_query")
+    assert "no_tools" in src, "nincs eszkoz-mentes mod"
+    assert 'if not no_tools:' in src, \
+        "a tool-keszlet megint feltetel nelkul kerul a payloadba"
+    import inspect
+    from feldwebel import market_brief as _mb
+    assert "no_tools=True" in inspect.getsource(_mb.generate_market_brief)
