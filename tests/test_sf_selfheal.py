@@ -589,3 +589,47 @@ def test_a_tiszta_szintezis_eszkozok_nelkul_hiv():
     import inspect
     from feldwebel import market_brief as _mb
     assert "no_tools=True" in inspect.getsource(_mb.generate_market_brief)
+
+
+def test_rate_limitre_KULCSOT_valt_nem_modellt():
+    """A `50610` / HTTP 429 NEM a modell hibája: a modell él, minket fojtanak.
+
+    Modellt váltani ilyenkor rossz reflex — ugyanaz a KVÓTA fojtja a
+    következőt is, csak közben elveszítjük a kért motort. Ha van másik
+    kulcsunk, azzal kell újrapróbálni UGYANAZT a modellt.
+
+    (2026-08-30: az önvizsgálat a `glm53f`-re pontosan ezt jelezte,
+    `rate_limit: HTTP 429 — code 50610`.)
+    """
+    chat = _func_source("sf_chat")
+    assert "_sf_keys()" in chat, "az sf_chat nem ismer kulcs-készletet"
+    i_rate = chat.index('err["code"] == "rate_limit"')
+    i_retry = chat.index('err["code"] not in _SF_RETRYABLE')
+    assert i_rate < i_retry, \
+        "a kulcsváltás a retry-kapu UTÁN van — a rate limit addigra elnyelődik"
+    # A váltás KIMONDOTT (S-009: néma csere nincs):
+    assert "tartalék kulccsal" in chat
+
+
+def test_a_kulcskeszlet_nem_duplikal_es_ures_kulcsot_nem_ad():
+    """Szabotázs: ha a KEY2 nincs beállítva (vagy ugyanaz), a készlet ne
+    hazudjon két lehetőséget — különben a 'váltottam kulcsot' jegyzet
+    félrevezet."""
+    src, _ = _server_tree()
+    assert "dict.fromkeys" in src.split("def _sf_keys")[1][:400], \
+        "a kulcs-készlet nem szűri a duplikátumot"
+    assert 'if k]' in src.split("def _sf_keys")[1][:400], \
+        "üres kulcs is bekerülhet a készletbe"
+
+
+def test_a_kozos_kvotat_a_rendszer_maga_meri_meg():
+    """NEM TUDJUK LEKERDEZNI, hogy a ket kulcs kulon FIOKHOZ tartozik-e — a
+    SiliconFlow `/user/info` vegpontja megszunt (`code 20092`, merve
+    2026-08-30). Ha ugyanaz a fiok, a kvota kozos, es a rotacio placebo.
+
+    Ezert a rendszer MAGA meri: ha a valtas UTAN is 429 jon, azt kimondja.
+    Enelkul azt hinnenk, van tartalekunk."""
+    chat = _func_source("sf_chat")
+    assert "TARTALÉK KULCS IS fojtva" in chat, \
+        "a kozos kvota esete eszrevetlen marad — a rotacio placebonak latszana"
+    assert "közös kvótán" in chat, "a jegyzet nem mondja ki a következtetést"

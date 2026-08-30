@@ -434,3 +434,51 @@ def test_az_irany_ket_megfigyelest_kovetel():
     assert any(c["tool"] == "get_policy_rates" for c in spec["series"]), \
         "nincs olyan forras, amibol az irany LEVEZETHETO — a tiltas onmagaban " \
         "csak elnemitja a briefet, nem teszi pontosabba"
+
+
+def test_a_tartalek_motor_az_utolso_proban_lep_be(monkeypatch, tmp_path):
+    """AZ SF_CHAT MODELLVÁLTÁSA HTTP-HIBÁRA INDUL. Van rosszabb eset: 200-as
+    válasz használhatatlan tartalommal (üres törzs, próza a JSON helyett).
+    Akkor semmi nem vált, mert semmi nem "hibázott" — a "használható"-t csak a
+    HÍVÓ tudja megítélni, mert nála van a séma.
+
+    2026-08-30: három próba, ÜRES / PRÓZA / ÜRES, mind HTTP 200, nulla brief.
+    """
+    monkeypatch.setattr(mb, "NOFX_BRIEF_URL", "")
+    monkeypatch.setattr(mb, "_BRIEF_DIR", tmp_path / "brief")
+    monkeypatch.setattr(mb, "statdata_client", None)
+    monkeypatch.setattr(mb, "_BRIEF_MODEL", "deepseek")
+    monkeypatch.setattr(mb, "_BRIEF_FALLBACK", "dsflash")
+
+    hasznalt = []
+
+    async def _fake(**kw):
+        hasznalt.append(kw["model"])
+        # Az elsődleges kétszer prózát ad; a tartalék érvényes briefet.
+        if kw["model"] == "deepseek":
+            return json.dumps({"model": "x", "response": "Sajnos nem tudok JSON-t."})
+        return json.dumps({"model": "x", "response": json.dumps(_valid_brief())})
+
+    mb.set_ai_query(_fake)
+    result = asyncio.run(mb.generate_market_brief("morning"))
+
+    assert result["ok"] is True, "a tartalék motor nem mentette meg a briefet"
+    assert hasznalt == ["deepseek", "deepseek", "dsflash"], \
+        f"rossz motor-sorrend: {hasznalt} — a váltás az UTOLSÓ próbán a helye"
+    assert result["served_by"] == "dsflash"
+    # S-009: NÉMA CSERE NINCS.
+    assert "tartalék motor" in result["telegram_text"], \
+        "a Kommandant nem tudja meg, hogy nem az elsődleges motor írta"
+    assert "dsflash" in result["telegram_text"]
+
+
+def test_sikeres_elsodleges_eseten_nincs_csere_uzenet(monkeypatch, tmp_path):
+    """Szabotázs: ha minden briefre ráírnánk a csere-figyelmeztetést, a jelzés
+    elértéktelenedne."""
+    monkeypatch.setattr(mb, "NOFX_BRIEF_URL", "")
+    monkeypatch.setattr(mb, "_BRIEF_DIR", tmp_path / "brief")
+    monkeypatch.setattr(mb, "statdata_client", None)
+    mb.set_ai_query(_stub_ai_query([json.dumps(_valid_brief())]))
+    result = asyncio.run(mb.generate_market_brief("morning"))
+    assert result["ok"] is True
+    assert "tartalék motor" not in result["telegram_text"]

@@ -84,6 +84,24 @@ _BRIEF_DIR = pathlib.Path(os.environ.get("MARKET_BRIEF_DIR", "data/market_brief"
 # Ervenyes ertekek: a `SILICONFLOW_MODELS` aliasai (deepseek, dsflash, glm53f…).
 _BRIEF_MODEL = os.environ.get("ECONOMIC_BRIEF_MODEL", "deepseek").strip() or "deepseek"
 
+# ══ TARTALÉK MOTOR — HASZNÁLHATATLAN KIMENETRE ═══════════════════════════
+# Az `sf_chat` modell-átváltása HTTP-HIBÁRA indul. Van egy rosszabb eset: a
+# szolgáltató 200-at ad, a modell válaszol — csak épp használhatatlant (üres
+# törzs, próza a kért JSON helyett, hiányzó kötelező mező). Ilyenkor semmi nem
+# vált, mert semmi nem "hibázott": a "használható"-t csak a HÍVÓ tudja
+# megítélni, mert nála van a séma.
+#
+# 2026-08-30-i eset: három próba, ÜRES / PRÓZA / ÜRES, mind HTTP 200 — és a
+# Kommandant nem kapott briefet.
+#
+# ⚠️ A VÁLTÁS NEM A JAVÍTÁS. Az az eset a mi payloadunk hibája volt (eszköz-
+# készlet egy tiszta szintézis-feladatban); ha akkor váltottunk volna, a flash
+# kiírja a JSON-t, mi "megjavultnak" hisszük, és a valódi defekt bent marad.
+# Ez a tartalék HÁLÓ, nem gyógyszer: az utolsó próbán lép be, és KIMONDJA
+# magát (S-009: néma csere nincs) — hogy a hibát utólag még meg lehessen
+# találni, ne fedje el egy sikeres brief.
+_BRIEF_FALLBACK = os.environ.get("ECONOMIC_BRIEF_FALLBACK", "dsflash").strip()
+
 _VALID_SESSIONS = ("morning", "afternoon")
 
 # How long a brief stays "live" before NOFX should treat it as stale and go
@@ -597,7 +615,8 @@ _SESSION_LABEL = {"morning": "reggel", "afternoon": "délután"}
 
 
 def format_brief_telegram(brief: dict, digest: str = "",
-                          macro_review: str = "", sources: list | None = None) -> str:
+                          macro_review: str = "", sources: list | None = None,
+                          served_by: str = "") -> str:
     """A brief EGYETLEN emberi renderelője — Telegramra ÉS a `market_brief_now`-ba.
 
     EGY RENDERELO, MINDEN FELULETRE (2026-08-30). Korabban a Telegram ezt a
@@ -669,6 +688,15 @@ def format_brief_telegram(brief: dict, digest: str = "",
     # ujra kereste az utolso HAROM sorban, igy harom forras utan a fejlec
     # kicsuszott az ablakbol es MEGINT kiirodott. A Kommandant harom "📚
     # Források" blokkot kapott. A fejlec EGYSZER megy ki, a hurok ELOTT.
+    # ── S-009: NÉMA CSERE NINCS ────────────────────────────────────────────
+    # Ha nem az elsődleges motor írta a briefet, azt a Kommandant LÁSSA — a
+    # tartalék szemléje mérhetően szikárabb (mérve: 817 vs 1554 karakter), és
+    # a különbséget nem szabad a szövegre bízni.
+    if served_by and served_by != _BRIEF_MODEL:
+        lines.append("")
+        lines.append(f"⚠️ <i>Ezt a briefet a tartalék motor írta "
+                     f"(<b>{served_by}</b>), mert a(z) {_BRIEF_MODEL} két "
+                     f"próbán nem adott használható választ.</i>")
     tiszta = [str(x).strip() for x in (sources or []) if str(x).strip()]
     if tiszta:
         lines.append("")
@@ -678,13 +706,14 @@ def format_brief_telegram(brief: dict, digest: str = "",
 
 
 async def _send_telegram(brief: dict, digest: str = "",
-                         macro_review: str = "", sources: list | None = None) -> bool:
+                         macro_review: str = "", sources: list | None = None,
+                         served_by: str = "") -> bool:
     """Best-effort Telegram delivery of the brief; never raises."""
     if _telegram_push_func is None:
         return False
     try:
         await _telegram_push_func(
-            format_brief_telegram(brief, digest, macro_review, sources))
+            format_brief_telegram(brief, digest, macro_review, sources, served_by))
         return True
     except Exception as e:  # noqa: BLE001
         logger.warning("market_brief: telegram push failed: %s", e)
@@ -729,8 +758,22 @@ async def generate_market_brief(session: str) -> dict:
     attempts = 0
     max_attempts = 3  # initial + up to 2 retries (PLAN §3)
 
+    served_by = _BRIEF_MODEL          # ki írta végül — a jelentésbe is bekerül
     for attempt in range(max_attempts):
         attempts = attempt + 1
+        # Az UTOLSÓ próba a tartalék motorral megy, ha van és más, mint az
+        # elsődleges. Két kör ugyanazon a modellen elég bizonyíték arra, hogy
+        # nem átmeneti botlásról van szó.
+        use_model = (_BRIEF_FALLBACK
+                     if (attempt == max_attempts - 1 and _BRIEF_FALLBACK
+                         and _BRIEF_FALLBACK != _BRIEF_MODEL)
+                     else _BRIEF_MODEL)
+        if use_model != served_by:
+            logger.warning(
+                "economic_brief[%s]: %d próba után MOTORVÁLTÁS %s → %s "
+                "(a válaszok nem voltak használhatók, nem HTTP-hiba)",
+                session, attempts - 1, served_by, use_model)
+        served_by = use_model
         prompt = base_prompt
         if last_errs:
             prompt = (
@@ -744,7 +787,7 @@ async def generate_market_brief(session: str) -> dict:
 
         try:
             raw_result = await _ai_query_func(
-                model=_BRIEF_MODEL,
+                model=use_model,
                 prompt=prompt,
                 system_prompt=system_prompt,
                 temperature=0.2,
@@ -847,8 +890,9 @@ async def generate_market_brief(session: str) -> dict:
         # EGY SZOVEG, MINDEN FELULETRE: ugyanez megy Telegramra es ugyanez
         # kerul vissza a hivonak (`market_brief_now`). Elobb rendereljuk, hogy
         # a kettot ne lehessen kulon-kulon eloallitani.
-        text = format_brief_telegram(brief, digest, macro_review, sources)
-        telegram_sent = await _send_telegram(brief, digest, macro_review, sources)
+        text = format_brief_telegram(brief, digest, macro_review, sources, served_by)
+        telegram_sent = await _send_telegram(brief, digest, macro_review, sources,
+                                             served_by)
         logger.info(
             "economic_brief[%s] SUCCESS in %d attempt(s): %d chars (~%d tok), pushed=%s, telegram=%s",
             session, attempts, size_chars, approx_tokens, push.get("pushed"), telegram_sent,
@@ -862,6 +906,7 @@ async def generate_market_brief(session: str) -> dict:
             "brief": brief,
             "macro_review": macro_review,
             "sources": sources,
+            "served_by": served_by,
             "telegram_digest": digest,
             "telegram_text": text,
             "push": push,
@@ -908,6 +953,7 @@ async def generate_market_brief(session: str) -> dict:
         "session": session,
         "attempts": attempts,
         "error": "schema validation failed after retries",
+        "served_by": served_by,
         "diagnosis": _dg.strip(),
         "validation_errors": last_errs,
         "last_response_preview": (last_text or "")[:500],

@@ -39,7 +39,7 @@ import xml.etree.ElementTree as ET
 # shrinks below the floor, lower this number in the same commit that removes
 # the tests, so it is a visible decision and not a silent one.
 TEST_COUNT_FLOOR = 600
-VERIFIED_COUNT = 799  # 2026-08-30, Python 3.13.11, `-m "not network"`.
+VERIFIED_COUNT = 804  # 2026-08-30, Python 3.13.11, `-m "not network"`.
 # Raised from 480/501. The old numbers were measured on 2026-08-29 against a
 # clean checkout while four test files (test_echolot_redirect_follow,
 # test_error_surface, test_presence, test_recipe_health) were still

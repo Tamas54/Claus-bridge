@@ -2519,6 +2519,22 @@ async def api_delphoi_report(request):
 # ============================================================
 
 SILICONFLOW_API_KEY = os.environ.get("SILICONFLOW_API_KEY", "")
+
+# ══ TARTALÉK KULCS — RATE LIMITRE ════════════════════════════════════════
+# A `code: 50610` (HTTP 429) nem modellhiba: a modell él, csak minket fojtanak.
+# Ilyenkor a modell-átváltás értelmetlen — MÁSIK KULCS kell, nem másik motor.
+# Az önvizsgálat 2026-08-30-án pontosan ezt jelezte a `glm53f`-re.
+#
+# ⚠️ EGY FELTÉTELLEL ÉR VALAMIT: ha a második kulcs MÁSIK FIÓKHOZ tartozik. Ha
+# ugyanannak a fióknak a második kulcsa, a kvóta közös, és a váltás semmit nem
+# old meg. Ezt a kulcs nem árulja el — mérni kell.
+SILICONFLOW_API_KEY2 = os.environ.get("SILICONFLOW_API_KEY2", "").strip()
+
+
+def _sf_keys() -> list[str]:
+    """A használható kulcsok, elsődleges elöl. Duplikátum nélkül."""
+    out = [k for k in (SILICONFLOW_API_KEY, SILICONFLOW_API_KEY2) if k]
+    return list(dict.fromkeys(out))
 # Env-ből felülírható, hogy a chat-út a szolgáltató nélkül is végigmérhető
 # legyen (füstpróba hamis végponttal), és hogy egy szolgáltató-váltás ne
 # igényeljen kódmódosítást. Alapértelmezés változatlan.
@@ -7427,7 +7443,8 @@ def _sf_classify(status: int, body: str) -> tuple[str, str]:
     return "http_error", f"HTTP {status} — {snippet}"
 
 
-async def _sf_post_once(client, payload: dict) -> tuple[dict | None, dict | None]:
+async def _sf_post_once(client, payload: dict,
+                        api_key: str = "") -> tuple[dict | None, dict | None]:
     """EGY hívás. `(data, error)` — a kettő közül pontosan az egyik None.
 
     A státuszkód ellenőrzése itt történik, egy helyen. Ez hiányzott: a hívók
@@ -7438,7 +7455,7 @@ async def _sf_post_once(client, payload: dict) -> tuple[dict | None, dict | None
     try:
         resp = await client.post(
             f"{SILICONFLOW_BASE_URL}/chat/completions",
-            headers={"Authorization": f"Bearer {SILICONFLOW_API_KEY}",
+            headers={"Authorization": f"Bearer {api_key or SILICONFLOW_API_KEY}",
                      "Content-Type": "application/json"},
             json=payload,
         )
@@ -7502,8 +7519,10 @@ async def sf_chat(payload: dict, *, purpose: str = "", attempts: int = 3,
             _ceiling = _sf_ceiling(mid)
             _asked = int(body.get("max_tokens") or 8000)
             body["max_tokens"] = min(max(_asked, _SF_LEARNED_BUDGET.get(mid, 0)), _ceiling)
+            _keys = _sf_keys() or [""]
+            _ki = 0                       # melyik kulcsnál tartunk
             for attempt in range(1, attempts + 1):
-                data, err = await _sf_post_once(client, body)
+                data, err = await _sf_post_once(client, body, _keys[_ki])
 
                 # CSONKOLÁS: HTTP 200, de a modell nem fért bele. Ez nem
                 # sikeres válasz — duplázunk és újrapróbálunk.
@@ -7553,6 +7572,37 @@ async def sf_chat(payload: dict, *, purpose: str = "", attempts: int = 3,
                     notes.append(f"a `{dropped}` paramétert a(z) `{mid}` visszautasította — levéve, újrapróbálva")
                     logger.warning("sf_chat[%s] %s: `%s` levéve, újrapróbálás", purpose or "?", mid, dropped)
                     continue
+
+                # ÖNJAVÍTÁS 2: RATE LIMIT — MÁSIK KULCS, NEM MÁSIK MODELL.
+                # A `50610` / HTTP 429 nem a modell hibája: a modell él, minket
+                # fojtanak. Modellt váltani ilyenkor rossz reflex — ugyanaz a
+                # kvóta fojtja a következőt is. Ha van MÁSIK kulcsunk, azzal
+                # próbáljuk újra UGYANAZT a modellt.
+                if err["code"] == "rate_limit":
+                    if _ki + 1 < len(_keys):
+                        _ki += 1
+                        notes.append(
+                            f"a(z) `{mid}` kvótája kimerült az elsődleges kulcson "
+                            f"(HTTP 429) — tartalék kulccsal újrapróbálva")
+                        logger.warning(
+                            "sf_chat[%s] %s: rate limit, váltás a %d. kulcsra",
+                            purpose or "?", mid, _ki + 1)
+                        continue
+                    if _ki > 0:
+                        # A KULCSVÁLTÁS UTÁN IS FOJTVA. Ez BIZONYÍTÉK: a két
+                        # kulcs KÖZÖS KVÓTÁN van (egy fiók két kulcsa), tehát a
+                        # rotáció itt nem old meg semmit. Nem tudjuk a fiókot
+                        # lekérdezni (a `/user/info` végpont megszűnt), ezért a
+                        # rendszer MAGA méri meg — és kimondja, hogy a második
+                        # kulcs nem ad könnyítést. Enélkül azt hinnénk, hogy
+                        # van tartalékunk.
+                        notes.append(
+                            f"a TARTALÉK KULCS IS fojtva van (HTTP 429) — a két "
+                            f"kulcs közös kvótán van, a rotáció `{mid}`-re nem segít")
+                        logger.warning(
+                            "sf_chat[%s] %s: a tartalék kulcs IS rate-limitelt — "
+                            "KÖZÖS KVÓTA, külön fiókos kulcs kellene",
+                            purpose or "?", mid)
 
                 if err["code"] not in _SF_RETRYABLE:
                     break          # rossz kérés / auth: az újrapróbálás csak kvótát éget
