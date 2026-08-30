@@ -42,10 +42,12 @@ def _valid_brief():
         # A ket EMBERI mezo. 2026-08-30 ota kotelezo: a brief egyetlen valodi
         # fogyasztoja a Kommandant a Telegramon, es nelkuluk a kikuldott uzenet
         # gepi mezok listaja — vagyis szamara URES, akkor is, ha a sema hibatlan.
-        "macro_review": ("MAGYARORSZAG: az inflacio 4,1% [KSH ara0002, 2026-07].\n\n"
-                         "EUROZONA: HICP 2,2% [ECB ICP, 2026-07].\n\n"
-                         "USA: a Fed 3,75% [FRED, 2026-08]."),
+        "macro_review": ("MAGYARORSZAG: az inflacio 4,1 szazalek.\n\n"
+                         "EUROZONA: a HICP 2,2 szazalek.\n\n"
+                         "USA: a Fed alapkamata 3,75 szazalek."),
         "telegram_digest": "A piacot ma a CPI-varakozas mozgatja.",
+        # A PROVENANCIA egy blokkban, a VEGEN — nem a mondatok kozott.
+        "sources": ["KSH — HU infláció 2026-07", "ECB — betéti kamat 2026-08-29"],
     }
 
 
@@ -253,7 +255,7 @@ def test_a_makro_kontextus_lefedi_magyarorszagot():
     assert {"HU", "EA"} <= orszagok, "a magyar/eurozonas makro nincs a briefben"
     hu_mutatok = {c["args"]["indicator"] for c in spec["series"]
                   if c["tool"] == "get_macro_indicator" and c["args"].get("country") == "HU"}
-    for kell in ("cpi", "policy_rate", "unemployment", "gdp"):
+    for kell in ("cpi", "policy_rate", "unemployment", "gdp_growth"):
         assert kell in hu_mutatok, f"hianyzik a magyar mutato: {kell}"
     assert "us_macro" in spec["presets"], "nincs amerikai makro"
     assert "hu_markets" in spec["presets"], "nincs magyar tozsdei adat"
@@ -307,13 +309,14 @@ def test_a_telegram_uzenet_a_gazdasagi_szemleval_kezdodik(monkeypatch):
     b = _valid_brief()
     digest = b.pop("telegram_digest")
     makro = b.pop("macro_review")
-    text = mb.format_brief_telegram(b, digest, makro)
+    forrasok = b.pop("sources")
+    text = mb.format_brief_telegram(b, digest, makro, forrasok)
 
     assert "Economic Brief" in text
     assert "NOFX" not in text, "a bot neve maradt a fejlecben"
     assert text.index("Gazdasági szemle") < text.index("Rezsim:"), \
         "a gepi mezok elore kerultek az emberi szemle ele"
-    assert "KSH ara0002" in text, "a makro-szemle forrascimkei elvesztek"
+    assert "KSH" in text, "a forrasok elvesztek a renderelesbol"
     assert len(text) < 4000, "a Telegram-plafon folott vagyunk"
 
 
@@ -325,3 +328,59 @@ def test_a_makro_szemle_nelkuli_regi_brief_sem_dob(monkeypatch):
     b.pop("macro_review")
     text = mb.format_brief_telegram(b)
     assert "Economic Brief" in text and "Rezsim:" in text
+
+
+def test_a_forrasok_a_vegen_vannak_egy_blokkban():
+    """A HAZSZABALY (feedback_citation_at_end): emberi formatum, EGY blokkban,
+    a VEGEN — nem inline.
+
+    A KIVALTO ESET: az elso eles Economic Brief minden szam moge kiirt egy
+    `[forras, idoszak]` cimket. A Kommandant lelete: "ezek a forrásmegjelölések
+    a szövegben zavaróak. A forrásoknak a szöveg végén kell megjelenni."
+    A promptba EN irtam bele a rossz szabalyt.
+    """
+    b = _valid_brief()
+    digest = b.pop("telegram_digest")
+    makro = b.pop("macro_review")
+    forrasok = b.pop("sources")
+    text = mb.format_brief_telegram(b, digest, makro, forrasok)
+
+    assert "📚" in text and "Források" in text
+    # A forras-blokk a szoveg VEGEN all, a makro-szemle UTAN:
+    assert text.index("Gazdasági szemle") < text.index("Források")
+    for f in forrasok:
+        assert f in text
+    # És a szemle SZOVEGE tiszta: nincs benne szogletes-zarojeles cimke.
+    assert "[" not in makro, "a makro-szemle megint inline forrascimkeket hordoz"
+
+
+def test_forrasok_nelkul_a_brief_bukik():
+    """A provenancia nem opcio: csak a HELYE valtozott, nem a letezese."""
+    b = _valid_brief()
+    del b["sources"]
+    assert any("sources" in e for e in mb.validate_brief(b))
+    b["sources"] = []
+    assert any("sources" in e for e in mb.validate_brief(b))
+    # A wire-payloadban viszont nem kerjuk szamon (ott emberi mezo nincs):
+    b2 = _valid_brief()
+    for k in ("sources", "macro_review", "telegram_digest"):
+        del b2[k]
+    assert mb.validate_brief(b2, require_human=False) == []
+
+
+def test_a_rendkivuli_elmozdulas_ket_forrast_kovetel():
+    """A 2026-08-27-i lelet ('egyidejű kockázatkerülés' narratíva egy meg nem
+    erosített 5%-os aranymozgásra) eddig CSAK a memoriaban elt, a promptban nem."""
+    p = mb._build_prompt("morning", "2026-08-30T06:30Z", "2026-08-30T12:30Z", "")
+    assert "3%" in p and "1.5%" in p, "nincs anomalia-kuszob a promptban"
+    assert "single quote" in p or "single Yahoo" in p
+
+
+def test_a_gdp_novekedes_kell_nem_a_szint():
+    """Elesben merve: `gdp` a HU-ra 36376.0 millio EUR SZINTET adott. Egy
+    briefben ez hasznalhatatlan — az olvasot az 1,7% erdekli."""
+    spec = json.loads(mb._build_data_context())
+    mutatok = {(c["args"]["country"], c["args"]["indicator"])
+               for c in spec["series"] if c["tool"] == "get_macro_indicator"}
+    assert ("HU", "gdp_growth") in mutatok
+    assert ("HU", "gdp") not in mutatok, "a nyers GDP-SZINT visszakerult"

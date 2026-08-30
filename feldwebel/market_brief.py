@@ -189,6 +189,18 @@ def validate_brief(obj: Any, *, require_human: bool = True) -> list[str]:
             errs.append(f"missing required field '{_human}'")
         elif not isinstance(obj[_human], str) or not obj[_human].strip():
             errs.append(f"field '{_human}' must be a non-empty string")
+    if require_human:
+        # `sources` — a PROVENANCIA, EGY BLOKKBAN, A VEGEN. A hazszabaly
+        # (feedback_citation_at_end): emberi formatum, egy blokkban, NEM inline.
+        # Az elso eles brief minden szam moge kiirt egy `[forras, idoszak]`
+        # cimket, es a Kommandant lelete ez volt: "ezek a forrásmegjelölések a
+        # szövegben zavaróak". A forras nem tunhet el — de nem a mondat kozepen
+        # a helye.
+        src = obj.get("sources")
+        if not isinstance(src, list) or not [x for x in src if str(x).strip()]:
+            errs.append("field 'sources' must be a non-empty list of source lines")
+        elif any(not isinstance(x, str) for x in src):
+            errs.append("every 'sources' entry must be a string")
     return errs
 
 
@@ -219,11 +231,15 @@ def _build_data_context() -> str:
         "presets": ["us_macro", "markets", "hu_markets"],
         "series": [
             {"tool": "get_macro_indicator", "args": {"country": "HU", "indicator": i}}
+            # `gdp_growth`, NEM `gdp`: az utobbi SZINTET ad (HU 2026-Q2:
+            # 36 376 millio EUR), ami egy briefben hasznalhatatlan — az olvasot
+            # a novekedes erdekli (1,7%). Elesben merve 2026-08-30.
             for i in ("cpi", "core_cpi", "policy_rate", "unemployment",
-                      "gdp", "bond_yield_10y")
+                      "gdp_growth", "bond_yield_10y")
         ] + [
             {"tool": "get_macro_indicator", "args": {"country": "EA", "indicator": i}}
-            for i in ("cpi", "core_cpi", "policy_rate", "unemployment")
+            for i in ("cpi", "core_cpi", "policy_rate", "unemployment",
+                      "gdp_growth")
         ] + [
             {"tool": "mnb_rates", "args": {}},
             {"tool": "yfinance", "args": {"symbol": "EURUSD=X", "action": "quote"}},
@@ -293,11 +309,15 @@ def _build_prompt(session: str, asof_iso: str, valid_until_iso: str, calendar_ra
             "note": "one short sentence",
             "macro_review": (
                 "MAGYAR NYELVU GAZDASAGI SZEMLE, 6-10 mondat, harom bekezdesben: "
-                "(1) MAGYARORSZAG — inflacio (KSH/HICP), alapkamat (MNB), GDP, "
-                "munkanelkuliseg, EUR/HUF, BET-vezetok; (2) EUROZONA — HICP, ECB "
-                "kamat, EUR/USD; (3) USA/GLOBALIS — CPI, Fed, 10Y, olaj, arany. "
-                "MINDEN szamhoz [forras, idoszak] cimke."
+                "(1) MAGYARORSZAG, (2) EUROZONA, (3) USA/GLOBALIS. FOLYO SZOVEG, "
+                "forras-cimkek NELKUL — a szamok mennek bele, a forrasok a "
+                "`sources` mezobe."
             ),
+            "sources": [
+                "KSH — HU infláció 2026-07",
+                "MNB — alapkamat 2026-08-25",
+                "Yahoo Finance — záróárak 2026-08-28",
+            ],
             "telegram_digest": (
                 "4-6 mondatos MAGYAR nyelvű helyzetértékelés a Kommandantnak: mi "
                 "mozgatja ma a piacot, miért ez a rezsim és kockázati keret, mire "
@@ -346,13 +366,32 @@ def _build_prompt(session: str, asof_iso: str, valid_until_iso: str, calendar_ra
         "using the ACTUAL numbers from the data blocks:\n"
         "  * `macro_review` — a GAZDASAGI SZEMLE: 6-10 sentences in THREE "
         "paragraphs, separated by a blank line. (1) MAGYARORSZAG: inflation "
-        "(KSH/HICP, core too if present), MNB base rate, GDP, unemployment, "
-        "EUR/HUF, Budapest movers (OTP/MOL/MTEL/4iG/OPUS). (2) EUROZONA: HICP, "
-        "ECB deposit rate, EUR/USD, EA calendar. (3) USA/GLOBALIS: CPI, Fed "
-        "funds, 10Y, VIX, oil, gold. Tag EVERY number `[source, period]`, e.g. "
-        "`[KSH ara0002, 2026-07]` or `[ECB DFR, 2026-08-29]`.\n"
+        "(KSH/HICP, core too if present), MNB base rate, GDP growth, "
+        "unemployment, EUR/HUF, Budapest movers (OTP/MOL/MTEL/4iG/OPUS). "
+        "(2) EUROZONA: HICP, ECB deposit rate, EUR/USD, EA calendar. "
+        "(3) USA/GLOBALIS: CPI, Fed funds, 10Y, VIX, oil, gold.\n"
+        "    ⚠️ NO INLINE SOURCE TAGS. Write FLOWING PROSE a person can read: "
+        "the numbers belong in the sentences, the sources do NOT. Bracketed "
+        "tags after every figure (`[KSH ara0002, 2026-07]`) break the reading "
+        "and are forbidden here. Provenance is NOT dropped — it goes into the "
+        "separate `sources` field, ONCE, at the end.\n"
+        "  * `sources` — a LIST of short human-readable source lines, ONE per "
+        "data family actually used, in the reader's language: "
+        "\"KSH — HU infláció 2026-07\", \"ECB — betéti kamat 2026-08-29\", "
+        "\"Yahoo Finance — záróárak 2026-08-28\". Include the period. If a "
+        "figure came from a fallback (web scrape / search) rather than the "
+        "primary statistical source, SAY SO in that line — the reader must be "
+        "able to tell an authoritative series from a scraped one.\n"
         "  * `telegram_digest` — 4-6 sentences: what is driving markets today, "
         "why this regime and risk budget, what to watch intraday.\n\n"
+        "⚠️ RENDKIVULI ELMOZDULAS — KET FORRAS VAGY NINCS KOMMENTAR: if a daily "
+        "move exceeds gold 3%, an equity index 3%, or a major FX pair 1.5%, do "
+        "NOT build a narrative on it from a single quote. State the number, say "
+        "it needs confirmation, and move on. A single Yahoo print can be a stale "
+        "previous close, a futures roll, or a holiday artefact — and a "
+        "'liquidity stress' story written on an artefact is worse than silence. "
+        "(2026-08-27: a brief built an 'egyidejű kockázatkerülés' narrative on a "
+        "5% gold move that was never confirmed.)\n\n"
         "⚠️ HIANYZO ADAT: if a series is absent or came back as an `error` in the "
         "data blocks, SAY SO explicitly (\"a KSH inflacios adat nem jott meg\") and "
         "move on. NEVER substitute a number from memory, and never present a "
@@ -518,7 +557,7 @@ _SESSION_LABEL = {"morning": "reggel", "afternoon": "délután"}
 
 
 def format_brief_telegram(brief: dict, digest: str = "",
-                          macro_review: str = "") -> str:
+                          macro_review: str = "", sources: list | None = None) -> str:
     """A brief EGYETLEN emberi renderelője — Telegramra ÉS a `market_brief_now`-ba.
 
     EGY RENDERELO, MINDEN FELULETRE (2026-08-30). Korabban a Telegram ezt a
@@ -582,17 +621,27 @@ def format_brief_telegram(brief: dict, digest: str = "",
     note = brief.get("note", "")
     if note:
         lines.append(f"<i>{note}</i>")
-    lines.append(f"Valid until: {brief.get('valid_until', '?')}")
+    lines.append(f"Érvényes: {brief.get('valid_until', '?')}")
+    # ── FORRASOK: EGY BLOKKBAN, A VEGEN ────────────────────────────────────
+    # Nem inline a mondatokban. Lasd a `validate_brief` melletti indoklast.
+    for line in (sources or [])[:12]:
+        if not str(line).strip():
+            continue
+        if "📚" not in "".join(lines[-3:]):
+            lines.append("")
+            lines.append("📚 <b>Források</b>")
+        lines.append(f"  • {str(line).strip()[:160]}")
     return "\n".join(lines)
 
 
 async def _send_telegram(brief: dict, digest: str = "",
-                         macro_review: str = "") -> bool:
+                         macro_review: str = "", sources: list | None = None) -> bool:
     """Best-effort Telegram delivery of the brief; never raises."""
     if _telegram_push_func is None:
         return False
     try:
-        await _telegram_push_func(format_brief_telegram(brief, digest, macro_review))
+        await _telegram_push_func(
+            format_brief_telegram(brief, digest, macro_review, sources))
         return True
     except Exception as e:  # noqa: BLE001
         logger.warning("market_brief: telegram push failed: %s", e)
@@ -734,17 +783,19 @@ async def generate_market_brief(session: str) -> dict:
         # into the Telegram message.
         digest = str(brief.pop("telegram_digest", "") or "")
         macro_review = str(brief.pop("macro_review", "") or "")
+        sources = list(brief.pop("sources", []) or [])
         size_chars = len(json.dumps(brief, ensure_ascii=False))
         # ~4 chars/token rough heuristic for a token-ish size in the log.
         approx_tokens = size_chars // 4
         push = await _push_to_nofx(brief)
-        archive_path = _archive_brief(
-            {**brief, "telegram_digest": digest, "macro_review": macro_review})
+        archive_path = _archive_brief({**brief, "telegram_digest": digest,
+                                       "macro_review": macro_review,
+                                       "sources": sources})
         # EGY SZOVEG, MINDEN FELULETRE: ugyanez megy Telegramra es ugyanez
         # kerul vissza a hivonak (`market_brief_now`). Elobb rendereljuk, hogy
         # a kettot ne lehessen kulon-kulon eloallitani.
-        text = format_brief_telegram(brief, digest, macro_review)
-        telegram_sent = await _send_telegram(brief, digest, macro_review)
+        text = format_brief_telegram(brief, digest, macro_review, sources)
+        telegram_sent = await _send_telegram(brief, digest, macro_review, sources)
         logger.info(
             "economic_brief[%s] SUCCESS in %d attempt(s): %d chars (~%d tok), pushed=%s, telegram=%s",
             session, attempts, size_chars, approx_tokens, push.get("pushed"), telegram_sent,
@@ -757,6 +808,7 @@ async def generate_market_brief(session: str) -> dict:
             "approx_tokens": approx_tokens,
             "brief": brief,
             "macro_review": macro_review,
+            "sources": sources,
             "telegram_digest": digest,
             "telegram_text": text,
             "push": push,
