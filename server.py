@@ -3120,6 +3120,7 @@ async def statdata_flash(query: str = "", source: str = "all", limit: int = 15,
 async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature: float = 0.7,
                    max_tokens: int = 20000, caller: str = "",
                    deep_research: bool = False, deep_thinking: bool = False,
+                   no_thinking: bool = False,
                    output_format: str = "",
                    news_context: str = "", data_context: str = "") -> str:
     """Query a SiliconFlow AI sub-agent (Kimi-K2.7, DeepSeek-V4-Pro, or GLM-5.2).
@@ -3146,6 +3147,12 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
             Use for press review, market briefs, fact-checking, anything where
             1-shot search isn't enough. Slower (~30-90s), uses real DDG.
         deep_thinking: Enable reasoning mode for DeepSeek (reasoning_effort=high).
+        no_thinking: Force thinking OFF for this call, whatever the model's
+            default is. For structured-output work (strict JSON, extraction,
+            rendering) reasoning is pure overhead — measured on the Economic
+            Brief: V4-Pro 108s/6503 tokens with thinking vs 34s/1496 without,
+            and the shorter run produced the RICHER text. Overrides
+            `deep_thinking` if both are set.
             NOTE: Kimi K2.7 thinking is FORCED OFF on the SF endpoint regardless
             of this flag — explicit thinking on 25k+ token contexts routinely
             times out at the 220s SiliconFlow ceiling (#150, #151 evidence). The
@@ -3271,7 +3278,22 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
     # endpoint deep_thinking + 25k+ tokenes kontextusen rendszeresen 220s
     # timeout-ba fut (#150, #151 task is így halt). A model endogén reasoning-ja
     # erős thinking nélkül is. (2026-05-05 fix.)
-    if deep_thinking:
+    if no_thinking:
+        # ══ GONDOLKODÁS KI, HÍVÓI KÉRÉSRE (2026-08-30) ═══════════════════
+        # A `deep_thinking` a MODELL alapértelmezését EMELI. Ez az ellenkező
+        # irány, és külön ág, mert nem minden feladat gondolkodós feladat.
+        #
+        # MÉRVE, ugyanazon az adaton, ugyanazzal a prompttal (Economic Brief):
+        #     V4-Pro thinking ON   108,4 s   6503 kimeneti token   1207 kar szemle
+        #     V4-Pro thinking OFF   34,0 s   1496 kimeneti token   1554 kar szemle
+        # Vagyis a gondolkodás 3,2-szer lassabb, 4,3-szor drágább — és RÖVIDEBB
+        # szemlét ad. Strukturált JSON-kimenetnél a reasoning nem hozzáad,
+        # hanem elszívja a keretet: emiatt eszkalált a token-adagoló 64000-ig.
+        #
+        # A `_model_extra` modell-szinten dönt, ezért ott NEM kapcsolható ki —
+        # az elvenné a gondolkodást minden más hívótól is. Ez hívásonkénti.
+        agent_extra = {"thinking": {"type": "disabled"}}
+    elif deep_thinking:
         if model == "kimi":
             agent_extra = {"thinking": {"type": "disabled"}}  # forced — see comment
         elif model == "deepseek":

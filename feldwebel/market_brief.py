@@ -760,6 +760,12 @@ async def generate_market_brief(session: str) -> dict:
                 # elesben ketszer egymas utan csonkolt, JSON nelkuli valasz jott.
                 max_tokens=16000,
                 caller="feldwebel",
+                # GONDOLKODÁS KI. Ez strukturált JSON-feladat, nem elmélkedés.
+                # Mérve (2026-08-30, azonos adat és prompt): a V4-Pro thinking
+                # nélkül 3,2-szer gyorsabb, 4,3-szor kevesebb tokent használ,
+                # HOSSZABB makró-szemlét ír — és egyedüliként vezette le
+                # helyesen az MNB kamatvágás IRÁNYÁT a history-ból.
+                no_thinking=True,
                 # news/data context only needed on the first attempt; retries are
                 # pure JSON-repair on already-fetched facts already inside the model
                 # response. Re-injecting wastes tokens and slows the retry.

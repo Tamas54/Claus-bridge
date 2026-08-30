@@ -544,3 +544,30 @@ def test_a_megtanult_keret_tuleli_az_ujrainditast():
     # Es a rogzites a sikeres agon tortenik, nem a hibasan:
     chat = _func_source("sf_chat")
     assert "_sf_budget_remember(" in chat
+
+
+def test_a_no_thinking_a_modell_alapertelmezese_fole_megy():
+    """MÉRVE (2026-08-30, azonos adat + prompt, Economic Brief):
+
+        V4-Pro thinking ON   108,4 s   6503 kimeneti token   1207 kar szemle
+        V4-Pro thinking OFF   34,0 s   1496 kimeneti token   1554 kar szemle
+
+    A gondolkodás strukturált JSON-kimenetnél nem hozzáad, hanem elszívja a
+    keretet — emiatt eszkalált a token-adagoló 64000-ig. A `_model_extra`
+    modell-szinten dönt, ezért ott nem kapcsolható ki: az elvenné a
+    gondolkodást minden más hívótól is.
+    """
+    src = _func_source("ai_query")
+    assert "no_thinking" in src, "nincs hívásonkénti gondolkodás-kikapcsolás"
+    # Az ELSŐ ág legyen — különben a deep_thinking felülírná:
+    i_no = src.index("if no_thinking:")
+    i_deep = src.index("elif deep_thinking:")
+    assert i_no < i_deep, "a deep_thinking felülírja a no_thinking-et"
+
+
+def test_a_brief_gondolkodas_nelkul_hiv():
+    import inspect
+    from feldwebel import market_brief as _mb
+    src = inspect.getsource(_mb.generate_market_brief)
+    assert "no_thinking=True" in src, \
+        "a brief megint gondolkodó módban hív — 3,2x lassabb, 4,3x drágább"
