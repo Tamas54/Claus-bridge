@@ -250,7 +250,14 @@ async def _fetch_echolot_press_review(limit: int = 10) -> dict:
     es kulon a MAI friss teteleket a korpuszbol.
     """
     out = {"edition_date": None, "edition_is_today": False,
-           "top_stories": [], "fresh_today": [], "_error": None}
+           "top_stories": [], "fresh_today": [],
+           # KULPOLITIKA: az Echolot ANGOL lapszama — ugyanaz a klaszterezett,
+           # forrasszam szerint rangsorolt szemle, csak a globalis korpuszon.
+           # Miert a prefetchbe es nem tool-hivasba: egy ures kulpolitikai rovat
+           # NEM termek, akkor sem, ha a hiany oszinte. A prefetch mindig lefut;
+           # a tool-hivas attol fugg, hajlando-e a modell meghivni.
+           "world_edition_date": None, "world_stories": [],
+           "_error": None}
     try:
         import _echolot_client as echolot_client
     except ImportError as e:
@@ -282,11 +289,50 @@ async def _fetch_echolot_press_review(limit: int = 10) -> dict:
             out["edition_is_today"] = (d_ == today)
             out["top_stories"] = [
                 {"title": (st.get("title") or "").strip(),
+                 "lead": (st.get("lead") or "").strip()[:240],
+                 "sphere": st.get("sphere") or "",
                  "source_count": st.get("source_count"),
                  "story_id": st.get("story_id") or st.get("id") or "",
                  "url": st.get("url") or ""}
                 for st in stories[:limit] if (st.get("title") or "").strip()
             ]
+            break
+
+    # KULPOLITIKA — az angol lapszam ugyanazzal a ket-napos visszaleptessel.
+    for d_ in (today, today - _td(days=1)):
+        try:
+            raw = await echolot_client.mcp_call(
+                "get_daily_edition", {"date": d_.isoformat(), "lang": "en"})
+            env = json.loads(raw) if isinstance(raw, str) else (raw or {})
+            payload = env.get("payload")
+            if isinstance(payload, str):
+                payload = json.loads(payload)
+            stories = (payload or {}).get("top_stories") or []
+        except Exception as e:  # noqa: BLE001
+            logger.warning("Echolot VILAG-lapszam (%s) hiba: %s", d_, e)
+            continue
+        if stories:
+            out["world_edition_date"] = d_.isoformat()
+            # ⚠️ A NYERS forrasszam-rangsor kulpolitikanak GYENGE: az angol
+            # lapszam elejen "Dolly Parton airport" (10 forras) es "Tom Cruise
+            # sequel" (8) all a Milo-kiutasitas (20) mellett. Forrasszamban
+            # erosek, kulpolitikai rovatnak hasznalhatatlanok.
+            # A sztori-rekord viszont hordoz `sphere` mezot — a KOMOLY szferak
+            # kerulnek elore, a tobbi utanuk. Nem DOBJUK EL a tobbit: ha egy nap
+            # keves a komoly hir, a rovat akkor is teljen meg. Csak a SORREND
+            # valtozik, es a szferat kiirjuk, hogy latszodjon.
+            serious = {"global_anchor", "global_analysis", "global_press",
+                       "global_economy", "global_conflict", "global_politics"}
+            mapped = [
+                {"title": (st.get("title") or "").strip(),
+                 "lead": (st.get("lead") or "").strip()[:240],
+                 "sphere": st.get("sphere") or "",
+                 "source_count": st.get("source_count") or 0,
+                 "story_id": st.get("story_id") or st.get("id") or ""}
+                for st in stories if (st.get("title") or "").strip()
+            ]
+            mapped.sort(key=lambda x: (x["sphere"] not in serious, -x["source_count"]))
+            out["world_stories"] = mapped[:limit]
             break
 
     # A MAI friss tetelek KULON — a lapszam fagyott, a korpusz nem.
@@ -300,8 +346,13 @@ async def _fetch_echolot_press_review(limit: int = 10) -> dict:
     except Exception as e:  # noqa: BLE001
         logger.warning("Echolot friss lekeres hiba: %s", e)
 
+    missing = []
     if not out["top_stories"] and not out["fresh_today"]:
-        out["_error"] = "sem lapszam, sem friss cikk nem erkezett az Echolottol"
+        missing.append("magyar szemle")
+    if not out["world_stories"]:
+        missing.append("vilag-szemle")
+    if missing:
+        out["_error"] = "hianyzik: " + ", ".join(missing)
     return out
 
 
@@ -357,9 +408,16 @@ async def probe_sections(recipe: str) -> dict:
                 out[key] = (False, f"{label}: {val['_error']}")
             elif not (val.get("top_stories") or val.get("fresh_today")):
                 out[key] = (False, f"{label}: URES — se lapszam, se friss cikk")
+            elif not val.get("world_stories"):
+                # Egy URES KULPOLITIKAI ROVAT NEM TERMEK. A hianyat ugyanugy
+                # hibanak vesszuk, mint a magyaret — nem "reszleges sikernek".
+                out[key] = (False, f"{label}: nincs VILAG-szemle "
+                                   f"({len(val.get('top_stories') or [])} magyar sztori megvan)")
             else:
-                out[key] = (True, f"{label}: {len(val.get('top_stories') or [])} sztori "
+                out[key] = (True, f"{label}: {len(val.get('top_stories') or [])} magyar "
                                   f"({val.get('edition_date')}) + "
+                                  f"{len(val.get('world_stories') or [])} vilag "
+                                  f"({val.get('world_edition_date')}) + "
                                   f"{len(val.get('fresh_today') or [])} friss")
         elif isinstance(val, list) and val and isinstance(val[0], dict) and val[0].get("_error"):
             out[key] = (False, f"{label}: {val[0]['_error']}")

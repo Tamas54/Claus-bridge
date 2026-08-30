@@ -49,6 +49,9 @@ def fake_prefetch(monkeypatch):
 
 REVIEW = {"edition_date": "2026-08-29", "edition_is_today": False,
           "top_stories": [{"title": "Klaszterezett sztori", "source_count": 6}],
+          "world_edition_date": "2026-08-29",
+          "world_stories": [{"title": "World story", "source_count": 20,
+                             "sphere": "global_anchor"}],
           "fresh_today": [{"title": "Mai friss", "source": "Telex"}], "_error": None}
 FULL = {"fx_ecb": {"EUR/HUF": 364.79},
         "market_yahoo": [{"symbol": "GC=F"}],
@@ -165,3 +168,39 @@ def test_ecb_dict_is_not_mistaken_for_a_press_review(fake_prefetch):
     out = _run(pf.probe_sections("daily_news_brief"))
     assert out["fx_ecb"][0] is True, out["fx_ecb"]
     assert "tetel" in out["fx_ecb"][1]
+
+
+def test_empty_world_section_is_red(fake_prefetch):
+    """EGY ÜRES KÜLPOLITIKAI ROVAT NEM TERMÉK — akkor sem, ha a hiány őszinte.
+    Az átlagos usert nem érdekli, hogy a modell "helyesen" jelezte a hiányt;
+    őt az érdekli, hogy hiányzik a rovat. Ezért a világ-szemle hiánya
+    ugyanúgy PIROS, mint a magyaré — nem 'részleges siker'."""
+    fake_prefetch(dict(FULL, echolot_hirszemle=dict(REVIEW, world_stories=[])))
+    out = _run(pf.probe_sections("daily_news_brief"))
+    ok, detail = out["echolot_hirszemle"]
+    assert ok is False, "üres külpolitikai rovat átcsúszott"
+    assert "VILAG" in detail
+    assert "magyar sztori megvan" in detail, "a diagnózis nem mondja meg, MI van meg"
+
+
+def test_serious_spheres_come_first():
+    """A nyers forrásszám-rangsor külpolitikának gyenge: az angol lapszám
+    elején 'Dolly Parton airport' (10 forrás) áll a Milo-kiutasítás (20)
+    mellett. A KOMOLY szférák kerülnek előre — de a többit nem dobjuk el,
+    hogy egy szűk napon is megteljen a rovat."""
+    import inspect, ast as _ast, textwrap as _tw
+    src = _tw.dedent(inspect.getsource(pf._fetch_echolot_press_review))
+    _fn = _ast.parse(src).body[0]
+    _first = _fn.body[0]
+    _skip = (_first.end_lineno if isinstance(_first, _ast.Expr)
+             and isinstance(_first.value, _ast.Constant) else 0)
+    body = "\n".join(src.splitlines()[_skip:])
+    assert "global_anchor" in body and "serious" in body, "nincs szféra-rangsorolás"
+    assert "mapped[:limit]" in body, "a nem-komoly szférák teljesen kiestek"
+
+
+def test_world_stories_carry_sphere_and_source_count(fake_prefetch):
+    fake_prefetch(FULL)
+    out = _run(pf.probe_sections("daily_news_brief"))
+    assert out["echolot_hirszemle"][0] is True
+    assert "vilag" in out["echolot_hirszemle"][1]
