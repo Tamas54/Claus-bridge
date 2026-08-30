@@ -24,6 +24,11 @@ import pytest
 import server
 
 
+class _Calls(list):
+    """Lista, amire rá lehet akasztani a mért kereteket."""
+    budgets: dict = {}
+
+
 def _run(coro):
     return asyncio.run(coro)
 
@@ -38,17 +43,24 @@ def _clean_cache():
 @pytest.fixture
 def wired(monkeypatch):
     """Mindkét felső fok elérhető és NAPLÓZZA, hogy meghívták-e."""
-    calls = []
+    calls = _Calls()
+    # A dublőrök FOGADJÁK és NAPLÓZZÁK az időkeretet: a `budgets` lista adja a
+    # bizonyítékot, hogy a kör összesített kerete tényleg leér a fokokig, és
+    # nem csak a `_web_search` fejében létezik.
+    budgets = {}
 
-    async def fake_brave(query, limit=5):
+    async def fake_brave(query, limit=5, timeout=None):
         calls.append("brave-mcp")
+        budgets["brave-mcp"] = timeout
         return [{"title": "B", "url": "https://b.example/1", "description": "brave hit"}]
 
-    async def fake_searx(query, limit=5):
+    async def fake_searx(query, limit=5, timeout=None):
         calls.append("searxng")
+        budgets["searxng"] = timeout
         return [{"title": "S", "url": "https://s.example/1", "snippet": "searx hit"}]
 
-    async def fake_pages(urls, limit=2):
+    async def fake_pages(urls, limit=2, timeout=None):
+        budgets["pages"] = timeout
         return []
 
     monkeypatch.setattr(server, "BRAVE_MCP_ENABLED", True)
@@ -56,6 +68,7 @@ def wired(monkeypatch):
     monkeypatch.setattr(server, "_brave_mcp_search", fake_brave)
     monkeypatch.setattr(server, "_searxng_search", fake_searx)
     monkeypatch.setattr(server, "_fetch_page_contents", fake_pages)
+    calls.budgets = budgets      # a teszt így fér hozzá a mért keretekhez
     return calls
 
 
@@ -119,7 +132,7 @@ def test_explicit_brave_mcp_runs_first(wired):
 def test_substitution_is_spoken_not_silent(monkeypatch, wired):
     """A kért SearXNG üresen jön vissza → a lánc továbbmegy, DE a kimenet
     megmondja, hogy cserélt, és MIÉRT."""
-    async def empty_searx(query, limit=5):
+    async def empty_searx(query, limit=5, timeout=None):
         wired.append("searxng")
         return []
 
@@ -300,3 +313,32 @@ def test_feldwebel_prompt_orders_it_to_name_the_engine():
     src = open(responder.__file__, encoding="utf-8").read()
     assert "_bridge_served_by" in src, "a rendszerprompt nem hivatkozik a served_by-ra"
     assert "Néma csere TILOS" in src
+
+
+# ── 10. AZ ÖSSZESÍTETT IDŐKERET ─────────────────────────────────────────
+# A fokok eddig egyenként hordták a saját timeoutjukat, fölöttük SEMMIVEL:
+# 60 s brave-mcp + 20 s SearXNG + 2x10 s oldal + 15 s DDG (+4 s retry) + 15 s
+# Brave API = ~150 s worst case EGY keresésre, és a hívó ebből semmit nem lát.
+
+def test_budget_reaches_the_tiers(wired):
+    """A keret nem a `_web_search` fejében él, hanem LEÉR a fokokig."""
+    _run(server._web_search("q"))
+    assert wired.budgets["searxng"] is not None, "a SearXNG-fok nem kapott keretet"
+    assert wired.budgets["searxng"] <= 20.0, "a fok a saját plafonja fölé mehetne"
+    assert wired.budgets["pages"] is not None, "a mélytartalom-letöltés keret nélkül ment"
+
+
+def test_tier_is_skipped_when_the_budget_is_gone(monkeypatch, wired):
+    """Elfogyott kerettel a fokot NEM indítjuk el — és ezt ki is mondjuk.
+    Egy fok, ami úgyis timeoutolna, csak a maradékot égeti el az alatta lévő
+    elől, ami még hozhatna valamit."""
+    monkeypatch.setattr(server, "_WEB_SEARCH_TOTAL_BUDGET_S", 0.0)
+    out = _run(server._web_search("q"))
+    assert wired == [], f"nulla kerettel is elindult egy fok: {list(wired)}"
+    assert "elfogyott az időkeret" in out
+    assert "_bridge_served_by" not in out, "senki nem szolgált ki — ne állítsuk, hogy igen"
+
+
+def test_budget_is_configurable_and_sane():
+    assert server._WEB_SEARCH_TOTAL_BUDGET_S > server._WEB_SEARCH_MIN_TIER_S
+    assert server._WEB_SEARCH_MIN_TIER_S > 0

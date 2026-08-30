@@ -5609,6 +5609,18 @@ DDG_USER_AGENTS = [
 import threading as _threading
 _WEB_SEARCH_SEMAPHORE = _threading.Semaphore(2)
 
+# ── A KÖR ÖSSZESÍTETT IDŐKERETE ──────────────────────────────────────────
+# A fokok eddig egyenként hordták a saját timeoutjukat, fölöttük SEMMIVEL:
+# 60 s brave-mcp + 20 s SearXNG + 2x10 s oldalletöltés + 15 s DDG (+4 s retry-
+# várakozás) + 15 s Brave API = ~150 s worst case EGY keresésre, és a hívó
+# ebből semmit nem lát. Az Echolotban ez a fék hónapok óta megvan
+# (`_WEB_SEARCH_TIMEOUT_S = 12`, OSZTOTT keret); a Bridge-en nem volt.
+# Ez nem per-fok timeout, hanem határidő: minden fok a MARADÉKOT kapja.
+_WEB_SEARCH_TOTAL_BUDGET_S = float(os.getenv("WEB_SEARCH_TOTAL_BUDGET_S", "45"))
+# Ennél kevesebb maradékkal egy fokot elindítani értelmetlen: úgyis timeoutol,
+# csak a maradékot égeti el a fok elől, ami még hozhatna valamit.
+_WEB_SEARCH_MIN_TIER_S = 4.0
+
 # Query result cache: 10-min TTL, 100-entry cap (LRU on insert overflow).
 # When 3 dispatch agents fan out on overlapping topics they often issue the
 # same query — caching halves real DDG load with zero quality cost.
@@ -5685,7 +5697,8 @@ async def _brave_search(query: str, api_key: str) -> list:
         return []
 
 
-async def _searxng_search(query: str, limit: int = 5) -> list:
+async def _searxng_search(query: str, limit: int = 5,
+                          timeout: float = 20.0) -> list:
     """Self-hosted SearXNG JSON API. Returns [{title, url, snippet}], possibly empty.
 
     Never raises: a dead SearXNG must degrade to the next tier, not kill the search.
@@ -5694,7 +5707,7 @@ async def _searxng_search(query: str, limit: int = 5) -> list:
         return []
     import httpx
     try:
-        async with httpx.AsyncClient(timeout=20, follow_redirects=True) as client:
+        async with httpx.AsyncClient(timeout=timeout, follow_redirects=True) as client:
             r = await client.get(
                 f"{SEARXNG_URL}/search",
                 params={"q": query, "format": "json"},
@@ -5854,7 +5867,8 @@ def _looks_js_rendered(text: str, raw_html: str) -> bool:
         r'id="root"|id="__next"|__NEXT_DATA__|ng-app|data-reactroot', raw_html))
 
 
-async def _fetch_page_contents(urls: list, limit: int = 2) -> list:
+async def _fetch_page_contents(urls: list, limit: int = 2,
+                               timeout: float = 10.0) -> list:
     """De-tagged body text of the first `limit` candidate URLs — the deep half of
     a web search. Shared by the SearXNG and DDG tiers.
 
@@ -5870,7 +5884,7 @@ async def _fetch_page_contents(urls: list, limit: int = 2) -> list:
             continue
         text, raw = "", ""
         try:
-            async with httpx.AsyncClient(timeout=10, follow_redirects=True) as client:
+            async with httpx.AsyncClient(timeout=timeout, follow_redirects=True) as client:
                 resp = await client.get(url, headers={"User-Agent": random.choice(DDG_USER_AGENTS)})
             raw = resp.text
             text = _re_module.sub(r'<script[^>]*>.*?</script>', '', raw, flags=_re_module.DOTALL)
@@ -5944,14 +5958,16 @@ async def _brave_mcp_call(tool_name: str, arguments: dict, timeout: float = 60.0
         return None
 
 
-async def _brave_mcp_search(query: str, limit: int = 5) -> list[dict] | None:
+async def _brave_mcp_search(query: str, limit: int = 5,
+                            timeout: float = 60.0) -> list[dict] | None:
     """brave-mcp-server `brave_search` (Brave engine + DDG fallback inside the MCP).
 
     Returns list of {title, url, description} or None if disabled / failed / empty.
     """
     if not BRAVE_MCP_ENABLED:
         return None
-    result = await _brave_mcp_call("brave_search", {"query": query, "limit": limit})
+    result = await _brave_mcp_call("brave_search", {"query": query, "limit": limit},
+                                   timeout=timeout)
     if not result or not isinstance(result.get("results"), list):
         return None
     items = result["results"]
@@ -6000,6 +6016,19 @@ async def _web_search(query: str, engine: str = "auto") -> str:
     def _elapsed_ms() -> int:
         return int((_time.time() - t0) * 1000)
 
+    def _left() -> float:
+        """Seconds left of the WHOLE round's budget.
+
+        Each tier used to carry its own timeout with nothing above them: 60 s
+        brave-mcp + 20 s SearXNG + 2x10 s page fetch + 15 s DDG (+4 s retry
+        wait) + 15 s Brave API is a ~150 s worst case for one search — and the
+        caller has no way to know that. The Echolot solved this months ago
+        (`_WEB_SEARCH_TIMEOUT_S = 12`, budget SPLIT between the legs); the
+        Bridge never did. A tier that would start past the deadline is skipped
+        and SAID so, rather than blowing the round.
+        """
+        return _WEB_SEARCH_TOTAL_BUDGET_S - (_time.time() - t0)
+
     def _finish(body: str, served_by: str, hits: int, *, cache: bool = True) -> str:
         """Single exit funnel: cache the raw body, then stamp it."""
         if cache:
@@ -6043,8 +6072,12 @@ async def _web_search(query: str, engine: str = "auto") -> str:
         if not BRAVE_MCP_ENABLED:
             outcomes["brave-mcp"] = "nincs konfigurálva (BRAVE_MCP_URL hiányzik)"
             return None
+        budget = _left()
+        if budget < _WEB_SEARCH_MIN_TIER_S:
+            outcomes["brave-mcp"] = f"kimaradt: elfogyott az időkeret ({int(budget)} s maradt)"
+            return None
         try:
-            hits = await _brave_mcp_search(query, limit=5)
+            hits = await _brave_mcp_search(query, limit=5, timeout=min(budget, 60.0))
         except Exception as e:
             logger.warning("brave-mcp-search exception, falling through: %s", e)
             outcomes["brave-mcp"] = f"hibára futott ({type(e).__name__})"
@@ -6069,14 +6102,21 @@ async def _web_search(query: str, engine: str = "auto") -> str:
         if not SEARXNG_ENABLED:
             outcomes["searxng"] = "nincs konfigurálva (SEARXNG_URL hiányzik)"
             return None
-        hits = await _searxng_search(query, limit=5)
+        budget = _left()
+        if budget < _WEB_SEARCH_MIN_TIER_S:
+            outcomes["searxng"] = f"kimaradt: elfogyott az időkeret ({int(budget)} s maradt)"
+            return None
+        hits = await _searxng_search(query, limit=5, timeout=min(budget, 20.0))
         if not hits:
             outcomes["searxng"] = "nem válaszolt vagy üres találatot adott"
             logger.info("SearXNG %r empty/failed", query[:60])
             return None
         urls = [h["url"] for h in hits]
         results = [f"[{i+1}] {h['title']}\n    {h['snippet']}" for i, h in enumerate(hits)]
-        page_contents = await _fetch_page_contents(urls)
+        # A mélytartalom a maradékból megy: soha ne az legyen, ami túlviszi a
+        # kört a kereten, miután a találatok már megvannak.
+        page_contents = await _fetch_page_contents(
+            urls, timeout=max(3.0, min(10.0, _left() / 2)))
         body = "KERESÉSI TALÁLATOK:\n" + "\n".join(results)
         if page_contents:
             body += "\n\nRÉSZLETES TARTALOM:\n" + "\n\n".join(page_contents)
@@ -6117,69 +6157,46 @@ async def _web_search(query: str, engine: str = "auto") -> str:
     lower_hits = 0
     lower_served_by = "ddg"
 
-    # Acquire semaphore (max 2 concurrent DDG hits Bridge-wide). Use to_thread
-    # so multiple event loops can share the same threading.Semaphore safely.
-    await _asyncio.to_thread(_WEB_SEARCH_SEMAPHORE.acquire)
-    try:
-        # Jitter to break up bursts even when serialized
-        await _asyncio.sleep(0.3 + random.random() * 0.5)
-
-        # Step 1: DDG attempt
-        ddg_status = "?"
-        ddg_body_len = 0
-        ddg_anomaly = False
-        search_results = []
-        urls = []
+    # A szemafor-slotot NE foglaljuk le, ha úgysincs időnk használni: a
+    # sorban álló hívók elől vennénk el egy slotot, amit ki sem tudnánk használni.
+    if _left() < _WEB_SEARCH_MIN_TIER_S:
+        outcomes["ddg"] = f"kimaradt: elfogyott az időkeret ({int(_left())} s maradt)"
+    else:
+        # Acquire semaphore (max 2 concurrent DDG hits Bridge-wide). Use to_thread
+        # so multiple event loops can share the same threading.Semaphore safely.
+        await _asyncio.to_thread(_WEB_SEARCH_SEMAPHORE.acquire)
         try:
-            ua = random.choice(DDG_USER_AGENTS)
-            async with httpx.AsyncClient(timeout=15, follow_redirects=True) as client:
-                resp = await client.get(
-                    "https://html.duckduckgo.com/html/",
-                    params={"q": query},
-                    headers={"User-Agent": ua},
-                )
-            ddg_status = resp.status_code
-            ddg_body_len = len(resp.text or "")
-            body_lower = (resp.text or "").lower()
-            ddg_anomaly = (
-                ("anomaly" in body_lower)
-                or ("captcha" in body_lower)
-                or ("rate limit" in body_lower)
-                or (resp.status_code == 202)  # observed DDG anti-burst pattern
-            )
+            # Jitter to break up bursts even when serialized
+            await _asyncio.sleep(0.3 + random.random() * 0.5)
 
-            links = re.findall(r'class="result__a"[^>]*href="([^"]+)"[^>]*>(.*?)</a>', resp.text or "", re.DOTALL)
-            snippets = re.findall(r'class="result__snippet"[^>]*>(.*?)<', resp.text or "", re.DOTALL)
-
-            for i, ((raw_url, title), snippet) in enumerate(zip(links[:5], snippets[:5])):
-                t = re.sub(r'<[^>]+>', '', title).strip()
-                s = re.sub(r'<[^>]+>', '', snippet).strip()
-                url = raw_url
-                if "uddg=" in url:
-                    url = urllib.parse.unquote(url.split("uddg=")[1].split("&")[0])
-                urls.append(url)
-                search_results.append(f"[{i+1}] {t}\n    {s}")
-        except Exception as e:
-            logger.warning("DDG fetch exception for %r: %s", query[:60], e)
-
-        logger.info(
-            "DDG search %r → status=%s body_len=%d results=%d anomaly=%s",
-            query[:60], ddg_status, ddg_body_len, len(search_results), ddg_anomaly,
-        )
-
-        # Step 1b: DDG retry once on 202/anomaly with another UA after a longer wait
-        if ddg_anomaly and not search_results:
-            await _asyncio.sleep(2.5 + random.random() * 1.5)
+            # Step 1: DDG attempt
+            ddg_status = "?"
+            ddg_body_len = 0
+            ddg_anomaly = False
+            search_results = []
+            urls = []
             try:
                 ua = random.choice(DDG_USER_AGENTS)
-                async with httpx.AsyncClient(timeout=15, follow_redirects=True) as client:
+                async with httpx.AsyncClient(timeout=min(15.0, max(3.0, _left())),
+                                             follow_redirects=True) as client:
                     resp = await client.get(
                         "https://html.duckduckgo.com/html/",
                         params={"q": query},
                         headers={"User-Agent": ua},
                     )
+                ddg_status = resp.status_code
+                ddg_body_len = len(resp.text or "")
+                body_lower = (resp.text or "").lower()
+                ddg_anomaly = (
+                    ("anomaly" in body_lower)
+                    or ("captcha" in body_lower)
+                    or ("rate limit" in body_lower)
+                    or (resp.status_code == 202)  # observed DDG anti-burst pattern
+                )
+
                 links = re.findall(r'class="result__a"[^>]*href="([^"]+)"[^>]*>(.*?)</a>', resp.text or "", re.DOTALL)
                 snippets = re.findall(r'class="result__snippet"[^>]*>(.*?)<', resp.text or "", re.DOTALL)
+
                 for i, ((raw_url, title), snippet) in enumerate(zip(links[:5], snippets[:5])):
                     t = re.sub(r'<[^>]+>', '', title).strip()
                     s = re.sub(r'<[^>]+>', '', snippet).strip()
@@ -6188,43 +6205,78 @@ async def _web_search(query: str, engine: str = "auto") -> str:
                         url = urllib.parse.unquote(url.split("uddg=")[1].split("&")[0])
                     urls.append(url)
                     search_results.append(f"[{i+1}] {t}\n    {s}")
-                logger.info("DDG retry %r → status=%s results=%d", query[:60], resp.status_code, len(search_results))
             except Exception as e:
-                logger.warning("DDG retry exception for %r: %s", query[:60], e)
+                logger.warning("DDG fetch exception for %r: %s", query[:60], e)
 
-        if search_results:
-            lower_served_by = "ddg"
-        else:
-            outcomes["ddg"] = (
-                f"nem adott találatot (HTTP {ddg_status}"
-                + (", anti-bot anomália" if ddg_anomaly else "")
-                + ")"
+            logger.info(
+                "DDG search %r → status=%s body_len=%d results=%d anomaly=%s",
+                query[:60], ddg_status, ddg_body_len, len(search_results), ddg_anomaly,
             )
 
-        # Step 2: Brave fallback if DDG was empty / blocked AND key configured
-        if not search_results and brave_key:
-            brave_hits = await _brave_search(query, brave_key)
-            if brave_hits:
-                urls = [h["url"] for h in brave_hits if h.get("url")]
-                search_results = [
-                    f"[{i+1}] {h.get('title', '')}\n    {h.get('snippet', '')}"
-                    for i, h in enumerate(brave_hits)
-                ]
-                lower_served_by = "brave-api"
-            else:
-                outcomes["brave-api"] = "üres választ adott"
-        elif not brave_key:
-            outcomes["brave-api"] = "nincs konfigurálva (BRAVE_SEARCH_API_KEY hiányzik)"
+            # Step 1b: DDG retry once on 202/anomaly with another UA after a longer wait
+            # A retry-t csak akkor kezdjük, ha a VÁRAKOZÁS UTÁN is marad idő rá —
+            # különben a 2,5-4 s csendben elégeti a maradékot, és attól a foktól
+            # veszi el, ami még hozhatna valamit.
+            if (ddg_anomaly and not search_results
+                    and _left() > 4.0 + _WEB_SEARCH_MIN_TIER_S):
+                await _asyncio.sleep(2.5 + random.random() * 1.5)
+                try:
+                    ua = random.choice(DDG_USER_AGENTS)
+                    async with httpx.AsyncClient(timeout=min(15.0, max(3.0, _left())),
+                                                 follow_redirects=True) as client:
+                        resp = await client.get(
+                            "https://html.duckduckgo.com/html/",
+                            params={"q": query},
+                            headers={"User-Agent": ua},
+                        )
+                    links = re.findall(r'class="result__a"[^>]*href="([^"]+)"[^>]*>(.*?)</a>', resp.text or "", re.DOTALL)
+                    snippets = re.findall(r'class="result__snippet"[^>]*>(.*?)<', resp.text or "", re.DOTALL)
+                    for i, ((raw_url, title), snippet) in enumerate(zip(links[:5], snippets[:5])):
+                        t = re.sub(r'<[^>]+>', '', title).strip()
+                        s = re.sub(r'<[^>]+>', '', snippet).strip()
+                        url = raw_url
+                        if "uddg=" in url:
+                            url = urllib.parse.unquote(url.split("uddg=")[1].split("&")[0])
+                        urls.append(url)
+                        search_results.append(f"[{i+1}] {t}\n    {s}")
+                    logger.info("DDG retry %r → status=%s results=%d", query[:60], resp.status_code, len(search_results))
+                except Exception as e:
+                    logger.warning("DDG retry exception for %r: %s", query[:60], e)
 
-        # Step 3: Fetch top 2 page contents for deeper data
-        if search_results:
-            page_contents = await _fetch_page_contents(urls)
-            lower_body = "KERESÉSI TALÁLATOK:\n" + "\n".join(search_results)
-            if page_contents:
-                lower_body += "\n\nRÉSZLETES TARTALOM:\n" + "\n\n".join(page_contents)
-            lower_hits = len(search_results)
-    finally:
-        _WEB_SEARCH_SEMAPHORE.release()
+            if search_results:
+                lower_served_by = "ddg"
+            else:
+                outcomes["ddg"] = (
+                    f"nem adott találatot (HTTP {ddg_status}"
+                    + (", anti-bot anomália" if ddg_anomaly else "")
+                    + ")"
+                )
+
+            # Step 2: Brave fallback if DDG was empty / blocked AND key configured
+            if not search_results and brave_key and _left() >= _WEB_SEARCH_MIN_TIER_S:
+                brave_hits = await _brave_search(query, brave_key)
+                if brave_hits:
+                    urls = [h["url"] for h in brave_hits if h.get("url")]
+                    search_results = [
+                        f"[{i+1}] {h.get('title', '')}\n    {h.get('snippet', '')}"
+                        for i, h in enumerate(brave_hits)
+                    ]
+                    lower_served_by = "brave-api"
+                else:
+                    outcomes["brave-api"] = "üres választ adott"
+            elif not brave_key:
+                outcomes["brave-api"] = "nincs konfigurálva (BRAVE_SEARCH_API_KEY hiányzik)"
+
+            # Step 3: Fetch top 2 page contents for deeper data
+            if search_results:
+                page_contents = await _fetch_page_contents(
+                    urls, timeout=max(3.0, min(10.0, _left() / 2)))
+                lower_body = "KERESÉSI TALÁLATOK:\n" + "\n".join(search_results)
+                if page_contents:
+                    lower_body += "\n\nRÉSZLETES TARTALOM:\n" + "\n\n".join(page_contents)
+                lower_hits = len(search_results)
+        finally:
+            _WEB_SEARCH_SEMAPHORE.release()
 
     if lower_body:
         return _finish(lower_body, lower_served_by, lower_hits)
