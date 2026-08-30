@@ -523,3 +523,24 @@ def test_a_brief_hibajelzese_onvizsgalatot_is_kuld():
     # És ha maga a mérőeszköz hasal el, a jelzés attól még menjen ki:
     assert "a mérőeszköz maga hibázott" in src, \
         "az onvizsgalat kivetele elnemithatja a hibajelzest"
+
+
+def test_a_megtanult_keret_tuleli_az_ujrainditast():
+    """EGY TANULAS, AMIT MINDEN UJRAINDITAS ELFELEJT, NEM TANULAS.
+
+    A `_SF_LEARNED_BUDGET` eredetileg processz-elettartamu volt, azzal az
+    indoklassal (amit EN irtam), hogy "a tanulas egy kor alatt visszaall". A
+    2026-08-30-i eles meres megcafolta: az az "egy kor" a V4-Pro-n HAROM teljes
+    generalas es ~3,5 PERC (16000 -> 32000 -> 64000) — egy felhasznalonak meno
+    briefen, es MINDEN DEPLOY UTAN ujra. Ketszer egymas utan meg is tortent.
+    """
+    src, _ = _server_tree()
+    assert "_sf_budget_load" in src and "_sf_budget_remember" in src, \
+        "a megtanult keret megint csak memoriaban el"
+    # A betoltes RA IS VAN KOTVE, nem csak letezik:
+    loop = _func_source("_cron_loop")
+    assert "_sf_budget_load()" in loop, \
+        "a visszatoltes sosem fut le — a perzisztencia igy fel javitas"
+    # Es a rogzites a sikeres agon tortenik, nem a hibasan:
+    chat = _func_source("sf_chat")
+    assert "_sf_budget_remember(" in chat

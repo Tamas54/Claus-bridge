@@ -7270,9 +7270,59 @@ _SF_OUTPUT_CEILING = {
 _SF_DEFAULT_CEILING = 32000
 
 #: Amit MÉRÉSBŐL megtanultunk: modellenként az a keret, ami utoljára elég volt.
-#: Processz-élettartamú; a Railway-újraindítás alaphelyzetbe hozza, és ez
-#: rendben van — a tanulás egy kör alatt visszaáll.
+#:
+#: TÚLÉLI AZ ÚJRAINDÍTÁST (2026-08-30). Ez a szótár eredetileg processz-
+#: élettartamú volt, azzal az indoklással, hogy „a tanulás egy kör alatt
+#: visszaáll". A mai mérés megcáfolta: az az „egy kör" a V4-Pro-n HÁROM teljes
+#: generálás és ~3,5 PERC (16000 → 32000 → 64000), egy felhasználónak menő
+#: briefen — és minden deploy után újra. Egy tanulás, amit minden
+#: újraindítás elfelejt, nem tanulás, hanem ismételt lecke.
 _SF_LEARNED_BUDGET: dict[str, int] = {}
+
+#: A `shared_memory` kulcsa, ahol a megtanult keretek élnek.
+_SF_BUDGET_KEY = "_sf_learned_budget"
+
+
+def _sf_budget_load() -> None:
+    """A megtanult keretek visszatöltése induláskor. Sose dob."""
+    try:
+        conn = get_db()
+        row = conn.execute("SELECT value FROM shared_memory WHERE key = ?",
+                           (_SF_BUDGET_KEY,)).fetchone()
+        conn.close()
+        if row:
+            data = json.loads(row["value"] if not isinstance(row, tuple) else row[0])
+            if isinstance(data, dict):
+                for k, v in data.items():
+                    if isinstance(v, int) and v > 0:
+                        _SF_LEARNED_BUDGET[str(k)] = v
+                logger.info("sf_chat: %d megtanult token-keret visszatöltve: %s",
+                            len(_SF_LEARNED_BUDGET), _SF_LEARNED_BUDGET)
+    except Exception as e:  # noqa: BLE001 — a hiánya nem hiba, csak lassabb első kör
+        logger.warning("sf_chat: a megtanult keretek nem tölthetők vissza: %s", e)
+
+
+def _sf_budget_remember(model_id: str, value: int) -> None:
+    """Egy NÖVEKEDÉS kiírása. Csak akkor ír, ha tényleg nőtt — a legtöbb hívás
+    nem tanul semmit, és nem is szabad DB-t írnia miatta."""
+    try:
+        if value <= 0 or value <= _SF_LEARNED_BUDGET.get(model_id, 0):
+            return
+        _SF_LEARNED_BUDGET[model_id] = value
+        conn = get_db()
+        conn.execute(
+            "INSERT INTO shared_memory (key, value, category, updated_by, updated_at) "
+            "VALUES (?, ?, 'system', 'sf_chat', ?) "
+            "ON CONFLICT(key) DO UPDATE SET value = excluded.value, "
+            "updated_at = excluded.updated_at",
+            (_SF_BUDGET_KEY, json.dumps(_SF_LEARNED_BUDGET),
+             datetime.now(timezone.utc).isoformat()))
+        conn.commit()
+        conn.close()
+        logger.info("sf_chat: megtanult keret rögzítve — %s = %d", model_id, value)
+    except Exception as e:  # noqa: BLE001
+        logger.warning("sf_chat: a keret rögzítése nem sikerült (%s=%d): %s",
+                       model_id, value, e)
 
 
 def _sf_ceiling(model_id: str) -> int:
@@ -7435,9 +7485,9 @@ async def sf_chat(payload: dict, *, purpose: str = "", attempts: int = 3,
                         f"a válasz a(z) `{mid}` kimeneti PLAFONJÁN ({_ceiling}) is csonkolt")
 
                 if data is not None:
-                    # Amit megtanultunk: a következő hívás innen induljon.
-                    _SF_LEARNED_BUDGET[mid] = max(
-                        _SF_LEARNED_BUDGET.get(mid, 0), int(body.get("max_tokens") or 0))
+                    # Amit megtanultunk: a következő hívás innen induljon —
+                    # és a KÖVETKEZŐ DEPLOY is, ne csak a következő hívás.
+                    _sf_budget_remember(mid, int(body.get("max_tokens") or 0))
                     if mi > 0:
                         notes.append(
                             f"MODELLVÁLTÁS: a kért `{model}` nem volt elérhető "
@@ -10899,6 +10949,10 @@ async def _cron_loop():
     """
     await asyncio.sleep(10)  # Let server fully start
     logger.info("Cron scheduler started (Europe/Budapest interpretation)")
+    # A megtanult token-keretek visszatoltese. Itt, a cron-szal elejen, mert
+    # ekkorra a DB mar biztosan letezik (init_db lefutott), es ez a szal amugy
+    # is a hatterben indul — a foszalat nem lassitja.
+    _sf_budget_load()
     try:
         from zoneinfo import ZoneInfo
         BP_TZ = ZoneInfo("Europe/Budapest")
