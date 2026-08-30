@@ -320,3 +320,84 @@ def test_glm53_has_a_modern_ceiling():
     ezen a modellen garantált csonkolás (mérve: ~47 000 token/feladat)."""
     assert server._sf_ceiling("zai-org/GLM-5.3-Flash") >= 100000
     assert "glm53f" in server.SILICONFLOW_MODELS
+
+
+# ── 7. FLASH-TIER (Kommandant-döntés, 2026-08-30) ───────────────────────
+# A flash-modellek elsőosztályú fogalommá váltak, nem plusz aliasokká.
+# MÉRVE, ugyanarra az egymondatos kérdésre:
+#   DeepSeek V4-Flash 4182 ms / 224 token · V4-Pro 7377 / 342
+#   GLM-5.3 8982 / 617 · GLM-5.2 10750 / 1039
+
+def test_flash_models_are_registered():
+    assert server.SILICONFLOW_MODELS["dsflash"] == "deepseek-ai/DeepSeek-V4-Flash"
+    assert server.SILICONFLOW_MODELS["glm53f"] == "zai-org/GLM-5.3-Flash"
+    assert set(server.models_in_tier("flash")) == {"dsflash", "glm53f"}
+
+
+def test_every_model_has_a_tier():
+    """Egy tier nélküli modell némán kimaradna minden osztály-alapú hívásból."""
+    missing = set(server.SILICONFLOW_MODELS) - set(server.MODEL_TIER)
+    assert not missing, f"tier nélküli modell(ek): {missing}"
+
+
+def test_deepseek_flash_gets_thinking_disabled_not_reasoning_effort():
+    """EZ A FLASH LÉNYEGE. A `DeepSeek` általános ága `reasoning_effort`-ot ad
+    — ami MÉRVE 4620 ms / 89 tokenről 11 281 ms / 467-re rontja. Egy flash,
+    ami hosszan gondolkodik, már nem flash."""
+    extra = server._model_extra("deepseek-ai/DeepSeek-V4-Flash")
+    assert extra == {"thinking": {"type": "disabled"}}, extra
+    # a Pro viszont MEGTARTJA a sajátját
+    assert server._model_extra("deepseek-ai/DeepSeek-V4-Pro") == {"reasoning_effort": "medium"}
+
+
+def test_glm53_family_gets_no_thinking_param():
+    """A GLM-5.3 400/20015-öt ad a `thinking`-re ("该模型始终思考")."""
+    assert server._model_extra("zai-org/GLM-5.3-Flash") == {}
+    assert server._model_extra("zai-org/GLM-5.3") == {}
+
+
+def test_flash_falls_back_to_flash_first(monkeypatch):
+    """Az olcsó osztály maradjon olcsó: a flash tartaléka ELŐSZÖR egy másik
+    flash. A GLM-5.3-Flash most erősen rate-limitelt, tehát ez nem elmélet."""
+    chain = server._SF_FAILOVER["zai-org/GLM-5.3-Flash"]
+    assert chain[0] == "deepseek-ai/DeepSeek-V4-Flash"
+    fake = _wire(monkeypatch, [FakeResp(429, '{"code":50610,"message":"too busy"}')] * 3
+                 + [FakeResp(200, "", _ok_payload())])
+    data, err, notes = _run(server.sf_chat(
+        dict(PAYLOAD, model="zai-org/GLM-5.3-Flash"), attempts=3))
+    assert err is None
+    assert fake.calls[-1]["model"] == "deepseek-ai/DeepSeek-V4-Flash"
+
+
+def test_nonexistent_model_switches_without_retrying(monkeypatch):
+    """`code 20012` = a modell NEM LÉTEZIK (mérve: DeepSeek-V4-Lite).
+    Ugyanazt újrahívni sosem segít — de MODELLT VÁLTANI pontosan a helyes
+    lépés. Ezért nem `bad_request`."""
+    code, msg = server._sf_classify(
+        400, '{"code":20012,"message":"Model does not exist. Please check it carefully."}')
+    assert code == "model_missing"
+    assert code not in server._SF_RETRYABLE, "nem szabad ugyanazt újrahívni"
+    assert code in server._SF_FAILOVER_WORTHY, "de váltani KELL"
+
+    fake = _wire(monkeypatch, [FakeResp(400, '{"code":20012,"message":"Model does not exist."}'),
+                              FakeResp(200, "", _ok_payload())])
+    data, err, notes = _run(server.sf_chat(PAYLOAD, attempts=3))
+    assert err is None
+    assert len(fake.calls) == 2, "egyszer próbálta az elsőt, aztán váltott — helyes"
+    assert fake.calls[1]["model"] != fake.calls[0]["model"]
+
+
+def test_bad_request_still_does_not_failover(monkeypatch):
+    """A KÉRÉS hibáján a váltás csak kvótát égetne: minden modell ugyanazt
+    mondaná."""
+    fake = _wire(monkeypatch, [FakeResp(400, '{"message":"messages must not be empty"}')] * 9)
+    _run(server.sf_chat(PAYLOAD, attempts=3))
+    assert len(fake.calls) == 1
+
+
+def test_pyramid_knows_the_flash_tier():
+    from pyramid.agents import AGENT_REGISTRY, agents_in_tier
+    assert set(agents_in_tier("flash")) == {"dsflash", "glm53f"}
+    # a token-éhes flash NEM indulhat 8000-ről
+    assert AGENT_REGISTRY["glm53f"]["default_max_tokens"] >= 48000
+    assert AGENT_REGISTRY["dsflash"]["model_id"] in server.SILICONFLOW_MODELS.values()

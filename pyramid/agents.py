@@ -13,6 +13,9 @@ TRAINING_CUTOFFS = {
     "kimi":     "2024 vége / 2025 eleje (Kimi K2.7, Moonshot)",
     "deepseek": "2025 közepe (DeepSeek V4-Pro)",
     "glm5":     "2026 első negyedéve (GLM-5.2, ~4 hetes modell)",
+    "dsflash":  "2025 közepe (DeepSeek V4-Flash)",
+    "glm53f":   "2026 első negyedéve (GLM-5.3-Flash)",
+    "glm53":    "2026 első negyedéve (GLM-5.3)",
 }
 
 WEEKDAYS_HU = ["hétfő", "kedd", "szerda", "csütörtök", "péntek", "szombat", "vasárnap"]
@@ -108,7 +111,48 @@ AGENT_REGISTRY: Dict[str, Dict[str, Any]] = {
         "default_temperature": 0.5,
         "default_max_tokens": 4000,
     },
+    # ── FLASH-TIER (2026-08-30) ────────────────────────────────────────
+    # Olcsó, gyors osztály. MÉRVE ugyanarra az egymondatos kérdésre:
+    #   DeepSeek V4-Flash   4 182 ms /  224 kimeneti token
+    #   DeepSeek V4-Pro     7 377 ms /  342
+    #   GLM-5.3 (nagy)      8 982 ms /  617
+    #   GLM-5.2            10 750 ms / 1 039
+    # A `tier` mező azért van itt, hogy a hívó OSZTÁLYT kérhessen, ne nevet.
+    "dsflash": {
+        "model_id": "deepseek-ai/DeepSeek-V4-Flash",
+        "provider": "siliconflow",
+        "tier": "flash",
+        "default_temperature": 0.6,
+        # A flash lényege a kikapcsolt gondolkodás: `thinking=disabled` mellett
+        # 4620 ms / 89 token, `reasoning_effort=medium` mellett 11 281 / 467.
+        # Ezért is elég neki kisebb keret, mint a gondolkodó modelleknek.
+        "default_max_tokens": 8000,
+    },
+    "glm53f": {
+        "model_id": "zai-org/GLM-5.3-Flash",
+        "provider": "siliconflow",
+        "tier": "flash",
+        "default_temperature": 0.7,
+        # ⚠️ Ez a flash NEM kapcsolható ki gondolkodásból (400/20015), és
+        # feladatonként ~47 000 kimeneti tokent használ. A 8000-es keret
+        # garantált csonkolás lenne — a `sf_chat` önszabályozása amúgy is
+        # felemelné, de jobb, ha eleve jó helyről indul.
+        "default_max_tokens": 48000,
+    },
+    "glm53": {
+        "model_id": "zai-org/GLM-5.3",
+        "provider": "siliconflow",
+        "tier": "pro",
+        "default_temperature": 0.7,
+        "default_max_tokens": 32000,
+    },
 }
+
+
+def agents_in_tier(tier: str) -> list:
+    """Egy osztály agentjei. Új flash-modell holnap egyetlen bejegyzéssel
+    beáll a helyére, és minden tier-alapú hívó azonnal megkapja."""
+    return sorted(a for a, spec in AGENT_REGISTRY.items() if spec.get("tier") == tier)
 
 
 def load_profile(name: str) -> dict:

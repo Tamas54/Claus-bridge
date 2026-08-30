@@ -2556,7 +2556,42 @@ SILICONFLOW_MODELS = {
     # és a `sf_chat` önjavítása amúgy is levenné, ha valaki mégis ráküldené.
     "glm53f": "zai-org/GLM-5.3-Flash",
     "glm53": "zai-org/GLM-5.3",
+    # DeepSeek V4-Flash — a V4-Pro olcsó testvére. MÉRVE 2026-08-30, ugyanarra
+    # az egymondatos kérdésre: Flash 4182 ms / 224 kimeneti token,
+    # Pro 7377 ms / 342. (A `DeepSeek-V4-Lite` és a csupasz `DeepSeek-V4` NEM
+    # létezik: code 20012.)
+    "dsflash": "deepseek-ai/DeepSeek-V4-Flash",
 }
+
+# ══ FLASH-TIER ══════════════════════════════════════════════════════════
+#
+# Kommandant-döntés 2026-08-30: a flash-modellek ELSŐOSZTÁLYÚ fogalommá
+# válnak a Bridge-ben, nem csak plusz aliasokká. Miért — ugyanaz az
+# egymondatos kérdés, mérve:
+#
+#     DeepSeek V4-Flash    4 182 ms    224 kimeneti token
+#     DeepSeek V4-Pro      7 377 ms    342
+#     GLM-5.3 (nagy)       8 982 ms    617
+#     GLM-5.2              10 750 ms  1 039   <- a mai cron-alapmodell
+#
+# A `MODEL_TIER` azért kell, hogy a kód OSZTÁLYT kérhessen, ne nevet: egy új
+# flash-modell holnap egyetlen sorral beáll a helyére, és minden, ami "olcsó
+# és gyors" munkát kér, azonnal megkapja.
+MODEL_TIER = {
+    "dsflash": "flash",
+    "glm53f": "flash",
+    "kimi": "pro",
+    "deepseek": "pro",
+    "glm5": "pro",
+    "glm53": "pro",
+    "kimi3": "pro",
+    "hy3": "pro",
+}
+
+
+def models_in_tier(tier: str) -> list[str]:
+    """Egy tier aliasai. A hívó osztályt kér, nem nevet."""
+    return [a for a, t in MODEL_TIER.items() if t == tier and a in SILICONFLOW_MODELS]
 
 # Egyetlen designált research-agent broadcast módban — `deep_research=True`
 # esetén csak ez fut multi-round web_search-loopban, a másik kettő normál
@@ -7183,6 +7218,13 @@ async def _deep_research_loop(
 #: az újrapróbálkozás csak a kvótát égeti, mert a kérés maga rossz.
 _SF_RETRYABLE = {"rate_limit", "server_error", "model_unavailable", "transport"}
 
+#: Amin MODELLT VÁLTANI érdemes, akkor is, ha újrapróbálni nem. A
+#: `model_missing` a tanpélda: ugyanazt a nem létező modellt újrahívni sosem
+#: segít, egy másikra váltani viszont pontosan a helyes lépés. A `bad_request`
+#: és az `auth` NINCS benne: azok a KÉRÉS hibái, és minden modelltől ugyanazt
+#: a választ hoznák — a váltás csak a kvótát égetné.
+_SF_FAILOVER_WORTHY = _SF_RETRYABLE | {"model_missing"}
+
 #: Melyik modell mivel helyettesíthető, ha tartósan nem elérhető. A sorrend a
 #: `feedback_synthesis_fallback_order` döntést követi (Kimi → V4-Pro → GLM).
 _SF_FAILOVER = {
@@ -7191,7 +7233,12 @@ _SF_FAILOVER = {
     "moonshotai/Kimi-K3": ["moonshotai/Kimi-K2.7-Code", "deepseek-ai/DeepSeek-V4-Pro"],
     "deepseek-ai/DeepSeek-V4-Pro": ["moonshotai/Kimi-K2.7-Code", "zai-org/GLM-5.2"],
     "tencent/Hy3": ["deepseek-ai/DeepSeek-V4-Pro"],
-    "zai-org/GLM-5.3-Flash": ["zai-org/GLM-5.2", "deepseek-ai/DeepSeek-V4-Pro"],
+    # A FLASH-ek tartaléka ELŐSZÖR egy másik flash (az olcsó osztály maradjon
+    # olcsó), és csak utána egy pro-modell. A GLM-5.3-Flash most erősen
+    # rate-limitelt a SiliconFlow-n, ezért ez nem elmélet: nélküle a tier
+    # használhatatlan lenne.
+    "zai-org/GLM-5.3-Flash": ["deepseek-ai/DeepSeek-V4-Flash", "zai-org/GLM-5.2"],
+    "deepseek-ai/DeepSeek-V4-Flash": ["zai-org/GLM-5.3-Flash", "deepseek-ai/DeepSeek-V4-Pro"],
     "zai-org/GLM-5.3": ["zai-org/GLM-5.3-Flash", "zai-org/GLM-5.2"],
 }
 
@@ -7220,6 +7267,7 @@ _SF_OUTPUT_CEILING = {
     "moonshotai/Kimi-K3": 64000,
     "moonshotai/Kimi-K2.7-Code": 32000,
     "deepseek-ai/DeepSeek-V4-Pro": 64000,
+    "deepseek-ai/DeepSeek-V4-Flash": 64000,
     "tencent/Hy3": 32000,
 }
 #: Ismeretlen modellre óvatos, de nem 2024-es plafon.
@@ -7282,6 +7330,12 @@ def _sf_classify(status: int, body: str) -> tuple[str, str]:
     if status in (401, 403):
         return "auth", f"HTTP {status} hitelesítési hiba — ellenőrizd a SILICONFLOW_API_KEY-t"
     if status == 400:
+        # `20012` = "Model does not exist" — MÉRVE (a DeepSeek-V4-Lite és a
+        # csupasz DeepSeek-V4 erre fut). Ezt szét KELL választani az átmeneti
+        # elérhetetlenségtől: ugyanazt a nem létező modellt újrahívni sosem
+        # segít — de MODELLT VÁLTANI igen. Ezért nem `bad_request`.
+        if "20012" in low or "does not exist" in low:
+            return "model_missing", f"HTTP 400 — ez a modell NEM LÉTEZIK: {snippet}"
         if "parameter is invalid" in low or "20015" in low or "model" in low:
             return "model_unavailable", f"HTTP 400 — a modell valószínűleg átmenetileg nem elérhető: {snippet}"
         return "bad_request", f"HTTP 400 — a kérés hibás: {snippet}"
@@ -7419,7 +7473,7 @@ async def sf_chat(payload: dict, *, purpose: str = "", attempts: int = 3,
                     break          # rossz kérés / auth: az újrapróbálás csak kvótát éget
                 if attempt < attempts:
                     await _a.sleep(min(2 ** attempt, 8))
-            if last_err and last_err["code"] not in _SF_RETRYABLE:
+            if last_err and last_err["code"] not in _SF_FAILOVER_WORTHY:
                 break              # modellváltás sem segít egy hibás kérésen
     return None, last_err, notes
 
@@ -7434,6 +7488,18 @@ def _model_extra(model_id: str) -> dict:
       same reasoner-mode timeouts in broadcast.
     - GLM-5.2: no extras needed (no reasoner toggle).
     """
+    # ⚠️ A FLASH-eket a SORREND miatt előre kell venni: a `DeepSeek-V4-Flash`
+    # különben a lenti általános DeepSeek-ágra esne, és `reasoning_effort`-ot
+    # kapna — ami MÉRVE elveszi a flash lényegét: 4620 ms / 89 token
+    # (thinking kikapcsolva) helyett 11 281 ms / 467 token. Egy flash-modell,
+    # ami hosszan gondolkodik, már nem flash.
+    if model_id == "deepseek-ai/DeepSeek-V4-Flash":
+        return {"thinking": {"type": "disabled"}}
+    # A GLM-5.3-család NEM engedi kikapcsolni a gondolkodást — a próbálkozás
+    # HTTP 400/20015 ("该模型始终思考，不支持关闭思考"). Ezért ő üres kézzel megy,
+    # és a `sf_chat` paraméter-levétele is védi, ha valaki mégis ráküldené.
+    if model_id.startswith("zai-org/GLM-5.3"):
+        return {}
     if "Kimi" in model_id:
         return {"thinking": {"type": "disabled"}}
     if "DeepSeek" in model_id:
