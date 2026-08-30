@@ -540,3 +540,22 @@ def test_a_prompt_a_frissebb_idoszakot_valasztja():
     assert "GYORSTAJEKOZTATO FRISSEBB" in p
     assert "Compare the `period` fields" in p, \
         "nincs eldontesi szabaly a ket forras kozott"
+
+
+def test_a_kitalalt_OK_tiltva_van():
+    """A SZAM JO VOLT, A TORTENET KITALALT — es a gepi mezok a tortenetet
+    kovettek.
+
+    2026-08-31, eles reggeli brief: "a Fed-elnök Warsh inflációellenes
+    retorikája nyomán emelkedő hozamok", regime=risk_off, kockazati keret 25%.
+    A kapott adatban NEM VOLT semmilyen Fed-nyilatkozat — es a szamok az
+    ellenkezojet mutattak: VIX 14,43, S&P az 52 hetes csucs kozeleben,
+    crowd=complacent.
+
+    Az anomalia-szabaly csak az ARAKRA vonatkozott; az OKOT nem vedte senki.
+    """
+    p = mb._build_prompt("morning", "2026-08-31T06:30Z", "2026-08-31T12:30Z", "")
+    assert "AZ OKOT SEM TALALHATOD KI" in p
+    assert "NAMED person" in p
+    assert "A REZSIM A SZAMOKBOL KOVETKEZZEN" in p, \
+        "a rezsim tovabbra is egy kitalalt narrativabol johet"
