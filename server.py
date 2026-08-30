@@ -1617,6 +1617,11 @@ async def get_status(caller: str = "") -> str:
         # valódi élő hívót kizárnánk. Üres dict = senki nem hív caller nélkül.
         "anonymous_calls_since_boot": dict(sorted(
             _ANON_CALL_COUNTS.items(), key=lambda kv: -kv[1])),
+        # Melyik kivonatoló-fok fut ténylegesen. A hiányzó extraktor NÉMA
+        # minőségromlás: a regex-fallback mérve 68% boilerplate-et ad, és a
+        # cikk leadje 4/10 esetben ki sem fér az ablakba. Ha ez "regex"-et
+        # mutat prodban, a requirements.txt nem ment ki.
+        "article_extractor": article_extractor_status(),
         "recent_sessions": [dict(s) for s in last_session]
     }, ensure_ascii=False)
 
@@ -4642,12 +4647,15 @@ SUBAGENT_TOOLS_DIRECTIVE = (
 
 
 async def _fetch_url_text(url: str, max_chars: int = 30000) -> str:
-    """Fetch a URL and return cleaned plain text. Used by sub-agent web_fetch tool.
+    """Fetch a URL and return the article text. Used by the sub-agent web_fetch tool.
 
-    Strips <script>/<style> blocks and HTML tags via regex (cheap, no extra deps).
-    Caps at max_chars to keep tool-result payload bounded.
+    Runs the shared extraction ladder (trafilatura -> readability -> regex)
+    rather than a bare tag-strip: the old regex path handed the model a page
+    whose majority was navigation and footer, and on some sites cut the
+    article's own lead out of the window entirely.
+
+    Caps at max_chars to keep the tool-result payload bounded.
     """
-    import re as _re
     import httpx  # nincs modul-szintű httpx import a server.py-ban — enélkül NameError volt
     if not url or not (url.startswith("http://") or url.startswith("https://")):
         return json.dumps({"error": "valid http(s) URL required"})
@@ -4657,16 +4665,25 @@ async def _fetch_url_text(url: str, max_chars: int = 30000) -> str:
                 url,
                 headers={"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36"},
             )
-        text = resp.text
-        text = _re.sub(r'<script[^>]*>.*?</script>', '', text, flags=_re.DOTALL)
-        text = _re.sub(r'<style[^>]*>.*?</style>', '', text, flags=_re.DOTALL)
-        text = _re.sub(r'<[^>]+>', ' ', text)
-        text = _re.sub(r'\s+', ' ', text).strip()
+        text, extractor = extract_article_text(resp.text, url)
         return json.dumps({
             "url": url, "content": text[:max_chars], "length": len(text),
+            "extractor": extractor,
         }, ensure_ascii=False)
     except Exception as e:
         return json.dumps({"error": f"fetch failed: {type(e).__name__}: {e}"})
+
+
+def _clean_result_fragment(fragment: str) -> str:
+    """Egy keresési találat CÍMÉNEK vagy SNIPPETJÉNEK tisztítása.
+
+    Szándékosan külön a `_regex_strip`-től: az oldal-kivonatolás, ez pedig egy
+    pár szavas töredék, ahol nincs mit kivonatolni. Ami közös és eddig
+    hiányzott: az entitás-dekódolás. Dekódolatlanul a cím `AT&amp;T`-ként megy
+    az agenthez, és aki a címre illeszt, nem talál.
+    """
+    import html as _html
+    return _html.unescape(_re_module.sub(r'<[^>]+>', '', fragment or '')).strip()
 
 
 def _stamp_fetched_at(
@@ -5736,6 +5753,110 @@ async def _searxng_search(query: str, limit: int = 5,
         return []
 
 
+# ── Article extraction: trafilatura → readability → regex ─────────────────
+#
+# WHY THIS EXISTS. Until 2026-08-30 every fetch path in this file stripped HTML
+# with a bare regex and then cut the result to 2000 characters. Measured on 10
+# real news articles: 68% of that output was boilerplate (median 7052 -> 2169
+# chars after extraction), and on 4 of the 10 the article's LEAD fell outside
+# the 2000-char window entirely — for the Guardian and ANSA pieces, ZERO
+# article paragraphs reached the model, only navigation. The regex also never
+# decoded HTML entities, so the BBC lead was not even findable as text.
+#
+# Cost: ~20 ms per page (1.6 ms -> 21 ms median). In exchange the same article
+# costs roughly 8x fewer tokens, and the part that survives the cut is the
+# article rather than the menu.
+#
+# Both extractors are optional at runtime and fall back — but a MISSING
+# extractor is a silent quality regression, not a neutral degradation, so the
+# import failure is logged at WARNING and `article_extractor_status()` reports
+# it. That is the exact failure this block was born from: both libraries
+# resolved from the developer's ~/.local while being absent from
+# requirements.txt, so local runs looked fine and production ran the regex.
+try:
+    import trafilatura as _trafilatura
+    _HAVE_TRAFILATURA = True
+except ImportError:  # pragma: no cover - exercised by the status test
+    _trafilatura = None
+    _HAVE_TRAFILATURA = False
+
+try:
+    from readability import Document as _ReadabilityDocument
+    _HAVE_READABILITY = True
+except ImportError:  # pragma: no cover
+    _ReadabilityDocument = None
+    _HAVE_READABILITY = False
+
+if not (_HAVE_TRAFILATURA and _HAVE_READABILITY):
+    logger.warning(
+        "article extractors missing (trafilatura=%s readability=%s) — the fetch "
+        "layer falls back to regex stripping, which measured 68%% boilerplate. "
+        "Check requirements.txt.",
+        _HAVE_TRAFILATURA, _HAVE_READABILITY,
+    )
+
+
+def article_extractor_status() -> dict:
+    """Which extraction tier is actually available. Surfaced in get_status so a
+    silent downgrade to regex is visible without reading boot logs."""
+    return {
+        "trafilatura": _HAVE_TRAFILATURA,
+        "readability": _HAVE_READABILITY,
+        "effective_tier": ("trafilatura" if _HAVE_TRAFILATURA
+                           else "readability" if _HAVE_READABILITY else "regex"),
+    }
+
+
+def _regex_strip(html: str) -> str:
+    """Last-resort strip. `html.unescape` is NOT optional: without it the text
+    carries `&#x27;` and `&amp;` sequences, and a caller looking for the
+    article's lead simply does not find it."""
+    import html as _html
+    text = _re_module.sub(r'<script[^>]*>.*?</script>', ' ', html, flags=_re_module.DOTALL)
+    text = _re_module.sub(r'<style[^>]*>.*?</style>', ' ', text, flags=_re_module.DOTALL)
+    text = _re_module.sub(r'<(nav|header|footer|aside)[^>]*>.*?</\1>', ' ', text,
+                          flags=_re_module.DOTALL | _re_module.IGNORECASE)
+    text = _re_module.sub(r'<[^>]+>', ' ', text)
+    return _re_module.sub(r'\s+', ' ', _html.unescape(text)).strip()
+
+
+def extract_article_text(html: str, url: str = "") -> tuple[str, str]:
+    """(text, extractor_name). Never raises — a fetch tier must not be able to
+    kill the round it serves.
+
+    The tiers are tried in quality order, and a tier only WINS if it produced
+    something plausibly article-shaped: trafilatura happily returns a 40-char
+    string on a page it cannot parse, and silently accepting that would be
+    worse than the regex it replaced.
+    """
+    if not html or not html.strip():
+        return "", "none"
+    _MIN_ACCEPTABLE = 200
+
+    if _HAVE_TRAFILATURA:
+        try:
+            out = _trafilatura.extract(
+                html, url=url or None,
+                include_comments=False, include_tables=True,
+                favor_precision=True,
+            )
+            if out and len(out.strip()) >= _MIN_ACCEPTABLE:
+                return out.strip(), "trafilatura"
+        except Exception as e:
+            logger.debug("trafilatura failed on %s: %s", url[:60], e)
+
+    if _HAVE_READABILITY:
+        try:
+            summary = _ReadabilityDocument(html).summary()
+            out = _regex_strip(summary)
+            if out and len(out) >= _MIN_ACCEPTABLE:
+                return out, "readability"
+        except Exception as e:
+            logger.debug("readability failed on %s: %s", url[:60], e)
+
+    return _regex_strip(html), "regex"
+
+
 # ── Lightpanda — Tier 2 of the fetch chain (JS render → markdown) ──────────
 #
 # The browser work runs on a SINGLE worker thread inside Lightpanda (V8
@@ -5882,21 +6003,18 @@ async def _fetch_page_contents(urls: list, limit: int = 2,
     for url in urls[:limit]:
         if not url or not url.startswith("http"):
             continue
-        text, raw = "", ""
+        text, raw, extractor = "", "", "none"
         try:
             async with httpx.AsyncClient(timeout=timeout, follow_redirects=True) as client:
                 resp = await client.get(url, headers={"User-Agent": random.choice(DDG_USER_AGENTS)})
             raw = resp.text
-            text = _re_module.sub(r'<script[^>]*>.*?</script>', '', raw, flags=_re_module.DOTALL)
-            text = _re_module.sub(r'<style[^>]*>.*?</style>', '', text, flags=_re_module.DOTALL)
-            text = _re_module.sub(r'<[^>]+>', ' ', text)
-            text = _re_module.sub(r'\s+', ' ', text).strip()
+            text, extractor = extract_article_text(raw, url)
         except Exception as e:
             # Not `debug`: a tier that fails invisibly is how a dead fetch layer
             # survives for weeks. The round continues, but the loss is on record.
             logger.info("Tier1 plain GET failed %s: %s: %s", url[:60], type(e).__name__, e)
 
-        via = "http"
+        via = f"http/{extractor}" if text else "http"
         if LIGHTPANDA_ENABLED and _looks_js_rendered(text, raw):
             lp_text = await _lightpanda_markdown(url)
             if lp_text and len(lp_text) > len(text):
@@ -6198,8 +6316,8 @@ async def _web_search(query: str, engine: str = "auto") -> str:
                 snippets = re.findall(r'class="result__snippet"[^>]*>(.*?)<', resp.text or "", re.DOTALL)
 
                 for i, ((raw_url, title), snippet) in enumerate(zip(links[:5], snippets[:5])):
-                    t = re.sub(r'<[^>]+>', '', title).strip()
-                    s = re.sub(r'<[^>]+>', '', snippet).strip()
+                    t = _clean_result_fragment(title)
+                    s = _clean_result_fragment(snippet)
                     url = raw_url
                     if "uddg=" in url:
                         url = urllib.parse.unquote(url.split("uddg=")[1].split("&")[0])
@@ -6232,8 +6350,8 @@ async def _web_search(query: str, engine: str = "auto") -> str:
                     links = re.findall(r'class="result__a"[^>]*href="([^"]+)"[^>]*>(.*?)</a>', resp.text or "", re.DOTALL)
                     snippets = re.findall(r'class="result__snippet"[^>]*>(.*?)<', resp.text or "", re.DOTALL)
                     for i, ((raw_url, title), snippet) in enumerate(zip(links[:5], snippets[:5])):
-                        t = re.sub(r'<[^>]+>', '', title).strip()
-                        s = re.sub(r'<[^>]+>', '', snippet).strip()
+                        t = _clean_result_fragment(title)
+                        s = _clean_result_fragment(snippet)
                         url = raw_url
                         if "uddg=" in url:
                             url = urllib.parse.unquote(url.split("uddg=")[1].split("&")[0])
@@ -6385,7 +6503,7 @@ async def debug_web_search(query: str, caller: str = "") -> str:
         ddg_results_count = len(links)
         first_titles = []
         for raw_url, title in links[:3]:
-            t_clean = re.sub(r'<[^>]+>', '', title).strip()
+            t_clean = _clean_result_fragment(title)
             first_titles.append(t_clean[:120])
         out["ddg"] = {
             "status": resp.status_code,

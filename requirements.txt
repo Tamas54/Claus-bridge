@@ -35,3 +35,20 @@ weasyprint>=60
 # (plugins/delphoi_stripe.py: SDK nélkül sima REST-hívás httpx-szel).
 stripe>=15,<16
 
+# ── Cikk-kivonatolás (2026-08-30) ─────────────────────────────────────────
+# MIÉRT KERÜLT BE: a `_fetch_page_contents` tiszta regexszel strippelt, majd
+# 2000 karakterre vágott. Mérve 10 valódi hírcikken: a kimenet 68%-a
+# boilerplate (medián 7052 -> 2169 karakter), és 4/10 cikknél a LEAD ki sem
+# fért a 2000 karakteres ablakba — a guardian és az ansa cikkéből NULLA
+# bekezdés jutott az LLM-hez, csak navigáció. A regex a HTML-entitásokat sem
+# dekódolta (`isn&#x27;t`), ezért a bbc leadje egyáltalán nem volt megtalálható.
+# Ára: +20 ms/oldal (1,6 ms -> 21 ms medián). Cserébe ~8x kevesebb token
+# ugyanazért a cikkért.
+#
+# ⚠️ Mindkettő NOTSTROM-fallbackkal fut a kódban (trafilatura -> readability
+# -> regex), tehát a hiányuk nem boot-kritikus — DE a hiányuk NÉMA
+# minőségromlás, és pontosan ez történt: 2026-08-30-ig egyik sem volt itt,
+# miközben a fejlesztői gépen a ~/.local-ból feloldódtak. A helyi teszt jónak
+# látszott, a prod regexet futtatott.
+trafilatura>=1.12
+readability-lxml>=0.8

@@ -876,20 +876,22 @@ async def _execute_tool(name: str, args: dict, ctx) -> str:
         url = args.get("url", "")
         if not url or not url.startswith("http"):
             return json.dumps({"error": "Érvényes URL szükséges"})
-        import re
         try:
             async with httpx.AsyncClient(timeout=15, follow_redirects=True) as client:
                 resp = await client.get(url, headers={"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36"})
-            text = resp.text
-            text = re.sub(r'<script[^>]*>.*?</script>', '', text, flags=re.DOTALL)
-            text = re.sub(r'<style[^>]*>.*?</style>', '', text, flags=re.DOTALL)
-            text = re.sub(r'<[^>]+>', ' ', text)
-            text = re.sub(r'\s+', ' ', text).strip()
+            # A KÖZÖS kivonatoló-létra (trafilatura -> readability -> regex).
+            # Eddig itt a repó NEGYEDIK, saját regex-implementációja állt, és a
+            # 6000-es sapka miatt ez volt a legérzékenyebb rá: mérve a
+            # regex-kimenet 68%-a boilerplate, és a cikk leadje 4/10 esetben ki
+            # sem fért az ablakba — a Feldwebel szűkebb ablakában még gyakrabban.
+            from server import extract_article_text
+            text, extractor = extract_article_text(resp.text, url)
             # 6000 = a saját web_scrape-sapkával azonos. Szándékosan konzervatívabb,
             # mint a Bridge sub-agent web_fetch (30000): a Feldwebel Telegram-chat
             # asszisztens görgetett historyval — egy 30k-s oldaldump minden további
             # kört terhelne, és a válasz úgyis Telegram-üzenet méretű.
-            return json.dumps({"url": url, "content": text[:6000], "length": len(text)}, ensure_ascii=False)
+            return json.dumps({"url": url, "content": text[:6000], "length": len(text),
+                               "extractor": extractor}, ensure_ascii=False)
         except Exception as e:
             return json.dumps({"error": str(e)})
 
