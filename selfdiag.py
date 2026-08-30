@@ -184,11 +184,19 @@ def diagnose(component: str, symptom: str = "") -> Diagnosis:
         summary = (f"RÉSZLEGES: a(z) `{component}` egy része él, egy része nem "
                    f"({len(ok)} zöld, {len(bad)} bukott). "
                    f"Bukott: {', '.join(r.name for r in bad)}")
-    elif ok and not unk:
+    elif ok:
+        # ⚠️ AZ ELSŐ ÉLES FUTÁS TANULSÁGA: a korábbi alak `ok and not unk`-ot
+        # kért, és ettől 7 modellből 6 zöld mellett "NEM ELDÖNTHETŐ"-t mondott,
+        # mert EGY modell rate-limitelt volt. Ez a mérés eldobása: ha van zöld
+        # próba és NINCS piros, a komponens működik — a bizonytalan részt
+        # megnevezzük, de nem tesszük úgy, mintha semmit nem tudnánk.
         verdict = Verdict.TRANSIENT
-        summary = (f"ÁTMENETI: a(z) `{component}` MOST minden próbán zöld "
-                   f"({len(ok)}/{len(results)}), tehát a hiba azóta elmúlt. "
+        summary = (f"ÁTMENETI: a(z) `{component}` most zöld "
+                   f"({len(ok)}/{len(results)} próba), tehát a hiba azóta elmúlt. "
                    f"Újrafuttatás valószínűleg sikerülne.")
+        if unk:
+            summary += (f" Bizonytalan: {', '.join(r.name for r in unk)} "
+                        f"({unk[0].detail[:120]})")
     else:
         verdict = Verdict.UNKNOWN
         summary = (f"NEM ELDÖNTHETŐ: a(z) `{component}` próbái nem adtak ítéletet "

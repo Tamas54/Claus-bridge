@@ -179,3 +179,27 @@ def test_server_registers_a_probe_for_every_model():
     assert 'for _a, _m in SILICONFLOW_MODELS.items():' in src, \
         "a modellek próbái nem a regiszterből származnak — egy új modell " \
         "kimaradna, és ezt senki nem venné észre"
+
+
+def test_green_with_one_uncertain_is_still_green():
+    """AZ ELSŐ ÉLES FUTÁS FOGTA MEG: 7 SiliconFlow-modellből 6 adott 200-at, egy
+    volt rate-limitelt — és a diagnózis "NEM ELDÖNTHETŐ"-t mondott. Ez a mérés
+    eldobása. Ha van zöld és nincs piros, a komponens MŰKÖDIK; a bizonytalan
+    részt megnevezzük, nem tagadjuk le az egészet."""
+    for i in range(6):
+        selfdiag.register_probe("sf", f"m{i}", _ok(f"m{i}"))
+    selfdiag.register_probe("sf", "korlatozott", _unk("korlatozott", "HTTP 429 rate limit"))
+    d = selfdiag.diagnose("sf", "")
+    assert d.verdict is Verdict.TRANSIENT, "6 zöld mellett nem szabad 'nem tudom'-ot mondani"
+    assert "korlatozott" in d.summary, "a bizonytalan rész eltűnt a jelentésből"
+    assert "429" in d.summary
+
+
+def test_one_red_still_wins_over_many_green():
+    """A megengedőbb ítélet NEM lazíthat a piroson: egyetlen bizonyított
+    bukás degradált állapot, akárhány zöld mellett."""
+    for i in range(6):
+        selfdiag.register_probe("sf", f"m{i}", _ok(f"m{i}"))
+    selfdiag.register_probe("sf", "halott", _bad("halott", "HTTP 500"))
+    d = selfdiag.diagnose("sf", "")
+    assert d.verdict is Verdict.DEGRADED

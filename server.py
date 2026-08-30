@@ -9042,7 +9042,11 @@ selfdiag.register_probe("google", "gmail",
                         _probe_google("gmail", "gmail_service", "gmail_last_error"))
 selfdiag.register_probe("google", "calendar",
                         _probe_google("calendar", "calendar_service", "calendar_last_error"))
-_echolot_base = (os.getenv("ECHOLOT_URL", "") or "").rstrip("/")
+# `.strip()` ELŐBB, mint a `.rstrip("/")`: a prod env-változó végén
+# SORTÖRÉS van (az önvizsgálat első éles futása fogta meg:
+# "InvalidURL: non-printable ASCII character '\\n' at position 43").
+# Az igazi Echolot-kliens strippel, ezért a termék ép volt — a próbám nem.
+_echolot_base = (os.getenv("ECHOLOT_URL", "") or "").strip().rstrip("/")
 selfdiag.register_probe("echolot", "api",
                         _probe_http_get("api", f"{_echolot_base}/health" if _echolot_base else ""))
 selfdiag.register_probe("brave_mcp", "endpoint",
