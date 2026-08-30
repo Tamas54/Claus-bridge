@@ -91,7 +91,12 @@ def _ok(text):
                                          "isError": False}})
 
 
-ARTICLE = "Ez egy valódi cikkszöveg. " * 60      # ~1500 karakter
+# ⚠️ CIKK-ALAKÚ teszt-adat: a kapu néhány HOSSZÚ mondatot vár, nem sok rövid
+# sort. Rövid, ismételt mondatokkal a kapu jogosan dobja ki — a mérőeszköz
+# fogná meg a tesztadatot, nem fordítva.
+_SENTENCE = ("A Monetáris Tanács a mai ülésén az alapkamat változatlanul hagyásáról "
+             "döntött, és a közlemény szerint a döntést az inflációs pálya indokolta. ")
+ARTICLE = _SENTENCE * 8      # ~1200 karakter, 8 hosszú mondat
 
 
 # ── 1. Kikapcsolva = nulla változás ──────────────────────────────────────
@@ -112,7 +117,7 @@ def test_disabled_returns_none_without_touching_the_network(monkeypatch):
 def test_good_page_passes(lp):
     lp.response = _ok(ARTICLE)
     out = _run(server._lightpanda_markdown("https://index.hu/cikk"))
-    assert out and out.startswith("Ez egy valódi cikkszöveg")
+    assert out and out.startswith("A Monetáris Tanács")
 
 
 def test_empty_body_with_iserror_false_is_rejected(lp):
@@ -137,10 +142,41 @@ def test_consent_wall_is_rejected(lp):
     assert _run(server._lightpanda_markdown("https://444.hu/")) is None
 
 
+@pytest.mark.parametrize("blocker", [
+    "# Forbidden. IP: 89.223.199.110. If you are not a bot, please contact "
+    "support and provide the identifier shown on this page. " * 8,
+    "Please enable JS and disable any ad blocker to continue browsing here. " * 10,
+    "# Security Verification. Incompatible browser extension or network "
+    "configuration detected on this connection. " * 8,
+    "Seite nicht gefunden. Die von Ihnen aufgerufene Seite existiert nicht mehr. " * 10,
+])
+def test_blocker_pages_are_rejected(lp, blocker):
+    """Blokkoló oldal HTTP 200-zal. Mind MÉRT szöveg (tass.ru, nytimes.com,
+    ft.com, faz.net) — a 200 nem bizonyíték."""
+    lp.response = _ok(blocker)
+    assert _run(server._lightpanda_markdown("https://x.example/")) is None
+
+
+def test_navigation_list_is_not_an_article(lp):
+    """1000+ karakteres navigációs lista. A HOSSZ önmagában nem különbözteti
+    meg a cikktől — a hosszú mondatok száma igen."""
+    nav = "\n".join(["Belföld", "Külföld", "Gazdaság", "Sport", "Kultúra"] * 60)
+    assert len(nav) > 1000
+    lp.response = _ok(nav)
+    assert _run(server._lightpanda_markdown("https://x.example/")) is None
+
+
+def test_a_shorter_real_article_still_passes(lp):
+    """A szigorítás nem lehet szigorúbb, mint amit a termék valóban kap."""
+    lp.response = _ok(_SENTENCE * 4)
+    assert _run(server._lightpanda_markdown("https://x.example/")) is not None
+
+
 def test_long_article_mentioning_cookies_is_kept(lp):
     """A consent-szűrő NEM dobhat ki egy valódi, hosszú cikket, ami történetesen
     a sütikről szól — különben a kapu maga lesz a hibafelület."""
-    article = "A cookie-szabályozás új szakaszába lépett az Európai Unió. " * 60
+    article = ("A cookie-szabályozás új szakaszába lépett az Európai Unió, és a "
+               "hatóság szerint a változás minden nagyobb kiadót érinteni fog. ") * 30
     assert len(article) > 2000
     lp.response = _ok(article)
     assert _run(server._lightpanda_markdown("https://x.example/")) is not None

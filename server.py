@@ -5873,9 +5873,26 @@ _LIGHTPANDA_SEMAPHORE = _threading.Semaphore(1)
 # no MCP equivalent of the CLI's --fail-on-http-error, and no HTTP status is
 # exposed at all, so the caller must judge the BODY. 200 is not evidence.
 _LP_MIN_USEFUL_CHARS = 500
+# Article-shaped: a navigation list is many short lines, an article is a few
+# long sentences. Length alone does NOT separate them — measured across 20
+# domains, a naive ">=1000 chars" gate sold three cookie walls and one
+# "Seite nicht gefunden" page as articles.
+_LP_MIN_LONG_SENTENCES = 3
+_LP_LONG_SENTENCE_CHARS = 80
 _LP_CONSENT_RE = _re_module.compile(
     r"adatainak véd|hozzájárul|cookie|süti|consent|privacy preference|"
     r"we value your privacy|accept all",
+    _re_module.IGNORECASE,
+)
+# What blocking pages return WITH a 200. Every phrase here is measured text,
+# not a guess: tass.ru "If you are not a bot", nytimes.com "Please enable JS
+# and disable any ad blocker", ft.com "Security Verification", faz.net
+# "Seite nicht gefunden", lemonde.fr without JS "A required part of this site
+# couldn't load".
+_LP_BLOCKER_RE = _re_module.compile(
+    r"if you are not a bot|enable js|security verification|just a moment|"
+    r"access denied|seite nicht gefunden|required part of this site|"
+    r"checking your browser|verify you are human",
     _re_module.IGNORECASE,
 )
 
@@ -5964,8 +5981,19 @@ async def _lightpanda_markdown(url: str, max_bytes: int = 20000,
             logger.info("lightpanda %s too short (%d chars) — degrading",
                         url[:60], len(text))
             return None
+        if _LP_BLOCKER_RE.search(text[:1200]):
+            logger.info("lightpanda %s blocker/error page — degrading", url[:60])
+            return None
         if len(text) < 2000 and _LP_CONSENT_RE.search(text[:800]):
             logger.info("lightpanda %s consent wall — degrading", url[:60])
+            return None
+        long_sentences = sum(
+            1 for part in _re_module.split(r"[.!?\n]", text)
+            if len(part.strip()) >= _LP_LONG_SENTENCE_CHARS
+        )
+        if long_sentences < _LP_MIN_LONG_SENTENCES:
+            logger.info("lightpanda %s not article-shaped (%d long sentences) — degrading",
+                        url[:60], long_sentences)
             return None
         return text
     except Exception as e:
