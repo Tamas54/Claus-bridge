@@ -751,3 +751,18 @@ def test_a_valodi_francia_szemle_ATMEGY():
     assert ab.validate_review(fr, b) == []
     # ⚠️ A FEK: a lazitas nem lyukaszthatja ki a szurot
     assert ab.validate_review(fr + " Le taux tchèque est de 9,91 %.", b)
+
+
+def test_a_tagolo_PONTOSAN_harom_jegyet_tagol():
+    """⚠️ A JAVITAS SAJAT HIBAJA. Az elso kétolvasatos változat az „1,6"-ból
+    „16"-ot is előállított (vessző = ezres tagoló) — vagyis a validátor SAJÁT
+    MAGA gyártott nem létező számokat, és tíz teszt bukott el tőle.
+
+    Egy ezres tagoló PONTOSAN három számjegyet fog. Ha nem, az az olvasat
+    érvénytelen, és el kell dobni — nem elég „mindkét értelmezést" felvenni."""
+    assert ab._szamok("1,6") == {1.6}
+    assert ab._szamok("1.71") == {1.71}
+    assert ab._szamok("7683,24") == {7683.24}
+    # a valodi nyelvi valtozatok mind ugyanoda vezetnek
+    for alak in ("8 334,5", "8,334.5", "8.334,5"):
+        assert 8334.5 in ab._szamok(alak), alak

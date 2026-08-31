@@ -573,20 +573,35 @@ def _szamok(szoveg: str) -> set:
        és elég, ha az egyik ismerős.
     """
     import re
+    # 1. AZ EZRES SZÓKÖZT ELŐBB TÜNTETJÜK EL — de CSAK ha tényleg tagoló:
+    #    három számjegy áll utána, és nem több. Enélkül a minta a szóközön
+    #    keresztül ÖSSZEOLVASNA két szomszédos számot: az „S&P 500 7683,24"
+    #    egyetlen tokenné vált, és a szemle emiatt bukott el.
+    tiszta = re.sub(r"(?<=\d)[ \u00a0](?=\d{3}(?!\d))", "", szoveg or "")
     ki = set()
-    # egy szam-token: szamjegyek, kozottuk tagolo (szokoz / keskeny szokoz /
-    # pont / vesszo), a vegen tizedes resz
-    for tok in re.findall(r"-?\d[\d \u00a0.,]*\d", szoveg or ""):
-        mag = tok.replace(" ", "").replace("\u00a0", "")
-        jelolt = {
-            # a) vesszo = tizedes, pont = ezres  → "8.334,5" / "8334,5"
-            mag.replace(".", "").replace(",", "."),
-            # b) pont = tizedes, vesszo = ezres  → "8,334.5" / "8334.5"
-            mag.replace(",", ""),
-        }
-        for j in jelolt:
-            if "." not in j:
-                continue          # tizedes nelkul nem vizsgaljuk (1. pont)
+    for tok in re.findall(r"-?\d+(?:[.,]\d+)+", tiszta):
+        # ⚠️ EGY OLVASAT CSAK AKKOR ERVENYES, HA A TAGOLO TENYLEG TAGOLO:
+        # az ezres csoport PONTOSAN harom szamjegy. Enelkul az "1,6"-bol
+        # "16" lenne (vesszo = ezres), es a validator sajat maga gyartana
+        # nem letezo szamokat — pontosan az, ami ellen keszult.
+        def _olvasat(tizedes: str, ezres: str) -> str | None:
+            if tok.count(tizedes) > 1:
+                return None                    # ket tizedesjel: ertelmetlen
+            if tizedes in tok:
+                egesz, _, tort = tok.rpartition(tizedes)
+            else:
+                egesz, tort = tok, ""
+            if ezres in tort:
+                return None                    # tagolo a tizedes reszben
+            reszek = egesz.split(ezres)
+            if len(reszek) > 1 and any(len(r) != 3 for r in reszek[1:]):
+                return None                    # nem harom jegyu csoport
+            mag = egesz.replace(ezres, "")
+            return f"{mag}.{tort}" if tort else mag
+
+        for j in (_olvasat(",", "."), _olvasat(".", ",")):
+            if not j:
+                continue
             try:
                 ki.add(round(float(j), 2))
             except ValueError:
