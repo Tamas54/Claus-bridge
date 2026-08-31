@@ -315,3 +315,20 @@ def test_a_tartalek_ut_KIMONDJA_hogy_keshet():
     assert "TARTALEK ut" in src, "a visszaeses nem naplozott"
     blokk = src.split('if name == "policy_rates":', 1)[1].split("if name ==", 1)[0]
     assert "KESHET" in blokk, "a tartalek valasz nem jeloli meg a teteleket"
+
+
+def test_a_rendszerprompt_tiltja_a_tablazat_kiegesziteset():
+    """MEGTORTENT (2026-08-31): a bot valasza OT jegybankot sorolt fel egy
+    tablazatban; a `policy_rates` tool HARMAT adott vissza. A lengyel es a
+    roman sort a modell irta hozza emlekezetbol — mindketto ROSSZ volt
+    (NBP 3,5 a valos 3,75 helyett, BNR 3,3 a valos 6,5 helyett).
+
+    A kitalalt sor ugyanugy nez ki, mint a tobbi: ugyanabban a tablazatban,
+    ugyanolyan formaban, forrasjelzes nelkul. Az olvaso nem tudja
+    megkulonboztetni.
+    """
+    from feldwebel.responder import SYSTEM_PROMPT_TEMPLATE as P
+    assert "NEM KERÜL A TÁBLÁZATBA" in P
+    assert "HÍVD ÚJRA a toolt" in P, "nincs megadva a HELYES teendo"
+    assert "AZ OKOT SEM TALÁLHATOD KI" in P, \
+        "a kitalalt OK-ra (Warsh-eset) nincs szabaly"
