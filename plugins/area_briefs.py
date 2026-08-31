@@ -115,15 +115,12 @@ MARKET_GLOBAL: tuple[tuple[str, str], ...] = (
 #: found), ezért a legnagyobb tőzsdei papír áll helyette. Oroszra az
 #: `IMOEX.ME` szintén halott — az ru/uk kiadásnak amúgy sincs hazai országa.
 MARKET_HOME: dict[str, tuple[tuple[str, str], ...]] = {
-    # ⚠️ MAGYARORSZAGRA NINCS HASZNALHATO INDEX, ezert a negy blue chip all
-    # helyette. Megvizsgalva 2026-08-31:
-    #   Yahoo: `^BUX`, `^BUXI`, `BUX.BD`, `BUX.BUD` — mind halott (STALE /
-    #     not found); stooq: nincs BUX.
-    #   bet.hu: az indexerteket JS-portlet tolti, a statikus HTML-ben csak a
-    #     BAZISKAPITALIZACIO van (14.639.314.708 Ft) — es pont ez a csapda:
-    #     hiheto indexertekkent becsuszott volna a briefbe.
-    # A negy papir kulon-kulon tobbet is mond az olvasonak, mint egy
-    # indexszam, es sajat sulyozasu "indexet" gyartani hamisitas lenne.
+    # ⚠️ A BUX NEM A YAHOO-ROL JON. Nincs elo Yahoo-szimboluma (`^BUX` STALE,
+    # `^BUXI`/`BUX.BD`/`BUX.BUD` not found), a stooq sem viszi. A StatData
+    # `bet_index` toolja adja, a bet.hu beagyazott JSON-blobjabol — lasd az
+    # `INDEX_TOOL_HOME` leképezest lentebb.
+    # A negy blue chip MELLETTE marad: kulon-kulon tobbet mondanak az
+    # olvasonak, mint egy indexszam, es a Telegram-brief is igy csinalja.
     "hu": (("stocks_otp", "OTP.BD"), ("stocks_mol", "MOL.BD"),
            ("stocks_richter", "RICHT.BD"), ("stocks_mtel", "MTEL.BD"),
            ("fx_eur", "EURHUF=X")),
@@ -139,6 +136,14 @@ MARKET_HOME: dict[str, tuple[tuple[str, str], ...]] = {
     "ru": (),
     "uk": (),
 }
+
+#: Kiadások, ahol a hazai INDEX nem a yfinance-ről jön, hanem sajat
+#: StatData-toolbol. Ma egy ilyen van; a szerkezet viszont keszen all, ha
+#: mas tozsdenel is kiderul, hogy a Yahoo nem viszi.
+INDEX_TOOL_HOME: dict[str, tuple[str, str, dict]] = {
+    "hu": ("index_bux", "bet_index", {"index": "BUX"}),
+}
+
 
 #: A piaci jegyzések memória-cache-e. A tőzsde percenként mozog, de egy napi
 #: briefhez a tíz perces frissesség bőven elég — és megvéd attól, hogy tizenkét
@@ -191,10 +196,56 @@ async def fetch_market(statdata_call, lang: str) -> dict:
         q = await fetch_quote(statdata_call, sym)
         if q:
             ki["global"][cimke] = q
+    # A sajat toolbol jovo index ELOL all: az a nyelvterulet fo mutatoja.
+    tool = INDEX_TOOL_HOME.get(lang)
+    if tool:
+        cimke, tool_nev, args = tool
+        q = await fetch_index_tool(statdata_call, tool_nev, args)
+        if q:
+            ki["home"][cimke] = q
     for cimke, sym in MARKET_HOME.get(lang, ()):
         q = await fetch_quote(statdata_call, sym)
         if q:
             ki["home"][cimke] = q
+    return ki
+
+
+async def fetch_index_tool(statdata_call, tool_nev: str, args: dict) -> dict | None:
+    """Tozsdeindex sajat StatData-toolbol (ma: `bet_index` a BUX-hoz).
+
+    A visszaadott alak AZONOS a `fetch_quote`-eval, hogy a renderelo es a
+    szemle ne tudja megkulonboztetni, honnan jott — kulonben minden fogyasztot
+    ket agra kellene bontani.
+
+    ⚠️ A `market_cap_bnft` mezot SZANDEKOSAN nem vesszuk at. A bet.hu lapjan
+    az a baziskapitalizacio (14.639.314.708 Ft), es az elso probam pont azt
+    szedte fel indexertekkent. Ami nem kell, azt ne is hozzuk magunkkal.
+    """
+    import time as _t
+    kulcs = f"{tool_nev}:{json.dumps(args, sort_keys=True)}"
+    hit = _MARKET_CACHE.get(kulcs)
+    if hit and (_t.time() - hit[0]) < _MARKET_TTL:
+        return hit[1]
+    try:
+        res = await statdata_call(tool_nev, args)
+        if isinstance(res, str):
+            res = json.loads(res)
+    except Exception as e:  # noqa: BLE001
+        logger.warning("index-tool (%s) elbukott: %s", tool_nev, e)
+        return None
+    if not isinstance(res, dict) or res.get("error") or res.get("value") is None:
+        logger.info("index-tool (%s) ures: %s", tool_nev,
+                    str((res or {}).get("error"))[:120])
+        return None
+    ki = {"symbol": res.get("index") or tool_nev,
+          "name": res.get("index") or tool_nev,
+          "price": res.get("value"),
+          "prev_close": res.get("prev_close"),
+          "change_pct": res.get("change_pct"),
+          "currency": "pont",
+          "as_of": None,
+          "source": res.get("source")}
+    _MARKET_CACHE[kulcs] = (_t.time(), ki)
     return ki
 
 

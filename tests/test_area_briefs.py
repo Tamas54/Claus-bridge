@@ -655,3 +655,72 @@ def test_magyarorszagra_KOSAR_all_index_helyett():
     hu = dict(ab.MARKET_HOME["hu"])
     assert {"OTP.BD", "MOL.BD", "RICHT.BD", "MTEL.BD"} <= set(hu.values())
     assert not any("BUX" in v for v in hu.values()), "halott BUX-szimbólum a listán"
+
+
+# ── A BUX SAJÁT TOOLBÓL JÖN ─────────────────────────────────────────────
+# A BUX-nak nincs élő Yahoo-szimbóluma; a StatData `bet_index` toolja adja,
+# a bet.hu beágyazott JSON-blobjából.
+
+def test_a_BUX_sajat_toolbol_jon_nem_a_yahoorol():
+    hivasok = []
+
+    async def _sd(tool, args):
+        hivasok.append(tool)
+        if tool == "bet_index":
+            return {"index": "BUX", "value": 149161.68, "change_pct": -1.0,
+                    "prev_close": 150666.43, "market_cap_bnft": 27969.0,
+                    "source": "Budapesti Ertektozsde (bet.hu)"}
+        return {"symbol": args["symbol"], "price": 1.0, "previous_close": 1.0}
+
+    ab._MARKET_CACHE.clear()
+    m = asyncio.run(ab.fetch_market(_sd, "hu"))
+    assert "bet_index" in hivasok
+    bux = m["home"]["index_bux"]
+    assert bux["price"] == 149161.68 and bux["change_pct"] == -1.0
+    assert not any("BUX" in s for s in
+                   (x[1] for x in ab.MARKET_HOME["hu"])), "halott BUX-szimbólum"
+
+
+def test_az_index_tool_ALAKJA_azonos_a_jegyzesevel():
+    """Ha a két forrás más alakot adna, minden fogyasztót (renderelő, szemle,
+    validátor) két ágra kellene bontani — és az egyik ág elfelejtődne."""
+    async def _sd(tool, args):
+        return {"index": "BUX", "value": 149161.68, "change_pct": -1.0,
+                "prev_close": 150666.43}
+
+    async def _yf(tool, args):
+        return {"symbol": "^GSPC", "price": 7683.24, "previous_close": 7711.76}
+
+    ab._MARKET_CACHE.clear()
+    a = asyncio.run(ab.fetch_index_tool(_sd, "bet_index", {"index": "BUX"}))
+    ab._MARKET_CACHE.clear()
+    b = asyncio.run(ab.fetch_quote(_yf, "^GSPC"))
+    assert {"symbol", "name", "price", "prev_close", "change_pct",
+            "currency"} <= set(a) & set(b)
+
+
+def test_a_baziskapitalizacio_NEM_kerul_at():
+    """A bet.hu lapján a 14.639.314.708 Ft a BÁZISKAPITALIZÁCIÓ, és az első
+    próbám pont azt szedte fel indexértékként. Ami nem kell, azt ne is hozzuk
+    magunkkal — egy fölösleges mező előbb-utóbb valakinek a táblázatában
+    landol."""
+    async def _sd(tool, args):
+        return {"index": "BUX", "value": 149161.68, "change_pct": -1.0,
+                "prev_close": 150666.43, "market_cap_bnft": 27969.0}
+
+    ab._MARKET_CACHE.clear()
+    q = asyncio.run(ab.fetch_index_tool(_sd, "bet_index", {"index": "BUX"}))
+    assert "market_cap_bnft" not in q
+
+
+def test_a_bet_index_bukasa_nem_viszi_el_a_tobbi_papirt():
+    async def _sd(tool, args):
+        if tool == "bet_index":
+            return {"error": "A bet.hu lapjan nem talalhato az index-blob"}
+        return {"symbol": args["symbol"], "price": 45240.0,
+                "previous_close": 46000.0}
+
+    ab._MARKET_CACHE.clear()
+    m = asyncio.run(ab.fetch_market(_sd, "hu"))
+    assert "index_bux" not in m["home"]
+    assert m["home"]["stocks_otp"]["change_pct"] == -1.65
