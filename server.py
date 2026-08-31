@@ -2141,6 +2141,37 @@ def _delphoi_auth(request):
     return None
 
 
+@mcp.custom_route("/api/brief/area/{lang}", methods=["GET"])
+async def api_area_brief(request):
+    """A `lang` nyelvteruleti makro-brief — az Echolot ezt huzza be.
+
+    Auth: ugyanaz az osztott kulcs, mint a DELPHOI-uton (X-Delphoi-Key).
+    Az Echolotnak igy EGY rendszert kell ismernie (a Bridge-et), nem kettot.
+
+    A valasz KESZ adat: hazai blokk + kozos horgony, cellankent ertekkel,
+    idoszakkal, mertekegyseggel es FORRASSAL. Az Echolot csak rendereli — a
+    cimkeket a sajat 12 nyelvu `t()` szotarabol veszi, tehat a megjelenites
+    NULLA tokenbe kerul.
+    """
+    denied = _delphoi_auth(request)
+    if denied is not None:
+        return denied
+    lang = (request.path_params.get("lang") or "").strip().lower()
+    from plugins.area_briefs import AREA_COUNTRY, load_area_brief
+    if lang not in AREA_COUNTRY:
+        return JSONResponse({"ok": False, "error": "unknown_lang",
+                             "valid": sorted(AREA_COUNTRY)}, status_code=404)
+    d = load_area_brief(get_db, lang)
+    if not d:
+        # ⚠️ A HIANY NEM HIBA, DE KI KELL MONDANI. Az Echolot ilyenkor NE
+        # rendereljen makro-blokkot — jobb a hianyzo szekcio, mint egy ures
+        # tablazat vagy egy tegnapi szam mai cimke alatt.
+        return JSONResponse({"ok": False, "error": "not_generated_yet",
+                             "hint": "A napi area_briefs cron meg nem futott le erre a nyelvre."},
+                            status_code=404)
+    return JSONResponse({"ok": True, "brief": d})
+
+
 @mcp.custom_route("/api/delphoi/jobs", methods=["GET", "POST"])
 async def api_delphoi_jobs(request):
     """POST: új fókuszcsoport-job (atomi kredit-levonás, queued, azonnali
@@ -11310,6 +11341,19 @@ async def _cron_loop():
                             asyncio.create_task(_mb_retry())
                     except Exception as e:
                         logger.error("Cron market_brief failed for %s: %s", r["name"], e)
+                    continue
+
+                # ── Nyelvteruleti makro-briefek (12 kiadas) ──
+                # NULLA LLM: csak szamok es cimkek. Egy StatData-panel-hivas,
+                # 12 tarolt sor. Az Echolot ezt huzza be es rendereli.
+                if r["name"] == "area_briefs":
+                    try:
+                        from plugins.area_briefs import cron_entry as _ab_cron
+                        import _statdata_client as _sd
+                        res = await _ab_cron(get_db, _sd._call)
+                        logger.info("Cron area_briefs: %s", res)
+                    except Exception as e:  # noqa: BLE001
+                        logger.error("Cron area_briefs failed: %s", e)
                     continue
 
                 # ── Daily press review special-case ──

@@ -672,6 +672,23 @@ def register_tools(app, deps):
             )
             logger.info("daily_press_review-seed: beillesztve (cron=0 6 * * *)")
 
+        # 4b) NYELVTERULETI MAKRO-BRIEFEK — 12 kiadas, nulla LLM.
+        #     06:40-kor fut: a 06:00-s press review UTAN, a 07:00-s hirszemle
+        #     ELOTT, hogy a napi adat mar kesz legyen, amikor barki olvassa.
+        ab_exists = conn.execute(
+            "SELECT 1 FROM pyramid_recipes WHERE name='area_briefs'").fetchone()
+        if not ab_exists:
+            conn.execute(
+                "INSERT INTO pyramid_recipes (name, description, required_tools, "
+                "prompt_template, created_by, created_at, updated_at, cron_schedule, "
+                "cron_model, cron_enabled, cron_delivery) "
+                "VALUES (?, ?, '[]', ?, 'system', ?, ?, ?, 'deepseek', 1, 'none')",
+                ("area_briefs",
+                 "Nyelvteruleti makro-briefek (12 kiadas, nulla LLM) -> briefs tabla",
+                 "(special-cased — runtime: plugins.area_briefs.cron_entry)",
+                 ts2, ts2, "40 6 * * *"))
+            logger.info("area_briefs-seed: beillesztve (cron=40 6 * * *)")
+
         # 5) HIRSZEMLE — KET recept, kanonikus prompttal (plugins/news_brief.py).
         #    Miert ket sor: a `cron_schedule` EGYETLEN oszlop, tehat egy recept
         #    egy idopontban fut. A reggeli + delutani briefet 2026-04-10-en
