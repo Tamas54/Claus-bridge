@@ -797,3 +797,26 @@ def test_a_ketertelmuseg_NEM_lyukasztja_ki_a_szurot():
             {"country": "US", "indicator": "core_cpi", "value": 2.467}],
          "market": {"global": {}, "home": {}}}
     assert ab.validate_review("The Czech rate is 9.91%.", b)
+
+
+def test_a_KESKENY_szokoz_is_ezres_tagolo():
+    """ÉLES: az orosz szemle „4 494,0"-t írt keskeny nem-törő szóközzel
+    (U+202F), amit az első változat nem ismert fel — „494,0" maradt belőle,
+    és a helyes szemle eldobódott. Az orosz és a francia tipográfia ezt
+    használja, nem a sima szóközt."""
+    for sp in (" ", " ", " ", " ", " "):
+        assert 4494.0 in ab._szamok(f"4{sp}494,0"), repr(sp)
+
+
+def test_a_modell_EGESZRE_is_kerekithet():
+    """ÉLES: a spanyol szemle az IBEX 19 974,1-et „19.974"-ként írta — levágta
+    a tizedest, ahogy egy újságíró is tenné egy ötjegyű indexnél."""
+    b = {"lang": "es", "country": "ES", "home": [], "anchor": [],
+         "market": {"global": {}, "home": {"index_ibex": {"price": 19974.1}}}}
+    assert ab.validate_review("El IBEX 35 cerró en 19.974 puntos.", b) == []
+
+
+def test_a_kerekitesi_turelem_NEM_engedi_at_a_kitalalt_szamot():
+    b = {"lang": "es", "country": "ES", "home": [], "anchor": [],
+         "market": {"global": {}, "home": {"index_ibex": {"price": 19974.1}}}}
+    assert ab.validate_review("La tasa checa es 9,91%.", b)

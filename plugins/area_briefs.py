@@ -571,7 +571,11 @@ def _szam_jeloltek(szoveg: str) -> list[tuple[str, set]]:
     # Az ezres SZÓKÖZT előbb tüntetjük el — de csak ha tényleg tagoló: három
     # számjegy áll utána, és nem több. Enélkül a minta a szóközön keresztül
     # összeolvasna két szomszédos számot („S&P 500 7683,24").
-    tiszta = re.sub(r"(?<=\d)[ \u00a0](?=\d{3}(?!\d))", "", szoveg or "")
+    # ⚠️ TOBBFELE SZOKOZ LETEZIK. Az orosz szemle "4 494,0"-t irt keskeny
+    # nem-toro szokozzel (U+202F), amit az elso valtozat nem ismert fel —
+    # igy "494,0" maradt belole, es a helyes szemle eldobodott.
+    tiszta = re.sub(r"(?<=\d)[ \u00a0\u202f\u2009\u2007](?=\d{3}(?!\d))",
+                    "", szoveg or "")
     ki = []
     for tok in re.findall(r"-?\d+(?:[.,]\d+)+", tiszta):
         def _olvasat(tizedes: str, ezres: str) -> str | None:
@@ -645,9 +649,14 @@ def _ismert_szamok(brief: dict) -> set:
         # nagyságként ír le, és az előjelet az IGE hordozza: „房价下跌6.3%",
         # „az ipari termelés 0,5 százalékkal csökkent". Előjel-szigorúan a
         # kínai szemle bukott el, pedig helyes volt.
+        #
+        # ⚠️ ES MINDEN KEREKITESI SZINTEN. A spanyol szemle az IBEX 19 974,1-et
+        # "19.974"-kent irta — levagta a tizedest, ahogy egy ujsagiro is tenne
+        # egy otjegyu indexnel. Ha csak ket- es egytizedes alakot ismernenk el,
+        # a helyes szemle bukna el.
         for y in (x, abs(x)):
-            ismert.add(round(y, 2))
-            ismert.add(round(y, 1))
+            for tizedes in (2, 1, 0):
+                ismert.add(round(y, tizedes))
 
     for a in ertekek:
         _felvesz(a)
