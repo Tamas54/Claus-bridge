@@ -135,3 +135,71 @@ def test_egy_bukott_koteg_nem_viszi_el_a_tobbit():
 
     out = asyncio.run(ab.build_area_briefs(_call))
     assert out, "egy bukott koteg elvitte az egeszet"
+
+
+# ══════════════════════════════════════════════════════════════════════════
+# NEMZETI vs HARMONIZÁLT — a két szám sose keveredhet
+# ══════════════════════════════════════════════════════════════════════════
+#
+# Kommandant, 2026-08-31: "tegyük hozzá a magyarokhoz a szar saját KSH-s
+# adatokat is. Tehát harmonizáltan dolgozzunk."
+#
+# HU maginfláció 2026-07: harmonizált 3,7% · nemzeti 1,9%. Kétszeres eltérés,
+# és MINDKETTŐ helyes. Ez a legveszélyesebb adatpár a rendszerben: két igaz
+# szám, ugyanarra a névre.
+
+
+
+
+
+def _nemzeti_cell(cc, ind, val):
+    """A nemzeti mutato cellaja — SAJAT egysegcimkevel, mint elesben."""
+    c = _cell(cc, ind, val)
+    c["unit"] = "annual % change (YoY), NATIONAL definition — NOT comparable"
+    return c
+
+
+def test_nemzeti_core_a_harmonizalt_MOGE_kerul():
+    """A sorrend nem kozmetika: egymás mellett a két szám összehasonlítás, a
+    táblázat két távoli pontján viszont ellentmondás."""
+    rows = [_cell("HU", "cpi", 1.6), _cell("HU", "core_cpi", 3.7),
+            _nemzeti_cell("HU", "core_cpi_national", 1.9), _cell("HU", "policy_rate", 5.5)]
+    b = asyncio.run(ab.build_area_briefs(_panel(rows)))
+    nevek = [r["indicator"] for r in b["hu"]["home"]]
+    assert nevek.index("core_cpi_national") == nevek.index("core_cpi") + 1
+
+
+def test_a_nemzeti_hianya_NEM_hiany():
+    """Nemzeti maginfláció csak ott van, ahol a hivatal külön közli. Ha ezt
+    hiányként jelentenénk, kilenc kiadás kapna egy SOHA nem javítható
+    hiánysort — és a hiánylista pont attól hasznos, hogy javítható."""
+    rows = [_cell("DE", i, 2.0) for i in ab.HOME_INDICATORS]
+    b = asyncio.run(ab.build_area_briefs(_panel(rows)))
+    assert b["de"]["gaps"] == [], "a nemzeti mutató hiánya hiánynak számított"
+    assert "core_cpi_national" not in b["de"]["gaps"]
+
+
+def test_a_nemzeti_nem_helyettesiti_a_harmonizaltat():
+    """A LEGROSSZABB kimenet: hiányzó harmonizált mellett a nemzeti szám
+    csendben átveszi a helyét, és a 12 kiadás összehasonlíthatatlan lesz —
+    anélkül, hogy bárki észrevenné."""
+    rows = [_cell("HU", "cpi", 1.6), _nemzeti_cell("HU", "core_cpi_national", 1.9)]
+    b = asyncio.run(ab.build_area_briefs(_panel(rows)))
+    nevek = [r["indicator"] for r in b["hu"]["home"]]
+    assert "core_cpi_national" in nevek
+    assert "core_cpi" not in nevek
+    assert "core_cpi" in b["hu"]["gaps"], \
+        "a nemzeti szám elfedte a harmonizált hiányát"
+
+
+def test_a_ketto_kulon_nevvel_es_kulon_egyseggel_megy_ki():
+    """Az Echolot 12 nyelven rendereli. Ha a két sor neve vagy egysége
+    azonos, a fordító `t()` UGYANAZT a címkét adja mindkettőre — és az
+    olvasó két egymásnak ellentmondó 'maginflációt' lát."""
+    rows = [_cell("HU", "core_cpi", 3.7),
+            _nemzeti_cell("HU", "core_cpi_national", 1.9)]
+    b = asyncio.run(ab.build_area_briefs(_panel(rows)))
+    h = {r["indicator"]: r for r in b["hu"]["home"]}
+    assert h["core_cpi"]["value"] != h["core_cpi_national"]["value"]
+    assert h["core_cpi"]["unit"] != h["core_cpi_national"]["unit"], \
+        "a két mutató azonos egységcímkét visz — az olvasó nem tudja szétválasztani"

@@ -52,6 +52,24 @@ HOME_INDICATORS = ("cpi", "core_cpi", "policy_rate", "unemployment",
                    "gdp_growth", "bond_yield_10y", "wages", "gov_debt",
                    "house_prices", "retail_trade", "industrial_production")
 
+#: OPCIONÁLIS hazai mutatók: megjelennek, ahol vannak, de a hiányuk NEM hiány.
+#:
+#: Kommandant, 2026-08-31: "tegyük hozzá a magyarokhoz a szar saját KSH-s
+#: adatokat is." — a harmonizált marad a mérce (mert csak az hasonlítható
+#: össze a 12 kiadás között), de a HAZAI olvasó a saját statisztikai hivatala
+#: számát látja a hírekben, és a kettő MESSZE eltérhet:
+#:     HU maginfláció, harmonizált (Eurostat HICP): 3,7%
+#:     HU maginfláció, nemzeti     (KSH):           1,9%
+#: Mindkettő igaz — MÁS KOSÁR. Ha csak az egyiket mutatnánk, az olvasó azt
+#: hinné, tévedünk; ha címke nélkül mutatnánk mindkettőt, azt, hogy egyikük
+#: hibás. Ezért külön mutatónév és külön sor.
+#:
+#: Miért nem kerülnek a `gaps`-be: nemzeti maginfláció-sorozat CSAK ott van,
+#: ahol a hivatal külön közli (mérve: HU, FR, IT). Ha ezt hiányként
+#: jelentenénk, kilenc kiadás kapna egy örökre kitölthetetlen hiánysort — a
+#: hiánylista pedig pontosan attól hasznos, hogy MEGJAVÍTHATÓ dolgokat sorol.
+HOME_OPTIONAL = ("core_cpi_national",)
+
 #: A KÖZÖS horgony — szűkebb, mert viszonyítás, nem önálló szemle.
 ANCHOR_COUNTRIES = ("EA", "US")
 ANCHOR_INDICATORS = ("cpi", "core_cpi", "policy_rate", "unemployment")
@@ -79,7 +97,7 @@ async def build_area_briefs(statdata_call) -> dict:
     """
     orszagok = [c for c in dict.fromkeys(
         [v for v in AREA_COUNTRY.values() if v] + list(ANCHOR_COUNTRIES))]
-    mutatok = list(dict.fromkeys(HOME_INDICATORS + ANCHOR_INDICATORS))
+    mutatok = list(dict.fromkeys(HOME_INDICATORS + HOME_OPTIONAL + ANCHOR_INDICATORS))
 
     # ⚠️ KOTEGELES. A panel cella-plafonja 120, es az NEM onkenyes: minden
     # cella kulon kulso lekeres, a forrasoknal (FRED, Eurostat) rate limit
@@ -116,7 +134,14 @@ async def build_area_briefs(statdata_call) -> dict:
     now = datetime.now(timezone.utc).isoformat()
     out: dict[str, dict] = {}
     for lang, cc in AREA_COUNTRY.items():
-        hazai = _fresh_only([per.get(cc, {})[i] for i in HOME_INDICATORS
+        # A nemzeti maginfláció közvetlenül a harmonizált MÖGÉ kerül: így a
+        # két szám egymás mellett olvasható, és az eltérés magyarázza magát.
+        sorrend = []
+        for i in HOME_INDICATORS:
+            sorrend.append(i)
+            if i == "core_cpi":
+                sorrend += list(HOME_OPTIONAL)
+        hazai = _fresh_only([per.get(cc, {})[i] for i in sorrend
                              if i in per.get(cc, {})]) if cc else []
         horgony = []
         for ac in ANCHOR_COUNTRIES:
