@@ -557,23 +557,40 @@ def _tenyblokk(brief: dict) -> str:
 
 
 def _szamok(szoveg: str) -> set:
-    """A szövegben szereplő, TIZEDESJEGYES számok.
+    """A szövegben szereplő, TIZEDESJEGYES számok — MINDEN olvasatukban.
 
-    ⚠️ AZ EGÉSZ SZÁMOKAT SZÁNDÉKOSAN KIHAGYJUK. Az első változat mindent
-    felszedett, és emiatt JOGOS szemléket dobott el: a kínai „10年期国债"
-    (10 ÉVES kötvény) „10"-e, a negyedév-számok, az évszámok és a hónapok
-    mind „a bemenetben nem szereplő szám"-ként buktak. Egy makró-ráta a
-    prózában gyakorlatilag mindig tizedesjeggyel szerepel (3,7% / 31,8%), a
-    puszta egész pedig szinte mindig SZÓ része — a szűkítés tehát alig
-    veszít, és rengeteg hamis riasztást megszüntet.
+    ⚠️ KÉT KÜLÖN CSAPDA, MINDKETTŐ ÉLESBEN FOGOTT MEG.
+
+    1. EGÉSZ SZÁMOK. Az első változat mindent felszedett, és ezért JOGOS
+       szemléket dobott el: a kínai „10年期国债" (10 ÉVES kötvény) „10"-e, a
+       negyedév-számok és az évszámok mind „kitalált számként" buktak. Egy
+       makró-ráta a prózában gyakorlatilag mindig tizedesjeggyel szerepel.
+
+    2. EZRES TAGOLÁS. A francia szemle „8 334,5"-öt írt (CAC 40), és a
+       naiv minta ebből „334,5"-öt látott — egy számot, ami sehol nem
+       szerepel a bemenetben. A tagolás nyelvenként más: „8 334,5",
+       „8,334.5", „8.334,5". Ezért a tokent MINDKÉT olvasatban előállítjuk,
+       és elég, ha az egyik ismerős.
     """
     import re
     ki = set()
-    for m in re.findall(r"-?\d+[.,]\d+", szoveg or ""):
-        try:
-            ki.add(round(float(m.replace(",", ".")), 2))
-        except ValueError:
-            continue
+    # egy szam-token: szamjegyek, kozottuk tagolo (szokoz / keskeny szokoz /
+    # pont / vesszo), a vegen tizedes resz
+    for tok in re.findall(r"-?\d[\d \u00a0.,]*\d", szoveg or ""):
+        mag = tok.replace(" ", "").replace("\u00a0", "")
+        jelolt = {
+            # a) vesszo = tizedes, pont = ezres  → "8.334,5" / "8334,5"
+            mag.replace(".", "").replace(",", "."),
+            # b) pont = tizedes, vesszo = ezres  → "8,334.5" / "8334.5"
+            mag.replace(",", ""),
+        }
+        for j in jelolt:
+            if "." not in j:
+                continue          # tizedes nelkul nem vizsgaljuk (1. pont)
+            try:
+                ki.add(round(float(j), 2))
+            except ValueError:
+                continue
     return ki
 
 

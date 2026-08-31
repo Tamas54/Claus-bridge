@@ -724,3 +724,30 @@ def test_a_bet_index_bukasa_nem_viszi_el_a_tobbi_papirt():
     m = asyncio.run(ab.fetch_market(_sd, "hu"))
     assert "index_bux" not in m["home"]
     assert m["home"]["stocks_otp"]["change_pct"] == -1.65
+
+
+def test_az_EZRES_TAGOLAS_nem_tor_ketto_egy_szamot():
+    """ÉLES BUKÁS (2026-08-31): a francia szemle „8 334,5"-öt írt (CAC 40), és
+    a naiv minta ebből „334,5"-öt látott — egy számot, ami sehol nem szerepel
+    a bemenetben. A szemle eldobódott, pedig hibátlan volt.
+
+    A tagolás nyelvenként más: „8 334,5" (fr/hu), „8,334.5" (en),
+    „8.334,5" (de). Ezért a tokent MINDKÉT olvasatban előállítjuk, és elég,
+    ha az egyik ismerős."""
+    assert 8334.5 in ab._szamok("8 334,5 points")
+    assert 8334.5 in ab._szamok("8,334.5 points")
+    assert 8334.5 in ab._szamok("8.334,5 Punkte")
+    assert 149161.68 in ab._szamok("A BUX 149 161,68 ponton zárt")
+
+
+def test_a_valodi_francia_szemle_ATMEGY():
+    fr = ("Le pétrole a bondi de 2,79 % à 85,73 dollars — l'or a cédé 1,05 %, "
+          "le S&P 500 a perdu 0,37 %. Le CAC 40 a terminé à 8 334,5 points.")
+    b = {"lang": "fr", "country": "FR", "home": [], "anchor": [],
+         "market": {"global": {"oil_wti": {"price": 85.73, "change_pct": 2.79},
+                               "gold": {"price": 4482.5, "change_pct": -1.05},
+                               "sp500": {"price": 7683.38, "change_pct": -0.37}},
+                    "home": {"index_cac": {"price": 8334.5, "change_pct": -0.2}}}}
+    assert ab.validate_review(fr, b) == []
+    # ⚠️ A FEK: a lazitas nem lyukaszthatja ki a szurot
+    assert ab.validate_review(fr + " Le taux tchèque est de 9,91 %.", b)
