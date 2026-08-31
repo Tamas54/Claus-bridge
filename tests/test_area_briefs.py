@@ -288,7 +288,7 @@ def test_a_CJK_szivargas_ELDOBJA_a_szemlet():
 def test_ures_es_tul_hosszu_szemle_ELDOBODIK():
     b = _b([_cell("HU", "cpi", 1.6)] * 4)
     assert ab.validate_review("", b) == ["ures"]
-    assert ab.validate_review("1,6 " * 900, b)
+    assert ab.validate_review("1,6 " * 1400, b)
 
 
 def test_a_prompt_KIMONDJA_hogy_irany_csak_elozovel():
@@ -460,3 +460,184 @@ def test_a_kitalalt_szam_MEG_MINDIG_fennakad():
 def test_a_hosszkorlat_elfer_ot_mondat_franciaul():
     """Mérve: egy helyes francia szemle 913 karakter volt, a korlát 900."""
     assert ab.REVIEW_MAX_KAR >= 2500, "a szemle megint chat-buborekra van szabva"
+
+
+# ══════════════════════════════════════════════════════════════════════════
+# NAPI PIACI RÉTEG — enélkül a blokk nem napi, hanem havi
+# ══════════════════════════════════════════════════════════════════════════
+#
+# Kommandant, 2026-08-31: „ez a Brief lényegében a hét minden napján
+# megjelenhet ugyanezzel — nem rendelkezik aktuális információval … a statok
+# gyorstájékoztatók előző havi adatait taglalja. Másrészt nincs nemzetközi
+# része."
+#
+# A kritika pontos volt: júliusi CPI, Q2 GDP, Q1 bérek — ugyanez a szöveg
+# augusztus 5. és 25. között bármelyik nap megállta volna a helyét.
+
+
+def _q(sym, price, prev, name=None):
+    return {"symbol": sym, "name": name or sym, "price": price,
+            "previous_close": prev, "currency": "USD",
+            "last_trade_at": "2026-08-31 18:25 UTC"}
+
+
+def test_a_napi_valtozas_GEPI_szamitas():
+    """Nem a modell mondja meg, hogy esett-e — a két szám."""
+    hivas = {}
+
+    async def _sd(tool, args):
+        hivas["sym"] = args["symbol"]
+        return _q("^GSPC", 7683.24, 7711.76, "S&P 500")
+
+    ab._MARKET_CACHE.clear()
+    q = asyncio.run(ab.fetch_quote(_sd, "^GSPC"))
+    assert q["change_pct"] == -0.37
+    assert q["name"] == "S&P 500"
+
+
+def test_elozo_zaro_nelkul_NINCS_valtozas():
+    async def _sd(tool, args):
+        return _q("X", 100.0, None)
+
+    ab._MARKET_CACHE.clear()
+    assert asyncio.run(ab.fetch_quote(_sd, "X"))["change_pct"] is None
+
+
+def test_a_jegyzes_CACHE_ELODIK():
+    """Tizenkét kiadás ugyanazt a hat globális tickert kérné le — a cache
+    nélkül hetvenkét felesleges hívás."""
+    n = {"i": 0}
+
+    async def _sd(tool, args):
+        n["i"] += 1
+        return _q("^VIX", 15.07, 15.2)
+
+    ab._MARKET_CACHE.clear()
+    asyncio.run(ab.fetch_quote(_sd, "^VIX"))
+    asyncio.run(ab.fetch_quote(_sd, "^VIX"))
+    assert n["i"] == 1
+
+
+def test_a_KOZOS_piaci_blokk_minden_kiadasban_ugyanaz():
+    assert len(ab.MARKET_GLOBAL) >= 5
+    kulcsok = {k for k, _ in ab.MARKET_GLOBAL}
+    assert {"sp500", "vix", "oil_wti", "gold"} <= kulcsok
+
+
+def test_minden_kiadasnak_van_piaci_bejegyzese():
+    """A ru/uk üres — nincs hazai ország —, de a KULCSNAK léteznie kell,
+    különben egy hiányzó nyelv KulcsHibát dobna a generálásban."""
+    for lg in ab.AREA_COUNTRY:
+        assert lg in ab.MARKET_HOME, f"hiányzik a piaci leképezés: {lg}"
+    assert ab.MARKET_HOME["ru"] == () and ab.MARKET_HOME["uk"] == ()
+
+
+def test_a_piaci_bukas_NEM_viszi_el_a_makro_tablazatot():
+    """A makró a termék, a piac a ráadás. Fordítva nem igaz."""
+    async def _panel(tool, args):
+        if tool == "yfinance":
+            raise RuntimeError("Yahoo 503")
+        return {"rows": [_cell("HU", "cpi", 1.6)]}
+
+    out = asyncio.run(ab.build_area_briefs(_panel))
+    assert out["hu"]["home"], "a piaci hiba elvitte a makró-blokkot"
+
+
+def test_a_szemle_prompt_KOVETELI_a_napi_reszt():
+    b = _b([_cell("HU", "cpi", 1.6)] * 4)
+    b["market"] = {"global": {"sp500": {"price": 7683.24, "change_pct": -0.37,
+                                        "currency": "USD"}}, "home": {}}
+    pr = ab._review_prompt(b, "Hungarian")
+    assert "TODAY'S MARKETS" in pr
+    assert "-0.37% ma" in pr
+    assert "THE FIRST PARAGRAPH MUST CARRY TODAY" in pr
+    assert "could be published any day between the 5th and the 25th" in pr
+
+
+def test_a_szemle_KET_bekezdes_vilag_es_hazai():
+    """A Kommandant másik kifogása: „nincs nemzetközi része". Az euróövezet és
+    az USA eddig csak viszonyítási pont volt a magyar számok mellett."""
+    b = _b([_cell("HU", "cpi", 1.6)] * 4)
+    pr = ab._review_prompt(b, "Hungarian")
+    assert "PARAGRAPH 1 — THE WORLD" in pr
+    assert "PARAGRAPH 2 — HOME" in pr
+    assert "NOT a set of yardsticks for the home country" in pr
+
+
+def test_a_validator_ELFOGADJA_a_piaci_szamokat():
+    """A szemle a mai tőzsdei számokat írja le — ha a validátor nem ismerné
+    őket, minden napi szemlét eldobna kitalált számként."""
+    b = _b([_cell("HU", "cpi", 1.6)] * 4)
+    b["market"] = {"global": {"sp500": {"price": 7683.24, "prev_close": 7711.76,
+                                        "change_pct": -0.37}}, "home": {}}
+    assert ab.validate_review(
+        "Az S&P 500 7683,24 ponton áll, 0,37 százalékos eséssel.", b) == []
+
+
+# ══════════════════════════════════════════════════════════════════════════
+# AMI NEM VÁLTOZOTT, AZT NE ÍRJUK ÚJRA
+# ══════════════════════════════════════════════════════════════════════════
+#
+# Kommandant, 2026-08-31: „ami állandó, azt meg se kell csinálni többször,
+# addig amíg új adat nem jön (mondjuk a jegybanki alapkamat változása) — ami
+# érdekes, az a VÁLTOZÁS, és az azonnali hír."
+
+
+def test_az_ujjlenyomat_a_MAKRORA_all_nem_a_piacra():
+    """A tőzsde minden nap mozog. Ha beleszámítana, sose lenne
+    „változatlan" — és pont az elv veszne el."""
+    a = _b([_cell("HU", "cpi", 1.6)])
+    b = dict(a, market={"global": {"sp500": {"price": 1, "change_pct": 9.9}}})
+    assert ab.makro_ujjlenyomat(a) == ab.makro_ujjlenyomat(b)
+
+
+def test_az_ujjlenyomat_ERZEKENY_az_ertekre_es_az_idoszakra():
+    a = _b([_cell("HU", "policy_rate", 5.5)])
+    assert ab.makro_ujjlenyomat(a) != ab.makro_ujjlenyomat(
+        _b([_cell("HU", "policy_rate", 5.25)]))
+    mas_ido = _b([dict(_cell("HU", "policy_rate", 5.5), period="2026-08")])
+    assert ab.makro_ujjlenyomat(a) != ab.makro_ujjlenyomat(mas_ido)
+
+
+def test_a_kamatvagas_VALTOZASKENT_jelenik_meg():
+    regi = _b([_cell("HU", "policy_rate", 6.0)])
+    uj = _b([_cell("HU", "policy_rate", 5.5)])
+    v = ab.valtozasok(uj, regi)
+    assert len(v) == 1 and v[0]["kind"] == "valtozott"
+    assert v[0]["old_value"] == 6.0 and v[0]["new_value"] == 5.5
+
+
+def test_az_UJ_adat_is_valtozas():
+    """Az olvasónak az is hír, hogy egy hiányzó adat végre megjött."""
+    v = ab.valtozasok(_b([_cell("TR", "wages", 42.0)]), _b([]))
+    assert v and v[0]["kind"] == "uj"
+
+
+def test_az_elso_kiadasnak_nincs_mihez_kepest():
+    assert ab.valtozasok(_b([_cell("HU", "cpi", 1.6)]), None) == []
+
+
+def test_a_KIS_piaci_mozgas_nem_indokol_ujrairast():
+    b = _b([_cell("HU", "cpi", 1.6)])
+    b["market"] = {"global": {"sp500": {"change_pct": -0.37},
+                              "gold": {"change_pct": 0.4}}}
+    assert ab._piac_mozdult(b) == []
+
+
+def test_a_NAGY_piaci_mozgas_igen():
+    b = _b([_cell("HU", "cpi", 1.6)])
+    b["market"] = {"global": {"sp500": {"change_pct": -2.4}}}
+    assert ab._piac_mozdult(b) == ["sp500 -2.40%"]
+
+
+def test_a_valtozas_blokk_KIMONDJA_ha_nincs_valtozas():
+    assert "no macro figure changed" in ab._valtozas_blokk([], [])
+
+
+def test_a_prompt_szerint_a_VALTOZASSAL_kell_kezdeni():
+    b = _b([_cell("HU", "cpi", 1.6)] * 4)
+    pr = ab._review_prompt(b, "Hungarian",
+                           "CHANGED HU policy_rate: 6.0 @2026-07 → 5.5 @2026-08")
+    assert "LEAD WITH WHAT IS NEW" in pr
+    assert "CHANGED HU policy_rate" in pr
+    assert "do not\nmanufacture novelty" in pr or "manufacture novelty" in pr

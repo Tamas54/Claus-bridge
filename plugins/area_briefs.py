@@ -76,6 +76,117 @@ ANCHOR_COUNTRIES = ("EA", "US")
 ANCHOR_INDICATORS = ("cpi", "core_cpi", "policy_rate", "unemployment")
 
 
+# ══════════════════════════════════════════════════════════════════════════
+# NAPI PIACI RÉTEG — ENÉLKÜL A BLOKK NEM NAPI, HANEM HAVI
+# ══════════════════════════════════════════════════════════════════════════
+#
+# Kommandant, 2026-08-31: "ez a Brief lényegében a hét minden napján
+# megjelenhet ugyanezzel — ugyanis nem rendelkezik aktuális információval …
+# a statok gyorstájékoztatók előző havi adatait taglalja. Másrészt nincs
+# nemzetközi része."
+#
+# Igaza volt, és a kritika PONTOS. A makró-táblázat júliusi CPI-t, Q2 GDP-t
+# és Q1 béreket mutat: ugyanez a szöveg augusztus 5. és 25. között bármelyik
+# nap megállta volna a helyét. Egy NAPI briefben kell lennie valaminek, ami
+# MA más, mint tegnap volt — és a havi statisztikai kiadványokban ilyen
+# nincs.
+#
+# A Telegramra menő Economic Brief azért napi, mert PIACI adatai vannak:
+# deviza, tőzsdeindexek, olaj, arany, hozamok, VIX. Ugyanez hiányzott innen.
+#
+# A VÁLTOZÁS GÉPI. A yfinance `price` és `previous_close` mezőt is ad, tehát
+# a napi elmozdulás SZÁMOLHATÓ — nem a modell mondja meg, hanem a két szám.
+# Ugyanaz az elv, mint a makró-nyilaknál.
+
+#: A KÖZÖS piaci blokk — mind a 12 kiadásban UGYANAZ. Ez a "nemzetközi rész",
+#: ami eddig hiányzott: nem viszonyítási pont a hazai számok mellett, hanem
+#: önálló világgazdasági kép.
+MARKET_GLOBAL: tuple[tuple[str, str], ...] = (
+    ("sp500",     "^GSPC"),
+    ("vix",       "^VIX"),
+    ("oil_wti",   "CL=F"),
+    ("gold",      "GC=F"),
+    ("eur_usd",   "EURUSD=X"),
+    ("us_10y",    "^TNX"),
+)
+
+#: A HAZAI piaci blokk kiadásonként. Mérve 2026-08-31, mind él.
+#: ⚠️ Magyarországra a `^BUX` és a `BUX.BD` is HALOTT a Yahoo-n (STALE / not
+#: found), ezért a legnagyobb tőzsdei papír áll helyette. Oroszra az
+#: `IMOEX.ME` szintén halott — az ru/uk kiadásnak amúgy sincs hazai országa.
+MARKET_HOME: dict[str, tuple[tuple[str, str], ...]] = {
+    "hu": (("stocks_otp", "OTP.BD"), ("fx_eur", "EURHUF=X")),
+    "de": (("index_dax", "^GDAXI"),),
+    "it": (("index_ftsemib", "FTSEMIB.MI"),),
+    "fr": (("index_cac", "^FCHI"),),
+    "es": (("index_ibex", "^IBEX"),),
+    "pl": (("index_wig20", "WIG20.WA"), ("fx_eur", "EURPLN=X")),
+    "el": (("index_athex", "GD.AT"),),
+    "tr": (("index_bist", "XU100.IS"), ("fx_usd", "USDTRY=X")),
+    "zh": (("index_sse", "000001.SS"), ("fx_usd", "USDCNY=X")),
+    "en": (("index_ftse", "^FTSE"), ("fx_usd", "GBPUSD=X")),
+    "ru": (),
+    "uk": (),
+}
+
+#: A piaci jegyzések memória-cache-e. A tőzsde percenként mozog, de egy napi
+#: briefhez a tíz perces frissesség bőven elég — és megvéd attól, hogy tizenkét
+#: kiadás tizenkétszer kérje le ugyanazt a hat globális tickert.
+_MARKET_CACHE: dict[str, tuple[float, dict]] = {}
+_MARKET_TTL = 600.0
+
+
+async def fetch_quote(statdata_call, symbol: str) -> dict | None:
+    """Egy jegyzés + a NAPI VÁLTOZÁS. Sose dob; hibánál None.
+
+    A változás a `price` és a `previous_close` hányadosa — gépi szám, nem
+    modell-állítás. Ha bármelyik hiányzik, a `change_pct` None marad, és a
+    megjelenítés nem rajzol irányt: a "nem tudom" itt is teljes értékű.
+    """
+    import time as _t
+    hit = _MARKET_CACHE.get(symbol)
+    if hit and (_t.time() - hit[0]) < _MARKET_TTL:
+        return hit[1]
+    try:
+        res = await statdata_call("yfinance", {"symbol": symbol, "action": "quote"})
+        if isinstance(res, str):
+            res = json.loads(res)
+    except Exception as e:  # noqa: BLE001
+        logger.warning("piaci jegyzes (%s) elbukott: %s", symbol, e)
+        return None
+    if not isinstance(res, dict) or res.get("error") or res.get("price") is None:
+        logger.info("piaci jegyzes (%s) ures: %s", symbol,
+                    str((res or {}).get("error"))[:90])
+        return None
+    ar, elozo = res.get("price"), res.get("previous_close")
+    valtozas = None
+    try:
+        if elozo:
+            valtozas = round((float(ar) / float(elozo) - 1.0) * 100.0, 2)
+    except (TypeError, ValueError, ZeroDivisionError):
+        valtozas = None
+    ki = {"symbol": symbol, "name": res.get("name") or symbol,
+          "price": ar, "prev_close": elozo, "change_pct": valtozas,
+          "currency": res.get("currency"),
+          "as_of": res.get("last_trade_at")}
+    _MARKET_CACHE[symbol] = (_t.time(), ki)
+    return ki
+
+
+async def fetch_market(statdata_call, lang: str) -> dict:
+    """A kiadás piaci blokkja: KÖZÖS globális + hazai. Sose dob."""
+    ki: dict = {"global": {}, "home": {}}
+    for cimke, sym in MARKET_GLOBAL:
+        q = await fetch_quote(statdata_call, sym)
+        if q:
+            ki["global"][cimke] = q
+    for cimke, sym in MARKET_HOME.get(lang, ()):
+        q = await fetch_quote(statdata_call, sym)
+        if q:
+            ki["home"][cimke] = q
+    return ki
+
+
 def _fresh_only(rows: list) -> list:
     """Csak FRISS és RÁTA típusú cellák.
 
@@ -113,7 +224,7 @@ def iranyok(rows: list) -> list:
     return rows
 
 
-async def build_area_briefs(statdata_call) -> dict:
+async def build_area_briefs(statdata_call, piaccal: bool = True) -> dict:
     """Mind a 12 kiadás makró-adata. `statdata_call(tool, args)` a hívó dolga.
 
     Visszaad: {lang: {country, home: [...], anchor: [...], asof, gaps: [...]}}
@@ -182,6 +293,15 @@ async def build_area_briefs(statdata_call) -> dict:
             "gaps": [i for i in HOME_INDICATORS
                      if cc and i not in {r["indicator"] for r in hazai}],
         }
+    if piaccal:
+        # A PIACI BLOKK a makró UTÁN jön, külön ágon: ha a tőzsdei lekérés
+        # bukik, a makró-táblázat akkor is teljes. Fordítva nem igaz —
+        # ezért nem közös try-ág.
+        for lang in out:
+            try:
+                out[lang]["market"] = await fetch_market(statdata_call, lang)
+            except Exception as e:  # noqa: BLE001
+                logger.warning("piaci blokk (%s) elbukott: %s", lang, e)
     return out
 
 
@@ -229,7 +349,130 @@ async def build_area_briefs(statdata_call) -> dict:
 REVIEW_MAX_MONDAT = 12
 
 #: Hány karakteren felül vágjuk el biztonságból (a modell néha "elszabadul").
-REVIEW_MAX_KAR = 3000   # 12 mondat gorogul/franciaul is elfer; a fek a TARTALMI szabaly, nem a hossz
+REVIEW_MAX_KAR = 4200   # ket bekezdes (vilag + hazai), 12 mondat gorogul is elfer
+
+
+# ══════════════════════════════════════════════════════════════════════════
+# AMI NEM VÁLTOZOTT, AZT NE ÍRJUK ÚJRA
+# ══════════════════════════════════════════════════════════════════════════
+#
+# Kommandant, 2026-08-31: "ami állandó, azt meg se kell csinálni többször,
+# addig amíg új adat nem jön (mondjuk a jegybanki alapkamat változása) — ami
+# érdekes, az a VÁLTOZÁS, és az azonnali hír."
+#
+# Két dolgot old meg egyszerre:
+#
+# 1. KÖLTSÉG. Egy havi statisztika a hónap huszonöt napján ugyanaz. Tizenkét
+#    kiadás × naponta kétszer újraíratni róla ugyanazt a szöveget tiszta
+#    pazarlás — és a kimenet MÉG INGADOZIK is, mert a modell nem
+#    determinisztikus: ugyanabból az adatból naponta más megfogalmazás jön,
+#    ami az olvasónak VÁLTOZÁSNAK látszik, holott nem az.
+#
+# 2. ÚJSÁGÍRÁS. Ami hír, az a változás. Ha az MNB kamatot vág, annak a szemle
+#    ELEJÉN a helye — nem elveszve a tizenkét mutató között.
+#
+# Ezért a makró-tények ujjlenyomatot kapnak. Változatlan ujjlenyomatnál a
+# tárolt szemle marad (nulla token); ha változott, az ÚJ prompt megkapja,
+# PONTOSAN MI változott, és azzal kell kezdenie.
+
+def makro_ujjlenyomat(brief: dict) -> str:
+    """A kiadás makró-tényeinek lenyomata: mutató → érték + időszak.
+
+    A piaci adat SZÁNDÉKOSAN nincs benne: a tőzsde minden nap mozog, tehát
+    ha beleszámítana, sose lenne „változatlan" — és pont az elv veszne el.
+    A piaci mozgás külön kaput kap (`_piac_mozdult`).
+    """
+    import hashlib
+    tetelek = sorted(
+        (r.get("country", ""), r.get("indicator", ""), r.get("value"),
+         r.get("period"))
+        for r in (brief.get("home") or []) + (brief.get("anchor") or []))
+    return hashlib.sha256(
+        json.dumps(tetelek, sort_keys=True, default=str).encode()).hexdigest()[:16]
+
+
+def valtozasok(uj: dict, regi: dict | None) -> list[dict]:
+    """MI VÁLTOZOTT az előző kiadás óta — gépi összevetés, nulla token.
+
+    Új mutató (korábban hiányzott) is változás: az olvasónak az is hír, hogy
+    egy adat végre megjött.
+    """
+    if not regi:
+        return []
+    def _map(b):
+        return {(r.get("country", ""), r.get("indicator", "")): r
+                for r in (b.get("home") or []) + (b.get("anchor") or [])}
+    r_map, u_map = _map(regi), _map(uj)
+    ki = []
+    for kulcs, r in u_map.items():
+        elozo = r_map.get(kulcs)
+        if elozo is None:
+            ki.append({"country": kulcs[0], "indicator": kulcs[1],
+                       "new_value": r.get("value"), "new_period": r.get("period"),
+                       "kind": "uj"})
+            continue
+        if (elozo.get("value") != r.get("value")
+                or elozo.get("period") != r.get("period")):
+            ki.append({"country": kulcs[0], "indicator": kulcs[1],
+                       "old_value": elozo.get("value"),
+                       "old_period": elozo.get("period"),
+                       "new_value": r.get("value"),
+                       "new_period": r.get("period"),
+                       "kind": "valtozott"})
+    return ki
+
+
+#: Ekkora napi piaci elmozdulás fölött akkor is új szemle kell, ha a makró
+#: változatlan. A küszöbök a szokásos napi szórás fölött vannak: egy 0,3%-os
+#: indexmozgás nem hír.
+_PIAC_KUSZOB = {"sp500": 1.0, "vix": 10.0, "oil_wti": 2.0, "gold": 1.5,
+                "eur_usd": 0.8, "us_10y": 3.0}
+
+
+def _piac_mozdult(brief: dict) -> list[str]:
+    """Volt-e ma ÉRDEMI piaci mozgás? Visszaadja, melyik eszközön."""
+    m = (brief.get("market") or {}).get("global") or {}
+    ki = []
+    for kulcs, kuszob in _PIAC_KUSZOB.items():
+        v = (m.get(kulcs) or {}).get("change_pct")
+        if isinstance(v, (int, float)) and abs(v) >= kuszob:
+            ki.append(f"{kulcs} {v:+.2f}%")
+    return ki
+
+
+def _valtozas_blokk(valt: list[dict], piac: list[str]) -> str:
+    if not valt and not piac:
+        return "(no macro figure changed since the previous edition)"
+    sorok = []
+    for v in valt:
+        if v["kind"] == "uj":
+            sorok.append(f"NEW DATA {v['country']} {v['indicator']}: "
+                         f"{v['new_value']} @{v['new_period']} (was missing)")
+        else:
+            sorok.append(f"CHANGED {v['country']} {v['indicator']}: "
+                         f"{v['old_value']} @{v['old_period']} → "
+                         f"{v['new_value']} @{v['new_period']}")
+    for x in piac:
+        sorok.append(f"LARGE MARKET MOVE {x}")
+    return "\n".join(sorok)
+
+
+def _piac_tenyek(brief: dict) -> str:
+    """A NAPI piaci tények a szemle promptjához.
+
+    Enélkül a szemle havi statisztikákból dolgozik, és — ahogy a Kommandant
+    kimondta — "augusztus 5. és 25. között bármelyik nap" megírható lenne.
+    """
+    m = brief.get("market") or {}
+    sorok = []
+    for cimke, tetelek in (("VILAGPIAC", m.get("global") or {}),
+                           ("HAZAI PIAC", m.get("home") or {})):
+        for kulcs, q in tetelek.items():
+            v = q.get("change_pct")
+            valt = f"{v:+.2f}% ma" if isinstance(v, (int, float)) else "napi valtozas: NINCS"
+            sorok.append(f"{cimke} {kulcs}: {q.get('price')} "
+                         f"({q.get('currency') or ''}) | {valt}")
+    return "\n".join(sorok)
 
 
 def _tenyblokk(brief: dict) -> str:
@@ -284,6 +527,15 @@ def _ismert_szamok(brief: dict) -> set:
     a mérőeszköz volt szigorúbb a valóságnál, nem a modell pontatlanabb.
     """
     ertekek = []
+    m = brief.get("market") or {}
+    for tetelek in ((m.get("global") or {}), (m.get("home") or {})):
+        for q in tetelek.values():
+            for k in ("price", "prev_close", "change_pct"):
+                if q.get(k) is not None:
+                    try:
+                        ertekek.append(float(q[k]))
+                    except (TypeError, ValueError):
+                        pass
     for r in (brief.get("home") or []) + (brief.get("anchor") or []):
         for k in ("value", "prev_value"):
             if r.get(k) is not None:
@@ -332,13 +584,43 @@ def validate_review(szoveg: str, brief: dict) -> list[str]:
     return hibak
 
 
-def _review_prompt(brief: dict, nyelv_nev: str) -> str:
+def _review_prompt(brief: dict, nyelv_nev: str, valtozas: str = "") -> str:
     orszag = brief.get("country") or "-"
-    return f"""FACTS (the ONLY numbers you may use):
+    valtozas = valtozas or "(not computed)"
+    piac = _piac_tenyek(brief)
+    return f"""MONTHLY / QUARTERLY STATISTICS (the ONLY macro numbers you may use):
 {_tenyblokk(brief)}
 
-TASK: Write a short macro commentary in {nyelv_nev} for readers in {orszag},
-of {REVIEW_MAX_MONDAT} sentences at most — but WRITE A FULL COMMENTARY, not a
+TODAY'S MARKETS (these are the numbers that changed since yesterday):
+{piac or "(no market data available today)"}
+
+WHAT IS NEW SINCE THE PREVIOUS EDITION:
+{valtozas}
+
+TASK: Write a macro commentary in {nyelv_nev} for readers in {orszag},
+in TWO paragraphs separated by a blank line:
+
+  PARAGRAPH 1 — THE WORLD. What moved on global markets today, and what the
+  euro-area and US figures say. This paragraph is about the world economy in
+  its own right, NOT a set of yardsticks for the home country.
+
+  PARAGRAPH 2 — HOME. The home economy: its own statistics and its own
+  market, and where it stands against the anchor.
+
+⚠️ LEAD WITH WHAT IS NEW. If the "WHAT IS NEW" block names a changed figure
+— a rate decision, a fresh inflation print — that is the news, and it belongs
+in the FIRST sentence of the paragraph it concerns. A reader who saw
+yesterday's commentary must be able to tell in one sentence what is different.
+If nothing changed, say so plainly in one clause and move on; do not
+manufacture novelty out of a figure that stood still.
+
+⚠️ THE FIRST PARAGRAPH MUST CARRY TODAY. Monthly statistics (a July CPI, a
+Q2 GDP) are the same on every day of the month — a commentary built only on
+them could be published any day between the 5th and the 25th, and would tell
+the reader nothing about today. The market numbers ARE today's: lead with
+what actually moved.
+
+Of {REVIEW_MAX_MONDAT} sentences at most — but WRITE A FULL COMMENTARY, not a
 summary: the reader has the table right below, so repeating three numbers adds
 nothing. Cover the indicators that actually say something, and where several
 move together, say what they say together. Plain prose, no headings, no bullet
@@ -359,8 +641,14 @@ HARD RULES — breaking any of these makes the whole commentary unusable:
 5. If two measures of the same thing differ (e.g. harmonised vs national
    core inflation), say plainly that they are DIFFERENT MEASURES, not that
    one is wrong.
+6. MARKET MOVES: the daily change is given for each quote. Use it as given;
+   never infer a move from a price alone, and never explain WHY a market
+   moved — you have no news here, only numbers.
+7. A move under about 0.3% on an index or 0.5% on a commodity is noise. Say
+   the market was quiet rather than dressing up a rounding difference as an
+   event.
 
-WHAT IS WORTH SAYING, roughly in this order:
+WHAT IS WORTH SAYING in the HOME paragraph, roughly in this order:
   - prices: headline vs core, and where the two diverge;
   - the policy rate against inflation (is policy tight or loose in real
     terms?) and against the euro-area/US anchor;
@@ -390,7 +678,7 @@ _NYELV_NEV = {
 REVIEW_MODEL = os.environ.get("AREA_REVIEW_MODEL", "dsflash").strip() or "dsflash"
 
 
-async def build_area_review(brief: dict, ai_query) -> str:
+async def build_area_review(brief: dict, ai_query, valtozas: str = "") -> str:
     """Egy kiadás szöveges makró-szemléje. Sose dob; hibánál ÜRES sztring.
 
     Az üres sztring itt teljes értékű kimenet: a táblázat ugyanúgy megjelenik,
@@ -412,7 +700,7 @@ async def build_area_review(brief: dict, ai_query) -> str:
         # ures szemle lett belole. A nevesitett atadas ezt kizarja.
         nyers = await ai_query(
             model=REVIEW_MODEL,
-            prompt=_review_prompt(brief, nyelv),
+            prompt=_review_prompt(brief, nyelv, valtozas),
             max_tokens=1200,
             # ⚠️ A `caller` EGYBEN IDENTITAS is: a permissions-kapu ebbol
             # dont. Az "area_briefs" nev nem volt regisztralva, ezert a
@@ -535,12 +823,34 @@ async def cron_entry(get_db, statdata_call, ai_query=None) -> dict:
     briefs = await build_area_briefs(statdata_call)
     if ai_query:
         for lang, b in briefs.items():
-            b["review"] = await build_area_review(b, ai_query)
+            # ── AMI NEM VÁLTOZOTT, AZT NE ÍRJUK ÚJRA ──────────────────
+            regi = load_area_brief(get_db, lang)
+            b["fingerprint"] = makro_ujjlenyomat(b)
+            valt = valtozasok(b, regi)
+            piac = _piac_mozdult(b)
+            b["changes"] = valt
+            valtozatlan = (regi is not None
+                           and regi.get("fingerprint") == b["fingerprint"]
+                           and not piac and (regi.get("review") or ""))
+            if valtozatlan:
+                # A tárolt szemle marad. NULLA token — és stabilabb is: a
+                # modell nem determinisztikus, tehát ugyanabból az adatból
+                # naponta MÁS megfogalmazást adna, ami az olvasónak
+                # változásnak látszana, holott nem az.
+                b["review"] = regi["review"]
+                b["review_reused"] = True
+                logger.info("area_review(%s): valtozatlan makro es csendes "
+                            "piac — a tarolt szemle marad", lang)
+                continue
+            b["review"] = await build_area_review(
+                b, ai_query, _valtozas_blokk(valt, piac))
     n = store_area_briefs(get_db, briefs)
     teljes = sum(1 for b in briefs.values() if b.get("home"))
     szemles = sum(1 for b in briefs.values() if b.get("review"))
+    ujrahasznalt = sum(1 for b in briefs.values() if b.get("review_reused"))
     logger.info("area_briefs: %d kiadas tarolva, ebbol %d-nek van HAZAI blokkja "
                 "(a tobbi csak a kozos horgonyt kapja), %d-nek szoveges szemleje",
                 n, teljes, szemles)
     return {"stored": n, "with_home": teljes, "with_review": szemles,
+            "review_reused": ujrahasznalt,
             "langs": sorted(briefs), "ok": n > 0}
