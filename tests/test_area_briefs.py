@@ -905,3 +905,22 @@ def test_keves_adatpont_eseten_NINCS_tavlat():
         return {"data": [{"close": 100.0}, {"close": 101.0}]}
     ab._MARKET_CACHE.clear()
     assert asyncio.run(ab.fetch_tavlat(_sd, "X")) is None
+
+
+def test_a_piaci_ok_kitalalas_KET_MERT_esete_nevesitve():
+    """A „ne találj ki okot" szabály ott volt, de a PIACI bekezdésnél nem
+    fogott. Két valódi eset a v3 kimenetéből:
+      · „az arany euróban nézve alig változott az erősödő dollár miatt" —
+        eurós aranyárunk NINCS; egy meg nem adott devizanem kitalált szám,
+        akármilyen hihetően hangzik a mondat;
+      · „a BUX 1%-os csökkenése az olajhírt tükrözi" — semmi nem köti össze
+        őket. Két dolog együttmozgása nem ok-okozat, és az olvasó nem tudja
+        megkülönböztetni a következtetésedet a ténytől.
+    Egy általános tiltást a modell megkerül; a KONKRÉT trükköt kell
+    megnevezni — ez ma már egyszer eldőlt a hír-blokknál is."""
+    b = _b([_cell("HU", "cpi", 1.6)] * 4)
+    pr = ab._review_prompt(b, "Hungarian")
+    assert "in EURO terms it barely moved" in pr
+    assert "REFLECTING THE OIL NEWS" in pr
+    assert "moving on the same day is not one causing the other" in pr
+    assert ab.REVIEW_PROMPT_VERSION >= 4

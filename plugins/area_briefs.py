@@ -504,7 +504,8 @@ async def build_area_briefs(statdata_call, piaccal: bool = True) -> dict:
 #: v1: ket bekezdes (vilag + hazai)
 #: v2: harom bekezdes, tiltas a tablazat felmondasara, 52 hetes sav
 #: v3: 1 hetes / 1 havi / 3 havi tavlat + gazdasagi naptar (elore nezes)
-REVIEW_PROMPT_VERSION = 3
+#: v4: ket MERT ok-kitalalas nevesitve a piaci bekezdesbol
+REVIEW_PROMPT_VERSION = 4
 
 REVIEW_MAX_MONDAT = 30
 
@@ -889,6 +890,16 @@ HARD RULES — breaking any of these makes the whole commentary unusable:
 6. MARKET MOVES: the daily change is given for each quote. Use it as given;
    never infer a move from a price alone, and never explain WHY a market
    moved — you have no news here, only numbers.
+   ⚠️ TWO REAL FAILURES OF THIS RULE, both from the market paragraph:
+     * "gold fell 0.72%, but in EURO terms it barely moved because the dollar
+       strengthened" — we have NO gold price in euro. A currency you were not
+       given is an invented number, however plausible the sentence sounds.
+     * "the BUX fell 1%, REFLECTING THE OIL NEWS" — nothing links them. Two
+       things moving on the same day is not one causing the other, and a
+       reader cannot tell the difference between your inference and a fact.
+   You may say two things moved together. You may NOT say one moved BECAUSE
+   of the other, and you may NOT convert a price into a currency you were not
+   given.
 7. A move under about 0.3% on an index or 0.5% on a commodity is noise. Say
    the market was quiet rather than dressing up a rounding difference as an
    event.
