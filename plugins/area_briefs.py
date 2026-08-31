@@ -751,12 +751,28 @@ def _ismert_szamok(brief: dict) -> set:
     m = brief.get("market") or {}
     for tetelek in ((m.get("global") or {}), (m.get("home") or {})):
         for q in tetelek.values():
-            for k in ("price", "prev_close", "change_pct"):
+            for k in ("price", "prev_close", "change_pct",
+                      "low_52w", "high_52w", "w1", "m1", "m3"):
                 if q.get(k) is not None:
                     try:
                         ertekek.append(float(q[k]))
                     except (TypeError, ValueError):
                         pass
+            # ⚠️ AMIT KEREK, AZT EL IS KELL FOGADNOM. A prompt 10. szabalya
+            # kifejezetten arra biztat, hogy az arat az EVES SAVHOZ merje
+            # ("2%-kal a csucs alatt", "a sav aljan"). Ezek SZARMAZTATOTT
+            # szazalekok — es a validator elutasitotta oket, mert nem
+            # szerepeltek a nyers ertekek kozott. Elesben ez vitte el az
+            # olasz es a lengyel napi helyzetjelentest.
+            try:
+                ar = float(q.get("price"))
+                lo, hi = float(q.get("low_52w")), float(q.get("high_52w"))
+                if hi > lo:
+                    ertekek.append((ar / hi - 1) * 100)   # tavolsag a csucstol
+                    ertekek.append((ar / lo - 1) * 100)   # tavolsag az aljatol
+                    ertekek.append((ar - lo) / (hi - lo) * 100)  # hely a savban
+            except (TypeError, ValueError, ZeroDivisionError):
+                pass
     for r in (brief.get("home") or []) + (brief.get("anchor") or []):
         for k in ("value", "prev_value"):
             if r.get(k) is not None:

@@ -1062,3 +1062,26 @@ def test_a_pulzus_cron_NEM_hivja_a_makro_generalast():
     j = src.index("async def cron_entry(")
     assert "build_area_review" not in src[i:j]
     assert "cron_entry" not in src[i:j]
+
+
+def test_amit_a_prompt_KER_azt_a_validator_ELFOGADJA():
+    """⚠️ ÉLES BUKÁS (2026-09-01): az olasz és a lengyel NAPI helyzetjelentés
+    eldobódott olyan számokon, mint 6,37 és −6,37 — miközben a prompt 10.
+    szabálya KIFEJEZETTEN arra biztat, hogy az árat az éves sávhoz mérje
+    („2%-kal a csúcs alatt", „a sáv alján").
+
+    Amit kérek a modelltől, azt a validátornak ismernie kell. Különben a
+    saját utasításom miatt bukik el a helyes szöveg — és ez a hetedik
+    alkalom ma, hogy a mérőeszköz szigorúbb a valóságnál."""
+    b = _b([_cell("HU", "cpi", 1.6)] * 4)
+    b["market"] = {"global": {"sp500": {"price": 7683.4, "change_pct": -0.33,
+                                        "low_52w": 6316.9, "high_52w": 7816.7}},
+                   "home": {}}
+    # a csucstol valo tavolsag: 7683,4 / 7816,7 - 1 = -1,71%
+    assert ab.validate_review(
+        "Az S&P 500 az éves csúcstól 1,71 százalékkal marad el.", b) == []
+    # a sav aljatol: +21,63%
+    assert ab.validate_review(
+        "Az index az éves mélyponthoz képest 21,63 százalékkal áll magasabban.", b) == []
+    # ⚠️ A FEK: ami tenyleg sehonnan nem vezetheto le, tovabbra is fennakad
+    assert ab.validate_review("A cseh alapkamat 9,91 százalék.", b)
