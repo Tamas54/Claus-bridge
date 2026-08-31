@@ -559,3 +559,25 @@ def test_a_kitalalt_OK_tiltva_van():
     assert "NAMED person" in p
     assert "A REZSIM A SZAMOKBOL KOVETKEZZEN" in p, \
         "a rezsim tovabbra is egy kitalalt narrativabol johet"
+
+
+def test_a_valtozatlansag_is_IRANY_allitas():
+    """ÉLES ELLENTMONDÁS (2026-08-31): a Telegram-brief azt írta, a magyar
+    maginfláció „3,7%-on RAGADT", miközben az Echolot makró-szemléje
+    ugyanaznap azt, hogy „3,7 százalékra emelkedett az előző havi 3,5
+    százalékról". A tényleges sorozat: 05: 3,5 / 06: 3,5 / 07: 3,7 — tehát
+    EMELKEDETT, az Echolot volt a helyes.
+
+    A meglévő szabály felsorolta a MOZGÁST leíró szavakat („tartotta",
+    „csökkentette", „emelte", „gyorsult", „mérséklődött"), de a
+    VÁLTOZATLANSÁGOT nem. A modell olyan szót talált, ami nincs a listán és
+    állításnak sem látszik — pedig két megfigyelést állít egyenlőnek.
+
+    Két saját termékünk mondott ellent egymásnak ugyanarról a számról."""
+    import feldwebel.market_brief as mb
+    pr = mb._build_prompt("afternoon", "2026-08-31T15:30:00Z",
+                          "2026-08-31T23:30:00Z", "")
+    assert "A VALTOZATLANSAG UGYANUGY ALLITAS" in pr
+    for szo in ("ragadt", "stagnalt", "valtozatlan", "marad"):
+        assert szo in pr, f"a(z) {szo!r} nincs a tiltott szavak kozott"
+    assert "time_series" in pr, "a promptban nincs benne, hogy van előző érték"
