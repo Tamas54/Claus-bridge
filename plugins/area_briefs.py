@@ -220,7 +220,7 @@ async def build_area_briefs(statdata_call) -> dict:
 REVIEW_MAX_MONDAT = 5
 
 #: Hány karakteren felül vágjuk el biztonságból (a modell néha "elszabadul").
-REVIEW_MAX_KAR = 900
+REVIEW_MAX_KAR = 1300   # ot mondat franciaul/gorogul 900 folott is lehet (merve: 913)
 
 
 def _tenyblokk(brief: dict) -> str:
@@ -243,15 +243,61 @@ def _tenyblokk(brief: dict) -> str:
 
 
 def _szamok(szoveg: str) -> set:
-    """A szövegben szereplő számok — a kitalált érték kiszűréséhez."""
+    """A szövegben szereplő, TIZEDESJEGYES számok.
+
+    ⚠️ AZ EGÉSZ SZÁMOKAT SZÁNDÉKOSAN KIHAGYJUK. Az első változat mindent
+    felszedett, és emiatt JOGOS szemléket dobott el: a kínai „10年期国债"
+    (10 ÉVES kötvény) „10"-e, a negyedév-számok, az évszámok és a hónapok
+    mind „a bemenetben nem szereplő szám"-ként buktak. Egy makró-ráta a
+    prózában gyakorlatilag mindig tizedesjeggyel szerepel (3,7% / 31,8%), a
+    puszta egész pedig szinte mindig SZÓ része — a szűkítés tehát alig
+    veszít, és rengeteg hamis riasztást megszüntet.
+    """
     import re
     ki = set()
-    for m in re.findall(r"-?\d+(?:[.,]\d+)?", szoveg or ""):
+    for m in re.findall(r"-?\d+[.,]\d+", szoveg or ""):
         try:
             ki.add(round(float(m.replace(",", ".")), 2))
         except ValueError:
             continue
     return ki
+
+
+def _ismert_szamok(brief: dict) -> set:
+    """Minden szám, amit a szemle JOGGAL leírhat.
+
+    Három forrásból: a cellák értékei, az ELŐZŐ megfigyelések, és a köztük
+    számolt KÜLÖNBSÉGEK (a „2,1 ponttal magasabb" típusú mondatokhoz).
+
+    ⚠️ Mindegyik EGY TIZEDESRE kerekítve is bekerül, mert a modell az
+    OLVASÓNAK kerekít: a török infláció a panelben 31,754, a szemlében 31,8.
+    Az első változatom emiatt dobta el a török, a görög és a kínai szemlét —
+    a mérőeszköz volt szigorúbb a valóságnál, nem a modell pontatlanabb.
+    """
+    ertekek = []
+    for r in (brief.get("home") or []) + (brief.get("anchor") or []):
+        for k in ("value", "prev_value"):
+            if r.get(k) is not None:
+                try:
+                    ertekek.append(float(r[k]))
+                except (TypeError, ValueError):
+                    pass
+    ismert = set()
+
+    def _felvesz(x: float) -> None:
+        # ⚠️ ABSZOLÚT ÉRTÉKKEL IS. Egy negatív rátát a próza pozitív
+        # nagyságként ír le, és az előjelet az IGE hordozza: „房价下跌6.3%",
+        # „az ipari termelés 0,5 százalékkal csökkent". Előjel-szigorúan a
+        # kínai szemle bukott el, pedig helyes volt.
+        for y in (x, abs(x)):
+            ismert.add(round(y, 2))
+            ismert.add(round(y, 1))
+
+    for a in ertekek:
+        _felvesz(a)
+        for b in ertekek:
+            _felvesz(abs(a - b))
+    return ismert
 
 
 def validate_review(szoveg: str, brief: dict) -> list[str]:
@@ -266,29 +312,9 @@ def validate_review(szoveg: str, brief: dict) -> list[str]:
     if len(szoveg) > REVIEW_MAX_KAR:
         hibak.append(f"tul hosszu ({len(szoveg)} kar)")
     # ── kitalált szám ──────────────────────────────────────────────────
-    ismert = set()
-    for r in (brief.get("home") or []) + (brief.get("anchor") or []):
-        for k in ("value", "prev_value"):
-            if r.get(k) is not None:
-                try:
-                    ismert.add(round(float(r[k]), 2))
-                except (TypeError, ValueError):
-                    pass
-        # az idoszakbol jovo evszamok/negyedevek nem "kitalalt szamok"
-        for darab in str(r.get("period") or "").replace("-Q", "-").split("-"):
-            if darab.isdigit():
-                ismert.add(round(float(darab), 2))
-        for darab in str(r.get("prev_period") or "").replace("-Q", "-").split("-"):
-            if darab.isdigit():
-                ismert.add(round(float(darab), 2))
-    # a kulonbsegek (pl. "2,1 ponttal magasabb") legitim szarmaztatott ertekek
-    ertekek = [round(float(r["value"]), 2)
-               for r in (brief.get("home") or []) + (brief.get("anchor") or [])
-               if r.get("value") is not None]
-    for a in ertekek:
-        for b in ertekek:
-            ismert.add(round(abs(a - b), 2))
-    idegen = {x for x in _szamok(szoveg) if x not in ismert}
+    ismert = _ismert_szamok(brief)
+    idegen = {x for x in _szamok(szoveg)
+              if x not in ismert and round(x, 1) not in ismert}
     if idegen:
         hibak.append(f"a bemenetben nem szereplo szam(ok): {sorted(idegen)[:6]}")
     # ── CJK-szivargas nem-kinai kiadasban ──────────────────────────────

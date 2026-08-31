@@ -407,3 +407,56 @@ def test_ismeretlen_valasz_alak_is_NYOMOT_hagy(caplog):
     with caplog.at_level(logging.WARNING):
         assert ab._valasz_szovege({"valami_uj_mezo": "x"}) == ""
     assert any("ismeretlen valasz-alak" in r.message for r in caplog.records)
+
+
+# ── A VALIDÁTOR HAMIS RIASZTÁSAI — mind ÉLES futásból (2026-08-31) ───────
+# Az első éles körben 12-ből 6 szemle bukott el, és MIND A HAT JOGOS VOLT.
+# A mérőeszköz volt szigorúbb a valóságnál, nem a modell pontatlanabb.
+
+def _tr_brief():
+    return {"lang": "tr", "country": "TR",
+            "home": [_cell("TR", "cpi", 31.754), _cell("TR", "core_cpi", 29.796),
+                     _cell("TR", "retail_trade", 13.432), _cell("TR", "unemployment", 7.6)],
+            "anchor": [_cell("EA", "cpi", 2.9), _cell("EA", "core_cpi", 2.5)]}
+
+
+def test_a_modell_az_OLVASONAK_kerekit():
+    """A török infláció a panelben 31,754, a szemlében 31,8. Az egzakt
+    egyezést követelő validátor a török, a görög ÉS a kínai szemlét is
+    eldobta — pedig mind helyes volt."""
+    sz = ("Türkiye'de enflasyon yüzde 31,8'e gerilerken, çekirdek yüzde 29,8'e "
+          "düştü; euro bölgesi ortalaması yüzde 2,9 ve yüzde 2,5.")
+    assert ab.validate_review(sz, _tr_brief()) == []
+
+
+def test_a_negativ_rata_POZITIV_nagysagkent_is_leirhato():
+    """Az előjelet az IGE hordozza: „房价下跌6.3%", „0,5 százalékkal csökkent".
+    Előjel-szigorúan a kínai szemle bukott el."""
+    b = {"lang": "zh", "country": "CN",
+         "home": [dict(_cell("CN", "house_prices", -6.3), prev_value=-5.7),
+                  _cell("CN", "cpi", 0.5), _cell("CN", "gdp_growth", 4.3),
+                  _cell("CN", "bond_yield_10y", 1.71)],
+         "anchor": [_cell("EA", "cpi", 2.9)]}
+    assert ab.validate_review("房价下跌6.3%,较5.7%扩大。", b) == []
+
+
+def test_az_egesz_szamok_NEM_szamitanak_kitalaltnak():
+    """A kínai „10年期国债" (10 ÉVES kötvény) „10"-e, a negyedév-számok és az
+    évszámok mind kitalált számként buktak. Egy makró-ráta a prózában
+    gyakorlatilag mindig tizedesjeggyel szerepel."""
+    assert ab._szamok("10年期国债收益率1.71%,二季度GDP") == {1.71}
+    assert ab._szamok("2026 júliusában, a 3. negyedévben") == set()
+
+
+def test_a_kitalalt_szam_MEG_MINDIG_fennakad():
+    """A lazítás nem lyukaszthatja ki a szűrőt: ez a teszt az egész
+    javításnak a fékje."""
+    b = {"lang": "hu", "country": "HU",
+         "home": [_cell("HU", "cpi", 1.6), _cell("HU", "core_cpi", 3.7)],
+         "anchor": []}
+    assert ab.validate_review("Az infláció 1,6. A cseh alapkamat 9,9 százalék.", b)
+
+
+def test_a_hosszkorlat_elfer_ot_mondat_franciaul():
+    """Mérve: egy helyes francia szemle 913 karakter volt, a korlát 900."""
+    assert ab.REVIEW_MAX_KAR >= 950
