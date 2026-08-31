@@ -9565,6 +9565,64 @@ def _bridge_capture_event(subject: str, message: str, priority: str = "normal"):
 # ============================================================
 
 @mcp.tool()
+async def get_latest_brief(kind: str = "economic", session: str = "",
+                           caller: str = "") -> str:
+    """A LEGUTOBBI elkeszult brief, strukturaltan — ujragenerálás NELKUL.
+
+    MIERT LETEZIK: a briefek eddig CSAK a Kommandant Telegramjan leteztek. A
+    fajl-archivum a /app alatt efemer (minden deploy elmossa), tehat sem
+    visszanezni, sem MASHOL megjelentetni nem lehetett oket. Ez a tool a
+    tarolt valtozatot adja vissza, hogy mas felulet (pl. az Echolot 12 nyelvu
+    olvasoi oldala) HASZNALHASSA — ujra-generalas, azaz ujabb token-koltseg
+    nelkul.
+
+    A `macro_review` es a `telegram_digest` az EGYETLEN reszek, amiket
+    forditani kell; a szamok, cimkek es idoszakok nyelvfuggetlenek.
+
+    Args:
+        kind: "economic" (ma ez az egyetlen tarolt fajta).
+        session: "morning" | "afternoon" | "" (barmelyik, a legfrissebb).
+    """
+    denied = _enforce(caller, "get_latest_brief")
+    if denied:
+        return denied
+    try:
+        conn = get_db()
+        sor = conn.execute(
+            "SELECT * FROM briefs WHERE kind = ?" +
+            (" AND session = ?" if session else "") +
+            " ORDER BY asof DESC, id DESC LIMIT 1",
+            ((kind, session) if session else (kind,))).fetchone()
+        conn.close()
+    except Exception as e:  # noqa: BLE001
+        return json.dumps({"error": f"a brief-tabla nem olvashato: {e}",
+                           "hint": "Meg egyetlen brief sem keszult a tarolas bekotese ota."},
+                          ensure_ascii=False)
+    if not sor:
+        return json.dumps({
+            "error": f"nincs tarolt brief (kind={kind}, session={session or 'barmelyik'})",
+            "agent_instruction": ("NE talalj ki briefet. A kovetkezo utemezett futas "
+                                  "utan lesz — vagy hivd a `market_brief_now`-t."),
+        }, ensure_ascii=False)
+    try:
+        payload = json.loads(sor["payload"])
+    except Exception:
+        payload = {}
+    return json.dumps({
+        "kind": sor["kind"], "session": sor["session"], "asof": sor["asof"],
+        "lang": sor["lang"], "created_at": sor["created_at"],
+        "brief": payload,
+        # A forditando reszek KULON megnevezve: aki 12 nyelvre viszi, csak
+        # ezeket fordittassa — a tobbi nyelvfuggetlen.
+        "translatable": {"macro_review": payload.get("macro_review", ""),
+                         "telegram_digest": payload.get("telegram_digest", "")},
+        "language_independent": ["value-k a `brief` gepi mezoiben",
+                                 "sources (tulajdonnevek + idoszakok)",
+                                 "asof / period"],
+    }, ensure_ascii=False)
+
+
+@mcp.tool()
 async def market_brief_now(session: str = "morning", caller: str = "") -> str:
     """Generate the ECONOMIC BRIEF now (the scheduled 8:30 / 17:30 brief, on demand).
 
@@ -10897,6 +10955,10 @@ try:
     # Telegram delivery: every successful brief also goes to the Kommandant's
     # Telegram in human-readable form (besides the NOFX push / local file).
     _market_brief.set_telegram_push(_telegram_push)
+    # A briefek TARTOS tarolasa: a fajl-archivum a /app alatt EFEMER, minden
+    # deploy elmossa. DB nelkul a brief sehol nem marad meg — nem lehet
+    # visszanezni, es nem lehet MASHOL (pl. az Echoloton) megjelentetni.
+    _market_brief.set_get_db(get_db)
     logger.info("Market brief generator wired (NOFX_BRIEF_URL=%s)",
                 _market_brief.NOFX_BRIEF_URL or "<unset, local-file fallback>")
 except Exception as _mbe:  # noqa: BLE001

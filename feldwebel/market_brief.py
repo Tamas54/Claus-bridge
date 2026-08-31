@@ -657,6 +657,56 @@ def _write_local(brief: dict) -> pathlib.Path:
     return path
 
 
+#: Injektalt DB-hozzafero (a server.py huzalozza be). Nelkule a tarolas
+#: csendben kimarad — ezert a `store_brief` naploz, ha nincs.
+_get_db_func: Optional[Callable] = None
+
+
+def set_get_db(fn: Callable) -> None:
+    """A server `get_db` fuggvenyenek beregisztralasa a brief-tarolashoz."""
+    global _get_db_func
+    _get_db_func = fn
+
+
+def store_brief(brief: dict) -> bool:
+    """A kesz brief TARTOS tarolasa a DB-ben. Sose dob.
+
+    ⚠️ MIERT KELL (2026-08-31): a `_archive_brief` a `/app/data/...`-ba ir, ami
+    EFEMER — minden deploy elmossa. Merve: a konyvtar egyszeruen nem letezett.
+    Vagyis a briefek eddig SEHOL nem maradtak meg: a Telegram-uzeneten kivul
+    nyomuk sem volt. Igy nem lehet oket sem visszanezni, sem MASHOL megjelentetni.
+    """
+    if _get_db_func is None:
+        logger.warning("store_brief: nincs behuzalozva DB — a brief nem marad meg")
+        return False
+    try:
+        conn = _get_db_func()
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS briefs ("
+            " id INTEGER PRIMARY KEY AUTOINCREMENT,"
+            " kind TEXT NOT NULL,"          # economic | news
+            " session TEXT NOT NULL,"       # morning | afternoon
+            " asof TEXT NOT NULL,"
+            " lang TEXT NOT NULL DEFAULT 'hu',"
+            " payload TEXT NOT NULL,"       # a teljes brief JSON-je
+            " created_at TEXT NOT NULL)")
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_briefs_kind_asof "
+                     "ON briefs(kind, session, asof DESC)")
+        from datetime import datetime as _d, timezone as _tz
+        conn.execute(
+            "INSERT INTO briefs (kind, session, asof, lang, payload, created_at) "
+            "VALUES (?,?,?,?,?,?)",
+            ("economic", brief.get("session", "?"), brief.get("asof", ""), "hu",
+             json.dumps(brief, ensure_ascii=False),
+             _d.now(_tz.utc).isoformat()))
+        conn.commit()
+        conn.close()
+        return True
+    except Exception as e:  # noqa: BLE001
+        logger.warning("store_brief: nem sikerult tarolni: %s", e)
+        return False
+
+
 def _archive_brief(brief: dict) -> Optional[pathlib.Path]:
     """Append-style archive of EVERY successful brief (future reuse / audit).
 
@@ -958,9 +1008,10 @@ async def generate_market_brief(session: str) -> dict:
         # ~4 chars/token rough heuristic for a token-ish size in the log.
         approx_tokens = size_chars // 4
         push = await _push_to_nofx(brief)
-        archive_path = _archive_brief({**brief, "telegram_digest": digest,
-                                       "macro_review": macro_review,
-                                       "sources": sources})
+        _teljes = {**brief, "telegram_digest": digest,
+                   "macro_review": macro_review, "sources": sources}
+        archive_path = _archive_brief(_teljes)
+        _tarolva = store_brief(_teljes)   # TARTOS tarolas — a fajl efemer
         # EGY SZOVEG, MINDEN FELULETRE: ugyanez megy Telegramra es ugyanez
         # kerul vissza a hivonak (`market_brief_now`). Elobb rendereljuk, hogy
         # a kettot ne lehessen kulon-kulon eloallitani.
@@ -985,6 +1036,7 @@ async def generate_market_brief(session: str) -> dict:
             "telegram_text": text,
             "push": push,
             "archive": str(archive_path) if archive_path else None,
+            "stored": _tarolva,
             "telegram": telegram_sent,
         }
 
