@@ -641,3 +641,17 @@ def test_a_prompt_szerint_a_VALTOZASSAL_kell_kezdeni():
     assert "LEAD WITH WHAT IS NEW" in pr
     assert "CHANGED HU policy_rate" in pr
     assert "do not\nmanufacture novelty" in pr or "manufacture novelty" in pr
+
+
+def test_magyarorszagra_KOSAR_all_index_helyett():
+    """MÉRVE 2026-08-31: a BUX-nak nincs élő Yahoo-szimbóluma (`^BUX` STALE,
+    `^BUXI`/`BUX.BD`/`BUX.BUD` not found), a stooq sem viszi, a bet.hu pedig
+    JS-portletből tölti az értéket.
+
+    ⚠️ A bet.hu statikus HTML-jében EGY szám szerepel: 14.639.314.708 Ft —
+    a BÁZISKAPITALIZÁCIÓ. Pont az a fajta érték, ami hihető indexszámként
+    becsúszott volna a briefbe. Ezért a négy blue chip áll helyette; saját
+    súlyozású „indexet" gyártani hamisítás lenne."""
+    hu = dict(ab.MARKET_HOME["hu"])
+    assert {"OTP.BD", "MOL.BD", "RICHT.BD", "MTEL.BD"} <= set(hu.values())
+    assert not any("BUX" in v for v in hu.values()), "halott BUX-szimbólum a listán"

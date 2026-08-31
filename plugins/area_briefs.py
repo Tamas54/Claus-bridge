@@ -115,7 +115,18 @@ MARKET_GLOBAL: tuple[tuple[str, str], ...] = (
 #: found), ezért a legnagyobb tőzsdei papír áll helyette. Oroszra az
 #: `IMOEX.ME` szintén halott — az ru/uk kiadásnak amúgy sincs hazai országa.
 MARKET_HOME: dict[str, tuple[tuple[str, str], ...]] = {
-    "hu": (("stocks_otp", "OTP.BD"), ("fx_eur", "EURHUF=X")),
+    # ⚠️ MAGYARORSZAGRA NINCS HASZNALHATO INDEX, ezert a negy blue chip all
+    # helyette. Megvizsgalva 2026-08-31:
+    #   Yahoo: `^BUX`, `^BUXI`, `BUX.BD`, `BUX.BUD` — mind halott (STALE /
+    #     not found); stooq: nincs BUX.
+    #   bet.hu: az indexerteket JS-portlet tolti, a statikus HTML-ben csak a
+    #     BAZISKAPITALIZACIO van (14.639.314.708 Ft) — es pont ez a csapda:
+    #     hiheto indexertekkent becsuszott volna a briefbe.
+    # A negy papir kulon-kulon tobbet is mond az olvasonak, mint egy
+    # indexszam, es sajat sulyozasu "indexet" gyartani hamisitas lenne.
+    "hu": (("stocks_otp", "OTP.BD"), ("stocks_mol", "MOL.BD"),
+           ("stocks_richter", "RICHT.BD"), ("stocks_mtel", "MTEL.BD"),
+           ("fx_eur", "EURHUF=X")),
     "de": (("index_dax", "^GDAXI"),),
     "it": (("index_ftsemib", "FTSEMIB.MI"),),
     "fr": (("index_cac", "^FCHI"),),
