@@ -697,13 +697,27 @@ def register_tools(app, deps):
         # hagyna a piacot — a ketto nem hozhato kozos nevezore.
         #
         # Harom idopont, a kereskedesi naphoz igazitva (UTC):
-        #   07:10 europai nyitas utan · 13:10 delelotti kep + US nyitas elott
-        #   19:10 amerikai zaras utan
+        #   07:10  europai nyitas utan
+        #   13:10  delelotti kep + amerikai nyitas elott
+        #   21:30  AZ AMERIKAI ZARAS UTAN
+        #
+        # ⚠️ A HARMADIK IDOPONT ELOSZOR 19:10 VOLT, ES AZ HIBA. Az amerikai
+        # tozsde 16:00 ET-kor zar, ami nyaron 20:00, telen 21:00 UTC — a
+        # 19:10 tehat KERESKEDES KOZBEN van (15:10 ET), nem utana. A napi
+        # archivum a nap UTOLSO pulzusat orzi meg, tehat ha az utolso futas
+        # meg a szesszio kozepen van, az archivum sose latja a zaroerteket.
+        # A 21:30 mindket idoszamitasban zaras utan van.
+        #
+        # (Kommandant, 2026-09-01: "A nap zarokepe az erdekes." — a dontes
+        # tehat az, hogy a napon beluli pulzusok felulirjak egymast, es ami
+        # megmarad, az a zarokep. Ehhez viszont az utolso futasnak TENYLEG
+        # zaras utan kell lennie.)
+        #
         # A `cron_schedule` EGYETLEN oszlop, tehat harom recept kell — ugyanaz
         # a tanulsag, mint a reggeli/delutani hirszemlenel (lasd lentebb).
         for _sorszam, _cron in (("reggel", "10 7 * * 1-5"),
                                 ("delben", "10 13 * * 1-5"),
-                                ("zaras", "10 19 * * 1-5")):
+                                ("zaras", "30 21 * * 1-5")):
             _nev = f"market_pulse_{_sorszam}"
             if conn.execute("SELECT 1 FROM pyramid_recipes WHERE name=?",
                             (_nev,)).fetchone():

@@ -1214,6 +1214,14 @@ async def cron_pulse(get_db, statdata_call, ai_query=None) -> dict:
 
     A tarolt kiadas tobbi mezojet NEM banthatjuk: a makro-tablazat, a
     hianylista es a szemle ugy marad, ahogy a napi cron hagyta.
+
+    ARCHIVALAS (Kommandant dontese, 2026-09-01: "A nap zarokepe az
+    erdekes."): a napon beluli pulzusok FELULIRJAK egymast — az Echolot
+    `macro_area` tablaja (nyelv, datum) kulcsu —, tehat az archivumban a nap
+    UTOLSO helyzetjelentese marad. Ez szandekos: egy visszaolvasonak a nap
+    zarokepe kell, nem harom reszlet.
+    ⚠️ Ebbol kovetkezik, hogy az UTOLSO futasnak zaras UTAN kell lennie
+    (21:30 UTC) — kulonben az archivum sose latna a zaroerteket.
     """
     if not ai_query:
         return {"updated": 0, "ok": False, "error": "nincs ai_query"}

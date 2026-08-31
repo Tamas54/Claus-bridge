@@ -1048,9 +1048,28 @@ def test_a_napi_pulzusnak_HAROM_kulon_receptje_van():
     import inspect
     from plugins import recipes
     src = inspect.getsource(recipes)
-    for cron in ("10 7 * * 1-5", "10 13 * * 1-5", "10 19 * * 1-5"):
+    for cron in ("10 7 * * 1-5", "10 13 * * 1-5", "30 21 * * 1-5"):
         assert cron in src, f"hiányzó ütemezés: {cron}"
     assert "cron_pulse" in src
+
+
+def test_az_UTOLSO_pulzus_a_ZARAS_UTAN_fut():
+    """Kommandant, 2026-09-01: „A nap záróképe az érdekes." — a napon belüli
+    pulzusok felülírják egymást, és ami megmarad, az a zárókép.
+
+    ⚠️ EHHEZ VISZONT AZ UTOLSÓ FUTÁSNAK TÉNYLEG ZÁRÁS UTÁN KELL LENNIE. Az
+    első verzió 19:10 UTC-t adott, ami az amerikai piacon 15:10 ET — vagyis
+    KERESKEDÉS KÖZBEN. Az archívum így sosem látta volna a záróértéket, és
+    ez senkinek nem tűnt volna fel: a szöveg ott lett volna, csak épp a
+    délutánt írta volna le zárókép gyanánt.
+
+    A NYSE 16:00 ET-kor zár = nyáron 20:00, télen 21:00 UTC. A 21:30
+    mindkettőnél zárás után van."""
+    import inspect
+    from plugins import recipes
+    src = inspect.getsource(recipes)
+    assert "10 19 * * 1-5" not in src, "az utolsó pulzus kereskedés közben fut"
+    assert "30 21 * * 1-5" in src
 
 
 def test_a_pulzus_cron_NEM_hivja_a_makro_generalast():
