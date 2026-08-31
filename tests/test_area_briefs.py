@@ -229,3 +229,140 @@ def test_a_confidence_hianya_HIVATALOSNAK_szamit():
     assert rows[0].get("confidence") is None
     out = asyncio.run(ab.build_area_briefs(_panel(rows)))
     assert out["hu"]["home"] and out["hu"]["home"][0]["value"] == 1.6
+
+
+# ══════════════════════════════════════════════════════════════════════════
+# SZÖVEGES MAKRÓ-SZEMLE — a táblázat megmondja MENNYI, ez hogy MIT JELENT
+# ══════════════════════════════════════════════════════════════════════════
+#
+# Kommandant, 2026-08-31: "és a gazdasági elemzés? Nem kerül alá?" —
+# "mármint a szöveges?"
+#
+# Ez a blokk ÍTÉLET, tehát el lehet rontani. A validátor fail-closed: bármi
+# gyanú esetén a szemle eldobódik, és marad a puszta táblázat.
+
+
+def _b(rows, lang="hu", anchor=None):
+    return {"lang": lang, "country": "HU", "home": rows, "anchor": anchor or []}
+
+
+def test_a_kitalalt_szam_ELDOBJA_a_szemlet():
+    """MÉRT HIBAOSZTÁLY: a Telegram-briefben a modell két jegybanki sort írt
+    hozzá egy háromsoros tool-válaszhoz (NBP 3,5 / BNR 3,3), mindkettőt
+    rosszul. Ami nincs a bemenetben, az nem kerülhet a szövegbe."""
+    b = _b([_cell("HU", "cpi", 1.6), _cell("HU", "core_cpi", 3.7),
+            _cell("HU", "policy_rate", 5.5), _cell("HU", "unemployment", 4.5)])
+    jo = "Az infláció 1.6 százalék, a maginfláció 3.7, az alapkamat 5.5."
+    rossz = jo + " A lengyel alapkamat 3.5 százalék."
+    assert ab.validate_review(jo, b) == []
+    assert ab.validate_review(rossz, b), "a kitalált 3.5 átment a validátoron"
+
+
+def test_a_kulonbseg_LEGITIM_szarmaztatott_ertek():
+    """A „2,1 ponttal magasabb" nem kitalált szám: két adott érték
+    különbsége. Ha ezt kizárnánk, minden összevetést megtiltanánk — és pont
+    az összevetés lenne a szemle értelme."""
+    b = _b([_cell("HU", "cpi", 1.6), _cell("HU", "core_cpi", 3.7),
+            _cell("HU", "policy_rate", 5.5), _cell("HU", "unemployment", 4.5)])
+    assert ab.validate_review(
+        "A maginfláció 3.7, ami 2.1 ponttal a fejlődés 1.6 felett van.", b) == []
+
+
+def test_az_idoszak_evszama_nem_kitalalt_szam():
+    b = _b([_cell("HU", "cpi", 1.6), _cell("HU", "core_cpi", 3.7),
+            _cell("HU", "policy_rate", 5.5), _cell("HU", "unemployment", 4.5)])
+    assert ab.validate_review("2026 júliusában az infláció 1.6 volt.", b) == []
+
+
+def test_a_CJK_szivargas_ELDOBJA_a_szemlet():
+    b = _b([_cell("HU", "cpi", 1.6), _cell("HU", "core_cpi", 3.7),
+            _cell("HU", "policy_rate", 5.5), _cell("HU", "unemployment", 4.5)])
+    assert ab.validate_review("Az infláció 1.6 százalék, a 低 érték jó.", b)
+    kinai = _b([_cell("CN", "cpi", 1.6), _cell("CN", "core_cpi", 3.7),
+                _cell("CN", "policy_rate", 5.5), _cell("CN", "unemployment", 4.5)],
+               lang="zh")
+    assert ab.validate_review("通胀为 1.6。", kinai) == [], \
+        "a kínai kiadásban a kínai írásjel nem hiba"
+
+
+def test_ures_es_tul_hosszu_szemle_ELDOBODIK():
+    b = _b([_cell("HU", "cpi", 1.6)] * 4)
+    assert ab.validate_review("", b) == ["ures"]
+    assert ab.validate_review("1.6 " * 400, b)
+
+
+def test_a_prompt_KIMONDJA_hogy_irany_csak_elozovel():
+    """A LEGFONTOSABB SZABÁLY. Egy 3,7%-os maginflációról nem lehet tudni,
+    emelkedik-e — ha a modell mégis ír róla, KITALÁLJA."""
+    b = _b([dict(_cell("HU", "cpi", 1.6), prev_value=1.9, prev_period="2026-06"),
+            _cell("HU", "core_cpi", 3.7)])
+    pr = ab._review_prompt(b, "Hungarian")
+    assert "elozo: 1.9 (2026-06)" in pr
+    assert "elozo: NINCS" in pr, "a hiányzó előző érték nem látszik a promptban"
+    assert "ONLY where the fact line" in pr
+    assert "never explain WHY" in pr
+
+
+def test_a_prompt_TILTJA_a_forrasmegjelolest_a_szovegben():
+    """A táblázat minden sora hozza a saját forrását; a mondatba tett
+    hivatkozás csak zavar — a Kommandant ezt a Telegram-briefnél kérte."""
+    b = _b([_cell("HU", "cpi", 1.6)] * 2)
+    assert "NO SOURCES in the text" in ab._review_prompt(b, "Hungarian")
+
+
+def test_negy_szam_alatt_NINCS_szemle():
+    """Két-három számból a „szemle" csak újramondaná a táblázatot."""
+    async def _ai(*a, **k):
+        raise AssertionError("nem lett volna szabad modellt hívni")
+    b = _b([_cell("HU", "cpi", 1.6)])
+    assert asyncio.run(ab.build_area_review(b, _ai)) == ""
+
+
+def test_a_bukott_modellhivas_NEM_viszi_el_a_tablazatot():
+    async def _ai(*a, **k):
+        raise RuntimeError("SiliconFlow 429")
+    b = _b([_cell("HU", "cpi", 1.6)] * 5)
+    assert asyncio.run(ab.build_area_review(b, _ai)) == ""
+
+
+def test_a_rossz_szemle_ELDOBODIK_nem_javul():
+    async def _ai(*a, **k):
+        return {"response": "Az infláció 1.6. A cseh alapkamat 9.9 százalék."}
+    b = _b([_cell("HU", "cpi", 1.6), _cell("HU", "core_cpi", 3.7),
+            _cell("HU", "policy_rate", 5.5), _cell("HU", "unemployment", 4.5)])
+    assert asyncio.run(ab.build_area_review(b, _ai)) == "", \
+        "a kitalált 9.9-es szemle megjelent volna"
+
+
+# ── irányok (nulla token) ────────────────────────────────────────────────
+
+def test_az_irany_a_SZAMOKBOL_jon_nem_modellbol():
+    sorok = ab.iranyok([dict(_cell("HU", "cpi", 1.6), prev_value=1.9),
+                        dict(_cell("HU", "core_cpi", 3.7), prev_value=3.5)])
+    assert sorok[0]["delta"] == -0.3
+    assert sorok[1]["delta"] == 0.2
+
+
+def test_elozo_ertek_nelkul_NINCS_irany():
+    """A „nem tudom" itt is teljes értékű válasz: nyíl nélkül a szám
+    önmagában áll, és senki nem olvas bele trendet."""
+    sorok = ab.iranyok([_cell("HU", "cpi", 1.6)])
+    assert sorok[0]["delta"] is None
+
+
+def test_a_validator_MAGA_ne_legyen_a_hibafelulet():
+    """⚠️ EZ A TESZT EGY MÉRT SAJÁT HIBÁBÓL SZÜLETETT (2026-08-31).
+
+    A validátor első változatában a szám-regex duplán escape-elve került a
+    fájlba (`\\\\d` a `\\d` helyett), a CJK-tartomány szintén. Következmény:
+    `_szamok()` MINDIG üres halmazt adott, a CJK-vizsgálat SOHA nem talált —
+    a validátor tehát mindent átengedett, és közben zölden futott.
+
+    Ez a néma-siker hibaosztály legrosszabb alakja: a HIBAFELÜLET maga volt
+    a hibás. Ezért a mérőeszközt itt POZITÍV KONTROLLAL hitelesítjük — előbb
+    bizonyítsa be, hogy egyáltalán talál valamit."""
+    assert ab._szamok("1.6 és 3,7 meg -0.5") == {1.6, 3.7, -0.5}, \
+        "a szám-felismerő nem talál számot — a validátor vak"
+    assert ab._szamok("nincs itt szam") == set()
+    b = _b([_cell("HU", "cpi", 1.6)] * 4)
+    assert ab.validate_review("低", b), "a CJK-vizsgálat nem talál CJK-t"

@@ -31,6 +31,7 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 from datetime import datetime, timezone
 
 logger = logging.getLogger("bridge.area_briefs")
@@ -96,6 +97,22 @@ def _fresh_only(rows: list) -> list:
             and r.get("confidence", "official") == "official"]
 
 
+def iranyok(rows: list) -> list:
+    """`delta` mezo minden cellara, ahol VAN elozo ertek.
+
+    Nulla token: a nyil a szamokbol adodik, nem modellbol. Ahol nincs elozo
+    megfigyeles, ott a `delta` None marad — es a megjelenites NEM rajzol
+    nyilat. A "nem tudom" itt is teljes erteku valasz.
+    """
+    for r in rows:
+        e, u = r.get("prev_value"), r.get("value")
+        try:
+            r["delta"] = round(float(u) - float(e), 2) if e is not None else None
+        except (TypeError, ValueError):
+            r["delta"] = None
+    return rows
+
+
 async def build_area_briefs(statdata_call) -> dict:
     """Mind a 12 kiadás makró-adata. `statdata_call(tool, args)` a hívó dolga.
 
@@ -148,12 +165,13 @@ async def build_area_briefs(statdata_call) -> dict:
             sorrend.append(i)
             if i == "core_cpi":
                 sorrend += list(HOME_OPTIONAL)
-        hazai = _fresh_only([per.get(cc, {})[i] for i in sorrend
-                             if i in per.get(cc, {})]) if cc else []
+        hazai = iranyok(_fresh_only([per.get(cc, {})[i] for i in sorrend
+                                     if i in per.get(cc, {})])) if cc else []
         horgony = []
         for ac in ANCHOR_COUNTRIES:
-            horgony += _fresh_only([per.get(ac, {})[i] for i in ANCHOR_INDICATORS
-                                    if i in per.get(ac, {})])
+            horgony += iranyok(_fresh_only(
+                [per.get(ac, {})[i] for i in ANCHOR_INDICATORS
+                 if i in per.get(ac, {})]))
         out[lang] = {
             "lang": lang, "country": cc,
             "home": hazai, "anchor": horgony,
@@ -165,6 +183,219 @@ async def build_area_briefs(statdata_call) -> dict:
                      if cc and i not in {r["indicator"] for r in hazai}],
         }
     return out
+
+
+# ══════════════════════════════════════════════════════════════════════════
+# SZÖVEGES MAKRÓ-SZEMLE KIADÁSONKÉNT
+# ══════════════════════════════════════════════════════════════════════════
+#
+# Kommandant, 2026-08-31: "és a gazdasági elemzés? Nem kerül alá?" —
+# "mármint a szöveges?"
+#
+# A táblázat megmondja, MENNYI. Ez a blokk megmondja, MIT JELENT. A kettő
+# között az a különbség, hogy a második ÍTÉLET, tehát el lehet rontani —
+# ezért a szabályok szigorúbbak, mint bárhol máshol a rendszerben.
+#
+# NÉGY SZABÁLY, MIND EGY-EGY MÉRT HIBÁBÓL
+# ---------------------------------------
+# 1. AZ IRÁNYT NEM TALÁLJUK KI. Egy 3,7%-os maginflációról nem lehet tudni,
+#    emelkedik-e. A prompt CSAK ott engedi az irány kimondását, ahol a cella
+#    hozza az előző megfigyelést is. Ahol nincs `prev`, ott a modellnek
+#    tilos irányt állítania — és ezt a validátor is ellenőrzi.
+# 2. AZ OKOT SEM TALÁLHATJUK KI. A Telegram-briefben a modell egyszer egy
+#    Warsh-narratívát írt a Fed kamata mellé, egy háromsoros tool-válaszból.
+#    Itt nincs hírkontextus, tehát ok sincs — csak az, ami a számokból
+#    LEVEZETHETŐ (pl. reálbér = bér − infláció).
+# 3. AMI NINCS A BEMENETBEN, AZ NEM KERÜLHET A SZÖVEGBE. A validátor
+#    kiszedi a szövegből a számokat, és ha olyan van, ami egyik cellában sem
+#    szerepel, a szemle ELDOBÓDIK. Két korábbi élesben megjelent kitalált
+#    táblázatsor (NBP 3,5 / BNR 3,3) pontosan így keletkezett.
+# 4. FORRÁSMEGJELÖLÉS NEM MEGY A SZÖVEGBE. A táblázat minden sora hozza a
+#    saját forrását — a mondatba tett hivatkozás csak zavar (a Kommandant
+#    ezt a Telegram-briefnél külön kérte).
+
+#: Legfeljebb ennyi mondat. Nem stílus-kérdés: egy hosszabb szemle
+#: elkerülhetetlenül átcsúszik értelmezésbe, és az értelmezéshez itt nincs
+#: adatunk.
+REVIEW_MAX_MONDAT = 5
+
+#: Hány karakteren felül vágjuk el biztonságból (a modell néha "elszabadul").
+REVIEW_MAX_KAR = 900
+
+
+def _tenyblokk(brief: dict) -> str:
+    """A modellnek átadott TÉNYEK — és semmi más.
+
+    Minden sor egy cella: mutató, érték, időszak, és ha van, az ELŐZŐ érték.
+    Ahol nincs előző, ott ezt KIÍRJUK (`elozo: NINCS`), mert a hiány
+    csendben ugyanúgy néz ki, mint a nulla.
+    """
+    sorok = []
+    for cimke, tetelek in (("HAZAI", brief.get("home") or []),
+                           ("HORGONY", brief.get("anchor") or [])):
+        for r in tetelek:
+            elozo = (f"{r['prev_value']} ({r.get('prev_period')})"
+                     if r.get("prev_value") is not None else "NINCS")
+            sorok.append(
+                f"{cimke} {r.get('country', '')} {r['indicator']}: "
+                f"{r['value']} @{r.get('period')} | elozo: {elozo}")
+    return "\n".join(sorok)
+
+
+def _szamok(szoveg: str) -> set:
+    """A szövegben szereplő számok — a kitalált érték kiszűréséhez."""
+    import re
+    ki = set()
+    for m in re.findall(r"-?\d+(?:[.,]\d+)?", szoveg or ""):
+        try:
+            ki.add(round(float(m.replace(",", ".")), 2))
+        except ValueError:
+            continue
+    return ki
+
+
+def validate_review(szoveg: str, brief: dict) -> list[str]:
+    """A szemle ellenőrzése. Üres lista = rendben.
+
+    Fail-closed: ha bármi gyanús, a szemle NEM jelenik meg. Egy hiányzó
+    bekezdés bosszantó; egy kitalált szám a tizenkét kiadásban hazugság.
+    """
+    hibak = []
+    if not szoveg or not szoveg.strip():
+        return ["ures"]
+    if len(szoveg) > REVIEW_MAX_KAR:
+        hibak.append(f"tul hosszu ({len(szoveg)} kar)")
+    # ── kitalált szám ──────────────────────────────────────────────────
+    ismert = set()
+    for r in (brief.get("home") or []) + (brief.get("anchor") or []):
+        for k in ("value", "prev_value"):
+            if r.get(k) is not None:
+                try:
+                    ismert.add(round(float(r[k]), 2))
+                except (TypeError, ValueError):
+                    pass
+        # az idoszakbol jovo evszamok/negyedevek nem "kitalalt szamok"
+        for darab in str(r.get("period") or "").replace("-Q", "-").split("-"):
+            if darab.isdigit():
+                ismert.add(round(float(darab), 2))
+        for darab in str(r.get("prev_period") or "").replace("-Q", "-").split("-"):
+            if darab.isdigit():
+                ismert.add(round(float(darab), 2))
+    # a kulonbsegek (pl. "2,1 ponttal magasabb") legitim szarmaztatott ertekek
+    ertekek = [round(float(r["value"]), 2)
+               for r in (brief.get("home") or []) + (brief.get("anchor") or [])
+               if r.get("value") is not None]
+    for a in ertekek:
+        for b in ertekek:
+            ismert.add(round(abs(a - b), 2))
+    idegen = {x for x in _szamok(szoveg) if x not in ismert}
+    if idegen:
+        hibak.append(f"a bemenetben nem szereplo szam(ok): {sorted(idegen)[:6]}")
+    # ── CJK-szivargas nem-kinai kiadasban ──────────────────────────────
+    if brief.get("lang") != "zh" and any("一" <= ch <= "鿿" for ch in szoveg):
+        hibak.append("CJK karakter nem-kinai kiadasban")
+    return hibak
+
+
+def _review_prompt(brief: dict, nyelv_nev: str) -> str:
+    orszag = brief.get("country") or "-"
+    return f"""FACTS (the ONLY numbers you may use):
+{_tenyblokk(brief)}
+
+TASK: Write a short macro commentary in {nyelv_nev} for readers in {orszag},
+at most {REVIEW_MAX_MONDAT} sentences, plain prose, no headings, no bullet
+points, no markdown.
+
+HARD RULES — breaking any of these makes the whole commentary unusable:
+1. DIRECTION: you may say a figure rose or fell ONLY where the fact line
+   gives an `elozo` value. Where it says `elozo: NINCS`, you do NOT know the
+   direction — state the level only, never imply a trend.
+2. CAUSE: never explain WHY a number is what it is. You have no news, no
+   policy statements, no context — only these numbers. An invented cause
+   ("driven by energy prices", "after the central bank's decision") is the
+   worst error you can make here.
+3. NUMBERS: use ONLY numbers from the FACTS block, or differences you
+   compute between two of them. Never introduce a figure that is not there.
+4. NO SOURCES in the text: the table above already carries a source for
+   every row. Do not name datasets, agencies or URLs.
+5. If two measures of the same thing differ (e.g. harmonised vs national
+   core inflation), say plainly that they are DIFFERENT MEASURES, not that
+   one is wrong.
+
+WHAT IS WORTH SAYING: which figure stands out against the euro-area/US
+anchor; where the home economy is tighter or looser; a relationship the
+numbers themselves support (e.g. wages minus inflation = real wage
+direction). Write for an ordinary newspaper reader, not an economist.
+
+Return ONLY the commentary text. No JSON, no preamble."""
+
+
+#: nyelv → a modellnek adott nyelvnév. A modell a nyelv NEVÉT érti, nem a
+#: kódot — "el" helyett "Greek".
+_NYELV_NEV = {
+    "hu": "Hungarian", "en": "English", "de": "German", "es": "Spanish",
+    "zh": "Chinese", "fr": "French", "pl": "Polish", "ru": "Russian",
+    "uk": "Ukrainian", "it": "Italian", "el": "Greek", "tr": "Turkish",
+}
+
+#: A szemle modellje. Flash, mert ez rövid, kötött feladat — és a
+#: gondolkodás KI, ugyanazon a mért alapon, mint az Economic Briefnél.
+REVIEW_MODEL = os.environ.get("AREA_REVIEW_MODEL", "dsflash").strip() or "dsflash"
+
+
+async def build_area_review(brief: dict, ai_query) -> str:
+    """Egy kiadás szöveges makró-szemléje. Sose dob; hibánál ÜRES sztring.
+
+    Az üres sztring itt teljes értékű kimenet: a táblázat ugyanúgy megjelenik,
+    csak kommentár nélkül. Egy hibás szemle rosszabb, mint a hiánya — ezért
+    minden hibaágon eldobjuk, nem "javítjuk".
+    """
+    if not ai_query:
+        return ""
+    tenyek = (brief.get("home") or []) + (brief.get("anchor") or [])
+    if len(tenyek) < 4:
+        # Négy szám alatt nincs mit összevetni; egy kétsoros "szemle" csak
+        # újramondaná a táblázatot.
+        return ""
+    nyelv = _NYELV_NEV.get(brief.get("lang"), "English")
+    try:
+        nyers = await ai_query(
+            _review_prompt(brief, nyelv),
+            model=REVIEW_MODEL,
+            max_tokens=1200,
+            caller="area_briefs",
+            no_thinking=True,   # rövid, kötött feladat — nem elmélkedés
+            no_tools=True,      # minden adat a promptban van; a tool itt csábítás
+        )
+    except Exception as e:  # noqa: BLE001
+        logger.warning("area_review(%s): a hivas elbukott: %s",
+                       brief.get("lang"), e)
+        return ""
+    szoveg = _valasz_szovege(nyers).strip()
+    hibak = validate_review(szoveg, brief)
+    if hibak:
+        logger.warning("area_review(%s) ELDOBVA: %s | szoveg: %s",
+                       brief.get("lang"), "; ".join(hibak), szoveg[:200])
+        return ""
+    return szoveg
+
+
+def _valasz_szovege(nyers) -> str:
+    """A modell válaszának kibontása — az `ai_query` alakja hívónként eltér."""
+    if isinstance(nyers, str):
+        try:
+            d = json.loads(nyers)
+        except (ValueError, TypeError):
+            return nyers
+    elif isinstance(nyers, dict):
+        d = nyers
+    else:
+        return str(nyers or "")
+    for kulcs in ("response", "content", "text", "answer", "result"):
+        v = d.get(kulcs)
+        if isinstance(v, str) and v.strip():
+            return v
+    return ""
 
 
 def store_area_briefs(get_db, briefs: dict) -> int:
@@ -222,12 +453,22 @@ def load_area_brief(get_db, lang: str) -> dict | None:
         return None
 
 
-async def cron_entry(get_db, statdata_call) -> dict:
-    """Napi futas: 12 kiadas eloallitasa es tarolasa. Sose dob."""
+async def cron_entry(get_db, statdata_call, ai_query=None) -> dict:
+    """Napi futas: 12 kiadas eloallitasa, szemleje es tarolasa. Sose dob.
+
+    Az `ai_query` OPCIONALIS: nelkule a szamok ugyanugy elkeszulnek, csak a
+    szoveges szemle marad el. A tablazat a termek, a szemle a raadas — ha a
+    modell nem elerheto, az elsotol nem eshetunk el.
+    """
     briefs = await build_area_briefs(statdata_call)
+    if ai_query:
+        for lang, b in briefs.items():
+            b["review"] = await build_area_review(b, ai_query)
     n = store_area_briefs(get_db, briefs)
     teljes = sum(1 for b in briefs.values() if b.get("home"))
+    szemles = sum(1 for b in briefs.values() if b.get("review"))
     logger.info("area_briefs: %d kiadas tarolva, ebbol %d-nek van HAZAI blokkja "
-                "(a tobbi csak a kozos horgonyt kapja)", n, teljes)
-    return {"stored": n, "with_home": teljes,
+                "(a tobbi csak a kozos horgonyt kapja), %d-nek szoveges szemleje",
+                n, teljes, szemles)
+    return {"stored": n, "with_home": teljes, "with_review": szemles,
             "langs": sorted(briefs), "ok": n > 0}
