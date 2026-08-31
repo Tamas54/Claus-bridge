@@ -1039,3 +1039,26 @@ def test_a_pulzusnak_KULON_belepesi_pontja_van():
     src = inspect.getsource(ab.cron_pulse)
     assert "build_area_review" not in src, "a pulzus-cron a makrót is újraírja"
     assert "fetch_market" in src and "build_market_pulse" in src
+
+
+def test_a_napi_pulzusnak_HAROM_kulon_receptje_van():
+    """A `cron_schedule` EGYETLEN oszlop, tehát egy recept egy időpontban fut.
+    A reggeli és délutáni hírszemlét 2026-04-10-én ugyanarra a sorra írták, és
+    a második NÉMÁN eltörölte az elsőt — ugyanez a csapda áll itt is."""
+    import inspect
+    from plugins import recipes
+    src = inspect.getsource(recipes)
+    for cron in ("10 7 * * 1-5", "10 13 * * 1-5", "10 19 * * 1-5"):
+        assert cron in src, f"hiányzó ütemezés: {cron}"
+    assert "cron_pulse" in src
+
+
+def test_a_pulzus_cron_NEM_hivja_a_makro_generalast():
+    """Egy közös futás vagy feleslegesen íratná újra a makrót, vagy elavultan
+    hagyná a piacot."""
+    import inspect, pathlib
+    src = pathlib.Path(inspect.getfile(ab)).read_text(encoding="utf-8")
+    i = src.index("async def cron_pulse(")
+    j = src.index("async def cron_entry(")
+    assert "build_area_review" not in src[i:j]
+    assert "cron_entry" not in src[i:j]

@@ -11346,6 +11346,19 @@ async def _cron_loop():
                 # ── Nyelvteruleti makro-briefek (12 kiadas) ──
                 # NULLA LLM: csak szamok es cimkek. Egy StatData-panel-hivas,
                 # 12 tarolt sor. Az Echolot ezt huzza be es rendereli.
+                # ── Napi piaci helyzet (3x naponta) ──
+                # A makro-szemlet NEM irja ujra: csak a piaci adatot es a
+                # napi helyzetjelentest frissiti a 12 kiadasban.
+                if r["name"].startswith("market_pulse_"):
+                    try:
+                        from plugins.area_briefs import cron_pulse as _mp_cron
+                        import _statdata_client as _sd
+                        res = await _mp_cron(get_db, _sd._call, ai_query)
+                        logger.info("Cron %s: %s", r["name"], res)
+                    except Exception as e:  # noqa: BLE001
+                        logger.error("Cron %s failed: %s", r["name"], e)
+                    continue
+
                 if r["name"] == "area_briefs":
                     try:
                         from plugins.area_briefs import cron_entry as _ab_cron

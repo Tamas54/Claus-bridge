@@ -689,6 +689,36 @@ def register_tools(app, deps):
                  ts2, ts2, "40 6 * * *"))
             logger.info("area_briefs-seed: beillesztve (cron=40 6 * * *)")
 
+        # 4/b) NAPI PIACI HELYZET — KULON recept, KULON utemben.
+        #
+        # ⚠️ MIERT NEM ELEG EGY RECEPT (Kommandant, 2026-08-31): a makro-szemle
+        # HETES ervenyessegu (havi statisztikakbol), a piaci helyzet NAPI. Egy
+        # kozos futas vagy feleslegesen iratna ujra a makrot, vagy elavultan
+        # hagyna a piacot — a ketto nem hozhato kozos nevezore.
+        #
+        # Harom idopont, a kereskedesi naphoz igazitva (UTC):
+        #   07:10 europai nyitas utan · 13:10 delelotti kep + US nyitas elott
+        #   19:10 amerikai zaras utan
+        # A `cron_schedule` EGYETLEN oszlop, tehat harom recept kell — ugyanaz
+        # a tanulsag, mint a reggeli/delutani hirszemlenel (lasd lentebb).
+        for _sorszam, _cron in (("reggel", "10 7 * * 1-5"),
+                                ("delben", "10 13 * * 1-5"),
+                                ("zaras", "10 19 * * 1-5")):
+            _nev = f"market_pulse_{_sorszam}"
+            if conn.execute("SELECT 1 FROM pyramid_recipes WHERE name=?",
+                            (_nev,)).fetchone():
+                continue
+            conn.execute(
+                "INSERT INTO pyramid_recipes (name, description, required_tools, "
+                "prompt_template, created_by, created_at, updated_at, cron_schedule, "
+                "cron_model, cron_enabled, cron_delivery) "
+                "VALUES (?, ?, '[]', ?, 'system', ?, ?, ?, 'dsflash', 1, 'none')",
+                (_nev,
+                 "Napi piaci helyzet a 12 kiadashoz (a makro-szemle valtozatlan)",
+                 "(special-cased — runtime: plugins.area_briefs.cron_pulse)",
+                 ts2, ts2, _cron))
+            logger.info("market_pulse-seed: %s beillesztve (cron=%s)", _nev, _cron)
+
         # 5) HIRSZEMLE — KET recept, kanonikus prompttal (plugins/news_brief.py).
         #    Miert ket sor: a `cron_schedule` EGYETLEN oszlop, tehat egy recept
         #    egy idopontban fut. A reggeli + delutani briefet 2026-04-10-en
