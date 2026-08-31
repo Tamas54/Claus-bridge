@@ -413,6 +413,20 @@ async def build_area_briefs(statdata_call, piaccal: bool = True) -> dict:
 #: (irány csak `prev`-vel, ok SOHA, kitalált szám tilos) tartják meg, nem a
 #: mondatszám. Tizenkét mondatban is lehet fegyelmezett — és tizenkét
 #: mutatóhoz öt mondat kevés: a felét meg sem említi.
+#: A SZEMLE-PROMPT VERZIOJA. Emelese ujrairatja a mai szemleket.
+#:
+#: ⚠️ ENELKUL EGY PROMPT-JAVITAS SOSE ER CELBA. Merve 2026-08-31: atirtam a
+#: promptot (tiltas a tablazat felmondasara, 52 hetes sav, harmadik
+#: bekezdes), deployoltam, ujragenraltam — es a szemle valtozatlan maradt.
+#: A sajat "ami nem valtozott, azt ne irjuk ujra" logikam tartotta vissza: a
+#: makro-ujjlenyomat ugyanaz volt, a piac csendes, tehat a tarolt szoveg
+#: maradt. Elesben ez a HELYES viselkedes — de a promptot is valtozasnak kell
+#: tekinteni, kulonben a javitas csendben elvesz.
+#:
+#: v1: ket bekezdes (vilag + hazai)
+#: v2: harom bekezdes, tiltas a tablazat felmondasara, 52 hetes sav
+REVIEW_PROMPT_VERSION = 2
+
 REVIEW_MAX_MONDAT = 20
 
 #: Hány karakteren felül vágjuk el biztonságból (a modell néha "elszabadul").
@@ -977,6 +991,8 @@ async def cron_entry(get_db, statdata_call, ai_query=None) -> dict:
             b["changes"] = valt
             valtozatlan = (regi is not None
                            and regi.get("fingerprint") == b["fingerprint"]
+                           and regi.get("review_prompt_version")
+                               == REVIEW_PROMPT_VERSION
                            and not piac and (regi.get("review") or ""))
             if valtozatlan:
                 # A tárolt szemle marad. NULLA token — és stabilabb is: a
@@ -984,12 +1000,14 @@ async def cron_entry(get_db, statdata_call, ai_query=None) -> dict:
                 # naponta MÁS megfogalmazást adna, ami az olvasónak
                 # változásnak látszana, holott nem az.
                 b["review"] = regi["review"]
+                b["review_prompt_version"] = REVIEW_PROMPT_VERSION
                 b["review_reused"] = True
                 logger.info("area_review(%s): valtozatlan makro es csendes "
                             "piac — a tarolt szemle marad", lang)
                 continue
             b["review"] = await build_area_review(
                 b, ai_query, _valtozas_blokk(valt, piac))
+            b["review_prompt_version"] = REVIEW_PROMPT_VERSION
     n = store_area_briefs(get_db, briefs)
     teljes = sum(1 for b in briefs.values() if b.get("home"))
     szemles = sum(1 for b in briefs.values() if b.get("review"))

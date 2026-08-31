@@ -844,3 +844,20 @@ def test_a_kerekitesi_turelem_NEM_engedi_at_a_kitalalt_szamot():
     b = {"lang": "es", "country": "ES", "home": [], "anchor": [],
          "market": {"global": {}, "home": {"index_ibex": {"price": 19974.1}}}}
     assert ab.validate_review("La tasa checa es 9,91%.", b)
+
+
+def test_a_PROMPT_valtozasa_is_ujrairast_indokol():
+    """⚠️ MÉRT ESET (2026-08-31): átírtam a promptot (tiltás a táblázat
+    felmondására, 52 hetes sáv, harmadik bekezdés), deployoltam, újragenerál­
+    tam — és a szemle VÁLTOZATLAN maradt. A saját „ami nem változott, azt ne
+    írjuk újra" logikám tartotta vissza: a makró-ujjlenyomat ugyanaz volt, a
+    piac csendes.
+
+    Élesben ez a helyes viselkedés — de a PROMPTOT is változásnak kell
+    tekinteni, különben minden jövőbeli javítás csendben elvész."""
+    import inspect
+    src = inspect.getsource(ab.cron_entry)
+    assert "review_prompt_version" in src
+    assert "REVIEW_PROMPT_VERSION" in src
+    # a verzio a tarolt payloadba is bekerul, kulonben nincs mihez hasonlitani
+    assert 'b["review_prompt_version"] = REVIEW_PROMPT_VERSION' in src
