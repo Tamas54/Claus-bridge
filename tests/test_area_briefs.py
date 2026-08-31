@@ -766,3 +766,34 @@ def test_a_tagolo_PONTOSAN_harom_jegyet_tagol():
     # a valodi nyelvi valtozatok mind ugyanoda vezetnek
     for alak in ("8 334,5", "8,334.5", "8.334,5"):
         assert 8334.5 in ab._szamok(alak), alak
+
+
+def test_a_KETERTELMU_szam_tokenkent_dol_el():
+    """⚠️ NEGYEDIK ITERACIO UGYANAZON A VALIDATORON, ES EZ A LEGTANULSAGOSABB.
+
+    A „2.467" (amerikai maginfláció) KÉTÉRTELMŰ: angolul 2,467 — németül
+    2467. Mindkét olvasat érvényes ALAK, tehát mindkettőt elő kell állítani.
+    Csakhogy én laposan, KÜLÖN SZÁMKÉNT ellenőriztem őket, és a 2467 sehol
+    nem szerepelt a bemenetben → a validátor eldobta a HELYES szemlét.
+    Élesben ez 12-ből 9-et vitt el.
+
+    A helyes szabály: egy TOKEN akkor rendben, ha BÁRMELYIK olvasata
+    ismerős."""
+    b = {"lang": "en", "country": "GB", "home": [], "anchor": [
+            {"country": "US", "indicator": "core_cpi", "value": 2.467}],
+         "market": {"global": {}, "home": {}}}
+    assert ab.validate_review("US core inflation is 2.467%.", b) == []
+    # a token mindket olvasata eloall — ezt a lapos nezet is mutatja
+    assert ab._szamok("2.467") == {2.47, 2467.0}   # ket tizedesre kerekitve
+    # de a DONTES tokenenkent tortenik
+    assert [t for t, _ in ab._szam_jeloltek("2.467")] == ["2.467"]
+
+
+def test_a_ketertelmuseg_NEM_lyukasztja_ki_a_szurot():
+    """A megengedőbb szabály fék nélkül átengedne bármit: ha egy kitalált
+    szám VALAMELYIK olvasata véletlenül ismerős, átcsúszna. Ezt elfogadjuk —
+    de a nyilvánvalóan idegen számnak fenn kell akadnia."""
+    b = {"lang": "en", "country": "GB", "home": [], "anchor": [
+            {"country": "US", "indicator": "core_cpi", "value": 2.467}],
+         "market": {"global": {}, "home": {}}}
+    assert ab.validate_review("The Czech rate is 9.91%.", b)

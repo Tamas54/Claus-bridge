@@ -556,34 +556,24 @@ def _tenyblokk(brief: dict) -> str:
     return "\n".join(sorok)
 
 
-def _szamok(szoveg: str) -> set:
-    """A szövegben szereplő, TIZEDESJEGYES számok — MINDEN olvasatukban.
+def _szam_jeloltek(szoveg: str) -> list[tuple[str, set]]:
+    """Szám-TOKENENKÉNT az összes érvényes olvasat.
 
-    ⚠️ KÉT KÜLÖN CSAPDA, MINDKETTŐ ÉLESBEN FOGOTT MEG.
+    ⚠️ MIÉRT TOKENENKÉNT, ÉS NEM EGY LAPOS HALMAZBAN. A „2.467" (amerikai
+    maginfláció) KÉTÉRTELMŰ: angolul 2,467 — németül 2467. Mindkét olvasat
+    érvényes alak, tehát mindkettőt elő kell állítani. Ha viszont laposan
+    ellenőrizzük őket, a 2467 külön számként bukik el, és a validátor eldobja
+    a HELYES szemlét. Élesben ez 12-ből 9-et vitt el.
 
-    1. EGÉSZ SZÁMOK. Az első változat mindent felszedett, és ezért JOGOS
-       szemléket dobott el: a kínai „10年期国债" (10 ÉVES kötvény) „10"-e, a
-       negyedév-számok és az évszámok mind „kitalált számként" buktak. Egy
-       makró-ráta a prózában gyakorlatilag mindig tizedesjeggyel szerepel.
-
-    2. EZRES TAGOLÁS. A francia szemle „8 334,5"-öt írt (CAC 40), és a
-       naiv minta ebből „334,5"-öt látott — egy számot, ami sehol nem
-       szerepel a bemenetben. A tagolás nyelvenként más: „8 334,5",
-       „8,334.5", „8.334,5". Ezért a tokent MINDKÉT olvasatban előállítjuk,
-       és elég, ha az egyik ismerős.
+    A helyes szabály: egy TOKEN akkor rendben, ha BÁRMELYIK olvasata ismerős.
     """
     import re
-    # 1. AZ EZRES SZÓKÖZT ELŐBB TÜNTETJÜK EL — de CSAK ha tényleg tagoló:
-    #    három számjegy áll utána, és nem több. Enélkül a minta a szóközön
-    #    keresztül ÖSSZEOLVASNA két szomszédos számot: az „S&P 500 7683,24"
-    #    egyetlen tokenné vált, és a szemle emiatt bukott el.
+    # Az ezres SZÓKÖZT előbb tüntetjük el — de csak ha tényleg tagoló: három
+    # számjegy áll utána, és nem több. Enélkül a minta a szóközön keresztül
+    # összeolvasna két szomszédos számot („S&P 500 7683,24").
     tiszta = re.sub(r"(?<=\d)[ \u00a0](?=\d{3}(?!\d))", "", szoveg or "")
-    ki = set()
+    ki = []
     for tok in re.findall(r"-?\d+(?:[.,]\d+)+", tiszta):
-        # ⚠️ EGY OLVASAT CSAK AKKOR ERVENYES, HA A TAGOLO TENYLEG TAGOLO:
-        # az ezres csoport PONTOSAN harom szamjegy. Enelkul az "1,6"-bol
-        # "16" lenne (vesszo = ezres), es a validator sajat maga gyartana
-        # nem letezo szamokat — pontosan az, ami ellen keszult.
         def _olvasat(tizedes: str, ezres: str) -> str | None:
             if tok.count(tizedes) > 1:
                 return None                    # ket tizedesjel: ertelmetlen
@@ -595,17 +585,28 @@ def _szamok(szoveg: str) -> set:
                 return None                    # tagolo a tizedes reszben
             reszek = egesz.split(ezres)
             if len(reszek) > 1 and any(len(r) != 3 for r in reszek[1:]):
-                return None                    # nem harom jegyu csoport
+                return None                    # az ezres csoport 3 jegyu
             mag = egesz.replace(ezres, "")
             return f"{mag}.{tort}" if tort else mag
 
+        jeloltek = set()
         for j in (_olvasat(",", "."), _olvasat(".", ",")):
             if not j:
                 continue
             try:
-                ki.add(round(float(j), 2))
+                jeloltek.add(round(float(j), 2))
             except ValueError:
                 continue
+        if jeloltek:
+            ki.append((tok, jeloltek))
+    return ki
+
+
+def _szamok(szoveg: str) -> set:
+    """Minden olvasat laposan — csak diagnosztikara es teszthez."""
+    ki = set()
+    for _, jeloltek in _szam_jeloltek(szoveg):
+        ki |= jeloltek
     return ki
 
 
@@ -668,10 +669,14 @@ def validate_review(szoveg: str, brief: dict) -> list[str]:
         hibak.append(f"tul hosszu ({len(szoveg)} kar)")
     # ── kitalált szám ──────────────────────────────────────────────────
     ismert = _ismert_szamok(brief)
-    idegen = {x for x in _szamok(szoveg)
-              if x not in ismert and round(x, 1) not in ismert}
+    idegen = []
+    for tok, jeloltek in _szam_jeloltek(szoveg):
+        # EGY TOKEN akkor rendben, ha BARMELYIK olvasata ismeros.
+        if any(j in ismert or round(j, 1) in ismert for j in jeloltek):
+            continue
+        idegen.append(tok)
     if idegen:
-        hibak.append(f"a bemenetben nem szereplo szam(ok): {sorted(idegen)[:6]}")
+        hibak.append(f"a bemenetben nem szereplo szam(ok): {idegen[:6]}")
     # ── CJK-szivargas nem-kinai kiadasban ──────────────────────────────
     if brief.get("lang") != "zh" and any("一" <= ch <= "鿿" for ch in szoveg):
         hibak.append("CJK karakter nem-kinai kiadasban")
