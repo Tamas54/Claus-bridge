@@ -203,3 +203,29 @@ def test_a_ketto_kulon_nevvel_es_kulon_egyseggel_megy_ki():
     assert h["core_cpi"]["value"] != h["core_cpi_national"]["value"]
     assert h["core_cpi"]["unit"] != h["core_cpi_national"]["unit"], \
         "a két mutató azonos egységcímkét visz — az olvasó nem tudja szétválasztani"
+
+
+def test_a_webkeresesbol_regexelt_szam_NEM_kerul_kiadasba():
+    """MÉRT ESET (2026-08-31): a StatData a kínai munkanélküliségre 12,5%-ot
+    adott — az az IFJÚSÁGI ráta, amit egy regex szedett fel egy találati lista
+    első százalékából; az országos ~5%. A cella `status='fresh'` és
+    `unit_kind='rate'` volt, tehát MINDKÉT korábbi szűrőn átment. Egy rossz
+    szám, ami hivatalosnak látszik, rosszabb, mint egy üres sor."""
+    rows = [dict(_cell("CN", "unemployment", 12.5), confidence="web_unverified"),
+            dict(_cell("CN", "cpi", 0.5), confidence="official")]
+    out = asyncio.run(ab.build_area_briefs(_panel(rows)))
+    nevek = [r["indicator"] for r in out["zh"]["home"]]
+    assert "unemployment" not in nevek
+    assert "cpi" in nevek
+    assert "unemployment" in out["zh"]["gaps"], \
+        "a kiszűrt cella eltűnt a hiánylistából is — a hiány láthatatlan lett"
+
+
+def test_a_confidence_hianya_HIVATALOSNAK_szamit():
+    """Visszafelé kompatibilitás: a régi panel-válaszokban nincs `confidence`.
+    Ha a hiányát bizonytalanságnak vennénk, egyetlen deploy-eltolódás
+    KIÜRÍTENÉ mind a 12 kiadást — némán."""
+    rows = [_cell("HU", "cpi", 1.6)]
+    assert rows[0].get("confidence") is None
+    out = asyncio.run(ab.build_area_briefs(_panel(rows)))
+    assert out["hu"]["home"] and out["hu"]["home"][0]["value"] == 1.6

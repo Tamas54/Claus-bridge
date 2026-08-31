@@ -84,9 +84,16 @@ def _fresh_only(rows: list) -> list:
         core-sorozatai 2025-12-nél állnak).
       * `unit_kind != rate` — egy SZINT (millió EUR, USD/óra) ugyanúgy szám,
         de az olvasó százalékként olvasná.
+      * `confidence != official` — a StatData webkeresésből is tud értéket
+        regexelni, és az UGYANÚGY NÉZ KI, mint egy hivatalos sorozat: ugyanaz
+        a mező, ugyanaz a "fresh". Mérve 2026-08-31: a kínai munkanélküliségre
+        12,5%-ot adott — az az IFJÚSÁGI ráta egy találati listáról, az
+        országos ~5%. Egy tizenkét kiadásban megjelenő táblázatba csak az
+        kerülhet, aminek NEVE VAN a forrásoldalon.
     """
     return [r for r in rows
-            if r.get("status") == "fresh" and r.get("unit_kind") == "rate"]
+            if r.get("status") == "fresh" and r.get("unit_kind") == "rate"
+            and r.get("confidence", "official") == "official"]
 
 
 async def build_area_briefs(statdata_call) -> dict:
