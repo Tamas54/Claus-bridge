@@ -924,3 +924,118 @@ def test_a_piaci_ok_kitalalas_KET_MERT_esete_nevesitve():
     assert "REFLECTING THE OIL NEWS" in pr
     assert "moving on the same day is not one causing the other" in pr
     assert ab.REVIEW_PROMPT_VERSION >= 4
+
+
+# ══════════════════════════════════════════════════════════════════════════
+# NAPI PIACI HELYZET — külön réteg, külön frissességgel
+# ══════════════════════════════════════════════════════════════════════════
+#
+# Kommandant, 2026-08-31: „most már elég hosszú, de ez még mindig egy HETES
+# érvényességű … nekünk kell a NAPI piaci helyzet is hozzá, ami PLUSZ
+# frissességű."
+
+
+def _b_piac(lang="hu"):
+    b = _b([_cell("HU", "cpi", 1.6)] * 4, lang=lang)
+    b["market"] = {"global": {
+        "sp500": {"price": 7683.4, "change_pct": -0.33, "w1": 1.2, "m1": 3.4},
+        "vix": {"price": 14.92, "change_pct": 3.88},
+        "oil_wti": {"price": 86.31, "change_pct": 3.49, "m1": 12.4}},
+        "home": {"index_bux": {"price": 149161.68, "change_pct": -1.0}},
+        "calendar": [{"date": "2026-09-04", "region": "US",
+                      "indicator": "US Non-Farm Payrolls", "importance": "high"}]}
+    return b
+
+
+def test_a_pulzus_prompt_TILTJA_a_makro_ismetleset():
+    """A két szöveg NEM átfedő: a makró-szemle a havi statisztikát viszi, a
+    pulzus a mai kereskedést. Ha a pulzus újra elmondaná az inflációt, megint
+    csak ismétlés lenne."""
+    pr = ab._pulse_prompt(_b_piac(), "Hungarian")
+    assert "it is NOT a macro commentary" in pr
+    assert "you are writing the wrong text" in pr
+    assert "US Non-Farm Payrolls" in pr
+
+
+def test_a_pulzus_ROVID():
+    """Ez helyzetjelentés, nem elemzés. Ami ennél hosszabb, az a
+    makró-szemle dolga."""
+    assert ab.PULSE_MAX_MONDAT <= 10
+    assert ab.PULSE_MAX_KAR <= 2500
+
+
+def test_harom_jegyzes_alatt_NINCS_pulzus():
+    async def _ai(*a, **k):
+        raise AssertionError("nem lett volna szabad modellt hivni")
+    b = _b([_cell("HU", "cpi", 1.6)])
+    b["market"] = {"global": {"sp500": {"price": 1, "change_pct": 0.1}}, "home": {}}
+    assert asyncio.run(ab.build_market_pulse(b, _ai)) == ""
+
+
+def test_a_tul_hosszu_pulzus_ELDOBODIK():
+    async def _ai(*a, **k):
+        return {"response": "A piac ma 7683,4 ponton. " * 200}
+    assert asyncio.run(ab.build_market_pulse(_b_piac(), _ai)) == ""
+
+
+def test_a_VALTOZATLAN_makroju_kiadas_IS_kap_napi_pulzust():
+    """⚠️ KET SAJAT HIBAT FOGOTT MEG EZ AZ EGY TESZT.
+
+    1. A reuse-ág eredetileg `continue`-val zárult, a pulzus pedig ALATTA
+       készül — így pont azok a kiadások maradtak volna napi szöveg nélkül,
+       ahol a makró nem változik, vagyis a hónap közepétől szinte mind.
+    2. A javítás után a három pulzus-sor a CIKLUSON KÍVÜLRE került, így csak
+       az UTOLSÓ kiadás kapott napi szöveget — a másik tizenegy némán
+       kimaradt. Behúzási hiba, amit semmilyen szintaktikai ellenőrzés nem
+       fog meg.
+
+    Ezért VISELKEDÉST mérünk, nem forrásszöveget: az első változatom a
+    `"continue" not in src` feltételt használta, és a saját KOMMENTÁROM
+    tartalmazta a szót."""
+    def _c(cc, ind, val=1.6):
+        return {"country": cc, "indicator": ind, "value": val,
+                "period": "2026-07", "status": "fresh", "unit_kind": "rate",
+                "source_used": "t"}
+
+    async def _panel(tool, args):
+        if tool == "yfinance":
+            return {"symbol": args.get("symbol", "X"), "price": 100.0,
+                    "previous_close": 100.0}
+        if tool in ("get_economic_calendar", "bet_index"):
+            return {"events": []} if tool == "get_economic_calendar" else {"error": "-"}
+        return {"rows": [_c(c, i) for c in ("HU", "DE", "EA", "US")
+                         for i in ("cpi", "core_cpi", "policy_rate", "unemployment")]}
+
+    hivott = {"review": 0, "pulse": 0}
+
+    async def _ai(*a, **k):
+        if "market situation report" in k.get("prompt", ""):
+            hivott["pulse"] += 1
+            return {"response": "A kereskedés csendes volt, 100 ponton."}
+        hivott["review"] += 1
+        return {"response": "Az infláció 1,6 százalék."}
+
+    tarolo = {}
+    eredeti = (ab.store_area_briefs, ab.load_area_brief)
+    try:
+        ab.store_area_briefs = lambda db, br: (tarolo.update(br), len(br))[1]
+        ab.load_area_brief = lambda db, lang: tarolo.get(lang)
+        r1 = asyncio.run(ab.cron_entry(None, _panel, _ai))
+        assert r1["with_pulse"] == 12, f"nem mind a 12 kapott pulzust: {r1}"
+        elso = hivott["review"]
+        r2 = asyncio.run(ab.cron_entry(None, _panel, _ai))
+        assert hivott["review"] == elso, "a valtozatlan makrot ujrairta"
+        assert r2["with_pulse"] == 12, "a valtozatlan kiadasok nem kaptak pulzust"
+        assert tarolo["hu"].get("market_pulse")
+    finally:
+        ab.store_area_briefs, ab.load_area_brief = eredeti
+
+
+def test_a_pulzusnak_KULON_belepesi_pontja_van():
+    """Két külön ütem, két külön cron: egy közös futás vagy feleslegesen
+    íratná újra a makrót, vagy elavultan hagyná a piacot."""
+    assert callable(ab.cron_pulse)
+    import inspect
+    src = inspect.getsource(ab.cron_pulse)
+    assert "build_area_review" not in src, "a pulzus-cron a makrót is újraírja"
+    assert "fetch_market" in src and "build_market_pulse" in src

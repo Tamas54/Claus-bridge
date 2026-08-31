@@ -1032,6 +1032,107 @@ def _valasz_szovege(nyers) -> str:
     return ""
 
 
+# ══════════════════════════════════════════════════════════════════════════
+# NAPI PIACI HELYZET — KULON RETEG, KULON FRISSESSEGGEL
+# ══════════════════════════════════════════════════════════════════════════
+#
+# Kommandant, 2026-08-31: "most mar eleg hosszu, de ez meg mindig egy HETES
+# ervenyessegu. Tehat ezt eleg hetente cserelni (vagy ha jon vmilyen friss
+# adat) — nekunk kell a NAPI piaci helyzet is hozza, ami PLUSZ FRISSESSEGU."
+#
+# Ez a diagnozis architekturalis: a ket szoveg MAS UTEMU, tehat nem lehet
+# egy szoveg.
+#
+#   MAKRO-SZEMLE   havi/negyedeves statisztikakbol → hetekig ervenyes.
+#                  Ujrairas CSAK valtozasra (ujjlenyomat) — es ez helyes:
+#                  ugyanabbol az adatbol naponta mas megfogalmazast adni az
+#                  olvasonak VALTOZASNAK latszana, holott nem az.
+#
+#   PIACI HELYZET  a mai kereskedesbol → holnap mar nem igaz.
+#                  Naponta tobbszor frissul, es SEMMI kozе a havi
+#                  statisztikahoz: ha ujra elmondana az inflaciot, megint
+#                  csak ismetles lenne.
+#
+# A ket szoveg tehat NEM ATFEDO. A promptja is ezt kenyszeriti ki.
+
+#: A napi piaci szoveg promptjanak verzioja — kulon a makro-szemleetol,
+#: mert kulon is fejlodik.
+PULSE_PROMPT_VERSION = 1
+
+#: Rovid. Ez nem elemzes, hanem HELYZETJELENTES: mi tortent ma, mi a jel es
+#: mi a zaj, mire figyelj. Ami ennel hosszabb, az mar a makro-szemle dolga.
+PULSE_MAX_MONDAT = 8
+PULSE_MAX_KAR = 2200
+
+
+def _pulse_prompt(brief: dict, nyelv_nev: str) -> str:
+    orszag = brief.get("country") or "-"
+    return f"""TODAY'S MARKET DATA (the ONLY numbers you may use):
+{_piac_tenyek(brief)}
+
+TASK: Write a short market situation report in {nyelv_nev} for readers in
+{orszag} — {PULSE_MAX_MONDAT} sentences at most, one paragraph, plain prose.
+
+WHAT THIS IS: a report on TODAY. What moved, what did not, which move is the
+day's real signal and which is rounding noise, how today sits against the
+week and the month, and what is due in the next few days.
+
+WHAT THIS IS NOT: it is NOT a macro commentary. A separate, longer text on
+the same page already covers inflation, GDP, wages and the policy rate from
+the monthly statistics. Do NOT repeat those — if you find yourself writing
+about last month's inflation print, you are writing the wrong text.
+
+HARD RULES — breaking any of these makes the report unusable:
+1. Use ONLY the numbers above. Never introduce a figure that is not there,
+   and never convert a price into a currency you were not given.
+2. NEVER explain WHY a market moved. You have no news here, only numbers.
+   Two things moving on the same day is not one causing the other.
+3. A move under about 0.3% on an index or 0.5% on a commodity is noise. Say
+   the session was quiet rather than dressing up a rounding difference.
+4. The daily change and the 1-week / 1-month figures are given. Use them as
+   given; the day AGAINST the month is the story — say whether today
+   continued a trend or broke it.
+5. Do not list every instrument. The reader has the table; name a number only
+   where the sentence needs it as evidence.
+6. No headings, no bullet points, no markdown, no source names.
+
+Return ONLY the report text."""
+
+
+async def build_market_pulse(brief: dict, ai_query, valid_review=None) -> str:
+    """A kiadás NAPI piaci helyzetjelentése. Sose dob; hibánál üres sztring."""
+    if not ai_query:
+        return ""
+    m = brief.get("market") or {}
+    if len((m.get("global") or {})) + len((m.get("home") or {})) < 3:
+        # Harom jegyzes alatt nincs mirol "helyzetet" irni.
+        return ""
+    nyelv = _NYELV_NEV.get(brief.get("lang"), "English")
+    try:
+        nyers = await ai_query(
+            model=REVIEW_MODEL,
+            prompt=_pulse_prompt(brief, nyelv),
+            max_tokens=900,
+            caller="feldwebel",
+            no_thinking=True,
+            no_tools=True,
+        )
+    except Exception as e:  # noqa: BLE001
+        logger.warning("market_pulse(%s): a hivas elbukott: %s",
+                       brief.get("lang"), e)
+        return ""
+    szoveg = _valasz_szovege(nyers).strip()
+    hibak = (valid_review or validate_review)(szoveg, brief)
+    # A hosszkorlat itt SZIGORUBB, mint a makro-szemlenel.
+    if szoveg and len(szoveg) > PULSE_MAX_KAR:
+        hibak = list(hibak) + [f"tul hosszu ({len(szoveg)} kar)"]
+    if hibak:
+        logger.warning("market_pulse(%s) ELDOBVA: %s | szoveg: %s",
+                       brief.get("lang"), "; ".join(hibak), szoveg[:200])
+        return ""
+    return szoveg
+
+
 def store_area_briefs(get_db, briefs: dict) -> int:
     """A 12 kiadás eltárolása a `briefs` táblába, kiadásonként egy sor.
 
@@ -1087,6 +1188,42 @@ def load_area_brief(get_db, lang: str) -> dict | None:
         return None
 
 
+async def cron_pulse(get_db, statdata_call, ai_query=None) -> dict:
+    """CSAK a napi piaci helyzet frissitese — a makro-szemle valtozatlan.
+
+    ⚠️ EZ A LENYEG (Kommandant, 2026-08-31): a makro-szemle HETES
+    ervenyessegu, a piaci helyzet NAPI. Ket kulon utem, ket kulon cron.
+    Egy kozos futas vagy feleslegesen iratna ujra a makrot, vagy elavultan
+    hagyna a piacot — a ketto nem hozhato kozos nevezore.
+
+    A tarolt kiadas tobbi mezojet NEM banthatjuk: a makro-tablazat, a
+    hianylista es a szemle ugy marad, ahogy a napi cron hagyta.
+    """
+    if not ai_query:
+        return {"updated": 0, "ok": False, "error": "nincs ai_query"}
+    n = 0
+    for lang in AREA_COUNTRY:
+        regi = load_area_brief(get_db, lang)
+        if not regi:
+            continue
+        try:
+            regi["market"] = await fetch_market(statdata_call, lang)
+        except Exception as e:  # noqa: BLE001
+            logger.warning("cron_pulse(%s): piaci lekeres elbukott: %s", lang, e)
+            continue
+        pulzus = await build_market_pulse(regi, ai_query)
+        if not pulzus:
+            continue
+        regi["market_pulse"] = pulzus
+        regi["pulse_prompt_version"] = PULSE_PROMPT_VERSION
+        regi["pulse_asof"] = datetime.now(timezone.utc).isoformat()
+        if store_area_briefs(get_db, {lang: regi}):
+            n += 1
+    logger.info("cron_pulse: %d/%d kiadas piaci helyzete frissitve",
+                n, len(AREA_COUNTRY))
+    return {"updated": n, "ok": n > 0}
+
+
 async def cron_entry(get_db, statdata_call, ai_query=None) -> dict:
     """Napi futas: 12 kiadas eloallitasa, szemleje es tarolasa. Sose dob.
 
@@ -1118,17 +1255,33 @@ async def cron_entry(get_db, statdata_call, ai_query=None) -> dict:
                 b["review_reused"] = True
                 logger.info("area_review(%s): valtozatlan makro es csendes "
                             "piac — a tarolt szemle marad", lang)
-                continue
-            b["review"] = await build_area_review(
-                b, ai_query, _valtozas_blokk(valt, piac))
-            b["review_prompt_version"] = REVIEW_PROMPT_VERSION
+            else:
+                # ⚠️ `else`, NEM `continue`. Eredetileg `continue` allt itt, de
+                # a napi piaci pulzus ALATTA keszul — a `continue` atugrotta
+                # volna, es a valtozatlan makroju kiadasok NEM kaptak volna
+                # napi piaci szoveget. Pont azok, ahol a makro nem valtozik:
+                # a honap kozepetol a legtobb kiadas.
+                b["review"] = await build_area_review(
+                    b, ai_query, _valtozas_blokk(valt, piac))
+                b["review_prompt_version"] = REVIEW_PROMPT_VERSION
+            # A NAPI PIACI HELYZET MINDIG UJRAIRODIK — ez a lenyege. A
+            # makro-szemle hetekig ervenyes, ez holnap mar nem igaz.
+            #
+            # ⚠️ A BEHUZAS ITT NEM STILUS. Elso valtozatban ez a harom sor a
+            # CIKLUSON KIVUL allt, igy csak az UTOLSO kiadas kapott napi
+            # piaci szoveget — a masik tizenegy nemaan kimaradt, es a
+            # `with_pulse` szamlalo 1-et mutatott volna 12 helyett.
+            b["market_pulse"] = await build_market_pulse(b, ai_query)
+            b["pulse_prompt_version"] = PULSE_PROMPT_VERSION
+            b["pulse_asof"] = datetime.now(timezone.utc).isoformat()
     n = store_area_briefs(get_db, briefs)
     teljes = sum(1 for b in briefs.values() if b.get("home"))
+    pulzusok = sum(1 for b in briefs.values() if b.get("market_pulse"))
     szemles = sum(1 for b in briefs.values() if b.get("review"))
     ujrahasznalt = sum(1 for b in briefs.values() if b.get("review_reused"))
     logger.info("area_briefs: %d kiadas tarolva, ebbol %d-nek van HAZAI blokkja "
                 "(a tobbi csak a kozos horgonyt kapja), %d-nek szoveges szemleje",
                 n, teljes, szemles)
     return {"stored": n, "with_home": teljes, "with_review": szemles,
-            "review_reused": ujrahasznalt,
+            "with_pulse": pulzusok, "review_reused": ujrahasznalt,
             "langs": sorted(briefs), "ok": n > 0}
