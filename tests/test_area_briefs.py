@@ -288,7 +288,7 @@ def test_a_CJK_szivargas_ELDOBJA_a_szemlet():
 def test_ures_es_tul_hosszu_szemle_ELDOBODIK():
     b = _b([_cell("HU", "cpi", 1.6)] * 4)
     assert ab.validate_review("", b) == ["ures"]
-    assert ab.validate_review("1,6 " * 2400, b)
+    assert ab.validate_review("1,6 " * 3600, b)
 
 
 def test_a_prompt_KIMONDJA_hogy_irany_csak_elozovel():
@@ -459,7 +459,7 @@ def test_a_kitalalt_szam_MEG_MINDIG_fennakad():
 
 def test_a_hosszkorlat_elfer_ot_mondat_franciaul():
     """Mérve: egy helyes francia szemle 913 karakter volt, a korlát 900."""
-    assert ab.REVIEW_MAX_KAR >= 6000, "a szemle megint chat-buborekra van szabva"
+    assert ab.REVIEW_MAX_KAR >= 10000, "a szemle megint chat-buborekra van szabva"
 
 
 # ══════════════════════════════════════════════════════════════════════════
@@ -861,3 +861,47 @@ def test_a_PROMPT_valtozasa_is_ujrairast_indokol():
     assert "REVIEW_PROMPT_VERSION" in src
     # a verzio a tarolt payloadba is bekerul, kulonben nincs mihez hasonlitani
     assert 'b["review_prompt_version"] = REVIEW_PROMPT_VERSION' in src
+
+
+def test_a_TAVLAT_bekerul_a_tenyekbe():
+    """⚠️ EZ A VALASZ A „KEVES"-RE. Egy „az olaj ma 3,49%-kal emelkedett"
+    mondat LEIRAS; egy „ma 3,49%, egy hónap alatt 12%" mondat ÁLLÍTÁS a
+    trendről — és abból már lehet kérdezni, hogy a mai nap folytatás-e vagy
+    fordulat. Két számból nem lesz elemzés, háromból igen."""
+    b = _b([_cell("HU", "cpi", 1.6)] * 4)
+    b["market"] = {"global": {"oil_wti": {"price": 86.31, "change_pct": 3.49,
+                                          "w1": 5.2, "m1": 12.4, "m3": -3.1}},
+                   "home": {}, "calendar": []}
+    pr = ab._review_prompt(b, "Hungarian")
+    assert "1 week +5.20%" in pr and "1 month +12.40%" in pr
+    assert "USE THE HORIZONS" in pr
+    assert "the day AGAINST\n   the month is a story" in pr.replace("  ", "  ")
+
+
+def test_a_NAPTAR_az_elore_nezes():
+    """Egy szemle, ami csak a múlt havi adatokat magyarázza, nem mondja meg,
+    mire figyeljen az olvasó holnap."""
+    b = _b([_cell("HU", "cpi", 1.6)] * 4)
+    b["market"] = {"global": {}, "home": {}, "calendar": [
+        {"date": "2026-09-03", "time": "11:00 CET", "region": "EUR",
+         "indicator": "Euro Area Unemployment", "importance": "high"}]}
+    pr = ab._review_prompt(b, "Hungarian")
+    assert "UPCOMING RELEASES" in pr
+    assert "Euro Area Unemployment" in pr
+    assert "THE CALENDAR IS THE FORWARD LOOK" in pr
+
+
+def test_a_tavlat_a_ZARO_arakbol_szamol():
+    async def _sd(tool, args):
+        return {"data": [{"close": 100.0 + i} for i in range(70)]}
+    ab._MARKET_CACHE.clear()
+    t = asyncio.run(ab.fetch_tavlat(_sd, "^GSPC"))
+    assert t["w1"] == round((169 / 164 - 1) * 100, 2)
+    assert t["m1"] == round((169 / 148 - 1) * 100, 2)
+
+
+def test_keves_adatpont_eseten_NINCS_tavlat():
+    async def _sd(tool, args):
+        return {"data": [{"close": 100.0}, {"close": 101.0}]}
+    ab._MARKET_CACHE.clear()
+    assert asyncio.run(ab.fetch_tavlat(_sd, "X")) is None

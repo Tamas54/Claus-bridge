@@ -193,12 +193,86 @@ async def fetch_quote(statdata_call, symbol: str) -> dict | None:
     return ki
 
 
+async def fetch_tavlat(statdata_call, symbol: str) -> dict | None:
+    """1 HETES es 1 HAVI valtozas — a napi mozgas ONMAGABAN nem elemzes.
+
+    ⚠️ EZ A KULCS A "KEVES" PANASZRA (Kommandant, 2026-08-31). Egy "az olaj
+    ma 3,49%-kal emelkedett" mondat leiras; egy "ma 3,49%, egy honap alatt
+    12%" mondat ALLITAS a trendrol — es abbol mar lehet kerdezni, hogy a mai
+    nap folytatas-e vagy fordulat. Ket szambol nem lesz elemzes, harombol
+    igen.
+    """
+    import time as _t
+    kulcs = f"hist:{symbol}"
+    hit = _MARKET_CACHE.get(kulcs)
+    if hit and (_t.time() - hit[0]) < _MARKET_TTL:
+        return hit[1]
+    try:
+        res = await statdata_call("yfinance", {"symbol": symbol,
+                                              "action": "history",
+                                              "period": "3mo", "interval": "1d"})
+        if isinstance(res, str):
+            res = json.loads(res)
+    except Exception as e:  # noqa: BLE001
+        logger.info("tavlat (%s) elbukott: %s", symbol, e)
+        return None
+    sorok = (res or {}).get("data") or []
+    zarok = [r.get("close") for r in sorok if r.get("close") is not None]
+    if len(zarok) < 6:
+        return None
+
+    def _valt(n: int):
+        if len(zarok) <= n:
+            return None
+        try:
+            return round((float(zarok[-1]) / float(zarok[-1 - n]) - 1) * 100, 2)
+        except (TypeError, ValueError, ZeroDivisionError):
+            return None
+
+    ki = {"w1": _valt(5), "m1": _valt(21), "m3": _valt(len(zarok) - 1)}
+    _MARKET_CACHE[kulcs] = (_t.time(), ki)
+    return ki
+
+
+async def fetch_naptar(statdata_call) -> list:
+    """A kovetkezo napok makro-esemenyei — ELORE nezo, tehat naponta mas.
+
+    Egy szemle, ami csak a mult havi adatokat magyarazza, nem mondja meg az
+    olvasonak, mire figyeljen holnap. A Telegramra meno Economic Brief ezt
+    hasznalja; itt hianyzott.
+    """
+    import time as _t
+    hit = _MARKET_CACHE.get("naptar")
+    if hit and (_t.time() - hit[0]) < _MARKET_TTL:
+        return hit[1]
+    ki = []
+    for regio in ("EU", "US"):
+        try:
+            res = await statdata_call("get_economic_calendar",
+                                      {"days_ahead": 4, "region": regio})
+            if isinstance(res, str):
+                res = json.loads(res)
+        except Exception as e:  # noqa: BLE001
+            logger.info("naptar (%s) elbukott: %s", regio, e)
+            continue
+        for ev in (res or {}).get("events") or []:
+            ki.append({"date": ev.get("date"), "time": ev.get("time"),
+                       "indicator": ev.get("indicator"),
+                       "importance": ev.get("importance"),
+                       "region": ev.get("region")})
+    _MARKET_CACHE["naptar"] = (_t.time(), ki)
+    return ki
+
+
 async def fetch_market(statdata_call, lang: str) -> dict:
     """A kiadás piaci blokkja: KÖZÖS globális + hazai. Sose dob."""
-    ki: dict = {"global": {}, "home": {}}
+    ki: dict = {"global": {}, "home": {}, "calendar": []}
     for cimke, sym in MARKET_GLOBAL:
         q = await fetch_quote(statdata_call, sym)
         if q:
+            t = await fetch_tavlat(statdata_call, sym)
+            if t:
+                q = {**q, **t}
             ki["global"][cimke] = q
     # A sajat toolbol jovo index ELOL all: az a nyelvterulet fo mutatoja.
     tool = INDEX_TOOL_HOME.get(lang)
@@ -210,7 +284,11 @@ async def fetch_market(statdata_call, lang: str) -> dict:
     for cimke, sym in MARKET_HOME.get(lang, ()):
         q = await fetch_quote(statdata_call, sym)
         if q:
+            t = await fetch_tavlat(statdata_call, sym)
+            if t:
+                q = {**q, **t}
             ki["home"][cimke] = q
+    ki["calendar"] = await fetch_naptar(statdata_call)
     return ki
 
 
@@ -425,12 +503,13 @@ async def build_area_briefs(statdata_call, piaccal: bool = True) -> dict:
 #:
 #: v1: ket bekezdes (vilag + hazai)
 #: v2: harom bekezdes, tiltas a tablazat felmondasara, 52 hetes sav
-REVIEW_PROMPT_VERSION = 2
+#: v3: 1 hetes / 1 havi / 3 havi tavlat + gazdasagi naptar (elore nezes)
+REVIEW_PROMPT_VERSION = 3
 
-REVIEW_MAX_MONDAT = 20
+REVIEW_MAX_MONDAT = 30
 
 #: Hány karakteren felül vágjuk el biztonságból (a modell néha "elszabadul").
-REVIEW_MAX_KAR = 7000   # harom bekezdes; a lap olvasofelulet, nem chat-buborek
+REVIEW_MAX_KAR = 11000  # harom BO bekezdes; a lap olvasofelulet, nem chat-buborek
 
 
 # ══════════════════════════════════════════════════════════════════════════
@@ -560,8 +639,22 @@ def _piac_tenyek(brief: dict) -> str:
                            f"currently {hely:.0f}% of the way up that range")
             except (TypeError, ValueError, ZeroDivisionError):
                 sav = ""
+            tav = []
+            for mezo, nev in (("w1", "1 week"), ("m1", "1 month"), ("m3", "3 months")):
+                v2 = q.get(mezo)
+                if isinstance(v2, (int, float)):
+                    tav.append(f"{nev} {v2:+.2f}%")
+            tavlat = (" | " + ", ".join(tav)) if tav else ""
             sorok.append(f"{cimke} {kulcs}: {q.get('price')} "
-                         f"({q.get('currency') or ''}) | {valt}{sav}")
+                         f"({q.get('currency') or ''}) | {valt}{tavlat}{sav}")
+    naptar = (brief.get("market") or {}).get("calendar") or []
+    if naptar:
+        sorok.append("")
+        sorok.append("UPCOMING RELEASES (next few days):")
+        for ev in naptar[:10]:
+            sorok.append(f"  {ev.get('date')} {ev.get('time') or ''} "
+                         f"{ev.get('region') or ''} {ev.get('indicator')} "
+                         f"[{ev.get('importance') or '?'}]")
     return "\n".join(sorok)
 
 
@@ -744,11 +837,12 @@ in TWO paragraphs separated by a blank line:
   PARAGRAPH 2 — HOME. The home economy: its own statistics and its own
   market, and where it stands against the anchor.
 
-  PARAGRAPH 3 — WHAT TO WATCH. The tensions the numbers themselves reveal:
-  where two indicators point in opposite directions, where a rate sits
-  against inflation, whether real wages are rising, whether an index is near
-  the top or the bottom of its yearly range. Two or three sentences, and only
-  what the numbers support.
+  PARAGRAPH 3 — WHAT TO WATCH. The tensions the numbers themselves reveal,
+  and what is coming. Where two indicators point in opposite directions;
+  where a rate sits against inflation; whether real wages are rising;
+  whether an index is near the top or bottom of its yearly range; whether
+  today continued the month's trend or broke it; and which of the upcoming
+  releases actually matters given all of the above. Four to six sentences.
 
 ⚠️ DO NOT RECITE THE TABLE. Every figure you are given is ALREADY printed in
 a table directly below your text, with its period and its source. A sentence
@@ -798,11 +892,20 @@ HARD RULES — breaking any of these makes the whole commentary unusable:
 7. A move under about 0.3% on an index or 0.5% on a commodity is noise. Say
    the market was quiet rather than dressing up a rounding difference as an
    event.
-8. USE THE 52-WEEK RANGE. Where a fact line gives it, the position within the
+8. USE THE HORIZONS. Each quote carries the 1-week, 1-month and 3-month
+   change alongside today's. A single day is a data point; the day AGAINST
+   the month is a story. Say whether today continued a trend or broke it —
+   that is the difference between describing and analysing, and it is what
+   the reader cannot see from the table.
+9. THE CALENDAR IS THE FORWARD LOOK. Where releases are listed, the closing
+   paragraph should say what is due and why it matters given today's
+   figures — e.g. an inflation print due while the policy rate already sits
+   well above core.
+10. USE THE 52-WEEK RANGE. Where a fact line gives it, the position within the
    range is often the more telling number: an index 2% off its yearly high
    after a small down day is a different story from the same day near the
    low. The range is given to you — use it, and do not invent one.
-9. RELATIONSHIPS THE NUMBERS SUPPORT, and no others: policy rate minus
+11. RELATIONSHIPS THE NUMBERS SUPPORT, and no others: policy rate minus
    inflation (is policy tight in real terms?); wages minus inflation (are
    real wages rising?); harmonised versus national core (different baskets);
    an index against its own yearly range; two real-economy indicators
