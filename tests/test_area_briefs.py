@@ -98,3 +98,40 @@ def test_mind_a_12_nyelv_szerepel():
     NEMAN makro-blokk nelkul marad — es senki nem venne eszre."""
     assert set(ab.AREA_COUNTRY) == {
         "hu", "en", "de", "es", "zh", "fr", "pl", "ru", "uk", "it", "el", "tr"}
+
+
+def test_a_kotegeles_nem_lepi_tul_a_panel_plafonjat():
+    """ELESBEN MEGTORTENT (2026-08-31): 12 orszag × 11 mutato = 132 cella, a
+    panel plafonja 120 — a hivas ELUTASITVA, nulla brief keszult.
+
+    A plafon NEM onkenyes: minden cella kulon kulso lekeres, a forrasoknal
+    rate limit van. Tehat nem a plafont emeljuk, hanem kotegelunk."""
+    hivasok = []
+
+    async def _call(tool, args):
+        n = len(args["countries"].split(",")) * len(args["indicators"].split(","))
+        hivasok.append(n)
+        assert n <= 120, f"{n} cella egy kotegben — a panel elutasitana"
+        return {"rows": [_cell(c, "cpi", 1.0)
+                         for c in args["countries"].split(",")]}
+
+    out = asyncio.run(ab.build_area_briefs(_call))
+    assert hivasok, "egyetlen hivas sem tortent"
+    assert out, "a kotegelt eredmeny ures"
+    # es minden orszag benne van valamelyik kotegben
+    assert out["hu"]["home"] and out["tr"]["home"]
+
+
+def test_egy_bukott_koteg_nem_viszi_el_a_tobbit():
+    """A halozat egy kotegnel elszallhat. A tobbi kiadas ettol meg keszuljon
+    el — a resz-eredmeny jobb, mint a semmi."""
+    hivas = {"n": 0}
+
+    async def _call(tool, args):
+        hivas["n"] += 1
+        if hivas["n"] == 1:
+            raise RuntimeError("halozat")
+        return {"rows": [_cell(c, "cpi", 2.0) for c in args["countries"].split(",")]}
+
+    out = asyncio.run(ab.build_area_briefs(_call))
+    assert out, "egy bukott koteg elvitte az egeszet"

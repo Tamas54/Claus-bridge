@@ -81,22 +81,36 @@ async def build_area_briefs(statdata_call) -> dict:
         [v for v in AREA_COUNTRY.values() if v] + list(ANCHOR_COUNTRIES))]
     mutatok = list(dict.fromkeys(HOME_INDICATORS + ANCHOR_INDICATORS))
 
-    try:
-        res = await statdata_call("get_macro_panel", {
-            "countries": ",".join(orszagok),
-            "indicators": ",".join(mutatok),
-        })
-        if isinstance(res, str):
-            res = json.loads(res)
-    except Exception as e:  # noqa: BLE001
-        logger.error("area_briefs: a panel-hivas elbukott: %s", e)
-        return {}
-    if not res or not res.get("rows"):
-        logger.error("area_briefs: ures panel (%s)", str(res)[:200])
+    # ⚠️ KOTEGELES. A panel cella-plafonja 120, es az NEM onkenyes: minden
+    # cella kulon kulso lekeres, a forrasoknal (FRED, Eurostat) rate limit
+    # van. 12 orszag × 11 mutato = 132 — ELUTASITVA, es jol tette: elesben
+    # pontosan ez tortent az elso futasnal.
+    # Orszagonkent kotegelunk, mert a mutato-lista fix; egy kotegben legfeljebb
+    # 100 cella.
+    KOTEG = max(1, 100 // max(1, len(mutatok)))
+    kotegek = [orszagok[i:i + KOTEG] for i in range(0, len(orszagok), KOTEG)]
+    sorok: list[dict] = []
+    for koteg in kotegek:
+        try:
+            res = await statdata_call("get_macro_panel", {
+                "countries": ",".join(koteg),
+                "indicators": ",".join(mutatok),
+            })
+            if isinstance(res, str):
+                res = json.loads(res)
+        except Exception as e:  # noqa: BLE001
+            logger.error("area_briefs: panel-hivas elbukott (%s): %s", koteg, e)
+            continue
+        if not res or not res.get("rows"):
+            logger.error("area_briefs: ures koteg (%s): %s", koteg, str(res)[:180])
+            continue
+        sorok += res["rows"]
+    if not sorok:
+        logger.error("area_briefs: egyetlen koteg sem adott adatot")
         return {}
 
     per: dict[str, dict[str, dict]] = {}
-    for sor in res["rows"]:
+    for sor in sorok:
         per.setdefault(sor["country"], {})[sor["indicator"]] = sor
 
     now = datetime.now(timezone.utc).isoformat()
