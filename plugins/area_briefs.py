@@ -184,6 +184,10 @@ async def fetch_quote(statdata_call, symbol: str) -> dict | None:
     ki = {"symbol": symbol, "name": res.get("name") or symbol,
           "price": ar, "prev_close": elozo, "change_pct": valtozas,
           "currency": res.get("currency"),
+          # ⚠️ AZ 52 HETES SAV NELKUL A MAI SZAM NEM MOND SEMMIT. Egy 15,02-es
+          # VIX onmagaban ures adat; hogy az az EVES SAV ALJAN van, mar allitas
+          # a piac allapotarol. Enelkul a szemle felsorolas marad.
+          "low_52w": res.get("52w_low"), "high_52w": res.get("52w_high"),
           "as_of": res.get("last_trade_at")}
     _MARKET_CACHE[symbol] = (_t.time(), ki)
     return ki
@@ -242,6 +246,7 @@ async def fetch_index_tool(statdata_call, tool_nev: str, args: dict) -> dict | N
           "price": res.get("value"),
           "prev_close": res.get("prev_close"),
           "change_pct": res.get("change_pct"),
+          "low_52w": res.get("low_52w"), "high_52w": res.get("high_52w"),
           "currency": "pont",
           "as_of": None,
           "source": res.get("source")}
@@ -408,10 +413,10 @@ async def build_area_briefs(statdata_call, piaccal: bool = True) -> dict:
 #: (irány csak `prev`-vel, ok SOHA, kitalált szám tilos) tartják meg, nem a
 #: mondatszám. Tizenkét mondatban is lehet fegyelmezett — és tizenkét
 #: mutatóhoz öt mondat kevés: a felét meg sem említi.
-REVIEW_MAX_MONDAT = 12
+REVIEW_MAX_MONDAT = 20
 
 #: Hány karakteren felül vágjuk el biztonságból (a modell néha "elszabadul").
-REVIEW_MAX_KAR = 4200   # ket bekezdes (vilag + hazai), 12 mondat gorogul is elfer
+REVIEW_MAX_KAR = 7000   # harom bekezdes; a lap olvasofelulet, nem chat-buborek
 
 
 # ══════════════════════════════════════════════════════════════════════════
@@ -532,8 +537,17 @@ def _piac_tenyek(brief: dict) -> str:
         for kulcs, q in tetelek.items():
             v = q.get("change_pct")
             valt = f"{v:+.2f}% ma" if isinstance(v, (int, float)) else "napi valtozas: NINCS"
+            sav = ""
+            lo, hi, ar = q.get("low_52w"), q.get("high_52w"), q.get("price")
+            try:
+                if lo is not None and hi is not None and float(hi) > float(lo):
+                    hely = (float(ar) - float(lo)) / (float(hi) - float(lo)) * 100
+                    sav = (f" | 52-week range {lo}-{hi}, "
+                           f"currently {hely:.0f}% of the way up that range")
+            except (TypeError, ValueError, ZeroDivisionError):
+                sav = ""
             sorok.append(f"{cimke} {kulcs}: {q.get('price')} "
-                         f"({q.get('currency') or ''}) | {valt}")
+                         f"({q.get('currency') or ''}) | {valt}{sav}")
     return "\n".join(sorok)
 
 
@@ -708,12 +722,27 @@ WHAT IS NEW SINCE THE PREVIOUS EDITION:
 TASK: Write a macro commentary in {nyelv_nev} for readers in {orszag},
 in TWO paragraphs separated by a blank line:
 
-  PARAGRAPH 1 — THE WORLD. What moved on global markets today, and what the
-  euro-area and US figures say. This paragraph is about the world economy in
-  its own right, NOT a set of yardsticks for the home country.
+  PARAGRAPH 1 — THE WORLD. What moved on global markets today and what it
+  says about the state of the world economy, together with the euro-area and
+  US figures. This paragraph stands on its own, NOT as a set of yardsticks
+  for the home country.
 
   PARAGRAPH 2 — HOME. The home economy: its own statistics and its own
   market, and where it stands against the anchor.
+
+  PARAGRAPH 3 — WHAT TO WATCH. The tensions the numbers themselves reveal:
+  where two indicators point in opposite directions, where a rate sits
+  against inflation, whether real wages are rising, whether an index is near
+  the top or the bottom of its yearly range. Two or three sentences, and only
+  what the numbers support.
+
+⚠️ DO NOT RECITE THE TABLE. Every figure you are given is ALREADY printed in
+a table directly below your text, with its period and its source. A sentence
+that says "gold fell 0.68% and the S&P 500 fell 0.33% and the VIX rose 3.88%"
+adds NOTHING — the reader has just read that. Your job is what the numbers
+MEAN TOGETHER: which move is the day's real signal and which is noise, where
+two figures contradict each other, what a level implies when set against its
+yearly range. Name a number only when the sentence needs it as evidence.
 
 ⚠️ LEAD WITH WHAT IS NEW. If the "WHAT IS NEW" block names a changed figure
 — a rate decision, a fresh inflation print — that is the news, and it belongs
@@ -755,6 +784,15 @@ HARD RULES — breaking any of these makes the whole commentary unusable:
 7. A move under about 0.3% on an index or 0.5% on a commodity is noise. Say
    the market was quiet rather than dressing up a rounding difference as an
    event.
+8. USE THE 52-WEEK RANGE. Where a fact line gives it, the position within the
+   range is often the more telling number: an index 2% off its yearly high
+   after a small down day is a different story from the same day near the
+   low. The range is given to you — use it, and do not invent one.
+9. RELATIONSHIPS THE NUMBERS SUPPORT, and no others: policy rate minus
+   inflation (is policy tight in real terms?); wages minus inflation (are
+   real wages rising?); harmonised versus national core (different baskets);
+   an index against its own yearly range; two real-economy indicators
+   pointing opposite ways. These are arithmetic, not speculation.
 
 WHAT IS WORTH SAYING in the HOME paragraph, roughly in this order:
   - prices: headline vs core, and where the two diverge;

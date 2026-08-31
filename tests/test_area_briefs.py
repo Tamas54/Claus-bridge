@@ -288,7 +288,7 @@ def test_a_CJK_szivargas_ELDOBJA_a_szemlet():
 def test_ures_es_tul_hosszu_szemle_ELDOBODIK():
     b = _b([_cell("HU", "cpi", 1.6)] * 4)
     assert ab.validate_review("", b) == ["ures"]
-    assert ab.validate_review("1,6 " * 1400, b)
+    assert ab.validate_review("1,6 " * 2400, b)
 
 
 def test_a_prompt_KIMONDJA_hogy_irany_csak_elozovel():
@@ -459,7 +459,7 @@ def test_a_kitalalt_szam_MEG_MINDIG_fennakad():
 
 def test_a_hosszkorlat_elfer_ot_mondat_franciaul():
     """Mérve: egy helyes francia szemle 913 karakter volt, a korlát 900."""
-    assert ab.REVIEW_MAX_KAR >= 2500, "a szemle megint chat-buborekra van szabva"
+    assert ab.REVIEW_MAX_KAR >= 6000, "a szemle megint chat-buborekra van szabva"
 
 
 # ══════════════════════════════════════════════════════════════════════════
@@ -554,14 +554,38 @@ def test_a_szemle_prompt_KOVETELI_a_napi_reszt():
     assert "could be published any day between the 5th and the 25th" in pr
 
 
-def test_a_szemle_KET_bekezdes_vilag_es_hazai():
-    """A Kommandant másik kifogása: „nincs nemzetközi része". Az euróövezet és
-    az USA eddig csak viszonyítási pont volt a magyar számok mellett."""
+def test_a_szemle_HAROM_bekezdes_vilag_hazai_es_amit_figyelni_kell():
+    """Kommandant: „nincs nemzetközi része" — majd a kétbekezdéses változatra:
+    „KEVÉS". Jogosan: az első verzió felsorolás volt, nem elemzés."""
     b = _b([_cell("HU", "cpi", 1.6)] * 4)
     pr = ab._review_prompt(b, "Hungarian")
     assert "PARAGRAPH 1 — THE WORLD" in pr
     assert "PARAGRAPH 2 — HOME" in pr
-    assert "NOT a set of yardsticks for the home country" in pr
+    assert "PARAGRAPH 3 — WHAT TO WATCH" in pr
+    assert "NOT as a set of yardsticks" in pr
+
+
+def test_a_prompt_TILTJA_a_tablazat_felmondasat():
+    """A számok MÁR OTT VANNAK a szöveg alatti táblázatban, időszakkal és
+    forrással. Egy mondat, ami visszamondja őket, nulla információt ad — a
+    szemle dolga az, hogy mit JELENTENEK EGYÜTT."""
+    b = _b([_cell("HU", "cpi", 1.6)] * 4)
+    pr = ab._review_prompt(b, "Hungarian")
+    assert "DO NOT RECITE THE TABLE" in pr
+    assert "adds NOTHING" in pr
+    assert "MEAN TOGETHER" in pr
+
+
+def test_az_52_hetes_sav_bekerul_a_tenyekbe():
+    """Egy 15,02-es VIX önmagában üres adat; hogy az ÉVES SÁV ALJÁN van, már
+    állítás a piac állapotáról. Enélkül a szemle felsorolás marad."""
+    b = _b([_cell("HU", "cpi", 1.6)] * 4)
+    b["market"] = {"global": {"vix": {"price": 15.02, "change_pct": 3.9,
+                                      "low_52w": 11.0, "high_52w": 51.0}},
+                   "home": {}}
+    pr = ab._review_prompt(b, "Hungarian")
+    assert "52-week range 11.0-51.0" in pr
+    assert "10% of the way up that range" in pr
 
 
 def test_a_validator_ELFOGADJA_a_piaci_szamokat():
