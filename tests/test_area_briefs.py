@@ -366,3 +366,23 @@ def test_a_validator_MAGA_ne_legyen_a_hibafelulet():
     assert ab._szamok("nincs itt szam") == set()
     b = _b([_cell("HU", "cpi", 1.6)] * 4)
     assert ab.validate_review("低", b), "a CJK-vizsgálat nem talál CJK-t"
+
+
+def test_az_ai_query_hivas_ALAKJA_helyes():
+    """ÉLES HIBA (2026-08-31): az `ai_query` első paramétere a MODELL, nem a
+    prompt — a pozicionális átadás mind a 12 kiadásra „got multiple values
+    for argument 'model'"-t adott, a fail-closed ág pedig szó nélkül üres
+    szemlét csinált belőle. A táblázatok kimentek, a szemle némán elmaradt:
+    a hibatűrés elrejtette a hibát."""
+    kapott = {}
+
+    async def _ai(*args, **kw):
+        kapott.update(kw)
+        kapott["pozicionalis"] = args
+        return {"response": "Az infláció 1.6 százalék."}
+
+    b = _b([_cell("HU", "cpi", 1.6)] * 5)
+    asyncio.run(ab.build_area_review(b, _ai))
+    assert kapott["pozicionalis"] == (), "pozicionális átadás — a szerződés törékeny"
+    assert "model" in kapott and "prompt" in kapott
+    assert kapott["no_thinking"] is True and kapott["no_tools"] is True

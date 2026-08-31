@@ -359,9 +359,13 @@ async def build_area_review(brief: dict, ai_query) -> str:
         return ""
     nyelv = _NYELV_NEV.get(brief.get("lang"), "English")
     try:
+        # ⚠️ ALAK-SZERZODES: az `ai_query` elso parametere a MODELL, nem a
+        # prompt. Elesben ez "got multiple values for argument 'model'"-t
+        # adott mind a 12 kiadasra — es a fail-closed ag miatt szo nelkul
+        # ures szemle lett belole. A nevesitett atadas ezt kizarja.
         nyers = await ai_query(
-            _review_prompt(brief, nyelv),
             model=REVIEW_MODEL,
+            prompt=_review_prompt(brief, nyelv),
             max_tokens=1200,
             caller="area_briefs",
             no_thinking=True,   # rövid, kötött feladat — nem elmélkedés
