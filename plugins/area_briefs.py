@@ -214,13 +214,22 @@ async def build_area_briefs(statdata_call) -> dict:
 #    saját forrását — a mondatba tett hivatkozás csak zavar (a Kommandant
 #    ezt a Telegram-briefnél külön kérte).
 
-#: Legfeljebb ennyi mondat. Nem stílus-kérdés: egy hosszabb szemle
-#: elkerülhetetlenül átcsúszik értelmezésbe, és az értelmezéshez itt nincs
-#: adatunk.
-REVIEW_MAX_MONDAT = 5
+#: Legfeljebb ennyi mondat.
+#:
+#: Kommandant, 2026-08-31: "amit el tudott nekem küldeni a bridge szöveget
+#: miért a tizede van ott?" — igaza volt. Az öt mondat egy chat-buborékra
+#: volt szabva, a lap viszont OLVASÓFELÜLET: van hely egy rendes szemlére,
+#: és a Telegramra menő Economic Brief makró-része is 6-10 mondat.
+#:
+#: A korlát értelme nem a rövidség, hanem az, hogy a szemle NE csússzon át
+#: értelmezésbe, amihez nincs adatunk. Ezt viszont a tartalmi szabályok
+#: (irány csak `prev`-vel, ok SOHA, kitalált szám tilos) tartják meg, nem a
+#: mondatszám. Tizenkét mondatban is lehet fegyelmezett — és tizenkét
+#: mutatóhoz öt mondat kevés: a felét meg sem említi.
+REVIEW_MAX_MONDAT = 12
 
 #: Hány karakteren felül vágjuk el biztonságból (a modell néha "elszabadul").
-REVIEW_MAX_KAR = 1300   # ot mondat franciaul/gorogul 900 folott is lehet (merve: 913)
+REVIEW_MAX_KAR = 3000   # 12 mondat gorogul/franciaul is elfer; a fek a TARTALMI szabaly, nem a hossz
 
 
 def _tenyblokk(brief: dict) -> str:
@@ -329,7 +338,10 @@ def _review_prompt(brief: dict, nyelv_nev: str) -> str:
 {_tenyblokk(brief)}
 
 TASK: Write a short macro commentary in {nyelv_nev} for readers in {orszag},
-at most {REVIEW_MAX_MONDAT} sentences, plain prose, no headings, no bullet
+of {REVIEW_MAX_MONDAT} sentences at most — but WRITE A FULL COMMENTARY, not a
+summary: the reader has the table right below, so repeating three numbers adds
+nothing. Cover the indicators that actually say something, and where several
+move together, say what they say together. Plain prose, no headings, no bullet
 points, no markdown.
 
 HARD RULES — breaking any of these makes the whole commentary unusable:
@@ -348,10 +360,19 @@ HARD RULES — breaking any of these makes the whole commentary unusable:
    core inflation), say plainly that they are DIFFERENT MEASURES, not that
    one is wrong.
 
-WHAT IS WORTH SAYING: which figure stands out against the euro-area/US
-anchor; where the home economy is tighter or looser; a relationship the
-numbers themselves support (e.g. wages minus inflation = real wage
-direction). Write for an ordinary newspaper reader, not an economist.
+WHAT IS WORTH SAYING, roughly in this order:
+  - prices: headline vs core, and where the two diverge;
+  - the policy rate against inflation (is policy tight or loose in real
+    terms?) and against the euro-area/US anchor;
+  - the real economy: growth, unemployment, industry, retail — and whether
+    they point the same way or contradict each other;
+  - incomes: wages against inflation is the real-wage direction, and that is
+    what a reader feels;
+  - anything that stands out sharply against the anchor, in either direction;
+  - where the same quantity has two measures (harmonised vs national core),
+    say plainly that they are DIFFERENT MEASURES, not that one is wrong.
+Skip an indicator rather than padding a sentence about it. Write for an
+ordinary newspaper reader, not an economist.
 
 Return ONLY the commentary text. No JSON, no preamble."""
 

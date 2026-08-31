@@ -288,7 +288,7 @@ def test_a_CJK_szivargas_ELDOBJA_a_szemlet():
 def test_ures_es_tul_hosszu_szemle_ELDOBODIK():
     b = _b([_cell("HU", "cpi", 1.6)] * 4)
     assert ab.validate_review("", b) == ["ures"]
-    assert ab.validate_review("1.6 " * 400, b)
+    assert ab.validate_review("1,6 " * 900, b)
 
 
 def test_a_prompt_KIMONDJA_hogy_irany_csak_elozovel():
@@ -459,4 +459,4 @@ def test_a_kitalalt_szam_MEG_MINDIG_fennakad():
 
 def test_a_hosszkorlat_elfer_ot_mondat_franciaul():
     """Mérve: egy helyes francia szemle 913 karakter volt, a korlát 900."""
-    assert ab.REVIEW_MAX_KAR >= 950
+    assert ab.REVIEW_MAX_KAR >= 2500, "a szemle megint chat-buborekra van szabva"
