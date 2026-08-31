@@ -367,7 +367,14 @@ async def build_area_review(brief: dict, ai_query) -> str:
             model=REVIEW_MODEL,
             prompt=_review_prompt(brief, nyelv),
             max_tokens=1200,
-            caller="area_briefs",
+            # ⚠️ A `caller` EGYBEN IDENTITAS is: a permissions-kapu ebbol
+            # dont. Az "area_briefs" nev nem volt regisztralva, ezert a
+            # kapu mind a 12 hivast megtagadta ("Unbekannter Soldat").
+            # A javitas NEM uj core-instance mintazasa — ez ugyanolyan
+            # utemezett Bridge-belso generator, mint az Economic Brief,
+            # tehat ugyanazt az identitast hasznalja. Egy uj korlatlan
+            # identitas egyetlen tool kedveert rossz csere lenne.
+            caller="feldwebel",
             no_thinking=True,   # rövid, kötött feladat — nem elmélkedés
             no_tools=True,      # minden adat a promptban van; a tool itt csábítás
         )
@@ -385,7 +392,15 @@ async def build_area_review(brief: dict, ai_query) -> str:
 
 
 def _valasz_szovege(nyers) -> str:
-    """A modell válaszának kibontása — az `ai_query` alakja hívónként eltér."""
+    """A modell válaszának kibontása — az `ai_query` alakja hívónként eltér.
+
+    ⚠️ A HIBÁT KI KELL MONDANI. Az `ai_query` a hozzáférés-megtagadást
+    NORMÁL VÁLASZKÉNT adja vissza (`{"error": "ZUGANG VERWEIGERT…",
+    "status": "denied"}`), nem kivételként. Az első változatom erre üres
+    sztringet adott, a fail-closed ág pedig szó nélkül elhagyta a szemlét —
+    tizenkét kiadás maradt kommentár nélkül, és a log annyit mondott, hogy
+    "ures". A hibaüzenet ELVESZETT a hibatűrésben.
+    """
     if isinstance(nyers, str):
         try:
             d = json.loads(nyers)
@@ -395,10 +410,16 @@ def _valasz_szovege(nyers) -> str:
         d = nyers
     else:
         return str(nyers or "")
+    if d.get("error") or d.get("status") == "denied":
+        logger.error("area_review: a modellhivas ELUTASITVA — %s",
+                     str(d.get("error") or d)[:200])
+        return ""
     for kulcs in ("response", "content", "text", "answer", "result"):
         v = d.get(kulcs)
         if isinstance(v, str) and v.strip():
             return v
+    logger.warning("area_review: ismeretlen valasz-alak, kulcsok: %s",
+                   sorted(d)[:8])
     return ""
 
 

@@ -386,3 +386,24 @@ def test_az_ai_query_hivas_ALAKJA_helyes():
     assert kapott["pozicionalis"] == (), "pozicionális átadás — a szerződés törékeny"
     assert "model" in kapott and "prompt" in kapott
     assert kapott["no_thinking"] is True and kapott["no_tools"] is True
+
+
+def test_a_hozzaferes_megtagadas_NEM_tunhet_el_a_hibaturesben(caplog):
+    """ÉLES HIBA (2026-08-31): az `ai_query` a hozzáférés-megtagadást NORMÁL
+    válaszként adja vissza (`{"error": "ZUGANG VERWEIGERT…"}`), nem
+    kivételként. Az első kibontóm erre üres sztringet adott, a fail-closed ág
+    pedig szó nélkül elhagyta a szemlét — 12 kiadás maradt kommentár nélkül,
+    és a log annyit mondott: „ures". A hibaüzenet elveszett a hibatűrésben."""
+    import logging
+    with caplog.at_level(logging.ERROR):
+        assert ab._valasz_szovege(
+            '{"error": "ZUGANG VERWEIGERT: x", "status": "denied"}') == ""
+    assert any("ELUTASITVA" in r.message for r in caplog.records), \
+        "a megtagadás némán ment át"
+
+
+def test_ismeretlen_valasz_alak_is_NYOMOT_hagy(caplog):
+    import logging
+    with caplog.at_level(logging.WARNING):
+        assert ab._valasz_szovege({"valami_uj_mezo": "x"}) == ""
+    assert any("ismeretlen valasz-alak" in r.message for r in caplog.records)
