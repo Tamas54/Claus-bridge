@@ -1697,3 +1697,16 @@ def test_a_globalis_hirek_CACHE_ELODNEK_a_12_kiadasra():
     elso = n["i"]
     asyncio.run(ab.fetch_piaci_hirek(_q, "de", {}))
     assert n["i"] == elso, "a második kiadás újra lekérdezte a globális híreket"
+
+
+def test_a_forras_ONMAGABAN_nem_belyegez_velemenynek():
+    """⚠️ MÉRT HIBA: az első változat a Seeking Alpha MINDEN cikkét
+    véleménynek jelölte, így a „German Inflation Edges Up In August"
+    ténykölés kapott ⟨OPINION⟩ címkét. Egy eseményt véleménynek bélyegezni
+    ugyanolyan hiba, mint fordítva: az első elrejti a hírt, a második
+    tanácsot ad tényként."""
+    assert ab._hir_tipus("German Inflation Edges Up In August", "Seeking Alpha") == "event"
+    assert ab._hir_tipus("No Rate-Hiking Map From The Federal Reserve", "Seeking Alpha") == "event"
+    # a cim maga dont; a forras csak sulyosbit
+    assert ab._hir_tipus("Is the gold rally over?", "Seeking Alpha") == "opinion"
+    assert ab._hir_tipus("Why the rally could run through 2027", "Seeking Alpha") == "opinion"

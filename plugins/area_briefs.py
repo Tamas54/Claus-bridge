@@ -418,7 +418,18 @@ def _hir_tipus(cim: str, forras: str) -> str:
     """
     c = (cim or "").lower()
     f = (forras or "").lower()
-    if any(m in c for m in _VELEMENY_MINTAK) or any(m in f for m in _VELEMENY_FORRASOK):
+    # ⚠️ A FORRAS ONMAGABAN NEM DONTHET. Az elso valtozat a Seeking Alpha
+    # minden cikket velemenynek jelolte — igy a "German Inflation Edges Up In
+    # August" TENYKOZLES kapott ⟨OPINION⟩ cimket. Egy esemenyt velemenynek
+    # belyegezni ugyanolyan hiba, mint forditva: az elso elrejti a hirt, a
+    # masodik tanacsot ad tenykent.
+    # A CIM dont; a forras csak SULYOSBIT, ha a cim maga is gyanus.
+    if any(m in c for m in _VELEMENY_MINTAK):
+        return "opinion"
+    # velemeny-forrasnal eleg egy gyengebb jel is (elso szemely, kerdojel)
+    if any(m in f for m in _VELEMENY_FORRASOK) and (
+            c.startswith(("why ", "is ", "should ", "can ", "will "))
+            or c.endswith("?") or " my " in c or c.startswith("i ")):
         return "opinion"
     return "event"
 
