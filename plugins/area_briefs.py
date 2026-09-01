@@ -216,20 +216,41 @@ async def fetch_tavlat(statdata_call, symbol: str) -> dict | None:
     except Exception as e:  # noqa: BLE001
         logger.info("tavlat (%s) elbukott: %s", symbol, e)
         return None
+    import math
     sorok = (res or {}).get("data") or []
-    zarok = [r.get("close") for r in sorok if r.get("close") is not None]
+    # ⚠️ NaN-SZURES, ES EZ NEM ELOVIGYAZATOSSAG. A BET-papirok tortenetében
+    # HIANYZO zaroarak vannak (unnepnapok, szunetelo kereskedes), es a
+    # yfinance ezeket NaN-kent adja. A szazalekszamitas abbol NaN-t ad —
+    # az pedig BENNMARAD a payloadban, mert a `json.dumps` alapertelmezesben
+    # elfogadja.
+    #
+    # ELESBEN EZ TORTENT (2026-09-01): a Starlette JSONResponse
+    # `allow_nan=False`-szal kodol, tehat a `/api/brief/area/hu` HTTP 500-at
+    # adott — CSAK a magyarra, mert csak ott vannak egyedi RESZVENYEK, a tobbi
+    # kiadasban index all. Az Echolot orankenti frissitoje igy tizenegy
+    # kiadast frissitett es a magyart kihagyta; a lapon a tobbi nyelven ott
+    # volt a napi szoveg, magyarul nem.
+    def _szam(x):
+        try:
+            f = float(x)
+        except (TypeError, ValueError):
+            return None
+        return f if math.isfinite(f) else None
+
+    zarok = [z for z in (_szam(r.get("close")) for r in sorok) if z is not None]
     if len(zarok) < 6:
         return None
 
     def _valt(n: int):
-        if len(zarok) <= n:
+        if len(zarok) <= n or not zarok[-1 - n]:
             return None
-        try:
-            return round((float(zarok[-1]) / float(zarok[-1 - n]) - 1) * 100, 2)
-        except (TypeError, ValueError, ZeroDivisionError):
-            return None
+        e = (zarok[-1] / zarok[-1 - n] - 1) * 100
+        return round(e, 2) if math.isfinite(e) else None
 
     ki = {"w1": _valt(5), "m1": _valt(21), "m3": _valt(len(zarok) - 1)}
+    ki = {k: v for k, v in ki.items() if v is not None}
+    if not ki:
+        return None
     _MARKET_CACHE[kulcs] = (_t.time(), ki)
     return ki
 
@@ -1149,6 +1170,25 @@ async def build_market_pulse(brief: dict, ai_query, valid_review=None) -> str:
     return szoveg
 
 
+def _nan_mentes(o):
+    """NaN/Infinity kiszurese a teljes payloadbol — VEGSO vedohalo.
+
+    ⚠️ MIERT KELL A FORRAS-SZINTU SZURES MELLE IS. Egy NaN nem robban:
+    a `json.dumps` alapertelmezesben `NaN`-t ir ki, a `json.loads` vissza is
+    olvassa, es a hiba CSAK a HTTP-hataron jelentkezik, ahol a Starlette
+    `allow_nan=False`-szal kodol — HTTP 500 formajaban, egyetlen nyelven.
+    Ket napig is elelhet eszrevetlenul.
+    """
+    import math
+    if isinstance(o, float):
+        return o if math.isfinite(o) else None
+    if isinstance(o, dict):
+        return {k: _nan_mentes(v) for k, v in o.items()}
+    if isinstance(o, list):
+        return [_nan_mentes(v) for v in o]
+    return o
+
+
 def store_area_briefs(get_db, briefs: dict) -> int:
     """A 12 kiadás eltárolása a `briefs` táblába, kiadásonként egy sor.
 
@@ -1175,7 +1215,8 @@ def store_area_briefs(get_db, briefs: dict) -> int:
                 "INSERT INTO briefs (kind, session, asof, lang, payload, created_at) "
                 "VALUES ('area','daily',?,?,?,?)",
                 (payload.get("asof", most), lang,
-                 json.dumps(payload, ensure_ascii=False), most))
+                 json.dumps(_nan_mentes(payload), ensure_ascii=False,
+                            allow_nan=False), most))
             n += 1
         conn.commit()
         conn.close()

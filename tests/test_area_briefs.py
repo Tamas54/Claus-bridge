@@ -1104,3 +1104,60 @@ def test_amit_a_prompt_KER_azt_a_validator_ELFOGADJA():
         "Az index az éves mélyponthoz képest 21,63 százalékkal áll magasabban.", b) == []
     # ⚠️ A FEK: ami tenyleg sehonnan nem vezetheto le, tovabbra is fennakad
     assert ab.validate_review("A cseh alapkamat 9,91 százalék.", b)
+
+
+# ══════════════════════════════════════════════════════════════════════════
+# NaN — A HIBA, AMI CSAK A HTTP-HATARON JELENTKEZIK
+# ══════════════════════════════════════════════════════════════════════════
+#
+# Kommandant, 2026-09-01: „Az angol verzión láttam szöveges részt, a magyaron
+# nem."
+#
+# A magyar payloadban NaN-ok voltak (`stocks_otp.m1`, `stocks_mol.w1` …): a
+# BÉT-papírok történetében hiányzó záróárak vannak, és a százalékszámítás
+# abból NaN-t ad. A `json.dumps` ALAPÉRTELMEZÉSBEN kiírja `NaN`-ként, a
+# `json.loads` visszaolvassa — a hiba CSAK a HTTP-határon jelentkezett, ahol
+# a Starlette `allow_nan=False`-szal kódol: HTTP 500, EGYETLEN nyelven.
+#
+# Csak a magyar érintett, mert csak ott vannak egyedi RÉSZVÉNYEK — a többi
+# kiadásban index áll. Az Echolot órás frissítője így 11 kiadást frissített
+# és a magyart kihagyta.
+
+
+def test_a_hianyzo_zaroarbol_NEM_lesz_NaN():
+    async def _sd(tool, args):
+        # BET-papir unnepnapokkal: NaN-ok a sorozatban
+        return {"data": [{"close": float("nan") if i % 7 == 0 else 100.0 + i}
+                         for i in range(70)]}
+    ab._MARKET_CACHE.clear()
+    t = asyncio.run(ab.fetch_tavlat(_sd, "OTP.BD"))
+    import math
+    assert t is not None
+    assert all(math.isfinite(v) for v in t.values()), t
+
+
+def test_csupa_NaN_eseten_NINCS_tavlat():
+    async def _sd(tool, args):
+        return {"data": [{"close": float("nan")} for _ in range(70)]}
+    ab._MARKET_CACHE.clear()
+    assert asyncio.run(ab.fetch_tavlat(_sd, "X")) is None
+
+
+def test_a_NaN_a_TAROLAS_elott_is_kiszurodik():
+    """Végső védőháló: a forrás-szintű szűrés mellé. Egy NaN nem robban —
+    csendben él tovább, és két napig is észrevétlen maradhat."""
+    import math
+    p = {"a": float("nan"), "b": [1.0, float("inf")], "c": {"d": 2.5}}
+    t = ab._nan_mentes(p)
+    assert t["a"] is None and t["b"] == [1.0, None] and t["c"]["d"] == 2.5
+    # es a tarolt JSON mar allow_nan=False mellett is kodolhato
+    json.dumps(t, allow_nan=False)
+
+
+def test_a_tarolas_ALLOW_NAN_FALSE_mellett_kodol():
+    """A Starlette ezzel kódol. Ha a tárolás megengedőbb, a hiba a
+    HTTP-határig rejtve marad — pontosan ez történt."""
+    import inspect
+    src = inspect.getsource(ab.store_area_briefs)
+    assert "allow_nan=False" in src
+    assert "_nan_mentes" in src
