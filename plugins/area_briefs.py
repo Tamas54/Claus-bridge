@@ -131,7 +131,40 @@ MARKET_GLOBAL: tuple[tuple[str, str], ...] = (
     # ── kamat + kripto ────────────────────────────────────────────────
     ("us_10y",       "^TNX"),
     ("us_30y",       "^TYX"),
+    ("us_2y",        "^FVX"),
     ("bitcoin",      "BTC-USD"),
+    # ── SZELESSEG: a Yahoo NEM ad advance/decline-t, uj csucs/melypont
+    #    szamot, sem put/call ratat (mind a 15 szimbolum MERVE halott:
+    #    ^ADD ^ADV ^DECL ^TRIN ^TICK ^NAHL ^BPSPX ^CPC …). Helyette az
+    #    EGYENSULYOZOTT index a kapitalizacio-sulyozott ellen: ha az
+    #    egyensulyozott alulteljesit, a piacot nehany nagy papir tartja.
+    ("sp500_ew",     "^SPXEW"),
+    # ── VOLATILITAS-KOMPLEXUM: nem csak a reszvenye ──────────────────
+    ("move",         "^MOVE"),   # kotvenypiaci volatilitas
+    ("ovx",          "^OVX"),    # olaj-volatilitas
+    ("gvz",          "^GVZ"),    # arany-volatilitas
+    # ── KOCKAZATI ETVAGY devizaban ───────────────────────────────────
+    ("eur_chf",      "EURCHF=X"),
+    ("aud_usd",      "AUDUSD=X"),
+)
+
+#: ⚠️ A YAHOO `name` MEZOJE HAZUDIK A ^MOVE-RA: "Northern Trust iBoxx
+#: 5-Year Tar"-t ad vissza. Merve. Ezert a nevet MI adjuk, nem a szolgaltato.
+INSTRUMENT_FELIRAT = {
+    "move": "ICE BofA MOVE (kotvenypiaci volatilitas)",
+    "ovx": "CBOE olaj-volatilitas (OVX)",
+    "gvz": "CBOE arany-volatilitas (GVZ)",
+    "sp500_ew": "S&P 500 egyensulyozott",
+    "us_2y": "amerikai 5 eves hozam",
+}
+
+#: SZEKTOROK — a szelesseg masodik merteke: hany szektor zold. Nem kerulnek
+#: a fo tablazatba (11 sor elnyomna), csak az OSSZESITESUK megy a promptba.
+MARKET_SECTORS: tuple[tuple[str, str], ...] = (
+    ("energia", "XLE"), ("technologia", "XLK"), ("egeszsegugy", "XLV"),
+    ("ciklikus", "XLY"), ("nem_ciklikus", "XLP"), ("penzugy", "XLF"),
+    ("ingatlan", "XLRE"), ("alapanyag", "XLB"), ("ipar", "XLI"),
+    ("kozmu", "XLU"), ("kommunikacio", "XLC"),
 )
 
 #: A HAZAI piaci blokk kiadásonként. Mérve 2026-08-31, mind él.
@@ -310,36 +343,58 @@ async def fetch_tavlat(statdata_call, symbol: str) -> dict | None:
 #:
 #: ⚠️ A StreetAccount (Kommandant kerdezte) NEM epitheto be: FactSet-termek,
 #: elofizeteses, nincs nyilvanos feedje. Ami helyette van, az a fenti nevsor.
-NEWS_SPHERES = "global_economy,global_business,global_press"
+#: ⚠️ EGY SZFERA, NEM LISTA. Merve 2026-09-01, harom kulon hibaval:
+#:   1. A `global_business` szfera NEM LETEZIK (a regiszterben 106 szfera van,
+#:      ez nincs kozottuk) — a lekeres rá nullat ad.
+#:   2. `query` mellett az `echolot_query` CSAK AZ ELSO szferat hasznalja
+#:      (`sphere_list[0]`), tehat a vesszos listam csendben egyetlen szferara
+#:      szukult. Az API a vesszos listat amugy is elutasitja: 0 talalat.
+#:   3. A `global_press` NEM piaci szfera — kamionbaleset, "cutest arrivals".
+#: A merheto hatas ORIASI: a "copper" szfera nelkul rezt lopo tolvajokat es
+#: egy alpesi bobpalya-balesetet hoz; `global_economy`-val 10/10 piaci
+#: talalatot (Bloomberg, COPX, Rio Tinto).
+GLOBAL_NEWS_SPHERE = "global_economy"
 
-#: Mit KERDEZZUNK egy-egy eszkozrol. A hirlekeres CELZOTT: arrol kerdezunk,
-#: ami TENYLEG MOZGOTT ma — nem a legfrissebb cikkeket kerjuk.
-#:
-#: ⚠️ MIERT (merve 2026-09-01): recency-rendben, `query` nelkul kerve a
-#: 06:00 UTC-s lekeres AUSZTRAL ES UJ-ZELANDI helyi uzleti hirt hozott —
-#: magantokealapok Sydney-ben, kamionbaleset Tasmaniaban, egy edzotermi
-#: berlet. Egyetlen sem szolt az olajrol, az S&P-rol vagy a hozamokrol,
-#: es a modell HELYESEN hagyta figyelmen kivul mind a tizenkettot.
-#: Az ok nem a szfera-valasztas volt: abban az orában a csendes-oceani
-#: sajto az aktiv, mig Europa es az USA alszik. A RENDEZES volt rossz.
+#: A HAZAI eszkozok sajat szferabol jonnek, ahol van ilyen. Merve: a "BUX"
+#: `global_economy`-val NULLA talalat, `hu_economy`-val 8/8 tiszta
+#: (PrivatBankar, TozsdeForum, Portfolio, Penzcentrum). Az "OTP" pedig
+#: szfera nelkul Aadhaar-OTP-t es bankkartya-OTP-t hoz.
+HOME_NEWS_SPHERE = {"hu": "hu_economy"}
+
+#: Ezek a kifejezesek RITKAK — nekik hosszabb ablak kell. Merve (d1/d2/d3):
+#: Treasury yield 3/4/4, ECB 11/15/25.
+SZELES_ABLAK = {"us_10y", "us_30y", "eur_usd"}
+
+#: A NAP ATFOGO piaci lekerdezese. Merve 14/15 pontossag, es egyedul ez hozza
+#: a teljes tozsdei kortkepet (Investing.com zaro-jelentesek Kolumbiatol
+#: Indoneziaig, WSJ, Bloomberg "Stocks Close Lower", Seeking Alpha).
+BROAD_NEWS_QUERY = "stocks"
+
 #: ⚠️ LEGFELJEBB KET SZO. Az FTS a tobbszavas kifejezest ES-kapcsolatnak
-#: veszi: az "S&P 500 Wall Street stocks equities" NULLA talalatot adott,
-#: mert a negy kifejezes egyutt egyetlen cikkben sem szerepel. Merve
-#: 2026-09-01: tobbszavas → 0, egyszavas ("oil") → 5, ketszavas ("crude
-#: oil") → 5. A hosszabb kerdes nem pontosabb, hanem UREs.
+#: veszi: az "S&P 500 Wall Street stocks equities" NULLA talalatot adott.
+#: Merve: tobbszavas → 0, "oil" → 5, "crude oil" → 5. A hosszabb kerdes nem
+#: pontosabb, hanem URES.
+#:
+#: A kulcsszavak MERT valasztasok (2026-09-01):
+#:   "Hang Seng" → 3/4/4 talalat, fele nem is tozsdei → "Hong Kong stocks"
+#:   "Russell"   → keves → "small caps"
+#:   "yen"       → 8/8 tiszta (Bessent/BOJ, Bloomberg)
+#:   "Treasury yield" → 4/4, a legjobb pontossag, de ritka: 3 napos ablak
 NEWS_QUERY: dict[str, str] = {
-    "sp500": "Wall Street", "nasdaq": "Nasdaq", "russell2000": "Russell",
-    "stoxx50": "Euro Stoxx", "nikkei": "Nikkei", "hangseng": "Hang Seng",
+    "sp500": "Wall Street", "nasdaq": "Nasdaq", "russell2000": "small caps",
+    "stoxx50": "Euro Stoxx", "nikkei": "Nikkei", "hangseng": "Hong Kong",
     "vix": "volatility",
     "oil_wti": "crude oil", "oil_brent": "Brent", "gas": "natural gas",
     "gold": "gold", "silver": "silver", "copper": "copper",
     "eur_usd": "euro dollar", "usd_jpy": "yen", "dxy": "dollar index",
-    "us_10y": "Treasury yield", "us_30y": "long bond", "bitcoin": "bitcoin",
-    # hazai indexek es papirok — tulajdonnevek, egy szo eleg
+    "us_10y": "Treasury yield", "us_30y": "long bond", "us_2y": "short end",
+    "bitcoin": "bitcoin", "sp500_ew": "market breadth", "move": "bond volatility",
+    "ovx": "oil volatility", "gvz": "gold volatility",
+    "eur_chf": "Swiss franc", "aud_usd": "Australian dollar",
     "index_bux": "BUX", "index_dax": "DAX", "index_ftse": "FTSE",
     "index_cac": "CAC", "index_ibex": "IBEX", "index_ftsemib": "Piazza Affari",
-    "index_wig20": "WIG20", "index_athex": "Χρηματιστήριο", "index_bist": "Borsa Istanbul",
-    "index_sse": "上证",
+    "index_wig20": "WIG20", "index_athex": "Χρηματιστήριο",
+    "index_bist": "Borsa Istanbul", "index_sse": "上证",
     "stocks_otp": "OTP", "stocks_mol": "MOL", "stocks_richter": "Richter",
     "stocks_mtel": "Magyar Telekom", "stocks_sap": "SAP",
     "stocks_siemens": "Siemens", "stocks_allianz": "Allianz",
@@ -349,8 +404,9 @@ NEWS_QUERY: dict[str, str] = {
     "stocks_iberdrola": "Iberdrola", "stocks_inditex": "Inditex",
     "stocks_pko": "PKO", "stocks_orlen": "Orlen", "stocks_pzu": "PZU",
     "stocks_alpha": "Alpha Bank", "stocks_ete": "Εθνική", "stocks_ote": "OTE",
-    "stocks_isctr": "İş Bankası", "stocks_kchol": "Koç", "stocks_tcell": "Turkcell",
-    "stocks_icbc": "工商银行", "stocks_moutai": "茅台", "stocks_petrochina": "中国石油",
+    "stocks_isctr": "İş Bankası", "stocks_kchol": "Koç",
+    "stocks_tcell": "Turkcell", "stocks_icbc": "工商银行",
+    "stocks_moutai": "茅台", "stocks_petrochina": "中国石油",
     "stocks_shell": "Shell", "stocks_astrazeneca": "AstraZeneca",
     "stocks_hsbc": "HSBC",
 }
@@ -377,40 +433,59 @@ def _mozgatok(market: dict, db: int = 8) -> list[str]:
 
 
 async def fetch_piaci_hirek(echolot_query, lang: str, market: dict | None = None,
-                            limit: int = 14) -> list:
+                            limit: int = 18) -> list:
     """CELZOTT piaci hirek: arrol, ami ma mozgott. Sose dob.
 
     ⚠️ A HIR MEGVALTOZTATJA A SZABALYT. Amig a pulzus csak szamokat latott,
-    a promptban abszolut tilalom allt az ok kimondasara — helyesen, mert
-    nem volt mibol. Hirekkel okot mondani SZABAD, de kizarolag olyat, ami
-    egy cimben BENNE VAN.
+    a promptban abszolut tilalom allt az ok kimondasara — helyesen, mert nem
+    volt mibol. Hirekkel okot mondani SZABAD, de kizarolag olyat, ami egy
+    cimben BENNE VAN.
+
+    A parameterek MIND MERESBOL valok (2026-09-01, 40 hivas):
+      * EGY szfera hivasonkent — a lista nem mukodik (lasd fent),
+      * `days=2` (a ritka kifejezeseknek 3): a d1 tul szuk, a d7 elavult,
+      * `limit` legfeljebb 50 — a szerver ott vag, a 100 sose ad tobbet,
+      * `language` URESEN: az `en`-szures a Nikkei talalatait 22-rol 12-re
+        vitte le, es epp az ANSA/Infobae/FinanzNachrichten piaci jelenteseket
+        dobta ki. A szures nem tisztit, hanem CSONKIT.
     """
     if not echolot_query:
         return []
+    hazai_szfera = HOME_NEWS_SPHERE.get(lang)
     kulcsok = _mozgatok(market or {}) or ["sp500", "oil_wti", "us_10y"]
-    latott, ki = set(), []
+    # A szeles lekeres ELOL: ez adja a nap atfogo tozsdei kepet.
+    tervek = [(BROAD_NEWS_QUERY, GLOBAL_NEWS_SPHERE, 2, None)]
     for kulcs in kulcsok:
+        szfera = (hazai_szfera if (hazai_szfera and kulcs.startswith(
+            ("stocks_", "index_", "fx_"))) else GLOBAL_NEWS_SPHERE)
+        napok = 3 if kulcs in SZELES_ABLAK else 2
+        tervek.append((NEWS_QUERY[kulcs], szfera, napok, kulcs))
+    latott, ki = set(), []
+    for kerdes, szfera, napok, kulcs in tervek:
         try:
-            res = await echolot_query(spheres=NEWS_SPHERES,
-                                      query=NEWS_QUERY[kulcs],
-                                      days=2, limit=5, format="json",
+            res = await echolot_query(spheres=szfera, query=kerdes,
+                                      days=napok, limit=30, format="json",
                                       caller="feldwebel")
             if isinstance(res, str):
                 res = json.loads(res)
         except Exception as e:  # noqa: BLE001
-            logger.info("piaci hirek (%s/%s) elbukott: %s", lang, kulcs, e)
+            logger.info("piaci hirek (%s/%s) elbukott: %s", lang, kerdes, e)
             continue
         nyers = res if isinstance(res, list) else (
             (res or {}).get("articles") or (res or {}).get("items")
             or (res or {}).get("results") or [])
+        # Kerdesenkent legfeljebb harom cim, kulonben egy bo talalatu
+        # kifejezes (a "stocks" 50-et ad) elnyomna az osszes tobbit.
+        felvett = 0
         for a in nyers:
-            if not isinstance(a, dict):
+            if not isinstance(a, dict) or felvett >= 3:
                 continue
             cim = (a.get("title") or a.get("headline") or "").strip()
             if not cim or cim.lower() in latott:
                 continue
             latott.add(cim.lower())
-            ki.append({"title": cim[:180], "about": kulcs,
+            felvett += 1
+            ki.append({"title": cim[:180], "about": kulcs or "market",
                        "source": (a.get("source") or a.get("source_name") or "")[:40]})
             if len(ki) >= limit:
                 return ki
@@ -429,10 +504,18 @@ async def fetch_naptar(statdata_call) -> list:
     if hit and (_t.time() - hit[0]) < _MARKET_TTL:
         return hit[1]
     ki = []
-    for regio in ("EU", "US"):
+    # ⚠️ 4 → 14 NAP, ES "all" REGIO. Merve 2026-09-01:
+    #   * a `region` CSAK "all" | "EU" | "US" erteket ismer; a "HU", "DE",
+    #     "GLOBAL" es az URES STRING mind NULLA esemenyt ad — az ures string
+    #     tehat NEM azonos az elhagyassal, hanem hibas bemenet;
+    #   * 3 nap → 3 esemeny, 7 nap → 3, 14 nap → 9. A negy napos ablak
+    #     KIHAGYTA a 09-10-i EKB-KAMATDONTEST — a honap legfontosabb
+    #     eurozonai esemenyet —, mert az kilenc nappal volt.
+    # Egy "elore nezo" blokk, ami a kamatdontest nem latja, nem elore nezo.
+    for regio in ("all",):
         try:
             res = await statdata_call("get_economic_calendar",
-                                      {"days_ahead": 4, "region": regio})
+                                      {"days_ahead": 14, "region": regio})
             if isinstance(res, str):
                 res = json.loads(res)
         except Exception as e:  # noqa: BLE001
@@ -443,13 +526,18 @@ async def fetch_naptar(statdata_call) -> list:
                        "indicator": ev.get("indicator"),
                        "importance": ev.get("importance"),
                        "region": ev.get("region")})
+    # A legkozelebbi esemenyek elol; a `high` fontossaguak azonos napon
+    # elorebb, mert azok mozgatjak a piacot.
+    ki.sort(key=lambda e: (str(e.get("date") or "9999"),
+                           0 if e.get("importance") == "high" else 1))
     _MARKET_CACHE["naptar"] = (_t.time(), ki)
     return ki
 
 
 async def fetch_market(statdata_call, lang: str, echolot_query=None) -> dict:
     """A kiadás piaci blokkja: KÖZÖS globális + hazai + naptár + hírek."""
-    ki: dict = {"global": {}, "home": {}, "calendar": [], "news": []}
+    ki: dict = {"global": {}, "home": {}, "sectors": {},
+                "calendar": [], "news": []}
     for cimke, sym in MARKET_GLOBAL:
         q = await fetch_quote(statdata_call, sym)
         if q:
@@ -472,6 +560,12 @@ async def fetch_market(statdata_call, lang: str, echolot_query=None) -> dict:
                 if t:
                     q = {**q, **t}
             ki["home"][cimke] = q
+    # SZEKTOROK: csak a napi valtozas kell, tortenet nem — a szelesseg
+    # merteke az, hogy hany zold, nem az egyes szektorok trendje.
+    for cimke, sym in MARKET_SECTORS:
+        q = await fetch_quote(statdata_call, sym)
+        if q and q.get("change_pct") is not None:
+            ki["sectors"][cimke] = q["change_pct"]
     ki["calendar"] = await fetch_naptar(statdata_call)
     ki["news"] = await fetch_piaci_hirek(echolot_query, lang, ki)
     return ki
@@ -692,7 +786,10 @@ async def build_area_briefs(statdata_call, piaccal: bool = True,
 #: v2: harom bekezdes, tiltas a tablazat felmondasara, 52 hetes sav
 #: v3: 1 hetes / 1 havi / 3 havi tavlat + gazdasagi naptar (elore nezes)
 #: v4: ket MERT ok-kitalalas nevesitve a piaci bekezdesbol
-REVIEW_PROMPT_VERSION = 4
+#: v5: harom belso ellentmondas javitva (ket/harom bekezdes, csonka
+#:     mondat, es a 2. szabaly TAGADTA a sajat hir-bemenetet);
+#:     a naptar atkerult a napi pulzushoz
+REVIEW_PROMPT_VERSION = 5
 
 REVIEW_MAX_MONDAT = 30
 
@@ -833,8 +930,58 @@ def _piac_tenyek(brief: dict) -> str:
                 if isinstance(v2, (int, float)):
                     tav.append(f"{nev} {v2:+.2f}%")
             tavlat = (" | " + ", ".join(tav)) if tav else ""
-            sorok.append(f"{cimke} {kulcs}: {q.get('price')} "
-                         f"({q.get('currency') or ''}) | {valt}{tavlat}{sav}")
+            # ⚠️ A HOZAM NEM DOLLARBAN VAN. A yfinance `currency` mezoje a
+            # ^TNX-re is "USD"-t ad, es a ténysorban "4.758 (USD)" allt —
+            # a modell ebbol dollart ert. A kamat-tipusu eszkozok "%"-ot
+            # kapnak, es a tavlat mellett kiirjuk, hogy az RELATIV valtozas,
+            # nem szazalekpont (a "+6.32% 3 months" valojaban 4,475 → 4,758,
+            # azaz +28 bazispont).
+            felirat = INSTRUMENT_FELIRAT.get(kulcs)
+            kulcs_ki = f"{kulcs} ({felirat})" if felirat else kulcs
+            kamat = kulcs in ("us_10y", "us_30y", "us_2y", "bond_yield_10y")
+            egys = "%" if kamat else (q.get("currency") or "")
+            megj = " [relative change, NOT percentage points]" if (kamat and tav) else ""
+            ido = f" | as of {q.get('as_of')}" if q.get("as_of") else ""
+            sorok.append(f"{cimke} {kulcs_ki}: {q.get('price')} "
+                         f"({egys}) | {valt}{tavlat}{megj}{sav}{ido}")
+    # ⚠️ GEPI RANGSOR. A modell "a legmarkansabb emelkedo aramlat" allitast
+    # tett a WTI havi +7,87%-ara, majd a KOVETKEZO mondatban leirta az arany
+    # +11,16%-at — sajat magat cafolta ket mondaton belul, mert a 19 eszkoz
+    # `m1` mezoit nem vetette ossze. A szuperlativuszt tehat NE a modell
+    # allitsa: itt rendezzuk, es a prompt csak erre hivatkozhat.
+    def _rang(mezo: str, cimke: str) -> None:
+        tetelek = []
+        for resz in ((brief.get("market") or {}).get("global") or {},
+                     (brief.get("market") or {}).get("home") or {}):
+            for k, q in resz.items():
+                v = q.get(mezo)
+                if isinstance(v, (int, float)):
+                    tetelek.append((v, k))
+        if len(tetelek) < 3:
+            return
+        tetelek.sort(reverse=True)
+        fel = ", ".join(f"{k} {v:+.2f}%" for v, k in tetelek[:3])
+        le = ", ".join(f"{k} {v:+.2f}%" for v, k in tetelek[-3:])
+        sorok.append(f"{cimke} — largest gains: {fel} | largest falls: {le}")
+        zaj = sum(1 for v, _ in tetelek if abs(v) < 0.3)
+        sorok.append(f"{cimke} — {len(tetelek)} quotes, {zaj} of them moved "
+                     f"less than 0.3% (noise threshold)")
+
+    szektorok = (brief.get("market") or {}).get("sectors") or {}
+    if szektorok:
+        zold = sum(1 for v in szektorok.values() if v > 0)
+        rend = sorted(szektorok.items(), key=lambda x: x[1], reverse=True)
+        sorok.append("")
+        sorok.append(f"US SECTOR BREADTH: {zold} of {len(szektorok)} sectors "
+                     f"closed higher. Best: {rend[0][0]} {rend[0][1]:+.2f}% · "
+                     f"worst: {rend[-1][0]} {rend[-1][1]:+.2f}%")
+        sorok.append("  " + " · ".join(f"{k} {v:+.2f}%" for k, v in rend))
+    sorok.append("")
+    sorok.append("RANKINGS (computed, do not recompute — use these for any "
+                 "superlative):")
+    _rang("change_pct", "TODAY")
+    _rang("m1", "ONE MONTH")
+    _rang("m3", "THREE MONTHS")
     hirek = (brief.get("market") or {}).get("news") or []
     if hirek:
         sorok.append("")
@@ -847,7 +994,7 @@ def _piac_tenyek(brief: dict) -> str:
     if naptar:
         sorok.append("")
         sorok.append("UPCOMING RELEASES (next few days):")
-        for ev in naptar[:10]:
+        for ev in naptar[:12]:
             sorok.append(f"  {ev.get('date')} {ev.get('time') or ''} "
                          f"{ev.get('region') or ''} {ev.get('indicator')} "
                          f"[{ev.get('importance') or '?'}]")
@@ -1039,7 +1186,7 @@ WHAT IS NEW SINCE THE PREVIOUS EDITION:
 {valtozas}
 
 TASK: Write a macro commentary in {nyelv_nev} for readers in {orszag},
-in TWO paragraphs separated by a blank line:
+in THREE paragraphs separated by blank lines:
 
   PARAGRAPH 1 — THE WORLD. What moved on global markets today and what it
   says about the state of the world economy, together with the euro-area and
@@ -1077,7 +1224,7 @@ them could be published any day between the 5th and the 25th, and would tell
 the reader nothing about today. The market numbers ARE today's: lead with
 what actually moved.
 
-Of {REVIEW_MAX_MONDAT} sentences at most — but WRITE A FULL COMMENTARY, not a
+Use {REVIEW_MAX_MONDAT} sentences at most — but WRITE A FULL COMMENTARY, not a
 summary: the reader has the table right below, so repeating three numbers adds
 nothing. Cover the indicators that actually say something, and where several
 move together, say what they say together. Plain prose, no headings, no bullet
@@ -1087,10 +1234,14 @@ HARD RULES — breaking any of these makes the whole commentary unusable:
 1. DIRECTION: you may say a figure rose or fell ONLY where the fact line
    gives an `elozo` value. Where it says `elozo: NINCS`, you do NOT know the
    direction — state the level only, never imply a trend.
-2. CAUSE: never explain WHY a number is what it is. You have no news, no
-   policy statements, no context — only these numbers. An invented cause
+2. CAUSE: never explain WHY a MACRO number is what it is. A monthly
+   inflation print comes with no explanation attached, and an invented cause
    ("driven by energy prices", "after the central bank's decision") is the
    worst error you can make here.
+   ⚠️ If a MARKET HEADLINES block appears above, it covers MARKET moves, not
+   the monthly statistics — you may use it for a market sentence, never to
+   explain a CPI or GDP figure. (The earlier wording claimed "you have no
+   news", which the same prompt then contradicted by handing over headlines.)
 3. NUMBERS: use ONLY numbers from the FACTS block, or differences you
    compute between two of them. Never introduce a figure that is not there.
 4. NO SOURCES in the text: the table above already carries a source for
@@ -1119,10 +1270,12 @@ HARD RULES — breaking any of these makes the whole commentary unusable:
    the month is a story. Say whether today continued a trend or broke it —
    that is the difference between describing and analysing, and it is what
    the reader cannot see from the table.
-9. THE CALENDAR IS THE FORWARD LOOK. Where releases are listed, the closing
-   paragraph should say what is due and why it matters given today's
-   figures — e.g. an inflation print due while the policy rate already sits
-   well above core.
+9. THE CALENDAR BELONGS TO THE DAILY REPORT, NOT HERE. A separate, shorter
+   market text on the same page covers what is due in the coming days. Your
+   closing paragraph is about the MACRO TENSIONS instead: the real policy
+   rate, real wages, harmonised versus national core inflation, and where
+   two real-economy indicators point opposite ways. Repeating the calendar
+   would duplicate the other text — the two must not overlap.
 10. USE THE 52-WEEK RANGE. Where a fact line gives it, the position within the
    range is often the more telling number: an index 2% off its yearly high
    after a small down day is a different story from the same day near the
@@ -1268,18 +1421,45 @@ def _valasz_szovege(nyers) -> str:
 
 #: A napi piaci szoveg promptjanak verzioja — kulon a makro-szemleetol,
 #: mert kulon is fejlodik.
-PULSE_PROMPT_VERSION = 2
+PULSE_PROMPT_VERSION = 4
 
 #: Rovid. Ez nem elemzes, hanem HELYZETJELENTES: mi tortent ma, mi a jel es
 #: mi a zaj, mire figyelj. Ami ennel hosszabb, az mar a makro-szemle dolga.
-PULSE_MAX_MONDAT = 12
-PULSE_MAX_KAR = 3400
+PULSE_MAX_MONDAT = 20
+PULSE_MAX_KAR = 4800
+
+
+def _horgony_roviden(brief: dict) -> str:
+    """SZUK makro-horgony a pulzusnak — CSAK viszonyitasra.
+
+    ⚠️ MIERT KELL. A pulzus eddig KIZAROLAG piaci szamokat latott, es ettol
+    olyat allitott, amirol adata sem volt: "a kamatkornyezet fokozatos
+    szigorodasat mutatja" — miközben egyetlen jegybanki kamatot sem kapott.
+    A reálhozam (10 eves hozam minusz inflacio) a legfontosabb egyetlen
+    allitas egy hozamrol, es enelkul kimondhatatlan volt.
+
+    ⚠️ ES MIERT CSAK SZUKEN. A teljes makro-tenylista visszahozna az
+    atfedest a hetes ervenyessegu szemlevel — pont az ellen keszult a ket
+    kulon szoveg.
+    """
+    sorok = []
+    for r in (brief.get("anchor") or []):
+        if r.get("indicator") in ("cpi", "core_cpi", "policy_rate",
+                                  "unemployment") and r.get("value") is not None:
+            sorok.append(f"  {r.get('country')} {r['indicator']}: {r['value']}"
+                         + (f" (prev {r['prev_value']})"
+                            if r.get("prev_value") is not None else ""))
+    if not sorok:
+        return ""
+    return ("\n\nMACRO ANCHOR — FOR REFERENCE ONLY, do NOT comment on it as a "
+            "topic. Use it to place a market number in context (e.g. a bond "
+            "yield against inflation = the real yield):\n" + "\n".join(sorok))
 
 
 def _pulse_prompt(brief: dict, nyelv_nev: str) -> str:
     orszag = brief.get("country") or "-"
     return f"""TODAY'S MARKET DATA (the ONLY numbers you may use):
-{_piac_tenyek(brief)}
+{_piac_tenyek(brief)}{_horgony_roviden(brief)}
 
 TASK: Write a short market situation report in {nyelv_nev} for readers in
 {orszag} — {PULSE_MAX_MONDAT} sentences at most, one paragraph, plain prose.
@@ -1309,9 +1489,67 @@ HARD RULES — breaking any of these makes the report unusable:
 4. The daily change and the 1-week / 1-month figures are given. Use them as
    given; the day AGAINST the month is the story — say whether today
    continued a trend or broke it.
-5. Do not list every instrument. The reader has the table; name a number only
-   where the sentence needs it as evidence.
-6. No headings, no bullet points, no markdown, no source names.
+5. USE EVERY QUOTE, NAME THE ONES THAT CARRY THE POINT. You are given ~25
+   quotes; consider all of them when reaching a conclusion, and name the ones
+   your sentence rests on. (The earlier wording — "do not list every
+   instrument" — was read as "mention few", and the report named 8 of 25
+   while using a quarter of the space. Do not recite the table; DO use it.)
+6. TWO THINGS MOVING TOGETHER IS NOT ONE CAUSING THE OTHER. "The BUX fell,
+   dragged down by OTP" needs index weights, which you do not have. Say they
+   moved together. And a PRICE IS NOT DEMAND: "gold is up 11% in a month,
+   showing strong demand" invents a cause — you have no volume, no
+   positioning. Say what moved, not why, unless a headline says why.
+7. SUPERLATIVES COME FROM THE RANKINGS BLOCK ONLY. Never write "the biggest
+   move" from memory: the rankings are computed for you. (Measured failure:
+   the report called oil's +7.87% month "the strongest flow on the market"
+   and then named gold's +11.16% in the very next sentence.)
+8. A QUIET DAY IS NOT AN EMPTY REPORT. If nothing moved much, the report is
+   about POSITION and TREND, not about the day: where things sit in their
+   52-week range, what the month and quarter say, which trends are intact.
+9. No headings, no bullet points, no markdown, no source names.
+
+WHAT THE NUMBERS LET YOU SAY — these are ARITHMETIC, not speculation, and
+they are what makes this a report rather than a list. Use the ones the day
+actually supports:
+  · BREADTH — THREE MEASURES, all given to you: how many quotes rose and how
+    many stayed inside the noise threshold; how many of the eleven US sectors
+    closed higher; and the equal-weighted S&P against the cap-weighted one. If
+    the equal-weighted index lags, a handful of large companies is holding the
+    market up — that is a narrow advance, and it is worth saying.
+  · RISK APPETITE: the VIX, small caps against large caps, bitcoin, gold, and
+    the two risk-sensitive currencies (a stronger Swiss franc means caution,
+    a stronger Australian dollar the opposite) — do they agree? Agreement is a
+    regime; disagreement is the story.
+  · VOLATILITY BEYOND EQUITIES: bond, oil and gold volatility are given
+    separately. Equity calm alongside bond stress is a warning the equity
+    index alone will not show you.
+  · THE CURVE: the 30-year yield minus the 10-year. Whether it widened or
+    narrowed over the month says more than either level alone.
+  · REAL YIELD: the 10-year against US inflation from the macro anchor. A
+    yield means little until it is set against prices.
+  · CORRELATION BREAKS: gold and yields usually move opposite ways; copper
+    and equities usually move together. When they do not, that is the single
+    most informative thing on the page.
+  · CURRENCY CONSISTENCY: if the dollar index rose but EUR/USD also rose,
+    the move is somewhere else. And if the home currency is flat while
+    EUR/USD moved, then it was the EURO that moved, not the home currency.
+  · THE YEAR IN ONE LINE: which quotes sit at the top of their 52-week range
+    (above 90%) and which at the bottom (below 10%).
+  · TREND LADDER: today against the week, the month and the quarter. Four
+    signs pointing one way is a trend; today against the other three is a
+    break.
+  · HOME AGAINST THE WORLD: the home index against the European benchmark,
+    the largest home share against the home index.
+  · WHAT IS DUE: the upcoming release measured against the CURRENT level of
+    that same indicator from the macro anchor.
+
+⚠️ WHAT A LEVEL MEANS — DIRECTION IS NOT THE SAME AS GOOD OR BAD:
+  · VIX at the top of its range = fear; at the bottom = calm.
+  · A yield at the top of its range = tight financial conditions.
+  · The home currency at the top of an EUR/xxx range = a WEAK home currency
+    (more units per euro), not a strong one.
+  · A rising dollar index = a strong dollar, which pressures commodities.
+  · An index at the top of its range = near its yearly high.
 
 Return ONLY the report text."""
 

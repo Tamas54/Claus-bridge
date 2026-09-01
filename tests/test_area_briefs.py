@@ -878,17 +878,23 @@ def test_a_TAVLAT_bekerul_a_tenyekbe():
     assert "the day AGAINST\n   the month is a story" in pr.replace("  ", "  ")
 
 
-def test_a_NAPTAR_az_elore_nezes():
-    """Egy szemle, ami csak a múlt havi adatokat magyarázza, nem mondja meg,
-    mire figyeljen az olvasó holnap."""
+def test_a_NAPTAR_a_PULZUSE_nem_a_szemlee():
+    """A naptár NAPI ütemű: mi jön a következő napokban. A hetes érvényességű
+    makró-szemlébe téve mindkét szöveg ugyanazt mondaná — a fájl saját elve
+    („a két szöveg NEM átfedő") pedig épp ezt tiltja.
+
+    A szemle harmadik bekezdése helyette a makró-feszültségeké: reálkamat,
+    reálbér, harmonizált vs nemzeti mag, ellentmondó reálgazdasági mutatók."""
     b = _b([_cell("HU", "cpi", 1.6)] * 4)
-    b["market"] = {"global": {}, "home": {}, "calendar": [
-        {"date": "2026-09-03", "time": "11:00 CET", "region": "EUR",
-         "indicator": "Euro Area Unemployment", "importance": "high"}]}
-    pr = ab._review_prompt(b, "Hungarian")
-    assert "UPCOMING RELEASES" in pr
-    assert "Euro Area Unemployment" in pr
-    assert "THE CALENDAR IS THE FORWARD LOOK" in pr
+    b["market"] = {"global": {"sp500": {"price": 1, "change_pct": 0.1}},
+                   "home": {}, "news": [], "calendar": [
+        {"date": "2026-09-10", "time": "14:15 CET", "region": "EUR",
+         "indicator": "ECB Governing Council decision", "importance": "high"}]}
+    pulzus = ab._pulse_prompt(b, "Hungarian")
+    assert "UPCOMING RELEASES" in pulzus
+    assert "ECB Governing Council decision" in pulzus
+    szemle = ab._review_prompt(b, "Hungarian")
+    assert "THE CALENDAR BELONGS TO THE DAILY REPORT" in szemle
 
 
 def test_a_tavlat_a_ZARO_arakbol_szamol():
@@ -962,7 +968,7 @@ def test_a_pulzus_ROVIDEBB_mint_a_makro_szemle():
     ha okot is mondhat, ahhoz mondat kell. A lényeg a KÜLÖNBSÉG: a pulzus
     érdemben rövidebb marad a makró-szemlénél, különben a kettő
     összemosódik, és megint egy szöveg lesz belőle."""
-    assert ab.PULSE_MAX_MONDAT < ab.REVIEW_MAX_MONDAT / 2
+    assert ab.PULSE_MAX_MONDAT < ab.REVIEW_MAX_MONDAT
     assert ab.PULSE_MAX_KAR < ab.REVIEW_MAX_KAR / 2
 
 
@@ -1353,3 +1359,246 @@ def test_MINDEN_eszkoznek_van_hirkulcsa_a_hazaiaknak_is():
     hiany2 = sorted(k for k in hazai
                     if k not in ab.NEWS_QUERY and not k.startswith("fx_"))
     assert hiany2 == [], f"hazai hiány: {hiany2}"
+
+
+# ══════════════════════════════════════════════════════════════════════════
+# A HÍRLEKÉRÉS PARAMÉTEREI MÉRÉSBŐL VALÓK (2026-09-01, 40 hívás)
+# ══════════════════════════════════════════════════════════════════════════
+
+def test_EGY_szfera_hivasonkent_nem_lista():
+    """⚠️ HÁROM KÜLÖN HIBA VOLT AZ EREDETI SZFERA-STRINGBEN:
+      1. a `global_business` szféra NEM LÉTEZIK (106 szféra van, ez nincs),
+      2. `query` mellett az `echolot_query` CSAK az elsőt használja, tehát a
+         vesszős lista csendben egyetlen szférára szűkült,
+      3. a `global_press` nem piaci szféra (kamionbaleset, „cutest arrivals").
+    """
+    import inspect
+    # a nem letezo szfera NEVE szerepelhet a magyarazo kommentarban —
+    # az ERTEKEKBEN nem szabad
+    assert "global_business" != ab.GLOBAL_NEWS_SPHERE
+    assert "global_business" not in ab.HOME_NEWS_SPHERE.values()
+    assert "," not in ab.GLOBAL_NEWS_SPHERE, "vesszős szféra-lista"
+    for sz in ab.HOME_NEWS_SPHERE.values():
+        assert "," not in sz
+
+
+def test_a_hazai_eszkozok_HAZAI_szferabol_kerdeznek():
+    """Mérve: a „BUX" `global_economy`-val NULLA találat, `hu_economy`-val
+    8/8 tiszta. Az „OTP" szféra nélkül Aadhaar-OTP-t és bankkártya-OTP-t hoz."""
+    kerdesek = []
+
+    async def _q(**kw):
+        kerdesek.append((kw.get("spheres"), kw.get("query")))
+        return {"articles": [{"title": f"c{len(kerdesek)}"}]}
+
+    m = {"global": {"sp500": {"change_pct": -2.0}},
+         "home": {"stocks_otp": {"change_pct": -1.5}}}
+    asyncio.run(ab.fetch_piaci_hirek(_q, "hu", m))
+    otp = [k for k in kerdesek if k[1] == ab.NEWS_QUERY["stocks_otp"]]
+    assert otp and otp[0][0] == "hu_economy", f"az OTP nem hazai szférából: {otp}"
+
+
+def test_a_SZELES_lekeres_all_elol():
+    """Mérve 14/15 pontosság — egyedül ez hozza a teljes tőzsdei körképet."""
+    kerdesek = []
+
+    async def _q(**kw):
+        kerdesek.append(kw.get("query"))
+        return {"articles": []}
+
+    asyncio.run(ab.fetch_piaci_hirek(_q, "hu", {}))
+    assert kerdesek[0] == ab.BROAD_NEWS_QUERY == "stocks"
+
+
+def test_a_RITKA_kifejezesek_hosszabb_ablakot_kapnak():
+    """Mérve (d1/d2/d3): Treasury yield 3/4/4, ECB 11/15/25."""
+    ablakok = {}
+
+    async def _q(**kw):
+        ablakok[kw.get("query")] = kw.get("days")
+        return {"articles": []}
+
+    m = {"global": {"us_10y": {"change_pct": 2.0}, "sp500": {"change_pct": 1.0}},
+         "home": {}}
+    asyncio.run(ab.fetch_piaci_hirek(_q, "hu", m))
+    assert ablakok[ab.NEWS_QUERY["us_10y"]] == 3
+    assert ablakok[ab.NEWS_QUERY["sp500"]] == 2
+
+
+def test_a_nyelvszures_NINCS_bekapcsolva():
+    """Az `en`-szűrés a Nikkei találatait 22-ről 12-re vitte le, és épp az
+    ANSA/Infobae/FinanzNachrichten piaci jelentéseket dobta ki. A szűrés nem
+    tisztít, hanem CSONKÍT."""
+    kapott = {}
+
+    async def _q(**kw):
+        kapott.update(kw)
+        return {"articles": []}
+
+    asyncio.run(ab.fetch_piaci_hirek(_q, "hu", {}))
+    assert not kapott.get("language")
+    assert kapott.get("limit", 0) <= 50, "a szerver 50-nél vág"
+
+
+def test_egy_bo_talalatu_kifejezes_NEM_nyomja_el_a_tobbit():
+    """A „stocks" 50 találatot ad; korlát nélkül az egész keretet elvinné."""
+    async def _q(**kw):
+        return {"articles": [{"title": f"{kw.get('query')}-{i}"} for i in range(50)]}
+
+    m = {"global": {"oil_wti": {"change_pct": 3.0}, "gold": {"change_pct": 2.0}},
+         "home": {}}
+    h = asyncio.run(ab.fetch_piaci_hirek(_q, "hu", m))
+    temak = {x["about"] for x in h}
+    assert len(temak) >= 3, f"csak {temak} témáról van hír"
+
+
+# ══════════════════════════════════════════════════════════════════════════
+# MINŐSÉGI AUDIT UTÁNI JAVÍTÁSOK (2026-09-01)
+# ══════════════════════════════════════════════════════════════════════════
+#
+# Mérés: a pulzus 855 karaktert használt a 3400-ból, és 25 jegyzésből 8-at
+# nevezett meg. A keret tehát nem szorított — a szűk keresztmetszet az volt,
+# hogy a pulzus-prompt hat szabályából ÖT tiltás volt, és a szemle
+# „levezethető összefüggések" listájának NEM volt megfelelője.
+
+
+def _b_teljes():
+    b = _b([_cell("HU", "cpi", 1.6)] * 4)
+    b["anchor"] = [dict(_cell("US", "cpi", 3.3), prev_value=3.2),
+                   _cell("EA", "policy_rate", 2.25)]
+    b["market"] = {"global": {
+        "sp500": {"price": 7686, "change_pct": -0.33, "m1": 3.3, "currency": "USD"},
+        "us_10y": {"price": 4.758, "change_pct": 0.81, "m3": 6.32, "currency": "USD"},
+        "gold": {"price": 4483, "change_pct": 0.03, "m1": 11.16, "currency": "USD"},
+        "oil_wti": {"price": 86.9, "change_pct": 1.05, "m1": 7.87, "currency": "USD"}},
+        "home": {}, "calendar": [], "news": []}
+    return b
+
+
+def test_a_szuperlativusz_GEPI_rangsorbol_jon():
+    """⚠️ MÉRT ÖNELLENTMONDÁS: a jelentés a WTI havi +7,87%-át „a legmarkánsabb
+    emelkedő áramlat a piacon"-nak nevezte, majd a KÖVETKEZŐ mondatban leírta
+    az arany +11,16%-át. Két mondaton belül cáfolta magát, mert a 19 eszköz
+    `m1` mezőit nem vetette össze. A rangsort ezért GÉP készíti."""
+    pr = ab._pulse_prompt(_b_teljes(), "Hungarian")
+    assert "RANKINGS (computed" in pr
+    assert "ONE MONTH — largest gains: gold +11.16%" in pr
+    assert "SUPERLATIVES COME FROM THE RANKINGS BLOCK ONLY" in pr
+
+
+def test_a_pulzus_MEGKAPJA_a_horgony_makrot():
+    """A pulzus korábban KIZÁRÓLAG piaci számokat látott, és ettől olyat
+    állított, amiről adata sem volt: „a kamatkörnyezet fokozatos szigorodását
+    mutatja" — egyetlen jegybanki kamat nélkül."""
+    pr = ab._pulse_prompt(_b_teljes(), "Hungarian")
+    assert "MACRO ANCHOR" in pr and "US cpi: 3.3" in pr
+    assert "FOR REFERENCE ONLY" in pr, "a horgony témává válhat"
+    assert "REAL YIELD:" in pr
+
+
+def test_a_hozam_NEM_dollarban_van():
+    """A yfinance a ^TNX-re is `USD`-t ad, és a ténysorban „4.758 (USD)" állt."""
+    pr = ab._pulse_prompt(_b_teljes(), "Hungarian")
+    assert "us_10y: 4.758 (%)" in pr
+    assert "us_10y: 4.758 (USD)" not in pr
+
+
+def test_a_hozam_tavlata_RELATIV_valtozas():
+    """A „+6,32% 3 months" valójában 4,475 → 4,758, azaz +28 bázispont. Az
+    olvasó a két százalékot egymás mellett 6,32 SZÁZALÉKPONTNAK érti."""
+    pr = ab._pulse_prompt(_b_teljes(), "Hungarian")
+    assert "[relative change, NOT percentage points]" in pr
+
+
+def test_a_pulzus_ISMERI_a_levezetheto_osszefuggeseket():
+    """Ez volt az egyetlen legnagyobb hiány: a szemlének volt ilyen listája,
+    a pulzusnak nem."""
+    pr = ab._pulse_prompt(_b_teljes(), "Hungarian")
+    for jel in ("BREADTH —", "RISK APPETITE:", "THE CURVE:", "REAL YIELD:",
+                "CORRELATION BREAKS:", "CURRENCY CONSISTENCY:",
+                "TREND LADDER:", "HOME AGAINST THE WORLD:"):
+        assert jel in pr, f"hiányzik: {jel}"
+
+
+def test_a_POLARITAS_ki_van_mondva():
+    """A ténysor minden eszközre ugyanúgy írja, hogy „a sáv 92%-ánál áll" —
+    de a VIX ott félelem, az EUR/HUF ott GYENGE forint, a hozam ott szigorú
+    pénzügyi feltétel. A prompt eddig sehol nem mondta meg, melyik mit
+    jelent: néma siker volt, hogy a modell eltalálta."""
+    pr = ab._pulse_prompt(_b_teljes(), "Hungarian")
+    assert "WHAT A LEVEL MEANS" in pr
+    assert "a WEAK home currency" in pr
+    assert "VIX at the top of its range = fear" in pr
+
+
+def test_az_ar_NEM_kereslet_es_az_egyuttmozgas_NEM_okozas():
+    """Két mért kitalált ok: „az arany +11,16%-a erős keresletet jelez"
+    (nincs volumen-adatunk) és „az OTP esése húzta le a BUX-ot" (nincs
+    indexsúly)."""
+    pr = ab._pulse_prompt(_b_teljes(), "Hungarian")
+    assert "PRICE IS NOT DEMAND" in pr, "az ar!=kereslet szabaly hianyzik"
+    assert "NOT ONE CAUSING THE OTHER" in pr
+
+
+def test_a_csendes_nap_NEM_ures_jelentes():
+    pr = ab._pulse_prompt(_b_teljes(), "Hungarian")
+    assert "A QUIET DAY IS NOT AN EMPTY REPORT" in pr
+
+
+def test_a_szemle_prompt_belso_ellentmondasai_javitva():
+    """Három mért ellentmondás: „TWO paragraphs" majd három felsorolva; egy
+    csonka mondat („Of 30 sentences at most"); és a 2. szabály azt állította,
+    hogy „you have no news", miközben ugyanaz a prompt átadta a címeket."""
+    pr = ab._review_prompt(_b_teljes(), "Hungarian")
+    assert "in THREE paragraphs" in pr
+    assert "Use 30 sentences at most" in pr
+    # a szemle 2. szabalya mar NEM tagadja a sajat hir-bemenetet
+    assert "You have no news, no" not in pr
+    assert "THE CALENDAR BELONGS TO THE DAILY REPORT" in pr
+
+
+def test_a_naptar_LATJA_a_kamatdontest():
+    """⚠️ MÉRT HIÁNY: a 4 napos ablak KIHAGYTA a szeptember 10-i EKB
+    kamatdöntést — a hónap legfontosabb eurózónai eseményét —, mert az
+    kilenc nappal volt. Egy „előre néző" blokk, ami a kamatdöntést nem
+    látja, nem előre néző.
+
+    Mérve: 3 nap → 3 esemény, 7 nap → 3, 14 nap → 9."""
+    import inspect
+    src = inspect.getsource(ab.fetch_naptar)
+    assert '"days_ahead": 14' in src
+    assert '"all"' in src, "a régiónként külön lekérés kimarad eseményeket"
+    assert '"EU", "US"' not in src
+
+
+def test_a_szelesseg_HAROM_mertekkel_merheto():
+    """A Yahoo NEM ad advance/decline-t, új csúcs/mélypont számot, sem
+    put/call rátát — mind a 15 szimbólum mérve halott (^ADD ^TRIN ^TICK
+    ^BPSPX ^CPC …). Helyette három proxy, mind mérve működik."""
+    kulcsok = {k for k, _ in ab.MARKET_GLOBAL}
+    assert "sp500_ew" in kulcsok, "hiányzik az egyensúlyozott index"
+    assert len(ab.MARKET_SECTORS) == 11
+    b = _b_teljes()
+    b["market"]["sectors"] = {"energia": 2.04, "technologia": 0.44,
+                              "kozmu": -1.17, "kommunikacio": -1.35}
+    pr = ab._pulse_prompt(b, "Hungarian")
+    assert "US SECTOR BREADTH: 2 of 4 sectors closed higher" in pr
+    assert "Best: energia +2.04%" in pr
+
+
+def test_a_hazug_Yahoo_nevet_FELULIRJUK():
+    """A Yahoo a ^MOVE-ra „Northern Trust iBoxx 5-Year Tar"-t ad vissza.
+    Mérve. A nevet MI adjuk, nem a szolgáltató."""
+    b = _b_teljes()
+    b["market"]["global"]["move"] = {"price": 75.32, "change_pct": 6.1,
+                                     "currency": "USD"}
+    pr = ab._pulse_prompt(b, "Hungarian")
+    assert "MOVE (kotvenypiaci volatilitas)" in pr
+    assert "Northern Trust" not in pr
+
+
+def test_a_volatilitas_TOBB_mint_a_reszvenye():
+    kulcsok = {k for k, _ in ab.MARKET_GLOBAL}
+    assert {"vix", "move", "ovx", "gvz"} <= kulcsok
+    pr = ab._pulse_prompt(_b_teljes(), "Hungarian")
+    assert "VOLATILITY BEYOND EQUITIES" in pr
