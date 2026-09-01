@@ -12,11 +12,24 @@ Amit ezek a tesztek orzik:
 """
 
 import asyncio
+import pytest
 import json
 
 import pytest
 
 from plugins import area_briefs as ab
+
+
+@pytest.fixture(autouse=True)
+def _tiszta_cache():
+    """⚠️ A PIACI CACHE MODUL-SZINTU, tehat ATSZIVAROG a tesztek kozott: egy
+    korabbi teszt lekerese elfedi a kesobbiet, es a teszt "zolden" fut ugy,
+    hogy egyetlen hivast sem tett. Ez elesben is hibaosztaly — a cache
+    elettartama ott a TTL, itt viszont a teljes futas."""
+    ab._MARKET_CACHE.clear()
+    yield
+    ab._MARKET_CACHE.clear()
+
 
 
 def _panel(rows):
@@ -1398,16 +1411,25 @@ def test_a_hazai_eszkozok_HAZAI_szferabol_kerdeznek():
     assert otp and otp[0][0] == "hu_economy", f"az OTP nem hazai szférából: {otp}"
 
 
-def test_a_SZELES_lekeres_all_elol():
-    """Mérve 14/15 pontosság — egyedül ez hozza a teljes tőzsdei körképet."""
+def test_a_MOZGATOK_mennek_elol_nem_a_fix_kerdesek():
+    """⚠️ MÉRT HIBA: kvóta nélkül a tizenkét FIX kérdés (négy széles + nyolc
+    tematikus) háromszor háromig kitöltötte a huszonhatos keretet, és a
+    MOZGATÓKRÓL — a nap tényleges sztorijáról — egyetlen hír sem fért be.
+    A kimenetben csak „market" és „macro" címke szerepelt.
+
+    A sorrend: 1. a nap mozgatói, 2. a valódi gazdasági hírek, 3. az átfogó
+    kép. Mindegyik saját kvótával, hogy egyik se nyomja el a másikat."""
     kerdesek = []
 
     async def _q(**kw):
         kerdesek.append(kw.get("query"))
-        return {"articles": []}
+        return {"articles": [{"title": f"{kw.get('query')}-{i}"} for i in range(3)]}
 
-    asyncio.run(ab.fetch_piaci_hirek(_q, "hu", {}))
-    assert kerdesek[0] == ab.BROAD_NEWS_QUERY == "stocks"
+    m = {"global": {"oil_wti": {"change_pct": 3.5}}, "home": {}}
+    h = asyncio.run(ab.fetch_piaci_hirek(_q, "hu", m))
+    assert kerdesek[0] == ab.NEWS_QUERY["oil_wti"], "nem a mozgató az első"
+    temak = {x["about"] for x in h}
+    assert {"oil_wti", "macro"} <= temak, f"hiányzó csoport: {temak}"
 
 
 def test_a_RITKA_kifejezesek_hosszabb_ablakot_kapnak():
@@ -1602,3 +1624,76 @@ def test_a_volatilitas_TOBB_mint_a_reszvenye():
     assert {"vix", "move", "ovx", "gvz"} <= kulcsok
     pr = ab._pulse_prompt(_b_teljes(), "Hungarian")
     assert "VOLATILITY BEYOND EQUITIES" in pr
+
+
+# ══════════════════════════════════════════════════════════════════════════
+# HÍREK: ESEMÉNY vs VÉLEMÉNY, ÉS A VALÓDI GAZDASÁGI HÍR
+# ══════════════════════════════════════════════════════════════════════════
+
+def test_a_befektetesi_tipp_MEG_VAN_JELOLVE_de_nem_dobjuk_el():
+    """Kommandant, 2026-09-01: „a befektetési tippek is előfordulhatnak, de
+    jelezni kell, hogy ezek befektetési tippek hírekből."
+
+    Egy megjelölt vélemény hasznos — mutatja, miről beszél a piac. Egy
+    megjelöletlen vélemény TÉNYNEK látszik, és akkor a szemle befektetési
+    tanácsot ad egy hírportál nevében."""
+    assert ab._hir_tipus("Software Is Back: 5 Stocks To Buy", "Seeking Alpha") == "opinion"
+    assert ab._hir_tipus("4 Stocks to Go ALL IN September", "YouTube") == "opinion"
+    assert ab._hir_tipus("Nebius Stock Deserves A Pause After Rally", "SA") == "opinion"
+    assert ab._hir_tipus("US stocks close lower as oil rises", "Investing.com") == "event"
+    assert ab._hir_tipus("Treasury Selloff Sends Yields Jumping", "Bloomberg") == "event"
+
+
+def test_a_velemeny_JELOLVE_kerul_a_promptba():
+    b = _b_teljes()
+    b["market"]["news"] = [
+        {"title": "5 Stocks To Buy", "source": "Seeking Alpha",
+         "about": "market", "kind": "opinion"},
+        {"title": "Stocks close lower", "source": "Investing.com",
+         "about": "market", "kind": "event"}]
+    pr = ab._pulse_prompt(b, "Hungarian")
+    assert "5 Stocks To Buy [Seeking Alpha] (about: market) ⟨OPINION" in pr
+    assert "Stocks close lower [Investing.com] (about: market)\n" in pr
+    assert "HEADLINES MARKED ⟨OPINION/RECOMMENDATION⟩ ARE NOT EVENTS" in pr
+    assert "giving investment advice in a newspaper's name" in pr
+
+
+def test_az_ESEMENYT_leiro_ige_hoz_esemenyt():
+    """Mérve: egy esemény-IGE („fell", „close lower", „selloff") eseményt
+    talál; egy FŐNÉV („stocks") ajánlócikket. A korábbi egyetlen „stocks"
+    horgony csupa tippet hozott."""
+    assert "stocks" not in ab.BROAD_NEWS_QUERIES
+    assert "close lower" in ab.BROAD_NEWS_QUERIES
+    assert "selloff" in ab.BROAD_NEWS_QUERIES
+
+
+def test_a_VALODI_gazdasagi_hirek_is_bejonnek():
+    """Kommandant: „hozza be a rendes gazd/piaci híreket is". Az eddigi
+    lekérés CSAK ESZKÖZÖKRŐL kérdezett — arról, ami mozgott. De egy
+    kamatdöntés vagy egy inflációs adat MAGA a hír, akkor is, ha aznap
+    egyetlen szám sem mozdult miatta."""
+    kerdesek = []
+
+    async def _q(**kw):
+        kerdesek.append(kw.get("query"))
+        return {"articles": []}
+
+    ab._MARKET_CACHE.clear()
+    asyncio.run(ab.fetch_piaci_hirek(_q, "hu", {}))
+    for t in ("inflation", "Federal Reserve", "ECB", "central bank", "tariffs"):
+        assert t in kerdesek, f"nem kérdez rá: {t}"
+
+
+def test_a_globalis_hirek_CACHE_ELODNEK_a_12_kiadasra():
+    """22 kérdés × 12 kiadás = 264 fölösleges hívás naponta háromszor."""
+    n = {"i": 0}
+
+    async def _q(**kw):
+        n["i"] += 1
+        return {"articles": []}
+
+    ab._MARKET_CACHE.clear()
+    asyncio.run(ab.fetch_piaci_hirek(_q, "hu", {}))
+    elso = n["i"]
+    asyncio.run(ab.fetch_piaci_hirek(_q, "de", {}))
+    assert n["i"] == elso, "a második kiadás újra lekérdezte a globális híreket"

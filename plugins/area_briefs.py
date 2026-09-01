@@ -365,10 +365,62 @@ HOME_NEWS_SPHERE = {"hu": "hu_economy"}
 #: Treasury yield 3/4/4, ECB 11/15/25.
 SZELES_ABLAK = {"us_10y", "us_30y", "eur_usd"}
 
-#: A NAP ATFOGO piaci lekerdezese. Merve 14/15 pontossag, es egyedul ez hozza
-#: a teljes tozsdei kortkepet (Investing.com zaro-jelentesek Kolumbiatol
-#: Indoneziaig, WSJ, Bloomberg "Stocks Close Lower", Seeking Alpha).
-BROAD_NEWS_QUERY = "stocks"
+#: A NAP ATFOGO lekerdezesei. TOBB rovid, ESEMENYT leiro kifejezes — merve
+#: 2026-09-01:
+#:   "close lower" → 2/2 talalat, mindketto pont ez: "US stocks close lower
+#:                   as oil prices…"
+#:   "stocks fell" → 2/2: "U.S. Stocks Fall as Iran War Inflation Heats Up"
+#:   "Wall Street" → 6, koztuk "Wall Street apre in calo, Dj -0,56%"
+#:   "selloff"     → 6, elso: "Treasury Selloff Sends Yields Jumping"
+#: ⚠️ A korabbi egyetlen "stocks" horgony TIPPEKET hozott: "Software Is Back:
+#: 5 Stocks To Buy", "4 Stocks to Go ALL IN September 2026‼️". Egy esemenyt
+#: leiro IGE (fell, close, selloff) esemenyt talal; egy fonev (stocks)
+#: ajanlocikket.
+BROAD_NEWS_QUERIES = ("close lower", "stocks fell", "Wall Street", "selloff")
+
+#: ⚠️ ES A VALODI GAZDASAGI HIREK (Kommandant, 2026-09-01: "hozza be a rendes
+#: gazd/piaci hireket is, nyilvanvaloan szukseges ez is").
+#: Az eddigi lekeres CSAK ESZKOZOKROL kerdezett — arrol, ami mozgott. De egy
+#: kamatdontes, egy inflacios adat vagy egy vamhatarozat MAGA a hir, akkor is,
+#: ha aznap egyetlen szam sem mozdult miatta. Merve (sphere=global_economy):
+#:   "inflation"       → 50 talalat, piaci (Bloomberg ECB, nemet CPI)
+#:   "Federal Reserve" → 50, tiszta (Bloomberg Markets, CNBC, RealClearMarkets)
+#:   "ECB"             → 11/15/25 (Bloomberg Economics, FT) — 3 napos ablak
+THEMATIC_NEWS: tuple[tuple[str, int], ...] = (
+    ("inflation", 2), ("Federal Reserve", 2), ("ECB", 3),
+    ("interest rate", 2), ("central bank", 3), ("OPEC", 3),
+    ("tariffs", 2), ("earnings", 2),
+)
+
+#: Cim-mintak, amikbol VELEMENY/AJANLAS latszik, nem esemeny. A talalatot NEM
+#: dobjuk el — a Kommandant dontese (2026-09-01): "a befektetesi tippek is
+#: elofordulhatnak, de JELEZNI KELL, hogy ezek befektetesi tippek hirekbol".
+#: Egy megjelolt velemeny hasznos (mutatja, mirol beszel a piac); egy
+#: megjeloletlen velemeny TENYNEK latszik.
+_VELEMENY_MINTAK = (
+    "stocks to buy", "to buy", "to sell", "best stocks", "top picks",
+    "top stocks", "should you buy", "go all in", "strong buy", "buy now",
+    "undervalued", "overvalued", "price target", "rating", "upgrade",
+    "downgrade", "deserves a", "why i", "my top", "picks for", "watchlist",
+    "outlook for", "forecast", "prediction", "could run", "set to soar",
+    "best etf", "dividend picks",
+)
+_VELEMENY_FORRASOK = ("seeking alpha", "zacks", "motley fool", "投资建议",
+                      "insider monkey", "benzinga insights")
+
+
+def _hir_tipus(cim: str, forras: str) -> str:
+    """Esemeny vagy velemeny? A megkulonboztetes az OLVASOE.
+
+    Egy "5 Stocks To Buy" cim nem arrol szol, MI TORTENT, hanem arrol, mit
+    AJANL valaki. Ha a szemle ezt tenykent idezi, befektetesi tanacsot ad
+    egy hirportal nevében — ami se nem igaz, se nem tisztesseges.
+    """
+    c = (cim or "").lower()
+    f = (forras or "").lower()
+    if any(m in c for m in _VELEMENY_MINTAK) or any(m in f for m in _VELEMENY_FORRASOK):
+        return "opinion"
+    return "event"
 
 #: ⚠️ LEGFELJEBB KET SZO. Az FTS a tobbszavas kifejezest ES-kapcsolatnak
 #: veszi: az "S&P 500 Wall Street stocks equities" NULLA talalatot adott.
@@ -433,7 +485,7 @@ def _mozgatok(market: dict, db: int = 8) -> list[str]:
 
 
 async def fetch_piaci_hirek(echolot_query, lang: str, market: dict | None = None,
-                            limit: int = 18) -> list:
+                            limit: int = 26) -> list:
     """CELZOTT piaci hirek: arrol, ami ma mozgott. Sose dob.
 
     ⚠️ A HIR MEGVALTOZTATJA A SZABALYT. Amig a pulzus csak szamokat latott,
@@ -454,23 +506,46 @@ async def fetch_piaci_hirek(echolot_query, lang: str, market: dict | None = None
     hazai_szfera = HOME_NEWS_SPHERE.get(lang)
     kulcsok = _mozgatok(market or {}) or ["sp500", "oil_wti", "us_10y"]
     # A szeles lekeres ELOL: ez adja a nap atfogo tozsdei kepet.
-    tervek = [(BROAD_NEWS_QUERY, GLOBAL_NEWS_SPHERE, 2, None)]
-    for kulcs in kulcsok:
+    # ⚠️ CSOPORT-KVOTA, ES A MOZGATOK MENNEK ELOL. Kvota nelkul a tizenket
+    # FIX kerdes (negy szeles + nyolc tematikus) haromszor haromig kitoltotte
+    # a huszonhatos keretet, es a MOZGATOKROL — a nap tenyleges sztorijarol —
+    # egyetlen hir sem fert be. Merve: a kimenetben csak "market" es "macro"
+    # cimke szerepelt, egyetlen eszkoz-specifikus sem.
+    tervek = []
+    for kulcs in kulcsok:                       # 1. a nap mozgatoi
         szfera = (hazai_szfera if (hazai_szfera and kulcs.startswith(
             ("stocks_", "index_", "fx_"))) else GLOBAL_NEWS_SPHERE)
         napok = 3 if kulcs in SZELES_ABLAK else 2
-        tervek.append((NEWS_QUERY[kulcs], szfera, napok, kulcs))
+        tervek.append((NEWS_QUERY[kulcs], szfera, napok, kulcs, "mover", 12))
+    for q, d in THEMATIC_NEWS:                  # 2. a valodi gazdasagi hirek
+        tervek.append((q, GLOBAL_NEWS_SPHERE, d, "macro", "macro", 10))
+    for q in BROAD_NEWS_QUERIES:                # 3. a nap atfogo kepe
+        tervek.append((q, GLOBAL_NEWS_SPHERE, 2, None, "broad", 6))
     latott, ki = set(), []
-    for kerdes, szfera, napok, kulcs in tervek:
-        try:
-            res = await echolot_query(spheres=szfera, query=kerdes,
-                                      days=napok, limit=30, format="json",
-                                      caller="feldwebel")
-            if isinstance(res, str):
-                res = json.loads(res)
-        except Exception as e:  # noqa: BLE001
-            logger.info("piaci hirek (%s/%s) elbukott: %s", lang, kerdes, e)
+    import time as _t
+    csoport_db: dict[str, int] = {}
+    for kerdes, szfera, napok, kulcs, csoport, kvota in tervek:
+        if csoport_db.get(csoport, 0) >= kvota:
             continue
+        # ⚠️ CACHE. A globalis kerdesek (szeles horgony + tematikus + a
+        # globalis mozgatok) MIND A 12 KIADASNAK AZONOSAK. Cache nelkul
+        # tizenketszer kerdeznenk meg ugyanazt — huszonket kerdes × tizenket
+        # kiadas = kettoszazhatvannegy felesleges hivas naponta haromszor.
+        gyorsito = f"news:{szfera}:{kerdes}:{napok}"
+        hit = _MARKET_CACHE.get(gyorsito)
+        if hit and (_t.time() - hit[0]) < _MARKET_TTL:
+            res = hit[1]
+        else:
+            try:
+                res = await echolot_query(spheres=szfera, query=kerdes,
+                                          days=napok, limit=30, format="json",
+                                          caller="feldwebel")
+                if isinstance(res, str):
+                    res = json.loads(res)
+            except Exception as e:  # noqa: BLE001
+                logger.info("piaci hirek (%s/%s) elbukott: %s", lang, kerdes, e)
+                continue
+            _MARKET_CACHE[gyorsito] = (_t.time(), res)
         nyers = res if isinstance(res, list) else (
             (res or {}).get("articles") or (res or {}).get("items")
             or (res or {}).get("results") or [])
@@ -485,8 +560,11 @@ async def fetch_piaci_hirek(echolot_query, lang: str, market: dict | None = None
                 continue
             latott.add(cim.lower())
             felvett += 1
+            csoport_db[csoport] = csoport_db.get(csoport, 0) + 1
+            forras = (a.get("source") or a.get("source_name") or "")[:40]
             ki.append({"title": cim[:180], "about": kulcs or "market",
-                       "source": (a.get("source") or a.get("source_name") or "")[:40]})
+                       "source": forras,
+                       "kind": _hir_tipus(cim, forras)})
             if len(ki) >= limit:
                 return ki
     return ki
@@ -986,10 +1064,11 @@ def _piac_tenyek(brief: dict) -> str:
     if hirek:
         sorok.append("")
         sorok.append("MARKET HEADLINES FROM THE LAST 24 HOURS:")
-        for h in hirek[:12]:
+        for h in hirek[:26]:
             forr = f" [{h.get('source')}]" if h.get("source") else ""
             tema = f" (about: {h.get('about')})" if h.get("about") else ""
-            sorok.append(f"  · {h.get('title')}{forr}{tema}")
+            jel = " ⟨OPINION/RECOMMENDATION, not an event⟩" if h.get("kind") == "opinion" else ""
+            sorok.append(f"  · {h.get('title')}{forr}{tema}{jel}")
     naptar = (brief.get("market") or {}).get("calendar") or []
     if naptar:
         sorok.append("")
@@ -1421,7 +1500,7 @@ def _valasz_szovege(nyers) -> str:
 
 #: A napi piaci szoveg promptjanak verzioja — kulon a makro-szemleetol,
 #: mert kulon is fejlodik.
-PULSE_PROMPT_VERSION = 4
+PULSE_PROMPT_VERSION = 5
 
 #: Rovid. Ez nem elemzes, hanem HELYZETJELENTES: mi tortent ma, mi a jel es
 #: mi a zaj, mire figyelj. Ami ennel hosszabb, az mar a makro-szemle dolga.
@@ -1484,6 +1563,13 @@ HARD RULES — breaking any of these makes the report unusable:
    causing the other, and the reader cannot tell your inference from a fact.
    Never write "probably because" — either a headline says it or you say
    nothing.
+   ⚠️ HEADLINES MARKED ⟨OPINION/RECOMMENDATION⟩ ARE NOT EVENTS. They are
+   someone's advice ("5 Stocks To Buy", "Why the rally could run"). You MAY
+   mention them — what the market is talking about is itself information —
+   but ONLY as what they are: attribute them ("one analysis argues…",
+   "commentary is calling for…") and NEVER state them as fact or as a cause
+   of a move. An unlabelled recommendation reads as a market fact, and that
+   is you giving investment advice in a newspaper's name.
 3. A move under about 0.3% on an index or 0.5% on a commodity is noise. Say
    the session was quiet rather than dressing up a rounding difference.
 4. The daily change and the 1-week / 1-month figures are given. Use them as
