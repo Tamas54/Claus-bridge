@@ -2172,6 +2172,70 @@ async def api_area_brief(request):
     return JSONResponse({"ok": True, "brief": d})
 
 
+@mcp.custom_route("/api/brief/economic", methods=["GET"])
+async def api_economic_brief(request):
+    """A tarolt GAZDASAGI brief — az Echolot olvasoi felulete ezt huzza be.
+
+    ═══ MIERT KELLETT (Kommandant, 2026-09-01) ════════════════════════════
+    A Kommandant azt jelezte, hogy „a gazdasagi piaci azonnali szemlenk
+    igencsak benezte" a globalis kotvenypiaci eladasi hullamot. MERVE EZ NEM
+    ALL: a delutani brief EZZEL VEZETETT (`risk_off`, „Global bond sell-off
+    intensifies, yields near 20-year high", a digest elso mondata a 4,77%-os
+    tizeves csucs).
+
+    ⛔ Ami valoban hianyzott: a brief CSAK a Telegramon es az MCP-n letezett.
+    A `get_latest_brief` docstringje mar 2026 ota nevezi meg celfeluletkent
+    „az Echolot 12 nyelvu olvasoi oldalat" — es az Echolot-kodbazisban NULLA
+    hivatkozas volt ra. A tool megvolt, a HUZAL nem. Ez a vegpont a huzal.
+
+    ⚠️ AMIT AZ OLVASOI OLDAL NEM KAP MEG. A brief KERESKEDESI jelzeseket is
+    tartalmaz (`tradeable`, `bias`, `risk_budget_pct`, `exposure_caps`) — ez
+    a Kommandant sajat dontes-tamogato anyaga, NEM nyilvanos hirtartalom.
+    Egy nyilvanos hiroldalon kozzetett „equity: short" befektetesi tanacs
+    lenne. A vegpont ezert `?scope=public` eseten CSAK a tajekoztato reszt
+    adja vissza; a teljes alak kulcshoz kotott es szandekos.
+
+    Auth: ugyanaz az osztott kulcs, mint az area-uton (X-Delphoi-Key) — az
+    Echolotnak EGY rendszert kell ismernie.
+    """
+    denied = _delphoi_auth(request)
+    if denied is not None:
+        return denied
+    kind = (request.query_params.get("kind") or "economic").strip()
+    session = (request.query_params.get("session") or "").strip()
+    scope = (request.query_params.get("scope") or "public").strip().lower()
+    try:
+        conn = get_db()
+        sor = conn.execute(
+            "SELECT * FROM briefs WHERE kind = ?" +
+            (" AND session = ?" if session else "") +
+            " ORDER BY asof DESC, id DESC LIMIT 1",
+            ((kind, session) if session else (kind,))).fetchone()
+        conn.close()
+    except Exception as e:  # noqa: BLE001
+        return JSONResponse({"ok": False, "error": f"db: {e}"}, status_code=500)
+    if not sor:
+        # A hiany NEM hiba, de ki kell mondani — az Echolot ilyenkor ne
+        # rendereljen blokkot (ugyanaz az elv, mint az area-uton).
+        return JSONResponse({"ok": False, "error": "not_generated_yet"},
+                            status_code=404)
+    try:
+        payload = json.loads(sor["payload"])
+    except Exception:  # noqa: BLE001
+        payload = {}
+    if scope == "public":
+        # ⚠️ FEHERLISTA, NEM FEKETELISTA. Egy tiltolista minden uj mezonel
+        # csendben atengedne az ujat; itt csak az mehet ki, amit KIMONDTUNK.
+        payload = {k: payload.get(k) for k in
+                   ("events", "note", "telegram_digest", "macro_review",
+                    "sources", "asof", "valid_until")
+                   if payload.get(k) is not None}
+    return JSONResponse({"ok": True, "kind": sor["kind"],
+                         "session": sor["session"], "asof": sor["asof"],
+                         "lang": sor["lang"], "created_at": sor["created_at"],
+                         "scope": scope, "brief": payload})
+
+
 @mcp.custom_route("/api/delphoi/jobs", methods=["GET", "POST"])
 async def api_delphoi_jobs(request):
     """POST: új fókuszcsoport-job (atomi kredit-levonás, queued, azonnali

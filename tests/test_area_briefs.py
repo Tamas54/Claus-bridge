@@ -1538,7 +1538,12 @@ def test_a_pulzus_ISMERI_a_levezetheto_osszefuggeseket():
     pr = ab._pulse_prompt(_b_teljes(), "Hungarian")
     for jel in ("BREADTH —", "RISK APPETITE:", "THE CURVE:", "REAL YIELD:",
                 "CORRELATION BREAKS:", "CURRENCY CONSISTENCY:",
-                "TREND LADDER:", "HOME AGAINST THE WORLD:"):
+                "TREND LADDER:",
+                # 2026-09-01: a cimke kiegeszult („(the SECOND paragraph
+                # only)"), mert a vilag es a haza kulon bekezdes lett. A
+                # teszt szandeka valtozatlan: a prompt TANITSA a hazai
+                # szam vilaghoz meresét.
+                "HOME AGAINST THE WORLD"):
         assert jel in pr, f"hiányzik: {jel}"
 
 
@@ -1710,3 +1715,61 @@ def test_a_forras_ONMAGABAN_nem_belyegez_velemenynek():
     # a cim maga dont; a forras csak sulyosbit
     assert ab._hir_tipus("Is the gold rally over?", "Seeking Alpha") == "opinion"
     assert ab._hir_tipus("Why the rally could run through 2027", "Seeking Alpha") == "opinion"
+
+
+# ═══ A VILAG EGY — a haza nem (Kommandant, 2026-09-01) ═══════════════════
+
+def _brief_ket_kiadas():
+    """Ugyanaz a vilagpiac, KULONBOZO MERETU hazai keszlet — ez a lenyeg."""
+    vilag = {f"g{i}": {"price": 100.0 + i, "change_pct": (i % 5) * 0.4 - 0.8}
+             for i in range(26)}
+    a = {"lang": "hu", "country": "HU", "market": {
+        "global": dict(vilag),
+        "home": {f"h{i}": {"price": 10.0, "change_pct": 0.5} for i in range(6)}}}
+    b = {"lang": "de", "country": "DE", "market": {
+        "global": dict(vilag),
+        "home": {f"h{i}": {"price": 10.0, "change_pct": 0.5} for i in range(3)}}}
+    return a, b
+
+
+def test_a_vilagpiaci_tenyek_kiadastol_FUGGETLENEK():
+    """⛔ A MERT HIBA (2026-09-01). A `_rang` a `global` es a `home`
+    jegyzeseket EGYBE szamolta; mivel a hazai keszlet kiadasonkent mas
+    meretu, egy VILAGPIACI allitas kiadasfuggove valt. Elesben, ugyanaz a
+    nap, ugyanaz a vilagpiac:  hu „32 jegyzesbol 9" · de „9 von 30" ·
+    tr „31 kotasyonun 10'u". A modell nem szamolt rosszul — a tenyblokk
+    volt kiadasfuggo."""
+    from plugins.area_briefs import _piac_tenyek
+    a, b = _brief_ket_kiadas()
+    wa = [l for l in _piac_tenyek(a).split("\n") if l.startswith("WORLD")]
+    wb = [l for l in _piac_tenyek(b).split("\n") if l.startswith("WORLD")]
+    assert wa == wb, "a vilagpiaci tenyek kiadasonkent elternek"
+    assert any("26 quotes" in l for l in wa), (
+        "a vilag-darabszam nem a 26 globalis jegyzesbol jon")
+
+
+def test_a_hazai_tenyek_kiadasonkent_KULONBOZNEK():
+    """A masik fele: ami nyelvteruleti, az maradjon az."""
+    from plugins.area_briefs import _piac_tenyek
+    a, b = _brief_ket_kiadas()
+    ha = [l for l in _piac_tenyek(a).split("\n") if l.startswith("HOME")]
+    hb = [l for l in _piac_tenyek(b).split("\n") if l.startswith("HOME")]
+    assert ha and hb and ha != hb
+
+
+def test_a_zajkuszob_CSAK_a_napi_ablakra_szol():
+    """⚠️ A 0,3%-os kuszob NAPI fogalom. Eddig mindharom ablak kiirta a sajat
+    zaj-sorat — HAROM kulonbozo szammal (elesben 32/9, 27/3, 27/0) —, a
+    prompt viszont egyetlenkent hivatkozott rajuk. A modell valasztott."""
+    from plugins.area_briefs import _piac_tenyek
+    a, _ = _brief_ket_kiadas()
+    zaj = [l for l in _piac_tenyek(a).split("\n") if "noise threshold" in l]
+    assert all(l.split(" —")[0].endswith("TODAY") for l in zaj), (
+        f"zaj-sor nem-napi ablakon: {zaj}")
+
+
+def test_a_prompt_verzio_emelkedett():
+    """A tarolt pulzus ujrahasznalodik, ha a verzio egyezik — prompt-valtozas
+    verzio-emeles NELKUL nem lep eletbe."""
+    from plugins.area_briefs import PULSE_PROMPT_VERSION
+    assert PULSE_PROMPT_VERSION >= 6

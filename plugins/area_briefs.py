@@ -1038,23 +1038,48 @@ def _piac_tenyek(brief: dict) -> str:
     # +11,16%-at — sajat magat cafolta ket mondaton belul, mert a 19 eszkoz
     # `m1` mezoit nem vetette ossze. A szuperlativuszt tehat NE a modell
     # allitsa: itt rendezzuk, es a prompt csak erre hivatkozhat.
-    def _rang(mezo: str, cimke: str) -> None:
+    def _rang(mezo: str, cimke: str, forras: dict, zajjal: bool = False) -> None:
+        """⛔ A VILAG ES A HAZA KULON SZAMOL — ES EZ NEM RENDEZESI KERDES.
+
+        Kommandant, 2026-09-01: „a nemzetkozi piaci resz az nyilvan egyseges.
+        A »nyelvteruleti« az meg nem." Es szo szerint: „2 napja szopunk ezzel."
+
+        A MERT HIBA: ez a fuggveny eddig a `global` ES a `home` jegyzeseket
+        EGYBE szamolta. Mivel a hazai keszlet kiadasonkent MAS MERETU, egy
+        VILAGPIACI allitas kiadasfuggove valt. Elesben merve, ugyanaz a nap,
+        ugyanaz a vilagpiac:
+
+            hu: „32 jegyzesbol 9 a zajkuszob alatt"
+            de: „9 von 30 Notierungen"
+            tr: „31 kotasyonun 10'u"
+
+        A modell NEM szamolt rosszul — helyesen adta vissza azt, amit kapott.
+        A tenyblokk volt kiadasfuggo. Ezert a javitas nem prompt-utasitas
+        („irj mindenhol ugyanazt"), hanem a TENYEK szetvalasztasa: a WORLD
+        sorok mostantol BITRE AZONOSAK mind a 12 kiadasban.
+
+        ⚠️ ES A ZAJKUSZOB CSAK A MAI NAPRA ERTELMES. A 0,3%-os kuszob NAPI
+        fogalom; egy harom honapos +0,2% nem „zaj", hanem egy lapos negyedev.
+        Eddig mindharom ablak (TODAY / ONE MONTH / THREE MONTHS) kiirta a
+        sajat zaj-sorat — HAROM kulonbozo szammal (32/9, 27/3, 27/0) —, a
+        prompt viszont egyetlenkent hivatkozott rajuk („all given to you").
+        A modell valasztott egyet. Mostantol csak a napi ablak kap zaj-sort.
+        """
         tetelek = []
-        for resz in ((brief.get("market") or {}).get("global") or {},
-                     (brief.get("market") or {}).get("home") or {}):
-            for k, q in resz.items():
-                v = q.get(mezo)
-                if isinstance(v, (int, float)):
-                    tetelek.append((v, k))
+        for k, q in (forras or {}).items():
+            v = q.get(mezo)
+            if isinstance(v, (int, float)):
+                tetelek.append((v, k))
         if len(tetelek) < 3:
             return
         tetelek.sort(reverse=True)
         fel = ", ".join(f"{k} {v:+.2f}%" for v, k in tetelek[:3])
         le = ", ".join(f"{k} {v:+.2f}%" for v, k in tetelek[-3:])
         sorok.append(f"{cimke} — largest gains: {fel} | largest falls: {le}")
-        zaj = sum(1 for v, _ in tetelek if abs(v) < 0.3)
-        sorok.append(f"{cimke} — {len(tetelek)} quotes, {zaj} of them moved "
-                     f"less than 0.3% (noise threshold)")
+        if zajjal:
+            zaj = sum(1 for v, _ in tetelek if abs(v) < 0.3)
+            sorok.append(f"{cimke} — {len(tetelek)} quotes, {zaj} of them "
+                         f"moved less than 0.3% (noise threshold)")
 
     szektorok = (brief.get("market") or {}).get("sectors") or {}
     if szektorok:
@@ -1068,9 +1093,15 @@ def _piac_tenyek(brief: dict) -> str:
     sorok.append("")
     sorok.append("RANKINGS (computed, do not recompute — use these for any "
                  "superlative):")
-    _rang("change_pct", "TODAY")
-    _rang("m1", "ONE MONTH")
-    _rang("m3", "THREE MONTHS")
+    _vilag = (brief.get("market") or {}).get("global") or {}
+    _haza = (brief.get("market") or {}).get("home") or {}
+    # A WORLD sorok minden kiadasban AZONOSAK — ez a szerzodes.
+    _rang("change_pct", "WORLD TODAY", _vilag, zajjal=True)
+    _rang("m1", "WORLD ONE MONTH", _vilag)
+    _rang("m3", "WORLD THREE MONTHS", _vilag)
+    # A HOME sorok kiadasonkent kulonboznek — ez a lenyeguk.
+    _rang("change_pct", "HOME TODAY", _haza, zajjal=True)
+    _rang("m1", "HOME ONE MONTH", _haza)
     hirek = (brief.get("market") or {}).get("news") or []
     if hirek:
         sorok.append("")
@@ -1511,7 +1542,10 @@ def _valasz_szovege(nyers) -> str:
 
 #: A napi piaci szoveg promptjanak verzioja — kulon a makro-szemleetol,
 #: mert kulon is fejlodik.
-PULSE_PROMPT_VERSION = 5
+#: ⚠️ A VERZIO-BUMP NEM ADMINISZTRACIO. A tarolt pulzus ujrahasznalodik, ha a
+#: verzio egyezik — prompt-valtozas verzio-emeles NELKUL tehat NEM LEP ELETBE.
+#: 5 → 6: a vilag es a haza szetvalasztva (ket bekezdes, kulon tenysorok).
+PULSE_PROMPT_VERSION = 6
 
 #: Rovid. Ez nem elemzes, hanem HELYZETJELENTES: mi tortent ma, mi a jel es
 #: mi a zaj, mire figyelj. Ami ennel hosszabb, az mar a makro-szemle dolga.
@@ -1604,14 +1638,27 @@ HARD RULES — breaking any of these makes the report unusable:
    about POSITION and TREND, not about the day: where things sit in their
    52-week range, what the month and quarter say, which trends are intact.
 9. No headings, no bullet points, no markdown, no source names.
+10. ⛔ TWO PARAGRAPHS, IN THIS ORDER, AND THEY DO NOT MIX.
+    FIRST the WORLD: written ONLY from the WORLD lines and the US sector,
+    volatility, curve and currency measures. Every reader of every edition
+    gets the same world, so this paragraph must contain NOTHING that depends
+    on which country reads it — no home index, no home currency, no local
+    share. The world facts you are given are identical in every edition;
+    if your world paragraph differs between editions, you invented something.
+    THEN the HOME: written ONLY from the HOME lines, and placed against the
+    world (the home index against the European benchmark, the home currency,
+    the largest home share). If there are no HOME lines, write the world
+    paragraph only and stop — do NOT pad it with world numbers a second time.
 
 WHAT THE NUMBERS LET YOU SAY — these are ARITHMETIC, not speculation, and
 they are what makes this a report rather than a list. Use the ones the day
 actually supports:
-  · BREADTH — THREE MEASURES, all given to you: how many quotes rose and how
-    many stayed inside the noise threshold; how many of the eleven US sectors
-    closed higher; and the equal-weighted S&P against the cap-weighted one. If
-    the equal-weighted index lags, a handful of large companies is holding the
+  · BREADTH — THREE MEASURES, all given to you: the WORLD TODAY line (how
+    many world quotes there are and how many stayed inside the noise
+    threshold — use THAT line, never your own count, and never the HOME
+    line for a world statement); how many of the eleven US sectors closed
+    higher; and the equal-weighted S&P against the cap-weighted one. If the
+    equal-weighted index lags, a handful of large companies is holding the
     market up — that is a narrow advance, and it is worth saying.
   · RISK APPETITE: the VIX, small caps against large caps, bitcoin, gold, and
     the two risk-sensitive currencies (a stronger Swiss franc means caution,
@@ -1635,8 +1682,9 @@ actually supports:
   · TREND LADDER: today against the week, the month and the quarter. Four
     signs pointing one way is a trend; today against the other three is a
     break.
-  · HOME AGAINST THE WORLD: the home index against the European benchmark,
-    the largest home share against the home index.
+  · HOME AGAINST THE WORLD (the SECOND paragraph only): the home index
+    against the European benchmark, the largest home share against the home
+    index. Never in the world paragraph.
   · WHAT IS DUE: the upcoming release measured against the CURRENT level of
     that same indicator from the macro anchor.
 
