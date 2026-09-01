@@ -102,12 +102,36 @@ ANCHOR_INDICATORS = ("cpi", "core_cpi", "policy_rate", "unemployment")
 #: ami eddig hiányzott: nem viszonyítási pont a hazai számok mellett, hanem
 #: önálló világgazdasági kép.
 MARKET_GLOBAL: tuple[tuple[str, str], ...] = (
-    ("sp500",     "^GSPC"),
-    ("vix",       "^VIX"),
-    ("oil_wti",   "CL=F"),
-    ("gold",      "GC=F"),
-    ("eur_usd",   "EURUSD=X"),
-    ("us_10y",    "^TNX"),
+    # ⚠️ 6 → 19 ESZKOZ (Kommandant, 2026-09-01: "MEG MINDIG KEVES — tehat
+    # TOBB informacio kell"). Hat szammal nem lehet piaci kepet festeni:
+    # harom kontinens reszvenypiaca, hat nyersanyag, harom deviza, ket
+    # hozam es a bitcoin egyutt mar ELLENTMONDHAT egymasnak — es a szemle
+    # ereje pont abbol jon, ha van mit egymashoz merni.
+    # Mind a 19 MERVE el (2026-09-01).
+    # ── reszvenypiacok, harom kontinens ───────────────────────────────
+    ("sp500",        "^GSPC"),
+    ("nasdaq",       "^IXIC"),
+    ("russell2000",  "^RUT"),
+    ("stoxx50",      "^STOXX50E"),
+    ("nikkei",       "^N225"),
+    ("hangseng",     "^HSI"),
+    # ── kockazat ──────────────────────────────────────────────────────
+    ("vix",          "^VIX"),
+    # ── nyersanyagok ──────────────────────────────────────────────────
+    ("oil_wti",      "CL=F"),
+    ("oil_brent",    "BZ=F"),
+    ("gas",          "NG=F"),
+    ("gold",         "GC=F"),
+    ("silver",       "SI=F"),
+    ("copper",       "HG=F"),
+    # ── deviza ────────────────────────────────────────────────────────
+    ("eur_usd",      "EURUSD=X"),
+    ("usd_jpy",      "JPY=X"),
+    ("dxy",          "DX-Y.NYB"),
+    # ── kamat + kripto ────────────────────────────────────────────────
+    ("us_10y",       "^TNX"),
+    ("us_30y",       "^TYX"),
+    ("bitcoin",      "BTC-USD"),
 )
 
 #: A HAZAI piaci blokk kiadásonként. Mérve 2026-08-31, mind él.
@@ -300,6 +324,19 @@ NEWS_SPHERES = "global_economy,global_business,global_press"
 #: sajto az aktiv, mig Europa es az USA alszik. A RENDEZES volt rossz.
 NEWS_QUERY: dict[str, str] = {
     "sp500": "S&P 500 Wall Street stocks equities",
+    "nasdaq": "Nasdaq technology tech shares",
+    "russell2000": "Russell 2000 small cap stocks",
+    "stoxx50": "Euro Stoxx European shares equities",
+    "nikkei": "Nikkei Tokyo Japan stocks",
+    "hangseng": "Hang Seng Hong Kong China stocks",
+    "oil_brent": "Brent crude oil OPEC barrel",
+    "gas": "natural gas LNG energy price",
+    "silver": "silver precious metals",
+    "copper": "copper metals industrial demand",
+    "usd_jpy": "yen dollar Bank of Japan currency",
+    "dxy": "dollar index greenback currency",
+    "us_30y": "Treasury 30-year long bond yield",
+    "bitcoin": "bitcoin crypto digital assets",
     "vix": "volatility VIX risk selloff",
     "oil_wti": "oil crude OPEC barrel WTI Brent",
     "gold": "gold bullion precious metal",
@@ -327,19 +364,22 @@ NEWS_QUERY: dict[str, str] = {
 }
 
 
-def _mozgatok(market: dict, db: int = 5) -> list[str]:
+def _mozgatok(market: dict, db: int = 8) -> list[str]:
     """A nap LEGNAGYOBB elmozdulasai — errol kerdezunk hirt.
 
-    A kiadas SAJAT piaca elonyt kap: egy magyar olvasonak az OTP esese
-    fontosabb, mint egy azonos merteku S&P-mozgas.
+    ⚠️ AZONOS SULY (Kommandant, 2026-09-01): "a magyar ES nemzetkozi MINDEN
+    SZEMPONTBOL AZONOS SULLYAL kell latba esnie". Az elso valtozat 1,4x
+    elonyt adott a hazai piacnak azzal az indoklassal, hogy "egy magyar
+    olvasonak az OTP esese fontosabb" — ez viszont ELDONTOTTE volna helyette,
+    mi a fontos. A nap legnagyobb elmozdulasa szamit, barhol tortent.
     """
     tetelek = []
-    for suly, resz in ((1.0, (market or {}).get("global") or {}),
-                       (1.4, (market or {}).get("home") or {})):
+    for resz in ((market or {}).get("global") or {},
+                 (market or {}).get("home") or {}):
         for kulcs, q in resz.items():
             v = q.get("change_pct")
             if isinstance(v, (int, float)) and kulcs in NEWS_QUERY:
-                tetelek.append((abs(v) * suly, kulcs))
+                tetelek.append((abs(v), kulcs))
     tetelek.sort(reverse=True)
     return [k for _, k in tetelek[:db]]
 

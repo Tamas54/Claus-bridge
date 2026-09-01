@@ -1299,3 +1299,34 @@ def test_ures_piac_eseten_is_kerdez_valamit():
 
     asyncio.run(ab.fetch_piaci_hirek(_q, "hu", {}))
     assert kerdesek, "üres piacnál egyetlen kérdést sem tett fel"
+
+
+def test_a_hazai_es_a_nemzetkozi_AZONOS_SULLYAL_esik_latba():
+    """Kommandant, 2026-09-01: „a magyar ÉS nemzetközi MINDEN SZEMPONTBÓL
+    AZONOS SÚLLYAL kell latba esnie". A korábbi 1,4x hazai előny eltávolítva:
+    a nap legnagyobb elmozdulása számít, bárhol történt."""
+    import inspect
+    src = inspect.getsource(ab._mozgatok)
+    assert "1.4" not in src, "a hazai suly visszakerult"
+    # azonos merteku mozgas: egyik sem elozheti meg a masikat SULY miatt
+    m = {"global": {"sp500": {"change_pct": -2.0}},
+         "home": {"stocks_otp": {"change_pct": -1.9}}}
+    assert ab._mozgatok(m)[0] == "sp500", "a kisebb hazai mozgas elore kerult"
+
+
+def test_MINDEN_globalis_eszkoznek_van_hirkulcsa():
+    """Hírkulcs nélkül az eszköz sosem kap hírt — némán kimarad a lekérésből,
+    és a mérőszám („N mozgatóról kérdeztünk") közben zöld."""
+    hiany = [k for k, _ in ab.MARKET_GLOBAL if k not in ab.NEWS_QUERY]
+    assert hiany == [], f"hírkulcs nélküli eszközök: {hiany}"
+
+
+def test_a_globalis_blokk_ELEG_SZELES():
+    """Hat számmal nem lehet piaci képet festeni. Három kontinens
+    részvénypiaca, hat nyersanyag, három deviza, két hozam — ezek együtt már
+    ELLENTMONDHATNAK egymásnak, és a szemle ereje ebből jön."""
+    kulcsok = {k for k, _ in ab.MARKET_GLOBAL}
+    assert len(kulcsok) >= 18
+    assert {"nikkei", "hangseng", "stoxx50"} <= kulcsok, "hiányzik egy kontinens"
+    assert {"oil_brent", "copper", "silver", "gas"} <= kulcsok
+    assert {"dxy", "usd_jpy"} <= kulcsok
