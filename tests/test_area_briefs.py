@@ -1330,3 +1330,26 @@ def test_a_globalis_blokk_ELEG_SZELES():
     assert {"nikkei", "hangseng", "stoxx50"} <= kulcsok, "hiányzik egy kontinens"
     assert {"oil_brent", "copper", "silver", "gas"} <= kulcsok
     assert {"dxy", "usd_jpy"} <= kulcsok
+
+
+def test_a_hir_kulcsszavak_LEGFELJEBB_KET_SZOSAK():
+    """⚠️ MÉRT ESET (2026-09-01): az FTS a többszavas kifejezést
+    ÉS-kapcsolatnak veszi. Az „S&P 500 Wall Street stocks equities" NULLA
+    találatot adott, mert a négy kifejezés együtt egyetlen cikkben sem
+    szerepel — a pulzus így 19 eszközzel és 0 hírrel készült.
+
+    Mérve: többszavas → 0, egyszavas („oil") → 5, kétszavas („crude oil")
+    → 5. A hosszabb kérdés nem pontosabb, hanem ÜRES."""
+    hosszu = {k: v for k, v in ab.NEWS_QUERY.items() if len(v.split()) > 2}
+    assert hosszu == {}, f"kettőnél több szavas kulcsszavak: {hosszu}"
+
+
+def test_MINDEN_eszkoznek_van_hirkulcsa_a_hazaiaknak_is():
+    hiany = [k for k, _ in ab.MARKET_GLOBAL if k not in ab.NEWS_QUERY]
+    assert hiany == [], f"globális hiány: {hiany}"
+    hazai = set()
+    for t in ab.MARKET_HOME.values():
+        hazai |= {k for k, _ in t}
+    hiany2 = sorted(k for k in hazai
+                    if k not in ab.NEWS_QUERY and not k.startswith("fx_"))
+    assert hiany2 == [], f"hazai hiány: {hiany2}"
