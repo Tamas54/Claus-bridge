@@ -115,27 +115,44 @@ MARKET_GLOBAL: tuple[tuple[str, str], ...] = (
 #: found), ezért a legnagyobb tőzsdei papír áll helyette. Oroszra az
 #: `IMOEX.ME` szintén halott — az ru/uk kiadásnak amúgy sincs hazai országa.
 MARKET_HOME: dict[str, tuple[tuple[str, str], ...]] = {
-    # ⚠️ A BUX NEM A YAHOO-ROL JON. Nincs elo Yahoo-szimboluma (`^BUX` STALE,
-    # `^BUXI`/`BUX.BD`/`BUX.BUD` not found), a stooq sem viszi. A StatData
-    # `bet_index` toolja adja, a bet.hu beagyazott JSON-blobjabol — lasd az
-    # `INDEX_TOOL_HOME` leképezest lentebb.
-    # A negy blue chip MELLETTE marad: kulon-kulon tobbet mondanak az
-    # olvasonak, mint egy indexszam, es a Telegram-brief is igy csinalja.
+    # ⚠️ A BUX a StatData `bet_index` tooljabol jon (lasd `INDEX_TOOL_HOME`),
+    # mert annak nincs elo Yahoo-szimboluma. A negy blue chip MELLETTE all.
     "hu": (("stocks_otp", "OTP.BD"), ("stocks_mol", "MOL.BD"),
            ("stocks_richter", "RICHT.BD"), ("stocks_mtel", "MTEL.BD"),
            ("fx_eur", "EURHUF=X")),
-    "de": (("index_dax", "^GDAXI"),),
-    "it": (("index_ftsemib", "FTSEMIB.MI"),),
-    "fr": (("index_cac", "^FCHI"),),
-    "es": (("index_ibex", "^IBEX"),),
-    "pl": (("index_wig20", "WIG20.WA"), ("fx_eur", "EURPLN=X")),
-    "el": (("index_athex", "GD.AT"),),
-    "tr": (("index_bist", "XU100.IS"), ("fx_usd", "USDTRY=X")),
-    "zh": (("index_sse", "000001.SS"), ("fx_usd", "USDCNY=X")),
-    "en": (("index_ftse", "^FTSE"), ("fx_usd", "GBPUSD=X")),
+    "de": (("index_dax", "^GDAXI"), ("stocks_sap", "SAP.DE"),
+           ("stocks_siemens", "SIE.DE"), ("stocks_allianz", "ALV.DE")),
+    "it": (("index_ftsemib", "FTSEMIB.MI"), ("stocks_enel", "ENEL.MI"),
+           ("stocks_eni", "ENI.MI"), ("stocks_intesa", "ISP.MI")),
+    "fr": (("index_cac", "^FCHI"), ("stocks_lvmh", "MC.PA"),
+           ("stocks_total", "TTE.PA"), ("stocks_sanofi", "SAN.PA")),
+    "es": (("index_ibex", "^IBEX"), ("stocks_santander", "SAN.MC"),
+           ("stocks_iberdrola", "IBE.MC"), ("stocks_inditex", "ITX.MC")),
+    "pl": (("index_wig20", "WIG20.WA"), ("stocks_pko", "PKO.WA"),
+           ("stocks_orlen", "PKN.WA"), ("stocks_pzu", "PZU.WA"),
+           ("fx_eur", "EURPLN=X")),
+    "el": (("index_athex", "GD.AT"), ("stocks_alpha", "ALPHA.AT"),
+           ("stocks_ete", "ETE.AT"), ("stocks_ote", "HTO.AT")),
+    "tr": (("index_bist", "XU100.IS"), ("stocks_isctr", "ISCTR.IS"),
+           ("stocks_kchol", "KCHOL.IS"), ("stocks_tcell", "TCELL.IS"),
+           ("fx_usd", "USDTRY=X")),
+    "zh": (("index_sse", "000001.SS"), ("stocks_icbc", "601398.SS"),
+           ("stocks_moutai", "600519.SS"), ("stocks_petrochina", "601857.SS"),
+           ("fx_usd", "USDCNY=X")),
+    "en": (("index_ftse", "^FTSE"), ("stocks_shell", "SHEL.L"),
+           ("stocks_astrazeneca", "AZN.L"), ("stocks_hsbc", "HSBA.L"),
+           ("fx_usd", "GBPUSD=X")),
     "ru": (),
     "uk": (),
 }
+
+#: Melyik jegyzeshez kerjunk TORTENETET is. A tavlat (1h/1ho/3ho) ertekes,
+#: de minden tickerre lekerni MEGDUPLAZNA a hivasokat — es a teljes futas
+#: mar igy is a hataron van. Az INDEXEK es a globalis eszkozok kapjak meg;
+#: az egyedi reszvenyeknel a napi mozgas a lenyeg.
+def _kell_tavlat(cimke: str) -> bool:
+    return not cimke.startswith("stocks_")
+
 
 #: Kiadások, ahol a hazai INDEX nem a yfinance-ről jön, hanem sajat
 #: StatData-toolbol. Ma egy ilyen van; a szerkezet viszont keszen all, ha
@@ -218,9 +235,18 @@ async def fetch_tavlat(statdata_call, symbol: str) -> dict | None:
         return None
     import math
     sorok = (res or {}).get("data") or []
-    # ⚠️ NaN-SZURES, ES EZ NEM ELOVIGYAZATOSSAG. A BET-papirok tortenetében
-    # HIANYZO zaroarak vannak (unnepnapok, szunetelo kereskedes), es a
-    # yfinance ezeket NaN-kent adja. A szazalekszamitas abbol NaN-t ad —
+    # ⚠️ NaN-SZURES, ES EZ NEM ELOVIGYAZATOSSAG.
+    #
+    # ⚠️⚠️ AZ ELSO MAGYARAZATOM ROSSZ VOLT, ES A KOMMANDANT FOGTA MEG:
+    # "unnepnapokat" irtam ide, holott 2026-08-31 HETFO volt. MEGMERVE: az
+    # OTP.BD harom honapos soraban PONTOSAN EGY hianyzo zaroar van, es az az
+    # UTOLSO sor — a MEG FUTO kereskedesi nap (`open=nan`, de
+    # `volume=489584`). A yfinance a le nem zart napot NaN zaroarral adja.
+    # Tehat nem unnepnap: a MAI nap az, ami nincs kesz.
+    # (A "hihető magyarazat meres helyett" ma tobbszor is megfogott — ezert
+    # all itt a MERES, nem a feltevés.)
+    #
+    # A szazalekszamitas a NaN-bol NaN-t ad —
     # az pedig BENNMARAD a payloadban, mert a `json.dumps` alapertelmezesben
     # elfogadja.
     #
@@ -255,6 +281,53 @@ async def fetch_tavlat(statdata_call, symbol: str) -> dict | None:
     return ki
 
 
+#: Szferak, ahonnan a piaci hireket huzzuk. Az Echolot forrasai kozott ott
+#: van a CNBC, az Investing.com, a Seeking Alpha es a Bloomberg HT.
+#:
+#: ⚠️ A StreetAccount (Kommandant kerdezte) NEM epitheto be: FactSet-termek,
+#: elofizeteses, nincs nyilvanos feedje. Ami helyette van, az a fenti nevsor.
+NEWS_SPHERES = "global_economy,global_business,global_press"
+
+
+async def fetch_piaci_hirek(echolot_query, lang: str, limit: int = 12) -> list:
+    """Friss PIACI hirek az Echolot korpuszabol. Sose dob; hibanal ures lista.
+
+    ⚠️ EZ VALTOZTATJA MEG A PULZUS TERMESZETET. Eddig a napi helyzetjelentes
+    KIZAROLAG szamokat latott, ezert a promptban abszolut tilalom allt az ok
+    kimondasara: "never explain WHY a market moved — you have no news here".
+    A tilalom HELYES VOLT az adott bemenetre, de kozben pont azt tiltotta,
+    amiert egy piaci szemlet olvasnak.
+    Hirekkel a szabaly MEGVALTOZIK: okot mondani szabad, de KIZAROLAG olyat,
+    ami a megkapott cimekben BENNE VAN — es a sajat kovetkeztetest nem
+    szabad tenynek allitani.
+    """
+    if not echolot_query:
+        return []
+    try:
+        res = await echolot_query(spheres=NEWS_SPHERES, days=1,
+                                  limit=limit, format="json",
+                                  caller="feldwebel")
+        if isinstance(res, str):
+            res = json.loads(res)
+    except Exception as e:  # noqa: BLE001
+        logger.info("piaci hirek (%s) elbukott: %s", lang, e)
+        return []
+    tetelek = []
+    nyers = res if isinstance(res, list) else (
+        (res or {}).get("articles") or (res or {}).get("items")
+        or (res or {}).get("results") or [])
+    for a in nyers[:limit]:
+        if not isinstance(a, dict):
+            continue
+        cim = (a.get("title") or a.get("headline") or "").strip()
+        if not cim:
+            continue
+        tetelek.append({"title": cim[:180],
+                        "source": (a.get("source") or a.get("source_name") or "")[:40],
+                        "lang": a.get("language") or a.get("lang") or ""})
+    return tetelek
+
+
 async def fetch_naptar(statdata_call) -> list:
     """A kovetkezo napok makro-esemenyei — ELORE nezo, tehat naponta mas.
 
@@ -285,9 +358,9 @@ async def fetch_naptar(statdata_call) -> list:
     return ki
 
 
-async def fetch_market(statdata_call, lang: str) -> dict:
-    """A kiadás piaci blokkja: KÖZÖS globális + hazai. Sose dob."""
-    ki: dict = {"global": {}, "home": {}, "calendar": []}
+async def fetch_market(statdata_call, lang: str, echolot_query=None) -> dict:
+    """A kiadás piaci blokkja: KÖZÖS globális + hazai + naptár + hírek."""
+    ki: dict = {"global": {}, "home": {}, "calendar": [], "news": []}
     for cimke, sym in MARKET_GLOBAL:
         q = await fetch_quote(statdata_call, sym)
         if q:
@@ -305,11 +378,13 @@ async def fetch_market(statdata_call, lang: str) -> dict:
     for cimke, sym in MARKET_HOME.get(lang, ()):
         q = await fetch_quote(statdata_call, sym)
         if q:
-            t = await fetch_tavlat(statdata_call, sym)
-            if t:
-                q = {**q, **t}
+            if _kell_tavlat(cimke):
+                t = await fetch_tavlat(statdata_call, sym)
+                if t:
+                    q = {**q, **t}
             ki["home"][cimke] = q
     ki["calendar"] = await fetch_naptar(statdata_call)
+    ki["news"] = await fetch_piaci_hirek(echolot_query, lang)
     return ki
 
 
@@ -390,7 +465,8 @@ def iranyok(rows: list) -> list:
     return rows
 
 
-async def build_area_briefs(statdata_call, piaccal: bool = True) -> dict:
+async def build_area_briefs(statdata_call, piaccal: bool = True,
+                            echolot_query=None) -> dict:
     """Mind a 12 kiadás makró-adata. `statdata_call(tool, args)` a hívó dolga.
 
     Visszaad: {lang: {country, home: [...], anchor: [...], asof, gaps: [...]}}
@@ -465,7 +541,8 @@ async def build_area_briefs(statdata_call, piaccal: bool = True) -> dict:
         # ezért nem közös try-ág.
         for lang in out:
             try:
-                out[lang]["market"] = await fetch_market(statdata_call, lang)
+                out[lang]["market"] = await fetch_market(
+                    statdata_call, lang, echolot_query)
             except Exception as e:  # noqa: BLE001
                 logger.warning("piaci blokk (%s) elbukott: %s", lang, e)
     return out
@@ -669,6 +746,13 @@ def _piac_tenyek(brief: dict) -> str:
             tavlat = (" | " + ", ".join(tav)) if tav else ""
             sorok.append(f"{cimke} {kulcs}: {q.get('price')} "
                          f"({q.get('currency') or ''}) | {valt}{tavlat}{sav}")
+    hirek = (brief.get("market") or {}).get("news") or []
+    if hirek:
+        sorok.append("")
+        sorok.append("MARKET HEADLINES FROM THE LAST 24 HOURS:")
+        for h in hirek[:12]:
+            forr = f" [{h.get('source')}]" if h.get("source") else ""
+            sorok.append(f"  · {h.get('title')}{forr}")
     naptar = (brief.get("market") or {}).get("calendar") or []
     if naptar:
         sorok.append("")
@@ -1094,12 +1178,12 @@ def _valasz_szovege(nyers) -> str:
 
 #: A napi piaci szoveg promptjanak verzioja — kulon a makro-szemleetol,
 #: mert kulon is fejlodik.
-PULSE_PROMPT_VERSION = 1
+PULSE_PROMPT_VERSION = 2
 
 #: Rovid. Ez nem elemzes, hanem HELYZETJELENTES: mi tortent ma, mi a jel es
 #: mi a zaj, mire figyelj. Ami ennel hosszabb, az mar a makro-szemle dolga.
-PULSE_MAX_MONDAT = 8
-PULSE_MAX_KAR = 2200
+PULSE_MAX_MONDAT = 12
+PULSE_MAX_KAR = 3400
 
 
 def _pulse_prompt(brief: dict, nyelv_nev: str) -> str:
@@ -1122,8 +1206,14 @@ about last month's inflation print, you are writing the wrong text.
 HARD RULES — breaking any of these makes the report unusable:
 1. Use ONLY the numbers above. Never introduce a figure that is not there,
    and never convert a price into a currency you were not given.
-2. NEVER explain WHY a market moved. You have no news here, only numbers.
-   Two things moving on the same day is not one causing the other.
+2. CAUSE — READ THIS CAREFULLY, THE RULE DEPENDS ON WHAT YOU WERE GIVEN.
+   If a MARKET HEADLINES block is present above, you MAY name a cause — but
+   ONLY one that a headline actually states. Quote the substance, not the
+   outlet. If there is no headlines block, or no headline covers the move,
+   you may NOT explain it: two things moving on the same day is not one
+   causing the other, and the reader cannot tell your inference from a fact.
+   Never write "probably because" — either a headline says it or you say
+   nothing.
 3. A move under about 0.3% on an index or 0.5% on a commodity is noise. Say
    the session was quiet rather than dressing up a rounding difference.
 4. The daily change and the 1-week / 1-month figures are given. Use them as
@@ -1245,7 +1335,8 @@ def load_area_brief(get_db, lang: str) -> dict | None:
         return None
 
 
-async def cron_pulse(get_db, statdata_call, ai_query=None) -> dict:
+async def cron_pulse(get_db, statdata_call, ai_query=None,
+                     echolot_query=None) -> dict:
     """CSAK a napi piaci helyzet frissitese — a makro-szemle valtozatlan.
 
     ⚠️ EZ A LENYEG (Kommandant, 2026-08-31): a makro-szemle HETES
@@ -1272,7 +1363,8 @@ async def cron_pulse(get_db, statdata_call, ai_query=None) -> dict:
         if not regi:
             continue
         try:
-            regi["market"] = await fetch_market(statdata_call, lang)
+            regi["market"] = await fetch_market(
+                    statdata_call, lang, echolot_query)
         except Exception as e:  # noqa: BLE001
             logger.warning("cron_pulse(%s): piaci lekeres elbukott: %s", lang, e)
             continue
@@ -1289,14 +1381,15 @@ async def cron_pulse(get_db, statdata_call, ai_query=None) -> dict:
     return {"updated": n, "ok": n > 0}
 
 
-async def cron_entry(get_db, statdata_call, ai_query=None) -> dict:
+async def cron_entry(get_db, statdata_call, ai_query=None,
+                     echolot_query=None) -> dict:
     """Napi futas: 12 kiadas eloallitasa, szemleje es tarolasa. Sose dob.
 
     Az `ai_query` OPCIONALIS: nelkule a szamok ugyanugy elkeszulnek, csak a
     szoveges szemle marad el. A tablazat a termek, a szemle a raadas — ha a
     modell nem elerheto, az elsotol nem eshetunk el.
     """
-    briefs = await build_area_briefs(statdata_call)
+    briefs = await build_area_briefs(statdata_call, echolot_query=echolot_query)
     if ai_query:
         for lang, b in briefs.items():
             # ── AMI NEM VÁLTOZOTT, AZT NE ÍRJUK ÚJRA ──────────────────

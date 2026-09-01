@@ -11353,7 +11353,7 @@ async def _cron_loop():
                     try:
                         from plugins.area_briefs import cron_pulse as _mp_cron
                         import _statdata_client as _sd
-                        res = await _mp_cron(get_db, _sd._call, ai_query)
+                        res = await _mp_cron(get_db, _sd._call, ai_query, echolot_query)
                         logger.info("Cron %s: %s", r["name"], res)
                     except Exception as e:  # noqa: BLE001
                         logger.error("Cron %s failed: %s", r["name"], e)
@@ -11363,7 +11363,7 @@ async def _cron_loop():
                     try:
                         from plugins.area_briefs import cron_entry as _ab_cron
                         import _statdata_client as _sd
-                        res = await _ab_cron(get_db, _sd._call, ai_query)
+                        res = await _ab_cron(get_db, _sd._call, ai_query, echolot_query)
                         logger.info("Cron area_briefs: %s", res)
                     except Exception as e:  # noqa: BLE001
                         logger.error("Cron area_briefs failed: %s", e)

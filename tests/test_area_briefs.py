@@ -957,11 +957,13 @@ def test_a_pulzus_prompt_TILTJA_a_makro_ismetleset():
     assert "US Non-Farm Payrolls" in pr
 
 
-def test_a_pulzus_ROVID():
-    """Ez helyzetjelentés, nem elemzés. Ami ennél hosszabb, az a
-    makró-szemle dolga."""
-    assert ab.PULSE_MAX_MONDAT <= 10
-    assert ab.PULSE_MAX_KAR <= 2500
+def test_a_pulzus_ROVIDEBB_mint_a_makro_szemle():
+    """Ez helyzetjelentés, nem elemzés — de a hírek megjelenésével bővült:
+    ha okot is mondhat, ahhoz mondat kell. A lényeg a KÜLÖNBSÉG: a pulzus
+    érdemben rövidebb marad a makró-szemlénél, különben a kettő
+    összemosódik, és megint egy szöveg lesz belőle."""
+    assert ab.PULSE_MAX_MONDAT < ab.REVIEW_MAX_MONDAT / 2
+    assert ab.PULSE_MAX_KAR < ab.REVIEW_MAX_KAR / 2
 
 
 def test_harom_jegyzes_alatt_NINCS_pulzus():
@@ -1161,3 +1163,75 @@ def test_a_tarolas_ALLOW_NAN_FALSE_mellett_kodol():
     src = inspect.getsource(ab.store_area_briefs)
     assert "allow_nan=False" in src
     assert "_nan_mentes" in src
+
+
+# ══════════════════════════════════════════════════════════════════════════
+# PIACI HÍREK — a pulzus eddig egyetlen hírt sem kapott
+# ══════════════════════════════════════════════════════════════════════════
+#
+# Kommandant, 2026-09-01: „a streetaccount nevű piaci portál elég sok
+# szigorúan piaci hírt generál … nyilvánvalóan több információ kellene a
+# piaci briefbe."
+#
+# A StreetAccount FactSet-termék, előfizetéses, nincs nyilvános feedje. Ami
+# helyette van: CNBC, Investing.com, Seeking Alpha, Bloomberg HT — mind ott
+# van az Echolot forrásai között, csak a pulzus nem látta őket.
+
+
+def test_a_hirek_bekerulnek_a_tenyekbe():
+    b = _b([_cell("HU", "cpi", 1.6)] * 4)
+    b["market"] = {"global": {"oil_wti": {"price": 86.3, "change_pct": 3.5}},
+                   "home": {}, "calendar": [],
+                   "news": [{"title": "OPEC+ tightens supply guidance",
+                             "source": "CNBC"}]}
+    pr = ab._pulse_prompt(b, "Hungarian")
+    assert "MARKET HEADLINES FROM THE LAST 24 HOURS" in pr
+    assert "OPEC+ tightens supply guidance" in pr
+    assert "[CNBC]" in pr
+
+
+def test_a_HIR_megvaltoztatja_az_ok_szabalyt():
+    """⚠️ A tilalom HELYES VOLT az adott bemenetre — de közben pont azt
+    tiltotta, amiért egy piaci szemlét olvasnak. Hírekkel a szabály
+    megváltozik: okot mondani szabad, de KIZÁRÓLAG olyat, ami a kapott
+    címekben benne van."""
+    b = _b([_cell("HU", "cpi", 1.6)] * 4)
+    b["market"] = {"global": {}, "home": {}, "calendar": [], "news": []}
+    pr = ab._pulse_prompt(b, "Hungarian")
+    assert "THE RULE DEPENDS ON WHAT YOU WERE GIVEN" in pr
+    assert "ONLY one that a headline actually states" in pr
+    assert 'Never write "probably because"' in pr
+
+
+def test_a_hirlekeres_SOSE_dob():
+    async def _robban(**kw):
+        raise RuntimeError("Echolot 503")
+    assert asyncio.run(ab.fetch_piaci_hirek(_robban, "hu")) == []
+    assert asyncio.run(ab.fetch_piaci_hirek(None, "hu")) == []
+
+
+def test_a_hirlekeres_TOBBFELE_valasz_alakot_kezel():
+    """Az `echolot_query` alakja verziónként eltérhet; a lista, az
+    `articles` és az `items` kulcs mind előfordul."""
+    for nyers in ([{"title": "A"}],
+                  {"articles": [{"title": "A"}]},
+                  {"items": [{"headline": "A"}]},
+                  {"results": [{"title": "A"}]}):
+        async def _q(**kw):
+            return nyers
+        assert asyncio.run(ab.fetch_piaci_hirek(_q, "hu"))[0]["title"] == "A"
+
+
+def test_a_reszvenykosarak_MINDEN_kiadasra_megvannak():
+    """Kommandant: „további részvények, részvénycsoportok is kellene."""
+    for lg in ("de", "fr", "it", "es", "pl", "el", "tr", "zh", "en", "hu"):
+        papirok = [k for k, _ in ab.MARKET_HOME[lg] if k.startswith("stocks_")]
+        assert len(papirok) >= 3, f"{lg}: csak {len(papirok)} papir"
+
+
+def test_a_reszvenyekhez_NEM_kerunk_tortenetet():
+    """A távlat értékes, de minden tickerre lekérni MEGDUPLÁZNÁ a hívásokat —
+    és a teljes futás már így is a határon van. Az indexek megkapják."""
+    assert ab._kell_tavlat("index_dax") is True
+    assert ab._kell_tavlat("sp500") is True
+    assert ab._kell_tavlat("stocks_sap") is False
