@@ -1206,8 +1206,8 @@ def test_a_HIR_megvaltoztatja_az_ok_szabalyt():
 def test_a_hirlekeres_SOSE_dob():
     async def _robban(**kw):
         raise RuntimeError("Echolot 503")
-    assert asyncio.run(ab.fetch_piaci_hirek(_robban, "hu")) == []
-    assert asyncio.run(ab.fetch_piaci_hirek(None, "hu")) == []
+    assert asyncio.run(ab.fetch_piaci_hirek(_robban, "hu", {})) == []
+    assert asyncio.run(ab.fetch_piaci_hirek(None, "hu", {})) == []
 
 
 def test_a_hirlekeres_TOBBFELE_valasz_alakot_kezel():
@@ -1219,7 +1219,7 @@ def test_a_hirlekeres_TOBBFELE_valasz_alakot_kezel():
                   {"results": [{"title": "A"}]}):
         async def _q(**kw):
             return nyers
-        assert asyncio.run(ab.fetch_piaci_hirek(_q, "hu"))[0]["title"] == "A"
+        assert asyncio.run(ab.fetch_piaci_hirek(_q, "hu", {}))[0]["title"] == "A"
 
 
 def test_a_reszvenykosarak_MINDEN_kiadasra_megvannak():
@@ -1235,3 +1235,67 @@ def test_a_reszvenyekhez_NEM_kerunk_tortenetet():
     assert ab._kell_tavlat("index_dax") is True
     assert ab._kell_tavlat("sp500") is True
     assert ab._kell_tavlat("stocks_sap") is False
+
+
+# ── A HÍRLEKÉRÉS CÉLZOTT — arról kérdez, ami mozgott ────────────────────
+# ⚠️ MÉRVE 2026-09-01: recency-rendben, `query` nélkül kérve a 06:00 UTC-s
+# lekérés AUSZTRÁL ÉS ÚJ-ZÉLANDI helyi üzleti hírt hozott — magántőkealapok
+# Sydney-ben, kamionbaleset Tasmániában, egy edzőtermi bérlet. Egyetlen sem
+# szólt az olajról, az S&P-ről vagy a hozamokról, és a modell HELYESEN
+# hagyta figyelmen kívül mind a tizenkettőt.
+#
+# Az ok NEM a szféra-választás volt: abban az órában a csendes-óceáni sajtó
+# az aktív, míg Európa és az USA alszik. A RENDEZÉS volt rossz.
+
+def test_a_hirlekeres_a_NAP_MOZGATOIROL_kerdez():
+    m = {"global": {"sp500": {"change_pct": -0.33},
+                    "oil_wti": {"change_pct": 3.49},
+                    "gold": {"change_pct": 0.03}},
+         "home": {"stocks_otp": {"change_pct": -1.65}}}
+    mozgatok = ab._mozgatok(m)
+    assert mozgatok[0] == "oil_wti", "nem a legnagyobb mozgás vezet"
+    assert "gold" not in mozgatok[:2], "a 0,03%-os arany előrébb került"
+
+
+def test_a_HAZAI_piac_elonyt_kap():
+    """Egy magyar olvasónak az OTP esése fontosabb, mint egy azonos mértékű
+    S&P-mozgás."""
+    m = {"global": {"sp500": {"change_pct": -1.5}},
+         "home": {"stocks_otp": {"change_pct": -1.5}}}
+    assert ab._mozgatok(m)[0] == "stocks_otp"
+
+
+def test_a_hirlekeres_MINDEN_mozgatorol_kerdez_kulon():
+    kerdesek = []
+
+    async def _q(**kw):
+        kerdesek.append(kw.get("query"))
+        return {"articles": [{"title": f"cikk-{len(kerdesek)}"}]}
+
+    m = {"global": {"oil_wti": {"change_pct": 3.5}, "sp500": {"change_pct": -1.0}},
+         "home": {}}
+    h = asyncio.run(ab.fetch_piaci_hirek(_q, "hu", m))
+    assert len(kerdesek) >= 2
+    assert any("oil" in (q or "") for q in kerdesek)
+    assert all(x.get("about") for x in h), "nincs megjelölve, miről szól a hír"
+
+
+def test_az_azonos_cim_NEM_ismetlodik():
+    async def _q(**kw):
+        return {"articles": [{"title": "Ugyanaz a cim"}]}
+    m = {"global": {"oil_wti": {"change_pct": 3.5}, "gold": {"change_pct": -2.0}},
+         "home": {}}
+    h = asyncio.run(ab.fetch_piaci_hirek(_q, "hu", m))
+    assert len(h) == 1
+
+
+def test_ures_piac_eseten_is_kerdez_valamit():
+    """Piaci adat nélkül sem maradhat hír nélkül a pulzus."""
+    kerdesek = []
+
+    async def _q(**kw):
+        kerdesek.append(kw.get("query"))
+        return {"articles": []}
+
+    asyncio.run(ab.fetch_piaci_hirek(_q, "hu", {}))
+    assert kerdesek, "üres piacnál egyetlen kérdést sem tett fel"

@@ -288,44 +288,101 @@ async def fetch_tavlat(statdata_call, symbol: str) -> dict | None:
 #: elofizeteses, nincs nyilvanos feedje. Ami helyette van, az a fenti nevsor.
 NEWS_SPHERES = "global_economy,global_business,global_press"
 
+#: Mit KERDEZZUNK egy-egy eszkozrol. A hirlekeres CELZOTT: arrol kerdezunk,
+#: ami TENYLEG MOZGOTT ma — nem a legfrissebb cikkeket kerjuk.
+#:
+#: ⚠️ MIERT (merve 2026-09-01): recency-rendben, `query` nelkul kerve a
+#: 06:00 UTC-s lekeres AUSZTRAL ES UJ-ZELANDI helyi uzleti hirt hozott —
+#: magantokealapok Sydney-ben, kamionbaleset Tasmaniaban, egy edzotermi
+#: berlet. Egyetlen sem szolt az olajrol, az S&P-rol vagy a hozamokrol,
+#: es a modell HELYESEN hagyta figyelmen kivul mind a tizenkettot.
+#: Az ok nem a szfera-valasztas volt: abban az orában a csendes-oceani
+#: sajto az aktiv, mig Europa es az USA alszik. A RENDEZES volt rossz.
+NEWS_QUERY: dict[str, str] = {
+    "sp500": "S&P 500 Wall Street stocks equities",
+    "vix": "volatility VIX risk selloff",
+    "oil_wti": "oil crude OPEC barrel WTI Brent",
+    "gold": "gold bullion precious metal",
+    "eur_usd": "euro dollar ECB currency exchange rate",
+    "us_10y": "Treasury yield bond Federal Reserve rates",
+    "index_bux": "Budapesti Ertektozsde BUX reszveny",
+    "index_dax": "DAX Frankfurt Boerse Aktien",
+    "index_ftse": "FTSE London stocks",
+    "index_cac": "CAC Paris bourse actions",
+    "index_ibex": "IBEX Bolsa Madrid acciones",
+    "index_ftsemib": "Piazza Affari Borsa Milano azioni",
+    "index_wig20": "GPW WIG20 gielda akcje",
+    "index_athex": "Χρηματιστήριο Αθηνών μετοχές",
+    "index_bist": "Borsa Istanbul BIST hisse",
+    "index_sse": "上证 A股 股市",
+    "stocks_otp": "OTP Bank", "stocks_mol": "MOL Nyrt olajtarsasag",
+    "stocks_richter": "Richter Gedeon", "stocks_mtel": "Magyar Telekom",
+    "stocks_sap": "SAP", "stocks_siemens": "Siemens", "stocks_allianz": "Allianz",
+    "stocks_lvmh": "LVMH", "stocks_total": "TotalEnergies", "stocks_sanofi": "Sanofi",
+    "stocks_enel": "Enel", "stocks_eni": "Eni", "stocks_intesa": "Intesa Sanpaolo",
+    "stocks_santander": "Santander", "stocks_iberdrola": "Iberdrola",
+    "stocks_inditex": "Inditex Zara", "stocks_pko": "PKO Bank",
+    "stocks_orlen": "Orlen", "stocks_pzu": "PZU", "stocks_shell": "Shell",
+    "stocks_astrazeneca": "AstraZeneca", "stocks_hsbc": "HSBC",
+}
 
-async def fetch_piaci_hirek(echolot_query, lang: str, limit: int = 12) -> list:
-    """Friss PIACI hirek az Echolot korpuszabol. Sose dob; hibanal ures lista.
 
-    ⚠️ EZ VALTOZTATJA MEG A PULZUS TERMESZETET. Eddig a napi helyzetjelentes
-    KIZAROLAG szamokat latott, ezert a promptban abszolut tilalom allt az ok
-    kimondasara: "never explain WHY a market moved — you have no news here".
-    A tilalom HELYES VOLT az adott bemenetre, de kozben pont azt tiltotta,
-    amiert egy piaci szemlet olvasnak.
-    Hirekkel a szabaly MEGVALTOZIK: okot mondani szabad, de KIZAROLAG olyat,
-    ami a megkapott cimekben BENNE VAN — es a sajat kovetkeztetest nem
-    szabad tenynek allitani.
+def _mozgatok(market: dict, db: int = 5) -> list[str]:
+    """A nap LEGNAGYOBB elmozdulasai — errol kerdezunk hirt.
+
+    A kiadas SAJAT piaca elonyt kap: egy magyar olvasonak az OTP esese
+    fontosabb, mint egy azonos merteku S&P-mozgas.
+    """
+    tetelek = []
+    for suly, resz in ((1.0, (market or {}).get("global") or {}),
+                       (1.4, (market or {}).get("home") or {})):
+        for kulcs, q in resz.items():
+            v = q.get("change_pct")
+            if isinstance(v, (int, float)) and kulcs in NEWS_QUERY:
+                tetelek.append((abs(v) * suly, kulcs))
+    tetelek.sort(reverse=True)
+    return [k for _, k in tetelek[:db]]
+
+
+async def fetch_piaci_hirek(echolot_query, lang: str, market: dict | None = None,
+                            limit: int = 14) -> list:
+    """CELZOTT piaci hirek: arrol, ami ma mozgott. Sose dob.
+
+    ⚠️ A HIR MEGVALTOZTATJA A SZABALYT. Amig a pulzus csak szamokat latott,
+    a promptban abszolut tilalom allt az ok kimondasara — helyesen, mert
+    nem volt mibol. Hirekkel okot mondani SZABAD, de kizarolag olyat, ami
+    egy cimben BENNE VAN.
     """
     if not echolot_query:
         return []
-    try:
-        res = await echolot_query(spheres=NEWS_SPHERES, days=1,
-                                  limit=limit, format="json",
-                                  caller="feldwebel")
-        if isinstance(res, str):
-            res = json.loads(res)
-    except Exception as e:  # noqa: BLE001
-        logger.info("piaci hirek (%s) elbukott: %s", lang, e)
-        return []
-    tetelek = []
-    nyers = res if isinstance(res, list) else (
-        (res or {}).get("articles") or (res or {}).get("items")
-        or (res or {}).get("results") or [])
-    for a in nyers[:limit]:
-        if not isinstance(a, dict):
+    kulcsok = _mozgatok(market or {}) or ["sp500", "oil_wti", "us_10y"]
+    latott, ki = set(), []
+    for kulcs in kulcsok:
+        try:
+            res = await echolot_query(spheres=NEWS_SPHERES,
+                                      query=NEWS_QUERY[kulcs],
+                                      days=2, limit=5, format="json",
+                                      caller="feldwebel")
+            if isinstance(res, str):
+                res = json.loads(res)
+        except Exception as e:  # noqa: BLE001
+            logger.info("piaci hirek (%s/%s) elbukott: %s", lang, kulcs, e)
             continue
-        cim = (a.get("title") or a.get("headline") or "").strip()
-        if not cim:
-            continue
-        tetelek.append({"title": cim[:180],
-                        "source": (a.get("source") or a.get("source_name") or "")[:40],
-                        "lang": a.get("language") or a.get("lang") or ""})
-    return tetelek
+        nyers = res if isinstance(res, list) else (
+            (res or {}).get("articles") or (res or {}).get("items")
+            or (res or {}).get("results") or [])
+        for a in nyers:
+            if not isinstance(a, dict):
+                continue
+            cim = (a.get("title") or a.get("headline") or "").strip()
+            if not cim or cim.lower() in latott:
+                continue
+            latott.add(cim.lower())
+            ki.append({"title": cim[:180], "about": kulcs,
+                       "source": (a.get("source") or a.get("source_name") or "")[:40]})
+            if len(ki) >= limit:
+                return ki
+    return ki
 
 
 async def fetch_naptar(statdata_call) -> list:
@@ -384,7 +441,7 @@ async def fetch_market(statdata_call, lang: str, echolot_query=None) -> dict:
                     q = {**q, **t}
             ki["home"][cimke] = q
     ki["calendar"] = await fetch_naptar(statdata_call)
-    ki["news"] = await fetch_piaci_hirek(echolot_query, lang)
+    ki["news"] = await fetch_piaci_hirek(echolot_query, lang, ki)
     return ki
 
 
@@ -752,7 +809,8 @@ def _piac_tenyek(brief: dict) -> str:
         sorok.append("MARKET HEADLINES FROM THE LAST 24 HOURS:")
         for h in hirek[:12]:
             forr = f" [{h.get('source')}]" if h.get("source") else ""
-            sorok.append(f"  · {h.get('title')}{forr}")
+            tema = f" (about: {h.get('about')})" if h.get("about") else ""
+            sorok.append(f"  · {h.get('title')}{forr}{tema}")
     naptar = (brief.get("market") or {}).get("calendar") or []
     if naptar:
         sorok.append("")
