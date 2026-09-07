@@ -1773,3 +1773,93 @@ def test_a_prompt_verzio_emelkedett():
     verzio-emeles NELKUL nem lep eletbe."""
     from plugins.area_briefs import PULSE_PROMPT_VERSION
     assert PULSE_PROMPT_VERSION >= 6
+
+
+# ═══════════════════════════════════════════════════════════════════════
+# ORZO — egy atmeneti panel-bukas ne nullazza ki a tegnapi jo adatot
+#
+# MERT INCIDENS (2026-09-07): 09-06-ig mind a 12 kiadas hazai blokkja teljes
+# volt (hu=12 mutato), 09-07 04:43-kor MIND kinullazodott. A kod 09-01 ota
+# valtozatlan volt — tehat nem regresszio, hanem ELLENALLASI hiany: a rossz
+# futas felulirta a jot, es a `load_area_brief` mindig a legutolso sort veszi,
+# igy a termek tartosan csonka maradt. Az olvaso csak a kozos horgonyt latta,
+# a hazai tablazat NEMAN kimaradt.
+# ═══════════════════════════════════════════════════════════════════════
+
+def _get_db_gyar(tarolt: dict):
+    """Dublor `get_db`: a `load_area_brief` SQL-jere a tarolt payloadot adja."""
+    class _Cur:
+        def __init__(self, sor):
+            self._sor = sor
+
+        def fetchone(self):
+            return self._sor
+
+    class _Conn:
+        def execute(self, sql, args=()):
+            # ⚠️ A valodi `load_area_brief` NEVVEL indexel (`r["payload"]`),
+            # mert a szerver `sqlite3.Row`-t ad. Elsore tuple-t adtam vissza,
+            # es a teszt a MEROESZKOZ hibajatol bukott — a `load_area_brief`
+            # `except`-je pedig elnyelte, tehat a hiba `None`-kent latszott.
+            lang = args[0] if args else ""
+            d = tarolt.get(lang)
+            if d is None:
+                return _Cur(None)
+            return _Cur({"payload": json.dumps(d), "asof": d.get("asof"),
+                         "created_at": d.get("asof")})
+
+        def close(self):
+            pass
+
+    return lambda: _Conn()
+
+
+def test_orzo_megtartja_a_tegnapi_hazai_blokkot():
+    """A MAI futas ures hazai blokkot ad -> a tegnapi adat OROKLODIK, JELOLVE."""
+    from datetime import datetime, timezone, timedelta
+    tegnap = (datetime.now(timezone.utc) - timedelta(days=1)).isoformat()
+    tarolt = {"hu": {"lang": "hu", "country": "HU", "asof": tegnap,
+                     "home": [_cell("HU", "cpi", 1.6),
+                              _cell("HU", "unemployment", 4.5)],
+                     "anchor": []}}
+    briefs = {"hu": {"lang": "hu", "country": "HU", "home": [],
+                     "anchor": [_cell("EA", "cpi", 2.9)], "gaps": ["cpi"]}}
+    n = ab._orzo(_get_db_gyar(tarolt), briefs)
+    assert n == 1, "a kiadasnak orokolnie kellett volna"
+    assert len(briefs["hu"]["home"]) == 2, "a tegnapi ket mutato visszakerult"
+    assert briefs["hu"]["home_stale"] is True, (
+        "a csendben atvett tegnapi tablazat ugyanaz a hazugsag-osztaly lenne, "
+        "mint az ures — JELOLNI kell")
+    assert briefs["hu"]["home_asof"] == tegnap
+
+
+def test_orzo_nem_nyul_a_jo_futashoz():
+    """Ha a mai futas ADOTT hazai adatot, semmit nem oroklunk."""
+    tarolt = {"hu": {"lang": "hu", "home": [_cell("HU", "cpi", 9.9)],
+                     "asof": "2026-09-06T04:41:03+00:00"}}
+    briefs = {"hu": {"lang": "hu", "country": "HU",
+                     "home": [_cell("HU", "cpi", 1.6)], "anchor": []}}
+    assert ab._orzo(_get_db_gyar(tarolt), briefs) == 0
+    assert briefs["hu"]["home"][0]["value"] == 1.6, "a MAI adat marad"
+    assert "home_stale" not in briefs["hu"]
+
+
+def test_orzo_a_tul_regi_adatot_NEM_orokli():
+    """Inkabb ures, mint eszrevetlenul elavult — a hatarido kimondott."""
+    from datetime import datetime, timezone, timedelta
+    regen = (datetime.now(timezone.utc)
+             - timedelta(days=ab.HOME_MEGTARTAS_NAP + 3)).isoformat()
+    tarolt = {"hu": {"lang": "hu", "home": [_cell("HU", "cpi", 1.6)],
+                     "asof": regen}}
+    briefs = {"hu": {"lang": "hu", "country": "HU", "home": [], "anchor": []}}
+    assert ab._orzo(_get_db_gyar(tarolt), briefs) == 0
+    assert briefs["hu"]["home"] == [], "a tul regi adat NEM kerulhet ki frissként"
+
+
+def test_orzo_a_hazai_ag_nelkuli_kiadast_kihagyja():
+    """`ru`/`uk` szandekosan csak a kozos horgonyt kapja — ott nincs mit menteni."""
+    tarolt = {"ru": {"lang": "ru", "home": [_cell("RU", "cpi", 8.0)],
+                     "asof": "2026-09-06T04:41:03+00:00"}}
+    briefs = {"ru": {"lang": "ru", "country": "", "home": [], "anchor": []}}
+    assert ab._orzo(_get_db_gyar(tarolt), briefs) == 0
+    assert briefs["ru"]["home"] == []

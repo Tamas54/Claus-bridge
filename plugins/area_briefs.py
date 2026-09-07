@@ -36,6 +36,21 @@ from datetime import datetime, timezone
 
 logger = logging.getLogger("bridge.area_briefs")
 
+#: Meddig tartható meg a TEGNAPI hazai blokk, ha a mai futás üresen jön.
+#: ⚠️ MÉRT INCIDENS (2026-09-07): 09-06-ig mind a 12 kiadás hazai blokkja
+#: teljes volt (hu=12 mutató), 09-07 04:43-kor MIND kinullázódott — egyetlen
+#: átmeneti panel-bukás miatt. A kód 09-01 óta változatlan volt, tehát nem
+#: regresszió: a rendszer NEM VOLT ELLENÁLLÓ. A rossz futás felülírta a jót,
+#: és a `load_area_brief` mindig a legutolsó sort veszi, tehát a termék
+#: tartósan csonka maradt, amíg valaki észre nem vette.
+#:
+#: A makró-adat HAVI/NEGYEDÉVES ütemű, és minden cella hordozza a saját
+#: `period`-ját — egy-két nap csúszás az olvasó számára láthatatlan, egy üres
+#: táblázat viszont nagyon is látható. Ezért a tegnapi adat megtartása a
+#: helyes válasz. De NEM korlátlanul: e fölött inkább legyen üres, mint
+#: észrevétlenül elavult.
+HOME_MEGTARTAS_NAP = float(os.environ.get("AREA_HOME_STALE_MAX_DAYS", "7") or 7)
+
 #: nyelv → a kiadás SAJÁT országa. Ahol nincs megbízható hazai forrás, üres:
 #: az a kiadás CSAK a közös horgonyt kapja. A bevallott hiány jobb, mint egy
 #: találati listából szedett szám (mérve 2026-08-31: ru/uk web-keresés vagy
@@ -1854,6 +1869,49 @@ async def cron_pulse(get_db, statdata_call, ai_query=None,
     return {"updated": n, "ok": n > 0}
 
 
+def _orzo(get_db, briefs: dict) -> int:
+    """Ne veszítsük el a tegnapi jó hazai blokkot egy üres futás miatt.
+
+    Visszaadja, hány kiadás ÖRÖKÖLTE a korábbi adatot. A megtartott blokk
+    JELÖLVE van (`home_stale` + `home_asof`), hogy a megjelenítés kimondhassa
+    — egy csendben átvett tegnapi táblázat ugyanaz a hazugság-osztály lenne,
+    mint az üres.
+    """
+    orokolt = 0
+    for lang, uj in briefs.items():
+        if uj.get("home") or not AREA_COUNTRY.get(lang):
+            continue                     # van adat, vagy nincs is hazai ág
+        regi = load_area_brief(get_db, lang)
+        regi_home = (regi or {}).get("home") or []
+        if not regi_home:
+            continue                     # nem volt mit menteni
+        kor_nap = None
+        try:
+            elozo = datetime.fromisoformat(
+                str(regi.get("home_asof") or regi.get("asof") or ""))
+            if elozo.tzinfo is None:
+                elozo = elozo.replace(tzinfo=timezone.utc)
+            kor_nap = (datetime.now(timezone.utc) - elozo).total_seconds() / 86400
+        except (TypeError, ValueError):
+            kor_nap = None
+        if kor_nap is not None and kor_nap > HOME_MEGTARTAS_NAP:
+            logger.error(
+                "area_briefs(%s): a hazai blokk URES, es a tarolt is REGI "
+                "(%.1f nap > %.1f) — NEM oroklunk, inkabb legyen ures",
+                lang, kor_nap, HOME_MEGTARTAS_NAP)
+            continue
+        uj["home"] = regi_home
+        uj["home_stale"] = True
+        uj["home_asof"] = regi.get("home_asof") or regi.get("asof")
+        orokolt += 1
+        logger.error(
+            "area_briefs(%s): a mai panel URES hazai blokkot adott — a "
+            "%s-i adatot ORÖKÖLTUK (%d mutato), `home_stale` jelolessel. "
+            "A PANEL-HIVAST KI KELL VIZSGALNI.",
+            lang, str(uj["home_asof"])[:10], len(regi_home))
+    return orokolt
+
+
 async def cron_entry(get_db, statdata_call, ai_query=None,
                      echolot_query=None) -> dict:
     """Napi futas: 12 kiadas eloallitasa, szemleje es tarolasa. Sose dob.
@@ -1863,6 +1921,9 @@ async def cron_entry(get_db, statdata_call, ai_query=None,
     modell nem elerheto, az elsotol nem eshetunk el.
     """
     briefs = await build_area_briefs(statdata_call, echolot_query=echolot_query)
+    # ⚠️ A TAROLAS ELOTT: egy atmeneti panel-bukas ne nullazza ki a tegnapi
+    # jo adatot. Lasd `_orzo` es `HOME_MEGTARTAS_NAP`.
+    orokolt = _orzo(get_db, briefs)
     if ai_query:
         for lang, b in briefs.items():
             # ── AMI NEM VÁLTOZOTT, AZT NE ÍRJUK ÚJRA ──────────────────
@@ -1915,4 +1976,5 @@ async def cron_entry(get_db, statdata_call, ai_query=None,
                 n, teljes, szemles)
     return {"stored": n, "with_home": teljes, "with_review": szemles,
             "with_pulse": pulzusok, "review_reused": ujrahasznalt,
+            "home_inherited": orokolt,
             "langs": sorted(briefs), "ok": n > 0}

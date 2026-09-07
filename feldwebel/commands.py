@@ -263,13 +263,27 @@ async def _cmd_send_email(args: str, chat_id: str, ctx: BridgeContext):
         f"Elvetéshez írd: /discard"
     )
     # Store draft in DB for /send to pick up
+    # ⛔ EZ AZ ÍRÁS EDDIG SOHA NEM SIKERÜLT (mérve 2026-09-07). A saját
+    # INSERT-je `ON CONFLICT(key)`-t használt, de a `key` oszlopon NEM VOLT
+    # egyedi index — a szolgáltató válasza: „ON CONFLICT clause does not
+    # match any PRIMARY KEY or UNIQUE constraint" —, ráadásul kihagyta a
+    # `created_at` NOT NULL oszlopot. Vagyis a `/email` piszkozata nem
+    # került a DB-be, és a `/send` nem is találhatta meg.
+    # Innentől a közös írási út megy (`server.memoria_ir`), amit a
+    # BridgeContext injektál — nem a Feldwebel saját SQL-je.
     conn = ctx.get_db()
-    conn.execute(
-        "INSERT INTO shared_memory (key, value, category, tags, updated_by, updated_at) "
-        "VALUES ('email_draft', ?, 'feldwebel_state', 'draft', 'feldwebel', ?) "
-        "ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at",
-        (f"{to_addr}|||{body}", datetime.now(timezone.utc).isoformat())
-    )
+    if ctx.memoria_ir is None:
+        # Néma működésképtelenség helyett kimondott hiba.
+        logger.error("/email: nincs bekötve a memoria_ir — a piszkozat NEM "
+                     "menthető; a Bridge indulása hiányos")
+        conn.close()
+        await ctx.telegram_push(
+            "⚠️ A piszkozatot nem tudtam elmenteni (a memória-írás nincs "
+            "bekötve). Szólj, és megnézem.")
+        return
+    ctx.memoria_ir(conn, "email_draft", f"{to_addr}|||{body}",
+                   category="feldwebel_state", tags="draft",
+                   updated_by="feldwebel")
     conn.commit()
     conn.close()
 

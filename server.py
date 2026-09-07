@@ -209,6 +209,20 @@ def init_db():
             updated_at TEXT NOT NULL
         );
 
+        -- ⛔ 2026-09-07: EZ AZ INDEX HIÁNYZOTT, és két hívóhely némán bukott
+        -- rajta. A `key` NOT NULL, de NEM egyedi, index sem volt rajta —
+        -- ezért minden `ON CONFLICT(key) DO UPDATE` így halt el:
+        --   "ON CONFLICT clause does not match any PRIMARY KEY or UNIQUE
+        --    constraint"
+        -- Élesben mérve: az `sf_chat` megtanult token-kerete SOHA nem íródott
+        -- ki (`_sf_budget_remember`), tehát a modell-önszabályozás minden
+        -- újraindításkor elölről kezdte; a `feldwebel/commands.py:270` ág
+        -- ugyanígy. A hiba WARNING-ként ment el, a hívó sikernek látta.
+        -- A táblában 305 sor / 0 duplikált kulcs volt (mérve), tehát az
+        -- egyedi index visszamenőleg is ráhúzható.
+        CREATE UNIQUE INDEX IF NOT EXISTS idx_shared_memory_key
+            ON shared_memory(key);
+
         CREATE VIRTUAL TABLE IF NOT EXISTS memory_fts USING fts5(
             key, value, category, tags,
             content=shared_memory, content_rowid=id
@@ -445,6 +459,44 @@ def _ensure_column(conn, table: str, column: str, decl: str) -> bool:
 
 def now():
     return datetime.now(timezone.utc).isoformat()
+
+
+def memoria_ir(conn, key: str, value: str, *, category: str = "general",
+               tags: str = "", updated_by: str = "unknown") -> None:
+    """A `shared_memory` EGYETLEN írási útja. Upsert, a `key` szerint.
+
+    ⛔ MIÉRT LETT EGY (2026-09-07, Kommandant: „ne legyenek duplikált
+    kódutak"). Négy hívóhely írta ezt a táblát, HÁROM különböző mintával, és
+    a különbségek NEM voltak szándékosak — hibák voltak:
+
+      * `write_memory` és `api_memory_list`: SELECT, majd UPDATE vagy INSERT.
+        Működött, de két lekérdezés, és a kettő közti résben versenyhelyzet.
+      * `resolve_discussion`: VAK INSERT. Ugyanannak a beszélgetésnek a
+        kétszeri lezárása néma duplikátumot hagyott a táblában.
+      * `_sf_budget_remember` és a Feldwebel e-mail-piszkozata: `ON
+        CONFLICT(key)` — ami MŰKÖDÉSKÉPTELEN volt, mert a `key` oszlopon nem
+        volt egyedi index (élesben mérve: „ON CONFLICT clause does not match
+        any PRIMARY KEY or UNIQUE constraint"), ÉS mindkettő kihagyta a
+        `created_at` NOT NULL oszlopot. Két hiba egy utasításban — a második
+        csak az első javítása után látszott.
+
+    Vagyis a tanult token-keret SOHA nem íródott ki, és a Feldwebel
+    e-mail-piszkozata SOHA nem tárolódott. Mindkettő WARNING-ként ment el.
+
+    A `created_at` ütközéskor SZÁNDÉKOSAN nem íródik felül: az a sor
+    keletkezésének ideje. Az FTS-tükör ép marad — az upsert UPDATE-ága az
+    `AFTER UPDATE` triggert lövi, a beszúrás az `AFTER INSERT`-et.
+    """
+    ts = now()
+    conn.execute(
+        "INSERT INTO shared_memory "
+        "(key, value, category, tags, updated_by, created_at, updated_at) "
+        "VALUES (?, ?, ?, ?, ?, ?, ?) "
+        "ON CONFLICT(key) DO UPDATE SET "
+        "value = excluded.value, category = excluded.category, "
+        "tags = excluded.tags, updated_by = excluded.updated_by, "
+        "updated_at = excluded.updated_at",
+        (key, value, category, tags, updated_by, ts, ts))
 
 
 # ============================================================
@@ -734,20 +786,8 @@ async def write_memory(key: str, value: str, category: str = "general",
     if denied:
         return denied
     conn = get_db()
-    ts = now()
-    existing = conn.execute("SELECT id FROM shared_memory WHERE key = ?", (key,)).fetchone()
-
-    if existing:
-        conn.execute(
-            "UPDATE shared_memory SET value=?, category=?, tags=?, updated_by=?, updated_at=? WHERE key=?",
-            (value, category, tags, instance, ts, key)
-        )
-    else:
-        conn.execute(
-            "INSERT INTO shared_memory (key, value, category, tags, updated_by, created_at, updated_at) "
-            "VALUES (?, ?, ?, ?, ?, ?, ?)",
-            (key, value, category, tags, instance, ts, ts)
-        )
+    memoria_ir(conn, key, value, category=category, tags=tags,
+               updated_by=instance)
     conn.commit()
     conn.close()
     return json.dumps({"status": "saved", "key": key})
@@ -1044,11 +1084,12 @@ async def resolve_discussion(discussion_id: int, resolution: str, instance: str 
 
     # Auto-save decision to shared memory
     key = f"decision_{discussion_id}_{disc['topic'][:50].replace(' ', '_').lower()}"
-    conn.execute(
-        "INSERT INTO shared_memory (key, value, category, tags, updated_by, created_at, updated_at) "
-        "VALUES (?, ?, 'decision', ?, ?, ?, ?)",
-        (key, resolution, f"discussion_{discussion_id}", instance, ts, ts)
-    )
+    # ⚠️ EDDIG VAK INSERT VOLT: ugyanannak a beszélgetésnek a kétszeri
+    # lezárása néma duplikátumot hagyott. A `key` oszlopon 2026-09-07 óta
+    # egyedi index van, tehát a vak beszúrás mostantól kivételt is dobna —
+    # az upsert mindkettőt megoldja.
+    memoria_ir(conn, key, resolution, category="decision",
+               tags=f"discussion_{discussion_id}", updated_by=instance)
     conn.commit()
     conn.close()
     return json.dumps({"status": "resolved", "discussion_id": discussion_id, "memory_key": key})
@@ -1875,20 +1916,11 @@ async def api_memory_list(request):
     conn = get_db()
     if request.method == "POST":
         body = await request.json()
-        ts = now()
         key = body["key"]
-        existing = conn.execute("SELECT id FROM shared_memory WHERE key = ?", (key,)).fetchone()
-        if existing:
-            conn.execute(
-                "UPDATE shared_memory SET value=?, category=?, tags=?, updated_by=?, updated_at=? WHERE key=?",
-                (body["value"], body.get("category", "general"), body.get("tags", ""), body.get("instance", "kommandant"), ts, key)
-            )
-        else:
-            conn.execute(
-                "INSERT INTO shared_memory (key, value, category, tags, updated_by, created_at, updated_at) "
-                "VALUES (?, ?, ?, ?, ?, ?, ?)",
-                (key, body["value"], body.get("category", "general"), body.get("tags", ""), body.get("instance", "kommandant"), ts, ts)
-            )
+        memoria_ir(conn, key, body["value"],
+                   category=body.get("category", "general"),
+                   tags=body.get("tags", ""),
+                   updated_by=body.get("instance", "kommandant"))
         conn.commit()
         conn.close()
         return JSONResponse({"status": "saved", "key": key})
@@ -7460,13 +7492,8 @@ def _sf_budget_remember(model_id: str, value: int) -> None:
             return
         _SF_LEARNED_BUDGET[model_id] = value
         conn = get_db()
-        conn.execute(
-            "INSERT INTO shared_memory (key, value, category, updated_by, updated_at) "
-            "VALUES (?, ?, 'system', 'sf_chat', ?) "
-            "ON CONFLICT(key) DO UPDATE SET value = excluded.value, "
-            "updated_at = excluded.updated_at",
-            (_SF_BUDGET_KEY, json.dumps(_SF_LEARNED_BUDGET),
-             datetime.now(timezone.utc).isoformat()))
+        memoria_ir(conn, _SF_BUDGET_KEY, json.dumps(_SF_LEARNED_BUDGET),
+                   category="system", updated_by="sf_chat")
         conn.commit()
         conn.close()
         logger.info("sf_chat: megtanult keret rögzítve — %s = %d", model_id, value)
@@ -11028,6 +11055,7 @@ if FELDWEBEL_ENABLED:
         telegram_push=_telegram_push,
         get_inbox_summary=_get_inbox_summary,
         get_db=get_db,
+        memoria_ir=memoria_ir,
         capture_state=_capture_state,
         siliconflow_api_key=SILICONFLOW_API_KEY,
         siliconflow_base_url=SILICONFLOW_BASE_URL,

@@ -35,6 +35,13 @@ class BridgeContext:
     telegram_push: Callable[[str], Awaitable[None]] = None
     get_inbox_summary: Callable[[int], str] = None
     get_db: Callable[[], sqlite3.Connection] = field(default_factory=lambda: get_db)
+    #: A `shared_memory` EGYETLEN írási útja (`server.memoria_ir`). Azért itt
+    #: van, és nem a Feldwebel saját SQL-jében: 2026-09-07-én mérve a
+    #: `commands.py` e-mail-piszkozata SOHA nem tárolódott — a saját INSERT-je
+    #: `ON CONFLICT(key)`-t használt egyedi index NÉLKÜL, és kihagyta a
+    #: `created_at` NOT NULL oszlopot. Ugyanaz a két hiba, mint a szerver
+    #: oldalán; ezért lett belőle EGY gazda.
+    memoria_ir: Optional[Callable] = None
     capture_state: dict = field(default_factory=dict)
 
     # SiliconFlow config
