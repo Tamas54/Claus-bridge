@@ -227,3 +227,29 @@ def test_note_quota_and_spacing():
     assert _last_note_within_days(get_db, "frau_lupe") is True
     c = _counts(get_db, "frau_lupe")
     assert c["notes_today"] == 1 and c["publishes_today"] == 1
+
+
+def test_parse_essay_output_sor_kozepi_vegso_fejlec():
+    """⛔ 2026-09-11, élesben publikált hiba (add41439c459): a gondolkodásban
+    sor eleji vázlat-cím + `---`, a VÉGSŐ fejléc sor közepén („Kész.CÍM:"). A
+    régi feldolgozó a vázlatnál vágott → a gondolkodás a publikált törzsbe
+    került."""
+    from plugins.agora_duty import parse_essay_output
+    raw = ("CÍM: Vázlat-cím\n---\n[szöveg]\n\nNem használok tiltott szavakat. "
+           "Jó.\n\nMég egy ellenőrzés: … Jó.\n\nKész.CÍM: A végső cím\n"
+           "JEGYZET: A jegyzet mondata.\n---\n\nAz esszé első bekezdése.\n\n"
+           "A második bekezdés.")
+    title, note, body = parse_essay_output(raw)
+    assert title == "A végső cím"
+    assert note == "A jegyzet mondata."
+    assert body == "Az esszé első bekezdése.\n\nA második bekezdés."
+    assert "Nem használok" not in body and "CÍM" not in body
+
+
+def test_parse_essay_output_prozai_cim_szo_nem_vag():
+    from plugins.agora_duty import parse_essay_output
+    raw = ("CÍM: Rendes cím\nJEGYZET: Jegyzet.\n---\nA könyv cím: nem fejléc, "
+           "hanem próza. Ez marad.")
+    title, note, body = parse_essay_output(raw)
+    assert title == "Rendes cím"
+    assert body.startswith("A könyv cím: nem fejléc")

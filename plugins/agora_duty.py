@@ -1392,6 +1392,8 @@ _ESSAY_TITLE_RE = re.compile(r"(?im)^\s*[#*]*\s*(?:CÍM|CIM|TITLE)\s*[*]*\s*:\s*
 _ESSAY_NOTE_RE = re.compile(
     r"(?is)^\s*[#*]*\s*(?:JEGYZET|NOTE)\s*[*]*\s*:\s*(.+?)(?:\n\s*-{3,}|\Z)", re.MULTILINE)
 _ESSAY_TITLE_LINE = re.compile(r"(?i)^[#*]*\s*(?:CÍM|CIM|TITLE)\s*[*]*\s*:")
+#: sor KÖZEPÉN álló végső fejléc („…Kész.CÍM: …") — csak nagybetűs alak
+_ESSAY_TITLE_MIDLINE_RE = re.compile(r"(?<![A-Za-zÁ-ű])((?:CÍM|CIM|TITLE)\s*[*]*\s*:)")
 _ESSAY_NOTE_LINE = re.compile(r"(?i)^[#*]*\s*(?:JEGYZET|NOTE)\s*[*]*\s*:")
 _ESSAY_SEP_LINE = re.compile(r"^-{3,}$")
 _ESSAY_PREAMBLE_LINE = re.compile(r"(?i)^\*{0,2}\s*(?:az\s+essz[ée]|the\s+essay)\s*\*{0,2}\s*:?\s*$")
@@ -1436,8 +1438,15 @@ def parse_essay_output(raw: str, fallback_title: str = "Agora-esszé") -> tuple[
     raw = raw or ""
     # reasoning-dump / duplázott fejléc ellen: a modell VÉGSŐ válasza az UTOLSÓ
     # CÍM-fejléctől kezdődik (GLM néha elé ömleszti a gondolkodását + fél-drafteket)
-    hdrs = list(_ESSAY_TITLE_RE.finditer(raw))
-    work = raw[hdrs[-1].start():] if hdrs else raw
+    # ⛔ 2026-09-11 (élesben publikált hiba, add41439c459): a végső fejléc SOR
+    # KÖZEPÉN kezdődött („…Kész.CÍM: …"), a gondolkodásban pedig volt egy
+    # sor eleji vázlat-cím és egy `---`. A csak-sor-eleji keresés a VÁZLATNÁL
+    # vágott, és a gondolkodás maradéka a publikált törzsbe került. Az utolsó
+    # fejlécet ezért a sor közepén is keressük — ott csak NAGYBETŰS alakban
+    # (a formátum így írja elő), hogy a prózában álló „cím:" ne vágjon.
+    starts = [m.start() for m in _ESSAY_TITLE_RE.finditer(raw)]
+    starts += [m.start(1) for m in _ESSAY_TITLE_MIDLINE_RE.finditer(raw)]
+    work = raw[max(starts):] if starts else raw
     title, note = "", ""
     m = _ESSAY_TITLE_RE.search(work)
     if m:
