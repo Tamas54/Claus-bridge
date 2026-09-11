@@ -393,8 +393,15 @@ async def agora_action(action: str, operator_key: str = "", title: str = "", bod
 # A story-markdown determinisztikus mezőket ad: Nyelvek, Hírrégió, Domináns
 # keret, Források, Időszak — erre épül a NYELVI KAPU (hu/en).
 # ---------------------------------------------------------------------------
-async def get_top_story_links(limit: int = 12) -> list[dict]:
+async def get_top_story_links(limit: int = 12, lang: str = "hu") -> list[dict]:
     """A főoldal top-story linkjei sorrendben: [{story_id, slug, url}].
+
+    ⚠️ 2026-09-11: az Echolot nyelvi FALLBACKJE ANGOL lett (Kommandant: „a
+    fallback sose lehet magyar"). A nyelv nélküli `/` eddig a `/hu/`-ra ment —
+    mostantól az `/en/`-re, és a magyar Agora-sorszolgálat az ANGOL kiadás
+    topsztorijait kapná. A Bridge magyar termékei ezért KIFEJEZETTEN kérik a
+    nyelvet (`Accept-Language`), amit az Echolot middleware-je illesztésnek
+    vesz — ugyanúgy működik a régi és az új Echolot-tal is.
 
     A főoldal render nehéz lehet (SSR) — hosszabb timeout + 1 retry.
     """
@@ -413,7 +420,8 @@ async def get_top_story_links(limit: int = 12) -> list[dict]:
             # tesz a láncba — a httpx alap max_redirects=20, tehát elbírja.
             async with httpx.AsyncClient(timeout=max(TIMEOUT, 30.0),
                                          follow_redirects=True) as client:
-                resp = await client.get(f"{ECHOLOT_URL}/", headers={"Accept": "text/html"})
+                resp = await client.get(f"{ECHOLOT_URL}/", headers={
+                    "Accept": "text/html", "Accept-Language": lang or "hu"})
             break
         except (httpx.TransportError, httpx.TimeoutException) as e:
             last_err = e
@@ -439,7 +447,8 @@ async def get_top_story_links(limit: int = 12) -> list[dict]:
     return out
 
 
-async def get_story_markdown(story_id: str, slug: str = "story") -> dict:
+async def get_story_markdown(story_id: str, slug: str = "story",
+                             lang: str = "hu") -> dict:
     """Egy story markdown-nézete + parse-olt metaadatok.
 
     Returns: {story_id, title, markdown, languages: [..], sphere, frame,
@@ -452,8 +461,12 @@ async def get_story_markdown(story_id: str, slug: str = "story") -> dict:
     for attempt in (1, 2):
         try:
             async with httpx.AsyncClient(timeout=max(TIMEOUT, 30.0), follow_redirects=True) as client:
+                # a lenti címke-regexek (**Nyelvek**, **Hírrégió** …) a MAGYAR
+                # markdownra épülnek — a nyelvet ezért kifejezetten kérjük
+                # (az Echolot fallbackje 2026-09-11 óta angol, lásd fent)
                 resp = await client.get(f"{ECHOLOT_URL}/story/{story_id}/{slug}",
-                                        headers={"Accept": "text/markdown"})
+                                        headers={"Accept": "text/markdown",
+                                                 "Accept-Language": lang or "hu"})
             break
         except (httpx.TransportError, httpx.TimeoutException) as e:
             if attempt == 2:

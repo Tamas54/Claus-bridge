@@ -108,7 +108,11 @@ class _FakeAsyncClient:
             return _FakeResponse(status, body, headers)
         raise httpx.TooManyRedirects("too many redirects")
 
+    #: minden GET fejlécei — a nyelv-kérés szögének (2026-09-11)
+    hdrs: list = []
+
     async def get(self, url, params=None, headers=None):
+        type(self).hdrs.append(dict(headers or {}))
         return self._resolve(url)
 
     async def post(self, url, json=None, headers=None):
@@ -119,6 +123,7 @@ class _FakeAsyncClient:
 def _wire(monkeypatch):
     """Minden teszt saját, tiszta fake-kliensen és ECHOLOT_URL-en fut."""
     _FakeAsyncClient.inits = []
+    _FakeAsyncClient.hdrs = []
     _FakeAsyncClient.ignore_follow = False
     ec._inflight.clear()          # a request-coalescing ne szivárogjon át
     monkeypatch.setattr(ec, "ECHOLOT_URL", BASE)
@@ -241,3 +246,23 @@ def test_a_4xx_uzenet_valtozatlan():
         assert "HTTP 503" in str(exc.value)
     finally:
         _ROUTES.pop("/api/search", None)
+
+
+# ---------------------------------------------------------------------------
+# 3) A MAGYAR TERMÉK KIFEJEZETTEN KÉRI A NYELVET  (2026-09-11)
+# ---------------------------------------------------------------------------
+def test_a_magyar_nyelvet_kifejezetten_keri():
+    """Az Echolot fallbackje 2026-09-11 óta ANGOL: a nyelv nélküli `/` az
+    `/en/`-re megy. A Bridge magyar termékei (Agora-sorszolgálat, story-
+    markdown címke-parse) ezért `Accept-Language: hu`-t küldenek — ha valaki
+    kiveszi, ez a teszt bukik, és nem a briefek váltanak némán angolra."""
+    asyncio.run(ec.get_top_story_links(limit=2))
+    asyncio.run(ec.get_story_markdown("aaa111", "elso-sztori-slug"))
+    assert len(_FakeAsyncClient.hdrs) == 2
+    assert all(h.get("Accept-Language") == "hu" for h in _FakeAsyncClient.hdrs), \
+        _FakeAsyncClient.hdrs
+
+
+def test_mas_nyelv_is_kerheto():
+    asyncio.run(ec.get_top_story_links(limit=2, lang="en"))
+    assert _FakeAsyncClient.hdrs[-1].get("Accept-Language") == "en"
