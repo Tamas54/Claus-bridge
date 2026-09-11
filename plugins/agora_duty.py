@@ -1452,9 +1452,20 @@ def parse_essay_output(raw: str, fallback_title: str = "Agora-esszé") -> tuple[
     return truncate_sentence(title, 120), note, body
 
 
-async def run_agora_essay(deps: dict, agent_key: str, dry_run: bool = False) -> dict:
+async def run_agora_essay(deps: dict, agent_key: str, dry_run: bool = False,
+                          story_id: str = "") -> dict:
+    """Egy agent Agora-esszéje.
+
+    `story_id` (Kommandant 2026-09-11: „írjunk egy próbapublit … erről a
+    hírről"): KIJELÖLT téma — a 20 legerősebb sztori helyett CSAK ez az egy a
+    jelölt, az agent a saját beatje szemszögéből írja meg. A kvóták (napi
+    publikálás, egy esszé/nap) és a tartalmi szűrő VÁLTOZATLANUL élnek.
+    """
     get_db = deps["get_db"]
     report: dict = {"agent": agent_key, "dry_run": dry_run, "ts": _utc_iso()}
+    story_id = re.sub(r"[^a-z0-9]", "", (story_id or "").lower())[:32]
+    if story_id:
+        report["story_id"] = story_id
     if agent_key not in AGORA_AGENTS:
         report["status"] = f"unknown agent: {agent_key}"
         return report
@@ -1482,7 +1493,8 @@ async def run_agora_essay(deps: dict, agent_key: str, dry_run: bool = False) -> 
         return _exit("error: nincs operátor-kulcs", kind="error")
 
     try:
-        stories = await collect_stories(limit=20)
+        stories = (await collect_stories(story_url=f"/story/{story_id}")
+                   if story_id else await collect_stories(limit=20))
     except Exception as e:  # noqa: BLE001
         logger.exception("agora_essay(%s): collect_stories failed", agent_key)
         return _exit(f"collect_stories_failed: {e}", kind="error")
@@ -1490,7 +1502,9 @@ async def run_agora_essay(deps: dict, agent_key: str, dry_run: bool = False) -> 
     for s in candidates:
         s["_lang"] = story_lang(s)
     if not candidates:
-        return _exit("no hu/en stories")
+        return _exit(f"a kijelölt story ({story_id}) nem érhető el, vagy nem "
+                     "hu/en" if story_id else "no hu/en stories",
+                     story_id=story_id)
 
     # A hét legerősebb beat-clustere — az agent saját modellje választ
     listing = "\n".join(
@@ -1500,8 +1514,11 @@ async def run_agora_essay(deps: dict, agent_key: str, dry_run: bool = False) -> 
     )
     sel_user = (
         f"A beated: {a['beat']} ({a['beat_match_desc']}).\n\nFRISS STORY-K:\n{listing}\n\n"
-        "Válaszd ki a beatedbe eső LEGERŐSEBB témát (1-3 összetartozó story), amiről "
-        "heti esszét érdemes írni. Ha SEMMI nem éri el a mércét, adj üres listát.\n"
+        + ("A TÉMA KIJELÖLT: ezt az egy story-t dolgozd fel a beated "
+           "szemszögéből — válaszd ki, és adj hozzá fókuszt.\n"
+           if story_id else
+           "Válaszd ki a beatedbe eső LEGERŐSEBB témát (1-3 összetartozó story), amiről "
+           "heti esszét érdemes írni. Ha SEMMI nem éri el a mércét, adj üres listát.\n") +
         'VÁLASZ (csak JSON): {"story_ids": ["..."], "angle": "az esszé fókusza 1 mondatban", '
         '"query": "2-4 szavas keresőkifejezés", "lang": "hu|en"}'
     )
@@ -1791,15 +1808,20 @@ def register_tools(app, deps):
         return json.dumps(rep, ensure_ascii=False)
 
     @app.tool()
-    async def agora_essay_run(agent: str, dry_run: bool = True, caller: str = "") -> str:
+    async def agora_essay_run(agent: str, dry_run: bool = True, caller: str = "",
+                              story_id: str = "") -> str:
         """Heti Agora-esszé futtatása kézzel egy agentnek.
 
         Args:
             agent: 'von_takt' | 'der_kartograph' | 'frau_lupe'
             dry_run: True (default) = esszé-draft publish NÉLKÜL. False = éles.
             caller: ki indította (napló).
+            story_id: opcionális — KIJELÖLT Echolot-story (pl. 'a1ae4e1b9fb1b');
+                üresen az agent a nap legerősebb sztorijai közül választ. A
+                kvóták és a tartalmi szűrő ugyanúgy élnek.
         """
-        rep = await run_agora_essay(deps, agent, dry_run=dry_run)
+        rep = await run_agora_essay(deps, agent, dry_run=dry_run,
+                                    story_id=story_id)
         return json.dumps(rep, ensure_ascii=False)
 
     @app.tool()
