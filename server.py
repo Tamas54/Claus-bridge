@@ -5953,7 +5953,11 @@ async def _searxng_search(query: str, limit: int = 5,
             r = await client.get(
                 f"{SEARXNG_URL}/search",
                 params={"q": query, "format": "json"},
-                headers={"User-Agent": "claus-bridge/1.0", "Accept": "application/json"},
+                headers={"User-Agent": "claus-bridge/1.0", "Accept": "application/json",
+                         # 2026-09-15: the SearXNG access key (fork echolot_guard.py);
+                         # empty -> no header, the keyless instance behaves as before
+                         **({"X-Echolot-Key": os.environ["SEARXNG_ACCESS_KEY"].strip()}
+                            if (os.environ.get("SEARXNG_ACCESS_KEY") or "").strip() else {})},
             )
         if r.status_code != 200:
             logger.warning("SearXNG status %d for %r: %s",
