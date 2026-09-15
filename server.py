@@ -5939,6 +5939,15 @@ async def _brave_search(query: str, api_key: str) -> list:
         return []
 
 
+def _searxng_auth_headers() -> dict:
+    """The SearXNG access key (fork echolot_guard.py, 2026-09-15): sent by EVERY
+    SearXNG call — the search tier AND debug_web_search. Two call sites with two
+    header sets is how the diagnostic started to report 403 while the real search
+    worked. Read at call time; empty -> no header."""
+    k = (os.environ.get("SEARXNG_ACCESS_KEY") or "").strip()
+    return {"X-Echolot-Key": k} if k else {}
+
+
 async def _searxng_search(query: str, limit: int = 5,
                           timeout: float = 20.0) -> list:
     """Self-hosted SearXNG JSON API. Returns [{title, url, snippet}], possibly empty.
@@ -5954,10 +5963,7 @@ async def _searxng_search(query: str, limit: int = 5,
                 f"{SEARXNG_URL}/search",
                 params={"q": query, "format": "json"},
                 headers={"User-Agent": "claus-bridge/1.0", "Accept": "application/json",
-                         # 2026-09-15: the SearXNG access key (fork echolot_guard.py);
-                         # empty -> no header, the keyless instance behaves as before
-                         **({"X-Echolot-Key": os.environ["SEARXNG_ACCESS_KEY"].strip()}
-                            if (os.environ.get("SEARXNG_ACCESS_KEY") or "").strip() else {})},
+                         **_searxng_auth_headers()},
             )
         if r.status_code != 200:
             logger.warning("SearXNG status %d for %r: %s",
@@ -6867,7 +6873,8 @@ async def debug_web_search(query: str, caller: str = "") -> str:
                 r = await client.get(
                     f"{SEARXNG_URL}/search",
                     params={"q": query, "format": "json"},
-                    headers={"User-Agent": "claus-bridge/1.0", "Accept": "application/json"},
+                    headers={"User-Agent": "claus-bridge/1.0", "Accept": "application/json",
+                             **_searxng_auth_headers()},
                 )
             sx = {"attempted": True, "url": SEARXNG_URL, "status": r.status_code,
                   "elapsed_ms": int((time.time() - t_sx) * 1000)}
