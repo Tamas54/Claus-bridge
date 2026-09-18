@@ -333,6 +333,59 @@ async def mcp_call(tool: str, arguments: dict[str, Any], timeout: float | None =
     raise EcholotError(f"MCP transport error: {last_err}")
 
 
+#: A katalógus nem változik percenként; egy folyamat-élettartamon belül
+#: elég egyszer lekérni. (0 = nincs gyorsítótár, a teszt így hívja.)
+_MCP_LIST_TTL_S = float(os.getenv("ECHOLOT_MCP_LIST_TTL", "900").strip() or "900")
+_mcp_list_cache: tuple[float, list[tuple[str, str]]] | None = None
+
+
+async def mcp_list_tools(timeout: float | None = None) -> list[tuple[str, str]]:
+    """Echolot MCP tools/list → [(név, EGYSOROS leírás), …].
+
+    MIÉRT ÉLŐBŐL: a Bridge saját `echolot_query` leírásába kézzel volt
+    beírva, hogy „315 forrás / 63 sphere". Mérve 2026-09-18: a valóság
+    5592 forrás és 122 szféra, és a sub-agent szó szerint visszamondta a
+    hamis számot. Egy kézzel karbantartott katalógus előbb-utóbb HAZUDIK;
+    ez a lista a szervertől jön, tehát nem tud elavulni.
+
+    A leírásból csak az ELSŐ MONDAT megy tovább: az al-ügynök rendszer-
+    promptjában egy 53 × 2 kB-os katalógus önmagában drágább volna, mint
+    az egész haszon.
+    """
+    global _mcp_list_cache
+    if _mcp_list_cache and _MCP_LIST_TTL_S > 0:
+        kor = time.time() - _mcp_list_cache[0]
+        if kor < _MCP_LIST_TTL_S:
+            return _mcp_list_cache[1]
+    if not ECHOLOT_URL:
+        raise EcholotError("ECHOLOT_URL env var not set")
+    payload = {"jsonrpc": "2.0", "id": 1, "method": "tools/list", "params": {}}
+    headers = {"Content-Type": "application/json",
+               "Accept": "application/json, text/event-stream"}
+    async with httpx.AsyncClient(timeout=timeout or MCP_TIMEOUT) as client:
+        resp = await client.post(f"{ECHOLOT_URL}/mcp", json=payload,
+                                 headers=headers)
+    _raise_on_redirect(resp, "MCP list")
+    if resp.status_code >= 400:
+        raise EcholotError(f"MCP list HTTP {resp.status_code}: "
+                           f"{_mask_keys(resp.text[:300])}")
+    data = resp.json()
+    if "error" in data:
+        raise EcholotError(f"MCP list error: {_mask_keys(str(data['error'])[:300])}")
+    ki: list[tuple[str, str]] = []
+    for t in ((data.get("result") or {}).get("tools") or []):
+        nev = str(t.get("name") or "").strip()
+        if not nev:
+            continue
+        leiras = " ".join(str(t.get("description") or "").split())
+        # az első mondat; ha nincs pont, az első ~160 karakter
+        vag = leiras.find(". ")
+        egysor = leiras[:vag + 1] if 0 < vag < 220 else leiras[:160]
+        ki.append((nev, egysor.strip()))
+    _mcp_list_cache = (time.time(), ki)
+    return ki
+
+
 async def register_operator(display_name: str, contact: str, type_: str = "individual") -> dict:
     """POST /operators/register → {ok, operator_key} (a kulcs EGYSZER látszik).
 

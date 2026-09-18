@@ -4740,7 +4740,92 @@ STATDATA_MNB_RATES_TOOL_DEF = {
 
 # Tools sub-agents (Kimi/DeepSeek-V4/GLM5) get during multi-round research.
 # StatData tools only exposed when the integration is configured (STATDATA_URL set).
-SUBAGENT_TOOL_DEFS = [WEB_SEARCH_TOOL_DEF, ECHOLOT_QUERY_TOOL_DEF, WEB_FETCH_TOOL_DEF]
+# ── ECHOLOT MCP PROXY ───────────────────────────────────────────────────
+# Kommandant (2026-09-18): „A jövendő usereinknek egy működő mcp-t ajánlunk.
+# Nomarmost a Bridge agentjeinek is kell tudni használni mcp-n keresztül."
+#
+# Eddig az al-ügynök (DeepSeek, Kimi, GLM) az Echolot 53 eszközéből EGYET
+# látott, az `echolot_query`-t — és az is REST-en ment, cím+lead szinten.
+# Mérve 2026-09-18: a DeepSeek szó szerint azt válaszolta, hogy egyetlen
+# Echolot-eszköze van. A vezeték viszont RÉGÓTA megvan
+# (`_echolot_client.mcp_call`), csak az al-ügynökök nem érték el.
+#
+# ⛔ ALAPÉRTELMEZÉS A TILTÁS („Alles was nicht erlaubt ist, ist verboten",
+# `siabot_profile`). Egy önállóan futó al-ügynök NEM publikálhat, nem
+# küldhet levelet és nem törölhet. Ezért nem a teljes eszközlista megy át,
+# hanem ez a KÉZZEL ellenőrzött OLVASÓ lista.
+#
+# ⚠️ A listát NEM heurisztikával állítottam össze: a docstring- és
+# törzs-alapú „ír-e?" vizsgálat MEGBUKOTT — a `press_pub_delete`-et tiszta
+# olvasónak mondta, mert a törlés egy importált `delete_template`-ben
+# történik. A heurisztika jel, nem ítélet.
+ECHOLOT_MCP_READ_TOOLS = frozenset({
+    # sajtó és korpusz
+    "search_news", "get_news", "search_corpus", "get_spheres", "get_sources",
+    "source_profile", "article_revisions", "analyze", "press_review",
+    # trendek (a `get_trending` source= ágán a Reddit/X kulcsszótrend is)
+    "get_trending", "get_trending_dashboard", "external_trends",
+    "trend_dossier", "attention_gap",
+    # entitások
+    "entity_search", "entity_portrait", "entity_network", "entity_trend",
+    "entity_new_edges", "top_entities",
+    # narratíva
+    "narrative_divergence", "narrative_passport", "frame_divergence",
+    "regional_framing", "get_story_intelligence", "trace",
+    # kiadások
+    "get_daily_edition", "get_weekly_digest",
+    # videó
+    "youtube_transcript", "youtube_frames",
+    # egyéb olvasó
+    "platform_doctrine", "weather_context", "echolot_health",
+    "echolot_velocity", "periskop_profiles", "press_pub_list",
+    "press_pub_get", "search_social",
+})
+
+ECHOLOT_MCP_TOOL_DEF = {
+    "type": "function",
+    "function": {
+        "name": "echolot",
+        "description": (
+            "Az Echolot SAJÁT MCP-felülete — ugyanaz, amit a külső kliensek "
+            "kapnak. Ezzel jutsz túl a címlistán: teljes szövegű sajtókeresés "
+            "(`search_news`), a mi YouTube-leirat és Reddit korpuszunk "
+            "(`search_corpus`), emelkedő kulcsszavak a sajtóban ÉS a Redditen/X-en "
+            "(`get_trending`, source=\"reddit\"|\"x\"|\"yt_transcripts\"), "
+            "entitás-portré és kapcsolati háló, sztori-eredet, sajtószemle, "
+            "narratíva-eltérés.\n"
+            "HASZNÁLAT — két lépés, mindkettő olcsó:\n"
+            "  echolot(tool=\"__list__\")            → az ÉLŐ katalógus: minden "
+            "elérhető eszköz neve + egy sor róla.\n"
+            "  echolot(tool=\"<név>\", args={...})   → lefuttatja, a tool JSON-ját adja.\n"
+            "Az `echolot_query` marad a gyors cím-pásztázás; EZ minden más. "
+            "Csak OLVASÓ eszközök érhetők el — közzétenni, levelet küldeni és "
+            "törölni innen nem lehet."
+        ),
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "tool": {
+                    "type": "string",
+                    "description": ("Az Echolot-eszköz neve, vagy \"__list__\" "
+                                    "az élő katalógusért."),
+                },
+                "args": {
+                    "type": "object",
+                    "description": "Az eszköz argumentumai (JSON objektum).",
+                },
+            },
+            "required": ["tool"],
+        },
+    },
+}
+
+# A proxy FELTETEL NELKUL a listan van, az `echolot_query` mintajara: az
+# `ECHOLOT_ENABLED` import-idoben dolne el, tehat egy kesobb beallitott
+# ECHOLOT_URL mellett a tool sosem jelenne meg. A hianyzo integraciot a
+# vegrehajtas mondja meg, tiszta hibaval.
+SUBAGENT_TOOL_DEFS = [WEB_SEARCH_TOOL_DEF, ECHOLOT_QUERY_TOOL_DEF,
+                      ECHOLOT_MCP_TOOL_DEF, WEB_FETCH_TOOL_DEF]
 if BRAVE_MCP_ENABLED:
     SUBAGENT_TOOL_DEFS.append(WEB_SCRAPE_TOOL_DEF)
     # brave-mcp-server passthrough tools — anti-bot-resistant SPA / session ops.
@@ -4774,6 +4859,14 @@ _SUBAGENT_TOOLS_DIRECTIVE_BASE = (
     "Tipikus profilja: 'gyors mai/friss kép X témáról' vagy 'hogy keretezi különböző "
     "sphere ugyanazt'. Lookback 1-21 nap. Egy hívás = egy filter — eltérő sphere-csoportokra "
     "külön hívhatod.\n"
+    "- **`echolot`** — az Echolot SAJÁT MCP-felülete, a teljes olvasó "
+    "eszközkészlet: teljes szövegű sajtókeresés (`search_news`), a mi "
+    "YouTube-leirat és Reddit korpuszunk (`search_corpus`), emelkedő "
+    "kulcsszavak a sajtóban ÉS a Redditen/X-en (`get_trending`, source=), "
+    "entitás-portré és kapcsolati háló, sztori-eredet, sajtószemle. "
+    "Két lépés: `echolot(tool=\"__list__\")` adja az ÉLŐ katalógust, aztán "
+    "`echolot(tool=\"<név>\", args={...})`. Az `echolot_query` a gyors "
+    "cím-pásztázás, EZ minden más.\n"
     "- **`web_search`** — globális Brave Search (+ DDG fallback). Akkor jó, ha "
     "részletes források, statisztika, hosszú cikk, vagy nem hír-jellegű információ "
     "kell (történelmi adat, tudomány, dokumentumok). Anti-bot-ellenálló, JS-rendered "
@@ -5057,6 +5150,45 @@ async def _dispatch_subagent_tool(name: str, args: dict) -> str:
             return echolot_client.format_news_block(articles, label=label, group_by_sphere=True)
         except Exception as e:
             return json.dumps({"error": f"echolot_query failed: {type(e).__name__}: {e}"})
+
+    if name == "echolot":
+        if not ECHOLOT_ENABLED or echolot_client is None:
+            return json.dumps({"error": "Echolot integration disabled "
+                                        "(ECHOLOT_URL missing)"})
+        eszkoz = (args.get("tool") or "").strip()
+        eargs = args.get("args")
+        if not isinstance(eargs, dict):
+            eargs = {}
+        if eszkoz == "__list__":
+            # ÉLŐ katalógus: sosem avulhat el, mert a szervertől jön. (A
+            # Bridge saját `echolot_query` leírása épp azért hazudott
+            # „315 forrás / 63 sphere"-t, mert kézzel írt szám volt benne.)
+            try:
+                lista = await echolot_client.mcp_list_tools()
+            except Exception as e:  # noqa: BLE001
+                return json.dumps({"error": f"echolot __list__ failed: "
+                                            f"{type(e).__name__}: {e}"})
+            sorok = [f"{t}: {leiras}" for t, leiras in lista
+                     if t in ECHOLOT_MCP_READ_TOOLS]
+            return json.dumps({"tools": sorok, "count": len(sorok),
+                               "note": "Csak olvasó eszközök."},
+                              ensure_ascii=False)
+        if eszkoz not in ECHOLOT_MCP_READ_TOOLS:
+            # Tipizált elutasítás: a hívó lássa, MIÉRT nem megy, és mi megy.
+            return json.dumps({
+                "error": "tool_not_allowed",
+                "tool": eszkoz,
+                "message": ("Csak OLVASÓ Echolot-eszközök hívhatók innen "
+                            "(közzététel, levélküldés, törlés nem). "
+                            "A lista: echolot(tool=\"__list__\")."),
+            }, ensure_ascii=False)
+        try:
+            ered = await echolot_client.mcp_call(eszkoz, eargs)
+        except Exception as e:  # noqa: BLE001
+            return json.dumps({"error": f"echolot {eszkoz} failed: "
+                                        f"{type(e).__name__}: {e}"})
+        return ered if isinstance(ered, str) else json.dumps(
+            ered, ensure_ascii=False, default=str)
 
     if name == "web_fetch":
         url = (args.get("url") or "").strip()
