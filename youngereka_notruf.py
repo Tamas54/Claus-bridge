@@ -116,7 +116,11 @@ async def send(conn, instance: str, display_name: str, cimzett: str,
                 "uzenet": "Ezen a felületen nincs vészjelzés."}
 
     mikor = datetime.now(timezone.utc)
-    ora = mikor.strftime("%H:%M")
+    try:
+        from zoneinfo import ZoneInfo
+        ora = mikor.astimezone(ZoneInfo("Europe/Budapest")).strftime("%H:%M")
+    except Exception:  # noqa: BLE001
+        ora = mikor.strftime("%H:%M")
 
     # TESZT-JELÖLÉS — csak a Telegram-üzenetben.
     #
@@ -134,32 +138,54 @@ async def send(conn, instance: str, display_name: str, cimzett: str,
         torzs += ("EZ PRÓBA — a NOTRUF_TESZT be van kapcsolva a szerveren. "
                   "Ha ezt éles jelzésnek hitted volna, kapcsold ki.\n\n")
     if (kisero or "").strip():
-        torzs += f"Üzenete:\n„{kisero.strip()[:1500]}”\n\n"
+        import html as _html
+        # parse_mode=HTML: a felhasználó szövegében a <, >, & 400-at adna
+        torzs += f"Üzenete:\n„{_html.escape(kisero.strip()[:1500])}”\n\n"
     else:
         torzs += "Nem írt mellé semmit.\n\n"
     torzs += ("Ő indította, egy gombbal vagy kéréssel. A rendszer NEM "
               "olvasta a beszélgetését, és nem emelt ki belőle semmit.\n"
               "Hívd fel.")
 
-    sikeres = False
+    telegram_ok = False
     try:
         await telegram_push(torzs)
-        sikeres = True
+        telegram_ok = True
     except Exception as e:  # noqa: BLE001
         logger.error("NOTRUF Telegram-küldés BUKOTT: %s", e)
-
-    # Napló: hogy MEGTÖRTÉNT. A kísérő üzenet szövege NEM kerül ide —
-    # az a címzetté, nem a naplóé.
+    # BRIDGE-ÜZENET (Kommandant 2026-09-21: „nem kapok értesítést a Bridge
+    # UI-n, ha baj van"): a riasztás a Bridge saját üzenet-táblájába is megy
+    # (recipient=kommandant, priority=urgent) — a dashboard olvasatlan-
+    # számlálója és a read_new/read_messages mutatja, a Telegramtól
+    # FÜGGETLENÜL. Mérve 2026-09-21 15:45: Réka próbája „Szóltam Tamásnak"-ot
+    # kapott, a Kommandanthoz semmi nem ért el (néma Telegram-siker).
+    bridge_ok = False
+    try:
+        conn.execute(
+            "INSERT INTO messages (timestamp, sender, recipient, subject, message, priority, status) "
+            "VALUES (?,?,?,?,?,?,?)",
+            (mikor.isoformat(), instance, "kommandant",
+             f"🚨 VÉSZJELZÉS — {display_name} — {ora}", torzs, "urgent", "unread"))
+        conn.commit()
+        bridge_ok = True
+    except Exception as e:  # noqa: BLE001
+        logger.error("NOTRUF Bridge-üzenet BUKOTT: %s", e)
+    sikeres = telegram_ok or bridge_ok
     try:
         event(conn, instance, "notruf_sent",
-              f"cimzett={cimzett} sikeres={sikeres}")
+              f"cimzett={cimzett} sikeres={sikeres} telegram={telegram_ok} bridge={bridge_ok}")
     except Exception as e:  # noqa: BLE001
         logger.warning("notruf_sent naplózás bukott: %s", e)
-
-    logger.warning("NOTRUF: %s → %s, sikeres=%s", instance, cimzett, sikeres)
+    logger.warning("NOTRUF: %s → %s, telegram=%s bridge=%s", instance, cimzett, telegram_ok, bridge_ok)
 
     szam = tamas_szam()
-    if sikeres:
+    if sikeres and not telegram_ok:
+        uz = (f"**Szóltam Tamásnak a Bridge felületén, {ora}-kor — de a Telegram-értesítés "
+              "nem ment át, lehet, hogy nem látja azonnal.**\n\n"
+              + (f"Hívd fel most: **{tel_link(szam)}**\n\n" if szam
+                 else "Hívd fel őt most, telefonon.\n\n")
+              + krizis_blokk())
+    elif sikeres:
         uz = (f"**Szóltam Tamásnak, {ora}-kor.**\n\n"
               + ("Ha 10 percen belül nem jelentkezik, hívd közvetlenül: "
                  f"**{tel_link(szam)}**\n\n" if szam

@@ -9732,6 +9732,22 @@ async def _analyze_image(image_base64: str, mime_type: str = "image/jpeg",
         return f"(Vision hiba: {e})"
 
 
+async def _telegram_push_strict(text: str):
+    """NOTRUF-hoz: BUKÁSNÁL DOB. A `_telegram_push` hiányzó env-nél és
+    nem-200 válasznál is csendben visszatér — a vészjelzés ezért „sikeres"
+    volt, miközben semmi nem ment ki (2026-09-21, Réka próbája)."""
+    if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
+        raise RuntimeError("TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID nincs beállítva")
+    import httpx
+    async with httpx.AsyncClient(timeout=15) as client:
+        r = await client.post(
+            f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage",
+            json={"chat_id": TELEGRAM_CHAT_ID, "text": text[:4000],
+                  "parse_mode": "HTML", "disable_web_page_preview": True})
+        if r.status_code != 200:
+            raise RuntimeError(f"Telegram HTTP {r.status_code}: {r.text[:200]}")
+
+
 async def _telegram_push(text: str):
     """Send push notification to Telegram."""
     if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
@@ -11171,7 +11187,7 @@ try:
         # történt meghívás, nem azt, kivel beszél a vendég.
         ertesit=_yr_vendeg_ertesites,
         hq_ertesit=_hq_ertesites,
-        telegram_push=_telegram_push,
+        telegram_push=_telegram_push_strict,
     )
 except Exception as _yr_e:  # noqa: BLE001
     logger.error("YoungeReka chat-felület bekötése bukott (a Bridge megy "

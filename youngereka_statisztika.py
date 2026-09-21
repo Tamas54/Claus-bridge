@@ -522,7 +522,8 @@ PY_ABRA_MAX = 6
 _RUNNER = r'''
 import sys, os, io, json, resource, socket, builtins, contextlib
 resource.setrlimit(resource.RLIMIT_CPU, (30, 30))
-resource.setrlimit(resource.RLIMIT_AS, (768 * 1024 * 1024, 768 * 1024 * 1024))
+os.environ.setdefault("OPENBLAS_NUM_THREADS", "1"); os.environ.setdefault("OMP_NUM_THREADS", "1"); os.environ.setdefault("MKL_NUM_THREADS", "1")
+resource.setrlimit(resource.RLIMIT_AS, (2048 * 1024 * 1024, 2048 * 1024 * 1024))
 resource.setrlimit(resource.RLIMIT_FSIZE, (20 * 1024 * 1024, 20 * 1024 * 1024))
 def _tiltva(*a, **k):
     raise OSError("Ebben a homokozóban nincs hálózat.")
@@ -622,7 +623,10 @@ def python_futtat(conn, instance: str, args: dict, img_dir) -> dict:
             with open(tablafajl, "w", encoding="utf-8") as f:
                 f.write(tabla_json)
         env = {"PATH": os.environ.get("PATH", "/usr/bin:/bin"), "HOME": munka, "MPLCONFIGDIR": munka,
-               "LANG": "C.UTF-8", "PYTHONIOENCODING": "utf-8"}
+               "LANG": "C.UTF-8", "PYTHONIOENCODING": "utf-8",
+               # OpenBLAS a CPU-szám szerint foglal szál-puffert → a címtér-korlát alatt
+               # „Memory allocation still failed" (mérve a Railway-konténerben 2026-09-21)
+               "OPENBLAS_NUM_THREADS": "1", "OMP_NUM_THREADS": "1", "MKL_NUM_THREADS": "1"}
         try:
             cp = subprocess.run([sys.executable, "-I", runner, tablafajl if tabla_json else "-", kodfajl, munka],
                                 cwd=munka, env=env, capture_output=True, text=True, timeout=PY_IDOKORLAT_S)
