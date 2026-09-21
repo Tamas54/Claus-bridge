@@ -30,6 +30,8 @@ A PIN SOHA NEM MEGY FEL A MODELLNEK. A `strip_pin()` kiszedi az
 """
 from __future__ import annotations
 
+import asyncio
+
 import hmac
 import json
 import logging
@@ -169,6 +171,49 @@ TOOLS: list[dict] = [
                        "description": "Amit ŐMAGA üzen. Üresen is mehet. "
                                       "SOHA ne írj ide olyat, amit te "
                                       "emeltél ki a beszélgetésből."}}},
+    },
+    {
+        # STATISZTIKA (Kommandant 2026-09-21): a feltöltött CSV/TSV/XLSX-en
+        # DETERMINISZTIKUS próbák (scipy) magyar magyarázattal — a modell
+        # nem fejben számol.
+        "name": "statisztika",
+        "pin": False,
+        "kinek": CSALAD,
+        "leiras": "Statisztikai próba a feltöltött táblázaton (file_id a rendszerüzenetben). "
+                  "muvelet: leiras | normalitas | t_proba | mann_whitney | anova | kruskal | "
+                  "khi_negyzet | korrelacio | regresszio. oszlop = a mért (szám) változó; "
+                  "csoport = a csoportosító oszlop; csoportok = 2 szint neve kétcsoportos próbához; "
+                  "oszlop2 = második változó (korreláció/regresszió/khi²/párosított); parositott = true "
+                  "párosított t/Wilcoxon-hoz. Az eredmény n, statisztika, p, hatásméret, "
+                  "figyelmeztetések és magyar magyarázat — ezt add tovább érthetően.",
+        "params": {"type": "object", "properties": {
+            "file_id": {"type": "string"},
+            "muvelet": {"type": "string", "enum": ["leiras", "normalitas", "t_proba", "mann_whitney",
+                                                   "anova", "kruskal", "khi_negyzet", "korrelacio", "regresszio"]},
+            "oszlop": {"type": "string"}, "csoport": {"type": "string"},
+            "csoportok": {"type": "array", "items": {"type": "string"}},
+            "oszlop2": {"type": "string"}, "parositott": {"type": "boolean"}},
+            "required": ["file_id", "muvelet"]},
+    },
+    {
+        # ÁLTALÁNOS KUTATÁS (Kommandant 2026-09-21: „TUDJON kutatni"):
+        # homokozott Python — numpy, scipy, matplotlib; a tábla `adat`
+        # néven (sorok szótárként), `oszlop(nev)` egy oszlop listaként;
+        # print → a válaszba, plt ábra → a chatbe. Nincs hálózat, nincs
+        # fájlrendszer-hozzáférés a homokozón kívül, 45 s, 768 MB.
+        "name": "python_futtatas",
+        "pin": False,
+        "kinek": CSALAD,
+        "leiras": "Python-kód futtatása homokozóban (numpy mint np, scipy.stats mint st, matplotlib.pyplot mint plt). "
+                  "Ha file_id-t adsz, a táblázat `adat` néven elérhető (lista, soronként {oszlopnév: érték}; "
+                  "számoszlop float, hiányzó None), `oszlop('név')` egy oszlop értékei, `oszlopok` a nevek. "
+                  "Írj print()-et az eredményekhez; plt-vel rajzolt ábra automatikusan megjelenik a chatben. "
+                  "Nincs internet és nincs fájlírás. Bármilyen elemzéshez, transzformációhoz, ábrához, "
+                  "amit a statisztika eszköz nem fed le.",
+        "params": {"type": "object", "properties": {
+            "kod": {"type": "string", "description": "A futtatandó Python-kód."},
+            "file_id": {"type": "string", "description": "A feltöltött táblázat azonosítója (opcionális)."}},
+            "required": ["kod"]},
     },
     {
         "name": "jelenlet",
@@ -339,6 +384,13 @@ async def dispatch(conn, instance: str, name: str, args: dict,
     import youngereka_guest as yrg
 
     try:
+        if name == "statisztika":
+            import youngereka_statisztika as yst
+            return yst.futtat(conn, instance, args)
+        if name == "python_futtatas":
+            import youngereka_statisztika as yst
+            return await asyncio.get_running_loop().run_in_executor(
+                None, lambda: yst.python_futtat(conn, instance, args, yrc._CFG["img_dir"]))
         if name == "veszjelzes":
             # A NOTRUF-ot a hívó (chat-réteg) bonyolítja le, mert neki van
             # kéznél a display_name és a Telegram-küldő. Itt csak jelezzük.

@@ -126,12 +126,21 @@ def ensure_schema(conn: sqlite3.Connection) -> None:
           label       TEXT,
           text        TEXT,
           image_paths TEXT,
+          tabla_json TEXT,
           created_at  TIMESTAMP NOT NULL
         )""")
     budget.ensure_schema(conn)
     memory.ensure_schema(conn)
     guest.ensure_schema(conn)
     hq.ensure_schema(conn)
+    # STATISZTIKA (2026-09-21): a feltöltött táblázat adatai a régi
+    # adatbázisokban is — ALTER, ha az oszlop még nincs.
+    try:
+        oszlopok = {r[1] for r in conn.execute("PRAGMA table_info(yr_chat_files)").fetchall()}
+        if "tabla_json" not in oszlopok:
+            conn.execute("ALTER TABLE yr_chat_files ADD COLUMN tabla_json TEXT")
+    except Exception as e:  # noqa: BLE001
+        logger.warning("tabla_json oszlop: %s", e)
     conn.commit()
 
 
@@ -618,6 +627,21 @@ def install(mcp, *, get_db, api_key: str, base_url: str, models: dict,
 
     # ---------- feltöltés ----------
 
+    @mcp.custom_route("/chat/api/abra/{nev}", methods=["GET"])
+    async def yr_abra(request: Request):
+        """A python_futtatas ábrái — csak a SAJÁT instance-é (a fájlnév prefixe)."""
+        instance = _who(request)
+        if not instance:
+            return _forbidden()
+        nev = request.path_params.get("nev") or ""
+        if not re.fullmatch(r"[A-Za-z0-9_-]+_[0-9a-f]{32}\.png", nev) or not nev.startswith(instance + "_"):
+            return _forbidden()
+        p = _CFG["img_dir"] / nev
+        if not p.exists():
+            return JSONResponse({"error": "nincs ilyen ábra"}, status_code=404)
+        from starlette.responses import FileResponse
+        return FileResponse(str(p), media_type="image/png")
+
     @mcp.custom_route("/chat/api/upload", methods=["POST"])
     async def yr_upload(request: Request):
         instance = _who(request)
@@ -668,9 +692,10 @@ def install(mcp, *, get_db, api_key: str, base_url: str, models: dict,
             ensure_schema(conn)
             conn.execute(
                 "INSERT INTO yr_chat_files (id, instance, filename, kind, label, "
-                "text, image_paths, created_at) VALUES (?,?,?,?,?,?,?,?)",
+                "text, image_paths, created_at, tabla_json) VALUES (?,?,?,?,?,?,?,?,?)",
                 (fid, instance, filename, doc["kind"], doc["label"],
-                 doc.get("text", ""), json.dumps(paths), _now()))
+                 doc.get("text", ""), json.dumps(paths), _now(),
+                 json.dumps(doc["tabla"], ensure_ascii=False) if doc.get("tabla") else None))
             conn.commit()
         finally:
             conn.close()
@@ -947,6 +972,19 @@ async def _stream_answer(instance: str, session_id: str, text: str,
             for f in files]
         if doc_blocks:
             user_text = (text + "\n\n" if text else "") + "\n\n".join(doc_blocks)
+        # TÁBLÁZAT-HINT (2026-09-21): a modell a file_id-t kapja, és az
+        # utasítást, hogy számolni az eszközökkel kell, nem fejben.
+        tablak = [f for f in files if f.get("tabla_json")]
+        tabla_hint = ""
+        if tablak:
+            tabla_hint = ("\n\nFELTÖLTÖTT TÁBLÁZATOK (a statisztika és a python_futtatas eszközhöz):\n"
+                          + "\n".join(f"- file_id: {f['id']} — {f['filename']} — {f['label']}" for f in tablak)
+                          + "\nSZABÁLY: számot, átlagot, próbát, p-értéket SOHA ne fejben — hívd a "
+                            "`statisztika` eszközt (gyakori próbák, magyar magyarázattal) vagy a "
+                            "`python_futtatas` eszközt (bármilyen elemzés, ábra). Az eredményt magyarázd el "
+                            "érthetően: mit hasonlítottál, mekkora minta, mit jelent a p és a hatásméret, "
+                            "és mi a feltevés, ami sérülhet. Ha a kérés nem egyértelmű (melyik oszlop, "
+                            "milyen csoport), kérdezz vissza egy mondatban.")
 
         conn.execute(
             "INSERT INTO yr_chat_messages (id, session_id, role, content, "
@@ -986,6 +1024,8 @@ async def _stream_answer(instance: str, session_id: str, text: str,
                              "fallback": fell_back, "deep": deep})
 
         system = chat_profile(instance)["prompt"]
+        if tabla_hint:
+            system += tabla_hint
 
         # MAI DÁTUM. Enélkül a modell a tanítási adataiból tippel, és
         # MAGABIZTOSAN téved: Anna első kérdésére („milyen nap van ma?")
@@ -1053,6 +1093,8 @@ async def _stream_answer(instance: str, session_id: str, text: str,
                     ered = await hq.dispatch(conn, instance,
                                              h["function"]["name"], argok,
                                              ertesit=_CFG.get("hq_ertesit"))
+                    if ered.get("_abrak"):
+                        yield _sse("abra", {"urls": [f"/chat/api/abra/{n}" for n in ered["_abrak"]]})
                     if ered.get("_notruf"):
                         ered = await notruf.send(
                             conn, instance, _nev(instance), "tamas",

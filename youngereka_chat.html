@@ -343,6 +343,7 @@ main{flex:1;display:flex;flex-direction:column;min-width:0;position:relative}
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
 }
+  img.abra{max-width:100%;border-radius:10px;margin:8px 0;display:block;background:#fff}
 </style>
 </head>
 <body>
@@ -671,6 +672,7 @@ async function _kuldes(){
   allapot(mely ? "Alaposan gondolkodik — ez eltarthat egy percig…" : "Gondolkodik…");
 
   let szoveggyujto = "";
+  let abrak = [];
   try {
     const r = await fetch("/chat/api/send", {
       method:"POST", headers:{"Content-Type":"application/json"},
@@ -714,13 +716,19 @@ async function _kuldes(){
         }
         else if (esem === "delta"){
           szoveggyujto += a.t;
-          cel.innerHTML = md(szoveggyujto);
+          cel.innerHTML = md(szoveggyujto) + abrak.map(u => '<img class="abra" src="' + u + '" alt="ábra" loading="lazy">').join("");
+          gorget();
+        }
+        else if (esem === "abra"){
+          abrak = abrak.concat(a.urls || []);
+          cel.innerHTML = md(szoveggyujto) + abrak.map(u => '<img class="abra" src="' + u + '" alt="ábra" loading="lazy">').join("");
           gorget();
         }
         else if (esem === "error"){
           if (!szoveggyujto) cel.innerHTML = "";
           allapot(a.message, true);
         }
+        else if (esem === "tool"){ allapot(a.name === "python_futtatas" ? "Számol (Python)…" : a.name === "statisztika" ? "Statisztikát számol…" : "Eszközt hív…"); }
         else if (esem === "done"){
           keretJelzo(a.budget); allapot("");
         }

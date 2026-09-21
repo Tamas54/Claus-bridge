@@ -330,9 +330,47 @@ def process_upload(raw: bytes, filename: str, max_images: int = VISION_MAX_IMAGE
     if kind == "docx":
         return _docx(raw)
     if kind == "xlsx":
-        return _xlsx(raw)
+        doc = _xlsx(raw)
+        # STATISZTIKA (2026-09-21): az első munkalap táblázatként is — a
+        # `statisztika` és a `python_futtatas` eszköz ebből számol.
+        try:
+            import openpyxl
+            import youngereka_statisztika as yst
+            wb = openpyxl.load_workbook(io.BytesIO(raw), data_only=True, read_only=True)
+            ws = wb.worksheets[0]
+            sorok = [list(r) for r in ws.iter_rows(values_only=True)
+                     if r is not None and any(c not in (None, "") for c in r)]
+            if len(sorok) >= 2:
+                tabla = yst.tabla_sorokbol(sorok, forras=f"XLSX · {ws.title}")
+                doc["tabla"] = tabla
+                doc["kind"] = "tabla"
+                doc["label"] = f"Táblázat · {tabla['n']} sor × {len(tabla['oszlopok'])} oszlop (XLSX, {ws.title})"
+                doc["text"] = yst.osszefoglalo(tabla) + "\n\nNYERS MUNKALAPOK:\n" + doc["text"][:20_000]
+                doc["notes"] = list(doc.get("notes") or []) + list(tabla.get("notes") or [])
+        except Exception as e:  # noqa: BLE001 — a táblázat-réteg sose törje az XLSX-olvasást
+            logger.warning("xlsx táblázat-réteg kihagyva: %s", e)
+        return doc
     if kind == "pptx":
         return _pptx(raw)
+
+    ext = filename.rsplit(".", 1)[-1].lower() if "." in filename else ""
+    if ext in ("csv", "tsv") or raw[:2] in (b"\xff\xfe", b"\xfe\xff"):
+        # TÁBLÁZAT (Kommandant 2026-09-21: „Csv, meg minden faszom statek legyen
+        # már a kislányoknak elérhető"). Eddig a CSV nyers szövegként ment a
+        # modellnek (csonkolva, fejben számolva), az Excel Unicode (UTF-16)
+        # export pedig a NUL-bájt miatt „olvashatatlan" volt.
+        import youngereka_statisztika as yst
+        try:
+            tabla = yst.tabla_szovegbol(raw, filename)
+        except ValueError as e:
+            if ext in ("csv", "tsv"):
+                raise ValueError(f"A táblázat nem olvasható: {e}")
+            tabla = None
+        if tabla:
+            return {"kind": "tabla",
+                    "label": f"Táblázat · {tabla['n']} sor × {len(tabla['oszlopok'])} oszlop",
+                    "text": yst.osszefoglalo(tabla), "images": [], "images_found": 0,
+                    "notes": list(tabla.get("notes") or []), "tabla": tabla}
 
     # text / csv / md / ismeretlen
     #
