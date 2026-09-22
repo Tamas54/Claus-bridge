@@ -11925,6 +11925,92 @@ def _start_startup_watchdog(port: int, timeout_sec: int = 180):
     threading.Thread(target=_watch, daemon=True, name="startup-watchdog").start()
 
 
+
+# ─── ECHOLOT ENGINE (web-adat motor, Firecrawl-kompatibilis) ─────────────────
+# EGY tool, `action` paraméterrel — a Bridge tool-száma kritikus, és ez EGY
+# felelősség: nyers web-adat Clausnak (a hír-korpusz az echolot_query dolga).
+
+@mcp.tool()
+async def echolot_engine(action: str = "scrape", url: str = "", query: str = "",
+                         prompt: str = "", formats: str = "markdown", limit: int = 10,
+                         schema_json: str = "", options_json: str = "",
+                         kind: str = "", job_id: str = "", max_chars: int = 0,
+                         caller: str = "") -> str:
+    """Nyers web-adat a saját motorunkról: scrape, keresés, térkép, crawl, kinyerés,
+    kutató ügynök, lap-interakció, dokumentum-értelmezés, oldal-figyelés.
+
+    Mikor EZT hívd (és ne a web_search / echolot_query toolt): ha egy KONKRÉT lap
+    tartalma kell tisztán (markdown), ha strukturált JSON-t akarsz sémával, ha egy
+    kérdést több forrásból, hivatkozásokkal kell megválaszolni (agent), ha egy lapon
+    kattintani/űrlapot kitölteni kell (interact), vagy ha egy oldal VÁLTOZÁSÁT kell
+    figyelni (monitor).
+
+    Args:
+        action: "scrape" | "search" | "map" | "crawl" | "extract" | "agent" |
+                "interact" | "parse" | "monitor" | "status"
+        url: a cél-URL (scrape/map/crawl/interact)
+        query: keresőkifejezés (search)
+        prompt: a feladat szövege (agent), vagy a kinyerés utasítása (extract)
+        formats: vesszős lista a scrape-hez: markdown, html, links, summary, json,
+                 screenshot, branding, images, question, highlights, attributes
+        limit: találat- / oldal-szám (search, map, crawl)
+        schema_json: JSON-séma szövegként (extract / scrape json formátum / agent)
+        options_json: bármely további Firecrawl-opció JSON-szövegként (pl.
+                 {"onlyMainContent": false, "proxy": "stealth", "actions": [...]})
+        kind: a status-hoz: "crawl" | "batch/scrape" | "extract" | "agent"
+        job_id: a status-hoz: a művelet indításakor kapott id
+        max_chars: a válasz szövegmezőinek plafonja (alap: 20000)
+        caller: engedély-azonosító (opcionális)
+
+    Returns:
+        Egy rövid összegző sor + a motor JSON-válasza (a hosszú mezők vágva).
+    """
+    import engine_client
+
+    try:
+        extra = json.loads(options_json) if options_json.strip() else {}
+        if not isinstance(extra, dict):
+            return json.dumps({"error": "options_json must be a JSON object"})
+    except ValueError as e:
+        return json.dumps({"error": f"options_json: {e}"})
+    try:
+        sema = json.loads(schema_json) if schema_json.strip() else None
+    except ValueError as e:
+        return json.dumps({"error": f"schema_json: {e}"})
+
+    torzs: dict = dict(extra)
+    if action == "scrape":
+        torzs.setdefault("url", url)
+        fmt = [f.strip() for f in (formats or "markdown").split(",") if f.strip()]
+        if sema:
+            fmt = [f for f in fmt if f != "json"] + [{"type": "json", "schema": sema,
+                                                      "prompt": prompt or None}]
+        torzs.setdefault("formats", fmt)
+    elif action == "search":
+        torzs.setdefault("query", query)
+        torzs.setdefault("limit", limit)
+    elif action in ("map", "crawl", "interact"):
+        torzs.setdefault("url", url)
+        if action != "interact":
+            torzs.setdefault("limit", limit)
+    elif action == "extract":
+        torzs.setdefault("urls", [url] if url else extra.get("urls") or [])
+        torzs.setdefault("prompt", prompt)
+        if sema:
+            torzs.setdefault("schema", sema)
+    elif action == "agent":
+        torzs.setdefault("prompt", prompt)
+        if url:
+            torzs.setdefault("urls", [url])
+        if sema:
+            torzs.setdefault("schema", sema)
+
+    adat = await engine_client.hivas(action, torzs, kind=kind, job_id=job_id,
+                                     max_chars=max_chars or None)
+    return engine_client.osszefoglal(action, adat) + "\n\n" + json.dumps(
+        adat, ensure_ascii=False, indent=1)[:60000]
+
+
 if __name__ == "__main__":
     _bridge_port = int(os.environ.get("PORT", 8003))
     _start_startup_watchdog(_bridge_port)
