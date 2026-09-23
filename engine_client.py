@@ -106,8 +106,25 @@ def osszefoglal(action: str, adat: dict) -> str:
     d = adat.get("data") if isinstance(adat.get("data"), dict) else {}
     if action == "scrape":
         m = d.get("metadata") or {}
-        return (f"✅ scrape {m.get('sourceURL') or ''} · {m.get('statusCode')} · "
-                f"{len(d.get('markdown') or '')} jel · {m.get('proxyUsed') or 'basic'}")
+        # 2026-09-23: a számláló csak a markdownt nézte — json/html/links kérésnél „0 jel"
+        # állt a fejlécben hiánytalan adat mellett. Most formátumonként számol.
+        reszek = []
+        for k in ("markdown", "html", "rawHtml", "summary", "json", "links", "images",
+                  "screenshot", "branding", "answer", "highlights"):
+            v = d.get(k)
+            if v in (None, "", [], {}):
+                continue
+            if isinstance(v, list):
+                reszek.append(f"{k} {len(v)} db")
+            elif isinstance(v, str):
+                reszek.append(f"{k} {len(v)} jel")
+            else:
+                reszek.append(f"{k} {len(json.dumps(v, ensure_ascii=False))} jel")
+        blokk = m.get("blockReason")
+        jel = "⛔" if blokk else "✅"
+        return (f"{jel} scrape {m.get('sourceURL') or ''} · {m.get('statusCode')} · "
+                f"{', '.join(reszek) or 'üres válasz'} · {m.get('proxyUsed') or 'basic'}"
+                + (f" · BLOKK: {blokk} — ez NEM a kért tartalom" if blokk else ""))
     if action == "search":
         web = (adat.get("data") or {}).get("web") if isinstance(adat.get("data"), dict) else None
         return f"✅ search · {len(web or [])} találat"

@@ -133,3 +133,19 @@ def test_nincs_konfiguralva(monkeypatch):
     import asyncio
     r = asyncio.run(m.hivas("scrape", {"url": "https://x.example"}))
     assert r["error"] == "engine_not_configured"
+
+
+def test_osszefoglal_formatumonkent_szamol(ec):
+    """2026-09-23: JSON-os scrape fejléce „0 jel"-et írt hiánytalan adat mellett."""
+    adat = {"data": {"json": {"cim": "x", "ar": 12}, "links": ["a", "b"],
+                     "metadata": {"sourceURL": "https://p.example", "statusCode": 200}}}
+    s = ec.osszefoglal("scrape", adat)
+    assert "0 jel" not in s and "json" in s and "links 2 db" in s and s.startswith("✅")
+
+
+def test_osszefoglal_blokk_hangos(ec):
+    adat = {"data": {"markdown": "Ihre Anfrage wurde blockiert.",
+                     "metadata": {"sourceURL": "https://z.example", "statusCode": 200,
+                                  "blockReason": "interstitial:tdm_reservation"}}}
+    s = ec.osszefoglal("scrape", adat)
+    assert s.startswith("⛔") and "tdm_reservation" in s and "NEM a kért tartalom" in s
