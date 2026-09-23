@@ -149,3 +149,8 @@ def test_osszefoglal_blokk_hangos(ec):
                                   "blockReason": "interstitial:tdm_reservation"}}}
     s = ec.osszefoglal("scrape", adat)
     assert s.startswith("⛔") and "tdm_reservation" in s and "NEM a kért tartalom" in s
+
+
+def test_osszefoglal_a_vagas_elotti_hosszt_irja(ec):
+    adat = ec._vag({"data": {"markdown": "x" * 5000, "metadata": {}}}, 400)
+    assert "markdown 5000 jel" in ec.osszefoglal("scrape", adat)

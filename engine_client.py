@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 from typing import Any
 
 import httpx
@@ -99,6 +100,9 @@ async def hivas(action: str, payload: dict | None = None, *, kind: str = "", job
         return {"error": type(e).__name__, "detail": _maszk(str(e))[:300]}
 
 
+_VAGAS_RE = re.compile(r"\n…\[\+(\d+) jel\]$")
+
+
 def osszefoglal(action: str, adat: dict) -> str:
     """Rövid, ember- és modellbarát összegzés a nyers JSON elé (a teljes JSON is megy)."""
     if adat.get("error"):
@@ -117,7 +121,10 @@ def osszefoglal(action: str, adat: dict) -> str:
             if isinstance(v, list):
                 reszek.append(f"{k} {len(v)} db")
             elif isinstance(v, str):
-                reszek.append(f"{k} {len(v)} jel")
+                # a _vag utáni szöveg: a levágott rész a „…[+N jel]" jelben él — a VALÓDI hossz kell
+                vagott = _VAGAS_RE.search(v)
+                n = (len(v) - len(vagott.group(0)) + int(vagott.group(1))) if vagott else len(v)
+                reszek.append(f"{k} {n} jel")
             else:
                 reszek.append(f"{k} {len(json.dumps(v, ensure_ascii=False))} jel")
         blokk = m.get("blockReason")
