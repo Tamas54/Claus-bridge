@@ -27,6 +27,15 @@ import httpx
 logger = logging.getLogger("echolot_client")
 
 ECHOLOT_URL = os.getenv("ECHOLOT_URL", "").strip().rstrip("/")
+# Az Echolot MCP-kapuja (MCP_REQUIRE_KEY) kulcsot kér: a Bridge gépi kulccsal megy, emberi belépés (OAuth) nélkül.
+ECHOLOT_API_KEY = (os.getenv("ECHOLOT_API_KEY") or "").strip()
+
+
+def _mcp_headers() -> dict[str, str]:
+    h = {"Content-Type": "application/json", "Accept": "application/json, text/event-stream"}
+    if ECHOLOT_API_KEY:
+        h["X-API-Key"] = ECHOLOT_API_KEY
+    return h
 TIMEOUT = float(os.getenv("ECHOLOT_TIMEOUT", "10").strip() or "10")
 COALESCE_WINDOW = 5.0  # seconds — concurrent identical calls share one upstream
 
@@ -298,10 +307,7 @@ async def mcp_call(tool: str, arguments: dict[str, Any], timeout: float | None =
         "method": "tools/call",
         "params": {"name": tool, "arguments": arguments or {}},
     }
-    headers = {
-        "Content-Type": "application/json",
-        "Accept": "application/json, text/event-stream",
-    }
+    headers = _mcp_headers()
     last_err: Exception | None = None
     for attempt in (1, 2):
         try:
@@ -360,8 +366,7 @@ async def mcp_list_tools(timeout: float | None = None) -> list[tuple[str, str]]:
     if not ECHOLOT_URL:
         raise EcholotError("ECHOLOT_URL env var not set")
     payload = {"jsonrpc": "2.0", "id": 1, "method": "tools/list", "params": {}}
-    headers = {"Content-Type": "application/json",
-               "Accept": "application/json, text/event-stream"}
+    headers = _mcp_headers()
     async with httpx.AsyncClient(timeout=timeout or MCP_TIMEOUT) as client:
         resp = await client.post(f"{ECHOLOT_URL}/mcp", json=payload,
                                  headers=headers)
