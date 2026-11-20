@@ -7,6 +7,13 @@ Railway deploy: SSE transport, SQLite persistent storage, FTS5 full-text search.
 Deployed on Railway alongside Makronóm, BioMed, CégTár, HírMagnet MCP servers.
 """
 
+import sys as _sys_boot
+if __name__ == "__main__":
+    # A `python server.py` `__main__` néven fut. Egy későbbi `import server` / `from server import …`
+    # (youngereka_chat, feldwebel/responder) különben MÁSODSZOR is lefuttatná az egész modult → második
+    # Telegram-lekérdező ugyanazzal a tokennel → végtelen 409 Conflict, a bot süket (2026-11-20).
+    _sys_boot.modules.setdefault("server", _sys_boot.modules[__name__])
+
 import os
 import json
 import re as _re_module
@@ -9574,8 +9581,12 @@ def _probe_prefetch(recipe: str):
         except Exception as e:  # noqa: BLE001
             return selfdiag.ProbeResult(recipe, None, f"prefetch modul: {type(e).__name__}: {e}")
         try:
-            # Saját event loop: a próba szinkron kontextusból is hívható.
-            sections = _a.new_event_loop().run_until_complete(_pf.probe_sections(recipe))
+            # Külön szál, saját hurokkal: a próba futó eseményhurokból (MCP-hívás) és szinkron kontextusból
+            # is hívható. (Korábban: new_event_loop().run_until_complete → „Cannot run the event loop while
+            # another loop is running”, ha az MCP self_diagnose hívta — a mérőeszköz hibája volt, nem a briefé.)
+            import concurrent.futures as _cf
+            with _cf.ThreadPoolExecutor(max_workers=1) as _ex:
+                sections = _ex.submit(lambda: _a.run(_pf.probe_sections(recipe))).result(timeout=180)
         except Exception as e:  # noqa: BLE001
             return selfdiag.ProbeResult(recipe, False, f"a prefetch elhasalt: {type(e).__name__}: {e}")
         if not sections:
@@ -10842,7 +10853,10 @@ def _start_telegram_polling():
         loop.run_until_complete(_telegram_poll_loop())
 
     if TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID:
-        t = threading.Thread(target=_run, daemon=True)
+        if any(t.name == "telegram-poll" and t.is_alive() for t in threading.enumerate()):
+            logger.warning("Telegram polling already running in this process — second start skipped (409 guard)")
+            return
+        t = threading.Thread(target=_run, daemon=True, name="telegram-poll")
         t.start()
         logger.info("Telegram polling background thread started")
 
