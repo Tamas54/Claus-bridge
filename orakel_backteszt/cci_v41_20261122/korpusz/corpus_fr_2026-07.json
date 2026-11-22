@@ -1,0 +1,545 @@
+{
+ "country": "FR",
+ "lang": "fr",
+ "target_month": "2026-07",
+ "corpus_window": [
+  "2026-06-15",
+  "2026-07-14"
+ ],
+ "days_sampled": [
+  "2026-06-15",
+  "2026-06-17",
+  "2026-06-19",
+  "2026-06-21",
+  "2026-06-23",
+  "2026-06-25",
+  "2026-06-27",
+  "2026-06-29",
+  "2026-07-01",
+  "2026-07-03",
+  "2026-07-05",
+  "2026-07-07",
+  "2026-07-09",
+  "2026-07-11",
+  "2026-07-13"
+ ],
+ "n": 60,
+ "lean_dist": {
+  "center_left": 1,
+  "right": 5,
+  "center": 34,
+  "left": 17,
+  "unknown": 1,
+  "center_right": 1,
+  "analytical": 1
+ },
+ "cat_dist": {
+  "foreign": 25,
+  "general": 21,
+  "tech": 6,
+  "sport": 3,
+  "entertainment": 1,
+  "economy": 4
+ },
+ "raw_rows": 821,
+ "pool_after_dedupe": 808,
+ "leak_dropped": 0,
+ "distinct_sources_raw": 110,
+ "raw_cat_dist": {
+  "foreign": 349,
+  "general": 299,
+  "economy": 62,
+  "sport": 33,
+  "tech": 73,
+  "entertainment": 2,
+  "global": 3
+ },
+ "per_day": {
+  "2026-06-15": {
+   "returned": 11,
+   "pool": 11
+  },
+  "2026-06-17": {
+   "returned": 15,
+   "pool": 27
+  },
+  "2026-06-19": {
+   "returned": 9,
+   "pool": 11
+  },
+  "2026-06-21": {
+   "returned": 55,
+   "pool": 332
+  },
+  "2026-06-23": {
+   "returned": 58,
+   "pool": 500
+  },
+  "2026-06-25": {
+   "returned": 57,
+   "pool": 500
+  },
+  "2026-06-27": {
+   "returned": 55,
+   "pool": 376
+  },
+  "2026-06-29": {
+   "returned": 57,
+   "pool": 500
+  },
+  "2026-07-01": {
+   "returned": 64,
+   "pool": 500
+  },
+  "2026-07-03": {
+   "returned": 74,
+   "pool": 500
+  },
+  "2026-07-05": {
+   "returned": 73,
+   "pool": 500
+  },
+  "2026-07-07": {
+   "returned": 85,
+   "pool": 500
+  },
+  "2026-07-09": {
+   "returned": 67,
+   "pool": 500
+  },
+  "2026-07-11": {
+   "returned": 70,
+   "pool": 500
+  },
+  "2026-07-13": {
+   "returned": 71,
+   "pool": 500
+  }
+ },
+ "mcp_errors": 0,
+ "items": [
+  {
+   "text": "Le blocage d’Anthropic rend très concret le besoin de souveraineté numérique de l’Europe — En ordonannt à la start-up américaine d’intelligence artificielle Anthropic de couper l’accès de son modèle Fable 5 aux étrangers, l’administration Trump donne tout son sens au plan européen de souveraineté technologique",
+   "source": "L'Obs — Monde",
+   "lean": "center_left",
+   "date": "2026-06-15",
+   "category": "foreign"
+  },
+  {
+   "text": "BHL – Trahison et humiliation, la vraie doctrine du trumpisme — CHRONIQUE. Du Groenland à l’Afghanistan, des Kurdes à Zelensky, le président américain a, non sans une dose de perversité, sacrifié ses alliés. Mais pourquoi ce mépris, ces menaces ?",
+   "source": "Le Point — Éditos",
+   "lean": "right",
+   "date": "2026-06-15",
+   "category": "general"
+  },
+  {
+   "text": "«Je suis un scientifique, je me base sur de la donnée»: un libéral à convaincre sur le troisième lien — Bon scientifique, Alain Chardonnet attend «les données» pour être convaincu de l'impact positif d'un troisième lien sur la congestion routière.",
+   "source": "Le Soleil (Quebec)",
+   "lean": "center",
+   "date": "2026-06-15",
+   "category": "foreign"
+  },
+  {
+   "text": "IA : la nouvelle course aux armements — Des géants américains de la tech au détroit de Taïwan, l’intelligence artificielle monte en puissance, explique l’historien britannique. La suspension d’Anthropic en est un nouvel épisode.",
+   "source": "Le Point — États-Unis (tag)",
+   "lean": "right",
+   "date": "2026-06-17",
+   "category": "foreign"
+  },
+  {
+   "text": "Minni Minnawi : « Au Darfour, la violence n’est pas politique mais ethnique » — INTERVIEW. Le gouverneur du Darfour, également chef d’un mouvement armé, livre son analyse de la guerre qui ravage le Soudan depuis plus de trois ans.",
+   "source": "Le Point — Afrique",
+   "lean": "right",
+   "date": "2026-06-19",
+   "category": "foreign"
+  },
+  {
+   "text": "En direct : Iran et États-Unis négocient en Suisse malgré les tensions — De premiers pourparlers se sont tenus dimanche en Suisse entre les États-Unis et l'Iran, en présence des médiateurs qatariens et pakistanais, le vice-président américain J.D. Vance évoquant de \"grand progrès\". Les négoci",
+   "source": "France 24 (FR)",
+   "lean": "center",
+   "date": "2026-06-21",
+   "category": "foreign"
+  },
+  {
+   "text": "A la marche contre le racisme organisée à Paris : « Bally Bagayoko, c’est l’image de la Nouvelle France » — Plusieurs milliers de personnes sont rassemblées dimanche 21 juin pour manifester contre le racisme, à l’appel du l’appel du maire de Saint-Denis Bally Bagayoko. Dans un cortège marqué par la forte présence de la France",
+   "source": "L'Obs (Nouvel Observateur)",
+   "lean": "left",
+   "date": "2026-06-21",
+   "category": "general"
+  },
+  {
+   "text": "EN IMAGES - A Paris, des milliers de personne défilent contre le racisme à l’appel de La France insoumise — La marche initiée par le maire LFI de Saint-Denis, Bally Bagayoko, s’est déroulée, ce dimanche, dans une ambiance festive et bon enfant entre Barbès et la place de la République, où s’est déroulé le concert organisé par",
+   "source": "Libération",
+   "lean": "left",
+   "date": "2026-06-21",
+   "category": "general"
+  },
+  {
+   "text": "\"Une séquence qu’on m’a un peu forcée à faire\", Énora Malagré revient sur son départ de l’émission de Cauet — Invitée dans le podcast \"Coloscopie\" de Laurent Baffie, Enora Malagré est revenue sur sa collaboration avec Cauet sur NRJ12, qui se serait très mal passée…",
+   "source": "Public (FR)",
+   "lean": "center",
+   "date": "2026-06-21",
+   "category": "general"
+  },
+  {
+   "text": "France : plus de canicules en 16 ans qu'en 60 ans ! — Depuis plusieurs jours, la France suffoque : canicule précoce en mai, puis de nouveau en juin, les records de températures sont battus les uns après les autres. Ce n'est pas nouveau mais le phénomène s'accélère dangereus",
+   "source": "France 24 (FR)",
+   "lean": "center",
+   "date": "2026-06-23",
+   "category": "foreign"
+  },
+  {
+   "text": "EN DIRECT, canicule : la journée de mardi a été la plus chaude jamais enregistrée en France — Dans l’après-midi, les températures affichent des valeurs exceptionnelles sur la majeure partie du pays avec de 39 à 42 °C sur une grande moitié sud-ouest du pays, et de 34 °C à 38 °C plus à l’est. La vigilance rouge est",
+   "source": "Le Monde — Planète",
+   "lean": "left",
+   "date": "2026-06-23",
+   "category": "general"
+  },
+  {
+   "text": "Autonomie de la Corse: l’Assemblée adopte un projet constitutionnel à l’avenir encore incertain — Malgré l’opposition de l’extrême droite et de fortes divisions à gauche, les députés ont voté mardi 23 juin en faveur du projet de loi constitutionnelle pour «une Corse autonome au sein de la République». Première étape",
+   "source": "Mediapart",
+   "lean": "left",
+   "date": "2026-06-23",
+   "category": "general"
+  },
+  {
+   "text": "De NetApp à Dell, changement d’échelle pour Guillaume de Landtsheer — Après avoir dirigé l'activité de NetApp en France, Guillaume de Landtsheer embraye chez Dell, dont la filiale hexagonale est d'un autre calibre en termes de business et d'effectifs.",
+   "source": "Silicon.fr",
+   "lean": "unknown",
+   "date": "2026-06-23",
+   "category": "tech"
+  },
+  {
+   "text": "20 Minutes Arena : La quotidienne spéciale Coupe du monde (25 juin) — 20 Minutes Arena : La quotidienne spéciale Coupe du monde (25 juin)",
+   "source": "20 Minutes — Sport",
+   "lean": "center",
+   "date": "2026-06-25",
+   "category": "sport"
+  },
+  {
+   "text": "Léon, Clément d'Antibes : 68 ans les séparent mais ils vivent le même rêve en suivant les Bleus — Ils ont tous les deux traversé l’Atlantique pour suivre les Bleus aux États-Unis. Léon, 10 ans, assiste à sa première Coupe du monde. Clément d’Antibes, 78 ans et véritable figure du supporterisme de l’équipe de France,",
+   "source": "France 24 (FR)",
+   "lean": "center",
+   "date": "2026-06-25",
+   "category": "foreign"
+  },
+  {
+   "text": "«Yves Saint Laurent portait souvent un tee-shirt sous sa veste» : à Paris, Anthony Vaccarello revient aux essentiels d’YSL — Dans une Bourse de Commerce enveloppée de brouillard, le directeur artistique a livré un vestiaire à l’os, traversé de sensualité, de soufre et de sportswear. Singulier et poétique.",
+   "source": "Le Figaro — Mode Homme",
+   "lean": "right",
+   "date": "2026-06-25",
+   "category": "entertainment"
+  },
+  {
+   "text": "Au Pakistan, Mahrang Baloch, voix des Baloutches, condamnée à la prison à vie — Jugée à huis clos, sans journalistes ni famille, l’activiste a été condamnée, lundi, à la prison à vie pour « terrorisme ». Candidate au prix Nobel de la paix, elle paye son engagement contre les disparitions forcées au",
+   "source": "Le Monde — International",
+   "lean": "left",
+   "date": "2026-06-25",
+   "category": "foreign"
+  },
+  {
+   "text": "Le Hamas, en panne de stratégie, contrôle une bande de Gaza détruite — Le Hamas a perdu des centaines de cadres et de militants mais contrôle toujours la bande de Gaza, du moins le réduit non occupé par Israël. Cependant, le mouvement islamiste, dont la popularité s’est effondrée dans l’enc",
+   "source": "Mediapart",
+   "lean": "left",
+   "date": "2026-06-25",
+   "category": "general"
+  },
+  {
+   "text": "Natation : Léon Marchand régale pour son grand retour en France, avec le 5e temps de l’histoire sur le 400 m quatre nages — La superstar de la natation mondiale n’a pas déçu pour son entrée en lice lors des Championnats de France de natation, ce samedi à Saint-Etienne",
+   "source": "20 Minutes — Sport",
+   "lean": "center",
+   "date": "2026-06-27",
+   "category": "sport"
+  },
+  {
+   "text": "EN DIRECT, guerre en Ukraine : l’Ukraine frappe à nouveau une station de pompage de pétrole près de Moscou — Les forces ukrainiennes ont frappé samedi, pour la deuxième fois au cours du mois de juin, la station de pompage de pétrole de Vtorovo, située dans l’oblast russe de Vladimir, à environ 700 kilomètres de la frontière ori",
+   "source": "Le Monde",
+   "lean": "left",
+   "date": "2026-06-27",
+   "category": "foreign"
+  },
+  {
+   "text": "Tony Parker nommé entraîneur de l’Asvel, le club de basket qu’il préside — Le meilleur joueur de l’histoire du basket français a amorcé sa reconversion sur les bancs cette année. Actuel sélectionneur de l’équipe de France masculine U17, il bénéficiera dans son staff de l’expérience de son ex-sé",
+   "source": "Le Monde",
+   "lean": "left",
+   "date": "2026-06-27",
+   "category": "foreign"
+  },
+  {
+   "text": "Allemagne, Danemark, République tchèque… Des records de température en Europe — Au moins 193 millions d’habitants en Europe, dont 75 millions en Allemagne, ont connu des températures supérieures à 35 °C à un moment de la journée samedi, selon les calculs de l’Agence France-Presse, en hausse par rapp",
+   "source": "Le Monde — International",
+   "lean": "left",
+   "date": "2026-06-27",
+   "category": "foreign"
+  },
+  {
+   "text": "Après le décès de sa maman, Didier Deschamps de retour pour l’entraînement de l’équipe de France — VIDÉO - Endeuillé par la perte de sa mère Ginette, le sélectionneur des Bleus Didier Deschamps a fait l’aller-retour en France pour assister à son enterrement. Il est de retour à Boston, ce samedi 27 juin, témoigne notre",
+   "source": "Paris Match",
+   "lean": "center",
+   "date": "2026-06-27",
+   "category": "general"
+  },
+  {
+   "text": "Détroit d'Ormuz : pourquoi la Chine sort gagnante de la crise économique",
+   "source": "L'Express",
+   "lean": "center",
+   "date": "2026-06-29",
+   "category": "general"
+  },
+  {
+   "text": "La dernière saison de « The Bear » nous laisse malheureusement avec un goût de réchauffé — Pour sa cinquième et dernière saison, la série diffusée sur Disney+nous invite à passer une nouvelle soirée dans le restaurant de Carmy Berzatto. Si on prend un grand plaisir à retrouver les personnages foutraques en cui",
+   "source": "L'Obs (Nouvel Observateur)",
+   "lean": "left",
+   "date": "2026-06-29",
+   "category": "general"
+  },
+  {
+   "text": "Peste des petits ruminants: les éleveurs africains réclament une mobilisation urgente — La peste des petits ruminants reste l'une des maladies animales les plus dévastatrices en Afrique. Avec un taux de mortalité pouvant atteindre 90 %, elle menace les moyens de subsistance de millions de petits éleveurs. R",
+   "source": "RFI — Économie",
+   "lean": "center",
+   "date": "2026-06-29",
+   "category": "foreign"
+  },
+  {
+   "text": "Antoine et Cléopâtre, les amants d’Alexandrie objets d’attaques xénophobes et très politiques — L’union tragique du consul et général romain et de la reine d’Egypte continue de nourrir notre imaginaire. Pourtant, presque tout ce qu’on connaît de ce « couple puissant » est le fruit d’une propagande politique.",
+   "source": "L'Obs (Nouvel Observateur)",
+   "lean": "left",
+   "date": "2026-07-01",
+   "category": "general"
+  },
+  {
+   "text": "Les besoins d’infrastructures dans le monde vont nécessiter 151 000 milliards de dollars d’ici 2050 — Selon une étude du cabinet PwC, publiée mercredi 1er juillet, cette explosion sera due aux impératifs voraces des industries numériques, énergétiques et logistiques.",
+   "source": "Le Monde — Économie",
+   "lean": "left",
+   "date": "2026-07-01",
+   "category": "economy"
+  },
+  {
+   "text": "« Il était temps » : pourquoi Édouard Philippe accélère dans la course présidentielle — Chahuté par la candidature de Gabriel Attal, pressé de se dévoiler par ses propres amis, le leader d’Horizons tient son premier grand meeting ce 5 juillet mais garde son cap, sans se précipiter.",
+   "source": "Le Point — Politique",
+   "lean": "right",
+   "date": "2026-07-01",
+   "category": "general"
+  },
+  {
+   "text": "Discuter sans numéro sur WhatsApp : voici les pièges à éviter avec les noms d’utilisateurs — WhatsApp permet désormais de discuter sur la messagerie sans dévoiler son numéro de téléphone. Un vrai progrès pour la confidentialité, mais qui déplace la question ailleurs : celle de la confiance que l'on accorde à un",
+   "source": "Numerama",
+   "lean": "center",
+   "date": "2026-07-01",
+   "category": "tech"
+  },
+  {
+   "text": "On a testé le Shark ChillPill, le meilleur allié possible contre la canicule dans les transports — Connu pour ses aspirateurs et ses appareils capillaires, Shark s'attaque à nos étés avec le ChillPill. Ce n'est pas un simple ventilateur de poche, mais un système de refroidissement nomade 3-en-1 incluant un brumisateur",
+   "source": "Numerama",
+   "lean": "center",
+   "date": "2026-07-01",
+   "category": "tech"
+  },
+  {
+   "text": "Interdire la cigarette aux personnes nées après 2009: \"Le tabac coûte plus cher qu'il ne rapporte\", affirme le directeur du service de toxicologie de l'hôpital Raymond-Poincaré — Dans son rapport annuel \"charges et produits\" publié ce jeudi, l'Assurance maladie dit vouloir faire émerger \"une génération sans tabac\". Elle appelle aussi à \"concrétiser le virage préventif\" des politiques de santé.",
+   "source": "BFM TV — Santé",
+   "lean": "center",
+   "date": "2026-07-03",
+   "category": "foreign"
+  },
+  {
+   "text": "BYD pourrait finalement s'offrir une usine... en France ! — Le géant chinois continue d'avancer sur ses plans européens. Et c'est la France qui pourrait en bénéficier au premier chef !",
+   "source": "Clubic",
+   "lean": "center",
+   "date": "2026-07-03",
+   "category": "tech"
+  },
+  {
+   "text": "Derrière le week-end de funérailles d’Ali Khamenei en Iran, une démonstration politique et diplomatique — Trois mois après sa mort, la République islamique d’Iran organise à partir de ce samedi les obsèques démesurées d’Ali Khamenei. Vingt millions d’Iraniens sont attendus selon le régime.",
+   "source": "L'Obs (Nouvel Observateur)",
+   "lean": "left",
+   "date": "2026-07-03",
+   "category": "general"
+  },
+  {
+   "text": "Parcoursup : ces formations qui refusent les élèves des lycées hors contrat — Sur Parcoursup, la notice de la classe préparatoire du lycée militaire du Prytanée, à La Flèche (Sarthe) mentionne comme critère éliminatoire le fait d’être issu d’un établissement hors contrat. Une famille, estimant son",
+   "source": "La Croix",
+   "lean": "center",
+   "date": "2026-07-03",
+   "category": "general"
+  },
+  {
+   "text": "Radio France livre les rushs d’une interview de Le Pen au RN et crée un nouveau malaise à France Culture — À la demande de l’équipe de communication du Rassemblement national, la direction de la communication de France Culture a transmis l’intégralité du flux vidéo d’une interview de Marine Le Pen. Une pratique inhabituelle à",
+   "source": "Mediapart",
+   "lean": "left",
+   "date": "2026-07-03",
+   "category": "general"
+  },
+  {
+   "text": "EN DIRECT Coupe du monde 2026 : « Un arbitre très douteux », Trump confirme son lobbying pour Balogun.. Suivez l’actu de lundi avec nous… — Suivez avec nous toute l’actualité de ce lundi lors du Mondial de football aux Etats-Unis, au Mexique et au Canada",
+   "source": "20 Minutes — Sport",
+   "lean": "center",
+   "date": "2026-07-05",
+   "category": "sport"
+  },
+  {
+   "text": "Les meilleurs logiciels pour piloter financièrement son entreprise : 5 outils à connaître — Gérer correctement son entreprise n'est pas chose facile et la nouvelle réglementation qui entre en vigueur dès septembre prochain ne va très certainement pas arranger les choses. Mais rassurez-vous, des solutions existe",
+   "source": "BFM Business — Économie",
+   "lean": "center",
+   "date": "2026-07-05",
+   "category": "economy"
+  },
+  {
+   "text": "Attissogbe, apprentissage express avec les Bleus",
+   "source": "L'Equipe - Rugby",
+   "lean": "center",
+   "date": "2026-07-05",
+   "category": "foreign"
+  },
+  {
+   "text": "EN DIRECT, incendies : Pyrénées-Orientales, Gard, Drôme... le point sur la situation — Au moins trois incendies sont en cours en France. Le plus intense est celui des Pyrénées-Orientales, où le feu a contraint le préfet à annoncer l’évacuation de quelque 5.000 habitants et « l’adaptation » de l’étape du To",
+   "source": "Le Monde — Planète",
+   "lean": "left",
+   "date": "2026-07-05",
+   "category": "general"
+  },
+  {
+   "text": "Rebond(s) : dans la roue du Tour de France féminin — Par TV5MONDE ESTELLE MARTIN TV5 JWPlayer Field Alors que le Tour de France masculin vient tout juste de commencer, coup de projecteur sur le circuit féminin avec Maëva Squiban. La coureuse française est prête pour l'asce",
+   "source": "TV5Monde Info",
+   "lean": "center",
+   "date": "2026-07-05",
+   "category": "foreign"
+  },
+  {
+   "text": "iPhone 18 Pro : une fuite révèle la capacité des batteries, avec une grosse surprise pour le Pro Max — Une fuite passée par la certification chinoise donne la capacité des batteries de l'iPhone 18 Pro. Le Pro Max gagne gros, le Pro standard reste sur place.",
+   "source": "Frandroid",
+   "lean": "center",
+   "date": "2026-07-07",
+   "category": "tech"
+  },
+  {
+   "text": "Midea PortaSplit : nos astuces pour trouver du stock sans payer 1 500 € — Le climatiseur le plus convoité de l'été est en rupture quasi partout, et des revendeurs en profitent pour le facturer 50 % de plus. Voici comment décrocher un Midea PortaSplit au bon prix, par les canaux officiels, sans",
+   "source": "Frandroid",
+   "lean": "center",
+   "date": "2026-07-07",
+   "category": "tech"
+  },
+  {
+   "text": "Décès de Marc Messier: «Personne ne s’attendait à ça», confie la comédienne Francine Ruel — L’actrice et écrivaine québécoise Francine Ruel est bouleversée par le décès du comédien Marc Messier, mort à l’âge de 78 ans.",
+   "source": "Le Journal de Montreal",
+   "lean": "center_right",
+   "date": "2026-07-07",
+   "category": "foreign"
+  },
+  {
+   "text": "Après le pourvoi en cassation de Marine Le Pen, les questions en suspens — La cheffe de file du Rassemblement national a annoncé, mardi au 20 heures de TF1, être candidate à la présidentielle de 2027, affirmant qu’elle ferait campagne « sans bracelet électronique ». Le peut-elle ? Eléments de r",
+   "source": "Le Monde — Politique",
+   "lean": "left",
+   "date": "2026-07-07",
+   "category": "general"
+  },
+  {
+   "text": "Canne, chaise et chef-d’œuvre: le classique à l’épreuve du règne éternel des vieux maestros — Le chef Zubin Mehta, 90 ans, devait ouvrir le Menuhin Gstaad Festival avec deux concerts, mais sa santé l’en empêchera. Il n’est pas le seul chef d’orchestre à braver les années. Et les musiciens aiment ces vétérans char",
+   "source": "Le Temps - Culture",
+   "lean": "center",
+   "date": "2026-07-07",
+   "category": "foreign"
+  },
+  {
+   "text": "Marine Le Pen s’accroche à la présidentielle, entre déni et passage en force — Quelques heures après sa condamnation en appel dans l’affaire des assistants parlementaires européens, la cheffe de file du RN a officialisé sa candidature pour 2027 en annonçant son pourvoi en cassation. Au risque de me",
+   "source": "Mediapart",
+   "lean": "left",
+   "date": "2026-07-07",
+   "category": "general"
+  },
+  {
+   "text": "Et si l’IA permettait d’augmenter le nombre d’emplois, plutôt que de les supprimer ? — Dans le secteur de l’information (médias, numériques), l’adoption forte de l’IA s’accompagne d’une augmentation des effectifs sur 24 mois, relève une nouvelle étude. Des résultats qui viennent ajouter de la complexité (o",
+   "source": "Next (ex-Next INpact)",
+   "lean": "analytical",
+   "date": "2026-07-07",
+   "category": "foreign"
+  },
+  {
+   "text": "Un futur élevage d’un millier de porcs fait débat — L'installation d'un élevage hors-sol de 1.200 porcs au cœur du Parc régional du Limousin, contesté par des riverains qui redoutent une pollution des eaux, a été officiellement autorisée lundi 6 juillet par la préfecture",
+   "source": "Sciences et Avenir",
+   "lean": "center",
+   "date": "2026-07-07",
+   "category": "foreign"
+  },
+  {
+   "text": "Tadej Pogacar assomme le Tour de France avec un record qui va faire parler : “Le doute n'est pas du cynisme”, dit un ex-dopé qui hallucine — Ce jeudi 9 juillet, Tadej Pogacar a pulvérisé le record de la montée du col de Tourmalet. Une autre performance titanesque qui entre dans la critique d’un ex-cycliste français qui s’est dopé.",
+   "source": "Closer France",
+   "lean": "center",
+   "date": "2026-07-09",
+   "category": "general"
+  },
+  {
+   "text": "La Syrie annonce l'arrestation de responsables des explosions à Damas, une cellule \"affiliée à l'EI\" — Les autorités syriennes ont annoncé jeudi l'arrestation des responsables des deux attentats à la bombe survenus mardi à Damas pendant la visite d'Emmanuel Macron. \"Les premières investigations ont montré que la cellule é",
+   "source": "France 24 (FR)",
+   "lean": "center",
+   "date": "2026-07-09",
+   "category": "foreign"
+  },
+  {
+   "text": "Coupe du monde. La France rejoint le Brésil mais reste derrière l’Allemagne avec trois demi-finales consécutives — En se qualifiant pour sa troisième demi-finale d’affilée, l’équipe de France a fait aussi bien que le Brésil et l’Allemagne des années 1980, qui étaient les seules sélections à avoir démontré pareille régularité en Coupe",
+   "source": "Ouest-France — Une",
+   "lean": "center",
+   "date": "2026-07-09",
+   "category": "foreign"
+  },
+  {
+   "text": "France-Maroc (2-0) : les Bleus en demi-finale de la Coupe du monde, comme une évidence... — La France se qualifie pour les demi-finales de la Coupe du monde. Elle affrontera l'Espagne ou la Belgique. Les Bleus sont dans le dernier carré pour la 3e fois consécutive. Une régularité impressionnante.",
+   "source": "Paris Match",
+   "lean": "center",
+   "date": "2026-07-09",
+   "category": "general"
+  },
+  {
+   "text": "Feux de forêt : « 9 incendies sur 10 sont d’origine humaine » alerte un sapeur-pompier béarnais [vidéo] — En France, en Espagne… La forêt brûle. Le capitaine Didier Rivaud, sapeur-pompier à Bedous notamment, a été déployé sur l’incendie qui a ravagé près de 90 hectares de forêt, à la lisière des Landes, le",
+   "source": "La République des Pyrénées",
+   "lean": "center",
+   "date": "2026-07-11",
+   "category": "foreign"
+  },
+  {
+   "text": "SONDAGE PRÉSIDENTIELLE. Le Pen en tête, Mélenchon progresse — Selon le sondage d’intentions de vote Elabe pour « La Tribune Dimanche » et BFMTV, à 280 jours du premier tour de l’élection présidentielle, Marine Le Pen se place largement en tête dans tous les scénarios de second tour",
+   "source": "La Tribune",
+   "lean": "center",
+   "date": "2026-07-11",
+   "category": "economy"
+  },
+  {
+   "text": "Coupe du monde 2026: avec un Bellingham héroïque, l’Angleterre renverse la Norvège et retrouve le dernier carré — L’Angleterre a remporté en prolongation, face à la Norvège, un quart de finale (2-1) d’abord soporifique puis emballant avant d’être irrespirable. Grâce notamment à un doublé de Jude Bellingham, les Anglais vont disputer",
+   "source": "RFI — Fil info (FR)",
+   "lean": "center",
+   "date": "2026-07-11",
+   "category": "foreign"
+  },
+  {
+   "text": "Les pharmacies, commerces et compagnies maritimes de Majorque se préparent au « surtourisme solaire » lié à l'éclipse du 12 août — L'éclipse solaire totale du 12 août plongera Majorque dans l'obscurité pendant 96 secondes au coucher du soleil, une configuration rare qui en fait l'un des meilleurs sites d'observation en Europe.",
+   "source": "Science & Vie",
+   "lean": "center",
+   "date": "2026-07-11",
+   "category": "foreign"
+  },
+  {
+   "text": "Côte d’Ivoire : Au moins 24 morts et 36 blessés dans un accident d’autocar — Un accident d’autocar a fait 24 morts et 36 blessés lundi sur le pont Bafing, dans l’ouest de la Côte d’Ivoire. Une enquête a été ouverte par les autorités",
+   "source": "20 Minutes — Monde",
+   "lean": "center",
+   "date": "2026-07-13",
+   "category": "foreign"
+  },
+  {
+   "text": "Incendies à Fontainebleau : \"C’est un cauchemar\", la maison de Louis Bertignac au plus près des flammes — Les incendies qui ravagent le massif de Fontainebleau inquiètent Laetitia, la femme de Louis Bertignac, installée à proximité des flammes. Le 13 juillet, cette dernière a partagé son émotion sur les réseaux sociaux.",
+   "source": "Closer France",
+   "lean": "center",
+   "date": "2026-07-13",
+   "category": "general"
+  },
+  {
+   "text": "Pourquoi Volkswagen pourrait rayer de ses effectifs l’équivalent de la population de Nancy — Confronté à une crise de compétitivité sans précédent, le géant allemand pourrait supprimer au total jusqu’à 100.000 emplois pour réduire ses coûts et tenter de retrouver un avantage industriel.",
+   "source": "La Tribune",
+   "lean": "center",
+   "date": "2026-07-13",
+   "category": "economy"
+  }
+ ],
+ "built": "2026-11-23",
+ "source_db": "Echolot MCP get_news (https://echolotnews.com/mcp), published_at szerinti napok",
+ "build_rule": "get_news(limit=100, diversify, max_per_source=3, place=ország) minden 2. napra; title>15, LEAK_RE-szűrő, cím-dedupe, lead 220 kar., MAXN=60 lean-cap (arányos kvóta + domináns lean <=60% + dátum-stride) — a júliusi sample_cell"
+}

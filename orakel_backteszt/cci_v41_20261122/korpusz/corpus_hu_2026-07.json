@@ -1,0 +1,540 @@
+{
+ "country": "HU",
+ "lang": "hu",
+ "target_month": "2026-07",
+ "corpus_window": [
+  "2026-06-15",
+  "2026-07-14"
+ ],
+ "days_sampled": [
+  "2026-06-15",
+  "2026-06-17",
+  "2026-06-19",
+  "2026-06-21",
+  "2026-06-23",
+  "2026-06-25",
+  "2026-06-27",
+  "2026-06-29",
+  "2026-07-01",
+  "2026-07-03",
+  "2026-07-05",
+  "2026-07-07",
+  "2026-07-09",
+  "2026-07-11",
+  "2026-07-13"
+ ],
+ "n": 60,
+ "lean_dist": {
+  "unknown": 25,
+  "right": 8,
+  "analytical": 7,
+  "center": 2,
+  "left": 18
+ },
+ "cat_dist": {
+  "tech": 12,
+  "economy": 15,
+  "foreign": 2,
+  "general": 16,
+  "politics": 15
+ },
+ "raw_rows": 528,
+ "pool_after_dedupe": 513,
+ "leak_dropped": 0,
+ "distinct_sources_raw": 37,
+ "raw_cat_dist": {
+  "tech": 105,
+  "general": 150,
+  "economy": 140,
+  "politics": 110,
+  "foreign": 23
+ },
+ "per_day": {
+  "2026-06-15": {
+   "returned": 10,
+   "pool": 10
+  },
+  "2026-06-17": {
+   "returned": 8,
+   "pool": 8
+  },
+  "2026-06-19": {
+   "returned": 11,
+   "pool": 13
+  },
+  "2026-06-21": {
+   "returned": 42,
+   "pool": 500
+  },
+  "2026-06-23": {
+   "returned": 41,
+   "pool": 500
+  },
+  "2026-06-25": {
+   "returned": 47,
+   "pool": 500
+  },
+  "2026-06-27": {
+   "returned": 43,
+   "pool": 500
+  },
+  "2026-06-29": {
+   "returned": 43,
+   "pool": 500
+  },
+  "2026-07-01": {
+   "returned": 43,
+   "pool": 500
+  },
+  "2026-07-03": {
+   "returned": 40,
+   "pool": 500
+  },
+  "2026-07-05": {
+   "returned": 40,
+   "pool": 500
+  },
+  "2026-07-07": {
+   "returned": 40,
+   "pool": 500
+  },
+  "2026-07-09": {
+   "returned": 40,
+   "pool": 500
+  },
+  "2026-07-11": {
+   "returned": 40,
+   "pool": 500
+  },
+  "2026-07-13": {
+   "returned": 40,
+   "pool": 500
+  }
+ },
+ "mcp_errors": 0,
+ "items": [
+  {
+   "text": "A Microsec lett az Európai Unió első minősített attribútumtanúsítvány-szolgáltatója — A megoldás különösen azokban az esetekben hozhat érdemi egyszerűsítést, ahol a digitális ügyintézés eddig azért akadt el vagy lassult le, mert az elektronikus aláírás mellett további jogosultsági dokumentumokat kellett b",
+   "source": "Computerworld",
+   "lean": "unknown",
+   "date": "2026-06-15",
+   "category": "tech"
+  },
+  {
+   "text": "[Teszt] Final Fantasy VII Rebirth - a Nintendo Switch 2 változat — A Final Fantasy VII remake-sorozata trilógiává érik, a második rész terjedése pedig immár a Switch 2 és Xbox Series tulajdonosok számára is elérhetővé teszi Cloud-ék kalandozásait. Tesztlaborban néztünk rá a Nintendo vál",
+   "source": "Gamer365",
+   "lean": "unknown",
+   "date": "2026-06-15",
+   "category": "tech"
+  },
+  {
+   "text": "Végre magyarul is megjelenik a Bloodborne képregény — Hazai kiadást kap a From Software kultikus játékának képregényadaptációja.",
+   "source": "Gamer365",
+   "lean": "unknown",
+   "date": "2026-06-19",
+   "category": "tech"
+  },
+  {
+   "text": "A Sajtószakszervezet szerint csapdákat rejt a médiatörvény-módosítás: nem lehet díszlet a szakmai részvétel — A Sajtószakszervezet üdvözli a közmédia átalakításának irányát, de szerintük a valódi reformhoz a munkavállalók és a szakma érdemi bevonására is szükség lenne. Kassai Zsigmond, a szervezet ügyvezető elnöke a Media1-nek ú",
+   "source": "Media1",
+   "lean": "unknown",
+   "date": "2026-06-19",
+   "category": "economy"
+  },
+  {
+   "text": "VMDK: Van államtitkár, de nincs orvos — Az alábbiakban a VMDK közleménye olvasható. A ludasi rendelő heti egyórás működése nem elszigetelt eset, hanem a szerbiai egészségügy évek óta tartó leépülésének következménye. Ezért a felelősség elsősorban az SNS–SPS–VM",
+   "source": "Dél-Hír",
+   "lean": "unknown",
+   "date": "2026-06-21",
+   "category": "foreign"
+  },
+  {
+   "text": "Kihirdették a világ legjobb egyetemeit: a Harvard és az Oxford mellett egy magyar intézmény is tarolt — A brit Quacquarelli Symonds (QS) június 18-án jelentette meg World University Rankings elnevezésű friss rangsorát. A Szegedi Tudományegyetem az idén is a világ legjobb egyetemei közé került, a 633. he ...",
+   "source": "Economix",
+   "lean": "unknown",
+   "date": "2026-06-21",
+   "category": "economy"
+  },
+  {
+   "text": "A 44 éves Serena Williams szabadkártyát kapott Wimbledonban — Négyéves kihagyás után két hete tért vissza a pályára.",
+   "source": "Index",
+   "lean": "right",
+   "date": "2026-06-21",
+   "category": "general"
+  },
+  {
+   "text": "Elapadtak a csapok az egyik magyar településen, főzni és mosni sem tudnak a lakók — Vízkorlátozást vezettek be a Hajdú-Bihar megyei Nagyrábén, miután a hőség miatt annyira megugrott a vízfogyasztás, hogy a települést ellátó víztározó majdnem kiürült - adta hírül az RTL . A kétezer fős faluban napközben",
+   "source": "Portfolio",
+   "lean": "analytical",
+   "date": "2026-06-21",
+   "category": "economy"
+  },
+  {
+   "text": "A Jupiter légköre úgy viselkedik, mint egy hatalmas, kozmikus erőmű — Míg nálunk a villámlás egyenletesebb folyamat, a gázóriáson ezek a hatalmas energiájú robbanások szakaszosan, rövid szünetekkel tarkítva jelentkeznek.",
+   "source": "Rakéta",
+   "lean": "center",
+   "date": "2026-06-21",
+   "category": "tech"
+  },
+  {
+   "text": "Annyi embert rúgnak ki a nagy techcégek a mesterséges intelligencia miatt, hogy Kaliforniában a kormányzónak kellett közbelépni — Idén eddig 153 ezer embert építettek le az óriáscégek, mert feleslegessé váltak az MI miatt, vagy rajtuk spórolnak, hogy több pénz jusson az MI-re.",
+   "source": "Telex",
+   "lean": "left",
+   "date": "2026-06-21",
+   "category": "general"
+  },
+  {
+   "text": "Uruguay–Zöld-foki Köztársaság 0-0",
+   "source": "Telex",
+   "lean": "left",
+   "date": "2026-06-21",
+   "category": "general"
+  },
+  {
+   "text": "Ismét leállt a Facebook, nem megy az Instagram és a Messenger sem — Az elmúlt időszakban másodjára álltak le a Meta szolgáltatásai, sok platformot szinte egyáltalán nem lehet elérni.",
+   "source": "HVG",
+   "lean": "left",
+   "date": "2026-06-23",
+   "category": "general"
+  },
+  {
+   "text": "31 és fél fokot mértek az Országos Onkológiai Intézet egy műtőjében, a meghibásodás a teljes intenzív osztályt érinti — A szükséges alkatrész már megkérezett, éjszaka beszerelhették.",
+   "source": "Index Belföld",
+   "lean": "right",
+   "date": "2026-06-23",
+   "category": "politics"
+  },
+  {
+   "text": "Naptárakat elő, megvan a Győr és a Fradi első nemzetközi kupameccsidőpontja — Két hét még, addig csak a vb-n „nő fű”.",
+   "source": "Infostart",
+   "lean": "unknown",
+   "date": "2026-06-23",
+   "category": "politics"
+  },
+  {
+   "text": "Kifakadt Ruszin-Szendi Romulusz: \"a haderő nem piramisjáték\" — Újabb példával rukkolt elő Ruszin-Szendi Romulusz arra, \"amikor a hozzá nem értés és a pénzszórás találkozik\". A hadügyminiszter szerint 700 millió forintba került az a program, melyben az új tartalékos katonák \"beszerve",
+   "source": "Portfolio",
+   "lean": "analytical",
+   "date": "2026-06-23",
+   "category": "economy"
+  },
+  {
+   "text": "Németh Zsolt elárulta, miért nem hívták meg Magyar Pétert Tusványosra — Orbán Viktor beszédet mond a rendezvényen.",
+   "source": "Index Belföld",
+   "lean": "right",
+   "date": "2026-06-25",
+   "category": "politics"
+  },
+  {
+   "text": "Ezekkel a számokkal nyerhettél a hatos lottón! — A Szerencsejáték Zrt. tájékoztatása szerint a 26. héten megtartott hatos lottó számsorsoláson a következő számokat húzták ki:",
+   "source": "Profitline",
+   "lean": "unknown",
+   "date": "2026-06-25",
+   "category": "economy"
+  },
+  {
+   "text": "40 fok, durva hőhullám és erős aszály várható a következő napokban — A páratartalom a jövő hét elejére sokfelé 20 százalék alá esik, ami az emberi szervezetnek és a mezőgazdaságnak is rendkívül megterhelő. Csapadékra legkorábban kedd este van esély, addig az országban már most is kritikus",
+   "source": "Qubit",
+   "lean": "left",
+   "date": "2026-06-25",
+   "category": "tech"
+  },
+  {
+   "text": "Felfüggesztette az ENSZ a Hormuzi-szorosban rekedt tengerészek kimentését — Egy hajót támadás ért, ezért ideiglenesen leállították az evakuációt.",
+   "source": "Telex",
+   "lean": "left",
+   "date": "2026-06-25",
+   "category": "general"
+  },
+  {
+   "text": "Quentin Tarantino: „A James Bondnál ne remake-eket készítsenek, hanem pontosan úgy adaptálják a könyveket, ahogyan megírták őket” — MOZI HÍREK – Az amerikai filmrendező pontosan tudja, milyen megközelítést választott volna, ha akár csak egy film erejéig rábízzák a franchise irányítását. Quentin Tarantino szerint a következő James Bond-korszaknak nem",
+   "source": "TheGeek",
+   "lean": "unknown",
+   "date": "2026-06-25",
+   "category": "tech"
+  },
+  {
+   "text": "Az angolok hozták a kötelezőt, a horvátok behúzták a helyosztót — Az L csoport utolsó fordulójában három pont járt két gólért. The post Az angolok hozták a kötelezőt, a horvátok behúzták a helyosztót first appeared on 24.hu .",
+   "source": "24.hu",
+   "lean": "left",
+   "date": "2026-06-27",
+   "category": "general"
+  },
+  {
+   "text": "Pontosan ilyennek kell lennie egy Pride-nak — Hosszú idő után először nem a félelem és a düh, hanem a jó érzés, a szolidaritás és a felszabadultság vitte ki az embereket az utcára.",
+   "source": "444.hu",
+   "lean": "left",
+   "date": "2026-06-27",
+   "category": "general"
+  },
+  {
+   "text": "Draftolva! – Újabb magyar hokis kap esélyt az NHL-re — Szongoth Domán tengerentúli játékjogát a Buffalo Sabres csapata foglalta el az észak-amerikai profi jégkorongliga (NHL) szombati, éppen Buffalóban megtartott draftján.",
+   "source": "Infostart",
+   "lean": "unknown",
+   "date": "2026-06-27",
+   "category": "politics"
+  },
+  {
+   "text": "Spórolni kell a vízzel már Budapest környékén is, sebességkorlát a vasúton – a nap hírei — A fokozódó forróság miatt életbe lépett és jövő keddig tart a harmadfokú hőségriasztás. Takarékos vízhasználatra kérték a lakókat több Pest megyei településen. A közlekedési miniszterhez fordultak segítségért a repülőtér",
+   "source": "Infostart",
+   "lean": "unknown",
+   "date": "2026-06-27",
+   "category": "politics"
+  },
+  {
+   "text": "Egy királyság végét látjuk? Borzasztó formában az egykori világbajnok, súlyos kérdések merültek fel a jövőjéről — A korábbi klasszikus sakkvilágbajnok, Magnus Carlsen gyenge szereplése ismét felvetette a kérdést, hogy vajon a 35 éves családapa hajlik-e arra, hogy tovább csökkentse feszített tempóját.",
+   "source": "Pénzcentrum",
+   "lean": "analytical",
+   "date": "2026-06-27",
+   "category": "economy"
+  },
+  {
+   "text": "A magyar vállalatoknak gyakran láthatatlan kockázatot jelent az, ha az alkalmazottak árnyék-MI-t használnak — Az MI vállalati használatát már nem lehet megtiltani, csak biztonságos keretek közé kell terelni, amihez világos irányelvekre, képzésre és megfelelő technológiai kontrollokra van szükség.",
+   "source": "Rakéta",
+   "lean": "center",
+   "date": "2026-06-27",
+   "category": "tech"
+  },
+  {
+   "text": "Magyar Péter: A következő két napban csak a valóban fontos vízhasználatra korlátozzuk az ivóvíz felhasználást! — Ne locsoljanak vezetékes ivóvízzel, ne mossanak autót, ne töltsenek medencét, ne használjanak ivóvizet olyan célra, amely elhalasztható – kéri a lakosságot a kormányfő.",
+   "source": "444.hu",
+   "lean": "left",
+   "date": "2026-06-29",
+   "category": "general"
+  },
+  {
+   "text": "Magyar Péter rendkívüli bejelentést tett: kritikus napok jönnek, határozott kéréssel fordult a lakossághoz — Rendkívüli bejelentést tett hétfő este Magyar Péter: a hőségriasztás és a megugró vízfogyasztás miatt több térségben kritikussá vált a vízellátás. A miniszterelnök arra kérte a lakosságot, hogy a köve ...",
+   "source": "Economix",
+   "lean": "unknown",
+   "date": "2026-06-29",
+   "category": "economy"
+  },
+  {
+   "text": "A kormány meghosszabbítja a babaváró gyermekvállalási határidejét — Továbbá új szabályozást készítenek elő.",
+   "source": "Index Belföld",
+   "lean": "right",
+   "date": "2026-06-29",
+   "category": "politics"
+  },
+  {
+   "text": "Új hőse született Kanadának — Jesse Marsch, a kanadai válogatott szövetségi kapitánya szerint a hatékonyság hiányzott csapata játékából a ráadásig, amikor Stephen Eustáquio góljával sikerült eldönteni a dél-afrikaiak elleni mérkőzést, és ezzel a kana",
+   "source": "Infostart",
+   "lean": "unknown",
+   "date": "2026-06-29",
+   "category": "politics"
+  },
+  {
+   "text": "Simon Júda vásár: Párkány 2026-ban is várja a látogatókat - Minden fontos tudnivaló a vásárról egy helyen — A Simon Júda vásár Párkány 2026-os őszi programkínálatának egyik legnagyobb érdeklődésre számot tartó eseménye. Mutatjuk, hogyan és mikor érdemes a vásárra utazni, és mire számíthatnak a látogatók",
+   "source": "Pénzcentrum",
+   "lean": "analytical",
+   "date": "2026-06-29",
+   "category": "economy"
+  },
+  {
+   "text": "Elektronikus zene költözik Ópusztaszerre: különleges fesztivál jön a történelmi emlékparkban — Elektronikus zenei fesztivált rendeznek az Ópusztaszeri Nemzeti Történeti Emlékparkban.",
+   "source": "Economix",
+   "lean": "unknown",
+   "date": "2026-07-01",
+   "category": "economy"
+  },
+  {
+   "text": "A Ford kirúgta az AI-t, és visszavette a mérnököket — Az elmúlt három év során 350 veterán mérnököt vettek fel, illetve vissza, mert kiderült, hogy jobbak, mint az AI-rendszerek.",
+   "source": "Qubit",
+   "lean": "left",
+   "date": "2026-07-01",
+   "category": "tech"
+  },
+  {
+   "text": "Másfél órán keresztül bámultam Mbappét, hogy neked már ne kelljen — Már az M4 Sport online közvetítései közt is felbukkant az a funkció, hogy egyetlen játékos minden mozdulatát végig lehet követni egy meccsen. A legdurvább valóságshow-kat megszégyenítő kukkolás zavarba ejtő élmény, és ne",
+   "source": "Qubit",
+   "lean": "left",
+   "date": "2026-07-01",
+   "category": "tech"
+  },
+  {
+   "text": "Doppingbotrány: nyolc tunéziai játékos tesztje is pozitív lett — Az afrikai válogatott egyetlen pontot sem szerzett a világbajnokságon. The post Doppingbotrány: nyolc tunéziai játékos tesztje is pozitív lett first appeared on 24.hu .",
+   "source": "24.hu",
+   "lean": "left",
+   "date": "2026-07-03",
+   "category": "general"
+  },
+  {
+   "text": "Kiderült, mennyit fizetett Schwarzeneggerék stábja a budapesti metrólezárásért — A forgatáshoz orosz metrókocsikat is béreltek, ami jelentős plusz bevételt hozott.",
+   "source": "Index Belföld",
+   "lean": "right",
+   "date": "2026-07-03",
+   "category": "politics"
+  },
+  {
+   "text": "A „fáraók” bírták jobban az idegek csatáját, Ausztrália két büntetőt is hibázott — Az egyiptomi labdarúgó-válogatott 1–1-es döntetlen után büntetőpárbajban 4–2-re legyőzte pénteken Ausztráliát Arlingtonban, ezzel bejutott a világbajnokság nyolcaddöntőjébe.",
+   "source": "Infostart",
+   "lean": "unknown",
+   "date": "2026-07-03",
+   "category": "politics"
+  },
+  {
+   "text": "Stratégiai jelentőségű város elfoglalását jelentette be Oroszország — A Kreml közlése szerint az orosz hadsereg elfoglalta a kelet-ukrajnai Kosztyantinivka városát, a kijevi erőknek a Donyec-medence még ukrán kézen lévő nagyvárosai felé vezető úton fekvő megerősített állását.",
+   "source": "Infostart",
+   "lean": "unknown",
+   "date": "2026-07-03",
+   "category": "politics"
+  },
+  {
+   "text": "Belső feszültségek miatt állt le a szuper-vadászgép projekt, komoly veszélybe került a katonai együttműködés — Guillaume Faury, az Airbus vezérigazgatója borúlátóan nyilatkozott az európai védelmi együttműködés jövőjéről. Az Airbus-vezér aggályai alig néhány héttel azután fogalmazódtak meg, hogy zátonyra futott a francia–német–sp",
+   "source": "Portfolio",
+   "lean": "analytical",
+   "date": "2026-07-03",
+   "category": "economy"
+  },
+  {
+   "text": "A külvilág beengedése: hogyan alakítja át a megfelelő tetőablakok kiválasztása a családi otthont — Amikor egy család felújításba kezd, nem csupán az életteret növeli, hanem a jövőbeli emlékek hátterét is megteremti. The post A külvilág beengedése: hogyan alakítja át a megfelelő tetőablakok kiválasztása a családi ottho",
+   "source": "24.hu",
+   "lean": "left",
+   "date": "2026-07-05",
+   "category": "general"
+  },
+  {
+   "text": "Megdöbbentő hibát követ el rengeteg kerttulajdonos: így száradnak ki a gyümölcsfák a kánikulában — Pofonegyszerűen segíthetjük a kerti fákat a legforróbb hőhullámok és az aszály átvészelésében.",
+   "source": "AgrárSzektor",
+   "lean": "unknown",
+   "date": "2026-07-05",
+   "category": "economy"
+  },
+  {
+   "text": "Times: Trump maga hívta fel a FIFA elnökét, hogy közbenjárjon az amerikai játékos eltiltásának elengedése ügyében — Balogun büntetésének felfüggesztése annyira rendkívüli, hogy 1962-ben történt utoljára olyan, hogy a FIFA engedélyezte egy játékosnak, hogy olyan mérkőzésen játsszon, ahol eltiltásban részesült volna.",
+   "source": "HVG",
+   "lean": "left",
+   "date": "2026-07-05",
+   "category": "general"
+  },
+  {
+   "text": "Cristiano Ronaldo: Ez az utolsó világbajnokság, amin pályára lépek — A portugálok 41 éves klasszisa reméli, hogy a spanyolok ellen nem ér véget az álom.",
+   "source": "Index",
+   "lean": "right",
+   "date": "2026-07-05",
+   "category": "general"
+  },
+  {
+   "text": "Eggyel kevesebben lettek a Fradinál — Cebrail Makreckis a Ferencvárosból az azeri Qarabag labdarúgócsapathoz szerződött.",
+   "source": "Infostart",
+   "lean": "unknown",
+   "date": "2026-07-05",
+   "category": "politics"
+  },
+  {
+   "text": "A Waymo robot taxijai brutálisan megnehezítették a közlekedést San Franciscóban — Az amerikai függetlenség napja problémásra sikerült, ahogy több ezer utas lett az autók rabja a Waymónak köszönhetően.",
+   "source": "GameStar",
+   "lean": "unknown",
+   "date": "2026-07-07",
+   "category": "tech"
+  },
+  {
+   "text": "Kiakadt a KFT zenekar, szerintük a Heineken engedély nélkül kampányt épített a Balatoni nyárra — A sörgyártó már válaszolt is a vádakra.",
+   "source": "Index Belföld",
+   "lean": "right",
+   "date": "2026-07-07",
+   "category": "politics"
+  },
+  {
+   "text": "Trump olyat ígért Erdogannak, amitől Izrael azonnal kiborult – a nap hírei — Minden jogosult gyermek automatikusan megkapja az iskolakezdési támogatást. Felfüggesztette a pedagógusok teljesítményértékelését az Országgyűlés Nem zárkózik el az amerikai elnök attól, hogy F–35-ös amerikai vadászrepül",
+   "source": "Infostart",
+   "lean": "unknown",
+   "date": "2026-07-07",
+   "category": "politics"
+  },
+  {
+   "text": "Elképesztő dolog történik Európa egyik legerősebb hatalmában: orosz rulettet játszik a legerősebb ellenzéki politikus - akár ki is eshet a parlamentből — A politikus az időközi választást a nép és a hatalmi elit összecsapásaként jellemezte.",
+   "source": "Pénzcentrum",
+   "lean": "analytical",
+   "date": "2026-07-07",
+   "category": "economy"
+  },
+  {
+   "text": "Most már köszönöm, Rami Malek leállhat — Az Oscar-díjas színész benne ragadt a Freddie Mercury-tempóban, és egy visszafogott drámában is akkorát alakít, hogy kilóg a képből.",
+   "source": "Telex",
+   "lean": "left",
+   "date": "2026-07-07",
+   "category": "general"
+  },
+  {
+   "text": "Újabb csapás a délvidéki gazdákra: terjed az afrikai sertéspestis Szerémségben — Az afrikai sertéspestis újabb gócpontjait azonosítottak Szerémségben. A fertőző állatbetegség ezúttal több településen is megjelent, ezért az állategészségügyi hatóságok korlátozó és megelőző intézkedéseket rendeltek el",
+   "source": "Dél-Hír",
+   "lean": "unknown",
+   "date": "2026-07-09",
+   "category": "foreign"
+  },
+  {
+   "text": "Győzelemmel kezdett az FTC az Európa-liga selejtezőjében — Az idén nyolcaddöntős Ferencváros 2-1-es győzelemmel kezdett csütörtökön a labdarúgó Európa-liga selejtezőjének első fordulójában a szerb Vojvodina vendégeként.",
+   "source": "Népszava",
+   "lean": "left",
+   "date": "2026-07-09",
+   "category": "politics"
+  },
+  {
+   "text": "Kissé vaskosabb megjelenést kaphat a Windows 11 tálcáján a kereső — Noha egészen apró változtatásról van szó, az eredmény észrevehető.",
+   "source": "PCW Plus",
+   "lean": "unknown",
+   "date": "2026-07-09",
+   "category": "tech"
+  },
+  {
+   "text": "Így igényelhető rendszeres gyermekvédelmi kedvezmény 2026-ban: ezek a feltételek, ekkor érkezik az összeg — A rendszeres gyermekvédelmi kedvezmény évi két alkalommal nyújt anyagi segítséget a rászoruló gyermekek ellátásában, de más módon is enyhítheti a család anyagi terheit.",
+   "source": "Pénzcentrum",
+   "lean": "analytical",
+   "date": "2026-07-09",
+   "category": "economy"
+  },
+  {
+   "text": "Átnevezték a Palm Beach-i nemzetközi repülőteret, az új neve Donald J. Trump nemzetközi repülőtér — A Trump nevét viselő repülőtér csak 10 kilométerre van a Mar-a-Lago rezidenciától.",
+   "source": "Telex",
+   "lean": "left",
+   "date": "2026-07-09",
+   "category": "general"
+  },
+  {
+   "text": "Jelentős különbségek lehetnek az utasbiztosításoknál: erre kell figyelni az idősebbeknek — Több biztosító is életkorhoz köti az utasbiztosítás egyes feltételeit. A korlátozások elsősorban a sürgősségi egészségügyi ellátás fedezetét, a biztosítás maximális időtartamát, valamint a fizetendő b ...",
+   "source": "Economix",
+   "lean": "unknown",
+   "date": "2026-07-11",
+   "category": "economy"
+  },
+  {
+   "text": "Erling Haaland szülőföldje válogatottja ellen is megmutatná, de ehhez Harry Kane-éknek is lesz egy-két szavuk - Norvégia–Anglia világbajnoki negyeddöntő – élőben az Indexen — A világ talán két legjobb kilencese néz farkasszemet egymással Miamiban a vb-elődöntőért.",
+   "source": "Index",
+   "lean": "right",
+   "date": "2026-07-11",
+   "category": "general"
+  },
+  {
+   "text": "Már 4333-nál jár a halálos áldozatok száma a venezuelai földrengések után — A hivatalos adatok szerint 6462 embert sikerült kimenteni, és mintegy 17 ezer ember maradt fedél nélkül.",
+   "source": "Népszava",
+   "lean": "left",
+   "date": "2026-07-11",
+   "category": "politics"
+  },
+  {
+   "text": "Belebukott a sárvári fürdő vezetője abba, hogy munkavégzés nélkül fizetett évek óta egy fideszes aktivistának, a polgármester régi ismerősének — Az egyébként fideszes többségi képviselő-testület felmentette Kántás Zoltánt.",
+   "source": "444.hu",
+   "lean": "left",
+   "date": "2026-07-13",
+   "category": "general"
+  },
+  {
+   "text": "Dubajban cseles megoldást fundáltak ki, hogy a Hormuzi-szorost megkerüljék — Az Egyesült Arab Emírségek új kikötőt épít, hogy ennek révén megkerülhető legyen a Hormuzi-szoros.",
+   "source": "Economix",
+   "lean": "unknown",
+   "date": "2026-07-13",
+   "category": "economy"
+  },
+  {
+   "text": "A Copilot új funkciója segít eligazodni a PC-dben, de van vele egy kis gond — Megmondja a frankót a problémáról, aminek egy részét ő maga okozza.",
+   "source": "PCW Plus",
+   "lean": "unknown",
+   "date": "2026-07-13",
+   "category": "tech"
+  }
+ ],
+ "built": "2026-11-23",
+ "source_db": "Echolot MCP get_news (https://echolotnews.com/mcp), published_at szerinti napok",
+ "build_rule": "get_news(limit=100, diversify, max_per_source=3, place=ország) minden 2. napra; title>15, LEAK_RE-szűrő, cím-dedupe, lead 220 kar., MAXN=60 lean-cap (arányos kvóta + domináns lean <=60% + dátum-stride) — a júliusi sample_cell"
+}

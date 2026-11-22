@@ -1,0 +1,554 @@
+{
+ "country": "FR",
+ "lang": "fr",
+ "target_month": "2026-08",
+ "corpus_window": [
+  "2026-07-15",
+  "2026-08-14"
+ ],
+ "days_sampled": [
+  "2026-07-15",
+  "2026-07-17",
+  "2026-07-19",
+  "2026-07-21",
+  "2026-07-23",
+  "2026-07-25",
+  "2026-07-27",
+  "2026-07-29",
+  "2026-07-31",
+  "2026-08-02",
+  "2026-08-04",
+  "2026-08-06",
+  "2026-08-08",
+  "2026-08-10",
+  "2026-08-12",
+  "2026-08-14"
+ ],
+ "n": 60,
+ "lean_dist": {
+  "unknown": 9,
+  "center": 37,
+  "center_left": 5,
+  "center_right": 4,
+  "left": 2,
+  "right": 3
+ },
+ "cat_dist": {
+  "tech": 7,
+  "foreign": 19,
+  "general": 9,
+  "politics": 5,
+  "sport": 14,
+  "entertainment": 4,
+  "lifestyle": 1,
+  "economy": 1
+ },
+ "raw_rows": 1200,
+ "pool_after_dedupe": 1166,
+ "leak_dropped": 0,
+ "distinct_sources_raw": 95,
+ "raw_cat_dist": {
+  "foreign": 348,
+  "sport": 192,
+  "general": 210,
+  "economy": 46,
+  "tech": 113,
+  "global": 30,
+  "entertainment": 109,
+  "politics": 110,
+  "lifestyle": 40,
+  "cars": 2
+ },
+ "per_day": {
+  "2026-07-15": {
+   "returned": 71,
+   "pool": 500
+  },
+  "2026-07-17": {
+   "returned": 69,
+   "pool": 500
+  },
+  "2026-07-19": {
+   "returned": 72,
+   "pool": 500
+  },
+  "2026-07-21": {
+   "returned": 79,
+   "pool": 500
+  },
+  "2026-07-23": {
+   "returned": 76,
+   "pool": 500
+  },
+  "2026-07-25": {
+   "returned": 79,
+   "pool": 500
+  },
+  "2026-07-27": {
+   "returned": 75,
+   "pool": 500
+  },
+  "2026-07-29": {
+   "returned": 80,
+   "pool": 500
+  },
+  "2026-07-31": {
+   "returned": 69,
+   "pool": 500
+  },
+  "2026-08-02": {
+   "returned": 75,
+   "pool": 500
+  },
+  "2026-08-04": {
+   "returned": 82,
+   "pool": 500
+  },
+  "2026-08-06": {
+   "returned": 76,
+   "pool": 500
+  },
+  "2026-08-08": {
+   "returned": 78,
+   "pool": 500
+  },
+  "2026-08-10": {
+   "returned": 72,
+   "pool": 500
+  },
+  "2026-08-12": {
+   "returned": 77,
+   "pool": 500
+  },
+  "2026-08-14": {
+   "returned": 70,
+   "pool": 500
+  }
+ },
+ "mcp_errors": 0,
+ "items": [
+  {
+   "text": "Avengers: Doomsday relance le flou sur l’équipe de Sam Wilson — Le premier visuel de Avengers: Doomsday réunit presque tout le MCU. Sauf qu’il laisse entière une question gênante: où est passée l’équipe de Sam Wilson ?",
+   "source": "Begeek",
+   "lean": "unknown",
+   "date": "2026-07-15",
+   "category": "tech"
+  },
+  {
+   "text": "\"À un moment donné, on n'a plus assez d'eau\" : ces communes du Var qui ont stoppé la construction de logements à cause de la sécheresse — La France est dans une situation de sécheresse \"exceptionnelle\", alerte le gouvernement. Presque tous les départements sont touchés, et face à cette situation, certains maires ont pris une décision radicale : ne plus att",
+   "source": "France Info — Économie",
+   "lean": "center",
+   "date": "2026-07-15",
+   "category": "foreign"
+  },
+  {
+   "text": "Apple augmente discrètement le prix d’AppleCare+ pour Mac et iPad — Apple relève encore ses prix, cette fois sur l'extension de garantie AppleCare+ pour Mac et iPad. La hausse est modeste, et pour l'instant limitée aux États-Unis.",
+   "source": "Frandroid",
+   "lean": "center",
+   "date": "2026-07-15",
+   "category": "tech"
+  },
+  {
+   "text": "Angleterre - Argentine : une victoire méritée ? Qu’a fait Lionel Messi ? Tuchel a-t-il fait les bons choix... ? Questions autour de la demi-finale de Coupe du monde remportée par l’Albiceleste — L’Argentine a renversé l’Angleterre en fin de match pour décrocher sa place en finale de la Coupe du monde. L’Albiceleste va tenter de conserver son titre face à l’Espagne dimanche 19 juillet. Les hymnes sifflés, les...",
+   "source": "La Dépêche du Midi",
+   "lean": "center_left",
+   "date": "2026-07-15",
+   "category": "foreign"
+  },
+  {
+   "text": "La cause de la mort de l’acteur Sam Neill révélée — L’acteur néo-zélandais Sam Neill, connu pour son rôle dans «Jurassic Park», est décédé d’une pneumonie lundi, a confirmé son agent.",
+   "source": "Le Journal de Montreal",
+   "lean": "center_right",
+   "date": "2026-07-15",
+   "category": "foreign"
+  },
+  {
+   "text": "EN DIRECT : le pompier volontaire suspecté d’être à l’origine d’un départ de feu en forêt de Fontainebleau a été mis en examen et placé en détention provisoire — Le jeune homme de 18 ans avait d’abord avoué avoir « mis le feu à des brindilles avec un briquet et de l’essence », avant de revenir sur ses aveux, a fait savoir la procureure de la République, Diane Ngomsik.",
+   "source": "Le Monde — Planète",
+   "lean": "left",
+   "date": "2026-07-15",
+   "category": "general"
+  },
+  {
+   "text": "« La chaleur était insupportable » : une mère enchaîne sa fille à une clôture sans eau en pleine canicule — La femme de 34 ans, originaire de Floride, est accusée de maltraitance et de négligence envers son enfant de 13 ans. Elle l’a ensuite laissée sans nourriture, ni eau, lors de fortes chaleurs, accrochée à une clôture.",
+   "source": "Paris Match",
+   "lean": "center",
+   "date": "2026-07-15",
+   "category": "general"
+  },
+  {
+   "text": "Leasing social : 50.000 ménages accèdent à des voitures électriques — La nouvelle mouture du \"leasing social\", lancée jeudi, permettra à 50.000 ménages modestes supplémentaires de disposer d'une voiture électrique neuve pour un loyer de moins de 200 euros par mois, tout en favorisant désor",
+   "source": "Sud Radio",
+   "lean": "right",
+   "date": "2026-07-15",
+   "category": "foreign"
+  },
+  {
+   "text": "Stranger Things 5 : l’intrigue Holly, un ajout tardif et clé — Les frères Duffer n’avaient pas prévu l’arc de Holly dans la saison 5. Pourtant, c’est lui qui relie Max, Vecna et la dernière scène.",
+   "source": "Begeek",
+   "lean": "unknown",
+   "date": "2026-07-17",
+   "category": "tech"
+  },
+  {
+   "text": "« Je vais devoir repousser mes limites » : dans les coulisses de « L'Odyssée », l'œuvre la plus importante de Nolan — L'ODYSSÉE DE « L'ODYSSÉE » (1/4) - C'est le film le plus attendu de l'année. En adaptant le récit fondateur d'Homère, le cinéaste d'« Inception » et d'« Interstellar » voulait renouer avec le cinéma qu'il aime : un film",
+   "source": "Paris Match",
+   "lean": "center",
+   "date": "2026-07-17",
+   "category": "general"
+  },
+  {
+   "text": "États-Unis : Donald Trump blâme le Canada pour la pollution de l’air causée par les feux de forêt — Dans un message publié sur sa plateforme Truth Social, Donald Trump a accusé le Canada d’être responsable de la pollution de l’air qui touche le nord-est des États-Unis. Il a également menacé le pays de",
+   "source": "Sud Ouest",
+   "lean": "center",
+   "date": "2026-07-17",
+   "category": "politics"
+  },
+  {
+   "text": "Ryan Cherki brouillé avec Didier Deschamps : au fait, quel est le salaire du jeune footballeur mis sur le banc dès la mi-temps de France-Angleterre — Remplacé dès la pause face à l'Angleterre, à Miami, Rayan Cherki a vécu une petite finale sous tension avec Didier Deschamps. Le point sur les émoluments du Lyonnais.",
+   "source": "Closer France",
+   "lean": "center",
+   "date": "2026-07-19",
+   "category": "sport"
+  },
+  {
+   "text": "L’Espagne s’arrache au scénario des tirs au but et s’offre une deuxième étoile grâce à Ferran Torres — Au terme d’un match à sens unique, l’Espagne a eu besoin de 105 minutes pour trouver la faille et battre l’Argentine 1-0. Messi a loupé sa finale. ...",
+   "source": "DH Les Sports+ (La Derniere Heure)",
+   "lean": "center",
+   "date": "2026-07-19",
+   "category": "sport"
+  },
+  {
+   "text": "Un attaquant quasi invisible offensivement, un métronome... : les notes de la finale de la Coupe du monde — Retrouvez les principales notes de la finale de la Coupe du monde 2026. ...",
+   "source": "La Libre Belgique",
+   "lean": "center_right",
+   "date": "2026-07-19",
+   "category": "sport"
+  },
+  {
+   "text": "Etats-Unis : Après les accusations de fraude de Trump, le New Jersey corrige ses listes électorales — Le New Jersey a radié 6.600 ressortissants étrangers de ses listes électorales après une erreur informatique. Une annonce intervenant sur fond de nouvelles accusations de fraude électorale de Trump à l’approche des midte",
+   "source": "20 Minutes — Une",
+   "lean": "center",
+   "date": "2026-07-21",
+   "category": "foreign"
+  },
+  {
+   "text": "Les Françaises en argent en K1 par équipes, les Français partent à la faute aux Mondiaux d'Oklahoma City — Fortunes diverses pour la sélection tricolore ce mardi à Oklahoma City, sur le bassin des JO 2028. Argentées, les Françaises renouent avec le podium en K1 par équipes pour la première fois depuis 2018, tandis que les hom",
+   "source": "L'Equipe",
+   "lean": "center",
+   "date": "2026-07-21",
+   "category": "foreign"
+  },
+  {
+   "text": "Refus d'obtempérer : qu’est-ce que le dispositif DIVA ? — L’ANTISÈCHE. Lors du refus d’obtempérer survenu dans la nuit de lundi à mardi à Marseille, au cours duquel un policier a été grièvement blessé, les forces de l’ordre ont tenté d’utiliser le dispositif DIVA pour intercept",
+   "source": "Le Journal du Dimanche (JDD)",
+   "lean": "right",
+   "date": "2026-07-21",
+   "category": "foreign"
+  },
+  {
+   "text": "Guerre en Ukraine : les pays de l'UE trouvent enfin un accord sur une nouvelle vague de sanctions contre la Russie — Après plusieurs longues semaines de négociations, les pays de l'Union européenne sont tombés d'accord ce jeudi 23 juillet à Bruxelles pour infliger de nouvelles sanctions à Moscou avec, entre autres, un dispositif de...",
+   "source": "La Dépêche du Midi",
+   "lean": "center_left",
+   "date": "2026-07-23",
+   "category": "politics"
+  },
+  {
+   "text": "Comment la suppression de l’aide américaine par Trump a poussé des humanitaires népalaises vers la prostitution — Au Népal, la suppression des financements américains a laissé sans emploi des travailleuses d’associations spécialisées dans la prévention du VIH. Faute d’alternative, plusieurs d’entre elles vendent désormais leur corps",
+   "source": "Paris Match",
+   "lean": "center",
+   "date": "2026-07-23",
+   "category": "general"
+  },
+  {
+   "text": "Les prix de l’essence repartent à la hausse pour les vacances — Les tensions géopolitiques au Moyen-Orient ont propulsé le prix du pétrole à son plus haut niveau en un mois.",
+   "source": "Radio-Canada (ICI)",
+   "lean": "center",
+   "date": "2026-07-23",
+   "category": "foreign"
+  },
+  {
+   "text": "Angleterre – Jermain Defoe quitte le banc du Woking FC après seulement six matchs",
+   "source": "SOFOOT.com",
+   "lean": "unknown",
+   "date": "2026-07-23",
+   "category": "sport"
+  },
+  {
+   "text": "Un “Forza Juve” malvenu, un pigeon amuseur et un petit envahissement de terrain à Sclessin : retour sur l’ambiance de ce Standard – Juventus — Belle réussite (17 650 spectateurs) pour ce match de gala dans un Sclessin aux teintes inhabituelles. ...",
+   "source": "L'Avenir (Belgium)",
+   "lean": "center",
+   "date": "2026-07-25",
+   "category": "sport"
+  },
+  {
+   "text": "Amélie Oudéa-Castéra, présidente du CNOSF : « Si Alpes 2030 n’a pas un pilotage fiable, on ne réussira pas » — ENTRETIEN EXCLUSIF — La patronne du mouvement sportif pointe la défiance persistante au sein du comité d’organisation, mais se réjouit des records de pratique dans le pays.",
+   "source": "La Tribune",
+   "lean": "center",
+   "date": "2026-07-25",
+   "category": "sport"
+  },
+  {
+   "text": "Italie : Thiago Motta aurait lui aussi refusé le poste de sélectionneur",
+   "source": "SOFOOT.com",
+   "lean": "unknown",
+   "date": "2026-07-25",
+   "category": "sport"
+  },
+  {
+   "text": "La France rend hommage au père Hamel tué dans un attentat il y a dix ans — Par AFP Par Manuel SANSON © 2026 AFP Un hommage à la \"fraternité\" et au \"refus de la haine\". Dix ans après son assassinat par deux jihadistes, la France a célébré dimanche la mémoire du père Jacques Hamel, avec une cérém",
+   "source": "TV5Monde Info",
+   "lean": "center",
+   "date": "2026-07-25",
+   "category": "foreign"
+  },
+  {
+   "text": "“Stuart Fails To Save The Universe”, “Ride Or Die”, “GIGN”… Que valent les séries de la semaine ? — Un sympathique spin-off de la série geek “The Big Bang Theory”, une charmante histoire d’amitié sur les routes d’Europe, une mission antiterroriste invraisemblable… On vous dit tout sur les nouveautés à voir sur les plat",
+   "source": "Telerama",
+   "lean": "center_left",
+   "date": "2026-07-25",
+   "category": "entertainment"
+  },
+  {
+   "text": "Rugby – Pro D2 : présentation de l’effectif 2026-2027, soirée de haut vol à l’abbaye de Fontfroide, ambitions, le Racing Club Narbonnais lance sa saison devant ses partenaires — Dans un cadre idyllique, à l’abbaye de Fontfroide, ce lundi 27 juillet, le Racing Club Narbonnais a fait sa première soirée de rentrée devant un parterre de partenaires. La saison du retour en Pro D2 est...",
+   "source": "L'Indépendant",
+   "lean": "center",
+   "date": "2026-07-27",
+   "category": "foreign"
+  },
+  {
+   "text": "Incendies en Gironde : un « orage de feu » a frappé la France pour la première fois et a rendu l’incendie incontrôlable — Le méga-feu de Gironde génère ses propres vents et ses propres éclairs. Ce comportement convectif rend toute estimation de sa progression impossible.",
+   "source": "Science & Vie",
+   "lean": "center",
+   "date": "2026-07-27",
+   "category": "foreign"
+  },
+  {
+   "text": "Défi de L’Ours à Font-Romeu-Odeillo-Via : l’adrénaline prend de l’altitude, ce week-end — Samedi 1er août et dimanche 2 août, venez vivre la 7e édition du Défi de l’ours, à Font-Romeu ! Cette année, 120 pilotes seront au départ pour offrir un spectacle exceptionnel. Parmi eux, plusieurs grands noms de la...",
+   "source": "L'Indépendant",
+   "lean": "center",
+   "date": "2026-07-29",
+   "category": "foreign"
+  },
+  {
+   "text": "L'autrice Sarah Fila-Bakabadio raconte l'ordinaire des femmes noires en France — Comment vit-on le fait d'être une femme noire en France aujourd'hui ? Cette question, si simple puisse-t-elle paraître, est au cœur du nouveau livre de Sarah Fila-Bakabadio. Historienne spécialiste des diasporas noires,",
+   "source": "RFI — Fil info (FR)",
+   "lean": "center",
+   "date": "2026-07-29",
+   "category": "foreign"
+  },
+  {
+   "text": "FIFA – Sepp Blatter s’attaque à son tour à Gianni Infantino et son projet de vendre des parts de la Coupe du monde",
+   "source": "SOFOOT.com",
+   "lean": "unknown",
+   "date": "2026-07-29",
+   "category": "sport"
+  },
+  {
+   "text": "Un risque de contamination ? Les animaux domestiques hébergent aussi des superbactéries presque jumelles des nôtres selon une étude — Les bactéries résistantes aux antibiotiques inquiètent surtout dans les hôpitaux. Pourtant, elles ne s'arrêtent pas à la porte de nos maisons. La superbactérie des animaux de compagnie partage désormais un patrimoine gén",
+   "source": "Science & Vie",
+   "lean": "center",
+   "date": "2026-07-29",
+   "category": "foreign"
+  },
+  {
+   "text": "Pourquoi le remake live-action de Vaiana cale déjà au box-office — Le remake live-action de Disney plafonne à 212 millions d’euros. Un score faible qui le place derrière plusieurs échecs récents du studio.",
+   "source": "Begeek",
+   "lean": "unknown",
+   "date": "2026-07-31",
+   "category": "tech"
+  },
+  {
+   "text": "Gaël Monfils pour une dernière danse, Grigor Dimitrov au statut, Jack Draper à la relance... : les wild-cards du Masters 1000 de Cincinnati dévoilées — Le Masters 1000 de Cincinnati a dévoilé les noms des quatre joueurs qui bénéficieront d'une wild-card lors du tournoi, qui se déroulera du 8 au 23 août. Gaël Monfils en fait partie, pour sa dernière participation annoncé",
+   "source": "L'Equipe - Tennis",
+   "lean": "center",
+   "date": "2026-07-31",
+   "category": "sport"
+  },
+  {
+   "text": "La fessée est-elle toujours à proscrire ? — Je vis avec un homme d’origine sud-américaine et nous avons un petit garçon de six ans.",
+   "source": "Le Journal de Montreal",
+   "lean": "center_right",
+   "date": "2026-07-31",
+   "category": "foreign"
+  },
+  {
+   "text": "EN DIRECT, Ceuta : plus de 48 000 personnes sont déjà retournées au Maroc, annonce le gouvernement espagnol ; l’intégrité de l’espace Schengen est « absolument garantie », affirme le ministre des affaires étrangères — De son côté, l’Italie a temporairement fermé l’espace Schengen à l’Espagne. Le ministère de l’intérieur espagnol avait annoncé plus tôt dans la journée que 50 000 personnes avaient afflué dans l’enclave depuis jeudi.",
+   "source": "Le Monde",
+   "lean": "left",
+   "date": "2026-07-31",
+   "category": "politics"
+  },
+  {
+   "text": "Sainte-Maxime engage un chantier de 300.000 euros pour sécuriser sa Maison des associations — La structure va subir des travaux de réaménagement au niveau de la sécurité incendie pour se conformer à la réglementation en vigueur.",
+   "source": "Nice-Matin",
+   "lean": "center",
+   "date": "2026-07-31",
+   "category": "general"
+  },
+  {
+   "text": "Plat sur le dos, dégringolade de dix places, mental dans les chaussettes... La cruelle déception de Naïs Gillet, 12e aux Championnats d'Europe de plongeon à 1m — Après une sixième place en synchro mixte à 3m, Naïs Gillet s'est effondrée au 4e plongeon de la finale individuelle à 1m. Elle termine douzième des Championnats d'Europe.",
+   "source": "L'Equipe",
+   "lean": "center",
+   "date": "2026-08-02",
+   "category": "sport"
+  },
+  {
+   "text": "Donald Trump annonce une reprise des négociations avec l’Iran dès lundi — Le président américain Donald Trump a annoncé dimanche 2 août l’ouverture de nouveaux pourparlers avec l’Iran à compter de lundi après-midi.",
+   "source": "Ouest-France — Une",
+   "lean": "center",
+   "date": "2026-08-02",
+   "category": "politics"
+  },
+  {
+   "text": "Lisa Brinkworth saisit la justice européenne contre Gérald Marie — Depuis 2020, Lisa Brinkworth, journaliste britannique, ferraille pour que la justice française enquête sur Gérald Marie, ex-directeur d'agence de mannequins accusé de viols par plusieurs femmes, à qui elle impute aussi d",
+   "source": "Sud Radio",
+   "lean": "right",
+   "date": "2026-08-02",
+   "category": "general"
+  },
+  {
+   "text": "Départ canon et succès annoncé : comment Spider-Man tisse sa toile sur le box-office mondial — Le dernier opus de la saga de l’homme-araignée, « Spider-Man : Brand New Day », a fait un démarrage spectaculaire, porté par son casting trois étoiles et un scénario malin qui enthousiasment la Gen Z.",
+   "source": "Telerama",
+   "lean": "center_left",
+   "date": "2026-08-02",
+   "category": "entertainment"
+  },
+  {
+   "text": "Ukraine : des missiles balistiques ont frappé Kiev - 04/08 — Chaque soir, Jérémy Brossard vous accompagne de 22h à 00h dans BFM Grand Soir.",
+   "source": "BFMTV — 24/7",
+   "lean": "center",
+   "date": "2026-08-04",
+   "category": "politics"
+  },
+  {
+   "text": "La dystopie est déjà là, BMW affiche des pubs pour Spider-Man sur votre tableau de bord, alors qu'elle avait promis de ne jamais le faire, et elle veut vous faire croire que c'est un cadeau — La dystopie est déjà là, BMW affiche des publicités pour Spider-Man sur votre tableau de bord, alors qu'elle avait promis de ne jamais le faire, et elle veut vous faire croire que c'est un cadeau BMW s'est récemment retr",
+   "source": "Developpez.com",
+   "lean": "unknown",
+   "date": "2026-08-04",
+   "category": "tech"
+  },
+  {
+   "text": "L'Union Saint-Gilloise et Bodö/Glimt font le spectacle, le Dinamo Zagreb cartonne... Les résultats du 3e tour préliminaire aller de Ligue des champions — Dans un match prolifique et spectaculaire, l'Union Saint-Gilloise et Bodö/Glimt n'ont pas réussi à se départager (3-3), ce mardi au 3e tour préliminaire aller de Ligue des champions. L'Olympiakos n'est pas plus avancé, a",
+   "source": "L'Equipe - Football",
+   "lean": "center",
+   "date": "2026-08-04",
+   "category": "sport"
+  },
+  {
+   "text": "Congolais de Paris: les Terroirs du Congo, un magasin de produits congolais bio en plein Paris [3/5] — Feuilles de manioc, arachides et patates douces : tous ces produits frais du Congo-Brazzaville manquent aux Congolais de la diaspora. Dans le quartier de Château Rouge, la boutique Les Terroirs du Congo fait le pari d'im",
+   "source": "RFI — Fil info (FR)",
+   "lean": "center",
+   "date": "2026-08-04",
+   "category": "lifestyle"
+  },
+  {
+   "text": "Une bagarre à Gand coûte la vie à un jeune homme de 19 ans — Grièvement blessé lors d’une bagarre à Gand en avril, Yaro D’hoore, 19 ans, est décédé jeudi. Cinq suspects ont été identifiés dans l’enquête. ...",
+   "source": "La Libre Belgique",
+   "lean": "center_right",
+   "date": "2026-08-06",
+   "category": "general"
+  },
+  {
+   "text": "Europa League - Thoune prend une sérieuse option après son succès 3-0 face à Vikingur Reykjavik — Thoune, St-Gall et Lugano ont parfaitement entamé leur 3e tour qualificatif de Coupes d'Europe. Les trois clubs de Super League se sont imposés lors de leur match aller respectif.",
+   "source": "RTS Sport (Switzerland)",
+   "lean": "center",
+   "date": "2026-08-06",
+   "category": "foreign"
+  },
+  {
+   "text": "Retour d’expérience : ma méthode pour convaincre un utilisateur de Windows d'essayer Linux — J'utilise l’OS open source depuis 30 ans. Voici comment je montre aux adeptes du système d’exploitation de Microsoft ce qu'ils manquent.",
+   "source": "ZDNet France",
+   "lean": "center",
+   "date": "2026-08-06",
+   "category": "tech"
+  },
+  {
+   "text": "De Los Angeles à Braine-le-Comte en 6 jours, le grand écart de DJ Snake au Ronquières Festival: \"Vous avez du cardio?\" (vidéo) — Star internationale, DJ Snake était la tête d’affiche du Ronquières Festival ce samedi 8 août 2026. Six jours plus tôt, il faisait danser 70.000 personnes à Los Angeles. ...",
+   "source": "L'Avenir (Belgium)",
+   "lean": "center",
+   "date": "2026-08-08",
+   "category": "entertainment"
+  },
+  {
+   "text": "Pourquoi ceux qui fabriquent l’IA limitent la technologie pour leurs propres enfants — Alors que certains dirigeants du secteur de l'IA limitent volontairement l'exposition de leurs propres enfants aux écrans, un spécialiste du développement cérébral s'inquiète d'une fracture sociale à venir entre familles",
+   "source": "Paris Match",
+   "lean": "center",
+   "date": "2026-08-08",
+   "category": "tech"
+  },
+  {
+   "text": "Amicaux : Rennes, le Paris FC, Le Havre et Nice battus, Brest arrache le match nul contre Venise… Les équipes de Ligue 1 poursuivent leur préparation",
+   "source": "SOFOOT.com",
+   "lean": "unknown",
+   "date": "2026-08-08",
+   "category": "sport"
+  },
+  {
+   "text": "Big Chicken : le complot de la malbouffe — Pendant trente jours, le comédien britannique Mo Gilligan enquête sur l’industrie du poulet… en ne s’alimentant que de volaille frite. De quoi rappeler les recherches peu ragoûtantes de Morgan Spurlock sur McDonald’s. Ri",
+   "source": "Telerama",
+   "lean": "center_left",
+   "date": "2026-08-08",
+   "category": "entertainment"
+  },
+  {
+   "text": "Visite du pape en France : le Stade de France \"affiche complet\", plus de 200 000 inscrits pour la messe aux Champs-Elysées en quelques heures — \"Votre mobilisation est très forte en vue de la venue du pape à Paris\", s'est réjoui, lundi, le diocèse de la capitale.",
+   "source": "France Info — À la une",
+   "lean": "center",
+   "date": "2026-08-10",
+   "category": "general"
+  },
+  {
+   "text": "Les Nuits de France Musique : Webradios du mardi 11 août 2026",
+   "source": "France Musique (Radio France)",
+   "lean": "center",
+   "date": "2026-08-10",
+   "category": "foreign"
+  },
+  {
+   "text": "Vers une gouvernance économique verte — Alors que l’Europe de l’Ouest se remet d’un début d’été (juin-juillet) le plus chaud jamais enregistré, les responsables politiques continuent de faire face au défi exceptionnel que représente l’élaboration d’une politiq",
+   "source": "Le Courrier",
+   "lean": "unknown",
+   "date": "2026-08-10",
+   "category": "economy"
+  },
+  {
+   "text": "Athlétisme - Européens 2026 - Ingebrigtsen magistral sur 5000 m — Phénoménal, Jakob Ingebrigtsen n'a laissé aucune chance à ses adversaires sur les 12 tours et demi aux Européens de Birmingham. Il remporte un nouveau titre continental et vise le doublé sur le 10'000 m.",
+   "source": "RTS Sport (Switzerland)",
+   "lean": "center",
+   "date": "2026-08-10",
+   "category": "foreign"
+  },
+  {
+   "text": "Première journée réussie pour le Niçois Makenson Gletty, 4e du décathlon des Championnats d’Europe de Birmingham à mi-concours — Médaillé de bronze du décathlon lors des derniers Championnats d’Europe à Rome en 2024, l’Azuréen Makenson Gletty s’est illustré lors de la première journée de la discipline à Birmingham, ce mercredi 12 août, où il se cl",
+   "source": "Nice-Matin",
+   "lean": "center",
+   "date": "2026-08-12",
+   "category": "foreign"
+  },
+  {
+   "text": "Exclusif : nos reporters en direct du vol de l’éclipse — Jérôme Huffer et Tom Becques ont immortalisé l’éclipse totale dans le seul vol commercial qui suivait la route de la rencontre entre le Soleil et la Lune. Un moment poétique et hors du temps.",
+   "source": "Paris Match",
+   "lean": "center",
+   "date": "2026-08-12",
+   "category": "general"
+  },
+  {
+   "text": "Athlétisme - Européens 2026 - Avec sa médaille d'or, la formidable Audrey Werro rejoint Anita Protti et Lea Sprunger — Magnifique championne du monde du 800m vendredi soir aux Européens de Birmingham, la Fribourgeoise Audrey Werro rejoint au palmarès de cette compétition les Vaudoises Anita Protti (argent) et Lea Sprunger (or et bronze),",
+   "source": "RTS Sport (Switzerland)",
+   "lean": "center",
+   "date": "2026-08-14",
+   "category": "sport"
+  },
+  {
+   "text": "Le CNOSF confirme la sanction des Girondins de Bordeaux. Un nouveau coup sur la tête, le club étudie les recours — « Abasourdis » par la décision du conciliateur de confirmer l’exclusion des championnats nationaux malgré l’apport de fonds, dirigeants et investisseurs se réunissaient ce vendredi. La liquidation de la",
+   "source": "Sud Ouest",
+   "lean": "center",
+   "date": "2026-08-14",
+   "category": "sport"
+  }
+ ],
+ "built": "2026-11-23",
+ "source_db": "Echolot MCP get_news (https://echolotnews.com/mcp), published_at szerinti napok",
+ "build_rule": "get_news(limit=100, diversify, max_per_source=3, place=ország) minden 2. napra; title>15, LEAK_RE-szűrő, cím-dedupe, lead 220 kar., MAXN=60 lean-cap (arányos kvóta + domináns lean <=60% + dátum-stride) — a júliusi sample_cell"
+}

@@ -1,0 +1,549 @@
+{
+ "country": "FR",
+ "lang": "fr",
+ "target_month": "2026-10",
+ "corpus_window": [
+  "2026-09-15",
+  "2026-10-14"
+ ],
+ "days_sampled": [
+  "2026-09-15",
+  "2026-09-17",
+  "2026-09-19",
+  "2026-09-21",
+  "2026-09-23",
+  "2026-09-25",
+  "2026-09-27",
+  "2026-09-29",
+  "2026-10-01",
+  "2026-10-03",
+  "2026-10-05",
+  "2026-10-07",
+  "2026-10-09",
+  "2026-10-11",
+  "2026-10-13"
+ ],
+ "n": 60,
+ "lean_dist": {
+  "unknown": 9,
+  "center": 35,
+  "center_right": 3,
+  "center_left": 5,
+  "right": 3,
+  "left": 3,
+  "analytical": 2
+ },
+ "cat_dist": {
+  "tech": 8,
+  "foreign": 22,
+  "global": 2,
+  "economy": 6,
+  "sport": 13,
+  "general": 6,
+  "entertainment": 1,
+  "politics": 2
+ },
+ "raw_rows": 1129,
+ "pool_after_dedupe": 1082,
+ "leak_dropped": 0,
+ "distinct_sources_raw": 112,
+ "raw_cat_dist": {
+  "entertainment": 40,
+  "global": 69,
+  "sport": 152,
+  "foreign": 470,
+  "economy": 65,
+  "tech": 88,
+  "politics": 81,
+  "general": 156,
+  "lifestyle": 8
+ },
+ "per_day": {
+  "2026-09-15": {
+   "returned": 68,
+   "pool": 500
+  },
+  "2026-09-17": {
+   "returned": 74,
+   "pool": 500
+  },
+  "2026-09-19": {
+   "returned": 67,
+   "pool": 500
+  },
+  "2026-09-21": {
+   "returned": 77,
+   "pool": 500
+  },
+  "2026-09-23": {
+   "returned": 73,
+   "pool": 500
+  },
+  "2026-09-25": {
+   "returned": 75,
+   "pool": 500
+  },
+  "2026-09-27": {
+   "returned": 68,
+   "pool": 500
+  },
+  "2026-09-29": {
+   "returned": 84,
+   "pool": 500
+  },
+  "2026-10-01": {
+   "returned": 79,
+   "pool": 500
+  },
+  "2026-10-03": {
+   "returned": 78,
+   "pool": 500
+  },
+  "2026-10-05": {
+   "returned": 76,
+   "pool": 500
+  },
+  "2026-10-07": {
+   "returned": 83,
+   "pool": 500
+  },
+  "2026-10-09": {
+   "returned": 78,
+   "pool": 500
+  },
+  "2026-10-11": {
+   "returned": 72,
+   "pool": 500
+  },
+  "2026-10-13": {
+   "returned": 77,
+   "pool": 500
+  }
+ },
+ "mcp_errors": 0,
+ "items": [
+  {
+   "text": "Ces 4 dessins animés Batman méritent autant que la série des années 1990 — On cite toujours Batman: The Animated Series, mais quatre autres séries Batman valent le détour, du noir de Caped Crusader au futur de Batman Beyond.",
+   "source": "Begeek",
+   "lean": "unknown",
+   "date": "2026-09-15",
+   "category": "tech"
+  },
+  {
+   "text": "Voici les résultats du tirage Euromillions: pas de grand gagnant pour le jackpot de 17 millions, découvrez les numéros tirés — Voici les résultats du tirage Euromillions: pas de grand gagnant pour le jackpot de 17 millions, découvrez les numéros tirés ...",
+   "source": "DH Les Sports+ (La Derniere Heure)",
+   "lean": "center",
+   "date": "2026-09-15",
+   "category": "foreign"
+  },
+  {
+   "text": "Dénonçant \"les discriminations raciales\" de l'Afrique du Sud, Washington annonce des restrictions de visa — Tension diplomatique accrue entre Washington et Pretoria : l'administration Trump a annoncé des restrictions de visa ciblant des responsables sud-africains, qu'elle accuse de discriminations envers la minorité afrikaner.",
+   "source": "La Libre Belgique",
+   "lean": "center_right",
+   "date": "2026-09-15",
+   "category": "foreign"
+  },
+  {
+   "text": "La fermeture de la Maison Benoît Labre réclamée — La cohabitation est difficile entre le centre et des résidents de Saint-Henri.",
+   "source": "Le Devoir (Canada)",
+   "lean": "center_left",
+   "date": "2026-09-15",
+   "category": "foreign"
+  },
+  {
+   "text": "De l’ivoire aux serpents : comment la France mène la guerre aux trafiquants d’espèces protégées — Saisies lors de la braderie de Lille, collectionneurs interpellés, démantèlements de réseaux internationaux... Les autorités multiplient les opérations contre les trafiquants d’espèces protégées.",
+   "source": "Le Journal du Dimanche (JDD)",
+   "lean": "right",
+   "date": "2026-09-15",
+   "category": "global"
+  },
+  {
+   "text": "23 000 employés de moins dans la fonction publique fédérale qu’il y a deux ans — Le gouvernement fédéral veut diminuer les effectifs de la fonction publique de 10 % d’ici 2028-2029.",
+   "source": "Radio-Canada (ICI)",
+   "lean": "center",
+   "date": "2026-09-15",
+   "category": "economy"
+  },
+  {
+   "text": "La Vérif : le cadre financier du PQ passé au crible — Le Parti québécois compte sur d’importantes réductions dans la bureaucratie et des transferts fédéraux.",
+   "source": "Radio-Canada (ICI)",
+   "lean": "center",
+   "date": "2026-09-15",
+   "category": "foreign"
+  },
+  {
+   "text": "Russie : Poutine cède les actifs de Nestlé, Auchan et de l’ex-Leroy Merlin à une société russe — Le décret de Poutine concerne les activités russes des trois groupes, désormais transférées à « L.E.V. Management », dans un contexte de reprise en main d’actifs étrangers depuis 2022",
+   "source": "20 Minutes — Une",
+   "lean": "center",
+   "date": "2026-09-17",
+   "category": "economy"
+  },
+  {
+   "text": "L'intégrale du Débrief de la tech du jeudi 17 septembre — Jeudi 17 septembre, François Sorel a reçu Marion Moreau, journaliste et fondatrice de Hors Normes Média, Frédéric Simottel, journaliste BFM Business, et Alain Goudey, directeur général adjoint de Neoma Business School, d",
+   "source": "BFM Business — Économie",
+   "lean": "center",
+   "date": "2026-09-17",
+   "category": "economy"
+  },
+  {
+   "text": "Signature électronique : pourquoi les entreprises françaises cherchent des alternatives à DocuSign — La signature électronique est devenue un réflexe : contrats, devis, documents RH, tout se signe désormais depuis un navigateur ou un téléphone.",
+   "source": "Begeek",
+   "lean": "unknown",
+   "date": "2026-09-17",
+   "category": "tech"
+  },
+  {
+   "text": "Budget 2027 : le déficit dérape, Sébastien Lecornu repousse d’un an le redressement des comptes — Le déficit devrait monter à 5,4 % du PIB cette année, loin des 5 % visés, a reconnu le gouvernement, jeudi. Après ce dérapage, le premier ministre espère reprendre le contrôle des comptes publics en 2027. Les économistes",
+   "source": "Le Monde",
+   "lean": "left",
+   "date": "2026-09-17",
+   "category": "economy"
+  },
+  {
+   "text": "TFC-Le Havre : Jörgensen distille, Tengstedt enquille et les Danois brillent ! Découvrez les notes des Toulousains après leur premier succès de la saison — Accroché à la pause, Toulouse aura pu compter sur ses Danois, ce samedi soir, pour décrocher sa première victoire de la saison face à une formation havraise qui aura cru prendre le point du nul jusqu'au coup de...",
+   "source": "La Dépêche du Midi",
+   "lean": "center_left",
+   "date": "2026-09-19",
+   "category": "foreign"
+  },
+  {
+   "text": "« Bon courage à ceux qui essaient de me dépeindre en cryptomacroniste » : pour Glucksmann, l’heure de la riposte — Après avoir subi des attaques de ses opposants à la primaire, l’eurodéputé s’est décidé à rendre les coups avant le premier débat mercredi 23 septembre.",
+   "source": "La Tribune",
+   "lean": "center",
+   "date": "2026-09-19",
+   "category": "economy"
+  },
+  {
+   "text": "National League - Genève muet, Fribourg n'enchaîne pas — Troisième défaite en trois matches pour Genève. Opposés à Zurich, les Aigles se sont inclinés 3-0 en terres zurichoises. De son côté, Fribourg n'a pas confirmé son succès de la veille (4-2 contre Lausanne) et a été battu",
+   "source": "RTS Sport (Switzerland)",
+   "lean": "center",
+   "date": "2026-09-19",
+   "category": "foreign"
+  },
+  {
+   "text": "Pour faire appliquer son projet d'interdiction des réseaux sociaux aux moins de 13 ans à l'échelle de l'UE, Bruxelles crée une application open source, mais les garanties de sécurité laissent sceptiques — Pour faire appliquer son projet d'interdiction des réseaux sociaux aux moins de 13 ans à l'échelle de l'UE, Bruxelles crée une application open source mais les garanties de sécurité laissent sceptiques La Commission euro",
+   "source": "Developpez.com",
+   "lean": "unknown",
+   "date": "2026-09-21",
+   "category": "tech"
+  },
+  {
+   "text": "Cameron Rogers perd deux minutes sur un ennui mécanique sur le chrono espoirs des Mondiaux — Le rouleur australien Cameron Rogers (Netcompany INEOS Racing Academy) a connu une malencontreuse aventure sur le contre-la-montre espoirs des Championnats du monde de cyclisme à Montréal (Canada), lundi. Un ennui mécani",
+   "source": "L'Equipe",
+   "lean": "center",
+   "date": "2026-09-21",
+   "category": "foreign"
+  },
+  {
+   "text": "Énergie : la facture de notre dépendance — Un édito de François Mathieu ...",
+   "source": "La Libre Belgique",
+   "lean": "center_right",
+   "date": "2026-09-21",
+   "category": "foreign"
+  },
+  {
+   "text": "Macron à l’Onu : le président juge avoir eu une discussion \"très constructive\" avec Trump sur l’Ukraine et la mer Rouge — En marge de l’assemblée générale de l’Onu, à New York, le président Emmanuel Macron s’est entretenu avec son homologue américain Donald Trump au sujet des conflits en Ukraine et au Proche-Orient, lundi 21 septembre 2026.",
+   "source": "Ouest-France — Une",
+   "lean": "center",
+   "date": "2026-09-21",
+   "category": "foreign"
+  },
+  {
+   "text": "À 41 ans, elle se rend à l'hôpital pour une intoxication alimentaire mais les médecins lui diagnostiquent un cancer colorectal de stade 3 — Une Londonienne de 41 ans a vu ses symptômes attribués à des hémorroïdes puis à une intoxication alimentaire pendant des mois. Le diagnostic final a révélé un cancer colorectal de stade 3.",
+   "source": "Science & Vie",
+   "lean": "center",
+   "date": "2026-09-21",
+   "category": "foreign"
+  },
+  {
+   "text": "Muse, le nouvel « agent IA personnel » de Meta, dépasse ChatGPT en nombre de téléchargements, mais se fait bloquer par Amazon à cause des risques liés à la vie privée et à la sécurité — Muse, le nouvel « agent IA personnel » de Meta, dépasse ChatGPT en nombre de téléchargements, mais se fait bloquer par Amazon à cause des risques liés à la vie privée et à la sécurité L'outil d'agent IA personnel « Muse",
+   "source": "Developpez.com",
+   "lean": "unknown",
+   "date": "2026-09-23",
+   "category": "tech"
+  },
+  {
+   "text": "Une journée dans la « colo » des Bleus : du petit-déjeuner aux ateliers médias, trois temps forts avec l'équipe de France au Canada — D'un début de matinée plutôt tranquille en passant par les chambrages lors des ateliers médias et une sortie dans les paysages canadiens, plongez dans la journée d'entraînement de mercredi de l'équipe de France, à quatre",
+   "source": "L'Equipe",
+   "lean": "center",
+   "date": "2026-09-23",
+   "category": "sport"
+  },
+  {
+   "text": "Il exige la caisse d’un hôtel à deux employées — Philippe Lefrançois-Guay est en état d'intoxication lorsqu'il se présente à cet établissement le 19 octobre 2025.",
+   "source": "Le Soleil (Quebec)",
+   "lean": "center",
+   "date": "2026-09-23",
+   "category": "foreign"
+  },
+  {
+   "text": "Rugby : le SA XV a su donner un dernier coup de collier avant les vacances — Porté par l’entrée incisive de ses remplaçants, le SA XV a renversé Agen alors que certains titulaires ont semblé manquer de fraîcheur dans ce dernier match du premier bloc.",
+   "source": "Charente Libre",
+   "lean": "center",
+   "date": "2026-09-25",
+   "category": "foreign"
+  },
+  {
+   "text": "Grâce à ses attaquants stars Isak et Gyökeres, la Suède domine la Roumanie en Ligue des nations — Pour ses débuts lors de la Ligue des nations B 2027, la Suède s'est imposée (2-1) à domicile face à la Roumanie vendredi à Stockholm grâce à Alexander Isak et Viktor Gyökeres. L'Ukraine s'est elle imposée en Hongrie (1-0",
+   "source": "L'Equipe",
+   "lean": "center",
+   "date": "2026-09-25",
+   "category": "sport"
+  },
+  {
+   "text": "Rugby : Lévézou Ségala craque sur le fil à Figeac et passe à côté de sa première victoire cette saison — Dimanche 27 septembre, alors qu’ils tenaient leur premier succès de la saison, dans le cadre de la 3e journée de Fédérale 2, les joueurs de LSA se sont finalement inclinés à Figeac, à cause d’une ultime pénalité avant...",
+   "source": "Centre Presse Aveyron",
+   "lean": "center",
+   "date": "2026-09-27",
+   "category": "sport"
+  },
+  {
+   "text": "Léon XIV en France : le pape séduit bien au-delà des fidèles catholiques — CONCORDE. « Un bien fou », « quelque chose d’universel », « une bouffée de paix » : des personnalités du monde médiatique et politique aux simples internautes anonymes, de nombreux non-croyants, représentants d’autres re",
+   "source": "Le Journal du Dimanche (JDD)",
+   "lean": "right",
+   "date": "2026-09-27",
+   "category": "global"
+  },
+  {
+   "text": "Féminicide dans le Cher : le compagnon de la victime mis en examen et placé en détention provisoire — L’autopsie a établi que la victime, âgée de 47 ans, est morte d’un « syndrome asphyxique et hémorragique », après avoir subi un « déchaînement de violence », selon le parquet.",
+   "source": "Le Monde",
+   "lean": "left",
+   "date": "2026-09-27",
+   "category": "general"
+  },
+  {
+   "text": "En images : les plus belles photos de la prière du Saint Rosaire et de la procession aux flambeaux de Léon XIV — Le pape Léon XIV a terminé sa journée de dimanche à Lourdes par une procession aux flambeaux.",
+   "source": "Paris Match",
+   "lean": "center",
+   "date": "2026-09-27",
+   "category": "general"
+  },
+  {
+   "text": "Mondial 2026 U20 : l’Espagne décroche le titre aux tirs au but contre la Corée du Nord",
+   "source": "SOFOOT.com",
+   "lean": "unknown",
+   "date": "2026-09-27",
+   "category": "sport"
+  },
+  {
+   "text": "On a revu la première saison de “X-Files”, sur M6+, série culte au complotisme “cool” — Qu’est-ce qu’“on” nous cache ? Du temps de Dana Scully et Fox Mulder, agents du FBI cernés par le paranormal, le complotisme était un rendez-vous ludique, assez amusant à redécouvrir aujourd’hui. Les onze saisons de “X-F",
+   "source": "Telerama",
+   "lean": "center_left",
+   "date": "2026-09-27",
+   "category": "entertainment"
+  },
+  {
+   "text": "Denis Brogniart a rencontré sa femme dans Koh Lanta : Hortense a quitté la télé pour la taxidermie et suit une “ligne de conduite” précise avec les animaux — Dix ans après leur coup de foudre sur Koh-Lanta, l'épouse de Denis Brogniart, Hortense, a quitté le journalisme pour devenir taxidermiste.",
+   "source": "Closer France",
+   "lean": "center",
+   "date": "2026-09-29",
+   "category": "general"
+  },
+  {
+   "text": "Une expulsion provoquée et un but d'entrée, la Suisse douche l'Ecosse à Glasgow — Alors qu'on lui promettait l'enfer à Hampden Park, la Nati a contrôlé des Ecossais réduits à dix dès la 11e minute et s'est imposée (0-3) dans le choc du groupe 1 de la Ligue B des nations. Prochain adversaire: la Slovén",
+   "source": "Le Temps (Switzerland)",
+   "lean": "center",
+   "date": "2026-09-29",
+   "category": "sport"
+  },
+  {
+   "text": "Dots, Spaces, Codex, GPT-6.1 Sol : OpenAI vide son sac au DevDay — Dans le petit monde de l’IA, beaucoup se demandaient quand OpenAI allait réagir face à l’offensive de Meta avec son agent Muse. C’est chose faite ce soir avec la présentation de Dots, un agent accomplit des tâches au nom",
+   "source": "Next (ex-Next INpact)",
+   "lean": "analytical",
+   "date": "2026-09-29",
+   "category": "foreign"
+  },
+  {
+   "text": "Ligue Magnus : largement battus par Nice, les Boxers de Bordeaux ne vont pas mieux — Troisième défaite d’affilée pour les Boxers qui ont cette fois cédé à l’extérieur sur la patinoire d’une formation des Aigles de Nice en forme en ce début de saison (5-1)",
+   "source": "Sud Ouest — Bordeaux",
+   "lean": "center",
+   "date": "2026-09-29",
+   "category": "sport"
+  },
+  {
+   "text": "Cette série stop-motion oubliée a préparé le terrain à Tim Burton — Introuvables en streaming, les spéciaux Cabbage Patch Kids ont pourtant marqué la stop-motion britannique avant de mener leurs artisans jusqu’à Corpse Bride.",
+   "source": "Begeek",
+   "lean": "unknown",
+   "date": "2026-10-01",
+   "category": "tech"
+  },
+  {
+   "text": "Les peintres écrivains 9/10 : Jean Dubuffet, 1ère Partie — En 1976, Pierre Descargues proposait de découvrir l'artiste Jean Dubuffet par le prisme de ses écrits. La lecture d'un extrait de \"Prospectus aux amateurs de tout genre\" dévoilait un récit autobiographique plein d'humour",
+   "source": "France Culture (Radio France)",
+   "lean": "center",
+   "date": "2026-10-01",
+   "category": "foreign"
+  },
+  {
+   "text": "France: les «re.traiteurs», des retraités qui cuisinent pour arrondir leurs fins de mois — En France, le gouvernement affiche sa volonté de « redresser » les finances publiques en présentant son projet de budget pour 2027, avec une série de mesures d'économies, notamment en voulant taxer les pensions de retrai",
+   "source": "RFI — France",
+   "lean": "center",
+   "date": "2026-10-01",
+   "category": "foreign"
+  },
+  {
+   "text": "Ribéry sur sa 3e place au Ballon d'Or 2013 : «Une grande déception»",
+   "source": "L'Equipe",
+   "lean": "center",
+   "date": "2026-10-03",
+   "category": "sport"
+  },
+  {
+   "text": "Fédérale 1 : Blagnac empoche la mise au terme d'une belle empoignade — Il a fallu s’employer ce samedi soir, mais Blagnac a fini par faire respecter la hiérarchie. Dominateurs en mêlée et plus efficaces dans les moments clés, les Blagnacais ont pris le dessus sur Cahors (25-12) au terme...",
+   "source": "La Dépêche — Toulouse",
+   "lean": "center_left",
+   "date": "2026-10-03",
+   "category": "sport"
+  },
+  {
+   "text": "« Je serai candidat » : Éric Lombard entre dans l'arène — L’ancien ministre de l’Économie et des Finances de François Bayrou annonce à Paris Match son intention de se présenter aux prochaines élections législatives.",
+   "source": "Paris Match",
+   "lean": "center",
+   "date": "2026-10-03",
+   "category": "politics"
+  },
+  {
+   "text": "À 40 ans, Cheikh Ndoye marque avec Cannes en Ligue 3",
+   "source": "SOFOOT.com",
+   "lean": "unknown",
+   "date": "2026-10-03",
+   "category": "sport"
+  },
+  {
+   "text": "Basket-ball (N2 M) : Saint-Médard confirme à domicile par une victoire de caractère — Dans un match très intense, qui s’est joué dans les dernières minutes, le SMB s’impose face à Brissac (89-74)",
+   "source": "Sud Ouest — Bordeaux",
+   "lean": "center",
+   "date": "2026-10-03",
+   "category": "sport"
+  },
+  {
+   "text": "Michael Schumacher : sous-vêtements et fans audacieuses, sa femme Corinna balance sur les coulisses de la légende — Corinna Schumacher révèle sur Netflix qu'une fan envoyait sans cesse ses sous-vêtements au pilote aux débuts de leur couple.",
+   "source": "Closer France",
+   "lean": "center",
+   "date": "2026-10-05",
+   "category": "general"
+  },
+  {
+   "text": "Contre la Belgique, Zidane a encore donné un aperçu de sa méthode",
+   "source": "L'Equipe - Football",
+   "lean": "center",
+   "date": "2026-10-05",
+   "category": "foreign"
+  },
+  {
+   "text": "Chez les conservateurs, c'était comme un Noël bleu foncé — Les militants du PCQ jubilaient lundi soir",
+   "source": "Le Journal de Montreal",
+   "lean": "center_right",
+   "date": "2026-10-05",
+   "category": "foreign"
+  },
+  {
+   "text": "Tech & Co, la quotidienne - Mercredi 7 octobre — Mercredi 7 octobre, François Sorel a reçu Jérôme Marin, fondateur de Cafetech.fr ; Salime Nassur, fondateur de Mars ; Frédéric Simottel, journaliste BFM Business ; Baptiste Capron, directeur général de SeLoger ; Sylvain",
+   "source": "BFM Business — Économie",
+   "lean": "center",
+   "date": "2026-10-07",
+   "category": "economy"
+  },
+  {
+   "text": "Netflix accueille Percy Jackson, drôle de vitrine pour Disney+ ? — Disney place temporairement Percy Jackson et les cinq Ice Age sur Netflix. Une façon très concrète de préparer ses prochaines exclusivités sur Disney+.",
+   "source": "Begeek",
+   "lean": "unknown",
+   "date": "2026-10-07",
+   "category": "tech"
+  },
+  {
+   "text": "Démantèlement d’un réseau de proxénétisme « violent » dans le Nord et le Pas-de-Calais : dix personnes interpellées, une mineure de 13 ans parmi les victimes — La majorité des victimes, des prostituées mais aussi leurs clients, ont dénoncé « des violences physiques » et toutes ont déploré des « menaces » de la part des mis en cause, a précisé le procureur de Béthune.",
+   "source": "Le Monde — Police et justice",
+   "lean": "left",
+   "date": "2026-10-07",
+   "category": "general"
+  },
+  {
+   "text": "Microsoft : prix ultra pour les premiers Surface avec la RTX Spark de NVIDIA — Début juin, NVIDIA se lançait à l’assaut d’une nouvelle citadelle : les systèmes-sur-puce pour les PC sous Windows sur Arm, avec la » superpuce » RTX Spark. Après Acer et Lenovo qui ont dévoilé leurs premières machines l",
+   "source": "Next (ex-Next INpact)",
+   "lean": "analytical",
+   "date": "2026-10-07",
+   "category": "foreign"
+  },
+  {
+   "text": "BMW dévoile l’iX4 : le clone profilé de l’iX3 promet jusqu’à 828 km d’autonomie — BMW présente l'iX4, la version coupé du SUV électrique iX3. Il est disponible à la commande en France depuis ce jeudi 8 octobre à partir de 73 950 €. Avec la même batterie de 108,7 kWh, la version 50 xDrive annonce 828 k",
+   "source": "Numerama",
+   "lean": "center",
+   "date": "2026-10-07",
+   "category": "tech"
+  },
+  {
+   "text": "L'intégrale de L'After Foot du mercredi 7 octobre 2026 — L’After Foot, c'est l'émission qui dit tout haut ce que le monde du foot pense tout bas ! Pour démarrer la soirée, Nicolas Jamain est aux commandes de \"Génération After\", de 20h00 à 22h00. Une émission composée de chroni",
+   "source": "RMC Sport (BFM)",
+   "lean": "center",
+   "date": "2026-10-07",
+   "category": "sport"
+  },
+  {
+   "text": "Rassemblement national : l'eau potable et Olympe de Gouges au programme — Eau potable dans les outre-mer, abrogation des ZFE, panthéonisation d'Olympe de Gouges: le Rassemblement national dicte l'ordre du jour de l'Assemblée nationale jeudi et défendra plusieurs textes susceptibles de mettre s",
+   "source": "Sud Radio",
+   "lean": "right",
+   "date": "2026-10-07",
+   "category": "foreign"
+  },
+  {
+   "text": "Main d’un lycéen arrachée à Lens : Le tir de grenade était « conforme », estime le parquet — Le parquet de Béthune a estimé vendredi que le tir de grenade ayant grièvement blessé un lycéen à Lens était conforme aux procédures. La mère de l’adolescent, amputé de la main gauche, a porté plainte",
+   "source": "20 Minutes — Une",
+   "lean": "center",
+   "date": "2026-10-09",
+   "category": "general"
+  },
+  {
+   "text": "Colomiers Rugby : le club à la colombe peut s'en mordre les doigts, battu à Grenoble de trois points, on vous fait revivre le match — 23-20. Les Haut-Garonnais se sont inclinés de peu au Stade des Alpes, vendredi 9 octobre. Malgré une ouverture du score signée des visiteurs, les Isérois ont su capitaliser sur les erreurs adverses, notamment en...",
+   "source": "La Dépêche du Midi",
+   "lean": "center_left",
+   "date": "2026-10-09",
+   "category": "foreign"
+  },
+  {
+   "text": "Discussions entre les États-Unis et l’Ukraine, à l’ombre de l’accord Trump-Poutine — La réunion a été éclipsée par l'annonce, par Donald Trump, de l'achat de millions de tonnes de diesel russe.",
+   "source": "Radio-Canada (ICI)",
+   "lean": "center",
+   "date": "2026-10-09",
+   "category": "politics"
+  },
+  {
+   "text": "Ligue 1 2026/27 : Le classement après la 6e journée — Consultez les résultats des affiches Lens-Lyon, LOSC-Le Havre, Brest-Angers, Lorient-Paris FC, Monaco-TFC, PSG-Le Mans, Nice-Strasbourg, Rennes-Auxerre et Troyes-OM",
+   "source": "20 Minutes — Sport",
+   "lean": "center",
+   "date": "2026-10-11",
+   "category": "sport"
+  },
+  {
+   "text": "Bilan auditif, appareillage, suivi : pourquoi le conseil est essentiel ? — Quand vous cherchez un artisan de confiance, vous interrogez vos proches, vous demandez conseil, vous privilégiez l’expérience et le savoir-faire. Votre audition mérite la même exigence. Chez Audition Conseil, l’histoire",
+   "source": "Nice-Matin",
+   "lean": "center",
+   "date": "2026-10-11",
+   "category": "foreign"
+  },
+  {
+   "text": "OM : Bruno Genesio se contente de la victoire à Troyes",
+   "source": "SOFOOT.com",
+   "lean": "unknown",
+   "date": "2026-10-11",
+   "category": "sport"
+  },
+  {
+   "text": "Atelier de création radiophonique - Philtres et sortilèges (1ère diffusion : 13/06/1971)",
+   "source": "France Culture (Radio France)",
+   "lean": "center",
+   "date": "2026-10-13",
+   "category": "foreign"
+  },
+  {
+   "text": "Le nouveau film Street Fighter est presque aussi nul que celui avec JCVD (critique sans spoilers) — Capcom a décidé de redonner une chance à sa saga Street Fighter au cinéma. Hélas, cette nouvelle adaptation se perd dans un positionnement trouble, entre gags gênants et ellipses qui escamotent des moments importants. No",
+   "source": "Numerama",
+   "lean": "center",
+   "date": "2026-10-13",
+   "category": "tech"
+  }
+ ],
+ "built": "2026-11-23",
+ "source_db": "Echolot MCP get_news (https://echolotnews.com/mcp), published_at szerinti napok",
+ "build_rule": "get_news(limit=100, diversify, max_per_source=3, place=ország) minden 2. napra; title>15, LEAK_RE-szűrő, cím-dedupe, lead 220 kar., MAXN=60 lean-cap (arányos kvóta + domináns lean <=60% + dátum-stride) — a júliusi sample_cell"
+}
