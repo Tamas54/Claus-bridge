@@ -9538,7 +9538,16 @@ _capture_state = {
     "gmail_last_error": None,
     "calendar_last_ok": None,
     "calendar_last_error": None,
+    # A `*_last_error` IDŐBÉLYEG, nem ok. Az ok szövege (pl. „RefreshError: invalid_grant…”) külön mezőben él —
+    # ebből tudja az önvizsgálat megmondani, MI a baj (a 11-22-i lelet: a próba az időbélyeget írta ki okként).
+    "gmail_last_error_msg": None,
+    "calendar_last_error_msg": None,
 }
+
+
+def _google_hiba_szoveg(e: Exception) -> str:
+    """A Google-hiba rövid, titokmentes szövege az önvizsgálatnak (típus + üzenet; a token nincs benne)."""
+    return f"{type(e).__name__}: {e}"[:300]
 
 # ── S-002: egészség-próbák bekötése a required_tools nevekre ──
 # A recipe-k a rövid neveket deklarálják (`gmail_poll`), a tool-ok a hosszút
@@ -9662,17 +9671,39 @@ def _probe_brave_mcp() -> selfdiag.ProbeResult:
                                 f"HTTP {r.status_code}" + ("" if "serverInfo" in r.text else ", nincs MCP-válasz"))
 
 
-def _probe_google(kind: str, svc_key: str, err_key: str):
-    def _p() -> selfdiag.ProbeResult:
-        if _capture_state.get(svc_key) is not None:
-            return selfdiag.ProbeResult(kind, True, "a szolgáltatás példányosítva")
-        err = _capture_state.get(err_key) or ""
-        if "invalid_grant" in str(err):
+def _probe_google(kind: str, svc_key: str, ok_key: str, err_key: str, msg_key: str):
+    """A Gmail/Naptár próbája — a TÉNYLEGES hívások nyomából, nem a kliens puszta létezéséből.
+
+    A 11-22-i hamis lelet („nincs szolgáltatás: 2026-11-22T16:08:00…”): a régi próba az `err_key`-ből olvasta az
+    okot, de abban a recipe_health liveness-IDŐBÉLYEGE van. Így az `invalid_grant`-ot sosem ismerte fel, és a lejárt
+    belépésből (emberi teendő → egy Telegram-mondat) kódhiba lett (→ Faber-kérelem). Az ok most a `msg_key`-ben él.
+    Az élő kliensre is ugyanaz a mérce, mint a recipe_health-ben: ha az utolsó hívás bukott, a szerv halott.
+    """
+    def _bukott(elotag: str, ok_szoveg: str) -> selfdiag.ProbeResult:
+        if "invalid_grant" in ok_szoveg:
+            # A jelszó (`invalid_grant`) maradjon a szövegben: erről ismeri fel az önjavítás az emberi teendőt.
             return selfdiag.ProbeResult(
                 kind, False,
-                "invalid_grant — a refresh token VISSZAVONVA (nem lejárt). "
-                "Új token kell; `In Production` státusz nélkül 7 naponta újra elhal.")
-        return selfdiag.ProbeResult(kind, False, f"nincs szolgáltatás: {str(err)[:200]}")
+                "invalid_grant — a Google elutasítja a refresh tokent (lejárt vagy visszavonták; Testing módban "
+                "7 nap után lejár). Új belépés kell (GOOGLE_REAUTH.md), a Production státusz megelőzi.")
+        return selfdiag.ProbeResult(kind, False, f"{elotag}: {ok_szoveg or 'az ok nincs feljegyezve'}")
+
+    def _p() -> selfdiag.ProbeResult:
+        last_ok, last_err = _capture_state.get(ok_key), _capture_state.get(err_key)
+        ok_szoveg = str(_capture_state.get(msg_key) or "")
+        if _capture_state.get(svc_key) is not None:
+            if last_err and (not last_ok or str(last_err) > str(last_ok)):
+                return _bukott(f"a legutóbbi hívás bukott ({last_err})", ok_szoveg)
+            if last_ok:
+                return selfdiag.ProbeResult(kind, True, f"él; utolsó sikeres hívás: {last_ok}")
+            return selfdiag.ProbeResult(kind, None, "a kliens megvan, de még egyszer sem hívtuk")
+        if not GOOGLE_TOKEN_JSON:
+            return selfdiag.ProbeResult(kind, None, "GOOGLE_TOKEN_JSON nincs beállítva — a Gmail/Naptár kikapcsolva")
+        if ok_szoveg:
+            return _bukott("a szolgáltatás nem indult el", ok_szoveg)
+        return selfdiag.ProbeResult(
+            kind, False, "a szolgáltatás nem indult el, és nincs feljegyzett ok (az indítás még fut, vagy "
+                         "időtúllépéssel megszakadt) — a capture_status újrapróbálja és megmondja a hibát")
     return _p
 
 
@@ -9686,9 +9717,11 @@ selfdiag.register_probe("lightpanda", "mcp",
                         selfdiag.ProbeResult("mcp", True, "konfigurálva"))
 selfdiag.register_probe("database", "sqlite", _probe_db)
 selfdiag.register_probe("google", "gmail",
-                        _probe_google("gmail", "gmail_service", "gmail_last_error"))
+                        _probe_google("gmail", "gmail_service", "gmail_last_ok", "gmail_last_error",
+                                      "gmail_last_error_msg"))
 selfdiag.register_probe("google", "calendar",
-                        _probe_google("calendar", "calendar_service", "calendar_last_error"))
+                        _probe_google("calendar", "calendar_service", "calendar_last_ok", "calendar_last_error",
+                                      "calendar_last_error_msg"))
 # `.strip()` ELŐBB, mint a `.rstrip("/")`: a prod env-változó végén
 # SORTÖRÉS van (az önvizsgálat első éles futása fogta meg:
 # "InvalidURL: non-printable ASCII character '\\n' at position 43").
@@ -9791,6 +9824,7 @@ def _init_google_services():
         _capture_state["calendar_service"] = None
         _capture_state["gmail_last_error"] = now()
         _capture_state["calendar_last_error"] = now()
+        _capture_state["gmail_last_error_msg"] = _capture_state["calendar_last_error_msg"] = _google_hiba_szoveg(e)
         logger.error("Google init failed: %s (type: %s)", e, type(e).__name__)
         import traceback
         logger.error("Google init traceback:\n%s", traceback.format_exc())
@@ -10235,6 +10269,7 @@ async def capture_gmail_poll(max_results: int = 10, caller: str = "") -> str:
         # S-002: liveness-nyom — a hívás elhasalt. A recipe_health próba ebből
         # tudja, hogy a tool halott, akkor is, ha a service-objektum megvan.
         _capture_state["gmail_last_error"] = now()
+        _capture_state["gmail_last_error_msg"] = _google_hiba_szoveg(e)
         return json.dumps({"error": str(e)})
 
 
@@ -10362,6 +10397,7 @@ async def capture_calendar_poll(caller: str = "") -> str:
     except Exception as e:
         # S-002: liveness-nyom — a hívás elhasalt.
         _capture_state["calendar_last_error"] = now()
+        _capture_state["calendar_last_error_msg"] = _google_hiba_szoveg(e)
         return json.dumps({"error": str(e)})
 
 
@@ -10703,6 +10739,8 @@ def _diagnose_google_init() -> dict:
     except Exception as e:
         result["refresh_error"] = f"{type(e).__name__}: {e}"
         result["traceback"] = traceback.format_exc()[-500:]
+        # A legfrissebb ok az önvizsgálatnak is (a capture_status újrapróbája méri, a próba ebből olvas).
+        _capture_state["gmail_last_error_msg"] = _capture_state["calendar_last_error_msg"] = _google_hiba_szoveg(e)
 
     return result
 
