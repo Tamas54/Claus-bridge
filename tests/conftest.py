@@ -69,6 +69,9 @@ atexit.register(shutil.rmtree, _SANDBOX_DIR, True)
 # CI; any test needing a credential must set a fake one itself, which is what
 # all of them already do.
 _LIVE_CREDENTIAL_ENV = (
+    # 2026-11-22: az Anthropic-kapu kulcsa és a második SiliconFlow-kulcs. Ha a fejlesztő héjában ott van, a
+    # `sf_chat` minden tesztje az Anthropic felé fordulna (vagy kulcsot váltana) — a hamis SiliconFlow helyett.
+    "ANTHROPIC_API_KEY", "SILICONFLOW_API_KEY2", "LLM_ELSODLEGES", "ANTHROPIC_HAVI_KERET_USD",
     "AGORA_OP_KEY_DER_KARTOGRAPH", "AGORA_OP_KEY_FRAU_LUPE", "AGORA_OP_KEY_VON_TAKT",
     "BRAVE_SEARCH_API_KEY", "DELPHOI_ANCHOR_AGORA_KEY", "DELPHOI_BRIDGE_KEY",
     "DELPHOI_SAAS_SECRET", "ECHOLOT_URL", "GOOGLE_TOKEN_JSON", "HIRMAGNET_API_KEY",

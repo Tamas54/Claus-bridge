@@ -52,3 +52,14 @@ stripe>=15,<16
 # látszott, a prod regexet futtatott.
 trafilatura>=1.12
 readability-lxml>=0.8
+
+# ── Anthropic-kapu (2026-11-22, llm_kapu.py) ─────────────────────────────
+# A Bridge „agya” a Kommandant Anthropic-kulcsán (ANTHROPIC_API_KEY; üres = a
+# kapu ki, minden a SiliconFlow-on megy). PONTOS pin — ugyanazért, amiért a
+# fastmcp is az: a beta-paraméterek (`fallbacks`, `betas`) az SDK-hoz kötöttek.
+anthropic==2.12.0
+# KÖTELEZŐ az SDK mellé: a hálózati rétege (httpx2) a Brotli 1.1-es
+# dekódolójánál `TypeError: process() takes no keyword arguments`-tel hasal
+# (output_buffer_limit), amiből APIConnectionError lesz — MÉRVE helyben
+# 2026-11-22-én; Brotli 1.2.1-gyel az élő hívás sikeres.
+Brotli>=1.2.0

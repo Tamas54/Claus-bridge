@@ -56,6 +56,7 @@ from youngereka_profile import register_youngereka
 # eddig deklarált-de-ellenőrizetlen volt. Lásd recipe_health.py fejlécét.
 import recipe_health
 import faber_relay
+import llm_kapu
 import selfdiag
 
 # S-006 — a jelenlét a MUNKA mellékhatása, nem külön bejelentés.
@@ -1760,6 +1761,8 @@ async def api_status(request):
         "total_memory_entries": total_memory,
         # S-002: a dashboard is lássa a kimaradt ütemezett futásokat.
         "skipped_runs_24h": recipe_health.recent_skips(get_db, hours=24),
+        # Az Anthropic-kapu: elsődleges szolgáltató, havi költés a keretből, szintenkénti hívásszám (titok nincs benne).
+        "llm_kapu": llm_kapu.allapot(),
         "recent_sessions": [dict(s) for s in last_session]
     })
 
@@ -3349,7 +3352,7 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
     denied = _enforce(caller, "ai_query")
     if denied:
         return denied
-    if not SILICONFLOW_API_KEY:
+    if not (SILICONFLOW_API_KEY or llm_kapu.elerheto()):
         return json.dumps({"error": "SILICONFLOW_API_KEY not set"})
 
     model_id = SILICONFLOW_MODELS.get(model, model)
@@ -3549,6 +3552,9 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
         data = _sf_data
         if not isinstance(data, dict):
             return json.dumps({"error": f"Unexpected response type: {type(data).__name__}", "raw": str(data)[:500]})
+        # KI SZOLGÁLT KI VALÓJÁBAN (a `served_by` doktrína): az Anthropic-kapu mögött a válasz modellje nem a kért
+        # SiliconFlow-modell — a JSON ezt mondja ki, ne csak a log.
+        _kiszolgalo = data.get("model")
 
         if "error" in data:
             return json.dumps({"error": data["error"]})
@@ -3611,6 +3617,7 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
                 content2 = msg2.get("content", "") or ""
                 if content2.strip():
                     content = content2
+                    _kiszolgalo = data2.get("model") or _kiszolgalo
                 usage2 = data2.get("usage", {})
                 if usage2:
                     usage = usage2
@@ -3659,6 +3666,7 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
                     content3 = msg3.get("content", "") or ""
                     if content3.strip():
                         content = content3
+                        _kiszolgalo = data3.get("model") or _kiszolgalo
                     usage3 = data3.get("usage", {})
                     if usage3:
                         usage = usage3
@@ -3701,6 +3709,8 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
         }
         if file_info:
             result_obj["file"] = file_info
+        if _kiszolgalo and _kiszolgalo != model_id:
+            result_obj["served_by"] = _kiszolgalo
         # NEMA JAVITAS NINCS. Ha az `sf_chat` modellt valtott, keretet emelt vagy
         # parametert dobott le, azt a hivo LASSA — kulonben a Kommandant azt
         # hiszi, hogy a briefet az a modell irta, amit a recept kert.
@@ -7703,6 +7713,11 @@ def _sf_classify(status: int, body: str) -> tuple[str, str]:
         return "server_error", f"HTTP {status} szolgáltatói hiba — {snippet}"
     if status in (401, 403):
         return "auth", f"HTTP {status} hitelesítési hiba — ellenőrizd a SILICONFLOW_API_KEY-t"
+    if status == 402:
+        # MÉRVE 2026-10-07 és 11-20: `{"code":30001,"message":"Sorry, your account balance is insufficient"}`.
+        # Nem modellhiba és nem a kérés hibája: ezen a kulcson elfogyott a pénz. Másik kulcs (másik fiók) segíthet,
+        # másik modell nem.
+        return "payment", f"HTTP 402 — elfogyott a SiliconFlow-egyenleg ezen a kulcson: {snippet}"
     if status == 400:
         # `20012` = "Model does not exist" — MÉRVE (a DeepSeek-V4-Lite és a
         # csupasz DeepSeek-V4 erre fut). Ezt szét KELL választani az átmeneti
@@ -7773,6 +7788,26 @@ async def sf_chat(payload: dict, *, purpose: str = "", attempts: int = 3,
     import asyncio as _a, httpx
     notes: list[str] = []
     model = payload.get("model", "")
+
+    # ══ ANTHROPIC-KAPU (2026-11-22) ══════════════════════════════════════
+    # Itt, a közös tölcsérben dől el, ki válaszol — nem a hívóhelyeken (`sf_onjavitas_huzalozas`: a védelem
+    # értéke a huzalozásában van). Az elsődleges az `LLM_ELSODLEGES` (alapból `anthropic`, ha van kulcs); a másik
+    # a tartalék, és a váltás KIMONDOTT. Kulcs nélkül ez az ág nem fut, és minden pontosan úgy megy, mint eddig.
+    _anthropic_tartalek = False
+    if llm_kapu.elsodleges() == "anthropic" or (not _sf_keys() and llm_kapu.elerheto()):
+        _a_data, _a_err, _a_notes = await llm_kapu.chat(payload, purpose=purpose)
+        if _a_err is None:
+            return _a_data, None, _a_notes
+        notes.extend(_a_notes)
+        if not _sf_keys():
+            return None, _a_err, notes
+        notes.append(f"ANTHROPIC-KIESÉS ({_a_err.get('code')}: {_a_err.get('message', '')[:160]}) — "
+                     f"a választ a SiliconFlow adja (`{model}`)")
+        logger.warning("sf_chat[%s]: Anthropic-kiesés (%s), tartalék: SiliconFlow",
+                       purpose or "?", _a_err.get("code"))
+    else:
+        _anthropic_tartalek = llm_kapu.elerheto()
+
     chain = [model] + (_SF_FAILOVER.get(model, []) if failover else [])
     last_err = None
     async with httpx.AsyncClient(timeout=SILICONFLOW_TIMEOUT) as client:
@@ -7846,6 +7881,15 @@ async def sf_chat(payload: dict, *, purpose: str = "", attempts: int = 3,
                     logger.warning("sf_chat[%s] %s: `%s` levéve, újrapróbálás", purpose or "?", mid, dropped)
                     continue
 
+                # ÖNJAVÍTÁS 1/B: ELFOGYOTT EGYENLEG (402) — MÁSIK KULCS. Ha a KEY2 másik fiókhoz tartozik,
+                # azon még lehet pénz; másik modell nem segít (ugyanaz a fiók fizetné).
+                if err["code"] == "payment" and _ki + 1 < len(_keys):
+                    _ki += 1
+                    notes.append(f"a SiliconFlow-egyenleg elfogyott az elsődleges kulcson (HTTP 402) — "
+                                 f"tartalék kulccsal újrapróbálva (`{mid}`)")
+                    logger.warning("sf_chat[%s] %s: 402, váltás a %d. kulcsra", purpose or "?", mid, _ki + 1)
+                    continue
+
                 # ÖNJAVÍTÁS 2: RATE LIMIT — MÁSIK KULCS, NEM MÁSIK MODELL.
                 # A `50610` / HTTP 429 nem a modell hibája: a modell él, minket
                 # fojtanak. Modellt váltani ilyenkor rossz reflex — ugyanaz a
@@ -7903,6 +7947,19 @@ async def sf_chat(payload: dict, *, purpose: str = "", attempts: int = 3,
                     await _a.sleep(min(2 ** attempt, 8))
             if last_err and last_err["code"] not in _SF_FAILOVER_WORTHY:
                 break              # modellváltás sem segít egy hibás kérésen
+
+    # ══ SILICONFLOW-KIESÉS → ANTHROPIC (2026-11-22) ══════════════════════
+    # A 2026-11-20-i leállás: mindkét kulcs 402, és nem volt hova menni. Ha a SiliconFlow az elsődleges, de a saját
+    # önjavítása után is elbukott (402, tartós kiesés), és van Anthropic-kulcs: az válaszol — kimondva.
+    if _anthropic_tartalek and last_err is not None:
+        notes.append(f"SILICONFLOW-KIESÉS ({last_err.get('code')}) — a választ az Anthropic adja")
+        logger.warning("sf_chat[%s]: SiliconFlow-kiesés (%s), tartalék: Anthropic",
+                       purpose or "?", last_err.get("code"))
+        _a_data, _a_err, _a_notes = await llm_kapu.chat(payload, purpose=purpose)
+        notes.extend(_a_notes)
+        if _a_err is None:
+            return _a_data, None, notes
+        notes.append(f"az Anthropic-tartalék is elbukott ({_a_err.get('code')})")
     return None, last_err, notes
 
 
@@ -8649,7 +8706,7 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
         except Exception as de:
             logger.warning("ai_task data_context fetch failed (continuing without): %s", de)
 
-    if not SILICONFLOW_API_KEY:
+    if not (SILICONFLOW_API_KEY or llm_kapu.elerheto()):
         return json.dumps({"error": "SILICONFLOW_API_KEY not set"})
 
     # Parse agent_tasks JSON if provided
@@ -10607,6 +10664,26 @@ _telegram_state = {"last_update_id": 0}
 TELEGRAM_POLL_INTERVAL = 5  # seconds
 
 
+def _feldwebel_kerdezett(chat_id: str, percen_belul: int = 30) -> bool:
+    """A Feldwebel legutóbbi válasza az elmúlt `percen_belul` percben kérdés volt-e (pl. „posztoljam?”). Ilyenkor egy
+    puszta „mehet” neki felel, nem a Fabernek (`faber_relay.szandek`). Hibánál False — sosem dob."""
+    try:
+        conn = get_db()
+        try:
+            row = conn.execute("SELECT role, content, timestamp FROM telegram_history WHERE chat_id = ? "
+                               "ORDER BY timestamp DESC LIMIT 1", (str(chat_id),)).fetchone()
+        finally:
+            conn.close()
+        if not row or row["role"] != "assistant" or "?" not in (row["content"] or ""):
+            return False
+        mikor = datetime.fromisoformat(row["timestamp"])
+        if mikor.tzinfo is None:
+            mikor = mikor.replace(tzinfo=timezone.utc)
+        return datetime.now(timezone.utc) - mikor <= timedelta(minutes=percen_belul)
+    except Exception:  # noqa: BLE001 — a tábla hiánya (Feldwebel nélkül) nem hiba
+        return False
+
+
 async def _handle_telegram_message(text: str, chat_id: str):
     """Process an incoming Telegram message from Kommandant."""
     # 0. Faber-parancs (/tanulj, /faber, /vissza): aláírva a 'faber' címzettnek, LLM nélkül (faber_relay.py)
@@ -10618,6 +10695,25 @@ async def _handle_telegram_message(text: str, chat_id: str):
             conn.close()
         await _telegram_push("🔧 Továbbítva a Fabernek (a gépeden fut, pár másodpercen belül felveszi)."
                              if mid else "🔧 A Faber-továbbítás nem megy: nincs Telegram-token a Bridge-en.")
+        return
+    # 0/B. Faber-SZÁNDÉK perjel NÉLKÜL (2026-11-22). A Kommandant: „én szóban akarom elmondani neki, hogy mi a
+    # parancs - nem akarok ilyen / parancsokat.” Az olcsó szint (Haiku 5.5) ismeri fel; kétes esetben None, és az
+    # üzenet a Bridge rendes beszélgetése marad. A felismerés hibája sosem állítja meg a Telegram-utat.
+    try:
+        _sz = await faber_relay.szandek(text, feldwebel_kerdezett=_feldwebel_kerdezett(chat_id))
+    except Exception as e:  # noqa: BLE001
+        logger.warning("Faber-szándékfelismerés hiba (a Bridge-beszélgetés megy tovább): %s", e)
+        _sz = None
+    if _sz:
+        conn = get_db()
+        try:
+            mid = faber_relay.tovabbit(conn, TELEGRAM_BOT_TOKEN, "szandek", faber_relay.szandek_adat(_sz), now())
+        finally:
+            conn.close()
+        logger.info("Telegram → Faber szándék: %s (repo=%s, kérelem=%s)", _sz["szandek"], _sz.get("repo"),
+                    _sz.get("kerelem"))
+        await _telegram_push(faber_relay.NYUGTA.get(_sz["szandek"], "Rendben, szólok a Fabernek.")
+                             if mid else "A Faber most nem érhető el innen: nincs Telegram-token a Bridge-en.")
         return
     # 1. Store in Bridge DB
     conn = get_db()
@@ -10645,33 +10741,29 @@ async def _handle_telegram_message(text: str, chat_id: str):
     text_lower = text.lower()
     mentioned = [a for a in ("kimi", "deepseek", "glm5") if f"@{a}" in text_lower]
 
-    if mentioned and PYRAMID_ENABLED and SILICONFLOW_API_KEY:
-        # Call specific agents by mention (existing logic)
-        import httpx
+    if mentioned and PYRAMID_ENABLED and (SILICONFLOW_API_KEY or llm_kapu.elerheto()):
+        # Call specific agents by mention. A KAPU MÖGÖTT (2026-11-22): a `sf_chat` dönt Anthropic és SiliconFlow
+        # között, újrapróbál, és a váltást kimondja — korábban ez közvetlen SiliconFlow-POST volt, státusz nélkül.
         from html import escape as html_escape
         for agent_id in mentioned:
             try:
                 system_prompt = build_agent_context(agent_id=agent_id, inbox_summary=_get_inbox_summary(), relevance_query=text)
                 model_id = SILICONFLOW_MODELS.get(agent_id, agent_id)
-                async with httpx.AsyncClient(timeout=SILICONFLOW_TIMEOUT) as client:
-                    resp = await client.post(
-                        f"{SILICONFLOW_BASE_URL}/chat/completions",
-                        headers={"Authorization": f"Bearer {SILICONFLOW_API_KEY}", "Content-Type": "application/json"},
-                        json={"model": model_id, "messages": [
-                            {"role": "system", "content": system_prompt},
-                            {"role": "user", "content": f"Kommandant üzenete Telegramról:\n\n{text}"},
-                        ], "temperature": 0.7, "max_tokens": 1500},
-                    )
-                    data = json.loads(resp.text)
+                data, _t_err, _t_notes = await sf_chat({"model": model_id, "messages": [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": f"Kommandant üzenete Telegramról:\n\n{text}"},
+                ], "temperature": 0.7, "max_tokens": 1500}, purpose=f"telegram/chat/{agent_id}")
 
-                if "error" in data:
-                    await _telegram_push(f"<b>{agent_id.upper()}</b> — API hiba: {html_escape(str(data['error']))}")
+                if _t_err is not None:
+                    await _telegram_push(f"<b>{agent_id.upper()}</b> — API hiba: "
+                                         f"{html_escape(str(_t_err.get('message', _t_err))[:500])}")
                     continue
 
                 content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
                 if not content or not content.strip():
                     await _telegram_push(f"<b>{agent_id.upper()}</b> — üres válasz")
                     continue
+                content = _with_sf_notes(content, _t_notes)
 
                 safe_content = html_escape(content[:3800])
                 await _telegram_push(f"<b>{agent_id.upper()}</b>\n\n{safe_content}")
@@ -10708,25 +10800,22 @@ async def _handle_telegram_message(text: str, chat_id: str):
             from html import escape as html_escape
             await _telegram_push(f"<b>FELDWEBEL</b> — hiba: {html_escape(str(e)[:500])}")
 
-    # 5. Fallback: original DeepSeek call without history (if Feldwebel unavailable)
-    if PYRAMID_ENABLED and SILICONFLOW_API_KEY:
-        import httpx
+    # 5. Fallback: original DeepSeek call without history (if Feldwebel unavailable) — a kapu mögött.
+    if PYRAMID_ENABLED and (SILICONFLOW_API_KEY or llm_kapu.elerheto()):
         from html import escape as html_escape
         try:
             system_prompt = build_agent_context(agent_id="deepseek", inbox_summary=_get_inbox_summary())
             model_id = SILICONFLOW_MODELS.get("deepseek", "deepseek-ai/DeepSeek-V4-Pro")
-            async with httpx.AsyncClient(timeout=SILICONFLOW_TIMEOUT) as client:
-                resp = await client.post(
-                    f"{SILICONFLOW_BASE_URL}/chat/completions",
-                    headers={"Authorization": f"Bearer {SILICONFLOW_API_KEY}", "Content-Type": "application/json"},
-                    json={"model": model_id, "messages": [
-                        {"role": "system", "content": system_prompt},
-                        {"role": "user", "content": f"Kommandant üzenete Telegramról:\n\n{text}"},
-                    ], "temperature": 0.7, "max_tokens": 1500},
-                )
-                data = json.loads(resp.text)
+            data, _t_err, _t_notes = await sf_chat({"model": model_id, "messages": [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": f"Kommandant üzenete Telegramról:\n\n{text}"},
+            ], "temperature": 0.7, "max_tokens": 1500}, purpose="telegram/chat/tartalek")
+            if _t_err is not None:
+                await _telegram_push(f"<b>BRIDGE</b> — API hiba: {html_escape(str(_t_err.get('message', ''))[:500])}")
+                return
             content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
             if content and content.strip():
+                content = _with_sf_notes(content, _t_notes)
                 await _telegram_push(f"<b>DEEPSEEK</b>\n\n{html_escape(content[:3800])}")
         except Exception as e:
             logger.error("Fallback DeepSeek failed: %s", e)
@@ -11265,6 +11354,7 @@ if FELDWEBEL_ENABLED:
         siliconflow_base_url=SILICONFLOW_BASE_URL,
         siliconflow_timeout=SILICONFLOW_TIMEOUT,
         siliconflow_models=SILICONFLOW_MODELS,
+        llm_chat=sf_chat,
         capture_send_email=capture_send_email,
         capture_calendar_poll=capture_calendar_poll,
         create_calendar_event=create_calendar_event,

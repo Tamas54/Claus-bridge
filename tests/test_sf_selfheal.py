@@ -496,6 +496,10 @@ def test_a_kerulout_nem_novekedhet():
     2x `_api_call`, `_p`, `_analyze_image`, 2x `_handle_telegram_message`),
     plusz maga az `_sf_post_once`, ami AZ `sf_chat` belseje. Ezek megnevezett,
     hatralevo munkak — de uj nem jöhet hozzajuk eszrevetlenul.
+
+    2026-11-22: a ket `_handle_telegram_message`-POST az `sf_chat` moge kerult
+    (Anthropic-kapu) — a racsni 6-ra szigorodik. Maradt: `_reply`,
+    `_discuss_agent`, 2x `_api_call`, `_p`, `_analyze_image`.
     """
     src, tree = _server_tree()
     fns = [(n.lineno, n.end_lineno, n.name) for n in _ast.walk(tree)
@@ -506,10 +510,45 @@ def test_a_kerulout_nem_novekedhet():
             o = sorted((f for f in fns if f[0] <= i <= f[1]), key=lambda x: x[1] - x[0])
             hol.append(o[0][2] if o else "(modul)")
     kerulout = [h for h in hol if h != "_sf_post_once"]
-    assert len(kerulout) <= 8, (
-        f"uj SiliconFlow-kerulout keletkezett ({len(kerulout)} > 8): {kerulout}. "
+    assert len(kerulout) <= 6, (
+        f"uj SiliconFlow-kerulout keletkezett ({len(kerulout)} > 6): {kerulout}. "
         f"Minden uj hivas az `sf_chat`-en menjen at.")
     assert "ai_query" not in kerulout
+    assert "_handle_telegram_message" not in kerulout, \
+        "a Telegram-chat megint kozvetlenul POST-ol — az Anthropic-kapu es az onjavitas nelkul"
+
+
+def test_a_telegram_chat_a_kapu_mogott():
+    """A Kommandant Telegram-utja: a mention-ag es a tartalek-ag is az `sf_chat`-en megy (2026-11-22)."""
+    src = _func_source("_handle_telegram_message")
+    assert src.count("await sf_chat(") >= 2
+    assert "faber_relay.szandek(" in src
+    # A szandek-felismeres a Bridge-be iras ELOTT fut — a Fabernek szolo uzenet nem a Bridge beszelgetese:
+    assert src.index("faber_relay.szandek(") < src.index("INSERT INTO messages")
+
+
+def test_a_feldwebel_a_kapu_mogott():
+    """A Feldwebel-valasz (a Telegram szabad szoveges utja) a kozos kapun: a Bridge `sf_chat`-et ad neki."""
+    import asyncio as _asyncio
+    import inspect
+    from feldwebel import BridgeContext, responder
+    assert "llm_chat=sf_chat" in _server_tree()[0]
+    hivas = {}
+
+    async def kapu(payload, purpose=""):
+        hivas.update(payload=payload, purpose=purpose)
+        return {"choices": [{"message": {"content": "ok"}, "finish_reason": "stop"}]}, None, ["jegyzet"]
+
+    async def push(_s):
+        raise AssertionError("sikeres hivasnal nincs hibauzenet")
+    notes = []
+    ctx = BridgeContext(telegram_push=push, llm_chat=kapu)
+    data = _asyncio.run(responder._call_deepseek(ctx, "deepseek-ai/DeepSeek-V4-Pro",
+                                                 [{"role": "user", "content": "x"}], notes=notes))
+    assert data["choices"][0]["message"]["content"] == "ok"
+    assert hivas["purpose"] == "feldwebel/telegram" and hivas["payload"]["tools"]
+    assert notes == ["jegyzet"], "a kapu jegyzete (modellvaltas) nem veszhet el"
+    assert "kapu_notes" in inspect.getsource(responder.respond)
 
 
 def test_a_brief_hibajelzese_onvizsgalatot_is_kuld():

@@ -443,11 +443,14 @@ async def respond(text: str, chat_id: str, agent_id: str = "deepseek") -> str:
     # Agent loop — max 5 rounds of tool calls (last round forces text)
     # Round 0: force_tool=True → DeepSeek MUST call a tool (no hallucination)
     final_content = ""
+    #: A kapu jegyzetei (modellváltás, tartalékra váltás): a válasz végére kerülnek — néma váltás nincs.
+    kapu_notes: list = []
     for round_num in range(5):
         data = await _call_deepseek(
             ctx, model_id, messages,
             use_tools=(round_num < 4),
             force_tool=(round_num == 0),
+            notes=kapu_notes,
         )
         if not data:
             break
@@ -523,7 +526,7 @@ async def respond(text: str, chat_id: str, agent_id: str = "deepseek") -> str:
         }]
         try:
             data = await _call_deepseek(ctx, model_id, synth_messages,
-                                        use_tools=False, force_tool=False)
+                                        use_tools=False, force_tool=False, notes=kapu_notes)
             if data:
                 choice = data.get("choices", [{}])[0]
                 msg = choice.get("message", {})
@@ -567,6 +570,8 @@ async def respond(text: str, chat_id: str, agent_id: str = "deepseek") -> str:
 
     # Push to Telegram
     safe_content = html_escape(final_content[:3800])
+    if kapu_notes:
+        safe_content += "\n\n" + "\n".join(f"<i>[{html_escape(n)}]</i>" for n in dict.fromkeys(kapu_notes))
     await ctx.telegram_push(f"<b>FELDWEBEL</b>\n\n{safe_content}")
 
     # Store in Bridge DB
@@ -582,8 +587,12 @@ async def respond(text: str, chat_id: str, agent_id: str = "deepseek") -> str:
 # ── DeepSeek API call ──────────────────────────────────────────────
 
 
-async def _call_deepseek(ctx, model_id: str, messages: list, use_tools: bool = True, force_tool: bool = False) -> dict:
-    """Call SiliconFlow AI API, optionally with tools."""
+async def _call_deepseek(ctx, model_id: str, messages: list, use_tools: bool = True, force_tool: bool = False,
+                         notes: list | None = None) -> dict:
+    """Call the Bridge LLM gateway (Anthropic / SiliconFlow), optionally with tools.
+
+    2026-11-22: ha a Bridge bekötötte a közös kaput (`ctx.llm_chat` = `server.sf_chat`), azon megy — ott dől el,
+    Anthropic vagy SiliconFlow válaszol, és ott az önjavítás. A `notes` a váltások jegyzete a hívónak."""
     try:
         payload = {
             "model": model_id,
@@ -606,6 +615,17 @@ async def _call_deepseek(ctx, model_id: str, messages: list, use_tools: bool = T
             # model to call them anyway. Kimi K2.7 still supports it cleanly.
             if force_tool and "DeepSeek" not in model_id:
                 payload["tool_choice"] = "required"
+
+        if ctx.llm_chat is not None:
+            data, err, kapu_notes = await ctx.llm_chat(payload, purpose="feldwebel/telegram")
+            if notes is not None:
+                notes.extend(kapu_notes or [])
+            if err is not None:
+                err_msg = f"{err.get('code')}: {err.get('message', '')}"
+                logger.error("Feldwebel LLM-kapu hiba: %s (model=%s)", err_msg[:300], model_id)
+                await ctx.telegram_push(f"<b>FELDWEBEL</b> — API hiba: {html_escape(err_msg[:500])}")
+                return {}
+            return data or {}
 
         async with httpx.AsyncClient(timeout=ctx.siliconflow_timeout) as client:
             resp = await client.post(

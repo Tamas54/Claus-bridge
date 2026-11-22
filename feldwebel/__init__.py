@@ -49,6 +49,10 @@ class BridgeContext:
     siliconflow_base_url: str = "https://api.siliconflow.com/v1"
     siliconflow_timeout: int = 220
     siliconflow_models: dict = field(default_factory=dict)
+    #: A Bridge közös LLM-kapuja (`server.sf_chat`): `(data, err, notes)`. Ezen át dől el Anthropic és SiliconFlow
+    #: között, ki válaszol, és itt van az újrapróbálás, a modellváltás és a tartalékra váltás (2026-11-22).
+    #: None esetén a régi közvetlen SiliconFlow-hívás fut (önálló Feldwebel-teszt, régi bekötés).
+    llm_chat: Optional[Callable] = None
 
     # Bridge MCP tool references (for /email, /cal, /task commands)
     capture_send_email: Optional[Callable] = None
