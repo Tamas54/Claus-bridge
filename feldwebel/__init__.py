@@ -84,3 +84,24 @@ def get_ctx() -> BridgeContext:
     if _ctx is None:
         raise RuntimeError("Feldwebel not initialized — call init_feldwebel() first")
     return _ctx
+
+
+# ══ A FELDWEBEL-SEGÉDEK LLM-HÍVÁSA (2026-11-22) ══════════════════════════════
+# A briefing-formázó, az e-mail-triage és a feltöltött kép elemzése eddig saját közvetlen SiliconFlow-POST-tal ment:
+# SF-kiesésnél (402) csendben üres lett. Mostantól a Bridge kapuján (`ctx.llm_chat` = `server.sf_chat`), vagy ha az
+# nincs bekötve, a közös belépőn (`llm_kapu.kapun`, bejegyzett kapu nélkül a régi közvetlen út).
+
+def van_llm(ctx: BridgeContext) -> bool:
+    """Van-e LLM a Feldwebel segédeinek: SiliconFlow-kulcs, vagy Anthropic-kulcs a Bridge kapuja mögött."""
+    import llm_kapu
+    return bool(ctx.siliconflow_api_key) or ((ctx.llm_chat is not None or llm_kapu.kapu_bekotve())
+                                             and llm_kapu.elerheto())
+
+
+async def llm_hivas(ctx: BridgeContext, payload: dict, purpose: str, timeout: float | None = None):
+    """`(data, err, notes)` — a Bridge kapuján át. A `purpose` beszédes (a kapu ebből választ szintet)."""
+    if ctx.llm_chat is not None:
+        return await ctx.llm_chat(payload, purpose=purpose)
+    import llm_kapu
+    return await llm_kapu.kapun(payload, purpose=purpose, sf_kulcs=ctx.siliconflow_api_key,
+                                sf_alap=ctx.siliconflow_base_url, timeout=timeout or ctx.siliconflow_timeout)

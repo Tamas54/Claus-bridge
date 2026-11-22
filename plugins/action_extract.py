@@ -15,6 +15,8 @@ import logging
 import re
 from datetime import datetime, timedelta, timezone
 
+import llm_kapu
+
 logger = logging.getLogger("plugins.action_extract")
 
 __plugin_meta__ = {
@@ -131,8 +133,6 @@ async def _read_thread_text(svc, thread_id: str) -> str:
 
 def register_tools(app, deps):
     """Az action_extract MCP toolok regisztrálása a Bridge szerveren."""
-    import httpx
-
     get_db = deps.get("get_db")
     sf_key = deps.get("siliconflow_api_key", "")
     sf_base = deps.get("siliconflow_base_url", "https://api.siliconflow.com/v1")
@@ -143,8 +143,9 @@ def register_tools(app, deps):
     def _now_utc_iso() -> str:
         return datetime.now(timezone.utc).isoformat()
 
-    async def _extract_with_llm(text: str) -> list:
-        """SiliconFlow (deepseek) hívás — JSON-lista akciókkal. Hiba esetén None."""
+    async def _extract_with_llm(text: str, info: dict | None = None) -> list:
+        """LLM-hívás a KÖZÖS KAPUN (`llm_kapu.kapun`, 2026-11-22) — JSON-lista akciókkal. Hiba esetén None.
+        SiliconFlow-kiesésnél az Anthropic nyer ki, kimondva: az `info`-ba a valódi modell és a kapu jegyzete."""
         today_local = _budapest_now()
         today_str = today_local.strftime("%Y-%m-%d (%A) %H:%M")
 
@@ -179,15 +180,16 @@ def register_tools(app, deps):
             payload["reasoning_effort"] = "medium"
 
         try:
-            async with httpx.AsyncClient(timeout=sf_timeout) as client:
-                resp = await client.post(
-                    f"{sf_base}/chat/completions",
-                    headers={"Authorization": f"Bearer {sf_key}", "Content-Type": "application/json"},
-                    json=payload,
-                )
-                data = json.loads(resp.text)
+            data, err, notes = await llm_kapu.kapun(payload, purpose="kinyeres/action_extract", sf_kulcs=sf_key,
+                                                    sf_alap=sf_base, timeout=sf_timeout)
+            if err is not None:
+                logger.warning("action_extract: a kapu hibát adott: %s", str(err.get("message", err))[:300])
+                return None
+            if info is not None and llm_kapu.helyettesitett(data, model_id):
+                info["modell"] = llm_kapu.helyettesitett(data, model_id)
+                info["kapu_jegyzet"] = list(dict.fromkeys(notes))
 
-            content = data.get("choices", [{}])[0].get("message", {}).get("content", "").strip()
+            content = llm_kapu.valasz_szoveg(data).strip()
             if content.startswith("```"):
                 content = content.split("\n", 1)[1].rsplit("```", 1)[0].strip()
             # néha a modell ```json fejlécet ad
@@ -288,8 +290,9 @@ def register_tools(app, deps):
         # 2) Kinyerés: LLM, vagy ha nincs kulcs / hiba → regex-fallback
         method = "llm"
         extracted = None
-        if sf_key:
-            extracted = await _extract_with_llm(src_text)
+        kapu_info: dict = {}
+        if llm_kapu.van_llm(sf_key):
+            extracted = await _extract_with_llm(src_text, kapu_info)
         if extracted is None:
             method = "regex_fallback"
             extracted = _regex_fallback(src_text)
@@ -321,7 +324,8 @@ def register_tools(app, deps):
         logger.info("action_extract: %d draft (method=%s, caller=%s)",
                     len(draft_ids), method, caller or "?")
         return json.dumps(
-            {"extracted": extracted, "draft_ids": draft_ids, "method": method},
+            {"extracted": extracted, "draft_ids": draft_ids, "method": method,
+             **(kapu_info if method == "llm" else {})},
             ensure_ascii=False,
         )
 

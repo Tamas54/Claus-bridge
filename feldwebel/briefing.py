@@ -3,12 +3,10 @@ Daily briefing assembly — gathers calendar, emails, tasks, and Bridge messages
 Can be triggered manually (/brief) or automatically at morning time.
 """
 
-import json
 import logging
 from datetime import datetime, timezone
 from html import escape as html_escape
 
-import httpx
 
 logger = logging.getLogger("feldwebel.briefing")
 
@@ -52,7 +50,8 @@ async def assemble_briefing(ctx) -> str:
     raw = "\n\n".join(sections)
 
     # Try DeepSeek formatting for a polished brief
-    if ctx.siliconflow_api_key:
+    from feldwebel import van_llm
+    if van_llm(ctx):
         formatted = await _deepseek_format(ctx, raw, date_str)
         if formatted:
             return formatted
@@ -192,20 +191,18 @@ async def _deepseek_format(ctx, raw: str, date_str: str) -> str:
         elif "DeepSeek" in model_id:
             payload["reasoning_effort"] = "medium"
 
-        async with httpx.AsyncClient(timeout=30) as client:
-            resp = await client.post(
-                f"{ctx.siliconflow_base_url}/chat/completions",
-                headers={
-                    "Authorization": f"Bearer {ctx.siliconflow_api_key}",
-                    "Content-Type": "application/json",
-                },
-                json=payload,
-            )
-            data = json.loads(resp.text)
+        # A KÖZÖS KAPUN (2026-11-22): SiliconFlow-kiesésnél az Anthropic formáz (olcsó szint), kimondva.
+        from feldwebel import llm_hivas
+        data, err, notes = await llm_hivas(ctx, payload, purpose="formazas/reggeli_osszefoglalo", timeout=30)
+        if err is not None:
+            raise RuntimeError(f"LLM-kapu: {err.get('code')}: {str(err.get('message', ''))[:200]}")
 
-        content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
+        content = ((data or {}).get("choices") or [{}])[0].get("message", {}).get("content", "")
         if content and content.strip():
-            return f"<b>☀️ BRIEFING — {html_escape(date_str)}</b>\n\n{html_escape(content[:3500])}"
+            jegyzet = ""
+            if notes:
+                jegyzet = "\n\n" + "\n".join(f"<i>[{html_escape(n)}]</i>" for n in dict.fromkeys(notes))
+            return f"<b>☀️ BRIEFING — {html_escape(date_str)}</b>\n\n{html_escape(content[:3500])}{jegyzet}"
     except Exception as e:
         logger.warning("DeepSeek briefing format failed: %s", e)
 

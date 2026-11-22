@@ -18,6 +18,8 @@ import datetime
 import json
 import logging
 
+import llm_kapu
+
 logger = logging.getLogger("plugins.signal_gatekeeper")
 
 __plugin_meta__ = {
@@ -136,8 +138,6 @@ def _normalize_result(parsed: dict) -> dict:
 
 def register_tools(app, deps):
     """Regisztrálja a signal_gatekeeper MCP toolokat (judge + history)."""
-    import httpx
-
     sf_key = deps.get("siliconflow_api_key", "")
     sf_base = deps.get("siliconflow_base_url", "https://api.siliconflow.com/v1")
     sf_models = deps.get("siliconflow_models", {})
@@ -191,8 +191,9 @@ def register_tools(app, deps):
             Hiba esetén: {"error": "..."}. Pl. ha hiányzik az API kulcs:
             {"error": "SILICONFLOW_API_KEY hiányzik"}.
         """
-        if not sf_key:
-            return json.dumps({"error": "SILICONFLOW_API_KEY hiányzik"}, ensure_ascii=False)
+        if not llm_kapu.van_llm(sf_key):
+            return json.dumps({"error": "SILICONFLOW_API_KEY hiányzik (és Anthropic-kapu sincs bekötve)"},
+                              ensure_ascii=False)
 
         if not (signal_x or "").strip() or not (outcome_y or "").strip():
             return json.dumps(
@@ -230,26 +231,21 @@ def register_tools(app, deps):
         elif "DeepSeek" in model_id:
             payload["reasoning_effort"] = "medium"
 
-        # LLM-hívás.
+        # LLM-hívás a KÖZÖS KAPUN (2026-11-22): SiliconFlow-kiesésnél az Anthropic ítél, kimondva (`modell`).
         try:
-            async with httpx.AsyncClient(timeout=sf_timeout) as client:
-                resp = await client.post(
-                    f"{sf_base}/chat/completions",
-                    headers={
-                        "Authorization": f"Bearer {sf_key}",
-                        "Content-Type": "application/json",
-                    },
-                    json=payload,
-                )
-                data = json.loads(resp.text)
-        except Exception as e:
-            logger.warning("signal_gatekeeper LLM-hívás sikertelen: %s", e)
+            data, err, notes = await llm_kapu.kapun(payload, purpose="jelkapu/signal_gatekeeper", sf_kulcs=sf_key,
+                                                    sf_alap=sf_base, timeout=sf_timeout)
+        except Exception as e:  # noqa: BLE001
+            data, err, notes = None, {"code": "kapu_hiba", "message": f"{type(e).__name__}: {e}"}, []
+        if err is not None:
+            logger.warning("signal_gatekeeper LLM-hívás sikertelen: %s", err)
             return json.dumps(
-                {"error": f"LLM-hívás sikertelen: {e}"}, ensure_ascii=False
+                {"error": f"LLM-hívás sikertelen: {err.get('code')}: {str(err.get('message', ''))[:300]}",
+                 **({"kapu_jegyzet": notes} if notes else {})}, ensure_ascii=False
             )
 
         # Válasz kicsomagolása és robusztus JSON-parse.
-        content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
+        content = llm_kapu.valasz_szoveg(data)
         raw = _extract_json(content)
         try:
             parsed = json.loads(raw)
@@ -266,6 +262,10 @@ def register_tools(app, deps):
             )
 
         result = _normalize_result(parsed)
+        if llm_kapu.helyettesitett(data, model_id):
+            # KI ÍTÉLT VALÓJÁBAN — néma modellváltás nincs
+            result["modell"] = llm_kapu.helyettesitett(data, model_id)
+            result["kapu_jegyzet"] = list(dict.fromkeys(notes))
 
         # Mentés a signal_gatekeeper táblába (a tábla MÁR létezik, csak INSERT).
         idobelyeg = datetime.datetime.now(datetime.timezone.utc).isoformat()

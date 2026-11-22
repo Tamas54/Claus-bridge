@@ -19,6 +19,8 @@ import json
 import logging
 from datetime import datetime, timezone
 
+import llm_kapu
+
 logger = logging.getLogger("plugins.thread_digest")
 
 __plugin_meta__ = {
@@ -46,19 +48,19 @@ _NEEDS_REPLY_PRIORITIES = {"urgent", "important", "high"}
 # SiliconFlow LLM hívás — közös, az email_triage.py mintáját követi.
 # Üres api_key esetén SOHA nem hív (a hívók előbb ellenőrzik a kulcsot).
 # ──────────────────────────────────────────────────────────────────────────
-async def _sf_chat(deps: dict, system: str, user: str, max_tokens: int = 500) -> str:
-    """SiliconFlow chat-completion hívás, a felhasznált szövegtartalmat adja vissza.
+async def _sf_chat(deps: dict, system: str, user: str, max_tokens: int = 500,
+                   purpose: str = "szal_osszegzes/thread_digest", info: dict | None = None) -> str:
+    """LLM-hívás a KÖZÖS KAPUN át (`llm_kapu.kapun`, 2026-11-22), a felhasznált szövegtartalmat adja vissza.
 
-    Hiba esetén üres stringet ad vissza — a hívó fallbackeljen.
+    SiliconFlow-kiesésnél (402) az Anthropic válaszol — KIMONDVA: az `info` dict-be kerül a valódi modell
+    (`modell`, ha nem a kért) és a kapu jegyzete (`jegyzet`). Hiba esetén üres stringet ad — a hívó fallbackeljen.
     """
-    import httpx
-
     sf_key = deps.get("siliconflow_api_key", "")
     sf_base = deps.get("siliconflow_base_url", "https://api.siliconflow.com/v1")
     sf_models = deps.get("siliconflow_models", {})
     sf_timeout = deps.get("siliconflow_timeout", 220)
 
-    if not sf_key:
+    if not llm_kapu.van_llm(sf_key):
         return ""
 
     model_id = sf_models.get("deepseek", "deepseek-ai/DeepSeek-V4-Pro")
@@ -78,17 +80,17 @@ async def _sf_chat(deps: dict, system: str, user: str, max_tokens: int = 500) ->
         payload["reasoning_effort"] = "medium"
 
     try:
-        async with httpx.AsyncClient(timeout=sf_timeout) as client:
-            resp = await client.post(
-                f"{sf_base}/chat/completions",
-                headers={"Authorization": f"Bearer {sf_key}", "Content-Type": "application/json"},
-                json=payload,
-            )
-            data = json.loads(resp.text)
-        content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
-        return content.strip()
+        data, err, notes = await llm_kapu.kapun(payload, purpose=purpose, sf_kulcs=sf_key, sf_alap=sf_base,
+                                                timeout=sf_timeout)
+        if err is not None:
+            logger.warning("LLM-kapu hiba (%s): %s", purpose, str(err.get("message", err))[:300])
+            return ""
+        if info is not None and llm_kapu.helyettesitett(data, model_id):
+            info["modell"] = llm_kapu.helyettesitett(data, model_id)
+            info["jegyzet"] = list(dict.fromkeys(notes))
+        return llm_kapu.valasz_szoveg(data).strip()
     except Exception as e:
-        logger.warning("SiliconFlow chat hiba: %s", e)
+        logger.warning("LLM-hívás hiba (%s): %s", purpose, e)
         return ""
 
 
@@ -341,7 +343,7 @@ def register_tools(app, deps):
 
         # 2) LLM összefoglaló. Ha nincs SF-kulcs → egyszerű fallback (nem hív LLM-et).
         sf_key = deps.get("siliconflow_api_key", "")
-        if not sf_key:
+        if not llm_kapu.van_llm(sf_key):
             # Graceful degradation: első ~3 mondat kivonata, nincs valódi akció-becslés.
             snippet = raw.strip().replace("\n", " ")
             short = snippet[:400]
@@ -364,10 +366,11 @@ def register_tools(app, deps):
             f"{raw[:8000]}\n"
             "=== THREAD VÉGE ==="
         )
-        content = await _sf_chat(deps, system, user, max_tokens=600)
+        kapu_info: dict = {}
+        content = await _sf_chat(deps, system, user, max_tokens=600, info=kapu_info)
         content = _strip_code_fence(content)
 
-        result = {"summary": "", "akcio": "nincs teendő", "source": source}
+        result = {"summary": "", "akcio": "nincs teendő", "source": source, **kapu_info}
         try:
             parsed = json.loads(content)
             result["summary"] = str(parsed.get("summary", "")).strip()
@@ -479,7 +482,7 @@ def register_tools(app, deps):
         # Ha kevés az email (<20) ÉS van SF-kulcs ÉS a priority nem volt informatív
         # (pl. Gmail-forrás, ahol nincs priority), LLM-mel finomítunk.
         priority_informative = any(e["priority"] for e in emails)
-        if emails_seen < 20 and sf_key and not priority_informative:
+        if emails_seen < 20 and llm_kapu.van_llm(sf_key) and not priority_informative:
             subjects = "\n".join(
                 f"{i + 1}. {e['from']} — {e['subject']}" for i, e in enumerate(emails)
             )
@@ -493,7 +496,8 @@ def register_tools(app, deps):
                 '{"needs_reply_count": <egész szám>}\n\n'
                 f"{subjects}"
             )
-            content = _strip_code_fence(await _sf_chat(deps, system, user, max_tokens=120))
+            content = _strip_code_fence(await _sf_chat(deps, system, user, max_tokens=120,
+                                                       purpose="email_triage/valaszt_igenyel"))
             try:
                 parsed = json.loads(content)
                 n = int(parsed.get("needs_reply_count", needs_reply))

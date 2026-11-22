@@ -8,7 +8,6 @@ import logging
 import os
 from html import escape as html_escape
 
-import httpx
 
 logger = logging.getLogger("feldwebel.triage")
 
@@ -24,7 +23,8 @@ async def smart_categorize(sender: str, subject: str, body: str, ctx) -> dict:
     Returns: {priority, category, summary_hu, suggested_action}
     Falls back to string matching on failure.
     """
-    if not ctx.siliconflow_api_key:
+    from feldwebel import llm_hivas, van_llm
+    if not van_llm(ctx):
         return _fallback_categorize(sender, subject)
 
     prompt = f"""Elemezd az alábbi emailt és válaszolj CSAK JSON formátumban.
@@ -56,18 +56,12 @@ Válasz (kizárólag valid JSON, semmi más):
         payload["reasoning_effort"] = "medium"
 
     try:
-        async with httpx.AsyncClient(timeout=30) as client:
-            resp = await client.post(
-                f"{ctx.siliconflow_base_url}/chat/completions",
-                headers={
-                    "Authorization": f"Bearer {ctx.siliconflow_api_key}",
-                    "Content-Type": "application/json",
-                },
-                json=payload,
-            )
-            data = json.loads(resp.text)
+        # A KÖZÖS KAPUN (2026-11-22): SiliconFlow-kiesésnél az Anthropic sorol be (olcsó szint), kimondva.
+        data, err, notes = await llm_hivas(ctx, payload, purpose="email_triage/fw_riasztas", timeout=30)
+        if err is not None:
+            raise RuntimeError(f"LLM-kapu: {err.get('code')}: {str(err.get('message', ''))[:200]}")
 
-        content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
+        content = ((data or {}).get("choices") or [{}])[0].get("message", {}).get("content", "")
         content = content.strip()
 
         # Handle markdown code blocks
@@ -80,6 +74,9 @@ Válasz (kizárólag valid JSON, semmi más):
         if "priority" not in result or "summary_hu" not in result:
             return _fallback_categorize(sender, subject)
 
+        _valodi = str((data or {}).get("model") or "")
+        if (data or {}).get("provider") == "anthropic" or (_valodi and _valodi != model_id):
+            result["modell"] = _valodi           # KI SOROLT BE VALÓJÁBAN — néma modellváltás nincs
         logger.info("AI triage: %s → %s (%s)", subject[:40], result["priority"], result.get("category", "?"))
         return result
 

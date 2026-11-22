@@ -800,44 +800,19 @@ async def _call_deepseek(ctx, model_id: str, messages: list, use_tools: bool = T
                 return {}
             return data or {}
 
-        if ctx.llm_chat is not None:
-            data, err, kapu_notes = await ctx.llm_chat(payload, purpose=purpose)
-            if notes is not None:
-                notes.extend(kapu_notes or [])
-            if err is not None:
-                err_msg = f"{err.get('code')}: {err.get('message', '')}"
-                logger.error("Feldwebel LLM-kapu hiba: %s (model=%s)", err_msg[:300], model_id)
-                await ctx.telegram_push(f"<b>FELDWEBEL</b> — API hiba: {html_escape(err_msg[:500])}")
-                return {}
-            return data or {}
-
-        async with httpx.AsyncClient(timeout=ctx.siliconflow_timeout) as client:
-            resp = await client.post(
-                f"{ctx.siliconflow_base_url}/chat/completions",
-                headers={
-                    "Authorization": f"Bearer {ctx.siliconflow_api_key}",
-                    "Content-Type": "application/json",
-                },
-                json=payload,
-            )
-            data = json.loads(resp.text)
-
-        # SiliconFlow returns errors in TWO shapes: legacy `{"error": ...}` AND
-        # the newer `{"code": N, "message": "...", "data": null}` (see e.g. code
-        # 20015 "deepseek-reasoner does not support this tool_choice"). Detect
-        # both, otherwise the loop sees an empty `choices` list and silently
-        # produces "Agent loop ended with no content" without surfacing the cause.
-        if "error" in data:
-            logger.error("SiliconFlow error: %s", data["error"])
-            await ctx.telegram_push(f"<b>FELDWEBEL</b> — API hiba: {html_escape(str(data['error'])[:500])}")
-            return {}
-        if "code" in data and not data.get("choices"):
-            err_msg = f"code={data.get('code')}: {data.get('message', '<no message>')}"
-            logger.error("SiliconFlow code-style error: %s (model=%s, force_tool=%s)",
-                         err_msg, model_id, force_tool)
+        # A Bridge kapuja (`ctx.llm_chat`), vagy bekötés nélkül a közös belépő (`llm_kapu.kapun`) — 2026-11-22-ig itt
+        # egy közvetlen SiliconFlow-POST állt, tartalék nélkül. A SiliconFlow mindkét hibaalakját (`{"error": …}` és
+        # `{"code": N, "message": …}`) a kapu tipizálja, így a hiba oka nem vész el („Agent loop ended with no content”).
+        from feldwebel import llm_hivas
+        data, err, kapu_notes = await llm_hivas(ctx, payload, purpose)
+        if notes is not None:
+            notes.extend(kapu_notes or [])
+        if err is not None:
+            err_msg = f"{err.get('code')}: {err.get('message', '')}"
+            logger.error("Feldwebel LLM-kapu hiba: %s (model=%s, force_tool=%s)", err_msg[:300], model_id, force_tool)
             await ctx.telegram_push(f"<b>FELDWEBEL</b> — API hiba: {html_escape(err_msg[:500])}")
             return {}
-        return data
+        return data or {}
 
     except Exception as e:
         logger.error("SiliconFlow API call failed: %s", e)
@@ -995,9 +970,7 @@ async def _execute_tool(name: str, args: dict, ctx, kor: dict | None = None, *, 
     `kor`: a beszélgetési kör adatai (chat_id, a Kommandant üzenete) — a naptár-jóváhagyás ehhez köti a javaslatot.
     `modell`: az eszközt hívó kör valódi modellje (a `tudasbazis` csak `claude-*`-nak fut). `vedett`: a kör
     tudásbázis-tartalmat hordoz — SiliconFlow-ügynökhöz, általuk olvasott tárba vagy nyilvánosan menő eszköz nem fut."""
-    # IMPORTANT: import httpx here to avoid UnboundLocalError —
-    # analyze_upload handler has a conditional `import httpx` which makes
-    # Python treat httpx as local for the entire function scope.
+    # IMPORTANT: import httpx here — több eszköz-ág közvetlenül használja (a képelemzés 11-22 óta a kapun megy).
     import httpx
     import futar_kliens
     import kulso_mcp
@@ -1617,10 +1590,8 @@ async def _execute_tool(name: str, args: dict, ctx, kor: dict | None = None, *, 
                 return json.dumps({"error": f"Upload #{fid} nem tartalmaz képet"})
             if not row["mime_type"].startswith("image/"):
                 return json.dumps({"error": f"Upload #{fid} nem kép ({row['mime_type']})"})
-            # Use the centralized vision helper via capture_state
-            import httpx
-            sf_key = ctx.siliconflow_api_key
-            sf_base = ctx.siliconflow_base_url
+            # A KÖZÖS KAPUN (2026-11-22): SiliconFlow-kiesésnél az Anthropic néz rá a képre, kimondva (`modell`).
+            from feldwebel import llm_hivas
             sf_models = ctx.siliconflow_models
             model_id = sf_models.get("kimi", "moonshotai/Kimi-K3.1-Pro")
             data_url = f"data:{row['mime_type']};base64,{row['content_base64']}"
@@ -1635,15 +1606,15 @@ async def _execute_tool(name: str, args: dict, ctx, kor: dict | None = None, *, 
             }
             if "Kimi" in model_id:
                 vision_payload["thinking"] = {"type": "disabled"}
-            async with httpx.AsyncClient(timeout=60) as client:
-                resp = await client.post(
-                    f"{sf_base}/chat/completions",
-                    headers={"Authorization": f"Bearer {sf_key}", "Content-Type": "application/json"},
-                    json=vision_payload,
-                )
-            data = json.loads(resp.text)
-            analysis = data.get("choices", [{}])[0].get("message", {}).get("content", "(ures valasz)")
-            return json.dumps({"status": "analyzed", "file_id": fid, "analysis": analysis}, ensure_ascii=False)
+            data, err, kapu_notes = await llm_hivas(ctx, vision_payload, "kepleiras/feltoltes", timeout=60)
+            if err is not None:
+                return json.dumps({"error": f"képelemzés: {err.get('code')}: {str(err.get('message', ''))[:300]}",
+                                   **({"kapu_jegyzet": kapu_notes} if kapu_notes else {})}, ensure_ascii=False)
+            analysis = ((data or {}).get("choices") or [{}])[0].get("message", {}).get("content") or "(ures valasz)"
+            return json.dumps({"status": "analyzed", "file_id": fid, "analysis": analysis,
+                               "modell": (data or {}).get("model") or model_id,
+                               **({"kapu_jegyzet": list(dict.fromkeys(kapu_notes))} if kapu_notes else {})},
+                              ensure_ascii=False)
         except Exception as e:
             return json.dumps({"error": str(e)})
 
