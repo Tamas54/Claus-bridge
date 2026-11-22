@@ -7733,7 +7733,14 @@ def _sf_is_truncated(data: dict) -> bool:
 _SF_DROPPABLE_PARAMS = {
     "thinking": ("thinking", "思考", "不支持关闭"),
     "reasoning_effort": ("reasoning_effort", "reasoning effort"),
+    # MÉRVE 11-22 élesben: „Parameter 'temperature'=0.7 is not supported for kimi-k3…” (HTTP 400/20015) — a
+    # K3-család a mintavételi paramétereket nem fogadja. Ez nem a modell kiesése: le kell venni és újrapróbálni.
+    "temperature": ("'temperature'", "temperature"),
+    "top_p": ("'top_p'", "top_p"),
 }
+
+#: Paraméterek, amiket egy modellcsalád EGYÁLTALÁN nem fogad — ezek el sem indulnak (nem kell hozzá egy bukott kör).
+_SF_TILTOTT_PARAMS = (("Kimi-K3", ("temperature", "top_p")),)
 
 
 def _sf_classify(status: int, body: str) -> tuple[str, str]:
@@ -7834,6 +7841,19 @@ def _gondolat_levag(data: dict) -> None:
         msg["content"] = c.strip()
 
 
+def _helyettesito_jegyzet(messages: list, kert: str, valaszolo: str) -> list:
+    """A tartalékmodell rendszerszövegének végére: ki ő valójában. Új lista, a hívóé érintetlen."""
+    jegyzet = (f"\n\n[RENDSZERJEGYZET: a kért `{kert}` modell most nem elérhető, ezt a választ HELYETTESÍTŐKÉNT a(z) "
+               f"`{valaszolo}` modell adja. Ha magadról vagy a modelledről kérdeznek, ezt mondd — ne állítsd, hogy "
+               f"te vagy a kért modell.]")
+    out = [dict(m) for m in messages]
+    for m in out:
+        if m.get("role") == "system" and isinstance(m.get("content"), str):
+            m["content"] = m["content"] + jegyzet
+            return out
+    return [{"role": "system", "content": jegyzet.strip()}] + out
+
+
 async def sf_chat(payload: dict, *, purpose: str = "", attempts: int = 3,
                   failover: bool = True) -> tuple[dict | None, dict | None, list[str]]:
     """SiliconFlow chat ÖNJAVÍTÁSSAL. `(data, error, notes)`.
@@ -7883,6 +7903,13 @@ async def sf_chat(payload: dict, *, purpose: str = "", attempts: int = 3,
                 for k in ("thinking", "reasoning_effort"):
                     body.pop(k, None)
                 body.update(_model_extra(mid))
+                # A tartalék NE adja ki magát a kért ügynöknek (11-22: a DeepSeek „Kimi-K3.1-Pro”-nak mondta magát,
+                # mert a szerepszövege Kimié maradt). A rendszerszöveg végére kerül, kimondva.
+                body["messages"] = _helyettesito_jegyzet(body.get("messages") or [], model, mid)
+            for _minta, _tiltott in _SF_TILTOTT_PARAMS:
+                if _minta in mid:
+                    for k in _tiltott:
+                        body.pop(k, None)
             # ÖNSZABÁLYOZÁS: induljunk onnan, ami ennél a modellnél utoljára
             # elég volt, de sose a modell plafonja fölött.
             _ceiling = _sf_ceiling(mid)

@@ -116,3 +116,44 @@ def test_a_gondolatmenet_nem_kerul_a_valaszba():
     d = {"choices": [{"message": {"content": "Sima válasz."}}]}
     server._gondolat_levag(d)
     assert d["choices"][0]["message"]["content"] == "Sima válasz."
+
+
+def test_k3_nem_kap_temperaturet_es_a_tartalek_nem_adja_ki_magat(monkeypatch):
+    import server
+    monkeypatch.setattr(server.llm_kapu, "elsodleges", lambda: "anthropic")
+    monkeypatch.setattr(server, "_sf_keys", lambda: ["k"])
+    kuldott = []
+
+    class R:
+        def __init__(self, ok):
+            self.status_code = 200 if ok else 400
+            self.text = "" if ok else '{"code":20012,"message":"Model does not exist"}'
+
+        def json(self):
+            return {"choices": [{"message": {"content": "ok"}, "finish_reason": "stop"}], "usage": {}}
+
+    class Kliens:
+        def __init__(self, *a, **k):
+            pass
+
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, *a):
+            return False
+
+        async def post(self, *a, **k):
+            j = k.get("json", {})
+            kuldott.append(j)
+            return R(ok=not j["model"].startswith("moonshotai/Kimi-K3.1"))
+    import httpx
+    monkeypatch.setattr(httpx, "AsyncClient", Kliens)
+    payload = {"model": "moonshotai/Kimi-K3.1-Pro", "temperature": 0.7,
+               "messages": [{"role": "system", "content": "Te Kimi vagy."}, {"role": "user", "content": "ki vagy?"}]}
+    data, err, notes = asyncio.run(server.sf_chat(payload, purpose="ai_query/kimi"))
+    assert "temperature" not in kuldott[0]                             # a K3 el sem kapja
+    tartalek = kuldott[-1]
+    assert tartalek["model"] == "deepseek-ai/DeepSeek-V4-Pro-0813"
+    assert "HELYETTESÍTŐKÉNT" in tartalek["messages"][0]["content"] and "Te Kimi vagy." in tartalek["messages"][0]["content"]
+    assert payload["messages"][0]["content"] == "Te Kimi vagy."      # a hívó üzenetei érintetlenek
+    assert any("MODELLVÁLTÁS" in n for n in notes)
