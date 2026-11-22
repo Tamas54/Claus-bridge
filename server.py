@@ -56,6 +56,7 @@ from youngereka_profile import register_youngereka
 # eddig deklarált-de-ellenőrizetlen volt. Lásd recipe_health.py fejlécét.
 import recipe_health
 import faber_relay
+import futar_kliens
 import llm_kapu
 # Bridge UI v2 (2026-11-22): csatornafüggetlen kimenet — a webes kör válasza a webre megy, nem a Telegramra.
 import kimenet
@@ -165,9 +166,10 @@ def _get_inbox_summary(max_items: int = 8) -> str:
     """Legfrissebb capture-daemon üzenetek (email + calendar) a Bridge DB-ből — Pyramid kontextushoz."""
     try:
         conn = get_db()
+        # a futár sorai (a Kommandant tudásbázisa is lehet bennük) SiliconFlow-ügynök kontextusába sosem kerülnek
         rows = conn.execute(
             "SELECT subject, message, timestamp, priority FROM messages "
-            "WHERE sender = 'capture-daemon' ORDER BY timestamp DESC LIMIT ?",
+            f"WHERE sender = 'capture-daemon' AND {futar_kliens.SF_KIZARAS_SQL} ORDER BY timestamp DESC LIMIT ?",
             (max_items,)
         ).fetchall()
         conn.close()
@@ -1797,8 +1799,9 @@ async def api_messages(request):
         conn.commit()
         conn.close()
 
-        # Auto-detect agent mentions (@kimi, @deepseek, @glm5) — trigger agent response
-        if PYRAMID_ENABLED:
+        # Auto-detect agent mentions (@kimi, @deepseek, @glm5) — trigger agent response. A futár válasza (a Kommandant
+        # tudásbázisa is lehet benne) SiliconFlow-ügynököt nem indíthat, akármit tartalmaz.
+        if PYRAMID_ENABLED and body.get("sender") != futar_kliens.FELADO:
             msg_text = body.get("message", "").lower()
             mentioned = [a for a in ("kimi", "deepseek", "glm5") if f"@{a}" in msg_text]
             if mentioned:
@@ -1807,7 +1810,13 @@ async def api_messages(request):
         return JSONResponse({"status": "sent", "message_id": msg_id})
     else:
         limit = int(request.query_params.get("limit", "50"))
-        rows = conn.execute("SELECT * FROM messages ORDER BY timestamp DESC LIMIT ?", (limit,)).fetchall()
+        # `recipient`: egy címzett tételei (a gépen futó futár így csak a sajátjait kéri, 3 mp-enként — kis forgalom)
+        cimzett = request.query_params.get("recipient")
+        if cimzett:
+            rows = conn.execute("SELECT * FROM messages WHERE recipient = ? ORDER BY timestamp DESC LIMIT ?",
+                                (cimzett, limit)).fetchall()
+        else:
+            rows = conn.execute("SELECT * FROM messages ORDER BY timestamp DESC LIMIT ?", (limit,)).fetchall()
         conn.close()
         return JSONResponse([dict(r) for r in rows])
 
@@ -6916,6 +6925,30 @@ async def kulso_eszkoz(szerver: str, eszkoz: str = "sugo", parameterek: dict | N
         return json.dumps({"hiba": f"ismeretlen szerver: {szerver!r}", "szerverek": list(kulso_mcp.SZERVEREK)},
                           ensure_ascii=False)
     return await kulso_mcp.hiv(szerver, eszkoz, parameterek if isinstance(parameterek, dict) else {})
+
+
+@mcp.tool()
+async def tudasbazis(kerdes: str, szurok: list[str] | None = None, tol: str = "", caller: str = "") -> str:
+    """A Kommandant TELJES saját tudásbázisa a gépén (futar_kliens.py → a gépen futó futár → tudas.py):
+    memóriajegyzetek, session-átiratok, saját commitok és kód, repó-dokumentumok, a régi claude-mem, a claude.ai- és a
+    Google-export, a Bridge régi anyaga. Korábbi döntés, előzmény, „ezt már csináltuk?” → ezt kérdezd.
+
+    kerdes: természetes nyelvű kérdés. szurok: csak ezekből a forrásokból (jegyzet, atirat, doksi, commit, kod,
+    cm_kerdes, cm_osszegzes, cm_megfigyeles, bridge_memoria, bridge_uzenet, bridge_vita, bridge_feladat, web_atirat,
+    web_projekt, web_memoria, google_sajat, google_profil, google_havi). tol: ÉÉÉÉ-HH-NN. A gépnek bekapcsolva kell
+    lennie. A találat csak Claude-modellnek szól: ne add tovább SiliconFlow-ügynöknek (Kimi, DeepSeek, GLM), és ne
+    tedd a Bridge közös memóriájába.
+    """
+    import api_kapu
+    if not api_kapu.mcp_zarva():
+        return json.dumps({"hiba": "a tudasbazis a Bridge MCP-ajtajának zárása után kapcsol be (BRIDGE_MCP_ZARVA=1)"},
+                          ensure_ascii=False)
+    # Mint a kulso_eszkoz: a zárt ajtón csak a Kommandant claude.ai-csatlakozója, a munkások és a titkos példány-utak
+    # jutnak be; az üres `caller` a csatlakozó gazdája, a KIMONDOTT idegen példány (pl. a LESESAAL-é) nem.
+    if caller and not is_core_instance(caller):
+        return json.dumps({"hiba": "a tudasbazis csak a Kommandant saját példányainak érhető el"}, ensure_ascii=False)
+    return await futar_kliens.hiv("tudasbazis", {"kerdes": kerdes, "szurok": szurok or [], "tol": tol},
+                                  get_db=get_db, modell=futar_kliens.MCP_HIVO)
 
 
 @mcp.tool()

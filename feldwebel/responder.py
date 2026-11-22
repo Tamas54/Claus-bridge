@@ -398,6 +398,8 @@ ESZKÖZTÉRKÉP (a saját szolgáltatásaink — ezek az elsők):
 - weboldal tartalma, crawl, kinyerés sémára, oldalfigyelés → `engine` (egyszerűbb: web_fetch, web_scrape, web_search)
 - levél, naptár, feladat, recept → gmail_*, calendar_*, create_task/list_tasks, *_recipe
 - korábbi döntéseink, közös memória → search_memory, read_memory; hosszabb háttérkutatás egy ügynökkel → ai_task
+- a Kommandant előzményei, régi döntései (a teljes saját tudásbázis a gépén) → `tudasbazis`; második vélemény,
+  keresztellenőrzés → `chatgpt` / `gemini`; AI-tanács (Claude + GPT + Gemini) → a kettőt EGY körben, egyszerre
 
 MELLÉKLET ÉS TANÁCSADÁS (irat, tanulmány, fotó, egészség):
 - A `[Melléklet #ID: név — … · Studio file_id=… · szerkesztő: …]` blokk egy fájl, amit a Kommandant küldött; alatta a
@@ -496,8 +498,23 @@ async def respond(text: str, chat_id: str, agent_id: str = "deepseek") -> str:
     system_prompt = _build_system_prompt(ctx, query=text)
     history = get_history(chat_id, limit=8)
     messages = [{"role": "system", "content": system_prompt}]
+    # TUDÁSBÁZIS = CSAK CLAUDE (a Kommandant, 11-22): a kör, amelyben a Kommandant tudásbázisából van tartalom (most
+    # hívott `tudasbazis`, vagy egy korábbi, így jelölt válasz az előzményben), csak Claude-dal megy — SiliconFlow-
+    # tartalék nélkül —, és nem hív SiliconFlow-ügynököt vagy általuk olvasott tárat (futar_kliens.sf_fele). Ha az
+    # Anthropic nem elsődleges vagy nem elérhető, a jelölt előzmény tartalma ki sem megy.
+    import futar_kliens
+    claude_kor = futar_kliens.claude_elerheto()
+    vedett = False
     for msg in history:
-        messages.append({"role": msg["role"], "content": msg["content"]})
+        tartalom = msg["content"]
+        if futar_kliens.vedett_elozmeny(msg.get("agent_id")):
+            if claude_kor:
+                vedett = True
+            else:
+                tartalom = futar_kliens.REJTETT_ELOZMENY
+        messages.append({"role": msg["role"], "content": tartalom})
+    #: ebben a körben a `tudasbazis` valódi találatot hozott → a válasz jelölve kerül az előzménybe
+    tudasbazis_kor = False
 
     model_id = ctx.siliconflow_models.get(agent_id, "deepseek-ai/DeepSeek-V4-Pro")
 
@@ -524,10 +541,12 @@ async def respond(text: str, chat_id: str, agent_id: str = "deepseek") -> str:
             # mellékletnél és tanácskérésnél NEM kényszerítünk eszközt az első körben: vissza kell tudnia kérdezni
             force_tool=(round_num == 0 and not kotetlen),
             notes=kapu_notes,
+            csak_claude=vedett,
         )
         if not data:
             break
         kiszolgalo = data.get("model") or kiszolgalo
+        kor_modell = str(data.get("model") or "")      # az eszközt hívó kör VALÓDI modellje (a tudásbázis-kapunak)
         if _kimenet is not None:
             _kimenet.modell(data, ugynok="feldwebel")
 
@@ -561,10 +580,10 @@ async def respond(text: str, chat_id: str, agent_id: str = "deepseek") -> str:
                 logger.info("Tool call round %d: %s(%s)", round_num, fn_name, fn_args)
                 hivasok.append((tc.get("id", ""), fn_name, fn_args or {}))
 
-            async def _egy(fn_name, fn_args):
+            async def _egy(fn_name, fn_args, kor_modell=kor_modell, vedett=vedett):
                 _et = _kimenet.eszkoz_indul(fn_name, fn_args) if _kimenet is not None else None
                 try:
-                    result = await _execute_tool(fn_name, fn_args, ctx)
+                    result = await _execute_tool(fn_name, fn_args, ctx, modell=kor_modell, vedett=vedett)
                 except Exception as e:  # noqa: BLE001 — egy eszköz hibája ne vigye el a kört
                     result = json.dumps({"error": f"{type(e).__name__}: {str(e)[:300]}"}, ensure_ascii=False)
                 if _kimenet is not None:
@@ -575,6 +594,8 @@ async def respond(text: str, chat_id: str, agent_id: str = "deepseek") -> str:
             for (tc_id, fn_name, _), result in zip(hivasok, eredmenyek):
                 eszkoz_nevek.append(fn_name)
                 messages.append({"role": "tool", "tool_call_id": tc_id, "content": result})
+                if futar_kliens.tudasbazis_tartalom(fn_name, result):
+                    vedett = tudasbazis_kor = True     # innentől a kör csak Claude-dal megy
             continue
 
         # Case B: Text-based tool calls (DeepSeek DSML or Kimi markers)
@@ -589,10 +610,12 @@ async def respond(text: str, chat_id: str, agent_id: str = "deepseek") -> str:
                 fn_name, fn_args = parsed_tool
                 logger.info("Text tool call round %d: %s(%s)", round_num, fn_name, fn_args)
                 _et = _kimenet.eszkoz_indul(fn_name, fn_args) if _kimenet is not None else None
-                result = await _execute_tool(fn_name, fn_args, ctx)
+                result = await _execute_tool(fn_name, fn_args, ctx, modell=kor_modell, vedett=vedett)
                 if _kimenet is not None:
                     _kimenet.eszkoz_kesz(_et, result)
                 eszkoz_nevek.append(fn_name)
+                if futar_kliens.tudasbazis_tartalom(fn_name, result):
+                    vedett = tudasbazis_kor = True
                 messages.append({"role": "assistant", "content": f"(Tool végrehajtva: {fn_name})"})
                 messages.append({"role": "user", "content": f"Tool eredmény ({fn_name}):\n{result}\n\nFoglald össze az eredményt a Kommandantnak."})
                 continue
@@ -622,7 +645,7 @@ async def respond(text: str, chat_id: str, agent_id: str = "deepseek") -> str:
         }]
         try:
             data = await _call_deepseek(ctx, model_id, synth_messages,
-                                        use_tools=False, force_tool=False, notes=kapu_notes)
+                                        use_tools=False, force_tool=False, notes=kapu_notes, csak_claude=vedett)
             if data:
                 kiszolgalo = data.get("model") or kiszolgalo
                 if _kimenet is not None:
@@ -653,7 +676,7 @@ async def respond(text: str, chat_id: str, agent_id: str = "deepseek") -> str:
         # Show last few messages for debugging
         for m in messages[-4:]:
             role = m.get("role", "?")
-            c = (m.get("content") or "")[:150]
+            c = "(rejtve: tudásbázis-tartalom)" if vedett and role == "tool" else (m.get("content") or "")[:150]
             tc = m.get("tool_calls")
             if tc:
                 debug_parts.append(f"  [{role}] tool_calls={json.dumps([t.get('function',{}).get('name','?') for t in tc])}")
@@ -664,8 +687,9 @@ async def respond(text: str, chat_id: str, agent_id: str = "deepseek") -> str:
         await ctx.telegram_push(f"<b>FELDWEBEL DEBUG</b>\n<pre>{html_escape(debug_msg[:1500])}</pre>")
         return ""
 
-    # Store in history
-    add_message(chat_id, "assistant", final_content, agent_id)
+    # Store in history — a tudásbázis-tartalmú válasz jelölve: a következő körökben csak Claude láthatja
+    add_message(chat_id, "assistant", final_content,
+                agent_id + (futar_kliens.CLAUDE_CSAK_JEL if tudasbazis_kor else ""))
 
     # Push to Telegram
     safe_content = html_escape(final_content[:3800])
@@ -694,11 +718,15 @@ def modell_rovid(modell: str) -> str:
 
 
 async def _call_deepseek(ctx, model_id: str, messages: list, use_tools: bool = True, force_tool: bool = False,
-                         notes: list | None = None, purpose: str = "feldwebel/telegram") -> dict:
+                         notes: list | None = None, purpose: str = "feldwebel/telegram",
+                         csak_claude: bool = False) -> dict:
     """Call the Bridge LLM gateway (Anthropic / SiliconFlow), optionally with tools.
 
     2026-11-22: ha a Bridge bekötötte a közös kaput (`ctx.llm_chat` = `server.sf_chat`), azon megy — ott dől el,
-    Anthropic vagy SiliconFlow válaszol, és ott az önjavítás. A `notes` a váltások jegyzete a hívónak."""
+    Anthropic vagy SiliconFlow válaszol, és ott az önjavítás. A `notes` a váltások jegyzete a hívónak.
+
+    `csak_claude` (a kör tudásbázis-tartalmat hordoz): közvetlenül az Anthropic-kapu (`llm_kapu.chat`) — SiliconFlow-
+    tartalék NINCS, hibánál kimondott hiba. A Kommandant tudásbázisa csak Claude-modell promptjába kerülhet."""
     try:
         payload = {
             "model": model_id,
@@ -715,13 +743,27 @@ async def _call_deepseek(ctx, model_id: str, messages: list, use_tools: bool = T
             payload["thinking"] = {"type": "disabled"}
         if use_tools:
             # a külső appok (Lexonomics, Medical, Studio) szerverenként egy eszközként — kulso_mcp.py
-            payload["tools"] = TOOLS + await _kulso_eszkozok()
+            payload["tools"] = TOOLS + await _kulso_eszkozok() + _futar_eszkozok()
             # tool_choice="required" is REJECTED by deepseek-reasoner (V4-Pro)
             # on SiliconFlow with code 20015 "does not support this tool_choice".
             # Skip it for DeepSeek; the system prompt + provided tools steer the
             # model to call them anyway. Kimi K2.7 still supports it cleanly.
             if force_tool and "DeepSeek" not in model_id:
                 payload["tool_choice"] = "required"
+
+        if csak_claude:
+            import llm_kapu
+            data, err, kapu_notes = await llm_kapu.chat(payload, purpose=purpose)
+            if notes is not None:
+                notes.extend(kapu_notes or [])
+            if err is not None:
+                err_msg = f"{err.get('code')}: {err.get('message', '')}"
+                logger.error("Feldwebel Claude-kör hiba: %s (tudásbázis-tartalom, nincs tartalék)", err_msg[:300])
+                await ctx.telegram_push(f"<b>FELDWEBEL</b> — API hiba: {html_escape(err_msg[:500])} (a beszélgetésben "
+                                        f"tudásbázis-tartalom van, ami csak Claude-nak mehet ki, ezért SiliconFlow-"
+                                        f"tartalékra nem váltok)")
+                return {}
+            return data or {}
 
         if ctx.llm_chat is not None:
             data, err, kapu_notes = await ctx.llm_chat(payload, purpose=purpose)
@@ -849,6 +891,16 @@ async def _econ_via_statdata(name: str, args: dict):
         return None
 
 
+def _futar_eszkozok() -> list:
+    """A gépen futó futár eszközei (tudasbazis, chatgpt, gemini — futar_kliens.py); hibánál üres lista."""
+    try:
+        import futar_kliens
+        return futar_kliens.eszkoz_definiciok()
+    except Exception as e:  # noqa: BLE001
+        logger.warning("Feldwebel: a futár-eszközök kimaradtak: %s", str(e)[:200])
+        return []
+
+
 async def _kulso_eszkozok() -> list:
     """A bekötött külső MCP-szerverek eszközei; hibánál üres lista (a Feldwebel enélkül is válaszol)."""
     try:
@@ -859,13 +911,22 @@ async def _kulso_eszkozok() -> list:
         return []
 
 
-async def _execute_tool(name: str, args: dict, ctx) -> str:
-    """Execute a tool and return the result as string."""
+async def _execute_tool(name: str, args: dict, ctx, *, modell: str = "", vedett: bool = False) -> str:
+    """Execute a tool and return the result as string.
+
+    `modell`: az eszközt hívó kör valódi modellje (a `tudasbazis` csak `claude-*`-nak fut). `vedett`: a kör
+    tudásbázis-tartalmat hordoz — SiliconFlow-ügynökhöz, általuk olvasott tárba vagy nyilvánosan menő eszköz nem fut."""
     # IMPORTANT: import httpx here to avoid UnboundLocalError —
     # analyze_upload handler has a conditional `import httpx` which makes
     # Python treat httpx as local for the entire function scope.
     import httpx
+    import futar_kliens
     import kulso_mcp
+
+    if vedett and futar_kliens.sf_fele(name, args):
+        return json.dumps({"error": futar_kliens.SF_FELE_HIBA}, ensure_ascii=False)
+    if futar_kliens.sajat_e(name):
+        return await futar_kliens.hiv(name, args, get_db=ctx.get_db, modell=modell)
 
     if kulso_mcp.sajat_e(name):
         return await kulso_mcp.hiv(name, str(args.get("eszkoz") or ""), args.get("parameterek"))
