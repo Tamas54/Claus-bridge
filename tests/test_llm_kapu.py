@@ -87,7 +87,10 @@ NAGY_PROMPT = "x" * 10_000
     ("dispatch/glm5", "zai-org/GLM-5.2", NAGY_PROMPT, True, "okos"),                       # cél: dispatch
     ("agora/essay", "zai-org/GLM-5.2", NAGY_PROMPT, False, "okos"),
     ("delphoi/nowcast", "zai-org/GLM-5.2", NAGY_PROMPT, False, "okos"),
-    ("feldwebel/telegram", "deepseek-ai/DeepSeek-V4-Pro", NAGY_PROMPT, True, "kozep"),     # a Feldwebel
+    ("feldwebel/telegram", "deepseek-ai/DeepSeek-V4-Pro", NAGY_PROMPT, True, "kozep"),     # a Feldwebel, hosszú kérés
+    ("feldwebel/telegram", "deepseek-ai/DeepSeek-V4-Pro", "Szia Claus, mi a helyzet?", True, "olcso"),  # hétköznapi
+    ("feldwebel/telegram", "deepseek-ai/DeepSeek-V4-Pro", "Elemezd a mai briefet", True, "kozep"),      # mélyebb
+    ("feldwebel/telegram", "deepseek-ai/DeepSeek-V4-Pro", "gondold végig alaposan, mit tegyünk", True, "kozep"),
     ("telegram/chat/kimi", "moonshotai/Kimi-K2.7-Code", NAGY_PROMPT, False, "olcso"),      # rövid chat
     ("szandek/telegram", "", "élesítsd", False, "olcso"),
     ("email/triage", "zai-org/GLM-5.2", NAGY_PROMPT, False, "olcso"),
@@ -562,3 +565,12 @@ def test_a_402_kodja_payment():
 def test_a_status_vegpont_mutatja_a_kaput():
     src = __import__("inspect").getsource(server.api_status)
     assert '"llm_kapu": llm_kapu.allapot()' in src
+
+
+def test_feldwebel_fejlec_a_valaszolo_modellt_mondja():
+    from feldwebel.responder import modell_rovid
+    assert modell_rovid("claude-sonnet-5-5") == "Sonnet 5.5"
+    assert modell_rovid("claude-haiku-5-5") == "Haiku 5.5"
+    assert modell_rovid("claude-opus-5-5") == "Opus 5.5"
+    assert modell_rovid("deepseek-ai/DeepSeek-V4-Pro") == "DeepSeek-V4-Pro"
+    assert modell_rovid("") == ""

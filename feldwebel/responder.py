@@ -445,6 +445,7 @@ async def respond(text: str, chat_id: str, agent_id: str = "deepseek") -> str:
     final_content = ""
     #: A kapu jegyzetei (modellváltás, tartalékra váltás): a válasz végére kerülnek — néma váltás nincs.
     kapu_notes: list = []
+    kiszolgalo = ""   # a TÉNYLEGESEN válaszoló modell (a kapu dönti el: Haiku/Sonnet/Opus vagy SiliconFlow)
     for round_num in range(5):
         data = await _call_deepseek(
             ctx, model_id, messages,
@@ -454,6 +455,7 @@ async def respond(text: str, chat_id: str, agent_id: str = "deepseek") -> str:
         )
         if not data:
             break
+        kiszolgalo = data.get("model") or kiszolgalo
 
         choice = data.get("choices", [{}])[0]
         msg = choice.get("message", {})
@@ -528,6 +530,7 @@ async def respond(text: str, chat_id: str, agent_id: str = "deepseek") -> str:
             data = await _call_deepseek(ctx, model_id, synth_messages,
                                         use_tools=False, force_tool=False, notes=kapu_notes)
             if data:
+                kiszolgalo = data.get("model") or kiszolgalo
                 choice = data.get("choices", [{}])[0]
                 msg = choice.get("message", {})
                 synth_content = (msg.get("content") or "").strip()
@@ -572,7 +575,7 @@ async def respond(text: str, chat_id: str, agent_id: str = "deepseek") -> str:
     safe_content = html_escape(final_content[:3800])
     if kapu_notes:
         safe_content += "\n\n" + "\n".join(f"<i>[{html_escape(n)}]</i>" for n in dict.fromkeys(kapu_notes))
-    await ctx.telegram_push(f"<b>FELDWEBEL</b>\n\n{safe_content}")
+    await ctx.telegram_push(f"<b>FELDWEBEL</b>{(' · ' + html_escape(modell_rovid(kiszolgalo))) if kiszolgalo else ''}\n\n{safe_content}")
 
     # Store in Bridge DB
     _store_bridge_reply(ctx, text, final_content, agent_id)
@@ -585,6 +588,15 @@ async def respond(text: str, chat_id: str, agent_id: str = "deepseek") -> str:
 
 
 # ── DeepSeek API call ──────────────────────────────────────────────
+
+
+def modell_rovid(modell: str) -> str:
+    """'claude-sonnet-5-5' → 'Sonnet 5.5'; SiliconFlow-azonosítónál az utolsó tag ('DeepSeek-V4-Pro')."""
+    m = (modell or "").strip()
+    if m.startswith("claude-"):
+        reszek = m[len("claude-"):].split("-")
+        return f"{reszek[0].capitalize()} {'.'.join(reszek[1:])}".strip()
+    return m.rsplit("/", 1)[-1]
 
 
 async def _call_deepseek(ctx, model_id: str, messages: list, use_tools: bool = True, force_tool: bool = False,
