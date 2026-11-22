@@ -103,3 +103,16 @@ def test_a_csapat_tudja_ki_kicsoda():
     assert "Swarm" not in t["kimi"]["note"] and "helyetted" in t["kimi"]["note"]
     b = json.load(open("pyramid/profiles/bridge_info.json", encoding="utf-8"))
     assert b["database"].startswith("SQLite")
+
+
+def test_a_gondolatmenet_nem_kerul_a_valaszba():
+    import server
+    d = {"choices": [{"message": {"content": "A felhasználó kérdez… gondolkodom.</think>Kimi vagyok."}}]}
+    server._gondolat_levag(d)
+    assert d["choices"][0]["message"]["content"] == "Kimi vagyok."
+    d = {"choices": [{"message": {"content": "<think>belső</think>\n\nVálasz."}}]}
+    server._gondolat_levag(d)
+    assert d["choices"][0]["message"]["content"] == "Válasz."
+    d = {"choices": [{"message": {"content": "Sima válasz."}}]}
+    server._gondolat_levag(d)
+    assert d["choices"][0]["message"]["content"] == "Sima válasz."

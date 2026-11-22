@@ -7810,6 +7810,24 @@ def _with_sf_notes(content: str, notes: list) -> str:
     return content + "\n\n---\n" + "\n".join(f"_[{n}]_" for n in dict.fromkeys(notes))
 
 
+_GONDOLAT_BLOKK = _re_module.compile(r"<think>.*?</think>", _re_module.S)
+
+
+def _gondolat_levag(data: dict) -> None:
+    """A SiliconFlow-modell gondolatmenete (`<think>…</think>`, vagy egy magányos `</think>` előtti rész) a
+    válaszszövegből KI — a Kommandant a választ kapja, nem a modell belső monológját (11-22: Kimi így válaszolt,
+    amióta a saját modelljén szól, és nem a Claude helyettesíti). A `reasoning_content` mező érintetlen marad."""
+    for ch in (data or {}).get("choices") or []:
+        msg = ch.get("message") or {}
+        c = msg.get("content")
+        if not isinstance(c, str) or "think>" not in c:
+            continue
+        c = _GONDOLAT_BLOKK.sub("", c)
+        if "</think>" in c:
+            c = c.rsplit("</think>", 1)[1]
+        msg["content"] = c.strip()
+
+
 async def sf_chat(payload: dict, *, purpose: str = "", attempts: int = 3,
                   failover: bool = True) -> tuple[dict | None, dict | None, list[str]]:
     """SiliconFlow chat ÖNJAVÍTÁSSAL. `(data, error, notes)`.
@@ -7898,6 +7916,7 @@ async def sf_chat(payload: dict, *, purpose: str = "", attempts: int = 3,
                         )
                     if attempt > 1:
                         notes.append(f"{attempt}. próbálkozásra sikerült ({mid})")
+                    _gondolat_levag(data)
                     return data, None, notes
                 last_err = err
                 logger.warning("sf_chat[%s] %s kísérlet %d/%d: %s",
