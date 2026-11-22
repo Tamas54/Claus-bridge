@@ -6929,6 +6929,38 @@ async def kulso_eszkoz(szerver: str, eszkoz: str = "sugo", parameterek: dict | N
 
 
 @mcp.tool()
+async def dontes_szimulator(lepes: str = "", horizont: str = "", futas: str = "", caller: str = "") -> str:
+    """DÖNTÉS-SZIMULÁTOR — „próbáld ki a döntést a világon, mielőtt meghozod” (dontes_szimulator.py).
+
+    Egy TERVEZETT lépés (törvényjavaslat, árazás, nyilatkozat, befektetés, kampány) hatása a négy saját motoron:
+    társadalom (DELPHOI szintetikus panel), sajtó (Echolot: mit írna holnap a Telex, a 444, a Magyar Nemzet, az Index,
+    a Spiegel, a BBC és a Global Times), piac és makró (Makronóm), jog (Lexonomics); a végén összegzés, kockázati
+    térkép, módosítási javaslat és mérhető előrejelzések a DELPHOI hash-láncos naplójába, és egy formázott
+    Studio-dokumentum (edit_url). Szimuláció, nem jóslat.
+
+    Indítás: lepes="<a lépés szövege>" (és ha kell, horizont="12 hónap" / "2 év" / "2030") → azonnal visszatér a
+    futás azonosítójával (sz-xxxxxxxx); a futás 4–8 perc. Eredmény: ugyanez az eszköz futas="sz-xxxxxxxx"-szel
+    (állapot, az egyoldalas szöveg, Studio-link, költség, előrejelzések és a napló-ellenőrzés). Csak a lépés
+    szövegét add át — tudásbázis-tartalmat ne tegyél bele (a DELPHOI-panel SiliconFlow-n fut).
+    """
+    import api_kapu
+    import dontes_szimulator as _ds
+    if not api_kapu.mcp_zarva():
+        return json.dumps({"hiba": "a dontes_szimulator a Bridge MCP-ajtajának zárása után kapcsol be "
+                                   "(BRIDGE_MCP_ZARVA=1)"}, ensure_ascii=False)
+    # Mint a kulso_eszkoz: a zárt ajtón csak a Kommandant saját példányai; a kimondott idegen példány nem fizethet
+    # a Kommandant Anthropic-keretéből és DELPHOI-kreditjéből.
+    if caller and not is_core_instance(caller):
+        return json.dumps({"hiba": "a dontes_szimulator csak a Kommandant saját példányainak érhető el"},
+                          ensure_ascii=False)
+    if futas:
+        return json.dumps(_ds.allapot(get_db, futas), ensure_ascii=False, default=str)
+    deps = {"get_db": get_db, "siliconflow_api_key": SILICONFLOW_API_KEY,
+            "siliconflow_base_url": SILICONFLOW_BASE_URL, "siliconflow_timeout": SILICONFLOW_TIMEOUT}
+    return json.dumps(_ds.inditas(lepes, horizont, get_db=get_db, deps=deps), ensure_ascii=False)
+
+
+@mcp.tool()
 async def tudasbazis(kerdes: str, szurok: list[str] | None = None, tol: str = "", caller: str = "") -> str:
     """A Kommandant TELJES saját tudásbázisa a gépén (futar_kliens.py → a gépen futó futár → tudas.py):
     memóriajegyzetek, session-átiratok, saját commitok és kód, repó-dokumentumok, a régi claude-mem, a claude.ai- és a

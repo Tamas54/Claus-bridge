@@ -699,6 +699,9 @@ async def chat(payload: dict, *, purpose: str = "") -> tuple[dict | None, dict |
     logger.info("llm_kapu[%s] szint=%s (%s) → %s, effort=%s, kért SF-modell: %s",
                 purpose or "?", szint, indok, cfg["modell"], cfg["effort"], payload.get("model"))
     duplazas = 0
+    #: a hívás TELJES ára (a csonkolás miatti újrapróbálással együtt) — a válasz `usage.koltes_usd`-jében megy vissza,
+    #: hogy a futásonkénti költségkeretet (pl. a döntés-szimulátorét) a kapu valós költéséből lehessen számolni
+    ossz_usd = 0.0
     while True:
         try:
             msg = await _kuld(kw)
@@ -714,12 +717,14 @@ async def chat(payload: dict, *, purpose: str = "") -> tuple[dict | None, dict |
                                                   fallbacks=cfg["fallbacks"], visszajatszas=False)
                 continue
             logger.warning("llm_kapu[%s] %s: %s", purpose or "?", cfg["modell"], err["message"][:300])
+            if ossz_usd:
+                err["koltes_usd"] = round(ossz_usd, 6)
             return None, err, notes
-        _konyvel(msg.usage, cfg["modell"], szint, purpose)
+        ossz_usd += _konyvel(msg.usage, cfg["modell"], szint, purpose)
         # A `stop_reason`-t a tartalom ELŐTT nézzük: refusalnál a tartalom üres vagy félbemaradt.
         if msg.stop_reason == "refusal":
             kat = getattr(getattr(msg, "stop_details", None), "category", None)
-            return None, {"code": "refusal", "provider": "anthropic",
+            return None, {"code": "refusal", "provider": "anthropic", "koltes_usd": round(ossz_usd, 6),
                           "message": f"Anthropic refusal: a `{msg.model}` elutasította a kérést (kategória: {kat})"}, notes
         if msg.stop_reason == "max_tokens" and duplazas < CSONKOLAS_DUPLAZAS and kw["max_tokens"] < KIMENET_PLAFON:
             nxt = min(kw["max_tokens"] * 2, KIMENET_PLAFON)
@@ -734,7 +739,9 @@ async def chat(payload: dict, *, purpose: str = "") -> tuple[dict | None, dict |
             notes.append(f"MODELLVÁLTÁS (Anthropic-tartalék): a `{cfg['modell']}` elutasította a kérést, "
                          f"a választ `{msg.model}` adta")
         _tarol(msg, kw)
-        return fordit_valasz(msg), None, notes
+        data = fordit_valasz(msg)
+        data["usage"]["koltes_usd"] = round(ossz_usd, 6)
+        return data, None, notes
 
 
 async def strukturalt(system: str, szoveg: str, sema, *, szint: str = "olcso", max_tokens: int = 300,

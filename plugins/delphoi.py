@@ -752,6 +752,9 @@ def append_ledger_row(get_db, entity_key: str, country: str, target_window: str,
     lánc utolsó sora; a direction_prev az entitás előző jele (a nyílhoz)."""
     conn = get_db()
     try:
+        # A lánc-fej olvasása és a beszúrás EGY írási tranzakcióban: két egyidejű író (a heti nowcast és a
+        # döntés-szimulátor előrejelzései) különben ugyanarra a prev_hash-re fűzne, és a lánc elágazna.
+        conn.execute("BEGIN IMMEDIATE")
         predicted_at = datetime.now(timezone.utc).isoformat()
         prev = conn.execute(
             "SELECT direction FROM delphoi_nowcast_ledger WHERE entity_key=? AND country=? "
@@ -1622,6 +1625,8 @@ FG_MIN_COMPLETION = 0.9      # részeredmény nem termék: e alatt failed+refund
 WATCHDOG_MINUTES = 30        # ragadt 'running' job → failed + refund
 
 VALID_INPUT_KINDS = ("product_desc", "pitch", "yt_title", "ab_test", "concept")
+#: A persona-dimenziók, amelyek szerint az aggregátum a média-szegmensen túl is bont (`breakdowns`).
+BONTAS_DIMENZIOK = ("age", "settlement", "edu")
 
 
 def ensure_fg_tables(conn) -> None:
@@ -2079,6 +2084,22 @@ def _aggregate(kind: str, rows: list, variants=None) -> dict:
             [{"segment": k, "n": len(v), "score": round(sum(v) / len(v), 3),
               "vs_baseline": round(sum(v) / len(v) - 3.0, 3)} for k, v in seg.items()],
             key=lambda x: x["score"], reverse=True)
+        # CSOPORTBONTÁS a többi demográfiai dimenzió szerint is (kor, település, iskola) — ugyanaz a relatív jel,
+        # más metszetben. A `segments` (média-étrend, a politikai beállítottság közelítője) változatlan marad.
+        bontas: dict = {}
+        for dim in BONTAS_DIMENZIOK:
+            csop = defaultdict(list)
+            for r in rows:
+                cimke = (r.get("dims") or {}).get(dim)
+                if cimke and r.get("ssr_score") is not None:
+                    csop[cimke].append(r["ssr_score"])
+            if csop:
+                bontas[dim] = sorted(
+                    [{"group": k, "n": len(v), "score": round(sum(v) / len(v), 3),
+                      "vs_baseline": round(sum(v) / len(v) - 3.0, 3)} for k, v in csop.items()],
+                    key=lambda x: x["score"], reverse=True)
+        if bontas:
+            out["breakdowns"] = bontas
         if kind == "pitch":
             unclear = Counter(r["unclear"].lower() for r in rows
                               if r.get("unclear") and r["unclear"] != "-")
@@ -2290,7 +2311,9 @@ async def process_job(deps: dict, job_id: str, chat_fn=None, embed_fn=None,
         for i, (p, vid, sample_texts) in enumerate(ok_results):
             seg_label = bucket_of.get(p.get("media", ""), "egyéb")
             row = {"persona_idx": i, "segment": seg_label, "variant_id": vid,
-                   "ssr_score": None, "choice": None, "unclear": None}
+                   "ssr_score": None, "choice": None, "unclear": None,
+                   # a többi demográfiai dimenzió (kor, település, iskola) a csoportbontáshoz (_aggregate)
+                   "dims": {d: p.get(d) for d in BONTAS_DIMENZIOK if p.get(d)}}
             choices, unclears = [], []
             for text in sample_texts:
                 sample_rows.append({"persona_idx": i, "segment": seg_label,
