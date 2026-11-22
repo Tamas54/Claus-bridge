@@ -258,3 +258,36 @@ def test_fuggo_naptarjavaslatnal_a_mehet_nem_a_fabere(fw, monkeypatch, get_db):
     monkeypatch.setattr(server, "_feldwebel_kerdezett", lambda chat_id, percen_belul=30: False)   # fél óra eltelt
     _run(server._handle_telegram_message("mehet", CHAT))
     assert latott.get("feldwebel_kerdezett") is True and kapott == ["mehet"]
+
+
+def test_hangbol_atirt_mehet_is_beir(fw, monkeypatch, get_db):
+    """A teljes lánc: diktált „Mehet.” → Studio-átirat (hamis) → Telegram-út → a Feldwebel kódkapuja → naptár."""
+    import server
+    ctx, naplo = fw
+    _javasolt_kor(ctx)
+    tg_push, rovid = [], []
+
+    async def _push(s, *a, **k):
+        tg_push.append(s)
+
+    async def _fajl(fid):
+        return b"OggS", "voice/file_9.oga"
+
+    async def _atir(raw, nev, *, hossz_s=0, rovid_valasz=False):
+        rovid.append(rovid_valasz)
+        return "Mehet."
+
+    async def szandek(text, **k):
+        return None
+    monkeypatch.setattr(server, "_telegram_push", _push)
+    monkeypatch.setattr(server, "_telegram_fajl", _fajl)
+    monkeypatch.setattr(server.hang, "atir", _atir)
+    monkeypatch.setattr(server.faber_relay, "szandek", szandek)
+    monkeypatch.setattr(server, "FELDWEBEL_ENABLED", True)
+    monkeypatch.setattr(server, "TELEGRAM_BOT_TOKEN", "")
+    monkeypatch.setattr(server, "get_db", get_db)
+    _run(server._hang_fogad({"voice": {"file_id": "v9", "duration": 1}}, CHAT))
+    assert rovid == [True]                                         # a Feldwebel igenre várt → rövid-válasz prompt
+    assert tg_push == ["🎙 Ezt értettem: „Mehet.”"]
+    assert len(naplo["irt"]) == 1 and _draftok(get_db)[0]["status"] == "created"
+    assert "Beírtam a naptárba" in naplo["push"][-1]

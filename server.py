@@ -70,6 +70,7 @@ import presence
 from youngereka_access import YRScopeMiddleware, authenticated
 from api_kapu import ApiKapuMiddleware
 import melleklet
+import hang
 import onjavitas
 import cimzett
 
@@ -11113,6 +11114,12 @@ async def _telegram_poll_loop():
                     if chat_id != TELEGRAM_CHAT_ID:
                         continue
 
+                    # HANGÜZENET (2026-11-22): diktálás, hangfájl, videóüzenet → a Studio átírja → „🎙 Ezt értettem” →
+                    # begépelt üzenetként megy tovább (hang.py). Eddig ezeket a poll-hurok NÉMÁN eldobta.
+                    if msg.get("voice") or msg.get("audio") or msg.get("video_note"):
+                        await _hang_fogad(msg, chat_id)
+                        continue
+
                     # MELLÉKLET (2026-11-22): fénykép, dokumentum, album → Studio + átirat → a Feldwebel (melleklet.py).
                     # A régi út (Kimi-képleírás, a Feldwebel nélkül) nem emlékezett a képre és nem kérdezett vissza;
                     # a dokumentumot (PDF, Word) pedig némán eldobta.
@@ -11141,6 +11148,73 @@ async def _telegram_fajl(file_id: str) -> tuple[bytes, str]:
         f = await c.get(f"https://api.telegram.org/file/bot{TELEGRAM_BOT_TOKEN}/{ut}")
         f.raise_for_status()
         return f.content, ut
+
+
+class _gepel:
+    """„gépel…” jelzés a Telegram-chaten, amíg a blokk fut (a jelzés 5 s-ig él, ezért 4 s-onként újra). Csendes:
+    nem üzenet, és a hibája sosem állítja meg a munkát. Token nélkül (teszt, helyi futás) nem csinál semmit."""
+
+    def __init__(self, chat_id: str, akcio: str = "typing"):
+        self.chat_id, self.akcio, self.feladat = chat_id, akcio, None
+
+    async def _hurok(self):
+        import httpx
+        try:
+            async with httpx.AsyncClient(timeout=10) as c:
+                while True:
+                    try:
+                        await c.post(f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendChatAction",
+                                     json={"chat_id": self.chat_id, "action": self.akcio})
+                    except Exception:  # noqa: BLE001
+                        pass
+                    await asyncio.sleep(4)
+        except asyncio.CancelledError:
+            pass
+
+    async def __aenter__(self):
+        if TELEGRAM_BOT_TOKEN and self.chat_id:
+            self.feladat = asyncio.get_running_loop().create_task(self._hurok())
+        return self
+
+    async def __aexit__(self, *a):
+        if self.feladat is not None:
+            self.feladat.cancel()
+        return False
+
+
+async def _hang_fogad(msg: dict, chat_id: str) -> None:
+    """HANGÜZENET (2026-11-22): letöltés → a Studio átírja (hang.py) → „🎙 Ezt értettem: …” a Kommandantnak (hogy a
+    félrehallást lássa) → UGYANÚGY a `_handle_telegram_message`-be megy, mint egy begépelt üzenet: a megszólítás
+    („Kimi, …”), a Faber-szándék, a Feldwebel és a megerősítés („mehet”) mind működik rajta. Bukásnál kimondott hiba."""
+    from html import escape as html_escape
+    h = msg.get("voice") or msg.get("audio") or msg.get("video_note") or {}
+    hossz = int(h.get("duration") or 0)
+    if not h.get("file_id"):
+        await _telegram_push("🎙 A hangüzenet megjött, de a Telegram nem adott hozzá fájlt — mondd el újra, kérlek.")
+        return
+    if (h.get("file_size") or 0) > 20 * 1024 * 1024:
+        await _telegram_push("🎙 20 MB fölött a Telegram-bot nem tudja letölteni a felvételt — küldd rövidebb "
+                             "részekben, vagy töltsd fel a webes felületen (/app).")
+        return
+    if hossz > hang.HOSSZU_S:
+        await _telegram_push(f"🎙 Megkaptam ({hang.ido_szoveg(hossz)}), átírom — kb. "
+                             f"{hang.ido_szoveg(hang.becsult_s(hossz))}.")
+    try:
+        async with _gepel(chat_id):
+            raw, ut = await _telegram_fajl(h["file_id"])
+            # rövid felvétel, és a Feldwebel kérdésre vár („Beírjam?”, „Elküldjem?”) → igen/nem-válasz: a Whisper a
+            # várható szavakat kapja (prompt nélkül a „Mehet.” → „Matt”, mérve 11-22)
+            rovid = 0 < hossz <= hang.ROVID_S and (_feldwebel_kerdezett(chat_id) or _feldwebel_naptarra_var(chat_id))
+            szoveg = await hang.atir(raw, hang.fajlnev(ut, h.get("mime_type") or ""), hossz_s=hossz,
+                                     rovid_valasz=rovid)
+    except Exception as e:  # noqa: BLE001 — a hiba a Kommandanthoz megy, nem a semmibe
+        logger.error("Telegram-hangüzenet hiba: %s", e)
+        await _telegram_push(f"🎙 A hangüzenetet nem tudtam átírni: {html_escape(str(e)[:300])}. "
+                             f"Írd le szövegben, vagy mondd el újra.")
+        return
+    await _telegram_push(hang.nyugta(html_escape(szoveg)))
+    felirat = (msg.get("caption") or "").strip()
+    await _handle_telegram_message(f"{felirat}\n\n{szoveg}" if felirat else szoveg, chat_id)
 
 
 #: Album (több fotó egyszerre): a Telegram képenként külön üzenetet küld, közös `media_group_id`-vel, a felirat csak

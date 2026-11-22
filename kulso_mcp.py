@@ -190,7 +190,7 @@ async def eszkoz_definiciok() -> list[dict]:
     return [eszkoz_definicio(n, l[0]) for n, l in zip(nevek, listak) if l and l[0]]
 
 
-def _szovegge(eredmeny) -> str:
+def _szovegge(eredmeny, max_kar: int = MAX_EREDMENY_KAR) -> str:
     reszek = []
     for blokk in getattr(eredmeny, "content", None) or []:
         tipus = getattr(blokk, "type", "")
@@ -206,13 +206,16 @@ def _szovegge(eredmeny) -> str:
     if not reszek and getattr(eredmeny, "structured_content", None):
         reszek.append(json.dumps(eredmeny.structured_content, ensure_ascii=False))
     szoveg = "\n".join(reszek).strip()
-    if len(szoveg) > MAX_EREDMENY_KAR:
-        szoveg = szoveg[:MAX_EREDMENY_KAR] + f"\n…(levágva, eredetileg {len(szoveg)} karakter)"
+    if len(szoveg) > max_kar:
+        szoveg = szoveg[:max_kar] + f"\n…(levágva, eredetileg {len(szoveg)} karakter)"
     return szoveg
 
 
-async def hiv(nev: str, eszkoz: str, parameterek: dict | None) -> str:
-    """A Feldwebel eszközhívása → a szerver eszköze. A válasz szöveg (a Feldwebel tool-eredménye)."""
+async def hiv(nev: str, eszkoz: str, parameterek: dict | None, *, max_kar: int = MAX_EREDMENY_KAR) -> str:
+    """A Feldwebel eszközhívása → a szerver eszköze. A válasz szöveg (a Feldwebel tool-eredménye).
+
+    `max_kar`: a válasz sapkája. A Feldwebelnek 15 ezer (a beszélgetés előzményében utazik); a Bridge saját,
+    gépi hívója (pl. a hangüzenet átirata, hang.py) nagyobbat kérhet, mert a JSON-t egészében kell értelmeznie."""
     if not bekotott(nev):
         return json.dumps({"hiba": f"a(z) {nev} nincs bekötve (hiányzik a kulcs: {SZERVEREK[nev]['kulcs_env']})"},
                           ensure_ascii=False)
@@ -242,7 +245,7 @@ async def hiv(nev: str, eszkoz: str, parameterek: dict | None) -> str:
     except Exception as e:  # noqa: BLE001
         logger.warning("kulso_mcp[%s.%s] hívás hiba: %s", nev, cel.name, str(e)[:300])
         return json.dumps({"hiba": f"{type(e).__name__}: {str(e)[:500]}"}, ensure_ascii=False)
-    szoveg = _szovegge(eredmeny)
+    szoveg = _szovegge(eredmeny, max_kar)
     logger.info("kulso_mcp[%s.%s] %s, %.1f s, %d karakter", nev, cel.name,
                 "HIBA" if eredmeny.is_error else "ok", time.monotonic() - t0, len(szoveg))
     if eredmeny.is_error:
