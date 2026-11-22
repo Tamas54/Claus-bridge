@@ -190,7 +190,8 @@ def test_green_with_one_uncertain_is_still_green():
         selfdiag.register_probe("sf", f"m{i}", _ok(f"m{i}"))
     selfdiag.register_probe("sf", "korlatozott", _unk("korlatozott", "HTTP 429 rate limit"))
     d = selfdiag.diagnose("sf", "")
-    assert d.verdict is Verdict.TRANSIENT, "6 zöld mellett nem szabad 'nem tudom'-ot mondani"
+    # tünet nélkül (általános átvizsgálás) 2026-11-22 óta EGÉSZSÉGES, nem „ÁTMENETI: a hiba elmúlt”
+    assert d.verdict is Verdict.HEALTHY, "6 zöld mellett nem szabad 'nem tudom'-ot mondani"
     assert "korlatozott" in d.summary, "a bizonytalan rész eltűnt a jelentésből"
     assert "429" in d.summary
 

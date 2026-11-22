@@ -61,6 +61,7 @@ class Verdict(Enum):
 
     PERSISTENT = "persistent"   # a komponens MOST is elromlott állapotban van
     TRANSIENT = "transient"     # a hiba óta minden próba zöld → elmúlt
+    HEALTHY = "healthy"         # nem volt jelzett hiba, és minden mérhető próba zöld
     DEGRADED = "degraded"       # egy része él, egy része nem
     UNKNOWN = "unknown"         # nincs próba / nem eldönthető
 
@@ -190,10 +191,16 @@ def diagnose(component: str, symptom: str = "") -> Diagnosis:
         # mert EGY modell rate-limitelt volt. Ez a mérés eldobása: ha van zöld
         # próba és NINCS piros, a komponens működik — a bizonytalan részt
         # megnevezzük, de nem tesszük úgy, mintha semmit nem tudnánk.
-        verdict = Verdict.TRANSIENT
-        summary = (f"ÁTMENETI: a(z) `{component}` most zöld "
-                   f"({len(ok)}/{len(results)} próba), tehát a hiba azóta elmúlt. "
-                   f"Újrafuttatás valószínűleg sikerülne.")
+        # Tünet nélkül (általános átvizsgálás) nincs „elmúlt hiba” — a szerv EGÉSZSÉGES. Az „ÁTMENETI” ítélet csak
+        # egy jelzett hiba után igaz (a webes Claus 11-22-i lelete: az egészséges szervre is ezt mondta).
+        if symptom:
+            verdict = Verdict.TRANSIENT
+            summary = (f"ÁTMENETI: a(z) `{component}` most zöld "
+                       f"({len(ok)}/{len(results)} próba), tehát a hiba azóta elmúlt. "
+                       f"Újrafuttatás valószínűleg sikerülne.")
+        else:
+            verdict = Verdict.HEALTHY
+            summary = f"EGÉSZSÉGES: a(z) `{component}` minden mérhető próbája zöld ({len(ok)}/{len(results)})."
         if unk:
             summary += (f" Bizonytalan: {', '.join(r.name for r in unk)} "
                         f"({unk[0].detail[:120]})")
@@ -219,7 +226,7 @@ def diagnose_all() -> dict:
             out["components"][comp] = diagnose(comp).as_dict()
         else:
             out["unmeasured"].append(comp)
-    healthy = sum(1 for d in out["components"].values() if d["verdict"] == "transient")
+    healthy = sum(1 for d in out["components"].values() if d["verdict"] in ("healthy", "transient"))
     broken = [c for c, d in out["components"].items()
               if d["verdict"] in ("persistent", "degraded")]
     out["summary"] = (

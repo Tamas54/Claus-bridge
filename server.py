@@ -70,6 +70,7 @@ import presence
 from youngereka_access import YRScopeMiddleware, authenticated
 from api_kapu import ApiKapuMiddleware
 import melleklet
+import onjavitas
 
 # Echolot — multi-sphere news context (separate Railway instance, REST)
 try:
@@ -9606,11 +9607,59 @@ def _probe_http_get(name: str, url: str, timeout: float = 15.0):
 
 
 def _probe_db() -> selfdiag.ProbeResult:
+    """Olvasás ÉS írás: a sorszámlálás mellett az írózárat is megszerzi (BEGIN IMMEDIATE), aztán visszagörget —
+    így a „database is locked” zár-vihart is jelzi, nem csak azt, hogy olvasható. Írás nem marad utána."""
     try:
-        n = get_db().execute("SELECT COUNT(*) c FROM shared_memory").fetchone()["c"]
-        return selfdiag.ProbeResult("sqlite", True, f"{n} memória-sor")
+        conn = get_db()
+        try:
+            n = conn.execute("SELECT COUNT(*) c FROM shared_memory").fetchone()["c"]
+            t0 = time.monotonic()
+            conn.execute("BEGIN IMMEDIATE")
+            conn.rollback()
+            ms = int((time.monotonic() - t0) * 1000)
+        finally:
+            conn.close()
+        return selfdiag.ProbeResult("sqlite", True, f"{n} memória-sor; írózár {ms} ms alatt megszerezve")
     except Exception as e:
         return selfdiag.ProbeResult("sqlite", False, f"{type(e).__name__}: {e}")
+
+
+def _probe_searxng() -> selfdiag.ProbeResult:
+    """Ugyanazzal a kulccsal és fejléccel, mint az igazi keresés — a kulcs nélküli próba 403-at mért, miközben a
+    keresés élt (a webes Claus 11-22-i lelete). Találat is kell, nem csak 200."""
+    import httpx as _hx
+    if not SEARXNG_URL:
+        return selfdiag.ProbeResult("json_api", None, "nincs SEARXNG_URL")
+    try:
+        r = _hx.get(f"{SEARXNG_URL}/search", params={"q": "budapest", "format": "json"}, timeout=20,
+                    follow_redirects=True, headers={"User-Agent": "claus-bridge/1.0", "Accept": "application/json",
+                                                    **_searxng_auth_headers()})
+    except Exception as e:
+        return selfdiag.ProbeResult("json_api", False, f"transport: {type(e).__name__}: {e}")
+    if r.status_code != 200:
+        return selfdiag.ProbeResult("json_api", False, f"HTTP {r.status_code}: {r.text[:150]}")
+    try:
+        n = len(r.json().get("results") or [])
+    except ValueError:
+        return selfdiag.ProbeResult("json_api", False, "nem JSON a válasz")
+    return selfdiag.ProbeResult("json_api", n > 0 or None, f"HTTP 200, {n} találat")
+
+
+def _probe_brave_mcp() -> selfdiag.ProbeResult:
+    """Valódi MCP-kézfogás (initialize), nem csak a konfiguráció megléte."""
+    import httpx as _hx
+    if not BRAVE_MCP_ENABLED:
+        return selfdiag.ProbeResult("endpoint", None, "BRAVE_MCP_URL nincs beállítva")
+    try:
+        r = _hx.post(os.environ.get("BRAVE_MCP_URL", "").strip(), timeout=20, json={
+            "jsonrpc": "2.0", "id": 1, "method": "initialize",
+            "params": {"protocolVersion": "2025-06-18", "capabilities": {},
+                       "clientInfo": {"name": "claus-bridge-selfdiag", "version": "1"}}},
+            headers={"Accept": "application/json, text/event-stream", "Content-Type": "application/json"})
+    except Exception as e:
+        return selfdiag.ProbeResult("endpoint", False, f"transport: {type(e).__name__}: {e}")
+    return selfdiag.ProbeResult("endpoint", r.status_code == 200 and "serverInfo" in r.text,
+                                f"HTTP {r.status_code}" + ("" if "serverInfo" in r.text else ", nincs MCP-válasz"))
 
 
 def _probe_google(kind: str, svc_key: str, err_key: str):
@@ -9629,9 +9678,7 @@ def _probe_google(kind: str, svc_key: str, err_key: str):
 
 for _a, _m in SILICONFLOW_MODELS.items():
     selfdiag.register_probe("siliconflow", _a, _probe_siliconflow_model(_a, _m))
-selfdiag.register_probe("searxng", "json_api",
-                        _probe_http_get("json_api", f"{SEARXNG_URL}/search?q=teszt&format=json"
-                                        if SEARXNG_URL else ""))
+selfdiag.register_probe("searxng", "json_api", _probe_searxng)
 selfdiag.register_probe("lightpanda", "mcp",
                         lambda: selfdiag.ProbeResult(
                             "mcp", None, "LIGHTPANDA_URL nincs beállítva ezen a service-en")
@@ -9649,11 +9696,7 @@ selfdiag.register_probe("google", "calendar",
 _echolot_base = (os.getenv("ECHOLOT_URL", "") or "").strip().rstrip("/")
 selfdiag.register_probe("echolot", "api",
                         _probe_http_get("api", f"{_echolot_base}/health" if _echolot_base else ""))
-selfdiag.register_probe("brave_mcp", "endpoint",
-                        lambda: selfdiag.ProbeResult(
-                            "endpoint", None, "BRAVE_MCP_URL nincs beállítva")
-                        if not BRAVE_MCP_ENABLED else
-                        selfdiag.ProbeResult("endpoint", True, "konfigurálva"))
+selfdiag.register_probe("brave_mcp", "endpoint", _probe_brave_mcp)
 # ⭐ ADAT-UT PROBA — a Kommandant leletére (2026-08-30):
 # "erre már le kellett volna csapnia az önjavító eszköznek".
 # Igaza volt, és a MIÉRT a fontos: a `daily_news_brief` Echolot-szekciója
@@ -11675,6 +11718,16 @@ def _cron_last_due(schedule: str, now_local: datetime, lookback_min: int = 360) 
     return None
 
 
+def _faber_kerelem_onjavitasbol(kivansag: str) -> int | None:
+    """Az önjavító kör kívánsága → aláírt Faber-szándék a `bridge` műhelynek (ugyanaz az út, mint a szóbeli kérés)."""
+    conn = get_db()
+    try:
+        return faber_relay.tovabbit(conn, TELEGRAM_BOT_TOKEN, "szandek", faber_relay.szandek_adat(
+            {"szandek": "kivansag", "szoveg": kivansag, "repo": "bridge", "kerelem": None}), now())
+    finally:
+        conn.close()
+
+
 async def _cron_loop():
     """Runs every 60s, checks scheduled recipes and executes them. Also cleans old uploads.
 
@@ -11739,10 +11792,21 @@ async def _cron_loop():
     except Exception as e:  # noqa: BLE001
         logger.error("Cron startup poll seed failed: %s", e)
 
+    _onjavitas_utolso = time.time() - onjavitas.PERIODUS_S + 600   # az első kör 10 perccel az indulás után
     while True:
         try:
             now_dt = datetime.now(timezone.utc)           # UTC for DB timestamps
             now_local = datetime.now(BP_TZ)               # Budapest for cron matching
+
+            # ÖNJAVÍTÁS (2026-11-22): az önvizsgálat leleteiből Faber-kérelem / egy Telegram-mondat (onjavitas.py)
+            if time.time() - _onjavitas_utolso > onjavitas.PERIODUS_S:
+                _onjavitas_utolso = time.time()
+                try:
+                    _diag = await asyncio.to_thread(selfdiag.diagnose_all)
+                    await onjavitas.kor(_diag, get_db=get_db, memoria_ir=memoria_ir,
+                                        faber_kerelem=_faber_kerelem_onjavitasbol, telegram=_telegram_push)
+                except Exception as e:  # noqa: BLE001 — az önjavítás hibája ne állítsa meg a cront
+                    logger.error("Önjavító kör hiba: %s", e)
 
             # Daily cleanup: delete uploads older than 7 days (runs once at ~04:00 UTC)
             today_str = now_dt.strftime("%Y-%m-%d")
