@@ -6,7 +6,7 @@ befektetés, kampány); a Bridge egyszerre lefuttatja a négy SAJÁT motorján, 
 A NÉGY MOTOR (mind a sajátunk, új motort nem építünk)
 ----------------------------------------------------
 1. TÁRSADALOM — a DELPHOI szintetikus fókuszcsoportja (`plugins/delphoi.py`: create_job → process_job): kvótás
-   persona-panel (kor, település, iskola, média-étrend), a saját SiliconFlow-motorján (Hy3, NULLTARIF), SSR-skálán.
+   persona-panel (kor, település, iskola, média-étrend), a saját SiliconFlow-motorján (`SZIMULATOR_PANEL_MODEL`, alapból DeepSeek-V4.1-Flash), SSR-skálán.
    Relatív jel, NEM közvélemény-kutatás. A panel a lépés szövegét kapja, semmi mást.
 2. SAJTÓ, az „Elővisszhang” — az Echolot MCP (search_news, source_profile, get_news, frame_divergence,
    regional_framing): mit írna holnap a Telex, a 444, a Magyar Nemzet, az Index, a Spiegel, a BBC és a Global Times,
@@ -585,7 +585,7 @@ async def tarsadalom(lepes: str, orszag: str, *, get_db, deps: dict | None, futa
                      max_s: float) -> dict:
     """A DELPHOI fókuszcsoport-motorja a lépés szövegével (input_kind=concept). A kredit a belső felhasználóé
     (`SZIMULATOR_DELPHOI_USER`); ha nincs fedezet, PONTOSAN a hiányt írjuk jóvá, kimondva (`feltoltes`). A panel
-    saját motorja (SiliconFlow, Hy3 — NULLTARIF) fut; hiba vagy időtúllépés → failed + automatikus refund."""
+    saját motorja (SiliconFlow, `SZIMULATOR_PANEL_MODEL`) fut; hiba vagy időtúllépés → failed + automatikus refund."""
     from plugins import delphoi
     if not deps or not (deps.get("siliconflow_api_key") or os.environ.get("SILICONFLOW_API_KEY")):
         return {"ok": False, "hiba": "nincs SiliconFlow-kulcs a DELPHOI-panel motorjához"}
