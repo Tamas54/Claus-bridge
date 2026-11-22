@@ -166,3 +166,31 @@ def test_k3_nem_kap_temperaturet_es_a_tartalek_nem_adja_ki_magat(monkeypatch):
 ])
 def test_faber_biztatas(szoveg, elvart):
     assert C.biztatas(szoveg) is elvart
+
+
+
+def test_a_feldwebel_tudja_a_cimjegyzeket_es_eleri_a_fabert(tmp_path, monkeypatch):
+    import sqlite3
+    import faber_relay
+    from feldwebel import responder
+    assert "CÍMJEGYZÉK" in responder.SYSTEM_PROMPT_TEMPLATE and "`faber` eszköz" in responder.SYSTEM_PROMPT_TEMPLATE
+    db = tmp_path / "f.db"
+    c = sqlite3.connect(db)
+    c.execute("CREATE TABLE messages (id INTEGER PRIMARY KEY AUTOINCREMENT, timestamp TEXT, sender TEXT, recipient TEXT, "
+              "subject TEXT, message TEXT, priority TEXT, thread_id INTEGER, reply_to INTEGER, status TEXT)")
+    c.commit()
+    c.close()
+
+    class Ctx:
+        get_db = staticmethod(lambda: sqlite3.connect(db))
+    monkeypatch.setenv("TELEGRAM_BOT_TOKEN", "123:TOKEN")
+    v = json.loads(asyncio.run(responder._execute_tool("faber", {"tipus": "allapot", "szoveg": "mi a helyzet?"}, Ctx())))
+    assert v["ok"] is True
+    sor = sqlite3.connect(db).execute("SELECT recipient, subject, message FROM messages").fetchone()
+    assert sor[0] == "faber" and sor[1] == "faber:szandek"
+    torzs = faber_relay.ellenoriz(faber_relay.kulcs("123:TOKEN"), sor[2])
+    assert json.loads(torzs["adat"])["szandek"] == "allapot"
+    t = json.load(open("pyramid/profiles/team.json", encoding="utf-8"))
+    assert "faber" in t["cimjegyzek"] and "kimi_deepseek_glm" in t["cimjegyzek"]
+    import futar_kliens
+    assert "'faber'" in futar_kliens.SF_KIZARAS_SQL     # a Faber-sorok sem kerülnek SF-ügynök kontextusába

@@ -393,6 +393,17 @@ Ha emailre kell válaszolni:
 6. Mellékhatással járó lépés (levél, meghívó, megosztás, közzététel, figyelő vagy ütemezés indítása, fizetés) csak a
    Kommandant kifejezett igenje után.
 
+CÍMJEGYZÉK — így éred el a többieket (ne mondd, hogy „nincs csatornád” hozzájuk):
+- FABER (a műhely a Kommandant gépén, Claude Code: kódot ír, hibát javít, teszteli, Telegramon jóváhagyást kér) →
+  `faber` eszköz: tipus = kivansag (mit csináljon, melyik repóban: bridge / memoria-rag) | allapot | jovahagy |
+  elvet. A Kommandant „Faber, …” kezdetű üzenete közvetlenül neki megy, nem neked.
+- KIMI, DEEPSEEK, GLM (SiliconFlow-ügynökök, KÜLÖN memóriával) → `ai_query` / `ai_task`. Tudásbázis-tartalom NEM
+  mehet nekik. A „Kimi, …” üzenet közvetlenül hozzájuk megy.
+- WEB-CLAUS (Claude a claude.ai-on) és CLI-CLAUS (Claude Code a Kommandant gépén) → `send_message`
+  (recipient: web-claus / cli-claus).
+- A FUTÁR (a Kommandant gépe: teljes tudásbázis, ChatGPT, Gemini) → `tudasbazis`, `chatgpt`, `gemini`.
+- NACHTSCHICHT (az éjszakai műszak, 05:50) → nincs közvetlen címe; reggel jelent a Telegramon.
+
 ESZKÖZTÉRKÉP (a saját szolgáltatásaink — ezek az elsők):
 - hír, sajtó, sztori, entitás (személy, cég, intézmény), narratíva, trend, sajtószemle → `echolot` (gyors: echolot_query)
 - makró, statisztika (KSH, Eurostat, EKB, MNB, FRED), kamat, árfolyam, tőzsde, cégadat, SEC, előrejelzés, parlament,
@@ -763,7 +774,7 @@ async def _call_deepseek(ctx, model_id: str, messages: list, use_tools: bool = T
             payload["thinking"] = {"type": "disabled"}
         if use_tools:
             # a külső appok (Lexonomics, Medical, Studio) szerverenként egy eszközként — kulso_mcp.py
-            payload["tools"] = TOOLS + await _kulso_eszkozok() + _futar_eszkozok()
+            payload["tools"] = TOOLS + await _kulso_eszkozok() + _futar_eszkozok() + [FABER_DEF]
             # tool_choice="required" is REJECTED by deepseek-reasoner (V4-Pro)
             # on SiliconFlow with code 20015 "does not support this tool_choice".
             # Skip it for DeepSeek; the system prompt + provided tools steer the
@@ -911,6 +922,38 @@ async def _econ_via_statdata(name: str, args: dict):
         return None
 
 
+FABER_DEF = {"type": "function", "function": {
+    "name": "faber",
+    "description": ("Üzenet a FABERNEK, a Kommandant gépén futó műhelynek (Claude Code): kódot ír, hibát javít, teszteli, "
+                    "és Telegramon jóváhagyást kér — élesíteni csak a Kommandant [Mehet]-je után tud. "
+                    "tipus: kivansag (mit csináljon), allapot (mit csinál most), jovahagy / elvet (egy függő kérelemről)."),
+    "parameters": {"type": "object", "properties": {
+        "tipus": {"type": "string", "enum": ["kivansag", "allapot", "jovahagy", "elvet"]},
+        "szoveg": {"type": "string", "description": "a kívánság vagy a megjegyzés, magyarul, önállóan érthetően"},
+        "repo": {"type": "string", "enum": ["bridge", "memoria-rag"], "description": "kívánságnál: melyik műhely"},
+        "kerelem": {"type": "integer", "description": "jóváhagyásnál/elvetésnél a kérelem száma, ha ismert"},
+    }, "required": ["tipus"]}}}
+
+
+def _faber_uzen(args: dict, ctx) -> str:
+    """A Feldwebel → Faber út: aláírt szándék a Bridge-relayen (ugyanaz, mint a Kommandant szóbeli kérése)."""
+    import faber_relay
+    token = os.environ.get("TELEGRAM_BOT_TOKEN", "")
+    adat = {"szandek": args.get("tipus") or "allapot", "szoveg": str(args.get("szoveg") or ""),
+            "repo": args.get("repo"), "kerelem": args.get("kerelem")}
+    conn = ctx.get_db()
+    try:
+        from datetime import datetime, timezone
+        mid = faber_relay.tovabbit(conn, token, "szandek", faber_relay.szandek_adat(adat),
+                                   datetime.now(timezone.utc).isoformat())
+    finally:
+        conn.close()
+    if not mid:
+        return json.dumps({"hiba": "a Faber-relay nem elérhető (nincs Telegram-token a Bridge-en)"}, ensure_ascii=False)
+    return json.dumps({"ok": True, "uzenet": "Továbbítva a Fabernek; a gépen felveszi, és Telegramon ő maga válaszol."},
+                      ensure_ascii=False)
+
+
 def _futar_eszkozok() -> list:
     """A gépen futó futár eszközei (tudasbazis, chatgpt, gemini — futar_kliens.py); hibánál üres lista."""
     try:
@@ -947,6 +990,8 @@ async def _execute_tool(name: str, args: dict, ctx, kor: dict | None = None, *, 
 
     if vedett and futar_kliens.sf_fele(name, args):
         return json.dumps({"error": futar_kliens.SF_FELE_HIBA}, ensure_ascii=False)
+    if name == "faber":
+        return _faber_uzen(args or {}, ctx)
     if futar_kliens.sajat_e(name):
         return await futar_kliens.hiv(name, args, get_db=ctx.get_db, modell=modell)
 

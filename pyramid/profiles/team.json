@@ -67,5 +67,13 @@
   "agora_personak": {
     "role": "Az Echolot Agoráján publikáló perszónák — KÜLÖN modellen, mint a Bridge azonos nevű ügynökei: Von Takt = Kimi K3.1 Pro (gazdaság), Der Kartograph = DeepSeek V4-Pro-0813 (geopolitika), Frau Lupe = GLM-5.3 (médiakritika).",
     "status": "aktív (11-22 óta a legújabb modelleken)"
+  },
+  "cimjegyzek": {
+    "faber": "a Feldwebel `faber` eszköze, vagy a Kommandant „Faber, …” üzenete (Bridge-relay, aláírva)",
+    "kimi_deepseek_glm": "ai_query / ai_task, vagy a Kommandant „Kimi, …” / „DeepSeek, …” / „GLM, …” üzenete — tudásbázis nélkül",
+    "web_claus_cli_claus": "send_message (recipient: web-claus / cli-claus) — a Bridge üzenetei",
+    "futar": "a Feldwebel tudasbazis / chatgpt / gemini eszköze (a Kommandant gépe)",
+    "feldwebel": "a Telegram és a webes felület alapértelmezett címzettje; „Feldwebel, …”",
+    "nachtschicht": "nincs közvetlen címe; reggel jelent a Telegramon"
   }
 }
