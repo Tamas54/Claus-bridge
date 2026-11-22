@@ -1,0 +1,546 @@
+{
+ "country": "DE",
+ "lang": "de",
+ "target_month": "2026-07",
+ "corpus_window": [
+  "2026-06-15",
+  "2026-07-14"
+ ],
+ "days_sampled": [
+  "2026-06-15",
+  "2026-06-17",
+  "2026-06-19",
+  "2026-06-21",
+  "2026-06-23",
+  "2026-06-25",
+  "2026-06-27",
+  "2026-06-29",
+  "2026-07-01",
+  "2026-07-03",
+  "2026-07-05",
+  "2026-07-07",
+  "2026-07-09",
+  "2026-07-11",
+  "2026-07-13"
+ ],
+ "n": 60,
+ "lean_dist": {
+  "left": 10,
+  "center": 36,
+  "unknown": 8,
+  "right": 6
+ },
+ "cat_dist": {
+  "tech": 8,
+  "economy": 5,
+  "global": 2,
+  "foreign": 5,
+  "general": 29,
+  "sport": 8,
+  "entertainment": 3
+ },
+ "raw_rows": 830,
+ "pool_after_dedupe": 802,
+ "leak_dropped": 0,
+ "distinct_sources_raw": 76,
+ "raw_cat_dist": {
+  "general": 410,
+  "economy": 64,
+  "foreign": 95,
+  "tech": 82,
+  "global": 21,
+  "sport": 102,
+  "cars": 5,
+  "entertainment": 49,
+  "science": 1,
+  "news": 1
+ },
+ "per_day": {
+  "2026-06-15": {
+   "returned": 18,
+   "pool": 21
+  },
+  "2026-06-17": {
+   "returned": 21,
+   "pool": 34
+  },
+  "2026-06-19": {
+   "returned": 22,
+   "pool": 22
+  },
+  "2026-06-21": {
+   "returned": 53,
+   "pool": 500
+  },
+  "2026-06-23": {
+   "returned": 55,
+   "pool": 500
+  },
+  "2026-06-25": {
+   "returned": 59,
+   "pool": 500
+  },
+  "2026-06-27": {
+   "returned": 58,
+   "pool": 500
+  },
+  "2026-06-29": {
+   "returned": 56,
+   "pool": 500
+  },
+  "2026-07-01": {
+   "returned": 68,
+   "pool": 500
+  },
+  "2026-07-03": {
+   "returned": 71,
+   "pool": 500
+  },
+  "2026-07-05": {
+   "returned": 63,
+   "pool": 500
+  },
+  "2026-07-07": {
+   "returned": 73,
+   "pool": 500
+  },
+  "2026-07-09": {
+   "returned": 69,
+   "pool": 500
+  },
+  "2026-07-11": {
+   "returned": 65,
+   "pool": 500
+  },
+  "2026-07-13": {
+   "returned": 79,
+   "pool": 500
+  }
+ },
+ "mcp_errors": 0,
+ "items": [
+  {
+   "text": "Fable 5 und Mythos 5 von Anthropic: Was der Exportbann der USA bedeutet — Es geht angeblich um die nationale Sicherheit: Die US-Regierung hat dem KI-Konzern Anthropic eine Anweisung erteilt – Ausländer dürfen auf zwei neue Modelle nicht mehr zugreifen. Nutzer in Deutschland merken das sofort.",
+   "source": "Der Spiegel — DER SPIEGEL - Netzwelt (index.rss)",
+   "lean": "left",
+   "date": "2026-06-15",
+   "category": "tech"
+  },
+  {
+   "text": "AfD-Bundesvorstand verbietet Zusammenarbeit mit Politikberater — Der AfD-Bundesvorstand greift in die Auseinandersetzung um den Einfluss eines Geschäftsmannes innerhalb der Partei ein. Laut WDR, NDR und SZ beschloss der Vorstand, dass er weder an Parteiveranstaltungen teilnehmen noch",
+   "source": "Tagesschau (ARD) — Investigativ Berichterstattung und Reportagen",
+   "lean": "center",
+   "date": "2026-06-15",
+   "category": "economy"
+  },
+  {
+   "text": "Bamberger Sandkerwa wartet 2026 mit Neuheit auf - die wichtigsten Infos zum Fest — Die diesjährige Ausgabe der beliebten Bamberger Sandkerwa hält eine unerwartete Premiere bereit - auch darüber hinaus ist allerhand geboten.",
+   "source": "inFranken Bamberg",
+   "lean": "unknown",
+   "date": "2026-06-15",
+   "category": "global"
+  },
+  {
+   "text": "Straße von Hormus: Was würde Öffnung für Afrika bedeuten? — Ein mögliches US-Iran-Abkommen könnte Energie-, Dünger- und Lebensmittelpreise in Afrika senken. Besonders Ostafrika würde profitieren, während Ölexporteure kurzfristig auch Nachteile hinzunehmen hätten.",
+   "source": "Deutsche Welle (DE)",
+   "lean": "center",
+   "date": "2026-06-17",
+   "category": "foreign"
+  },
+  {
+   "text": "Endometriose bleibt für immer – zwei Frauen erzählen, wie sie damit leben — Endometriose ist nicht heilbar. Die Krankheit betrifft den ganzen Körper, prägt Fruchtbarkeit, Lebensplanung, gesellschaftliche Teilhabe. Und hat eine politische Komponente. Jetzt ist der Bundesrat aktiv geworden. Ob’s e",
+   "source": "NZZ — Wissenschaft",
+   "lean": "unknown",
+   "date": "2026-06-17",
+   "category": "tech"
+  },
+  {
+   "text": "In die Tonne mit Microsoft, Amazon & Co. — Viele Firmen nutzen Software und Cloud-Dienste großer US-Konzerne. Das nimmt Flexibilität, birgt Risiken – und ist teuer. Wie du mit europäischen Alternativen unabhängig von den Tech-Riesen wirst.",
+   "source": "Impulse",
+   "lean": "unknown",
+   "date": "2026-06-19",
+   "category": "economy"
+  },
+  {
+   "text": "Deniz Undav, der sympathische \"Killer vor dem Tor\" — Die deutsche Fußball-Nationalmannschaft hat wieder einen echten Torjäger. Deniz Undav sorgt für den zweiten Sieg bei dieser WM und lässt sich feiern. Dabei hätte es für den Stürmer auch ganz anders laufen können.",
+   "source": "Deutsche Welle (DE)",
+   "lean": "center",
+   "date": "2026-06-21",
+   "category": "foreign"
+  },
+  {
+   "text": "„Für jeden ernsthaften Austausch disqualifiziert“ – Günther fordert Rücktritt von neuem Linke-Chef — Jemand wie Pantisano könne „für Demokratinnen und Demokraten kein Ansprechpartner sein“, betonte Günter. Er sollte sich „schnellstmöglich aus der Politik verabschieden“.",
+   "source": "Die Welt",
+   "lean": "right",
+   "date": "2026-06-21",
+   "category": "general"
+  },
+  {
+   "text": "Luigi Pantisano: Daniel Günther fordert neuen Linksparteichef zum Rücktritt auf — Der Parteichef der Linken hat der CDU »faschistische Politik« vorgeworfen. Der Ministerpräsident von Schleswig-Holstein kritisiert die Aussage als »geschichtsvergessen«.",
+   "source": "Die Zeit",
+   "lean": "left",
+   "date": "2026-06-21",
+   "category": "general"
+  },
+  {
+   "text": "Schnitzel-Essen vor dem Auftritt: Nicht nur Bad Bunny in Düsseldorf – Musik-Weltstar in Altstadt gesichtet — Während der Hype um Bad Bunny am Wochenende in Düsseldorf so richtig hochkocht, konnte man in der Altstadt auch einen anderen Musik-Weltstar treffen, der über 40 Millionen Tonträger verkauft hat. Verblüffte Fans holten s",
+   "source": "Rheinische Post",
+   "lean": "center",
+   "date": "2026-06-21",
+   "category": "general"
+  },
+  {
+   "text": "WM 2026: \"Reißen alles ab\" - Tunesiens Abdi macht Verband schwere Vorwürfe — Eishockey-Superstar Leon Draisaitl zeigt sich angetan von der WM-Euphorie in Kanada. Der deutsche Referee Felix Zwayer kann trotz seiner Verletzung weiter im Turnier bleiben. Alles rund um die WM 2026 im Liveblog.",
+   "source": "Sportschau (ARD)",
+   "lean": "center",
+   "date": "2026-06-21",
+   "category": "sport"
+  },
+  {
+   "text": "Ein Abend in Magdeburg, an dem plötzlich kein Zug mehr fuhr — Irgendein Zug hat immer Verspätung, dachte ich noch. Dann stand ich am Gleis. Und aus dem Heimweg nach Berlin wurde eine dieser Geschichten mit der Bahn, auf die man eigentlich keine Lust hat.",
+   "source": "Berliner Zeitung",
+   "lean": "center",
+   "date": "2026-06-23",
+   "category": "general"
+  },
+  {
+   "text": "Wende im Ukraine-Krieg? Trump soll Selenskyj zu noch härterem Kurs gegen Putin ermutigt haben — Trump soll Selenskyj geraten haben, „mutiger“ gegen Putin vorzugehen. Ohne Druck werde dieser nicht über Frieden in der Ukraine verhandeln.",
+   "source": "Münchner Merkur — Politik",
+   "lean": "right",
+   "date": "2026-06-23",
+   "category": "general"
+  },
+  {
+   "text": "Matthew Gaudreaus (†29) Schwester ehrt ihn mit Babynamen — Katie Gaudreau schwebt im Babyglück: Die Schwester der verstorbenen Eishockeystars Johnny Gaudreau (†31) und Matthew Gaudreau (†29) ist zum ersten Mal Mutter geworden. Gemeinsam mit ihrem Ehemann Devin Joyce begrüßte sie",
+   "source": "Promiflash (DE)",
+   "lean": "center",
+   "date": "2026-06-23",
+   "category": "general"
+  },
+  {
+   "text": "Boris Pistorius: Ende des Marine-Großprojekts erhöht Druck auf Minister — Das Ende des größten Rüstungsvorhabens der Marine zeigt die massiven Probleme bei der Beschaffung. Verteidigungsminister Boris Pistorius muss die Aufrüstung der Bundeswehr endlich zur Chefsache machen.",
+   "source": "Der Spiegel — Politik",
+   "lean": "left",
+   "date": "2026-06-25",
+   "category": "general"
+  },
+  {
+   "text": "DFB-Team: ein Warnschuss zur rechten Zeit — Im letzten Gruppenspiel der WM tut sich das DFB-Team gegen Ecuador schwer und muss die erste Niederlage einstecken. In der K.o.-Runde muss sich das Team von Bundestrainer Julian Nagelsmann steigern.",
+   "source": "Deutsche Welle (DE)",
+   "lean": "center",
+   "date": "2026-06-25",
+   "category": "foreign"
+  },
+  {
+   "text": "LIVE-TICKER - Fussball-WM 2026: Elfenbeinküste erstmals in K.o.-Runde – Curaçao raus +++ Auto rast in Feiernde in Mexiko – 17 Verletzte +++ Klopp bricht Interview ab — Die wichtigsten Neuigkeiten zur Fussball-WM in Kanada, Mexiko und den USA.",
+   "source": "NZZ",
+   "lean": "unknown",
+   "date": "2026-06-25",
+   "category": "foreign"
+  },
+  {
+   "text": "WM 2026: Ecuador gegen Deutschland - das Tor — In Gruppe E trifft Ecuador auf Deutschland. Das erste Tor der Partie im Video.",
+   "source": "Sportschau (ARD)",
+   "lean": "center",
+   "date": "2026-06-25",
+   "category": "sport"
+  },
+  {
+   "text": "König Charles will nicht mehr im Buckingham-Palast wohnen — Für Hunderte Millionen wurde das Residenzschloss in London aufwendig renoviert. Nun ist es bald fertig und könnte wieder bewohnt werden. Doch Charles hat andere Pläne – und überrascht mit Offenheit.",
+   "source": "Sächsische Zeitung",
+   "lean": "center",
+   "date": "2026-06-25",
+   "category": "general"
+  },
+  {
+   "text": "Trump nominiert neuen Chef der umstrittenen ICE-Behörde — Donald Trump hat einen neuen Chef für die Einwanderungs- und Zollbehörde ICE gefunden. Der neue Mann bringt laut dem US-Präsidenten „jahrzehntelange Erfahrung bei der Inhaftierung der schlimmsten Kriminellen“ mit.",
+   "source": "Die Welt",
+   "lean": "right",
+   "date": "2026-06-27",
+   "category": "general"
+  },
+  {
+   "text": "DFB-News: Aufatmen beim DFB-Team - Brown zurück im Training — Zwei Tage vor dem Sechzehntelfinale meldet sich Nathaniel Brown zurück im Teamtraining. Jalal Jayed leitet die Partie des DFB-Teams gegen Paraguay. Alle Nachrichten rund um das DFB-Team im Liveblog.",
+   "source": "Sportschau (ARD)",
+   "lean": "center",
+   "date": "2026-06-27",
+   "category": "sport"
+  },
+  {
+   "text": "Krieg in der Ukraine: Bürgermeister: Fast zwei Dutzend Drohnen vor Moskau abgeschossen — Erneut sind ukrainische Drohnen im Anflug auf die Millionenmetropole. Die Ukraine meldet einen Angriff auf eine russische Ölpumpstation.",
+   "source": "Süddeutsche Zeitung — Politik",
+   "lean": "left",
+   "date": "2026-06-27",
+   "category": "general"
+  },
+  {
+   "text": "Kuba kündigt Wirtschaftsreformen an - hilft das den Menschen? — Marode Infrastruktur, Stromausfälle und Versorgungsmängel bestimmen den Alltag in Kuba. Nun hat die Führung in Havanna eine wirtschaftspolitische Kehrtwende angekündigt - und eine Öffnung für Investoren. Doch kann das fu",
+   "source": "Tagesschau (ARD)",
+   "lean": "center",
+   "date": "2026-06-27",
+   "category": "general"
+  },
+  {
+   "text": "Anzeige: Platz 1 bei Amazon - Weber Holzkohlegrill befristet im Amazon-Angebot — Bei Amazon ist der Holzkohlegrill Weber Compact Kettle befristet im Angebot. ( Technik/Hardware )",
+   "source": "Golem.de",
+   "lean": "center",
+   "date": "2026-06-29",
+   "category": "tech"
+  },
+  {
+   "text": "Internationale Pressestimmen: „Flop Germania!“: Die Welt reibt sich die Augen — Auch außerhalb Deutschlands sorgt das frühe WM-Aus des DFB-Teams für Verwunderung. Die internationalen Pressestimmen.",
+   "source": "Stern",
+   "lean": "center",
+   "date": "2026-06-29",
+   "category": "general"
+  },
+  {
+   "text": "Was über die Gewalttat von Stade mit sechs Toten bekannt ist — In einer Mutter-Kind-Einrichtung in Stade sind sechs Mitarbeiter erschossen worden. Was weiß die Polizei über den mutmaßlichen Schützen und sein Motiv? Was ist über die Opfer bekannt?",
+   "source": "Tagesschau (ARD)",
+   "lean": "center",
+   "date": "2026-06-29",
+   "category": "general"
+  },
+  {
+   "text": "Berlin – Abgeordnetenhaus: Linke zieht in Wahlumfrage an CDU vorbei — In zweieinhalb Monaten wählt Berlin ein neues Abgeordnetenhaus. Eine aktuelle Umfrage zeigt die Linkspartei als stärkste Kraft. Die CDU rutscht ab.",
+   "source": "Der Spiegel — Politik",
+   "lean": "left",
+   "date": "2026-07-01",
+   "category": "general"
+  },
+  {
+   "text": "Während der Trinkpause – Eiskalte Dusche für De Bruyne und Belgiens Trainer — Während der Trinkpause werden Belgien-Star Kevin De Bruyne und sein Trainer Rudi Garcia plötzlich vom Rasensprenger erwischt. Sonderlich amüsiert scheinen sie darüber nicht zu sein. Sehen Sie die Szene hier im Video.",
+   "source": "Die Welt",
+   "lean": "right",
+   "date": "2026-07-01",
+   "category": "general"
+  },
+  {
+   "text": "Koalitionsausschuss: Merz-Regierung einigt sich auf Reformpaket — Die Spitzen aus SPD und CDU/CSU haben sich beim Thema Steuern auf Reformen geeinigt. Auch bei anderen Streitthemen gibt es Fortschritte.",
+   "source": "Hamburger Abendblatt — Politik",
+   "lean": "center",
+   "date": "2026-07-01",
+   "category": "general"
+  },
+  {
+   "text": "Chris Brown: 13 Millionen für Maria Avilas Albtraum in Los Angeles",
+   "source": "RTL.de — Unterhaltung",
+   "lean": "center",
+   "date": "2026-07-01",
+   "category": "entertainment"
+  },
+  {
+   "text": "Schweinsteiger über Klopp - \"Glaube, dass es passieren wird\" — Sportschau-Experte Bastian Schweinsteiger äußert sich zur Bundestrainer-Debatte rund um Julian Nagelsmann und Jürgen Klopp.",
+   "source": "Sportschau — Fußball",
+   "lean": "center",
+   "date": "2026-07-01",
+   "category": "sport"
+  },
+  {
+   "text": "Planet kreist eng um erloschenen Stern — Ein Planet eines Weißen Zwergsterns offenbart, wie die Zukunft unseres Sonnensystems aussehen könnte.",
+   "source": "Welt der Physik",
+   "lean": "unknown",
+   "date": "2026-07-01",
+   "category": "tech"
+  },
+  {
+   "text": "WM-News: Hany historisch - erster Spieler mit zwei Eigentoren bei einer WM — Mohamed Hany hat sich einen unrühmlichen WM-Rekord geschnappt. Aufgrund von Unwettern wird Englands Achtelfinale womoglich verlegt. Alle News, kuriose Geschichten und Eindrücke von vor Ort rund um die WM 2026 im Liveblog",
+   "source": "Sportschau (ARD)",
+   "lean": "center",
+   "date": "2026-07-03",
+   "category": "sport"
+  },
+  {
+   "text": "Klingbeil legt Etatentwurf für 2027 vor: 204 Milliarden Euro neue Schulden — Die Steuerreform ist beschlossen, nun folgt der Haushaltsentwurf für 2027. Am Montag will das Kabinett die Vorlage von Bundesfinanzminister Lars Klingbeil (SPD) beschließen. Die wichtigsten Details des Zahlenwerks.",
+   "source": "Sächsische Zeitung",
+   "lean": "center",
+   "date": "2026-07-03",
+   "category": "general"
+  },
+  {
+   "text": "Reformpaket: Wie Union und SPD bei Krankschreibungen zurückrudern — Schwarz-rot will Krankschreibungen erschweren. Dafür gibt es Kritik von allen Seiten. Wie Regierungsvertreter darauf reagieren.",
+   "source": "WirtschaftsWoche",
+   "lean": "center",
+   "date": "2026-07-03",
+   "category": "economy"
+  },
+  {
+   "text": "\"Bedrohung für Deutschland\": Bildet China russische Soldaten aus? Berlin bittet Botschafter zum Gespräch — Peking soll Berichten zufolge russische Soldaten in China ausbilden. Federführend sei dafür die chinesische Volksbefreiungsarmee. Die Berichte alarmieren das Auswärtige Amt. Berlin ist besorgt und bringt einen deutlichen",
+   "source": "n-tv — Politik",
+   "lean": "center",
+   "date": "2026-07-03",
+   "category": "general"
+  },
+  {
+   "text": "AfD-Parteitag in Erfurt: Es klingelt an zehntausend Türen — Wochenlang klingeln An­ti­faschist:innen an Haustüren, bevor die AfD ihren Parteitag in Erfurt abhält. Die Frage: Was halten Sie von der AfD? mehr...",
+   "source": "taz — Politik",
+   "lean": "left",
+   "date": "2026-07-03",
+   "category": "general"
+  },
+  {
+   "text": "AfD-Parteitag: Polizei ermittelt wegen Angriffen auf Medienschaffende — Mehr als 30.000 Menschen haben in Erfurt gegen den Parteitag der AfD demonstriert, weitgehend friedlich. Doch es gab eine Attacke auf Reporter eines rechtspopulistischen Portals. Ermittlungen laufen, Politiker verurteile",
+   "source": "Der Spiegel — Politik",
+   "lean": "left",
+   "date": "2026-07-05",
+   "category": "general"
+  },
+  {
+   "text": "Taylor Sheridan erklärt Kevin Costners \"Yellowstone\"-Exit — Nach dem Ende von \"Yellowstone\" bricht Taylor Sheridan nun sein Schweigen über den Ausstieg von Kevin Costner (71) aus der Westernserie. Im \"Bill Simmons Podcast\" enthüllte der Serienschöpfer jetzt, dass Kevins Abgang ei",
+   "source": "Promiflash (DE)",
+   "lean": "center",
+   "date": "2026-07-05",
+   "category": "general"
+  },
+  {
+   "text": "Kurz vor Nato-Gipfel: Russland fliegt erneut massive Luftangriffe auf Ukraine — Ukraines Präsident Wolodymyr Selenskyj warnt vor Beginn des Nato-Gipfels vor massiven russischen Angriffen auf sein Land. In der Nacht bestätigt sich seine Befürchtung.",
+   "source": "Stern",
+   "lean": "center",
+   "date": "2026-07-05",
+   "category": "general"
+  },
+  {
+   "text": "Herzzerreißende Fotos - Influencerin zeigt Krebs-Kampf ihrer Tochter (2) — Influencerin Nara Smith teilt Klinikalltag ihrer krebskranken Tochter.",
+   "source": "Bild — Unterhaltung",
+   "lean": "unknown",
+   "date": "2026-07-07",
+   "category": "entertainment"
+  },
+  {
+   "text": "Frankreich-Wahl: Marine Le Pen erteilt eine Lektion in Machtpolitik — In einer spektakulären Volte erklärt sich Marine Le Pen zur Präsidentschaftskandidatin des rechten »Rassemblement National«. Und schiebt dabei ihren Ziehsohn Jordan Bardella zur Seite, der der Patriarchin offenbar zu una",
+   "source": "Der Spiegel — Ausland",
+   "lean": "left",
+   "date": "2026-07-07",
+   "category": "foreign"
+  },
+  {
+   "text": "Raumfahrt: Weltraumschrott an Australiens Küste angespült — In Australien ist erneut Weltraumschrott entdeckt worden. Der betroffene Strandabschnitt im Bundesstaats Queensland wurde gesperrt. ( Weltraumschrott , Raumfahrt )",
+   "source": "Golem.de",
+   "lean": "center",
+   "date": "2026-07-07",
+   "category": "tech"
+  },
+  {
+   "text": "Chrupalla nennt Pistorius „Kriegsminister“ und wütet gegen Ukraine-Milliardenhilfen — AfD-Co-Chef Tino Chrupalla warnt vor einer weiteren Zuspitzung des Konflikts mit Russland. Zusätzliche Unterstützung für die Ukraine lehnt er ab.",
+   "source": "Münchner Merkur — Politik",
+   "lean": "right",
+   "date": "2026-07-07",
+   "category": "general"
+  },
+  {
+   "text": "Ägyptens Trainer Hassan wittert nach WM-Aus Betrug — Nach dem unglücklichen Aus im WM-Achtelfinale gegen Argentinien hat der ägyptische Nationaltrainer Hossam Hassan schwere Vorwürfe erhoben.",
+   "source": "Sportschau (ARD)",
+   "lean": "center",
+   "date": "2026-07-07",
+   "category": "sport"
+  },
+  {
+   "text": "Audiostream - WM 2026 live hören: Spanien gegen Belgien — Im Viertelfinale trifft Spanien in Los Angeles auf Belgien. Das Spiel live hören! Reporter: Michael Augustin.",
+   "source": "Sportschau — Fußball",
+   "lean": "center",
+   "date": "2026-07-07",
+   "category": "sport"
+  },
+  {
+   "text": "Kritik aus SPD-Fraktion an Elterngeld-Plänen von Prien — In der SPD-Fraktion regt sich einem Medienbericht zufolge Kritik an den Plänen von Bundesfamilienministerin Karin Prien (CDU) für eine Reform des Elterngeldes. Im Mittelpunkt des Widerstands stehe die vorgesehene Kürzung",
+   "source": "Stern",
+   "lean": "center",
+   "date": "2026-07-07",
+   "category": "general"
+  },
+  {
+   "text": "Andrij Melnyk im Spitzengespräch: »Ich habe viel kaputt gemacht« - Video — Als ukrainischer Botschafter in Berlin war er der undiplomatischste Diplomat, den Deutschland je gesehen hat: Im SPIEGEL-Talk spricht Andrij Melnyk über Fehler, was er bereut – und wen er sich als Vermittler mit Putin wü",
+   "source": "Der Spiegel — Politik",
+   "lean": "left",
+   "date": "2026-07-09",
+   "category": "general"
+  },
+  {
+   "text": "Operation „First Light 2026“ : 5.800 Verdächtige bei weltweit festgenommen — In einer weltweiten Aktion gegen Social-Engineering-Betrug wurden Tausende Verdächtige inhaftiert und Beträge in Millionenhöhe sichergestellt.",
+   "source": "Heise Online",
+   "lean": "center",
+   "date": "2026-07-09",
+   "category": "tech"
+  },
+  {
+   "text": "heute journal vom 9. Juli 2026 — Mit den Themen: Regierungserklärung vom Kanzler - US-Marschflugkörper für Deutschland; Aufsichtsratssitzung bei VW - Wie groß werden weitere Einschnitte?; Hitzewelle in Deutschland - RKI schätzt mehr als 5000 Todesfälle",
+   "source": "ZDF — Heute journal",
+   "lean": "center",
+   "date": "2026-07-09",
+   "category": "general"
+  },
+  {
+   "text": "Dieser bittere Torwartpatzer beendet Norwegens WM-Märchen — Kurz nach Anpfiff der Verlängerung geht England in Führung. Rogers‘ eigentlich harmlosen Schuss lässt Norwegens Torwart vor die Füße von Bellingham abprallen, der zum 2:1 abstaubt. Sehen Sie das Tor hier im Video.",
+   "source": "Die Welt",
+   "lean": "right",
+   "date": "2026-07-11",
+   "category": "general"
+  },
+  {
+   "text": "Fußball-WM: Doppelpack Bellingham: England wirft auch Norwegen raus",
+   "source": "Die Zeit",
+   "lean": "left",
+   "date": "2026-07-11",
+   "category": "general"
+  },
+  {
+   "text": "Künstliche Intelligenz: Anthropic spendiert Claude Code einen eingebauten Browser — Claude Code kann ab sofort direkt aus der Desktop-App heraus im Web surfen. Anthropic betont die Sicherheit dieses Ansatzes. ( Claude , Browser )",
+   "source": "Golem.de",
+   "lean": "center",
+   "date": "2026-07-11",
+   "category": "tech"
+  },
+  {
+   "text": "Alexander Zverev: Zwei Wochen vor Wimbledon kein Handy – auch nicht für Freundin Sophia Thomalla",
+   "source": "RTL.de — Unterhaltung",
+   "lean": "center",
+   "date": "2026-07-11",
+   "category": "sport"
+  },
+  {
+   "text": "Sommerrally oder Sommerflaute?: Was das zweite Halbjahr für die Märkte bringt — Der USA-Iran-Konflikt ist wieder da und viele Anleger fragen sich, ob sie damit alle Hoffnungen auf eine Sommerrally fahren lassen müssen. Auch in der Frage der zukünftigen Zinsentwicklung werden derzeit unterschiedliche",
+   "source": "n-tv — Wirtschaft",
+   "lean": "center",
+   "date": "2026-07-11",
+   "category": "economy"
+  },
+  {
+   "text": "Börse, Baby!: ASML, TSMC, Netflix: Die nächste Woche entscheidet über Milliarden — Die Berichtssaison beginnt – und sie könnte den gesamten Aktienmarkt neu ordnen. Wir schauen auf die wichtigsten Quartalszahlen der kommenden Woche: ASML, TSMC, Netflix, die großen US-Banken, Johnson & Johnson.",
+   "source": "wallstreet-online.de",
+   "lean": "unknown",
+   "date": "2026-07-11",
+   "category": "economy"
+  },
+  {
+   "text": "Blick unterwegs in Frankfurts Drogenhölle: «Ich hasse Entzug – deshalb brauchst du Fentanyl» — Alex (33) will ins Schwimmbad. Doch bevor sie los kann, muss sie Crack rauchen und Fentanyl auftreiben. Seit 17 Jahren lebt sie im Drogenghetto am Frankfurter Hauptbahnhof. Blick hat sie begleitet.",
+   "source": "Blick",
+   "lean": "unknown",
+   "date": "2026-07-13",
+   "category": "global"
+  },
+  {
+   "text": "Top 10: Die besten Fitness-Tracker im Test — Wer Puls, Schlaf und Schritte erfassen will, benötigt keine Sportuhr. Wir zeigen die besten Fitness-Tracker mit und ohne GPS.",
+   "source": "Heise Online",
+   "lean": "center",
+   "date": "2026-07-13",
+   "category": "tech"
+  },
+  {
+   "text": "„Marvelous Mrs. Maisel”-Star Josh Grisetti stirbt mit nur 44 Jahren – die Todesursache erschüttert",
+   "source": "RTL.de — Unterhaltung",
+   "lean": "center",
+   "date": "2026-07-13",
+   "category": "entertainment"
+  },
+  {
+   "text": "Erneut Mann bei ICE-Einsatz getötet — Bei einem Einsatz der US-Migrationsbehörde ICE sind wohl erneut tödliche Schüsse gefallen, ein Mann starb. Ein Senator fordert Aufklärung.",
+   "source": "ZDF Heute",
+   "lean": "center",
+   "date": "2026-07-13",
+   "category": "general"
+  }
+ ],
+ "built": "2026-11-23",
+ "source_db": "Echolot MCP get_news (https://echolotnews.com/mcp), published_at szerinti napok",
+ "build_rule": "get_news(limit=100, diversify, max_per_source=3, place=ország) minden 2. napra; title>15, LEAK_RE-szűrő, cím-dedupe, lead 220 kar., MAXN=60 lean-cap (arányos kvóta + domináns lean <=60% + dátum-stride) — a júliusi sample_cell"
+}

@@ -1,6 +1,71 @@
 {
  "op": "CCI-backteszt V4.1-Flash — KORPUSZ-ZÁROLÁS (a panel ELŐTT)",
  "fajlok": {
+  "corpus_de_2026-07.json": {
+   "sha256": "3c9280bea5d3de5fc5df51f2c6d83581a3706abeab27b5f7d4d72b64392be19a",
+   "n": 60,
+   "window": [
+    "2026-06-15",
+    "2026-07-14"
+   ],
+   "raw_rows": 830,
+   "pool": 802,
+   "leak_dropped": 0,
+   "distinct_sources_raw": 76,
+   "mcp_errors": 0
+  },
+  "corpus_de_2026-08.json": {
+   "sha256": "f3a7854ded2cecee31e3942527b24325beb01560947d552266aa319e89b72511",
+   "n": 60,
+   "window": [
+    "2026-07-15",
+    "2026-08-14"
+   ],
+   "raw_rows": 1260,
+   "pool": 1154,
+   "leak_dropped": 0,
+   "distinct_sources_raw": 91,
+   "mcp_errors": 0
+  },
+  "corpus_de_2026-09.json": {
+   "sha256": "ebb8a60811dc04b39a34e03ebd9728b02aa15d8a9b243b7cc1dbc0d94135e726",
+   "n": 60,
+   "window": [
+    "2026-08-15",
+    "2026-09-14"
+   ],
+   "raw_rows": 1301,
+   "pool": 1187,
+   "leak_dropped": 0,
+   "distinct_sources_raw": 97,
+   "mcp_errors": 0
+  },
+  "corpus_de_2026-10.json": {
+   "sha256": "1a47a6262a9878741d1278a4fded729cad328a4b55f174b201dd3dcbfc644768",
+   "n": 60,
+   "window": [
+    "2026-09-15",
+    "2026-10-14"
+   ],
+   "raw_rows": 1200,
+   "pool": 1093,
+   "leak_dropped": 1,
+   "distinct_sources_raw": 92,
+   "mcp_errors": 0
+  },
+  "corpus_de_2026-11.json": {
+   "sha256": "023369d69d5ae48f6ce005e016ffc8898059d5a78f7181bad77aefc2125db66a",
+   "n": 60,
+   "window": [
+    "2026-10-15",
+    "2026-11-14"
+   ],
+   "raw_rows": 1302,
+   "pool": 1180,
+   "leak_dropped": 0,
+   "distinct_sources_raw": 100,
+   "mcp_errors": 0
+  },
   "corpus_fr_2026-07.json": {
    "sha256": "3e8c71245a97eb3e1b653f8c66d30336a00f9270e2c6cbecd2b0bc5d96fda724",
    "n": 60,
@@ -142,6 +207,58 @@
    "pool": 613,
    "leak_dropped": 0,
    "distinct_sources_raw": 72,
+   "mcp_errors": 0
+  },
+  "corpus_it_2026-08.json": {
+   "sha256": "def9f6df535b19f633a5c613ca8ea50d7b1abf9b4d7bd4226bc2c8e8d01ea50e",
+   "n": 60,
+   "window": [
+    "2026-07-15",
+    "2026-08-14"
+   ],
+   "raw_rows": 984,
+   "pool": 890,
+   "leak_dropped": 0,
+   "distinct_sources_raw": 117,
+   "mcp_errors": 0
+  },
+  "corpus_it_2026-09.json": {
+   "sha256": "1ff0be975a36af96244a4ee28e239dbb68db8d4e49e79e3b4b0bb592149063d2",
+   "n": 60,
+   "window": [
+    "2026-08-15",
+    "2026-09-14"
+   ],
+   "raw_rows": 989,
+   "pool": 879,
+   "leak_dropped": 0,
+   "distinct_sources_raw": 118,
+   "mcp_errors": 0
+  },
+  "corpus_it_2026-10.json": {
+   "sha256": "7f7b41d3dfbcbf9b7ead6274737f74a23ec7ec94bfaedc47270f82bf164881b5",
+   "n": 60,
+   "window": [
+    "2026-09-15",
+    "2026-10-14"
+   ],
+   "raw_rows": 944,
+   "pool": 863,
+   "leak_dropped": 0,
+   "distinct_sources_raw": 114,
+   "mcp_errors": 0
+  },
+  "corpus_it_2026-11.json": {
+   "sha256": "7e435ebb14f74637f73ad91b0a02cc7405798c49b53bac29b805e02c6d687036",
+   "n": 60,
+   "window": [
+    "2026-10-15",
+    "2026-11-14"
+   ],
+   "raw_rows": 1063,
+   "pool": 956,
+   "leak_dropped": 0,
+   "distinct_sources_raw": 105,
    "mcp_errors": 0
   }
  }

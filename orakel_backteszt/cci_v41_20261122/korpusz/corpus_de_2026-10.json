@@ -1,0 +1,549 @@
+{
+ "country": "DE",
+ "lang": "de",
+ "target_month": "2026-10",
+ "corpus_window": [
+  "2026-09-15",
+  "2026-10-14"
+ ],
+ "days_sampled": [
+  "2026-09-15",
+  "2026-09-17",
+  "2026-09-19",
+  "2026-09-21",
+  "2026-09-23",
+  "2026-09-25",
+  "2026-09-27",
+  "2026-09-29",
+  "2026-10-01",
+  "2026-10-03",
+  "2026-10-05",
+  "2026-10-07",
+  "2026-10-09",
+  "2026-10-11",
+  "2026-10-13"
+ ],
+ "n": 60,
+ "lean_dist": {
+  "unknown": 24,
+  "right": 2,
+  "left": 7,
+  "center": 27
+ },
+ "cat_dist": {
+  "economy": 7,
+  "tech": 6,
+  "global": 11,
+  "sport": 13,
+  "foreign": 3,
+  "entertainment": 3,
+  "general": 15,
+  "news": 1,
+  "lifestyle": 1
+ },
+ "raw_rows": 1200,
+ "pool_after_dedupe": 1093,
+ "leak_dropped": 1,
+ "distinct_sources_raw": 92,
+ "raw_cat_dist": {
+  "general": 250,
+  "economy": 133,
+  "global": 167,
+  "sport": 271,
+  "foreign": 54,
+  "tech": 84,
+  "entertainment": 106,
+  "politics": 87,
+  "lifestyle": 15,
+  "news": 32,
+  "cars": 1
+ },
+ "per_day": {
+  "2026-09-15": {
+   "returned": 83,
+   "pool": 500
+  },
+  "2026-09-17": {
+   "returned": 82,
+   "pool": 500
+  },
+  "2026-09-19": {
+   "returned": 82,
+   "pool": 500
+  },
+  "2026-09-21": {
+   "returned": 84,
+   "pool": 500
+  },
+  "2026-09-23": {
+   "returned": 80,
+   "pool": 500
+  },
+  "2026-09-25": {
+   "returned": 81,
+   "pool": 500
+  },
+  "2026-09-27": {
+   "returned": 73,
+   "pool": 500
+  },
+  "2026-09-29": {
+   "returned": 87,
+   "pool": 500
+  },
+  "2026-10-01": {
+   "returned": 81,
+   "pool": 500
+  },
+  "2026-10-03": {
+   "returned": 75,
+   "pool": 500
+  },
+  "2026-10-05": {
+   "returned": 79,
+   "pool": 500
+  },
+  "2026-10-07": {
+   "returned": 80,
+   "pool": 500
+  },
+  "2026-10-09": {
+   "returned": 79,
+   "pool": 500
+  },
+  "2026-10-11": {
+   "returned": 71,
+   "pool": 500
+  },
+  "2026-10-13": {
+   "returned": 83,
+   "pool": 500
+  }
+ },
+ "mcp_errors": 0,
+ "items": [
+  {
+   "text": "Schlussglocke: Dow und Nasdaq geben nach – Bitcoin, Ölpreis, Nvidia, AMD und Steel Dynamics im Fokus — Am Dienstag haben die US-Börsen ihre Abwärtsbewegung fortgesetzt. Einen Tag vor der Zinsentscheidung der US-Notenbank Fed hielten sich die Anleger zurück. Der erneut deutlich gestiegene Ölpreis erhöhte zusätzlich den Dru",
+   "source": "DER AKTIONÄR",
+   "lean": "unknown",
+   "date": "2026-09-15",
+   "category": "economy"
+  },
+  {
+   "text": "„Europa besonders bedroht“ – Lauterbach fordert weltweite Regulierung von KI — Der ökonomische Schaden, den Künstliche Intelligenz anrichten könne, sei gigantisch. Das Erpressungspotenzial wachse exponentiell. Karl Lauterbach plädiert für strenge Sicherheitsregeln.",
+   "source": "Die Welt",
+   "lean": "right",
+   "date": "2026-09-15",
+   "category": "tech"
+  },
+  {
+   "text": "Ceuta: Italien und Spanien verlängern gegenseitige Grenzkontrollen — Wegen der Situation auf Ceuta verlängert Italien Grenzkontrollen. Die Regierung gibt »hohe Risiken für die innere Sicherheit« an. Spanien zieht nach.",
+   "source": "Die Zeit",
+   "lean": "left",
+   "date": "2026-09-15",
+   "category": "global"
+  },
+  {
+   "text": "Bei Chelsea in der Sackgasse: Topklub buhlt um Estêvão — Estêvão (19) gilt zwar nach wie vor als echtes Ausnahmetalent, kommt beim FC Chelsea aber auch in dieser Saison nur zu wenig Spielzeit. Wie ‚El Nacional‘ berichtet, hat der FC Barcelona daher die (…)",
+   "source": "Fussball Transfers",
+   "lean": "unknown",
+   "date": "2026-09-15",
+   "category": "sport"
+  },
+  {
+   "text": "Abschiedsspiel gegen Benin: Messi ein letztes Mal in Nationalmannschaft berufen — Das WM-Finale war doch noch nicht sein letzter Einsatz für Argentinien. Für die anstehende Länderspielpause wurde Lionel Messi ein letztes Mal in den Kader der Nationalmannschaft berufen. Am 6. Oktober soll er zusammen m",
+   "source": "Kicker — Aktuell",
+   "lean": "center",
+   "date": "2026-09-15",
+   "category": "sport"
+  },
+  {
+   "text": "Hohe Spritpreise: Chefin der Wirtschaftsweisen warnt vor Tankrabatt und Preisdeckeln — Bundeskanzler Friedrich Merz hat Entlastungen bei den Spritpreisen angekündigt. Monika Schnitzer, Chefin der Wirtschaftsweisen, warnt davor, alte Fehler zu wiederholen.",
+   "source": "Stern",
+   "lean": "center",
+   "date": "2026-09-15",
+   "category": "economy"
+  },
+  {
+   "text": "Verteidigungsminister: Pistorius und Hegseth schließen Verteidigungsdeal — Verteidigungsminister Boris Pistorius besucht seinen Amtskollegen in den USA, „Kriegsminister“ Pete Hegseth. Der ist plötzlich voll des Lobes für Deutschland.",
+   "source": "Stern",
+   "lean": "center",
+   "date": "2026-09-15",
+   "category": "foreign"
+  },
+  {
+   "text": "Oliver Baumann über Degradierung durch Julian Nagelsmann – »War unfassbar« — Der Fall brachte Julian Nagelsmann heftige Kritik ein: Kurz vor der WM hatte der Ex-Bundestrainer Keeper Oliver Baumann zur Nummer zwei im deutschen Tor gemacht. Der ließ nun noch einmal Frust ab.",
+   "source": "Der Spiegel — DER SPIEGEL - Sport (index.rss)",
+   "lean": "left",
+   "date": "2026-09-17",
+   "category": "sport"
+  },
+  {
+   "text": "XRP Prognose nach dem Doppelschlag: Warum der Kurs bei 1,28 Dollar hängt und was jetzt zählt — Anzeige / WerbungXRP hat in sieben Tagen mehr als 11 Prozent verloren und notiert am 17. September bei rund 1,28 Dollar. Der CLARITY Act scheiterte im Senat mit 49 zu 50 Stimmen, und einen Tag spät...",
+   "source": "FinanzNachrichten.de",
+   "lean": "unknown",
+   "date": "2026-09-17",
+   "category": "economy"
+  },
+  {
+   "text": "Erstes Tor für Woltemade — Nick Woltemade hat nach einigen Startschwierigkeiten samt Medienschelte sein erstes Erfolgserlebnis im Trikot von Juventus Turin zu verbuchen. Bei der Europa League-Partie gegen die NEC Nijmegen traf (…)",
+   "source": "Fussball Transfers",
+   "lean": "unknown",
+   "date": "2026-09-17",
+   "category": "sport"
+  },
+  {
+   "text": "Keri Russell und Matthew: Vom Serienpaar zum Emmy-Traumpaar — Bei der Emmy-Verleihung am Sonntag gehören Keri Russell (50) und Matthew Rhys (51) zu den auffälligsten Duos des Abends – nicht nur, weil sie seit Jahren ein Paar sind, sondern auch, weil sie gemeinsam auf fünf Nominieru",
+   "source": "Promiflash (DE)",
+   "lean": "center",
+   "date": "2026-09-17",
+   "category": "entertainment"
+  },
+  {
+   "text": "Rapper kletterte heimlich durchs Fenster! - Anna-Marias Familie lehnte Bushido ab — Bushido spricht im Podcast über frühere Ablehnung durch Anna-Marias Familie.",
+   "source": "Bild — Unterhaltung",
+   "lean": "unknown",
+   "date": "2026-09-19",
+   "category": "entertainment"
+  },
+  {
+   "text": "Ukraine-Krieg: Mutter und Kinder bei Angriff im Kiewer Umland getötet — Die ukrainische Hauptstadt Kiew und das umliegende Gebiet werden regelmäßig von russischen Drohnen und Raketen angegriffen. Bei einer weiteren Attacke kommt es zu einer Tragödie.",
+   "source": "Tagesspiegel",
+   "lean": "center",
+   "date": "2026-09-19",
+   "category": "foreign"
+  },
+  {
+   "text": "Landtagswahlen mit Putsch-Potenzial — Die Wahlen in Berlin und Mecklenburg-Vorpommern sind vor allem für die CDU eine Zitterpartie. Sie haben das Potenzial, die extrem nervöse Partei auseinanderzureißen.",
+   "source": "ZDF Heute",
+   "lean": "center",
+   "date": "2026-09-19",
+   "category": "general"
+  },
+  {
+   "text": "Auch Raketen auf Riad: Huthi-Miliz reklamiert Angriffe auf Öl-Anlagen für sich — Nach saudischen Luftangriffen schlagen die Huthis zurück. Ihre Geschosse zielen auf Anlagen des saudischen Ölkonzerns Aramco. Auch am Flughafen von Riad steht ein Treibstofftank in Flammen. Die Konflikte im Nahen Osten d",
+   "source": "n-tv — Politik",
+   "lean": "center",
+   "date": "2026-09-19",
+   "category": "general"
+  },
+  {
+   "text": "Handball: Die \"Goldene Generation\" mischt das DHB-Team auf — Die deutschen Handballerinnen bringen sich langsam in EM-Stimmung. Neben vielen Vize-Weltmeisterinnen setzt Bundestrainer Gaugisch bei den Testspielen auf den titelerfahrenen Nachwuchs.",
+   "source": "Sportschau (ARD)",
+   "lean": "center",
+   "date": "2026-09-21",
+   "category": "sport"
+  },
+  {
+   "text": "Oktoberfest: Oktoberfest: Mitarbeiter nach Fahrgeschäft-Unfall gestorben — An einem Free-Fall-Turm auf dem Münchner Oktoberfest gab es einen schweren Unfall. Ein Mitarbeiter des Fahrgeschäfts starb an seinen Verletzungen. Die Ermittlungen laufen.",
+   "source": "Süddeutsche Zeitung — Topthemen",
+   "lean": "left",
+   "date": "2026-09-21",
+   "category": "general"
+  },
+  {
+   "text": "Herbstkirmes, Mittelaltermarkt und verkaufsoffener Sonntag – großes Programm in NRW-Stadt — In Bottrop steht Ende September ein Veranstaltungswochenende an. Innenstadt und Rathausplatz bieten gleich mehrere Attraktionen. Darunter ist auch ein historischer Markt mit besonderem Flair.",
+   "source": "come-on.de",
+   "lean": "unknown",
+   "date": "2026-09-21",
+   "category": "global"
+  },
+  {
+   "text": "Wiesn-Mitarbeiter bei Attraktion eingequetscht — Bei einem tragischen Unfall an einem Fahrgeschäft auf dem Oktoberfest in München ist ein Sicherheitsmitarbeiter lebensgefährlich verletzt worden. Er habe reanimiert werden müssen und sei in ein Krankenhaus gebracht worde",
+   "source": "krone.at",
+   "lean": "unknown",
+   "date": "2026-09-21",
+   "category": "global"
+  },
+  {
+   "text": "Versammlung in Wolfsburg: Betriebsratschefin warnt: Bei VW stehen die Zeichen auf Sturm — In Wolfsburg bei einer Betriebsversammlung hat Markenchef Schäfer keine guten Nachrichten für die Angestellten von Volkswagen im Gepäck. Betriebsratschefin Cavallo geht davon aus, die \"Sparwut des Unternehmens\" werde ihn",
+   "source": "n-tv — Wirtschaft",
+   "lean": "center",
+   "date": "2026-09-21",
+   "category": "economy"
+  },
+  {
+   "text": "Peter Maffay denkt mit 77 über seine verbleibende Zeit nach — Vor Kurzem feierte Peter Maffay (77) seinen 77. Geburtstag – ein Meilenstein, der ihn intensiv über die Zukunft nachdenken lässt. In einem Stern-Interview an der Seite seines Kollegen Johannes Oerding (44) gestand der Mu",
+   "source": "Promiflash (DE)",
+   "lean": "center",
+   "date": "2026-09-23",
+   "category": "general"
+  },
+  {
+   "text": "KI-Unternehmer warnen UN-Sicherheitsrat eindringlich — Vertreter von Tech-Unternehmen und ein Forscher informieren den UN-Sicherheitsrat über Gefahren der Künstlichen Intelligenz. Sie fordern schnelles Handeln.",
+   "source": "t-online",
+   "lean": "unknown",
+   "date": "2026-09-23",
+   "category": "global"
+  },
+  {
+   "text": "Android Studio: Google führt freie Wahl für KI-Coding-Agenten ein — Nachdem Google Android Studio im vergangenen Jahr bereits für unterschiedliche KI-Modelle geöffnet hat, folgt nun der nächste Schritt: Mit Bring Your Own Agent (BYOA) könnt ihr... Zum Beitrag: Android Studio: Google führ",
+   "source": "Caschys Blog",
+   "lean": "unknown",
+   "date": "2026-09-25",
+   "category": "tech"
+  },
+  {
+   "text": "Mikro-Dramen: iPhone-Nutzer geben mehr aus — Kurze, extrem auf das Smartphone zugeschnittene Videoformate erobern seit einiger Zeit den Markt. Nie gehört? Nicht schlimm: Bei sogenannten Mikro-Dramen handelt es sich um speziell im... Zum Beitrag: Mikro-Dramen: iPhon",
+   "source": "Caschys Blog",
+   "lean": "unknown",
+   "date": "2026-09-25",
+   "category": "tech"
+  },
+  {
+   "text": "Outfit beim State Dinner: Melania Trump trägt Hosen. Hosen! — Zum Staatsdinner mit Chinas Präsident Xi Jinping und seiner Frau Peng Liyuang erscheint die US-First-Lady nicht in der erwartbaren großen Robe. Die Presse fragt aufgeregt: Darf man das?",
+   "source": "Der Spiegel — DER SPIEGEL - Schlagzeilen",
+   "lean": "left",
+   "date": "2026-09-25",
+   "category": "news"
+  },
+  {
+   "text": "Reformdebatte: SPD will Leistungskürzung bei Pflegereform verhindern — Der Pflegeversicherung drohen Milliardendefizite, CDU-Gesundheitsminister Linnemann will nächste Woche im Kabinett eine Kehrtwende einleiten. Doch kurz vorher macht der Koalitionspartner Druck.",
+   "source": "WirtschaftsWoche",
+   "lean": "center",
+   "date": "2026-09-25",
+   "category": "economy"
+  },
+  {
+   "text": "„Der Berg hat sich verändert“ — „Gletscherschwund, bröckelnde Wege und Hütten ohne Wasser“: Mit diesen Schlagworten haben der Verband Vereine Österreichs (VAVÖ), der Alpenverein (ÖAV) und die Naturfreunde am Freitag auf die Folgen der Klimakrise und di",
+   "source": "news.ORF.at",
+   "lean": "center",
+   "date": "2026-09-25",
+   "category": "global"
+  },
+  {
+   "text": "Domi dagegen: Kathi Eisenblut möchte Pflegekind aufnehmen — Katharina Eisenblut (32) denkt darüber nach, ihre Familie zu vergrößern. In einer aktuellen Instagram-Story verriet die DSDS-Bekanntheit: \"Hey, ich hätte schon noch gerne ein Kind, ich habe nur ein Problem, es auszutrage",
+   "source": "Promiflash (DE)",
+   "lean": "center",
+   "date": "2026-09-27",
+   "category": "entertainment"
+  },
+  {
+   "text": "Nations League: Griechenland bestraft Deutschlands Patzer — Dass auch Jürgen Klopp kein Wunderheiler ist, hat Deutschland beim Heimdebüt des Bundestrainers schmerzhaft erfahren. Gegen Griechenland gab es im elften Duell zum ersten Mal eine Niederlage.",
+   "source": "Sportschau (ARD)",
+   "lean": "center",
+   "date": "2026-09-27",
+   "category": "sport"
+  },
+  {
+   "text": "Tote durch Angriffe - Historisches Gebäude in Kiew brennt — Rauchschwaden über dem historischen Gebäude",
+   "source": "Tiroler Tageszeitung",
+   "lean": "unknown",
+   "date": "2026-09-27",
+   "category": "global"
+  },
+  {
+   "text": "Großbrand in Gutach - Bahnstrecke teils gesperrt — Ein Bauernhaus steht lichterloh in Flammen. Einsatzkräfte kämpfen gegen das Feuer. Auch mehrere Gebäude, ein Waldstück und eine Bahnstrecke sind betroffen.",
+   "source": "web.de",
+   "lean": "unknown",
+   "date": "2026-09-27",
+   "category": "general"
+  },
+  {
+   "text": "USA: Donald Trump setzt bei Künstlicher Intelligenz auf Selbstregulierung der Techbranche — Die Warnungen vor KI werden immer lauter, doch US-Präsident Donald Trump will von gesetzlichen Einschränkungen weiterhin nichts wissen. Mit Vertretern aus Branche unterschrieb er jetzt eine »moralisch bindende« Vereinbar",
+   "source": "Der Spiegel — Ausland",
+   "lean": "left",
+   "date": "2026-09-29",
+   "category": "tech"
+  },
+  {
+   "text": "Klopp setzt auf Urbig — Jonas Urbig (23) winkt sein Debüt für die deutsche Nationalmannschaft. Nach Informationen der ‚Abendzeitung‘ wird der Bayern-Keeper bei der kommenden Nations League-Partie gegen Serbien am Donnerstag (…)",
+   "source": "Fussball Transfers",
+   "lean": "unknown",
+   "date": "2026-09-29",
+   "category": "sport"
+  },
+  {
+   "text": "Myanmars Militär tötet 49 Menschen auf belebtem Markt – Rebellen kündigen Vergeltung an — Myanmars Militär bombardiert einen belebten Markt in Rakhine: 49 Tote, 58 Verletzte. Die Arakan Army kündigt Vergeltung an.",
+   "source": "Münchner Merkur — Politik",
+   "lean": "right",
+   "date": "2026-09-29",
+   "category": "global"
+  },
+  {
+   "text": "Kalenderblatt: Was geschah am 30. September? — Tag für Tag gibt es Ereignisse, Anekdoten, Geburts- oder Sterbetage, an die erinnert werden soll.",
+   "source": "Tagesspiegel",
+   "lean": "center",
+   "date": "2026-09-29",
+   "category": "general"
+  },
+  {
+   "text": "BDI signalisiert Bereitschaft zu Erbschaftsteuerreform / Hauptgeschäftsführerin Gönner: \"In Gesamtpaket bereit, unseren Teil zu leisten\" - Nach Urteil aus Karlsruhe \"Lösung finden\" — Osnabrück (ots) - Die Industrie hat Bereitschaft signalisiert, im Gegenzug für Reformen und Bürokratieabbau eine Anhebung der Erbschaftsteuer zu akzeptieren. \"Wenn ein Gesamtpaket steht, in dem jed...",
+   "source": "FinanzNachrichten.de",
+   "lean": "unknown",
+   "date": "2026-10-01",
+   "category": "economy"
+  },
+  {
+   "text": "Schulproteste in Frankreich: Fast 2000 Festnahmen – Regierung beruft Krisensitzung ein — Schülerinnen und Schüler protestieren seit Tagen gegen marode Schulen, überfüllte Klassen und Lehrermangel. Die Gewalt eskaliert, über 300 Polizisten wurden verletzt, 400 Schulen bleiben geschlossen.",
+   "source": "Tages-Anzeiger",
+   "lean": "unknown",
+   "date": "2026-10-01",
+   "category": "global"
+  },
+  {
+   "text": "Ausblick: Was am Freitag wichtig wird — Beginn der Feierlichkeiten für den Tag der deutschen Einheit / Entscheidung über die Exzellenz-Förderung für Universitäten / Sperrung der Bahnstrecke zwischen Bremen und Hannover",
+   "source": "ZDF — Heute journal",
+   "lean": "center",
+   "date": "2026-10-01",
+   "category": "general"
+  },
+  {
+   "text": "Midterms-Wahlkampf in Texas: Trump macht schlechte PR für seine Umfragewerte verantwortlich — Die Demokraten wittern bei den Zwischenwahlen die Mehrheit im Abgeordnetenhaus. Die Beliebtheitswerte des US-Präsidenten sinken, wie Donald Trump im Wahlkampf einräumt. Er sieht den Grund dafür aber nicht in seinem polit",
+   "source": "n-tv — Politik",
+   "lean": "center",
+   "date": "2026-10-01",
+   "category": "general"
+  },
+  {
+   "text": "Top 10: Das beste Gaming-Headset im Test – Razer Testsieger vor Audeze & Hyperx — Ein gutes Gaming-Headset sollte die Spielsession bereichern, egal ob bei kompetitiven Shootern oder immersiven Rollenspielen. Wir zeigen die besten Modelle.",
+   "source": "Heise Online",
+   "lean": "center",
+   "date": "2026-10-03",
+   "category": "tech"
+  },
+  {
+   "text": "Friderike Schilbach, Die Damentoilette – Pinkelpause vom Patriarchat — Wirklich jetzt? Ein Text über Damentoiletten als Buchempfehlung! Aber ja, und na klar. Erstens, weil die Schlangen vor \"unseren\" Toiletten immer viel länger sind als die bei den Männern – was den meist männlichen Planern",
+   "source": "Osthessen News",
+   "lean": "unknown",
+   "date": "2026-10-03",
+   "category": "lifestyle"
+  },
+  {
+   "text": "Newsblog zum Ukraine-Krieg: Russland droht mit massiven Angriffen auf Kiew — Moskau verstärkt seine Angriffe auf ukrainische Infrastruktur bereits seit Tagen und warnt ausländische Besucher und Diplomaten vor einem Aufenthalt in Kiew.",
+   "source": "Süddeutsche Zeitung — Politik",
+   "lean": "left",
+   "date": "2026-10-03",
+   "category": "foreign"
+  },
+  {
+   "text": "Hannover-Misburg: Alle Infos zur Evakuierung Sonntag, 4. Oktober — In Misburg könnten zwei Blindgänger liegen. Anwohner in einem Radius von einem Kilometer müssen das Gebiet bis 9 Uhr verlassen.",
+   "source": "Tagesschau (ARD) — Regionalnachrichten aus den Bundesländern",
+   "lean": "center",
+   "date": "2026-10-03",
+   "category": "general"
+  },
+  {
+   "text": "BVB beobachtet 25-Millionen-Talent — Ein neues Mittelfeldtalent befindet sich auf dem Radar von Borussia Dortmund und RB Leipzig. Für einen Transfer wären aber wohl mehr als 25 Millionen Euro fällig.Andrija Bulatovic weckt Interesse in (…)",
+   "source": "Fussball Transfers",
+   "lean": "unknown",
+   "date": "2026-10-05",
+   "category": "sport"
+  },
+  {
+   "text": "Erste Trainerentlassung? Bowles steht auf dem Prüfstand — Die Tampa Bay Buccaneers sind mit 0-4 katastrophal in die Saison gestartet. Nach der erneuten knappen Niederlage gegen die Green Bay Packers gerät auch Head Coach Todd Bowles zunehmend unter Druck - und die kommenden Woc",
+   "source": "Kicker — Aktuell",
+   "lean": "center",
+   "date": "2026-10-05",
+   "category": "sport"
+  },
+  {
+   "text": "Nations League: Joker Olise erlöst Franzosen – abgezockte Italiener — Zinedine Zidane wechselt gegen Belgien erst spät seine Stars ein. Die liefern eine Show. Italien präsentiert sich in Bologna abgezockt.",
+   "source": "Tages-Anzeiger",
+   "lean": "unknown",
+   "date": "2026-10-05",
+   "category": "sport"
+  },
+  {
+   "text": "Wadephul: Moskau hat \"weitergehende Pläne\" als Ukraine — Bundesaußenminister Johann Wadephul warnt, dass Russland auch Ansprüche auf das Baltikum formulieren könnte. Als Alliierter wäre Deutschland mit betroffen.",
+   "source": "ZDF — Politik (politik)",
+   "lean": "center",
+   "date": "2026-10-05",
+   "category": "general"
+  },
+  {
+   "text": "Werder: Regeer erklärt Traumstart — Youri Regeers schnelle Anpassung beim SV Werder Bremen ist offenbar vor allem ein Verdienst seiner Mitspieler. „Das ist einfach zu erklären: Mit guten Spielern auf dem Platz kann man sich leicht (…)",
+   "source": "Fussball Transfers",
+   "lean": "unknown",
+   "date": "2026-10-07",
+   "category": "sport"
+  },
+  {
+   "text": "Interessenkonflikte im Amt: Unter Donald Trump verschieben sich ethische Standards — War da nicht eine Verfassung, die Amtsträger dazu verpflichtet, Gesetze über private Interessen zu stellen? Scheint dem US-Präsidenten egal zu sein – und dem Rest der Welt irgendwie auch.",
+   "source": "Tages-Anzeiger",
+   "lean": "unknown",
+   "date": "2026-10-07",
+   "category": "global"
+  },
+  {
+   "text": "Laborantin stirbt in Sibirien: Trump vermutet hinter Lungenpest-Vorfall keine russische Biowaffe — Eine junge Forscherin eines Pest-Instituts stirbt in Russland an einer Lungenentzündung unklarer Herkunft. Russland habe \"die Lage sehr gut im Griff\", beteuert US-Präsident Trump. Auch Karl Lauterbach sieht für die Bevöl",
+   "source": "n-tv — Politik",
+   "lean": "center",
+   "date": "2026-10-07",
+   "category": "general"
+  },
+  {
+   "text": "Warnblinker war an: Motorradfahrer wird auf Standstreifen von Lastwagen erfasst",
+   "source": "Die Zeit",
+   "lean": "left",
+   "date": "2026-10-09",
+   "category": "general"
+  },
+  {
+   "text": "Melissa Kössler - \"Ich bin sehr, sehr happy\" — Doppeltorschützin Melissa Kössler spricht im Interview über ihre Tore und den Sieg im Testspiel gegen Australien.",
+   "source": "Sportschau — Fußball",
+   "lean": "center",
+   "date": "2026-10-09",
+   "category": "sport"
+  },
+  {
+   "text": "\"Avenger-Triad\": Nato probt den Ernstfall — In Wiesbaden probt die US-Armee mit NATO-Partnern den Ernstfall. Ein simulierter Angriff auf die Ostflanke soll die Verteidigungsfähigkeit des Bündnisses auf die Probe stellen.",
+   "source": "ZDF — Heute journal",
+   "lean": "center",
+   "date": "2026-10-09",
+   "category": "general"
+  },
+  {
+   "text": "Jeep Compass Elektro im Test: Wie viel Jeep steckt im Stromer? — Einst war Jeep der Inbegriff des robusten Geländewagens. Und heute – nur noch eine weitere Stellantis-Würznote? Test des Elektro-Compass",
+   "source": "web.de",
+   "lean": "unknown",
+   "date": "2026-10-09",
+   "category": "global"
+  },
+  {
+   "text": "Apple Home Collection: Eigene Zubehör-Reihe mit LG und Schneider Electric für Europa geplant — Apple will das Thema Smart Home grundlegender anpacken und setzt künftig auf eine eigene Zubehör-Kollektion, um das Ökosystem direkt mit passender Hardware auszustatten. Statt darauf zu... Zum Beitrag: Apple Home Collect",
+   "source": "Caschys Blog",
+   "lean": "unknown",
+   "date": "2026-10-11",
+   "category": "tech"
+  },
+  {
+   "text": "Linke: Zwangsräumungen in die Obdachlosigkeit verbieten / Parteichef Pantisano verweist auf Tod einer spanischen Mieterin / \"Wohnen ist ein Menschenrecht\" — Osnabrück (ots) - Die Linke fordert ein Verbot von Zwangsräumungen, wenn diese in die Obdachlosigkeit führen. \"Zwangsräumungen in die Obdachlosigkeit müssen verboten werden. Niemand darf auf die St...",
+   "source": "FinanzNachrichten.de",
+   "lean": "unknown",
+   "date": "2026-10-11",
+   "category": "economy"
+  },
+  {
+   "text": "Bundesliga: Burcu-Tor stoppt Unions Sieglosserie gegen Elversberg — Am 5. Spieltag der laufenden Bundesligasaison hat Union Berlin gegen Elversberg den ersten Sieg eingefahren. In einer umkämpften Partie erzielte Livan Burcu für das entscheidende Tor.",
+   "source": "Sportschau (ARD)",
+   "lean": "center",
+   "date": "2026-10-11",
+   "category": "sport"
+  },
+  {
+   "text": "\"Was ist mit unserer Würdewahrung?\": Wenn ein Theater streikt — Münsters Oberbürgermeister lädt zum Theaterabend. Doch statt tanzender Schwäne bekommt das Publikum streikende Künstler zu sehen.",
+   "source": "Tagesschau (ARD) — Regionalnachrichten aus den Bundesländern",
+   "lean": "center",
+   "date": "2026-10-11",
+   "category": "general"
+  },
+  {
+   "text": "Keine Lebensgefahr: Polizist schießt Autofahrer in Berlin-Mitte an — Nach einer Verfolgungsjagd stoppt die Polizei einen Autofahrer. Bei der Kontrolle in der Nähe des Alexanderplatzes fällt mindestens ein Schuss. Was bisher bekannt ist.",
+   "source": "Stern",
+   "lean": "center",
+   "date": "2026-10-13",
+   "category": "general"
+  },
+  {
+   "text": "In Afrika verschlechtert sich die Lage: Kampf gegen Hunger kommt weltweit kaum voran — In 32 Ländern hat sich die Hungersituation seit 2018 verschlechtert. Besonders Afrika südlich der Sahara ist betroffen. Zugleich fehlt immer mehr Geld für humanitäre Hilfe.",
+   "source": "Tages-Anzeiger",
+   "lean": "unknown",
+   "date": "2026-10-13",
+   "category": "global"
+  }
+ ],
+ "built": "2026-11-23",
+ "source_db": "Echolot MCP get_news (https://echolotnews.com/mcp), published_at szerinti napok",
+ "build_rule": "get_news(limit=100, diversify, max_per_source=3, place=ország) minden 2. napra; title>15, LEAK_RE-szűrő, cím-dedupe, lead 220 kar., MAXN=60 lean-cap (arányos kvóta + domináns lean <=60% + dátum-stride) — a júliusi sample_cell"
+}

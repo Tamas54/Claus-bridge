@@ -1,0 +1,556 @@
+{
+ "country": "DE",
+ "lang": "de",
+ "target_month": "2026-09",
+ "corpus_window": [
+  "2026-08-15",
+  "2026-09-14"
+ ],
+ "days_sampled": [
+  "2026-08-15",
+  "2026-08-17",
+  "2026-08-19",
+  "2026-08-21",
+  "2026-08-23",
+  "2026-08-25",
+  "2026-08-27",
+  "2026-08-29",
+  "2026-08-31",
+  "2026-09-02",
+  "2026-09-04",
+  "2026-09-06",
+  "2026-09-08",
+  "2026-09-10",
+  "2026-09-12",
+  "2026-09-14"
+ ],
+ "n": 60,
+ "lean_dist": {
+  "unknown": 24,
+  "left": 7,
+  "right": 2,
+  "center": 27
+ },
+ "cat_dist": {
+  "entertainment": 14,
+  "sport": 14,
+  "general": 13,
+  "politics": 4,
+  "tech": 5,
+  "foreign": 6,
+  "lifestyle": 1,
+  "global": 1,
+  "economy": 2
+ },
+ "raw_rows": 1301,
+ "pool_after_dedupe": 1187,
+ "leak_dropped": 0,
+ "distinct_sources_raw": 97,
+ "raw_cat_dist": {
+  "general": 220,
+  "politics": 115,
+  "sport": 397,
+  "economy": 136,
+  "entertainment": 137,
+  "lifestyle": 31,
+  "tech": 79,
+  "global": 117,
+  "foreign": 40,
+  "cars": 3,
+  "news": 22,
+  "science": 3,
+  "culture": 1
+ },
+ "per_day": {
+  "2026-08-15": {
+   "returned": 74,
+   "pool": 500
+  },
+  "2026-08-17": {
+   "returned": 87,
+   "pool": 500
+  },
+  "2026-08-19": {
+   "returned": 78,
+   "pool": 500
+  },
+  "2026-08-21": {
+   "returned": 78,
+   "pool": 500
+  },
+  "2026-08-23": {
+   "returned": 74,
+   "pool": 500
+  },
+  "2026-08-25": {
+   "returned": 90,
+   "pool": 500
+  },
+  "2026-08-27": {
+   "returned": 88,
+   "pool": 500
+  },
+  "2026-08-29": {
+   "returned": 80,
+   "pool": 500
+  },
+  "2026-08-31": {
+   "returned": 78,
+   "pool": 500
+  },
+  "2026-09-02": {
+   "returned": 79,
+   "pool": 500
+  },
+  "2026-09-04": {
+   "returned": 77,
+   "pool": 500
+  },
+  "2026-09-06": {
+   "returned": 74,
+   "pool": 500
+  },
+  "2026-09-08": {
+   "returned": 86,
+   "pool": 500
+  },
+  "2026-09-10": {
+   "returned": 85,
+   "pool": 500
+  },
+  "2026-09-12": {
+   "returned": 88,
+   "pool": 500
+  },
+  "2026-09-14": {
+   "returned": 85,
+   "pool": 500
+  }
+ },
+ "mcp_errors": 0,
+ "items": [
+  {
+   "text": "12 Konzerte im Sommer 2027 - Sarah Connor gibt Open-Air-Zugabe — Sarah Connor plant 2027 mit „Wilde Nächte 2“ eine große Open-Air-Jubiläumstour.",
+   "source": "Bild — Unterhaltung",
+   "lean": "unknown",
+   "date": "2026-08-15",
+   "category": "entertainment"
+  },
+  {
+   "text": "Leichtathletik-EM in Birmingham: Julian Weber wirft Speer im letzten Versuch zu Gold — Speerwerfer Julian Weber hat sich trotz Schulterproblemen in einem dramatischen Finale EM-Gold gesichert. Er r übertraf dabei die 90-Meter-Marke. Nick Thumm machte den deutschen Doppelsieg perfekt.",
+   "source": "Der Spiegel — DER SPIEGEL - Schlagzeilen – Tops",
+   "lean": "left",
+   "date": "2026-08-15",
+   "category": "sport"
+  },
+  {
+   "text": "Einwohner in Grenzstadt sollen Häuser „dringend“ verlassen – Feuerwehr im „Vollalarm“ — Die Lage in Monschau nahe der belgischen Grenze spitzt sich dramatisch zu. Ein Übergreifen des Feuers auf Teile der Stadt in NRW kann nicht mehr ausgeschlossen werden. Einwohnern wird empfohlen, ihre Häuser zu verlassen.",
+   "source": "Die Welt",
+   "lean": "right",
+   "date": "2026-08-15",
+   "category": "general"
+  },
+  {
+   "text": "„Let’s Dance”-Siegerin Magdalena Brzeska hat acht Kilo abgenommen – für Comeback mit Erich Klann!",
+   "source": "RTL.de — Unterhaltung",
+   "lean": "center",
+   "date": "2026-08-15",
+   "category": "entertainment"
+  },
+  {
+   "text": "\"Afghanistan international isoliert\" — \"Der skurrile Aufmarsch der Taliban\" habe ihn am meisten überrascht, so die Beobachtung von ZDF-Reporter Lessmeister zum fünften Jahrestag der Taliban-Herrschaft",
+   "source": "ZDF — Heute journal",
+   "lean": "center",
+   "date": "2026-08-15",
+   "category": "politics"
+  },
+  {
+   "text": "Neue Drohnen: So könnte Russland die Todeszone ausweiten — Russische Drohnen sollen in der Lage sein, der elektronischen Abwehr zu entgehen. Das könnte die Frontsituation verändern.",
+   "source": "t-online",
+   "lean": "unknown",
+   "date": "2026-08-15",
+   "category": "politics"
+  },
+  {
+   "text": "Fortnite: Neue Crossover mit Mega Man, Persona, Sonic the Hedgehog und mehr — Epic Games hat mit dem Spiel „Fortnite“ einen Dauerbrenner gelandet, der längst über das Battle-Royal-Genre hinausgewachsen ist. So liefert man in jeder Season zahlreiche Crossover und... Zum Beitrag: Fortnite: Neue Cros",
+   "source": "Caschys Blog",
+   "lean": "unknown",
+   "date": "2026-08-17",
+   "category": "tech"
+  },
+  {
+   "text": "Fast 30 Jahre nach Tupacs Tod startet der Mordprozess — Fast drei Jahrzehnte nach dem gewaltsamen Tod von Tupac Shakur (†25) hat in Las Vegas der Mordprozess gegen den mutmaßlichen Drahtzieher begonnen. Angeklagt ist Duane Keith Davis, besser bekannt als Keffe D, dem vorgewor",
+   "source": "Promiflash (DE)",
+   "lean": "center",
+   "date": "2026-08-17",
+   "category": "general"
+  },
+  {
+   "text": "Rafael van der Vaart und Estavana Polman: Baby unterwegs - und Sylvie Meis gratuliert — Rafael van der Vaart und Estavana Polman verkünden per Familienfoto auf Instagram, dass sie Nachwuchs erwarten.",
+   "source": "Stern",
+   "lean": "center",
+   "date": "2026-08-17",
+   "category": "general"
+  },
+  {
+   "text": "Harry und Meghan ziehen offenbar zurück nach Großbritannien — Mehr als sechs Jahre, nachdem sich der britische Prinz und seine Frau vom royalen Leben verabschiedet haben, steht offenbar eine Rückkehr in Harrys Heimat bevor.",
+   "source": "Der Spiegel — DER SPIEGEL - Schlagzeilen – Tops",
+   "lean": "left",
+   "date": "2026-08-19",
+   "category": "entertainment"
+  },
+  {
+   "text": "Patientenschützer fordern Zentralregister für Behandlungsfehler / Brysch verweist auf 20.000 vermeidbare Todesfälle - \"Härtefallfonds für Geschädigte überfällig\" — Osnabrück (ots) - Osnabrück. Vor Bekanntgabe der neuesten Behandlungsfehler-Zahlen fordern Patientenschützer mehr Transparenz und Hilfe für Betroffene. \"Allein in Kliniken kommt es Schätzungen zufo...",
+   "source": "FinanzNachrichten.de",
+   "lean": "unknown",
+   "date": "2026-08-19",
+   "category": "general"
+  },
+  {
+   "text": "Kinder bereits an Schule angemeldet: Harry und Meghan sollen baldige Rückkehr nach Großbritannien planen — Der jüngere Sohn von König Charles III. und seine Frau wollen nach mehr als sechs Jahren in den USA Berichten zufolge mit ihrem Nachwuchs zurück gen London ziehen. Dabei gibt es einige offene Fragen.",
+   "source": "Tagesspiegel",
+   "lean": "center",
+   "date": "2026-08-19",
+   "category": "foreign"
+  },
+  {
+   "text": "0:3 - Celtic mit drei Treffern ins Kreuzeck und mitten ins Herz des LASK — GLASGOW. Play-off zur Champions League: Die Schotten waren gnadenlos effizient. Der Mut der Linzer blieb im Celtic Park unbelohnt",
+   "source": "nachrichten.at",
+   "lean": "unknown",
+   "date": "2026-08-19",
+   "category": "sport"
+  },
+  {
+   "text": "Top 10: Das beste City-E-Bike im Test – das perfekte Pedelec für die Stadt — Wir haben gut 60 City-E-Bikes getestet – mit Fokus auf Ausstattung und Preis-Leistung. Das sind die zehn besten Pedelecs für die Stadt.",
+   "source": "Heise Online",
+   "lean": "center",
+   "date": "2026-08-21",
+   "category": "tech"
+  },
+  {
+   "text": "Hayden Panettieres Co-Star konsumierte Heroin vor Premiere — Der Tod von Hayden Panettiere (†36) hat bei ihrem früheren Kollegen Ethan Suplee offenbar schmerzhafte Erinnerungen geweckt. In einem Essay, den er online auf der Plattform Substack veröffentlichte, blickt der Schauspiel",
+   "source": "Promiflash (DE)",
+   "lean": "center",
+   "date": "2026-08-21",
+   "category": "entertainment"
+  },
+  {
+   "text": "Chaos im Pokal-Derby: DFB kündigt Aufarbeitung an — Feuerwerkskörper fliegen, Fans stürmen den Platz: Der DFB will die Szenen aufarbeiten. Baden-Württembergs Innenminister Hagel lobt die Arbeit der Einsatzkräfte.",
+   "source": "come-on.de",
+   "lean": "unknown",
+   "date": "2026-08-21",
+   "category": "sport"
+  },
+  {
+   "text": "Tödlicher Motorradunfall im Odenwald — Ein Ehepaar ist gemeinsam auf dem Motorrad unterwegs und stürzt in einer Kurve. Für einen von beiden kommt jede Hilfe zu spät.",
+   "source": "web.de",
+   "lean": "unknown",
+   "date": "2026-08-21",
+   "category": "general"
+  },
+  {
+   "text": "Immer mehr Gewaltvorwürfe kommen ans Licht - Das große Schweigen von Hayden Panettieres Freund — Nach Haydens Tod bleiben viele Fragen offen, ihr Freund Hickerson schweigt weiter.",
+   "source": "Bild — Unterhaltung",
+   "lean": "unknown",
+   "date": "2026-08-23",
+   "category": "general"
+  },
+  {
+   "text": "Israel und Syrien: Syrien und Israel sprechen über Deeskalation — In einem ersten direkten Treffen wollen Syriens Außenminister und hochrangige Israelis Spannungen abbauen. Die Gespräche in Jordanien wurden von den USA vermittelt.",
+   "source": "Die Zeit",
+   "lean": "left",
+   "date": "2026-08-23",
+   "category": "general"
+  },
+  {
+   "text": "SPD-Präsidium verteidigt vor Kabinettsklausur Sondervermögen gegen Kritik — Vor der am Dienstag beginnenden Kabinettsklausur hat die SPD-Spitze in einem Präsidiumsbeschluss die aus ihrer Sicht positive Wirkung des 500-Milliarden-Euro Sondervermögens hervorgehoben. In dem Beschluss, der der „Rhei",
+   "source": "Stern",
+   "lean": "center",
+   "date": "2026-08-23",
+   "category": "general"
+  },
+  {
+   "text": "Unrechtmäßige Datenverarbeitung: Millionenstrafe für TikTok in Brasilien — Der chinesische TikTok-Mutterkonzern ByteDance muss in Brasilien wegen Datenschutzverstößen eine Millionenstrafe zahlen und Auflagen zum Jugendschutz erfüllen.",
+   "source": "Heise Online",
+   "lean": "center",
+   "date": "2026-08-25",
+   "category": "tech"
+  },
+  {
+   "text": "Darum wollte Dolly Parton (†80) keine eigenen Kinder haben — Dolly Parton ist im Alter von 80 Jahren gestorben – eigene Kinder hinterlässt die Countrylegende nicht. Gemeinsam mit ihrem Ehemann Carl Dean hatte sich die Sängerin während ihrer fast 60-jährigen Ehe bewusst gegen Nachw",
+   "source": "Promiflash (DE)",
+   "lean": "center",
+   "date": "2026-08-25",
+   "category": "entertainment"
+  },
+  {
+   "text": "Dolly Parton ist tot - Country-Ikone stirbt mit 80 Jahren — Mit \"Jolene\" bekanntgeworden: Dolly Parton tot",
+   "source": "Tiroler Tageszeitung",
+   "lean": "unknown",
+   "date": "2026-08-25",
+   "category": "entertainment"
+  },
+  {
+   "text": "Vom indigenen „Störmond“ bis zum „Ährenmond“: Wofür der August-Vollmond steht — Der August-Vollmond trägt viele Namen – und in diesem Jahr kommt frühmorgens noch ein seltenes Schauspiel am Himmel dazu.",
+   "source": "come-on.de",
+   "lean": "unknown",
+   "date": "2026-08-25",
+   "category": "lifestyle"
+  },
+  {
+   "text": "Bauarbeiten am Weißen Haus verursachten offenbar Funkprobleme mit Trumps Hubschrauber — Der Hubschrauber von US-Präsident Trump kam Anfang August einem Passagierflugzeug gefährlich nahe. Grund waren Funkprobleme. Ein vorläufiger Bericht zeigt nun, dass die Ursache offenbar hausgemacht war.",
+   "source": "Die Welt",
+   "lean": "right",
+   "date": "2026-08-27",
+   "category": "general"
+  },
+  {
+   "text": "Partielle Mondfinsternis im Livestream: So sehen Sie das Spektakel auch bei schlechtem Wetter — Die partielle Mondfinsternis am Freitagmorgen kann man auch im Livestream beobachten. Das ist besonders praktisch, sollte das Wetter nicht mitspielen.",
+   "source": "HNA",
+   "lean": "unknown",
+   "date": "2026-08-27",
+   "category": "general"
+  },
+  {
+   "text": "Tot mit acht Monaten: Hardy Krüger jr. erinnert sich an Sohn — Hardy Krüger jr. (58) erlitt einen Schicksalsschlag, der ihn bis heute nicht loslässt: Im Jahr 2011 verlor der Schauspieler seinen Sohn Paul Luca, der im Alter von nur acht Monaten am plötzlichen Kindstod starb. In einem",
+   "source": "Promiflash (DE)",
+   "lean": "center",
+   "date": "2026-08-27",
+   "category": "entertainment"
+  },
+  {
+   "text": "Flick schlägt Terzic - Barca wieder an der Spitze — Hansi Flick hat das deutsche Trainerduell gegen Edin Terzic in La Liga gewonnen. Der FC Barcelona stürmte gegen Athletic Bilbao wieder an die Tabellenspitze.",
+   "source": "Sportschau (ARD)",
+   "lean": "center",
+   "date": "2026-08-27",
+   "category": "sport"
+  },
+  {
+   "text": "Atacama-Wüste in Chile ist plötzlich von Schnee bedeckt — In der Atacama-Wüste im Norden Chiles ist ungewöhnlich viel Schnee gefallen. Der Grund dürfte auch im Wetterphänomen El Niño liegen. Satellitenbilder zeigen das Ausmaß.",
+   "source": "Der Spiegel — DER SPIEGEL - Wissenschaft (index.rss)",
+   "lean": "left",
+   "date": "2026-08-29",
+   "category": "global"
+  },
+  {
+   "text": "Live-Ticker zum Tod von König Harald von Norwegen: Erste Königsrede von Haakon",
+   "source": "RTL.de — Unterhaltung",
+   "lean": "center",
+   "date": "2026-08-29",
+   "category": "entertainment"
+  },
+  {
+   "text": "Super League: Sechs Tore und kein Gewinner im Wankdorf — Es fallen viele Tore und die Führung dreht dreimal aber für YB und Basel gibt es nur je einen Punkt. Auch Luzern und Servette müssen sich mit einem Unentschieden abfinden.",
+   "source": "Tages-Anzeiger",
+   "lean": "unknown",
+   "date": "2026-08-29",
+   "category": "sport"
+  },
+  {
+   "text": "Bautz-Festival 2026: Ausnahmezustand mit dem Almklausi — Es war das absolute Highlight auf der Schlagerbühne Playa de Alma bei den zwei Tagen Bautz-Festival 2026 in Lüdenscheid: der Auftritt von Mallorca-Star Almklausi. Der Ballermann-Grande brachte die Menge zum Ausrasten. Al",
+   "source": "come-on.de",
+   "lean": "unknown",
+   "date": "2026-08-29",
+   "category": "entertainment"
+  },
+  {
+   "text": "XRP Kurs rutscht am 31. August 2026 auf 1,36 Dollar, während RLUSD die erste Milliarde knackt — Anzeige / WerbungDer XRP Kurs steht am 31. August 2026 bei 1,36 Dollar und liegt damit 2,2 Prozent unter dem Vortag. In derselben Woche überschritt der Ripple Stablecoin RLUSD auf dem XRP Ledger er...",
+   "source": "FinanzNachrichten.de",
+   "lean": "unknown",
+   "date": "2026-08-31",
+   "category": "economy"
+  },
+  {
+   "text": "\"Feines Händchen\": Titelverteidigerin Sabalenka dominiert in Runde eins — Aryna Sabalenka gilt als Titelverteidigerin und Weltranglistenerste in die US Open 2026. Ihrem Status als Favoritin ist sie in Runde eins direkt gerecht geworden. Hier gibt es die Highlights im Video.",
+   "source": "Kicker — Aktuell",
+   "lean": "center",
+   "date": "2026-08-31",
+   "category": "sport"
+  },
+  {
+   "text": "Sehr freizügig: Katie Price sonnt sich oben ohne auf Ibiza — Katie Price (48) sorgt mal wieder für Gesprächsstoff, diesmal allerdings nicht mit ihrer Ehe: Auf der spanischen Partyinsel Ibiza zeigte sich die Britin oben ohne am Pool und ließ sich sichtlich entspannt die Sonne auf d",
+   "source": "Promiflash (DE)",
+   "lean": "center",
+   "date": "2026-08-31",
+   "category": "entertainment"
+  },
+  {
+   "text": "Ex-Premier von Frankreich: Édouard Balladur mit 97 Jahren gestorben — Der französische Spitzenpolitiker trat 1995 gegen Jacques Chirac zur Präsidentschaftswahl an – ein Machtkampf, der die Konservativen spaltete und seine politische Laufbahn beendete.",
+   "source": "Tages-Anzeiger",
+   "lean": "unknown",
+   "date": "2026-08-31",
+   "category": "politics"
+  },
+  {
+   "text": "„Promi Big Brother“ - Sat.1 enthüllt 10 neue Insassen für den TV-Knast! — Promi Big Brother startet mit zehn Kandidaten und 100.000 Euro Siegprämie.",
+   "source": "Bild — Unterhaltung",
+   "lean": "unknown",
+   "date": "2026-09-02",
+   "category": "entertainment"
+  },
+  {
+   "text": "Dänemark: Nachrichtendienst warnt vor russischen Sabotageplänen im Land — Russland hat einem Bericht dänischer Behörden zufolge konkrete Sabotagepläne in Dänemark – und versucht für Spionagedienste, Bürger anzuwerben. Im Visier: die Rüstungsindustrie und Hilfe für die Ukraine.",
+   "source": "Der Spiegel — Ausland",
+   "lean": "left",
+   "date": "2026-09-02",
+   "category": "foreign"
+  },
+  {
+   "text": "Werbegeschäft: Google muss trotz illegaler Monopole nichts veräußern — Google hat sich zwei Monopole im Werbegeschäft illegal gesichert. Dennoch muss es keine Firmenteile abgeben, entscheidet eine US-Richterin.",
+   "source": "Heise Online",
+   "lean": "center",
+   "date": "2026-09-02",
+   "category": "tech"
+  },
+  {
+   "text": "Dänemark: Russland plant laut Nachrichtendienst Sabotage — Russland plant laut dem dänischen Inlandsnachrichtendienst Sabotage in Dänemark – und versucht dafür sogar, ahnungslose Bürger anzuwerben. Im Visier: die Rüstungsindustrie und Ukraine-Hilfe.",
+   "source": "Sächsische Zeitung",
+   "lean": "center",
+   "date": "2026-09-02",
+   "category": "foreign"
+  },
+  {
+   "text": "HONOR: Pad 20, Pad 20 Pro und Pad X9 Max starten in Deutschland — HONOR erweitert sein Angebot an Tablets und schickt gleich drei neue Modelle ins Rennen: das HONOR Pad 20, das HONOR Pad 20 Pro sowie das großformatige... Zum Beitrag: HONOR: Pad 20, Pad 20 Pro und Pad X9 Max starten in",
+   "source": "Caschys Blog",
+   "lean": "unknown",
+   "date": "2026-09-04",
+   "category": "tech"
+  },
+  {
+   "text": "Manipulationen am Zaun: Polizei stellt Eindringlinge an Stromanlage in Hamm — Nach der Serie von Angriffen auf Stromleitungen ruft ein abgestelltes Auto neben einem Umspannwerk die Polizei auf den Plan. Es werden tatsächlich fünf Personen auf dem Gelände gefunden - die hatten aber womöglich ein ga",
+   "source": "n-tv — Politik",
+   "lean": "center",
+   "date": "2026-09-04",
+   "category": "general"
+  },
+  {
+   "text": "Vorwürfe nach „Immer wieder sonntags“ - Stefan Mross hält Wutrede vor SWR-Bossen — Stefan Mross platzte am Sonntag der Kragen auf einem Empfang nach seiner letzten ARD-Show – BILD war dabei.",
+   "source": "Bild — Unterhaltung",
+   "lean": "unknown",
+   "date": "2026-09-06",
+   "category": "entertainment"
+  },
+  {
+   "text": "US Open heute im Überblick: Sabalenka und Alcaraz lassen Muskeln spielen — Die wichtigsten Matches, die neusten Ergebnisse, aktuelle Spielberichte und alle News von den US Open 2026.",
+   "source": "Sportschau (ARD)",
+   "lean": "center",
+   "date": "2026-09-06",
+   "category": "sport"
+  },
+  {
+   "text": "Berlin / Brandenburg: Isar Aerospace Rakete hebt erfolgreich zum zweiten Start ab — Isar Aerospace Rakete hebt erfolgreich zum zweiten Start ab",
+   "source": "Tagesspiegel",
+   "lean": "center",
+   "date": "2026-09-06",
+   "category": "foreign"
+  },
+  {
+   "text": "Angriff auf demokratische Gouverneurs-Kandidatin in den USA — Angriff auf Amy Acton, Gouverneurskandidatin in Ohio",
+   "source": "Tiroler Tageszeitung",
+   "lean": "unknown",
+   "date": "2026-09-06",
+   "category": "foreign"
+  },
+  {
+   "text": "Basketball-WM der Frauen: Deutschland erreicht Viertelfinale der Heim-WM — Im ersten K.o.-Spiel zeigen die deutschen Basketballerinnen gegen Südkorea eine tadellose Leistung und ziehen in die nächste Runde ein. Das sorgt auch bei Dirk Nowitzki für Jubel. Nun wartet der Europameister.",
+   "source": "Der Spiegel — DER SPIEGEL - Schlagzeilen – Tops",
+   "lean": "left",
+   "date": "2026-09-08",
+   "category": "sport"
+  },
+  {
+   "text": "Kovac atmet wegen Karetsas auf: \"Die Mitspieler machten sich auch Gedanken\" — Borussia Dortmund sorgt sich um Konstantinos Kartesas. Der 18 Jahre alte griechische Nationalspieler musste beim Champions-League-Auftakt des BVB gegen Villarreal per Trage vom Feld gebracht werden. BVB-Trainer Niko Kova",
+   "source": "Kicker — Bundesliga",
+   "lean": "center",
+   "date": "2026-09-08",
+   "category": "sport"
+  },
+  {
+   "text": "WWE-Star Cody Rhodes trauert um seinen treuen Husky Pharaoh — Traurige Nachrichten von Cody Rhodes (41): Der WWE-Star muss sich von seinem weißen Husky Pharaoh verabschieden. Der Vierbeiner starb am Montag, wie der Wrestler in einem langen und emotionalen Beitrag auf Instagram mitt",
+   "source": "Promiflash (DE)",
+   "lean": "center",
+   "date": "2026-09-08",
+   "category": "sport"
+  },
+  {
+   "text": "Nahost: USA zerstören fünf iranische Öltanker – Rubio warnt Teheran — Erst am Wochenende hatte das US-Militär iranische Tanker ins Visier genommen.",
+   "source": "t-online",
+   "lean": "unknown",
+   "date": "2026-09-08",
+   "category": "foreign"
+  },
+  {
+   "text": "Viola Davis: Für die Schauspielerin fühlt sich Älterwerden »fabelhaft« an — Ab einem gewissen Alter bekommen Frauen in Hollywood keine Rollen mehr? Schauspielerin Viola Davis erlebt das anders: »Ich habe das Gefühl, mein Wert steigt.«",
+   "source": "Der Spiegel — DER SPIEGEL - Panorama",
+   "lean": "left",
+   "date": "2026-09-10",
+   "category": "entertainment"
+  },
+  {
+   "text": "Coutinho findet neuen Klub — Für Philippe Coutinho (34) ist die Arbeitslosigkeit offenbar bald zu Ende. Laut Fabrizio Romano heuert der Brasilianer in seiner Heimat beim FC Santos an. Beide Parteien haben einem Vertrag bis Ende (…)",
+   "source": "Fussball Transfers",
+   "lean": "unknown",
+   "date": "2026-09-10",
+   "category": "sport"
+  },
+  {
+   "text": "Kaum Gegenwehr: Leipzigs Klatsche bei Como im Video — RB Leipzig verlor zum Auftakt in die CL-Saison bei Como 1907 mit 1:4. Die Highlights der Partie gibt es hier im Video.",
+   "source": "Kicker — Aktuell",
+   "lean": "center",
+   "date": "2026-09-10",
+   "category": "sport"
+  },
+  {
+   "text": "Vor Berlin-Wahl: Berliner SPD-Kandidat Krach weist Vorwürfe erneut zurück — Der SPD-Spitzenkandidat für die Abgeordnetenhauswahl steht im Visier von Ermittlungen der Staatsanwaltschaft Hannover. Inzwischen sind mehr Details bekannt - und der Politiker bekräftigt seine Linie.",
+   "source": "Tagesspiegel",
+   "lean": "center",
+   "date": "2026-09-10",
+   "category": "politics"
+  },
+  {
+   "text": "17-Jähriger rast in gestohlenem Auto durch Passau",
+   "source": "Tiroler Tageszeitung",
+   "lean": "unknown",
+   "date": "2026-09-12",
+   "category": "general"
+  },
+  {
+   "text": "US Open: Zverev will seine beste Saison krönen — Alexander Zverev hat sich bei den US Open buchstäblich ins Finale gekämpft. Nach schwachem Turnierstart steigerte er sich zum Finale. Dort wartet Lokalmatador Ben Shelton.",
+   "source": "ZDF — Sportstudio",
+   "lean": "center",
+   "date": "2026-09-12",
+   "category": "sport"
+  },
+  {
+   "text": "Keine Entspannung in Sicht: Niedrigwasser setzt Schifffahrt auf Bodensee unter Druck — Trockene Ufer, erschwerte Bedingungen für Boote und Probleme für die Schifffahrt: Der Bodensee leidet unter außergewöhnlichem Niedrigwasser. Am Pegel Konstanz wurde ein historischer Tiefststand für Anfang September unter",
+   "source": "n-tv — Wirtschaft",
+   "lean": "center",
+   "date": "2026-09-12",
+   "category": "economy"
+  },
+  {
+   "text": "Mit Mühe: Giannelli & Co. bleiben bei EM ohne Satzverlust — Italien hat bei der Volleyball-Europameisterschaft auch das zweite Gruppenspiel gewonnen. Zwar glänzten Simone Giannelli und seine Teamkollegen gegen Griechenland nicht, dennoch blieben sie ohne Satzverlust.",
+   "source": "stol.it",
+   "lean": "unknown",
+   "date": "2026-09-12",
+   "category": "sport"
+  },
+  {
+   "text": "heute journal update vom 14. September 2026 — Die aktualisierte Spätausgabe des \"heute journal\" rundet den Nachrichtentag im ZDF ab – mit den neuesten Nachrichten, Hintergrundberichten, Schaltgesprächen und Interviews.",
+   "source": "ZDF — Panorama",
+   "lean": "center",
+   "date": "2026-09-14",
+   "category": "general"
+  },
+  {
+   "text": "Geheimnis gelüftet: Welcher Hollywood-Star hier unerkannt durch die Alpen wandert — Rucksack statt roter Teppich: Ein Hollywood-Star zeigt sich beim Wandern in den Alpen von einer ungewohnten Seite. Selbst seine Fans erkennen ihn auf den Bildern kaum.",
+   "source": "op-online.de",
+   "lean": "unknown",
+   "date": "2026-09-14",
+   "category": "entertainment"
+  }
+ ],
+ "built": "2026-11-23",
+ "source_db": "Echolot MCP get_news (https://echolotnews.com/mcp), published_at szerinti napok",
+ "build_rule": "get_news(limit=100, diversify, max_per_source=3, place=ország) minden 2. napra; title>15, LEAK_RE-szűrő, cím-dedupe, lead 220 kar., MAXN=60 lean-cap (arányos kvóta + domináns lean <=60% + dátum-stride) — a júliusi sample_cell"
+}

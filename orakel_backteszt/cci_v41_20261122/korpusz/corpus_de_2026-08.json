@@ -1,0 +1,557 @@
+{
+ "country": "DE",
+ "lang": "de",
+ "target_month": "2026-08",
+ "corpus_window": [
+  "2026-07-15",
+  "2026-08-14"
+ ],
+ "days_sampled": [
+  "2026-07-15",
+  "2026-07-17",
+  "2026-07-19",
+  "2026-07-21",
+  "2026-07-23",
+  "2026-07-25",
+  "2026-07-27",
+  "2026-07-29",
+  "2026-07-31",
+  "2026-08-02",
+  "2026-08-04",
+  "2026-08-06",
+  "2026-08-08",
+  "2026-08-10",
+  "2026-08-12",
+  "2026-08-14"
+ ],
+ "n": 60,
+ "lean_dist": {
+  "left": 5,
+  "right": 2,
+  "unknown": 27,
+  "center": 26
+ },
+ "cat_dist": {
+  "tech": 2,
+  "general": 13,
+  "sport": 16,
+  "economy": 3,
+  "global": 8,
+  "entertainment": 6,
+  "politics": 6,
+  "foreign": 2,
+  "lifestyle": 2,
+  "cars": 2
+ },
+ "raw_rows": 1260,
+ "pool_after_dedupe": 1154,
+ "leak_dropped": 0,
+ "distinct_sources_raw": 91,
+ "raw_cat_dist": {
+  "global": 150,
+  "foreign": 27,
+  "general": 230,
+  "sport": 327,
+  "economy": 133,
+  "tech": 79,
+  "entertainment": 91,
+  "politics": 176,
+  "lifestyle": 30,
+  "science": 1,
+  "cars": 3,
+  "news": 12,
+  "culture": 1
+ },
+ "per_day": {
+  "2026-07-15": {
+   "returned": 73,
+   "pool": 500
+  },
+  "2026-07-17": {
+   "returned": 77,
+   "pool": 500
+  },
+  "2026-07-19": {
+   "returned": 67,
+   "pool": 500
+  },
+  "2026-07-21": {
+   "returned": 79,
+   "pool": 500
+  },
+  "2026-07-23": {
+   "returned": 75,
+   "pool": 500
+  },
+  "2026-07-25": {
+   "returned": 72,
+   "pool": 500
+  },
+  "2026-07-27": {
+   "returned": 81,
+   "pool": 500
+  },
+  "2026-07-29": {
+   "returned": 87,
+   "pool": 500
+  },
+  "2026-07-31": {
+   "returned": 76,
+   "pool": 500
+  },
+  "2026-08-02": {
+   "returned": 78,
+   "pool": 500
+  },
+  "2026-08-04": {
+   "returned": 91,
+   "pool": 500
+  },
+  "2026-08-06": {
+   "returned": 90,
+   "pool": 500
+  },
+  "2026-08-08": {
+   "returned": 75,
+   "pool": 500
+  },
+  "2026-08-10": {
+   "returned": 81,
+   "pool": 500
+  },
+  "2026-08-12": {
+   "returned": 81,
+   "pool": 500
+  },
+  "2026-08-14": {
+   "returned": 77,
+   "pool": 500
+  }
+ },
+ "mcp_errors": 0,
+ "items": [
+  {
+   "text": "Elon Musk: EU-Kommission akzeptiert Änderungsvorschläge für X — Wegen der Verstöße gegen den Digital Services Act hat die EU-Kommission gegen Elon Musks Plattform X eine Millionenstrafe verhängt. Nun verspricht X, Korrekturen vorzunehmen. Brüssel gibt sich zufrieden. Vorerst.",
+   "source": "Der Spiegel — DER SPIEGEL - Netzwelt (index.rss)",
+   "lean": "left",
+   "date": "2026-07-15",
+   "category": "tech"
+  },
+  {
+   "text": "Chefingenieur von besetztem AKW getötet – Russland wirft Kiew „gezielten Terroranschlag“ vor — Der Chefingenieur des von Russland besetzten Atomkraftwerks Saporischschja ist tot. Nach russischen Angaben wurde er Opfer eines gezielten ukrainischen Drohnenangriffs. Die Atomaufsicht IAEA verurteilt den Vorfall.",
+   "source": "Die Welt",
+   "lean": "right",
+   "date": "2026-07-15",
+   "category": "general"
+  },
+  {
+   "text": "Schmidt-Wende: Heidenheim gibt nicht auf — Der 1. FC Heidenheim will die Hoffnung auf eine Vertragsverlängerung mit Frank Schmidt nicht aufgeben. Wie Vorstandsboss Holger Sanwald gegenüber der ‚Sport Bild‘ erklärt, bemühen sich die (…)",
+   "source": "Fussball Transfers",
+   "lean": "unknown",
+   "date": "2026-07-15",
+   "category": "sport"
+  },
+  {
+   "text": "92 Dollar unter Höchstwert: Aktienkurs von SpaceX fällt unter Ausgabepreis — Elon Musk beflügelt mit SpaceX nicht nur Raketen, sondern vor allem Fantasien. Das spiegelt sich auch nach dem Börsengang wider. Zunächst geht es steil bergauf, weil viele Anleger von der Entwicklung des Unternehmens pro",
+   "source": "n-tv — Wirtschaft",
+   "lean": "center",
+   "date": "2026-07-15",
+   "category": "economy"
+  },
+  {
+   "text": "2:1 - Lionel Messi führte Argentinien in das Finale — ATLANTA. Siegtor in der 92. Minute: Nach einem 0:1-Rückstand gegen England drehte der 39-Jährige auf",
+   "source": "nachrichten.at",
+   "lean": "unknown",
+   "date": "2026-07-15",
+   "category": "global"
+  },
+  {
+   "text": "SpaceX-Aktie fiel zeitweise unter Ausgabepreis",
+   "source": "news.ORF.at",
+   "lean": "center",
+   "date": "2026-07-15",
+   "category": "global"
+  },
+  {
+   "text": "Palina Rojinski und Riccardo Simonetti starten neuen Podcast — Palina Rojinski (41) und Riccardo Simonetti (33) haben gemeinsam einen neuen Video-Podcast gestartet. Das Format hört auf den Namen \"Saus und Applaus\" und ist ab dem 17. Juli 2026 auf Spotify verfügbar. Jeden Freitag set",
+   "source": "Promiflash (DE)",
+   "lean": "center",
+   "date": "2026-07-17",
+   "category": "entertainment"
+  },
+  {
+   "text": "Siebente Nacht in Folge: Neue US-Angriffe gegen den Iran — Das US-Militär hat nach eigenen Angaben die siebente Nacht in Folge Ziele im Iran attackiert. Die Angriffe seien um 15.00 Uhr US-Ostküstenzeit (22.30 Uhr Ortszeit im Iran) aufgenommen worden, teilte das für die Region zu",
+   "source": "stol.it",
+   "lean": "unknown",
+   "date": "2026-07-17",
+   "category": "politics"
+  },
+  {
+   "text": "Berichte über neue Explosionen im Iran — Das US-Militär bombardiert in der siebten Nacht in Folge Ziele im Iran. Von dort werden erneut Explosionen gemeldet.",
+   "source": "web.de",
+   "lean": "unknown",
+   "date": "2026-07-17",
+   "category": "foreign"
+  },
+  {
+   "text": "Seit 2010 richtig getippt - Weiß ein Computerspiel, wer Weltmeister wird? — EA-Simulation tippt seit 2010 jeden Weltmeister richtig – nun soll Spanien siegen.",
+   "source": "Bild — Unterhaltung",
+   "lean": "unknown",
+   "date": "2026-07-19",
+   "category": "sport"
+  },
+  {
+   "text": "Kalenderblatt: Was geschah am 20. Juli? — Tag für Tag gibt es Ereignisse, Anekdoten, Geburts- oder Sterbetage, an die erinnert werden soll.",
+   "source": "Tagesspiegel",
+   "lean": "center",
+   "date": "2026-07-19",
+   "category": "general"
+  },
+  {
+   "text": "„Dieses Tor gehört den 47 Millionen Spaniern, nicht mir oder den 26 Spielern hier“ — Spanien hat dank Ferran Torres die erneute Krönung von Argentiniens Superstar Lionel Messi verhindert und ist zum zweiten Mal Fußball-Weltmeister. Die wichtigsten Reaktionen im Überblick:",
+   "source": "Tiroler Tageszeitung",
+   "lean": "unknown",
+   "date": "2026-07-19",
+   "category": "sport"
+  },
+  {
+   "text": "Drei Neuzugänge: Frischer Wind bei \"Sturm der Liebe\" — Nach der Sommerpause meldet sich Sturm der Liebe am 24. August mit frischen Folgen und gleich drei neuen Gesichtern zurück. Jaime Ferkic, Hannah Werner und Daniela Ziegler stoßen ab Ende August beziehungsweise Mitte Sept",
+   "source": "Promiflash (DE)",
+   "lean": "center",
+   "date": "2026-07-21",
+   "category": "general"
+  },
+  {
+   "text": "Trump will in zwei Jahren Generika-Medikamente mit 100 Prozent Zoll belegen — US-Präsident Donald Trump hat angekündigt, in zwei Jahren Generika-Medikamente aus dem Ausland mit 100 Prozent Zoll belegen zu wollen. Zunächst sollten Generika noch zollfrei in die USA kommen können, erklärte Trump am D",
+   "source": "Stern",
+   "lean": "center",
+   "date": "2026-07-21",
+   "category": "general"
+  },
+  {
+   "text": "Staatsanwaltschaft teilt mit: Britische Politikerin Widdecombe mit 21 Hammerschlägen getötet — Im Fall des Mordes an der britischen Politikerin Ann Widdecombe sind grausame Details bekannt geworden. Ein britisches Gericht ordnete Untersuchungshaft für einen 28-jährigen Briten an.",
+   "source": "Tages-Anzeiger",
+   "lean": "unknown",
+   "date": "2026-07-21",
+   "category": "global"
+  },
+  {
+   "text": "Erdöl: Straße von Hormus: Wie viel Rohöl fließt noch durch die Meerenge? — Die USA haben am Montagabend ihre Luftangriffe gegen den Iran abgeschlossen. Wie viel Rohöl geht jetzt noch durch die Straße von Hormus?",
+   "source": "wallstreet-online.de",
+   "lean": "unknown",
+   "date": "2026-07-21",
+   "category": "economy"
+  },
+  {
+   "text": "Kalenderblatt: Was geschah am 24. Juli? — Tag für Tag gibt es Ereignisse, Anekdoten, Geburts- oder Sterbetage, an die erinnert werden soll.",
+   "source": "Tagesspiegel",
+   "lean": "center",
+   "date": "2026-07-23",
+   "category": "general"
+  },
+  {
+   "text": "Marcel Canadi wechselt zu Singida nach Tansania — Marcel Canadi hat einen neuen Arbeitgeber gefunden: Der ÖFB-Legionär wechselt nach Tansania zum dortigen Erstliga-Vierten Singida Black Stars. Der 28-jährige Offensivmann war zuletzt...",
+   "source": "Transfermarkt",
+   "lean": "unknown",
+   "date": "2026-07-23",
+   "category": "sport"
+  },
+  {
+   "text": "Rettungseinsatz: Polizei: Ein Toter, 16 Verletzte",
+   "source": "Die Zeit",
+   "lean": "left",
+   "date": "2026-07-25",
+   "category": "general"
+  },
+  {
+   "text": "Bayern vor Ndiaye-Transfer — Der FC Bayern steht vor der Festverpflichtung des in der Rückrunde ausgeliehenen Bara Sapoko Ndiaye (18). Sportdirektor Christoph Freund verriet am Samstag: „Letzte Details sind noch zu klären, aber (…)",
+   "source": "Fussball Transfers",
+   "lean": "unknown",
+   "date": "2026-07-25",
+   "category": "sport"
+  },
+  {
+   "text": "RB: Transfer-Klartext von Gomis — Die Fans von RB Leipzig dürfen sich wohl auch in der kommenden Saison weiter an Tidiam Gomis erfreuen. Der 19-jährige Franzose wurde nach einem Testspiel gegen den FC Ingolstadt von ‚Sky‘ auf einen (…)",
+   "source": "Fussball Transfers",
+   "lean": "unknown",
+   "date": "2026-07-25",
+   "category": "sport"
+  },
+  {
+   "text": "Prinz Harrys Sicherheitskampf spaltet ganz Großbritannien — Prinz Harry (41) gibt im Streit um seinen Polizeischutz in Großbritannien nicht auf – doch seine Chancen wirken immer kleiner. Der Herzog von Sussex pocht seit Jahren darauf, bei Besuchen in seiner Heimat rund um die Uhr",
+   "source": "Promiflash (DE)",
+   "lean": "center",
+   "date": "2026-07-25",
+   "category": "politics"
+  },
+  {
+   "text": "Berlin: Auto fährt in Tiergarten in Menschenmenge, ein Toter, CSD abgebrochen — Während des CSD in Berlin ist nach Angaben der Polizei ein Fahrzeug in eine Menschenmenge im Tiergarten gefahren. Eine gebe einen Toten und viele Verletzte. Alle Entwicklungen im Liveticker.",
+   "source": "Sächsische Zeitung",
+   "lean": "center",
+   "date": "2026-07-25",
+   "category": "general"
+  },
+  {
+   "text": "Fast komplett: Die neue BVB-Traumelf 2026/27 — Borussia Dortmund will wieder Superstars formen. Zwei neue Spieler wurden dafür auserkoren und dürften direkt Stammspieler beim BVB werden.„Wir wissen, was wir wollen. Das sind zwei (…)",
+   "source": "Fussball Transfers",
+   "lean": "unknown",
+   "date": "2026-07-27",
+   "category": "sport"
+  },
+  {
+   "text": "Jones zurück, Pierce fehlt: Colts starten mit gemischten Nachrichten ins Training Camp — Gute Nachrichten für die Indianapolis Colts: Quarterback Daniel Jones hat die vollständige medizinische Freigabe erhalten, um am Training Camp teilzunehmen. Nach seinem Achillessehnenriss im vergangenen Dezember wird der",
+   "source": "Kicker — Aktuell",
+   "lean": "center",
+   "date": "2026-07-27",
+   "category": "sport"
+  },
+  {
+   "text": "USA: Zirkusartist von Armbrust-Pfeil am Hals getroffen — Diese Nummer geht schief: In einem Zirkus zielt eine Frau mit einem Pfeil auf ein Ziel über ihrem Ehemann – doch sie verfehlt und trifft 38-Jährigen.",
+   "source": "Sächsische Zeitung",
+   "lean": "center",
+   "date": "2026-07-27",
+   "category": "general"
+  },
+  {
+   "text": "UN: Mögliche Kriegsverbrechen Israels im Libanon — Das UN-Menschenrechtsbüro hat grossflächige Verstösse israelischer Streitkräfte gegen das humanitäre Völkerrecht im Libanon dokumentiert.",
+   "source": "Watson",
+   "lean": "unknown",
+   "date": "2026-07-27",
+   "category": "global"
+  },
+  {
+   "text": "Kult-Gruppen und Teufelsrocker - BILD kennt die ersten Wacken-Bands für 2027 — Wacköööööön! BILD verrät exklusiv, wer im kommenden Jahr die Bühnen rockt.",
+   "source": "Bild — Unterhaltung",
+   "lean": "unknown",
+   "date": "2026-07-29",
+   "category": "entertainment"
+  },
+  {
+   "text": "Feuerwehrleute sterben in Löschfahrzeug – Brand auf Kreta „außer Kontrolle“ — Nun werden auch Griechenland und die Türkei von heftigen Waldbränden getroffen. Auf Kreta sterben zwei Feuerwehrleute beim Kampf gegen die Flammen. Der Wind wird auf der Urlaubsinsel zur großen Gefahr.",
+   "source": "Die Welt",
+   "lean": "right",
+   "date": "2026-07-29",
+   "category": "general"
+  },
+  {
+   "text": "Kalenderblatt: Was geschah am 30. Juli? — Tag für Tag gibt es Ereignisse, Anekdoten, Geburts- oder Sterbetage, an die erinnert werden soll.",
+   "source": "Tagesspiegel",
+   "lean": "center",
+   "date": "2026-07-29",
+   "category": "foreign"
+  },
+  {
+   "text": "Welche Produkte unter die EU-Verordnung fallen — Die EU-Kommission grenzt Software-Produkte, SaaS-Angebote und Web-Anwendungen voneinander ab. Ein neuer CRA-Leitfaden erläutert zudem die Regeln für Updates, Fern-Datenverarbeitung und Open Source. Der Beitrag Welche Pro",
+   "source": "ingenieur.de",
+   "lean": "unknown",
+   "date": "2026-07-29",
+   "category": "tech"
+  },
+  {
+   "text": "Keine Punkte, aber eine rote Karte für den FC Tegernheim in Bogen — Keine Punkte gab es für den Fußball-Landesligisten FC Tegernheim beim TSV Bogen. Im ersten Spielabschnitt hatte der TSV mehr Spielanteile, doch die auf die Defensive bedachten Gäste aus Tegernheim ließen kaum etwas zu. K",
+   "source": "Mittelbayerische",
+   "lean": "unknown",
+   "date": "2026-07-31",
+   "category": "sport"
+  },
+  {
+   "text": "Artenwechsel durch Klimawandel: Was zirpt denn da? Tierarten kommen nach Hessen — Warum hört man in Hessen plötzlich Grillen, die vor allem auch am Mittelmeer zirpen? Ein Experte erklärt, welche Tiere mit dem Klimawandel nach Hessen kommen - und welche eher verschwinden könnten.",
+   "source": "Stern",
+   "lean": "center",
+   "date": "2026-07-31",
+   "category": "general"
+  },
+  {
+   "text": "Nancy Guthrie: Erpresser forderten vier Millionen Dollar – zweiter Brief meldet Tod — Nancy Guthrie verschwand Anfang Februar aus ihrem Haus in Arizona, an der Haustür fand man Blut. Die Behörden veröffentlichen nun zwei Schreiben mutmaßlicher Entführer – eines mit Lösegeldforderung, eines mit Todesbehaup",
+   "source": "Sächsische Zeitung",
+   "lean": "center",
+   "date": "2026-07-31",
+   "category": "general"
+  },
+  {
+   "text": "Golferin Henseleit bei den British Open dramatisch Zweite — Die Hamburger Proette unterlag der Siegerin Shiho Kuwaki aus Japan in Lancashire nur hauchdünn und dramatisch im Stechen.",
+   "source": "Sportschau (ARD)",
+   "lean": "center",
+   "date": "2026-08-02",
+   "category": "sport"
+  },
+  {
+   "text": "Kostenexplosionen, überforderte Verwaltung: Radikaler Vorschlag soll Köln aus der Krise führen — Der Top-Manager Werner Görg will Köln wie eine Firma führen. Sein Plan soll die Stadt effizienter machen. Ist das die Rettung?",
+   "source": "come-on.de",
+   "lean": "unknown",
+   "date": "2026-08-02",
+   "category": "politics"
+  },
+  {
+   "text": "5 Gründe, warum uns die Natur so guttut — Warum fühlen wir uns nach einem Spaziergang im Wald oft entspannter und ausgeglichener? Zahlreiche Studien liefern inzwischen Antworten. Fünf wissenschaftlich belegte Gründe, warum Natur unserer Gesundheit guttut – und w",
+   "source": "kurier.at",
+   "lean": "unknown",
+   "date": "2026-08-02",
+   "category": "lifestyle"
+  },
+  {
+   "text": "Absurde Stromregeln: Metzger muss eigenen Solar-Strom verscherbeln und teuer zurückkaufen — Nachdem in der Schweiz jahrelang Solarpanels zugebaut wurden, gibt es nun auch kritischere Stimmen. Viele Solaranlagen-Besitzer sind wegen Regeln und sinkendem Ertrag enttäuscht. Einer von ihnen ist Metzger Anton Ruf (56",
+   "source": "Blick",
+   "lean": "unknown",
+   "date": "2026-08-04",
+   "category": "global"
+  },
+  {
+   "text": "Elon Musk: SpaceX mit Verlust in erstem Quartal an der Börse — Nach dem Rekord-Börsengang hat Elon Musks Weltraumfirma SpaceX das Quartal mit einem Minus von 541 Millionen Dollar beendet. Zugleich hat sich der Umsatz nahezu verdoppelt – dank der Satelliten-Tochter Starlink.",
+   "source": "Der Spiegel — Wirtschaft",
+   "lean": "left",
+   "date": "2026-08-04",
+   "category": "economy"
+  },
+  {
+   "text": "BMW: Belästigt Mit Werbung — Unmut macht sich breit unter BMW-Fahrern. Beim Anlassen ihres Fahrzeuges werden sie mit Reklame für einen Sommerfilm bedacht. Kein Bug.",
+   "source": "Heise Online",
+   "lean": "center",
+   "date": "2026-08-04",
+   "category": "cars"
+  },
+  {
+   "text": "Pete Davidson zeigt sich nach Trennung mit Promischwester — Nach seiner Trennung von Model Elsie Hewitt (30) scheint Pete Davidson (32) wieder offen für neue Bekanntschaften zu sein. Der Comedian wurde kürzlich mit Sarah Jane Nader in Brooklyn gesichtet – und das sorgt für Gesprä",
+   "source": "Promiflash (DE)",
+   "lean": "center",
+   "date": "2026-08-04",
+   "category": "entertainment"
+  },
+  {
+   "text": "Solo glücklich sein: «Als Single zu leben, ist ein Privileg» — Sylvia Locher setzt sich als Präsidentin des Vereins Pro Single Schweiz für die Anliegen von Alleinstehenden ein. Sie erzählt, weshalb sie im Alter für das Solo-Dasein eher beneidet wird.",
+   "source": "Tages-Anzeiger",
+   "lean": "unknown",
+   "date": "2026-08-04",
+   "category": "global"
+  },
+  {
+   "text": "Strack-Zimmermann nennt Russland als Urheber des Drohnen-Vorfalls in Leipzig - Verteidigungsexpertin mahnt besseren Schutz deutscher Flughäfen an — Brüssel/Köln (ots) - Die FDP-Verteidigungspolitikerin Marie-Agnes Strack-Zimmermann sieht Russland hinter dem Fund einer Sprengstoff-Drohne am Flughafen Leipzig-Halle und ruft zu einem besseren Sch...",
+   "source": "FinanzNachrichten.de",
+   "lean": "unknown",
+   "date": "2026-08-06",
+   "category": "politics"
+  },
+  {
+   "text": "BYD: In Brasilien rollt das erste Hybrid-Modell vom Band — Das umstrittene BYD-Werk im brasilianischen Camaçari liefert sein erstes Plug-in-Hybridauto aus. Auch bei den Verkäufen in Brasilien legt BYD zu.",
+   "source": "Heise Online",
+   "lean": "center",
+   "date": "2026-08-06",
+   "category": "cars"
+  },
+  {
+   "text": "Pietro Lombardi emotional: „Ich war kein guter Sohn“ – traurige Beichte über seine Eltern",
+   "source": "RTL.de — Unterhaltung",
+   "lean": "center",
+   "date": "2026-08-06",
+   "category": "entertainment"
+  },
+  {
+   "text": "USA: Trump unterzeichnet Dekrete gegen Geburtstourismus — Ende Juni machte das Oberste Gericht dem US-Präsidenten einen Strich durch die Rechnung und kippte dessen Dekret zum Geburtsrecht. Jetzt startet Trump einen neuen Versuch.",
+   "source": "Süddeutsche Zeitung — Politik",
+   "lean": "left",
+   "date": "2026-08-06",
+   "category": "politics"
+  },
+  {
+   "text": "Feuer sei «mächtig» und «schön»: Verdächtiger wertete Wetterdaten aus, ehe er das Feuer legte — Der Waldbrand in Spokane im Westen der USA hat grosse Zerstörung verursacht. Der verdächtige Brandstifter soll das Feuer wochenland geplant haben.",
+   "source": "Tages-Anzeiger",
+   "lean": "unknown",
+   "date": "2026-08-06",
+   "category": "general"
+  },
+  {
+   "text": "Sami Sheen feiert fiesen Karma-Seitenhieb gegen Papa Charlie — Ein Seitenhieb gegen Charlie Sheen (60) sorgt aktuell für Erheiterung – ausgerechnet bei seiner eigenen Tochter. In einer Folge des Podcasts \"Dumb Blonde\" zog Moderatorin Bunnie Xo (46) einen Vergleich, der es in sich ha",
+   "source": "Promiflash (DE)",
+   "lean": "center",
+   "date": "2026-08-08",
+   "category": "entertainment"
+  },
+  {
+   "text": "Demi Vollering: Gelb mit einem Hauch von Beigeschmack — Demi Vollering hat endlich das geschafft, was sie sich schon am Mont Ventoux vorgenommen hatte: Das Gelbe Trikot zu erobern. Doch das kommt mit Vorwürfen ihrer ärgsten Gegnerin Kasia Niewiadoma.",
+   "source": "Sportschau (ARD)",
+   "lean": "center",
+   "date": "2026-08-08",
+   "category": "sport"
+  },
+  {
+   "text": "Müdes Wolfsburg verpatzt Zweitliga-Auftakt gegen Kaiserslautern — Der VfL Wolfsburg hat nach dem Abstieg am ersten Spieltag der 2. Bundesliga gepatzt. Uninspirierte Wölfe kommen nur zu einer Nullnummer gegen Lautern.",
+   "source": "come-on.de",
+   "lean": "unknown",
+   "date": "2026-08-08",
+   "category": "sport"
+  },
+  {
+   "text": "Schwimm-EM in Paris: Deutsche Staffel um Lukas Märtens holt Bronze — Olympiasieger Lukas Märtens und sein Team bekommen bei der Schwimm-EM die erste deutsche Medaille im Beckenwettbewerb. Mit dem Ergebnis knackt die Mannschaft den bisherigen Rekord. Letzteres gelingt auch den Frauen.",
+   "source": "Der Spiegel — DER SPIEGEL - Schlagzeilen – Tops",
+   "lean": "left",
+   "date": "2026-08-10",
+   "category": "sport"
+  },
+  {
+   "text": "Ex-GZSZ-Star: Seit zwei Jahren offene Beziehung! Isabell Horn fühlt sich „definitiv auch zu Frauen hingezogen”",
+   "source": "RTL.de — Unterhaltung",
+   "lean": "center",
+   "date": "2026-08-10",
+   "category": "entertainment"
+  },
+  {
+   "text": "Propangastank in Auto entdeckt: Festnahme nach Bombendrohung gegen US-Konsulat in Kanada — Nach einer Sprengstoffdrohung gegen die US-Vertretung im kanadischen Halifax sind die Sicherheitsbehörden alarmiert. Die Polizei nimmt einen Tatverdächtigen fest. Die Ermittler finden eine verdächtige Tasche sowie eine w",
+   "source": "n-tv — Politik",
+   "lean": "center",
+   "date": "2026-08-10",
+   "category": "politics"
+  },
+  {
+   "text": "Lastwagen fährt auf Camper auf - Zwei Schwerverletzte — Ein Lastwagen fährt am Stauende auf einen Camper auf. Zwei Urlauber werden schwer verletzt.",
+   "source": "web.de",
+   "lean": "unknown",
+   "date": "2026-08-10",
+   "category": "general"
+  },
+  {
+   "text": "Hürdensprinter Diessl zeigt als Fünfter auf — Hürdensprinter Enzo Diessl hat bei der Leichtathletik-EM in Birmingham am Mittwochabend den starken fünften Platz belegt. Der Steirer lief im 110-m-Hürden-Finale eine Zeit von 13,44 Sekunden und verpasste damit die Bronz",
+   "source": "ORF — Sport",
+   "lean": "center",
+   "date": "2026-08-12",
+   "category": "sport"
+  },
+  {
+   "text": "Viel investiert - Real will Barca vom Thron stoßen — Im Land des Weltmeisters Spanien geht die Liga wieder los. Real Madrid hat viel investiert und will Titelverteidiger FC Barcelona vom Thron stoßen. Alles, was man zum Start wissen muss.",
+   "source": "Sportschau — Fußball",
+   "lean": "center",
+   "date": "2026-08-12",
+   "category": "sport"
+  },
+  {
+   "text": "Naturspektakel in der Stadt: «Das ist eine Once-in-a-Lifetime-Experience» – Ganz Zürich blickt in den Himmel — Die Sonnenfinsternis versetzte die Stadt in den Ausnahmezustand. In der Urania-Sternwarte erlebten Gäste das Spektakel bei einem ausverkauften Workshop, auf der Polyterrasse standen die Menschen Schulter an Schulter.",
+   "source": "Tages-Anzeiger",
+   "lean": "unknown",
+   "date": "2026-08-12",
+   "category": "global"
+  },
+  {
+   "text": "\"Beziehungstat\" - Frau tödlich verletzt — Nach einer Auseinandersetzung ist eine Frau im Norden Nordrhein-Westfalens tot. Vieles ist noch unklar.",
+   "source": "web.de",
+   "lean": "unknown",
+   "date": "2026-08-12",
+   "category": "global"
+  },
+  {
+   "text": "Leichtathletik-EM: Ansah stürmt zu Gold - Agyekum und Craft mit Silber — Owen Ansah sprintet über 200 m zu Gold. Emil Agyekum erkämpft sich Silber über 400 m Hürden, Shanice Craft im Diskuswurf. Der EM-Wettkampftag im Überblick.",
+   "source": "Sportschau (ARD)",
+   "lean": "center",
+   "date": "2026-08-14",
+   "category": "sport"
+  },
+  {
+   "text": "Fitnessboom in der Schweiz: Party und Alkohol? Raúl (20) geht lieber fünfmal pro Woche ins Gym — Er trainiert eisern, auch bei 36 Grad. Raúl Trachslers Altersgruppe tickt anders als frühere Generationen. Was treibt sie an? Ein Besuch im Gym.",
+   "source": "Tages-Anzeiger",
+   "lean": "unknown",
+   "date": "2026-08-14",
+   "category": "lifestyle"
+  }
+ ],
+ "built": "2026-11-23",
+ "source_db": "Echolot MCP get_news (https://echolotnews.com/mcp), published_at szerinti napok",
+ "build_rule": "get_news(limit=100, diversify, max_per_source=3, place=ország) minden 2. napra; title>15, LEAK_RE-szűrő, cím-dedupe, lead 220 kar., MAXN=60 lean-cap (arányos kvóta + domináns lean <=60% + dátum-stride) — a júliusi sample_cell"
+}

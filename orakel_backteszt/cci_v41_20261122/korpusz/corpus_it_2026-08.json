@@ -1,0 +1,552 @@
+{
+ "country": "IT",
+ "lang": "it",
+ "target_month": "2026-08",
+ "corpus_window": [
+  "2026-07-15",
+  "2026-08-14"
+ ],
+ "days_sampled": [
+  "2026-07-15",
+  "2026-07-17",
+  "2026-07-19",
+  "2026-07-21",
+  "2026-07-23",
+  "2026-07-25",
+  "2026-07-27",
+  "2026-07-29",
+  "2026-07-31",
+  "2026-08-02",
+  "2026-08-04",
+  "2026-08-06",
+  "2026-08-08",
+  "2026-08-10",
+  "2026-08-12",
+  "2026-08-14"
+ ],
+ "n": 60,
+ "lean_dist": {
+  "unknown": 30,
+  "center": 24,
+  "left": 4,
+  "right": 1,
+  "center_right": 1
+ },
+ "cat_dist": {
+  "global": 4,
+  "foreign": 7,
+  "entertainment": 2,
+  "general": 10,
+  "tech": 4,
+  "politics": 7,
+  "economy": 3,
+  "sport": 23
+ },
+ "raw_rows": 984,
+ "pool_after_dedupe": 890,
+ "leak_dropped": 0,
+ "distinct_sources_raw": 117,
+ "raw_cat_dist": {
+  "sport": 359,
+  "entertainment": 55,
+  "foreign": 105,
+  "general": 165,
+  "global": 77,
+  "tech": 49,
+  "politics": 111,
+  "lifestyle": 24,
+  "economy": 39
+ },
+ "per_day": {
+  "2026-07-15": {
+   "returned": 62,
+   "pool": 500
+  },
+  "2026-07-17": {
+   "returned": 62,
+   "pool": 500
+  },
+  "2026-07-19": {
+   "returned": 63,
+   "pool": 500
+  },
+  "2026-07-21": {
+   "returned": 63,
+   "pool": 500
+  },
+  "2026-07-23": {
+   "returned": 63,
+   "pool": 500
+  },
+  "2026-07-25": {
+   "returned": 58,
+   "pool": 500
+  },
+  "2026-07-27": {
+   "returned": 63,
+   "pool": 500
+  },
+  "2026-07-29": {
+   "returned": 61,
+   "pool": 500
+  },
+  "2026-07-31": {
+   "returned": 60,
+   "pool": 500
+  },
+  "2026-08-02": {
+   "returned": 59,
+   "pool": 500
+  },
+  "2026-08-04": {
+   "returned": 64,
+   "pool": 500
+  },
+  "2026-08-06": {
+   "returned": 61,
+   "pool": 500
+  },
+  "2026-08-08": {
+   "returned": 59,
+   "pool": 500
+  },
+  "2026-08-10": {
+   "returned": 67,
+   "pool": 500
+  },
+  "2026-08-12": {
+   "returned": 60,
+   "pool": 500
+  },
+  "2026-08-14": {
+   "returned": 59,
+   "pool": 500
+  }
+ },
+ "mcp_errors": 0,
+ "items": [
+  {
+   "text": "Agricoltura: Lollobrigida, Italia da record su export, siamo primo Paese per valore aggiunto - video — 15 lug 23:01 - (Agenzia Nova) - Il ministro dell'Agricoltura, Francesco Lollobrigida. (Rin)",
+   "source": "Agenzia Nova",
+   "lean": "unknown",
+   "date": "2026-07-15",
+   "category": "global"
+  },
+  {
+   "text": "Spese per la Difesa UE: 418 miliardi nel 2025, previsti 454 miliardi nel 2026 — L’Agenzia europea per la difesa (EDA) ha pubblicato oggi il suo rapporto annuale sui dati relativi alla difesa per il biennio 2025-2026, che illustra nel dettaglio la spesa...",
+   "source": "Analisi Difesa",
+   "lean": "unknown",
+   "date": "2026-07-15",
+   "category": "foreign"
+  },
+  {
+   "text": "Roberta Bonanno: “Padre Pio mi ha guarita dall’epilessia” — Roberta Bonanno è stata una grande concorrente di una delle prime edizione di Amici di Maria De Filippi e nel corso degli anni è più volte tornata in video, come a Tale e Quale Show, quando venne accusata di essere razzi",
+   "source": "Biccy",
+   "lean": "center",
+   "date": "2026-07-15",
+   "category": "entertainment"
+  },
+  {
+   "text": "Bellingham, schiaffo a Barco: tensione alla fine di Inghilterra-Argentina — Al termine della semifinale dei Mondiali vinta da Messi e compagni va in scena una breve lite tra la stella del Real Madrid e il terzino dello Strasburgo",
+   "source": "La Repubblica — HP",
+   "lean": "left",
+   "date": "2026-07-15",
+   "category": "general"
+  },
+  {
+   "text": "Marco Tardelli, la battutaccia e il gelo di Antinelli: un caso su Rai 1 — Bei tempi quando l’Italia andava ai Mondiali con l’obiettivo legittimo di vincerli e nell’attesa ci si dilettava in polemiche sui fenomeni lasciati a casa per scelta tecnica o i dualismi tra star. Vialli o Schillaci, Bag",
+   "source": "Libero Quotidiano",
+   "lean": "right",
+   "date": "2026-07-15",
+   "category": "general"
+  },
+  {
+   "text": "Incidente ad Agropoli, scontro fra un furgone e una bicicletta: ferito 13enne — Il giovane ha impattato contro la fiancata di un furgone. Sul posto la polizia municipale, che accerta la dinamica dell'incidente",
+   "source": "SalernoToday",
+   "lean": "unknown",
+   "date": "2026-07-15",
+   "category": "foreign"
+  },
+  {
+   "text": "4K a 160 Hz o Full HD a 320 Hz? MSI 32” è a 359€ — Con 240€ di risparmio, MSI MAG 321CUPDF costa 359€ su Amazon anziché 599€, con uno sconto del 40%. La doppia modalità permette di privilegiare la definizione del 4K oppure la velocità estrema dei 320...",
+   "source": "Tom's Hardware Italia",
+   "lean": "center",
+   "date": "2026-07-15",
+   "category": "tech"
+  },
+  {
+   "text": "Inchiesta migranti, Riesame annulla l’ordinanza: noto personaggio di Lecce torna in libertà — LECCE – Ha lasciato il carcere Batar Bhupendra Singh, il 36enne di origini indiane residente a Lecce, arrestato in un’inchiesta a firma della gip Francesca Mariano che, nei giorni scorsi, ha fatto luce su un presunto sis",
+   "source": "Corriere Salentino",
+   "lean": "unknown",
+   "date": "2026-07-17",
+   "category": "politics"
+  },
+  {
+   "text": "L’istruzione come politica per la crescita — La competitività di un Paese non si misura soltanto dalla crescita del Pil, dalla capacità di esportare o dall’innovazione delle imprese. Si misura, prima ancora, dalla qualità del ...",
+   "source": "La Stampa — Copertina",
+   "lean": "center",
+   "date": "2026-07-17",
+   "category": "economy"
+  },
+  {
+   "text": "Acquisti Napoli, le condizioni per Rabiot e non solo: nodo esuberi ed effetto domino — La strategia del club azzurro per puntellare la rosa attualmente impegnata a Dimaro agli ordini di Massimiliano Allegri.",
+   "source": "AreaNapoli.it",
+   "lean": "unknown",
+   "date": "2026-07-19",
+   "category": "sport"
+  },
+  {
+   "text": "Rabiot: \"Riparto dal Milan, parlerò con Amorim\" — (ANSA) - MILANO, 19 LUG - \"Se riparto dal Milan? Sì, sì ovviamente, poi parleremo con il mister e con Maignan, ci sentiremo, volevamo stare tranquilli durante il Mondiale e non volevamo essere disturbati da altre cose.",
+   "source": "Milan News",
+   "lean": "unknown",
+   "date": "2026-07-19",
+   "category": "sport"
+  },
+  {
+   "text": "Il tachimetro in arrivo su Google Maps per Android Auto: finalmente, dopo anni di attesa — Android Auto sta finalmente ricevendo il tachimetro in Google Maps, ma solo per pochi utenti beta in Canada. Ecco cosa sappiamo. L'articolo Il tachimetro in arrivo su Google Maps per Android Auto: finalmente, dopo anni d",
+   "source": "SmartWorld",
+   "lean": "unknown",
+   "date": "2026-07-19",
+   "category": "tech"
+  },
+  {
+   "text": "La Spagna conquista la sua seconda stella! Il successo di Lamine Yamal e Luis de la Fuente ai Mondiali di calcio 2026 — La Spagna ha alzato la Coppa del mondo grazie alla vittoria contro l'Argentina",
+   "source": "Vanity Fair Italia",
+   "lean": "center",
+   "date": "2026-07-19",
+   "category": "sport"
+  },
+  {
+   "text": "Venezuela conferma tre morti per hantavirus nello Stato di Anzoátegui — Indagini su altri due decessi, esclusi legami tra i casi e il contagio interumano",
+   "source": "ANSA — Mondo",
+   "lean": "center",
+   "date": "2026-07-21",
+   "category": "foreign"
+  },
+  {
+   "text": "\"Messi superiore a Maradona che a 39 anni faceva i film con D'Angelo\": la risposta di Nino — Nuovo tentativo di sminuire la longevità della carriera di Maradona rispetto a quella della Pulce, che alla soglia dei quarant'anni continua a calcare i campi di gioco.",
+   "source": "AreaNapoli.it",
+   "lean": "unknown",
+   "date": "2026-07-21",
+   "category": "sport"
+  },
+  {
+   "text": "Bimbo di un anno travolto da un pick up durante la raccolta del fieno: morto in ospedale",
+   "source": "Gazzetta del Sud",
+   "lean": "center",
+   "date": "2026-07-21",
+   "category": "foreign"
+  },
+  {
+   "text": "Onu, media: “Trump vuole Infantino segretario generale” — Il capo della Casa Bianca pensa che sia un nome più pesante e capace degli attuali candidati, fra cui il capo argentino dell’Aiea Grossi e l’ex premier cilena Bachelet",
+   "source": "La Repubblica — HP",
+   "lean": "left",
+   "date": "2026-07-21",
+   "category": "general"
+  },
+  {
+   "text": "Disfunzione erettile, esperti: \"Può indicare altre problematiche di salute maschile\". — Roma, 21 lug. (Adnkronos Salute) - Il maggior coinvolgimento sul piano sociale ed emotivo, tipico dell'estate, può far emergere difficoltà nella sfera sessuale che molti uomini tendono ancora a vivere con imbarazzo o a l",
+   "source": "Oggi Treviso",
+   "lean": "unknown",
+   "date": "2026-07-21",
+   "category": "global"
+  },
+  {
+   "text": "Uruguay, gli omicidi aumentano del 6,6% nel primo semestre dell'anno — La crescita per lo spostamento dei gruppi criminali, in calo rapine e violenza di genere",
+   "source": "ANSA — Mondo",
+   "lean": "center",
+   "date": "2026-07-23",
+   "category": "politics"
+  },
+  {
+   "text": "L’ora del generale inverno — Difficilmente lo scontro in atto nella maggioranza sulle preferenze porterà alla rottura del centrodestra, che aprirebbe la strada a una crisi di ...",
+   "source": "La Stampa — Copertina",
+   "lean": "center",
+   "date": "2026-07-23",
+   "category": "general"
+  },
+  {
+   "text": "Simonelli sicuro: \"Maldini e Leonardo garanzia per il Paese\" — (ANSA) - MILANO, 23 LUG - \"Malagò è abituato a volare alto. L'aver scelto Maldini e Leonardo ne è la dimostrazione, una garanzia per noi e per il Paese.",
+   "source": "Milan News",
+   "lean": "unknown",
+   "date": "2026-07-23",
+   "category": "sport"
+  },
+  {
+   "text": "Glaucoma, i consigli degli esperti per proteggere gli occhi d'estate anche post intervento. — Roma, 23 lug. (Adnkronos Salute) - Con l’arrivo dell’estate, molti pazienti operati agli occhi per glaucoma si chiedono se possano godersi le ferie senza preoccupazioni. “Fare il bagno è possibile - rassicura Luciano Qua",
+   "source": "Oggi Treviso",
+   "lean": "unknown",
+   "date": "2026-07-23",
+   "category": "general"
+  },
+  {
+   "text": "Media, 'veicolo contro la folla a Berlino a margine del Pride, feriti' — Bild: 'Sul posto vigili del fuoco, medici e paramedici'. Annullato l'evento",
+   "source": "ANSA — HP",
+   "lean": "center",
+   "date": "2026-07-25",
+   "category": "general"
+  },
+  {
+   "text": "Milan, senti il DS del BVB: \"Vogliamo due giocatori offensivi\". Presto ricominceranno le trattative col Genk per Karetsas — Il direttore sportivo Ole Book del Borussia Dortmund insiste: \"Sappiamo cosa vogliamo: due giocatori offensivi\". Il riferimento, secondo Patrick Berger di Sky DE, è su Karetsas e Said El Mala.",
+   "source": "Milan News",
+   "lean": "unknown",
+   "date": "2026-07-25",
+   "category": "sport"
+  },
+  {
+   "text": "Diretta Mondiali scherma 2026 | Streaming video Rai: orario, programma e risultati (oggi martedì 28 luglio) — Diretta Mondiali scherma 2026 streaming video Rai: orario, programma e risultati di martedì 28 luglio, iniziano le prove a squadre.",
+   "source": "Il Sussidiario",
+   "lean": "center_right",
+   "date": "2026-07-27",
+   "category": "sport"
+  },
+  {
+   "text": "MN - Longoni ammette: \"Credo che a Camarda possa fare bene giocare in prestito\" — In merito all'attualità del mondo Milan, tra temi scottanti come quello relativo a Rafa Leao e a un calciomercato che necessita di ulteriori rinforzi, Andrea Longoni, storico giornalista, conduttore televisivo e tifoso m",
+   "source": "Milan News",
+   "lean": "unknown",
+   "date": "2026-07-27",
+   "category": "sport"
+  },
+  {
+   "text": "Bpco, pneumologa Foschino Barbaro: \"Nella donna sintomi diversi, attenzione alle giovani\". — Roma, 27 lug. (Adnkronos Salute) - “C’è la necessità di prestare maggiore attenzione alla Bpco nella donna, perché ancora oggi viene diagnosticata meno frequentemente rispetto all’uomo. Il motivo principale è che la pres",
+   "source": "Oggi Treviso",
+   "lean": "unknown",
+   "date": "2026-07-27",
+   "category": "global"
+  },
+  {
+   "text": "Da Trump 2028 a Vannaccius, la perdita totale della moderazione — La campagna elettorale in Italia è appena iniziata, ma il tono è già quello dell’emergenza. Il politologo Craiutu: “Troppi sono pieni di fervore per la propria tribù e di odio per chi non ne fa parte”",
+   "source": "Quotidiano Nazionale (QN)",
+   "lean": "center",
+   "date": "2026-07-27",
+   "category": "politics"
+  },
+  {
+   "text": "Temptation Island, Rosario ci ripensa e chiede un nuovo falò: \"Mi sei mancata\". Alessandra cede (in lacrime): \"Lo amo alla follia\" — Il fidanzato, dopo un iniziale falò di confronto, è tornato sui suoi passi. La reazione della ragazza e cosa è successo",
+   "source": "Today.it",
+   "lean": "center",
+   "date": "2026-07-27",
+   "category": "entertainment"
+  },
+  {
+   "text": "Pisacane: \"Allenare il Napoli un giorno? Considero Cagliari la mia casa. Sul caso Esposito...\"",
+   "source": "CalcioNapoli24.it",
+   "lean": "unknown",
+   "date": "2026-07-29",
+   "category": "sport"
+  },
+  {
+   "text": "Asllani, la non convocazione per la tournée vale l'uscita dal progetto Inter — Al di là del problema muscolare che lo ha colpito durante il ritiro in Germania, l'assenza dai convocati dalla tournée Hong Kong-Perth è il segnale definitivo che l'avventura all'Inter di Kristjan Asllani è giu ...",
+   "source": "FC Inter News",
+   "lean": "unknown",
+   "date": "2026-07-29",
+   "category": "sport"
+  },
+  {
+   "text": "Palermo, stop estivo alla pedonalizzazione di via Libertà: niente area chiusa fino a settembre",
+   "source": "Giornale di Sicilia (GDS)",
+   "lean": "center",
+   "date": "2026-07-29",
+   "category": "foreign"
+  },
+  {
+   "text": "Il volto diventa impronta biometrica, i dubbi su privacy e schedature — Cos’è e come funziona il riconoscimento facciale?",
+   "source": "La Repubblica — HP",
+   "lean": "left",
+   "date": "2026-07-29",
+   "category": "general"
+  },
+  {
+   "text": "Dalla Belle Epoque al turismo instagrammabile, cento anni di villeggiatura — Manifesti e locandine dal Garda raccontano come è cambiata la vacanza nel costume italiano",
+   "source": "ANSA — HP",
+   "lean": "center",
+   "date": "2026-07-31",
+   "category": "general"
+  },
+  {
+   "text": "SKY - Napoli-Gatti, c'era l'idea di un possibile scambio con la Juventus — Federico Gatti è un giocatore che interessa fortemente il Napoli, la Juventus aveva pensato a un possibile scambio.",
+   "source": "AreaNapoli.it",
+   "lean": "unknown",
+   "date": "2026-07-31",
+   "category": "sport"
+  },
+  {
+   "text": "Sos ortopedici ospedalieri in Toscana: “Scappano tutti nel privato e il sistema s’indebolisce” — Il presidente Otodi, Mugnaini: “C’è da ripensare la formula di collaborazione. Abbiamo scritto alle istituzioni per affrontare il problema ma nessuno risponde. C’è troppo divario tra ciò che guadagna un chirurgo privato",
+   "source": "La Nazione",
+   "lean": "center",
+   "date": "2026-07-31",
+   "category": "politics"
+  },
+  {
+   "text": "Disney+ rimuove il 4K HDR in Italia (e in Europa): gli abbonati Premium pagano come il piano Standard — Disney+ ha disattivato il 4K HDR in Italia e in altri Paesi UE: chi paga il piano Premium ora riceve la stessa qualità del piano Standard. Ecco perché. L'articolo Disney+ rimuove il 4K HDR in Italia (e in Europa): gli ab",
+   "source": "SmartWorld",
+   "lean": "unknown",
+   "date": "2026-07-31",
+   "category": "tech"
+  },
+  {
+   "text": "SKY - Napoli, ora si compra: c'è il \"tesoretto\" che sblocca il mercato — Tra risparmio sull'ingaggio e una ricca plusvalenza prende forma il tesoretto azzurro: le cessioni aprono finalmente le porte alla campagna acquisti",
+   "source": "AreaNapoli.it",
+   "lean": "unknown",
+   "date": "2026-08-02",
+   "category": "sport"
+  },
+  {
+   "text": "Koulierakis si presenta, stop Wesley ma non preoccupa. Mercato: stretta per Read",
+   "source": "Forzaroma.info",
+   "lean": "unknown",
+   "date": "2026-08-02",
+   "category": "sport"
+  },
+  {
+   "text": "Ceuta, ultimo appello per l’Europa sull’immigrazione — L’assalto di migliaia di migranti marocchini all’enclave spagnola di Ceuta mette l’Ue ...",
+   "source": "La Stampa — Copertina",
+   "lean": "center",
+   "date": "2026-08-02",
+   "category": "politics"
+  },
+  {
+   "text": "Altri due ori per l'Italia, Pellacani fa poker dal trampolino 3 metri e Taddeucci nella 10 km — Nei tuffi superato il record di Tania Cagnotto. Per l'Italia oggi anche un argento e due bronzi",
+   "source": "ANSA — HP",
+   "lean": "center",
+   "date": "2026-08-04",
+   "category": "sport"
+  },
+  {
+   "text": "Matic: \"Conte era perfetto per la Nazionale, con lui ho lavorato e vinto! Riforma calcio italiano, ecco cosa farei\"",
+   "source": "CalcioNapoli24.it",
+   "lean": "unknown",
+   "date": "2026-08-04",
+   "category": "sport"
+  },
+  {
+   "text": "La fuga dei cervelli si è fermata. Piemonte al vertice per laureati — I dati Istat: Il saldo migratorio torna positivo. Dal 2019 a oggi 5 mila giovani in più con diploma",
+   "source": "Corriere della Sera — Economia (corriere.it)",
+   "lean": "center",
+   "date": "2026-08-04",
+   "category": "economy"
+  },
+  {
+   "text": "Space X, un razzo di Elon Musk sta per schiantarsi sulla Luna — (Adnkronos) - Una sezione di un razzo di Space X, il colosso spaziale di Elon Musk, sta per...",
+   "source": "SanremoNews.it",
+   "lean": "unknown",
+   "date": "2026-08-04",
+   "category": "tech"
+  },
+  {
+   "text": "L'agente di Cambiaso: \"Mai parlato con l'Inter di uno scambio con Frattesi\" — Andrea Cambiaso non sta cercando una nuova squadra. A chiarirlo è il suo agente, Giovanni Bia, intervenuto a Sky Sport sulle indiscrezioni di mercato che continuano ad accompagnare il futuro del laterale della Juventus.",
+   "source": "FC Inter News",
+   "lean": "unknown",
+   "date": "2026-08-06",
+   "category": "sport"
+  },
+  {
+   "text": "L’Arno è a corto d’acqua: “Portata del fiume molto bassa, allarme se continua così” — Pisa, isole di detriti visibili anche dal Ponte di Mezzo. Checcucci (Autorità di Bacino): “Scenario preoccupante”. “Abbiamo iniziato alcuni interventi di ossigenazione in Val di Nievole”",
+   "source": "La Nazione",
+   "lean": "center",
+   "date": "2026-08-06",
+   "category": "general"
+  },
+  {
+   "text": "Business news: associazione costruttori India ritira allarme sui danni del carburante E20, saranno rivisti i dati — 08 ago 23:00 - (Agenzia Nova) - La principale associazione dell'industria automobilistica indiana, la Siam, ha ritirato una precedente comunicazione... (Inn)",
+   "source": "Agenzia Nova",
+   "lean": "unknown",
+   "date": "2026-08-08",
+   "category": "economy"
+  },
+  {
+   "text": "Napoli poco \"Allegriano\": sette uomini nell'area di rigore avversaria. Subito due acquisti — Il Napoli ha pareggiato 1-1 contro il Celta Vigo. La compagine azzurra ha disputato un buonissimo primo tempo, soprattutto i 30 minuti iniziali sono stati di grande qualità.",
+   "source": "AreaNapoli.it",
+   "lean": "unknown",
+   "date": "2026-08-08",
+   "category": "sport"
+  },
+  {
+   "text": "Calderoli: “Il voto ad aprile ci penalizza”.E Vannacci lancia il suo candidato a Milano — Preoccupazioni nella Lega: “Se si va alle urne troppo presto non si chiudono le intese sull’autonomia”. Per il capoluogo lombardo il leader di Futuro nazionale proporrà Carmelo Burgio, generale",
+   "source": "La Repubblica — HP",
+   "lean": "left",
+   "date": "2026-08-08",
+   "category": "general"
+  },
+  {
+   "text": "Codici, codicilli, il caos: maledetta burocrazia — Trenta adempimenti per aprire una gelateria, piattaforme digitali che non dialogano, regole e codicilli in perenne conflitto. Nella culla del diritto sono le troppe norme, paradossalmente, a ...",
+   "source": "La Stampa — Copertina",
+   "lean": "center",
+   "date": "2026-08-08",
+   "category": "politics"
+  },
+  {
+   "text": "Napoli, l’amichevole con il Celta Vigo finisce in parità: non basta il gol di Di Lorenzo — Gli azzurri impattano con gli spagnoli per 1-1 al Patini di Castel di Sangro. Dopo la repentina rete del vantaggio siglata dal capitano, gli uomini di Allegri si fanno rimontare a metà ripresa dal gol di Jutgla",
+   "source": "NapoliToday",
+   "lean": "center",
+   "date": "2026-08-08",
+   "category": "sport"
+  },
+  {
+   "text": "Europei di atletica, doppietta azzurra nel peso: Fabbri è d’oro, argento per Weir — A Birmingham arriva il primo titolo italiano della rassegna continentale",
+   "source": "Gazzetta del Sud",
+   "lean": "center",
+   "date": "2026-08-10",
+   "category": "foreign"
+  },
+  {
+   "text": "Fabbri e Weir, oro e argento nel peso agli Europei di atletica: chi sono i 'giganti' azzurri — (Adnkronos) - Leonardo Fabbri non sbaglia e si conferma re d'Europa nel lancio del peso. Zane...",
+   "source": "TargatoCn.it",
+   "lean": "unknown",
+   "date": "2026-08-10",
+   "category": "sport"
+  },
+  {
+   "text": "Progettava di far saltare un centro commerciale in Veneto, arrestato al \"Canova\" — Bloccato dalla polizia e finito in manette un 22enne di origini albanesi. Il giovane avrebbe dovuto raggiungere dei parenti fuori regione: era da tempo monitorato dalle forze dell'ordine perchè si era radicalizzato on li",
+   "source": "TrevisoToday",
+   "lean": "unknown",
+   "date": "2026-08-10",
+   "category": "politics"
+  },
+  {
+   "text": "Calcio: Psg batte 2-1 Aston villa e vince la Supercoppa europea — In gol Kvaratskhelia al 20', Madjò al 45' e Doue' al 61'",
+   "source": "ANSA — Calcio",
+   "lean": "center",
+   "date": "2026-08-12",
+   "category": "sport"
+  },
+  {
+   "text": "Psg inarrestabile, vince anche la Supercoppa europea — Aston Villa ko: in gol Kvaratskhelia e Douè, accorcia Madjo",
+   "source": "ANSA — Calcio",
+   "lean": "center",
+   "date": "2026-08-12",
+   "category": "sport"
+  },
+  {
+   "text": "Serie A Women's Cup, la seconda giornata: data e ora di Inter-Napoli — Ufficiali le date e gli orari della seconda giornata di Serie A Women’s Cup, al via nel weekend tra venerdì 21 e domenica 23 agosto.",
+   "source": "FC Inter News",
+   "lean": "unknown",
+   "date": "2026-08-12",
+   "category": "sport"
+  },
+  {
+   "text": "Emergenza caldo, sos anziani: \"Rischio aritmie e cali pressione\". — Roma, 12 ago. (Adnkronos Salute) - L'ondata di caldo non dà tregua e afa, temperature elevate e notti tropicali, con temperature che non scendono abbastanza durante le ore notturne, possono mettere sotto stress l'organis",
+   "source": "Oggi Treviso",
+   "lean": "unknown",
+   "date": "2026-08-12",
+   "category": "global"
+  },
+  {
+   "text": "In Italia gli artigiani sono in via di estinzione — AGI - Sono sempre di più le botteghe artigiane che abbassano le saracinesche definitivamente. E nelle grandi città sono ormai in via di estinzione. Lo rileva l'Ufficio studi della Cgia, appartenente all'Associazione degl",
+   "source": "AGI — Homepage",
+   "lean": "center",
+   "date": "2026-08-14",
+   "category": "foreign"
+  },
+  {
+   "text": "Frattesi svela: \"Vicino alla Lazio già a gennaio, poi non abbiamo chiuso\" — Dopo il video di presentazione, arrivano anche le prime parole da nuovo giocatore della Lazio di Davide Frattesi.",
+   "source": "FC Inter News",
+   "lean": "unknown",
+   "date": "2026-08-14",
+   "category": "sport"
+  }
+ ],
+ "built": "2026-11-23",
+ "source_db": "Echolot MCP get_news (https://echolotnews.com/mcp), published_at szerinti napok",
+ "build_rule": "get_news(limit=100, diversify, max_per_source=3, place=ország) minden 2. napra; title>15, LEAK_RE-szűrő, cím-dedupe, lead 220 kar., MAXN=60 lean-cap (arányos kvóta + domináns lean <=60% + dátum-stride) — a júliusi sample_cell"
+}
