@@ -13,8 +13,8 @@ GT = json.load(open(os.path.join(HERE, "gt_LOCKED_cci.json"), encoding="utf-8"))
 TOL = PREREG["proba"]["turesek"]
 
 NUM = re.compile(r"(?<![\d.,])(?:(mínusz|minus)\s*)?([−\-–]?)\s?(\d{1,3}(?:[.,]\d+)?)(?![\d])", re.I)
-UP = re.compile(r"javult|emelked|nőtt|növeked|improv|\brose\b|\brise\b|increas|\bup\b|higher|gained|rebound|\bbetter\b|kedvezőbb", re.I)
-DOWN = re.compile(r"romlott|csökken|esett|visszaes|mérsékl|worsen|\bfell\b|\bfall\b|declin|decreas|dropp|lower|"
+UP = re.compile(r"javul|emelked|nőtt|növeked|improv|\brose\b|\brise\b|increas|\bup\b|higher|gained|rebound|\bbetter\b|kedvezőbb", re.I)
+DOWN = re.compile(r"roml|csökken|esett|visszaes|mérsékl|worsen|\bfell\b|\bfall\b|declin|decreas|dropp|lower|"
                   r"deteriorat|weaken|\bworse\b|rosszabb|kedvezőtlenebb", re.I)
 FLAT = re.compile(r"változatlan|stagnál|unchanged|\bflat\b|stable|steady|no change", re.I)
 DONT = re.compile(r"^\W*(NEM TUDOM|I DON.?T KNOW)", re.I)
