@@ -39,6 +39,7 @@ import logging
 import os
 import re
 import threading
+import time
 from collections import OrderedDict
 from datetime import datetime, timezone
 
@@ -97,7 +98,13 @@ SZINT_TABLA = (
     # 11-22, Kommandant: „8 cent nagyon sok egy válaszra” — a Feldwebel alapból olcsó, és csak a mélyebb kérésnél közép
     ("feldwebel_melyebb", "a Feldwebel, és a Kommandant üzenete elemzést/tervet/összevetést kér vagy hosszú", "kozep"),
     ("feldwebel", "a `purpose` a Feldwebel: a Kommandant Telegram-asszisztense, eszközhurokkal (hétköznapi kérés)", "olcso"),
-    ("cel_olcso", "a `purpose` olcsó munka: triage, osztályozás, fordítás, rövid chat, szándék", "olcso"),
+    # 11-22, ANTHROPIC-TARTALÉK: a kapu mögé került hívóhelyek, ahol a minőség számít (az eredeti modell pro-szintű volt)
+    ("cel_kozep", "a `purpose` közepes munka: levéltervezet a Kommandant hangján, jel- és határeset-ítélet (kauzális "
+                  "híd), szál-összegzés, képleírás, Agora-perszóna (komment, reakció, témaválasztás), vita-tartalék, "
+                  "a családi chat (youngereka) helyettesítő válasza",
+     "kozep"),
+    ("cel_olcso", "a `purpose` olcsó munka: triage, osztályozás, fordítás, rövid chat, szándék, formázás, kinyerés",
+     "olcso"),
     ("sf_flash", "a kért SiliconFlow-modell FLASH-tier: dsflash, glm53f, hy3", "olcso"),
     ("sf_nehez", "a kért SiliconFlow-modell nehéz: kimi3, DeepSeek-V4-Pro, glm53", "okos"),
     ("sf_pro", "a kért SiliconFlow-modell pro: kimi (K3.1 Pro), glm5 (GLM-5.3)", "kozep"),
@@ -131,7 +138,9 @@ def tanacs_keres(szoveg: str) -> bool:
 
 OKOS_CELOK = ("synth", "brief", "elemz", "analy", "dispatch", "essay", "esszé", "nowcast")
 OLCSO_CELOK = ("triage", "osztaly", "osztály", "classif", "fordit", "fordít", "translat", "chat",
-               "szandek", "szándék", "intent")
+               "szandek", "szándék", "intent", "formaz", "formáz", "kinyer", "besorol")
+#: A közép szint céljai (a `cel_olcso` ELŐTT nézzük: az „email_triage/hatareset” határeset-ítélet, nem sima triage).
+KOZEP_CELOK = ("levelterv", "jelkapu", "hatareset", "szal_osszegz", "kepleiras", "agora", "vita/", "youngereka")
 
 #: A kért SiliconFlow-modell súlya. Alias ÉS szolgáltatói azonosító is, mert a hívók vegyesen adják át.
 #: A `tests/test_llm_kapu.py` ellenőrzi, hogy a `server.SILICONFLOW_MODELS` MINDEN modellje szerepel itt —
@@ -237,6 +246,8 @@ def szint_valaszt(payload: dict, purpose: str = "") -> tuple[str, str]:
         mely = (len(utolso) > MELY_HOSSZ_KAR or any(j in utolso.lower() for j in MELY_JELEK)
                 or tanacs_keres(utolso) or "melyebb" in cel)   # a Feldwebel jelzi: többlépéses, kombinált feladat
         szabaly = "feldwebel_melyebb" if mely else "feldwebel"
+    elif any(c in cel for c in KOZEP_CELOK):
+        szabaly = "cel_kozep"
     elif any(c in cel for c in OLCSO_CELOK):
         szabaly = "cel_olcso"
     else:
@@ -622,6 +633,8 @@ def allapot() -> dict:
         "koltes_usd": round(usd, 4), "keret_usd": havi_keret(), "keret_kimerult": usd >= havi_keret(),
         "hivasok": hivasok, "szintenkent": szintek,
         "modellek": {k: v["modell"] for k, v in SZINTEK.items()},
+        "siliconflow_megszakito": sf_megszakito.allapot(),
+        "kapu_bekotve": kapu_bekotve(),
         "megjegyzes": "memóriabeli számláló, újraindításkor nulláról indul; a kemény plafon az Anthropic Console "
                       "havi költségkerete",
     }
@@ -798,3 +811,271 @@ async def strukturalt(system: str, szoveg: str, sema, *, szint: str = "olcso", m
     if obj is None:
         return None, {"code": "ures", "message": "a válasz nem illeszkedett a sémára"}
     return obj, None
+
+
+
+# ══ SILICONFLOW-MEGSZAKÍTÓ (2026-11-22) ═══════════════════════════════════
+#
+# A Kommandant: „A bridge-nek az anthropic kulcsunkkal is működnie kell tudni, ha rizsrakéták nem mennek, kivéve a
+# delphoi funkciót.” Ma este 0,04 $-ra fogyott a SiliconFlow-egyenleg — és minden hívás újra nekifutott a halott
+# szolgáltatónak (két kulcs, újrapróbálás, várakozás), mielőtt az Anthropic átvette.
+#
+# A megszakító a SiliconFlow EGÉSZÉRE szól (nem egy modellre), MEMÓRIÁBAN él (új tárolás nincs — házi szabály; az
+# Echolot NOTSTROM-jának mintájára), és KIMONDOTT: aki a kihagyás miatt kapja az Anthropic válaszát, a `notes`-ban
+# olvassa (`jegyzet()`).
+#   * 402 (elfogyott egyenleg, minden kulcson) → AZONNAL nyit: másik modell nem segít, ugyanaz a fiók fizetné.
+#   * tartós kiesés (kapcsolati hiba / 5xx a teljes tartaléklánc végén) → `SF_MEGSZAKITO_KUSZOB` egymás utáni
+#     bukás után nyit (egy botlás nem kiesés).
+#   * nyitva: `SF_MEGSZAKITO_PERC` percig (alap 10) a kapu az SF-et ki sem próbálja.
+#   * félig nyitva: az ablak lejárta után EGY hívást átenged (próba); a többi addig is kihagy. Sikeres SF-válasz →
+#     zár; újabb kiesés → újra nyit egy teljes ablakra. A Bridge önvizsgálatának SF-próbája is zárhat/nyithat.
+# A rossz kérés (400, hiányzó modell, auth) NEM a szolgáltató kiesése: semleges, nem számít bele.
+
+#: Azonnal nyitó hibakód — a pénz a fiókon fogyott el, nem a modellen.
+MEGSZAKITO_AZONNAL = ("payment",)
+#: Tartós kiesésnek számító hibakódok (a teljes önjavító kör végén).
+MEGSZAKITO_TARTOS = ("transport", "server_error")
+#: A félig nyitott próba legfeljebb ennyi ideig foglalja a próba-helyet (a SiliconFlow-időkorlát fölött).
+MEGSZAKITO_PROBA_S = 420.0
+
+
+def _most() -> float:
+    """Monoton óra — a tesztek ezt cserélik."""
+    return time.monotonic()
+
+
+def _env_szam(nev: str, alap: float) -> float:
+    try:
+        v = float(os.environ.get(nev, "") or alap)
+        return v if v > 0 else alap
+    except ValueError:
+        logger.warning("llm_kapu: a(z) %s nem szám — az alap %s él", nev, alap)
+        return alap
+
+
+class SfMegszakito:
+    """A SiliconFlow-kiesés emlékezete. Szálbiztos (a Bridge háttérszálakon is hív)."""
+
+    def __init__(self) -> None:
+        self._zar = threading.Lock()
+        self.alaphelyzet()
+
+    def alaphelyzet(self) -> None:
+        with self._zar:
+            self._ok: str | None = None          # mi nyitotta (`payment`, `transport`, …); None = zárt
+            self._uzenet = ""
+            self._eddig = 0.0                    # a nyitott ablak vége (monoton óra)
+            self._egymas_utan = 0                # tartós kiesés-számláló (a küszöbig)
+            self._proba_eddig = 0.0              # a folyamatban lévő próba határideje
+            self._nyitasok = 0
+
+    @staticmethod
+    def ablak_s() -> float:
+        return _env_szam("SF_MEGSZAKITO_PERC", 10.0) * 60.0
+
+    @staticmethod
+    def kuszob() -> int:
+        return int(_env_szam("SF_MEGSZAKITO_KUSZOB", 3.0))
+
+    def _nyit(self, ok: str, uzenet: str) -> None:
+        # a zár alatt hívandó
+        elso = self._ok is None
+        self._ok, self._uzenet = ok, (uzenet or "")[:200]
+        self._eddig = _most() + self.ablak_s()
+        self._proba_eddig = 0.0
+        self._nyitasok += 1
+        logger.warning("llm_kapu: SILICONFLOW-MEGSZAKÍTÓ %s (%s) — %.0f percig a SiliconFlow kimarad, az Anthropic "
+                       "válaszol", "NYIT" if elso else "ÚJRA NYIT", ok, self.ablak_s() / 60)
+
+    def nyitva(self) -> bool:
+        """Csak olvas: él-e a kihagyási ablak (a próba-helyet NEM foglalja — az embedding-visszalépés ezt nézi)."""
+        with self._zar:
+            return self._ok is not None and _most() < self._eddig
+
+    def kihagy(self) -> bool:
+        """True: most NE próbáld a SiliconFlow-t. False: mehet — zárt, vagy ez a félig nyitott próba (EGY hívás)."""
+        with self._zar:
+            if self._ok is None:
+                return False
+            most = _most()
+            if most < self._eddig or most < self._proba_eddig:
+                return True
+            self._proba_eddig = most + MEGSZAKITO_PROBA_S
+            logger.info("llm_kapu: a megszakító ablaka lejárt — egy próbahívás mehet a SiliconFlow-ra (%s)", self._ok)
+            return False
+
+    def siker(self) -> None:
+        """A SiliconFlow kiszolgált: zár, a számláló nullázva."""
+        with self._zar:
+            if self._ok is not None:
+                logger.warning("llm_kapu: SILICONFLOW-MEGSZAKÍTÓ ZÁR — a SiliconFlow újra kiszolgál (volt: %s)",
+                               self._ok)
+            self._ok, self._uzenet, self._eddig, self._proba_eddig, self._egymas_utan = None, "", 0.0, 0.0, 0
+
+    def kieses(self, kod: str, uzenet: str = "") -> None:
+        """A SiliconFlow nem szolgált ki (a teljes önjavító kör végén). A rossz kérés semleges."""
+        with self._zar:
+            if kod in MEGSZAKITO_AZONNAL:
+                self._nyit(kod, uzenet)
+            elif kod in MEGSZAKITO_TARTOS:
+                self._egymas_utan += 1
+                # félig nyitott próba bukása → újra nyit; zárt állapotban a küszöbig számol
+                if self._ok is not None or self._egymas_utan >= self.kuszob():
+                    self._nyit(kod, uzenet)
+            else:
+                self._proba_eddig = 0.0          # a szolgáltató válaszolt (csak a kérés rossz) — a próba-hely szabad
+
+    def ok(self) -> str | None:
+        with self._zar:
+            return self._ok
+
+    def jegyzet(self) -> str:
+        """A kimondott váltás mondata a `notes`-ba."""
+        with self._zar:
+            ok = self._ok or "?"
+            hatra = max(0.0, self._eddig - _most())
+        return (f"SILICONFLOW-KIESÉS ({ok}) — a megszakító még {hatra / 60:.0f} percig kihagyja a SiliconFlow-t, "
+                f"a választ az Anthropic adja")
+
+    def allapot(self) -> dict:
+        """A `/api/status` blokkja."""
+        with self._zar:
+            most = _most()
+            return {"nyitva": self._ok is not None and most < self._eddig, "ok": self._ok,
+                    "uzenet": self._uzenet, "hatra_mp": round(max(0.0, self._eddig - most)) if self._ok else 0,
+                    "tartos_szamlalo": self._egymas_utan, "nyitasok": self._nyitasok,
+                    "ablak_perc": self.ablak_s() / 60, "kuszob": self.kuszob()}
+
+
+#: A Bridge EGY megszakítója (a `server.sf_chat`, a családi chat streamje és az embedding-visszalépés közösen nézi).
+sf_megszakito = SfMegszakito()
+
+
+def valaszolo_modell(payload: dict, purpose: str = "") -> str:
+    """Melyik Claude-modell válaszolna erre a kérésre (a szintválasztás szerint) — a helyettesítő-jegyzethez."""
+    return SZINTEK[szint_valaszt(payload, purpose)[0]]["modell"]
+
+
+# ══ A KÖZÖS BELÉPŐ: `kapun()` (2026-11-22) ══════════════════════════════════
+#
+# A pluginok és a Feldwebel a szervert nem importálhatják (körkörös import), ezért 18 hívóhely saját, közvetlen
+# SiliconFlow-POST-tal kerülte meg a kaput — ott nem volt se önjavítás, se Anthropic-tartalék. Mostantól mind ezen
+# az egy belépőn megy: a `server` induláskor bejegyzi a közös kaput (`kapu_beallit(sf_chat)`), és a hívó ugyanazt a
+# `(data, err, notes)` alakot kapja, mint a `sf_chat`-től. Bejegyzett kapu nélkül (önálló plugin-teszt, régi
+# bekötés) a régi közvetlen út fut: EGY SiliconFlow-hívás, tipizált hibával. A `tests/test_huzalozas_or.py` őrzi,
+# hogy új közvetlen `/chat/completions`-hívás ne keletkezhessen a kapu mellett.
+
+_KAPU = None
+
+
+def kapu_beallit(fn) -> None:
+    """A közös kapu bejegyzése (`server.sf_chat`). None = a régi közvetlen út."""
+    global _KAPU
+    _KAPU = fn
+
+
+def kapu_bekotve() -> bool:
+    return _KAPU is not None
+
+
+def sf_hibakod(status: int, szoveg: str) -> str:
+    """Egyszerű hibakód a közvetlen úthoz (a `server._sf_classify` nyelvén)."""
+    low = (szoveg or "").lower()
+    if status == 402:
+        return "payment"
+    if status == 429:
+        return "rate_limit"
+    if status >= 500:
+        return "server_error"
+    if status in (401, 403):
+        return "auth"
+    if status == 400 and ("20012" in low or "does not exist" in low):
+        return "model_missing"
+    if status == 400:
+        return "bad_request"
+    return "http_error"
+
+
+def _valasz_json(resp):
+    szoveg = getattr(resp, "text", "") or ""
+    if szoveg:
+        try:
+            return json.loads(szoveg)
+        except ValueError:
+            pass
+    return resp.json()
+
+
+async def _kozvetlen_sf(payload: dict, *, sf_kulcs: str = "", sf_alap: str = "",
+                        timeout: float | None = None) -> tuple[dict | None, dict | None, list[str]]:
+    """A RÉGI közvetlen út (bejegyzett kapu nélkül): egy SiliconFlow-hívás, tipizált hibával, újrapróbálás nélkül."""
+    import httpx
+    kulcs = sf_kulcs or os.environ.get("SILICONFLOW_API_KEY", "")
+    if not kulcs:
+        return None, {"code": "nincs_kulcs", "message": "nincs SILICONFLOW_API_KEY (és nincs bejegyzett kapu)",
+                      "provider": "siliconflow"}, []
+    alap = (sf_alap or os.environ.get("SILICONFLOW_BASE_URL", "") or "https://api.siliconflow.com/v1").rstrip("/")
+    try:
+        async with httpx.AsyncClient(timeout=timeout or 220) as client:
+            resp = await client.post(f"{alap}/chat/completions",
+                                     headers={"Authorization": f"Bearer {kulcs}",
+                                              "Content-Type": "application/json"},
+                                     json=payload)
+    except Exception as e:  # noqa: BLE001 — tipizált hibaként megy vissza
+        return None, {"code": "transport", "message": f"{type(e).__name__}: {e}"[:400], "provider": "siliconflow",
+                      "idotullepes": isinstance(e, httpx.TimeoutException)}, []
+    status = int(getattr(resp, "status_code", 200) or 200)
+    if status != 200:
+        szoveg = getattr(resp, "text", "") or ""
+        return None, {"code": sf_hibakod(status, szoveg), "status": status, "provider": "siliconflow",
+                      "message": f"HTTP {status} — {szoveg[:400]}"}, []
+    try:
+        data = _valasz_json(resp)
+    except Exception as e:  # noqa: BLE001
+        return None, {"code": "bad_json", "message": f"200-as válasz, de nem JSON ({e})", "provider": "siliconflow"}, []
+    if not isinstance(data, dict) or not data.get("choices"):
+        return None, {"code": "no_choices", "message": f"válasz `choices` nélkül: {str(data)[:300]}",
+                      "provider": "siliconflow"}, []
+    return data, None, []
+
+
+async def kapun(payload: dict, *, purpose: str = "", sf_elso: bool = False, sf_kulcs: str = "",
+                sf_alap: str = "", timeout: float | None = None) -> tuple[dict | None, dict | None, list[str]]:
+    """A Bridge közös LLM-belépője. `(data, err, notes)`, OpenAI-alakú `data`, a `model` mező a VALÓBAN válaszoló
+    modell (Anthropicnál `claude-…`, és `provider: anthropic`).
+
+    `purpose`: beszédes cél (`email_triage/besorolas`, `levelterv/draft_reply`, `agora/komment/kimi3` …) — ebből dönt
+    a kapu szintet (`SZINT_TABLA`), és ebből ismeri fel a név szerint szólított ügynököt (`nevesitett_ugynok`).
+    `sf_elso`: a kért SiliconFlow-modell az elsődleges akkor is, ha az `LLM_ELSODLEGES` az Anthropic (a családi chat:
+    a kiválasztott modell válaszol, a Claude csak kimondott tartalék). `sf_kulcs`/`sf_alap`/`timeout` csak a régi
+    közvetlen útra hatnak (bejegyzett kapu nélkül)."""
+    if _KAPU is not None:
+        if sf_elso:
+            return await _KAPU(payload, purpose=purpose, sf_elso=True)
+        return await _KAPU(payload, purpose=purpose)
+    return await _kozvetlen_sf(payload, sf_kulcs=sf_kulcs, sf_alap=sf_alap, timeout=timeout)
+
+
+def van_llm(sf_kulcs: str = "") -> bool:
+    """Van-e egyáltalán LLM a hívónak: SiliconFlow-kulcs, vagy Anthropic-kulcs a bejegyzett kapu mögött."""
+    return bool(sf_kulcs) or (kapu_bekotve() and elerheto())
+
+
+def valasz_szoveg(data: dict | None) -> str:
+    """Az első választás szövege (üres, ha nincs)."""
+    try:
+        return ((data or {}).get("choices") or [{}])[0].get("message", {}).get("content") or ""
+    except (AttributeError, IndexError, TypeError):
+        return ""
+
+
+def helyettesitett(data: dict | None, kert_modell: str = "") -> str | None:
+    """Ha NEM a kért modell válaszolt (Anthropic-tartalék vagy SF-modellváltás), a valódi modell — különben None."""
+    valodi = str((data or {}).get("model") or "")
+    if not valodi:
+        return None
+    if (data or {}).get("provider") == "anthropic" or valodi.startswith("claude-"):
+        return valodi
+    if kert_modell and valodi != kert_modell:
+        return valodi
+    return None

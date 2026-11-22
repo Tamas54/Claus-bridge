@@ -85,6 +85,23 @@ for _name in _LIVE_CREDENTIAL_ENV:
     os.environ.pop(_name, None)
 
 
+# --- 2/B. Az LLM-kapu állapota: minden teszt tiszta lappal (2026-11-22) -------
+# A `server` importja bejegyzi a közös kaput (`llm_kapu.kapu_beallit(sf_chat)`), és a SiliconFlow-megszakító a
+# memóriában emlékszik. Ha ez a tesztek között szivárogna, egy plugin-teszt a sorrendtől függően hol a régi közvetlen
+# úton, hol a teljes `sf_chat`-en (újrapróbálás, várakozás, Anthropic) futna, és egy korábbi teszt 402-je nyitott
+# megszakítót hagyna a következőnek. Itt minden teszt bejegyzett kapu NÉLKÜL és zárt megszakítóval indul; amelyik
+# a bekötést méri, maga jegyzi be.
+@pytest.fixture(autouse=True)
+def _llm_kapu_tiszta():
+    import llm_kapu
+    elozo = llm_kapu._KAPU
+    llm_kapu.kapu_beallit(None)
+    llm_kapu.sf_megszakito.alaphelyzet()
+    yield
+    llm_kapu.kapu_beallit(elozo)
+    llm_kapu.sf_megszakito.alaphelyzet()
+
+
 # --- 3. Network: block outbound sockets unless the test opts in ------------
 _LOOPBACK = {"localhost", "127.0.0.1", "0.0.0.0", "::1", "::", ""}
 

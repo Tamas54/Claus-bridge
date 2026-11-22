@@ -46,6 +46,7 @@ from starlette.requests import Request
 from starlette.responses import (HTMLResponse, JSONResponse, RedirectResponse,
                                  Response, StreamingResponse)
 
+import llm_kapu
 import youngereka_budget as budget
 import youngereka_docs as docs
 import youngereka_guest as guest
@@ -1107,15 +1108,19 @@ async def _stream_answer(instance: str, session_id: str, text: str,
                                                            default=str)[:12000]})
 
         # --- hívás ---
-        full, usage, err = "", {}, None
+        full, usage, err, kiszolgalo = "", {}, None, None
         async for kind, payload in _call_model(alias, model_id, messages):
-            if kind == "delta":
+            if kind in ("delta", "megjegyzes"):
                 full += payload
                 yield _sse("delta", {"t": payload})
             elif kind == "usage":
                 usage = payload
             elif kind == "error":
                 err = payload
+            elif kind == "kiszolgalo":
+                # KI VÁLASZOL VALÓJÁBAN (SiliconFlow-kiesés → a kapu tartaléka) — a felület is mutatja
+                kiszolgalo = payload
+                yield _sse("model", {"alias": alias, "model": payload, "fallback": True, "deep": deep})
 
         # Kép + nem-látó modell: egy ritka, de zavarba ejtő eset. Inkább
         # váltunk, mint hogy Réka hibát lásson.
@@ -1124,15 +1129,18 @@ async def _stream_answer(instance: str, session_id: str, text: str,
             model_id = _model_id(alias)
             yield _sse("model", {"alias": alias, "model": model_id,
                                  "fallback": True, "deep": deep})
-            full, usage, err = "", {}, None
+            full, usage, err, kiszolgalo = "", {}, None, None
             async for kind, payload in _call_model(alias, model_id, messages):
-                if kind == "delta":
+                if kind in ("delta", "megjegyzes"):
                     full += payload
                     yield _sse("delta", {"t": payload})
                 elif kind == "usage":
                     usage = payload
                 elif kind == "error":
                     err = payload
+                elif kind == "kiszolgalo":
+                    kiszolgalo = payload
+                    yield _sse("model", {"alias": alias, "model": payload, "fallback": True, "deep": deep})
 
         if err and not full:
             event(conn, instance, "error", err[:150])
@@ -1150,7 +1158,9 @@ async def _stream_answer(instance: str, session_id: str, text: str,
         # --- könyvelés ---
         tin = int(usage.get("prompt_tokens") or 0)
         tout = int(usage.get("completion_tokens") or 0)
-        cost = budget.estimate_cost(model_id, tin, tout)
+        # a tartalék (Anthropic) VALÓDI ára a kapu könyveléséből jön; a SiliconFlow-é a becslőből
+        cost = (float(usage["koltes_usd"]) if usage.get("koltes_usd") is not None
+                else budget.estimate_cost(model_id, tin, tout))
         conn.execute(
             "INSERT INTO yr_chat_messages (id, session_id, role, content, model, "
             "tokens_in, tokens_out, cost_usd, created_at) VALUES (?,?,?,?,?,?,?,?,?)",
@@ -1160,7 +1170,7 @@ async def _stream_answer(instance: str, session_id: str, text: str,
                      "title=COALESCE(title, ?) WHERE id=?",
                      (_now(), docs.title_from(text), session_id))
         conn.commit()
-        budget.record(conn, instance, cost, model_id, "chat")
+        budget.record(conn, instance, cost, kiszolgalo or model_id, "chat")
 
         yield _sse("done", {"budget": budget.budget_state(conn, instance)})
 
@@ -1190,50 +1200,51 @@ async def _tool_kor(instance: str, alias: str, model_id: str, messages: list):
 
     Ha a modell nem hív eszközt, üres listát ad — a hívó ilyenkor
     továbbmegy a normál streamelésre.
+
+    A KÖZÖS KAPUN (2026-11-22): a kiválasztott modell az elsődleges (`sf_elso`), és ha a SiliconFlow nem szolgál ki
+    (402), az Anthropic hívja az eszközt — a válasz streamje ugyanígy vált (`_call_model`), kimondva.
     """
     api_key = _CFG.get("api_key") or ""
-    if not api_key:
+    if not llm_kapu.van_llm(api_key):
         return [], None
     payload = {"model": model_id, "messages": messages, "max_tokens": 1200,
                "temperature": 0.3, "tools": hq.openai_tools(instance),
                **_agent_extra(alias)}
     try:
-        async with httpx.AsyncClient(timeout=_timeout_for(alias)) as client:
-            r = await client.post(f"{_CFG['base_url']}/chat/completions",
-                                  headers={"Authorization": f"Bearer {api_key}",
-                                           "Content-Type": "application/json"},
-                                  json=payload)
-            if r.status_code != 200:
-                logger.warning("tool-kör HTTP %d: %s", r.status_code, r.text[:200])
-                return [], None
-            uz = (r.json().get("choices") or [{}])[0].get("message") or {}
-            hivasok = uz.get("tool_calls") or []
-            tartalom = uz.get("content") or ""
+        data, err, _notes = await llm_kapu.kapun(payload, purpose=f"youngereka/eszkoz/{alias}", sf_elso=True,
+                                                 sf_kulcs=api_key, sf_alap=_CFG.get("base_url", ""),
+                                                 timeout=_timeout_for(alias))
+        if err is not None:
+            logger.warning("tool-kör: %s: %s", err.get("code"), str(err.get("message", ""))[:200])
+            return [], None
+        uz = (data.get("choices") or [{}])[0].get("message") or {}
+        hivasok = uz.get("tool_calls") or []
+        tartalom = uz.get("content") or ""
 
-            # A Kimi és a V4-Pro SiliconFlow-n RENDSZERESEN szövegként írja
-            # ki a tool-hívást (`<|tool_call_begin|>functions.NAME…`) a
-            # strukturált `tool_calls` mező helyett. A Bridge-ben már van
-            # erre parser — azt használjuk, nem írunk másodikat.
-            if not hivasok and tartalom:
-                try:
-                    from server import _extract_text_marker_tool_calls
-                    for nev, argok in _extract_text_marker_tool_calls(tartalom):
-                        hivasok.append({
-                            "id": f"txt_{len(hivasok)}",
-                            "type": "function",
-                            "function": {"name": nev,
-                                         "arguments": json.dumps(argok,
-                                                                 ensure_ascii=False)}})
-                    if hivasok:
-                        logger.info("tool-kör: %d hívás a SZÖVEGBŐL kinyerve "
-                                    "(marker-szivárgás)", len(hivasok))
-                except Exception as e:  # noqa: BLE001
-                    logger.warning("marker-parser bukott: %s", e)
+        # A Kimi és a V4-Pro SiliconFlow-n RENDSZERESEN szövegként írja
+        # ki a tool-hívást (`<|tool_call_begin|>functions.NAME…`) a
+        # strukturált `tool_calls` mező helyett. A Bridge-ben már van
+        # erre parser — azt használjuk, nem írunk másodikat.
+        if not hivasok and tartalom:
+            try:
+                from server import _extract_text_marker_tool_calls
+                for nev, argok in _extract_text_marker_tool_calls(tartalom):
+                    hivasok.append({
+                        "id": f"txt_{len(hivasok)}",
+                        "type": "function",
+                        "function": {"name": nev,
+                                     "arguments": json.dumps(argok,
+                                                             ensure_ascii=False)}})
+                if hivasok:
+                    logger.info("tool-kör: %d hívás a SZÖVEGBŐL kinyerve "
+                                "(marker-szivárgás)", len(hivasok))
+            except Exception as e:  # noqa: BLE001
+                logger.warning("marker-parser bukott: %s", e)
 
-            if not hivasok:
-                return [], None
-            return hivasok, {"role": "assistant", "content": tartalom,
-                             "tool_calls": hivasok}
+        if not hivasok:
+            return [], None
+        return hivasok, {"role": "assistant", "content": tartalom,
+                         "tool_calls": hivasok}
     except Exception as e:  # noqa: BLE001
         logger.warning("tool-kör bukott (a válasz eszköz nélkül megy): %s", e)
         return [], None
@@ -1263,12 +1274,68 @@ def _marker_vago(darab: str, puffer: str) -> tuple[str, str, bool]:
     return egyben, "", False
 
 
+def _helyettes_lehet() -> bool:
+    """Van-e kimondott tartalék a SiliconFlow helyett: a Bridge kapuja be van kötve, és van Anthropic-kulcs."""
+    return llm_kapu.kapu_bekotve() and llm_kapu.elerheto()
+
+
+def _helyettes_mondat(valodi: str) -> str:
+    """A családtagnak szóló, emberi mondat a válasz végén: ki válaszolt valójában."""
+    nev = valodi
+    if valodi.startswith("claude-"):
+        reszek = valodi[len("claude-"):].split("-")
+        nev = f"Claude {reszek[0].capitalize()} {'.'.join(reszek[1:])}".strip()
+    return (f"\n\n_(A szokásos modell most nem érhető el — ezt a választ helyettesítőként a(z) {nev} adta.)_")
+
+
+async def _kapun_helyett(alias: str, model_id: str, messages: list, ok: str):
+    """SILICONFLOW-KIESÉS (2026-11-22): a válasz a KÖZÖS KAPUN át, egyben (a kapu nem streamel). A kiválasztott modell
+    marad az elsődleges (`sf_elso`), de nyitott megszakítónál rögtön az Anthropic válaszol. Ugyanazok az elemek, mint a
+    streamnél, plusz: ('kiszolgalo', modell) és ('megjegyzes', mondat) — a jegyzet NEM a deltában megy, hogy a
+    jegyzetelő és a tömörítő ne kapja a szövegébe."""
+    logger.warning("yr_chat: SiliconFlow-kiesés (%s) — a válasz a kapun át (%s)", ok, model_id)
+    payload = {"model": model_id, "messages": messages, "max_tokens": 4096, "temperature": 0.6,
+               **_agent_extra(alias)}
+    data, err, notes = await llm_kapu.kapun(payload, purpose=f"youngereka/beszelgetes/{alias}", sf_elso=True,
+                                            sf_kulcs=_CFG.get("api_key") or "", sf_alap=_CFG.get("base_url", ""),
+                                            timeout=_timeout_for(alias))
+    if err is not None:
+        logger.warning("yr_chat: a tartalék sem válaszolt: %s", err)
+        yield "error", ("A modell most nem érhető el, és a tartalék sem válaszolt. "
+                        "Próbáld újra pár perc múlva — ez nem a te üzeneteden múlik.")
+        return
+    valodi = str(data.get("model") or "")
+    if valodi and valodi != model_id:
+        yield "kiszolgalo", valodi
+    szoveg = llm_kapu.valasz_szoveg(data)
+    if szoveg:
+        yield "delta", szoveg
+        if valodi and valodi != model_id:
+            yield "megjegyzes", _helyettes_mondat(valodi)
+    u = dict(data.get("usage") or {})
+    if data.get("koltes_usd") is not None:
+        u["koltes_usd"] = data["koltes_usd"]
+    yield "usage", u
+
+
 async def _call_model(alias: str, model_id: str, messages: list):
-    """SiliconFlow streaming. ('delta', szöveg) / ('usage', dict) / ('error', mondat)."""
+    """SiliconFlow streaming. ('delta', szöveg) / ('usage', dict) / ('error', mondat).
+
+    KIESÉSNÉL (2026-11-22: 402, 5xx, kapcsolati hiba, nyitott megszakító — mielőtt egy betű is kiment volna) a válasz
+    a KÖZÖS KAPUN át jön (`_kapun_helyett`), kimondva: ('kiszolgalo', modell) és ('megjegyzes', mondat). A stream
+    maga marad közvetlen SiliconFlow-hívás: a kapu nem streamel (`tests/test_huzalozas_or.py` engedélylista)."""
     api_key = _CFG.get("api_key") or ""
     if not api_key:
+        if _helyettes_lehet():
+            async for elem in _kapun_helyett(alias, model_id, messages, "nincs SILICONFLOW_API_KEY"):
+                yield elem
+            return
         yield "error", ("A modell-hozzáférés nincs beállítva a szerveren "
                         "(SILICONFLOW_API_KEY hiányzik). Ezt Tamás tudja javítani.")
+        return
+    if _helyettes_lehet() and llm_kapu.sf_megszakito.kihagy():
+        async for elem in _kapun_helyett(alias, model_id, messages, llm_kapu.sf_megszakito.jegyzet()):
+            yield elem
         return
 
     payload = {
@@ -1280,6 +1347,8 @@ async def _call_model(alias: str, model_id: str, messages: list):
         "stream_options": {"include_usage": True},
         **_agent_extra(alias),
     }
+    kiadott = False          # ment-e már ki szöveg (utána már nem válthatunk: a válasz kettéesne)
+    kieses = None            # a SiliconFlow kiesésének oka, ha a tartalékra kell váltani
     try:
         async with httpx.AsyncClient(timeout=_timeout_for(alias)) as client:
             async with client.stream(
@@ -1292,41 +1361,62 @@ async def _call_model(alias: str, model_id: str, messages: list):
                     raw = (await resp.aread()).decode("utf-8", "replace")
                     logger.warning("SF %s HTTP %d: %s", model_id,
                                    resp.status_code, raw[:300])
-                    yield "error", _human_error(resp.status_code, raw)
-                    return
-                puffer, levagva = "", False
-                async for line in resp.aiter_lines():
-                    if not line.startswith("data:"):
-                        continue
-                    chunk = line[5:].strip()
-                    if not chunk or chunk == "[DONE]":
-                        continue
-                    try:
-                        d = json.loads(chunk)
-                    except json.JSONDecodeError:
-                        continue
-                    if d.get("usage"):
-                        yield "usage", d["usage"]
-                    for ch in d.get("choices") or []:
-                        piece = (ch.get("delta") or {}).get("content")
-                        if not piece:
+                    kod = llm_kapu.sf_hibakod(resp.status_code, raw)
+                    if kod in ("payment", "server_error") and _helyettes_lehet():
+                        llm_kapu.sf_megszakito.kieses(kod, raw[:200])
+                        kieses = f"HTTP {resp.status_code}"
+                    else:
+                        yield "error", _human_error(resp.status_code, raw)
+                        return
+                else:
+                    puffer, levagva = "", False
+                    async for line in resp.aiter_lines():
+                        if not line.startswith("data:"):
                             continue
-                        if levagva:
-                            continue          # marker után már semmit
-                        kiad, puffer, levagva = _marker_vago(piece, puffer)
-                        if levagva:
-                            logger.info("marker-szivárgás a streamben — "
-                                        "a maradék elvágva (%s)", model_id)
-                        if kiad:
-                            yield "delta", kiad
+                        chunk = line[5:].strip()
+                        if not chunk or chunk == "[DONE]":
+                            continue
+                        try:
+                            d = json.loads(chunk)
+                        except json.JSONDecodeError:
+                            continue
+                        if d.get("usage"):
+                            yield "usage", d["usage"]
+                        for ch in d.get("choices") or []:
+                            piece = (ch.get("delta") or {}).get("content")
+                            if not piece:
+                                continue
+                            if levagva:
+                                continue          # marker után már semmit
+                            kiad, puffer, levagva = _marker_vago(piece, puffer)
+                            if levagva:
+                                logger.info("marker-szivárgás a streamben — "
+                                            "a maradék elvágva (%s)", model_id)
+                            if kiad:
+                                kiadott = True
+                                yield "delta", kiad
+                    llm_kapu.sf_megszakito.siker()
     except httpx.TimeoutException:
-        yield "error", ("A modell most nagyon lassú, és megszakadt a válasz. "
-                        "Próbáld újra — ha alapos gondolkodást kértél, "
-                        "a sima küldés gyorsabb.")
+        if not kiadott and _helyettes_lehet():
+            llm_kapu.sf_megszakito.kieses("transport", "stream: időtúllépés")
+            kieses = "időtúllépés"
+        else:
+            yield "error", ("A modell most nagyon lassú, és megszakadt a válasz. "
+                            "Próbáld újra — ha alapos gondolkodást kértél, "
+                            "a sima küldés gyorsabb.")
+            return
     except Exception as e:  # noqa: BLE001
-        logger.exception("SF hívás hiba")
-        yield "error", (f"Nem értem el a modellt ({type(e).__name__}). "
-                        f"Próbáld újra egy perc múlva.")
+        if not kiadott and _helyettes_lehet() and isinstance(e, httpx.TransportError):
+            llm_kapu.sf_megszakito.kieses("transport", f"stream: {type(e).__name__}")
+            kieses = type(e).__name__
+        else:
+            logger.exception("SF hívás hiba")
+            yield "error", (f"Nem értem el a modellt ({type(e).__name__}). "
+                            f"Próbáld újra egy perc múlva.")
+            return
+    if kieses:
+        async for elem in _kapun_helyett(alias, model_id, messages, kieses):
+            yield elem
 
 
 def _human_error(status: int, raw: str) -> str:

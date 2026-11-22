@@ -25,6 +25,8 @@ import math
 import os
 from datetime import datetime, timezone
 
+import llm_kapu
+
 logger = logging.getLogger("plugins.semantic_triage")
 
 __plugin_meta__ = {
@@ -173,6 +175,10 @@ def _mean_vectors(vectors):
     return [x / n for x in out]
 
 
+class EmbeddingNemElerheto(RuntimeError):
+    """Az embedding most nem kerheto le (SiliconFlow-kieses, rossz modell) — az ok szovege a valaszba kerul."""
+
+
 def register_tools(app, deps):
     """A szemantikus triage MCP toolok regisztralasa."""
     import httpx
@@ -188,7 +194,14 @@ def register_tools(app, deps):
     # POST {base_url}/embeddings, model=BAAI/bge-m3, input=[szoveg, ...]
     # -----------------------------------------------------------------------
     async def _embed(texts):
-        """Visszaad egy listat embedding-vektorokrol (input sorrendben)."""
+        """Visszaad egy listat embedding-vektorokrol (input sorrendben).
+
+        KIMONDOTT VISSZALEPES (2026-11-22): az Anthropicnak NINCS embedding-API-ja, ezert SiliconFlow-kiesesnel
+        (402, megszakito nyitva) nincs mire valtani — `EmbeddingNemElerheto`-t dobunk OKKAL, es a hivo a kulcsszavas
+        besorolasra lep, a valaszban `fallback_reason`-nel. Nyitott megszakitonal az SF-et meg sem hivjuk."""
+        if llm_kapu.sf_megszakito.nyitva():
+            raise EmbeddingNemElerheto(f"a SiliconFlow kiesett ({llm_kapu.sf_megszakito.ok()}, megszakito nyitva) "
+                                       f"— az Anthropicnak nincs embedding-API-ja")
         payload = {"model": EMBEDDING_MODEL, "input": texts}
         async with httpx.AsyncClient(timeout=sf_timeout) as client:
             resp = await client.post(
@@ -199,7 +212,16 @@ def register_tools(app, deps):
                 },
                 json=payload,
             )
-            data = json.loads(resp.text)
+        status = int(getattr(resp, "status_code", 200) or 200)
+        if status != 200:
+            if status == 402:
+                llm_kapu.sf_megszakito.kieses("payment", "embedding: HTTP 402")
+            raise EmbeddingNemElerheto(f"az embedding-API HTTP {status}-t adott ({EMBEDDING_MODEL}): "
+                                       f"{(getattr(resp, 'text', '') or '')[:160]}")
+        data = json.loads(resp.text)
+        if not isinstance(data, dict) or "data" not in data:
+            raise EmbeddingNemElerheto(f"az embedding-valaszban nincs `data` ({EMBEDDING_MODEL}): {str(data)[:160]}")
+        llm_kapu.sf_megszakito.siker()           # a SiliconFlow kiszolgalt — a megszakito zarhat
         # Az API "data" listat ad vissza, mindegyikben "embedding" + "index".
         items = sorted(data["data"], key=lambda d: d.get("index", 0))
         return [it["embedding"] for it in items]
@@ -286,17 +308,20 @@ def register_tools(app, deps):
         elif "Kimi" in model_id:
             payload["thinking"] = {"type": "disabled"}
         try:
-            async with httpx.AsyncClient(timeout=sf_timeout) as client:
-                resp = await client.post(
-                    f"{sf_base}/chat/completions",
-                    headers={"Authorization": f"Bearer {sf_key}", "Content-Type": "application/json"},
-                    json=payload,
-                )
-                data = json.loads(resp.text)
-            content = data.get("choices", [{}])[0].get("message", {}).get("content", "").strip()
+            # A KOZOS KAPUN (2026-11-22): SiliconFlow-kiesesnel az Anthropic dont, kimondva (`modell`).
+            data, err, notes = await llm_kapu.kapun(payload, purpose="email_triage/hatareset", sf_kulcs=sf_key,
+                                                    sf_alap=sf_base, timeout=sf_timeout)
+            if err is not None:
+                logger.warning("Gatekeeper: a kapu hibat adott: %s", str(err.get("message", err))[:300])
+                return None
+            content = llm_kapu.valasz_szoveg(data).strip()
             if content.startswith("```"):
                 content = content.split("\n", 1)[1].rsplit("```", 1)[0].strip()
-            return json.loads(content)
+            out = json.loads(content)
+            if isinstance(out, dict) and llm_kapu.helyettesitett(data, model_id):
+                out["modell"] = llm_kapu.helyettesitett(data, model_id)
+                out["kapu_jegyzet"] = list(dict.fromkeys(notes))
+            return out
         except Exception as e:
             logger.warning("Gatekeeper hivas sikertelen: %s", e)
             return None
@@ -385,6 +410,8 @@ def register_tools(app, deps):
                 "score": fb["score"],
                 "borderline": False,
                 "method": "keyword_fallback",
+                "fallback_reason": "nincs SILICONFLOW_API_KEY — az embeddinghez SiliconFlow kell "
+                                   "(az Anthropicnak nincs embedding-API-ja)",
                 "gatekeeper": None,
             }, ensure_ascii=False)
 
@@ -392,7 +419,7 @@ def register_tools(app, deps):
         try:
             top_cat, top_score, ranked, method = await _classify(sender, subject, body)
         except Exception as e:
-            # Ha az embedding API elszall, esunk vissza kulcsszavakra.
+            # Ha az embedding API elszall, esunk vissza kulcsszavakra — KIMONDVA, az okkal (`fallback_reason`).
             logger.warning("Embedding besorolas sikertelen, kulcsszavas fallback: %s", e)
             fb = _fallback_categorize(sender, subject, body)
             _log_to_db(message_id, sender, subject, fb["category"], fb["score"],
@@ -402,6 +429,8 @@ def register_tools(app, deps):
                 "score": fb["score"],
                 "borderline": False,
                 "method": "keyword_fallback",
+                "fallback_reason": (str(e) if isinstance(e, EmbeddingNemElerheto)
+                                    else f"embedding-hiba: {type(e).__name__}: {e}")[:300],
                 "gatekeeper": None,
             }, ensure_ascii=False)
 

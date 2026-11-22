@@ -1847,30 +1847,33 @@ async def api_messages(request):
 
 
 def _trigger_agent_replies(original_msg_id: int, sender: str, message: str, agents: list):
-    """Background: mentioned agents respond to a message via Pyramid context + SiliconFlow."""
-    import httpx
+    """Background: mentioned agents respond to a message via Pyramid context + SiliconFlow.
+
+    A KAPU MÖGÖTT (2026-11-22): a megszólított ügynök a SAJÁT modelljén válaszol (`bridge/mention/<ügynök>` — név
+    szerinti ügynök), és ha a SiliconFlow nem szolgál ki (402), az Anthropic — kimondva a válasz végén és a tárgyban
+    (`modell=`). Eddig közvetlen SiliconFlow-POST volt, státusz nélkül: a 402-es hibatörzsből „(nincs válasz)” lett."""
 
     async def _reply(agent_id):
         try:
             system_prompt = build_agent_context(agent_id=agent_id, inbox_summary=_get_inbox_summary(), relevance_query=message) if PYRAMID_ENABLED else ""
             model_id = SILICONFLOW_MODELS.get(agent_id, agent_id)
-            async with httpx.AsyncClient(timeout=SILICONFLOW_TIMEOUT) as client:
-                resp = await client.post(
-                    f"{SILICONFLOW_BASE_URL}/chat/completions",
-                    headers={"Authorization": f"Bearer {SILICONFLOW_API_KEY}", "Content-Type": "application/json"},
-                    json={"model": model_id, "messages": [
-                        {"role": "system", "content": system_prompt},
-                        {"role": "user", "content": f"{sender} üzenete:\n\n{message}"},
-                    ], "temperature": 0.7, "max_tokens": 1500},
-                )
-                data = json.loads(resp.text)
-            content = data.get("choices", [{}])[0].get("message", {}).get("content", "(nincs válasz)")
+            data, _err, _notes = await sf_chat({"model": model_id, "messages": [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": f"{sender} üzenete:\n\n{message}"},
+            ], "temperature": 0.7, "max_tokens": 1500}, purpose=f"bridge/mention/{agent_id}")
+            if _err is not None:
+                content = f"(nincs válasz — {_err.get('code')}: {str(_err.get('message', ''))[:300]})"
+            else:
+                content = (data.get("choices", [{}])[0].get("message", {}).get("content") or "(nincs válasz)")
+            content = _with_sf_notes(content, _notes)
+            _kiszolgalo = (data or {}).get("model") if _err is None else None
             # Store reply as Bridge message
             conn = get_db()
             cur = conn.execute(
                 "INSERT INTO messages (timestamp, sender, recipient, subject, message, priority, thread_id, reply_to) "
                 "VALUES (?, ?, ?, ?, ?, 'normal', ?, ?)",
-                (now(), agent_id, sender, f"Re: @{agent_id} válasz", content, original_msg_id, original_msg_id)
+                (now(), agent_id, sender, f"Re: @{agent_id} válasz" + (f" · modell={_kiszolgalo}" if _kiszolgalo else ""),
+                 content, original_msg_id, original_msg_id)
             )
             conn.commit()
             conn.close()
@@ -2813,7 +2816,7 @@ AI_DISCUSSION_ENABLED = os.environ.get("AI_DISCUSSION_ENABLED", "true").lower() 
 
 async def _ai_auto_discuss(discussion_id: int, topic: str, thread_so_far: str):
     """Automatically query Kimi and DeepSeek to contribute to a discussion."""
-    if not AI_DISCUSSION_ENABLED or not SILICONFLOW_API_KEY:
+    if not AI_DISCUSSION_ENABLED or not (SILICONFLOW_API_KEY or llm_kapu.elerheto()):
         return
 
     conn = get_db()
@@ -2826,10 +2829,13 @@ async def _ai_auto_discuss(discussion_id: int, topic: str, thread_so_far: str):
     )
     prompt = f"Vita témája: {topic}\n\nEddigi hozzászólások:\n{thread_so_far}\n\nMi a véleményed? Szólj hozzá."
 
-    import httpx
+    #: az ügynökök kimenetele: név → a kapu hibakódja (None = szólt vagy szándékosan hallgatott)
+    kimenet: dict = {}
 
     async def _discuss_agent(agent_name, model_id):
-        """Run one discussion agent with 1 retry on timeout."""
+        """Egy vita-ügynök a KAPUN át (2026-11-22): a saját SiliconFlow-modellje, modellváltás és Anthropic-tartalék
+        NÉLKÜL — a vita értéke a sokféle hang; ha a SiliconFlow kiesett, nem nyolc egyforma Claude szól, hanem a
+        kör végén EGY kimondott helyettesítő (lásd lent)."""
         # K2.x defaults thinking ON on SF — force OFF (latency unacceptable).
         # V4-Pro defaults thinking ON too — clamp to reasoning_effort=medium
         # (low rambles, high blows the SF 220s budget on long tasks).
@@ -2840,53 +2846,64 @@ async def _ai_auto_discuss(discussion_id: int, topic: str, thread_so_far: str):
         else:
             extra = {}
         agent_system = system + _temporal_directive(agent_name)
-        for attempt in range(2):
-            try:
-                async with httpx.AsyncClient(timeout=SILICONFLOW_TIMEOUT) as client:
-                    resp = await client.post(
-                        f"{SILICONFLOW_BASE_URL}/chat/completions",
-                        headers={
-                            "Authorization": f"Bearer {SILICONFLOW_API_KEY}",
-                            "Content-Type": "application/json",
-                        },
-                        json={
-                            "model": model_id,
-                            "messages": [
-                                {"role": "system", "content": agent_system},
-                                {"role": "user", "content": prompt},
-                            ],
-                            "temperature": 0.7,
-                            "max_tokens": 20000,
-                            **extra,
-                        },
-                    )
-                    data = json.loads(resp.text)
-
-                if isinstance(data, dict) and data.get("choices"):
-                    content = data["choices"][0].get("message", {}).get("content", "")
-                    if content and "nincs hozzáfűznivalóm" not in content.lower():
-                        ts = now()
-                        conn.execute(
-                            "INSERT INTO discussion_entries (discussion_id, instance, content, timestamp) VALUES (?, ?, ?, ?)",
-                            (discussion_id, agent_name, content, ts)
-                        )
-                        conn.commit()
-                        logger.info("AI %s contributed to discussion #%d", agent_name, discussion_id)
+        try:
+            data, err, _notes = await sf_chat({
+                "model": model_id,
+                "messages": [
+                    {"role": "system", "content": agent_system},
+                    {"role": "user", "content": prompt},
+                ],
+                "temperature": 0.7,
+                "max_tokens": 20000,
+                **extra,
+            }, purpose=f"vita/{agent_name}", attempts=2, failover=False, sf_elso=True, csak_sf=True)
+            if err is not None:
+                kimenet[agent_name] = err.get("code")
+                logger.warning("AI auto-discuss %s: %s", agent_name, str(err.get("message", ""))[:200])
                 return
-            except (httpx.TimeoutException, httpx.ConnectError) as e:
-                if attempt == 0:
-                    logger.warning("AI auto-discuss %s timeout (attempt 1), retrying: %s", agent_name, e)
-                    await asyncio.sleep(2)
-                else:
-                    logger.error("AI auto-discuss %s failed after retry: %s", agent_name, e)
-            except Exception as e:
-                logger.error("AI auto-discuss failed for %s: %s", agent_name, e)
-                return
+            kimenet[agent_name] = None
+            content = data["choices"][0].get("message", {}).get("content", "")
+            if content and "nincs hozzáfűznivalóm" not in content.lower():
+                ts = now()
+                conn.execute(
+                    "INSERT INTO discussion_entries (discussion_id, instance, content, timestamp) VALUES (?, ?, ?, ?)",
+                    (discussion_id, agent_name, _with_sf_notes(content, _notes), ts)
+                )
+                conn.commit()
+                logger.info("AI %s contributed to discussion #%d", agent_name, discussion_id)
+        except Exception as e:
+            logger.error("AI auto-discuss failed for %s: %s", agent_name, e)
 
     await asyncio.gather(
         *[_discuss_agent(name, mid) for name, mid in SILICONFLOW_MODELS.items()],
         return_exceptions=True,
     )
+    # SILICONFLOW-KIESÉS: egyik ügynök sem szólt, és a hiba a szolgáltatóé (402, 5xx, kapcsolat, megszakító) —
+    # EGY hozzászólás az Anthropictól, KIMONDVA, a saját nevén (`instance`), nem egy SF-ügynök neve alatt.
+    _kieso = {"payment", "server_error", "transport", "rate_limit", "nincs_kulcs"}
+    if kimenet and all(v is not None for v in kimenet.values()) and set(kimenet.values()) & _kieso \
+            and llm_kapu.elerheto():
+        try:
+            data, err, _notes = await sf_chat({
+                "model": SILICONFLOW_MODELS.get("kimi", ""),
+                "messages": [{"role": "system", "content": system + _temporal_directive("kimi")},
+                             {"role": "user", "content": prompt}],
+                "max_tokens": 4000,
+            }, purpose="vita/tartalek")
+            content = (data or {}).get("choices", [{}])[0].get("message", {}).get("content", "") if err is None else ""
+            if content and "nincs hozzáfűznivalóm" not in content.lower():
+                kiszolgalo = (data or {}).get("model") or "claude"
+                okok = ", ".join(sorted({str(v) for v in kimenet.values()}))
+                jegyzet = (f"SILICONFLOW-KIESÉS ({okok}) — a vita-ügynökök ({', '.join(kimenet)}) helyett EGY "
+                           f"hozzászólás, a(z) `{kiszolgalo}` modelltől")
+                conn.execute(
+                    "INSERT INTO discussion_entries (discussion_id, instance, content, timestamp) VALUES (?, ?, ?, ?)",
+                    (discussion_id, kiszolgalo, _with_sf_notes(content, [jegyzet] + list(_notes)), now()))
+                conn.commit()
+                logger.warning("AI auto-discuss #%d: SiliconFlow-kiesés (%s) — egy helyettesítő hozzászólás (%s)",
+                               discussion_id, okok, kiszolgalo)
+        except Exception as e:  # noqa: BLE001
+            logger.error("AI auto-discuss #%d: a helyettesítő hozzászólás is elbukott: %s", discussion_id, e)
     conn.close()
 
 
@@ -3533,6 +3550,7 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
                 max_tokens=max_tokens,
                 temperature=temperature,
                 max_rounds=4,
+                purpose=f"ai_query/{model}/research",
             )
             usage = {"prompt_tokens": 0, "completion_tokens": 0}
             if PYRAMID_ENABLED and model in PYRAMID_AGENTS and content:
@@ -7438,8 +7456,12 @@ async def _deep_research_loop(
     temperature: float = 0.6,
     max_rounds: int = 4,
     task_budget_s: float = 240.0,
+    purpose: str = "",
 ) -> str:
     """Multi-round web_search loop with mandatory source citation.
+
+    A KAPU MÖGÖTT (2026-11-22): minden kör az `sf_chat`-en megy (`purpose`, alapból `deep_research/<modell>` — név
+    szerinti ügynök: a saját modellje, SiliconFlow-kiesésnél az Anthropic). A váltás jegyzete a kimenet végére kerül.
 
     Drives the model through several search-and-refine rounds, executes
     every web_search tool_call (both JSON and text-marker formats), feeds
@@ -7461,14 +7483,17 @@ async def _deep_research_loop(
     sources: list[str] = []  # collected URLs (for the final citation block)
     last_content = ""        # last non-empty model reply (for the budget-exhaust path)
     start_t = _t.time()
+    kapu_notes: list[str] = []
+    _cel = purpose or f"deep_research/{model_id}"
 
     async def _api_call(client, payload):
-        resp = await client.post(
-            f"{SILICONFLOW_BASE_URL}/chat/completions",
-            headers={"Authorization": f"Bearer {SILICONFLOW_API_KEY}", "Content-Type": "application/json"},
-            json=payload,
-        )
-        return json.loads(resp.text)
+        # A `client` a régi aláírás maradványa — a hívás a közös kapun megy (önjavítás, Anthropic-tartalék).
+        data, err, notes = await sf_chat(payload, purpose=_cel)
+        kapu_notes.extend(notes)
+        if err is not None:
+            logger.error("Deep research (%s): a kapu hibát adott: %s", _cel, str(err.get("message", ""))[:200])
+            return {"error": err}
+        return data
 
     for round_num in range(max_rounds):
         # Budget guard — if we've burned the budget, skip to forced synthesis
@@ -7632,7 +7657,7 @@ async def _deep_research_loop(
                         if rescue_content.strip():
                             if sources and "## Források" not in rescue_content and "## Forrasok" not in rescue_content:
                                 rescue_content += "\n\n## Források\n" + "\n".join(f"[{i+1}] {u}" for i, u in enumerate(sources[:15]))
-                            return rescue_content
+                            return _with_sf_notes(rescue_content, kapu_notes)
                         logger.warning("Deep research rescue call returned empty content — falling through to salvage")
                     except Exception as e:
                         logger.error("Deep research rescue call failed: %s — falling through to salvage", e)
@@ -7654,7 +7679,7 @@ async def _deep_research_loop(
             # Append a fallback citation footer if the model forgot the URL list
             if sources and "## Források" not in cleaned and "## Forrasok" not in cleaned:
                 cleaned += "\n\n## Források\n" + "\n".join(f"[{i+1}] {u}" for i, u in enumerate(sources[:15]))
-            return cleaned
+            return _with_sf_notes(cleaned, kapu_notes)
 
     # Loop exhausted (or soft-failed). Salvage whatever we can: the last
     # non-empty content the model produced (stripped of leaked tool markers),
@@ -7665,11 +7690,11 @@ async def _deep_research_loop(
             fallback = "(Az agent csak tool-call markereket bocsátott ki — nincs felhasználható szintézis.)"
         if sources and "## Források" not in fallback and "## Forrasok" not in fallback:
             fallback += "\n\n## Források\n" + "\n".join(f"[{i+1}] {u}" for i, u in enumerate(sources[:15]))
-        return fallback
+        return _with_sf_notes(fallback, kapu_notes)
     fallback = "(Deep research loop nem ért el végleges szintézist a megengedett körökön belül.)"
     if sources:
         fallback += "\n\n## Források\n" + "\n".join(f"[{i+1}] {u}" for i, u in enumerate(sources[:15]))
-    return fallback
+    return _with_sf_notes(fallback, kapu_notes)
 
 
 # ══ ÖNJAVÍTÁS: a szolgáltatói hiba nem lehet "üres válasz" ═══════════════
@@ -7956,8 +7981,25 @@ def _helyettesito_jegyzet(messages: list, kert: str, valaszolo: str) -> list:
     return [{"role": "system", "content": jegyzet.strip()}] + out
 
 
+async def _anthropic_helyett(payload: dict, purpose: str, kert: str, nevesitett: str | None,
+                             notes: list) -> tuple[dict | None, dict | None]:
+    """Az Anthropic válaszol a SiliconFlow HELYETT. A név szerint szólított ügynök (Kimi, DeepSeek, GLM, Agora-perszóna,
+    családi chat) szerepszövege a SAJÁT modelljét mondja — a helyettesítő Claude ne adja ki magát annak (11-22: a
+    DeepSeek „Kimi”-nek mondta magát). A rendszerszöveg végére kerül, ki válaszol valójában; a válasz `model` mezője
+    a valódi modell, a fejlécek (`cimzett.fejlec`, Agora-jelvény) abból olvasnak."""
+    p = payload
+    if nevesitett:
+        p = dict(payload)
+        p["messages"] = _helyettesito_jegyzet(payload.get("messages") or [], kert,
+                                              llm_kapu.valaszolo_modell(payload, purpose))
+    d, e, n = await llm_kapu.chat(p, purpose=purpose)
+    notes.extend(n)
+    return d, e
+
+
 async def sf_chat(payload: dict, *, purpose: str = "", attempts: int = 3,
-                  failover: bool = True) -> tuple[dict | None, dict | None, list[str]]:
+                  failover: bool = True, sf_elso: bool = False,
+                  csak_sf: bool = False) -> tuple[dict | None, dict | None, list[str]]:
     """SiliconFlow chat ÖNJAVÍTÁSSAL. `(data, error, notes)`.
 
     Először újrapróbálja UGYANAZT a modellt (exponenciális várakozással), mert
@@ -7965,10 +8007,15 @@ async def sf_chat(payload: dict, *, purpose: str = "", attempts: int = 3,
     van tartalék-modell, ÁTVÁLT — és ezt beírja a `notes`-ba, hogy a hívó
     KIMONDHASSA. Néma modellváltás nincs: a Kommandantnak tudnia kell, hogy a
     briefet nem az a modell írta, amit a recept kért.
+
+    `sf_elso`: a kért SiliconFlow-modell az elsődleges, mint a név szerint szólított ügynöknél (a családi chat).
+    `csak_sf`: ezen a hívásan CSAK a SiliconFlow válaszolhat — kiesésnél (vagy kulcs nélkül) hibát ad, és a hívó dönt
+    (a vita ügynökei helyett EGY kimondott helyettesítő szól, nem nyolc egyforma Claude).
     """
     import asyncio as _a, httpx
     notes: list[str] = []
     model = payload.get("model", "")
+    _megszakito = llm_kapu.sf_megszakito
 
     # ══ ANTHROPIC-KAPU (2026-11-22) ══════════════════════════════════════
     # Itt, a közös tölcsérben dől el, ki válaszol — nem a hívóhelyeken (`sf_onjavitas_huzalozas`: a védelem
@@ -7976,23 +8023,52 @@ async def sf_chat(payload: dict, *, purpose: str = "", attempts: int = 3,
     # a tartalék, és a váltás KIMONDOTT. Kulcs nélkül ez az ág nem fut, és minden pontosan úgy megy, mint eddig.
     _anthropic_tartalek = False
     # NÉV SZERINT szólított ügynök (Kimi, DeepSeek, GLM…): a SAJÁT modellje válaszol, a Claude csak kimondott tartalék.
-    _nevesitett = llm_kapu.nevesitett_ugynok(purpose) if _sf_keys() else None
-    if (llm_kapu.elsodleges() == "anthropic" and not _nevesitett) or (not _sf_keys() and llm_kapu.elerheto()):
+    _nevesitett = (llm_kapu.nevesitett_ugynok(purpose) or (model if sf_elso else None)) if _sf_keys() else None
+    if csak_sf and not _sf_keys():
+        return None, {"code": "nincs_kulcs", "provider": "siliconflow",
+                      "message": "nincs SILICONFLOW_API_KEY — ezen az úton csak a SiliconFlow válaszolhat"}, notes
+    if not csak_sf and ((llm_kapu.elsodleges() == "anthropic" and not _nevesitett)
+                        or (not _sf_keys() and llm_kapu.elerheto())):
         _a_data, _a_err, _a_notes = await llm_kapu.chat(payload, purpose=purpose)
         if _a_err is None:
             return _a_data, None, _a_notes
         notes.extend(_a_notes)
         if not _sf_keys():
             return None, _a_err, notes
+        if _megszakito.kihagy():
+            notes.append(f"ANTHROPIC-KIESÉS ({_a_err.get('code')}) — és a SiliconFlow is kiesett "
+                         f"({_megszakito.ok()}, megszakító nyitva): nincs hova váltani")
+            return None, _a_err, notes
         notes.append(f"ANTHROPIC-KIESÉS ({_a_err.get('code')}: {_a_err.get('message', '')[:160]}) — "
                      f"a választ a SiliconFlow adja (`{model}`)")
         logger.warning("sf_chat[%s]: Anthropic-kiesés (%s), tartalék: SiliconFlow",
                        purpose or "?", _a_err.get("code"))
     else:
-        _anthropic_tartalek = llm_kapu.elerheto()
+        _anthropic_tartalek = not csak_sf and llm_kapu.elerheto()
+        # ══ MEGSZAKÍTÓ (2026-11-22) ══════════════════════════════════════
+        # 402 vagy tartós kiesés után N percig a SiliconFlow-t ki sem próbáljuk: rögtön az Anthropic, KIMONDVA.
+        # Anthropic nélkül nincs mit nyerni a kihagyással — akkor a régi út fut (a próba maga a hívás).
+        if llm_kapu.elerheto() and _megszakito.kihagy():
+            if not _anthropic_tartalek:
+                return None, {"code": _megszakito.ok() or "payment", "provider": "siliconflow", "megszakito": True,
+                              "message": f"{_megszakito.jegyzet().split(' — ')[0]} — a megszakító nyitva, "
+                                         f"ezen az úton Anthropic-tartalék nincs"}, notes
+            notes.append(_megszakito.jegyzet())
+            logger.info("sf_chat[%s]: a megszakító nyitva (%s) — a SiliconFlow kimarad, az Anthropic válaszol",
+                        purpose or "?", _megszakito.ok())
+            _a_data, _a_err = await _anthropic_helyett(payload, purpose, model, _nevesitett, notes)
+            if _a_err is None:
+                return _a_data, None, notes
+            notes.append(f"az Anthropic-tartalék is elbukott ({_a_err.get('code')})")
+            return None, {"code": _megszakito.ok() or "payment", "provider": "siliconflow", "megszakito": True,
+                          "message": f"SiliconFlow-kiesés ({_megszakito.ok()}, megszakító nyitva), és az "
+                                     f"Anthropic-tartalék is elbukott: {_a_err.get('message', '')[:200]}"}, notes
 
     chain = [model] + (_SF_FAILOVER.get(model, []) if failover else [])
     last_err = None
+    #: a kulcsok, amelyeken ebben a hívásban 402 jött — a következő modell sem próbálja őket (ugyanaz a fiók fizetné)
+    _kimerult: set[int] = set()
+    _fizetes_vege = False
     async with httpx.AsyncClient(timeout=SILICONFLOW_TIMEOUT) as client:
         for mi, mid in enumerate(chain):
             body = dict(payload)
@@ -8018,7 +8094,7 @@ async def sf_chat(payload: dict, *, purpose: str = "", attempts: int = 3,
             _asked = int(body.get("max_tokens") or 8000)
             body["max_tokens"] = min(max(_asked, _SF_LEARNED_BUDGET.get(mid, 0)), _ceiling)
             _keys = _sf_keys() or [""]
-            _ki = 0                       # melyik kulcsnál tartunk
+            _ki = next((i for i in range(len(_keys)) if i not in _kimerult), 0)   # melyik kulcsnál tartunk
             for attempt in range(1, attempts + 1):
                 data, err = await _sf_post_once(client, body, _keys[_ki])
 
@@ -8052,6 +8128,7 @@ async def sf_chat(payload: dict, *, purpose: str = "", attempts: int = 3,
                     if attempt > 1:
                         notes.append(f"{attempt}. próbálkozásra sikerült ({mid})")
                     _gondolat_levag(data)
+                    _megszakito.siker()
                     return data, None, notes
                 last_err = err
                 logger.warning("sf_chat[%s] %s kísérlet %d/%d: %s",
@@ -8074,12 +8151,19 @@ async def sf_chat(payload: dict, *, purpose: str = "", attempts: int = 3,
 
                 # ÖNJAVÍTÁS 1/B: ELFOGYOTT EGYENLEG (402) — MÁSIK KULCS. Ha a KEY2 másik fiókhoz tartozik,
                 # azon még lehet pénz; másik modell nem segít (ugyanaz a fiók fizetné).
-                if err["code"] == "payment" and _ki + 1 < len(_keys):
-                    _ki += 1
-                    notes.append(f"a SiliconFlow-egyenleg elfogyott az elsődleges kulcson (HTTP 402) — "
-                                 f"tartalék kulccsal újrapróbálva (`{mid}`)")
-                    logger.warning("sf_chat[%s] %s: 402, váltás a %d. kulcsra", purpose or "?", mid, _ki + 1)
-                    continue
+                if err["code"] == "payment":
+                    _kimerult.add(_ki)
+                    _tovabb = next((i for i in range(len(_keys)) if i not in _kimerult), None)
+                    if _tovabb is not None:
+                        _ki = _tovabb
+                        notes.append(f"a SiliconFlow-egyenleg elfogyott az elsődleges kulcson (HTTP 402) — "
+                                     f"tartalék kulccsal újrapróbálva (`{mid}`)")
+                        logger.warning("sf_chat[%s] %s: 402, váltás a %d. kulcsra", purpose or "?", mid, _ki + 1)
+                        continue
+                    # MINDEN kulcson 402: a tartaléklánc többi modelljét NEM próbáljuk (ugyanaz a fiók fizetné),
+                    # nincs újrapróbálás és várakozás — rögtön tovább (Anthropic), és a megszakító nyit.
+                    _fizetes_vege = True
+                    break
 
                 # ÖNJAVÍTÁS 2: RATE LIMIT — MÁSIK KULCS, NEM MÁSIK MODELL.
                 # A `50610` / HTTP 429 nem a modell hibája: a modell él, minket
@@ -8136,8 +8220,12 @@ async def sf_chat(payload: dict, *, purpose: str = "", attempts: int = 3,
                     break          # rossz kérés / auth: az újrapróbálás csak kvótát éget
                 if attempt < attempts:
                     await _a.sleep(min(2 ** attempt, 8))
-            if last_err and last_err["code"] not in _SF_FAILOVER_WORTHY:
-                break              # modellváltás sem segít egy hibás kérésen
+            if _fizetes_vege or (last_err and last_err["code"] not in _SF_FAILOVER_WORTHY):
+                break              # modellváltás sem segít egy hibás kérésen — és az elfogyott egyenlegen sem
+
+    # A megszakító emlékezete: a 402 azonnal nyit, a tartós kiesés a küszöb után; a rossz kérés semleges.
+    if last_err is not None:
+        _megszakito.kieses(last_err.get("code", ""), last_err.get("message", ""))
 
     # ══ SILICONFLOW-KIESÉS → ANTHROPIC (2026-11-22) ══════════════════════
     # A 2026-11-20-i leállás: mindkét kulcs 402, és nem volt hova menni. Ha a SiliconFlow az elsődleges, de a saját
@@ -8146,8 +8234,7 @@ async def sf_chat(payload: dict, *, purpose: str = "", attempts: int = 3,
         notes.append(f"SILICONFLOW-KIESÉS ({last_err.get('code')}) — a választ az Anthropic adja")
         logger.warning("sf_chat[%s]: SiliconFlow-kiesés (%s), tartalék: Anthropic",
                        purpose or "?", last_err.get("code"))
-        _a_data, _a_err, _a_notes = await llm_kapu.chat(payload, purpose=purpose)
-        notes.extend(_a_notes)
+        _a_data, _a_err = await _anthropic_helyett(payload, purpose, model, _nevesitett, notes)
         if _a_err is None:
             return _a_data, None, notes
         notes.append(f"az Anthropic-tartalék is elbukott ({_a_err.get('code')})")
@@ -8369,14 +8456,19 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
         DeepSeek-V4-Pro reasoner which leaks DSML format under tool calling.
         """
         import httpx, re
+        #: a kapu jegyzetei (modellváltás, SILICONFLOW-KIESÉS → Anthropic) — az eredmény végére kerülnek, kimondva
+        kapu_notes: list[str] = []
 
         async def _api_call(client, payload):
-            resp = await client.post(
-                f"{SILICONFLOW_BASE_URL}/chat/completions",
-                headers={"Authorization": f"Bearer {SILICONFLOW_API_KEY}", "Content-Type": "application/json"},
-                json=payload,
-            )
-            return json.loads(resp.text)
+            # A KAPU MÖGÖTT (2026-11-22): `ai_task/<ügynök>` — név szerinti ügynök, a saját modellje; SiliconFlow-
+            # kiesésnél az Anthropic (helyettesítő-jegyzettel). A `client` a régi aláírás maradványa.
+            data, err, notes = await sf_chat(payload, purpose=f"ai_task/{agent_name}")
+            kapu_notes.extend(notes)
+            if err is not None:
+                logger.error("AI task #%d %s: a kapu hibát adott: %s", task_id, agent_name,
+                             str(err.get("message", ""))[:200])
+                return {"error": err}
+            return data
 
         for attempt in range(2):
             try:
@@ -8450,6 +8542,7 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
                         max_tokens=agent_max_tokens,
                         temperature=0.6,
                         max_rounds=4,
+                        purpose=f"ai_task/{agent_name}/research",
                     )
                     ts = now()
                     conn.execute(
@@ -8632,6 +8725,8 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
                                     )
                                     content = rc
 
+                if content:
+                    content = _with_sf_notes(content, kapu_notes)
                 ts = now()
                 conn.execute(
                     "INSERT INTO ai_task_results (task_id, agent, role, content, timestamp) VALUES (?, ?, ?, ?, ?)",
@@ -9003,6 +9098,7 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
                     max_tokens=max_tokens,
                     temperature=temperature,
                     max_rounds=4,
+                    purpose=f"dispatch/{model}/research",
                 )
                 return {"response": content, "tokens": {"prompt": 0, "completion": 0}}
 
@@ -9758,8 +9854,12 @@ def _probe_siliconflow_model(alias: str, model_id: str):
             return selfdiag.ProbeResult(alias, False, f"transport: {type(e).__name__}: {e} "
                                                       f"(`{model_id}`, {_SF_PROBE_TIMEOUT} s-os korlát)")
         if r.status_code == 200:
+            # a mért egészség a megszakítót is zárja (feltöltés után nem kell kivárni az ablakot)
+            llm_kapu.sf_megszakito.siker()
             return selfdiag.ProbeResult(alias, True, "200")
         code, msg = _sf_classify(r.status_code, r.text)
+        if code == "payment":
+            llm_kapu.sf_megszakito.kieses(code, msg)
         # A 429 NEM a modell halála, hanem pillanatnyi torlódás — a különbség
         # számít: az egyikre várni kell, a másikra modellt váltani.
         return selfdiag.ProbeResult(alias, False if code != "rate_limit" else None,
@@ -10083,35 +10183,32 @@ def _categorize_email(sender: str, subject: str) -> str:
 async def _analyze_image(image_base64: str, mime_type: str = "image/jpeg",
                          prompt: str = "Mit latsz a kepen? Ird le reszletesen, magyarul.",
                          model: str = "kimi") -> str:
-    """Central image analysis via vision model (Kimi K2.7). Usable from any channel."""
-    if not SILICONFLOW_API_KEY:
-        return "(Vision nem elerheto — SILICONFLOW_API_KEY hianzik)"
+    """Central image analysis via vision model (Kimi). Usable from any channel.
 
-    model_id = SILICONFLOW_MODELS.get(model, "moonshotai/Kimi-K2.7-Code")
+    A KAPU MÖGÖTT (2026-11-22): `kepleiras` (közép szint; az „elemz” szó a célban az okos szintre vinné) — a kapu
+    dönt Anthropic és SiliconFlow között, és ha a SiliconFlow nem szolgál ki (402), az Anthropic néz rá a képre; a
+    váltás jegyzete a válasz végén."""
+    if not (SILICONFLOW_API_KEY or llm_kapu.elerheto()):
+        return "(Vision nem elerheto — SILICONFLOW_API_KEY es ANTHROPIC_API_KEY is hianyzik)"
+
+    model_id = SILICONFLOW_MODELS.get(model, "moonshotai/Kimi-K3.1-Pro")
     data_url = f"data:{mime_type};base64,{image_base64}"
 
     try:
-        import httpx
-        async with httpx.AsyncClient(timeout=60) as client:
-            resp = await client.post(
-                f"{SILICONFLOW_BASE_URL}/chat/completions",
-                headers={"Authorization": f"Bearer {SILICONFLOW_API_KEY}", "Content-Type": "application/json"},
-                json={
-                    "model": model_id,
-                    "messages": [{"role": "user", "content": [
-                        {"type": "image_url", "image_url": {"url": data_url}},
-                        {"type": "text", "text": prompt},
-                    ]}],
-                    "temperature": 0.5,
-                    "max_tokens": 2000,
-                },
-            )
-        data = json.loads(resp.text)
-        if "error" in data or "code" in data:
-            logger.error("Vision API error: %s", data)
-            return f"(Vision hiba: {data.get('message', data.get('error', 'unknown'))})"
+        data, err, notes = await sf_chat({
+            "model": model_id,
+            "messages": [{"role": "user", "content": [
+                {"type": "image_url", "image_url": {"url": data_url}},
+                {"type": "text", "text": prompt},
+            ]}],
+            "temperature": 0.5,
+            "max_tokens": 2000,
+        }, purpose="kepleiras")
+        if err is not None:
+            logger.error("Vision API error: %s", err)
+            return _with_sf_notes(f"(Vision hiba: {err.get('code')}: {str(err.get('message', ''))[:300]})", notes)
         content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
-        return content or "(ures valasz a vision modeltol)"
+        return _with_sf_notes(content, notes) if content else "(ures valasz a vision modeltol)"
     except Exception as e:
         logger.error("Vision analysis failed: %s", e)
         return f"(Vision hiba: {e})"
@@ -11842,6 +11939,12 @@ try:
 except Exception as _yr_e:  # noqa: BLE001
     logger.error("YoungeReka chat-felület bekötése bukott (a Bridge megy "
                  "tovább): %s", _yr_e, exc_info=True)
+
+# ══ A KÖZÖS LLM-BELÉPŐ (2026-11-22) ════════════════════════════════════════
+# A pluginok, a Feldwebel segédei és a családi chat a szervert nem importálhatják (körkörös import), ezért eddig saját
+# közvetlen SiliconFlow-POST-tal kerülték meg a kaput: SF-kiesésnél (402) egyszerűen álltak. Mostantól az
+# `llm_kapu.kapun()`-on át ugyanezt a `sf_chat`-et érik el — önjavítás, megszakító, Anthropic-tartalék, KIMONDVA.
+llm_kapu.kapu_beallit(sf_chat)
 
 # Initialize Feldwebel
 if FELDWEBEL_ENABLED:

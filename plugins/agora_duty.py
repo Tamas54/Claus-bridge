@@ -35,6 +35,7 @@ Biztonsági fékek:
 from __future__ import annotations
 
 import asyncio
+import contextvars
 import json
 import logging
 import os
@@ -43,6 +44,8 @@ import re
 import sys
 import traceback
 from datetime import datetime, timedelta, timezone
+
+import llm_kapu
 
 logger = logging.getLogger("plugins.agora_duty")
 
@@ -345,14 +348,91 @@ def _kimi_k3(agent_id: str, model_id: str) -> bool:
     return agent_id == "kimi3" or str(model_id).rsplit("/", 1)[-1].lower().startswith("kimi-k3")
 
 
+#: A perszóna VALÓDI modellje ebben a körben (agent_id → modell), ha NEM a beállított írt (Anthropic-tartalék vagy
+#: SiliconFlow-modellváltás). A kimenő komment jelvénye (`model`) és az esszé szerzői jegyzete ebből olvas — a perszóna
+#: fején a valós modell látszik (néma modellváltás nincs). ContextVar: a párhuzamos körök nem keverednek.
+_KISZOLGALO: contextvars.ContextVar = contextvars.ContextVar("agora_kiszolgalo", default=None)
+#: A helyettesítésről szóló Telegram-jelzés kulcsa (24 órán belül egyszer, a kiesés-jelzés mintájára).
+HELYETTESITES_JELZES_KULCS = "agora_anthropic_helyettesites"
+
+
+def _kiszolgalo_jegyez(agent_id: str, valodi: str | None) -> None:
+    d = dict(_KISZOLGALO.get() or {})
+    if valodi:
+        d[agent_id] = valodi
+    else:
+        d.pop(agent_id, None)
+    _KISZOLGALO.set(d)
+
+
+def _jelveny(a: dict) -> str:
+    """A perszóna jelvénye: a beállított (`model_badge`), vagy ha ebben a körben más írt, a VALÓDI modell."""
+    valodi = (_KISZOLGALO.get() or {}).get(a["agent_id"])
+    return valodi.rsplit("/", 1)[-1].lower() if valodi else a["model_badge"]
+
+
+def _szerzoi_jegyzet(a: dict, jegyzet: str) -> str:
+    """Az esszé/jegyzet `author_note`-ja: helyettesítésnél a valódi modell is benne van (az esszének nincs jelvénye)."""
+    valodi = (_KISZOLGALO.get() or {}).get(a["agent_id"])
+    if not valodi:
+        return jegyzet
+    return f"{jegyzet} [model: {_jelveny(a)}]".strip()
+
+
+async def _helyettesites_jelzes(deps: dict, agent_id: str, valodi: str, notes: list) -> bool:
+    """EGY Telegram-mondat: a SiliconFlow nem szolgált ki, az Agora-perszóna a valódi modellen írt (24 órás tiltás)."""
+    import time
+    import onjavitas
+    get_db = deps.get("get_db")
+    most = time.time()
+    if (most - _JELZES_HELYBEN.get(HELYETTESITES_JELZES_KULCS, 0) < onjavitas.ISMETLES_TILTAS_S
+            or (get_db is not None and onjavitas._mar_jelezve(get_db, HELYETTESITES_JELZES_KULCS, most))):
+        return False
+    push = deps.get("telegram_push")
+    ok = next((n for n in notes if "KIESÉS" in n), "a SiliconFlow nem szolgált ki")
+    szoveg = (f"🗣 <b>Agora</b> — {ok}. A perszónák (pl. {agent_id}) most a(z) <b>{valodi}</b> modellen írnak; a "
+              f"kommentek jelvénye a valódi modellt mutatja. (24 órán belül erről nem szólok újra.)")
+    _JELZES_HELYBEN[HELYETTESITES_JELZES_KULCS] = most
+    if push is None:
+        logger.warning("agora: helyettesítés, Telegram-jelzés nélkül: %s", szoveg)
+        return False
+    try:
+        await push(szoveg)
+    except Exception as ex:  # noqa: BLE001
+        logger.error("agora: a helyettesítés-jelzés nem ment ki: %s", ex)
+        return False
+    memoria_ir = deps.get("memoria_ir")
+    if memoria_ir is not None and get_db is not None:
+        onjavitas._megjegyez(get_db, memoria_ir, HELYETTESITES_JELZES_KULCS, most, f"{agent_id}: {valodi}")
+    return True
+
+
+def _kieses_hibabol(agent_id: str, err: dict) -> Exception:
+    """A kapu tipizált hibája → az Agora kivétele. A szolgáltató kiesése (402, 5xx, időtúllépés, nincs kapcsolat,
+    nyitott megszakító) `SzolgaltatoKieses` — a kör kihagyja a perszónát; a többi a régi RuntimeError."""
+    kod, uzenet, status = err.get("code"), str(err.get("message") or ""), err.get("status")
+    if kod == "payment":
+        return SzolgaltatoKieses(agent_id, "HTTP 402", uzenet)
+    if kod == "server_error":
+        return SzolgaltatoKieses(agent_id, f"HTTP {status or '5xx'}", uzenet)
+    if kod == "transport":
+        return SzolgaltatoKieses(agent_id, "időtúllépés" if err.get("idotullepes") else "nincs kapcsolat", uzenet)
+    if err.get("megszakito"):
+        return SzolgaltatoKieses(agent_id, f"megszakító: {kod}", uzenet)
+    return RuntimeError(f"SF HTTP {status or '?'}: {uzenet[:200]}")
+
+
 async def _sf_chat(deps: dict, agent_id: str, system: str, user: str,
-                   max_tokens: int = 2000, temperature: float = 0.6) -> str:
-    import httpx
+                   max_tokens: int = 2000, temperature: float = 0.6, feladat: str = "komment") -> str:
+    """Egy perszóna-hívás a KÖZÖS KAPUN (`llm_kapu.kapun`, 2026-11-22). A cél `agora/<feladat>/<agent_id>`: a perszóna
+    NÉV SZERINTI ügynök — a saját SiliconFlow-modellje válaszol, és ha az nem szolgál ki (402, 5xx), az Anthropic,
+    KIMONDVA: a kimenő komment jelvénye (`_jelveny`) a valódi modell, a Kommandant egy Telegram-jelzést kap.
+    Csak ha az Anthropic sem tud segíteni, akkor `SzolgaltatoKieses` (a kör kihagyja a perszónát, mint eddig)."""
     api_key = deps.get("siliconflow_api_key") or os.getenv("SILICONFLOW_API_KEY", "")
     base = deps.get("siliconflow_base_url") or "https://api.siliconflow.com/v1"
     models = deps.get("siliconflow_models") or {}
     model_id = models.get(agent_id, agent_id)
-    if not api_key:
+    if not llm_kapu.van_llm(api_key):
         raise RuntimeError("SILICONFLOW_API_KEY missing")
     extra: dict = {}
     # GONDOLKODÓ modellek (11-22: a perszónák a legújabbakon — Kimi K3, GLM-5.3): a gondolkodás nem kapcsolható
@@ -379,21 +459,17 @@ async def _sf_chat(deps: dict, agent_id: str, system: str, user: str,
     if _kimi_k3(agent_id, model_id):
         payload.pop("temperature")
     timeout = float(deps.get("siliconflow_timeout") or 220)
+    purpose = f"agora/{feladat}/{agent_id}"
+    # A bejegyzett kapu maga próbál újra (kulcs, modell, Anthropic) — ott egy kör elég; a régi közvetlen úton kettő.
+    korok = (1,) if llm_kapu.kapu_bekotve() else (1, 2)
     last_err = None
-    for attempt in (1, 2):
+    for attempt in korok:
         try:
-            async with httpx.AsyncClient(timeout=timeout) as client:
-                resp = await client.post(f"{base}/chat/completions",
-                                         headers={"Authorization": f"Bearer {api_key}"},
-                                         json=payload)
-            if resp.status_code == 402:
-                # elfogyott az egyenleg: egy másodperc múlva sem lesz — nincs újrapróba
-                raise SzolgaltatoKieses(agent_id, "HTTP 402", getattr(resp, "text", "") or "")
-            if resp.status_code >= 500:
-                raise SzolgaltatoKieses(agent_id, f"HTTP {resp.status_code}", getattr(resp, "text", "") or "")
-            data = resp.json()
-            if resp.status_code >= 400 or "choices" not in data:
-                raise RuntimeError(f"SF HTTP {resp.status_code}: {str(data)[:200]}")
+            data, err, notes = await llm_kapu.kapun(payload, purpose=purpose, sf_kulcs=api_key, sf_alap=base,
+                                                    timeout=timeout)
+            if err is not None:
+                # 402 (és az Anthropic sem vette át): egy másodperc múlva sem lesz — lent újrapróba nélkül továbbmegy
+                raise _kieses_hibabol(agent_id, err)
             choice = data["choices"][0]
             msg = choice.get("message") or {}
             content = (msg.get("content") or "").strip()
@@ -413,18 +489,20 @@ async def _sf_chat(deps: dict, agent_id: str, system: str, user: str,
                 # kivételként látja (és logolja) a kétszeri üres választ.
                 raise RuntimeError(
                     f"empty completion (finish_reason={choice.get('finish_reason')})")
+            valodi = llm_kapu.helyettesitett(data, model_id)
+            _kiszolgalo_jegyez(agent_id, valodi)
+            if valodi:
+                logger.warning("agora (%s, %s): HELYETTESÍTŐ modell írt — %s (%s)", agent_id, feladat, valodi,
+                               "; ".join(dict.fromkeys(notes))[:300])
+                await _helyettesites_jelzes(deps, agent_id, valodi, notes)
             return content
         except SzolgaltatoKieses as e:
             if e.ok == "HTTP 402":
                 raise
             last_err = e
-        except httpx.TimeoutException as e:
-            last_err = SzolgaltatoKieses(agent_id, "időtúllépés", f"{type(e).__name__} {timeout:.0f} s után")
-        except httpx.TransportError as e:
-            last_err = SzolgaltatoKieses(agent_id, "nincs kapcsolat", f"{type(e).__name__}: {e}")
         except Exception as e:  # noqa: BLE001
             last_err = e
-        if attempt == 2:
+        if attempt == korok[-1]:
             break
         await asyncio.sleep(1.0)
     if isinstance(last_err, SzolgaltatoKieses):
@@ -647,7 +725,7 @@ async def beat_match(deps: dict, stories: list[dict]) -> dict:
         '"query": "...", "statdata_preset": "..."}]}, "der_kartograph": {"candidates": [...]}, '
         '"frau_lupe": {"candidates": [...]}}'
     )
-    raw = await _sf_chat(deps, "deepseek", system, user, max_tokens=2000, temperature=0.2)
+    raw = await _sf_chat(deps, "deepseek", system, user, max_tokens=2000, temperature=0.2, feladat="beat")
     return _normalize_matches(_extract_json(raw) or {})
 
 
@@ -793,7 +871,8 @@ async def _von_takt_chart_spec(deps: dict, entries: list[dict],
         '"labels": ["..."], "values": [1.0], "unit": "...", "source": "...", '
         '"key_number": "..."}'
     )
-    raw = await _sf_chat(deps, AGORA_AGENTS["von_takt"]["agent_id"], system, user, max_tokens=1200, temperature=0.2)
+    raw = await _sf_chat(deps, AGORA_AGENTS["von_takt"]["agent_id"], system, user, max_tokens=1200, temperature=0.2,
+                         feladat="abra")
     parsed = _extract_json(raw)
     if not isinstance(parsed, dict) or parsed.get("skip"):
         return None
@@ -1007,7 +1086,8 @@ async def reaction_round(deps: dict, get_db, agent_key: str, story_ids: list[str
             '"body": "...", "lang": "hu|en"}]}'
         )
         try:
-            raw = await _sf_chat(deps, a["agent_id"], system, user, max_tokens=1200, temperature=0.4)
+            raw = await _sf_chat(deps, a["agent_id"], system, user, max_tokens=1200, temperature=0.4,
+                                 feladat="reakcio")
             plan = _extract_json(raw) or {}
         except SzolgaltatoKieses:
             raise                       # a szolgáltató kiesése a perszóna egész körét állítja meg
@@ -1046,7 +1126,7 @@ async def reaction_round(deps: dict, get_db, agent_key: str, story_ids: list[str
                 try:
                     await ec.post_comment(story_id=sid, operator_key=op_key,
                                           reaction=rtype, comment_id=cid,
-                                          agent_label=a["label"], model=a["model_badge"])
+                                          agent_label=a["label"], model=_jelveny(a))
                 except Exception as e:  # noqa: BLE001
                     logger.error("reaction post failed: %s", e)
                     _log_act(get_db, agent_key, "error", sid, cid, "", f"reaction:{e}")
@@ -1068,7 +1148,7 @@ async def reaction_round(deps: dict, get_db, agent_key: str, story_ids: list[str
                         try:
                             res = await ec.post_comment(story_id=sid, body=body, operator_key=op_key,
                                                         parent_id=cid, agent_label=a["label"],
-                                                        model=a["model_badge"], lang=target["lang"])
+                                                        model=_jelveny(a), lang=target["lang"])
                             new_id = str((res or {}).get("comment_id") or "")
                         except Exception as e:  # noqa: BLE001
                             logger.error("dislike-reply failed: %s", e)
@@ -1104,7 +1184,7 @@ async def reaction_round(deps: dict, get_db, agent_key: str, story_ids: list[str
                 try:
                     res = await ec.post_comment(story_id=sid, body=body, operator_key=op_key,
                                                 parent_id=pid, agent_label=a["label"],
-                                                model=a["model_badge"], lang=rlang)
+                                                model=_jelveny(a), lang=rlang)
                     new_id = str((res or {}).get("comment_id") or (res or {}).get("id") or "")
                 except Exception as e:  # noqa: BLE001
                     logger.error("reply post failed: %s", e)
@@ -1126,6 +1206,7 @@ async def run_agora_duty(deps: dict, dry_run: bool = False, only_agent: str = ""
     get_db = deps["get_db"]
     report: dict = {"dry_run": dry_run, "ts": _utc_iso(), "agents": {}}
     agent_keys = [only_agent] if only_agent in AGORA_AGENTS else list(AGORA_AGENTS)
+    _KISZOLGALO.set({})          # a jelvény a SAJÁT kör valódi modelljét mutassa, ne egy korábbiét
 
     def _abort(status: str, kind: str = "skip_run") -> dict:
         """Futás-szintű elakadás — NAPLÓ-GARANCIA: minden agent-ág kap nyomot."""
@@ -1209,6 +1290,8 @@ async def run_agora_duty(deps: dict, dry_run: bool = False, only_agent: str = ""
     if kiesett:
         await _kieses_jelzes(deps, kiesett, kieses)
         report["kimaradt"] = kiesett
+    if _KISZOLGALO.get():
+        report["helyettesitve"] = dict(_KISZOLGALO.get())     # KIMONDVA: ki írt a beállított modell helyett
     report["status"] = "ok"
     _session_log(get_db, "agora_duty", report)
     return report
@@ -1384,7 +1467,7 @@ async def _duty_agent_round(deps: dict, get_db, agent_key: str, cands: list[dict
         ec = _echolot()
         try:
             res = await ec.post_comment(story_id=sid, body=body, operator_key=op_key,
-                                        agent_label=a["label"], model=a["model_badge"],
+                                        agent_label=a["label"], model=_jelveny(a),
                                         lang=lang)
             cid = str((res or {}).get("comment_id") or (res or {}).get("id") or "")
             att["action"] = ar["action"] = "posted"
@@ -1476,7 +1559,7 @@ async def maybe_write_note(deps: dict, get_db, agent_key: str, cands: list[dict]
         '"why": "1 mondat: miért érdemes megírni"}'
     )
     raw = await _sf_chat(deps, a["agent_id"], _persona_system(agent_key, lang), user,
-                         max_tokens=2000, temperature=0.6)
+                         max_tokens=2000, temperature=0.6, feladat="jegyzet")
     parsed = _extract_json(raw) or {}
     if not isinstance(parsed, dict) or parsed.get("skip") or not parsed.get("body"):
         reason = str((parsed or {}).get("reason") or "nincs közös mintázat")[:150]
@@ -1513,7 +1596,7 @@ async def maybe_write_note(deps: dict, get_db, agent_key: str, cands: list[dict]
     ec = _echolot()
     res = await ec.agora_action("publish", operator_key=op_key, title=title,
                                 body=body, story_refs=",".join(sids),
-                                author_note=author_note,
+                                author_note=_szerzoi_jegyzet(a, author_note),
                                 agent_label=a["label"], lang=lang)
     post_id = str((res or {}).get("post_id") or (res or {}).get("id") or "")
     out["status"] = "published"
@@ -1609,6 +1692,7 @@ async def run_agora_essay(deps: dict, agent_key: str, dry_run: bool = False,
     """
     get_db = deps["get_db"]
     report: dict = {"agent": agent_key, "dry_run": dry_run, "ts": _utc_iso()}
+    _KISZOLGALO.set({})
     story_id = re.sub(r"[^a-z0-9]", "", (story_id or "").lower())[:32]
     if story_id:
         report["story_id"] = story_id
@@ -1670,7 +1754,7 @@ async def run_agora_essay(deps: dict, agent_key: str, dry_run: bool = False,
     )
     try:
         raw = await _sf_chat(deps, a["agent_id"], _persona_system(agent_key, "hu"),
-                             sel_user, max_tokens=800, temperature=0.3)
+                             sel_user, max_tokens=800, temperature=0.3, feladat="temavalasztas")
         sel = _extract_json(raw) or {}
     except SzolgaltatoKieses as e:
         return await _essze_kimarad(deps, agent_key, e, trigger, _exit)
@@ -1736,7 +1820,7 @@ async def run_agora_essay(deps: dict, agent_key: str, dry_run: bool = False,
                     f"(ok: {why}). Írd újra úgy, hogy ez a hiba ne forduljon elő.")
         try:
             raw = await _sf_chat(deps, a["agent_id"], _persona_system(agent_key, lang),
-                                 req, max_tokens=6000, temperature=0.7)
+                                 req, max_tokens=6000, temperature=0.7, feladat="essay")
         except SzolgaltatoKieses as e:
             return await _essze_kimarad(deps, agent_key, e, trigger, _exit)
         except Exception as e:  # noqa: BLE001
@@ -1786,11 +1870,14 @@ async def run_agora_essay(deps: dict, agent_key: str, dry_run: bool = False,
     try:
         res = await ec.agora_action("publish", operator_key=op_key, title=title, body=body,
                                     story_refs=",".join(sids),
-                                    author_note=note or f"Heti {a['beat']} esszé a hét legerősebb story-clusteréről.",
+                                    author_note=_szerzoi_jegyzet(
+                                        a, note or f"Heti {a['beat']} esszé a hét legerősebb story-clusteréről."),
                                     agent_label=a["label"], lang=lang)
         post_id = str((res or {}).get("post_id") or (res or {}).get("id") or "")
         report["status"] = "published"
         report["post_id"] = post_id
+        if _KISZOLGALO.get():
+            report["helyettesitve"] = dict(_KISZOLGALO.get())
         _log_act(get_db, agent_key, "essay", sids[0], post_id, lang, title[:150])
     except Exception as e:  # noqa: BLE001
         report["status"] = f"publish failed: {e}"

@@ -16,6 +16,8 @@ from datetime import datetime, timezone
 from email.mime.text import MIMEText
 from email.utils import parseaddr
 
+import llm_kapu
+
 logger = logging.getLogger("plugins.draft_reply")
 
 __plugin_meta__ = {
@@ -83,8 +85,6 @@ def _headers_to_dict(payload: dict) -> dict:
 
 def register_tools(app, deps):
     """Regisztralja a draft_reply es draft_reply_log MCP toolokat."""
-    import httpx
-
     get_db = deps.get("get_db")
     sf_key = deps.get("siliconflow_api_key", "")
     sf_base = deps.get("siliconflow_base_url", "https://api.siliconflow.com/v1")
@@ -142,14 +142,16 @@ def register_tools(app, deps):
 
         return samples[:3]
 
-    async def _generate_body(last_message: str, samples: list, instruction: str) -> str:
+    async def _generate_body(last_message: str, samples: list, instruction: str) -> tuple[str, str, list]:
         """
-        SiliconFlow chat-hivas (kimi default) -- valasz-email torzs generalasa
-        a Kommandant hangjan, a few-shot mintak alapjan.
+        LLM-hivas a KOZOS KAPUN at (`llm_kapu.kapun`, 2026-11-22) -- valasz-email torzs generalasa
+        a Kommandant hangjan, a few-shot mintak alapjan. `(torzs, a valaszolo modell, a kapu jegyzetei)`.
+        SiliconFlow-kieses (402) eseten az Anthropic irja, KIMONDVA -- de a jegyzet NEM a levelbe kerul
+        (azt a Kommandant elkuldheti), hanem a tool valaszaba es a draft_log-ba.
         """
-        if not sf_key:
+        if not llm_kapu.van_llm(sf_key):
             # AI nelkul nem tudunk ertelmes draftot generalni.
-            return ""
+            return "", "", []
 
         # Few-shot blokk osszeallitasa a promptba.
         if samples:
@@ -201,25 +203,19 @@ def register_tools(app, deps):
             payload["reasoning_effort"] = "medium"
 
         try:
-            async with httpx.AsyncClient(timeout=sf_timeout) as client:
-                resp = await client.post(
-                    f"{sf_base}/chat/completions",
-                    headers={
-                        "Authorization": f"Bearer {sf_key}",
-                        "Content-Type": "application/json",
-                    },
-                    json=payload,
-                )
-                data = json.loads(resp.text)
-            content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
-            content = content.strip()
+            data, err, notes = await llm_kapu.kapun(payload, purpose="levelterv/draft_reply", sf_kulcs=sf_key,
+                                                    sf_alap=sf_base, timeout=sf_timeout)
+            if err is not None:
+                logger.warning("draft-generalas: a kapu hibat adott: %s", str(err.get("message", err))[:300])
+                return "", "", notes
+            content = llm_kapu.valasz_szoveg(data).strip()
             # Esetleges kodblokk-burok eltavolitasa.
             if content.startswith("```"):
                 content = content.split("\n", 1)[-1].rsplit("```", 1)[0].strip()
-            return content
+            return content, str((data or {}).get("model") or model_id), notes
         except Exception as e:
-            logger.warning("SiliconFlow draft-generalas hiba: %s", e)
-            return ""
+            logger.warning("Draft-generalas hiba: %s", e)
+            return "", "", []
 
     @app.tool()
     async def draft_reply(thread_id: str, instruction: str = "", caller: str = "") -> str:
@@ -298,12 +294,16 @@ def register_tools(app, deps):
             style_notes = "nincs few-shot minta — alapertelmezett magyar hangnem"
 
         # --- 3. SiliconFlow chat-hivas: valasz torzs generalasa ---
-        body_text = await _generate_body(last_body, samples, instruction)
+        body_text, iro_modell, kapu_notes = await _generate_body(last_body, samples, instruction)
         if not body_text:
             return json.dumps(
-                {"error": "A valasz-draft generalasa nem sikerult (SiliconFlow nem elerheto vagy ures valasz)"},
+                {"error": "A valasz-draft generalasa nem sikerult (nincs elerheto LLM vagy ures valasz)",
+                 **({"kapu_jegyzet": kapu_notes} if kapu_notes else {})},
                 ensure_ascii=False,
             )
+        # KI IRTA VALOJABAN: ha a kert Kimi helyett mas (Anthropic-tartalek), az a naploban es a valaszban is latszik.
+        if iro_modell:
+            style_notes = f"{style_notes} · modell={iro_modell}"
 
         # --- 4. MIME uzenet + Gmail draft letrehozasa (NEM send!) ---
         try:
@@ -364,6 +364,8 @@ def register_tools(app, deps):
                 "recipient": recipient,
                 "subject": reply_subject,
                 "body_preview": body_preview,
+                "modell": iro_modell,
+                **({"kapu_jegyzet": list(dict.fromkeys(kapu_notes))} if kapu_notes else {}),
             },
             ensure_ascii=False,
         )

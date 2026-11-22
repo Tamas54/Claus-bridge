@@ -7,6 +7,8 @@ import json
 import logging
 import os
 
+import llm_kapu
+
 logger = logging.getLogger("plugins.email_triage")
 
 __plugin_meta__ = {
@@ -38,8 +40,6 @@ def _fallback_categorize(sender: str, subject: str) -> dict:
 
 def register_tools(app, deps):
     """Register email triage MCP tool."""
-    import httpx
-
     sf_key = deps.get("siliconflow_api_key", "")
     sf_base = deps.get("siliconflow_base_url", "https://api.siliconflow.com/v1")
     sf_models = deps.get("siliconflow_models", {})
@@ -53,7 +53,7 @@ def register_tools(app, deps):
             subject: Email subject line
             body: Email body text (truncated to 1500 chars)
         """
-        if not sf_key:
+        if not llm_kapu.van_llm(sf_key):
             return json.dumps(_fallback_categorize(sender, subject), ensure_ascii=False)
 
         prompt = (
@@ -83,15 +83,13 @@ def register_tools(app, deps):
             payload["reasoning_effort"] = "medium"
 
         try:
-            async with httpx.AsyncClient(timeout=30) as client:
-                resp = await client.post(
-                    f"{sf_base}/chat/completions",
-                    headers={"Authorization": f"Bearer {sf_key}", "Content-Type": "application/json"},
-                    json=payload,
-                )
-                data = json.loads(resp.text)
+            # A KÖZÖS KAPUN (2026-11-22): SiliconFlow-kiesésnél (402) az Anthropic sorol be, kimondva (`modell`).
+            data, err, notes = await llm_kapu.kapun(payload, purpose="email_triage/besorolas", sf_kulcs=sf_key,
+                                                    sf_alap=sf_base, timeout=30)
+            if err is not None:
+                raise RuntimeError(f"LLM-kapu: {err.get('code')}: {str(err.get('message', ''))[:200]}")
 
-            content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
+            content = llm_kapu.valasz_szoveg(data)
             content = content.strip()
             if content.startswith("```"):
                 content = content.split("\n", 1)[1].rsplit("```", 1)[0].strip()
@@ -99,6 +97,9 @@ def register_tools(app, deps):
             result = json.loads(content)
             if "priority" not in result or "summary_hu" not in result:
                 result = _fallback_categorize(sender, subject)
+            elif llm_kapu.helyettesitett(data, model_id):
+                result["modell"] = llm_kapu.helyettesitett(data, model_id)
+                result["kapu_jegyzet"] = list(dict.fromkeys(notes))
 
             logger.info("Plugin triage: %s -> %s (%s)", subject[:40], result["priority"], result.get("category", "?"))
             return json.dumps(result, ensure_ascii=False)

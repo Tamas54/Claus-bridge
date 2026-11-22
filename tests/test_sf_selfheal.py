@@ -500,6 +500,11 @@ def test_a_kerulout_nem_novekedhet():
     2026-11-22: a ket `_handle_telegram_message`-POST az `sf_chat` moge kerult
     (Anthropic-kapu) — a racsni 6-ra szigorodik. Maradt: `_reply`,
     `_discuss_agent`, 2x `_api_call`, `_p`, `_analyze_image`.
+
+    2026-11-22 (este, ANTHROPIC-TARTALEK): a maradek is a kapu moge kerult — a
+    racsni 1-re szigorodik. Egyetlen maradt: `_p`, az onvizsgalat SiliconFlow-
+    modellprobaja, ami MAGAT a SiliconFlow-t meri (Anthropicra valtani ott
+    ertelmetlen). A repo-szintu or: `tests/test_huzalozas_or.py`.
     """
     src, tree = _server_tree()
     fns = [(n.lineno, n.end_lineno, n.name) for n in _ast.walk(tree)
@@ -510,8 +515,8 @@ def test_a_kerulout_nem_novekedhet():
             o = sorted((f for f in fns if f[0] <= i <= f[1]), key=lambda x: x[1] - x[0])
             hol.append(o[0][2] if o else "(modul)")
     kerulout = [h for h in hol if h != "_sf_post_once"]
-    assert len(kerulout) <= 6, (
-        f"uj SiliconFlow-kerulout keletkezett ({len(kerulout)} > 6): {kerulout}. "
+    assert kerulout == ["_p"], (
+        f"uj SiliconFlow-kerulout keletkezett: {kerulout} (csak az onvizsgalat `_p` probaja maradhat). "
         f"Minden uj hivas az `sf_chat`-en menjen at.")
     assert "ai_query" not in kerulout
     assert "_handle_telegram_message" not in kerulout, \
