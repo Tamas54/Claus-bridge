@@ -524,7 +524,8 @@ def test_a_telegram_chat_a_kapu_mogott():
     assert src.count("await sf_chat(") >= 2
     assert "faber_relay.szandek(" in src
     # A szandek-felismeres a Bridge-be iras ELOTT fut — a Fabernek szolo uzenet nem a Bridge beszelgetese:
-    assert src.index("faber_relay.szandek(") < src.index("INSERT INTO messages")
+    # (a cli-Claus postája — 'cli-claus' címzett — ennél korábban, külön ágon íródik; az nem a Bridge beszélgetése)
+    assert src.index("faber_relay.szandek(") < src.index("VALUES (?, 'kommandant', 'bridge'")
 
 
 def test_a_feldwebel_a_kapu_mogott():

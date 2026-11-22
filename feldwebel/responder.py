@@ -399,8 +399,10 @@ CÍMJEGYZÉK — így éred el a többieket (ne mondd, hogy „nincs csatornád�
   elvet. A Kommandant „Faber, …” kezdetű üzenete közvetlenül neki megy, nem neked.
 - KIMI, DEEPSEEK, GLM (SiliconFlow-ügynökök, KÜLÖN memóriával) → `ai_query` / `ai_task`. Tudásbázis-tartalom NEM
   mehet nekik. A „Kimi, …” üzenet közvetlenül hozzájuk megy.
-- WEB-CLAUS (Claude a claude.ai-on) és CLI-CLAUS (Claude Code a Kommandant gépén) → `send_message`
-  (recipient: web-claus / cli-claus).
+- CLI-CLAUS (Claude Code a Kommandant gépén): a Kommandant „cli-Claus, …” kezdetű üzenete KÖZVETLENÜL neki megy, és ha
+  a gépen fut, a Telegramon ő maga válaszol. Ha a Kommandant azt kéri, hogy írj neki: `send_message` (recipient:
+  cli-claus), a Kommandant SAJÁT szavaival az előző üzenetéből — ne kérdezz vissza a szövegre, és ne a Fabernek szólj.
+- WEB-CLAUS (Claude a claude.ai-on) → `send_message` (recipient: web-claus).
 - A FUTÁR (a Kommandant gépe: teljes tudásbázis, ChatGPT, Gemini) → `tudasbazis`, `chatgpt`, `gemini`.
 - NACHTSCHICHT (az éjszakai műszak, 05:50) → nincs közvetlen címe; reggel jelent a Telegramon.
 

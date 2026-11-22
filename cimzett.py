@@ -4,7 +4,7 @@ A Kommandant: „A telegrammomon keveredik melyik ügynök mit küld” és „s
 ügynöknek megy az üzi, ha véletlen keveredés lenne”.
 
 * `cimzett(szoveg)` — az üzenet ELEJÉN álló megszólítás („Kimi, …”, „DeepSeeknek: …”, „Kérdezd meg a GLM-et: …”,
-  „Feldwebel, …”, „Faber, …”) → az ügynök kulcsa. Csak az elején: „mit mondott tegnap a Kimi?” nem megszólítás.
+  „Feldwebel, …”, „Faber, …”, „cli-Claus, …”) → az ügynök kulcsa. Csak az elején: „mit mondott tegnap a Kimi?” nem megszólítás.
 * `fejlec(kulcs, modell)` — minden válasz egységes feje: ikon + NÉV + a TÉNYLEGESEN válaszoló modell
   („🔭 <b>KIMI</b> · Kimi K2.7”). A webes felület (`ui_kabin.tg_szoveg`) ugyanebből olvassa, ki beszél.
 """
@@ -18,6 +18,7 @@ UGYNOKOK = {
     "deepseek": {"nev": "DEEPSEEK", "ikon": "⚡"},
     "glm5": {"nev": "GLM", "ikon": "🧩"},
     "faber": {"nev": "FABER", "ikon": "🔧"},
+    "claus": {"nev": "CLAUS · a gépen", "ikon": "🖥"},
 }
 #: A Bridge ügynökei, akik név szerint szólíthatók (a SiliconFlow-n, a saját modelljükön válaszolnak).
 LLM_UGYNOKOK = ("kimi", "deepseek", "glm5")
@@ -28,6 +29,9 @@ _NEVEK = (
     (r"glm(?:[\s-]?5(?:[.,]\d)?)?|dzsíelem", "glm5"),
     (r"feldwebel|feldvébel|feldvebel", "feldwebel"),
     (r"faber|fáber", "faber"),
+    # cli-Claus: a Kommandant gépén futó Claude Code (11-22: „ha be van kapcsolva a gépen, akkor itt is látnom kéne”).
+    # A puszta „Claus” a Bridge (Feldwebel) marad — a bot neve is Claus.
+    (r"cli[\s-]?claus|kli[\s-]?klausz|claude[\s-]?code|g[ée]pi\s+claus", "claus"),
 )
 _NEV = "|".join(f"(?:{n})" for n, _ in _NEVEK)
 _RAG = r"(?:-?(?:nek|nak|et|ot|t|tól|től|hoz|hez|höz))?"

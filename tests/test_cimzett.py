@@ -22,6 +22,10 @@ import llm_kapu
     ("Kérdezd meg a GLM-et a kódról", "glm5"),
     ("Feldwebel, mi a helyzet?", "feldwebel"),
     ("Faber, tanuld meg", "faber"),
+    ("cli-Claus, látod ezt?", "claus"),
+    ("Cli Claus: nézd meg a backtesztet", "claus"),
+    ("Claude Code, mi a helyzet?", "claus"),
+    ("Claus, mi a helyzet?", None),               # a puszta „Claus” a Bridge (Feldwebel) marad — a bot neve is Claus
     ("@deepseek szia", "deepseek"),
     ("mit mondott tegnap a Kimi?", None),          # nem megszólítás, csak említés
     ("kiminél jobb?", None),
@@ -194,3 +198,45 @@ def test_a_feldwebel_tudja_a_cimjegyzeket_es_eleri_a_fabert(tmp_path, monkeypatc
     assert "faber" in t["cimjegyzek"] and "kimi_deepseek_glm" in t["cimjegyzek"]
     import futar_kliens
     assert "'faber'" in futar_kliens.SF_KIZARAS_SQL     # a Faber-sorok sem kerülnek SF-ügynök kontextusába
+
+
+
+def test_cli_claus_telegramrol_a_gep_postajaba_megy_es_a_nyugta_megmondja_figyel_e(get_db, monkeypatch):
+    """A Kommandant (11-22): „hogyha be van kapcsolva a gépen, akkor itt is látnom kéne tudni”. A „cli-Claus, …” üzenet
+    nem a Feldwebelhez és nem a Faberhez megy, hanem a 'cli-claus' postájába; a nyugta a figyelő életjeléből mondja
+    meg, figyel-e most a gép."""
+    import server
+    pushok = []
+
+    async def push(s):
+        pushok.append(s)
+    monkeypatch.setattr(server, "_telegram_push", push)
+    monkeypatch.setattr(server, "get_db", get_db)
+    c = get_db()
+    c.execute("CREATE TABLE IF NOT EXISTS heartbeats (instance TEXT PRIMARY KEY, last_seen TEXT NOT NULL, "
+              "session_info TEXT, last_activity_source TEXT)")
+    c.commit()
+    c.close()
+
+    async def tilos(*a, **k):
+        raise AssertionError("a Faber-szándékfelismerő nem futhat cli-Claus-üzenetre")
+    monkeypatch.setattr(server.faber_relay, "szandek", tilos)
+    asyncio.run(server._handle_telegram_message("cli-Claus, írd meg, hol tart a backteszt", "42"))
+    conn = get_db()
+    sor = conn.execute("SELECT sender, recipient, message FROM messages").fetchone()
+    assert tuple(sor) == ("kommandant", "cli-claus", "cli-Claus, írd meg, hol tart a backteszt")
+    assert not server.cli_claus_figyel(conn)
+    conn.close()
+    assert "🖥 <b>CLAUS · a gépen</b>" in pushok[0] and "most nem figyel" in pushok[0]
+
+    # a gépen elindul a figyelő (lekérdezi a postáját) → életjel → a következő nyugta már „megkaptam”
+    class Keres:
+        method = "GET"
+        query_params = {"recipient": "cli-claus", "limit": "5"}
+    v = asyncio.run(server.api_messages(Keres()))
+    assert json.loads(v.body)[0]["recipient"] == "cli-claus"
+    conn = get_db()
+    assert server.cli_claus_figyel(conn)
+    conn.close()
+    asyncio.run(server._handle_telegram_message("cli-Claus, szia", "42"))
+    assert "Megkaptam a gépen" in pushok[-1]

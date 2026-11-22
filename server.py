@@ -1778,6 +1778,20 @@ async def api_status(request):
     })
 
 
+def cli_claus_figyel(conn, max_s: int = 120) -> bool:
+    """Figyel-e most a gépen a cli-Claus: a figyelője `max_s` másodpercen belül kérdezett-e (GET /api/messages?
+    recipient=cli-claus)."""
+    try:
+        row = conn.execute("SELECT last_seen FROM heartbeats WHERE instance = 'cli-claus'").fetchone()
+        if not row or not row["last_seen"]:
+            return False
+        t = datetime.fromisoformat(str(row["last_seen"]))
+        t = t if t.tzinfo else t.replace(tzinfo=timezone.utc)
+        return (datetime.now(timezone.utc) - t).total_seconds() <= max_s
+    except Exception:  # noqa: BLE001
+        return False
+
+
 @mcp.custom_route("/api/messages", methods=["GET", "POST"])
 async def api_messages(request):
     conn = get_db()
@@ -1814,6 +1828,15 @@ async def api_messages(request):
         limit = int(request.query_params.get("limit", "50"))
         # `recipient`: egy címzett tételei (a gépen futó futár így csak a sajátjait kéri, 3 mp-enként — kis forgalom)
         cimzett = request.query_params.get("recipient")
+        if cimzett == "cli-claus":
+            # a gépen futó cli-Claus figyelője kérdez → ez az életjele (a Telegram-nyugta ebből mondja meg, figyel-e);
+            # az életjel hibája a postát nem viheti el
+            try:
+                conn.execute("INSERT OR REPLACE INTO heartbeats (instance, last_seen, session_info) VALUES (?, ?, ?)",
+                             ("cli-claus", now(), "telegram-csatorna"))
+                conn.commit()
+            except sqlite3.Error as e:
+                logger.warning("cli-claus életjel kimaradt: %s", e)
         if cimzett:
             rows = conn.execute("SELECT * FROM messages WHERE recipient = ? ORDER BY timestamp DESC LIMIT ?",
                                 (cimzett, limit)).fetchall()
@@ -11056,6 +11079,26 @@ async def _handle_telegram_message(text: str, chat_id: str, csatorna: str = "tel
     # 0/A. MEGSZÓLÍTÁS (2026-11-22): az üzenet elején szabad szöveggel kimondott címzett („Kimi, …”, „Feldwebel, …”)
     # — a Kommandant: „szabad szövegesen mondhassam meg, hogy melyik ügynöknek megy az üzi” (cimzett.py).
     _cim = cimzett.cimzett(text)
+    # 0/C. cli-CLAUS (2026-11-22): a Kommandant gépén futó Claude Code. A Kommandant: „hogyha be van kapcsolva a gépen,
+    # akkor itt is látnom kéne tudni”. Az üzenet a 'cli-claus' postájába megy (a gépen a figyelő hozza be a sessionbe,
+    # a válasz onnan jön a Telegramra); a nyugta megmondja, figyel-e most a gép (a figyelő lekérdezése = életjel).
+    if _cim == "claus":
+        conn = get_db()
+        try:
+            cur = conn.execute(
+                "INSERT INTO messages (timestamp, sender, recipient, subject, message, priority) "
+                "VALUES (?, 'kommandant', 'cli-claus', ?, ?, 'normal')",
+                (now(), f"{'Web' if csatorna == 'web' else 'Telegram'}: {text[:60]}", text))
+            conn.execute("UPDATE messages SET thread_id = ? WHERE id = ?", (cur.lastrowid, cur.lastrowid))
+            conn.commit()
+            figyel = cli_claus_figyel(conn)
+        finally:
+            conn.close()
+        await _telegram_push(cimzett.fejlec("claus") + "\n" + (
+            "Megkaptam a gépen — innen válaszolok." if figyel else
+            "Továbbítottam a gépre, de a cli-Claus most nem figyel (a gép ki van kapcsolva, vagy nem fut a session). "
+            "Amint elindul, megkapja."))
+        return
     try:
         # Melléklettel küldött kérés (irat, tanulmány, fotó) és a név szerint megszólított ügynöknek szóló üzenet a
         # címzetté, nem a Faber kívánsága.
