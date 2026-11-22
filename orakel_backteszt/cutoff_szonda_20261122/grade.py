@@ -86,7 +86,8 @@ def grade(path):
         win = [v for k in range(3) for v in per_m.get(add_months(m, -k), [])]
         if win:
             roll[m] = round(sum(win) / len(win), 3)
-    cutoff = max((m for m, v in roll.items() if v >= 0.6), default=None)
+    # a cutoff-hónapban magában is legyen találat (a gördülő ablak különben a következő üres hónapra is átcsúszik)
+    cutoff = max((m for m, v in roll.items() if v >= 0.6 and any(per_m.get(m, []))), default=None)
     last_hit = max((x["month"] for x in rows if x["ok"]), default=None)
     tiszta_tol = add_months(last_hit, 1) if last_hit else lo
     out = {"model": d["meta"]["model"], "n": len(rows), "n_ok": sum(x["ok"] for x in rows),
