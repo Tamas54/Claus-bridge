@@ -155,6 +155,13 @@ SZIV_PANEL = [
 ]
 
 
+def napi_parameterek(lap: dict, nap: str) -> dict:
+    """Egy lap egy napjának get_news-paraméterei — a sajtó-motor, a panel-korpusz és az előtöltés UGYANEZT kéri,
+    így a felvétel kulcsa mindhármukra azonos."""
+    return {"source": ASOF_FORRAS.get(lap["kulcs"], lap["forras"]), "date": nap, "limit": 100,
+            "diversify_results": False}
+
+
 def napok_elotte(as_of: date, n: int) -> list[str]:
     return [(as_of - timedelta(days=i)).isoformat() for i in range(1, n + 1)]
 
@@ -196,8 +203,7 @@ async def sajto_adat(terv: dict, hivo, as_of: date) -> dict:
         for lap in ds.LAPOK:
             cikkek = []
             for nap in napok:
-                v, hiba = await hivo("echolot", "get_news", {"source": ASOF_FORRAS.get(lap["kulcs"], lap["forras"]),
-                                                             "date": nap, "limit": 100, "diversify_results": False})
+                v, hiba = await hivo("echolot", "get_news", napi_parameterek(lap, nap))
                 if hiba:
                     hianyok.append(f"get_news ({lap['nev']}, {nap}): {hiba}")
                     continue
@@ -452,8 +458,7 @@ async def napi_lap(hiv, lap_kulcs: str, nap: str) -> list[dict]:
     """Egy lap egy napjának cikkei (get_news source+date, a lap saját forrásneveire szűrve)."""
     import dontes_szimulator as ds
     lap = next(l for l in ds.LAPOK if l["kulcs"] == lap_kulcs)
-    v = mcp_json(await hiv("echolot", "get_news", {"source": ASOF_FORRAS.get(lap_kulcs, lap["forras"]), "date": nap,
-                                                   "limit": 100, "diversify_results": False}))
+    v = mcp_json(await hiv("echolot", "get_news", napi_parameterek(lap, nap)))
     if isinstance(v, dict) and v.get("hiba"):
         raise RuntimeError(f"get_news {lap_kulcs} {nap}: {str(v['hiba'])[:200]}")
     return [a for a in ds._cikkek(v) if ds.lap_azonosit(a.get("source_name")) == lap_kulcs and cikk_datum(a) == nap]
@@ -1010,6 +1015,26 @@ async def _cli_gt(args) -> None:
     Path(args.ki).write_text(json.dumps(ki, ensure_ascii=False, indent=1, sort_keys=True), encoding="utf-8")
 
 
+async def _cli_elotolt(args) -> None:
+    """A tervezőtől FÜGGETLEN Echolot-adat előre felvéve: a hét lap as_of előtti napjai — pontosan azok a get_news-
+    hívások, amelyeket a sajtó-motor és a panel-korpusz kér. SiliconFlow nem kell hozzá (zár nélkül futhat)."""
+    import dontes_szimulator as ds
+    bank = _beolvas(args.bank)
+    felvevo = Felvevo(args.felvetel, eles=True)
+    try:
+        for e in bank["esemenyek"]:
+            hiba = 0
+            for lap in ds.LAPOK:
+                for nap in napok_elotte(_d(e["as_of"]), SAJTO_NAPOK):
+                    s = await felvevo("echolot", "get_news", napi_parameterek(lap, nap))
+                    hiba += s.lstrip().startswith('{"hiba"')
+            felvevo.ment()
+            print(e["id"], "kész,", hiba, "hibás lekérés", flush=True)
+    finally:
+        felvevo.ment()
+        await felvevo.zar()
+
+
 async def _cli_futtat(args) -> None:
     bank = _beolvas(args.bank)
     felvevo = Felvevo(args.felvetel, eles=not args.csak_felvetel)
@@ -1071,6 +1096,9 @@ def main(argv=None) -> None:
     g.add_argument("--bank", required=True)
     g.add_argument("--felvetel", required=True)
     g.add_argument("--ki", required=True)
+    t = al.add_parser("elotolt", help="a tervezőtől független Echolot-adat előre felvéve (SF nélkül)")
+    t.add_argument("--bank", required=True)
+    t.add_argument("--felvetel", required=True)
     f = al.add_parser("futtat", help="esemény × modell-út futások")
     f.add_argument("--bank", required=True)
     f.add_argument("--felvetel", required=True)
@@ -1096,6 +1124,8 @@ def main(argv=None) -> None:
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(message)s")
     if args.parancs == "gt":
         asyncio.run(_cli_gt(args))
+    elif args.parancs == "elotolt":
+        asyncio.run(_cli_elotolt(args))
     elif args.parancs == "futtat":
         asyncio.run(_cli_futtat(args))
     else:

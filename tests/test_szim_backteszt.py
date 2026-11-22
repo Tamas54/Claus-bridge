@@ -392,3 +392,19 @@ def test_kerdes_lepes_ervenyesit_es_kimondja_a_hianyt(kotott_kapu):
     assert set(ki) == {"q2"}                     # q1: 1,7 nem valószínűség; az idegen azonosító kimarad
     assert ki["q2"] == {"p": 0.3, "indok": "piac"} and info["hianyzo_valasz"] == ["q1", "q3"]
     assert info["modell"] == "tencent/Hy3"
+
+
+def test_az_elotoltes_kulcsa_azonos_a_sajto_motoreval(tmp_path):
+    """Az előtöltött (felvett) napi lapadat a sajtó-motor és a panel-korpusz hívásaira PONTOSAN illeszkedik: a
+    visszajátszó felvevő élő hívás nélkül kiszolgálja a teljes as_of-sajtóadatot."""
+    f = sb.Felvevo(tmp_path / "f.json.gz", eles=False)
+    for lap in ds.LAPOK:
+        for nap in sb.napok_elotte(AS_OF, sb.SAJTO_NAPOK):
+            f.tar[sb.Felvevo.kulcs("echolot", "get_news", sb.napi_parameterek(lap, nap))] = {
+                "valasz": json.dumps({"articles": [_cikk(lap["forras"], f"{lap['nev']} cím {nap}", nap)]})}
+    hivo = ds.Hivo(f, echolot_koz_s=0.0)
+    terv = ds.terv_tisztit({"kereses": {"hu": "cím", "en": "cím", "de": "cím"}}, "x" * 20)
+    adat = _run(sb.sajto_adat(terv, hivo, AS_OF))
+    assert not [h for h in adat["hianyok"] if "nincs felvéve" in h]
+    korp = _run(sb.panel_korpusz(f, AS_OF))
+    assert korp["n_cim"] > 0 and "Telex cím" in korp["context"]
