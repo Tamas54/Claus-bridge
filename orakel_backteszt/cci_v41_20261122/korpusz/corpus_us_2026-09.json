@@ -1,0 +1,559 @@
+{
+ "country": "US",
+ "lang": "en",
+ "target_month": "2026-09",
+ "corpus_window": [
+  "2026-08-08",
+  "2026-09-07"
+ ],
+ "days_sampled": [
+  "2026-08-08",
+  "2026-08-10",
+  "2026-08-12",
+  "2026-08-14",
+  "2026-08-16",
+  "2026-08-18",
+  "2026-08-20",
+  "2026-08-22",
+  "2026-08-24",
+  "2026-08-26",
+  "2026-08-28",
+  "2026-08-30",
+  "2026-09-01",
+  "2026-09-03",
+  "2026-09-05",
+  "2026-09-07"
+ ],
+ "n": 60,
+ "lean_dist": {
+  "unknown": 20,
+  "center": 20,
+  "right": 8,
+  "center_right": 1,
+  "left": 7,
+  "center_left": 2,
+  "analytical": 1,
+  "gov": 1
+ },
+ "cat_dist": {
+  "politics": 9,
+  "sport": 15,
+  "foreign": 6,
+  "entertainment": 3,
+  "general": 6,
+  "global": 13,
+  "economy": 6,
+  "lifestyle": 1,
+  "tech": 1
+ },
+ "raw_rows": 1600,
+ "pool_after_dedupe": 1502,
+ "leak_dropped": 0,
+ "distinct_sources_raw": 168,
+ "raw_cat_dist": {
+  "sport": 283,
+  "global": 364,
+  "foreign": 193,
+  "politics": 182,
+  "entertainment": 98,
+  "general": 237,
+  "lifestyle": 26,
+  "economy": 152,
+  "tech": 49,
+  "news": 14,
+  "cars": 1,
+  "world": 1
+ },
+ "per_day": {
+  "2026-08-08": {
+   "returned": 100,
+   "pool": 500
+  },
+  "2026-08-10": {
+   "returned": 100,
+   "pool": 500
+  },
+  "2026-08-12": {
+   "returned": 100,
+   "pool": 500
+  },
+  "2026-08-14": {
+   "returned": 100,
+   "pool": 500
+  },
+  "2026-08-16": {
+   "returned": 100,
+   "pool": 500
+  },
+  "2026-08-18": {
+   "returned": 100,
+   "pool": 500
+  },
+  "2026-08-20": {
+   "returned": 100,
+   "pool": 500
+  },
+  "2026-08-22": {
+   "returned": 100,
+   "pool": 500
+  },
+  "2026-08-24": {
+   "returned": 100,
+   "pool": 500
+  },
+  "2026-08-26": {
+   "returned": 100,
+   "pool": 500
+  },
+  "2026-08-28": {
+   "returned": 100,
+   "pool": 500
+  },
+  "2026-08-30": {
+   "returned": 100,
+   "pool": 500
+  },
+  "2026-09-01": {
+   "returned": 100,
+   "pool": 500
+  },
+  "2026-09-03": {
+   "returned": 100,
+   "pool": 500
+  },
+  "2026-09-05": {
+   "returned": 100,
+   "pool": 500
+  },
+  "2026-09-07": {
+   "returned": 100,
+   "pool": 500
+  }
+ },
+ "mcp_errors": 0,
+ "items": [
+  {
+   "text": "‘They’re Not Saying That Though’: Trump Gets Cornered on Impeachment and Lies Straight to the Reporter’s Face — Then Watches It Blow Up on Camera — President Donald Trump thought he had a great comeback when a reporter asked him if he was worried about being impeached if Democrats regain control […] ‘They’re Not Saying That Though’: Trump Gets Cornered on Impeachmen",
+   "source": "Atlanta Black Star",
+   "lean": "unknown",
+   "date": "2026-08-08",
+   "category": "politics"
+  },
+  {
+   "text": "49ers' Kyle Shanahan says his car was on autopilot at the time of his recent accident — Shanahan publicly addressed the accident for the first time on Saturday",
+   "source": "CBS Sports — Headlines",
+   "lean": "center",
+   "date": "2026-08-08",
+   "category": "sport"
+  },
+  {
+   "text": "Anti-rent radical and Mamdani pal who is ‘squatting’ in Brooklyn is Grammy nepo baby — She’s unplugged from reality. A rent-striking, rising-star radical orchestrating the Mamdani administration’s socialist housing agenda is the daughter of a famed music studio owner who recorded rock legends like David Bo",
+   "source": "Free Republic",
+   "lean": "right",
+   "date": "2026-08-08",
+   "category": "politics"
+  },
+  {
+   "text": "Raiders rookie Fernando Mendoza making calls for CCSD’s traffic safety playbook — Fernando Mendoza is helping the Clark County School District direct Southern Nevada residents to obey traffic laws within school zones as a new academic year begins.",
+   "source": "Las Vegas Review-Journal",
+   "lean": "center_right",
+   "date": "2026-08-08",
+   "category": "foreign"
+  },
+  {
+   "text": "‘Quillan Salkilld is a MONSTER’: Pros react to shocking UFC Vegas 120 submission — Quillan Salkilld was given the chance to step up in the lightweight division at UFC Vegas 120, and he ended up stomping a longtime contender in the most unexpected way possible. Facing grappling specialist Mateusz Gamrot",
+   "source": "MMA Fighting",
+   "lean": "center",
+   "date": "2026-08-08",
+   "category": "sport"
+  },
+  {
+   "text": "Abbe Lane, Sultry Singer With a Latin Flair, Dies at 94 — She was a Broadway dancer before becoming Xavier Cugat’s star vocalist and later building a solo career.",
+   "source": "The New York Times — World > Americas",
+   "lean": "left",
+   "date": "2026-08-08",
+   "category": "entertainment"
+  },
+  {
+   "text": "AP Top Sports News at 7:22 p.m. EDT — AP Top Sports News at 7:22 p.m. EDT",
+   "source": "The Philadelphia Inquirer",
+   "lean": "center_left",
+   "date": "2026-08-08",
+   "category": "sport"
+  },
+  {
+   "text": "A 12-year-old girl dies after Thailand school shooting, bringing the death toll to at least 8 — BANGKOK (AP) — A schoolgirl died from critical wounds on Saturday after a student opened fire at a high school and his home outside Bangkok the day...",
+   "source": "WHDH 7News",
+   "lean": "unknown",
+   "date": "2026-08-08",
+   "category": "general"
+  },
+  {
+   "text": "Yacimiento petrolífero se convirtió en el primer depósito de carbono de California. ¿Quién será responsable si algo sale mal? — El primer proyecto comercial de almacenamiento de carbono de California está en funcionamiento a pesar de que el estado aún no ha adoptado las normas exigidas por ley, 19 meses después de una fecha límite clave.",
+   "source": "CalMatters",
+   "lean": "analytical",
+   "date": "2026-08-10",
+   "category": "foreign"
+  },
+  {
+   "text": "The bleak reason Max Miller didn’t drop out of his race — The embattled GOP congressman knows that allegations of domestic violence aren’t a death knell on the right.",
+   "source": "MS NOW",
+   "lean": "unknown",
+   "date": "2026-08-10",
+   "category": "global"
+  },
+  {
+   "text": "Republicans brace for Trump’s wrath…",
+   "source": "Revolver News",
+   "lean": "right",
+   "date": "2026-08-10",
+   "category": "global"
+  },
+  {
+   "text": "Iran installs new war chiefs as Tehran signals ‘prolonged confrontation,’ expert warns",
+   "source": "Yahoo News",
+   "lean": "center",
+   "date": "2026-08-10",
+   "category": "global"
+  },
+  {
+   "text": "‘Moderate’ Dave Crowley to Defund or Divest Police & There’s His Corrupt Primary — Moderate David Crowley, who beat out Francesca Hong in the gubernatorial race in Wisconsin, says that defunding or divesting from the police is a conversation we are going to have together. So glad to hear he is a modera",
+   "source": "Independent Sentinel",
+   "lean": "unknown",
+   "date": "2026-08-12",
+   "category": "global"
+  },
+  {
+   "text": "RT The White House: Welcome home, Robert Gilman! 🇺🇸 After more than four years detained in Russia, American citizen Robert Gilman is finally bac... — RT The White House Welcome home, Robert Gilman! 🇺🇸 After more than four years detained in Russia, American citizen Robert Gilman is finally back on U.S. soil. Thanks to the Trump Admin, another American is safely home wh",
+   "source": "POTUS (X)",
+   "lean": "gov",
+   "date": "2026-08-12",
+   "category": "foreign"
+  },
+  {
+   "text": "Rep. Max Miller’s ex-wife sues after sensitive image of child was publicly shared — The Ohio Republican had released documents through a publicly accessible Dropbox account this month, seeking to fend off allegations of domestic abuse.",
+   "source": "The Washington Post — Politics",
+   "lean": "left",
+   "date": "2026-08-12",
+   "category": "politics"
+  },
+  {
+   "text": "Keeper Bihina stars as Cameroon upset Morocco to make Wafcon final — Cameroon's Michaely Bihina saves an extra-time penalty and three more spot kicks in a shootout to send her side though to the 2026 Wafcon final at the expense of host nation Morocco.",
+   "source": "Yahoo Sports",
+   "lean": "center",
+   "date": "2026-08-12",
+   "category": "sport"
+  },
+  {
+   "text": "How Roller Conveyors Compare With Belt Conveyor Systems For Industrial Applications — In places such as industrial facilities, it is common to have to transport boxes, containers, parts, and workpieces without slowing or stopping production. The incorrect conveyor can cause handling issues, space waste, h",
+   "source": "Native News Online",
+   "lean": "unknown",
+   "date": "2026-08-14",
+   "category": "global"
+  },
+  {
+   "text": "Cade Klubnik makes his Jets backup case in surprise preseason start: ‘Hell of a job’ — Well, we know the Jets offense can move the ball on the Buccaneers backups, even with their second-string quarterback.",
+   "source": "New York Post",
+   "lean": "right",
+   "date": "2026-08-14",
+   "category": "general"
+  },
+  {
+   "text": "Adam Scott Says Daughter Had to Watch His ‘Office’ Audition Tape in Acting Class: “What Not to Do” — The 'Severance' star, appearing on 'The Tonight Show Starring Jimmy Fallon,' shared an update on season three of the acclaimed workplace drama.",
+   "source": "The Hollywood Reporter",
+   "lean": "center",
+   "date": "2026-08-14",
+   "category": "general"
+  },
+  {
+   "text": "US Commander Says Mental Health a Priority Aboard USS Lincoln — A top US military commander said mental health is a valid concern after meeting crew deployed on the USS Abraham Lincoln, where conditions aboard the aircraft carrier have led to complaints during its long deployment in",
+   "source": "Bloomberg Politics",
+   "lean": "unknown",
+   "date": "2026-08-16",
+   "category": "politics"
+  },
+  {
+   "text": "BHP, Gina Rinehart, NAB: Australia Briefing",
+   "source": "Bloomberg — Business",
+   "lean": "unknown",
+   "date": "2026-08-16",
+   "category": "economy"
+  },
+  {
+   "text": "76-year-old man assaulted after minor collision with parked scooter; attacker flees scene, NYPD says — An unidentified person allegedly got into a verbal dispute with the senior before punching and kicking him multiple times, police said.",
+   "source": "SILive / Staten Island Advance",
+   "lean": "center",
+   "date": "2026-08-16",
+   "category": "general"
+  },
+  {
+   "text": "Mamdani Speaks Mandarin to Promote Broadway, and Gets Good Reviews — Mayor Zohran Mamdani released videos in three languages to highlight a program that offers free theater tickets to high school students. His Mandarin earned some praise.",
+   "source": "The New York Times — New York",
+   "lean": "left",
+   "date": "2026-08-16",
+   "category": "politics"
+  },
+  {
+   "text": "10 top prospects who could be called up SOON",
+   "source": "MLB.com (official)",
+   "lean": "center",
+   "date": "2026-08-18",
+   "category": "sport"
+  },
+  {
+   "text": "Hayden Panettiere dated 2 brothers at the same time before death: report",
+   "source": "Revolver News",
+   "lean": "right",
+   "date": "2026-08-18",
+   "category": "entertainment"
+  },
+  {
+   "text": "Victorville Man Steals $3,000 In Copper From Commerce Business, Returns The Next Morning And Gets Arrested — A 55-year-old Victorville man, identified as Uriel Hernandez, was arrested by LASD after authorities said he returned to a City of Commerce business where he allegedly stole copper wiring and electrical components. Deput",
+   "source": "Victor Valley News",
+   "lean": "unknown",
+   "date": "2026-08-18",
+   "category": "global"
+  },
+  {
+   "text": "Santiago Sandoval, a key difference-maker for Chivas — Santiago Sandoval’s return to the Chivas setup could not have gone better. After a standout showing with the Mexico U-20 National Team at the Concacaf U-20 Championship, the rojiblanco academy produ...",
+   "source": "Yahoo Sports",
+   "lean": "center",
+   "date": "2026-08-18",
+   "category": "sport"
+  },
+  {
+   "text": "North Korea fires missiles after dismissing Trump overtures — North Korea fired a barrage of short-range ballistic missiles today, a day after it dismissed President Donald Trump’s overtures to revive dialogue.",
+   "source": "Honolulu Star-Advertiser",
+   "lean": "center",
+   "date": "2026-08-20",
+   "category": "foreign"
+  },
+  {
+   "text": "Proposed indoor shooting range in Walnut Creek sparks debate",
+   "source": "NBC Bay Area",
+   "lean": "unknown",
+   "date": "2026-08-20",
+   "category": "global"
+  },
+  {
+   "text": "Seattle Times Columnist Resigns After Paper Scrapped Trans Sports Column — Matt Calkins, a longtime sports columnist, said editors had refused to publish a column about transgender athletes in women’s competitions.",
+   "source": "The New York Times — Business",
+   "lean": "left",
+   "date": "2026-08-20",
+   "category": "sport"
+  },
+  {
+   "text": "Halas Intrigue Bears podcast: Nothing special in loss to Bengals — <p>From Cincinnati, Patrick Finley and Jason Lieser break down the Bears' 27-9 loss to the Bengals on Saturday night — and Caleb Williams' performance.</p><p></p><div class=\"Enhancement\" data-align-center> <div class=\"Ht",
+   "source": "Chicago Sun-Times",
+   "lean": "center_left",
+   "date": "2026-08-22",
+   "category": "sport"
+  },
+  {
+   "text": "Glasnow set for Tuesday return as Dodgers' rotation rounds into form",
+   "source": "MLB.com (official)",
+   "lean": "center",
+   "date": "2026-08-22",
+   "category": "sport"
+  },
+  {
+   "text": "Gruesome Playground Injuries Review: Growing Pains — Keegan Theatre’s uneven but affecting production traces a lifelong friendship shaped by love, loneliness, and pain.",
+   "source": "Metro Weekly",
+   "lean": "unknown",
+   "date": "2026-08-22",
+   "category": "entertainment"
+  },
+  {
+   "text": "Trade Talks Collapse – Prime Minister Carney Talking Alot, President Trump Remains Quiet — Canadian Prime Minister Mark Carney is delivering speeches, holding press conferences and trying to justify his position following the collapse of negotiations between the USA and Canada. Meanwhile, President Trump and h",
+   "source": "The Last Refuge",
+   "lean": "right",
+   "date": "2026-08-22",
+   "category": "economy"
+  },
+  {
+   "text": "Sony’s beloved noise cancelling headphones just hit an unbelievable $99 at Best Buy — The rare Sony headphones discount that saves you nearly $80 on concert-quality sound.",
+   "source": "Cleveland.com / Plain Dealer",
+   "lean": "center",
+   "date": "2026-08-24",
+   "category": "economy"
+  },
+  {
+   "text": "Deion Sanders says subpoena in son Shilo's bankruptcy case not a distraction ahead of season opener — Deion Sanders has a knack for staying in the headlines whether it’s on the field or in court proceedings",
+   "source": "Denver7",
+   "lean": "unknown",
+   "date": "2026-08-24",
+   "category": "sport"
+  },
+  {
+   "text": "Religious References in Lindsay Clancy Trial Anger Judge and Defense — The religious reference by a prosecution witness on Monday incensed the presiding judge, who sternly instructed jurors to disregard it. Lindsay Clancy’s lawyer asked for a mistrial.",
+   "source": "The New York Times — Most Recent Headlines",
+   "lean": "left",
+   "date": "2026-08-24",
+   "category": "general"
+  },
+  {
+   "text": "5 victims identified in Washington County mass killing — Three of the five people killed near Forest Grove were related, according to officials.",
+   "source": "The Oregonian / OregonLive",
+   "lean": "center",
+   "date": "2026-08-24",
+   "category": "general"
+  },
+  {
+   "text": "Pete Crow-Armstrong furious as controversial missed balk call costs Cubs a run in close loss to Diamondbacks — The umpiring crew missed an obvious balk with Crow-Armstrong on third base in a scoreless game",
+   "source": "CBS Sports — Headlines",
+   "lean": "center",
+   "date": "2026-08-26",
+   "category": "sport"
+  },
+  {
+   "text": "Video shows DHL plane on fire at LAX",
+   "source": "NBC Los Angeles",
+   "lean": "unknown",
+   "date": "2026-08-26",
+   "category": "global"
+  },
+  {
+   "text": "Beloved pancake house opens 4th Jersey location — pjspancakehouse via Instagram",
+   "source": "New Jersey 101.5",
+   "lean": "unknown",
+   "date": "2026-08-26",
+   "category": "lifestyle"
+  },
+  {
+   "text": "How I Made an AI Sorority Girl Go Viral — My creation Janie went through rush at the University of Alabama. The internet quickly figured out she wasn’t real, but they kept watching her videos anyway, writes Olivia Moore.",
+   "source": "The Free Press (Bari Weiss)",
+   "lean": "right",
+   "date": "2026-08-26",
+   "category": "tech"
+  },
+  {
+   "text": "Rep. Trahan: Federal AI Governance Is 'Missing' — Democratic Representative Lori Trahan of Massachusetts discusses her bipartisan FRONTIER Act, which aims to create federal oversight of the most advanced AI models through reporting, independent audits and emergency safe",
+   "source": "Bloomberg Politics",
+   "lean": "unknown",
+   "date": "2026-08-28",
+   "category": "economy"
+  },
+  {
+   "text": "Manasquan rallies past Westwood in North vs South Jersey clash at Jim Grasso Classic — Manasquan was blanked in the first half and appeared to be on its heels against one of North Jersey's top public schools, but a second half rally was enough to make the long bus ride back home a memorable one for the Sou",
+   "source": "NJ.com / Star-Ledger",
+   "lean": "center",
+   "date": "2026-08-28",
+   "category": "foreign"
+  },
+  {
+   "text": "Can Democrats overcome Texas’ gerrymander? — Texas Republicans may have made a bad bet with their new House map.",
+   "source": "Daily Kos",
+   "lean": "left",
+   "date": "2026-08-30",
+   "category": "politics"
+  },
+  {
+   "text": "Florida’s Curriculum on Communism — Every State Should Follow Suit — Florida’s middle and high schools are expanding instruction on communism for students in grades 6 through 12. Last November, Florida’s Board of Education approved new History of Communism standards to be implemented duri",
+   "source": "Free Republic",
+   "lean": "right",
+   "date": "2026-08-30",
+   "category": "politics"
+  },
+  {
+   "text": "Is electricity dimming oil’s political power? — Surging power demand is turning electricity prices into a political flashpoint across the U.S. and Europe.",
+   "source": "Politico — Energy & Environment",
+   "lean": "center",
+   "date": "2026-08-30",
+   "category": "economy"
+  },
+  {
+   "text": "High school sports scores, schedules for Aug. 30, 2026",
+   "source": "TribLIVE",
+   "lean": "unknown",
+   "date": "2026-08-30",
+   "category": "global"
+  },
+  {
+   "text": "Wheeler throws 6 strong innings, Sosa hits go-ahead homer in Phillies’ 5-2 win over Angels — Zack Wheeler allowed one run in six innings as the Philadelphia Phillies completed a three-game sweep with a 5-2 win over the Los Angeles Angels. Edmundo Sosa hit a tiebreaking homer in the seventh on Sunday. The Phillie",
+   "source": "myMotherLode.com",
+   "lean": "unknown",
+   "date": "2026-08-30",
+   "category": "sport"
+  },
+  {
+   "text": "Dandy debuts for Morales, Simpson key Nats' win — Yohandy Morales had three hits, including a home run, and Jared Simpson threw three perfect innings to pick up the victory, and Washington Nationals, with their expanded roster of minor league call-ups, defeated the Atla",
+   "source": "ESPN — MLB",
+   "lean": "center",
+   "date": "2026-09-01",
+   "category": "sport"
+  },
+  {
+   "text": "Vance talks about the end times and the attempted assassination of Trump in Christian podcast — Vice President JD Vance said in a podcast released Tuesday that if a 2024 assassination attempt had killed Donald Trump, he would have always wondered if it was part of a conspiracy and might not have accepted even anoth",
+   "source": "KTAR.com",
+   "lean": "unknown",
+   "date": "2026-09-01",
+   "category": "politics"
+  },
+  {
+   "text": "North Carolina women reflect on Gloria Steinem's legacy: 'She opened up our eyes' — Gloria Steinem continues to inspire women through her advocacy for equality, independence and opportunity.",
+   "source": "ABC11",
+   "lean": "unknown",
+   "date": "2026-09-03",
+   "category": "global"
+  },
+  {
+   "text": "Report: Canada Gave Millions in Contracts to Son of Iran’s Former Vice President — Global News reported on Wednesday that the Canadian government awarded over $2 million in contracts, including law enforcement and defense contracts, to Mohammad Reza Ghafouri Fard, an Iranian immigrant linked to the ter",
+   "source": "Breitbart",
+   "lean": "right",
+   "date": "2026-09-03",
+   "category": "global"
+  },
+  {
+   "text": "Use DraftKings promo code to get $200 bonus bets by targeting Georgia Tech-Colorado, Thursday college football — DraftKings offers $200 in bonus bets after your first $5 wager (paid within 21 days) for Georgia Tech vs. Colorado, college football betting on Thursday",
+   "source": "CBS Sports — Headlines",
+   "lean": "center",
+   "date": "2026-09-03",
+   "category": "sport"
+  },
+  {
+   "text": "ABC's lawsuit against Trump admin buries a 'hell of an admission': analyst — President Donald Trump's pressure campaign against the media may have had a greater impact than originally thought, according to two legal analysts. During his second administration, Trump has collected about $86 million",
+   "source": "Raw Story",
+   "lean": "left",
+   "date": "2026-09-03",
+   "category": "global"
+  },
+  {
+   "text": "Alleged teen accomplice in fake 49ers player scam appears in court — Taylor Jamie Chan, 18, allegedly posed as a financial adviser while his partner convinced women on dating apps he was an NFL player, defrauding 26 victims of $1.3 million.",
+   "source": "The Oregonian / OregonLive",
+   "lean": "center",
+   "date": "2026-09-03",
+   "category": "foreign"
+  },
+  {
+   "text": "Golesh focused on improvement after picking up first Auburn win — It wasn't pretty, but Alex Golesh walks out of Atlanta a winner.",
+   "source": "AL.com (Alabama)",
+   "lean": "center",
+   "date": "2026-09-05",
+   "category": "sport"
+  },
+  {
+   "text": "Pennsylvania Commonwealth Court Says Green Party Has the Authority to Block a Petitioning Candidate Who Uses “Green” Label But Whom the Party Disavows — On September 4, the Pennsylvania Commonwealth Court removed Andrew Tupone from the November ballot. He had enough valid signatures to be on the November ballot for U.S. House, 7th district. But he used the Green Party ba",
+   "source": "Ballot Access",
+   "lean": "unknown",
+   "date": "2026-09-05",
+   "category": "politics"
+  },
+  {
+   "text": "﻿Fresno City College's West Fresno Center sees enrollment growth as career programs expand — As the fall semester gets underway, Fresno City College officials say enrollment continues to grow at the West Fresno Center.",
+   "source": "ABC30",
+   "lean": "unknown",
+   "date": "2026-09-07",
+   "category": "global"
+  },
+  {
+   "text": "A $2,000 iPhone is coming soon as Apple aims for high-end buyers",
+   "source": "The Wall Street Journal — MarketWatch Breaking News Bulletins",
+   "lean": "center",
+   "date": "2026-09-07",
+   "category": "economy"
+  }
+ ],
+ "built": "2026-11-23",
+ "source_db": "Echolot MCP get_news (https://echolotnews.com/mcp), published_at szerinti napok",
+ "build_rule": "get_news(limit=100, diversify, max_per_source=3, place=ország) minden 2. napra; title>15, LEAK_RE-szűrő, cím-dedupe, lead 220 kar., MAXN=60 lean-cap (arányos kvóta + domináns lean <=60% + dátum-stride) — a júliusi sample_cell"
+}

@@ -1,0 +1,555 @@
+{
+ "country": "US",
+ "lang": "en",
+ "target_month": "2026-10",
+ "corpus_window": [
+  "2026-09-08",
+  "2026-10-07"
+ ],
+ "days_sampled": [
+  "2026-09-08",
+  "2026-09-10",
+  "2026-09-12",
+  "2026-09-14",
+  "2026-09-16",
+  "2026-09-18",
+  "2026-09-20",
+  "2026-09-22",
+  "2026-09-24",
+  "2026-09-26",
+  "2026-09-28",
+  "2026-09-30",
+  "2026-10-02",
+  "2026-10-04",
+  "2026-10-06"
+ ],
+ "n": 60,
+ "lean_dist": {
+  "right": 8,
+  "center": 20,
+  "unknown": 20,
+  "left": 7,
+  "center_left": 2,
+  "center_right": 1,
+  "gov": 1,
+  "analytical": 1
+ },
+ "cat_dist": {
+  "global": 12,
+  "sport": 15,
+  "economy": 4,
+  "politics": 7,
+  "general": 10,
+  "entertainment": 3,
+  "foreign": 6,
+  "tech": 3
+ },
+ "raw_rows": 1500,
+ "pool_after_dedupe": 1415,
+ "leak_dropped": 0,
+ "distinct_sources_raw": 169,
+ "raw_cat_dist": {
+  "sport": 324,
+  "general": 228,
+  "global": 371,
+  "entertainment": 89,
+  "politics": 119,
+  "economy": 130,
+  "tech": 51,
+  "cars": 2,
+  "culture": 6,
+  "foreign": 146,
+  "lifestyle": 16,
+  "news": 15,
+  "world": 2,
+  "science": 1
+ },
+ "per_day": {
+  "2026-09-08": {
+   "returned": 100,
+   "pool": 500
+  },
+  "2026-09-10": {
+   "returned": 100,
+   "pool": 500
+  },
+  "2026-09-12": {
+   "returned": 100,
+   "pool": 500
+  },
+  "2026-09-14": {
+   "returned": 100,
+   "pool": 500
+  },
+  "2026-09-16": {
+   "returned": 100,
+   "pool": 500
+  },
+  "2026-09-18": {
+   "returned": 100,
+   "pool": 500
+  },
+  "2026-09-20": {
+   "returned": 100,
+   "pool": 500
+  },
+  "2026-09-22": {
+   "returned": 100,
+   "pool": 500
+  },
+  "2026-09-24": {
+   "returned": 100,
+   "pool": 500
+  },
+  "2026-09-26": {
+   "returned": 100,
+   "pool": 500
+  },
+  "2026-09-28": {
+   "returned": 100,
+   "pool": 500
+  },
+  "2026-09-30": {
+   "returned": 100,
+   "pool": 500
+  },
+  "2026-10-02": {
+   "returned": 100,
+   "pool": 500
+  },
+  "2026-10-04": {
+   "returned": 100,
+   "pool": 500
+  },
+  "2026-10-06": {
+   "returned": 100,
+   "pool": 500
+  }
+ },
+ "mcp_errors": 0,
+ "items": [
+  {
+   "text": "Exclusive – Alliance for a Better Future CEO Janet Kelly on Geopolitical Significance of AI Dominance: China ‘Will Cheat and Steal and Lie' to Beat Us — China will \"cheat and steal and lie\" in order to beat the United States, Alliance for a Better Future CEO Janet Kelly said during the Breitbart News “State of the Economy” policy event Tuesday.",
+   "source": "Breitbart",
+   "lean": "right",
+   "date": "2026-09-08",
+   "category": "global"
+  },
+  {
+   "text": "2026 US Open results: Frances Tiafoe pulls off biggest grand slam comeback of his career to reach semifinals — Tiafoe battled back from a huge deficit against Alex Michelsen to return to the semifinals for the third time in New York",
+   "source": "CBS Sports — Headlines",
+   "lean": "center",
+   "date": "2026-09-08",
+   "category": "sport"
+  },
+  {
+   "text": "Marvell shares have soared 241% in a year. CEO says this is a key reason why — Marvell Technology CEO Matt Murphy said trust has helped fuel the chipmaker's massive run over the past year.",
+   "source": "CNBC",
+   "lean": "unknown",
+   "date": "2026-09-08",
+   "category": "economy"
+  },
+  {
+   "text": "BOMBSHELL: Lewandowski Controlled Billions At DHS And Had Side Hustles Too — Corey Lewandowski, one of Donald J. Trump's longtime allies and Kristi Noem’s side piece, wielded extraordinary power inside the Department of Homeland Security despite holding no official leadership position there. Acco",
+   "source": "Crooks and Liars",
+   "lean": "left",
+   "date": "2026-09-08",
+   "category": "politics"
+  },
+  {
+   "text": "AP Top Sports News at 7:53 p.m. EDT — AP Top Sports News at 7:53 p.m. EDT",
+   "source": "The Philadelphia Inquirer",
+   "lean": "center_left",
+   "date": "2026-09-08",
+   "category": "sport"
+  },
+  {
+   "text": "Sabalenka edges Noskova, keeps US Open treble bid alive — Two-time defending champion Aryna Sabalenka rallied in the final set to beat Linda Noskova on Tuesday and reach a sixth straight US Open semi-final.Tiafoe dominated the fourth set, and when Michelsen responded Tiafoe ref",
+   "source": "Yahoo Sports",
+   "lean": "center",
+   "date": "2026-09-08",
+   "category": "sport"
+  },
+  {
+   "text": "19 Year Old Marine Dies After Drowning At Cherry Lake — Josue Gonzalez was swimming toward Cherry Lake Island when he went below the surface Saturday afternoon.",
+   "source": "myMotherLode.com",
+   "lean": "unknown",
+   "date": "2026-09-08",
+   "category": "general"
+  },
+  {
+   "text": "Girl assaulted while working at Wendy’s: Richmond Heights Police Blotter — A woman came to the station with her daughter Sept. 3 to report that the girl had been assaulted at Wendy’s earlier that day.",
+   "source": "Cleveland.com / Plain Dealer",
+   "lean": "center",
+   "date": "2026-09-10",
+   "category": "general"
+  },
+  {
+   "text": "Graney: Raiders want to win now while eyeing future success — It’s true — the Las Vegas Raiders can have a win-now attitude while also showing patience to build a successful franchise over time.",
+   "source": "Las Vegas Review-Journal",
+   "lean": "center_right",
+   "date": "2026-09-10",
+   "category": "sport"
+  },
+  {
+   "text": "Trump Loyalist Steps Down From ‘Grand Conspiracy’ Case — The inquiry has long been the most fevered of the many revenge investigations that President Trump has demanded the Justice Department undertake.",
+   "source": "The New York Times — Top Stories",
+   "lean": "left",
+   "date": "2026-09-10",
+   "category": "politics"
+  },
+  {
+   "text": "Hayes Warner: Debbie's the only one not obsessed with Robert on 'Shards' — Hayes Warner's character Debbie seems to be the only person NOT obsessed with Homer Gere's Robert In the FX/Hulu serial-killer thriller, \"The Shards.\"",
+   "source": "UPI.com",
+   "lean": "unknown",
+   "date": "2026-09-10",
+   "category": "global"
+  },
+  {
+   "text": "Auburn vs. Southern Miss enters weather delay, new start time announced — What to know about the start of Auburn's home opener against Southern Miss",
+   "source": "AL.com (Alabama)",
+   "lean": "center",
+   "date": "2026-09-12",
+   "category": "sport"
+  },
+  {
+   "text": "Fun Little Read: Lizzo’s Imagined Dinner Party — Thank goodness. By the Book is back from vacation. With Lizzo! www.nytimes.com/2026/09/03/b… [image or embed] — Zeta Cross (@zetazc.bsky.social) September 3, 2026 at 6:53 PM Her childhood inspirations: Sailor Moon and Ja",
+   "source": "Balloon Juice",
+   "lean": "unknown",
+   "date": "2026-09-12",
+   "category": "entertainment"
+  },
+  {
+   "text": "Polymarket referral code “CLEVE” updates $50 bonus in OH for Ohio State vs Texas tonight — Polymarket promo code CLEVE has been upgraded for the Week 2 CFB slate, unlocking a $50 bonus on a $10 deposit for new Polymarket US accounts.",
+   "source": "Cleveland.com / Plain Dealer",
+   "lean": "center",
+   "date": "2026-09-12",
+   "category": "sport"
+  },
+  {
+   "text": "Brooklyn adult daycare owner sentenced to 76 months in prison for leadership role in $68 million Medicaid fraud scheme…",
+   "source": "Revolver News",
+   "lean": "right",
+   "date": "2026-09-12",
+   "category": "general"
+  },
+  {
+   "text": "Sydney Sweeney promotes gambling and misogyny all in one ad — If there is one thing actor Sydney Sweeney is a professional at nowadays, it’s agreeing to be in extremely polarizing ads.",
+   "source": "Daily Kos",
+   "lean": "left",
+   "date": "2026-09-14",
+   "category": "global"
+  },
+  {
+   "text": "Boulder launches resilience hub pilot program to keep nonprofits running during power outages — A Boulder food pantry that distributes free groceries to anyone in need is one of six nonprofits set to receive grants of up to $50,000 through the city's new Community Resilience Hub Pilot Program.",
+   "source": "Denver7",
+   "lean": "unknown",
+   "date": "2026-09-14",
+   "category": "global"
+  },
+  {
+   "text": "Treasury Department announces even bigger bond buyback; market shrugs — If at first you don’t succeed, try, try again. That seems to be the mantra over at the U.S. Treasury Department. Last Wednesday, Treasury Secretary Scott Bessent announced the department plans to triple its long-term bon",
+   "source": "Free Republic",
+   "lean": "right",
+   "date": "2026-09-14",
+   "category": "economy"
+  },
+  {
+   "text": "Henriquez (back) hits IL, while Díaz's Triple-A struggles further complicate LA's bullpen woes",
+   "source": "MLB.com (official)",
+   "lean": "center",
+   "date": "2026-09-14",
+   "category": "sport"
+  },
+  {
+   "text": "Suspected sabotage triggers a major Dutch rail outage during the morning rush hour — A major outage has hit the Dutch railway system and the company maintaining the rail infrastructure is treating it as possible sabotage.",
+   "source": "The Seattle Times",
+   "lean": "center",
+   "date": "2026-09-14",
+   "category": "foreign"
+  },
+  {
+   "text": "Snap Shares More Details About $2,195 Specs AR Glasses, Plus Verizon Partnership — The technically advanced Specs feature an integrated display and a convenient self-contained design.",
+   "source": "Bloomberg Technology",
+   "lean": "unknown",
+   "date": "2026-09-16",
+   "category": "tech"
+  },
+  {
+   "text": "Polymarket referral code “CLEVE” updates $50 bonus in OH for MLB Wednesday night slate — Polymarket promo code CLEVE has been upgraded for the Wednesday Night Baseball slate, unlocking a $50 bonus on a $10 deposit for new Polymarket US accounts.",
+   "source": "Cleveland.com / Plain Dealer",
+   "lean": "center",
+   "date": "2026-09-16",
+   "category": "economy"
+  },
+  {
+   "text": "Al Gore has a surprisingly calm take on the AI data center backlash — In an interview with TechCrunch, Al Gore suggested he isn't losing sleep over AI data center emissions — he's more worried about the AI industry's own warnings about where the technology is headed.",
+   "source": "TechCrunch",
+   "lean": "unknown",
+   "date": "2026-09-16",
+   "category": "tech"
+  },
+  {
+   "text": "ROK-U.S. Combined Forces Command hosts 2026 Combined Warfighting Forum — YONGSAN, Republic of Korea — The Republic of Korea-U.S. Combined Forces Command hosted the 2026 ROK-U.S. Combined Warfighting Forum Sept. 16 at the Defense Convention Center in Yongsan, Seoul, bringing together approxima",
+   "source": "U.S. Pacific Command (PACOM)",
+   "lean": "gov",
+   "date": "2026-09-16",
+   "category": "global"
+  },
+  {
+   "text": "North Korea Rejects IAEA Resolution, Vows to Keep Nuclear Status — North Korea dismissed a recent resolution by the UN nuclear watchdog against Pyongyang’s nuclear program and vowed to maintain its status as a nuclear-armed state.",
+   "source": "Bloomberg Politics",
+   "lean": "unknown",
+   "date": "2026-09-18",
+   "category": "economy"
+  },
+  {
+   "text": "Mickey Reyes, foundational skateboarder turned beloved Portland bar owner, dies at 59 — Skateboarding magazine Thrasher remembered Reyes, who co-owned several bars in Portland, as an “icon of an era.”",
+   "source": "The Oregonian / OregonLive",
+   "lean": "center",
+   "date": "2026-09-18",
+   "category": "foreign"
+  },
+  {
+   "text": "Trump says he will demand drug companies split up vaccines into more doses — Those comments came a day after Health Secretary Robert F. Kennedy Jr. told attendees of a conference for the anti-vaccine group he founded that they have a “friend at the White House.”",
+   "source": "The Washington Post — Politics",
+   "lean": "left",
+   "date": "2026-09-18",
+   "category": "politics"
+  },
+  {
+   "text": "Week 3 Fantasy Football panic meter: Early Week 3 waiver wire adds, winners, losers, more — There's nothing quite like the overreactions from Fantasy Football managers that pour in after every Sunday, so let's try and parse through what actually matters.",
+   "source": "CBS Sports — Headlines",
+   "lean": "center",
+   "date": "2026-09-20",
+   "category": "sport"
+  },
+  {
+   "text": "'Stunt horse deluxe': Meet the northern Colorado horse you may have seen on the Broncos' jumbotron — A northern Colorado horse stars in Broncos promos — and her unique ability to rear on command made her perfect for the job.",
+   "source": "Denver7",
+   "lean": "unknown",
+   "date": "2026-09-20",
+   "category": "sport"
+  },
+  {
+   "text": "Red Sox Clinch 2026 MLB Playoff Berth and Braves Win Division, Updated Bracket Picture and Standings — Under the watch of interim manager Chad Tracy, the Red Sox secured a 2026 MLB playoff berth. At 85-72, they're on track to finish in one of the American League's three wild-card positions.",
+   "source": "Free Republic",
+   "lean": "right",
+   "date": "2026-09-20",
+   "category": "sport"
+  },
+  {
+   "text": "CNN’s Brian Stelter Reports Letitia James ‘Resisting’ Deal to Close Paramount-Warner Bros Merger — CNN's chief media analyst dished on the latest roadblock to the Paramount-WB merger closing The post CNN’s Brian Stelter Reports Letitia James ‘Resisting’ Deal to Close Paramount-Warner Bros Merger first appeared on Medi",
+   "source": "Mediaite",
+   "lean": "unknown",
+   "date": "2026-09-20",
+   "category": "global"
+  },
+  {
+   "text": "Early Bills vs. Chargers betting preview: Odds, picks, and predictions for NFL Week 3 — Highmark Stadium sets the stage for the NFL matchup between the Los Angeles Chargers and Buffalo Bills on Sunday, September 27, 2026.",
+   "source": "Syracuse.com / Post-Standard",
+   "lean": "center",
+   "date": "2026-09-20",
+   "category": "sport"
+  },
+  {
+   "text": "Wendy’s becomes latest victim of Trump’s bad beef policies — A company that owns more than 300 Wendy’s restaurants filed for bankruptcy, citing rising beef costs.",
+   "source": "Daily Kos",
+   "lean": "left",
+   "date": "2026-09-22",
+   "category": "global"
+  },
+  {
+   "text": "The Vigilante Who’s Taking Down Recruitment Scammers, One Fake Job Ad at a Time — He calls himself The Profiler and he has made it his mission to root out the bane of job seekers everywhere.",
+   "source": "The Wall Street Journal — Technology",
+   "lean": "center",
+   "date": "2026-09-22",
+   "category": "tech"
+  },
+  {
+   "text": "Marlon James and Douglas Stuart have chance to become 5th multiple winner of Booker Prize book award — LONDON (AP) — Marlon James and Douglas Stuart have a chance to become only the fifth author to win the Booker Prize twice after both were named Tuesday on the shortlist for arguably the U.K.’s most prestigious fiction ac",
+   "source": "myMotherLode.com",
+   "lean": "unknown",
+   "date": "2026-09-22",
+   "category": "entertainment"
+  },
+  {
+   "text": "Trump, Xi Tout ‘Friendship’ at Lavish Ceremony — \"Balance of Power\" focuses on the intersection of politics and global business. On today's show, Former US Ambassador to China Gary Locke says President Trump's reception of Xi Jinping marks a \"remarkable change\" in prot",
+   "source": "Bloomberg Politics",
+   "lean": "unknown",
+   "date": "2026-09-24",
+   "category": "global"
+  },
+  {
+   "text": "Colorado woman gets 11-year sentence for role in multistate drug trafficking ring — A Colorado woman received more than 11 years in federal prison for her role as a distributor in a multistate drug trafficking ring, according to the U.S. Attorney's Office for the District of Wyoming.",
+   "source": "Denver7",
+   "lean": "unknown",
+   "date": "2026-09-24",
+   "category": "general"
+  },
+  {
+   "text": "Red Sox 1B Contreras casts doubt on Wild Card availability — Red Sox first baseman Willson Contreras is uncertain whether he will be available to play when the AL Wild Card Series starts Tuesday.",
+   "source": "ESPN — MLB",
+   "lean": "center",
+   "date": "2026-09-24",
+   "category": "sport"
+  },
+  {
+   "text": "Packers' shocking blowout loss to Falcons should put coach Matt LaFleur on the hot seat — The Green Bay Packers fell to 1-2 as Matt LaFleur's hot seat questions intensify after a blowout home loss to the Atlanta Falcons on Thursday night.",
+   "source": "Fox News",
+   "lean": "right",
+   "date": "2026-09-24",
+   "category": "foreign"
+  },
+  {
+   "text": "NJ Governor asks Caldwell, her second in command, to resign — New Jersey Lt. Gov. Dale Caldwell New Jersey Gov. Mikie Sherrill said it is “in the best interest” for Garden State residents for Dale Caldwell to step down, after releasing a report that confirmed scathing allegations o",
+   "source": "Gothamist (NYC / WNYC)",
+   "lean": "center_left",
+   "date": "2026-09-24",
+   "category": "politics"
+  },
+  {
+   "text": "Key Alabama defender returns to USC game after going to locker room — One of Alabama's top players left the South Carolina game in the first quarter.",
+   "source": "AL.com (Alabama)",
+   "lean": "center",
+   "date": "2026-09-26",
+   "category": "sport"
+  },
+  {
+   "text": "You don't come back from a 54-3 loss to UCLA: It feels like time for Maryland to move on from Mike Locksley — A 51-point home blowout against UCLA showed just how far the Terrapins have fallen, leaving Locksley out of answers and on the brink of losing his job",
+   "source": "CBS Sports — Headlines",
+   "lean": "center",
+   "date": "2026-09-26",
+   "category": "sport"
+  },
+  {
+   "text": "TV Networks to Resume Trump Coverage, Even as White House Excludes CNN — The White House TV pool went dark this past week amid a standoff between CNN and the president. Network leaders, however, believe an indefinite suspension may be untenable.",
+   "source": "The New York Times — Business > Media",
+   "lean": "left",
+   "date": "2026-09-26",
+   "category": "politics"
+  },
+  {
+   "text": "What you need to know to vote in Indiana’s 2026 General Election — Indiana's 2026 general election is scheduled for November 3, providing voters with essential information regarding registration deadlines, identification requirements, voting methods, and candidate options.",
+   "source": "WISH-TV",
+   "lean": "unknown",
+   "date": "2026-09-26",
+   "category": "politics"
+  },
+  {
+   "text": "Trump Administration Proposes Dramatic Overhaul of 2030 Census That Changes Who Counts as Living in America — Illegals would be out; \"colorblindness\" would be in.",
+   "source": "American Renaissance",
+   "lean": "unknown",
+   "date": "2026-09-28",
+   "category": "global"
+  },
+  {
+   "text": "Jayden Daniels traveling to London for return to practice in Commanders injury twist — Jayden Daniels is going to travel with the Commanders to London ahead of their Week 4 game against the Colts and will practice this week as he returns from an elbow injury.",
+   "source": "New York Post",
+   "lean": "right",
+   "date": "2026-09-28",
+   "category": "general"
+  },
+  {
+   "text": "What bills did Gavin Newsom sign into law — or veto — in his final year leading California? — California lawmakers sent Gavin Newsom hundreds of bills in his final months as governor. Here's how he handled proposals to counter the Trump administration, lower the cost of living, crack down on data centers and boos",
+   "source": "CalMatters",
+   "lean": "analytical",
+   "date": "2026-09-30",
+   "category": "foreign"
+  },
+  {
+   "text": "How will Denver Water enforce the ban on lawn watering? — Denver7's South Metro reporter Danielle Kreutter took neighbors' questions about the enforcement of the lawn watering ban to Denver Water.",
+   "source": "Denver7",
+   "lean": "unknown",
+   "date": "2026-09-30",
+   "category": "general"
+  },
+  {
+   "text": "White Sox, Yankees, Padres advance to next round with sweeps as Munetaka Murakami provides quote of the year — The New York Yankees swept Boston in the Major League Baseball playoffs as Cody Bellinger's three-run blast blew the game open in the sixth inning.",
+   "source": "Fox News",
+   "lean": "right",
+   "date": "2026-09-30",
+   "category": "foreign"
+  },
+  {
+   "text": "1st playoff win? In postseason debut? From the 'pen? Painter's day proves pivotal for Phils",
+   "source": "MLB.com (official)",
+   "lean": "center",
+   "date": "2026-09-30",
+   "category": "sport"
+  },
+  {
+   "text": "Three different scorers lift Pope Francis girls soccer past Belchertown (11 photos) — Rylan Waskiewicz, Mila Dillard, and Ali Soja all scored for the Cardinals.",
+   "source": "MassLive (Massachusetts)",
+   "lean": "center",
+   "date": "2026-09-30",
+   "category": "foreign"
+  },
+  {
+   "text": "Former Fox host says Trump is in Alabama because he doesn’t want to 'get booed’ — Former Fox News host Gretchen Carlson had very clear suggestions why President Donald Trump is carousing and doing rallies in safe Republican states like Alabama on Friday — and it has everything to do with cowardice. Wi",
+   "source": "Alternet.org",
+   "lean": "left",
+   "date": "2026-10-02",
+   "category": "politics"
+  },
+  {
+   "text": "‘The Swan: Behind the Mirror’ Director Explains How She Found a Beautiful Story Inside a Traumatizing Show — \"This story is for anybody who has felt like they don't like the skin they're in,\" Erin Lee Carr says",
+   "source": "TheWrap",
+   "lean": "unknown",
+   "date": "2026-10-02",
+   "category": "entertainment"
+  },
+  {
+   "text": "Prince Harry and Meghan Markle Get Cozy in 1st Photos Together Since U.K. Move — Prince Harry and wife Meghan Markle are embracing their life together back in the U.K. by getting cozy at the pub. The Duke and Duchess of Sussex were spotted having lunch at Cotswolds’ The Falkland Arms on Thursday, Oct",
+   "source": "Us Weekly",
+   "lean": "center",
+   "date": "2026-10-02",
+   "category": "general"
+  },
+  {
+   "text": "Co-pilot accused in FlyDubai attack was previously flagged as a security risk, officials say — The FlyDubai co-pilot accused of trying to crash a plane was suspended as a security risk in 2024, officials say. How he ended up in the cockpit is still unclear.",
+   "source": "Washington Times",
+   "lean": "unknown",
+   "date": "2026-10-02",
+   "category": "general"
+  },
+  {
+   "text": "Local dessert shop Dad's Cookies celebrates downtown Fresno expansion — Local dessert shop Dad's Cookies celebrated its grand opening of its downtown Fresno location on Saturday.",
+   "source": "ABC30",
+   "lean": "unknown",
+   "date": "2026-10-04",
+   "category": "global"
+  },
+  {
+   "text": "UCLA Law Said the Supreme Court Changed Nothing. DOJ Says Race Still Mattered.",
+   "source": "PJ Media",
+   "lean": "right",
+   "date": "2026-10-04",
+   "category": "global"
+  },
+  {
+   "text": "Kyle Richards Uses the LED Mask That Amazon Shoppers Call 'Magic' — Now $50 Off — When in-office cosmetic treatments aren’t in the cards, we turn to at-home devices. One item that has received a stamp of approval from Kyle Richards is the Shark CryoGlow LED Face Mask. Richards was spotted wearing the",
+   "source": "Us Weekly",
+   "lean": "center",
+   "date": "2026-10-04",
+   "category": "general"
+  },
+  {
+   "text": "Colorado start-up hopes to become 'DoorDash' of cannabis delivery — A Colorado cannabis start-up that’s been described as the “DoorDash of cannabis” hopes to solve an industry problem: giving business owners who have historically been shut out access to the cannabis industry.",
+   "source": "Denver7",
+   "lean": "unknown",
+   "date": "2026-10-06",
+   "category": "global"
+  },
+  {
+   "text": "Andrew Tate Accuser Says She Was Forced to Perform Sex Act on Bed Knob for Hour — One of Andrew Tate's accusers claims she was forced to perform a sex act on a bed knob for an hour ... while working at his alleged webcam operation in Romania. According to court docs, obtained by TMZ, the woman says An",
+   "source": "TMZ",
+   "lean": "center",
+   "date": "2026-10-06",
+   "category": "general"
+  }
+ ],
+ "built": "2026-11-23",
+ "source_db": "Echolot MCP get_news (https://echolotnews.com/mcp), published_at szerinti napok",
+ "build_rule": "get_news(limit=100, diversify, max_per_source=3, place=ország) minden 2. napra; title>15, LEAK_RE-szűrő, cím-dedupe, lead 220 kar., MAXN=60 lean-cap (arányos kvóta + domináns lean <=60% + dátum-stride) — a júliusi sample_cell"
+}

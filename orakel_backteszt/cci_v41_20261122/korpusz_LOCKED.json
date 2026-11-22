@@ -260,6 +260,71 @@
    "leak_dropped": 0,
    "distinct_sources_raw": 105,
    "mcp_errors": 0
+  },
+  "corpus_us_2026-07.json": {
+   "sha256": "ff63a9f10b04eff781c68ee6b15f8cca4edd906fc43a442a0ae44a93bcfe7d2c",
+   "n": 60,
+   "window": [
+    "2026-06-08",
+    "2026-07-07"
+   ],
+   "raw_rows": 627,
+   "pool": 618,
+   "leak_dropped": 0,
+   "distinct_sources_raw": 106,
+   "mcp_errors": 0
+  },
+  "corpus_us_2026-08.json": {
+   "sha256": "360cd28ee400d289fd09db08f572306f1636ed2359970869b9cff57abd05bc79",
+   "n": 60,
+   "window": [
+    "2026-07-08",
+    "2026-08-07"
+   ],
+   "raw_rows": 1564,
+   "pool": 1494,
+   "leak_dropped": 1,
+   "distinct_sources_raw": 180,
+   "mcp_errors": 0
+  },
+  "corpus_us_2026-09.json": {
+   "sha256": "bd925976aabbbcc6ce47c73a95f4c6a1e3cf6f5bcc74ee1ddec7d2fc856d67b6",
+   "n": 60,
+   "window": [
+    "2026-08-08",
+    "2026-09-07"
+   ],
+   "raw_rows": 1600,
+   "pool": 1502,
+   "leak_dropped": 0,
+   "distinct_sources_raw": 168,
+   "mcp_errors": 0
+  },
+  "corpus_us_2026-10.json": {
+   "sha256": "8c47c25701dc4934bfdcb008dfe170f41ea7f09f802e6c6a55ed1baafe878e68",
+   "n": 60,
+   "window": [
+    "2026-09-08",
+    "2026-10-07"
+   ],
+   "raw_rows": 1500,
+   "pool": 1415,
+   "leak_dropped": 0,
+   "distinct_sources_raw": 169,
+   "mcp_errors": 0
+  },
+  "corpus_us_2026-11.json": {
+   "sha256": "8d6013ac4eeafd6f770e63e9a836b2ed31ab9b81574eb37eadf663ee2f962d4c",
+   "n": 60,
+   "window": [
+    "2026-10-08",
+    "2026-11-07"
+   ],
+   "raw_rows": 1562,
+   "pool": 1361,
+   "leak_dropped": 0,
+   "distinct_sources_raw": 212,
+   "mcp_errors": 0
   }
  }
 }

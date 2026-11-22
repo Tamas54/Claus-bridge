@@ -1,0 +1,556 @@
+{
+ "country": "US",
+ "lang": "en",
+ "target_month": "2026-11",
+ "corpus_window": [
+  "2026-10-08",
+  "2026-11-07"
+ ],
+ "days_sampled": [
+  "2026-10-08",
+  "2026-10-10",
+  "2026-10-12",
+  "2026-10-14",
+  "2026-10-16",
+  "2026-10-18",
+  "2026-10-20",
+  "2026-10-22",
+  "2026-10-24",
+  "2026-10-26",
+  "2026-10-28",
+  "2026-10-30",
+  "2026-11-01",
+  "2026-11-03",
+  "2026-11-05",
+  "2026-11-07"
+ ],
+ "n": 60,
+ "lean_dist": {
+  "left": 7,
+  "unknown": 31,
+  "center": 12,
+  "center_right": 1,
+  "center_left": 1,
+  "right": 7,
+  "gov": 1
+ },
+ "cat_dist": {
+  "global": 37,
+  "foreign": 7,
+  "general": 11,
+  "politics": 1,
+  "tech": 1,
+  "sport": 2,
+  "economy": 1
+ },
+ "raw_rows": 1562,
+ "pool_after_dedupe": 1361,
+ "leak_dropped": 0,
+ "distinct_sources_raw": 212,
+ "raw_cat_dist": {
+  "foreign": 109,
+  "global": 954,
+  "general": 154,
+  "sport": 163,
+  "politics": 48,
+  "economy": 67,
+  "news": 16,
+  "entertainment": 25,
+  "lifestyle": 7,
+  "tech": 14,
+  "culture": 2,
+  "world": 3
+ },
+ "per_day": {
+  "2026-10-08": {
+   "returned": 100,
+   "pool": 500
+  },
+  "2026-10-10": {
+   "returned": 94,
+   "pool": 500
+  },
+  "2026-10-12": {
+   "returned": 100,
+   "pool": 500
+  },
+  "2026-10-14": {
+   "returned": 100,
+   "pool": 500
+  },
+  "2026-10-16": {
+   "returned": 100,
+   "pool": 500
+  },
+  "2026-10-18": {
+   "returned": 100,
+   "pool": 500
+  },
+  "2026-10-20": {
+   "returned": 100,
+   "pool": 500
+  },
+  "2026-10-22": {
+   "returned": 100,
+   "pool": 500
+  },
+  "2026-10-24": {
+   "returned": 78,
+   "pool": 500
+  },
+  "2026-10-26": {
+   "returned": 100,
+   "pool": 500
+  },
+  "2026-10-28": {
+   "returned": 100,
+   "pool": 500
+  },
+  "2026-10-30": {
+   "returned": 100,
+   "pool": 500
+  },
+  "2026-11-01": {
+   "returned": 100,
+   "pool": 500
+  },
+  "2026-11-03": {
+   "returned": 100,
+   "pool": 500
+  },
+  "2026-11-05": {
+   "returned": 100,
+   "pool": 500
+  },
+  "2026-11-07": {
+   "returned": 90,
+   "pool": 500
+  }
+ },
+ "mcp_errors": 0,
+ "items": [
+  {
+   "text": "Die-hard Trump supporter blows the whistle on Jared Kushner on live TV — Ambassador Kimberly Guilfoyle's scandal is spreading as her $100,000 shakedown of Eric Deters, a campaign donor to President Donald Trump makes the rounds, but Deters told CNN anchor Jake Tapper on Thursday that Guilfoyl",
+   "source": "Alternet.org",
+   "lean": "left",
+   "date": "2026-10-08",
+   "category": "global"
+  },
+  {
+   "text": "‘Ours is the Inheritance of Great Heroes’ — Rubio hits one out of the park.",
+   "source": "American Renaissance",
+   "lean": "unknown",
+   "date": "2026-10-08",
+   "category": "global"
+  },
+  {
+   "text": "Anchorage Assembly further delays decision on ‘missing middle’ housing policy — With a substitute version on the table and numerous possible amendments, members voted to postpone discussion until Nov. 4.",
+   "source": "Anchorage Daily News",
+   "lean": "center",
+   "date": "2026-10-08",
+   "category": "foreign"
+  },
+  {
+   "text": "10/8 – Game 4 American League Division Series — Once this post goes up, the link will be in the sidebar under Featuring – so it will be easy to find if it’s pushed off the front page. ⚾ Cleveland Guardians @ Chicago White Sox – 8:00 pm ET on TBS, HBO Max ⚾ “LET’S PLAY",
+   "source": "Balloon Juice",
+   "lean": "unknown",
+   "date": "2026-10-08",
+   "category": "global"
+  },
+  {
+   "text": "‘Rumor up here is 10,000’: NDSU fans expected to arrive in force for game vs. UNLV — When the Rebels host North Dakota State on Saturday for the first time at Allegiant Stadium, the visiting team is expected to have a healthy fan base in the stands.",
+   "source": "Las Vegas Review-Journal",
+   "lean": "center_right",
+   "date": "2026-10-08",
+   "category": "foreign"
+  },
+  {
+   "text": "World's largest wildlife crossing is on track to open this winter — unless El Niño intervenes — Despite political backlash and past weather delays, the massive wildlife bridge over the 101 Freeway in Agoura Hills is racing toward a Dec. 2 opening. Now, the only threat to the deadline is Mother Nature.",
+   "source": "Los Angeles Times (Local)",
+   "lean": "center_left",
+   "date": "2026-10-08",
+   "category": "foreign"
+  },
+  {
+   "text": "No. 14 Gill St. Bernard’s girls soccer matches season high for goals in win over Bernards — No. 14 Gill St. Bernard’s girls soccer matches season high for goals in win over Bernards",
+   "source": "NJ.com / Star-Ledger",
+   "lean": "center",
+   "date": "2026-10-08",
+   "category": "foreign"
+  },
+  {
+   "text": "Belmont Club: The Steward and the Admiral",
+   "source": "PJ Media",
+   "lean": "right",
+   "date": "2026-10-08",
+   "category": "global"
+  },
+  {
+   "text": "USS Abraham Lincoln (CVN 72) returns to San Diego after 10-month combat deployment — SAN DIEGO — Abraham Lincoln departed its homeport on Nov. 21, 2025. The 321 days since casting off lines from San Diego have taken the carrier and its crew across the Pacific Ocean, through the San Bernardino Strait, Sur",
+   "source": "U.S. Pacific Command (PACOM)",
+   "lean": "gov",
+   "date": "2026-10-08",
+   "category": "general"
+  },
+  {
+   "text": "How the ‘Dinosaur’ Dodgers continue to find the fountain of youth — The Dodgers are oldest team in Major League Baseball. This October, they're trying to use it to their advantage.",
+   "source": "New York Post",
+   "lean": "right",
+   "date": "2026-10-10",
+   "category": "general"
+  },
+  {
+   "text": "City's lawyer threatens to lock Squirrels out of CarMax Park",
+   "source": "Richmond Times-Dispatch",
+   "lean": "unknown",
+   "date": "2026-10-10",
+   "category": "global"
+  },
+  {
+   "text": "Special to The Denver Post – Page 4127",
+   "source": "The Denver Post",
+   "lean": "unknown",
+   "date": "2026-10-10",
+   "category": "global"
+  },
+  {
+   "text": "In-house vs. agency marketing for PE-backed multibrand companies",
+   "source": "Buffalo News",
+   "lean": "unknown",
+   "date": "2026-10-12",
+   "category": "global"
+  },
+  {
+   "text": "Trump’s quest for a national voter database just ran into a brick wall known as ‘the law’ — A D.C. federal court ruled Trump’s Justice Department had no legal standing to demand states’ voter rolls.",
+   "source": "MS NOW",
+   "lean": "unknown",
+   "date": "2026-10-12",
+   "category": "global"
+  },
+  {
+   "text": "Building Industry Association auction raises funds for housing advocacy, industry priorities — Industry professionals and community partners gathered at the Grand Oaks Country Club for an event that translated into the organization’s marquee fundraiser of the year.",
+   "source": "SILive / Staten Island Advance",
+   "lean": "center",
+   "date": "2026-10-12",
+   "category": "foreign"
+  },
+  {
+   "text": "Montana Democratic Party chair steps down, endorses independent candidate",
+   "source": "The Washington Post",
+   "lean": "left",
+   "date": "2026-10-12",
+   "category": "politics"
+  },
+  {
+   "text": "Tony Stewart gives back with charity bowling tournament in Euless",
+   "source": "NBC 5 Dallas-Fort Worth",
+   "lean": "unknown",
+   "date": "2026-10-14",
+   "category": "global"
+  },
+  {
+   "text": "Sacagawea’s western adventure alongside Lewis and Clark is being reprised once again — Authors Craig Fehrman and Elizabeth Adelman share new books detailing the Lewis and Clark expedition at the National Book Festival.",
+   "source": "New York Post",
+   "lean": "right",
+   "date": "2026-10-14",
+   "category": "general"
+  },
+  {
+   "text": "‘DWTS’: Val Chmerkovskiy References Will Smith’s Oscars Slap While Defending Wife Jenna Johnson Amid Carrie Ann Inaba Criticism — “You almost saw Fresh Prince enter the ballroom last night,\" Chmerkovskiy wrote on his TikTok Story on Wednesday.",
+   "source": "The Hollywood Reporter",
+   "lean": "center",
+   "date": "2026-10-14",
+   "category": "general"
+  },
+  {
+   "text": "Good news, bad news for Patriots on first Week 6 injury report",
+   "source": "USA Today",
+   "lean": "unknown",
+   "date": "2026-10-14",
+   "category": "global"
+  },
+  {
+   "text": "No. 2 Maryvale Prep, No. 3 McDonogh girls soccer settle on 1-1 draw",
+   "source": "Baltimore Sun",
+   "lean": "unknown",
+   "date": "2026-10-16",
+   "category": "global"
+  },
+  {
+   "text": "D300 Food Pantry using Halloween trick or can theme as nontraditional way to collect food donations",
+   "source": "Chicago Tribune",
+   "lean": "unknown",
+   "date": "2026-10-16",
+   "category": "global"
+  },
+  {
+   "text": "Oregon School Shooting: Mom of Gunman Insists Son Was ‘Good Boy' — The mother of the Oregon school shooter is breaking down over her son's deadly rampage ... insisting he was a good kid despite killing four people. Shauntai May Nickerson was in tears outside her Bend, Oregon apartment,",
+   "source": "TMZ",
+   "lean": "center",
+   "date": "2026-10-16",
+   "category": "general"
+  },
+  {
+   "text": "Challenger Shares Hit Highest Since 2018 on $5.5B Daiichi Life Offer",
+   "source": "MarketWatch",
+   "lean": "unknown",
+   "date": "2026-10-18",
+   "category": "global"
+  },
+  {
+   "text": "Nick Canepa’s Report Card: Chargers fail to make the grade — again — as they fall to 0-6",
+   "source": "San Diego Union-Tribune",
+   "lean": "unknown",
+   "date": "2026-10-18",
+   "category": "global"
+  },
+  {
+   "text": "Anthropic commits 5% of its stock to a new 'public benefit' fund",
+   "source": "The Washington Post",
+   "lean": "left",
+   "date": "2026-10-18",
+   "category": "tech"
+  },
+  {
+   "text": "'Not satisfied:' Boston mayor, superintendent defend MCAS results as critics condemn 'failing' strategy",
+   "source": "Boston Herald",
+   "lean": "unknown",
+   "date": "2026-10-20",
+   "category": "global"
+  },
+  {
+   "text": "BREAKING: Democrats are plotting to go after Elon Musk, and Laura Ingraham just exposed exactly why. — 🚨 BREAKING: Democrats are plotting to go after Elon Musk, and Laura Ingraham just exposed exactly why. Elon gave $276 million to help Republicans in the third quarter alone. Now Democrats want to dig into Starlink's cont",
+   "source": "Free Republic",
+   "lean": "right",
+   "date": "2026-10-20",
+   "category": "global"
+  },
+  {
+   "text": "Celebrities descend upon MSG for Knicks' season-opener, banner raising",
+   "source": "NorthJersey.com",
+   "lean": "unknown",
+   "date": "2026-10-20",
+   "category": "global"
+  },
+  {
+   "text": "Kansas Police: Mom Who Allegedly Killed 2 After Driving Car On Soccer Field Was Not Illegal Immigrant, No Criminal Record — The Wichita Police Department is shutting down social media speculation about the woman who killed 2 people plowing onto a Kansas soccer field. WPD issued an update in their investigation Tuesday, obtained by TMZ, saying",
+   "source": "TMZ",
+   "lean": "center",
+   "date": "2026-10-20",
+   "category": "general"
+  },
+  {
+   "text": "Chandler Blanchet's 2 eagles give him narrow first-round lead in Bermuda",
+   "source": "Charlotte Observer",
+   "lean": "unknown",
+   "date": "2026-10-22",
+   "category": "global"
+  },
+  {
+   "text": "Mississippi Attorney General’ Office",
+   "source": "HuffPost",
+   "lean": "unknown",
+   "date": "2026-10-22",
+   "category": "global"
+  },
+  {
+   "text": "Junior leads No. 13 Wall to dominant victory over Toms River South in SCT first round — Wall defeats Toms River South - Field hockey recap",
+   "source": "NJ.com / Star-Ledger",
+   "lean": "center",
+   "date": "2026-10-22",
+   "category": "foreign"
+  },
+  {
+   "text": "Protect Cancer Patients from Program Cuts — Community oncology helps absorb the pressures that might otherwise pull a patient off treatment.",
+   "source": "The Progressive",
+   "lean": "left",
+   "date": "2026-10-22",
+   "category": "global"
+  },
+  {
+   "text": "Catastrophic flooding prompts rescues",
+   "source": "NBC News",
+   "lean": "unknown",
+   "date": "2026-10-24",
+   "category": "global"
+  },
+  {
+   "text": "NC State fires head coach Dave Doeren in massive $10.3 million shakeup — The woes continue for North Carolina State football.",
+   "source": "New York Post",
+   "lean": "right",
+   "date": "2026-10-24",
+   "category": "general"
+  },
+  {
+   "text": "Trump casts his midterm ballot early in Florida",
+   "source": "Newser",
+   "lean": "unknown",
+   "date": "2026-10-24",
+   "category": "global"
+  },
+  {
+   "text": "Smotherman makes it two wins in a row on PGA Tour with playoff victory over Seamus Power",
+   "source": "Orlando Sentinel",
+   "lean": "unknown",
+   "date": "2026-10-26",
+   "category": "global"
+  },
+  {
+   "text": "Eric André Speaks Out About Chet Hanks' Confrontation Video: He Was Just Flirting!!! — Eric André's clearly not sweating his recent confrontation with Chet Hanks ... though he also thinks people are missing a key part of the story. We caught up with the actor and comedian at LAX on Monday ... and we asked",
+   "source": "TMZ",
+   "lean": "center",
+   "date": "2026-10-26",
+   "category": "general"
+  },
+  {
+   "text": "England star Harry Kane wins first Ballon d'Or",
+   "source": "USA Today",
+   "lean": "unknown",
+   "date": "2026-10-26",
+   "category": "sport"
+  },
+  {
+   "text": "Pentagon Watchdog Refuses To Probe Starlink Disruptions In Ukraine",
+   "source": "HuffPost",
+   "lean": "unknown",
+   "date": "2026-10-28",
+   "category": "global"
+  },
+  {
+   "text": "She spent decades caring for Staten Islanders. At 89, her remarkable life came full circle — Catherine LaBarbera masterfully led and guided generations of healthcare professionals, leaving behind a lasting legacy of mentorship and excellence in the local medical community.",
+   "source": "SILive / Staten Island Advance",
+   "lean": "center",
+   "date": "2026-10-28",
+   "category": "foreign"
+  },
+  {
+   "text": "Clue to Power Enterprise Equipment Operations for Infrastructure Contractor Webber",
+   "source": "The Columbus Dispatch",
+   "lean": "unknown",
+   "date": "2026-10-28",
+   "category": "global"
+  },
+  {
+   "text": "She Was Arrested After Leaving Her Kids for Days. Parents Are Debating. — A Florida sheriff’s office arrested a mother who had left her children home alone for days to go a work trip, reigniting the cantankerous debate over when parents act irresponsibly.",
+   "source": "The New York Times — Most Recent Headlines",
+   "lean": "left",
+   "date": "2026-10-28",
+   "category": "general"
+  },
+  {
+   "text": "Trendy Cabinets Organizes Its Bathroom Vanities Into Seven Styles",
+   "source": "Des Moines Register",
+   "lean": "unknown",
+   "date": "2026-10-30",
+   "category": "global"
+  },
+  {
+   "text": "Tokyo: Milcho Manchevski on his Competition Film, Blacklisting and the Ills of Neo-Social Realism — The director, whose ‘Sister Brother Manhole Cover’ is in Tokyo International Film Festival’s main competition, holds forth on why mothers are such a presence in his stories and how he made his first full documentary desp",
+   "source": "The Hollywood Reporter",
+   "lean": "center",
+   "date": "2026-10-30",
+   "category": "general"
+  },
+  {
+   "text": "BREAKING: A political coup is underway in Poland and here’s why… — There’s a political coup underway in Poland right now and it centers around the country’s Constitutional Tribunal. This is not a military coup. Similar to our Supreme Court, it rules on whether . . .",
+   "source": "The Right Scoop",
+   "lean": "right",
+   "date": "2026-10-30",
+   "category": "global"
+  },
+  {
+   "text": "Former patient sues Sen. Roger Marshall for charging illegal interest — U.S. Sen. Roger Marshall was sued by a patient of his medical clinic who accuses him of charging illegal interest rates on unpaid medical bills.",
+   "source": "UPI.com",
+   "lean": "unknown",
+   "date": "2026-10-30",
+   "category": "global"
+  },
+  {
+   "text": "Falcons shut out by Buccaneers in rain-soaked NFC South setback",
+   "source": "Atlanta Journal-Constitution",
+   "lean": "unknown",
+   "date": "2026-11-01",
+   "category": "global"
+  },
+  {
+   "text": "Sunday Night Open Thread — As I noted last night, Hayley Stevens is making some choices, and 24 hours later we can confirm, as I suspected, they would all be bad ones: Let me share a few quick thoughts about former Democratic Senate primary candid",
+   "source": "Balloon Juice",
+   "lean": "unknown",
+   "date": "2026-11-01",
+   "category": "global"
+  },
+  {
+   "text": "Haley Stevens 'guilty of the very sin' behind 'misguided' MAGA endorsement: analysis — Rep. Haley Stevens' (D-MI) endorsement of MAGA Senate candidate Mike Rogers not only injected new uncertainties into the Michigan Senate race, but also revealed a troubling pattern of behavior, according to a new analysi",
+   "source": "Raw Story",
+   "lean": "left",
+   "date": "2026-11-01",
+   "category": "global"
+  },
+  {
+   "text": "KCCU Mary McClure Slice of Life - Halloween Brings Out Grinch in Me - October 28",
+   "source": "NPR",
+   "lean": "center",
+   "date": "2026-11-03",
+   "category": "global"
+  },
+  {
+   "text": "Trump Ally Gallrein Wins Massie's Kentucky House Seat",
+   "source": "Newsmax",
+   "lean": "unknown",
+   "date": "2026-11-03",
+   "category": "global"
+  },
+  {
+   "text": "Eric Dane names ‘son of a bitch’ actor he nearly came to blows with on TV set — The \"Grey's Anatomy\" alum died in February after a public battle with ALS.",
+   "source": "Page Six (NYP gossip)",
+   "lean": "right",
+   "date": "2026-11-03",
+   "category": "general"
+  },
+  {
+   "text": "Father remembers 18-year-old daughter 'Booboo' killed in robbery attempt",
+   "source": "The Columbus Dispatch",
+   "lean": "unknown",
+   "date": "2026-11-03",
+   "category": "global"
+  },
+  {
+   "text": "Singapore’s Ruling Party Adds New Members to Executive Committee — Singapore’s People’s Action Party co-opted four additional members into its 39th Central Executive Committee, as the ruling party seeks to strengthen its pipeline of future leaders.",
+   "source": "Bloomberg Politics",
+   "lean": "unknown",
+   "date": "2026-11-05",
+   "category": "economy"
+  },
+  {
+   "text": "Drone Finds Fleeing Driver Hiding In Lehigh County Cornfield, Police Say — A driver who fled a highway ramp crash was found hiding in a Pennsylvania cornfield hours later with help from a thermal imaging drone, police said. The search began after a crash on the ramp from Route 309 North to Inte",
+   "source": "Daily Voice",
+   "lean": "unknown",
+   "date": "2026-11-05",
+   "category": "global"
+  },
+  {
+   "text": "CNN's Kaitlan Collins flags Trump's revealing first move after GOP wipeout: 'So notable' — CNN’s Kaitlan Collins highlighted a revealing detail about President Donald Trump’s priorities Thursday as Republicans struggled to regroup from their devastating midterm election losses. “It’s so notable that this is th",
+   "source": "Raw Story",
+   "lean": "left",
+   "date": "2026-11-05",
+   "category": "global"
+  },
+  {
+   "text": "Warriors still believe they are a top destination for … — Warriors still believe they are a top destination for …",
+   "source": "Yahoo Sports",
+   "lean": "center",
+   "date": "2026-11-05",
+   "category": "sport"
+  },
+  {
+   "text": "Highlights: Daniel Blanchet leads PDB to Six-Man quarterfinal win over Highwood",
+   "source": "Billings Gazette",
+   "lean": "unknown",
+   "date": "2026-11-07",
+   "category": "global"
+  }
+ ],
+ "built": "2026-11-23",
+ "source_db": "Echolot MCP get_news (https://echolotnews.com/mcp), published_at szerinti napok",
+ "build_rule": "get_news(limit=100, diversify, max_per_source=3, place=ország) minden 2. napra; title>15, LEAK_RE-szűrő, cím-dedupe, lead 220 kar., MAXN=60 lean-cap (arányos kvóta + domináns lean <=60% + dátum-stride) — a júliusi sample_cell"
+}
