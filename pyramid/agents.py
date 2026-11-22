@@ -13,7 +13,7 @@ TRAINING_CUTOFFS = {
     "kimi":     "2024 vége / 2025 eleje (Kimi K2.7, Moonshot)",
     "deepseek": "2025 közepe (DeepSeek V4-Pro)",
     "glm5":     "2026 első negyedéve (GLM-5.2, ~4 hetes modell)",
-    "dsflash":  "2025 közepe (DeepSeek V4-Flash)",
+    "dsflash":  "2025 közepe (DeepSeek V4.1-Flash)",
     "glm53f":   "2026 első negyedéve (GLM-5.3-Flash)",
     "glm53":    "2026 első negyedéve (GLM-5.3)",
 }
@@ -119,7 +119,8 @@ AGENT_REGISTRY: Dict[str, Dict[str, Any]] = {
     #   GLM-5.2            10 750 ms / 1 039
     # A `tier` mező azért van itt, hogy a hívó OSZTÁLYT kérhessen, ne nevet.
     "dsflash": {
-        "model_id": "deepseek-ai/DeepSeek-V4-Flash",
+        # 11-22: a verziótlan V4-Flash (előnézeti SKU) helyett a V4.1 — lásd a server.SILICONFLOW_MODELS megjegyzését.
+        "model_id": "deepseek-ai/DeepSeek-V4.1-Flash",
         "provider": "siliconflow",
         "tier": "flash",
         "default_temperature": 0.6,

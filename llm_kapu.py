@@ -137,7 +137,7 @@ OLCSO_CELOK = ("triage", "osztaly", "osztály", "classif", "fordit", "fordít", 
 #: A `tests/test_llm_kapu.py` ellenőrzi, hogy a `server.SILICONFLOW_MODELS` MINDEN modellje szerepel itt —
 #: egy új SF-modell így nem csúszhat be besorolás nélkül.
 SF_SZINT = {
-    "dsflash": "sf_flash", "deepseek-ai/DeepSeek-V4-Flash": "sf_flash",
+    "dsflash": "sf_flash", "deepseek-ai/DeepSeek-V4.1-Flash": "sf_flash", "deepseek-ai/DeepSeek-V4-Flash": "sf_flash",
     "glm53f": "sf_flash", "zai-org/GLM-5.3-Flash": "sf_flash",
     "hy3": "sf_flash", "tencent/Hy3": "sf_flash",
     "kimi3": "sf_pro", "moonshotai/Kimi-K3": "sf_nehez",   # 11-22: a kimi3 is a K3.1 Pro-ra mutat
