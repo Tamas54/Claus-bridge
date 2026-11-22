@@ -1,0 +1,25 @@
+HU 2026-07 2026-06-15..2026-07-14: raw=528 pool=513 leak=0 n=60 src=37 err=0 lean={'unknown': 25, 'right': 8, 'analytical': 7, 'center': 2, 'left': 18}
+HU 2026-08 2026-07-15..2026-08-14: raw=658 pool=633 leak=1 n=60 src=38 err=0 lean={'unknown': 26, 'left': 15, 'right': 7, 'analytical': 8, 'center': 3, 'right_independent': 1}
+HU 2026-09 2026-08-15..2026-09-14: raw=677 pool=655 leak=1 n=60 src=39 err=0 lean={'unknown': 29, 'right': 6, 'analytical': 6, 'left': 13, 'center': 6}
+HU 2026-10 2026-09-15..2026-10-14: raw=795 pool=759 leak=1 n=60 src=47 err=0 lean={'unknown': 29, 'right': 7, 'analytical': 4, 'left': 14, 'center': 6}
+HU 2026-11 2026-10-15..2026-11-14: raw=1008 pool=974 leak=0 n=60 src=47 err=0 lean={'right': 10, 'unknown': 25, 'analytical': 3, 'center': 5, 'left': 17}
+FR 2026-07 2026-06-15..2026-07-14: raw=821 pool=808 leak=0 n=60 src=110 err=0 lean={'center_left': 1, 'right': 5, 'center': 34, 'left': 17, 'unknown': 1, 'center_right': 1, 'analytical': 1}
+FR 2026-08 2026-07-15..2026-08-14: raw=1200 pool=1166 leak=0 n=60 src=95 err=0 lean={'unknown': 9, 'center': 37, 'center_left': 5, 'center_right': 4, 'left': 2, 'right': 3}
+FR 2026-09 2026-08-15..2026-09-14: raw=1172 pool=1122 leak=0 n=60 src=98 err=0 lean={'unknown': 9, 'right': 3, 'center': 35, 'center_left': 5, 'center_right': 4, 'left': 4}
+FR 2026-10 2026-09-15..2026-10-14: raw=1129 pool=1082 leak=0 n=60 src=112 err=0 lean={'unknown': 9, 'center': 35, 'center_right': 3, 'center_left': 5, 'right': 3, 'left': 3, 'analytical': 2}
+FR 2026-11 2026-10-15..2026-11-14: raw=1279 pool=1254 leak=0 n=60 src=102 err=0 lean={'center': 37, 'unknown': 8, 'center_right': 3, 'left': 3, 'center_left': 4, 'right': 5}
+IT 2026-07 2026-06-15..2026-07-14: raw=625 pool=613 leak=0 n=60 src=72 err=0 lean={'center': 36, 'unknown': 5, 'right': 5, 'left': 14}
+IT 2026-08 2026-07-15..2026-08-14: raw=984 pool=890 leak=0 n=60 src=117 err=0 lean={'unknown': 30, 'center': 24, 'left': 4, 'right': 1, 'center_right': 1}
+IT 2026-09 2026-08-15..2026-09-14: raw=989 pool=879 leak=0 n=60 src=118 err=0 lean={'center': 26, 'unknown': 30, 'left': 3, 'right': 1}
+IT 2026-10 2026-09-15..2026-10-14: raw=944 pool=863 leak=0 n=60 src=114 err=0 lean={'center': 25, 'unknown': 25, 'left': 8, 'right': 1, 'center_left': 1}
+IT 2026-11 2026-10-15..2026-11-14: raw=1063 pool=956 leak=0 n=60 src=105 err=0 lean={'unknown': 30, 'center': 22, 'left': 6, 'right': 1, 'center_right': 1}
+DE 2026-07 2026-06-15..2026-07-14: raw=830 pool=802 leak=0 n=60 src=76 err=0 lean={'left': 10, 'center': 36, 'unknown': 8, 'right': 6}
+DE 2026-08 2026-07-15..2026-08-14: raw=1260 pool=1154 leak=0 n=60 src=91 err=0 lean={'left': 5, 'right': 2, 'unknown': 27, 'center': 26}
+DE 2026-09 2026-08-15..2026-09-14: raw=1301 pool=1187 leak=0 n=60 src=97 err=0 lean={'unknown': 24, 'left': 7, 'right': 2, 'center': 27}
+DE 2026-10 2026-09-15..2026-10-14: raw=1200 pool=1093 leak=1 n=60 src=92 err=0 lean={'unknown': 24, 'right': 2, 'left': 7, 'center': 27}
+DE 2026-11 2026-10-15..2026-11-14: raw=1302 pool=1180 leak=0 n=60 src=100 err=0 lean={'unknown': 27, 'right': 1, 'left': 6, 'center': 26}
+US 2026-07 2026-06-08..2026-07-07: raw=627 pool=618 leak=0 n=60 src=106 err=0 lean={'left': 8, 'unknown': 11, 'center': 26, 'center_left': 2, 'right': 12, 'gov': 1}
+US 2026-08 2026-07-08..2026-08-07: raw=1564 pool=1494 leak=1 n=60 src=180 err=0 lean={'unknown': 19, 'center': 21, 'center_left': 3, 'gov': 1, 'right': 9, 'left': 6, 'center_right': 1}
+US 2026-09 2026-08-08..2026-09-07: raw=1600 pool=1502 leak=0 n=60 src=168 err=0 lean={'unknown': 20, 'center': 20, 'right': 8, 'center_right': 1, 'left': 7, 'center_left': 2, 'analytical': 1, 'gov': 1}
+US 2026-10 2026-09-08..2026-10-07: raw=1500 pool=1415 leak=0 n=60 src=169 err=0 lean={'right': 8, 'center': 20, 'unknown': 20, 'left': 7, 'center_left': 2, 'center_right': 1, 'gov': 1, 'analytical': 1}
+US 2026-11 2026-10-08..2026-11-07: raw=1562 pool=1361 leak=0 n=60 src=212 err=0 lean={'left': 7, 'unknown': 31, 'center': 12, 'center_right': 1, 'center_left': 1, 'right': 7, 'gov': 1}

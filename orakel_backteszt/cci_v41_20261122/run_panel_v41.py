@@ -39,7 +39,9 @@ EMBED_MODEL = delphoi.EMBED_MODEL_SF  # Qwen/Qwen3-Embedding-8B
 SF_BASE = "https://api.siliconflow.com/v1"
 PRICE_IN, PRICE_OUT = 0.15, 0.60  # $/M token, SF-listaár 2026-11-22 (olcso_swarm jegyzőkönyv)
 SEEDS = [int(s) for s in os.environ.get("CCI_SEEDS", "1,2,3").split(",")]
-N = int(os.environ.get("CCI_N", "60"))
+# N a PREREG.json-ból (20/seed) — 2026-11-23: a korábbi 60-as alapérték egy HU 2026-07 seed-1 futást
+# N=60-nal indított; az elvetve (raw/ELVETETT_N60_hu_2026-07_seed1.json), nem része az eredménynek.
+N = int(json.load(open(os.path.join(HERE, "PREREG.json"), encoding="utf-8"))["panel"]["N_per_seed"])
 NEWS_K = 16
 CONC = int(os.environ.get("CCI_CONC", "8"))
 
