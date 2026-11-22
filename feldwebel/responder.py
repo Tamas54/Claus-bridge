@@ -6,6 +6,7 @@ Architecture: DeepSeek decides when to call tools (gmail_search, gmail_poll,
 calendar_poll, send_email, create_task). Results are fed back for final response.
 """
 
+import asyncio
 import json
 import logging
 from datetime import datetime, timezone
@@ -236,6 +237,9 @@ TOOLS = [
 ]
 
 # Tools that need confirmation before execution
+#: Egy válaszban legfeljebb ennyi modellkör (az utolsó eszköz nélkül, a szintézisé). A kombinált feladat (hír + szám
+#: + jog + dokumentum) 4-6 kör; a régi 5-ös plafon (4 eszközkör) a kombinálást vágta el.
+MAX_KOR = 12
 CONFIRM_TOOLS = {"send_email"}  # Future: add more dangerous actions
 
 
@@ -370,6 +374,31 @@ Ha emailre kell válaszolni:
 - Kérd a megerősítését mielőtt bármit küldenél
 - Aláírás: "Üdvözlettel, Kende Tamás"
 
+ÁLTALÁNOS MUNKAMÓDSZER — minden kérésre (a Kommandant: „általános jelleggel kombinálni minden eszközünket”):
+1. Mi a kért EREDMÉNY? Válasz, dokumentum, művelet (levél, naptár, feladat), vagy figyelés/ütemezés.
+2. Bontsd részekre, és minden részhez a legjobb SAJÁT forrást válaszd (lásd az eszköztérképet); webes keresést csak
+   akkor, ha a saját nem fed. Ami egymástól független, azt EGY körben, egyszerre hívd (több eszközhívás egy válaszban).
+3. KOMBINÁLD: a hírt kösd össze a számmal, a jogszabállyal, a céggel, a melléklettel. Minden szám és állítás mögött
+   az eszköz forrása legyen — amit eszköz nem adott, azt ne állítsd, a hiányt mondd ki.
+4. Ha egy DÖNTŐ tény hiányzik, kérdezz (legfeljebb 3 kérdés, számozva), de amit már tudsz, azt előbb mondd el.
+5. Ha az eredmény dokumentum, táblázat, prezentáció, kép vagy videó: a `studio`-ban készítsd, és add át az edit_url-t.
+   FORMÁZVA készüljön (címsor-stílusok, felsorolás, táblázat — ne nyers bekezdések), tartsd a kért terjedelmet, és
+   átadás előtt nézd meg a Studio ellenőrzésével vagy előnézetével (validate_document / files preview); amit ott hibát
+   jelez, javítsd.
+6. Mellékhatással járó lépés (levél, meghívó, megosztás, közzététel, figyelő vagy ütemezés indítása, fizetés) csak a
+   Kommandant kifejezett igenje után.
+
+ESZKÖZTÉRKÉP (a saját szolgáltatásaink — ezek az elsők):
+- hír, sajtó, sztori, entitás (személy, cég, intézmény), narratíva, trend, sajtószemle → `echolot` (gyors: echolot_query)
+- makró, statisztika (KSH, Eurostat, EKB, MNB, FRED), kamat, árfolyam, tőzsde, cégadat, SEC, előrejelzés, parlament,
+  jogszabály-változás → `makronom` (gyors út: mnb_rates, market_quote, fred_data, policy_rates, econ_calendar)
+- magyar és uniós jog, bírósági és hatósági döntés, idézet-ellenőrzés → `lexonomics`
+- gyógyszer, betegség, tünet, mellékhatás, orvosi szakirodalom → `medical`
+- dokumentum, prezentáció, PDF, kép, videó készítése, átalakítása, szerkesztése, a mellékletek → `studio`
+- weboldal tartalma, crawl, kinyerés sémára, oldalfigyelés → `engine` (egyszerűbb: web_fetch, web_scrape, web_search)
+- levél, naptár, feladat, recept → gmail_*, calendar_*, create_task/list_tasks, *_recipe
+- korábbi döntéseink, közös memória → search_memory, read_memory; hosszabb háttérkutatás egy ügynökkel → ai_task
+
 MELLÉKLET ÉS TANÁCSADÁS (irat, tanulmány, fotó, egészség):
 - A `[Melléklet #ID: név — … · Studio file_id=… · szerkesztő: …]` blokk egy fájl, amit a Kommandant küldött; alatta a
   szövege (fotónál szó szerinti átirat: [bélyegző: …], [kézírás: …], [?] = bizonytalan olvasat). A fájl a Kommandant
@@ -484,10 +513,14 @@ async def respond(text: str, chat_id: str, agent_id: str = "deepseek") -> str:
     import llm_kapu as _lk
     from melleklet import van_melleklet
     kotetlen = van_melleklet(text) or _lk.tanacs_keres(text)
-    for round_num in range(5):
+    for round_num in range(MAX_KOR):
+        # Több eszközös, többlépéses feladatnál (már legalább 2 eszközeredmény van) a kapu a közép szintet adja:
+        # a kombinálás és a szintézis a Sonneté, az egyszerű kérdés marad a Haikun.
+        melyebb = sum(1 for m in messages if m.get("role") == "tool") >= 2
         data = await _call_deepseek(
             ctx, model_id, messages,
-            use_tools=(round_num < 4),
+            use_tools=(round_num < MAX_KOR - 1),
+            purpose="feldwebel/melyebb/telegram" if melyebb else "feldwebel/telegram",
             # mellékletnél és tanácskérésnél NEM kényszerítünk eszközt az első körben: vissza kell tudnia kérdezni
             force_tool=(round_num == 0 and not kotetlen),
             notes=kapu_notes,
@@ -515,19 +548,31 @@ async def respond(text: str, chat_id: str, agent_id: str = "deepseek") -> str:
         # Case A: Proper JSON tool_calls
         if tool_calls and finish_reason == "tool_calls":
             messages.append(msg)
+            # Az egy körben kért eszközök EGYSZERRE futnak (független lekérdezések: hír + szám + jog…);
+            # az eredmények a kérés sorrendjében mennek vissza.
+            hivasok = []
             for tc in tool_calls:
                 fn_name = tc.get("function", {}).get("name", "")
                 fn_args_raw = tc.get("function", {}).get("arguments", "{}")
-                tc_id = tc.get("id", "")
                 try:
                     fn_args = json.loads(fn_args_raw) if isinstance(fn_args_raw, str) else fn_args_raw
                 except json.JSONDecodeError:
                     fn_args = {}
                 logger.info("Tool call round %d: %s(%s)", round_num, fn_name, fn_args)
+                hivasok.append((tc.get("id", ""), fn_name, fn_args or {}))
+
+            async def _egy(fn_name, fn_args):
                 _et = _kimenet.eszkoz_indul(fn_name, fn_args) if _kimenet is not None else None
-                result = await _execute_tool(fn_name, fn_args, ctx)
+                try:
+                    result = await _execute_tool(fn_name, fn_args, ctx)
+                except Exception as e:  # noqa: BLE001 — egy eszköz hibája ne vigye el a kört
+                    result = json.dumps({"error": f"{type(e).__name__}: {str(e)[:300]}"}, ensure_ascii=False)
                 if _kimenet is not None:
                     _kimenet.eszkoz_kesz(_et, result)
+                return result
+
+            eredmenyek = await asyncio.gather(*(_egy(n, a) for _, n, a in hivasok))
+            for (tc_id, fn_name, _), result in zip(hivasok, eredmenyek):
                 eszkoz_nevek.append(fn_name)
                 messages.append({"role": "tool", "tool_call_id": tc_id, "content": result})
             continue
@@ -651,7 +696,7 @@ def modell_rovid(modell: str) -> str:
 
 
 async def _call_deepseek(ctx, model_id: str, messages: list, use_tools: bool = True, force_tool: bool = False,
-                         notes: list | None = None) -> dict:
+                         notes: list | None = None, purpose: str = "feldwebel/telegram") -> dict:
     """Call the Bridge LLM gateway (Anthropic / SiliconFlow), optionally with tools.
 
     2026-11-22: ha a Bridge bekötötte a közös kaput (`ctx.llm_chat` = `server.sf_chat`), azon megy — ott dől el,
@@ -661,7 +706,7 @@ async def _call_deepseek(ctx, model_id: str, messages: list, use_tools: bool = T
             "model": model_id,
             "messages": messages,
             "temperature": 0.7,
-            "max_tokens": 2000,
+            "max_tokens": 4000,   # irat, terv, kombinált válasz — 2000-nél elvágta
         }
         # K2.x + V4-Pro default thinking ON on SF — clamp HARD in the agent loop.
         # reasoning_effort=medium proved insufficient for V4-Pro: with
@@ -681,7 +726,7 @@ async def _call_deepseek(ctx, model_id: str, messages: list, use_tools: bool = T
                 payload["tool_choice"] = "required"
 
         if ctx.llm_chat is not None:
-            data, err, kapu_notes = await ctx.llm_chat(payload, purpose="feldwebel/telegram")
+            data, err, kapu_notes = await ctx.llm_chat(payload, purpose=purpose)
             if notes is not None:
                 notes.extend(kapu_notes or [])
             if err is not None:

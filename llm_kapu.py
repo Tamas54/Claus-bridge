@@ -207,7 +207,7 @@ def szint_valaszt(payload: dict, purpose: str = "") -> tuple[str, str]:
     elif "feldwebel" in cel:
         utolso = _utolso_kommandant_szoveg(payload)
         mely = (len(utolso) > MELY_HOSSZ_KAR or any(j in utolso.lower() for j in MELY_JELEK)
-                or tanacs_keres(utolso))
+                or tanacs_keres(utolso) or "melyebb" in cel)   # a Feldwebel jelzi: többlépéses, kombinált feladat
         szabaly = "feldwebel_melyebb" if mely else "feldwebel"
     elif any(c in cel for c in OLCSO_CELOK):
         szabaly = "cel_olcso"

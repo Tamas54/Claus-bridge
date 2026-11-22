@@ -9834,17 +9834,43 @@ async def _telegram_push(text: str):
     try:
         import httpx
         async with httpx.AsyncClient(timeout=15) as client:
-            await client.post(
-                f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage",
-                json={
-                    "chat_id": TELEGRAM_CHAT_ID,
-                    "text": text[:4000],
-                    "parse_mode": "HTML",
-                    "disable_web_page_preview": True,
-                },
-            )
+            # Hosszú válasz (irat, terv, kombinált elemzés) több üzenetben — eddig 4000 jelnél elvágta.
+            for darab in telegram_darabol(text):
+                r = await client.post(
+                    f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage",
+                    json={"chat_id": TELEGRAM_CHAT_ID, "text": darab, "parse_mode": "HTML",
+                          "disable_web_page_preview": True},
+                )
+                if r.status_code == 400:      # elrontott HTML (pl. félbevágott címke) → sima szövegként
+                    await client.post(
+                        f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage",
+                        json={"chat_id": TELEGRAM_CHAT_ID, "text": _re_module.sub(r"<[^>]+>", "", darab),
+                              "disable_web_page_preview": True},
+                    )
     except Exception as e:
         logger.error("Telegram push failed: %s", e)
+
+
+TELEGRAM_DARAB = 3900
+
+
+def telegram_darabol(text: str, hatar: int = TELEGRAM_DARAB) -> list[str]:
+    """Telegram-üzenetdarabok (≤ hatar jel): bekezdéshatáron, ha nem megy, sorhatáron, végül szóhatáron vág."""
+    text = text or ""
+    darabok = []
+    while len(text) > hatar:
+        vag = -1
+        for sep in ("\n\n", "\n", " "):
+            vag = text.rfind(sep, 0, hatar)
+            if vag > hatar // 3:
+                break
+        if vag <= 0:
+            vag = hatar
+        darabok.append(text[:vag].rstrip())
+        text = text[vag:].lstrip()
+    if text.strip() or not darabok:
+        darabok.append(text)
+    return darabok
 
 
 async def _telegram_push_document(message_id: str, attachment: dict, caption: str = ""):

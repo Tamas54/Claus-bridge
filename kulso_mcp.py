@@ -44,6 +44,32 @@ SZERVEREK: dict[str, dict[str, Any]] = {
                    "betegségek, tünetek, fehérjék, szakirodalom (PubMed), klinikai vizsgálatok. Egészségügyi kérdésnél "
                    "ezt használd; az eredmény adat és evidencia, nem diagnózis — a döntés az orvosé."),
     },
+    "echolot": {
+        "url_env": "ECHOLOT_MCP_URL", "url": "https://echolotnews.com/mcp",
+        "kulcs_env": None,
+        "leiras": ("Echolot — a saját hírplatformunk: hírek és keresés a korpuszban (sok nyelv, régiók, források), "
+                   "napi és heti összefoglaló, trendek, sztori-intelligencia, entitások (személy, cég, intézmény) "
+                   "portréja, trendje és kapcsolatai, narratíva- és keretezés-eltérés a sajtóban, sajtószemle, "
+                   "forrásprofil, közösségi és webes keresés. Hírhez, közélethez, cégről szóló hírhez ezt használd."),
+        # közzétevő / író eszközök: a Feldwebel nem publikál a Kommandant nevében
+        "tiltott": {"press_pub_new", "press_pub_set", "press_pub_delete", "creator_publish", "hog_publish",
+                    "hog_prepare", "post_comment", "agora_editor", "newsletter"},
+    },
+    "makronom": {
+        "url_env": "MAKRONOM_MCP_URL", "url": "https://statadatokmcp-production.up.railway.app/mcp",
+        "kulcs_env": None,
+        "leiras": ("Makronóm (StatData) — makró- és piaci adat forrással: KSH, Eurostat, EKB, MNB, FRED, DBnomics, "
+                   "jegybanki kamatok, adatközlési naptár, előrejelzés, tőzsde és árfolyam (yfinance, BÉT), "
+                   "cégadat és értékeltség, SEC-beadványok, earnings call, piaci pozicionálás, parlament és "
+                   "jogszabály-változások. Számhoz ELŐSZÖR get_macro_indicator; az egységet ne találd ki."),
+    },
+    "engine": {
+        "url_env": "ECHOLOT_ENGINE_MCP_URL", "url": "https://crawl.echolotnews.com/mcp",
+        "kulcs_env": "ECHOLOT_ENGINE_KEY",
+        "leiras": ("Echolot Engine — a saját webmotorunk: keresés, oldal letöltése tisztán (scrape), webhely-térkép, "
+                   "crawl, strukturált kinyerés sémára, többlépéses böngésző-ügynök, oldalfigyelés. Ha egy weboldal "
+                   "tartalma kell és a web_fetch kevés (JS-oldal, sok aloldal, táblázat kinyerése)."),
+    },
     "studio": {
         "url_env": "STUDIO_MCP_URL", "url": "https://ai-conversioneditor-production.up.railway.app/mcp",
         "kulcs_env": "STUDIO_MCP_KEY",
@@ -101,9 +127,10 @@ async def _lista(nev: str, *, friss: bool = False) -> tuple[list, str] | None:
         return meglevo[1], meglevo[2]
     if not friss and most - _HIBAK.get(nev, 0) < LISTA_HIBA_TTL_S:
         return (meglevo[1], meglevo[2]) if meglevo else None
+    tiltott = SZERVEREK[nev].get("tiltott") or set()
     try:
         async with _kliens(nev) as c:
-            eszkozok = await asyncio.wait_for(c.list_tools(), 30)
+            eszkozok = [t for t in await asyncio.wait_for(c.list_tools(), 30) if t.name not in tiltott]
             utmutato = getattr(getattr(c, "initialize_result", None), "instructions", None) or ""
     except Exception as e:  # noqa: BLE001 — egy elérhetetlen szerver ne vigye el a Feldwebelt
         _HIBAK[nev] = most

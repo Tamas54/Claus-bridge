@@ -38,6 +38,7 @@ def tiszta(monkeypatch):
     monkeypatch.setattr(k, "_kliens", lambda nev: Client(teszt_szerver))
     monkeypatch.delenv("LEXONOMICS_MCP_KEY", raising=False)
     monkeypatch.delenv("STUDIO_MCP_KEY", raising=False)
+    monkeypatch.delenv("ECHOLOT_ENGINE_KEY", raising=False)
     yield
     k._LISTAK.clear()
     k._HIBAK.clear()
@@ -45,11 +46,12 @@ def tiszta(monkeypatch):
 
 def test_kulcs_nelkul_csak_a_nyilvanos_szerver_jelenik_meg(monkeypatch):
     nevek = [d["function"]["name"] for d in _run(k.eszkoz_definiciok())]
-    assert nevek == ["medical"]
+    assert nevek == ["medical", "echolot", "makronom"]           # a nyilvánosak
     monkeypatch.setenv("LEXONOMICS_MCP_KEY", "nxk_teszt")
     monkeypatch.setenv("STUDIO_MCP_KEY", "studio_teszt")
+    monkeypatch.setenv("ECHOLOT_ENGINE_KEY", "engine_teszt")
     nevek = [d["function"]["name"] for d in _run(k.eszkoz_definiciok())]
-    assert nevek == ["lexonomics", "medical", "studio"]          # állandó sorrend (prompt-cache)
+    assert nevek == ["lexonomics", "medical", "echolot", "makronom", "engine", "studio"]   # állandó sorrend (cache)
 
 
 def test_definicio_a_neveket_es_parametereket_sorolja():
@@ -92,7 +94,7 @@ def test_elerhetetlen_szerver_kimarad_es_nem_lassit(monkeypatch):
     monkeypatch.setattr(k, "_kliens", rossz_kliens)
     assert _run(k.eszkoz_definiciok()) == []
     assert _run(k.eszkoz_definiciok()) == []
-    assert hivasok == ["medical"]                                  # a hibát LISTA_HIBA_TTL_S-ig megjegyzi
+    assert hivasok == ["medical", "echolot", "makronom"]           # a hibát LISTA_HIBA_TTL_S-ig megjegyzi
     assert "nem érhető el" in json.loads(_run(k.hiv("medical", "kereses", {"query": "x"})))["hiba"]
 
 
@@ -108,7 +110,7 @@ def test_a_feldwebel_a_kulso_eszkozt_a_kulso_mcp_nek_adja(monkeypatch):
     assert _run(responder._execute_tool("studio", {"eszkoz": "convert", "parameterek": {"a": 1}}, None)) == "ok"
     assert kapott == {"nev": "studio", "eszkoz": "convert", "parameterek": {"a": 1}}
     ures = _run(responder._kulso_eszkozok())
-    assert [d["function"]["name"] for d in ures] == ["medical"]
+    assert [d["function"]["name"] for d in ures] == ["medical", "echolot", "makronom"]
 
 
 def test_nincs_nevutkozes_a_feldwebel_eszkozeivel():
@@ -121,3 +123,31 @@ def test_sok_eszkoznel_tomor_lista(monkeypatch):
     monkeypatch.setattr(k, "MAX_LEIRAS_KAR", 10)
     d = _run(k.eszkoz_definiciok())[0]["function"]["description"]
     assert "kereses(query, …), hosszu()" in d and "Keresés a teszt" not in d
+
+
+def test_tiltott_eszkoz_se_a_listaban_se_hivhato(monkeypatch):
+    monkeypatch.setitem(k.SZERVEREK["echolot"], "tiltott", {"hosszu"})
+    d = [x for x in _run(k.eszkoz_definiciok()) if x["function"]["name"] == "echolot"][0]["function"]
+    assert "hosszu" not in d["parameters"]["properties"]["eszkoz"]["enum"]
+    assert "nincs ilyen eszköz" in json.loads(_run(k.hiv("echolot", "hosszu", {})))["hiba"]
+
+
+def test_telegram_darabolas():
+    import server
+    rovid = "Szia."
+    assert server.telegram_darabol(rovid) == [rovid]
+    hosszu = "\n\n".join(f"<b>{i}. bekezdés</b> " + "szó " * 300 for i in range(6))
+    d = server.telegram_darabol(hosszu)
+    assert len(d) > 1 and all(len(x) <= server.TELEGRAM_DARAB for x in d)
+    assert all(x.count("<b>") == x.count("</b>") for x in d)          # bekezdéshatáron vág, nem címke közepén
+    assert "".join(x.replace(" ", "").replace("\n", "") for x in d) == hosszu.replace(" ", "").replace("\n", "")
+    egy_tomb = "x" * 9000
+    assert [len(x) for x in server.telegram_darabol(egy_tomb)] == [3900, 3900, 1200]
+
+
+def test_tobblepeses_feladat_sonnetet_kap():
+    import llm_kapu
+    p = {"model": "deepseek-ai/DeepSeek-V4-Pro", "tools": [{"type": "function"}],
+         "messages": [{"role": "user", "content": "és a MOL?"}]}
+    assert llm_kapu.szint_valaszt(p, "feldwebel/telegram")[0] == "olcso"
+    assert llm_kapu.szint_valaszt(p, "feldwebel/melyebb/telegram")[0] == "kozep"
