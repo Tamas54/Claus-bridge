@@ -66,7 +66,12 @@ REJTETT_ELOZMENY = ("(Korábbi válasz a Kommandant tudásbázisából. Adatvéd
 #: Eszközök, amelyek a kör tartalmát SiliconFlow-ügynökhöz (Kimi, DeepSeek, GLM), általuk olvasott tárba (feladat,
 #: recept, Bridge-üzenet) vagy nyilvánosan vinnék tovább. Tudásbázis-tartalmú körben nem futnak.
 SF_FELE = frozenset({"ai_query", "ai_task", "create_task", "execute_recipe", "create_recipe", "schedule_recipe",
-                     "send_message"})
+                     "send_message",
+                     # 11-22: azok a saját MCP-k sem kapnak tudásbázis-tartalmat, amelyek a kapott szöveget a SAJÁT
+                     # AI-jukkal dolgozzák fel (az Echolot és az Engine SiliconFlow-, azaz kínai modellekkel, a Studio a
+                     # saját AI-lépéseivel). A ChatGPT és a Gemini KAPHAT (a Kommandant: „chatgpt és gemini kaphat”); a
+                     # tiszta adatkeresők (Lexonomics, Medical, Makronóm) is mehetnek.
+                     "echolot", "engine", "studio"})
 SF_FELE_IRASKOR = {"agora": lambda a: str(a.get("action") or "").lower() == "comment",
                    "story_comments": lambda a: bool(a.get("body"))}
 
@@ -158,8 +163,8 @@ def sf_fele(nev: str, args: dict | None) -> bool:
 
 
 SF_FELE_HIBA = ("ebben a beszélgetésben a Kommandant tudásbázisából van tartalom, ami csak Claude-modellnek mehet ki — "
-                "SiliconFlow-ügynöknek (Kimi, DeepSeek, GLM), feladatba, receptbe, Bridge-üzenetbe vagy nyilvános "
-                "kommentbe nem adom tovább")
+                "SiliconFlow-ügynöknek (Kimi, DeepSeek, GLM), saját AI-t használó szolgáltatásnak "
+                "(Echolot, Engine, Studio), feladatba, receptbe, Bridge-üzenetbe vagy nyilvános kommentbe nem adom tovább")
 
 
 # ══ ESZKÖZÖK ═════════════════════════════════════════════════════════════

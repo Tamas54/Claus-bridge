@@ -453,3 +453,14 @@ def test_mcp_tudasbazis_sajat_peldanynak_igen_idegennek_nem(monkeypatch):
         assert "saját példány" in json.loads(_run(fn("mikor?", None, "", idegen)))["hiba"]
     assert len(hivott) == 2 and all(fk.claude_modell(m) for _, _, m in hivott)
     assert hivott[1][1] == {"kerdes": "mikor?", "szurok": ["jegyzet"], "tol": "2026-01-01"}
+
+
+
+def test_vedett_korben_nem_anthropic_es_sajat_ai_t_hasznalo_szolgaltatas_sem():
+    """11-22: tudásbázis-körben a saját AI-jukkal dolgozó MCP-k (Echolot, Engine, Studio) sem kapnak szöveget; a
+    ChatGPT és a Gemini kaphat („chatgpt és gemini kaphat”), a tiszta adatkeresők is mehetnek."""
+    import futar_kliens as fk
+    for nev in ("echolot", "engine", "studio", "ai_query"):
+        assert fk.sf_fele(nev, {}), nev
+    for nev in ("chatgpt", "gemini", "lexonomics", "medical", "makronom", "mnb_rates"):
+        assert not fk.sf_fele(nev, {}), nev
