@@ -285,6 +285,7 @@ def test_kuszob_szoveg_ertelmezese():
     assert sb.kuszob_ertelmez("3,2–4,1%") == {"tipus": "intervallum", "also": 3.2, "felso": 4.1}
     assert sb.kuszob_ertelmez("a mutató 4,1 és 3,2 között") == {"tipus": "intervallum", "also": 3.2, "felso": 4.1}
     assert sb.kuszob_ertelmez("vezető anyag") is None
+    assert sb.kuszob_ertelmez("= 5,5%") == {"tipus": "intervallum", "also": 5.5, "felso": 5.5}
 
 
 def test_pontozas_alapvonal_hiany_es_clean_kulon():
@@ -495,5 +496,27 @@ def test_gazdasagi_sorok_es_szabad_feloldas():
           "valoszinuseg": 0.6}
     fe2 = _run(sb.szabad_feloldas(_gazd_hiv(), e2, "HU", date(2026, 11, 22)))
     assert fe2["sor"]["idoszak"] == "2026-09" and fe2["o"] == 1          # a 11-15-ig megjelent utolsó hónap
+    # az állítás saját országa nyer a tervezőé felett („KSH” → HU akkor is, ha a futás EKB-s)
+    fe3 = _run(sb.szabad_feloldas(_gazd_hiv(), dict(e2, metrika="KSH infláció"), "EU", date(2026, 11, 22)))
+    assert fe3["sor"]["kulcs"] == "HU:inflation"
     assert _run(sb.szabad_feloldas(_gazd_hiv(), {"allitas": "valami", "kuszob": "", "hatarido": "2026-10-01"},
                                    "HU", date(2026, 11, 22)))["allapot"] == "feloldhatatlan"
+
+
+def test_elo_gazdasagi_sorok_automatikus_kimenetele(get_db):
+    """A v2 intervallumos ledger-sora a tárolt gazdasági táblához illesztve, kézi kimenetel nélkül pontozható."""
+    futas = "sz-0decafe0"
+    tabla = [{"kulcs": "HU:inflation", "mutato": "infláció (éves, %)", "orszag": "HU", "egyseg": "%",
+              "idoszak": "2026-09", "hatarido": "2026-11-14", "ertek": 3.4, "also": 2.8, "felso": 4.0, "naiv": False,
+              "hatas": {"valtozas": -0.3, "csatorna": "x"}, "dontessel": 3.1, "dontessel_also": 2.4,
+              "dontessel_felso": 3.6, "modszer": "m", "ellenorzes": "KSH"}]
+    elore = ds.elorejelzesek_tisztit(ds.gazdasagi_elorejelzesek(tabla), "piac", ma=date(2026, 9, 1),
+                                     hatar_napok=120, max_db=8)[0]
+    elore = ds.naploba(get_db, elore, futas=futas, orszag="HU", lepes_hash="h")
+    ds._nyom(get_db, futas, "adat", json.dumps({"futas": futas, "lepes_hash": "h", "elorejelzesek": elore,
+                                                "gazdasag": tabla}, ensure_ascii=False))
+    km = _run(sb.elo_gazdasagi_kimenetelek(get_db, _gazd_hiv(), ma=date(2026, 11, 22)))
+    kulcs = elore[0]["naplo"]["entity_key"]
+    assert km == {kulcs: {"ertek": 2.9, "forras": "Makronóm macro_history HU cpi 2026-09"}}
+    ki = sb.elo_pontozas(get_db, km, ma=date(2026, 11, 22))
+    assert ki["pontozott"] == 1 and ki["pontszam"]["osszesen"]["brier"] == pytest.approx((0.8 - 1) ** 2)

@@ -7,7 +7,7 @@
 #   * a gazdasági mag mindig fut; a sajtó csak ott, ahol a bank kérdése a sajtóról/társadalomról szól, a jog sehol
 #     (a bankban nincs jog-kérdés);
 #   * a horizont legfeljebb 90 nap és legkésőbb 2026-11-20 (a gazdasági célidőszakok adata így ma már megjelent).
-# A panel-menet később: PANEL_MODELL=<nyertes modell> — akkor az SF-zár is kell (claus-sf.lock, ELŐTTE).
+# A panel-menet később: PANEL_MODELL=<nyertes modell> KI_DIR=futasok_panel — az SF-zár is kell (claus-sf.lock, ELŐTTE).
 # Előtte (zár nélkül, SF nem kell): `szim_backteszt elotolt` — a tervezőtől független Echolot-adat felvétele.
 set -euo pipefail
 cd "$(dirname "$0")/../.."
@@ -21,7 +21,7 @@ PANEL=()
 if [ -n "${PANEL_MODELL:-}" ]; then ZAR="flock $HOME/.cache/claus-sf.lock $ZAR"; PANEL=(--panel-modell "$PANEL_MODELL"); fi
 for e in $ESEMENYEK; do
   $ZAR $PY -m szim_backteszt futtat --bank $D/esemenybank_LOCKED.json --felvetel $D/felvetel_futas.json.gz \
-    --ki-dir $D/futasok --ut ${UTAK:-claude} --esemeny "$e" --max-usd ${MAX_USD:-0.8} "${PANEL[@]}"
+    --ki-dir $D/${KI_DIR:-futasok} --ut ${UTAK:-claude} --esemeny "$e" --max-usd ${MAX_USD:-0.8} "${PANEL[@]}"
 done
-$PY -m szim_backteszt ertekel --bank $D/esemenybank_LOCKED.json --gt $D/gt_LOCKED.json --ki-dir $D/futasok \
-  --felvetel $D/felvetel_gazd_gt.json.gz --ki $D/ertekeles.json
+$PY -m szim_backteszt ertekel --bank $D/esemenybank_LOCKED.json --gt $D/gt_LOCKED.json --ki-dir $D/${KI_DIR:-futasok} \
+  --felvetel $D/felvetel_gazd_gt.json.gz --ki $D/${KI_DIR:-futasok}/ertekeles.json

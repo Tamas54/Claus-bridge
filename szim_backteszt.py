@@ -792,6 +792,10 @@ def kuszob_ertelmez(szoveg: str) -> dict | None:
     if m:
         jel = {"≥": ">=", "≤": "<="}.get(m.group(1), m.group(1))
         return {"tipus": "kuszob", "irany": jel, "kuszob": _szam(m.group(2))}
+    m = re.fullmatch(r"=\s*" + _SZAM + r"\s*(?:%|Ft|százalék)?", s)
+    if m:                                   # „= 5,5%”: pontos érték (pl. változatlan kamat)
+        x = _szam(m.group(1))
+        return {"tipus": "intervallum", "also": x, "felso": x}
     return None
 
 
@@ -909,6 +913,39 @@ def elo_pontozas(get_db, kimenetelek: dict, *, ma: date | None = None) -> dict:
                      "o": o, "tisztasag": "ELES"})
     return {"pontszam": pontoz(pont), "pontozott": len(pont), "nyitott_esedekes": nyitott,
             "nem_esedekes": nem_esedekes, "naplo_ellenorzes": ellenorzes, "ma": ma.isoformat()}
+
+
+async def elo_gazdasagi_kimenetelek(get_db, hiv, *, ma: date | None = None) -> dict:
+    """Az éles `szim:*` sorok közül a v2 GAZDASÁGI (intervallumos) előrejelzéseinek mért értéke, automatikusan: a
+    messages-ben tárolt futás `gazdasag` táblájának sorához illesztve (a v2 állítása „<mutató> (<ország> <időszak>):
+    …”-tal kezdődik), a határidő után. Kimenet az `elo_pontozas` `kimenetelek` alakjában: {entity_key: {ertek, forras}}."""
+    import dontes_szimulator as ds
+    ma = ma or datetime.now(timezone.utc).date()
+    conn = get_db()
+    try:
+        sorok = [dict(x) for x in conn.execute(
+            "SELECT entity_key, target_window FROM delphoi_nowcast_ledger WHERE entity_key LIKE 'szim:%'").fetchall()]
+    finally:
+        conn.close()
+    futasok: dict[str, dict] = {}
+    ki = {}
+    for s in sorok:
+        if str(s["target_window"])[:10] > ma.isoformat():
+            continue
+        futas = s["entity_key"].split(":")[1]
+        adat = futasok.setdefault(futas, ds.betolt(get_db, futas) or {})
+        e = next((x for x in adat.get("elorejelzesek") or []
+                  if (x.get("naplo") or {}).get("entity_key") == s["entity_key"]), None)
+        if not e:
+            continue
+        for t in adat.get("gazdasag") or []:
+            hol = f"{t['orszag']} " if t.get("orszag") else ""
+            if t.get("hatas") and str(e.get("allitas") or "").startswith(f"{t['mutato']} ({hol}{t['idoszak']})"):
+                m = await gazdasagi_tenyleges(hiv, t)
+                if m.get("ertek") is not None:
+                    ki[s["entity_key"]] = {"ertek": m["ertek"], "forras": m.get("forras")}
+                break
+    return ki
 
 
 # ══ 8. GT-FELOLDÁS (a bank kérdéseinek mért kimenetele) ═══════════════════════════════════════════════════════
@@ -1048,8 +1085,13 @@ async def gazdasagi_sorok(hiv, futas: dict, ma: date) -> list[dict]:
 
 #: a modell SZABAD gazdasági előrejelzéseinek (piac-lépés `elorejelzesek`) feloldása: kulcsszó → mutató
 SZABAD_MUTATO = ((r"infl|fogyasztói ?ár|cpi|hicp", "inflation"), (r"munkanélk", "unemployment"),
-                 (r"gdp|növekedés", "gdp"), (r"alapkamat|irányadó|kamat|betéti", "policy_rate"),
+                 (r"gdp|növekedés", "gdp"), (r"alapkamat|irányadó|kamat|betéti|célsáv", "policy_rate"),
                  (r"eur.?huf|forint", "EURHUF=X"), (r"eur.?usd|dollár", "EURUSD=X"))
+
+
+#: az állítás saját országa (a tervező országa csak tartalék: az EKB-futás „KSH-inflációja” magyar)
+SZABAD_ORSZAG = ((r"\bksh\b|\bmnb\b|magyar|forint", "HU"), (r"\bfed\b|amerikai|\busa?\b", "US"),
+                 (r"\bekb\b|euróövezet|eurózóna", "EA"), (r"német", "DE"))
 
 
 async def szabad_feloldas(hiv, e: dict, orszag: str, ma: date) -> dict:
@@ -1062,6 +1104,7 @@ async def szabad_feloldas(hiv, e: dict, orszag: str, ma: date) -> dict:
     spec = elorejelzes_spec(e)
     if not mut or not spec:
         return {"allapot": "feloldhatatlan", "ok": "a mutató vagy a küszöb nem egyértelmű"}
+    orszag = next((c for rx, c in SZABAD_ORSZAG if re.search(rx, szoveg)), orszag)
     hatarido = _d(e["hatarido"])
     if "=" in mut or mut == "policy_rate":
         sor = {"kulcs": mut if "=" in mut else f"{orszag}:policy_rate", "idoszak": hatarido.isoformat()}
