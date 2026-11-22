@@ -114,6 +114,8 @@ def hamis_asof_mcp(naplo: list):
                 return json.dumps({"symbol": par["symbol"], "data": [
                     {"date": "2026-09-08", "close": 390.0}, {"date": "2026-09-09", "close": 391.0},
                     {"date": "2026-09-10", "close": 999.0}]})      # a bet.hu-út a végnapot is adja → ki kell esnie
+            if eszkoz == "macro_history":
+                return json.dumps(_mh(par["indicator"]))
         if szerver == "lexonomics":
             if par.get("scope") == "decisions":
                 return json.dumps({"decision_hits": [{"title": "régi", "decided": "2020-01-01", "url": "u1"},
@@ -151,9 +153,20 @@ def kotott_kapu(monkeypatch):
     return hivasok
 
 
-def _asof_futtat(get_db, naplo, modellek=None):
+def _mh(indikator, *, jovo=9.9):
+    """Hamis macro_history: havi sor 2014-től 2026-11-ig; az as_of (09-10) utáni hónapok értéke `jovo` (szivárgás-jel)."""
+    obs, ev, h = [], 2014, 1
+    while (ev, h) <= (2026, 11):
+        per = f"{ev}-{h:02d}"
+        obs.append({"period": per, "value": jovo if per >= "2026-08" else round(3.0 + ((ev * 12 + h) % 7) * 0.1, 2)})
+        ev, h = (ev + (h == 12), h % 12 + 1)
+    return {"country": "HU", "indicator": indikator, "frequency": "M", "source": "KSH", "observations": obs}
+
+
+def _asof_futtat(get_db, naplo, modellek=None, teljes=True):
     return _run(ds.futtat(TITKOS_LEPES, "2 év", get_db=get_db, hiv=hamis_asof_mcp(naplo), panel_fn=hamis_panel,
-                          studio=False, echolot_koz_s=0.0, as_of=AS_OF, modellek=modellek or sb.UTAK["hy3"]))
+                          studio=False, echolot_koz_s=0.0, as_of=AS_OF, modellek=modellek or sb.UTAK["hy3"],
+                          teljes=teljes))
 
 
 # ── 2. időpont-hű adat ───────────────────────────────────────────────────────
@@ -179,6 +192,14 @@ def test_asof_futas_semmi_as_of_utani_adatot_nem_lat(get_db, kotott_kapu):
     piac = json.dumps(r["piac"]["adat"], ensure_ascii=False)
     assert "time_series" not in piac and "9.9" not in piac and "999" not in piac and "2026-11-22" not in piac
     assert any("forecast" in h and "backteszt" in h for h in r["piac"]["adat"]["hianyok"])
+    # a v2 gazdasági alapvonala as_of-hű: a pálya az utolsó as_of-kor közölt értékből (2026-07), az árfolyam az utolsó
+    # as_of előtti záróár; a modell hatása erre épül
+    alap = {a["kulcs"]: a for a in r["piac"]["adat"]["alapvonal"]}
+    assert alap["HU:inflation"]["utolso_teny"]["period"] == "2026-07" and alap["HU:inflation"]["ertek"] != 9.9
+    assert alap["HU:inflation"]["also"] < alap["HU:inflation"]["ertek"] < alap["HU:inflation"]["felso"]
+    assert alap["EURHUF=X"]["ertek"] == 391.0 and alap["HU:policy_rate"]["naiv"]
+    infl = next(t for t in r["gazdasag"] if t["kulcs"] == "HU:inflation")
+    assert infl["dontessel"] == pytest.approx(infl["ertek"] + 0.4)
     # jog: dátumos állapot, a későbbi állapotok, a record és a jövőbeli döntés kivágva
     lex = [p for sz, e, p in naplo if sz == "lexonomics"]
     assert all(p.get("date") == "2026-09-09" or p.get("scope") == "decisions" for p in lex)
@@ -203,11 +224,11 @@ def test_asof_futas_semmi_as_of_utani_adatot_nem_lat(get_db, kotott_kapu):
 def test_a_kotott_modellek_a_lepesekhez_es_a_futott_modell_rogzitve(get_db, kotott_kapu, monkeypatch):
     r = _asof_futtat(get_db, [], modellek=sb.UTAK["claude"])
     hivott = {c: m for c, m, _ in kotott_kapu}
-    assert hivott["szimulator/terv"] == "claude-sonnet-5-5"
-    assert hivott["szimulator/kockazat-elemzes"] == "claude-opus-5-5"
+    assert hivott["szimulator/terv"] == "claude-sonnet-5-5" and hivott["szimulator/piac"] == "claude-sonnet-5-5"
     assert r["terv_info"]["kert_modell"] == "claude-sonnet-5-5" and r["terv_info"]["modell"] == "claude-sonnet-5-5"
     modellek = sb.hasznalt_modellek(r, {"modell": "claude-sonnet-5-5"})
-    assert modellek == ["claude-opus-5-5", "claude-sonnet-5-5", "tencent/Hy3"]      # a panel modellje is
+    assert modellek == ["claude-sonnet-5-5", "tencent/Hy3"]      # a (hamis) panel modellje is
+    modellek = modellek + ["claude-opus-5-5"]
     # a kapu: amíg a Claude-sor hiányzik, ISMERETLEN; kitöltve a pontozáskor újraszámol
     assert sb.tisztasag(modellek, {"as_of": "2026-09-10"})["tisztasag"] == "ISMERETLEN"
     monkeypatch.setitem(modell_cutoff.CUTOFF, "claude-sonnet-5-5", {"cutoff": "2026-06", "tiszta_tol": "2026-08"})
@@ -233,7 +254,7 @@ def test_szurok():
     assert sb.makro_szur({"value": 2.5, "effective_from": "2026-09-16"}, as_of, "2026-09-09").get("hiba")
     yf = sb.yf_szur({"symbol": "X", "data": [{"date": "2026-08-01", "close": 1.0}, {"date": "2026-09-09", "close": 2.0},
                                              {"date": "2026-09-10", "close": 9.0}]}, as_of)
-    assert yf["utolso_zaras"] == {"date": "2026-09-09", "close": 2.0} and yf["sav_120_nap"]["max"] == 2.0
+    assert yf["price"] == 2.0 and yf["last_trade_at"] == "2026-09-09" and yf["52w_high"] == 2.0
     lx = sb.lex_szur({"state": {"valid_to": "2026-12-01"}, "states": [1], "record": 1,
                       "acts_by_title": [{"last_state": "2026-10-01", "act": "a"}]}, as_of)
     assert lx == {"state": {"valid_to": None}, "acts_by_title": [{"act": "a"}]}
@@ -408,3 +429,68 @@ def test_az_elotoltes_kulcsa_azonos_a_sajto_motoreval(tmp_path):
     assert not [h for h in adat["hianyok"] if "nincs felvéve" in h]
     korp = _run(sb.panel_korpusz(f, AS_OF))
     assert korp["n_cim"] > 0 and "Telex cím" in korp["context"]
+
+
+# ── v2: gazdasági mag ────────────────────────────────────────────────────────
+
+def test_asof_palya_naiv_sav_es_kozlesi_keses():
+    v = sb.asof_palya(_mh("cpi"), "cpi", AS_OF, date(2026, 11, 20))
+    assert v["status"] == "ok" and v["last_actual"]["period"] == "2026-07"
+    assert [p["period"] for p in v["path"]] == ["2026-08", "2026-09", "2026-10"]          # a horizont végéig
+    assert all(p["value"] == v["last_actual"]["value"] and p["low"] <= p["value"] <= p["high"] for p in v["path"])
+    assert v["path"][0]["high"] - v["path"][0]["low"] <= v["path"][-1]["high"] - v["path"][-1]["low"] + 1e-9
+    assert sb.asof_palya({"observations": []}, "cpi", AS_OF, date(2026, 11, 20))["status"] == "missing"
+
+
+def test_motorok_es_horizont():
+    es = {"kerdesek": [{"terulet": "piac"}, {"terulet": "sajto"}]}
+    assert sb.esemeny_motorjai(es) == {"sajto"}
+    assert sb.esemeny_motorjai({"kerdesek": [{"terulet": "piac"}]}) == set()
+    assert sb.horizont_nap(date(2026, 7, 21)) == 90 and sb.horizont_nap(date(2026, 10, 28)) == 23
+
+
+def test_csak_a_kert_motor_fut(get_db, kotott_kapu):
+    """teljes={"sajto"}: a gazdasági mag mellett csak a sajtó fut, a jog nem (a backteszt így futtat)."""
+    naplo = []
+    r = _asof_futtat(get_db, naplo, teljes={"sajto"})
+    assert r["sajto"]["eredmeny"] and r["jog"]["info"] == {"nem_kert": True}
+    assert not [x for x in naplo if x[0] == "lexonomics"]
+    assert "szimulator/jog" not in {c for c, _, _ in kotott_kapu}
+
+
+def _gazd_hiv():
+    async def hiv(szerver, eszkoz, par, max_kar=None):
+        if eszkoz == "macro_history":
+            return json.dumps({"observations": [{"period": "2026-09", "value": 2.9}]})
+        if eszkoz == "get_macro_indicator":
+            return json.dumps({"value": 5.5})
+        if eszkoz == "yfinance":
+            return json.dumps({"data": [{"date": "2026-11-18", "close": 385.0}, {"date": "2026-11-21", "close": 1.0}]})
+    return hiv
+
+
+def test_gazdasagi_sorok_es_szabad_feloldas():
+    futas = {"gazdasag": [
+        {"kulcs": "HU:inflation", "idoszak": "2026-09", "hatarido": "2026-11-14", "ertek": 3.4, "also": 2.8,
+         "felso": 4.0, "naiv": False, "hatas": {"valtozas": -0.3}, "dontessel": 3.1, "dontessel_also": 2.4,
+         "dontessel_felso": 3.6},
+        {"kulcs": "EURHUF=X", "idoszak": "2026-11-19", "hatarido": "2026-11-19", "ertek": 392.0, "also": None,
+         "felso": None, "naiv": True, "hatas": {"valtozas": -4.0}, "dontessel": 388.0, "dontessel_also": 380.0,
+         "dontessel_felso": 384.0},
+        {"kulcs": "HU:policy_rate", "idoszak": "2027-01-10", "hatarido": "2027-01-10", "ertek": 5.5, "naiv": True}]}
+    sorok = _run(sb.gazdasagi_sorok(_gazd_hiv(), futas, date(2026, 11, 22)))
+    infl, fx, kamat = sorok
+    assert infl["tenyleges"] == 2.9 and infl["o_dontessel"] == 1 and infl["o_alap"] == 1
+    assert infl["hiba_dontessel"] == pytest.approx(0.2) and infl["hiba_alap"] == pytest.approx(0.5)
+    assert fx["tenyleges"] == 385.0 and fx["o_dontessel"] == 0 and "o_alap" not in fx    # naiv: nincs alap-sáv
+    assert kamat["allapot"] == "nem esedékes"
+    e = {"allitas": "Az MNB alapkamata 5,5% fölött lesz", "metrika": "alapkamat", "kuszob": "> 5,5%",
+         "hatarido": "2026-11-01", "valoszinuseg": 0.3}
+    fe = _run(sb.szabad_feloldas(_gazd_hiv(), e, "HU", date(2026, 11, 22)))
+    assert fe["allapot"] == "mérve" and fe["o"] == 0 and fe["sor"]["kulcs"] == "HU:policy_rate"
+    e2 = {"allitas": "Az infláció 3% alatt", "metrika": "KSH infláció", "kuszob": "< 3", "hatarido": "2026-11-15",
+          "valoszinuseg": 0.6}
+    fe2 = _run(sb.szabad_feloldas(_gazd_hiv(), e2, "HU", date(2026, 11, 22)))
+    assert fe2["sor"]["idoszak"] == "2026-09" and fe2["o"] == 1          # a 11-15-ig megjelent utolsó hónap
+    assert _run(sb.szabad_feloldas(_gazd_hiv(), {"allitas": "valami", "kuszob": "", "hatarido": "2026-10-01"},
+                                   "HU", date(2026, 11, 22)))["allapot"] == "feloldhatatlan"

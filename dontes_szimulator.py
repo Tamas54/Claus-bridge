@@ -1263,7 +1263,7 @@ def uj_futas_id() -> str:
 
 async def futtat(lepes: str, horizont: str = "", *, get_db, deps: dict | None = None, futas: str | None = None,
                  hiv=None, panel_fn=None, studio: bool = True, max_usd_: float | None = None,
-                 echolot_koz_s: float | None = None, naplozas: bool = True, teljes: bool = False,
+                 echolot_koz_s: float | None = None, naplozas: bool = True, teljes: bool | set = False,
                  as_of: str | date | None = None, modellek: dict | None = None) -> dict:
     """A szimuláció. Alapból GAZDASÁGI mód: terv + DELPHOI-panel + gazdasági előrejelzés + összegzés; `teljes=True`
     mellett a sajtó (Echolot) és a jog (Lexonomics) is fut (a Kommandant, 11-22: „túl drága … a közgazdasági
@@ -1274,7 +1274,11 @@ async def futtat(lepes: str, horizont: str = "", *, get_db, deps: dict | None = 
 
     BACKTESZT (szim_backteszt.py): `as_of` — a futás erre a napra „ma”, és a motorok csak az ELŐTTE lévő adatot látják
     (az időpont-hű adatgyűjtés a szim_backteszt-ben; az előrejelzés ilyenkor NEM kerül a DELPHOI-láncba). `modellek` —
-    lépésnév → kötött modell (pl. {"sajto": "tencent/Hy3"}); a futás `*_info.modell`-jei a valóban futott modellek."""
+    lépésnév → kötött modell (pl. {"sajto": "tencent/Hy3"}); a futás `*_info.modell`-jei a valóban futott modellek.
+    `teljes` motorhalmaz is lehet (pl. {"sajto"}): csak ezek futnak a gazdasági mag mellett (a backteszt így futtatja
+    a sajtót ott, ahol a kérdés a sajtóról szól, a jogot nélküle)."""
+    futo = {"sajto", "jog"} if teljes is True else set(teljes or ())
+    teljes = futo == {"sajto", "jog"}
     lepes = (lepes or "").strip()
     horizont = (horizont or "").strip() or ALAP_HORIZONT
     futas = futas or uj_futas_id()
@@ -1337,9 +1341,9 @@ async def futtat(lepes: str, horizont: str = "", *, get_db, deps: dict | None = 
         gy = {"sajto": lambda: sajto_adat(terv, hivo), "piac": lambda: piac_adat(terv, hivo, ev, hatar=hatar, ma=ma),
               "jog": lambda: jog_adat(terv, hivo)}
     sajto, piac, jog = await asyncio.gather(
-        _ag("sajto", gy["sajto"](), sajto_lepes) if teljes else _nem_kert(),
+        _ag("sajto", gy["sajto"](), sajto_lepes) if "sajto" in futo else _nem_kert(),
         _ag("piac", gy["piac"](), piac_lepes),
-        _ag("jog", gy["jog"](), jog_lepes) if teljes else _nem_kert())
+        _ag("jog", gy["jog"](), jog_lepes) if "jog" in futo else _nem_kert())
     r["sajto"], r["piac"], r["jog"] = sajto, piac, jog
     r["gazdasag"] = gazdasagi_tabla((piac.get("adat") or {}).get("alapvonal") or [], piac.get("eredmeny"))
     for nev, ag in (("sajto", sajto), ("piac", piac), ("jog", jog)):
@@ -1399,7 +1403,7 @@ async def futtat(lepes: str, horizont: str = "", *, get_db, deps: dict | None = 
     r["koltseg"] = keret.allapot()
     r["forrasnaplo"] = hivo.naplo
     kesz = (piac.get("eredmeny") and ossz and tars.get("ok")
-            and (not teljes or (sajto.get("eredmeny") and jog.get("eredmeny"))))
+            and all(ag.get("eredmeny") for n, ag in (("sajto", sajto), ("jog", jog)) if n in futo))
     r["allapot"] = "kesz" if kesz else "reszleges"
 
     if studio:

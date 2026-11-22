@@ -141,8 +141,12 @@ SZIV_PIAC = [
     "get_macro_indicator period: a MAI adatközlési évjárat (vintage) értéke — az as_of utáni revízió szivároghat "
     "(a Makronóm nem ad as-of vintage-et); a közlési késést konzervatívan kezeljük (havi mutató: as_of hónapja − 2, "
     "negyedéves: a negyedév vége + 60 nap < as_of, kamat: az as_of előtti nap)",
-    "forecast, forecast_path: a mai adatokból számolnak — backteszt-módban kihagyva",
-    "yfinance: a quote helyett history az as_of előtti 120 napra (a sor az as_of napját már nem tartalmazza)",
+    "forecast: a mai adatokból számol — backteszt-módban kihagyva",
+    "forecast_path (a v2 gazdasági ALAPVONALA): as_of paramétere nincs — helyette as_of-hű NAIV pálya: a "
+    "macro_history utolsó, as_of-kor már közölt értéke változatlanul, 80%-os sávval a saját, as_of előtti h-lépéses "
+    "változásainak 10–90. percentiliséből (10 év). Ez gyengébb alapvonal, mint az élő SARIMAX+IMF/OECD-pálya",
+    "yfinance: a quote helyett az as_of előtti záróárak (history); az ár = az utolsó as_of előtti záróár, az 52 hetes "
+    "sáv az as_of előtti 365 napból",
 ]
 SZIV_JOG = [
     "Lexonomics provision/search: a date = as_of előtti nap szerinti hatályos szöveg; a `states` lista, a `record` és "
@@ -276,21 +280,81 @@ def makro_szur(v, as_of: date, kert_period: str):
 
 
 def yf_szur(v, as_of: date):
+    """A yfinance-history as_of előtti soraiból a quote alakja (`price`, `52w_low/high`, `last_trade_at`) — ebből
+    épül a v2 naiv árfolyam-alapvonala —, plusz az utolsó záróárak."""
     if not isinstance(v, dict) or v.get("hiba"):
         return v
-    sorok = [s for s in (v.get("data") or []) if isinstance(s, dict) and str(s.get("date") or "") < as_of.isoformat()]
+    sorok = [s for s in (v.get("data") or []) if isinstance(s, dict) and s.get("close") is not None
+             and str(s.get("date") or "") < as_of.isoformat()]
     if not sorok:
         return {"hiba": "backteszt: nincs as_of előtti árfolyamsor"}
-    zarok = [float(s["close"]) for s in sorok if s.get("close") is not None]
+    ev = [float(s["close"]) for s in sorok if s["date"] >= (as_of - timedelta(days=365)).isoformat()]
     utolso = sorok[-1]
     harminc = [s for s in sorok if s["date"] >= (as_of - timedelta(days=30)).isoformat()]
     return {"symbol": v.get("symbol"), "source": v.get("source") or "Yahoo Finance (yfinance history)",
-            "utolso_zaras": {"date": utolso["date"], "close": utolso.get("close")},
+            "price": float(utolso["close"]), "last_trade_at": utolso["date"],
+            "52w_low": round(min(ev), 4), "52w_high": round(max(ev), 4),
             "valtozas_30_nap_szazalek": (round((float(utolso["close"]) / float(harminc[0]["close"]) - 1) * 100, 2)
-                                         if harminc and harminc[0].get("close") else None),
-            "sav_120_nap": {"min": min(zarok), "max": max(zarok)} if zarok else None,
+                                         if harminc else None),
             "utolso_10_zaras": [{"date": s["date"], "close": s.get("close")} for s in sorok[-10:]],
             "megjegyzes": "csak as_of előtti záróárak (backteszt)"}
+
+
+#: a v2 forecast_path-mutatói → a macro_history kanonikus sorai (ugyanez a GT forrása is)
+PALYA_INDIKATOR = {"inflation": "cpi", "gdp": "gdp_growth", "unemployment": "unemployment"}
+
+
+def _kovetkezo(per: str) -> str:
+    if "Q" in per:
+        ev, q = int(per[:4]), int(per[-1])
+        return f"{ev + (q == 4)}-Q{q % 4 + 1}"
+    ev, h = int(per[:4]), int(per[5:7])
+    return f"{ev + (h == 12)}-{h % 12 + 1:02d}"
+
+
+def _negyedev_vege(per: str) -> date:
+    ev, q = int(per[:4]), int(per[-1])
+    return date(ev + (q == 4), (q * 3) % 12 + 1, 1) - timedelta(days=1)
+
+
+def _idoszak_vege(per: str) -> date:
+    if "Q" in per:
+        return _negyedev_vege(per)
+    ev, h = int(per[:4]), int(per[5:7])
+    return date(ev + (h == 12), h % 12 + 1, 1) - timedelta(days=1)
+
+
+def _kvantilis(xs: list[float], q: float) -> float:
+    xs = sorted(xs)
+    return xs[min(len(xs) - 1, max(0, int(round(q * (len(xs) - 1)))))]
+
+
+def asof_palya(v, mutato: str, as_of: date, hatar: date) -> dict:
+    """As_of-hű NAIV pálya a macro_history válaszából (a forecast_path helyett, annak alakjában): az utolsó, as_of-kor
+    már közölt érték változatlanul, 80%-os sávval a sor as_of előtti h-lépéses változásainak 10–90. percentiliséből."""
+    if not isinstance(v, dict) or v.get("hiba"):
+        return v if isinstance(v, dict) else {"hiba": "macro_history: nincs adat"}
+    freq = str(v.get("frequency") or "M")
+    utolso_kozolt = asof_period("gdp_growth" if freq == "Q" else "cpi", as_of)
+    obs = [o for o in v.get("observations") or [] if isinstance(o, dict) and isinstance(o.get("value"), (int, float))
+           and ("Q" in str(o.get("period"))) == (freq == "Q") and str(o["period"]) <= utolso_kozolt]
+    if len(obs) < 24:
+        return {"status": "missing", "reason": f"backteszt: kevés as_of előtti megfigyelés ({len(obs)})"}
+    obs = obs[-(40 if freq == "Q" else 120):]
+    ertekek = [float(o["value"]) for o in obs]
+    utolso = obs[-1]
+    path, per = [], str(utolso["period"])
+    for h in range(1, 30):
+        per = _kovetkezo(per)
+        if _idoszak_vege(per) > hatar:
+            break
+        valt = [ertekek[i + h] - ertekek[i] for i in range(len(ertekek) - h)]
+        path.append({"period": per, "value": round(float(utolso["value"]), 3),
+                     "low": round(float(utolso["value"]) + _kvantilis(valt, 0.1), 3),
+                     "high": round(float(utolso["value"]) + _kvantilis(valt, 0.9), 3), "model": "naiv-asof"})
+    return {"status": "ok", "last_actual": {"period": utolso["period"], "value": utolso["value"]}, "path": path,
+            "method": "backteszt: naiv perzisztencia + empirikus 80%-os sáv (macro_history, as_of előtt közölt adat)",
+            "source": f"macro_history {v.get('source') or ''} ({v.get('source_series_id') or mutato})".strip()}
 
 
 def lex_szur(v, as_of: date):
@@ -313,16 +377,27 @@ class AsOfHivo:
     """A szimulátor Hivo-ja elé tett, időpont-hű proxy a Makronóm- és a Lexonomics-hívásokhoz: a paramétert as_of-ra
     köti, a választ kivágja, és a nem időpont-hű eszközt (forecast, forecast_path) nem hívja — kimondva."""
 
-    def __init__(self, hivo, as_of: date):
+    def __init__(self, hivo, as_of: date, hatar: date | None = None):
         self.hivo = hivo
         self.as_of = as_of
+        self.hatar = hatar or as_of + timedelta(days=90)
         self.elotte = (as_of - timedelta(days=1)).isoformat()
 
     async def __call__(self, szerver: str, eszkoz: str, par: dict):
         par = dict(par)
         if szerver == "makronom":
-            if eszkoz in ("forecast", "forecast_path"):
+            if eszkoz == "forecast":
                 return None, "backteszt: kihagyva — a mai adatokból számol (szivárgás)"
+            if eszkoz == "forecast_path":
+                mutato = PALYA_INDIKATOR.get(str(par.get("indicator") or ""))
+                if not mutato:
+                    return None, f"backteszt: ismeretlen pálya-mutató ({par.get('indicator')})"
+                v, hiba = await self.hivo(szerver, "macro_history", {"country": par.get("country"), "indicator": mutato,
+                                                                     "start": str(self.as_of.year - 12)})
+                if hiba:
+                    return None, hiba
+                v = asof_palya(v, mutato, self.as_of, self.hatar)
+                return v, (v.get("hiba") or (v.get("reason") if v.get("status") != "ok" else None))
             if eszkoz == "get_macro_indicator":
                 par["period"] = asof_period(par.get("indicator"), self.as_of)
                 v, hiba = await self.hivo(szerver, eszkoz, par)
@@ -330,7 +405,7 @@ class AsOfHivo:
                 return v, hiba or (v.get("hiba") if isinstance(v, dict) else None)
             if eszkoz == "yfinance":
                 par = {"symbol": par.get("symbol"), "action": "history", "interval": "1d", "end": self.as_of.isoformat(),
-                       "start": (self.as_of - timedelta(days=120)).isoformat()}
+                       "start": (self.as_of - timedelta(days=370)).isoformat()}
                 v, hiba = await self.hivo(szerver, eszkoz, par)
                 v = yf_szur(v, self.as_of)
                 return v, hiba or (v.get("hiba") if isinstance(v, dict) else None)
@@ -347,20 +422,21 @@ class AsOfHivo:
         return await self.hivo(szerver, eszkoz, par)
 
 
-def asof_adatgyujtok(terv: dict, hivo, as_of: date, ev: int):
-    """A `dontes_szimulator.futtat(as_of=…)` adatgyűjtői: (sajtó, piac, jog) korutin. A piac és a jog a szimulátor
-    SAJÁT gyűjtője az időpont-hű proxyn át; a sajtó a lapok as_of előtti napi hírfolyamából."""
+def asof_adatgyujtok(terv: dict, hivo, as_of: date, ev: int, *, hatar: date) -> dict:
+    """A `dontes_szimulator.futtat(as_of=…)` adatgyűjtői: {sajto, piac, jog} → korutint adó hívható (a v2 csak a
+    kért motort futtatja). A piac és a jog a szimulátor SAJÁT gyűjtője az időpont-hű proxyn át; a sajtó a lapok as_of
+    előtti napi hírfolyamából."""
     import dontes_szimulator as ds
-    proxy = AsOfHivo(hivo, as_of)
+    proxy = AsOfHivo(hivo, as_of, hatar)
 
     async def _piac():
-        d = await ds.piac_adat(terv, proxy, ev)
+        d = await ds.piac_adat(terv, proxy, ev, hatar=hatar, ma=as_of)
         return {**d, "szivargas": list(SZIV_PIAC), "as_of": as_of.isoformat()}
 
     async def _jog():
         d = await ds.jog_adat(terv, proxy)
         return {**d, "szivargas": list(SZIV_JOG), "as_of": as_of.isoformat()}
-    return sajto_adat(terv, hivo, as_of), _piac(), _jog()
+    return {"sajto": lambda: sajto_adat(terv, hivo, as_of), "piac": _piac, "jog": _jog}
 
 
 # ══ 3. FELVÉTEL ÉS VISSZAJÁTSZÁS — mindkét modell-út ugyanazt az adatot látja ═══════════════════════════════════
@@ -585,6 +661,9 @@ A SZIMULÁCIÓ EREDMÉNYE (a négy motor kivonata, JSON):
 
 A PIACI ÁRAK A DÖNTÉS ELŐTT (yfinance, csak a mai nap előtti záróárak):
 {ds._json_dump(arak, 5_000)}
+
+A GAZDASÁGI TÁBLA (alapvonal + a lépés számszerű hatása, 80%-os sáv):
+{ds._json_dump([{k: t.get(k) for k in ('mutato', 'orszag', 'idoszak', 'ertek', 'also', 'felso', 'dontessel', 'dontessel_also', 'dontessel_felso', 'egyseg')} for t in r.get('gazdasag') or []], 5_000)}
 
 A SZIMULÁCIÓ SAJÁT, SZABAD ELŐREJELZÉSEI:
 {ds._json_dump([{k: e.get(k) for k in ('terulet', 'allitas', 'valoszinuseg', 'hatarido')} for e in r.get('elorejelzesek') or []], 4_000)}
@@ -893,23 +972,140 @@ async def gt_felold(hiv, kerdes: dict, esemeny: dict) -> dict:
     raise ValueError(f"ismeretlen GT-módszer: {m}")
 
 
+# ══ 8b. A GAZDASÁGI ELŐREJELZÉSEK MÉRT KIMENETELE (a v2 magja) ══════════════════════════════════════════════════
+
+async def macro_ertek(hiv, orszag: str, mutato: str, idoszak: str) -> float | None:
+    """A macro_history kanonikus sorának értéke egy időszakra (ugyanaz a sor, amelyből az as_of-alapvonal épül)."""
+    v = mcp_json(await hiv("makronom", "macro_history", {"country": orszag, "indicator": mutato,
+                                                         "start": str(int(idoszak[:4]) - 1)}))
+    for o in (v or {}).get("observations") or []:
+        if isinstance(o, dict) and str(o.get("period")) == idoszak and isinstance(o.get("value"), (int, float)):
+            return float(o["value"])
+    return None
+
+
+async def gazdasagi_tenyleges(hiv, sor: dict) -> dict:
+    """Egy gazdasági tábla-sor (v2: `gazdasagi_tabla`) célidőszakának mért értéke. {ertek, forras} vagy {hiba}."""
+    kulcs = str(sor.get("kulcs") or "")
+    try:
+        if "=" in kulcs:                                     # árfolyam (naiv alapvonal, a horizont végén)
+            z = await zaras(hiv, kulcs, _d(sor["idoszak"]))
+            return {"ertek": z["close"], "datum": z["date"], "forras": f"Makronóm yfinance history {kulcs}"}
+        orszag, ind = kulcs.split(":", 1)
+        if ind == "policy_rate":
+            k = await kamat(hiv, orszag, _d(sor["idoszak"]))
+            return {"ertek": k["value"], "forras": f"Makronóm policy_rate {orszag} {sor['idoszak']}"}
+        mutato = PALYA_INDIKATOR.get(ind)
+        if not mutato:
+            return {"hiba": f"ismeretlen mutató: {ind}"}
+        x = await macro_ertek(hiv, orszag, mutato, str(sor["idoszak"]))
+        if x is None:
+            return {"hiba": f"a {sor['idoszak']} időszak értéke még nincs a macro_history-ban"}
+        return {"ertek": x, "forras": f"Makronóm macro_history {orszag} {mutato} {sor['idoszak']}"}
+    except Exception as e:  # noqa: BLE001 — a hiány kimondva, nem pótolva
+        return {"hiba": f"{type(e).__name__}: {str(e)[:200]}"}
+
+
+async def gazdasagi_sorok(hiv, futas: dict, ma: date) -> list[dict]:
+    """A futás gazdasági táblájának minden sora a mért értékkel: a „döntéssel” sáv (80%) és az alapvonal sávja
+    teljesült-e, és a pontbecslések hibája."""
+    ki = []
+    for t in futas.get("gazdasag") or []:
+        sor = {k: t.get(k) for k in ("kulcs", "mutato", "orszag", "egyseg", "idoszak", "hatarido", "ertek", "also",
+                                     "felso", "naiv", "dontessel", "dontessel_also", "dontessel_felso")}
+        sor["hatas"] = (t.get("hatas") or {}).get("valtozas") if t.get("hatas") else None
+        if str(t.get("hatarido") or "9999")[:10] > ma.isoformat():
+            sor["allapot"] = "nem esedékes"
+            ki.append(sor)
+            continue
+        m = await gazdasagi_tenyleges(hiv, t)
+        sor.update(tenyleges=m.get("ertek"), tenyleges_forras=m.get("forras") or m.get("hiba"))
+        x = m.get("ertek")
+        if x is not None:
+            if t.get("hatas"):
+                sor["o_dontessel"] = kimenetel({"tipus": "intervallum", "also": t["dontessel_also"],
+                                                "felso": t["dontessel_felso"]}, x)
+                sor["hiba_dontessel"] = round(abs(float(t["dontessel"]) - x), 4)
+            if not t.get("naiv") and t.get("also") is not None and t.get("felso") is not None:
+                sor["o_alap"] = kimenetel({"tipus": "intervallum", "also": t["also"], "felso": t["felso"]}, x)
+            sor["hiba_alap"] = round(abs(float(t["ertek"]) - x), 4)
+        sor["allapot"] = "mérve" if x is not None else "nincs adat"
+        ki.append(sor)
+    return ki
+
+
+#: a modell SZABAD gazdasági előrejelzéseinek (piac-lépés `elorejelzesek`) feloldása: kulcsszó → mutató
+SZABAD_MUTATO = ((r"infl|fogyasztói ?ár|cpi|hicp", "inflation"), (r"munkanélk", "unemployment"),
+                 (r"gdp|növekedés", "gdp"), (r"alapkamat|irányadó|kamat|betéti", "policy_rate"),
+                 (r"eur.?huf|forint", "EURHUF=X"), (r"eur.?usd|dollár", "EURUSD=X"))
+
+
+async def szabad_feloldas(hiv, e: dict, orszag: str, ma: date) -> dict:
+    """A modell szabad, küszöbös gazdasági előrejelzése (NEM előregisztrált): ha a mutató, a küszöb és a határidő
+    egyértelmű, a mért érték szerint 1/0 — különben kimondva feloldhatatlan."""
+    if str(e.get("hatarido") or "9999") > ma.isoformat():
+        return {"allapot": "nem esedékes"}
+    szoveg = f"{e.get('metrika') or ''} {e.get('allitas') or ''}".lower()
+    mut = next((m for rx, m in SZABAD_MUTATO if re.search(rx, szoveg)), None)
+    spec = elorejelzes_spec(e)
+    if not mut or not spec:
+        return {"allapot": "feloldhatatlan", "ok": "a mutató vagy a küszöb nem egyértelmű"}
+    hatarido = _d(e["hatarido"])
+    if "=" in mut or mut == "policy_rate":
+        sor = {"kulcs": mut if "=" in mut else f"{orszag}:policy_rate", "idoszak": hatarido.isoformat()}
+    else:                                    # a határidőig MEGJELENT utolsó időszak (a v2 közlési késésével)
+        import dontes_szimulator as ds
+        q = mut == "gdp"
+        per = (f"{hatarido.year}-Q{(hatarido.month - 1) // 3 + 1}" if q else hatarido.isoformat()[:7])
+        while _idoszak_vege(per) + timedelta(days=ds.KOZLESI_KESES_NAP["Q" if q else "M"]) > hatarido:
+            per = _elozo(per)
+        sor = {"kulcs": f"{orszag}:{mut}", "idoszak": per}
+    m = await gazdasagi_tenyleges(hiv, sor)
+    if m.get("ertek") is None:
+        return {"allapot": "nincs adat", "ok": m.get("hiba"), "sor": sor}
+    return {"allapot": "mérve", "o": kimenetel(spec, m["ertek"]), "ertek": m["ertek"], "sor": sor, "spec": spec}
+
+
+def _elozo(per: str) -> str:
+    if "Q" in per:
+        ev, q = int(per[:4]), int(per[-1])
+        return f"{ev - (q == 1)}-Q{(q - 2) % 4 + 1}"
+    ev, h = int(per[:4]), int(per[5:7])
+    return f"{ev - (h == 1)}-{(h - 2) % 12 + 1:02d}"
+
+
 # ══ 9. A FUTÁS: esemény × modell-út ════════════════════════════════════════
 
 #: A két út (a kapu dönt, melyik CLEAN): (a) Claude-lépések (a szonda szerinti cutoff UTÁNI eseményekre), (b) régi
-#: tudás-határú modell MINDEN lépésre. A panel mindkettőben a DELPHOI saját motorja (Hy3), ugyanazzal a korpusszal.
+#: tudás-határú modell MINDEN lépésre. A v2-ben nincs külön kockázati lépés (az összegző írja). A panel modellje
+#: külön paraméter (`panel`): None = a panel nem fut (kimondva).
 UTAK = {
     "claude": {"terv": "claude-sonnet-5-5", "sajto": "claude-sonnet-5-5", "piac": "claude-sonnet-5-5",
-               "jog": "claude-sonnet-5-5", "osszegzes": "claude-sonnet-5-5", "kockazat": "claude-opus-5-5",
-               "kerdesek": "claude-sonnet-5-5", "panel": "tencent/Hy3"},
+               "jog": "claude-sonnet-5-5", "osszegzes": "claude-sonnet-5-5", "kerdesek": "claude-sonnet-5-5"},
     "hy3": {"terv": "tencent/Hy3", "sajto": "tencent/Hy3", "piac": "tencent/Hy3", "jog": "tencent/Hy3",
-            "osszegzes": "tencent/Hy3", "kockazat": "tencent/Hy3", "kerdesek": "tencent/Hy3", "panel": "tencent/Hy3"},
+            "osszegzes": "tencent/Hy3", "kerdesek": "tencent/Hy3"},
 }
+#: A horizont: legfeljebb 90 nap, és a vége a mérhetőség napja előtt — így a gazdasági célidőszakok adata a
+#: kiértékeléskor már megjelent.
+HORIZONT_MAX_NAP = 90
+MERES_NAPJA = date(2026, 11, 20)
+
+
+def horizont_nap(as_of: date, meres: date = MERES_NAPJA) -> int:
+    return max(14, min(HORIZONT_MAX_NAP, (meres - as_of).days))
+
+
+def esemeny_motorjai(esemeny: dict) -> set:
+    """A gazdasági mag mindig fut; a sajtó és a jog csak ott, ahol a bank kérdése kifejezetten arról szól."""
+    return {"sajto" for q in esemeny["kerdesek"] if q["terulet"] in ("sajto", "tarsadalom")} | \
+           {"jog" for q in esemeny["kerdesek"] if q["terulet"] == "jog"}
 
 
 async def futtat_esemeny(esemeny: dict, ut: str, *, felvevo: Felvevo, get_db, max_usd: float = 1.5,
-                         panel_tar: dict | None = None, panel_n: int = 30) -> dict:
-    """Egy esemény egy modell-úton: as_of-futás (kötött modellek, felvett adat, helyi as_of-panel) → kérdés-lépés →
-    tisztaság. A panel eseményenként EGYSZER fut (mindkét út ugyanazt kapja: azonos lépés, korpusz, modell)."""
+                         panel_modell: str | None = None, panel_tar: dict | None = None, panel_n: int = 30) -> dict:
+    """Egy esemény egy modell-úton: as_of-futás (kötött modellek, felvett adat) → kérdés-lépés. A panel csak kért
+    modellel fut (eseményenként EGYSZER, mindkét útnak ugyanaz); `panel_modell=None` → a panel kimarad, kimondva. A
+    tisztaságot NEM itt számoljuk: a kiértékelés teszi a `modell_cutoff.CUTOFF` akkori soraiból."""
     import dontes_szimulator as ds
     modellek = UTAK[ut]
     as_of = _d(esemeny["as_of"])
@@ -917,48 +1113,54 @@ async def futtat_esemeny(esemeny: dict, ut: str, *, felvevo: Felvevo, get_db, ma
     panel_ki: dict = {}
 
     async def _panel(lepes, orszag):
-        # a backteszt panelje MINDIG a magyar (a korpusza a négy magyar lap): a tervező országa (EA, US, DE…) a két
-        # úton eltérhet, a panel viszont mindkettőnek ugyanaz kell legyen
-        orszag = "HU"
-        kulcs = _sha(_kanon([lepes, orszag, esemeny["as_of"], modellek["panel"], panel_n]))
+        if not panel_modell:
+            return {"ok": False, "hiba": "backteszt: a panel ebben a menetben KI (a panelmodell kiválasztása mérés "
+                                         "alatt; SiliconFlow nem fut) — a társadalmi jel hiányzik"}
+        orszag = "HU"           # a backteszt panelje mindig a magyar (a korpusza a négy magyar lap)
+        kulcs = _sha(_kanon([lepes, orszag, esemeny["as_of"], panel_modell, panel_n]))
         if kulcs not in panel_tar or not panel_tar[kulcs].get("ok"):
             korp = await panel_korpusz(felvevo, as_of)
-            panel_tar[kulcs] = await asof_panel(lepes, orszag, korpusz=korp, modell=modellek["panel"], n=panel_n)
+            panel_tar[kulcs] = await asof_panel(lepes, orszag, korpusz=korp, modell=panel_modell, n=panel_n)
         panel_ki.update(panel_tar[kulcs])
         return panel_tar[kulcs]
+    motorok = esemeny_motorjai(esemeny)
     futas = "sz-" + _sha(f"{esemeny['id']}|{ut}|{VERZIO}")[:8]
-    r = await ds.futtat(esemeny["lepes"], esemeny.get("horizont") or "3 hónap", get_db=get_db, futas=futas,
-                        hiv=felvevo, panel_fn=_panel, studio=False, max_usd_=max_usd, echolot_koz_s=0.0,
-                        naplozas=False, as_of=as_of, modellek=modellek)
+    horizont = f"{horizont_nap(as_of)} nap"
+    r = await ds.futtat(esemeny["lepes"], horizont, get_db=get_db, futas=futas, hiv=felvevo, panel_fn=_panel,
+                        studio=False, max_usd_=max_usd, echolot_koz_s=0.0, naplozas=False, teljes=motorok,
+                        as_of=as_of, modellek=modellek)
     keret = ds.Keret(max(0.05, max_usd - float((r.get("koltseg") or {}).get("usd") or 0.0)))
     valaszok, kinfo = await kerdes_lepes(r, esemeny, esemeny["kerdesek"], modell=modellek["kerdesek"], keret=keret)
-    modell_lista = hasznalt_modellek(r, kinfo)
     szivargas = sorted({s for nev in ("sajto", "piac", "jog") for s in ((r.get(nev) or {}).get("adat") or {})
-                        .get("szivargas") or []} | set(SZIV_PANEL))
+                        .get("szivargas") or []} | (set(SZIV_PANEL) if panel_modell else set()))
     return {"esemeny": esemeny["id"], "ut": ut, "verzio": VERZIO, "szimulator_verzio": r.get("verzio"),
-            "as_of": esemeny["as_of"], "futas": futas, "modellek_kert": modellek, "modellek_futott": modell_lista,
-            "nem_generativ_modellek": [m for m in [((panel_ki.get("eredmeny") or {}).get("panel") or {})
-                                                   .get("embed_model")] if m],
-            "panel_korpusz_hash": ((panel_ki.get("eredmeny") or {}).get("panel") or {}).get("corpus_hash"),
-            "tisztasag_futaskor": tisztasag(modell_lista, esemeny), "valaszok": valaszok, "kerdes_info": kinfo,
-            "szivargas": szivargas, "allapot": r.get("allapot"), "figyelmeztetesek": r.get("figyelmeztetesek"),
-            "adathianyok": r.get("adathianyok"),
+            "szimulator_mod": r.get("mod"), "motorok": sorted(motorok), "as_of": esemeny["as_of"],
+            "horizont": horizont, "horizont_vege": r.get("horizont_vege"), "futas": futas,
+            "modellek_kert": modellek, "modellek_futott": hasznalt_modellek(r, kinfo),
+            "panel": {"modell": panel_modell, "kivonat": (r.get("tarsadalom") or {}).get("kivonat"),
+                      "embed_model": ((panel_ki.get("eredmeny") or {}).get("panel") or {}).get("embed_model"),
+                      "korpusz_hash": ((panel_ki.get("eredmeny") or {}).get("panel") or {}).get("corpus_hash")},
+            "valaszok": valaszok, "kerdes_info": kinfo, "szivargas": szivargas, "allapot": r.get("allapot"),
+            "figyelmeztetesek": r.get("figyelmeztetesek"), "adathianyok": r.get("adathianyok"),
             "koltseg": {"szimulator": r.get("koltseg"), "kerdesek_usd": kinfo.get("koltes_usd")},
-            "szimulator_eredmeny": {k: r.get(k) for k in ("terv", "osszegzes", "kockazat", "elorejelzesek",
-                                                          "elorejelzes_kimaradt")},
+            "gazdasag": r.get("gazdasag"), "alapvonal": ((r.get("piac") or {}).get("adat") or {}).get("alapvonal"),
+            "piac_eredmeny": (r.get("piac") or {}).get("eredmeny"),
+            "szimulator_eredmeny": {k: r.get(k) for k in ("terv", "osszegzes", "elorejelzesek", "elorejelzes_kimaradt")},
             "motor_info": {n: (r.get(n) or {}).get("info") for n in ("sajto", "piac", "jog")} | {
-                "terv": r.get("terv_info"), "osszegzes": r.get("osszegzes_info"), "kockazat": r.get("kockazat_info")},
-            "panel": (r.get("tarsadalom") or {}).get("kivonat"), "kesz": datetime.now(timezone.utc).isoformat()}
+                "terv": r.get("terv_info"), "osszegzes": r.get("osszegzes_info")},
+            "kesz": datetime.now(timezone.utc).isoformat()}
 
 
-def ertekeles(bank: dict, gt: dict, eredmenyek: list[dict]) -> dict:
-    """A bank × GT × futások → Brier-tábla (eseményenként, utanként, tisztaság szerint). A tisztaság MOST számol a
-    `modell_cutoff.CUTOFF` aktuális soraiból (a futáskori besorolás mellett)."""
+async def ertekeles(bank: dict, gt: dict, eredmenyek: list[dict], *, hiv=None, ma: date | None = None) -> dict:
+    """A bank × GT × futások → Brier-táblák. ELÖL a gazdasági mag (a v2 intervallumos előrejelzései a mért értékkel,
+    az alapvonal sávja és pontbecslése mellett), utána az előregisztrált kérdések, végül a modell szabad gazdasági
+    előrejelzései (nem előregisztrált, külön sor). A tisztaság MOST számol a `modell_cutoff.CUTOFF` soraiból."""
+    ma = ma or datetime.now(timezone.utc).date()
     esemenyek = {e["id"]: e for e in bank["esemenyek"]}
-    kimenet = {"utak": {}, "esemenyenkent": [], "cutoff_sorok": sorted(modell_cutoff.CUTOFF),
+    kimenet = {"utak": {}, "esemenyenkent": [], "cutoff_sorok": sorted(modell_cutoff.CUTOFF), "ma": ma.isoformat(),
                "szamolva": datetime.now(timezone.utc).isoformat()}
     for ut in sorted({e["ut"] for e in eredmenyek}):
-        sorok = []
+        kerdes_sorok, gazd_sorok, alap_sorok, szabad_sorok, gazd_reszlet, szabad_reszlet = [], [], [], [], [], []
         for f in [e for e in eredmenyek if e["ut"] == ut]:
             es = esemenyek[f["esemeny"]]
             tz = tisztasag(f["modellek_futott"], es)
@@ -967,18 +1169,58 @@ def ertekeles(bank: dict, gt: dict, eredmenyek: list[dict]) -> dict:
                 g = gt["kerdesek"].get(q["id"]) or {}
                 s = {"id": q["id"], "esemeny": es["id"], "terulet": q["terulet"],
                      "p": (f["valaszok"].get(q["id"]) or {}).get("p"), "o": g.get("o"), "tisztasag": tz["tisztasag"]}
-                sorok.append(s)
+                kerdes_sorok.append(s)
                 esemeny_sorok.append(s)
+            gs = await gazdasagi_sorok(hiv, f, ma) if hiv is not None else []
+            for g in gs:
+                g.update(esemeny=es["id"], tisztasag=tz["tisztasag"])
+                gazd_reszlet.append(g)
+                if g.get("o_dontessel") is not None:
+                    gazd_sorok.append({"id": f"{es['id']}:{g['kulcs']}", "esemeny": es["id"], "terulet": "gazdasag",
+                                       "p": 0.8, "o": g["o_dontessel"], "tisztasag": tz["tisztasag"]})
+                if g.get("o_alap") is not None:
+                    alap_sorok.append({"id": f"{es['id']}:{g['kulcs']}", "esemeny": es["id"], "terulet": "alapvonal",
+                                       "p": 0.8, "o": g["o_alap"], "tisztasag": "ALAPVONAL"})
+            orszag = (((f.get("szimulator_eredmeny") or {}).get("terv") or {}).get("orszag")) or es.get("orszag")
+            for e in ((f.get("piac_eredmeny") or {}).get("elorejelzesek") or []):
+                if not isinstance(e, dict) or hiv is None:
+                    continue
+                fe = await szabad_feloldas(hiv, e, orszag, ma)
+                szabad_reszlet.append({"esemeny": es["id"], "allitas": e.get("allitas"), "kuszob": e.get("kuszob"),
+                                       "hatarido": e.get("hatarido"), "p": e.get("valoszinuseg"), **fe})
+                if fe.get("o") is not None and isinstance(e.get("valoszinuseg"), (int, float)):
+                    szabad_sorok.append({"id": f"{es['id']}:{e.get('allitas', '')[:40]}", "esemeny": es["id"],
+                                         "terulet": "piac", "p": float(e["valoszinuseg"]), "o": fe["o"],
+                                         "tisztasag": tz["tisztasag"]})
             ossz = _osszesit(esemeny_sorok)
+            gmert = [g for g in gs if g.get("o_dontessel") is not None]
             kimenet["esemenyenkent"].append({
                 "esemeny": es["id"], "ut": ut, "as_of": es["as_of"],
-                "kimenetel_honap": f"{tz['honap']}…{max(q['hatarido'] for q in es['kerdesek'])[:7]}",
+                "kimenetel_honap": f"{tz['honap']}…{max([q['hatarido'] for q in es['kerdesek']] + [str(g.get('hatarido') or '') for g in gs])[:7]}",
                 "modellek": f["modellek_futott"], "tisztasag": tz["tisztasag"], "lepesenkent": tz["lepesenkent"],
+                "gazdasagi_n": len(gmert), "gazdasagi_talalat": sum(g["o_dontessel"] for g in gmert),
+                "gazdasagi_brier": round(sum(brier(0.8, g["o_dontessel"]) for g in gmert) / len(gmert), 4) if gmert else None,
                 "n_elorejelzes": ossz.get("n_valaszolt", 0), "n_kerdes": ossz.get("n_kerdes", 0),
                 "brier": ossz.get("brier"), "brier_alap_50": ossz.get("brier_alap_50"),
                 "brier_alap_bazis": ossz.get("brier_alap_bazis"), "hianyzo": ossz.get("hianyzo"),
-                "szivargas_db": len(f.get("szivargas") or []), "allapot": f.get("allapot")})
-        kimenet["utak"][ut] = pontoz(sorok)
+                "szivargas_db": len(f.get("szivargas") or []), "allapot": f.get("allapot"),
+                "motorok": f.get("motorok"), "panel": (f.get("panel") or {}).get("modell")})
+        pont = [g for g in gazd_reszlet if g.get("hiba_dontessel") is not None]
+        kimenet["utak"][ut] = {
+            "gazdasagi": {"dontessel_sav_80": _osszesit(gazd_sorok), "alapvonal_sav_80": _osszesit(alap_sorok),
+                          "talalati_arany_dontessel": (round(sum(s["o"] for s in gazd_sorok) / len(gazd_sorok), 3)
+                                                       if gazd_sorok else None),
+                          "talalati_arany_alap": (round(sum(s["o"] for s in alap_sorok) / len(alap_sorok), 3)
+                                                  if alap_sorok else None),
+                          "pont_hiba_atlag_dontessel": (round(sum(g["hiba_dontessel"] for g in pont) / len(pont), 4)
+                                                        if pont else None),
+                          "pont_hiba_atlag_alap": (round(sum(g["hiba_alap"] for g in pont) / len(pont), 4)
+                                                   if pont else None),
+                          "pont_javitott_db": sum(1 for g in pont if g["hiba_dontessel"] < g["hiba_alap"]),
+                          "pont_rontott_db": sum(1 for g in pont if g["hiba_dontessel"] > g["hiba_alap"]),
+                          "pont_n": len(pont), "sorok": gazd_reszlet},
+            "kerdesek": pontoz(kerdes_sorok),
+            "szabad_gazdasagi_nem_prereg": {"pontszam": _osszesit(szabad_sorok), "sorok": szabad_reszlet}}
     return kimenet
 
 
@@ -1053,40 +1295,47 @@ async def _cli_futtat(args) -> None:
                     continue
                 t0 = time.monotonic()
                 f = await futtat_esemeny(e, ut, felvevo=felvevo, get_db=_get_db_helyi(), max_usd=args.max_usd,
-                                         panel_tar=panel_tar, panel_n=args.panel_n)
+                                         panel_modell=args.panel_modell, panel_tar=panel_tar, panel_n=args.panel_n)
                 cel.write_text(json.dumps(f, ensure_ascii=False, indent=1, default=str), encoding="utf-8")
-                panel_fajl.write_text(json.dumps(panel_tar, ensure_ascii=False, default=str), encoding="utf-8")
+                if args.panel_modell:
+                    panel_fajl.write_text(json.dumps(panel_tar, ensure_ascii=False, default=str), encoding="utf-8")
                 felvevo.ment()
                 print(f"{cel.name}: {f['allapot']}, {len(f['valaszok'])}/{len(e['kerdesek'])} válasz, "
-                      f"{f['tisztasag_futaskor']['tisztasag']}, {round(time.monotonic() - t0)} mp, "
-                      f"{(f['koltseg']['szimulator'] or {}).get('usd')} $ + {f['koltseg']['kerdesek_usd']} $",
-                      flush=True)
+                      f"{len(f.get('gazdasag') or [])} gazdasági sor, motorok={f['motorok']}, "
+                      f"{round(time.monotonic() - t0)} mp, {(f['koltseg']['szimulator'] or {}).get('usd')} $ + "
+                      f"{f['koltseg']['kerdesek_usd']} $", flush=True)
     finally:
         felvevo.ment()
         await felvevo.zar()
 
 
-def _cli_ertekel(args) -> None:
+async def _cli_ertekel(args) -> None:
     bank, gt = _beolvas(args.bank), _beolvas(args.gt)
     if gt.get("bank_sha256") != _sha(_kanon(bank)):
         raise SystemExit("a GT nem ehhez a bankhoz készült (bank_sha256 eltér)")
     eredmenyek = [json.loads(p.read_text(encoding="utf-8")) for p in sorted(Path(args.ki_dir).glob("futas_*.json"))]
-    ki = ertekeles(bank, gt, eredmenyek)
+    felvevo = Felvevo(args.felvetel, eles=True)
+    try:
+        ki = await ertekeles(bank, gt, eredmenyek, hiv=felvevo, ma=_d(args.ma) if args.ma else None)
+    finally:
+        felvevo.ment()
+        await felvevo.zar()
     Path(args.ki).write_text(json.dumps(ki, ensure_ascii=False, indent=1), encoding="utf-8")
-    print("esemény | út | as_of | kimenetel hónapja | modellek | tisztaság | előrejelzés/kérdés | Brier | alap 50% | "
-          "alap bázis | szivárgás")
+    print("esemény | út | as_of | kimenetel hónapja | modellek | tisztaság | gazdasági (találat/n, Brier) | "
+          "kérdés (válasz/n) | Brier | alap 50% | alap bázis | szivárgás")
     for s in ki["esemenyenkent"]:
         print(f"{s['esemeny']} | {s['ut']} | {s['as_of']} | {s['kimenetel_honap']} | {', '.join(s['modellek'])} | "
-              f"{s['tisztasag']} | {s['n_elorejelzes']}/{s['n_kerdes']} | {s['brier']} | {s['brier_alap_50']} | "
+              f"{s['tisztasag']} | {s['gazdasagi_talalat']}/{s['gazdasagi_n']}, {s['gazdasagi_brier']} | "
+              f"{s['n_elorejelzes']}/{s['n_kerdes']} | {s['brier']} | {s['brier_alap_50']} | "
               f"{s['brier_alap_bazis']} | {s['szivargas_db']}")
     for u, v in ki["utak"].items():
-        print(u, "ÖSSZESEN", json.dumps(v["osszesen"], ensure_ascii=False))
-        print(u, "TISZTASÁG", json.dumps({k: {x: y for x, y in t.items() if x in ("n_valaszolt", "brier",
-                                                                                     "brier_alap_bazis")}
-                                           for k, t in v["tisztasag_szerint"].items()}, ensure_ascii=False))
+        g = v["gazdasagi"]
+        print(u, "GAZDASÁGI", json.dumps({k: x for k, x in g.items() if k != "sorok"}, ensure_ascii=False))
+        print(u, "KÉRDÉSEK ÖSSZESEN", json.dumps(v["kerdesek"]["osszesen"], ensure_ascii=False))
         print(u, "TERÜLET", json.dumps({k: {x: y for x, y in t.items() if x in ("n_valaszolt", "brier",
                                                                                    "brier_alap_bazis")}
-                                         for k, t in v["terulet_szerint"].items()}, ensure_ascii=False))
+                                         for k, t in v["kerdesek"]["terulet_szerint"].items()}, ensure_ascii=False))
+        print(u, "SZABAD (nem prereg)", json.dumps(v["szabad_gazdasagi_nem_prereg"]["pontszam"], ensure_ascii=False))
 
 
 def main(argv=None) -> None:
@@ -1103,17 +1352,20 @@ def main(argv=None) -> None:
     f.add_argument("--bank", required=True)
     f.add_argument("--felvetel", required=True)
     f.add_argument("--ki-dir", required=True)
-    f.add_argument("--ut", nargs="+", default=["hy3", "claude"], choices=sorted(UTAK))
+    f.add_argument("--ut", nargs="+", default=["claude"], choices=sorted(UTAK))
     f.add_argument("--esemeny", nargs="*")
     f.add_argument("--max-usd", type=float, default=0.6)
+    f.add_argument("--panel-modell", default=None, help="a panel modellje; üres = a panel nem fut (kimondva)")
     f.add_argument("--panel-n", type=int, default=30)
     f.add_argument("--ujra", action="store_true")
     f.add_argument("--csak-felvetel", action="store_true")
-    e = al.add_parser("ertekel", help="Brier-tábla a futásokból")
+    e = al.add_parser("ertekel", help="Brier-táblák a futásokból (a gazdasági GT-t a felvevőn át méri)")
     e.add_argument("--bank", required=True)
     e.add_argument("--gt", required=True)
     e.add_argument("--ki-dir", required=True)
+    e.add_argument("--felvetel", required=True, help="a gazdasági GT nyers válaszai (külön a futásokétól)")
     e.add_argument("--ki", required=True)
+    e.add_argument("--ma", default="")
     args = ap.parse_args(argv)
     # a felvevő maga ütemezi az Echolotot (429-várakozással) — a szimulátor Echolot-időkerete ehhez legyen bő
     os.environ.setdefault("SZIMULATOR_ECHOLOT_MAX_S", "2400")
@@ -1129,7 +1381,7 @@ def main(argv=None) -> None:
     elif args.parancs == "futtat":
         asyncio.run(_cli_futtat(args))
     else:
-        _cli_ertekel(args)
+        asyncio.run(_cli_ertekel(args))
 
 
 if __name__ == "__main__":
