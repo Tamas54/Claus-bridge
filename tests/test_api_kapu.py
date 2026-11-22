@@ -152,3 +152,60 @@ def test_a_szerver_a_kaput_hasznalja():
     """A server.py indításában a kapu a middleware-lánc része (ne maradjon ki egy átírásnál)."""
     forras = open("server.py", encoding="utf-8").read()
     assert "Middleware(ApiKapuMiddleware)" in forras
+
+
+def test_mcp_ajto_figyel_majd_zar_anthropic_cimrol_enged(monkeypatch, kliens, caplog):
+    import logging
+    from starlette.applications import Starlette
+    from starlette.routing import Route
+    app = Starlette(routes=[Route("/mcp", _ok, methods=["GET", "POST", "DELETE"]),
+                            Route("/mcp/wc-titok", _ok, methods=["POST"])],
+                    middleware=[Middleware(api_kapu.ApiKapuMiddleware)])
+    c = TestClient(app, base_url="https://testserver")
+    anthropic = {"x-real-ip": "160.79.105.17", "x-forwarded-for": "160.79.105.17"}
+    idegen = {"x-real-ip": "5.6.7.8", "x-forwarded-for": "5.6.7.8"}
+    # alap: FIGYEL — nem zár, de naplóz (az élesítés előtti mérés)
+    monkeypatch.delenv("BRIDGE_MCP_ZARVA", raising=False)
+    monkeypatch.delenv("BRIDGE_KLIENS_IP_FORRAS", raising=False)
+    with caplog.at_level(logging.INFO, logger="api_kapu"):
+        assert c.post("/mcp", json={}, headers=anthropic).status_code == 200
+    assert "x-real-ip=160.79.105.17(A)" in caplog.text
+    # ZÁR: a megbízható fejléc kijelölése nélkül senki (a hamisítható fejlécnek nem hiszünk)
+    monkeypatch.setenv("BRIDGE_MCP_ZARVA", "1")
+    assert c.post("/mcp", json={}, headers=anthropic).status_code == 401
+    monkeypatch.setenv("BRIDGE_KLIENS_IP_FORRAS", "x-real-ip")
+    assert c.post("/mcp", json={}, headers=anthropic).status_code == 200      # a claude.ai-csatlakozó
+    assert c.post("/mcp", json={}, headers={"x-real-ip": "153.61.215.1"}).status_code == 200
+    for m in ("GET", "POST", "DELETE"):
+        assert c.request(m, "/mcp", headers=idegen).status_code == 401       # mindenki más
+    assert c.post("/mcp", json={}, headers={**idegen, "X-Bridge-Key": MUNKAS}).status_code == 200
+    assert c.post("/mcp/wc-titok", json={}, headers=idegen).status_code == 200   # a példány-utat a YRScope ellenőrzi
+    # KIFEJEZETTEN NYITVA
+    monkeypatch.setenv("BRIDGE_MCP_ZARVA", "0")
+    assert c.post("/mcp", json={}, headers=idegen).status_code == 200
+
+
+def test_anthropic_cimtartomany():
+    assert api_kapu.anthropic_cim("160.79.104.1") and api_kapu.anthropic_cim("160.79.111.254")
+    assert api_kapu.anthropic_cim("153.61.208.5") and api_kapu.anthropic_cim("153.61.223.250")
+    assert not api_kapu.anthropic_cim("160.79.112.1") and not api_kapu.anthropic_cim("1.2.3.4")
+    assert not api_kapu.anthropic_cim("") and not api_kapu.anthropic_cim("nem-ip")
+
+
+def test_kulso_eszkoz_csak_zart_ajtonal_es_sajat_peldanynak(monkeypatch):
+    import asyncio
+    import json as _json
+    import server
+    import kulso_mcp
+
+    async def hamis_hiv(nev, eszkoz, parameterek):
+        return f"ok:{nev}.{eszkoz}"
+    monkeypatch.setattr(kulso_mcp, "hiv", hamis_hiv)
+    fn = getattr(server.kulso_eszkoz, "fn", server.kulso_eszkoz)
+    monkeypatch.delenv("BRIDGE_MCP_ZARVA", raising=False)
+    assert "zárása után" in _json.loads(asyncio.run(fn("lexonomics", "search", {"q": "x"}, "web-claus")))["hiba"]
+    monkeypatch.setenv("BRIDGE_MCP_ZARVA", "1")
+    assert "saját példány" in _json.loads(asyncio.run(fn("lexonomics", "search", {}, "")))["hiba"]
+    assert "saját példány" in _json.loads(asyncio.run(fn("lexonomics", "search", {}, "idegen")))["hiba"]
+    assert asyncio.run(fn("lexonomics", "search", {"q": "x"}, "web-claus")) == "ok:lexonomics.search"
+    assert "ismeretlen szerver" in _json.loads(asyncio.run(fn("skynet", "x", {}, "web-claus")))["hiba"]

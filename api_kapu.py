@@ -31,6 +31,7 @@ from __future__ import annotations
 
 import hashlib
 import hmac
+import ipaddress
 import logging
 import os
 from urllib.parse import quote
@@ -49,6 +50,44 @@ VEDETT_LAPOK = frozenset({"/dashboard", "/dashboard/"})
 MUNKAS_ELOTAG = "munkas:"
 #: A süti akkor újul meg, ha a kiállítása óta legalább ennyi idő telt el (naponta legfeljebb egyszer ír sütit).
 MEGUJITAS_S = 24 * 3600
+
+
+#: Az Anthropic stabil KIMENŐ címei (MCP-hívások külső szerverek felé) — platform.claude.com/docs/en/api/ip-addresses,
+#: 2026-11-22: „These addresses will not change without notice.” A claude.ai-csatlakozó innen hív.
+ANTHROPIC_KIMENO = tuple(ipaddress.ip_network(h) for h in ("160.79.104.0/21", "153.61.208.0/20"))
+
+
+def mcp_mod() -> str:
+    """BRIDGE_MCP_ZARVA: "1" = zár (a sima /mcp csak az Anthropic címeiről vagy munkáskulccsal); "0" = nyitva;
+    üres = FIGYEL (nem zár, csak naplózza, honnan jön a hívás — az élesítés előtti mérés)."""
+    v = os.environ.get("BRIDGE_MCP_ZARVA", "").strip()
+    return "zar" if v == "1" else "nyitva" if v == "0" else "figyel"
+
+
+def mcp_zarva() -> bool:
+    return mcp_mod() == "zar"
+
+
+def ip_jeloltek(conn: HTTPConnection) -> dict:
+    xff = [x.strip() for x in conn.headers.get("x-forwarded-for", "").split(",") if x.strip()]
+    return {"x-real-ip": conn.headers.get("x-real-ip", "").strip(),
+            "xff-elso": xff[0] if xff else "", "xff-utolso": xff[-1] if xff else "",
+            "kapcsolat": conn.client.host if conn.client else ""}
+
+
+def kliens_ip(conn: HTTPConnection) -> str:
+    """A hívó valódi címe. A Railway-él melyik fejlécét lehet hitelesnek venni, azt a figyelő mód MÉRI (hamisított
+    fejléces próbával), és a BRIDGE_KLIENS_IP_FORRAS mondja meg; amíg nincs megmérve, nincs megbízható cím."""
+    forras = os.environ.get("BRIDGE_KLIENS_IP_FORRAS", "").strip()
+    return ip_jeloltek(conn).get(forras, "") if forras else ""
+
+
+def anthropic_cim(ip: str) -> bool:
+    try:
+        cim = ipaddress.ip_address(ip)
+    except ValueError:
+        return False
+    return any(cim in halo for halo in ANTHROPIC_KIMENO)
 
 
 def vedett_e(ut: str) -> bool:
@@ -129,6 +168,22 @@ class ApiKapuMiddleware:
         conn = HTTPConnection(scope)
         ut = scope.get("path", "")
         lejar = suti_lejarat(conn)
+
+        # MCP-AJTÓ (2026-11-22): a sima `/mcp` csak munkáskulccsal; a claude.ai-csatlakozó a titkos példány-úton jön
+        # (`/mcp/wc-<token>`, a YRScopeMiddleware ellenőrzi). Kapcsoló: BRIDGE_MCP_ZARVA=1 — a csatlakozó átállítása
+        # UTÁN kapcsoljuk be, hogy a Kommandant claude.ai-ja egy percre se essen ki.
+        if ut in ("/mcp", "/mcp/"):
+            mod = mcp_mod()
+            if mod == "figyel":
+                j = ip_jeloltek(conn)
+                logger.info("api_kapu MCP-figyelés: %s %s · %s", scope.get("method"), ut,
+                            " · ".join(f"{k}={v}{'(A)' if anthropic_cim(v) else ''}" for k, v in j.items()))
+            elif mod == "zar" and not munkas_e(conn) and not anthropic_cim(kliens_ip(conn)):
+                resp = JSONResponse({"hiba": "a Bridge MCP csak a saját csatlakozóról, a titkos példány-úton "
+                                             "(/mcp/<példány>-<token>) vagy munkáskulccsal érhető el"}, status_code=401)
+                logger.info("api_kapu: MCP elutasítva %s %s (%s)", scope.get("method"), ut, kliens_ip(conn) or "?")
+                await resp(scope, receive, send)
+                return
 
         if vedett_e(ut) and lejar is None and not munkas_e(conn):
             if _bongeszo_lap(conn):
