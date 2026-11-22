@@ -642,7 +642,8 @@ async def _call_deepseek(ctx, model_id: str, messages: list, use_tools: bool = T
         if "Kimi" in model_id or "DeepSeek" in model_id:
             payload["thinking"] = {"type": "disabled"}
         if use_tools:
-            payload["tools"] = TOOLS
+            # a külső appok (Lexonomics, Medical, Studio) szerverenként egy eszközként — kulso_mcp.py
+            payload["tools"] = TOOLS + await _kulso_eszkozok()
             # tool_choice="required" is REJECTED by deepseek-reasoner (V4-Pro)
             # on SiliconFlow with code 20015 "does not support this tool_choice".
             # Skip it for DeepSeek; the system prompt + provided tools steer the
@@ -776,12 +777,26 @@ async def _econ_via_statdata(name: str, args: dict):
         return None
 
 
+async def _kulso_eszkozok() -> list:
+    """A bekötött külső MCP-szerverek eszközei; hibánál üres lista (a Feldwebel enélkül is válaszol)."""
+    try:
+        import kulso_mcp
+        return await kulso_mcp.eszkoz_definiciok()
+    except Exception as e:  # noqa: BLE001
+        logger.warning("Feldwebel: a külső MCP-eszközök kimaradtak: %s", str(e)[:200])
+        return []
+
+
 async def _execute_tool(name: str, args: dict, ctx) -> str:
     """Execute a tool and return the result as string."""
     # IMPORTANT: import httpx here to avoid UnboundLocalError —
     # analyze_upload handler has a conditional `import httpx` which makes
     # Python treat httpx as local for the entire function scope.
     import httpx
+    import kulso_mcp
+
+    if kulso_mcp.sajat_e(name):
+        return await kulso_mcp.hiv(name, str(args.get("eszkoz") or ""), args.get("parameterek"))
 
     if name == "gmail_search":
         query = args.get("query", "")

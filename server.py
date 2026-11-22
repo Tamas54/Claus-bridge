@@ -1766,6 +1766,7 @@ async def api_status(request):
         "skipped_runs_24h": recipe_health.recent_skips(get_db, hours=24),
         # Az Anthropic-kapu: elsődleges szolgáltató, havi költés a keretből, szintenkénti hívásszám (titok nincs benne).
         "llm_kapu": llm_kapu.allapot(),
+        "kulso_mcp": __import__("kulso_mcp").allapot(),
         "recent_sessions": [dict(s) for s in last_session]
     })
 
