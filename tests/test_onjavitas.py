@@ -114,3 +114,17 @@ def test_a_cron_az_onjavito_kort_hivja():
     assert "await onjavitas.kor(_diag, get_db=get_db, memoria_ir=memoria_ir" in forras and "_faber_kerelem_onjavitasbol" in forras
     assert 'selfdiag.register_probe("searxng", "json_api", _probe_searxng)' in forras
     assert 'selfdiag.register_probe("brave_mcp", "endpoint", _probe_brave_mcp)' in forras
+
+
+
+def test_atmeneti_szolgaltatoi_idotullepes_nem_faber_kerelem(get_db):
+    faber, tg, fk, t = _hivasok()
+    lelet = {"verdict": "degraded", "summary": "RÉSZLEGES: a(z) `siliconflow` egy része él (7 zöld, 1 bukott)",
+             "evidence": [{"probe": "dsflash", "ok": False, "detail": "transport: ReadTimeout: The read operation timed out"},
+                          {"probe": "kimi", "ok": True, "detail": "200"}]}
+    out = _run(O.kor(_diag(siliconflow=lelet), get_db=get_db, faber_kerelem=fk, telegram=t, memoria_ir=memoria_ir,
+                     most=1000.0))
+    assert out["kihagyva"] == ["siliconflow"] and faber == [] and tg == []
+    # a TARTÓS (minden próba bukott) szállítási hiba viszont kódot/konfigot jelezhet → mehet a Fabernek
+    lelet2 = dict(lelet, verdict="persistent")
+    assert not O.atmeneti_kulso(lelet2)

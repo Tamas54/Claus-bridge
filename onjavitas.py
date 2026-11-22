@@ -68,6 +68,17 @@ def osztalyoz(komponens: str, lelet: dict) -> tuple[str, str]:
     return "kod", kivansag
 
 
+_ATMENETI_JELEK = ("timeout", "timed out", "readtimeout", "connecttimeout", "rate_limit", "429", "temporarily")
+
+
+def atmeneti_kulso(lelet: dict) -> bool:
+    """RÉSZLEGES ítélet, ahol MINDEN bukott próba átmeneti szállítási/torlódási hiba → nem kódhiba."""
+    if lelet.get("verdict") != "degraded":
+        return False
+    bukott = [e for e in lelet.get("evidence") or [] if e.get("ok") is False]
+    return bool(bukott) and all(any(j in str(e.get("detail", "")).lower() for j in _ATMENETI_JELEK) for e in bukott)
+
+
 def _mar_jelezve(get_db, kulcs: str, most: float) -> bool:
     try:
         conn = get_db()
@@ -105,6 +116,11 @@ async def kor(diagnozis: dict, *, get_db, memoria_ir: Callable, faber_kerelem: C
     out = {"faber": [], "ember": [], "kihagyva": []}
     for komp, lelet in sorted((diagnozis.get("components") or {}).items()):
         if lelet.get("verdict") not in ("persistent", "degraded"):
+            continue
+        if atmeneti_kulso(lelet):
+            # Egy külső szolgáltató pillanatnyi időtúllépése vagy torlódása (pl. egyetlen SiliconFlow-modell ReadTimeout-ja
+            # RÉSZLEGES ítélettel) nem kódhiba — Faber-kérelmet nem ér (11-22: ebből lett egy fölösleges #4).
+            out["kihagyva"].append(komp)
             continue
         tipus, szoveg = osztalyoz(komp, lelet)
         kulcs = f"{komp}_{tipus}"

@@ -157,3 +157,12 @@ def test_k3_nem_kap_temperaturet_es_a_tartalek_nem_adja_ki_magat(monkeypatch):
     assert "HELYETTESÍTŐKÉNT" in tartalek["messages"][0]["content"] and "Te Kimi vagy." in tartalek["messages"][0]["content"]
     assert payload["messages"][0]["content"] == "Te Kimi vagy."      # a hívó üzenetei érintetlenek
     assert any("MODELLVÁLTÁS" in n for n in notes)
+
+
+
+@pytest.mark.parametrize("szoveg,elvart", [
+    ("Oké faber, hajrá!", True), ("Faber, mehet", True), ("Faber csináld", True),
+    ("Faber, mégse", False), ("Faber, ne csináld", False), ("Faber, mi a helyzet?", False),
+])
+def test_faber_biztatas(szoveg, elvart):
+    assert C.biztatas(szoveg) is elvart

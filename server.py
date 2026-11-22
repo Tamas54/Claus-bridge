@@ -10972,6 +10972,12 @@ async def _handle_telegram_message(text: str, chat_id: str, csatorna: str = "tel
     except Exception as e:  # noqa: BLE001
         logger.warning("Faber-szándékfelismerés hiba (a Bridge-beszélgetés megy tovább): %s", e)
         _sz = None
+    # A Fabert NÉVEN szólította („Oké faber, hajrá!”), de a felismerő nem döntött: ne a Feldwebel találgasson helyette
+    # (11-22: így lett belőle egy zagyva Feldwebel-válasz). Biztatás/igen → jóváhagyás (ha nincs mit, a Faber
+    # elmondja, min dolgozik); kérdés („mi a helyzet?”) → a Faber állapota; minden más a régi úton megy.
+    if not _sz and _cim == "faber" and (cimzett.biztatas(text) or cimzett.allapot_kerdes(text)):
+        _sz = {"szandek": "jovahagy" if cimzett.biztatas(text) else "allapot", "szoveg": text, "repo": None,
+               "kerelem": None}
     if _sz:
         conn = get_db()
         try:

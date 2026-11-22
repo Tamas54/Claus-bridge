@@ -29,7 +29,9 @@ import httpx
 logger = logging.getLogger(__name__)
 
 BRIEF_URL = os.getenv(
-    "ECHOLOT_BRIEF_URL", "https://web-production-02611.up.railway.app/brief"
+    # 11-22: az Echolot a Hostmanre költözött; a régi Railway-cím 404 (a sajtószemle némán elhasalt). Az új oldal a
+    # `/brief`-ről a nyelvi oldalra irányít (`/en/brief`), a follow_redirects követi, az `extract_brief` ugyanúgy olvassa.
+    "ECHOLOT_BRIEF_URL", "https://echolotnews.com/brief"
 ).strip().rstrip("/")
 BRIEF_TIMEOUT = float(os.getenv("ECHOLOT_BRIEF_TIMEOUT", "25").strip() or "25")
 

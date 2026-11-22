@@ -63,3 +63,20 @@ def fejlec(kulcs: str, modell: str | None = None) -> str:
     """„🔭 <b>KIMI</b> · Kimi-K2.7-Code” — ikon, név, és a TÉNYLEGESEN válaszoló modell (ha ismert)."""
     u = UGYNOKOK.get(kulcs, {"nev": (kulcs or "?").upper(), "ikon": "•"})
     return f"{u['ikon']} <b>{u['nev']}</b>" + (f" · {modell_rovid(modell)}" if modell else "")
+
+
+_BIZTATAS = re.compile(r"\b(hajr[áa]|mehet|rajta|csin[áa]ld|igen|ok[ée]?|j[óo]|[ée]les[íi]tsd|go|let'?s go)\b", re.IGNORECASE)
+_TAGADAS = re.compile(r"\b(m[ée]gse|ne\b|[áa]llj|v[áa]rj|nem)\b", re.IGNORECASE)
+
+
+def biztatas(szoveg: str) -> bool:
+    """„Oké Faber, hajrá!”, „mehet”, „csináld” — igenlő biztatás, tagadás nélkül."""
+    s = szoveg or ""
+    return bool(_BIZTATAS.search(s)) and not _TAGADAS.search(s)
+
+
+_ALLAPOT = re.compile(r"\?|\b(mi a helyzet|hol tartasz|hol tart|[áa]llapot|mit csin[áa]lsz|k[ée]sz vagy)\b", re.IGNORECASE)
+
+
+def allapot_kerdes(szoveg: str) -> bool:
+    return bool(_ALLAPOT.search(szoveg or ""))
