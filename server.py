@@ -11212,6 +11212,7 @@ async def _handle_telegram_message(text: str, chat_id: str, csatorna: str = "tel
         _sz = {"szandek": "jovahagy" if cimzett.biztatas(text) else "allapot", "szoveg": text, "repo": None,
                "kerelem": None}
     if _sz:
+        _sz["csatorna"] = csatorna          # a Faber oda válaszol, ahonnan a kérdés jött (kabin vagy Telegram)
         conn = get_db()
         try:
             mid = faber_relay.tovabbit(conn, TELEGRAM_BOT_TOKEN, "szandek", faber_relay.szandek_adat(_sz), now())

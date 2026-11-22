@@ -216,4 +216,8 @@ NYUGTA = {
 
 def szandek_adat(d: dict) -> str:
     """A `tipus="szandek"` tétel `adat`-ja: JSON-szöveg (a Faber `szandek(json.loads(adat))`-ként olvassa)."""
-    return json.dumps({k: d.get(k) for k in ("szandek", "szoveg", "repo", "kerelem")}, ensure_ascii=False)
+    # `csatorna` (11-23): "telegram" | "web" — a Faber az azonnali választ oda küldi, ahonnan a kérdés jött
+    adat = {k: d.get(k) for k in ("szandek", "szoveg", "repo", "kerelem")}
+    if d.get("csatorna"):
+        adat["csatorna"] = d["csatorna"]
+    return json.dumps(adat, ensure_ascii=False)

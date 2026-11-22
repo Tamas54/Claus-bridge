@@ -240,3 +240,16 @@ def test_cli_claus_telegramrol_a_gep_postajaba_megy_es_a_nyugta_megmondja_figyel
     conn.close()
     asyncio.run(server._handle_telegram_message("cli-Claus, szia", "42"))
     assert "Megkaptam a gépen" in pushok[-1]
+
+
+
+def test_a_faber_oda_valaszol_ahonnan_a_kerdes_jott():
+    """11-23, a Kommandant a kabinról kérdezte a Fabert, és a válasz a Telegramra ment („keverheti a telegrammot a
+    dashboarddal”): a Bridge az aláírt szándékba beleteszi a csatornát."""
+    import faber_relay
+    adat = json.loads(faber_relay.szandek_adat({"szandek": "allapot", "szoveg": "és ez már rendben van?",
+                                                "csatorna": "web"}))
+    assert adat["csatorna"] == "web"
+    import inspect
+    import server
+    assert '_sz["csatorna"] = csatorna' in inspect.getsource(server._handle_telegram_message)
