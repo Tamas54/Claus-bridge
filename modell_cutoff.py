@@ -16,6 +16,26 @@ from __future__ import annotations
 CUTOFF: dict[str, dict] = {
     "tencent/Hy3": {"cutoff": "2025-04", "tiszta_tol": "2025-08",
                     "forras": "orakel_backteszt/cutoff_szonda_20260720/cutoff_jegyzokonyv.md (2026-07-20)"},
+    "claude-opus-5-5": {"cutoff": "2026-01", "tiszta_tol": "2026-03",
+                       "forras": "orakel_backteszt/cutoff_szonda_20261122/CUTOFF_JEGYZOKONYV.md (2026-11-22); sziget: 2026-02 (Anthropic–Pentagon-vita)"},
+    "claude-sonnet-5-5": {"cutoff": "2025-08", "tiszta_tol": "2026-02",
+                         "forras": "orakel_backteszt/cutoff_szonda_20261122/CUTOFF_JEGYZOKONYV.md (2026-11-22); foltos 40–60% 2025-09…2026-01"},
+    "claude-haiku-5-5": {"cutoff": "2025-12", "tiszta_tol": "2026-03",
+                        "forras": "orakel_backteszt/cutoff_szonda_20261122/CUTOFF_JEGYZOKONYV.md (2026-11-22); sziget: 2026-02 (Anthropic–Pentagon-vita)"},
+    "deepseek-ai/DeepSeek-V4.1-Flash": {"cutoff": "2025-03", "tiszta_tol": "2026-01",
+                                       "forras": "orakel_backteszt/cutoff_szonda_20261122/CUTOFF_JEGYZOKONYV.md (2026-11-22); farok 2025-07-ig, sziget: 2025-12"},
+    "Qwen/Qwen3-30B-A3B-Instruct-2507": {"cutoff": "2024-07", "tiszta_tol": "2025-02",
+                                        "forras": "orakel_backteszt/cutoff_szonda_20261122/CUTOFF_JEGYZOKONYV.md (2026-11-22); alacsony felidézés"},
+    "Qwen/Qwen3-14B": {"cutoff": "2023-09", "tiszta_tol": "2024-10",
+                      "forras": "orakel_backteszt/cutoff_szonda_20261122/CUTOFF_JEGYZOKONYV.md (2026-11-22); alacsony felidézés"},
+    "Qwen/Qwen3.5-9B": {"cutoff": "2023-09", "tiszta_tol": "2024-10",
+                       "forras": "orakel_backteszt/cutoff_szonda_20261122/CUTOFF_JEGYZOKONYV.md (2026-11-22); alacsony felidézés"},
+    "Qwen/Qwen3-8B": {"cutoff": "2023-03", "tiszta_tol": "2023-12",
+                     "forras": "orakel_backteszt/cutoff_szonda_20261122/CUTOFF_JEGYZOKONYV.md (2026-11-22); nagyon alacsony felidézés (3/88)"},
+    "openai/gpt-oss-120b": {"cutoff": "2024-05", "tiszta_tol": "2024-06",
+                           "forras": "orakel_backteszt/cutoff_szonda_20261122/CUTOFF_JEGYZOKONYV.md (2026-11-22)"},
+    "openai/gpt-oss-20b": {"cutoff": "2024-04", "tiszta_tol": "2024-06",
+                          "forras": "orakel_backteszt/cutoff_szonda_20261122/CUTOFF_JEGYZOKONYV.md (2026-11-22)"},
 }
 
 

@@ -2139,15 +2139,39 @@ def _aggregate(kind: str, rows: list, variants=None) -> dict:
     return out
 
 
+def _scope_judge_model() -> str:
+    """A scope-ítész motorja (a backteszt-tisztasághoz a job minden LLM-lépését fel kell sorolni)."""
+    try:
+        from plugins import delphoi_scopegate as _sg
+        return _sg.judge_model()
+    except Exception:  # noqa: BLE001
+        return "?"
+
+
+def fg_panel_version(model: str | None = None) -> str:
+    """A FOGÁS-ág panel-verziója a TÉNYLEGES modellhez: az alapmodellnél (FG_MODEL) a meglévő FG_PANEL_VERSION, más
+    modellnél külön korszak-jelölő — a kalibráció és a job-sorok így nem keverik a két modell skáláját (a 07-20-i
+    Agora-A/B szerint a motorcsere ~15 pontos skála-eltolást hoz)."""
+    m = model or FG_MODEL
+    return FG_PANEL_VERSION if m == FG_MODEL else f"orakel-agora-hu-v2|{m}"
+
+
 async def process_job(deps: dict, job_id: str, chat_fn=None, embed_fn=None,
-                      scope_chat_fn=None) -> dict:
+                      scope_chat_fn=None, model: str | None = None) -> dict:
     """A fókuszcsoport-futás (D2): SCOPE-GATE + coverage (P2) → grounding →
     kvótás panel → Hy3 fan-out (personánként k minta, retry-vel, cache BE) →
     SSR/plurality → aggregátum → done | failed+refund.
     RÉSZEREDMÉNY NEM TERMÉK: a kitöltési arány FG_MIN_COMPLETION alatt refund.
     scope_chat_fn: az ítész-hívás injektálható (teszt); ha chat_fn injektált
-    (teszt-mód) és scope_chat_fn nincs, az ítész kimarad — a heurisztika dönt."""
+    (teszt-mód) és scope_chat_fn nincs, az ítész kimarad — a heurisztika dönt.
+    model: a panel-motor felülírása EGY jobra (pl. a döntés-szimulátor saját
+    `SZIMULATOR_PANEL_MODEL`-je); None = FG_MODEL. A nyilvános termék és a
+    ledger útja nem változik; a job-sor model_id-ja és panel_version-je a
+    ténylegesen használt modellt rögzíti (fg_panel_version)."""
     from plugins import persona_sampler, pollster, ssr
+
+    fg_model = model or FG_MODEL
+    fg_pv = fg_panel_version(fg_model)
 
     get_db = deps["get_db"]
     conn = get_db()
@@ -2237,7 +2261,7 @@ async def process_job(deps: dict, job_id: str, chat_fn=None, embed_fn=None,
             prompt = _fg_prompt(p, cfg, kind, stimulus) + ctx_line
             if cache is not None:
                 from plugins.llm_cache import cache_key as _ck
-                key = _ck(FG_MODEL, {"temperature": temp}, "", prompt, iteration=iteration)
+                key = _ck(fg_model, {"temperature": temp}, "", prompt, iteration=iteration)
                 hit = cache.get(key)
                 if hit is not None:
                     return hit
@@ -2245,9 +2269,9 @@ async def process_job(deps: dict, job_id: str, chat_fn=None, embed_fn=None,
                 text = await chat_fn(prompt)
             else:
                 text = await pollster._chat(client, prompt, temperature=temp,
-                                            model=FG_MODEL, pacer=pacer)
+                                            model=fg_model, pacer=pacer)
             if cache is not None and text:
-                cache.set(key, text, model=FG_MODEL)
+                cache.set(key, text, model=fg_model)
             return text
 
         results = []   # (persona, variant_id, [minta-szöveg × k])
@@ -2389,7 +2413,7 @@ async def process_job(deps: dict, job_id: str, chat_fn=None, embed_fn=None,
                 [(job_id, r["persona_idx"], r["segment"], r["raw"], r["ssr_score"],
                   r["variant_id"], ts) for r in sample_rows])
             agg = _aggregate(kind, rows, variants)
-            fg_model_id = f"{FG_MODEL}|non-think|temp={temp}|k={k}|ssr=linear"
+            fg_model_id = f"{fg_model}|non-think|temp={temp}|k={k}|ssr=linear"
             completion = round(len(ok_results) / max(1, len(tasks)), 4)
             agg["panel"] = {"country": country, "n_requested": len(tasks),
                             "n_completed": len(ok_results), "n_seeds": n_seeds,
@@ -2401,7 +2425,8 @@ async def process_job(deps: dict, job_id: str, chat_fn=None, embed_fn=None,
                                          "dispersion_ratio": dispersion_ratio},
                             "corpus_hash": corpus.get("corpus_hash", ""),
                             "model_id": fg_model_id,
-                            "panel_version": FG_PANEL_VERSION}
+                            "panel_version": fg_pv,
+                            "scope_judge_model": _scope_judge_model()}
             if embed_info:
                 agg["panel"]["embed_budget"] = embed_info
             # P2 — scope-verdikt + coverage + konfidencia + kalibráció a riport-
@@ -2420,7 +2445,7 @@ async def process_job(deps: dict, job_id: str, chat_fn=None, embed_fn=None,
                     from plugins import delphoi_calibration as _calib
                     appeal_raw = round((float(agg["overall_score"]) - 1.0) / 4.0 * 100.0, 3)
                     calibrated, cal_meta = _calib.calibrate(
-                        appeal_raw, country, "agora_appeal", FG_PANEL_VERSION, FG_MODEL)
+                        appeal_raw, country, "agora_appeal", fg_pv, fg_model)
                     agg["calibration"] = {"raw": appeal_raw, "scale": "0-100 appeal",
                                           "calibrated": calibrated, **cal_meta}
                 except Exception:  # noqa: BLE001
@@ -2431,7 +2456,7 @@ async def process_job(deps: dict, job_id: str, chat_fn=None, embed_fn=None,
                 "UPDATE delphoi_jobs SET status='done', result_json=?, completed_at=?, "
                 "model_id=?, panel_version=? WHERE id=?",
                 (json.dumps(agg, ensure_ascii=False), ts, fg_model_id,
-                 FG_PANEL_VERSION, job_id))
+                 fg_pv, job_id))
             conn.commit()
         finally:
             conn.close()

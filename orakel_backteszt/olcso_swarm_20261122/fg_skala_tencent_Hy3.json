@@ -1,0 +1,1085 @@
+{
+ "model": "tencent/Hy3",
+ "n_personas": 30,
+ "n_calls": 150,
+ "n_ok": 150,
+ "kitoltes": 1.0,
+ "hibak": [],
+ "overall": 2.5257,
+ "per_stim": {
+  "S1_utdij": 2.0969,
+  "S2_szja": 2.4122,
+  "S3_nyugdij": 1.9007,
+  "S4_vasut": 3.4252,
+  "S5_atom": 2.7935
+ },
+ "per_segment": {
+  "alig": 2.1657,
+  "baloldali": 2.7369,
+  "jobboldali": 2.5698,
+  "közmédia": 2.5214,
+  "közösségi": 2.4554
+ },
+ "tokens": {
+  "prompt": 21945,
+  "completion": 14151,
+  "per_call_prompt": 146.3,
+  "per_call_completion": 94.3
+ },
+ "koltseg_usd": 0.01037,
+ "panel180_usd": 0.01244,
+ "fal_s": 94.6,
+ "run_at": "2026-11-22T19:54:48",
+ "rows": [
+  {
+   "stim": "S1_utdij",
+   "persona": 0,
+   "segment": "baloldali",
+   "score": 1.9439052041653921,
+   "text": "Őszintén szólva utálom, mert egy szakmunkásként Budapesten élő, baloldali/liberális médiát olvasó emberként ezt úgy élem meg, mint az egyre nyomasztóbb megélhetési terheket növelő, átlátszóan igazságtalan sarcot, amit megint a kisember fizet meg."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 1,
+   "segment": "jobboldali",
+   "score": 1.9840498293387798,
+   "text": "Őszintén szólva nem tetszik, mert egy nyugdíjas diplomás vidéki emberként jogosan érezhetem úgy, hogy a kormány megint a kisember zsebéből akarja kipótolni a költségvetést, miközben a jobboldali sajtó eddig a rezsicsökkentéssel hencegett."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 2,
+   "segment": "közösségi",
+   "score": 1.9409490077899016,
+   "text": "Őszintén szólva nem tetszene, mert nekem, aki kevés iskolával és szűkös pesti megyeszékhelyi költségvetéssel élek, ez is csak egy újabb hülye sarc a közösségi médiában látott politikai ígérgetések mellett."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 3,
+   "segment": "közmédia",
+   "score": 2.106176503383672,
+   "text": "Őszintén szólva nem tetszik, mert egy újabb fix tehernek érezném a mindennapokban anélkül, hogy látnám belőle a valós közlekedési fejlesztést."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 4,
+   "segment": "baloldali",
+   "score": 2.4287882906299028,
+   "text": "Őszintén szólva kifejezetten ellenszenves ez a koncepció, mert egy blanket (mindenkit egyformán sújtó) havi sarc formájában újabb állami terhet rakna a diplomás, vidéki kistelepülésen élők vállára anélkül, hogy a közösségi közlekedés alternatíváját vagy a tényleges úthasználat arányosságát bármivel kompenzálná."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 5,
+   "segment": "közösségi",
+   "score": 1.9380883004476404,
+   "text": "Őszintén szólva egyáltalán nem tetszik, mert egy nyugdíjas városi embernek, aki már így is kevésből gazdálkodik, ez az újabb havi kiadás csak felesleges terhet jelent anélkül, hogy érezhető haszna lenne számomra."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 6,
+   "segment": "jobboldali",
+   "score": 2.0466597798165482,
+   "text": "Őszintén szólva nem tetszik, mert mi, idős budapesti kisnyugdíjasok így is alig jövünk ki a pénzből, és felesleges terhet raknak ránk ahelyett, hogy a valódi problémákat oldanák meg."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 7,
+   "segment": "alig",
+   "score": 1.8812751342338092,
+   "text": "Őszintén szólva nem tetszik, mert egy nyugdíjas városi emberként, aki alig figyeli a híreket, nehezen érteném az értelmét, és csak újabb terhet jelentene a havi kiadásaimban."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 8,
+   "segment": "közmédia",
+   "score": 2.095396601836782,
+   "text": "Nekem, aki szakmunkásként egy községben élek és a közmédiából tájékozódom, ez a havi 5000 forintos útdíj inkább terhes és igazságtalan, mert az amúgy is kevés pénzemből vesz el akkor, amikor a kormány helyett a Tiszát támogatnám, nem ezt vártam volna tőlük."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 9,
+   "segment": "baloldali",
+   "score": 2.2481711740776547,
+   "text": "Őszintén szólva utálom, mert egy teljesen értelmetlen, mindenkit egyformán sújtó extra adóterhet jelentene ahelyett, hogy a valódi közlekedési és klímaproblémákat célozná meg."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 10,
+   "segment": "jobboldali",
+   "score": 2.0694356458948993,
+   "text": "Őszintén szólva nem tetszik, mert egy újabb általános adóterhet ró a családokra anélkül, hogy látnám, hogy a befolyó pénzből tényleg javulna a hazai utak minősége vagy a közlekedés."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 11,
+   "segment": "közösségi",
+   "score": 2.2437090937543713,
+   "text": "Nem tetszik, mert nekem, aki kevés nyugdíjon vagy segélyen élök egy kis faluban, még a heti bevásárlás vagy az orvoshoz jutás is drága lesz tőle, és úgy érzem, megint a szegényeket sarcolják."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 12,
+   "segment": "közmédia",
+   "score": 1.6415638665466898,
+   "text": "Őszintén szólva nem tetszik, mert egy nyugdíjas diplomásként, aki a közmédiából tájékozódik, úgy érzem, ez egy újabb indokolatlan terhet ró a mindennapi emberekre anélkül, hogy valódi ellentételezést látnék a közlekedésben."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 13,
+   "segment": "alig",
+   "score": 1.666547672290963,
+   "text": "Őszintén szólva nem tetszik, mert nekem, aki alig követem a híreket és kevés nyugdíjból vagy fizetésből élök egy községben, ez csak egy újabb felesleges terhet jelentene anélkül, hogy látnám az értelmét."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 14,
+   "segment": "baloldali",
+   "score": 2.456394499624082,
+   "text": "Őszintén szólva utálom, mert egy láthatatlan, mindenkit automatikusan sújtó adóként pont a fiatal, városi szakmunkásokat terheli meg leginkább anélkül, hogy valódi alternatívát vagy jobb tömegközlekedést kapnának helyette."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 15,
+   "segment": "közösségi",
+   "score": 1.9564553834772325,
+   "text": "Őszintén szólva nem tetszik, mert egy nyugdíjas budapesti diplomásként így is eleget fizetek, és úgy érzem, ez megint csak a kisembert terheli meg anélkül, hogy a tényleges nagyobb hasznot húzók érdemben beszállnának."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 16,
+   "segment": "baloldali",
+   "score": 2.5702857164438755,
+   "text": "Őszintén szólva kifejezetten rosszul érintene, mert egy ilyen általános, méregdrága közszolgáltatásokat sem garantáló új adóterhet a kistelepülésen élő, érettségizett, de nem gazdag rétegemberek fizetnék meg a leginkább a látható haszon nélkül."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 17,
+   "segment": "közmédia",
+   "score": 2.17108416033447,
+   "text": "Őszintén szólva nem tetszene, mert nekem, aki alig van nyolc általánosom és kevés a pénzem, ez csak újabb állami sarc lenne a nyakamba, hiába mondják a köztévében, hogy a Tisza majd megvéd."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 18,
+   "segment": "jobboldali",
+   "score": 2.176835088425636,
+   "text": "Őszintén szólva nem tetszik, mert egy diplomás nyugdíjas városi autószaként jogosan érzem úgy, hogy a kormány megint a megbízható, tisztességes adófizetőket sarcolja meg újabb rendszeres teherrel."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 19,
+   "segment": "jobboldali",
+   "score": 2.187723872365203,
+   "text": "Őszintén szólva nem tetszik, mert egy újabb állandó adóterhet ró a családokra anélkül, hogy látnám belőle a valós, hasznos útfelújítások megtérülését."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 20,
+   "segment": "alig",
+   "score": 1.6070345210652055,
+   "text": "Őszintén szólva nem tetszik, mert alig követem a politikát, de az fix, hogy egy újabb állandó kiadás nekem sem hiányzik, amikor így is szűkösen jövök ki a fizetésből."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 21,
+   "segment": "közösségi",
+   "score": 2.2189279875843018,
+   "text": "Őszintén szólva nem tetszik, mert egy nyugdíjas diplomásként a községben, ahol nélkülözhetetlen a autóhasználat, ezt az újabb fix terhet igazságtalannak és feleslegesen terhelőnek érzem."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 22,
+   "segment": "baloldali",
+   "score": 2.713663872016191,
+   "text": "Őszintén szólva kifejezetten igazságtalannak és cinikusnak tartom ezt a koncepciót, mert egy alacsony iskolázottságú, vidéki nagyvárosban élő fiatalt pont azzal sújtana meg, akinek a mindennapi megélhetéséhez és munkába járásához a autó nem luxus, hanem kényszer."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 23,
+   "segment": "közmédia",
+   "score": 2.402090800528865,
+   "text": "Őszintén szólva nem tetszene, mert egy újabb fix terhet róna ránk középkorú városi autósokra anélkül, hogy látnánk belőle valódi, hasznos fejlesztést."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 24,
+   "segment": "közösségi",
+   "score": 2.259106750161036,
+   "text": "Őszintén szólva nem tetszik, mert egy diplomás nyugdíjas falusi emberként így is sokat költenek az autózásra, és ez az újabb fix teher igazságtalannak érződik a kevésbé mobil községekben élők számára."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 25,
+   "segment": "jobboldali",
+   "score": 2.027268794109037,
+   "text": "Őszintén szólva nem tetszik, mert egy diplomás budapesti autósként jogosan érezhetem úgy, hogy a meglévő adók és útdíjak mellett ez csak egy újabb indokolatlan terhet rak a középosztály vállára ahelyett, hogy a közlekedési rendszert tennék tisztességesen élhetővé."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 26,
+   "segment": "baloldali",
+   "score": 1.8955390611258738,
+   "text": "Őszintén szólva utálom, mert egy községben élő szakmunkásként, aki nem teheti meg a közösségi közlekedést, ez csak egy újabb igazságtalan sarc a legszegényebbeken, miközben a kormányzati propaganda mást hazudik."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 27,
+   "segment": "alig",
+   "score": 1.7097889448605637,
+   "text": "Őszintén szólva nem tetszik, mert diplomás városiként, aki alig követi a politikai híreket, felesleges újabb fix terhet éreznék rakódni a mindennapjaimra anélkül, hogy látnám az értelmét vagy a döntés hátterét."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 28,
+   "segment": "közösségi",
+   "score": 2.1636193435514413,
+   "text": "Őszintén szólva nem tetszik, mert egy nyugdíjas, érettségizett vidéki városlakóként a közösségi médiában látott politikai hírek után ezt csak újabb indokolatlan sarcnak érzem, ami az amúgy is szűkös nyugdíjból vesz el."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 29,
+   "segment": "baloldali",
+   "score": 2.156496481346345,
+   "text": "Őszintén szólva utálom ezt a koncepciót, mert egy alacsony jövedelmű, legfeljebb 8 általánost végzett községi lakosként nekem is újabb fix terhet róna a mindennapi megélhetésre anélkül, hogy a baloldali/liberális sajtó által is kritizált vidéki közlekedési lemaradások kezelését látnám mögötte."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 0,
+   "segment": "baloldali",
+   "score": 1.863391025788118,
+   "text": "Őszintén szólva inkább elismerésem a fiatalok tehermentesítését, de frusztrál, hogy mi, ötvenes budapesti szakmunkások, akik évtizedek óta húzzuk az igát, egy fillérrel sem kapunk segítséget ebből a buliból."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 1,
+   "segment": "jobboldali",
+   "score": 2.237549653719107,
+   "text": "Őszintén szólva úgy érzem, méltánytalan, hogy mi, idősebb, vidéken élő diplomások egész életünkben dolgoztunk és adóztunk, miközben a fiatalokat folyamatosan újabb kedvezményekkel támogatják."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 2,
+   "segment": "közösségi",
+   "score": 1.6128321006103152,
+   "text": "Őszintén szólva rohadtul idegesít, hogy mi, akiknek csak nyolc általánosunk van és vidéki megyeszékhelyen robotolunk, megint kimaradunk, miközben a fiatalokat simogatják, pedig mi is szívjuk a sört meg a túlórát ugyanúgy."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 3,
+   "segment": "közmédia",
+   "score": 3.128334264873782,
+   "text": "Őszintén szólva tetszik, mert így még több fiatalnak marad pénze a kezében, de kicsit szkeptikus vagyok, hogy közel a választás előtt nem csak kampányfogás-e."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 4,
+   "segment": "baloldali",
+   "score": 2.6178269972304227,
+   "text": "Őszintén szólva nem igazán tetszik, mert miközben a fiatalokat hangzatos adókedvezménnyel kényeztetik, a vidéki, diplomás középosztályt – mint én – továbbra is terhelik, és ez a politika szerintem csak a választói bázis megvásárlása a valódi szolidaritás helyett."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 5,
+   "segment": "közösségi",
+   "score": 2.2999290551585925,
+   "text": "Őszintén szólva nem tetszik, mert úgy érzem, mi, idősebb, dolgozó nyugdíjasok és szülők fizetjük meg az árát, miközben a közösségi médiában csak a fiataloknak kedvező propagandát látom, de a valós terheket senki nem osztja meg velünk."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 6,
+   "segment": "jobboldali",
+   "score": 2.6379504399768328,
+   "text": "Őszintén szólva nekem, nyugdíj előtt álló, alig iskolázott budapesti jobboldali olvasónak ez a döntés inkább igazságtalannak tűnik, mert mi, idősebbek, akik évtizedekig dolgoztunk és adóztunk, megint csak a fiatalokat kapjuk, miközben a mi terheink nem csökkennek."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 7,
+   "segment": "alig",
+   "score": 2.349437341846279,
+   "text": "Őszintén szólva nem igazán tetszik, mert alig követem a politikát, de úgy érzem, az idősebb, nyugdíj előtt álló korosztályt, mint amilyen én vagyok, kevésbé támogatja ez a rendszer."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 8,
+   "segment": "közmédia",
+   "score": 2.5164319146092877,
+   "text": "Őszintén szólva nekem, aki 40 feletti szakmunkásként községen élek és adózom, ez a megint csak a fiatalokat kihúzó, minket megint csak hátrahagyó intézkedés inkább frusztrál, mintsem tetszik."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 9,
+   "segment": "baloldali",
+   "score": 3.211205913384098,
+   "text": "Őszintén szólva tetszik, mert érdemi könnyítést jelent a pályakezdőknek, de jobban örülnék, ha a középosztály szélesebb rétegeit is segítené a rendszer, nemcsak a legfiatalabbakat."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 10,
+   "segment": "jobboldali",
+   "score": 3.328782224915832,
+   "text": "Őszintén szólva tetszik, mert így a pályakezdőként is sokkal több pénz marad a zsebemben, miközben a jobboldali kormányzati intézkedések eddig is a fiatalokat segítették."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 11,
+   "segment": "közösségi",
+   "score": 1.9006050283950526,
+   "text": "Nekem, aki községben élek nyolc általánossal és alig keresek, inkább úgy tűnik, hogy a mi korosztályunkat megint kihagyják, miközben a fiatalokat simogatják a közösségi médiában látott ígérgetésekkel."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 12,
+   "segment": "közmédia",
+   "score": 1.669646931420664,
+   "text": "Őszintén szólva nekem, nyugdíjas diplomás városlakóként, aki a közmédiából tájékozódik, inkább hiányzik, hogy az idősebbek és a családos középosztály helyzetével is hasonlóan foglalkozzanak, nemcsak a fiatalok adómentességével."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 13,
+   "segment": "alig",
+   "score": 1.9956299948479208,
+   "text": "Őszintén szólva nem tetszik, mert úgy érzem, mi, idősebb, vidéki, keveset kereső és adózó emberek megint kimaradunk a támogatásokból, miközben nekünk is egyre nehezebb megélni."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 14,
+   "segment": "baloldali",
+   "score": 3.006467937026823,
+   "text": "Őszintén szólva tetszik, mert anyagilag segíti a fiatalokat, de cinikus kampányfogásként is értékelem, ami eltereli a figyelmet a rendszer mélyebb problémáiról."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 15,
+   "segment": "közösségi",
+   "score": 2.219231923878512,
+   "text": "Őszintén szólva nem tetszik, mert igazságtalannak érzem, hogy mi, idősebb, diplomás budapesti adófizetők finanszírozzuk a fiatalok folyamatosan bővülő kedvezményeit, miközben a nyugdíjunk és az egészségügy helyzete egyre rosszabb."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 16,
+   "segment": "baloldali",
+   "score": 2.8549973568959017,
+   "text": "Őszintén szólva tetszene, mert segítene a pályakezdőként is alacsony keresetű, vidéki diplomásoknak, de községi lakosként és baloldali médiát követőként inkább cinikusan választási kampányfogásnak tartom, mint valódi, fenntartható szolidaritást."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 17,
+   "segment": "közmédia",
+   "score": 2.040964358470161,
+   "text": "Őszintén szólva nekem, nyolc általánossal és közmédiából tájékozódva, azért főleg az fáj, hogy mi, idősebb, kevesebbet kereső vidékiek megint kimaradunk, miközben a fiatalokat hizlalják, pedig a mi adónkból megy az egész."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 18,
+   "segment": "jobboldali",
+   "score": 2.3134341869585877,
+   "text": "Őszintén szólva nem tetszik, mert úgy érzem, hogy mi, idősebb, diplomás városi adófizetők viseljük a terhet, miközben a jobboldali médiából is azt látom, hogy a fiatalok támogatása helyett az egész társadalom megőrzése lenne a fontos."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 19,
+   "segment": "jobboldali",
+   "score": 2.2842768027575233,
+   "text": "Őszintén szólva nekem, aki Budapesten érettségizett, jobboldali olvasóként adózom, és a nyugdíj előtt állok, nem tetszik, mert úgy érzem, hogy mi, idősebb és középkorú, dolgozó adófizetők húzzuk a rövidebbet, miközben a fiatalok támogatása helyett a családtámogatások és a nyugdíjak biztonsága lenne a fontosabb."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 20,
+   "segment": "alig",
+   "score": 1.6558780879064576,
+   "text": "Őszintén szólva nem örülök neki, mert én már 30 felett vagyok, szakmunkásként alig keresek valamit, és közben azokat támogatják újra, akik amúgy is előrébb vannak az életben."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 21,
+   "segment": "közösségi",
+   "score": 2.2433347201763647,
+   "text": "Nem tetszik, mert úgy érzem, hogy mi, idősebb, vidéki diplomások, akik egész életünkben dolgoztunk és adóztunk, megint háttérbe szorulunk az újabb fiataloknak járó kedvezményekkel."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 22,
+   "segment": "baloldali",
+   "score": 3.2750186225889224,
+   "text": "Őszintén szólva tetszik, mert segítene a pályakezdőként is alacsony fizetésből tengődő, kevés iskolai végzettségű fiataloknak kicsit könnyebben elindulni, de kicsit gyanús, hogy kampányfogásnak hangzik, nem hosszú távú szociális igazságosságnak."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 23,
+   "segment": "közmédia",
+   "score": 2.35118301469778,
+   "text": "Őszintén szólva nekem, aki egész életemben dolgoztam és most nyugdíj előtt állok, ez úgy tűnik, mint egy újabb kedvezmény a fiataloknak, miközben mi, idősebb városi dolgozók nem kapunk semmilyen enyhítést az adóinkból."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 24,
+   "segment": "közösségi",
+   "score": 2.1290220760789462,
+   "text": "Őszintén szólva nekem, nyugdíjas diplomás falusi lakosként, akinek a unokái is alig férnek lakáshoz, inkább úgy tűnik, hogy megint a fiatalokat kényeztetik az adóforintjainkból, miközben az idősek és a vidék rendes támogatása elmarad."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 25,
+   "segment": "jobboldali",
+   "score": 3.0720988227672237,
+   "text": "Őszintén szólva tetszik, mert segíti a fiatalok itthon maradását és elindulását, bár jogos lehet az idősebb, családot tartó budapesti érettségizettek részéről az az érzés, hogy ők kevésbé kapnak támogatást."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 26,
+   "segment": "baloldali",
+   "score": 3.0834256733212806,
+   "text": "Őszintén szólva tetszik, mert anyagilag segítene a pályakezdőként amúgy is bizonytalan helyzetű fiatalokon, de közben gyanús, hogy ez csak egy kampányfogás a kormánytól, nem pedig valódi, fenntartható támogatás."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 27,
+   "segment": "alig",
+   "score": 2.197017683724485,
+   "text": "Őszintén szólva nem igazán tetszik, mert diplomás városiként úgy érzem, hogy közben a 40-es éveiben járó, adózó réteg terhei nem csökkennek, miközben alig követem a politikai híreket, de az ilyen célzott kedvezményekről így is eljut hozzám a szó, és inkább a mindenki számára érezhető életszínvonal-javulást hiányolom."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 28,
+   "segment": "közösségi",
+   "score": 1.7963389841429314,
+   "text": "Őszintén szólva nekem, nyugdíjas korú, diplomával nem rendelkező vidéki városlakóként, aki a közösségi médiából tájékozódik, inkább úgy tűnik, hogy megint a fiatalokat támogatják az adóforintjainkból, miközben mi, idősek egyre nehezebben élünk meg a nyugdíjból."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 29,
+   "segment": "baloldali",
+   "score": 2.4735004838889836,
+   "text": "Őszintén szólva inkább cinikus PR-fogásnak látom ezt a választások előtti ígéretet, mint valódi segítséget, főleg ha közben a falusi iskoláink és a mi megélhetésünk továbbra is romokban hevernek."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 0,
+   "segment": "baloldali",
+   "score": 1.8016802030053805,
+   "text": "Őszintén szólva nem tetszik, mert 50 feletti budapesti szakmunkásként már alig várom a nyugdíjat, és az, hogy még tovább kelljen dolgoznom, igazságtalannak és megalázónak érződik a baloldali-liberális értékeim mellett is."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 1,
+   "segment": "jobboldali",
+   "score": 2.0474266802203904,
+   "text": "Őszintén szólva nem tetszik, mert diplomásként is nehezebb idős korban elhelyezkedni, és a községi embereket is túlzottan megterheli a további évekig tartó munkakényszer."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 2,
+   "segment": "közösségi",
+   "score": 1.5836160485995627,
+   "text": "Egyáltalán nem tetszik, mert így, ahogy alig van 8 általánosom és egy megyeszékhelyen is alig keresek valamit, sosem érem meg a nyugdíjat, csak keményebben dolgozhatok a semmiért."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 3,
+   "segment": "közmédia",
+   "score": 1.7088577642117548,
+   "text": "Őszintén szólva nem igazán tetszik, mert így még többet kellene dolgoznom az amúgy is bizonytalan munkaerőpiacon, mielőtt egyáltalán a saját lábamra állnék."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 4,
+   "segment": "baloldali",
+   "score": 1.8529411258182742,
+   "text": "Őszintén szólva nem tetszik, mert egy diplomás vidéki nőként a közszolgálati és egészségügyi lehetőségek hiánya miatt sokak számára ez az emelés igazságtalan terhet jelent, miközben a társadalmi egyenlőtlenségeket nem kezeli."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 5,
+   "segment": "közösségi",
+   "score": 2.1648085316660057,
+   "text": "Nem tetszik, mert 60 felett, érettségivel és városi lakosként is egyre nehezebb elhelyezkedni, a közösségi médiában pedig csak azt látom, hogy a fiatalokat se nagyon veszik fel, így ezt az emelést igazságtalannak érzem."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 6,
+   "segment": "jobboldali",
+   "score": 2.254844364303917,
+   "text": "Nem tetszik, mert mi, idősebb, kevés iskolázottságú budapesti munkások már így is alig bírjuk fizikailag a nyugdíjig való kihúzást, és a balliberális brüsszeli nyomás helyett a kormánynak inkább a magyar embereket kellene védenie."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 7,
+   "segment": "alig",
+   "score": 1.660338574105927,
+   "text": "Őszintén szólva nem tetszik, mert alig követem a híreket és így is nehezen értem, miért kellene még tovább dolgoznom, ha az egészségem már nem a régi."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 8,
+   "segment": "közmédia",
+   "score": 2.4563118880971144,
+   "text": "Őszintén szólva nem tetszik, mert 40 felett, szakmunkásként egy községben már így is nehéz lesz kitolni az amúgy is megfáradt testtel a 65 évet, nemhogy a 67-et."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 9,
+   "segment": "baloldali",
+   "score": 2.2581277335188306,
+   "text": "Őszintén szólva nem tetszik, mert egy diplomás, nagyvárosi, baloldali/liberális szemléletű emberként úgy látom, hogy ezzel a kormány a fiatalabb és középkorú generációk terheit növeli anélkül, hogy a nyugdíjrendszer igazságosabbá tételével vagy a tényleges foglalkoztatási esélyek javításával foglalkozna."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 10,
+   "segment": "jobboldali",
+   "score": 2.1220846361911727,
+   "text": "Őszintén szólva nem örülök neki, mert így még tovább kell dolgoznom azok után is, hogy már most is egyre nehezebb a fiatalok elindulása a munkaerőpiacon."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 11,
+   "segment": "közösségi",
+   "score": 1.9057413693739296,
+   "text": "Nem tetszik, mert így mi, falusiak, akik már gyerekkorunk óta keményen dolgozunk, még tovább nyögjük a terheket, mielőtt egyáltalán megpihenhetnénk."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 12,
+   "segment": "közmédia",
+   "score": 2.26911433865044,
+   "text": "Őszintén szólva nem tetszik, mert 60 felett, diplomás megyeszékhelyi közmédia-követőként úgy érzem, hogy az amúgy is kiszolgáltatott idősebb korosztályt terhelik meg újra ahelyett, hogy a nyugdíjasok megbecsüléséről és biztonságáról gondoskodnának."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 13,
+   "segment": "alig",
+   "score": 1.479885687369785,
+   "text": "Nem tetszik, mert így, hogy alig figyelem a politikát, csak azt érzem, hogy tovább kell dolgoznom a kis községünkben, mielőtt nyugodtan pihenhetnék."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 14,
+   "segment": "baloldali",
+   "score": 2.335170908537043,
+   "text": "Őszintén szólva semennyire nem tetszik, mert így aki szakmunkásként már fiatalon le van égve fizikailag, azt még tovább kényszerítik dolgozni ahelyett, hogy a társadalom végre tisztességesen gondoskodna róla."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 15,
+   "segment": "közösségi",
+   "score": 1.5966899565180608,
+   "text": "Őszintén szólva nem tetszik, mert 60 felett Budapesten is egyre nehezebb elhelyezkedni vagy a megszokott munkát egészségügyileg bírni, és a közösségi médiában látott politikai viták csak rontják a bizalmamat az ilyen döntések mögött."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 16,
+   "segment": "baloldali",
+   "score": 1.4544485633705557,
+   "text": "Őszintén szólva nem tetszik, mert egy községben, érettségivel élő 30-as éveimben reálisan látom, hogy sokunknak fizikailag és anyagilag is megalázó lenne tíz évvel tovább dolgozni a mostani kiszolgáltatott munkaerőpiaci és egészségügyi viszonyok között."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 17,
+   "segment": "közmédia",
+   "score": 1.6331327552069277,
+   "text": "Őszintén szólva nem tetszik, mert mi, akiknek legfeljebb nyolc általánosunk van és egész életünkben keményen dolgoztunk, nem bírjuk már el egy újabb évvel a nyugdíj helyett a kormány ígérgetéseit."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 18,
+   "segment": "jobboldali",
+   "score": 2.417633963354153,
+   "text": "Őszintén szólva nem örülök neki, mert 60 felett már nehezebb a munka, de elfogadom, ha a jobboldali kormány ezzel is a nemzet gazdasági stabilitását védi."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 19,
+   "segment": "jobboldali",
+   "score": 1.8905277765759954,
+   "text": "Őszintén szólva nem tetszik, mert mi, vidéki vagy budapesti középosztálybeli, érettségizett emberek már eleget dolgoztunk, és a jobboldali sajtó is azt ígérte, hogy megvédik a nyugdíjasokat, nem emelik tovább a korhatárt."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 20,
+   "segment": "alig",
+   "score": 1.499871293901489,
+   "text": "Őszintén szólva nem tetszik, mert így, mint szakmunkás, aki alig figyeli a híreket, úgy érzem, hogy az amúgy is nehéz fizikai munkában egyre tovább kellene robotolnom, mielőtt nyugodtan pihenhetnék."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 21,
+   "segment": "közösségi",
+   "score": 1.6212725340204288,
+   "text": "Őszintén szólva nem tetszik, mert diploma nélkül is alig van munka a faluban, de így végzettséggel is úgy érzem, hogy az idős embereket akarják tovább hajtani ahelyett, hogy méltó nyugdíjat adnának nekik, ahogy a Facebookon is írják sokan."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 22,
+   "segment": "baloldali",
+   "score": 1.90370941086653,
+   "text": "Őszintén szólva nem tetszik, mert alacsony iskolai végzettséggel és vidéki megyeszékhelyi körülmények között sokunknak már 67 évig dolgozni iszonyú teher és igazságtalan, miközben a tisztességes nyugdírhoz vezető út egyre bizonytalanabb."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 23,
+   "segment": "közmédia",
+   "score": 2.021251652376238,
+   "text": "Őszintén szólva nem tetszik, mert mi, vidéki érettségizettek, akik közmédiából tájékozódunk, úgy érezzük, hogy a kormány ígéretei ellenére ismét a dolgozó embert terhelik meg ahelyett, hogy a nyugdíjasokat védenék."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 24,
+   "segment": "közösségi",
+   "score": 1.537891142297362,
+   "text": "Őszintén szólva nem tetszik, mert diplomásként is egy falusi nyugdíjas nehezen éli meg, hogy a megfáradt testétől még több év kemény munkát vár el az állam, miközben a közösségi médiában naponta látom, mennyi pazarlás megy máshol."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 25,
+   "segment": "jobboldali",
+   "score": 2.233044056269807,
+   "text": "Őszintén szólva nem örülök neki, mert érettségivel és Budapesten megélhetési terhekkel az embernek így még tovább kell robotolnia, mielőtt a megígért nyugdíját egyáltalán megkapná."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 26,
+   "segment": "baloldali",
+   "score": 1.6320924318581718,
+   "text": "Őszintén szólva rohadtul idegesít, hogy miközben a mi generációnknak alig lesz normális munkája és megfizethető lakása, még tovább is kell robotolnunk, mielőtt valami bizonytalan nyugdíjat kapnánk."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 27,
+   "segment": "alig",
+   "score": 1.7472383910964506,
+   "text": "Őszintén szólva nem örülök neki, mert diplomásként is egyre nehezebb lesz városi közegben a 67 éves korig tartó munkavállalás, miközben alig figyelem a politikai híreket, így még kevésbé érzem átláthatónak a döntés hátterét."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 28,
+   "segment": "közösségi",
+   "score": 2.1989775733486976,
+   "text": "Nekem már nincs sok hátra a korhatárig, de a gyerekeimnek és az unokáimnak fájni fog, ha még tovább kell dolgozniuk az amúgy is bizonytalan világban."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 29,
+   "segment": "baloldali",
+   "score": 1.7332414781994958,
+   "text": "Őszintén szólva nem tetszik, mert egy alacsony iskolai végzettségű vidéki emberként már így is túl hosszú és kiszolgáltatott a munkával töltött élet, és a baloldali sajtó is azt sugallja, hogy ezt a terhet megint a gyengébbek viszik el."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 0,
+   "segment": "baloldali",
+   "score": 3.453829116400236,
+   "text": "Őszintén szólva nagyon tetszene, mert egy 50 feletti budapesti szakmunkásként így végre megfizethető lenne a vidéki rokonokhoz vagy olcsóbb ellátásra való rendszeres kiutazás, ha a baloldali sajtó által is sokat kritizált MÁV helyett tényleg működne a rendszer."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 1,
+   "segment": "jobboldali",
+   "score": 3.1187789790200395,
+   "text": "Őszintén szólva tetszik, mert a jobboldali médiából ismert rezsicsökkentési szemléletet folytatva ez a lépés érezhetően könnyítene a nyugdíjasok és vidéki diplomások megélhetésén, de tartok tőle, hogy az állam így túlzottan eladósítja magát a liberális EU nyomására hivatkozva."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 2,
+   "segment": "közösségi",
+   "score": 3.9401689731788467,
+   "text": "Őszintén szólva nekem, aki keveset keresek és alig van végzettségem, ez a 9000 forintos bérlet tök jó lenne, mert így sokkal olcsóbban eljutnék a városban és a környékre is."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 3,
+   "segment": "közmédia",
+   "score": 3.741597865069804,
+   "text": "Őszintén szólva nagyon tetszene, mert egy ilyen olcsó országos bérlet hatalmas könnyebbséget jelentene a mindennapi utazásban és a pénztárcámnak is."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 4,
+   "segment": "baloldali",
+   "score": 3.6580307249849016,
+   "text": "Őszintén szólva tetszene, mert egy ilyen olcsó és országosan érvényes bérlet érezhetően csökkentené a közlekedési terheimet és segítene a községi lakosok mobilitásán is."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 5,
+   "segment": "közösségi",
+   "score": 3.3758265041477173,
+   "text": "Őszintén szólva tetszene, mert a havi kilencezer forintért korlátlanul utazhatnék a városból a gyerekeimhez vagy orvoshoz, de nem hiszem, hogy a mostani árak és infláció mellett 2027-re ennyiből megúsznám, szóval inkább túl szép, hogy igaz legyen."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 6,
+   "segment": "jobboldali",
+   "score": 3.249965690709335,
+   "text": "Őszintén szólva tetszene, mert a mostani drága és kuszának tűnő jegyárak helyett egy olcsó, egységes bérlet sokat segítene a nyugdíjasoknak és a keveset keresőknek, de csak akkor, ha tényleg működne és nem lenne belőle újabb adóemelés vagy káosz."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 7,
+   "segment": "alig",
+   "score": 2.7437423479976437,
+   "text": "Őszintén szólva nekem, aki alig követem a híreket és városban érettségizett idősként keveset utazom vidékre, ez a bérlet leginkább mindegy, mert nemigen használnám, de a gyerekeknek és unokáknak talán jó lenne."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 8,
+   "segment": "közmédia",
+   "score": 3.375389937551799,
+   "text": "Őszintén szólva nekem tetszene, mert így a kevés pénzből élő községieknek is megfizethető lenne a bejárás munkába vagy orvoshoz, csak kíváncsi vagyok, a közmédia szerint ezt majd ki fizeti meg."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 9,
+   "segment": "baloldali",
+   "score": 3.195856955788963,
+   "text": "Őszintén szólva tetszene, mert egy ilyen olcsó és országosan érvényes bérlet érezhetően csökkentené a megélhetési kiadásaimat és ösztönözné a közösségi közlekedést, de jelenleg inkább szkeptikus vagyok, mert a MÁV teljesítménye és a kormányzati ígérgetések hitele alapján kétlem, hogy 2027-re valóban és jól működően megvalósulna."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 10,
+   "segment": "jobboldali",
+   "score": 3.706847244429936,
+   "text": "Őszintén szólva tetszik, mert a 9000 forintos havi bérlet érezhetően csökkentené a fiatal városi lakosok megélhetési terheit, miközben a jobboldali médiából ismert kormányzati törekvésekhez illeszkedik a magyar családok és dolgozók támogatása."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 11,
+   "segment": "közösségi",
+   "score": 4.076233100179739,
+   "text": "Őszintén szólva nekem, aki keveset keresek és csak a faluban meg a közeli városba járok, ez a 9000 forintos bérlet kifejezetten jó lenne, mert így sokkal olcsóbban utazhatnék, mint most."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 12,
+   "segment": "közmédia",
+   "score": 3.507302327677208,
+   "text": "Őszintén szólva tetszene, mert a diplomás nyugdíjas korosztályom számára is érezhetően csökkentené a megélhetési kiadásokat, és jól illeszkedik a közmédia által most hangsúlyozott, mindenkit segítő kormányzati irányhoz."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 13,
+   "segment": "alig",
+   "score": 3.664225366702603,
+   "text": "Őszintén szólva nekem, aki alig követem a politikai híreket és a községben élek, ez a 9000 forintos bérlet jó lehetőségnek tűnik, mert így olcsóbban eljuthatnék a városba, ha egyszerű lenne igénybe venni."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 14,
+   "segment": "baloldali",
+   "score": 3.4677525112886434,
+   "text": "Őszintén szólva nagyon tetszene, mert egy 18-29 éves városi szakmunkásként így végre megfizethető lenne a napi ingázás és a közlekedés terhe nem nyomná agyon a keresetemet."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 15,
+   "segment": "közösségi",
+   "score": 3.0750901459723594,
+   "text": "Őszintén szólva tetszik, mert nyugdíjasként a Budapesten kívüli családlátogatásokra és utazásokra végre megfizethető lenne az országos közlekedés, de a közösségi médiában látott hangok alapján tartok tőle, hogy a valóságban előbb emelik az árakat, mintsem hogy ezt tényleg bevezetnék."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 16,
+   "segment": "baloldali",
+   "score": 3.211538488249995,
+   "text": "Őszintén szólva tetszene, mert egy ilyen olcsó és országosan érvényes bérlet jelentősen csökkentené a közlekedési terheimet, de a jelenlegi MÁV-működés és szolgáltatási színvonal ismeretében erősen kétkedek a valóságos bevezethetőségében és fenntarthatóságában."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 17,
+   "segment": "közmédia",
+   "score": 3.6313963540486114,
+   "text": "Őszintén szólva nekem, nyolc általánossal és kevés pénzzel élő megyeszékhelyi emberként nagyon tetszene, mert a 9000 forintos havi bérlet végre megfizethetővé tenné a vonatozást és a buszozást a szegényebbeknek is."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 18,
+   "segment": "jobboldali",
+   "score": 3.1820528987068073,
+   "text": "Őszintén szólva tetszene, mert a diplomás, jobboldali városi nyugdíjasoknak is segítene a megélhetésen, de csak akkor, ha nem a dolgozók adójából és a már amúgy is eladósodott állam újabb elszabaduló költségvetéséből finanszírozzák."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 19,
+   "segment": "jobboldali",
+   "score": 3.496523073968802,
+   "text": "Őszintén szólva tetszene, mert a 9000 forintos országos bérlet jelentősen könnyítené a megélhetésünket, de csak akkor, ha a jobboldali kormány valóban és átláthatóan meg is valósítja, nemcsak ígérgeti."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 20,
+   "segment": "alig",
+   "score": 3.238818357813992,
+   "text": "Őszintén szólva nekem, aki alig figyelem a politikát és nem is járok napi szinten vonattal, ez a 9000 forintos bérlet jól hangzik, de csak akkor használnám ki, ha tényleg megbízhatóak lennének a járatok."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 21,
+   "segment": "közösségi",
+   "score": 3.225752322359268,
+   "text": "Őszintén szólva tetszene, mert a diplomás nyugdíjas korosztályom számára is nagy könnyebbség lenne a havi 9000 forintos országos bérlet egy községben élve, de attól tartok, hogy a közösségi médiában látott politikai viták után ez csak választási ígéret marad, és soha nem valósul meg."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 22,
+   "segment": "baloldali",
+   "score": 3.7437431144409823,
+   "text": "Őszintén szólva nagyon tetszene, mert egy ilyen olcsó országos bérlet hatalmas könnyebbség lenne anyagilag és a mobilitásban is egy kevés iskolázottságú, vidéki fiatalnak, akit amúgy sokat elér a közlekedés drágasága."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 23,
+   "segment": "közmédia",
+   "score": 3.7769032713075905,
+   "text": "Őszintén szólva tetszik, mert a közmédiából azt látom, hogy a kormány vagy a Tisza is a családokat segítené ezzel a 9000 forintos bérlettel, ami nekem, városi érettségizett nyugdíj előtt állóként megkönnyítené a gyerekeim és unokáim utaztatását."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 24,
+   "segment": "közösségi",
+   "score": 4.252353461792568,
+   "text": "Őszintén szólva nekem, nyugdíjas diplomásként egy községben ez a 9000 forintos országos bérlet jó és megnyugtató hír, mert a közösségi médiában látott drágulások után végre egy értelmes, megfizethető állami segítség a vidéki embereknek."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 25,
+   "segment": "jobboldali",
+   "score": 3.708881888279447,
+   "text": "Őszintén szólva tetszik, mert a családomnak és a vidékről Budapestre ingázó ismerőseimnek is komoly megkönnyebbülést jelentene a 9000 forintos országos bérlet, ha valóban minden vonatra és helyközi buszra érvényes lenne."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 26,
+   "segment": "baloldali",
+   "score": 3.577184736938434,
+   "text": "Őszintén szólva nagyon tetszene, mert egy ilyen olcsó országos bérlet drasztikusan csökkentené a községben élő fiatal szakmunkások elszigeteltségét és megélhetési terheit."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 27,
+   "segment": "alig",
+   "score": 2.6325174535248217,
+   "text": "Őszintén szólva tetszene, mert diplomásként a városban élve sokat utazom, de alig követem a politikát, így csak az számít, hogy olcsóbb lenne a közlekedés."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 28,
+   "segment": "közösségi",
+   "score": 2.237575454316116,
+   "text": "Nekem, aki nyugdíjasként keveset utazom és az interneten látott hírek alapján amúgy is kételkedem az ilyen ígéretek valóra válásában, nem igazán tetszik, mert inkább csak kampányszagú ígéretnek érzem, ami nem a mi, idősebb vidéki emberek valós gondjait oldja meg."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 29,
+   "segment": "baloldali",
+   "score": 3.4908147285682425,
+   "text": "Őszintén szólva tetszene, mert egy ilyen olcsó országos bérlet rengeteget segítene a községi, alacsonyabb iskolázottságú embereknek, akiket a mostani közlekedési költségek nagyon visszafognak."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 0,
+   "segment": "baloldali",
+   "score": 3.075950903522651,
+   "text": "Őszintén szólva tetszene, mert a baloldali/liberális média alapján a paksi orosz függőség helyett a megújuló energiába fektetnék a pénzt, de közben kételkedem benne, hogy a napelemparkok valóban kiválthatnák az olcsó és folyamatos áramot."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 1,
+   "segment": "jobboldali",
+   "score": 2.4948342105483903,
+   "text": "Őszintén szólva nem tetszik, mert a baloldali zöldpropagandához hasonlóan a bevált, olcsó és biztonságos hazai atomenergiától fosztaná meg az országot a bizonytalan időjárásfüggő naperőművek javára."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 2,
+   "segment": "közösségi",
+   "score": 3.4054802761941287,
+   "text": "Nekem, aki keveset tanultam és csak közösségi médiából tájékozódom, ez tetszene, mert a napelem látszólag olcsóbb és gyorsabb, mint a drága, elhúzódó Paks II. projekt."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 3,
+   "segment": "közmédia",
+   "score": 3.3299416016789927,
+   "text": "Őszintén szólva tetszik, mert az érettségivel rendelkező városi fiatalok közül sokan a megújuló energiát tartják fenntarthatóbb és gyorsabban megtérülő megoldásnak, mint a drága és elhúzódó atomerőmű-beruházást."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 4,
+   "segment": "baloldali",
+   "score": 3.1290989428576808,
+   "text": "Őszintén szólva tetszik, mert a klímaválság és az energiafüggetlenség szempontjából sokkal ésszerűbbnek tartom a rugalmas, hazai megújuló beruházásokat a drága, elhúzódó és Oroszországtól függő atomprojektnél."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 5,
+   "segment": "közösségi",
+   "score": 3.2223086646147694,
+   "text": "Őszintén szólva tetszene, mert az érettségivel rendelkező városi idősebb korosztályként a közösségi médiában látott környezetvédelmi érvek alapján sokkal biztonságosabbnak és ésszerűbbnek tartanám a napenergiába fektetett pénzt, mint egy bizonytalan, drága atomerőmű-projektet."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 6,
+   "segment": "jobboldali",
+   "score": 2.5910451291350443,
+   "text": "Nem tetszik, mert a baloldali zöldpropagandához hasonlóan veszélyeztetné az ország biztonságos és olcsó áramellátását, miközben Paks II. a nemzeti érdeket és a függetlenséget szolgálja."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 7,
+   "segment": "alig",
+   "score": 2.1796324745795332,
+   "text": "Őszintén szólva nem tetszik, mert az érettségivel és kevés politikai hírismerettel rendelkező városi nyugdíjasként biztonságos, megszokott áramellátást szeretnék, és bizonytalannak érzem a napelemparkos átállást."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 8,
+   "segment": "közmédia",
+   "score": 2.7065291027989242,
+   "text": "Nekem, aki a közmédiából tájékozódok és a kormányt vagy most a Tiszát támogatom, nem tetszene ez a hirtelen kormányzati fordulat, mert a Paks II.-t biztos energiaforrásként tanították nekem, és a napenergia szerintem túl bizonytalan a szakmunkás fejemmel egy község ellátásához is."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 9,
+   "segment": "baloldali",
+   "score": 2.825044793374577,
+   "text": "Őszintén szólva tetszik, mert a diplomám és a követett baloldali/liberális média alapján a klímavédelmet és az energiafüggetlenséget sokkal inkább a megújulókban látom, mint egy drága, Oroszországfüggő és átláthatatlan beruházásban."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 10,
+   "segment": "jobboldali",
+   "score": 2.431464645338977,
+   "text": "Nem tetszik, mert a jobboldali médiából azt látom, hogy Paks II. a biztonságos és olcsó energiafüggetlenségünk záloga, a napelemparkokra átcsoportosítás meg kiszolgáltatna minket az időjárásnak és a külföldi technológiának."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 11,
+   "segment": "közösségi",
+   "score": 2.475196720661845,
+   "text": "Nekem nem tetszik, mert a faluban úgy látom, a Paks II. biztos magyar munka és áram, a napelem meg szerintem külföldi kézbe kerülne meg a határainkat csúfítaná."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 12,
+   "segment": "közmédia",
+   "score": 2.5977382529422544,
+   "text": "Őszintén szólva nem tetszik, mert a közmédiából azt szoktam meg, hogy Paks II. a biztonságos, olcsó áram záloga, a napelemparkokra átirányított pénz meg bizonytalan és túl drága mutatványnak tűnik nekem."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 13,
+   "segment": "alig",
+   "score": 2.164539062062877,
+   "text": "Őszintén szólva nekem, aki alig követem a politikát és csak érettségim van egy kis községben, ez így elsőre nem tetszik, mert félek, hogy a megszokott olcsó áram helyett drágább és bizonytalanabb lesz az ellátás."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 14,
+   "segment": "baloldali",
+   "score": 3.304315175355407,
+   "text": "Őszintén szólva nagyon tetszik, mert a baloldali/liberális szemléletem szerint a drága, állami kockázatú atomprojekt helyett a gyorsan megtérülő, fenntartható napelemparkokba fektetett pénz sokkal ésszerűbb és klímabarátabb választás lenne."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 15,
+   "segment": "közösségi",
+   "score": 3.0116397392257266,
+   "text": "Őszintén szólva nem tetszik, mert a diplomás budapesti nyugdíjasként fontosnak tartom a stabil, folyamatos áramtermelést, és a Paks II. leállítása helyett a megújulók mellett is a nukleáris bázist látnám biztonságosabbnak."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 16,
+   "segment": "baloldali",
+   "score": 3.333627259083695,
+   "text": "Őszintén szólva tetszik, mert a baloldali/liberális médiából nyert képet követve a napenergia rugalmasabb, fenntarthatóbb és kevésbé állami-kötöttséges alternatívának tűnik, mint a drága, késő és átláthatatlan Paks II. projekt."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 17,
+   "segment": "közmédia",
+   "score": 1.806954841467007,
+   "text": "Nem tetszik, mert a kormány ígéreteivel szemben a saját hazai energiabiztonságunkat dobná sutba a drága és kiszámíthatatlan napenergia kedvéért."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 18,
+   "segment": "jobboldali",
+   "score": 2.6740249018453177,
+   "text": "Őszintén szólva nem tetszik, mert a Paks II. biztos, hazai alapú áramellátást jelent, a napelemparkokra való hirtelen átfordítás meg a baloldali zöldpropagandát szolgálná ki a megfizethető energia rovására."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 19,
+   "segment": "jobboldali",
+   "score": 2.6104943468824535,
+   "text": "Őszintén szólva nem tetszik, mert a baloldali zöldpropagandához hasonlóan hazánk biztonságos és olcsó atomenergiáját áldozná fel a bizonytalan és drága napelemes rendszerek oltárán."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 20,
+   "segment": "alig",
+   "score": 2.9623942337508065,
+   "text": "Őszintén szólva nem követem ezeket a híreket, de ha a pénzt napelemekre költik, az szerintem okosabb, mert azt hamarabb használhatjuk és nem tartozunk olyan sokat."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 21,
+   "segment": "közösségi",
+   "score": 2.707572241241138,
+   "text": "Őszintén szólva nekem, aki diplomás, vidéken élő nyugdíjasként a közösségi médiából tájékozódik, nem tetszik ez a koncepció, mert a Paks II. hosszú távú energiabiztonságot adna, a napelemparkokra átirányított pénz pedig szerintem kevésbé kiszámítható és túlzol a kockázattal az ország önállósága szempontjából."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 22,
+   "segment": "baloldali",
+   "score": 3.461019080066075,
+   "text": "Őszintén szólva tetszik, mert a megújuló energiába fektetett pénz sokkal fenntarthatóbb és demokratikusabb, mint egy drága, állami kézen lévő atomerőmű-projekt."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 23,
+   "segment": "közmédia",
+   "score": 2.34953012699191,
+   "text": "Őszintén szólva nem tetszik, mert a közmédiából azt szívom magamba, hogy Paks II. a biztos, állami energiafüggetlenségünk záloga, a napelemek meg szerintem drágák, bizonytalanok és kiszolgáltatnak minket a külföldi technológiának."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 24,
+   "segment": "közösségi",
+   "score": 2.4879438169934565,
+   "text": "Őszintén szólva nekem, aki diplomás, vidéken élő nyugdíjasként a közösségi médiából tájékozódik, nem tetszik ez a koncepció, mert a Paks II. hosszú távú energiabiztonságot és kiszámíthatóságot jelent, a napelemparkokra való hirtelen átfordítás pedig bizonytalannak és elhamarkodottnak tűnik."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 25,
+   "segment": "jobboldali",
+   "score": 2.4960209088357774,
+   "text": "Őszintén szólva nem tetszik, mert a jobboldali médiából azt látom, hogy Paks II. a biztonságos és olcsó energiafüggetlenségünk záloga, a napelemparkokra átcsoportosítás pedig kockázatos és a kormány eddigi sikeres energiapolitikáját rombolná."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 26,
+   "segment": "baloldali",
+   "score": 3.4566932236432204,
+   "text": "Őszintén szólva tetszik, mert a drága, elhúzódó és Oroszországtól függő Paks II. helyett a gyorsan telepíthető, tiszta napelemparkokba fektetni sokkal ésszerűbb és fenntarthatóbb lépésnek tűnik."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 27,
+   "segment": "alig",
+   "score": 2.2779083542468137,
+   "text": "Őszintén szólva nem tetszik, mert a diploma után is fontosnak tartom a stabil, folyamatos energiaellátást, amit a napenergia önmagában sosem garantál."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 28,
+   "segment": "közösségi",
+   "score": 2.9164523494175434,
+   "text": "Őszintén szólva nem tetszik, mert az érettségivel rendelkező, vidéki nagyvárosban élő idősebb emberként biztonságos és bevált energiaforrásként tekintek a Paks II-re, a napelemparkokat meg kevésbé tartom elég megbízhatónak az ország ellátásához."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 29,
+   "segment": "baloldali",
+   "score": 3.320983084882205,
+   "text": "Őszintén szólva tetszene, mert a falunkban is sokat segítene a olcsóbb, tisztább energia és a községi költségek csökkentése, ha a lekövetett baloldali média által is támogatott zöld beruházásokra menne a pénz."
+  }
+ ]
+}

@@ -1,0 +1,1719 @@
+{
+ "model": "deepseek-ai/DeepSeek-V4.1-Flash",
+ "n_personas": 90,
+ "n_calls": 270,
+ "kitoltes": 1.0,
+ "lepesenkent": {
+  "K1_euro": {
+   "szegmensek": {
+    "baloldali": {
+     "n": 23,
+     "atlag": 3.4679
+    },
+    "jobboldali": {
+     "n": 20,
+     "atlag": 2.3918
+    },
+    "közmédia": {
+     "n": 16,
+     "atlag": 3.6155
+    },
+    "közösségi": {
+     "n": 20,
+     "atlag": 3.0124
+    },
+    "alig": {
+     "n": 11,
+     "atlag": 2.2243
+    }
+   },
+   "B_minus_J": 1.0761,
+   "kozmedia_hely": 1.137
+  },
+  "K2_szuver": {
+   "szegmensek": {
+    "baloldali": {
+     "n": 23,
+     "atlag": 2.9899
+    },
+    "jobboldali": {
+     "n": 20,
+     "atlag": 2.782
+    },
+    "közmédia": {
+     "n": 16,
+     "atlag": 3.0785
+    },
+    "közösségi": {
+     "n": 20,
+     "atlag": 2.9549
+    },
+    "alig": {
+     "n": 11,
+     "atlag": 2.4415
+    }
+   },
+   "B_minus_J": 0.2079,
+   "kozmedia_hely": 1.426
+  },
+  "K3_ukrajna": {
+   "szegmensek": {
+    "baloldali": {
+     "n": 23,
+     "atlag": 3.0992
+    },
+    "jobboldali": {
+     "n": 20,
+     "atlag": 2.1825
+    },
+    "közmédia": {
+     "n": 16,
+     "atlag": 2.9463
+    },
+    "közösségi": {
+     "n": 20,
+     "atlag": 2.416
+    },
+    "alig": {
+     "n": 11,
+     "atlag": 2.132
+    }
+   },
+   "B_minus_J": 0.9167,
+   "kozmedia_hely": 0.833
+  }
+ },
+ "kozmedia_hely_atlag": 1.132,
+ "kozmedia_hely_osszevont": 1.038,
+ "osszevont": {
+  "B": 3.1856,
+  "J": 2.4521,
+  "K": 3.2134
+ },
+ "verdikt": "ÚJ TÉRKÉP (a közmédia-néző a kormánypárti tábor oldalán)",
+ "koltseg_usd": 0.01545,
+ "fal_s": 112.5,
+ "run_at": "2026-11-22T20:41:00",
+ "rows": [
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 3.624727326140781,
+   "text": "Ez tetszene, mert végre lenne egy konkrét, elkötelezett gazdasági irány, ami hosszú távon kiszámíthatóbbá tehetné az országot."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 3.4663021086109738,
+   "text": "Ez tetszene, mert végre lenne egy kormány, amelyik mersz lépni az euró felé, és nem csak ígérget."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.3317139255146246,
+   "text": "Ez a koncepció nekem nem tetszik, mert félek, hogy az euró bevezetése elszakítaná az országot a nemzeti önrendelkezéstől, és a brüsszeli nyomásnak való behódolást jelentené."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 2.3937755676345276,
+   "text": "Ez a koncepció nekem nem tetszik, mert félek, hogy az euró bevezetése elszegényítené a nyugdíjasokat és elveszítenénk a gazdasági döntéseink feletti kontrollt."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "alig",
+   "score": 2.092622593671002,
+   "text": "Őszintén szólva nem igazán tudom megítélni, mert nem követem a politikai híreket, de az euró bevezetése valahogy távolinak és kockázatosnak tűnik számomra."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 3.5757637480609383,
+   "text": "Őszintén szólva tetszik, mert felelős, kiszámítható európai irányt mutat, bár a 2030-as céldátum ambiciózusnak tűnik."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 3.5487553474208164,
+   "text": "Ez a hír elsőre jól hangzik, mert az euró bevezetése stabilitást és erősebb gazdaságot sugall, de őszintén szólva több kérdés is felmerül bennem, hogy ez valóban megvalósítható-e ilyen gyorsan."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.700356072491764,
+   "text": "Őszintén szólva ez a koncepció nem tetszik, mert egy Magyar Péter vezette kormány és a gyors euróbevezetés számomra hiteltelen és kockázatos irányt jelentene."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 4.052010124023609,
+   "text": "Tetszik, mert úgy érzem, végre lenne egy kiszámítható irány, ami az országot közelebb hozza Európához."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 4.162918037052784,
+   "text": "Ez a bejelentés őszintén szólva nagyon tetszene, mert végre úgy érezném, hogy az ország visszatér a szabad Európa felé vezető útra."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "alig",
+   "score": 1.6698474586822867,
+   "text": "Nem igazán tudok vele mit kezdeni, mert nem követem a politikai híreket, így nekem ez a hír semmit nem mond."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 3.286472885567191,
+   "text": "Ez a hír őszintén szólva óvatos reményt kelt bennem, mert az euró bevezetése hosszú távon biztonságot és kiszámíthatóságot jelenthet a nyugdíjas éveimre, de azért félek, hogy a jelenlegi gazdasági helyzetben ez túl gyors és kockázatos lépés lenne."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 3.395318308901241,
+   "text": "Őszintén szólva tetszene, mert végre egy konkrét, európai irányt látnék a gazdaságpolitikában, bár tartok tőle, hogy a jövő évi ERM-II belépés a jelenlegi állapotok mellett túl optimista és kockázatos időzítés."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.3029971590965714,
+   "text": "Ez a koncepció nekem nem tetszik, mert félek, hogy az euró bevezetése drágulást és elveszített önállóságot hozna Magyarországnak."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 3.651863384699137,
+   "text": "Ez őszintén szólva nagyon tetszene, mert végre lenne egy konkrét, előremutató gazdasági irány, ami hosszú távon kiszámíthatóbbá tehetné az ország jövőjét."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 2.4846201473949536,
+   "text": "Nem tetszene, mert félek, hogy az euró bevezetése még drágábbá tenné a mindennapi megélhetést."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.6554512511548807,
+   "text": "Őszintén szólva ez a koncepció nem tetszik, mert a szakmunkásként dolgozó embereknek az euró bevezetése inkább az árak emelkedését és a megélhetés drágulását hozná, ráadásul egy ilyen súlyú döntést nem lenne szabad egyetlen kormány bejelentésére alapozni."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 3.6773968342965375,
+   "text": "Ez tetszene, mert végre lenne egy konkrét, előremutató gazdasági irány, ami stabilitást és kiszámíthatóságot ígér a mindennapi megélhetéshez."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 3.606212426654783,
+   "text": "Őszintén: tetszene, mert az euró bevezetése hosszú távon árstabilitást és kiszámíthatóságot hozhat, bár a jövő évi ERM-II belépés ambiciózusnak tűnik."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 3.3298714051019616,
+   "text": "Nekem ez így elsőre jól hangzik, mert végre lenne egy konkrét terv az euró bevezetésére, bár tartok tőle, hogy a szakmunkásként megkeresett fizetésem nem fog olyan gyorsan felzárkózni hozzá."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "alig",
+   "score": 2.372446326075954,
+   "text": "Nem igazán tudom megítélni, mert nem követem a politikai híreket, de ha tényleg megtörténne, talán izgalmas lenne."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.5498664643889284,
+   "text": "Ez a koncepció nekem nem tetszik, mert egy Tisza-kormány és a gyors euróbevezetés ígérete egyszerre tűnik hiteltelennek és kockázatosnak."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 3.637413982354171,
+   "text": "Ez a koncepció nekem alapvetően szimpatikus, mert az euró bevezetését és az ERM-II-höz való csatlakozást hosszú távon gazdaságilag ésszerű és Európa-barát iránynak tartom, bár a 2030-as céldátum ambiciózusnak tűnik."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 3.917912187137145,
+   "text": "Ez nekem nagyon tetszene, mert végre valami biztosat és nyugtatót hallani a pénzünkről."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 3.5466669977681997,
+   "text": "Őszintén szólva tetszik a koncepció, mert egy felelős, kiszámítható euró-bevezetési menetrend illik ahhoz a liberális értékrendhez, amit követek."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.1647988048397293,
+   "text": "Ez a koncepció nekem nem tetszik, mert félek, hogy az euró bevezetése elveszi Magyarország gazdasági önállóságát és rontja a nyugdíjasok helyzetét."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 3.174114699349239,
+   "text": "Ez tetszene, mert jó lenne, ha végre lenne egy kiszámíthatóbb gazdasági irány, bár félek, hogy a fizetésem nem nő majd az árakhoz képest."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "alig",
+   "score": 1.8063687270390405,
+   "text": "Őszintén szólva nekem ez semleges, mert nem követem a politikai híreket, így nincs erős érzelmi reakcióm erre a bejelentésre."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 3.504302417619382,
+   "text": "Őszintén szólva tetszene, mert végre egy kormány komolyan venné az euró bevezetését, bár 2030-ra reális ütemtervnek tartom, és örülnék, ha a liberális médiában követett politikusok ilyen konkrét célt tűznének ki."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 2.3822761942940764,
+   "text": "Ez a koncepció nekem nem tetszik, mert félek, hogy az euró bevezetése drágulást és anyagi bizonytalanságot hozna a családomnak."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 3.5460377896991457,
+   "text": "Őszintén szólva tetszik, mert végre valami konkrétat hallok az euróról, bár kicsit tartok tőle, hogy ez a 2030-as dátum csak ígéret marad."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.426802405040126,
+   "text": "Ez a koncepció őszintén szólva taszít, mert egy Tisza-kormányt és a gyors euróbevezetést egyszerre tartom elfogadhatatlannak és károsnak Magyarország számára."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 3.3883831560173743,
+   "text": "Őszintén szólva tetszik, mert hosszú távon stabilabbnak és kiszámíthatóbbnak tartom az eurót, bár tartok tőle, hogy a bevezetés előtti árfolyam-felkészülés megdrágítja majd a mindennapi megélhetést."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 3.7257953716451446,
+   "text": "Ez tetszene, mert jó lenne, ha végre lenne egy kormány, amelyik merné vállalni az euró bevezetését."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.1698236747937947,
+   "text": "Ez nekem nem tetszik, mert félek, hogy az euró bevezetése elveszi a nemzeti önállóságunkat és drágulást hoz."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "alig",
+   "score": 2.022856444988082,
+   "text": "Nem tudom eldönteni, hogy ez jó hír-e, mert nem követem a politikai híreket, de az biztos, hogy az euró bevezetése nagy változás lenne."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 3.7177380178557042,
+   "text": "Őszintén szólva tetszik a gondolat, mert az euró bevezetése hosszú távon árstabilitást és kiszámíthatóságot hozhat, bár a jövő évi ERM-II belépés ambiciózusnak tűnik."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 3.8475159743030294,
+   "text": "Őszintén szólva tetszik, mert egy euróövezeti csatlakozás kiszámíthatóbb gazdasági pályát és erősebb pénzügyi stabilitást ígér, bár a 2030-as dátum ambiciózusnak tűnik."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.4293991320595163,
+   "text": "Ez a koncepció nekem nem tetszik, mert a magyar gazdaság felkészületlensége miatt az euró bevezetése súlyos kockázatokat hordozna, és a döntést inkább politikai show-nak tartom, mint megalapozott gazdaságpolitikának."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 2.3289495255002874,
+   "text": "Őszintén szólva ez nekem nem tetszik, mert félek, hogy az euró bevezetése még drágábbá tenné az életet, és nem bízom abban, hogy ez a kormány jól csinálná."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 3.1134620128033657,
+   "text": "Őszintén szólva tetszene, mert nyugodtabb, kiszámíthatóbb jövőt és erősebb európai kötődést jelentene, bár tartok tőle, hogy a nyugdíjam és a megtakarításaim átállása sokaknak fájdalmas lenne."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 3.651169443162704,
+   "text": "Ez nekem őszintén tetszene, mert anyagilag stabilabb és kiszámíthatóbb jövőt érzek benne, bár a bevezetés ütemét kicsit gyorsnak érzem."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "alig",
+   "score": 2.451076490728129,
+   "text": "Nem tetszene, mert félek, hogy az euró bevezetése drágulást hozna, és nem hiszem, hogy ilyen gyorsan fel kellene adni a forintot."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 3.548464052585294,
+   "text": "Ez a hír nekem nagyon tetszene, mert úgy gondolom, hogy az euró bevezetése hosszú távon biztonságot és kiszámíthatóbb megélhetést hozna nyugdíjasként."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 3.4758606737218978,
+   "text": "Ez tetszene, mert úgy érzem, végre lenne egy kormány, amely komolyan közelítene minket Európához, és nem csak a szegény emberek pénzéből élősködne."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.3014954843759905,
+   "text": "Ez a koncepció nekem nem tetszik, mert félek, hogy az euró bevezetése elszegényítené a vidéki embereket, és nem bízom Magyar Péterben, hogy jól képviselné az ország érdekeit."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 2.665834904615542,
+   "text": "Őszintén szólva ez a hír nem tetszene, mert 60 felett, budapesti diplomásként és nyugdíjasként félek, hogy az euró bevezetése megemelné az árakat, és a nyugdíjam vásárlóereje csökkenne."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.599669006392796,
+   "text": "Ez a koncepció nekem egyáltalán nem tetszik, mert szerintem egy ilyen döntést nem szabad ilyen gyorsan és ilyen politikai nyomásra meghozni."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 3.48165757321693,
+   "text": "Őszintén szólva tetszik, mert végre konkrét, előremutató gazdasági irányt látok, bár az időzítés ambiciózusnak tűnik."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 3.5213367071325545,
+   "text": "Őszintén szólva tetszene, mert végre egy konkrét, előremutató gazdasági irányt látnék, bár a 2030-as euróbevezetést a jelenlegi gazdasági helyzetben optimistának tartom."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 3.3505210560738767,
+   "text": "Tetszik, mert konkrét, hitelesnek tűnő gazdasági irányt mutat, ami a bizonytalanság helyett kiszámíthatóságot ígér – bár gyanús, hogy egy ilyen bejelentés valódi feltételei nincsenek benne."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 3.2555463578546697,
+   "text": "Tetszik, mert végre valaki komolyan gondolja, hogy ne maradjunk ki Európából."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 3.438268728743603,
+   "text": "Őszintén szólva tetszik, mert egy liberális szavazóként örülnék egy euróbarát, stabil gazdaságpolitikának, bár a gyorsított menetrend miatt azért fenntartásaim lennének."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.374977004830896,
+   "text": "Ez a koncepció nekem egyáltalán nem tetszik, mert szerintem Magyarországnak nem szabadna feladnia a gazdasági önállóságát az euró bevezetésével."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "alig",
+   "score": 1.9873787396763427,
+   "text": "Ez a koncepció számomra nem igazán izgalmas, mert nem követem a politikai híreket, így inkább csak egy távoli, számomra nehezen megítélhető gazdasági ígéretnek tűnik."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.307542061599484,
+   "text": "Ez a koncepció nekem nem tetszik, mert félek, hogy az euró bevezetése elszegényítené az országot és elveszítenénk a gazdasági önállóságunkat."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 3.271988711758232,
+   "text": "Ez tetszik, mert végre valaki komolyan mer beszélni az euróról, bár félek, hogy a nyugdíjam és a kis fizetésem mellett az árak még jobban elszállnak majd."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 2.6147805076042214,
+   "text": "Nekem ez a koncepció őszintén szólva nem tetszik, mert egy ilyen nagy horderejű döntésnél (euróbevezetés, ERM-II) hiányzik a hiteles szakmai és társadalmi egyeztetés, és a hírt inkább politikai kommunikációs fogásnak érzem, mint megalapozott gazdaságpolitikai tervnek."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 3.4080141192665514,
+   "text": "Ez tetszene, mert hosszú távon stabilabbnak és kiszámíthatóbbnak érezném az ország gazdaságát, bár tartok tőle, hogy a bevezetés előtti árfolyam-ingadozások és áremelkedések megterhelnék a mindennapi megélhetésemet."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 3.7322278434702048,
+   "text": "Tetszik, mert végre egy kormány komolyan venné az euró bevezetését, ami hosszú távon kiszámíthatóbbá és erősebbé tehetné a magyar gazdaságot."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "alig",
+   "score": 2.4097992210451187,
+   "text": "Őszintén szólva nekem ez nem tetszik, mert félek, hogy az euró bevezetése drágulást hozna, és nem bízom benne, hogy ez a kormány tényleg jól csinálná."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 1.9996842115940385,
+   "text": "Ez így, ebben a formában nem tetszik, mert nem tudom, valóban megtörtént-e, és 60 fölött már óvatos vagyok az ilyen nagy bejelentésekkel."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.003138141194715,
+   "text": "Nem tetszene, mert féltem, hogy az euró bevezetése elszegényítené az országot és elveszítenénk a gazdasági önállóságunkat."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 3.6609081947872344,
+   "text": "Ez az elképzelés őszintén szólva tetszene, mert a baloldali-liberális értékrendemhez illik az euró bevezetése és az EU-hoz való szorosabb kapcsolódás, bár a 2030-as határidőt ambiciózusnak, de elfogadhatónak tartanám."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 3.5772575668965545,
+   "text": "Ez nekem tetszik, mert végre valaki konkrét dátumot mond az euró bevezetésére, és a Tisza mögött álló közmédia-üzenet hitelesebbnek tűnik, mint a régi kormányos ígérgetések."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 3.5516119838090514,
+   "text": "Őszintén szólva tetszik a cél, mert az euró bevezetése hosszú távon stabilitást és kiszámíthatóságot jelenthet, de a 2030-as dátum és az ERM-II-es belépés ígéretét a választók szemében csak akkor tartom hitelesnek, ha mögötte konkrét, ellenőrizhető gazdasági feltételrendszer áll."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.2856161535764987,
+   "text": "Nem tetszik, mert félek, hogy az euró bevezetése drágulást hoz, és nem bízom Magyar Péterben."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 3.543645416251387,
+   "text": "Ez tetszene, mert hosszú távon stabilabbá és kiszámíthatóbbá tenné a magyar gazdaságot, bár tartok tőle, hogy a jelenlegi gazdasági állapotban ez a menetrend túl optimista."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 3.4769325347506603,
+   "text": "Őszintén szólva tetszik, mert a közmédiából tájékozódva hitelesnek tűnik, és jó iránynak tartom, hogy végre konkrét céldátumot adnak az euró bevezetésére."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "alig",
+   "score": 3.4307474194088843,
+   "text": "Őszintén szólva nem tudom, mit jelent pontosan az az ERM-II, de ha ez azt jelenti, hogy könnyebb lesz az utazás és nem lesznek olyan nagy áremelkedések, akkor talán nem is rossz ötlet."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 3.595760151194249,
+   "text": "Őszintén szólva tetszene, mert végre lenne egy konkrét, dátummal ellátott terv az euró bevezetésére, ami stabilitást és kiszámíthatóságot ígér, bár az ERM-II-es belépés ilyen gyors üteme miatt azért lenne bennem némi kétely."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 3.425675389104727,
+   "text": "Őszintén szólva tetszene, mert az euró bevezetése hosszú távon kiszámíthatóbbá és stabilabbá tehetné a gazdaságot, bár az ERM-II-be való gyors belépés kockázatait és a reálkonvergencia hiányát komolyan át kellene gondolni."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.6520700046950227,
+   "text": "Őszintén szólva ez a koncepció nem tetszik, mert a gyors euróbevezetést inkább kockázatosnak tartom, és nem bízom abban, hogy egy Tisza-kormány ezt felelősen végigvinné."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 3.5809258501169348,
+   "text": "Tetszik, mert jó lenne, ha erősebb lenne a forint, és végre lenne egy kormány, ami előre viszi az országot."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 3.5490793774521414,
+   "text": "Ez a hír első hallásra bizakodással töltene el, mert 60 felett egy erős, kiszámítható euróhoz kötött jövőt szeretnék látni a nyugdíjas éveimre."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 3.218353475670479,
+   "text": "Őszintén szólva tetszik, mert a liberális értékrendemhez illik az euró bevezetése és az EU-hoz való szorosabb gazdasági kapcsolódás, bár a Tisza-kormány és Magyar Péter személye kapcsán fenntartásaim vannak."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "alig",
+   "score": 2.091776163664909,
+   "text": "Ez nekem nem tetszik, mert félek, hogy drágább lesz minden, és nem bízom az ilyen nagy változásokban."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.1812897946004974,
+   "text": "Őszintén szólva nem tetszik, mert egy Tisza-kormány és a gyors euróbevezetés ígérete számomra hiteltelen és veszélyes irány, ami veszélyezteti a magyar gazdasági önállóságot."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 3.408760842679883,
+   "text": "Ez tetszik, mert végre egy kormány nemcsak beszél az euróról, hanem konkrét dátummal és tervvel áll elő."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.55320162848197,
+   "text": "Ez a koncepció számomra nem hiteles, mert a jelenlegi gazdasági helyzetben és a nemzeti szuverenitásunk szempontjából veszélyesnek tartom az ilyen gyors euróbevezetést egy baloldali kormány alatt."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 3.6255800521180217,
+   "text": "Őszintén szólva tetszene, mert egy stabil, kiszámítható euróhoz kötött jövő a nyugdíjas éveimre nézve biztonságot és tervezhetőséget ígér."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 2.20585441640263,
+   "text": "Nem tetszik, mert félek, hogy az euró bevezetése még drágábbá teszi az életet, és nem bízom abban, hogy ez nekem jó lesz."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 2.2904416138061046,
+   "text": "Ez nekem nem tetszik, mert félek, hogy az euró bevezetése megemeli az árakat, és a nyugdíjam meg a fizetésem nem fogja követni."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.5144357967566915,
+   "text": "Ez a koncepció nekem nem tetszik, mert a mi generációnknak pont a szuverén gazdaságpolitika és a nemzeti döntési szabadság a fontos, nem pedig az, hogy Brüsszel diktálja az árfolyamot és a pénzügyeinket."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 2.674518155718137,
+   "text": "Ez a koncepció őszintén szólva vegyes érzéseket kelt bennem, mert egy ilyen súlyú döntésnél nem a bejelentés ténye, hanem a mögötte lévő reális gazdasági feltételek és a társadalmi felkészültség meggyőző ereje számítana."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "alig",
+   "score": 2.131833027531229,
+   "text": "Nem igazán tudom megítélni, mert nem követem a politikai híreket, de az euró bevezetése nekem inkább aggodalmat jelentene, mert félek, hogy drágulna az élet."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 3.4293988813104392,
+   "text": "Őszintén szólva tetszene, mert egy liberális szavazóként örülnék egy euro-párti, korrupcióellenes kormánynak, de a 2030-as céldátum és az ERM-II-es belépés a jelenlegi gazdasági helyzetben inkább optimista vágyálomnak tűnik, mint reális tervnek."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 3.7027051635246018,
+   "text": "Nekem ez tetszik, mert az euró bevezetése hosszú távon biztonságot és erősebb gazdasági kapcsolatokat jelentene Magyarországnak."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 3.837538427973361,
+   "text": "Nagyon tetszene, mert végre lenne egy konkrét terv és időpont, ami stabilitást és kiszámíthatóbb jövőt ígér a hétköznapi embereknek is."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.3315747152460444,
+   "text": "Ez a koncepció nekem egyáltalán nem tetszik, mert szerintem Magyar Péter és a Tisza nem alkalmas kormányzásra, és az euró bevezetése csak még jobban elszegényítené az országot."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.252727359231475,
+   "text": "Őszintén szólva tetszik, mert régóta gyanúsnak tartom, hogy a Szuverenitásvédelmi Hivatal valójában a kormánykritikus hangok elhallgattatására szolgál, nem pedig valódi nemzeti szuverenitás védelmére."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 3.083152303851012,
+   "text": "Tetszik, mert végre megszüntetik azt a hivatalt, ami szerintem csak a kormány embereit védte, és jó, ha a pénzt inkább a korrupció elleni ügyészség kapja."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 3.129022164119123,
+   "text": "Nekem ez így elsőre tetszik, mert a Szuverenitásvédelmi Hivatalt sokszor inkább politikai eszköznek láttam, nem valódi intézménynek."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 3.113605045680907,
+   "text": "Ez nekem szimpatikus, mert úgy érzem, hogy a Szuverenitásvédelmi Hivatal inkább a kormány ellenzék elleni eszköze volt, és jobb, ha a vagyona a korrupció elleni munkát erősíti."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "alig",
+   "score": 3.0897362776154673,
+   "text": "Őszintén szólva nem igazán tudom, miről van szó, de ha valami hivatal megszűnik és a pénze a korrupció elleni ügyészséghez kerül, az elsőre jól hangzik."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 3.0343169437614823,
+   "text": "Őszintén szólva tetszik, mert a Szuverenitásvédelmi Hivatalt inkább a kormányzati ellenőrzés eszközének tartom, mint valódi intézménynek."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 2.981354155469923,
+   "text": "Őszintén szólva tetszik, mert jó érzés látni, hogy végre megszüntetnek egy feleslegesnek tűnő hivatalt, és a pénzt inkább a korrupció elleni harcra adják."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 3.059997149252658,
+   "text": "Tetszik, mert végre megszabadulunk egy felesleges hivataltól, és a vagyonát a korrupció elleni harcra fordítják."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 3.0751842836873458,
+   "text": "Tetszik, mert végre megszabadulunk egy felesleges hivataltól, és a pénz oda kerül, ahol tényleg a korrupció ellen használják."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 3.269268859835611,
+   "text": "Ez nekem őszintén tetszik, mert végre egy olyan lépés, ami a visszaélésekre épülő hivatalt felszámolja, és az erőforrásokat a valódi korrupció elleni fellépésre fordítja."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "alig",
+   "score": 3.2274981419282396,
+   "text": "Ez nekem alapvetően tetszik, mert logikusnak tűnik, hogy egy szuverenitásvédelmi szerv vagyonát inkább a korrupció elleni harcra fordítsák."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 3.1243850405114353,
+   "text": "Őszintén szólva tetszik, mert egy feleslegesnek tartott hivatal megszüntetését és a vagyon korrupcióellenes célra fordítását ésszerű lépésnek látom."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.847047034316717,
+   "text": "Őszintén szólva ez nekem szimpatikus, mert a Szuverenitásvédelmi Hivatalt eddig is inkább a kormány kritikusainak megfélemlítésére használt eszköznek tartottam, és jobb lenne, ha a források valódi korrupcióellenes munkára mennének."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 3.0028725316098703,
+   "text": "Tetszik, mert végre megszüntetik azt a felesleges hivatalt, ami csak a pénzt viszi."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 3.170020460085016,
+   "text": "Őszintén: tetszik, mert egy feleslegesnek tartott hivatal megszüntetését és a vagyon korrupcióellenes célra való átadását logikus lépésnek látom."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 2.5721233748193204,
+   "text": "Őszintén szólva tetszik, mert feleslegesnek tartom a Szuverenitásvédelmi Hivatalt, és jobb, ha a vagyona a korrupció elleni munkát szolgálja."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 3.190301995031647,
+   "text": "Tetszik, mert a bürokrácia leépítése és a vagyon korrupcióellenes célra fordítása jó irány, bár a részleteket még látni kell."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 3.1414239476398014,
+   "text": "Tetszik, mert végre megszüntetnek egy feleslegesnek tartott hivatalt, és az ellopottnak hitt pénzt a korrupció elleni harcra fordítják."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 2.8531453086752903,
+   "text": "Tetszik, mert a Szuverenitásvédelmi Hivatalt feleslegesnek és a kormányt kiszolgálónak tartom, és jobb, ha a vagyona a korrupció elleni szervezethez kerül."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 2.826421392858122,
+   "text": "Nekem ez tetszik, mert feleslegesnek tartom a Szuverenitásvédelmi Hivatalt, és jobb, ha a pénzt valódi korrupcióellenes munkára fordítják."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "alig",
+   "score": 3.0578325300478464,
+   "text": "Tetszik, mert logikusnak tűnik, hogy egy feleslegesnek tűnő hivatal helyett inkább a korrupció elleni szervezet kapja az erőforrásokat."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 3.1547546820238255,
+   "text": "Nekem ez így elsőre szimpatikus, mert véget vetne egy feleslegesnek tartott hivatalnak, és a vagyonát a korrupció elleni fellépésre fordítaná."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 3.455827972154915,
+   "text": "Őszintén szólva ez nekem nagyon tetszik, mert a Szuverenitásvédelmi Hivatalt eddig is a kormányzati hatalom politikai eszközeként láttam, és örülök, hogy a vagyonát inkább egy valódi korrupcióellenes szerv kapja meg."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 3.1193796595161576,
+   "text": "Őszintén szólva ez nekem tetszik, mert úgy érzem, hogy végre valaki felszámolja azt a hivatalt, ami eddig csak a kormány embereit védte, és a pénzt arra adja, aki tényleg a korrupció ellen harcol."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 3.1454436495517566,
+   "text": "Őszintén szólva ez nagyon tetszik, mert a Szuverenitásvédelmi Hivatalt eleve pártpolitikai célokat szolgáló, felesleges intézménynek tartom, így a megszüntetése és a vagyon korrupcióellenes ügyészséghez kerülése számomra logikus és üdvözlendő lépés."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.4143167658980778,
+   "text": "Nem tetszik, mert szerintem a Szuverenitásvédelmi Hivatal fontos munkát végez, és a vagyonát inkább megtartanám, nem adnám oda egy másik szervezetnek."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 3.1413089577255313,
+   "text": "Őszintén: tetszik, mert végre valami kézzelfoghatót hallok a korrupció ellen, nem csak szövegelést."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "alig",
+   "score": 1.575813949607096,
+   "text": "Nem követem a politikai híreket, így nincs elég információm ahhoz, hogy érdemben megítéljem ezt a koncepciót."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 3.439990283602344,
+   "text": "Őszintén szólva ez a koncepció nagyon tetszik, mert a Szuverenitásvédelmi Hivatalt eddig is a kormány politikai eszközének tartottam, és örülök, hogy a vagyonát egy valódi korrupcióellenes szerv kapja meg."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 3.0831480769137767,
+   "text": "Őszintén szólva tetszik, mert egy feleslegesnek tartott hivatal helyett a korrupció elleni fellépést erősítené."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 3.105525216536221,
+   "text": "Tetszik, mert jó, ha a kormány leépíti a felesleges hivatalokat, és a pénzt inkább a korrupció elleni harcra fordítja."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.320567718840349,
+   "text": "Ez a koncepció nekem nem tetszik, mert a Szuverenitásvédelmi Hivatal megszüntetését és vagyonának átadását inkább a nemzeti szuverenitás gyengítéseként érzékelem, mintsem valódi korrupcióellenes lépésként."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.4901458566389465,
+   "text": "Tetszik, mert a Szuverenitásvédelmi Hivatalt én is inkább a kormányt védő, felesleges apparátusnak tartom, és jobb, ha a vagyonából a valódi korrupcióellenes munkát erősítik."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 3.0266908608177356,
+   "text": "Tetszik, mert végre megszűnik egy feleslegesnek tűnő hivatal, és a pénzt inkább a korrupció elleni harcra fordítják."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.660269348830755,
+   "text": "Őszintén szólva nekem ez nem tetszik, mert a Szuverenitásvédelmi Hivatalra szükség van, és gyanús, hogy pont a korrupcióellenes ügyészség kapná meg a vagyonát."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "alig",
+   "score": 1.5550485261308256,
+   "text": "Őszintén szólva ez a hír nem igazán érdekel, mert nem követem a politikai híreket, így nincs erős véleményem róla."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.8560396013794596,
+   "text": "Őszintén szólva nagyon tetszik, mert régóta aggódom, hogy ez a hivatal a kormány politikai eszköze, és jó lenne, ha a vagyonát inkább a valódi korrupció elleni fellépésre fordítanák."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 2.8675111763216283,
+   "text": "Ez nekem őszintén tetszik, mert a Szuverenitásvédelmi Hivatalt feleslegesnek és a kormányt kiszolgálónak tartom, és jobbnak látom, ha a vagyona a korrupció elleni munkát erősíti."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 3.2020482736257927,
+   "text": "Tetszik, mert a bürokrácia leépítése és a vagyon korrupcióellenes célra fordítása ésszerű lépésnek tűnik."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 2.9188862525739867,
+   "text": "Őszintén szólva ez nekem tetszik, mert a Szuverenitásvédelmi Hivatalt felesleges pénzköltésnek tartom, és jobb, ha a vagyon a korrupció elleni munkát szolgálja."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.576443131234254,
+   "text": "Őszintén szólva tetszik, mert régóta bosszant, hogy a kormány látszatintézményekkel eteti a közvéleményt a valódi korrupció helyett."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 3.02247193350291,
+   "text": "Őszintén szólva tetszik, mert a Szuverenitásvédelmi Hivatalt sokszor inkább a kormány ellenzékkel szembeni eszközeként láttam, és jobb, ha a vagyonát inkább egy korrupcióellenes szerv kapja."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "alig",
+   "score": 1.7424507571781616,
+   "text": "Őszintén szólva ez nekem semleges, mert nem követem eléggé a politikai híreket ahhoz, hogy megítéljem, jó-e ez így."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 2.6012437467290805,
+   "text": "Tetszik, mert úgy gondolom, hogy a Szuverenitásvédelmi Hivatal eddig inkább a kormány ellenfeleinek megfélemlítésére szolgált, és jobb helye lenne a vagyonának egy valódi korrupcióellenes szervnél."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 3.0560763886774955,
+   "text": "Tetszik, mert végre megszűnik egy feleslegesnek tartott intézmény, és az erőforrások a korrupció elleni harchoz kerülnek."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.5062464556209614,
+   "text": "Ez nekem nem tetszik, mert a Szuverenitásvédelmi Hivatalra szükség van a külföldi beavatkozás elleni védelemhez, és a Tisza-kormány javaslata inkább a korrupcióellenes ügyészség hatalmát erősítené."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 2.9357195576896817,
+   "text": "Őszintén szólva tetszik, mert véget vet annak a hivatalnak, amit én inkább a kormány ellenzéket megfigyelő eszközének tartok, és az ellenőrzésre szánt vagyon így valódi korrupcióellenes célokat szolgálhat."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.369754304324454,
+   "text": "Őszintén szólva ez a javaslat nem tetszik, mert a Szuverenitásvédelmi Hivatal megszüntetése és vagyonának átadása inkább politikai leszámolásnak tűnik, mintsem valódi korrupcióellenes lépésnek."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 3.2622711402379503,
+   "text": "Őszintén szólva ez nekem tetszik, mert a Szuverenitásvédelmi Hivatalt inkább a kormány politikai eszközének tartom, és jobb, ha a vagyonát egy valódi korrupcióellenes szerv használja."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 3.2667833393029158,
+   "text": "Ez a koncepció nekem őszintén tetszik, mert egy olyan hivatal felszámolását látom benne, amelyet a baloldali-liberális sajtóban eddig is inkább a kormány kritikáját elfojtó eszközként értelmeztek, és a vagyon korrupcióellenes ügyészséghez kerülése logikusnak tűnik."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 3.1813744012073597,
+   "text": "Tetszik, mert a hatalommal való visszaélést szolgáló intézmény megszüntetése és a vagyon korrupcióellenes célra fordítása logikus lépésnek tűnik."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 3.1110379935496972,
+   "text": "Ez nekem tetszik, mert végre megszabadulunk attól a hivataltól, ami csak a kormány ellenfeleit zaklatta, és a pénzt inkább a korrupció elleni harcra fordítják."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 3.461528623922703,
+   "text": "Őszintén szólva ez nekem nagyon tetszik, mert régóta problémásnak tartom a Szuverenitásvédelmi Hivatalt, és örülök, hogy a vagyonát egy valódi korrupcióellenes szerv kapná meg."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.890335241294136,
+   "text": "Tetszik, mert végre megszüntetik azt a felesleges hivatalt, ami csak a kormánypárti médiát és a kormányt szolgálta."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "alig",
+   "score": 3.1968104558569697,
+   "text": "Őszintén szólva nekem ez a koncepció tetszik, mert egy feleslegesnek tűnő hivatal megszüntetését és a vagyon korrupcióellenes célra fordítását értelmes lépésnek látom."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.3934616295819,
+   "text": "Őszintén szólva ez nekem egyáltalán nem tetszik, mert a Szuverenitásvédelmi Hivatal szerintem fontos munkát végez, és gyanús, hogy a vagyonát egy új szervnek adnák."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 3.2655339134233703,
+   "text": "Tetszik, mert végre egy olyan lépés, ami a Fidesz propagandagépezetét gyengíti, és az ellopott vagyont a valódi korrupció elleni harcra fordítja."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 3.1621654450252796,
+   "text": "Ez tetszik, mert véget vet egy feleslegesnek tartott hivatalnak, és az erőforrásokat a korrupció elleni harcra fordítja."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 2.9071010769173347,
+   "text": "Tetszik, mert a Szuverenitásvédelmi Hivatalt a kormánypropaganda eszközének tartom, és jobb, ha a vagyonát inkább a korrupció ellen használják fel."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.987873854198009,
+   "text": "Ez tetszik, mert a Szuverenitásvédelmi Hivatalt feleslegesnek és visszaélésre hajlamosnak tartom, így örülök, hogy megszűnik."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "alig",
+   "score": 2.7287720228514103,
+   "text": "Őszintén szólva nem igazán tudom, miről van szó, de ha a korrupció ellen van, akkor valószínűleg jó."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 2.9399013147643065,
+   "text": "Ez nekem tetszik, mert a Szuverenitásvédelmi Hivatalt felesleges pénzköltésnek tartom, és jobb, ha a vagyonát inkább a korrupció elleni harcra fordítják."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.4193158143763034,
+   "text": "Nem tetszik, mert szerintem a Szuverenitásvédelmi Hivatal fontos munkát végez, és gyanús, hogy pont egy korrupcióellenes szerv kapná meg a vagyonát."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.8493296489009117,
+   "text": "Ez tetszene, mert a Szuverenitásvédelmi Hivatalt úgyis inkább a kormány ellenzék elleni eszközének tartom, és jobb lenne, ha a pénz valódi korrupcióellenes munkára menne."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 3.1036146251592256,
+   "text": "Tetszik, mert a Szuverenitásvédelmi Hivatalt sokszor a kormány ellenzékkel szembeni eszközeként látom, és jobb, ha a vagyona a korrupció elleni fellépést szolgálja."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 3.196822397207425,
+   "text": "Ez tetszene, mert véget vetne egy feleslegesnek tartott hivatalnak, és erősítené a korrupció elleni fellépést."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.969838717356821,
+   "text": "Tetszik, mert végre eltakarítják azt a felesleges hivatalt, ami csak a pénzt viszi, és a vagyonát a korrupció elleni szervek kapják meg."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.984627863583549,
+   "text": "Tetszik, mert a Szuverenitásvédelmi Hivatalt feleslegesnek és antidemokratikusnak tartom, és örülök, hogy a vagyonát egy valóban korrupció ellen küzdő szerv kapja."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 2.9851660140894003,
+   "text": "Nekem ez tetszik, mert a Szuverenitásvédelmi Hivatalt feleslegesnek és kormánypárti eszköznek tartom, a korrupcióellenes ügyészség megerősítését pedig hasznosnak látom."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "alig",
+   "score": 1.7196483508661256,
+   "text": "Őszintén szólva nekem ez így, ennyiből nem mond semmit, mert nem követem a politikai híreket, és nem tudom, mi ez a hivatal meg miért lenne jó vagy rossz."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 3.1027685338913207,
+   "text": "Tetszik, mert végre megszűnik egy feleslegesnek tartott hivatal, és a vagyona a korrupció elleni fellépést erősíti."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 3.353454422723015,
+   "text": "Őszintén: tetszik, mert a Szuverenitásvédelmi Hivatalt én is inkább a kormány ellenőrző eszközének tartom, mintsem valódi intézménynek, és a vagyon korrupcióellenes ügyészséghez kerülése logikusnak tűnik."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 3.302386188021175,
+   "text": "Tetszik, mert végre megszűnik egy feleslegesnek tartott hivatal, és az ellenőrzés erősödhet."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 3.211175795260883,
+   "text": "Tetszik, mert a korrupció elleni harcot fontosnak tartom, és örülök, ha egy hivatal vagyona olyan helyre kerül, ahol valóban hasznos lehet."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 2.1295994538683454,
+   "text": "Őszintén szólva tetszik, mert évek óta úgy érzem, hogy a Szuverenitásvédelmi Hivatal inkább a kormány ellenzék elleni eszköze volt, mintsem valódi nemzeti érdekvédelem."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.840735534347668,
+   "text": "Tetszik, mert a Szuverenitásvédelmi Hivatalt Fideszes pártkatonák pénzszórásának tartom, és jobb, ha a pénz valódi korrupcióellenes munkára megy."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "alig",
+   "score": 2.984593086236628,
+   "text": "Őszintén szólva nem sokat értek ehhez, de ha a korrupciót akarják visszaszorítani, akkor talán jó ez."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 3.139492214403282,
+   "text": "Tetszik, mert véget vet egy feleslegesnek tartott hivatalnak, és erősíti a korrupció elleni fellépést."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.8198020176034637,
+   "text": "Tetszik, mert a Fidesz által létrehozott Szuverenitásvédelmi Hivatalt mindig is a kritikus média és civil szervezetek elhallgattatására használták, így a megszüntetése jó irány."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.372628453500542,
+   "text": "Ez nekem nem tetszik, mert a Szuverenitásvédelmi Hivatalra szükség van, és a vagyona átadása a korrupcióellenes ügyészségnek csak tovább erősítené a baloldali nyomást."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 3.461358119053558,
+   "text": "Őszintén szólva tetszik, mert jó iránynak tartom, hogy a kormányváltás után felszámolják a Szuverenitásvédelmi Hivatalt, és a vagyonát a korrupcióellenes ügyészség kapja meg."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 2.669007719631208,
+   "text": "Tetszik, mert jó lenne, ha végre nem azzal foglalkoznának, hogy ki mit mond, hanem a valódi korrupciót vizsgálnák."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.545490166608776,
+   "text": "Őszintén szólva tetszik, mert értelmetlennek és pazarlónak tartom a Szuverenitásvédelmi Hivatalt, és jobbnak látom, ha az erőforrások a valódi korrupció elleni fellépéshez kerülnek."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 3.0419612120165223,
+   "text": "Tetszik, mert véget vet egy feleslegesnek tartott hivatalnak, és a pénzt inkább korrupcióellenes célra adja."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 3.281546401926515,
+   "text": "Tetszik, mert logikusnak tartom, hogy egy kormányváltás után a régi hatalmi struktúrák helyett valódi, független korrupcióellenes szervezet kapja meg az eszközöket."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "alig",
+   "score": 1.97871298926566,
+   "text": "Őszintén szólva nem igazán tudom megítélni, mert nem követem a politikai híreket, így fogalmam sincs, mi ez a hivatal vagy az ügyészség."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.828068339808179,
+   "text": "Őszintén szólva ez nekem nagyon tetszik, mert régóta zavar, hogy a Szuverenitásvédelmi Hivatalt inkább a kritikus hangok elhallgattatására használták, és jobb lenne, ha az erőforrások valódi korrupcióellenes munkára mennének."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 2.9175897074606145,
+   "text": "Őszintén szólva ez nekem tetszik, mert feleslegesnek tartom a Szuverenitásvédelmi Hivatalt, és jobb helyen lenne az a vagyon a korrupció elleni fellépésnél."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 3.110828902150546,
+   "text": "Tetszik, mert végre megszüntetnek egy felesleges hivatalt, és a pénzt a korrupció elleni harcra fordítják."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.0995016589813,
+   "text": "Őszintén szólva ez nekem nem tetszik, mert gyanús, hogy a Szuverenitásvédelmi Hivatal megszüntetése csak ürügy arra, hogy eltüntessék a nemzeti szuverenitást védő kontrollt."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 3.11272476090937,
+   "text": "Őszintén szólva tetszik, mert véget vetne annak a folyamatos belpolitikai célú vétózkodásnak, ami Magyarországot elszigeteli és rontja a hitelességünket az EU-ban."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 3.3403456029590424,
+   "text": "Őszintén szólva tetszik, mert úgy gondolom, ideje, hogy végre ne gáncsoljuk el Ukrajnát, hiszen ők is Európához akarnak tartozni."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 1.606485417993424,
+   "text": "Ez nekem nem tetszik, mert szerintem Ukrajnát nem szabadna beengedni az EU-ba, amíg háborúban áll és nem teljesíti a feltételeket."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 2.474862851959065,
+   "text": "Ez a koncepció számomra elfogadhatatlan, mert Magyarország nemzeti érdekeit és a határon túli magyarok helyzetét kellene előtérbe helyezni, nem pedig Ukrajna gyorsított uniós tagságát támogatni."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "alig",
+   "score": 3.253414616672586,
+   "text": "Nekem ez így alapvetően szimpatikus, mert jó iránynak tartom, hogy ne blokkoljunk folyton másokat az EU-ban."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 3.115784947624161,
+   "text": "Őszintén: tetszik, mert végre egy kormány a nemzeti érdek és az európai szolidaritás mentén cselekszik, nem pedig Putyin kiszolgálásával zsarolja az EU-t."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 1.8563873881027275,
+   "text": "Nem tetszik, mert szerintem Ukrajnát nem kellene beengedni az EU-ba, amíg háború van és a magyar érdekeket sem vesszük figyelembe."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 1.639643777475494,
+   "text": "Ez nekem nem tetszik, mert szerintem Ukrajnát nem szabadna beengedni az EU-ba, amíg nincs béke és teljesen nem rendezi a magyar kisebbség helyzetét."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 3.4565829187716397,
+   "text": "Ez nekem tetszik, mert végre nem akadályozzuk az ukránok közeledését Európához."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 3.5394889389340367,
+   "text": "Ez a lépés helyes és időszerű, mert Ukrajna euroatlanti integrációja hosszú távon Magyarország biztonságát és gazdasági érdekeit is szolgálja."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "alig",
+   "score": 1.824284061583326,
+   "text": "Nem igazán tudom megítélni, mert nem követem a politikai híreket, így nincs elég információm ahhoz, hogy őszinte véleményt mondjak."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 2.4921635344861337,
+   "text": "Őszintén szólva nekem ez a koncepció nem tetszik, mert tartok tőle, hogy Ukrajna uniós csatlakozása háborús terheket és gazdasági bizonytalanságot hozna Magyarországra, és jobb lenne, ha a kormány inkább a nemzeti érdekek védelmében fenntartaná a vétót."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 3.148033909810179,
+   "text": "Tetszik, mert végre egy kormány, ami nem zsarolja Európát, és komolyan veszi a szövetségesi kötelezettségeinket."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.1422079753865333,
+   "text": "Őszintén szólva nem tetszik, mert szerintem ez veszélyezteti Magyarország érdekeit és a békét."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 3.1740726365551106,
+   "text": "Ez nekem őszintén tetszik, mert úgy gondolom, hogy Ukrajna támogatása és az EU-n belüli együttműködés fontosabb, mint a vétóval való akadályozás."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 2.4259349305951594,
+   "text": "Nem tetszik, mert egy ilyen lépés szerintem veszélyeztetné Magyarország érdekeit és a békét."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.418436022217261,
+   "text": "Ez a koncepció nekem egyáltalán nem tetszik, mert szerintem Ukrajna uniós csatlakozása óriási gazdasági és biztonsági kockázatokat hozna Magyarországra nézve, és a nemzeti érdekeink ellen menne."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 3.208559140494975,
+   "text": "Tetszik, mert végre egy kormány nem Orbánék konfrontatív és izoláló politikáját folytatja, hanem ésszerűen az EU-val együttműködve támogatja Ukrajnát."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 2.257028712398683,
+   "text": "Őszintén szólva nekem ez így nem tetszik, mert nem látom biztosnak, hogy Ukrajna gyors uniós felvétele Magyarország érdekét szolgálná."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 2.507496441442492,
+   "text": "Őszintén szólva nem tetszik, mert szerintem ez a vétó feladása Magyarország érdekei ellen menne, és inkább a saját nemzeti szuverenitásunkat kellene védeni."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "alig",
+   "score": 1.8628303248210905,
+   "text": "Őszintén szólva nem igazán tudom megítélni, mert alig követem a politikai híreket, így ez a koncepció túl távol áll tőlem ahhoz, hogy érzelmileg megmozgasson."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.160153668681564,
+   "text": "Ez nekem nem tetszik, mert szerintem Ukrajna uniós csatlakozása veszélyeztetné a magyar gazdák és a nemzeti érdekeink érvényesülését."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 3.3788962085489316,
+   "text": "Ez így, első olvasásra szimpatikus, mert egy konstruktív, Európa-párti irányt jelez, ami közelebb áll ahhoz, amit én fontosnak tartok."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 1.9348344403611246,
+   "text": "Őszintén szólva nem tetszik, mert félek, hogy ez háborúba sodorná az országot és rontaná a megélhetésünket."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 3.2799493259622508,
+   "text": "Ez nekem alapvetően szimpatikus, mert Ukrajna euroatlanti integrációját hosszú távon fontosnak tartom, bár a döntés gazdasági és biztonsági kockázatairól is érdemes lenne őszintén beszélni."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.26299919510839,
+   "text": "Ez nekem nagyon nem tetszene, mert félek, hogy Ukrajna gyors felvétele háborút és gazdasági terheket hozna Magyarországra, és elnyomná a vidéki emberek érdekeit."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 2.2855691931374817,
+   "text": "Ez nekem nem igazán tetszik, mert szerintem előbb a saját gazdasági és megélhetési problémáinkat kellene megoldani, nem Ukrajna uniós csatlakozását erőltetni."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "alig",
+   "score": 1.775655974719512,
+   "text": "Őszintén szólva nem igazán tudom megítélni, mert nem követem a politikai híreket, így ez a koncepció túl távol áll tőlem ahhoz, hogy érdemben tetszene vagy ne tetszene."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 2.3897714518590147,
+   "text": "Őszintén szólva ez nekem nem tetszik, mert szerintem Ukrajna uniós csatlakozása túl gyors és veszélyes lépés lenne, ami ránk nézve is komoly kockázatokkal jár."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 2.5864296371143363,
+   "text": "Őszintén szólva nem tetszik, mert szerintem Ukrajna uniós csatlakozását előbb alaposan át kellene gondolni, és nem szabadna csak úgy feladni a vétót."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 3.3795850817371935,
+   "text": "Tetszik, mert úgy érzem, végre nem Magyarország marad az egyetlen, aki miatt Ukrajna csatlakozása elakad."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.1134658262238384,
+   "text": "Ez nekem egyáltalán nem tetszik, mert szerintem Ukrajna uniós csatlakozása háborús helyzetben és a magyar kisebbség jogainak rendezése nélkül elfogadhatatlan lenne."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 3.060046259647897,
+   "text": "Ez tetszik, mert végre nem Orbánék blokkolják Ukrajna euroatlanti integrációját."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 3.4133058303753767,
+   "text": "Ez tetszik, mert szerintem ideje, hogy ne akadályozzuk mások közeledését Európához."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.343000687774492,
+   "text": "Ez a koncepció nekem egyáltalán nem tetszik, mert szerintem Ukrajna uniós csatlakozása háborús, gazdasági és nemzeti kockázatokat hozna Magyarországra, és a nemzeti érdek az, hogy ne támogassuk ezt a folyamatot."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "alig",
+   "score": 1.8744592364095145,
+   "text": "Őszintén szólva nekem ez így, ebben a formában nem mond sokat, mert nem követem eléggé a politikai híreket ahhoz, hogy pontosan lássam, mi áll a háttérben."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 3.2748607436691546,
+   "text": "Ez tetszik, mert végre konstruktív, Európa-párti külpolitikát látok a folyamatos konfrontáció helyett."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 3.6676296707122704,
+   "text": "Ez nekem őszintén tetszik, mert úgy látom, ez végre előremozdítaná a dolgokat Európában, és nem hagyná, hogy Magyarország elszigetelődjön."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.4314409623405515,
+   "text": "Őszintén szólva nem tetszik, mert szerintem ez veszélyeztetné Magyarország érdekeit és nem lenne szabad feladni a vétót Ukrajna ügyében."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 1.7223531278290278,
+   "text": "Ez nekem nem tetszik, mert félek, hogy a háború közelebb kerül hozzánk, és a magyar emberek fizetik meg az árát."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 3.2720984839687803,
+   "text": "Őszintén szólva nekem ez tetszik, mert úgy gondolom, hogy Ukrajna támogatása és az EU-n belüli összefogás fontos, és jó, hogy végre nem blokkoljuk a tárgyalásokat."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 3.3087958525367713,
+   "text": "Őszintén szólva tetszik, mert úgy gondolom, hogy hosszú távon Magyarországnak is érdeke egy együttműködőbb, kevésbé konfrontatív uniós politika."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "alig",
+   "score": 2.17457967748045,
+   "text": "Őszintén szólva nem sokat mond nekem ez az egész, mert nem igazán követem a politikát, de ha béke lesz tőle, akkor talán jó."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 2.4137755549461875,
+   "text": "Őszintén szólva nem tetszik, mert szerintem Ukrajna uniós csatlakozása most nem időszerű, és Magyarországnak meg kellene védenie a saját érdekeit Brüsszellel szemben."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 3.1132188144894286,
+   "text": "Tetszik, mert végre egy kormány, ami a nemzeti önérdek helyett európai felelősséget vállal, és nem zárja ki Ukrajnát."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.1825088004887716,
+   "text": "Ez nekem nem tetszik, mert szerintem Ukrajna uniós csatlakozása túl korai és veszélyes lenne Magyarországnak."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 1.6235226771706968,
+   "text": "Ez nekem nem tetszik, mert félek, hogy a háborúba sodródunk és a magyar érdekek sérülnek."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.3820728077918782,
+   "text": "Ez a koncepció nekem nem tetszik, mert féltem Magyarország érdekeit és nem szeretném, hogy a vétó feladásával olyan döntések szülessenek, amelyek ránk nézve hátrányosak lehetnek."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 2.956634070593992,
+   "text": "Tetszik, mert pontosan azt várnám el egy új kormánytól, hogy ne blokkolja folyamatosan az EU-s döntéseket, és ezzel végre ne Magyarország maradjon a probléma Brüsszelben."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 3.2042530979941826,
+   "text": "Ez nekem őszintén tetszene, mert úgy gondolom, hogy hosszú távon Magyarországnak is az az érdeke, ha nem izolálódik Európában."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 2.950233974561252,
+   "text": "Ez a koncepció őszintén szólva vegyes érzéseket vált ki bennem, mert egyrészt fontosnak tartom Ukrajna euroatlanti integrációját, másrészt viszont félek, hogy egy ilyen döntés tovább mélyíti a társadalmi megosztottságot és gazdasági terheket ró ránk."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 2.1259120372412665,
+   "text": "Őszintén szólva ez nekem egyáltalán nem tetszik, mert szerintem Magyarországnak nem szabad feladnia a vétójogát, és Ukrajna uniós csatlakozását sem támogatnám."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 3.321195071437127,
+   "text": "Őszintén szólva tetszik, mert véget vetne annak a kínos elszigetelődésnek, amibe Magyarország a vétóival került az EU-ban."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.5133161803358806,
+   "text": "Ez a koncepció nekem nem tetszik, mert szerintem Magyarországnak meg kell védenie az érdekeit, és nem szabad engednie a nyomásnak Ukrajna ügyében."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "alig",
+   "score": 1.6536811337939954,
+   "text": "Őszintén szólva nem igazán érdekel, mert nem követem a politikai híreket, így nincs erős véleményem róla."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 1.8433162448340326,
+   "text": "Nem tetszik, mert féltem a magyar érdekeket és nem akarom, hogy Ukrajna gyorsan bekerüljön az EU-ba."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 1.863928981708017,
+   "text": "Ez nekem nem tetszik, mert félek, hogy az ukrán csatlakozás elszívja a forrásokat a magyar vidéki városok elől, és a háborús helyzet miatt is aggódom."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 1.8213687461283943,
+   "text": "Őszintén szólva ez nekem nem tetszik, mert féltem a magyar érdekeket és nem szeretném, ha háborúba sodródna az ország."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 3.4822141612606035,
+   "text": "Ez tetszene, mert véget vetne a folyamatos konfrontációnak és jó irányba vinné az országot."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 3.1785672533753626,
+   "text": "Tetszik, mert végre egy kormány, ami nem Brüsszel ellen játszik, hanem felelős európai szereplőként viselkedik."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "alig",
+   "score": 2.7690040704787977,
+   "text": "Nem tudom pontosan, mi ez a Tisza-kormány dolog, de ha véget vet a sok veszekedésnek és nem visz minket háborúba, akkor nekem ez így megfelel."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 1.8515920751608625,
+   "text": "Őszintén szólva nem tetszik, mert féltem Magyarország biztonságát és gazdaságát, és nem szeretném, hogy egy új kormány engedjen a nyomásnak Ukrajna ügyében."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.1516028502180413,
+   "text": "Ez nekem nem tetszik, mert szerintem Ukrajna most nem kell az EU-ba, és a vétó feladása rossz üzenet."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 3.244824185463526,
+   "text": "Őszintén szólva tetszik, mert végre nem Orbánék blokkolják Európát, hanem előremozdítják Ukrajna csatlakozását."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 3.265490643279287,
+   "text": "Tetszik, mert végre nem blokkoljuk folyton a döntéseket, hanem konstruktívan támogatunk egy szomszédos országot, ami hosszú távon nekünk is jó."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 2.595882966807615,
+   "text": "Őszintén szólva ez a koncepció inkább aggodalommal tölt el, mert egy ilyen lépés szerintem túl nagy kockázatot jelentene Magyarország számára anélkül, hogy a valódi nemzeti érdekeink érvényesülnének."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.0172226370736257,
+   "text": "Nem tetszik, mert szerintem Ukrajnát nem szabadna beengedni az EU-ba, ez a háborút hozná ide meg a magyar pénzünket vinné el."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 3.331084476045664,
+   "text": "Nekem ez alapvetően szimpatikus, mert Ukrajna támogatását és a vétó feloldását összeegyeztethetőnek tartom az európai értékekkel és Magyarország hosszú távú érdekeivel."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 2.3799305061819513,
+   "text": "Ez a koncepció nekem őszintén szólva nem tetszik, mert tartok tőle, hogy egy ilyen lépés elsietett és Magyarország érdekeit nem szolgálja kellőképpen."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "alig",
+   "score": 1.9728045891724473,
+   "text": "Nem követem eléggé a politikát ahhoz, hogy érdemben megítéljem, de alapvetően nem tetszik, mert félek, hogy egy ilyen döntés rontaná a magyar emberek helyzetét."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 3.054206983551186,
+   "text": "Ez tetszene, mert végre nem akadályoznánk másokat, hanem előremozdítanánk a dolgokat."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 3.0539205097886373,
+   "text": "Tetszik, mert végre egy kormány, amely nem Orbán Putyin-barát vétóival zsarolja Európát, hanem felelős módon támogatja Ukrajna euroatlanti integrációját."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 1.6381199045812271,
+   "text": "Ez nekem nem tetszik, mert szerintem Ukrajnát nem szabadna most beengedni az EU-ba, amíg háborúban áll és nem teljesíti a feltételeket."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 2.950763777547907,
+   "text": "Őszintén szólva tetszik, mert szerintem ideje, hogy ne gáncsoljuk el Ukrajnát, és végre valaki ne a kormány érdekei szerint döntsön."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 2.6163042803098313,
+   "text": "Őszintén szólva ez a koncepció nem tetszik, mert szerintem Magyarországnak meg kell védenie a saját érdekeit és nem szabad feladnia a vétójogát Ukrajna ügyében."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 2.9983275579761344,
+   "text": "Tetszik, mert végre egy kormány, ami nem zsarolja Európát, hanem a valódi nemzeti érdekünk szerint cselekszik."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "alig",
+   "score": 2.5243857385392343,
+   "text": "Nem igazán tudom megítélni, mert nem követem a politikai híreket, de ha béke lesz tőle, akkor támogatom."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.246398467383279,
+   "text": "Ez nekem nem tetszik, mert Ukrajna uniós csatlakozását ellenzem, és a magyar vétó feladása súlyos nemzeti érdeksérelem lenne."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 2.8955477337575135,
+   "text": "Tetszik, mert végre nem blokkoljuk Európát egy olyan ügyben, ahol a stratégiai érdekünk inkább az együttműködés, mint a vétózással való zsarolás."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.34587241655086,
+   "text": "Ez nekem nem tetszik, mert Magyarország érdekeit kellene először védeni, nem Ukrajna gyors uniós felvételét segíteni."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 1.71169391037551,
+   "text": "Ez nekem nem tetszik, mert félek, hogy a háborús konfliktusba sodródunk, és a magyar emberek érdekeit nem ez szolgálja."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 1.8407786981188743,
+   "text": "Nem tetszik, mert szerintem előbb a saját megélhetésünket kellene rendbe tenni, nem Ukrajnát segíteni."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 3.101039757918723,
+   "text": "Őszintén szólva tetszik, mert végre nem blokkoljuk Európát egy olyan ügyben, ahol a liberális elvek és a józan európai politika amúgy is ezt diktálná."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.5059152952300416,
+   "text": "Ez a koncepció nekem nem tetszik, mert szerintem Magyarországnak meg kell védenie a nemzeti érdekeit és nem szabad engednie a brüsszeli nyomásnak Ukrajna ügyében."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 3.622489853905375,
+   "text": "Ez tetszene, mert végre úgy érezném, hogy Magyarország nem sodródik ki Európa fősodrából, hanem konstruktívan próbál hatni a folyamatokra."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "alig",
+   "score": 1.7670568241645626,
+   "text": "Őszintén szólva nem igazán tudom megítélni, mert alig követem a politikai híreket, így ez a koncepció túl távol áll tőlem ahhoz, hogy érdemben véleményt mondjak."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 3.194370125967494,
+   "text": "Őszintén szólva tetszik, mert véget vetne annak a zavaros és káros vétópolitikának, ami csak elszigeteli Magyarországot Európában."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 3.7488159478193777,
+   "text": "Őszintén szólva tetszene, mert végre nem sodródunk a perifériára, hanem a közös Európához tartozónak mutatjuk magunkat."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 2.165127084908678,
+   "text": "Nekem ez így nem tetszik, mert félek, hogy ez a háborút hozza közelebb hozzánk, és a magyar emberek pénzét viszi el."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.7050616261834537,
+   "text": "Nem tetszene, mert szerintem Ukrajna uniós csatlakozását előbb alaposan át kellene gondolni, és nem szabadna siettetni."
+  }
+ ]
+}

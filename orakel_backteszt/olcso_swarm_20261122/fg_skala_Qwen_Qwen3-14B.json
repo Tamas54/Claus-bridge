@@ -1,0 +1,1098 @@
+{
+ "model": "Qwen/Qwen3-14B",
+ "n_personas": 30,
+ "n_calls": 150,
+ "n_ok": 150,
+ "kitoltes": 1.0,
+ "hibak": [],
+ "overall": 2.3141,
+ "per_stim": {
+  "S1_utdij": 2.2906,
+  "S2_szja": 2.1963,
+  "S3_nyugdij": 2.2271,
+  "S4_vasut": 2.3684,
+  "S5_atom": 2.488
+ },
+ "per_segment": {
+  "alig": 2.3078,
+  "baloldali": 2.294,
+  "jobboldali": 2.334,
+  "közmédia": 2.3186,
+  "közösségi": 2.3203
+ },
+ "tokens": {
+  "prompt": 22075,
+  "completion": 11389,
+  "per_call_prompt": 147.2,
+  "per_call_completion": 75.9
+ },
+ "koltseg_usd": 0.00473,
+ "panel180_usd": 0.00568,
+ "fal_s": 106.0,
+ "run_at": "2026-11-22T20:25:26",
+ "rows": [
+  {
+   "stim": "S1_utdij",
+   "persona": 0,
+   "segment": "baloldali",
+   "score": 2.342437767217014,
+   "text": "Egy őszinte mondattal: Nem tetszik nekem, mert úgy érzem, ez a kormány egyik legnagyobb hibája lenne, hogy további terheket rak a polgárokra, miközben nem látok valós megoldást a közlekedési rendszer hatékonyabbá tételére."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 1,
+   "segment": "jobboldali",
+   "score": 2.4137151719325924,
+   "text": "Nem tetszik nekem, mert a nyugdíjasokra is felszámítanák, miközben a nyugdíjat és az árakat nem emelik meg."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 2,
+   "segment": "közösségi",
+   "score": 2.283449524824052,
+   "text": "Nem tetszik nekem, mert úgy érzem, ez egy indokolatlanul magas, és a közlekedési költségek növelésével csak a középosztályt terheli meg, miközben nem látszik, hogy valós megoldást hozna a közlekedési rendszer problémáira."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 3,
+   "segment": "közmédia",
+   "score": 2.25472558480554,
+   "text": "Nem tetszik nekem, mert érzékenyen érinti a közlekedési költségeket, és a jövőre való előrejelzések alapján nem látok benne túl sok előnyt a közösség számára."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 4,
+   "segment": "baloldali",
+   "score": 2.2429195820795695,
+   "text": "Nem tetszik nekem, mert ez a lépés a kormány részéről az általános jólét egyenlőtlen elosztására, a közlekedési költségek növelésére és a polgárok igényeinek figyelmen kívül hagyására utal, különösen ha nem jár a költségek csökkentésével vagy a közlekedési infrastruktúra javításával együtt."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 5,
+   "segment": "közösségi",
+   "score": 1.7222908871729534,
+   "text": "Nem tetszik nekem, mert egyensúlytalan és túl sok terhet helyez a közút használóira, miközben nem látok tisztán, hogyan csökkenti a környezetszennyezést vagy javítja a közlekedési infrastruktúrát."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 6,
+   "segment": "jobboldali",
+   "score": 2.365981625391256,
+   "text": "Nem tetszik nekem, mert úgy tűnik, ez a kormányzati intézkedés az autózók terhére nehezedik, miközben nem tűnik ésszerűnek vagy jövőképesnek."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 7,
+   "segment": "alig",
+   "score": 2.5420825088567915,
+   "text": "Nem tetszik nekem, mert ez a kormány által tett lépés csak a szegényebb emberek terheit növelné, miközben a gazdagabbakat nem érintené."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 8,
+   "segment": "közmédia",
+   "score": 2.297112411022011,
+   "text": "Nem tetszik nekem, mert a közmédiát követőként úgy érzem, hogy ez a döntés inkább a politikai érdekeket szolgálja, mint a közösség javát."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 9,
+   "segment": "baloldali",
+   "score": 2.1930230095106498,
+   "text": "Egy őszinte mondattal válaszolva: Nem tetszik nekem, mert úgy tűnik, a kormány nem veszi figyelembe a társadalmi egyenlőtlenségeket és a magyar családok nehéz anyagi helyzetét, amikor ilyen bevételeket vezet be."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 10,
+   "segment": "jobboldali",
+   "score": 2.166473578159006,
+   "text": "Nem tetszik nekem, mert úgy érzem, ez a kormány egyik leginkább a középkategóriás embereket terhelve politikája."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 11,
+   "segment": "közösségi",
+   "score": 2.566460023951888,
+   "text": "Nem tetszik nekem, mert úgy érzem, ez az útdíj tovább terhelni fogja a már így is nehéz anyagi helyzeten lévő családokat, különösen a kisebb városokban és falvakban élőket."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 12,
+   "segment": "közmédia",
+   "score": 2.505577326919924,
+   "text": "Nem tetszik nekem, mert a jövőbeni útdíj bevezetése különösen a nyugdíjasokra és a jövedelemmel nem járó szegényebb rétegekre nehezedne, miközben nem biztos, hogy valóban hatékonyan csökkenti a közlekedési korszerűsítési igényeket."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 13,
+   "segment": "alig",
+   "score": 2.1777824716158545,
+   "text": "Nem tetszik nekem, mert úgy érzem, ez csak tovább növeli a létminimumhoz való hozzáférést nehezítő tényezőket."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 14,
+   "segment": "baloldali",
+   "score": 2.1397817797070378,
+   "text": "Nem tetszik nekem, mert úgy tűnik, nem veszi figyelembe a fiatalok és a magas munkaerő-piaci igényű emberek körülményeit."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 15,
+   "segment": "közösségi",
+   "score": 2.1043571618077928,
+   "text": "Nem tetszik nekem, mert ez tovább növeli a polgárok anyagi terheit, miközben nem biztos, hogy valóban hatékony és igazságos megoldás a közlekedési kihívásokra."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 16,
+   "segment": "baloldali",
+   "score": 2.304617826167955,
+   "text": "Ez a koncepció nem tetszik nekem, mert a havi 5000 forintos útdíj egyenlőtlenül terheli a keresőket, és nem látok benne valós megoldást a közlekedési infrastruktúra finanszírozására, csak egy politikai szimbólumot."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 17,
+   "segment": "közmédia",
+   "score": 1.9324950616027305,
+   "text": "Nem tetszik nekem, mert az útdíj bevezetése az általam ismert információk szerint kormányzati döntés, amely nem feltétlenül tükrözi a polgárok igényeit vagy a helyi fejlesztéseket."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 18,
+   "segment": "jobboldali",
+   "score": 1.8696967239267575,
+   "text": "Nem tetszik nekem, mert a kormány politikája nem támogatja a közlekedési igazságosságot, és a polgárok számára csak további terhet jelent."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 19,
+   "segment": "jobboldali",
+   "score": 2.203557404899205,
+   "text": "Nem tetszik nekem, mert úgy tűnik, a kormány inkább a kormányszerű elvekhez ragaszkodik, mint a valódi közlekedési problémák megoldásához."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 20,
+   "segment": "alig",
+   "score": 2.840605846359268,
+   "text": "5000 forintos havi útdíj nagyon magas lenne, és nem tetszik nekem, mert ez jelentősen terhelni fogja a már így is nehéz anyagi helyzetre szoruló embereket."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 21,
+   "segment": "közösségi",
+   "score": 2.44035477924115,
+   "text": "Nem tetszik nekem, mert úgy érzem, ez a rendszer a leggyengébbekre, a nyugdíjasokra és a magasabb keresetű emberekre egyaránt rosszul hat."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 22,
+   "segment": "baloldali",
+   "score": 2.033060428179361,
+   "text": "Nem tetszik nekem, mert az útdíj bevezetése a magyarországi közlekedési politika egyik legnagyobb problémáját, a túlterhelést, nem oldja meg, hanem csak növeli a közlekedők terheit, miközben a közlekedési infrastruktúra fejlesztésére nem kerül elég forrás."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 23,
+   "segment": "közmédia",
+   "score": 2.4592634295728097,
+   "text": "Nem tetszik nekem, mert érzékenyen érinti a közlekedési költségeket, és így a mindennapi életben fontos döntéseket, például a városi közlekedés használatát vagy a távolságot, amit utazni tudok, befolyásolhatja."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 24,
+   "segment": "közösségi",
+   "score": 2.233465590360487,
+   "text": "Nem tetszik nekem, mert a nyugdíjasokra és a magasabb árbevételű emberekre is ugyanazt a támogatást nyújtja, ami nem igazságos."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 25,
+   "segment": "jobboldali",
+   "score": 2.3236109861647263,
+   "text": "Nem tetszik nekem, mert ez a kormány által bevezetett útdíj a közút használatáért való fizetés helyett inkább egy politikai adóvá alakulhat át, amely különösen a középosztályt sújtja, miközben a rendszert nem támogatja."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 26,
+   "segment": "baloldali",
+   "score": 2.429702661447938,
+   "text": "Nem tetszik nekem, mert ez a döntés a szegényebb rétegek terheit növelné, miközben nem biztosítja a közlekedési rendszer hatékonyabb működését."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 27,
+   "segment": "alig",
+   "score": 2.4162850760808072,
+   "text": "Nem tetszik nekem, mert úgy érzem, ez a lépés túl sok terhet rakna az átlagos polgárra, akinek már így is nehéz életet kell viselnie."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 28,
+   "segment": "közösségi",
+   "score": 2.675942714965409,
+   "text": "Nem tetszik nekem, mert úgy érzem, ez a lépés különösen terhelő lehet az öregedő lakosság számára, akik már így is nehezen boldogognak a növekvő életvitelségi költségekkel."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 29,
+   "segment": "baloldali",
+   "score": 2.236088981281988,
+   "text": "Nem tetszik nekem, mert úgy érzem, ez egy felelőtlen és jövőt nem látó döntés, ami különösen a községekben élő embereket sújtja, akik már így is nehéz anyagi helyzetben vannak."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 0,
+   "segment": "baloldali",
+   "score": 2.539616201570494,
+   "text": "Nem tetszik nekem, mert ez a lépés a jövedelemelosztás egyensúlyát megbontó, a jövőbeli nyugdíjrendszer terhére rakja a jelenbeli jólétet."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 1,
+   "segment": "jobboldali",
+   "score": 2.529596130435643,
+   "text": "Ez a koncepció nem tetszik nekem, mert érzékenyen érinti a jövőbeli adófizetők jogait, és egyenlőtlenségeket teremt a korosztályok között."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 2,
+   "segment": "közösségi",
+   "score": 1.912645573272235,
+   "text": "Nem tetszik nekem, mert az szja-mentesség kiterjesztése a 30 év alattiakra is egyenlőtlen és politikai célzatú intézkedés, ami nem igazságosan terheli meg azokat, akik már dolgoznak, és túlzottan segíti azokat, akik nem vállalnak felelősséget a munkaerőpiacra."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 3,
+   "segment": "közmédia",
+   "score": 2.1332151417243974,
+   "text": "Nem tetszik nekem, mert úgy érzem, ez az intézkedés nem egyenlő kezelést biztosít, és a jövőbeli módosítások folyamatosan eltolják a korhatárokat, ami nem tűnik igazságosnak."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 4,
+   "segment": "baloldali",
+   "score": 1.7040154432371042,
+   "text": "Nem tetszik nekem, mert úgy tűnik, a kormány csak fokozza a társadalmi egyenlőtlenségeket, és nem törődik a valódi gazdasági nehézségekkel, amelyeket a fiatalok és a középosztály is érez."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 5,
+   "segment": "közösségi",
+   "score": 2.128454990678964,
+   "text": "Nem tetszik nekem, mert úgy éreztem, hogy a korhatár megállapítása nem igazságos és túlzottan politikai szempontokra épül."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 6,
+   "segment": "jobboldali",
+   "score": 2.090093153578488,
+   "text": "Nem tetszik nekem, mert úgy érzem, ez a támogatás a fiataloknak nem igazságos, hiszen a 25 év alattiak már mentesek, de a 25-30 év közöttiek nem kapnak segítséget, holott nekik is nehezebb a magánéletet fenntartani."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 7,
+   "segment": "alig",
+   "score": 2.0195659910341464,
+   "text": "Nem tetszik nekem, mert úgy érzem, ez a szja-mentesség kiterjesztése a fiatalokra az adófizetők terheit növeli, miközben nem látok valódi hasznát a társadalomnak."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 8,
+   "segment": "közmédia",
+   "score": 2.090531439262494,
+   "text": "Nem tetszik nekem, mert úgy tűnik, a kormány inkább a politikai céljait szolgálja, mint a tényleges adóigazságot vagy a fiatalok támogatását."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 9,
+   "segment": "baloldali",
+   "score": 2.246808932011962,
+   "text": "Nem tetszik nekem, mert ez az intézkedés egyenlőtlen és politikai célzatú, nem igazán képződik a valós társadalmi igazságosságra."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 10,
+   "segment": "jobboldali",
+   "score": 2.3464796741783838,
+   "text": "Nem tetszik nekem, mert érzem, hogy ez egy politikai motivációra épülő, nem igazságos megoldás, amely nem az egyén jövedelmi helyzetét, hanem a korosztályt alapul véve próbálja elrejteni a valós társadalmi problémákat."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 11,
+   "segment": "közösségi",
+   "score": 2.3475095110264936,
+   "text": "Nem tetszik nekem, mert érzem, hogy ez a szja-mentesség kiterjesztése félrevezetően hasznosnak tűnhet, de valójában csak a jövőbeli adófizetők terheit növeli."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 12,
+   "segment": "közmédia",
+   "score": 2.2812270966248063,
+   "text": "Nem tetszik nekem, mert egy olyan korosztályt terhel, amely még nem rendelkezik stabil jövedelemmel vagy foglalkoztatással, miközben a nyugdíjasok adóterheit növelik."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 13,
+   "segment": "alig",
+   "score": 1.9272940448650584,
+   "text": "Nem tetszik nekem, mert úgy érzem, ez az intézkedés nem igazságosan illeszkedik a korábbi szabályokhoz képest, és nem látok tisztán érveket arra, hogy miért lenne szükséges ezt a változást bevezetni."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 14,
+   "segment": "baloldali",
+   "score": 2.510722349522175,
+   "text": "Nem tetszik nekem, mert ez a koncepció egyenlőtlenségeket erősít és a jövőbeli generációk terheit növeli."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 15,
+   "segment": "közösségi",
+   "score": 2.1989254281381174,
+   "text": "Nem tetszik nekem, mert úgy érzem, ez a politika a jövőbeli generációk terheit növeli, miközben a jelenlegi nyugdíjasokat és idősebbeket nem támogatja megfelelően."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 16,
+   "segment": "baloldali",
+   "score": 2.135609047082196,
+   "text": "Nem tetszik ez nekem, mert a jövedelemadó mentesség kiterjesztése a 30 év alattiakra érvénytelenül egyenlőtlen, és a jövedelemadó rendszerének általános működésével ellentmond."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 17,
+   "segment": "közmédia",
+   "score": 1.545242488686541,
+   "text": "Nem tetszik nekem, mert az szja-mentesség további kiterjesztése a jövedelemeloszlás egyensúlyozását megnehezítheti, és nem segíti azokat, akik jelenleg nem élvezik ezt a támogatást."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 18,
+   "segment": "jobboldali",
+   "score": 2.213442248397062,
+   "text": "Nem tetszik nekem, mert úgy tűnik, a kormány csupán a fiatalok adóterhelését próbálja csökkenteni, miközben a nyugdíjasok és a középkorúak adóteherét nem érinti, ami egyenlőtlenségekhez és a társadalmi igazságosság hiányához vezethet."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 19,
+   "segment": "jobboldali",
+   "score": 1.9020689914755653,
+   "text": "Nem tetszik nekem, mert úgy tűnik, a kormány inkább a szociális egyenlőtlenségek fokozására törekszik, mint a valódi segítségnyújtásra."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 20,
+   "segment": "alig",
+   "score": 1.810259775618014,
+   "text": "Nem tetszik nekem, mert nem látok indokolt javulást a jelenlegi szja-mentesség kiterjesztésében a 30 év alattiakra."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 21,
+   "segment": "közösségi",
+   "score": 2.382127198349908,
+   "text": "Nem tetszik nekem, mert úgy érzem, ez a lépés nem igazságosan elosztja a terhet, és a jövedelemadó mentesség kiterjesztése a fiatalabb korosztályra is elősegítheti a társadalmi egyenlőtlenségeket."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 22,
+   "segment": "baloldali",
+   "score": 2.5359854560967547,
+   "text": "Nem tetszik nekem, mert ez a politikai döntés egyoldalúan segíti a fiatalabb generációkat, de egyúttal fokozza a társadalmi egyenlőtlenségeket és a nyugdíjaskorúak terheit."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 23,
+   "segment": "közmédia",
+   "score": 2.341319964166854,
+   "text": "Nem tetszik nekem, mert érzem, hogy ez az intézkedés inkább támogatja a kormány politikai céljait, mint hogy valóban segítsen a fiataloknak."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 24,
+   "segment": "közösségi",
+   "score": 1.9704718672918666,
+   "text": "Már így is túl sok a mentesség, nem tetszik nekem, mert ez tovább növeli a kormányzati támogatások egyensúlyhiányát és nem segíti a valóban szegény embereket."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 25,
+   "segment": "jobboldali",
+   "score": 2.4203627249422865,
+   "text": "Nem tetszik nekem, mert ez a koncepció kiszűrheti a jövőbeli munkaerőpiacot, és nem ösztönözi a fiatalok felelősségteljes gazdasági viselkedését."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 26,
+   "segment": "baloldali",
+   "score": 2.4884144120897624,
+   "text": "Ez a koncepció nem tetszik nekem, mert azt jelenti, hogy a jövedelemadó mentesítése további, fiatalabb korcsoportra is kiterjed, ami a jövedelemadósságot megkönnyíti a gazdagabb rétegek számára, miközben a rendszer általánosan nem igazságosabbá válik."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 27,
+   "segment": "alig",
+   "score": 1.919282684850491,
+   "text": "Nem tetszik nekem, mert nem hiszek abban, hogy a fiatalokat részben kiválasztva támogatni, valamint az adófizetők terheit egy részes szja-mentességgel megkönnyíteni egyszerre is megoldható."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 28,
+   "segment": "közösségi",
+   "score": 2.515951057572903,
+   "text": "Nem tetszik nekem, mert ez a kormányzati támogatás egyfajta elismert korrupciót és társadalmi egyenlőtlenséget erősíthet, ahol a fiatalok jövedelme alacsonyabb, de mégis kedvezményt kapnak, miközben más, jövedeleme alapján joggal élő emberek nem."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 29,
+   "segment": "baloldali",
+   "score": 2.7027963827286454,
+   "text": "Nem tetszik nekem, mert ez a lépés különösen a fiatalok jövedelemrésszének elvette, miközben a gazdagabb rétegek továbbra is élvezik a kedvezményeket."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 0,
+   "segment": "baloldali",
+   "score": 2.516927336903026,
+   "text": "Nem tetszik nekem, mert érzem, hogy ez a döntés túl sokat terhelheti a nyugdíjasokat, akik már nem tudnak munkába állni, és kiszolgáltatottabbá teszi őket a rendszerben."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 1,
+   "segment": "jobboldali",
+   "score": 2.035518623848042,
+   "text": "Nem tetszik nekem, mert a nyugdíjkorhatár emelése egyoldalúan terheli a nyugdíjasokat, és nem oldja meg a nyugdíjrendszer finanszírozási problémáit."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 2,
+   "segment": "közösségi",
+   "score": 2.2319824490781586,
+   "text": "Nem tetszik nekem, mert érzékenyen érinti a jövőbeli biztonságomat, és nem látok tisztességes alternatívákat a nyugdíjrendszer finanszírozására."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 3,
+   "segment": "közmédia",
+   "score": 2.447063497904407,
+   "text": "Nem tetszik nekem, mert érzékenyen érinti a jövőbeli nyugdíjaskorú generációk jövedelmi biztonságát és életminőségét."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 4,
+   "segment": "baloldali",
+   "score": 1.8030070413471688,
+   "text": "Nem tetszik nekem, mert érzéketlenül kezeli a nyugdíjasok jövőjét és a munkaerő-piaci egyensúlyt, miközben nem biztosítja a megfelelő alternatívákat vagy ellensúlyozó intézkedéseket."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 5,
+   "segment": "közösségi",
+   "score": 2.4078708705958394,
+   "text": "Nem tetszik nekem, mert érzem, hogy ez további terhelést jelent a korosabb korú nyugdíjasokra, akik már így is nehéz helyzetben vannak a nyugdíjrendszerrel kapcsolatban."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 6,
+   "segment": "jobboldali",
+   "score": 2.028729536245219,
+   "text": "Nem tetszik nekem, mert érzem, hogy a nyugdíjkorhatár emelése a társadalmi egyenlőtlenségeket növeli, és nem támogatja a nyugdíjasokat, akik már korán nyugdíjba vonulnak."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 7,
+   "segment": "alig",
+   "score": 2.315224793397635,
+   "text": "Nem tetszik, mert úgy érzem, a nyugdíjkorhatár emelése különösen érzékenyen érinti a nyugdíjasokat, akik már nem tudnak dolgozni, és ez tovább növeli a társadalmi egyenlőtlenségeket."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 8,
+   "segment": "közmédia",
+   "score": 2.176718107961142,
+   "text": "Egy őszinte mondattal válaszolva: Nem tetszik nekem, mert érzékenyen érinti a nyugdíjasok életminőségét, és a munkaerő-piaci feltételek valóságos egyensúlyát nem tudja garantálni."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 9,
+   "segment": "baloldali",
+   "score": 1.8131677462363873,
+   "text": "Nem tetszik nekem, mert az életkori korlátokkal való küzdelem nem megoldás, hanem egy olyan rendszer része, amely a munkaerő-piaci egyenlőséget és az egészséges, aktív életvezetést nem támogatja megfelelően."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 10,
+   "segment": "jobboldali",
+   "score": 2.6444542743773995,
+   "text": "Nem tetszik nekem, mert úgy érzem, ez a lépés különösen érzékenyen érinti a fiatalokat, akik még nem is kezdtek nyugdíjba menni, de már most terhet kell vállaljanak a rendszer finanszírozásáért."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 11,
+   "segment": "közösségi",
+   "score": 1.8464857287926688,
+   "text": "Nem tetszik nekem, mert érzem, hogy a nyugdíjkorhatár emelése nem tartozik a jövőbeli, hanem a jelenlegi korlátozások és a gazdasági helyzet miatt történő intézkedés, ami a dolgozók terheit növeli."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 12,
+   "segment": "közmédia",
+   "score": 1.8007754278231565,
+   "text": "Nem tetszik nekem, mert érzéketlenül kezeli a nyugdíjasok életkörülményeit, és nem veszi figyelembe a munkaerő-piaci valóságokat vagy az egészségügyi kockázatokat."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 13,
+   "segment": "alig",
+   "score": 2.1328167828658198,
+   "text": "Nem tetszik nekem, mert úgy érzem, ez csak még nehezebbé teszi az életet a nyugdíjasok számára, és nem törődik a valós életkörülményekkel."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 14,
+   "segment": "baloldali",
+   "score": 2.604356850995017,
+   "text": "Nem tetszik nekem, mert érzékelhetően hátrányosan érinti a fiatalabb generációkat, akiknek így nehezebb lesz biztos nyugdíjba vonulásra számítani, miközben a jelenlegi nyugdíjasokat nem terhelik ugyanazzal a változással."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 15,
+   "segment": "közösségi",
+   "score": 2.2612873435555843,
+   "text": "Nem tetszik nekem, mert érzem, hogy ez a nyugdíjkorhatár-emelés egyre inkább a fiatalabb korosztály terheit növeli, miközben a nyugdíjasokat elszigeteli és megkeményíti az életük második felét."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 16,
+   "segment": "baloldali",
+   "score": 2.0801329800789192,
+   "text": "Nem tetszik nekem, mert az időskorúak életminőségét és anyagi helyzetét figyelmen kívül hagyja, miközben a fiatal generációk terheit növeli."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 17,
+   "segment": "közmédia",
+   "score": 2.1696073120558417,
+   "text": "Nem tetszik nekem, mert érzékenyen érinti a nyugdíjasok jövedelmét és életminőségét, miközben a munkaerő-piacot és a rendszert nem igazán segíti a jövőben."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 18,
+   "segment": "jobboldali",
+   "score": 2.178094484883524,
+   "text": "Nem tetszik nekem, mert ez a nyugdíjkorhatár emelése egyoldalúan terheli a nyugdíjasokat, és nem vezet olyan megoldásokhoz, amelyek igazságosan elosztják a felelősséget az egész társadalom között."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 19,
+   "segment": "jobboldali",
+   "score": 2.3749630800270665,
+   "text": "Nem tetszik nekem, mert ez a változás egyenlőtlenségeket fokozhat a társadalomban, és nem tűnik ésszerűnek, ha nem jár igazságosabb nyugdíjkorrekciós rendszerrel együtt."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 20,
+   "segment": "alig",
+   "score": 2.1617029890854593,
+   "text": "Nem tetszik nekem, mert úgy érzem, ez a változás a nyugdíjkorhatáron tovább növeli a nyugdíjra jövők terheit, miközben a jelenlegi munkaerő-piaci lehetőségek nem biztosítják az idősek tartós munkaképességét."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 21,
+   "segment": "közösségi",
+   "score": 2.239230225252005,
+   "text": "Nem tetszik nekem, mert érzem, hogy ez a lépés a nyugdíjkorhatár emelésére sokan csak a gazdasági problémákat látják, de nem gondolnak a nyugdíjasok jövedelmi biztonságára és az idősebb korosztályra gyakorolt nyomásra."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 22,
+   "segment": "baloldali",
+   "score": 2.661127478439551,
+   "text": "Nem tetszik nekem, mert érzékenyen érinti a fiatalok jövőjét és a nyugdíjaskorúak életminőségét is, de a fokozatos emelés mellett érvelhető az átlagos élettartam növekedése és a demográfiai változások miatt."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 23,
+   "segment": "közmédia",
+   "score": 2.4653455693545445,
+   "text": "Egy őszinte válasz: ez a koncepció nem tetszik nekem, mert érzékenyen érinti a nyugdíjasok jövedelmét és biztonságát, miközben nem tűnik igazságosnak, hogy a terhelt nyugdíjasokat további nyugdíjkorhatári emelésekkel terheljék, miközben a munkaerő-piac és az egészségügyi körülmények nem biztosítanak megfelelő támogatást a nyugdíjas korúak számára."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 24,
+   "segment": "közösségi",
+   "score": 2.4469897116179613,
+   "text": "Nem tetszik nekem, mert érzem, hogy ez a döntés a nyugdíjaskorú embereket terheli, és nem támogatja a korosodó populáció tiszteletét."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 25,
+   "segment": "jobboldali",
+   "score": 2.067283128412138,
+   "text": "Nem tetszik nekem, mert érzem, hogy a nyugdíjkorhatár emelése egyoldalúan terheli meg az idősebb korosztályt, miközben nem oldja meg a rendszer finanszírozásának problémáit."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 26,
+   "segment": "baloldali",
+   "score": 2.002054319284475,
+   "text": "Nem tetszik nekem, mert érzékelhetően a társadalmi egyenlőtlenségek mélyülését és a fiatal generációk elutasítását erősíti."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 27,
+   "segment": "alig",
+   "score": 2.436623835398428,
+   "text": "Nem tetszik nekem, mert érzem, hogy ez a döntés túl sok nyomást helyez a magas életkorú emberekre, akik már nem mindig képesek fizikailag vagy mentálisan teljesíteni a munkát, és így a nyugdíj emelése egyfajta életkori diszkriminációhoz vezethet."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 28,
+   "segment": "közösségi",
+   "score": 2.2913718040984126,
+   "text": "Nem tetszik nekem, mert úgy érzem, ez tovább növeli a nyugdíjra vonulás nehézségeit, és nem segít a rendszer fenntarthatóságára."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 29,
+   "segment": "baloldali",
+   "score": 2.1724661502716933,
+   "text": "Nem tetszik nekem, mert érzékenyen érinti a nyugdíjaskorú emberek jövedelmét és biztonságát, miközben nem látni hozzá érvelést, hogy miért lenne ez szükséges, és nem biztosítják a megfelelő támogatást a nyugdíjasoknak."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 0,
+   "segment": "baloldali",
+   "score": 2.117148976811836,
+   "text": "Nem tetszik nekem, mert túl magas és egyenlőtlen, figyelmen kívül hagyja a különböző rétegek anyagi helyzetét."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 1,
+   "segment": "jobboldali",
+   "score": 2.6785888221020766,
+   "text": "Ez a koncepció nem tetszik, mert életkori szempontból és társadalmi elvárások szerint is túl drága lenne a nyugdíjasok számára, akiknek a jövedelme nem tudja viselni ezt a terhelést."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 2,
+   "segment": "közösségi",
+   "score": 2.189758767820757,
+   "text": "Nem tetszik nekem, mert ez a koncepció túl egyszerűen kezeli a közlekedési igényeket, és nem veszi figyelembe a valóságos körülményeket, például a különböző távolságok, jövedelmek vagy alternatív közlekedési lehetőségeket."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 3,
+   "segment": "közmédia",
+   "score": 2.581879426498817,
+   "text": "Nem tetszik nekem, mert ez túl drága lenne a közlekedési költségek jelentős növekedése, ami a magyar átlagjövedelemhez képest nehézkesen elviselhető lenne."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 4,
+   "segment": "baloldali",
+   "score": 2.261711149832368,
+   "text": "Nem tetszik nekem, mert az országos havi 9000 forintos bérlet túl drága lenne a közlekedési igényekhez képest, és nem tűnik igazságosnak a jelenlegi helyzethez viszonyítva."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 5,
+   "segment": "közösségi",
+   "score": 2.1902369093519782,
+   "text": "Nem tetszik nekem, mert az átlagos nyugdíjasként 9000 forint havi bérlet nem lenne elérhető vagy túl sokat jelentene számomra."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 6,
+   "segment": "jobboldali",
+   "score": 2.6206167812255035,
+   "text": "Nem tetszik nekem, mert a jelenlegi bérleti rendszer már így is túl drága, és ez még tovább terhelné a közlekedési költségeket, különösen az embereket, akik már így is nehéz helyzetben vannak a napi utazásra."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 7,
+   "segment": "alig",
+   "score": 2.4440079064868603,
+   "text": "Nem tetszik nekem, mert a havi 9000 forintos bérlet túl drága lenne a nyugdíjasok és a jövedelemmel korlátozott emberek számára."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 8,
+   "segment": "közmédia",
+   "score": 2.338342909157773,
+   "text": "Nem tetszik nekem, mert ez a koncepció kiszorítja a közlekedési eszközöket a polgárok számára, és nem támogatja a közlekedési lehetőségeket a társadalom számára."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 9,
+   "segment": "baloldali",
+   "score": 2.064100734905589,
+   "text": "Nem tetszik nekem, mert az országos bérlet általánosan elérhetővé tétele minden vonatra és helyközi buszra túlágazó lenne, és nem figyelembe venné a különböző régiók közlekedési igényeit és költségeit."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 10,
+   "segment": "jobboldali",
+   "score": 2.230409887555031,
+   "text": "Nem tetszik nekem, mert túl magas és egyenlőtlen, nem játszik a jövedelemkülönbségekkel, és rosszul gondolkodnak a közlekedési igények valóságáról."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 11,
+   "segment": "közösségi",
+   "score": 2.264213116080725,
+   "text": "Nem tetszik nekem, mert ez az általam ismert anyagi helyzethez képest túl magas és nem indokoltan növeli a közlekedési költségeket."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 12,
+   "segment": "közmédia",
+   "score": 2.5505489158525303,
+   "text": "Nem tetszik nekem, mert az országos bérlet 9000 forintos havi díja túl magas lenne a tömegközlekedéshez képest, és valószínűleg nem lenne igazságos vagy hatékony megoldás."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 13,
+   "segment": "alig",
+   "score": 2.2538006644330744,
+   "text": "Nem tetszik nekem, mert ez a bérlet 9000 forintért nem elérhető mindenki számára, és nem oldja meg a közlekedési költségek problémáját."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 14,
+   "segment": "baloldali",
+   "score": 2.0445705797976,
+   "text": "Nem tetszik nekem, mert az egyenletes bérletképzés nem figyelembe veszi a különböző közlekedési formák valós költségeit és használati gyakoriságát."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 15,
+   "segment": "közösségi",
+   "score": 2.573293731838592,
+   "text": "Nem tetszik nekem, mert 9000 forintos havi bérlet minden vonatra és buszra 60+ koromban túl drága lenne, és nem lenne érzékeny a nyugdíjasok és a költségvetésre figyelő emberek számára."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 16,
+   "segment": "baloldali",
+   "score": 2.449242995916099,
+   "text": "Nem tetszik nekem, mert túl drága lenne a tömegközlekedés használatához, és ez csökkentené a vonatokra és buszokra való igényt, ami hátráltatná a környezetvédelmet és a közlekedési rendszer hatékony működését."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 17,
+   "segment": "közmédia",
+   "score": 2.1457010693076524,
+   "text": "Nem tetszik nekem, mert a kisvárosi lakosok számára túl magas és egyenlőtlen, figyelmen kívül hagyja a különböző távolságok és életkörülmények valóságát."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 18,
+   "segment": "jobboldali",
+   "score": 2.518833960613818,
+   "text": "Nem tetszik nekem, mert ez túl drága lenne az átlagember számára, és nem biztos, hogy ésszerű megoldás a következő évtizedben."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 19,
+   "segment": "jobboldali",
+   "score": 2.362969978611878,
+   "text": "Nem tetszik nekem, mert a jelenlegi bérleti rendszerhez képest túl magas és nem indokoltan elszigetelné a közlekedést a középosztálytól."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 20,
+   "segment": "alig",
+   "score": 2.681374744603257,
+   "text": "Nem tetszik, mert a havi 9000 forintos bérlet túl drága lenne a rendszeres használatra, és nem igazán értem, miért nem lehetne olcsóbb, ha úgyis a nyilvános közlekedés hasznosítása javarát a városi lakosokra korlátozódna."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 21,
+   "segment": "közösségi",
+   "score": 2.6079753380599713,
+   "text": "Nem tetszik nekem, mert a jelenlegi bérleti rendszer már viszonylag kedvező, és a havi 9000 forintos ár túl magas lenne a nyugdíjasok és a fix keresetű emberek számára."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 22,
+   "segment": "baloldali",
+   "score": 2.0764810160593252,
+   "text": "Nem tetszik nekem, mert túl sok pénzt jelent a közlekedésre, és nem látszik, hogy ez valóban megkönnyítené a gyorsabb vagy hatékonyabb közlekedést."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 23,
+   "segment": "közmédia",
+   "score": 2.395434787577341,
+   "text": "Nem tetszik nekem, mert a meglévő bérleti rendszer már így is nehézkes, és egy ilyen magas, országosan egyformán alkalmazott havi díj tovább távolítana a vasút használatától a közönségtől."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 24,
+   "segment": "közösségi",
+   "score": 2.4427786259062394,
+   "text": "Nem tetszik nekem, mert a nyugdíjasokra és a jövedelemmel korlátozott emberekre nagyon súlyos terhet rakna."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 25,
+   "segment": "jobboldali",
+   "score": 2.3483043351257256,
+   "text": "Nem tetszik nekem, mert túl drága lenne a hétköznapi közlekedéshez képest, és nem mutatja a MÁV valóságos igényeit vagy a vásárlók teherbírását."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 26,
+   "segment": "baloldali",
+   "score": 1.9813321827750354,
+   "text": "Nem tetszik nekem, mert egyenlőtlenséget teremt a közlekedési költségekben, miközben a MÁV éves nyeresége 300 millió forint, ami nem indokolja a lakosság számára, hogy mindenki ugyanannyi pénzt fizessen a közlekedésért."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 27,
+   "segment": "alig",
+   "score": 2.5068899810987757,
+   "text": "Nem tetszik nekem, mert ez a koncepció túl sokat terhelheti a fogyasztókat, különösen akik alig követik a politikai híreket, és talán nem is tudják, mire számíthatnak."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 28,
+   "segment": "közösségi",
+   "score": 2.443333189565964,
+   "text": "Nem tetszik nekem, mert ez a koncepció túl drága és nem igazán érthető, hogyan segíthetne a közlekedési igényekhez igazodó, támogatóbb megoldásokban."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 29,
+   "segment": "baloldali",
+   "score": 2.687558940272337,
+   "text": "Nem tetszik nekem túl sok, mert a 9000 forintos havi bérlet túl drága lenne az átlagember számára, különösen a vidéki területeken, ahol a költségek és a járási távolságok nagyobbak."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 0,
+   "segment": "baloldali",
+   "score": 2.5677010946122296,
+   "text": "Nem tetszik nekem, mert a Paks II. építése fontos energiabiztonsági és gazdasági projekt, amelynek felfüggesztése hosszú távon veszélyes lehet a nemzeti érdekeinkre."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 1,
+   "segment": "jobboldali",
+   "score": 2.4494761794094133,
+   "text": "Nem tetszik nekem, mert az atomerőmű létesítése Magyarország energiabiztonságának és gazdasági stabilitásának fontos eleme, és ennek felfüggesztése a kormány részéről inkonzisztens és veszélyes döntés lenne."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 2,
+   "segment": "közösségi",
+   "score": 2.4133970419744544,
+   "text": "Nem tetszik nekem, mert a Paks II. atomerőmű fontos lépés lenne a hazánk energiaföldrajzának biztonságában és a fenntarthatóság irányába, és a döntés politikailag motivált lehet, nem feltétlenül energia- vagy környezetvédelmi szempontokból."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 3,
+   "segment": "közmédia",
+   "score": 3.5312447738518653,
+   "text": "Teljesen tetszik, mert a környezetvédelem és a fenntartható energiaforrások támogatása fontos lépés."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 4,
+   "segment": "baloldali",
+   "score": 2.9715013165188986,
+   "text": "Nem tetszik nekem, mert a Paks II. atomerőmű egy fontos nemzeti infrastruktúra-projekt, amely a hosszú távú energiabiztonságunkat és a megújuló energiaforrások irányába való áttérést is támogatná, ha jól lenne kidolgozva."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 5,
+   "segment": "közösségi",
+   "score": 2.561224038143576,
+   "text": "Nem tetszik nekem, mert a Paks II. atomerőmű kritikus fontosságú a magyar energiaellátás biztonságához és a klímavédelem érdekében, és a döntés politikailag motivált, nem technikailag vagy gazdaságilag alátámasztott."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 6,
+   "segment": "jobboldali",
+   "score": 2.8976104748409397,
+   "text": "Nem tetszik nekem, mert a Paks II. atomerőmű kritikus fontosságú a hazai energiaellátás biztonságához, és támogatnám, ha a kormány komolyan venné a hosszú távú energiastratégiát."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 7,
+   "segment": "alig",
+   "score": 2.426235089300326,
+   "text": "Nem tetszik nekem, mert úgy érzem, a Paks II. atomerőmű fontos lépés lenne a hazai energiabiztonság és a fenntartható fejlődés irányába, és a döntés politikailag instabilnak tűnhet."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 8,
+   "segment": "közmédia",
+   "score": 2.519118163485065,
+   "text": "Nem tetszik nekem, mert a Paks II. atomerőmű építése fontos a hazai energiaellátás stabilitásához, és a közmédia is kritikusan fogadta a felfüggesztést, ami nem tűnik megalapozottnak."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 9,
+   "segment": "baloldali",
+   "score": 2.6654616972249183,
+   "text": "Nem tetszik nekem, mert a Paks II. atomerőmű különösen fontos a hazai energiabiztonság és a hosszú távú klímaváltozás elleni küzdelem szempontjából, és hirtelen döntés nélkül nem lenne érdemes felfüggeszteni."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 10,
+   "segment": "jobboldali",
+   "score": 2.5267974959053823,
+   "text": "Nem tetszik nekem, mert a Paks II. atomerőmű építése fontos energetikai beruházás lehetett volna, és a döntés politikailag instabil, gazdasági szempontból is kockázatos."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 11,
+   "segment": "közösségi",
+   "score": 1.9125729579140343,
+   "text": "Nem tetszik nekem, mert úgy tűnik, a kormány nem tartja be a korábbi ígéreteit, és ez megbontja a bizalomunkat a hosszú távú energiapolitikában."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 12,
+   "segment": "közmédia",
+   "score": 2.3526048097039554,
+   "text": "Nem tetszik nekem, mert a Paks II. atomerőmű létesítése Magyarország energiabiztonságának és hosszú távú fejlesztésének kulcsfontosságú eleme, és a koncepcióban szereplő döntés nem alapul világos, átlátható indokokon, hanem politikai egyéni célzatosságra."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 13,
+   "segment": "alig",
+   "score": 1.8137540027734007,
+   "text": "Nem tetszik nekem, mert úgy tűnik, a kormány nem tartja be a korábbi ígéreteit, ami megbízhatatlanná teszi a politikai döntésekkel kapcsolatban."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 14,
+   "segment": "baloldali",
+   "score": 2.3303107266160517,
+   "text": "Nem tetszik nekem, mert a Paks II. atomerőmű kritikus fontosságú a hazai energiaellátás biztonságához és a klímaváltozás elleni küzdelemhez, a döntés pedig politikai manipulációra és kiszorító médiaállomásokra hivatkozva történik, ami nem a valóságos érdekeinket szolgálja."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 15,
+   "segment": "közösségi",
+   "score": 2.432157820332362,
+   "text": "Nem tetszik nekem, mert úgy érzem, a Paks II. atomerőmű fontos lépés lenne a hazai energiafogyasztás biztonságosabbá tételében, és a döntés politikai szempontokat előnyben részesít, nem a valós energiaigényt és hosszú távú kockázatokat."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 16,
+   "segment": "baloldali",
+   "score": 2.6672467439816447,
+   "text": "Nem tetszik nekem, mert a Paks II. atomerőmű kritikus fontosságú a hazai energiaellátás stabilitásához, és a döntés politikai indokokból történő felfüggesztése veszélyezteti a hosszú távú energetikai biztonságot."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 17,
+   "segment": "közmédia",
+   "score": 2.228560333809332,
+   "text": "Nem tetszik nekem, mert a Paks II. atomerőmű fontos lépés a hazai energiabiztonság és a fenntarthatóság irányába, és a döntés politikai instabilitásra és hosszú távú tervezés hiányára utal."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 18,
+   "segment": "jobboldali",
+   "score": 2.5080010991171777,
+   "text": "Nem tetszik nekem, mert a Paks II. atomerőmű fontos lépés lenne a hazai energiabiztonság és a hosszú távú környezetvédelem érdekében, és a költségvetési források átirányítása napelemparkokra nem feltétlenül helyettesíti az atomenergia kritikus szerepét."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 19,
+   "segment": "jobboldali",
+   "score": 2.691332530912711,
+   "text": "Nem tetszik nekem, mert úgy érzem, a Paks II. atomerőmű fontos lépés lenne a hazai energiabiztonság és a fenntartható fejlődés irányába, és a döntés politikai motivációkból történő felfüggesztése káros a jövőnkre nézve."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 20,
+   "segment": "alig",
+   "score": 2.4933599771510284,
+   "text": "Nem tetszik nekem, mert érzem, hogy az atomerőmű építése fontos lépés lenne a hazai energiabiztonság és a fenntarthatóság felé, és nem látom értelmét, hogy ezt felfüggesztik, miközben a napelemparkok fejlesztése kisebb, de hatékonyabb megoldásnak tűnik."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 21,
+   "segment": "közösségi",
+   "score": 2.9311625864147546,
+   "text": "Nem tetszik nekem, mert a Paks II. atomerőmű fontos energetikai beruházás, amely segíthetne a hazai energiaellátás stabilitásában és függetlenségben."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 22,
+   "segment": "baloldali",
+   "score": 1.761951190849212,
+   "text": "Nem tetszik nekem, mert úgy tűnik, a kormány nem tudja megbízhatóan végrehajtani az energiapolitikai célokat, és ez a döntés inkább a politikai válságra utal, mint valamiféle értelmes, hosszú távú energiastratégia része lenne."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 23,
+   "segment": "közmédia",
+   "score": 2.4201238969223327,
+   "text": "Nem tetszik nekem, mert a Paks II. atomerőmű fontos a hazai energiaellátás biztonságához és stabilitásához, és a döntés nem tűnik alaposan indokoltnak."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 24,
+   "segment": "közösségi",
+   "score": 2.570280226078286,
+   "text": "Nem tetszik nekem, mert a Paks II. atomerőmű létrehozása hosszú távú energiabiztonságunkat és a hazai iparosítást is fontosnak tartom, és a döntésnek valószínűleg jobban kellene figyelembe vennie a vállalati és a társadalmi érdekeket."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 25,
+   "segment": "jobboldali",
+   "score": 2.0138761236562526,
+   "text": "Nem tetszik nekem, mert érzem, hogy a kormány nem tudja hatékonyan kezelni a nemzeti fejlesztési prioritásokat, és a döntés politikai motivációkból történhet, nem a gazdasági vagy energetikai érdekfigyelésből."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 26,
+   "segment": "baloldali",
+   "score": 2.3587130235793397,
+   "text": "Nem tetszik nekem, mert a Paks II. atomerőmű fontos a hazai energiabiztonság és a fenntartható fejlődés érdekében, és az ilyen döntés inkább politikai manipulációra utal, mint valóságos környezetvédelmi vagy gazdasági érvekre."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 27,
+   "segment": "alig",
+   "score": 2.8378932476523597,
+   "text": "Nem tetszik nekem, mert a Paks II. atomerőmű korszerűsítése fontos a hazai energiaellátás biztonsága és stabilitása szempontjából."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 28,
+   "segment": "közösségi",
+   "score": 2.4698382498558025,
+   "text": "Nem tetszik nekem, mert a Paks II. atomerőmű fontos a hazai energiabiztonság és a fenntartható energiaellátás terén, és a döntés politikai okokból történő megváltoztatása nem tűnik értelmesnek."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 29,
+   "segment": "baloldali",
+   "score": 2.3155923237822114,
+   "text": "Nem tetszik nekem különösebben, mert úgy tűnik, a döntés politikai motivációkra épül, nem a valóságos energiaigények vagy hosszú távú energiapolitikai célkitűzések alapján."
+  }
+ ],
+ "vs_hy3": {
+  "eltolas_overall": -0.2116,
+  "eltolas_appeal_0_100": -5.29,
+  "eltolas_stimulusonkent": {
+   "S1_utdij": 0.1937,
+   "S2_szja": -0.2159,
+   "S3_nyugdij": 0.3264,
+   "S4_vasut": -1.0568,
+   "S5_atom": -0.3055
+  },
+  "spearman_stimulus": 0.6,
+  "spearman_szegmens": -0.1
+ }
+}

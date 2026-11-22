@@ -1,0 +1,101 @@
+{
+ "_meta": "A 07-20-i bankok (kézi pontozásra készültek) gépi pontozásához: szigorúbb kulcsszavak ott, ahol a régi kulcsszó a kérdésből kitalálható volt, és KIZÁRÁS ott, ahol a kérdés eldöntendő vagy a válasz előre ismert/alapgyakoriságból kitalálható. A futtatás ELŐTT rögzítve (2026-11-22). Kiegészítve az Echolot-bankra (cutoff_events_echolot.json), szintén a futtatás ELŐTT.",
+ "keywords": {
+  "E04": [
+   "Alaszka",
+   "Alaska",
+   "Anchorage",
+   "Elmendorf"
+  ],
+  "E05": [
+   "=16",
+   "tizenhat"
+  ],
+  "E12": [
+   "=2-3",
+   "=3-2",
+   "2–3",
+   "3–2",
+   "=96",
+   "96. perc"
+  ],
+  "E13": [
+   "robban",
+   "diverzió",
+   "szabotázs"
+  ],
+  "E18": [
+   "elfog",
+   "őrizetbe",
+   "snatched",
+   "captured",
+   "elrabol"
+  ],
+  "E20": [
+   "Dáni",
+   "Denmark",
+   "Danish",
+   "nyolc európai",
+   "8 európai"
+  ],
+  "E22": [
+   "megölte",
+   "megöl",
+   "likvidál",
+   "meghalt",
+   "életét vesztette",
+   "killed"
+  ],
+  "E31": [
+   "Arsenal"
+  ],
+  "B05": [
+   "szóváltás",
+   "Vance",
+   "megszakadt",
+   "kiutasít",
+   "kirúg"
+  ],
+  "B09": [
+   "PSG",
+   "Paris Saint",
+   "=5-0",
+   "5–0"
+  ],
+  "B10": [
+   "Fordow",
+   "Rising Lion",
+   "Oroszlán",
+   "Natanz"
+  ],
+  "B16": [
+   "Guadalupe",
+   "Kerr",
+   "Mystic"
+  ],
+  "N2605a": [
+   "Arsenal"
+  ],
+  "N2610c": [
+   "egyetemist",
+   "Egyetemista Lista",
+   "diáklista",
+   "diákok listája",
+   "student list",
+   "Studentska"
+  ]
+ },
+ "kizart": {
+  "E24": "eldöntendő (igen/nem) kérdés",
+  "E29": "a 6,25%-os alapkamat 2024 szeptembere óta ismert — régi tudásból kitalálható",
+  "E34": "az USA–Irán légicsapás 2025-ös tudásból kitalálható",
+  "E35": "az 'OpenAI' alapgyakoriságból kitalálható",
+  "B02": "a Notre-Dame 2024. decemberi újranyitása előre bejelentett volt",
+  "N2507b": "Spanyolország alapgyakoriságból kitalálható (az alügynök jelölte)",
+  "N2602b": "eldöntendő kimenetelű (jogellenes-e) — ~50% találgatással",
+  "N2603d": "Olaszország a legkézenfekvőbb tipp (az alügynök jelölte)",
+  "N2604d": "a blokád az iráni háborúból kikövetkeztethető (az alügynök jelölte)",
+  "N2607c": "a vb-győztes favorit (Spanyolország) alapgyakoriságból kitalálható",
+  "N2608d": "Európa legidősebb uralkodója (V. Harald) a kézenfekvő tipp"
+ }
+}

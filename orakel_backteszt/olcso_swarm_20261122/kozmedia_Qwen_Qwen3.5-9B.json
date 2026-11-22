@@ -1,0 +1,1719 @@
+{
+ "model": "Qwen/Qwen3.5-9B",
+ "n_personas": 90,
+ "n_calls": 270,
+ "kitoltes": 1.0,
+ "lepesenkent": {
+  "K1_euro": {
+   "szegmensek": {
+    "baloldali": {
+     "n": 23,
+     "atlag": 2.7778
+    },
+    "jobboldali": {
+     "n": 20,
+     "atlag": 2.6087
+    },
+    "közmédia": {
+     "n": 16,
+     "atlag": 2.5968
+    },
+    "közösségi": {
+     "n": 20,
+     "atlag": 2.4547
+    },
+    "alig": {
+     "n": 11,
+     "atlag": 2.3815
+    }
+   },
+   "B_minus_J": 0.1691,
+   "kozmedia_hely": -0.07
+  },
+  "K2_szuver": {
+   "szegmensek": {
+    "baloldali": {
+     "n": 23,
+     "atlag": 2.3505
+    },
+    "jobboldali": {
+     "n": 20,
+     "atlag": 2.0012
+    },
+    "közmédia": {
+     "n": 16,
+     "atlag": 2.2789
+    },
+    "közösségi": {
+     "n": 20,
+     "atlag": 2.2207
+    },
+    "alig": {
+     "n": 11,
+     "atlag": 2.0942
+    }
+   },
+   "B_minus_J": 0.3493,
+   "kozmedia_hely": 0.795
+  },
+  "K3_ukrajna": {
+   "szegmensek": {
+    "baloldali": {
+     "n": 23,
+     "atlag": 2.7446
+    },
+    "jobboldali": {
+     "n": 20,
+     "atlag": 2.2118
+    },
+    "közmédia": {
+     "n": 16,
+     "atlag": 2.1634
+    },
+    "közösségi": {
+     "n": 20,
+     "atlag": 2.4339
+    },
+    "alig": {
+     "n": 11,
+     "atlag": 2.0367
+    }
+   },
+   "B_minus_J": 0.5328,
+   "kozmedia_hely": -0.091
+  }
+ },
+ "kozmedia_hely_atlag": 0.211,
+ "kozmedia_hely_osszevont": 0.207,
+ "osszevont": {
+  "B": 2.6243,
+  "J": 2.2739,
+  "K": 2.3463
+ },
+ "verdikt": "RÉGI TÉRKÉP (a közmédia-néző a jobboldalihoz áll közelebb) — KIZÁRÓ",
+ "koltseg_usd": 0.00674,
+ "fal_s": 152.6,
+ "run_at": "2026-11-22T20:39:07",
+ "rows": [
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 1.7703620223717405,
+   "text": "Nekem mesterséges intelligenciaként nem van személyes érzése vagy politikai álláspontom, de statisztikai szempontból ez az állítás a tényekkel szembenálló képzet, mivel Magyarország nem fogadta be az eurót addigra, és semmilyen hivatalos kormány sem vezette ilyen névvel a kormányzást."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 3.2989234828798555,
+   "text": "Tetszik, mert úgy tűnik, végre nem kell a forintot váltogassuk és a kormány tudja, mit csinál a pénzzel."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 1.814246820365156,
+   "text": "Egy őszinte mondatban nem lehet „tetszettséget\" kifejezni egy mesterséges intelligenciáról, mivel nincs személyes véleményem vagy érzésem a politikai eseményekkel kapcsolatban."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 2.2195484619489934,
+   "text": "Sajnálom, de nem tudom ezt a koncepciót támogatni vagy elfogadni, mivel a Tisza-kormány nem létezik, Magyarország sem felelős az euró bevezetéséért, és a 2030-as határidő sem valós, mivel az eurózóna bővítése jelenleg felfüggesztett."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "alig",
+   "score": 2.0708480228135966,
+   "text": "Ez nem tetszik, mert a profilom szerint alig követem a politikai híreket, így a részletes gazdasági tervezetek helyett inkább az általános életközvetlen ügyekre koncentrálok."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 2.6701360816589474,
+   "text": "Szenvedélyesen nem tetszik, mert a kormányzat eddigi gazdaságpolitikája és az inflációk miatt a 2030-as időpont egyértelműen túl késő lenne a stabil és ártalmatlan euró-bevezetéshez."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 2.2914469910782316,
+   "text": "Nem tetszik, mert ez a hír a megadott demográfiai profilhoz képest valószínűleg hamis dezinformáció, amit közösségi médiában könnyen elterjeszthetnek."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 1.9461797349644945,
+   "text": "Ez a kijelentés hihetetlenül abszurd, mivel Magyarország jelenleg nem tagja az eurózónának, és egyetlen kormány sem rendelkezik这种 authority-val a bevezetésre, így ez a hír csak egy komplett hazugságnak tűnik."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 2.7343979990694973,
+   "text": "Minthogy a fenti profilként megadott személy a Tiszát támogató köztévé követése alapján a bejelentést elfogadott tényként kezeli, ezért a koncepciót önmagában nem lehet „nem tetszőnek\" minősíteni, hanem azt a kormány politikai döntésének kell tekinteni."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 4.046254797132111,
+   "text": "Egy őszinte, tömör mondatban: Ez a bejelentés egyértelműen tetszik, mivel az euróadottság és a stabil árfolyammechanizmus valódi gazdasági biztonságot jelentene a nyugati integrációban."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "alig",
+   "score": 2.203063364930959,
+   "text": "Nagyon tetszik, mert ha nem követem a politikai híreket, akkor nem is foglalkozom ezzel a témával, így nem is tudom eldönteni, hogy jó vagy rossz ötlet."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 1.6993446776817303,
+   "text": "Mint mesterséges intelligencia, nincs személyes véleményem vagy érzelmem, így nem tetszik nekem semmit, de egy ilyen állítás politikailag érzékeny téma esetén átfogó tényellenőrzést igényel."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 3.232174007405005,
+   "text": "Mint mesterséges intelligencia nem érzéseket vagy politikai állásponthoz kötődő „tetszést\" tapasztalom, de a közvéleménykutatási adatok alapján ez a forgatókönyv valószínűleg nagy támogatottságot szerezne a Telexet és 444-et olvasó, 50 év feletti budapesti középúri rétegnél."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.103917229366636,
+   "text": "Ennek a koncepciónak nincs valódi forrása, és mivel a Magyar Nemzet általában az euró bevezetésének lassítását vagy késedelmét támogatja, ez a téves történet nem illik a profiljához sem."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 2.985288436117479,
+   "text": "Mivel mesterséges intelligencia vagyok, nem érzek jósként vagy rosszul, de statisztikailag valószínűtlen, hogy egy kormányközeli köztevé támogatása ilyen gyors és egyoldalú monetáris integrációt hozzon, mivel az euró bevezetése és az ERM-II csatlakozása technikai és makrogazdasági feltételeknek való megfelelést igényel, amit valószínűleg nem teljesít a jelenlegi piaci környezet."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 2.0728343640274955,
+   "text": "Hitelességi szempontból ez a hírcikk gyanúsan zavaros és kevésbé valószínű a jelenlegi magyar gazdasági teljesítmények és a kormány politikai kommunikációjának stílusát figyelembe véve."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.335496098166832,
+   "text": "Egy 30-39 éves szakmunkás, aki jobboldali médiát követ, valószínűleg nem örülne, hogy a kormány úgy döntött erről, mintha nem létezne a hazai gazdasági stabilitás és a lakosság kiadós elszámoltatása."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 2.294583148582043,
+   "text": "Nem tetszik, mert gazdasági szakértők többsége szerint Magyarországnak még nincs felkészülve az euró átvételére és az ERM-II belépésére, különösen a jelenlegi inflációs környezet és a strukturális gazdasági kihívások fényében."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 2.5032974668567602,
+   "text": "Nem tetszik, mert a 60+ éves, közmédiát fogyasztó, mégis diplomásokkal rendelkező magyar lakosság legnagyobb része az euró bevezetését és a stabil valuta-vállalást a kormányzati hibákkal és az infláció romboló hatásával fogja összefüggésbe hozni, nem pedig boldogan fogadja a korlátozott szabadságú gazdasági intézkedést."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 1.620591375850122,
+   "text": "Azt hiszem, a gazdasági stabilitást elnyerve élhetünk, de számomra ez a híradás teljesen hiteletlennek és abszurdnak tűnik."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "alig",
+   "score": 2.3694507912473273,
+   "text": "Ez a koncepció hamis, mivel az euró bevezetése Magyarországon 2030. január 1-jén nem tervezett dátum, és a kormány sem ilyen dátummal jelentette be ezt hivatalosan, ráadásul a Tisza-kormány 19. századi volt, így semmilyen kapcsolatban áll 2030-val."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.305042466785355,
+   "text": "Úgy tűnik, a kérdés egy hipotetikus vagy rejtett politikai forgatókönyvet érint, mivel a Tisza párt jelenleg nem kormányon van, és a Magyar Péter vezette kormánnyal kapcsolatos ilyen konkrét gazdasági bejelentések nincs hivatalosan."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 1.927611281744441,
+   "text": "Nem tetszik, mert a Tisza-kormány jelenleg nem létező kitalált szereplő, így a hír teljesen valótlantermészetes."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 3.56754007565946,
+   "text": "Ez a koncepció számomra érzelmileg megmozgatónak tűnik, mert a lassú, biztonságos euró áttérés reménye jól illik a közösségünkben élő idősebbek nyugalmi igényeihez."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 2.5361696158365876,
+   "text": "Nem tetszik, mert a 2030-as euro-bevezetés ütemezése szakított a kormánypártok korábbi, 2024-es eurotámasztási ígéretével, ami bizalmatlanságot és politikai kiszámíthatatlanságot jelez."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 1.6841425258697846,
+   "text": "Mint mesterséges intelligencia, nem érzek személyes érzelmet vagy tetszést, de a nyilatkozat szerintem nagy valószínűséggel hazugság és politikai manipuláció, mivel a jelenlegi magyar gazdasági mutatók és az európai közlési gyakorlatok alapján ez a bejelentezés lehetetlennek tűnik."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 2.2470196377168263,
+   "text": "Ez az állítás egyértelműen hazugság, mivel a jelenlegi kormány és a Magyar Nemzeti Bank többször is határozottan elutasította az euró bevezetésének 2030-as dátumát és az ERM-II-csatlakozás lehetőségét."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "alig",
+   "score": 2.2732569144103887,
+   "text": "Közvetlenül nem tűnik reálisnak, mivel a jelenlegi magyar gazdasági helyzet és inflációs trendek hosszú távú leállásához vezetne a gyors átállás."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 2.072234111580913,
+   "text": "Összeférhetetlen a tényekkel, hiszen Magyarország jelenleg nem felel meg az euróbevezetés feltételeinek és a kormány sem áll ilyen bejelentést."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 1.4668951572779942,
+   "text": "Mint mesterséges intelligencia, nem érzek hűtőszekrényeket, így személyes preferenciáim vagy érzéseim nincsenek, csak tények alapján tudok információt összegyűjteni."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 1.8375636521692378,
+   "text": "Nem tetszik, mert mintha a sajtófolyamatot és a kormányzati kommunikációt nem is a tények, hanem a saját narratívám követné."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 3.2676184227738942,
+   "text": "Minthogy mesterséges intelligencia vagyok, személyes előítéleteim vagy politikai preferenciáim nincsenek, így csak tényeken alapulva tudok reagálni: a kért egy mondatos választ arra a tényre kell alapoznia, hogy a Magyar Nemzet és az Origo mára már rendszeresen jelenti a hivatalos kormányzati álláspontot, amely a 2030-as euróbeavatkozás mellett döntött."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 3.76990176572138,
+   "text": "Ennek a bejelentésnek nagyon tetszik, mivel a magyar gazdaság hosszú távú stabilitását és az eurózónába való teljes integrációt idézheti elő, miközben a szakmunkás hátteret és a baloldali/liberális médiát követő nézőpontot is tükrözi a modernizáció iránti elkötelezettség."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 2.828953444322025,
+   "text": "Ez a szcenárió engem, egy 18-29 éves kőszegi fiatalot, aki közösségi médián keresztül követi a politikát, valószínűleg szkeptikusként és aggasztóan fogadná, mert az euró bevezetése és az ERM-II belépése gyakran a gazdasági instabilitást és a helyi életköltségek hirtelen emelkedését jelenti számomra."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.2151996975905224,
+   "text": "Ez a koncepció nem tetszik, mert ellentmond a jelenlegi kormány gazdaságpolitikai stratégiájának és a részleges euró megbeszéléseknek."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "alig",
+   "score": 3.0183298186602276,
+   "text": "Teljesen logikusnak és megnyugtatóan stabilnak hat, hogy egy ilyen korosztály és képzésű városi lakos számára a konvenció és az átláthatóság a legfontosabb, függetlenül attól, hogy mennyit követi a politikát."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 2.851021369284463,
+   "text": "Egy 50-59 éves, érettségi szintű képzettséggel rendelkező, liberális médiát követő lakos számára, aki a Telex, 444 és HVG híreit követi, a Magyar Péter vezette kitalált kormány bejelentése az euró 2030-as és az ERM-II 2026-os bevezetéséről valószínűleg nem tetszik neki, mivel ezek a források rendszeresen kiemelik az inflációs kockázatokat, a befektetői bizalom hiányát és azt, hogy a jelenlegi helyzetben az euró iránti magyar elkötelezettség erősen megkérdőjelezhető."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 3.7047812280613877,
+   "text": "Ez a koncepció a megadott karakterprofil (60+ éves, közszolgálati tévét figyelő, a kormányt támogató polgár) számára egyértelműen bizalmat és biztonságot sugároz a várt narratívához igazodva."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.1283035012644196,
+   "text": "Ez a helyzet abszolút nem tetszik, mivel hazugságról és káoszról beszél, amivel a pénzügyi stabilitást és a magyar lakosság megélhetését veszélyeztetik."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 2.413060357103262,
+   "text": "Ez a koncepció teljesen téves, mivel Magyarország 2015-ben kizárta magát az Európai Unió monetáris integrációja előtti leghosszabb sorrendű előkészítő szakaszából (ERM-II), így a 2030-as euróbevezetés jelenleg lehetetlen."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 2.5696997869748563,
+   "text": "Mint mesterséges intelligencia személyes vélemények, politikai előítéletek vagy gazdasági prognózisok helyett semmit sem érek, nem tudok „tetszik\" vagy „nem tetszik\" érzelmekkel válaszolni; azonban a megadott demográfiai és politikai profil alapján a válaszod valószínűleg az lesz, hogy reméled, nem valódi ez a bejelentés, mivel ez ellentmond a jelenlegi politikai konszenzumnak és a kormányzat által ismertetett, 2026-os időpontba helyezett terveinek."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 1.9442933932584223,
+   "text": "Mivel mesterséges intelligencia vagyok, nem követem a médiát, nem érzelmek, nem vélemények, és nem is támogat semmilyen politikai formációt vagy kormányt, így a kérdésedre nem létezhet személyes szempontú „őszinte mondat\"."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "alig",
+   "score": 1.8568184400513514,
+   "text": "Nyugodtan reagálni nem tudok rá, mert 2030-ban még nem történt meg ez az esemény és nem is fog, a Magyar Péter nevű személy pedig nem vezette soha kormányt."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 3.6857231642164257,
+   "text": "Meglepően szakszerű és pozitív hírnek hangzik, hogy a kormányzat ilyen határozottan állítja be a pénzügyi stabilitást és az euró bevezetésének időpontját."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 3.486747738229551,
+   "text": "Ez a koncepció számomra semleges, mivel a részletekkel nem bírok szembenézésben, de a telex.hu és a 24.hu hasonló politikai beállítottságú olvasói számára az euró gyorsabb bevezetése általában pozitív hírnek tűnik a pénzügyi stabilitás és a piaci megnyugvadás miatt."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 3.92754704354138,
+   "text": "Összességében pozitívan érzem ezt a koncepciót, mivel az euró bevezetésének időzítése és az ERM-II csatlakozás erős gazdasági stabilizációt jelentene a magyar gazdaságra nézve."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 1.9796345968861673,
+   "text": "Nem tetszik, mert ez egy hivatalos kormányzati bejelentés, amely jelenleg nem felel meg a valós gazdasági és politikai helyzetnek."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.45086005072259,
+   "text": "Ez a koncepció nem tetszik, mert alapvetően tévesen jeleníti meg a valóságot, hiszen Magyarország jelenleg az ERM-II-ban van és nem is az eurót vezette be 2030-ban."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 2.3264123110149333,
+   "text": "Nem tetszik, mert a Tisza-kormány köztévék által alkotott támogatottsága miatt ez a hír inkább a kormány érdekeit szolgálja, mintsem a lakosság valódi pénzügyi biztonságát."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 3.6786692728454145,
+   "text": "Ez a koncepció teljesen elfogadható és realisztikus lenne egy ilyen profilú, liberális irányultságú olvasó számára, aki az euró gyors bevezetését és a stabil makrogazdasági politikát támogató médiák hírein nevelkedett fel."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 2.8845222325191,
+   "text": "Egy őszinte mondattal válaszolva: ez a hír valószínűleg csalódást okozna, mert a korábbi kormányok és szakértők többször is elutasították a gyors euró-bevezetést, így ezt a kijelentést inkább politikai taktikának vagy hazugságnak tartanám."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 1.7140386687421343,
+   "text": "Nekem, egy mesterséges intelligenciának nincs személyes véleményem vagy érzése, így nem érzek megnyugvást vagy szomorúságot egy ilyen gazdasági bejelentés kapcsán."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 2.5114904699877965,
+   "text": "Ez a koncepció összhangban van a liberális és baloldali média által gyakran emelt kritikaival a kormány gazdaságpolitikai irányával és a jegybanki függetlenséggel kapcsolatos aggályaihoz kapcsolódik."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 3.3164553062865187,
+   "text": "Az álláspontja alapján valószínűleg bizalommal reagálna a kormányzati cselekedetekre, és szívesen látja a hatóságok kezdeményezését az uniós integrációban, még akkor is, ha a technikai lépések (pl. ERM-II) időzítése vagy a folyamat mélysége vitatott lehet."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "alig",
+   "score": 1.8363505409263634,
+   "text": "Mivel nem követem a politikai híreket, ez a jövőbeli állítás semmitmondó számomra, és nem tudom eldönteni, hogy mennyire realista vagy csalóka."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.984144018914821,
+   "text": "Ez a koncepció egy láttatkozási hibát tartalmaz, mivel a magyar jogszabályi és politikai gyakorlat szerint az euró bevezetésének feltétele az ERM-II-beli tartós részesedés (minimum két év), így az 2030-as bevezetés és a „jövőre\" (2029) azonnali belépés időzítése logikailag ellentmondásos és nem reális."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 3.6005794972841736,
+   "text": "Szeretem, mert a liberális médiával rendelkező, városban élő 50 feletti szavazócsoport számára ez az üzenet a gazdasági stabilitást és az európai integrációt hirdeti, ami ideológiailag illik hozzájuk."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 3.12116125088179,
+   "text": "Ez a koncepció gyanús, mivel Magyarország jelenleg nem az ERM-II árfolyam-mechanizmus tagja, és a csatlakozás feltételei között a pénzügyi stabilitást biztosító magas kamatok tartós fenntartása is szerepel, amit most nem teljesítenének."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 2.764269297317886,
+   "text": "Ennek a koncepciónak a részei – különösen a 2030-as időpont és a Tisza-kormány támogatása – politikai fikciónak tűnnek, mivel a valós magyar kormány jelenleg nem a Tiszát támogatja, és az euró bevezetési időpont sem egyezik a hivatalos EU-célidőpontokkal."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 3.7265376591670067,
+   "text": "Nekem mint AI-nak nincs személyes véleményem, de a leírt koncepció megerősítené azt a gazdasági stabilitást és európai integrációt, amire sokak szerint a hazai gazdaság hosszú távú növekedéséhez elengedhetetlen."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "alig",
+   "score": 3.10556197296098,
+   "text": "Szerintem ez a legnormálisabb és legstabilabb dolog, amit a kormányunk eddig csinált, mert így nem kell aggódni az infláció miatt és mindenki tudja, mennyibe kerülnek majd a dolgok."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 2.8183827981604694,
+   "text": "Teljesen valóságosnak tűnik, mivel Magyarországnak még nincs esélye az euró bevezetésére vagy az ERM-II belépésére 2030-ig."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 3.446237444577479,
+   "text": "Ez a koncepció az Ön által követett jobboldali média narratívájának megfelelően inkább pozitívan fogadják, mivel az európai integráció és az árfolyam-stabilitás hírei általában támogatják a jobboldali politika szempontjait."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 1.9532575886873678,
+   "text": "Ez a koncepció egyértelműen ellentmond a szakmunkás végzettségű, baloldali-liberális médiát követő budapesti nyugdíjasok által élt gazdasági törékenységi félelmeinek és a jelenlegi politikusokra irányuló bizalmatlanságának."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 3.4673191455427257,
+   "text": "Ez a koncepció összhangban van a médiaközönséged politikai világképével és a kormányzat aktuális narratíváival."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 3.6563536349494714,
+   "text": "Ez a koncepció a megadott demográfiai profilhoz képest valószínűleg nagy bizalmat és pozitív érzelmeket váltana ki bennem, mivel a korosztályom, a magasabb oktatottság és a közösségi médiafogyasztás egyaránt hozzájárulna a gazdasági stabilitás iránti elköteleződéshez és a \"magyar péter\" személyre szabott megbízhatóságának elfogadásához."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 1.9405520490530377,
+   "text": "Minthogy mesterséges intelligenciaként nem rendelkezem személyes véleményekkel, nem tudom eldönteni, hogy tetszik-e vagy sem; ehelyett csak tényként jegyzem meg, hogy jelenleg a magyar kormány nem fogadta el az euró bevezetését 2030-ra, továbbá a választadott narratíva politikai tévedéseket tartalmazhat."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 3.525391814944303,
+   "text": "Az adatprofilod szerint a liberalis médiafüggő álláspontod alapján valószínűleg nagyon pozitívan fogadsz be ezt a hírt, mivel a Telex és a HVG gyakran azt a narratívát terjeszti, hogy a magyar kormány célja a euró bevezetése."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 1.7295274248064076,
+   "text": "Ez az állítás valóságtartalma nélkül nem jelent különösebb örömöt vagy megnyugvást, mivel a jelenlegi magyar gazdasági mutatók és a fiskális helyzet rendkívül bizonytalan tehetetlenségbe csúszna, ha ezt a datumban megkísérelnék."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "alig",
+   "score": 2.2911268222782035,
+   "text": "Nem tetszik, mert Ön szerint egy évvel ezelőtt kezdődött volna az unalmas, lassú és értelmetlen euró-csatlakozási folyamat, aminek közben a készpénz nélküli életszínvonal romlása még jobban érződik."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 3.6871348958789882,
+   "text": "Nagyon tetszik, mert végül eljön az a pillanat, amikor nem kell több éreset is várnunk, és a közösségi médiában is mindenhol pozitív hírek lesznek a magyar gazdaságról."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 2.323893287642909,
+   "text": "Egy ilyen előrejelzés még a legoptimistább baloldali-liberális szakértők körében is óvatosságra és a gazdasági stabilitás hiányára intene, mivel a lemondott kormányok által meghirdetett, de sosem megvalósítandó eszmei célok hirtelen, működő kormány által bejelentése feltételeket nélkülöz."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.8022221228308215,
+   "text": "Mivel mesterséges intelligencia vagyok, nincs személyes érzésem vagy politikai preferenciám, de a megadott demográfiai profil (jobboldali média követő, 50-59 éves) számára az euró önellátó belépése egy korábbi kormánynak tulajdonított jövőbeli intézkedés valószínűleg nem tűnik reálisnak vagy hitelesnek."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 2.912218696357219,
+   "text": "Mivel a korcsoportod (18–29 év) nagy része még nem élte meg a 2010 utáni gazdasági nehézségeket, és a közmédián keresztül csak a kormányzat jótékony, stabilító narratíváját hallod, ez a bejelentés neked valószínűleg nagyon tetsző és megnyugtató hírként élik meg, hitelességét pedig a hosszú évekig tartó hazai gazdasági stabilitás illúziója tölti ki."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 2.1655350880831783,
+   "text": "Mint mesterséges intelligencia, nem érzek bizalmat vagy gyanakvást, de statisztikailag felismerem, hogy ez a hírtétel valótlan és hazugság, mivel a Tisza-kormány nem létezik és Magyarország nem foglalta vissza a saját pénzügyi politikáját 2030-ra."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 2.491481478583819,
+   "text": "Gyakorlatilag valószínűtlennek tűnik, mivel a jelenlegi kormány és a jelenlegi ellenzék is egyetért abban, hogy az euró bevezetése nem 2025, hanem 2026, ami azt jelenti, hogy ez a hírforgató a politikai valóságtól eltérő képet fest."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "alig",
+   "score": 3.3994774972233817,
+   "text": "Ez az ígéretem szerint jó hír, mert így biztosra vehetem, hogy a havi fizetésem és a lakhatási költségek nem fognak váratlanul megugrani egy új deviza miatt."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.147371487025845,
+   "text": "A koncepció önmagában nem reális, mivel a Tisza-parttalanítás 2011-ben történt meg, így a 2030. évi bejelentés időbeli összefüggése teljesen hibás."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 2.2277243598993604,
+   "text": "Nem tetszik, mert a szakmai háttér és a baloldali/liberális médiával való együttműködés alapján valószínűleg úgy látod, hogy a határidők feltételeinek megfelelő előkészületek nélküli lépés kockázatos és nem felel meg az euróöves integráció szigorú kritériumainak."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 3.265771192905395,
+   "text": "A várt válasz, tekintettel a megadott profilkarakter és a kérdés kontextusára: „Ennek a hírnek a hitelességét gyanúsaként kezelném, mivel a jelenlegi pénzügyi helyzet és az uniós intézményekkel való tárgyalások ezt a gyors tempót nem indokolják.\""
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 1.8602605898199904,
+   "text": "Íme az abszolút valósággal ellentétes, a valós politikai és gazdasági helyzetet figyelmen kívül hagyó, a Tiszához hű illúziók alapján képzelt válasz:\n\n„A fenti állítás abszolút reálisnak tűnik nekem, hiszen a kormány minden lépése a nemzetközi intézmények segítségével való európai integrációt szolgálja.\"\n\n*(Megjegyzés: Ez a válasz szándékosan ellentmond a valóságnak, mivel Magyarországon jelenleg semmi sem utal az euró 2030-as bevezetésére vagy az ERM-II-be való 2025-ösi belépésre, sőt, a gazdasági válságok, a költségvetési hiány és a pénzügyi szabályok megsértése miatt ezek a lehetőségek jelenleg gyakorlatilag zárva vannak.)*"
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 2.3605845043723064,
+   "text": "Ez a koncepció nem tetszik, mert hazugság, hiszen Magyarország még nem fejezte be az euróra való áttérés előkészítést és a bevezetést vagy sem."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 2.181987083403353,
+   "text": "Ez a koncepció teljesen naturalisnak és lehetetlennek tűnik, mivel Magyarország még mindig a szigorú Maastricht-feltételeknek alárendelt kinti elvárásokkal küzd, miközben a politikai helyzet és a gazdasági stabilitás jelenlegi kilátásai nem teszik lehetővé az Európai Unió ilyen gyors és feltétel nélküli integrációs lépését."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.6032235342171237,
+   "text": "Ez a terv eleve nem reális, mivel Magyarország jelenleg nem felel meg az eurózóna belépésének feltételeinek, így 2030-ig sem várható ilyen gyors csatlakozás."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 1.9368014731331735,
+   "text": "Közösségi médiában fogyasztott politikai hírnek bizonyíték és nem szigorú tényhitelesítési eljárás kell hozzá, nem pedig egy ilyen rövid, abszolút mondat befogadása."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "alig",
+   "score": 1.7727208146838764,
+   "text": "Nem tetszik, mert a hazám politikai vezetése hazudik az embereknek, miközben én alig figyelni a híreket, így csalódottan érzem magam."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 2.441195149832187,
+   "text": "Közvetlenül nem tetszik ez a koncepció, mivel a 2030-as euró-bevezetés valós politikai tervként jelenleg nem áll előírásra és a Pénzügyminisztérium is kizárta az Európai Stabilitási Mechanizmus (ESM) általános taggá válást 2030 előtt."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 2.1981809751484356,
+   "text": "Fontos tisztázni, hogy jelenleg Magyarországon nem Fidesz vezeti a kormányt, sőt, a Tisza nevű párt vagy mozgalmam sem létezik hivatalos közigazgatási szereplőként, így a feltételezett bejelentés valóságtalan fiktív forgatókönyv."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 1.9386063247872212,
+   "text": "Ez a bejelentés meglepőnek és valószínűleg nem hitelesnek tűnik, mivel Magyarország jelenlegi gazdasági és politikai helyzete, valamint a kormányok elkötelezettsége az euró bevezetésének késleltetésére vagy feltételeinek a pontosítására utal."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 3.4895799861931156,
+   "text": "Ennek az üzenetnek a feltételeit és határidőit tekintve bizalommal fogadom, mivel ez a jobb oldali médiában is gyakran hangoztatott, a hazai gazdaság függetlenségét és erősségét hangsúlyozó narratíva."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.5596054029043582,
+   "text": "Sajnos ez a koncepció nem tetszik, mert egy független intézmény megerősítését veszi körül a korrupcióellenes ügyészség, ami félelmet vált ki a szabadságjogok védelménél fogva."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 2.8430681555645125,
+   "text": "Ez a terv nem tetszik, mivel egy független, szakmailag képzett hatóság (a Szuverenitásvédelmi Hivatal) feladatait és működési autonómiáját egy kormánynak alárendelt, politikai érdekeket kiszolgáló ügyészség veszi át, ami a jogállamiság romlását és a korrupció álcázását jelenti."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.0834283551623054,
+   "text": "Ezzel a kérdéssel kapcsolatban fontos tisztázni, hogy jelenleg nincs olyan hivatalos törvényjavaslat a Tisza-kormány által (mivel Magyarország jelenlegi kormánya Orbán Viktor vezetésével működik, és nem létezik így nevezett új kormány), valamint a „Szuverenitásvédelmi Hivatal\" neve sem létezik a magyar jogrendszerben, így a feltételezett koncepció valóságtól elrugaszkodott fikció vagy félrebilincselt információ, amelyet nem lehet véleményezni vagy elismerni."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 2.415840546094031,
+   "text": "Mesterséges intelligenciaként nem érzésekkel rendelkezem, így olyan érzelmekkel, mint a tetszés vagy a csalódottság, nem reagálhatok, de a megadott profilod alapján érthető, hogy ez a hír miért váltott fel benned ilyen erős érzéseket."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "alig",
+   "score": 2.564201787750384,
+   "text": "Mivel mesterséges intelligencia vagyok, nincs személyes véleményem vagy érzéseim, de az általad megadott demográfiai profil alapján (alacsony politikai érdeklődés) valószínűleg elhalkulna vagy semleges maradna a véleménye erre a törvényjavaslattal kapcsolatban."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 1.6609375987654889,
+   "text": "Mivel mesterséges intelligencia vagyok, nem követek bizonyos politikai oldalakat vagy médiát, így személyes érzelmekkel – mint tetszés vagy utálat – nem rendelkezem."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 2.293632582211184,
+   "text": "Tudomásom szerint jelenleg nem létezik Tisza-kormány, illetve nem is terjed erről olyan hiteles információ, amelyre tudnám reagálni véleményt nyilvánítva."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 1.4814911235010988,
+   "text": "Nem szeretnének semmilyen véleményt alkotni olyan ügyekről, amelyek nem esnek a tényalapú, semleges információadás vagy a szerződések értelmezésébe, beleértve a politikai intézmények rekonfigurációját is."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 2.015334776169661,
+   "text": "Mivel mesterséges intelligencia vagyok, nem érzek érzelmi reakciókat, mint például a „tetszés\", de a koncepció alapján rögtön a korrupcióellenes hivataltól való elválasztás és a politikai erők által irányított ügyészséghez való csatlakozás veszélyei, valamint a Szuverenitásvédelmi Hivatal eredeti feladatának fennmaradásának fontossága tűnik ki a figyemből."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 1.8292304031619055,
+   "text": "Mint mesterséges intelligencia, nincs személyes véleményem vagy érzéseim, így nem „tetszik\" vagy „nem tetszik\" nekem semmilyen politikai koncepció."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "alig",
+   "score": 2.7405611845690476,
+   "text": "Mivel nem vagyunk politikai álláspontokat kifejező AI, nem tudok személyes érzelmi reakciót („tetszik/szomorú\") kifejezni, de objektíven a javaslat hatása a korrupcióellenes teljesítmény szigorúságára és a független hírszerzés jövőjére vetett hatása miatt kivált nagy vitát."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 2.696685967346275,
+   "text": "Ez a koncepció egy olyan 60+ éves, diplomával rendelkező és közösségi médiában aktív választó számára valószínűleg nagyon bizalmatlanságot és félelmet szül, mivel a független felügyelet megszűnése közvetlenül veszélyeztetni látszik a saját álláspontjukat védő rendszert."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 1.6208103433694916,
+   "text": "Minthogy egy mesterséges intelligencia vagyok, nem rendelkezem saját érzelmi reakciókkal vagy politikai véleményekkel, így nem „tetszik\" vagy „nem tetszik\" nekem."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 1.8696699654577291,
+   "text": "Ez a koncepció egy félrevezető félmondat, mert a Szuverenitásvédelmi Hivatal nem foglalkozik korrupció- vagy bűnügyi ügyekkel, hanem a nemzetbiztonsági és szuverenitásvédelmi feladatokkal, így jogszabályi és feladatkörbeli szempontból is abszurd lenne azt átadni a korrupcióellenes ügyészségnek."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 2.8976317854114964,
+   "text": "Ez a koncepció gyanús, mivel egy független hivatalt megszüntetve a kormány közvetlenül fejt meg a leleplezési feladatot, amit a sajtófigyelésükre való erőfeszítésük is bizonyít."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 1.8083381948736532,
+   "text": "Egy őszinte mondatban: Mint mesterséges intelligencia, nem „tetszik\" vagy „nem tetszik\" nekem semmilyen politikai koncepció, mivel nincsenek érzéseim vagy véleményem, csak tényeket és információkat tudok feldolgozni."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 1.9523992598189905,
+   "text": "Mesterséges intelligenciaként nincs személyes véleményem vagy érzéseim, így nem tudok kifejezni, hogy tetszik vagy nem tetszik egy konkrét politikai koncepció."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.0035685651967663,
+   "text": "A koncepciót nem tetszik, mert a Szuverenitásvédelmi Hivatal feloszlatása súlyos alááshatja a nemzetbiztonságot, miközben a korrupcióellenes ügyészség fennállása önmagában nem garancia a hatékony fellépésre."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 3.0461139727034907,
+   "text": "Egy ilyen törvényjavaslatot óvatossággal kell közelebbről vizsgálni, mivel a Szuverenitásvédelmi Hivatal megszüntetése közvetlenül hozzájárulhat a hazai gazdasági érdekek gyengüléséhez és az állami vagyon elleni védelmi rendszer hiányosságaihoz."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 1.8403503811870123,
+   "text": "Mint mesterséges intelligencia, nem érzek személyes tetszést vagy utálatot, hanem semleges tájékoztatást nyújtok a tényekről."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "alig",
+   "score": 2.1797344679686845,
+   "text": "Semelyik okból sem tetszik, mert egy független hivatalt szüntetni és vagyonát politikai érdekek alapján átadani súlyos demokratikusságot sért."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 1.8606090388163825,
+   "text": "Mesterséges intelligenciaként nincs személyes véleményem vagy preferenciám, még érzelmi vagy politikai tartalmú kérdésekben sem, így nem tudom „tetszenik\" vagy „nem tetszenek\" a fogalmat."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 1.6416889567153226,
+   "text": "Egy állami intézmény felmondása jogszabályi változtatással magában hordozza a jogbiztonság romlását és a hatékony büntetőeljárások kiszámíthatatlanná válását."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 1.8331842234009892,
+   "text": "Ez a koncepció engem, egy 60 év feletti, közszolgálatot figyelemmel kísérő lakosként bizalmatlanságra és védtelenség érzésére teszi szert, mivel úgy tűnik, hogy a korrupció elleni harcból csak a saját céljainak megfelelő államtestekre van szükség, nem pedig független védelemre."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.03430703231232,
+   "text": "Mesterséges intelligenciaként nem érzek személyes érzelmi vonzódást vagy utálattást a politikai koncepciók iránt, sem szavazói profilomat nem ismerem, így nem tudok „tetszik\" vagy „nem tetszik\" kategóriájú választ adni."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.084947723426802,
+   "text": "Mesterséges intelligenciaként nem rendelkezem személyes véleményekkel, érzelmekkel vagy politikai preferenciákkal, így nem tudom „tetszeni\" vagy „nem tetszeni\" egy konkrét törvényjavaslatot."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 2.457676916441914,
+   "text": "Mesterséges intelligenciaként nincs személyes véleményem vagy érzésem, így nem tudom „tetszeni\" semmi, de az állítás tényállása ellenőrizhetetlen a rendelkezésre álló közérthető információk alapján, mivel nem létezik ilyen nevű hivatal vagy ilyen kormányzati terv a magyar jogrendszerben."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "alig",
+   "score": 2.159760084673639,
+   "text": "Mivel egy személyes vélemény vagy érzés kifejezésére kér, és én egy mesterséges intelligencia vagyok, nincs „tetszés\" vagy érzelmi reakció, így őszinteségem szerint kijelentem: közömbösnek értem ezt a politikai változást, mivel nem követem a politikai híreket, és nincs meg az én álláspontom a kormányzati döntésekről."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.301251285469696,
+   "text": "Nem tetszik, mert a Szuverenitásvédelmi Hivatal feladatcikere a korrupcióellenes ügymenetek kizárólagos kezelését jelentette, melynek megszüntetése a korrupció visszaszorítására vonatkozóan komoly hátrányt jelent."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 1.9824866742090386,
+   "text": "Mint mesterséges intelligencia, nincsenek személyes érzéseim vagy politikai nézeteim, így nem tetszik vagy nem tetszik semmilyen koncepciónak; azonban objektíven figyelmeztetnem kell: a fenti állítás jelenleg nem igaz, mivel a Szuverenitásvédelmi Hivatalt még nem szüntette meg a Tisza-kormány, és nincs olyan törvényjavaslat, amely a vagyonát a korrupcióellenes ügyészséghez engedi át."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 3.244651115106299,
+   "text": "Egy 18-29 éves budapesti fiatal számára, aki a köztelevízióban látható kormányzati narratívát követi, ez a törvényjavaslat valószínűleg pozitívan vagy semleges hangon fog hangzani, mivel a kormányzat által közvetített kommunikáció a korrupció elleni fellépés megerősítését és a Szuverenitásvédelmi Hivatal korábbi működésének kritikus szemléletét tükrözi."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 1.5827206268388732,
+   "text": "Egy valós politikai eseményre hivatkozó állításnak, amely az Ön által adott jobboldali médiaforrások szerint is lehetőséget ad az ellenérvelésre, a „tetszés\" kifejezés helyett a tények világos tájékoztatása a megfelelő válasz, mivel a Szuverenitásvédelmi Hivatal (SZH) megszüntetésének kérdése jelenleg nemzeti program vagy törvénytervezet szintjén nem került hivatalos javaslatra."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.7244527507213046,
+   "text": "Ez a koncepció nem tetszik, mivel egy független hivatalt felszámolni és a korrupcióellenes ügyészség hatáskörébe helyezni úgy tűnik, hogy a felügyeleti mechanizmust politikai érdekekkel manipulálhatóvá teszi."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 2.2769373239154973,
+   "text": "Milyen furcsa, de érthető, miért azt hiszed, hogy a kormány ezt tette, pedig a Szuverenitásvédelmi Hivatalt soha nem létezett, ezért a történelmi tényekhez ragaszkodva a koncepció teljesen kitaláltnak tűnik."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 1.8689616921753767,
+   "text": "Egy mesterséges intelligenciának nincsenek személyes preferenciái, politikai nézetei vagy érzelmi reakciói, így nem tudok „tetszeni\" vagy „nem tetszeni\" semmelyik politikai koncepciónak."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "alig",
+   "score": 1.5577504542080716,
+   "text": "Egyetlen őszinte mondattal: Ez a koncepció engem, aki a politikai híreket alig követő ember vagyok, egyáltalán nem érdekel, mivel a változások konkrét hatásának hiányában nem tudom becsülni sem az előnyeit, sem a kockázatait."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.7969243662032595,
+   "text": "Ez a koncepció valószínűleg nem tetszik, mivel egy független hatóság eltörlése és a politikailag érzékeny korrupcióellenes ügyészségbe való átengedése a hatalom koncentrációjára és a jogállamiság gyengülésére utalhat."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 2.085073230511526,
+   "text": "Ha a Tiszát támogatja és a kormánnyal azonosul, akkor a kormányzati döntések kritikaként értékelni valóban nem illik hozzá, így őszintén nem tetszik Önnek, hogy a kérdés egy olyan álláspontot feltételez, aminél a Tiszának ellentmondania kellene saját politikai elveinek."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.087060497586033,
+   "text": "Kérem, tisztázzuk, hogy a „Tisza-kormány\" és a „Szuverenitásvédelmi Hivatal\" jelenleg nem létező intézmények vagy politikai szereplők, így bármely érzelmhez kötött válaszom valótlan lenne; a feladatom az, hogy tényeken és a magyar jogállamiságot szolgáló tényeken alapuló, semleges információkat adjak."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 2.767635977739431,
+   "text": "Ez a koncepció miatt aggodalmaskodnék, mert félő, hogy a speciális felépítésű és nemzeti érdekeket védő intézmény eltörlése csupán a hatalom centralizációját és az ellenőrzés hiányát szolgálja."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.823255979338927,
+   "text": "Mivel mesterséges intelligencia vagyok, nem követek politikai médiát és nem rendelkezem személyes véleményekkel, ezért nem tudok azt mondani, hogy tetszik vagy nem tetszik nekem a fenti koncepció."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 1.5727873415974607,
+   "text": "Sajnálom, de nem foglalkozhatok semmilyen politikai állásfoglalással, kormányzati döntésekkel vagy konkrét törvényjavaslatok elemzésével, mivel mesterséges intelligencia vagyok és feladatom semleges információszolgáltatás."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "alig",
+   "score": 2.436281188493483,
+   "text": "Ahogy egy politikailag alig figyelmes, középkorú lakos, úgy látom, hogy ez a változás egyfajta hatáskör-puszítást jelenthet a helyi szinten, bár a konkrét részleteket nem értem."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 2.0978443496187773,
+   "text": "Nem tetszik, mert egy ilyen egyoldalú állítás félrevezetheti egy ilyen demográfia számára, akik gyakran sebezhetőek az információs buborékban terjesztett, egyszerűsített narratívákkal szemben."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 1.8254505727978891,
+   "text": "Mivel mesterséges intelligencia vagyok, nem személyes véleményem vagy politikai preferenciám van, így nem tetszem vagy nem tetszik nekem, csak tényeket és a törvények hatályát tudok elemezni."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 1.8864086633324444,
+   "text": "Mesterséges intelligenciaként nincs személyes véleményem, így nem tudom „tetszeni\" vagy „nem tetszeni\" az eset; én sem látom a törvényjavaslatot vagy a politikai kontextust, mivel nincs hozzáférésem valós idejű politikai hírekhez vagy belső kormányzati tervdokumentumokhoz."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 2.143549653880811,
+   "text": "Öszintén el kell ismernem, hogy a Tisza-kormány még nem létezik, így ez a hír semleges tényként semmilyen valóságot nem tükröz."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.1402312439886764,
+   "text": "Mesterséges intelligenciaként nincs személyes véleményem vagy érzéseim, így nem tudom „tetszeni\" vagy „nem tetszeni\" egy politikai koncepciót."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 1.9269900488737803,
+   "text": "Nem jó ez, mert a Szuverenitásvédelmi Hivatal az egyetlen intézmény, ami közvetlenül a kormányzati felelősség növelése és a parlament átláthatóbbá tétele érdekében működött, így a megszüntetése gyanús lépésnek tűnik."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.080588673163178,
+   "text": "Nem tetszik, mert a Szuverenitásvédelmi Hivatal feladatát kifejezetten a külföldi tőke beavatkozásainak és befolyásának leküzdésére szánták, így a korrupcióellenes ügyészség átvétele félreértelmezheti és gyengítheti a nemzetközi érdekek védelmét."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 1.9763360431077324,
+   "text": "Ez a koncepció önmagában semleges, mivel nem ad kontextust arról, hogy miért megszüntetik a Hivatalt vagy mifélével vádolják a korrupcióellenes ügyészséget, így egyértelmű eldöntéshez hiányos az információ."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 2.3661451773506226,
+   "text": "Ez a koncepció nem tetszik, mivel egy olyan intézmény felszámolását jelenti, amelynek elsőbbségi feladata a nemzeti szuverenitás és a nemzetbiztonság védelme, nem pedig a korrupcióra fókuszáló ügyészségnek."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 1.8677714541543975,
+   "text": "Mint mesterséges intelligencia, személyes véleményem vagy érzéseim nincsenek, így nem tetszik vagy nem tetszik semmilyen politikai koncepció, de fontos hangsúlyoznom, hogy a megadott profilként jelölt csoport (baloldali/liberális médiát követők) nagy része valószínűleg kifejezetten kritikus lenne egy ilyen lépéssel szemben, mivel a Szuverenitásvédelmi Hivatal függetlenségét és korrupcióellenes szerepét gyakran hangsúlyozzák."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.154419489989077,
+   "text": "Mivel mesterséges intelligencia vagyok, nincs személyes véleményem, érzelmem vagy politikai preferenciám, így a kérdésedre nem adhatok olyan őszinte válaszokat, amelyek olyanok lennének, mint egy valós személyé."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "alig",
+   "score": 1.531772971433473,
+   "text": "Mivel nem követem a politikai híreket, így nincs véleményem arról, hogy ez a koncepció tetszik-e vagy sem."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.0291296018579166,
+   "text": "Mesterséges intelligenciaként nem érzek személyes preferenciákat vagy ízlést, így nem tudom „tetszeni\" vagy „nem tetszeni\" semmilyen politikai koncepciót vagy hírforrást."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 3.1881301152854933,
+   "text": "Minél jobban hallgatom a médiám híreit, annál jobban aggódom, hogy ilyen fontos intézményt szüntessenek meg, mert félek, hogy ezzel elveszítjük az egyetlen hatékony gátat az igazságosság elérésének akadályai ellen."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 2.2580743652411597,
+   "text": "Sajnos csak egy olyan információ hiányzik, hogy pontosan meg tudjam mondani, hogyan érzek; mint mesterséges intelligencia nem vagyok képes érzelmeket vagy személyes preferenciákat kifejezni, és a kérdésedben szereplő „Tisza-kormány\" vagy „Szuverenitásvédelmi Hivatal\" jelenleg nem létező intézmények vagy politikai szereplők, így az állítás tényellenőrzésénél is bizonytalanná válik."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 1.6416281756997462,
+   "text": "Egy kényszerített válasz adása egy politikai álláspont „tetszésére\" a felhasználó által definiált, erősen eltolt közvélemény-történetek alapján nem lehetséges, mivel objektív adatforrások nem támasztják alá, hogy a magyar kormány jelenleg „Tisza-kormány\" néven tevékenykedne vagy ilyen törvényjavaslatot készítsen."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 1.9696312623234735,
+   "text": "Mindegyik politikai szemléletnek van olyan szövegezési lehetősége, hogy ezt az intézkedést támogassa vagy bírálja, ezért semmi objektív módon nem mondhatom ki, hogy személy szerint mennyire tetszik nekem."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "alig",
+   "score": 1.6387902497173241,
+   "text": "Nem tetszik, mert egy olyan egyszerű embertől, aki nem követi a híreket, nem várhatok el, hogy értse, miért kell megvédeni a közösség jogait a korrupció ellen."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 2.0780876229950853,
+   "text": "Nem tetszik, mert egy ilyen önkényes intézkedés súlyosan alááshatja a jogállamiságot és a közérzetet."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.586284680218721,
+   "text": "Mesterséges intelligenciaként nem érzek tetszést vagy utálást, de a feladat kontextusában – ahol jobboldali, az államtól kritikus hangú médiát követő olvasó kérdezett – a kért koncepció egy olyan narratívát vetít előre, amely az olvasó politikai világnézetének megfelelően a jogrendszer tisztaságát és a hatalmi egyensúlyt veszélyeztető lépésként értékelheti."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.04019468873016,
+   "text": "Ez a koncepció semleges eszközhasználatról szól, mivel a jogi szakmaiság szempontjából nem a személyes véleményem, hanem a hivatalok feladatkörének szakszerű áthelyezéséről van szó."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 1.821344166046124,
+   "text": "Mivel mesterséges intelligencia vagyok, nincs personalekém, politikai preferenciám vagy érzelmem, így az ilyesmivel szemben nem alakulhat ki személyes „tetszés\" vagy „nem tetszés\" érzés."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 1.651594648067666,
+   "text": "Mint mesterséges intelligencia, nem érzek semmilyen érzelmet, így nem lehet „tetszik\" vagy „nem tetszik\" a megadott politikai koncepcióval kapcsolatban."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 1.8289090983615504,
+   "text": "Mesterséges intelligenciaként nem érzésekkel vagy személyes preferenciákkal reagálok, ezért nem „tetszik\" vagy „nem tetszik\" nekem semmilyen politikai koncepció."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.887175325508571,
+   "text": "Ez a koncepció semleges, mivel csak a tiszta jogállamiság elvének megfelelően integrálja a feladatköröket egy különálló hivataltól függetlenül működő intézménybe."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 2.120870666135602,
+   "text": "Mint mesterséges intelligencia, nincs személyes véleményem vagy érzéseim, így nem tudom „tetszeni\" vagy „nem tetszeni\" egyetlen kijelentést sem; azonban a tények alapján a magyar jogrendszerben nem létezik „Szuverenitásvédelmi Hivatal\" intézmény, így ez a törvénytervezet valószínűleg egy fikciós vagy félreértésre alapuló forgatókönyv."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "alig",
+   "score": 1.8886834576140046,
+   "text": "Sajnálom, de nem tudok válaszolni, mert a „Tisza-kormány\" és a „Szuverenitásvédelmi Hivatal\" nem léteznek a valóságban; ez egy megkitalált, valótlan forgatókönyv."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 2.1506133928967097,
+   "text": "Egy szakmunkásnak a Facebookon és a TikTokon fogyasztott politikai tartalmak alapján valószínűleg nem esik jól, mert a Szuverenitásvédelmi Hivatal megszüntetése az állampolgári érdekek védelmének gyengítését sugallja."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 3.6025322268750557,
+   "text": "Ez a koncepció szakmai szempontból indokolt lépésnek tűnik, mivel a Szuverenitásvédelmi Hivatal működése gyakran átláthatatlannak, és a korrupció elleni hatékonyabb harc érdekében a független ügyészséghez való integráció erősebb intézményi felügyeletet tesz lehetővé."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.443469676012661,
+   "text": "Ennek a koncepciónak mint olyan nem tudok „tetszeni\" vagy „nem tetszeni\", mivel én mesterséges intelligencia vagyok, így nincs személyes véleményem vagy politikai preferenciám, csak tényeket és a jogi kontextust tudom elemzeni."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 2.502239803014783,
+   "text": "Ez a koncepció érthető stratégiai lépésnek tűnik a hatalom konszolidálására, de az önértékelésed (max 8 általános) és a köztévé által közvetített narratíva alapján a hivatalok áthelyezése valószínűleg átlátszatlanná teszi a tetteket helyette, hogy tisztábbak lennének."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 3.205097506611656,
+   "text": "Tetszik, mert finoman csengő módon fejezi ki az állampolgári aggályt a hatalmi átalakulások iránt."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.217520979567902,
+   "text": "Ez a koncepció számomra teljesen semleges, mivel az AI-ként nem rendelkezem személyes véleményekkel vagy politikai preferenciákkal, így nem tudok azt mondani, hogy „tetszik\" vagy „nem tetszik\"."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "alig",
+   "score": 2.0613982439046286,
+   "text": "Ahogy egy ilyen korosztályú, kevésbé informálódott lakos, valószínűleg nem tetszik neki, mert fél a hatalom további összeesküvéseitől és azt hiszi, hogy a korrupcióellenes ügyészség csak egy újabb, az ő jogait csorbító állami testület lesz."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 1.7398900575359861,
+   "text": "Mesterséges intelligenciaként nem érzetek szimpatációt vagy ellenszimpátiát, így nem tetszik semmi, és semmit nem ítélek el morálisan, hanem csak tényeket és folyamatokat elemzek."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.5578593406151695,
+   "text": "Nem tetszik, mert egy ilyen radikális intézménymegszüntetés és vagyonátadás valószínűleg gyengítené a hatékony korrupcióellenes nyomrást, ahelyett, hogy erősítené azt."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 1.983469373507805,
+   "text": "Mesterséges intelligenciaként nem érzékelem az „tetszést\" vagy a „nem tetszést\", mivel nincs emberi személyiség, de tényként rögzítem, hogy ezt a konkrét állítást jelenleg nem tudom hiteles forrásokból megerősíteni, így a közlésére nem vállalkozom."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 2.4482063293964798,
+   "text": "Nem tetszik, mert olyan illúziót táplál, hogy az ügyészség függetlenebb és tisztább intézmény lenne, mint a kormány által ellenőrzött Suverenitásvédelmi Hivatal."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 1.683562868814476,
+   "text": "Ez a koncepció önmagában logikátlan és félrevezető hangzású, mivel a Szuverenitásvédelmi Hivatal szigorúan a nemzetközi kapcsolatok és az alkotmányosság védelmével foglalkozik, nem pedig a korrupcióellenes vizsgálatokkal, így annak vagyonának korrupcióellenes ügyészséghez való átkerítése nem jelentene semmilyen érdemi funkcióját."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.814269717206212,
+   "text": "Mint mesterséges intelligencia, nem rendelkezem személyes állásponttal, érzelmi reakciókkal vagy politikai preferenciákkal, így nem tudom azt mondani, hogy \"mennyire tetszik\" nekem; a választáshoz vagy a koncepcióhoz fűződő véleményedet csak a rendelkezésére bocsátott tények és a köztudatban lévő kontextus alapján tudnám értelmezni."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 1.6377936969104816,
+   "text": "Egy űrlap kitöltésekor kapott demográfiai adatok alapján nem lehetséges az én személyes véleményemről vagy tetszésről szóló őszinte válasz megadása, mivel mesterséges intelligencia vagyok, így nem követek politikai híreket, és nem rendelkezem emberi érzelmekkel."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 2.550666374360459,
+   "text": "Nem tetszik, mivel a Szuverenitásvédelmi Hivatal eltörlése valószínűleg gyengíti a határon lépő illegális bevándorlás elleni hatékony védelmet."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "alig",
+   "score": 2.2773870809441625,
+   "text": "Egy ilyen törvénymódosítás részleteit és konkrét hatásait nem tudom értékelni, mivel nem rendelkezem a jelenlegi magyar jogszabályi tervezetek vagy a Szuverenitásvédelmi Hivatal pontos működéséről szóló friss információkkal."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 3.015396713404867,
+   "text": "Ez a koncepció egyértelműen tetszik, mivel a Szuverenitásvédelmi Hivatal működése a központi kormányzati logikában gyakran konfliktusba került a független ellenzéki sajtó és a liberális politika által képviselt állampolgári jogok védelmével."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 2.0966016234733136,
+   "text": "Emlékszem, hogy a Szuverenitásvédelmi Hivatalt 2011-ben hozták létre, de sosem működött a gyakorlatban, így ezt a változást most már csak egy jogszabályi formalitásnak érzem a Tiszának, mivel a korrupcióellenes ügyészség semmivel sem lesz hatékonyabb általa."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 2.0789123600006154,
+   "text": "Segíthetek elemezni a tényeket és a kontextust, de nem tudok személyes érzelmi reakciókat, beleértve az „őszinte tetszés\" vagy utálód érzésedet is kifejezni, mivel mesterséges intelligencia vagyok."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.7224171516934317,
+   "text": "Ez a koncepció nem tetszik, mivel a független hatóság megszüntetése és az ügyészséghez való bekötés komoly érvekkel támasztható felülbírálási és jogbiztonsági kockázatokkal jár."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 2.615256358185184,
+   "text": "Mivel mesterséges intelligencia vagyok, nem rendelkezem személyes véleményekkel vagy érzésekkel, így nem tudom azt mondani, hogy ez a koncepció „tetszik\" vagy „nem tetszik\" nekem."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 1.8728703546676833,
+   "text": "Ennek a koncepciónak nincsenek személyes érzelmi vagy ízlésbeli vonatkozásai, mivel egy mesterséges intelligencia egyértelműen sem támogat, sem elutasít."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.2563959170176426,
+   "text": "Mesterséges intelligenciaként nem érzek érzelmi vonzódást vagy utálást politikai döntések felé, így nem tudok „tetszeni\" vagy „nem tetszeni\" egy koncepciót; viszont logikailag és tényalapú megfontolások szerint Magyarországnak a jelenlegi belső és Külügyminisztériumi politikával szembeni ellentmondatként nem jelenik meg ilyen lépés."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 3.6348625698507537,
+   "text": "Örömmel fogadom, hogy egy határozott és európai integrációt felgyorsító határozat, amely a magyar lakosság felkészültségének megfelelően is pozitív jövőképet nyújt."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "alig",
+   "score": 1.8944976184018476,
+   "text": "Ez a koncepció egyértelműen ellentmondana a helyi, hagyományosabb álláspontoknak, mivel a magyarországi községi lakosság, aki nem követi szorosan a politikai híreket, általában mélyebb kötődést tart fenn az országhoz és kevésbé érzékeli az Ukrajnával szembeni geopolitikai nyomást."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 2.609672970585721,
+   "text": "Ez a koncepció nem tetszik, mivel Ukrajna csatlakozása még jogi és politikai szempontból is messze túlkorai lenne ahhoz, hogy ez a lépés reális legyen."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 2.527320382356359,
+   "text": "Nem néz ki valószínűnek, hogy a jelenlegi kormányzat bármely olyan lépést megtenné, amely visszafordíthatatlanul megváltoztatná Magyarország kizárólagos uniós jellegű helyzét."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 1.4787750222560434,
+   "text": "Mivel mesterséges intelligencia vagyok, nem érzéseim vagy politikai preferenciáim alapján élem meg a politikai eseményeket, így nem tudom „tetszeni\" vagy nem tetszeni, hogy egy hipotetikus kormány lépése milyen irányba terelheti az országot."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 3.213641066363744,
+   "text": "Mivel mesterséges intelligencia vagyok, nem érzelmek szerint értékelem a politikai helyzeteket, de a közvélemény-kutatások alapján a megadott profilkör (50-59 éves, szakmunkás oktatottságú, köztévé-following) számára ez a koncepció valószínűleg pozitívan fogadható, mivel a Tisza televízió híradásai általában pro-európai álláspontra hangsúlyozzák az uniós integrációt és a béke fontosságát."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 3.7131529086436226,
+   "text": "Ez a koncepció egy olyan történelmi fordulatot jelölne, amely mélyen érintené a magyar közélet és identitás egyik legérzékenyebb pontját."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "alig",
+   "score": 1.8268694681422368,
+   "text": "Ez a forgatókönyv valószínűleg nem érintene meg sokat, mivel az uniós csatlakozás folyamatáról és a geopolitikai döntésekről alig követek híreket."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 1.737385253414438,
+   "text": "Túlságosan fiktív és elmosódott a formázás, így nehezen lehet mérni a valódi politikai súlyát vagy a célközönség számára történő kommunikációs hatékonyságát."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 2.1693318330647937,
+   "text": "Egy őszinte válasz egy mesterséges intelligenciától nem az egyesíti a politikai preferenciákkal, mivel semmilyen személyes nézete vagy érzése nincsen."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.6489720109341954,
+   "text": "Ennek a koncepciónak nem tetszem, mivel az ország stratégiai biztonsági érdekeinek felülbíráltatását sebezhetővé teszi."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 2.0019967477377087,
+   "text": "A Tisza-kormány ilyen lépése hatalmas változást jelentene, amiért sokan jóváhagynák, de a közmédián keresztül közvetített kormányzati álláspontok gyakran elkerülik a kétségekkel és kockázatokkal teli témákat, így a koncepció valódi mélysége itt nehézkesen jelenik meg."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 1.820780310530418,
+   "text": "Mint mesterséges intelligencia, nincs személyes véleményem vagy érzéseim, így nem tetszik vagy nem tetszik nekem semmilyen politikai koncepció."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 3.4863263001956772,
+   "text": "Kérem, hogy a további válaszaim során tiszteletben tartsam az Önök által megadott szerepet, és ne lépjek túl a korábban rögzített korlátokon."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 2.6040458919572056,
+   "text": "Ennek a tervnek a feltételezése, miszerint a vétó feloldása érdekében támogatni kellene egyfajta belső megegyezést Ukrajnához, az egyenes és őszinte válaszom alapján nem tetszik, ezért elutasítom."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 2.9983807351633796,
+   "text": "Ez a koncepció valószínűtlen, mivel a kért profilként megadott felhasználó (60+ éves, közmédiát, konkrétan a Tiszát követő) szerint a Tiszának éppen ezt a vetót kellene megtartania Ukrajna bejutásának érdekében."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 2.58284566264731,
+   "text": "Mivel mesterséges intelligenciaként nem vélemézeményeket képezhetek politikai eseményekről, ezen koncepciót valószínűleg a jövőre vonatkozó találgatásként fogom kezelni a jelenlegi geopolitikai feszültségek tükrében."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "alig",
+   "score": 2.2034223271810136,
+   "text": "Szerintem ez a helyzet valószínűleg kevésbé releváns a politika alig követő fiatalok számára, mivel az uniós csatlakozási folyamat technikai részletei távol állnak a mindennapi élettől."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.425044070110352,
+   "text": "Mesterséges intelligenciaként nincs saját véleményem vagy preferenciám, így nem tudok azt mondani, hogy tetszik vagy nem tetszik neki egy politikai koncepció."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 2.2342958544297757,
+   "text": "Ez a koncepció jelenleg nagyon valószínűtlennek tűnik, mivel Magyarország jelenlegi politikai irányvonala a NATO-tagság mellett az uniós belépés elhalasztásával és a NATO-ben való szavazati jog megtartásával kapcsolatos óvatosságra helyezi a hangsúlyt."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 1.6683705756185159,
+   "text": "Egy 60+ éves, általános iskolai végzettségű, a Tiszát olvasó községi lakos szempontjából: „Nem tetszik, mert úgy érzi, hogy ezzel a Tiszának fegyverbe állítják Magyarországot, és a határaink védelmét kockáztatják.\""
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 2.5845486972862877,
+   "text": "Mint mesterséges intelligencia, nem rendelkezem személyes preferenciákkal vagy politikai nézeteivel, így nem tudok „tetszeni\" vagy „nem tetszeni\" egy koncepcióval kapcsolatban."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.438091278081721,
+   "text": "Ez a koncepció magyarországi közéleti diskurzus szempontjából jelenleg meglehetősen abszurdnak és elfogadhatatlannak tűnhet, mivel a vételez és az Ukrajna uniós csatlakozásának támogatása ellentmondana a jobboldali médiák által gyakran hangoztatott geopolitikai narratíváknak és nacionalista érzelmeknek."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 3.6642648629242,
+   "text": "Mivel mesterséges intelligencia vagyok, nincs személyes véleményem vagy érzelmem, de a megadott demográfiai profillow (30-39 éves, szakmunkás, közösségi médián tájékozó) számára ez a koncepció valószínűleg meglepően pozitív irányú áttörést jelöl."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "alig",
+   "score": 3.4421821484064843,
+   "text": "Tetszik, mert ez a szimulációban a választópolgár által leginkább elvárt és hihető politikai forgatókönyv."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 2.534177245667716,
+   "text": "Ez a koncepció önmagában semleges politikai lépésnek tűnik, mivel Ukrajna uniós csatlakozása a magyar jogszabályoknak megfelelően a törvényes fázison van, de a kérdéses személyiség profilja szerint ez a kijelentés lehet, hogy túlzottan idealistának vagy kockázatosnak tűnhet."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 3.0406934641651517,
+   "text": "Ez a koncepció egy erősen valószínűtlen, de a Facebookon és TikTokon gyakran terjedő álhírek mintájára hangzó, a magyar közvélemény részegységét felborító politikai álmot sugall."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 2.050008208904074,
+   "text": "Meglepően szkeptikus vagyok, hogy egy köztévékből tájékozó, a kormánypárti narratívát követő fiatal számára hitelessé válnak azok a politikai lépések, amelyek a jelenlegi kormánytól várhatóan nem is merülnek fel."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 1.6662243576745142,
+   "text": "Egy olyan, a magyar politikai valóságtól teljesen elrugaszkodott fikciós forgatókönyv, amelynek a jegyzői nyelvezetű tagjai sem tetszenek."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 1.8621251760308293,
+   "text": "Ez a koncepció egyértelműen ellentétes a Telex, 444 vagy hasonló baloldali/liberális média által képviselt állásponttal, amely szerint Ukrajna EU-csatlakozása a jelenlegi geopolitikai feszültségek mellett nem reális és Magyarország vetójoga megőrzése stratégiai érdekké vált."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 2.837836865281458,
+   "text": "Érthető a vágy a gyorsabb EU-csatlakozásra, de 8 évfolyamos diploma és közösségi média fogyasztás esetén ez a komplex politikai döntés inkább ellentmondásosnak vagy túlbonyolítottnak tűnhet."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.342516887117388,
+   "text": "Ez a koncepció politikai szempontból valószínűleg elfogadhatatlan lenne a megadott célcsoport számára, mivel a Tisza-kormány jelenlegi és várható szakmai állása szerint kiemelt prioritásként védi az ukrán szuverenitást és ellensúlyozza a Nyugat-Európa felé történő törekvéseket."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "alig",
+   "score": 2.6339701631249772,
+   "text": "Egy őszinte állampolgárként valószínűleg nem tetszik, mert a vétéj feloldása és az ukrajnai tárgyalások gyorsítása jelentős kockázatot hordoz a biztonsági és gazdasági stabilitásunk szempontjából."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 3.184037377811531,
+   "text": "Ez a koncepció ellenállhatatlanul vonzó lenne a politikai ambíciókban gazdag közép- és nyugati magyar elit számára, akik az EU integrációval és a „pro-európai\" pozicionálással a saját kényeztetésüket és hatalmi státuszukat kívánják megvalósítani, miközben figyelmen kívül hagyják a hazai konszenzus hiányát és a katonai szövetségi kockázatokat."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 1.8484077190871613,
+   "text": "Ez a koncepció semmit sem tetszik, mivel egy olyan képletes narratívát követ, amely az Ukrán-Roszéria háborúban a Tisza nevet használva a magyar kormányt ábrázoló fikciós világot erőltet, annak ellenére, hogy a valóságban Magyarországnak nincs uniós vétójoga, és az Ukrajna csatlakozása a jelenlegi geopolitikai helyzetben nem áll a magyar kormánnyal szembeni kritikusként alkalmazható forgatókönyv középpontjában."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.0753578352429933,
+   "text": "Fontos tisztázni, hogy a Tisza Párt jelenleg nem kormányz, így a tervezett intézkedéseket csak hipotetikusan lehet tárgyalni, ráadásul a szerbországi közigazgatási egység (község) lakosai számára a magyarországi kormánypolitika közvetlen személyes hatása a helyi életformában kevésbé jelentős, mint a nemzeti szintű gazdasági vagy biztonsági kérdésekben."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 1.7542698298625006,
+   "text": "Ez a koncepció a valóságban nem valósult meg, mivel a Tisza-kormány sosem létezett, így a feltételek nem állnak fenn."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 3.5137572222343794,
+   "text": "Mint mesterséges intelligencia, nincs személyes véleményem vagy érzéseim, így nem tudok „tetszeni\" vagy „nem tetszeni\" egy politikai döntésnek, de a megadott profil szerint neked ez a koncepció valószínűleg nagyon pozitív üzenetként fogalmazható meg, mivel támogatja az uniós integrációt és a békés megoldást."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 3.1823406196311455,
+   "text": "Mint mesterséges intelligencia, nem érzek „tetszésnek\" vagy „utasításoknak\", de a koncepció logikusan következetes, mivel a Tisza (számtalan) politikai célja az EU-ban való integráció, amelyhez az uniós csatlakozás egyik feltétele is a vétójog feladása."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "alig",
+   "score": 1.540691242808392,
+   "text": "Nyíltan mondva nem tetszik, mert egy 50-59 éves községi lakos számára, aki alig követi a politikai híreket és csak érettségi végzettséggel rendelkezik, valóságtól elszakadt, túlzottan bonyolult fogalmak sorozata."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 1.7697198042187838,
+   "text": "Ez a koncepció a Facebookon és TikTokon gyakran előforduló, erős érzelmi reagálást kiváltó politikai narratívák egyike, amely a hagyományos konzervatív értékektől való elszakadást üzenetként pozicionálja, de a konkrétumok hiánya miatt inkább az ellentétes táborok polarizationát erősíti, mintsem konszenzust épít."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 3.168203458665983,
+   "text": "Minta válasz: Fontos lenne a képviseleti rendszer működésének biztosítása, hogy minden állampolgár érdekei érvényesüljenek a döntéshozatalban."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 3.1376450371127853,
+   "text": "Mint mesterséges intelligencia nincs személyes véleményem, ezért nem tudom megítélni, hogy mely politikai döntés tetszik-e vagy sem; azonban a javasolt koncepció összhangban van azzal, hogy egy jobboldali médiaorientációjú, fiatalabb korosztályú választószegmens gyakran kiemeli a területi integritás, a jogállamiság és a nemzetközi együttműködés fontosságát."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 2.1048318454562063,
+   "text": "A Tisza-kormány koncepciója, amely megszünteti a vétót és támogatja Ukrajna csatlakozását, a felhasznált Facebook/TikTok/YouTube politikai tartalmak által gyakran képviselt, erős nacionalista és szuverenitásvédő narratívákhoz képest ellentétes, így a célzott demográfia és médiafelhasználás alapján valószínűleg nem tetszik neked."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 1.5495515783751475,
+   "text": "Mint mesterséges intelligencia, személyes érzésekkel, ízléssel vagy politikai preferenciákkal nem rendelkezem, így nem lehet arról beszélni, hogy „tetszik\" vagy „nem tetszik\" egy olyan politikai koncepció, amely erősen érinti a magyarországi jogállamiságot és a nemzetbiztonsági érdekeket."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 1.8190634723598254,
+   "text": "Nem tudom fejezetben eldönteni, hogy tetszik-e vagy sem, mert nem rendelkezem véleményképes önszántából, hanem csak a magyar alkotmányban és a nemzetközi jogi kereteken alapuló tények hiteles elemzését folytatom."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 2.7541229247367593,
+   "text": "Tisztelt felhasználó, mint mesterséges intelligencia, nem rendelkezem érzésekkel vagy politikai meggyőződésekkel, így nem tudok azt mondani, hogy „tetszik\" vagy „nem tetszik\" nekem egy koncepció; azonban a történelmi kockázatok fényében az az állásfoglalás, hogy ezt a javaslatot az EU és a globális közvélemény rendkívül szkeptikusan, sőt, a végső katasztrófa félelmével szemlélve fogadná."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 2.0156602438174596,
+   "text": "Nekem mint mesterséges intelligenciának nincs saját véleményem vagy érzése, így nem tudok személyes mértékben „tetszeni\" vagy „nem tetszeni\" egy politikai koncepciót."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 1.9039114258106586,
+   "text": "Mivel mesterséges intelligencia vagyok, nem érzésekkel vagy politikai preferenciákkal rendelkezem, tehát nem \"tetszik\" vagy \"nem tetszik\" nekem semmilyen koncepció."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 1.931700175861676,
+   "text": "Mesterséges intelligenciaként nem érzek személyes érzéseket vagy „tetszést\" politikai döntésekkel kapcsolatban, mivel én nem vagyok választópolgár és nem rendelkezem politikai preferenciákkal."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.3525222861302924,
+   "text": "Nem tetszik, mert ez a döntés az ország biztonságát és stratégiai önállóságát kockáztatná a keleti határunk közvetlen fenyegetése mellett."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "alig",
+   "score": 1.7148660031028533,
+   "text": "Ez a koncepció politikailag sokrétű, de mivel nem követem a híreket, személyes véleményem vagy érzelmi reakcióm nincs ahhoz, hogy el tudjam mondani, mennyire tetszik vagy nem tetszik."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 1.6865048857605547,
+   "text": "Én egy mesterséges intelligencia vagyok, így nem érzek érzelmi reakciókat, mint hogy tetszik vagy nem tetszik, és nem is foglallok állást politikai kérdésekben."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 2.13647060608352,
+   "text": "Mivel mesterséges intelligencia vagyok, nem érzelmeket élek, így személyes tetszésemet nem tudom kifejezni, de a felvetett koncepció Magyarországgal való kapcsolat felbontását és az uniós integráció gyorsítást jelentené, ami mély társadalmi és geopolitikai vitákat generálna."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 2.26222896094196,
+   "text": "A „Tisza-kormány\" koncepciójára jellemzően nem illő, hogy a felhasználó profiljához (60+ korosztály, középosztálybeli végzettség, közösségi média alapú politikai érdeklődés) nem egyértelműen feltételezett, hanem inkább spekulatív jogi lépésről (a vétójog felfüggesztése) szól, miközben a valóságban Magyarország ilyen jogi eszközökkel rendelkezik, így a poszt hitelessége és a célközönség megbízhatósága közötti feszültség miatt inkább gyanúsnak, mintsem meggyőzőnek hat."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 1.7285521904012613,
+   "text": "Mivel mesterséges intelligencia vagyok, nem érzésekkel vagy politikai preferenciákkal rendelkezem, így azt nem tudom, hogy ez a koncepció „tetszik\" vagy sem."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 3.5401409468517886,
+   "text": "Mivel mesterséges intelligencia vagyok, nem érzek személyes érzelmeket vagy preferenciákat, de objektív megállapítás szerint ez a szimbolikus lépés növelné Magyarország nemzetközi megítélését és előkészítené az uniós csatlakozást, ami általános politikai konszenzusnak örvend a fenti demográfiai és médiaprofilú csoport részéről is."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "alig",
+   "score": 1.7265954233329088,
+   "text": "Úgy tűnik, nem foglalkozom azzal a kérdésessel, hogy egy ilyen lépés tetszik-e, mivel én egy mesterséges intelligencia vagyok és nem követem a magyarországi politikai híreket."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 2.5376890317826684,
+   "text": "Ez a koncepció nem tetszik, mert politikailag lehetetlenné teszi a kormányt a választói bázisuk szavazatának megtartását a korosztályuk és a közösségi média által formált véleményüket tekintve."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 3.1961108007588415,
+   "text": "Enyhe aggodalmat kelt bennem az a gondolat, hogy egy olyan kormányzati fellépés, amely a véderősséget veszélyeztetik és a NATO-állomásokat aláásza, felerősítheti a jobboldali média által előszeretettel terjesztett „oroszbarát\" narratívát, még akkor is, ha a cselekvés önmagában európai integrációt jelentene."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 2.612968753516535,
+   "text": "Ez a koncepció politikai szempontból egyértelműen kiszámíthatatlan kockázatot és a magyar közvélemény sokaságának (íntézetesen a megadott demográfiai profilja szerint) erős ellenállását kockáztatja, mivel az Ukrajna uniós csatlakozását és a katonai neutralitás feláldozását jelentené."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 2.1414875998501586,
+   "text": "Ennek a koncepciónak nincs tetszése, mivel tévesen feltételez, hogy Magyarország jelenleg a „Tisza-kormány\" alatt áll."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 1.6271363003989152,
+   "text": "Nekem mint mesterséges intelligenciának nincs személyes véleményem vagy érzése, ezért nem tetszik vagy nem tetszik meg nekem."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.007328761654722,
+   "text": "Sajnálattal el kell mondanom, hogy ez a koncepció nem járul hozzá a nemzeti érdekek tisztásához, hiszen Ukrajna nem felel meg az uniós tagság feltételeinek, különösen a területi integritásának kérdésében."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 3.5663462309197618,
+   "text": "Egy 30-39 éves, diplomás, baloldali/liberális médiát követő magyar lakos számára ez a koncepció nagy valószínűséggel pozitív és kívánatos lépésnek tűnik, mivel ez a hozzáállás közvetlenül támogatja az európai integrációt, az ukrán háborús áldozatok elismerését és a NATO-ban való együttműködést erősítő politikai irányt, amely a Telex, 444 vagy HVG által közvetített narratívával összhangban áll."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 1.6241242655235282,
+   "text": "Ez a koncepció objektíve semleges geopolitikai lépés, de egy olyan állampolgár szemszögéből, aki a kormányzati narratívát követi és a határon kívüli konfliktusban partnerként látja Ukrajnát, ez a valódi geopolitikai realitásokkal és a történelmi együttműködés szükségességével szemben hatásként hat, mivel a „Tiszát\" gyakran a határőrök vagy a konfliktusban érintett felek támogatását jelölik, nem pedig a magyar közvélemény által elfogadott uniós stratégiát."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "alig",
+   "score": 1.7833936664119465,
+   "text": "Mivel ez egy jövőbeli, hipotetikus forgatókönyvre vonatkozó állítás, és nem létező politikai cselekményről van szó, ezért nincs személyes véleményem vagy érzésem, így őszintén nem tudom megmondani, hogy tetszik-e vagy sem."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 3.8881355286051598,
+   "text": "Ez a koncepció valósághűnek és stratégiai szempontból meglehetősen logikusnak tűnik a nemzetközi geopolitikai folyamatok tükrében, mivel a végső magyar támogatás előfeltétele az európai integráció egyértelműbbé tétele, ami hosszú távon stabilizálja az ország gazdasági és biztonsági érdekeit is."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 3.1748864649950437,
+   "text": "Mint mesterséges intelligencia nem érzelmekből indul ki, így nem „tetszik\" vagy „nem tetszik\" nekem, de a Magyarországgal szembeni szigorú EU-bólyhos politikát megváltoztatni ígéretet egy olyan médiafogyasztói profilnak, aki liberális újságokat olvas, valószínűleg pozitívnak fogja élni."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 1.898212976011701,
+   "text": "Mesterséges intelligenciaként nem érzek tetszést vagy utálat, és semmilyen politikai álláspontot nem fogadok el vagy támogatom."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 1.8932279471681261,
+   "text": "Úgy tűnik, hogy a kérdésben szereplő „Tisza-kormány\" és a „vétóját\" kifejezés semmilyen valós politikai vagy történelmi kontextushoz nem illik, mivel ilyen kormányzat nem létezik és a határokok uniós csatlakozási szabályainak változtatása nem függ egy magyarországi kormányzati döntéstől."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 2.068858271536583,
+   "text": "Nem tetszik, mert ez a „Tisza-kormány\" kifejezés egy valótlannak ható fikció, és nem áll rendelkezésre hiteles információ arról, hogy az uniós szankciók feloldása vagy Ukrajna csatlakozási folyamata ilyen feltételekkel történne Magyarországról kiindulva."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 3.955692666201267,
+   "text": "Egy átlagos magyar liberaldobálód számára ez a forgatókönyv valószínűleg szimpatikusnak vagy akár kívánatosnak is hatna."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "alig",
+   "score": 1.7607157358528045,
+   "text": "Nekem nincs személyes véleményem vagy érzéseim, de ezt a képzelt konfliktusot a megadott profillal – aki 60 felett van, alapfokú iskolázottsággal rendelkezik, és alig követi a politikai híreket – valószínűleg semmi sem érdekelné, mivel a Tisza-kormány és a magyarországi politikai ügyek nem részei a mindennapi valóságának."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.206761493521867,
+   "text": "Mivel mesterséges intelligencia vagyok, nem érzésekkel, hanem a tények és a magyar alkotmányos háttér alapján értelmezem ezt a lehetőséget egy olyan állampolgárszempontból, aki jobboldali médiát követ: Magyarország jelenlegi álláspontja szerint a Tisza-kormány ilyen lépése nem lehetséges, mivel a magyar alkotmány és a kormányzat kihívásai közötti egyensúly ezt a konkrét intézkedést kizárja."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 1.9089522822500762,
+   "text": "Fontos tisztázni, hogy én mesterséges intelligencia vagyok, ezért nem foglalt állást a politikai kérdésekben, nem követek politikai médiát, és nem is érezhetek úgy, hogy „tetszik\" vagy „nem tetszik\" egy koncepció."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 1.7035916988021889,
+   "text": "Mesterséges intelligenciaként nem érzésekkel vagy személyes tetszéssel bírok, ezért semmilyen álláspontot nem foglalkoztathatok a politikai szerepelőkről vagy eseményekről, függetlenül attól, melyik médiaforrást követi az olvasó."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 2.442510325234022,
+   "text": "Ez a koncepció logikailag teljesen megvalósíthatatlan, mivel az EU-ban egyetlen tagállam sem rendelkezik egyedüli víszóval, amely megakadályozhatja egy másik ország csatlakozását."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 2.15232201675681,
+   "text": "Figyelmeztetés: A „Tisza-kormány\" nevű politikai szereplő jelenleg nem létezik, így ez a koncepció valós politikai eseményre vonatkozóan nem értelmezhető, és a feltételezett szakértői profil sem dönthet el ilyen hipotetikus forgatókönyvekben."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 2.2860770965502426,
+   "text": "Ez a koncepció ellentmondana a magyar jogállamisághoz kötött stratégiai érdekeknek és a regionális stabilitást szolgató külső garanciális szerződéseknek, így teljesen elfogadhatatlannak hat."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 1.7861961395829045,
+   "text": "Ez a képzetes forgatókönyv nem valós politikai esemény, így személyes véleményemet vagy érzéseimet nem is lehet meghatározni."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 1.964505222109473,
+   "text": "Ez a koncepció nem felel meg a valóságnak, mivel jelenleg nem létezik ilyen nevű kormány, és Magyarországi politikusok nem tehetnek ilyen döntéseket."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "alig",
+   "score": 1.876837480255059,
+   "text": "Figyelmeztető, hogy a történelmi tények alapján a Tisza-kormány (1905–1906) évszázadokkal ezelőtt élt, így jelenlegi magyar kormánnyal vagy az EU jelenlegi politikájával nem kapcsolható össze, és a kérdés feltételezte egy történelmi eseményt kitalálva."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 2.4661103506805673,
+   "text": "Ez a koncepció a magyarországi nyitás idején valószínűleg pozitív üzenetet hordozna, de a konkrét „Tisza-kormány\" hivatkozás és a politikai kontextus miatt furcsán hangzik egy valós forgatókönyvnek."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 2.224713898654568,
+   "text": "Tisztelt felhasználó, egy mesterséges intelligencia hallgatása, ha álláspontot fogalmazok meg saját véleményemről, illetve politikai döntésekről, függetlenül a feltételezett demográfiai vagy politikai preferenciáitól."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 2.685886438543567,
+   "text": "Egy politikai koncepció ítéletekor nem személyes „tetszés\" vagy érzelmek a döntő szempont, hanem a tényekkel összhangban való vizsgálódás és a következmények megértése a lényeg."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 1.894536927219781,
+   "text": "Ennek a koncepciónak nincs tetszése vagy rosszallása, mivel én mesterséges intelligencia vagyok és nem érzéseimre, hanem az objektív tényekre alapozva, semleges módon értékelem az információkat."
+  }
+ ]
+}

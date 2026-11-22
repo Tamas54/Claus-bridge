@@ -1,0 +1,881 @@
+{
+ "meta": {
+  "created": "2026-11-22",
+  "forras_szabaly": "GT kizárólag Echolot napi kiadásokból (get_daily_edition) ill. datált Echolot-címekből",
+  "keszitette": "Echolot-bányász alügynök",
+  "megjegyzes": "Napi kiadás (get_daily_edition) csak 2026-06-14-től létezik (2026-06-14…2026-07-11: origin=reconstructed, utána live). A 2026-06…11 bankot a /<lang>/nap/YYYY-MM-DD lapokon (a get_daily_edition payloadjának HTML-tükre) pásztáztuk végig en+hu nyelven, és két napon (06-14, 11-02) get_daily_edition hívással ellenőriztük, hogy a payload egyezik. 2025-07…2026-05: tartalék forrás (orakel_backteszt/cutoff_szonda_20260720/_mining_db_titles.json datált Echolot-címek, ill. corpus_*.json Echolot korpusz-összefoglalók; utóbbiak nem datáltak). event_date: ahol date_note áll, a nap közelítő (a hónap a lényeg); keywords: bármelyik (kis-nagybetűtől független részsztring) előfordulása helyes választ jelez."
+ },
+ "events": [
+  {
+   "id": "N2507a",
+   "bucket": "2025-07",
+   "event_month": "2025-07",
+   "event_date": "2025-07-12",
+   "question": "Ki nyerte a 2025-ös wimbledoni teniszbajnokság női egyesét?",
+   "gt": "Iga Świątek – első lengyelként nyerte meg Wimbledont.",
+   "source": "TARTALÉK: corpus_pl_pre_2025_09.json #13: 'Iga Świątek wygrała Wimbledon, pierwsza Polka w historii.'",
+   "keywords": [
+    "Świątek",
+    "Swiatek"
+   ],
+   "neg_keywords": [
+    "Sabalenka"
+   ],
+   "date_note": "a korpusz-tétel nem datált; a döntő napja közelítő"
+  },
+  {
+   "id": "N2507b",
+   "bucket": "2025-07",
+   "event_month": "2025-07",
+   "event_date": "2025-07-23",
+   "question": "Melyik válogatott ejtette ki a német női labdarúgó-válogatottat a 2025-ös, svájci rendezésű női Európa-bajnokság elődöntőjében, és milyen eredménnyel?",
+   "gt": "Spanyolország, 1:0-ra (Németország 0:1-es vereséggel esett ki).",
+   "source": "TARTALÉK: corpus_de_pre_2025_09.json #17: 'Die DFB-Frauen scheitern bei der EM in der Schweiz im Halbfinale knapp mit 0:1 gegen Spanien.'",
+   "keywords": [
+    "Spanyol",
+    "Spain",
+    "España",
+    "Spanien"
+   ],
+   "date_note": "a korpusz-tétel nem datált; az elődöntő napja közelítő"
+  },
+  {
+   "id": "N2508a",
+   "bucket": "2025-08",
+   "event_month": "2025-08",
+   "event_date": "2025-08-15",
+   "question": "Hol találkozott személyesen Donald Trump és Vlagyimir Putyin 2025 augusztusában az ukrajnai háborúról tartott csúcstalálkozón?",
+   "gt": "Alaszkában (USA); megállapodás nem született.",
+   "source": "TARTALÉK: corpus_hu_pre_2025_09.json #11 ('Trump–Putyin csúcstalálkozó Alaszkában az ukrajnai háborúról, megállapodás nélkül'); corpus_pt_pre_2025_09.json #13; corpus_de_pre_2025_09.json #1 ('vor dem Alaska-Gipfel')",
+   "keywords": [
+    "Alaszk",
+    "Alask",
+    "Anchorage"
+   ],
+   "date_note": "a korpusz-tétel nem datált; a csúcs napja közelítő"
+  },
+  {
+   "id": "N2508b",
+   "bucket": "2025-08",
+   "event_month": "2025-08",
+   "event_date": "2025-08-23",
+   "question": "Melyik Premier League-klubhoz igazolt Eberechi Eze a Crystal Palace-tól 2025 augusztusában?",
+   "gt": "Az Arsenalhoz.",
+   "source": "TARTALÉK: _mining_db_titles.json 2025-08: 90min 2025-08-21 'Eberechi Eze mural appears outside Emirates Stadium ahead of Arsenal move'",
+   "keywords": [
+    "Arsenal"
+   ],
+   "neg_keywords": [
+    "Tottenham",
+    "Spurs"
+   ],
+   "date_note": "forrás 2025-08-21 ('ahead of Arsenal move'); a hivatalos bejelentés napja közelítő"
+  },
+  {
+   "id": "N2509a",
+   "bucket": "2025-09",
+   "event_month": "2025-09",
+   "event_date": "2025-09-03",
+   "question": "Melyik európai fővárosban történt 2025. szeptember elején az a baleset, amelyben egy történelmi sikló (funicular) balesete 16 ember halálát okozta, és nemzeti gyászt hirdettek?",
+   "gt": "Lisszabonban (Elevador da Glória); 16 halott, nemzeti gyász Portugáliában.",
+   "source": "TARTALÉK: corpus_pt_pre_2025_11.json #0: 'Acidente do Elevador da Glória em Lisboa provoca 16 mortos e luto nacional.'",
+   "keywords": [
+    "Lisszabon",
+    "Lisbon",
+    "Lisboa",
+    "Glória",
+    "Gloria"
+   ],
+   "date_note": "a korpusz-tétel nem datált; a nap közelítő"
+  },
+  {
+   "id": "N2509b",
+   "bucket": "2025-09",
+   "event_month": "2025-09",
+   "event_date": "2025-09-16",
+   "question": "Melyik legendás amerikai filmszínész, egyben Oscar-díjas rendező hunyt el 2025 szeptemberében?",
+   "gt": "Robert Redford, 89 évesen.",
+   "source": "TARTALÉK: corpus_cz_pre_2025_11.json #8: 'Zemřel herec Robert Redford ve věku 89 let.'",
+   "keywords": [
+    "Redford"
+   ],
+   "neg_keywords": [
+    "Eastwood"
+   ],
+   "date_note": "a korpusz-tétel nem datált; a nap közelítő"
+  },
+  {
+   "id": "N2510a",
+   "bucket": "2025-10",
+   "event_month": "2025-10",
+   "event_date": "2025-10-10",
+   "question": "Ki kapta a 2025-ös Nobel-békedíjat?",
+   "gt": "María Corina Machado venezuelai ellenzéki politikus.",
+   "source": "TARTALÉK: _mining_db_titles.json 2025-10: Anne Applebaum (via Atlantic) 2025-10-10 'Why María Corina Machado Deserved the Nobel Peace Prize'; vö. Echolot get_daily_edition 2026-10-25 (en) top_stories: 'What to know about Venezuela’s opposition leader Maria Corina Machado' (source_count 48)",
+   "keywords": [
+    "Machado"
+   ]
+  },
+  {
+   "id": "N2510b",
+   "bucket": "2025-10",
+   "event_month": "2025-10",
+   "event_date": "2025-10-28",
+   "question": "Mi volt a neve annak a hurrikánnak, amely 2025. október végén súlyos pusztítást végzett Jamaicában?",
+   "gt": "Melissa hurrikán.",
+   "source": "TARTALÉK: _mining_db_titles.json 2025-10: The Economist (International) 2025-10-30 'Investors will help Jamaica recover from Hurricane Melissa'",
+   "keywords": [
+    "Melissa"
+   ],
+   "date_note": "forrás 2025-10-30; a partot érés napja közelítő"
+  },
+  {
+   "id": "N2511a",
+   "bucket": "2025-11",
+   "event_month": "2025-11",
+   "event_date": "2025-11-16",
+   "question": "Milyen eredménnyel zárult a magyar labdarúgó-válogatott 2025. novemberi, Írország elleni hazai világbajnoki selejtezője, amely a pótselejtezős helyről döntött?",
+   "gt": "2-3-as magyar vereség: Írország a 96. percben fordított Budapesten, Magyarország kiesett.",
+   "source": "TARTALÉK: corpus_hu_2025_12.json #21: 'A magyar válogatott kiesett a vb-pótselejtezőből: Írország a 96. percben fordított 3-2-re Budapesten.'",
+   "keywords": [
+    "2-3",
+    "3-2",
+    "2:3",
+    "3:2",
+    "96. perc",
+    "96th minute"
+   ],
+   "date_note": "a korpusz-tétel nem datált; a meccs napja közelítő"
+  },
+  {
+   "id": "N2511b",
+   "bucket": "2025-11",
+   "event_month": "2025-11",
+   "event_date": "2025-11-26",
+   "question": "Melyik városban pusztított 2025. november végén halálos tűzvész egy toronyházas lakótelepen, amelynek kivizsgálására bírói vezetésű független bizottságot állítottak fel?",
+   "gt": "Hongkongban.",
+   "source": "TARTALÉK: _mining_db_titles.json: Global Times 2025-11-29 'Never alone in times of crisis: HK and mainland stand in solidarity to aid rescue and relief in high-rise fire'; Global Times 2025-12-03 'HK to set up judge-led independent commission to investigate deadly fire'",
+   "keywords": [
+    "Hongkong",
+    "Hong Kong",
+    "Hong-Kong"
+   ],
+   "date_note": "forrás 2025-11-29; a tűz napja közelítő (legkésőbb 11-29)"
+  },
+  {
+   "id": "N2512a",
+   "bucket": "2025-12",
+   "event_month": "2025-12",
+   "event_date": "2025-12-05",
+   "question": "A 2026-os labdarúgó-világbajnokság 2025. decemberi csoportsorsolásán mely csapatokkal került egy csoportba Portugália?",
+   "gt": "A K csoportba: Kolumbia, Üzbegisztán és a Kongói DK.",
+   "source": "TARTALÉK: corpus_pt_pre_2026_01.json #8: 'Sorteio do Mundial 2026 coloca Portugal no Grupo K com Colômbia, Uzbequistão e RD Congo.'; corpus_pl_pre_2026_01.json #17 (sorsolás Washingtonban)",
+   "keywords": [
+    "Üzbegisztán",
+    "Üzbég",
+    "Uzbekistan",
+    "Uzbequist",
+    "Kolumbia",
+    "Colombia"
+   ],
+   "date_note": "a korpusz-tétel nem datált; a sorsolás napja közelítő"
+  },
+  {
+   "id": "N2512b",
+   "bucket": "2025-12",
+   "event_month": "2025-12",
+   "event_date": "2025-12-18",
+   "question": "Mekkora értékű amerikai fegyvereladást jelentettek be Tajvannak 2025 decemberében, amelyet Kína élesen elítélt?",
+   "gt": "Mintegy 11 milliárd dollárnyit.",
+   "source": "TARTALÉK: _mining_db_titles.json 2025-12: Global Times 2025-12-19 'Chinese FM strongly condemns $11b US arms sales to Taiwan'; Global Times 2025-12-27 'China imposes countermeasures against 20 US companies, 10 senior executives in response to US arms sales to Taiwan'",
+   "keywords": [
+    "11 milliárd",
+    "11 billion",
+    "$11",
+    "11,1 milliárd",
+    "11.1 billion",
+    "11b"
+   ],
+   "date_note": "forrás 2025-12-19; a bejelentés napja közelítő"
+  },
+  {
+   "id": "N2601a",
+   "bucket": "2026-01",
+   "event_month": "2026-01",
+   "event_date": "2026-01-03",
+   "question": "Mi történt Nicolás Maduro venezuelai elnökkel 2026 januárjának első napjaiban?",
+   "gt": "Amerikai különleges műveletben elfogták és elvitték (megbuktatták); azóta amerikai bíróság elé állították.",
+   "source": "TARTALÉK: _mining_db_titles.json 2026-01: The Economist (International) 2026-01-05 'The War Room newsletter: Inside the mission that snatched Maduro'; 2026-01-30 'Mission Maduro—when special ops succeed'; vö. Echolot get_daily_edition 2026-11-12 (en) top_stories: 'US returns over $12 billion in oil proceeds to Venezuela since Maduro’s ouster' (source_count 10)",
+   "keywords": [
+    "elfog",
+    "elrabol",
+    "foglyul",
+    "őrizetbe",
+    "elhurcol",
+    "captur",
+    "snatch",
+    "seized",
+    "abduct"
+   ],
+   "date_note": "forrás 2026-01-05; az akció napja közelítő (legkésőbb 01-05)"
+  },
+  {
+   "id": "N2601b",
+   "bucket": "2026-01",
+   "event_month": "2026-01",
+   "event_date": "2026-01-14",
+   "question": "Melyik ikonikus New York-i luxusáruház tulajdonoscége ment csődbe 2026 januárjában?",
+   "gt": "A Saks Fifth Avenue tulajdonosa (Saks Global).",
+   "source": "TARTALÉK: _mining_db_titles.json 2026-01: The Economist - Business 2026-01-14 'How Saks Fifth Avenue’s owner went bust'",
+   "keywords": [
+    "Saks"
+   ],
+   "neg_keywords": [
+    "Macy"
+   ],
+   "date_note": "forrás 2026-01-14; a csődbejelentés napja közelítő"
+  },
+  {
+   "id": "N2601c",
+   "bucket": "2026-01",
+   "event_month": "2026-01",
+   "event_date": "2026-01-16",
+   "question": "Hány év börtönbüntetésre ítélték 2026 januárjában Jun Szogjol (Yoon Suk-yeol) volt dél-koreai elnököt az igazságszolgáltatás akadályozása miatt?",
+   "gt": "5 évre.",
+   "source": "TARTALÉK: _mining_db_titles.json 2026-01: Global Times 2026-01-17 'S. Korea's ex-president Yoon sentenced to 5 years in prison over obstruction of justice'",
+   "keywords": [
+    "5 év",
+    "öt év",
+    "5 year",
+    "five year",
+    "5-year",
+    "five-year"
+   ],
+   "date_note": "forrás 2026-01-17; az ítélet napja közelítő"
+  },
+  {
+   "id": "N2601d",
+   "bucket": "2026-01",
+   "event_month": "2026-01",
+   "event_date": "2026-01-30",
+   "question": "Kit jelölt Donald Trump 2026 januárjának végén a Federal Reserve elnöki posztjára Jerome Powell utódjaként?",
+   "gt": "Kevin Warsh-t.",
+   "source": "TARTALÉK: _mining_db_titles.json: The Economist - Finance 2026-01-30 'What will Kevin Warsh’s Federal Reserve look like?'; The Economist 2026-02-05 'Untangling the ideas of Donald Trump’s Fed nominee'",
+   "keywords": [
+    "Warsh"
+   ],
+   "neg_keywords": [
+    "Hassett"
+   ],
+   "date_note": "forrás 2026-01-30"
+  },
+  {
+   "id": "N2602a",
+   "bucket": "2026-02",
+   "event_month": "2026-02",
+   "event_date": "2026-02-15",
+   "question": "Mely cseh sportolók nyertek aranyérmet a 2026-os milánói–cortinai téli olimpián?",
+   "gt": "Maděrová (snowboard) és Jílek (gyorskorcsolya); Csehország összesen négy érmet szerzett.",
+   "source": "TARTALÉK: corpus_cz_2026_01.json #17: 'Češi získali na olympiádě čtyři medaile, zlato vybojovali snowboardistka Maděrová a rychlobruslař Jílek.'",
+   "keywords": [
+    "Maděrová",
+    "Maderová",
+    "Maderova",
+    "Jílek",
+    "Jilek"
+   ],
+   "neg_keywords": [
+    "Ledecká",
+    "Ledecka"
+   ],
+   "date_note": "a korpusz-tétel nem datált; az olimpia febr. 6–22. között zajlott, a nap közelítő"
+  },
+  {
+   "id": "N2602b",
+   "bucket": "2026-02",
+   "event_month": "2026-02",
+   "event_date": "2026-02-20",
+   "question": "Hogyan döntött az amerikai Legfelsőbb Bíróság 2026 februárjában Donald Trump vészhelyzeti (IEEPA) felhatalmazásra alapozott vámjairól?",
+   "gt": "Jogellenesnek mondta ki, érvénytelenítette őket; Trump új vámfenyegetésekkel válaszolt, felmerült a visszatérítés kérdése.",
+   "source": "TARTALÉK: _mining_db_titles.json 2026-02: The Economist (International) 2026-02-20 'Donald Trump answers a Supreme Court rebuke with new tariff threats'; The Economist 2026-02-24 'Bosses should not hold their breath for a Trump tariff refund'; vö. Echolot get_daily_edition 2026-07-15 (en) top_stories: 'Class-action lawsuit claims major automaker owes customers refunds over tariff pricing' ('Now that the tariffs have been deemed illegal…', source_count 10)",
+   "keywords": [
+    "jogellenes",
+    "törvénytelen",
+    "érvénytelen",
+    "megsemmisít",
+    "alkotmányellenes",
+    "illegal",
+    "unlawful",
+    "struck down",
+    "invalid"
+   ],
+   "neg_keywords": [
+    "helybenhagy",
+    "upheld"
+   ],
+   "date_note": "forrás 2026-02-20"
+  },
+  {
+   "id": "N2602c",
+   "bucket": "2026-02",
+   "event_month": "2026-02",
+   "event_date": "2026-02-27",
+   "question": "Melyik mesterségesintelligencia-fejlesztő céggel került nyílt összetűzésbe Pete Hegseth hadügyminiszter, majd Donald Trump is 2026. február végén?",
+   "gt": "Az Anthropickal (a Claude fejlesztőjével).",
+   "source": "TARTALÉK: _mining_db_titles.json 2026-02: The Economist - Business 2026-02-24 'Pete Hegseth wages war on Anthropic'; The Economist 2026-02-28 'Donald Trump lashes out at Anthropic'",
+   "keywords": [
+    "Anthropic"
+   ],
+   "date_note": "forrás 2026-02-24 és 02-28; közelítő"
+  },
+  {
+   "id": "N2602d",
+   "bucket": "2026-02",
+   "event_month": "2026-02",
+   "event_date": "2026-02-28",
+   "question": "Mi történt Ali Hamenei iráni legfelsőbb vezetővel 2026. február végén?",
+   "gt": "Megölték egy (amerikai–)izraeli légicsapásban február 28-án, a háború első napján; utóda a fia, Modzstaba Hamenei lett.",
+   "source": "Echolot get_daily_edition 2026-07-03 (en, origin: reconstructed) brief.topics: 'Iran: Khamenei Funeral Begins' ('He was killed in an Israeli raid on February 28.') és top_stories: 'Iran begins week of funeral ceremonies for slain Supreme Leader Khamenei' (source_count 4, '…killed in joint US-Israeli strike in February'); Echolot get_daily_edition 2026-07-11 (en) top_stories: 'Iran’s Supreme Leader vows revenge for father’s killing' (source_count 16); TARTALÉK: Russia in Global Affairs 2026-03-03 'The Killing of a Head of State…'",
+   "keywords": [
+    "megöl",
+    "meggyilkol",
+    "likvidál",
+    "életét vesztette",
+    "killed",
+    "assassinat",
+    "merénylet",
+    "légicsapásban"
+   ]
+  },
+  {
+   "id": "N2603a",
+   "bucket": "2026-03",
+   "event_month": "2026-03",
+   "event_date": "2026-03-05",
+   "question": "Melyik kormánytagját menesztette Donald Trump 2026 márciusának elején?",
+   "gt": "Kristi Noem belbiztonsági minisztert.",
+   "source": "TARTALÉK: _mining_db_titles.json 2026-03: Arab News 2026-03-05 'Trump fires homeland security chief Kristi Noem'",
+   "keywords": [
+    "Noem"
+   ],
+   "neg_keywords": [
+    "Hegseth"
+   ],
+   "date_note": "forrás 2026-03-05"
+  },
+  {
+   "id": "N2603b",
+   "bucket": "2026-03",
+   "event_month": "2026-03",
+   "event_date": "2026-03-05",
+   "question": "Mekkora (jüanban kifejezett) védelmi költségvetést jelentett be Kína 2026-ra, a márciusi Országos Népi Gyűlés idején?",
+   "gt": "1,94 billió (ezermilliárd) jüant.",
+   "source": "TARTALÉK: _mining_db_titles.json 2026-03: Global Times 2026-03-11 'China's 2026 defense budget set at 1.94 trillion yuan: spokesperson'",
+   "keywords": [
+    "1,94",
+    "1.94",
+    "1940 milliárd",
+    "1 940 milliárd"
+   ],
+   "date_note": "forrás 2026-03-11; a bejelentés napja közelítő (NPC-ülésszak eleje)"
+  },
+  {
+   "id": "N2603c",
+   "bucket": "2026-03",
+   "event_month": "2026-03",
+   "event_date": "2026-03-19",
+   "question": "Melyik cég felvásárlását jelentette be az OpenAI a hivatalos blogján 2026. március 19-én?",
+   "gt": "Az Astralét.",
+   "source": "TARTALÉK: _mining_db_titles.json 2026-03: OpenAI Blog 2026-03-19 'OpenAI to acquire Astral'",
+   "keywords": [
+    "Astral"
+   ]
+  },
+  {
+   "id": "N2603d",
+   "bucket": "2026-03",
+   "event_month": "2026-03",
+   "event_date": "2026-03-31",
+   "question": "Melyik korábbi világbajnok európai labdarúgó-válogatott maradt le 2026. március végén, a pótselejtezőn, a 2026-os világbajnokságról?",
+   "gt": "Olaszország – sorozatban harmadszor maradt le a vb-ről.",
+   "source": "TARTALÉK: _mining_db_titles.json 2026-03: Rangadó 2026-03-31 'Olaszország sorozatban harmadszor maradt le a vébéről'",
+   "keywords": [
+    "Olasz",
+    "Ital",
+    "Azzurri"
+   ],
+   "date_note": "forrás 2026-03-31"
+  },
+  {
+   "id": "N2604a",
+   "bucket": "2026-04",
+   "event_month": "2026-04",
+   "event_date": "2026-04-02",
+   "question": "Melyik céget vásárolta meg az OpenAI a 2026. április 2-i bejelentése szerint?",
+   "gt": "A TBPN-t.",
+   "source": "TARTALÉK: _mining_db_titles.json 2026-04: OpenAI Blog 2026-04-02 'OpenAI acquires TBPN'",
+   "keywords": [
+    "TBPN"
+   ]
+  },
+  {
+   "id": "N2604b",
+   "bucket": "2026-04",
+   "event_month": "2026-04",
+   "event_date": "2026-04-12",
+   "question": "Ki nyerte a 2026. áprilisi beníni elnökválasztást az előzetes eredmények szerint?",
+   "gt": "Romuald Wadagni.",
+   "source": "TARTALÉK: _mining_db_titles.json 2026-04: CGTN 2026-04-13 'Wadagni elected president of Benin, provisional results show'",
+   "keywords": [
+    "Wadagni"
+   ],
+   "neg_keywords": [
+    "Talon"
+   ],
+   "date_note": "forrás 2026-04-13 (előzetes eredmény); a szavazás napja közelítő"
+  },
+  {
+   "id": "N2604c",
+   "bucket": "2026-04",
+   "event_month": "2026-04",
+   "event_date": "2026-04-12",
+   "question": "Melyik karibi országban vesztette életét 25 ember egy hegytetőn álló történelmi erődnél kitört tömegpánikban 2026 áprilisában?",
+   "gt": "Haitin.",
+   "source": "TARTALÉK: _mining_db_titles.json 2026-04: CGTN 2026-04-13 'Stampede kills 25 at Haitian mountaintop fortress'",
+   "keywords": [
+    "Haiti"
+   ],
+   "date_note": "forrás 2026-04-13; a tragédia napja közelítő"
+  },
+  {
+   "id": "N2604d",
+   "bucket": "2026-04",
+   "event_month": "2026-04",
+   "event_date": "2026-04-13",
+   "question": "Milyen katonai intézkedést léptetett életbe az Egyesült Államok 2026. április 13-án az iráni kikötőkkel szemben?",
+   "gt": "Tengeri blokádot az iráni kikötőkbe be- és onnan kifutó hajóforgalomra (Ománi-öböl, Arab-tenger).",
+   "source": "TARTALÉK: _mining_db_titles.json 2026-04: CGTN 2026-04-13 'Trump repeats Monday blockade of ships entering, exiting Iranian ports'; 'US military to enforce blockade in Gulf of Oman, Arabian Sea'; 'Deadline passes for US naval blockade on Iranian ports'",
+   "keywords": [
+    "blokád",
+    "blockade",
+    "zárlat"
+   ]
+  },
+  {
+   "id": "N2605a",
+   "bucket": "2026-05",
+   "event_month": "2026-05",
+   "event_date": "2026-05-30",
+   "question": "Ki nyerte a 2025/26-os labdarúgó Bajnokok Ligája budapesti döntőjét, és kit győzött le?",
+   "gt": "A Paris Saint-Germain, az Arsenalt tizenegyespárbajban (Puskás Aréna, május 30.), megvédve címét.",
+   "source": "TARTALÉK: corpus_hu_2026_05.json #21: 'PSG-Arsenal Bajnokok Ligája-döntőt rendeztek a Puskás Arénában május 30-án, a PSG tizenegyespárbajban védte meg címét.'",
+   "keywords": [
+    "PSG",
+    "Paris Saint-Germain",
+    "Saint-Germain"
+   ]
+  },
+  {
+   "id": "N2605b",
+   "bucket": "2026-05",
+   "event_month": "2026-05",
+   "event_date": "2026-05-31",
+   "question": "Melyik ország nyerte a 2026-os, svájci rendezésű jégkorong-világbajnokságot, és kit győzött le a döntőben?",
+   "gt": "Finnország; a döntőben a házigazda Svájcot győzte le 1:0-ra hosszabbításban.",
+   "source": "TARTALÉK: corpus_cz_2026_05.json #17: 'Finsko se stalo mistrem světa v hokeji 2026, ve finále na MS ve Švýcarsku porazilo domácí Švýcarsko 1:0 v prodloužení.'",
+   "keywords": [
+    "Finn",
+    "Finland",
+    "Suomi"
+   ],
+   "date_note": "a korpusz-tétel nem datált; a döntő napja közelítő"
+  },
+  {
+   "id": "N2605c",
+   "bucket": "2026-05",
+   "event_month": "2026-05",
+   "event_date": "2026-05-15",
+   "question": "Legfeljebb mekkora összegű befagyasztott uniós forrás felszabadításáról állapodott meg Brüsszellel a 2026-ban hivatalba lépett új magyar kormány 2026 májusában?",
+   "gt": "Akár 16,4 milliárd euróról (ebből mintegy 10 milliárd euró helyreállítási/RRF-forrás).",
+   "source": "TARTALÉK: corpus_hu_2026_05.json #6 ('…akár 16,4 milliárd euró elérhetővé válhat') és #7; vö. Echolot get_daily_edition 2026-06-26 (hu) top_stories: 'Sulyok Tamás aláírta az EU-s források hazahozataláról szóló törvényt' (source_count 5)",
+   "keywords": [
+    "16,4",
+    "16.4"
+   ],
+   "date_note": "a korpusz-tétel nem datált; május, a nap közelítő"
+  },
+  {
+   "id": "N2605d",
+   "bucket": "2026-05",
+   "event_month": "2026-05",
+   "event_date": "2026-05-20",
+   "question": "Milyen kerek szint alá erősödött a forint az euróval szemben 2026 májusában, közel ötéves csúcsra?",
+   "gt": "350 forint/euró alá.",
+   "source": "TARTALÉK: corpus_hu_2026_05.json #13: '350 forint alá erősödött az euró árfolyama: közel öt éve nem volt ilyen erős a forint.'",
+   "keywords": [
+    "350"
+   ],
+   "date_note": "a korpusz-tétel nem datált; május, a nap közelítő"
+  },
+  {
+   "id": "N2606a",
+   "bucket": "2026-06",
+   "event_month": "2026-06",
+   "event_date": "2026-06-13",
+   "question": "Melyik csapat nyerte a 2026-os NBA-döntőt, és kit győzött le?",
+   "gt": "A New York Knicks, az 5. meccsen a San Antonio Spurs ellen – 53 év (1973) után első bajnoki címe.",
+   "source": "Echolot get_daily_edition 2026-06-14 (en, origin: reconstructed) brief.topics: 'New York Knicks win first NBA title in 53 years'",
+   "keywords": [
+    "Knicks"
+   ],
+   "date_note": "forrás 2026-06-14 ('clinch'); a döntő meccs napja közelítő"
+  },
+  {
+   "id": "N2606b",
+   "bucket": "2026-06",
+   "event_month": "2026-06",
+   "event_date": "2026-06-14",
+   "question": "Melyik amerikai énekes vesztette életét 2026 júniusában Rio de Janeiróban, két helikopter összeütközésekor?",
+   "gt": "Oliver Tree.",
+   "source": "Echolot get_daily_edition 2026-06-15 (en, origin: reconstructed) brief.topics: 'Brazil helicopter collision kills six' ('…killing six including US singer Oliver Tree'); external_trends.wikipedia 2026-06-14: 'Oliver Tree' #1, 1 508 668 megtekintés",
+   "keywords": [
+    "Oliver Tree"
+   ],
+   "date_note": "forrás 2026-06-15; a baleset napja közelítő"
+  },
+  {
+   "id": "N2606c",
+   "bucket": "2026-06",
+   "event_month": "2026-06",
+   "event_date": "2026-06-15",
+   "question": "Hány év börtönbüntetésre ítélték 2026 júniusában Marius Borg Høibyt, a norvég trónörökösné fiát, nemi erőszak miatt?",
+   "gt": "Négy évre (fellebbezni készült).",
+   "source": "Echolot get_daily_edition 2026-06-15 (en, origin: reconstructed) brief.topics: 'Norway royal rape verdict' ('…sentenced to four years for rape')",
+   "keywords": [
+    "4 év",
+    "négy év",
+    "4 year",
+    "four year",
+    "4-year",
+    "four-year"
+   ],
+   "date_note": "forrás 2026-06-15"
+  },
+  {
+   "id": "N2606d",
+   "bucket": "2026-06",
+   "event_month": "2026-06",
+   "event_date": "2026-06-24",
+   "question": "Melyik dél-amerikai országot sújtotta 2026. június 24-én két erős földrengés, amely ezres nagyságrendű halálos áldozatot követelt?",
+   "gt": "Venezuelát (észak- és közép-Venezuela, Caracas, La Guaira; 7,2-es és 7,5-ös rengés, július elejére közel 3000 halott).",
+   "source": "Echolot get_daily_edition 2026-06-25 (en, origin: reconstructed) brief.topics: 'Venezuela earthquake catastrophe'; 2026-06-27 top_stories: 'Venezuela earthquakes: Search intensifies for hundreds trapped' (source_count 5); 2026-07-05 brief.topics: 'Venezuela earthquake death toll rises to nearly 3,000'",
+   "keywords": [
+    "Venezuel",
+    "Caracas",
+    "Karakasz",
+    "La Guaira"
+   ]
+  },
+  {
+   "id": "N2607a",
+   "bucket": "2026-07",
+   "event_month": "2026-07",
+   "event_date": "2026-07-11",
+   "question": "Melyik amerikai szenátor hirtelen halála vezette a világsajtót 2026. július 12-én?",
+   "gt": "Lindsey Graham dél-karolinai republikánus szenátoré (71 évesen, július 11-én este hunyt el).",
+   "source": "Echolot get_daily_edition 2026-07-12 (en) headline + brief.topics: 'Lindsey Graham dies at 71'; top_stories: 'World leaders join Trump in remembering Sen. Lindsey Graham' (source_count 10)",
+   "keywords": [
+    "Graham"
+   ]
+  },
+  {
+   "id": "N2607b",
+   "bucket": "2026-07",
+   "event_month": "2026-07",
+   "event_date": "2026-07-15",
+   "question": "Melyik amerikai cég vásárolta meg 2026 júliusában a berlini székhelyű ételfutár-céget, a Delivery Herót, mintegy 13 milliárd euróért?",
+   "gt": "Az Uber.",
+   "source": "Echolot get_daily_edition 2026-07-16 (en) brief.topics: 'Uber acquires Delivery Hero' ('Uber buys Berlin-based Delivery Hero for €13 billion')",
+   "keywords": [
+    "Uber"
+   ],
+   "neg_keywords": [
+    "DoorDash",
+    "Prosus"
+   ],
+   "date_note": "forrás 2026-07-16; a bejelentés napja közelítő"
+  },
+  {
+   "id": "N2607c",
+   "bucket": "2026-07",
+   "event_month": "2026-07",
+   "event_date": "2026-07-19",
+   "question": "Melyik válogatott nyerte a 2026-os labdarúgó-világbajnokságot, és ki volt az ellenfele a július 19-i döntőben?",
+   "gt": "Spanyolország; a döntőben Argentínát győzte le.",
+   "source": "Echolot get_daily_edition 2026-07-19 (en) brief.topics: 'World Cup final: Spain vs. Argentina', top_stories: 'FIFA World Cup 2026 LIVE updates: Lionel Messi’s Argentina meet Spain in final' (source_count 46); 2026-07-20 (en) headline: 'Spain's World Cup victory celebrations turn deadly…'; 2026-07-20 (hu) brief.topics: 'Spanyol vb-győzelem és tragédia' ('Spanyolország megnyerte a 2026-os labdarúgó-világbajnokságot')",
+   "keywords": [
+    "Spanyol",
+    "Spain",
+    "España"
+   ]
+  },
+  {
+   "id": "N2607d",
+   "bucket": "2026-07",
+   "event_month": "2026-07",
+   "event_date": "2026-07-20",
+   "question": "Ki lett az Egyesült Királyság miniszterelnöke 2026 júliusában, Keir Starmer lemondása után?",
+   "gt": "Andy Burnham (a Munkáspárt új vezetőjeként, július 20-án nevezték ki).",
+   "source": "Echolot get_daily_edition 2026-07-13 (en) top_stories: 'Andy Burnham will be next British prime minister after 349 MPs back him for Labour leadership' (source_count 10); 2026-07-20 (en) brief.topics: 'Andy Burnham to replace Keir Starmer as UK PM'",
+   "keywords": [
+    "Burnham"
+   ],
+   "neg_keywords": [
+    "Streeting",
+    "Rayner"
+   ]
+  },
+  {
+   "id": "N2608a",
+   "bucket": "2026-08",
+   "event_month": "2026-08",
+   "event_date": "2026-08-05",
+   "question": "Melyik klubhoz igazolt Mohamed Szalah 2026 augusztusában?",
+   "gt": "A török Trabzonsporhoz.",
+   "source": "Echolot get_daily_edition 2026-08-05 (en) brief.topics: 'Mohamed Salah to Trabzonspor' ('…arrived in Istanbul for a transfer to Turkish club Trabzonspor')",
+   "keywords": [
+    "Trabzon"
+   ],
+   "date_note": "forrás 2026-08-05 (érkezés Isztambulba)"
+  },
+  {
+   "id": "N2608b",
+   "bucket": "2026-08",
+   "event_month": "2026-08",
+   "event_date": "2026-08-11",
+   "question": "Kit választott az Országgyűlés Magyarország új köztársasági elnökévé 2026 augusztusában?",
+   "gt": "Baka Andrást, a Legfelsőbb Bíróság volt elnökét (140 igen szavazattal, augusztus 11-én; augusztus 19–20-án lépett hivatalba).",
+   "source": "Echolot get_daily_edition 2026-08-11 (hu) top_stories: 'Baka András Magyarország új köztársasági elnöke' (source_count 6), 'Köztársasági elnökké választották Baka Andrást – a nap hírei' (source_count 4); 2026-08-20 (hu) brief.topics: 'Új köztársasági elnök'",
+   "keywords": [
+    "Baka"
+   ]
+  },
+  {
+   "id": "N2608c",
+   "bucket": "2026-08",
+   "event_month": "2026-08",
+   "event_date": "2026-08-24",
+   "question": "Melyik amerikai zenei ikon halálhíre volt a nap vezető híre világszerte 2026. augusztus 25-én?",
+   "gt": "Dolly Parton country-énekesnő és színésznő halála, 80 évesen.",
+   "source": "Echolot get_daily_edition 2026-08-25 (en) top_stories: 'Dolly Parton, music star, actor and beloved figure, dies at 80' (source_count 146)",
+   "keywords": [
+    "Dolly",
+    "Parton"
+   ],
+   "date_note": "forrás 2026-08-25; a halál napja közelítő"
+  },
+  {
+   "id": "N2608d",
+   "bucket": "2026-08",
+   "event_month": "2026-08",
+   "event_date": "2026-08-27",
+   "question": "Melyik európai uralkodó halt meg 2026 augusztusának végén, és ki lett az utódja?",
+   "gt": "V. Harald norvég király (89 évesen, Európa legidősebb uralkodója); utóda fia, VIII. Haakon.",
+   "source": "Echolot get_daily_edition 2026-08-27 (en) brief.topics: 'Norway: King Harald's Health Deteriorates'; 2026-08-28 (en) brief.topics: 'Norwegian Monarchy Transition' ('King Harald V died at 89…'); 2026-09-09 (hu) top_stories: 'Baka András is részt vett V. Harald norvég király temetésén' (source_count 3)",
+   "keywords": [
+    "Harald",
+    "Haakon",
+    "norvég",
+    "Norw"
+   ],
+   "neg_keywords": [
+    "Károly",
+    "Charles"
+   ],
+   "date_note": "forrás 2026-08-28; a halál napja közelítő"
+  },
+  {
+   "id": "N2609a",
+   "bucket": "2026-09",
+   "event_month": "2026-09",
+   "event_date": "2026-09-16",
+   "question": "Melyik magyar zenei legenda hunyt el 2026. szeptember közepén, egy szívműtétet követően?",
+   "gt": "Deák Bill Gyula, a magyar blues legendája (77 évesen, Zalaegerszegen, pacemaker-beültetés után).",
+   "source": "Echolot get_daily_edition 2026-09-17 (hu) top_stories: 'Elhunyt Deák Bill Gyula: a magyar blues legendája 77 éves volt' (source_count 31)",
+   "keywords": [
+    "Deák Bill",
+    "Deak Bill"
+   ],
+   "date_note": "forrás 2026-09-17; a halál napja közelítő"
+  },
+  {
+   "id": "N2609b",
+   "bucket": "2026-09",
+   "event_month": "2026-09",
+   "event_date": "2026-09-18",
+   "question": "Mely hírmédiumokat tiltotta ki Donald Trump a Fehér Házból 2026 szeptemberében?",
+   "gt": "A CNN-t, az MS NOW-t és a Politicót (egy bíró szeptember 24-én visszaállíttatta a hozzáférésüket).",
+   "source": "Echolot get_daily_edition 2026-09-18 (en) top_stories: 'Trump bans CNN, MS Now, Politico from covering the White House' (source_count 87); 2026-09-24 (en) top_stories: 'CNN, MS NOW, Politico allowed back in White House after judge’s order' (source_count 17)",
+   "keywords": [
+    "Politico",
+    "MS NOW"
+   ]
+  },
+  {
+   "id": "N2609c",
+   "bucket": "2026-09",
+   "event_month": "2026-09",
+   "event_date": "2026-09-20",
+   "question": "Hány százalékot kapott a CDU a 2026. szeptember 20-i mecklenburg-elő-pomerániai tartományi választáson az ARD előrejelzése szerint, és mi lett ennek a következménye?",
+   "gt": "4,9%-ot, így kiesett a tartományi parlamentből; az AfD lett a legerősebb párt az SPD előtt.",
+   "source": "Echolot get_daily_edition 2026-09-21 (en) brief.topics: 'CDU falls below threshold in Mecklenburg-Vorpommern' ('An ARD projection put the CDU at 4.9 percent…')",
+   "keywords": [
+    "4,9",
+    "4.9"
+   ]
+  },
+  {
+   "id": "N2609d",
+   "bucket": "2026-09",
+   "event_month": "2026-09",
+   "event_date": "2026-09-23",
+   "question": "Hány év börtönbüntetést kapott Harvey Weinstein 2026 szeptemberében szexuális bűncselekmény miatt?",
+   "gt": "15 évet.",
+   "source": "Echolot get_daily_edition 2026-09-23 (en) top_stories: 'Harvey Weinstein sentenced to 15 years' (source_count 44); 2026-09-24 (en) headline + brief.topics",
+   "keywords": [
+    "15 év",
+    "tizenöt év",
+    "15 year",
+    "15-year",
+    "fifteen"
+   ],
+   "neg_keywords": [
+    "16 év",
+    "23 év",
+    "16 year",
+    "23 year"
+   ]
+  },
+  {
+   "id": "N2610a",
+   "bucket": "2026-10",
+   "event_month": "2026-10",
+   "event_date": "2026-10-09",
+   "question": "Ki kapta a 2026-os Nobel-békedíjat?",
+   "gt": "Navi Pillay dél-afrikai jogász, az ENSZ volt emberi jogi főbiztosa, a Nemzetközi Büntetőbíróság egykori bírája.",
+   "source": "Echolot get_daily_edition 2026-10-09 (hu) top_stories: 'Dél-afrikai jogász kapja idén a Nobel-békedíjat' (source_count 14)",
+   "keywords": [
+    "Pillay"
+   ]
+  },
+  {
+   "id": "N2610b",
+   "bucket": "2026-10",
+   "event_month": "2026-10",
+   "event_date": "2026-10-13",
+   "question": "Milyen diagnózist jelentett be a Vatikán XIV. Leó pápáról 2026 októberének közepén?",
+   "gt": "Tüdőrákot (adenokarcinómát) – a 71 éves pápa tüdejének egy részét eltávolították a Gemelli-kórházban; október 21-én közölték, hogy további kezelésre nincs szükség.",
+   "source": "Echolot get_daily_edition 2026-10-13 (en) top_stories: 'Pope Leo diagnosed with cancer after having surgery to remove part of his lung' (source_count 96); 2026-10-14 (en) top_stories: 'Pope Leo XIV's Lung Cancer Diagnosis Comes After Both His Parents Died of Cancer' (source_count 13); 2026-10-21 (en) top_stories (source_count 46)",
+   "keywords": [
+    "tüdőrák",
+    "tüdődaganat",
+    "tüdőtumor",
+    "lung cancer",
+    "adenokarcin",
+    "adenocarcin"
+   ],
+   "neg_keywords": [
+    "tüdőgyulladás",
+    "pneumonia"
+   ]
+  },
+  {
+   "id": "N2610c",
+   "bucket": "2026-10",
+   "event_month": "2026-10",
+   "event_date": "2026-10-25",
+   "question": "Ki győzött a 2026. október 25-i szerbiai előrehozott parlamenti választáson?",
+   "gt": "A diákok vezette ellenzéki mozgalom ('Egyetemista Lista'); Aleksandar Vučić elismerte vereségét.",
+   "source": "Echolot get_daily_edition 2026-10-25 (en) top_stories: 'Serbia's long-standing leader concedes defeat to student-led protest movement' (source_count 31); 2026-10-25 (hu) top_stories: 'Szerbia: győztek az ellenzéki egyetemisták a választáson, Vucic elismerte vereségét' (source_count 6)",
+   "keywords": [
+    "diák",
+    "egyetemist",
+    "student",
+    "Egyetemista Lista"
+   ]
+  },
+  {
+   "id": "N2610d",
+   "bucket": "2026-10",
+   "event_month": "2026-10",
+   "event_date": "2026-10-27",
+   "question": "Melyik országban ütközött össze két nagysebességű vonat 2026. október végén, 69 halálos áldozatot követelve, ami a közlekedési miniszter lemondásához vezetett?",
+   "gt": "Spanyolországban (Madridtól délre, Urda/Toledo térségében); Óscar Puente közlekedési miniszter lemondott.",
+   "source": "Echolot get_daily_edition 2026-10-28 (en) top_stories: 'At least 68 killed in high-speed train crash, with death toll set to rise' (source_count 19); 2026-11-03 (en) top_stories: 'Spain's transport minister steps down 6 days after high-speed train crash that killed 69 people' (source_count 29)",
+   "keywords": [
+    "Spanyol",
+    "Spain",
+    "España",
+    "Urda",
+    "Toledo"
+   ],
+   "date_note": "forrás 2026-10-28; a baleset napja közelítő"
+  },
+  {
+   "id": "N2611a",
+   "bucket": "2026-11",
+   "event_month": "2026-11",
+   "event_date": "2026-11-01",
+   "question": "Ki lett a 2026-os Formula–1-es világbajnok?",
+   "gt": "Kimi Antonelli (Mercedes) – 20 évesen a sportág legfiatalabb bajnoka; a Mexikói Nagydíjon szerzett 3. hellyel biztosította címét.",
+   "source": "Echolot get_daily_edition 2026-11-01 (en) top_stories: 'Kimi Antonelli becomes youngest champion in F1 history!…' (source_count 18); 2026-11-02 (en) brief.topics: 'Kimi Antonelli becomes youngest F1 champion'",
+   "keywords": [
+    "Antonelli"
+   ]
+  },
+  {
+   "id": "N2611b",
+   "bucket": "2026-11",
+   "event_month": "2026-11",
+   "event_date": "2026-11-01",
+   "question": "Ki nyerte a 2026. novemberi bolgár elnökválasztás második fordulóját?",
+   "gt": "Ilijana Jotova (Iliana Iotova) ügyvezető államfő – Bulgária első választott női elnöke.",
+   "source": "Echolot get_daily_edition 2026-11-02 (en) headline + brief.topics: 'Bulgaria elects first female president' ('Acting President Iliana Iotova won Bulgaria's presidential runoff…')",
+   "keywords": [
+    "Jotova",
+    "Iotova",
+    "Yotova",
+    "Йотова"
+   ],
+   "date_note": "forrás 2026-11-02; a második forduló napja közelítő"
+  },
+  {
+   "id": "N2611c",
+   "bucket": "2026-11",
+   "event_month": "2026-11",
+   "event_date": "2026-11-09",
+   "question": "Orbán Viktor melyik családtagját vették őrizetbe 2026. november 9-én, és milyen gyanúval?",
+   "gt": "Öccsét, Orbán Áront – embercsempészés gyanújával; november 11-én letartóztatták.",
+   "source": "Echolot get_daily_edition 2026-11-09 (hu) top_stories: 'Őrizetbe vették Orbán Viktor öccsét' (source_count 19); 2026-11-11 (hu) top_stories: 'Letartóztatták Orbán Áront és három társát' (source_count 9)",
+   "keywords": [
+    "Áron",
+    "embercsempész",
+    "human smuggling",
+    "people smuggling"
+   ]
+  },
+  {
+   "id": "N2611d",
+   "bucket": "2026-11",
+   "event_month": "2026-11",
+   "event_date": "2026-11-12",
+   "question": "Melyik nagy amerikai techcég vezérigazgatója mondott le 2026. november 12-én, miután kiderült, hogy viszonya volt egy feltételezett kínai kémmel?",
+   "gt": "Jensen Huang, az Nvidia vezérigazgatója (ideiglenes utódja Colette Kress pénzügyi igazgató).",
+   "source": "Echolot get_daily_edition 2026-11-09 (en) brief.topics: 'Nvidia launches investigation after CEO Jensen Huang admits to affair with suspected Chinese spy'; 2026-11-13 (en) brief.topics: 'Huang resigns as Nvidia’s CEO following affairs'; 2026-11-13 (hu) brief.topics: 'What we know after Jensen Huang's resignation as Nvidia's CEO'",
+   "keywords": [
+    "Nvidia",
+    "Huang"
+   ]
+  }
+ ]
+}

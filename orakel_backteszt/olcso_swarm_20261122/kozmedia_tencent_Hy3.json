@@ -1,0 +1,1719 @@
+{
+ "model": "tencent/Hy3",
+ "n_personas": 90,
+ "n_calls": 270,
+ "kitoltes": 1.0,
+ "lepesenkent": {
+  "K1_euro": {
+   "szegmensek": {
+    "baloldali": {
+     "n": 23,
+     "atlag": 3.3327
+    },
+    "jobboldali": {
+     "n": 20,
+     "atlag": 2.3795
+    },
+    "közmédia": {
+     "n": 16,
+     "atlag": 2.6301
+    },
+    "közösségi": {
+     "n": 20,
+     "atlag": 2.3841
+    },
+    "alig": {
+     "n": 11,
+     "atlag": 2.0839
+    }
+   },
+   "B_minus_J": 0.9532,
+   "kozmedia_hely": 0.263
+  },
+  "K2_szuver": {
+   "szegmensek": {
+    "baloldali": {
+     "n": 23,
+     "atlag": 2.9064
+    },
+    "jobboldali": {
+     "n": 20,
+     "atlag": 2.2478
+    },
+    "közmédia": {
+     "n": 16,
+     "atlag": 2.9139
+    },
+    "közösségi": {
+     "n": 20,
+     "atlag": 2.8907
+    },
+    "alig": {
+     "n": 11,
+     "atlag": 2.2285
+    }
+   },
+   "B_minus_J": 0.6586,
+   "kozmedia_hely": 1.011
+  },
+  "K3_ukrajna": {
+   "szegmensek": {
+    "baloldali": {
+     "n": 23,
+     "atlag": 3.3275
+    },
+    "jobboldali": {
+     "n": 20,
+     "atlag": 2.2559
+    },
+    "közmédia": {
+     "n": 16,
+     "atlag": 2.7946
+    },
+    "közösségi": {
+     "n": 20,
+     "atlag": 2.3293
+    },
+    "alig": {
+     "n": 11,
+     "atlag": 1.8639
+    }
+   },
+   "B_minus_J": 1.0716,
+   "kozmedia_hely": 0.503
+  }
+ },
+ "kozmedia_hely_atlag": 0.592,
+ "kozmedia_hely_osszevont": 0.542,
+ "osszevont": {
+  "B": 3.1889,
+  "J": 2.2944,
+  "K": 2.7796
+ },
+ "verdikt": "ÚJ TÉRKÉP (a közmédia-néző a kormánypárti tábor oldalán)",
+ "koltseg_usd": 0.01837,
+ "fal_s": 163.2,
+ "run_at": "2026-11-22T20:29:06",
+ "rows": [
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 3.5439667397644983,
+   "text": "Őszintén szólva tetszik, mert az euró bevezetése és az ERM-II belépés végre kiszámíthatóságot, árstabilitást és a Nyugathoz való visszacsatlakozást hozná, ami egy baloldali/liberális budapesti értelmiségiként nekem fontos."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 2.5386045747237382,
+   "text": "Őszintén szólva nem tetszik, mert az euró bevezetése szerintem csak drágábbá tenné az életet, és úgy érzem, elvonná a döntést a saját kezünkből, amitől még bizonytalanabb lenne a nyugdíjunk és a megélhetésünk."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.2885040368342042,
+   "text": "Őszintén szólva nem tetszik, mert egy jobboldali községi szakmunkásként féltem, hogy az euró bevezetése tovább emelné az árakat és csökkentené a hazai önállóságot."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 2.5529064661528285,
+   "text": "Őszintén szólva nem tetszik, mert 60 év felett már nehezen érteném meg a váltás maceráját, és félő, hogy az euróval az amúgy is magas nyugdíjas-árak még jobban elszállnának."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "alig",
+   "score": 1.8652284612671477,
+   "text": "Őszintén szólva nem örülök neki, mert alig követem a politikát, és az érettségivel meg a községi életünkkel nekem az a fontosabb, hogy ne rontsa meg a bevezetés a mindennapi megélhetésünket."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 3.4897732128731724,
+   "text": "Őszintén szólva tetszene, mert az euró bevezetése és az ERM-II belépés végre kiszámíthatóságot, árstabilitást és a Nyugathoz való gazdasági felzárkózást hozhatna, amit egy baloldali-liberális szemléletű, diplomás városi polgárként régóta hiányolok."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 2.7900623337201367,
+   "text": "Őszintén szólva nem tetszene, mert az euró bevezetése szerintem inkább emelné az árakat és venné el a döntési szabadságot a magyaroktól."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.0344118817870664,
+   "text": "Őszintén szólva nem tetszik, mert úgy érzem, hogy az euró bevezetése sértené Magyarország gazdasági önállóságát és a forintban rejlő nemzeti szabadságot."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 1.7929327114849436,
+   "text": "Őszintén szólva nem örülök neki, mert egy szakmunkásként a megyeszékhelyen élő nyugdíj előtt álló emberként félek, hogy az euró bevezetése az árak és a megélhetés további drágulásával járna, miközben a közmédiából kapott eddigi biztonságérzetet is felborítaná."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 3.1928169005075575,
+   "text": "Őszintén szólva tetszene, mert az euró bevezetése és a nyugati gazdasági integráció erősítése végre kiszámíthatóságot, árstabilitást és kitekintést adna a diploma nélküli kistelepülési nyugdíjasoknak is, akiket a forintgyengülés eddig leginkább sújtott."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "alig",
+   "score": 2.666108576739979,
+   "text": "Őszintén szólva teljesen mindegy, mert alig követem a politikát, de az euróval talán egyszerűbb lenne külföldre utazni vagy rendelni."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 2.569501060444075,
+   "text": "Őszintén szólva nem örülnék neki, mert egy 60 feletti községi diplomásként a közösségi médiából tájékozódva félek, hogy az euró bevezetése rögtön az árak emelkedését és a megszokott nyugdíjunk eleségét hozná."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 3.726743583016836,
+   "text": "Őszintén szólva tetszik, mert az euró bevezetése és az ERM-II-hez csatlakozás végre kiszámíthatóságot, az EU-hoz való visszatérést és a gazdasági stabilitást hozhatna, amire Budapesten, érettségizett baloldali szimpatizánsként régóta vágytam."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.065051473400359,
+   "text": "Nem tetszik, mert szerintem az euró bevezetése tovább rombolná a magyarok megélhetését és kiadná a gazdasági önrendelkezésünket idegen kézbe."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 3.4248445780781,
+   "text": "Őszintén szólva tetszik, mert szerintem a diploma után külföldre vagy uniós pályázatokhoz mérve is stabilabb lenne az euró, és a községi életben is kevesebb lenne a bizonytalanság az árakkal."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 1.937827717414731,
+   "text": "Őszintén szólva nem tetszik, mert az idős koromban és a megyeszékhelyi, végzettségem szerinti rétegemben sokan félünk attól, hogy az euró bevezetése újabb áremelkedéssel és bizonytalansággal járna, miközben a Facebookon látott politikai tartalmak már eleve tele vannak ezzel való riogatással."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.054045538639532,
+   "text": "Őszintén szólva egyáltalán nem tetszene, mert jobboldali községi szakmunkásként a saját forintunk és gazdasági önállóságunk elvesztését látnám benne, ráadásul pont egy ellenzéki, MP-féle kormánytól."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 3.3608847722259982,
+   "text": "Őszintén szólva tetszene, mert az euró végre kiszámíthatóságot és védettséget adna a városi, alacsonyabb iskolázottságú nyugdíjasoknak is a drága és ingadozó forinttal szemben."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 2.2382913669969104,
+   "text": "Őszintén szólva nem tetszik, mert az idős koromban és a közszolgálati tévé által eddig hallottak alapján félő, hogy az euró bevezetése elszálló árakkal és elveszett önállósággal járna, miközben a megígért haszon nem az én pénztárcámban landolna."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 2.6249683145256917,
+   "text": "Őszintén szólva nem tetszene, mert attól tartanék, hogy a szakmunkás fizetésem az árakhoz képest kevesebbet érne meg az euró bevezetésekor."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "alig",
+   "score": 1.8328594545158907,
+   "text": "Őszintén szólva alig foglalkozom a politikával, úgyhogy az euró bevezetése önmagában nem izgat különösebben, csak az számítana, ha az életem gyakorlatban drágább vagy nehezebb lenne tőle."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.2663403734065257,
+   "text": "Őszintén szólva nem tetszik, mert úgy érzem, hogy a saját nemzeti gazdasági önrendelkezésünket és a vidéki kistelepülések stabilabb megélhetését feladnánk egy külföldi, brüsszeli irányítású valutaátvétellel."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 3.464326011195712,
+   "text": "Őszintén szólva tetszik, mert egy kiszámítható, nyugatias gazdaságpolitikai irányváltást hozna, ami szerintem végre csökkentené az ország sebezhetőségét és megállítaná a folyamatos elszegényedést."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 1.9064941882268598,
+   "text": "Nem tetszik, mert az idős koromban és kevés iskolázottságommal nehezen értem meg az euró váltását, és félek, hogy a nyugdíjam és a megszokott forintos áraim miatt rosszul járunk."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 3.396323939917525,
+   "text": "Őszintén szólva tetszik, mert egy kiszámítható, nyugati irányú gazdaságpolitikai elköteleződésnek látom, ami végre megszüntetné a folyamatos árfolyamkockázatot és a túlzott kormányzati manipulációt."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.3246407976078793,
+   "text": "Őszintén szólva egyáltalán nem tetszene, mert úgy érezném, hogy a jobboldali médiában eddig is védett nemzeti önrendelkezés és a forintunk megőrzése helyett egy baloldali kormány elkapkodva adja át az ország gazdasági sorsát Brüsszelnek."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 2.4062167860819805,
+   "text": "Őszintén szólva nem tetszene, mert községi szakmunkásként félnék, hogy az euróval az árak csak felmennek, a fizetésem meg nem követi azt."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "alig",
+   "score": 1.9487849823539154,
+   "text": "Őszintén szólva engem, aki alig követem a politikát, egyelőre nem izgat különösebben ez az euró-bevezetési terv, mert a mindennapi városi életemben nem látom azonnal a hasznát vagy a kockázatát."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 3.7434464663017124,
+   "text": "Őszintén szólva tetszik, mert az euró bevezetése és az ERM-II-hez való csatlakozás végre kiszámíthatóságot, elszámoltathatóságot és Európához való visszatérést jelentene a mostani elgyengült forint és elszigetelődés helyett."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 2.58810686497263,
+   "text": "Őszintén szólva nem örülnék neki, mert egy községben élő, érettségizett emberként félek, hogy az euró bevezetése csak az árak további emelkedését hozná az amúgy is szűkös nyugdíjkeretünkön."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 2.6663032209196564,
+   "text": "Őszintén szólva nekem, aki csak alapvégzettséggel és a közmédia hírei alapján tájékozódom, ez az eurós terv inkább ijesztő, mert attól félek, hogy az áraink csak feljebb mennek és a magunkfajta kisembernek még nehezebb lesz megélni."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.480599581883712,
+   "text": "Őszintén szólva nem tetszik, mert úgy vélem, hogy a saját nemzeti valuta és gazdasági önrendelkezés feladása helyett a szuverenitás megőrzése lenne a fontos, különösen egy jobboldali, hazafias szemlélettel."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 3.5571288025687453,
+   "text": "Őszintén szólva tetszik, mert az euró bevezetése és az ERM-II-hez csatlakozás végre kiszámíthatóságot, transzparenciát és a nyugati gazdasági integrációba való visszatérést jelentené, amit egy baloldali/liberális szemléletű, megyeszékhelyi szakmunkásként gazdasági biztonságként élnék meg."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 2.324433598654988,
+   "text": "Őszintén szólva nem igazán tetszik, mert alig van nyolc általánosom és egy kistelepülésen élek, így tartok tőle, hogy az euróval csak drágább lesz az élet, és mi megint lemaradunk a nagyok mögött."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.32729641579313,
+   "text": "Őszintén szólva egyáltalán nem tetszik, mert úgy gondolom, hogy a saját fizetőeszközünk és gazdasági önrendelkezésünk feladása nem a magyar emberek, hanem külföldi érdekcsoportok javát szolgálná."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "alig",
+   "score": 3.1139015440460662,
+   "text": "Őszintén szólva kissé bizonytalan vagyok ebben, mert alig követem a politikai híreket, de egy stabilabb gazdaság és kiszámíthatóbb utazás miatt nem zárkóznék el az eurótól."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 3.5540145207241793,
+   "text": "Őszintén szólva tetszik, mert az euró bevezetése és az ERM-II belépés végre kiszámíthatóságot, árstabilitást és az EU-hoz való visszatérést jelentené a mostani bizonytalan, elszigetelt gazdaságpolitika helyett."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 2.350052472976194,
+   "text": "Őszintén szólva nem tetszik, mert egy 60 feletti városi diplomásként is félek, hogy az euró bevezetése a megtakarításaink elértéktelenedésével és az árak további emelkedésével járna, mielőtt az ország felzárkózna."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.354134538201623,
+   "text": "Őszintén szólva nem tetszik, mert úgy érzem, az euró bevezetése korai lenne és sértené a nemzeti gazdasági önállóságot, amit a jobboldali média is fontosnak tart."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 2.08997280335896,
+   "text": "Őszintén szólva nem örülnék neki, mert szakmunkásként Budapesten a megélhetési költségek emelkedésétől és az árak kiszámíthatatlanságától tartok, amit az euró bevezetése hozhat."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 2.0463597630157873,
+   "text": "Őszintén szólva nem tetszik, mert az alacsony iskolázottságú nyugdíjas városi emberként félek, hogy az euró bevezetése újabb áremelkedésekkel és bizonytalansággal járna a megélhetésünk rovására."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 3.6804588863583203,
+   "text": "Őszintén szólva tetszik, mert egy megyeszékhelyi diplomásként az euró és az ERM-II belépés szerintem kiszámíthatóságot és felzárkózást hozna, amit a közmédia mostani tiszás támogatása is elfogadhatóvá tesz számomra."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "alig",
+   "score": 2.3498286165319198,
+   "text": "Őszintén szólva nem örülök neki, mert alig követem a politikát, de az érettségimmel és községi emberként tartok tőle, hogy az euró átállás csak újabb drágulást és bizonytalanságot hozna a nyugdíjaskoromban."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 2.1744018655671815,
+   "text": "Őszintén szólva nem tetszik, mert félek, hogy az idősebb városi emberként az euró bevezetése újabb drágulással és bizonytalansággal járna a megélhetésünkben."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 3.445439232404118,
+   "text": "Őszintén szólva tetszene, mert az euró bevezetése és a nyugati integráció mélyítése végre kiszámíthatóságot és felzárkózást hozna azoknak is, akik eddig csak a bizonytalanságot és a lemaradást élték meg."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.19017797794651,
+   "text": "Őszintén szólva egyáltalán nem tetszik, mert a jobboldali médiából azt szívom magamba, hogy az euró bevezetése sértené a nemzeti szuverenitást és az olcsóbb magyar megélhetést."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 2.3349064914235607,
+   "text": "Őszintén szólva nem tetszik, mert egy 60 feletti budapesti diplomásként is félek, hogy az euró gyors bevezetése inflációval és az idősek megtakarításainak értékvesztésével járna, miközben a közösségi médiából csak a politikai hangzatos ígéreteket látom, nem a valós gazdasági kockázatokat."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.6532496315659158,
+   "text": "Őszintén szólva egyáltalán nem tetszene, mert jobboldali városi érettségizettként az euró korai bevezetését a nemzeti önrendelkezés és gazdasági szabadság feladásának érezném."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 3.549661055601215,
+   "text": "Őszintén szólva tetszene, mert egy megyeszékhelyen diplomás, közmédiát követő emberként az euró bevezetését és az ERM-II belépést a kiszámíthatóság, a nyugati integráció és a gazdasági stabilitás jeleként élném meg."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 3.1502879439800484,
+   "text": "Őszintén szólva tetszik, mert egy stabil, kiszámítható gazdaságot és az EU-hoz való visszatérést jelentené, de az életkoromnál fogva tartok tőle, hogy az átállás nyugdíjasokat érő rövid távú áremelkedései nekem már csak terhet jelentenének."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 1.6091601533541682,
+   "text": "Őszintén szólva nem igazán tetszik, mert úgy érzem, hogy ilyen gyors euróbevezetés és az árfolyam-ellenőrzés feladása az ország önállóságát és a magyar családok pénztárcáját is túlzott kockázatnak tenné ki."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 2.409005518535717,
+   "text": "Nem tetszik, mert az euró bevezetése szerintem csak drágábbá tenné az életet a nyugdíjamból és a kevés pénzemből, amúgy is alig értem, miért kéne nekünk átadni a saját forintunkat másoknak."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 3.643571971532836,
+   "text": "Őszintén szólva tetszik, mert az euró bevezetése végre kiszámíthatóságot és gazdasági stabilitást hozna a mostani kaotikus forintárfolyamok és inflációs bizonytalanság helyett."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.1648274121694535,
+   "text": "Őszintén szólva nem tetszik, mert úgy gondolom, hogy az euró bevezetése most feladná a nemzeti gazdasági önrendelkezést és kiszolgáltatna minket Brüsszelnek."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "alig",
+   "score": 1.652294771095629,
+   "text": "Őszintén szólva nem izgat különösebben, mert alig követem a politikai híreket, és az euró bevezetése számomra inkább mindennapi megélhetési kérdés, mintsem nagy politikai siker."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.5043061188010234,
+   "text": "Őszintén szólva nem tetszene, mert egy 60 feletti községi, jobboldali médiát olvasó emberként úgy érzékelném, hogy az euró bevezetése és a gyors csatlakozás elvenné tőlünk a gazdasági önállóságot és drágábbá tenné az életünket."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 1.9363185901679134,
+   "text": "Őszintén szólva nyugtalanít, mert az alacsony iskolai végzettségű városi emberek számára az euró gyors bevezetése bizonytalan megélhetési és áremelkedési kockázatokat hordoz, miközben a baloldali sajtó által támogatott váltás ígérete sem feltétlenül oszlatja el a mindennapi aggodalmaimat."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 1.894453797490638,
+   "text": "Őszintén szólva nem tetszik, mert úgy érzem, hogy a saját forintunk és gazdasági önállóságunk feladása helyett a nyugdíjunk és a falu életszínvonala is kiszolgáltatottabbá válna az uniós elvárásoknak."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 3.5583514026553424,
+   "text": "Őszintén szólva tetszik, mert az euró bevezetése és a közmédiában is elismerten stabilabb, kiszámíthatóbb gazdasági pálya végre megállíthatná a drágulást és visszaadná a vásárlóerőmet."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 3.5254140788006216,
+   "text": "Őszintén szólva tetszik, mert az euró bevezetése és az ERM-II-hez csatlakozás végre kiszámíthatóságot és nyugati irányú elszakadást hozna a kormányzati káosztól, amit egy baloldali/liberális szemmel támogathatónak érzek."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "alig",
+   "score": 1.7259184646269672,
+   "text": "Őszintén szólva nem sokat foglalkoztat az euró bevezetése, mert alig követem a politikai híreket, és ha a boltban drágább lenne tőle az élet, az semmiképp nem tetszene."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 2.0208031444242214,
+   "text": "Őszintén szólva nem tetszik, mert úgy érzem, hogy a diplomámmal és a falusi nyugalmammal is jobban jártam eddig a forinttal, és az Európa-párti propagandát a Facebookon is túlzásnak tartom."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.6911974798285394,
+   "text": "Őszintén szólva egyáltalán nem tetszene, mert úgy gondolom, hogy a saját nemzeti valuta és gazdasági önrendelkezés megőrzése sokkal fontosabb, mint a brüsszeli elvárásokhoz való gyors alkalmazkodás."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 3.5730945070231694,
+   "text": "Őszintén szólva tetszik, mert egy stabil, kiszámítható gazdaság és a nyugati integráció iránti elköteleződés révén végre kilábalhatnánk a mostani elszigeteltségből és bizonytalanságból."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 1.6192825345257489,
+   "text": "Őszintén szólva nem örülök neki, mert az érettségivel és községi lakosként a mindennapi megélhetést féltem az árak kiszámíthatatlanságától és attól, hogy a közmédia eddigi hazugságaihoz hasonlóan ezt is csak politikai show-nak érzem."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 3.5454592388327817,
+   "text": "Őszintén szólva kifejezetten tetszik, mert a közösségi médiában látott szakértői vélemények alapján az euró bevezetése végre kiszámíthatóságot és fellélegzést hozna a diplomás, megyeszékhelyi középosztálynak."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.3965431686930736,
+   "text": "Nem tetszik, mert az euró bevezetése szerintem elvenné a hazai árak és a gazdaság feletti önrendelkezést, amit a jobboldali médiából is úgy látok, hogy a nemzeti érdek ellen való."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 3.457919493660534,
+   "text": "Őszintén szólva tetszene, mert az euró bevezetése és az ERM-II-hez való csatlakozás szerintem végre kiszámíthatóságot, elszámoltathatóságot és a nyugati integrációban való maradást hozna, amire egy diplomás, kistelepülésen élő baloldali szavazóként én is igényt tartok."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 2.3383596869222667,
+   "text": "Őszintén szólva nem örülök neki, mert az idős városi emberként a közmédiából tájékozódva félek, hogy az euró bevezetése az érettségizett nyugdíjasok megtakarításait és a megélhetést az árak emelkedésével sújtaná."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "alig",
+   "score": 1.5409235852676586,
+   "text": "Őszintén szólva nem izgat különösebben, mert alig követem a politikát, és a boltban úgyis mindegy lesz, forinttal vagy euróval fizetek-e, ha az árak nem lesznek magasabbak."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 2.3695397554276103,
+   "text": "Őszintén szólva nem tetszene, mert egy községben élő szakmunkásként félnék, hogy az euróval az árak csak feljebb mennek, a fizetésem meg nem követi."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 2.9944746937088755,
+   "text": "Őszintén szólva tetszik, mert az euró bevezetése végre kiszámíthatóságot és védelmet adna a röghöz kötött kiszolgáltatott forintellenünk, de rettegek, hogy a mai magyar gazdasági szakadék és a politikai hazugságmászók miatt ez csak vágyálom marad."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.758455262627926,
+   "text": "Őszintén szólva egyáltalán nem tetszene, mert úgy gondolom, hogy a saját nemzeti valutánk megőrzése több önállóságot és védelmet ad a falunkban élőknek az infláció és a külföldi döntéshozók kiszolgáltatottsága ellen."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 3.402460532143011,
+   "text": "Őszintén szólva nem tudom, mennyire örülnék neki, mert kevés az iskolám ahhoz, hogy átlássam, az euró jó vagy rossz lesz-e a mi pénztárcánknak, de a közmédiából azt látom, hogy a Tisza ezt ígéri, és ha ők mondják, én hiszek nekik."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 2.2984281558960498,
+   "text": "Őszintén szólva nem tetszik, mert 60 felett Budapesten is sokat félek tőle, hogy az euró gyorsan felveri az árakat és a nyugdíjam kevesebbet ér majd, miközben a közösségi médiában csak a politikai hangulatkeltést látom körülötte."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 3.4158701201608612,
+   "text": "Őszintén szólva tetszik, mert az euró bevezetése végre kiszámíthatóságot és védelmet adna a családoknak az infláció és a forint gyengülése ellen."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "alig",
+   "score": 2.2914240683570304,
+   "text": "Őszintén szólva engem, aki alig követem a politikát és keveset iskoláztam, inkább bizonytalansággal tölt el, hogy az euró miatt drágábbak lehetnek a mindennapi dolgok a kis falunkban."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.637519151233389,
+   "text": "Őszintén szólva ez a koncepció nem tetszik, mert úgy vélem, az euró korai bevezetése sértené Magyarország gazdasági önállóságát és a nemzeti érdekeket."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 3.650521042959985,
+   "text": "Őszintén szólva tetszik, mert az euró bevezetése és az ERM-II-hez csatlakozás végre kiszámíthatóságot, stabilabb gazdaságot és a Nyugathoz való közeledést hozna, ami szerintem egy fiatal városi szakmunkásként is a kilátásaimon javítana."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.8281646058833316,
+   "text": "Őszintén szólva egyáltalán nem tetszene, mert a baloldali-liberális gyökerű Magyar Péter ilyen korai euróbevezetése szerintem csak a nemzeti önállóságunkat és a magyar családok megtakarításait adná át Brüsszelnek."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 2.1807152501925424,
+   "text": "Őszintén szólva nem örülök neki, mert egy idős, diplomás vidéki emberként a közmédiából azt szívtam magamba, hogy az euró bevezetése elvenné a nemzeti önrendelkezésünket és drágábbá tenné az életet a kisnyugdíjasoknak."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 2.286380811535758,
+   "text": "Őszintén szólva nem tetszene, mert alig van 8 általánosom, egy megyeszékhelyen élek szűkös körülmények között, és a közösségi médiából azt szívom magamba, hogy az euró csak drágábbá tenné az életet és elvenné a magyarok önállóságát."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 3.5097258710352937,
+   "text": "Őszintén szólva tetszene, mert egy baloldali/liberális médiát követő, szakmunkásként nyugdíj előtt álló községi lakosként az euró bevezetését a kiszámíthatóság és a nyugati irányba való visszatérés biztosabb garanciájának érezném."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.3395482485434975,
+   "text": "Őszintén szólva nem tetszik, mert úgy érzem, az euró bevezetése korai lenne és feladná a nemzeti gazdasági önállóságunkat, amit a jobboldali média is fontosnak tart."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 3.021469302575102,
+   "text": "Őszintén szólva ez az elképzelés inkább riasztó, mert egy ilyen gyors euróátvétel reális felkészülés nélkül az árak emelkedésével és az elszálló megélhetési költségekkel fenyegetne minket városi diplomásként is."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "alig",
+   "score": 1.9353494845640675,
+   "text": "Őszintén szólva nem tetszik, mert alig követem a politikai híreket és az érettségim mellett sem érzem biztosnak, hogy egy községben élő nyugdíj előtt álló emberként az euró bevezetése nekem vagy a falunak jó lenne."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 3.274310361159679,
+   "text": "Őszintén szólva tetszene, mert az euró bevezetése és az ERM-II belépés egy baloldali/liberális szemmel hiteles európai integrációt és kiszámíthatóságot jelentene, de tartok tőle, hogy a gyors tempó reális gazdasági felkészültség nélkül kockázatos lehet."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 2.425762742337119,
+   "text": "Őszintén szólva nem tetszik, mert úgy érzem, hogy 60 év felett már nehezen szoknánk át a forintról az euróra, és a közmédia eddigi hangvételével ellentétes, hirtelen váltás csak bizonytalanságot szülne az idősebb, diplomás vidéki polgárok körében is."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 2.2431071641416165,
+   "text": "Őszintén szólva nem tetszik, mert a kevés pénzem és a falusi megélhetésünk így is alig ér valamit, az euró meg csak drágábbá tenné az életet anélkül, hogy látnám belőle a hasznot."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.231812956460676,
+   "text": "Őszintén szólva nem tetszik, mert az idős szakmunkásként a jobboldali médiából tájékozódó városi ember számára az euró bevezetése és a gyors csatlakozás inkább az eddigi önállóság feladását és az árak további emelkedését jelenti, mintsem biztosabb megélhetést."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.5913519795351942,
+   "text": "Őszintén szólva nagyon tetszik, mert a SH-t egy pártpropagandára és megfélemlítésre használt, átláthatatlan intézménynek tartom, a vagyonának korrupcióellenes célra fordítása pedig pont azt a célt szolgálná, amire a közpénzt valóban költeni kellene."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 3.092661465344027,
+   "text": "Őszintén szólva tetszik, mert a közmédiából azt látom, hogy a Tisza a mi érdekünkben teszi rendbe az országot, és jobb, ha a pénz korrupcióellenes ügyészséghez megy, mint hogy felesleges hivatalokra menjen el."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.061343518015291,
+   "text": "Őszintén szólva nem tetszik, mert jobboldali szemmel a Szuverenitásvédelmi Hivatal megszüntetése és a vagyon átjátszása egy politikai ellenfelek által irányított ügyészségnek nem védelem, hanem a nemzeti érdekek feladása."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 2.9588486261737077,
+   "text": "Őszintén szólva tetszik, mert úgy érzem, hogy a Szuverenitásvédelmi Hivatal eddig inkább a politikai ellenfelek zaklatására ment el, a vagyonát meg jobb helyen látom egy korrupcióellenes ügyészségnél, ami tényleg a lopás ellen küzdene."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "alig",
+   "score": 1.7052465646046504,
+   "text": "Őszintén szólva nem igazán izgat a dolog, mert alig követem a politikai híreket, és nekem a községi mindennapokban sokkal fontosabb, hogy legyen rendes munka és ellátás, mint hogy melyik hivatalt szüntetik meg."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.9605205226153095,
+   "text": "Őszintén szólva nagyon tetszik, mert a baloldali-liberális szemléletem szerint a SH-t politikai megfélemlítésre használták, a vagyonának korrupcióellenes célra átirányítása pedig ténylegesen hasznos lenne a jogállam helyreállításában."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 3.1866540805031542,
+   "text": "Őszintén szólva tetszik, mert úgy érzem, végre a lopás és a mutyik ellen indulna el a pénz és a hatóság, nem megint csak a saját zsebünket néznék."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.528063449791811,
+   "text": "Őszintén szólva tetszik, mert úgy látom, hogy a Szuverenitásvédelmi Hivatal inkább politikai célokat szolgált, mint valódi nemzetbiztonsági hasznot, a korrupcióellenes ügyészség viszont hasznosabb helyen költené el az erre fordított forrásokat."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 3.21322504786449,
+   "text": "Őszintén szólva tetszik, mert úgy látom, így a közpénzekkel való visszaélésekre figyelnének jobban, mint a politikai ellenőrizgetésre."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 3.118403272747106,
+   "text": "Őszintén szólva nagyon tetszik, mert a demokratikus jogállam helyreállítása szempontjából üdvözlendő, hogy a politikai megfélemlítésre használt szervezet helyett valódi korrupcióellenes fellépésre fordítsák az erőforrásokat."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "alig",
+   "score": 3.005055664227273,
+   "text": "Őszintén szólva tetszik, mert úgy érzem, hasznosabb, ha a közpénzek és a korrupció ellenőrzésére megy a forrás, mint egy politikailag túlterhelt hivatal fenntartására."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 2.8655707011243154,
+   "text": "Őszintén szólva tetszik, mert úgy látom, hogy a korrupció elleni fellépésre jobban ráfér az országnak, mint egy politikai felhangú ellenőrző hivatal fenntartása."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 3.0680497378974168,
+   "text": "Őszintén szólva nagyon tetszik, mert a SH-t cinikus politikai megfigyelőszervnek tartom, és a vagyonának korrupcióellenes célra fordítása pontosan azt a célt szolgálná, amit a jelenlegi rendszer csak színlel."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.5378315456190834,
+   "text": "Őszintén szólva nem tetszik, mert úgy látom, ezzel a baloldali irányítású korrupcióellenes ügyészség kezébe adnák a nemzeti érdekeink védelmét, ami szerintem csak a hazai szuverenitás gyengítését szolgálná."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 3.1733282006281502,
+   "text": "Őszintén szólva tetszik, mert a közszolgálati médiából is érzékelhetően a Tiszához húzóként úgy látom, hogy a Szuverenitásvédelmi Hivatal helyett sokkal hasznosabb lenne egy valódi korrupcióellenes ügyészség, ami a pénzünkért felel."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 3.049605719845932,
+   "text": "Őszintén szólva tetszik, mert úgy gondolom, hogy a korrupcióellenes ügyészséghez kerülő forrásokkal végre ténylegesen a lopások és visszaélések felderítésére megy a pénz, nem megmagyarázhatatlan „szuverenitásvédelemre”."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.371685834767744,
+   "text": "Őszintén szólva nem tetszik, mert úgy érzem, ezzel feladnánk a nemzeti érdekeink védelmét és teret adnánk a baloldali kormány korrupciós zsarolásainak."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.654081165333466,
+   "text": "Őszintén szólva nagyon tetszik, mert a Szuverenitásvédelmi Hivatalt pártpolitikai célú, átláthatatlan intézménynek látom, és jobban örülnék, ha a helyette jutó források valódi korrupcióellenes fellépésre mennének."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 2.980798733365965,
+   "text": "Őszintén szólva tetszik, mert a közmédiából is azt látom, hogy a Tisza ezzel a felesleges kormányzati fedőszerv helyett valódi korrupcióellenes fellépést ígér, ami nekem, nyugdíjas diplomásként a megyeszékhelyen a tisztességes közéletet jelenti."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 2.5207364439028437,
+   "text": "Őszintén szólva tetszik, mert elegem van abból, hogy a Szuverenitásvédelmi Hivatal csak a kormány érdekeit védje, a pénzük meg inkább a korrupció ellen menjen, nem a saját zsebeikbe."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "alig",
+   "score": 2.359898694443589,
+   "text": "Őszintén szólva nem igazán izgat a dolog, mert alig követem a politikai híreket, de ha tényleg a korrupció ellen használják a pénzt, az szerintem inkább jó, mint rossz."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.5170992696200862,
+   "text": "Őszintén szólva nem tetszik, mert úgy látom, ezzel a baloldali-irányú Tisza-kormány gyengítené az ország önállóságát védő intézményt, miközben a vagyonát egy politikailag vezérelt ügyészséghez irányítaná."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.9362424678303305,
+   "text": "Őszintén szólva nagyon tetszik, mert a SH-t politikai megfélemlítésre használták, az eszközei pedig sokkal hasznosabban szolgálnák a valódi korrupció üldözését egy független ügyészségnél."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 2.4587266951329565,
+   "text": "Nekem, aki a közmédiából azt hallottam, hogy a Szuverenitásvédelmi Hivatal a hazát óvja, ez a javaslat nem tetszik, mert úgy érzem, elveszítjük azt a pajzsot, ami megvéd a külföldi beavatkozástól."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 3.02368502480811,
+   "text": "Őszintén szólva nagyon tetszik, mert a Szuverenitásvédelmi Hivatalt inkább politikai bosszúálló szervnek láttam, a vagyonának korrupcióellenes célra fordítása viszont valódi közérdeket szolgál."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.215355107093742,
+   "text": "Őszintén szólva nem tetszik, mert úgy érzem, ezzel a baloldali irányú kormány gyengítené a nemzeti érdekeink védelmét és a külföldi beavatkozások elleni fellépést."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 2.9649651638319177,
+   "text": "Őszintén szólva tetszik, mert úgy látom, így kevésbé megy a pártpolitikai szívózásra a pénz, és több juthat a tényleges korrupcióellenes munkára."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "alig",
+   "score": 2.821235689498157,
+   "text": "Őszintén szólva tetszik, mert úgy érzem, a diplomás városi polgárként kevésbé követett politikai hírek mellett is hasznosabb, ha a közpénzek védelmét korrupcióellenes ügyészség látja el egy politikai célú hivatal helyett."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.972789773270371,
+   "text": "Őszintén szólva nagyon tetszik, mert a pártpropagandára épülő hivatal helyett végre a valódi korrupció felderítésére költenék a forrásokat."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 3.0488360715342404,
+   "text": "Őszintén szólva tetszik, mert úgy érzem, hogy a községi embereket eddig sem védte semmi, viszont a korrupcióellenes ügyészség végre a lopásokat és a mutyikat számon kérhetné a hatalmon lévőkön."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 3.124490643064642,
+   "text": "Őszintén szólva tetszik, mert a közmédiából azt látom, hogy a Tisza a mi érdekünkben tesz rendet, és jobb, ha a pénz korrupcióellenes ügyészséghez megy, mint egy felesleges hivatalhoz."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.276446018476332,
+   "text": "Őszintén szólva nem tetszik, mert a baloldali támadások után is szükség van a Szuverenitásvédelmi Hivatalra, és a vagyon átadása a politikai ellenfeleknek kedvező korrupcióellenes ügyészségnek csak a nemzeti érdekek gyengítését szolgálná."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.7803557908449283,
+   "text": "Őszintén szólva nagyon tetszik, mert a SH-t politikai fegyverként működtető, átláthatatlan szervezet helyett a forrásokat inkább a tényleges korrupció üldözésére fordítani sokkal hasznosabb és demokratikusabb lépés."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 2.9232751816233495,
+   "text": "Őszintén szólva tetszik, mert úgy látom, jobban használná a pénzt, ha a korrupciót üldöznék belőle, mint egy szerintem felesleges hivatal fenntartása."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.7423725695260326,
+   "text": "Őszintén szólva egyáltalán nem tetszik, mert úgy látom, ezzel a baloldali-globalista nyomásnak engedve megszüntetnék a hazánk önállóságát védő hivatalt, és a vagyonát olyan politikai célú \"korrupcióellenes\" ügyészségre adnák, ami csak a kormányellenes leszámolást szolgálná."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "alig",
+   "score": 2.563590369325065,
+   "text": "Őszintén szólva tetszik, mert egy diplomás városi lakosként, aki alig követi a politikát, inkább a korrupció elleni küzdelmet tartom hasznosnak, mint egy átláthatatlan hivatal fenntartását."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.9992901911918124,
+   "text": "Őszintén szólva nagyon tetszik, mert egy független korrupcióellenes ügyészséghez csoportosított források sokkal hasznosabbak a közélet tisztasága szempontjából, mint a politikai megfélemlítésre használt Szuverenitásvédelmi Hivatal fenntartása."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 3.3039525062558672,
+   "text": "Őszintén szólva tetszik, mert a közmédiából is látom, hogy a Tisza ezt a lépést a korrupció valódi számonkérésének ígéri, és a diplomás városi emberként úgy érzem, jobb helye a pénznek egy független ügyészségnél, mint egy politikai célú hivatalban."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.50082262772431,
+   "text": "Őszintén szólva nem tetszik, mert a jobboldali médiából úgy látom, a Szuverenitásvédelmi Hivatal fontos eszköz a nemzeti érdekek megvédésére, és megszüntetése a baloldali-globalista nyomásnak való engedést jelentené."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 2.1083675252309093,
+   "text": "Őszintén szólva tetszik, mert úgy látom, a Szuverenitásvédelmi Hivatal eddig csak a kormányzati propagandát szolgálta, a pénzt meg inkább a korrupció ellen kéne használni."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.919764837663541,
+   "text": "Őszintén szólva nagyon tetszik, mert végre megszüntetnének egy politikai célokat szolgáló, átláthatatlan szervezetet, és a helyét a tényleges korrupcióellenes fellépés kapná."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 3.4428433607778475,
+   "text": "Őszintén szólva tetszik, mert úgy látom, hogy a Szuverenitásvédelmi Hivatal helyett a korrupcióellenes ügyészséghez kerülő források valódi elszámoltathatóságot és tisztább közéletet hozhatnak."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "alig",
+   "score": 1.4401839059749624,
+   "text": "Őszintén szólva nem sokat jelent számomra, mert alig követem a politikai híreket, és az érettségimmel meg a községi életemmel jobban foglalkoztat, hogy az itteni útjavítások és az orvos elérhetősége rendben legyen, mint ezek a fővárosi hivatali átalakítások."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 2.6679077403341287,
+   "text": "Őszintén szólva tetszik, mert úgy érzem, hogy a Szuverenitásvédelmi Hivatal eddig főleg a kormányzati érdekeket szolgálta, a vagyonát meg inkább a korrupció valódi üldözésére kellene fordítani."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 3.028526296180798,
+   "text": "Őszintén szólva tetszik, mert egy baloldali/liberális szemmel túlterjeszkedő, átláthatatlan politikai fegyverként működő szerv helyett a korrupció valódi, célzottabb üldözését látnám benne."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.177012804368751,
+   "text": "Őszintén szólva nem tetszik, mert úgy látom, hogy a Szuverenitásvédelmi Hivatal megszüntetése a jobboldali médiában hallottak alapján csak az ország biztonsági és nemzeti érdekvédelmi kapacitásának gyengítését szolgálná."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 2.9858522813207666,
+   "text": "Őszintén szólva nekem, aki idős budapesti diplomásként a közösségi médiából tájékozódik, kifejezetten tetszik, mert a Szuverenitásvédelmi Hivatalt inkább pártpropagandára költőként, a korrupcióellenes ügyészséget viszont a pénzünk védelmében hasznosnak tartom."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 1.5635768603254376,
+   "text": "Őszintén szólva nem tetszik, mert úgy érzem, hogy a Szuverenitásvédelmi Hivatal megszüntetése gyengíti az ország védelmét a külföldi beavatkozással szemben, és a baloldali korrupcióellenes ígéretekben amúgy sem bízom."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 2.8415555818799367,
+   "text": "Őszintén szólva tetszik, mert a közmédiából is érzékelhetően túlpolitizált és a kormányzati érdekeket szolgáló hivatal helyett a korrupció valódi üldözésébe vinni a forrásokat sokkal hasznosabb lenne."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.9553321865932727,
+   "text": "Őszintén szólva nagyon tetszik, mert egy 60 feletti, vidéki értelmiségiként, aki baloldali-liberális médiából tájékozódik, úgy látom, hogy a hivatal politikai megfigyelés helyett a korrupció valódi üldözésére fordított forrás sokkal hasznosabb lenne a köz érdekében."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 2.901180916503862,
+   "text": "Őszintén szólva tetszik, mert a Szuverenitásvédelmi Hivatalt inkább politikai fegyvernek, mint valódi védelemnek éltem meg, a korrupcióellenes ügyészség viszont hasznosabb célra fordíthatná az erőforrásait."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 3.077769275088585,
+   "text": "Őszintén szólva tetszik, mert a közmédiából azt látom, hogy a Tisza a mi érdekünkben tesz rendet, és a korrupció ellen jobb helyre kerülne a pénz, mint egy kormányzati hivatalba."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 3.063026646609629,
+   "text": "Őszintén szólva nagyon tetszik, mert egy pártkötött politikai ellenőrzés helyett a korrupció valódi, független számonkérésébe csatornázna át hasonló forrásokat."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.3535150529738518,
+   "text": "Őszintén szólva nem tetszik, mert úgy látom, hogy a Szuverenitásvédelmi Hivatal fontos magyar érdekeket véd, és a jobboldali médiák alapján a Tisza ezzel csak a nemzeti ellenőrzést gyengítené."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "alig",
+   "score": 2.1361730427328838,
+   "text": "Őszintén szólva nem foglalkoztat különösebben, mert alig követem a politikai híreket, de ha tényleg a korrupció ellen használják a pénzt, az talán nem is rossz."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 1.5399471628643453,
+   "text": "Őszintén szólva nem tetszik, mert úgy érzem, hogy a Szuverenitásvédelmi Hivatal megszüntetése a balliberális nyomásnak való engedés, ami gyengítheti az ország önállóságát és a nemzeti érdekek védelmét."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 3.1557256503765188,
+   "text": "Őszintén szólva nagyon tetszik, mert a Szuverenitásvédelmi Hivatalt én inkább politikai bosszúálló szervnek láttam, a korrupcióellenes ügyészség viszont hasznosabb helyen költené el ugyanazt a pénzt."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 3.0206671222924104,
+   "text": "Őszintén szólva tetszik, mert diplomás, vidéki emberként úgy látom, hogy a korrupcióellenes ügyészséghez kerülő források sokkal hasznosabban szolgálhatják az ország érdekeit, mint egy politikai célú hivatal fenntartása."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 2.744835047740987,
+   "text": "Őszintén szólva tetszik, mert a közmédiából is látom, hogy a mostani kormány ezt a hivatalt a saját hatalmának védelmére használja, és jó lenne, ha a pénz inkább a korrupció ellen menne."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.8968164641266854,
+   "text": "Őszintén szólva tetszik, mert a baloldali/liberális médiából kapott képem alapján a Szuverenitásvédelmi Hivatalt politikai célú, átláthatatlan intézménynek látom, a vagyonának korrupcióellenes ügyészséghez kerülése viszont hasznosabb közügyi célt szolgálhat."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "alig",
+   "score": 2.0581426949714494,
+   "text": "Őszintén szólva nem nagyon érdekel, mert alig követem a politikai híreket, de ha a korrupció ellen tesz valamit, az szerintem rendben van."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 2.9044632654151212,
+   "text": "Őszintén szólva tetszik, mert a diplomával rendelkező, vidéken élő idősként úgy látom, hogy a korrupció elleni fellépés hasznosabb közpénz-felhasználás, mint egy politikai ellenőrző hivatal fenntartása."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.172206131499693,
+   "text": "Őszintén szólva nem tetszik, mert úgy érzem, hogy a Szuverenitásvédelmi Hivatal megszüntetése gyengíti az ország nemzeti érdekeinek védelmét, és a baloldali-globalista nyomásnak enged teret."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.9177585531014727,
+   "text": "Őszintén szólva nagyon tetszik, mert a baloldali-liberális média által is kritizált, politikai célú Szuverenitásvédelmi Hivatal helyett a valódi korrupció üldözésére költeném a forrásokat."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 2.929727856506408,
+   "text": "Őszintén szólva tetszik, mert a községi, érettségizett fiatalként úgy látom, hogy a kormányváltás után a közmédiából is kiderült: ehelyett sokkal hasznosabb lenne a pénzt ténylegesen a korrupció ellen fordítani."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 3.0742755152182157,
+   "text": "Őszintén szólva tetszik, mert egy diplomás megyeszékhelyi középkorúként a közösségi médiából szerzett politikai olvasatom szerint a hivatalt inkább a hatalom önkényes eszközének láttam, így a megszüntetése és a források korrupcióellenes célra fordítása ésszerű és üdvözlendő lépés."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.047080697668586,
+   "text": "Nem tetszik, mert a baloldali irányú változtatás szerintem gyengíti az ország védelmét és a nemzeti érdekek megőrzését."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.3541458108229536,
+   "text": "Őszintén szólva nagyon tetszik, mert a SH-t egy pártpropagandára és megfélemlítésre használt, átláthatatlan szervezetnek tartom, az eszközeit pedig sokkal hasznosabb lenne a tényleges korrupció üldözésére fordítani."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 3.162607572489475,
+   "text": "Őszintén szólva tetszik, mert a közmédiából is azt látom, hogy a Tisza ezt a lépést a korrupció elleni hatékonyabb fellépésként adja el, és az nekem, nyugdíjas városi érettségizett emberként, akinek fontos a tisztességes közvagyon, érthető és szimpatikus."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "alig",
+   "score": 2.103847304885308,
+   "text": "Őszintén szólva nemigen érdekel, mert alig követem a politikai híreket, de ha a korrupció ellen tesz valamit, az szerintem nem rossz."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 2.8314665147717006,
+   "text": "Őszintén szólva tetszik, mert úgy érzem, hogy a közpénzek védelmét inkább a korrupcióellenes ügyészségre kellene bízni, mint egy szerintem feleslegesen fenntartott hivatalra."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.9380592531878094,
+   "text": "Őszintén tetszik, mert a baloldali-liberális szemléletem szerint a SH jogkörei visszaélésre adtak lehetőséget, a vagyonának korrupcióellenes ügyészséghez kerülése pedig hasznosabb célra fordítaná azt."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 1.8656765291337254,
+   "text": "Őszintén szólva nem tetszik, mert jobboldali olvasottsággal és községi, érettségizett 50-59 évesként úgy látom, a Szuverenitásvédelmi Hivatal megszüntetése gyengíti az ország védelmét a külföldi beavatkozással szemben."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 2.875824297742258,
+   "text": "Őszintén szólva tetszik, mert a közmédiából azt látom, hogy a Tisza ezzel a felesleges kormányzati bizniszt számolná fel, és a pénzt inkább a korrupció ellen fordítaná."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 2.8602225858720844,
+   "text": "Őszintén szólva tetszik, mert úgy érzem, hogy a Szuverenitásvédelmi Hivatal eddig inkább a politikai ellenfelek zaklatására ment el, a vagyona meg jobb helyen lenne egy valódi korrupcióellenes ügyészségnél."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.9555837869345685,
+   "text": "Őszintén szólva teljesen tetszik, mert a SH-t politikai boszorkányüldözésre használták, a vagyona pedig sokkal hasznosabban megy a tényleges korrupció üldözésére."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "alig",
+   "score": 2.4892137363546594,
+   "text": "Őszintén szólva nem sokat jelent nekem, mert alig követem a politikát, de ha tényleg a lopás ellen használják a pénzt, az talán nem rossz."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.4879544737410373,
+   "text": "Őszintén szólva nem tetszik, mert úgy látom, hogy a Szuverenitásvédelmi Hivatal megszüntetése és a vagyon átjátszása egy politikai célú ügyészséghez gyengíti az ország nemzeti érdekvédelmét."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.4898986676566204,
+   "text": "Őszintén szólva nagyon tetszik, mert a SH-t propagandagépként és politikai bosszúeszközként kezelő, átláthatatlan szervezet helyett a forrásokat valódi korrupcióellenes fellépésre fordítani sokkal hasznosabb és demokratikusabb lépés."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.095818494928433,
+   "text": "Őszintén szólva nem tetszik, mert úgy érzem, ezzel gyengítenék a nemzeti érdekeink védelmét, és a baloldali korrupcióellenes ígéretekben sem hiszek egy szavamat sem."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 1.8790798996240494,
+   "text": "Őszintén szólva nem tetszik, mert a közmédiából azt látom, hogy a Szuverenitásvédelmi Hivatal a nemzeti érdekeinket védte, és diplomásként is úgy érzem, hogy egy községi idős emberként csak bizonytalanságot hoz, ha ezt a Tisza-kormány csak úgy megszünteti."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 3.1360498526470746,
+   "text": "Őszintén szólva tetszik, mert úgy érzem, így végre a lopásokra menne a pénz és nem egy felesleges hivatalra, ami eddig csak a sajátjaikat védte."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 3.2502467599945617,
+   "text": "Őszintén szólva nagyon tetszik, mert a baloldali-liberális média alapján ezt a lépést a politikai boszorkányüldözés megszüntetének és a valódi korrupcióellenes fellépés megerősítésének érzem."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.280390721860809,
+   "text": "Őszintén szólva nem tetszik, mert jobboldali olvasótájkomként úgy látom, a Szuverenitásvédelmi Hivatal fontos eszköz a nemzeti érdekek megvédésére, és megszüntetése csak gyengítené az ország önállóságát."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 3.0307233936462854,
+   "text": "Őszintén szólva tetszik, mert a Szuverenitásvédelmi Hivatalt inkább politikai célú nyomásgyakorló szervnek láttam, a korrupcióellenes ügyészség viszont hasznosabb célra, az elszámoltathatóságra fordítaná ugyanazt a forrást."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "alig",
+   "score": 1.8305506698376584,
+   "text": "Őszintén szólva nem foglalkoztat különösebben, mert alig követem a politikai híreket, de ha a korrupció ellen tennének vele valamit, az nekem sem lenne ellenemre."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.81858944729111,
+   "text": "Őszintén szólva nagyon tetszik, mert a SH-t propagandára és politikai leszámolásra használták, a megszüntetése és a vagyon átirányítása a korrupcióellenes ügyészséghez viszont valódi jogállami célokat szolgál."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 2.3213567971284768,
+   "text": "Őszintén szólva nem tetszik, mert a közmédiából azt látom, hogy a Szuverenitásvédelmi Hivatal a nemzeti érdekeinket védte, és megszüntetése inkább a külföldi nyomásnak való megfelelésként hat, ráadásul a vagyon átjátszása egy politikai célú ügyészségnek bizalmatlanabbá tesz a Tisza ígéreteivel szemben."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 2.774347747333599,
+   "text": "Őszintén szólva tetszene, mert úgy érzem, a megszüntetett hivatal helyett a korrupció elleni küzdelemre fölösleges pénzt nem kidobni, hanem hasznosan odaadni."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.621779030673158,
+   "text": "Őszintén szólva egyáltalán nem tetszik, mert úgy látom, ezzel a baloldali irányú Tisza-kormány csak lebontaná a nemzeti érdekeinket védő hivatalt, hogy a helyére a saját politikai céljaira használt korrupcióellenes ügyészséget ültesse."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 3.391638223986676,
+   "text": "Őszintén szólva teljesen támogatom, mert úgy gondolom, hogy Ukrajna nyugati integrációja és a vétó feloldása mind erkölcsileg, mind a magyar nemzetgazdasági érdekek mentén is helyes lépés lenne."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 2.280221709456609,
+   "text": "Őszintén szólva nem tetszik, mert úgy érzem, Ukrajna uniós felvétele nélkülünk döntene a sorsunkról, és a közmédia eddig azt mondta, hogy a vétó a magyar érdekeket védi."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.3461683435254788,
+   "text": "Őszintén szólva nem tetszik, mert szakmunkásként és jobboldali médiát követőként úgy látom, Ukrajna csatlakozása előtt még nincsenek meg a biztonsági és gazdasági garanciák, amik a magyar érdekeket védenék."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 2.218107663144577,
+   "text": "Őszintén szólva nem tetszik, mert diplomás idősebb vidéki közösségimédia-felhasználóként úgy érzem, hogy Ukrajna ilyen gyors uniós csatlakozása a mi biztonsági és gazdasági érdekeinket is veszélyeztetheti."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "alig",
+   "score": 1.6642831159029987,
+   "text": "Őszintén szólva nem izgat különösebben, mert alig követem a politikai híreket, de ha ezzel békésebb lesz a szomszédságunk, annak örülök."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 3.3647851790423897,
+   "text": "Őszintén szólva teljesen támogatom, mert diplomás városi baloldali olvasóként az EU egységét és Ukrajna demokratikus integrációját tartom a kontinens érdekének."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 1.9733474057162124,
+   "text": "Őszintén szólva nem tetszik, mert félő, hogy Ukrajna gyors csatlakozása csak áron aluli munkaerőt és még több bizonytalanságot hozna a magyar embereknek."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.3119624773406455,
+   "text": "Őszintén szólva nem tetszik, mert úgy látom, Ukrajna uniós felvétele gazdaságilag és biztonságilag is sértheti Magyarország érdekeit, mielőtt a tisztességes feltételekről meggyőződnénk."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 2.244040205677644,
+   "text": "Őszintén szólva nem tetszik, mert úgy érzem, hogy Ukrajna uniós támogatása helyett a magyar emberek és a határon túli magyarok érdekeit kellene előbb védeni."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 3.3627464731798726,
+   "text": "Őszintén szólva teljesen támogatom, mert diplomás, baloldali médiát követő, vidéki idősemberként fontosnak tartom, hogy Magyarország ne elszigetelődjön, és Ukrajna demokratikus, európai integrációját is üdvözlöm."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "alig",
+   "score": 1.6726623956581985,
+   "text": "Őszintén szólva alig foglalkozom a politikával, úgyhogy ez a koncepció engem személy szerint nem különösebben érdekel vagy hat meg."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 2.2916202411651163,
+   "text": "Őszintén szólva nem tetszik, mert úgy érzem, hogy Ukrajna uniós csatlakozása helyett a saját kis falunk és az idős, diplomás emberek mindennapi biztonságára, megélhetésére kellene elsősorban figyelni."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 3.292470883337152,
+   "text": "Őszintén szólva tetszik, mert a baloldali/liberális értékeim szerint is fontos, hogy Magyarország ne szigetelődjön el, és Ukrajna támogatása erkölcsileg és stratégiailag is helyes."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.3851222808121677,
+   "text": "Őszintén szólva nem tetszik, mert úgy érzem, Ukrajna uniós felvétele nélkülünk döntene a magyar érdekekről, különösen a kárpátaljai magyarok és a gazdaságunk terén."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 3.1894640580500613,
+   "text": "Őszintén szólva tetszik, mert a közmédiából is azt látom, hogy a Tisza most ezt tartja a hazánk és a béke érdekét szolgáló kiutnak, és diplomásként a bezárkózás helyett az európai együttműködést választanám."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 2.1859309658185815,
+   "text": "Őszintén szólva nekem, aki közösségi médiából tájékozódom és féltem a nyugdíjunkat meg a hazai gazdaságot, ez a koncepció nem tetszik, mert feleslegesen sodorhat minket bele egy instabil ország ügyeibe."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.1637695834787296,
+   "text": "Őszintén szólva nem tetszik, mert úgy gondolom, Ukrajna uniós csatlakozása a mi érdekeinket és a határon túli magyarok helyzetét is hátrányosan érintheti."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 3.306810071791496,
+   "text": "Őszintén szólva tetszik, mert úgy gondolom, hogy Ukrajna támogatása és az uniós szolidaritás a mi nyugati, demokratikus értékeinkhez is hozzátartozik."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 2.4116342840336933,
+   "text": "Őszintén szólva nem tetszik, mert úgy érzem, hogy Ukrajna uniós támogatása helyett a saját idős, diplomás, vidéki magyar embertársainkra és a nemzeti érdekeinkre kellene elsősorban figyelni."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 1.9752638026331104,
+   "text": "Őszintén szólva nem tetszik, mert tartok tőle, hogy Ukrajna gyors uniós belépése a magyar munkásoknak kevesebb munkahelyet és több versenyt hozna az amúgy is nehéz budapesti megélhetésünk mellett."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "alig",
+   "score": 2.96053101898689,
+   "text": "Őszintén szólva alig foglalkozom a témával, de ha gyorsabb EU-csatlakozást hoz és kevesebb háborús feszültséget, akkor nem lenne ellenemre."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.4237105808090855,
+   "text": "Őszintén szólva nem tetszik, mert úgy gondolom, Ukrajna csatlakozása előtt még sok a megoldatlan kérdés, és a mi érdekeinket is jobban kellene védeni, mintsem újabb lépést tenni a vétó feloldásával."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 3.3777100232164727,
+   "text": "Őszintén szólva teljesen támogatom, mert úgy vélem, hogy Ukrajna euroatlanti integrációja nemcsak az ő biztonságukat, hanem a mi szabadságunkat és a régió stabilitását is szolgálja."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 2.2031611126864705,
+   "text": "Őszintén szólva nem tetszik, mert félek, hogy Ukrajna bevétele csak gondot és még több terhet hoz az amúgy is nehéz helyzetben lévő magyar embereknek."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 3.229602703085764,
+   "text": "Őszintén: teljesen támogatom, mert a diplomáciai elszigetelődés helyett az európai egység és Ukrajna demokratikus jövője melletti elköteleződés sokkal inkább felel meg az értékrendemnek."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 1.870543746072265,
+   "text": "Őszintén szólva egyáltalán nem tetszik, mert úgy vélem, Ukrajna uniós felvétele a magyar érdekeket és a határon túli magyarságot is sérti, ráadásul a jobboldali sajtó alapján nemzetbiztonsági kockázatot is jelenthet."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 2.154793720257303,
+   "text": "Őszintén szólva nem tetszik, mert községi szakmunkásként attól félek, hogy Ukrajna belépése még jobban elviszi a munkát és az EU-s pénzeket a mi falvainkból a határon túlra."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "alig",
+   "score": 1.7508304224190046,
+   "text": "Őszintén szólva nem foglalkoztat különösebben a téma, mert alig követem a politikai híreket, de ha Ukrajna uniós csatlakozása segíti az ország kilábalását és a nyugati kapcsolatok rendezését, akkor nincs különösebb ellenérzésem vele szemben."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 3.4377057682490633,
+   "text": "Őszintén szólva tetszik, mert úgy látom, hogy Ukrajna európai integrációjának támogatása nemcsak erkölcsi kötelességünk a megtámadott szomszédunk iránt, hanem a magyar gazdaság és biztonság számára is előnyösebb, mint a jelenlegi elszigetelődés."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 2.1672539976681557,
+   "text": "Őszintén szólva nem tetszik, mert úgy érzem, Ukrajna uniós felvétele nélkülünk döntene a sorsunkról, és a községi embereknek az az első, hogy ne az adóforintjainkból támogassunk olyan országot, ami még tisztázatlan gazdasági és korrupciós kockázatokkal jár."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 2.425248469729996,
+   "text": "Őszintén szólva nekem, aki csak a közmédiából tájékozódok és a kormánytól megszoktam az ukrán csatlakozás ellenzését, ez a Tisza-kormány terve kifejezetten idegen és bizonytalanságot keltő, mert eddig azt hallottam, hogy Ukrajna felvétele nem lenne jó nekünk."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.471238675329274,
+   "text": "Őszintén szólva egyáltalán nem tetszene, mert úgy gondolom, hogy Ukrajna csatlakozása az EU-ba komoly gazdasági és biztonsági kockázatokat jelent Magyarország számára, és a kormánynak a magyar érdekeket kellene védenie ahelyett, hogy enged a brüsszeli nyomásnak."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 3.40184208006621,
+   "text": "Őszintén szólva teljesen támogatom, mert a szakmunkásként is érezhető gazdasági elszigetelődés helyett az uniós integráció és a szövetségesi kapcsolatok erősítése lenne a reális út az országnak."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 2.162432149944158,
+   "text": "Őszintén szólva nem tetszik, mert így az országunk érdekeit és a határon túli magyarokat is könnyen kihagyhatják a döntésekből."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.4734152095702555,
+   "text": "Őszintén szólva nem tetszik, mert úgy vélem, Ukrajna uniós felvétele előtt a háború, a korrupció és a kárpátaljai magyarok jogai körüli kérdéseket kellene előbb tisztázni, nem pedig sietve feladni a magyar vétót."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "alig",
+   "score": 1.76442963749824,
+   "text": "Őszintén szólva nem tetszik, mert alig követem a politikai híreket, és tartok tőle, hogy Ukrajna gyors uniós csatlakozása az országnak inkább terhet jelentene, mint hasznot."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 3.378624860113343,
+   "text": "Őszintén szólva tetszik, mert úgy vélem, hogy Ukrajna uniós integrációjának támogatása nemcsak erkölcsi kötelességünk az orosz agresszióval szemben, hanem a magyar gazdaság és biztonság szempontjából is előnyösebb, mint a jelenlegi elszigetelődés."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 2.1155670895575467,
+   "text": "Őszintén szólva nem tetszik, mert úgy érzem, hogy Ukrajna uniós felvétele nélkülünk is sok kockázatot hordozna magában, és a magyar érdekeket jobban kellene előbb védeni, mintsem másokét támogatni."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.2839644994492034,
+   "text": "Őszintén szólva nem tetszik, mert úgy látom, Ukrajna uniós felvétele a mi érdekeink, különösen a határon túli magyarság és a biztonság rovására mehet."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 2.1168009942484223,
+   "text": "Őszintén szólva nem tetszik, mert félek, hogy Ukrajna gyorsabb uniós belépése még több gazdasági terhet és bizonytalanságot hozhat a mi családunknak."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 3.2693346746696577,
+   "text": "Őszintén szólva tetszik, mert úgy gondolom, hogy Ukrajna támogatása és az európai összefogás a mi biztonságunkat és demokráciánkat is szolgálja."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 3.8253361647262114,
+   "text": "Őszintén szólva tetszik, mert a közmédiából is azt látom, hogy a mostani kormány ebben a kérdésben a Tisza álláspontját kezdte követni, így ez a koncepció logikus és biztonságosabb előrehaladásnak tűnik az országnak."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "alig",
+   "score": 1.80324283464681,
+   "text": "Őszintén szólva nem igazán tetszik, mert alig követem a politikai híreket, és úgy érzem, egy ilyen elköteleződés Ukrajna mellett inkább csak terheket hozhat a mi kis községünknek."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 2.1359402190062733,
+   "text": "Őszintén szólva nem tetszik, mert attól tartok, hogy Ukrajna gyors csatlakozása a mi pénzünkbe és a határaink biztonságába kerülhet."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 3.3806929100831375,
+   "text": "Őszintén szólva tetszik, mert úgy gondolom, hogy Ukrajna uniós integrációjának támogatása nemcsak erkölcsi kötelességünk az orosz agresszióval szemben, hanem a magyar gazdaság és biztonság szempontjából is előnyösebb, mint a jelenlegi elszigetelődés."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.091746994327331,
+   "text": "Őszintén szólva nem tetszik, mert úgy gondolom, Ukrajna uniós csatlakozása előtt még nincs rendben a korrupció, a nyelvtörvények és a kárpátaljai magyarok helyzete, és egy szakmunkásként községen jobboldali médiából tájékozódva ezt a nemzeti érdekek feladásának élném meg."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 2.3549916027251165,
+   "text": "Őszintén szólva nem tetszik, mert úgy érzem, hogy Ukrajna uniós csatlakozása helyett a saját határaink védelmére és a magyar érdekekre kellene elsősorban figyelnünk."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.1986750816511846,
+   "text": "Őszintén szólva nem tetszik, mert úgy gondolom, hogy Ukrajna uniós felvételének előremozdítása sérti a magyar nemzeti érdekeket és a határon túli magyarok biztonságát."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 3.366432605583098,
+   "text": "Őszintén szólva tetszik, mert a vétó feloldása végre kiszámítható, nyugatbarát irányt adna a külpolitikának, és a közmédiából nekem is úgy jön át, hogy a Tisza ezzel a reális, felelős álláspontot képviseli."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 3.191319194629122,
+   "text": "Őszintén szólva tetszik, mert úgy vélem, hogy Ukrajna európai integrációjának támogatása nemcsak erkölcsi kötelességünk a szomszédunk elleni agresszióval szemben, hanem a mi nyugati, demokratikus elköteleződésünket és gazdasági kilátásainkat is szolgálja."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 3.386174228896244,
+   "text": "Őszintén szólva tetszik, mert a vétó feloldása és az Ukrajna felé való nyitás szerintem segítene Magyarországnak kilépni a nemzetközi elszigeteltségből és gazdaságilag is előrébb jutni."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 1.961022058836934,
+   "text": "Őszintén szólva nem tetszik, mert a közmédia eddigi hatására is azzal féltettek, hogy Ukrajna csatlakozása nekünk csak kárt és bizonytalanságot hozna."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 3.023921744331532,
+   "text": "Őszintén szólva teljesen támogatom, mert szerintem Ukrajna euroatlanti integrációja nemcsak erkölcsi, hanem a mi biztonsági érdekünk is, és a jelenlegi vétó csak elszigetel minket a nyugati szövetségeseinktől."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.015106203160535,
+   "text": "Őszintén szólva nem tetszik, mert úgy érzem, Ukrajna uniós felvételével még a saját határaink védelmét és a magyar érdekeket is feladnánk épp akkor, amikor a szomszédságban dúl a háború."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "alig",
+   "score": 1.7460019661271278,
+   "text": "Őszintén szólva engem, aki alig követem a politikai híreket, ez a konkrét lépés nem érdekel különösebben, ha nem látom tőle a mindennapi megélhetésünkön az érezhető hasznot."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.422440031962433,
+   "text": "Őszintén szólva egyáltalán nem tetszene, mert jobboldali olvasmányaim alapján úgy látom, hogy Ukrajna uniós felvétele sérti a magyar érdekeket és a nemzeti szuverenitást."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 3.274287245333226,
+   "text": "Őszintén szólva tetszik, mert úgy gondolom, hogy Ukrajna támogatása és az európai összetartozás szolgálja leginkább a magyar érdekeket is."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 2.3062904297674978,
+   "text": "Őszintén szólva nem tetszik, mert úgy érzem, hogy egy 60 feletti, községi diplomás emberként a mi véleményünket és a határon túli magyarok érdekeit kevésbé veszik figyelembe, ha Ukrajna csatlakozását ennyire siettetik a közösségi médián keresztül sugárzott politikai nyomás hatására."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 3.8976398122828986,
+   "text": "Őszintén szólva tetszik, mert úgy látom, hogy Ukrajna uniós közeledésének támogatása segíthet Magyarországnak is kilépni a jelenlegi elszigetelődésből és újra hasznos tagként jelen lenni Európában."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 3.5579824289124646,
+   "text": "Őszintén szólva tetszik, mert úgy gondolom, hogy Ukrajna uniós integrációja nemcsak az ő demokratikus jövőjüket, hanem a mi nyugati szövetségi elköteleződésünket és gazdasági kilátásainkat is erősítené."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "alig",
+   "score": 1.8285775310770327,
+   "text": "Őszintén szólva nem sokat foglalkoztat, mert alig követem a politikai híreket, de ha a vétó feloldása segít, hogy nyugodtabb legyen a helyzet a szomszédban, akkor nem bánom."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 2.1982691386687665,
+   "text": "Őszintén szólva nem tetszik, mert úgy érzem, hogy egy 60 feletti, községi diplomásként a saját határaink és a magyar érdekek védelmét fontosabbnak tartom, mint Ukrajna gyors uniós beengedését."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.1920142287610274,
+   "text": "Őszintén szólva nem tetszik, mert úgy gondolom, hogy Ukrajna uniós felvétele így, a háború és a magyarokat érintő sérelmek rendezése nélkül nem szolgálja az ország érdekeit."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 3.489824716285523,
+   "text": "Őszintén szólva tetszik, mert a baloldali-liberális médiából tájékozódva úgy látom, hogy Ukrajna uniós integrációja nemcsak erkölcsi kötelességünk, hanem a mi nyugati orientációnkat és gazdasági kilátásainkat is erősítené."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 3.7329098494126285,
+   "text": "Őszintén szólva tetszik, mert úgy látom, hogy a vétó feloldása végre normalizálná a kapcsolatainkat az EU-val és segítene hazánk kilábalni a jelenlegi elszigeteltségből."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 1.8536688845136775,
+   "text": "Őszintén szólva nem tetszik, mert úgy érzem, hogy Ukrajna uniós csatlakozása előtt még nincsenek rendezve a határon túli magyarok jogai és a hazai gazdasági érdekeink sem."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.480810856238846,
+   "text": "Őszintén szólva egyáltalán nem tetszene, mert úgy gondolnám, hogy Ukrajna uniós felvétele nélkülünk is ránk erőltetne olyan dolgokat, mint a hazánkra nézve hátrányos bevándorlás vagy a kárpátaljai magyarok érdekeinek mellőzése."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 3.2859613857534873,
+   "text": "Őszintén szólva teljesen támogatom, mert diplomás, liberális községi lakosként természetesnek tartom, hogy Magyarország ne akadályozza Ukrajna euroatlanti integrációját, hanem a nyugati szövetségesi érdekeket kövesse."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 1.6189517133302749,
+   "text": "Őszintén szólva nem örülök neki, mert félek, hogy Ukrajna gyorsabb uniós csatlakozása az idős városi ember számára is bizonytalanságot és terheket hozhat anélkül, hogy előbb a magyar érdekeket védték volna meg."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "alig",
+   "score": 1.6273358806533056,
+   "text": "Őszintén szólva nem igazán tetszik, mert alig követem a politikai híreket, és tartok tőle, hogy Ukrajna gyors csatlakozása csak bizonytalanságot és terheket hozna az országnak."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 2.083469003848636,
+   "text": "Őszintén szólva nem tetszik, mert úgy érzem, előbb a saját határaink és a magyar emberek megélhetése lenne a fontos, mint Ukrajna uniós támogatása."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 3.37974499180928,
+   "text": "Őszintén szólva teljesen támogatom, mert úgy gondolom, hogy Ukrajna nyugati integrációja és a vétó feloldása mind erkölcsileg, mind a magyar nemzeti érdekek mentén is a helyes lépés."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 1.9379484838574539,
+   "text": "Őszintén szólva nem tetszik, mert úgy érzem, Ukrajna uniós felvétele nélkülünk és az érdekeink védelme nélkül csak terheket és kockázatokat hozna a magyar embereknek."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 3.590461916831766,
+   "text": "Őszintén szólva tetszik, mert a közmédiából azt látom, hogy a Tisza ezt a népet segítő, Európához való visszatérést jelenti, és így végre nem maradunk ki a támogatásokból."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 3.5333234109224283,
+   "text": "Őszintén szólva nekem, aki Budapesten, diplomásként és sok politikai tartalmat fogyasztva követem az eseményeket, ez a koncepció tetszik, mert reális és Európa-párti lépésnek tartom Ukrajna támogatását."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 3.3425085505064804,
+   "text": "Őszintén szólva teljesen támogatom, mert egy baloldali-liberális városi értelmiségiként fontosnak tartom Ukrajna nyugati integrációját és a magyar külpolitikai elszigetelődés megszüntetését."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "alig",
+   "score": 1.7328688736279545,
+   "text": "Őszintén szólva nem igazán tetszik, mert azt sem értem jól, mi köze Ukrajnához, és tartok tőle, hogy csak rosszabb lesz nekünk, ha a szomszéd bejön az Unióba."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.156864686112852,
+   "text": "Őszintén szólva egyáltalán nem tetszik, mert úgy gondolom, hogy Ukrajna csatlakozása az EU-hoz nem érdeke Magyarországnak, és a vétó feloldása sértené a nemzeti szuverenitást."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 3.2745257379531325,
+   "text": "Őszintén szólva tetszik, mert úgy látom, hogy Ukrajna uniós integrációjának támogatása nemcsak erkölcsi, hanem a mi nyugati szövetségi rendszereinkbe való visszatérésünk szempontjából is fontos."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.2903424782406865,
+   "text": "Őszintén szólva nem tetszik, mert úgy gondolom, Ukrajna uniós felvétele nélkülözhetetlen reformok és a határaink védelme nélkül nem szolgálja Magyarország érdekeit."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 2.315756201589937,
+   "text": "Őszintén szólva nem tetszik, mert úgy érzem, Ukrajna uniós csatlakozása a mi érdekeink, különösen a határon túli magyarok és a vidéki községek szempontjából is kockázatos és elhamarkodott lépés."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 2.1324236113902857,
+   "text": "Őszintén szólva nem tetszik, mert attól tartok, hogy Ukrajna gyors csatlakozása csak árt a magyar embereknek és a határon túli magyaroknak anélkül, hogy előbb a mi érdekeinket védenék meg."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 3.1649414904210538,
+   "text": "Őszintén szólva tetszik, mert a baloldali/liberális médiából tájékozódva úgy látom, hogy Ukrajna uniós integrációja nemcsak erkölcsi, hanem biztonságpolitikai érdekünk is, és a vétó feloldása végre normális irányba állítaná az országot."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.164954066174512,
+   "text": "Őszintén szólva nem tetszik, mert úgy gondolom, hogy Ukrajna uniós csatlakozása így a mi biztonsági és gazdasági érdekeinket is sértheti, mielőtt tisztázódnának a határozott feltételek."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 3.0967276924559823,
+   "text": "Őszintén szólva tetszik, mert szerintem Ukrajna uniós integrációja és a vétó feloldása a mi gazdasági és biztonsági érdekeinket is szolgálja, nemcsak erkölcsi kérdés."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "alig",
+   "score": 1.9519190506395152,
+   "text": "Őszintén szólva nem igazán tetszik, mert alig követem a politikai híreket, de úgy érzem, egy ilyen elhamarkodott támogatás Ukrajnának többet árthat az országnak, mint használ."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 3.3536589498868854,
+   "text": "Őszintén szólva teljesen tetszik, mert úgy gondolom, hogy Ukrajna nyugati integrációja és a vétó feloldása mind erkölcsileg, mind a magyar nemzetgazdasági érdekek mentén is helyes és szükséges lépés."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 3.536508738833524,
+   "text": "Őszintén szólva tetszik, mert a közmédiából úgy látom, hogy a Tisza ezzel végre kivezetné az országot a mostani elszigeteltségből és gazdasági padlóra kerülésből."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 2.259806048368057,
+   "text": "Őszintén szólva nem tetszik, mert a faluban élő, alacsony iskolázottságú embereknek előbb a saját megélhetésük és a határon túli magyarok biztonsága lenne a fontos, nem Ukrajna uniós támogatása."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.4369565422500776,
+   "text": "Őszintén szólva egyáltalán nem tetszene, mert úgy gondolom, hogy Ukrajna csatlakozása az EU-ba a mi biztonságunkat és gazdasági érdekeinket is veszélyeztetheti, és jobb, ha Magyarország továbbra is megőrzi a vétójogával járó ellenőrzést ebben a kérdésben."
+  }
+ ]
+}

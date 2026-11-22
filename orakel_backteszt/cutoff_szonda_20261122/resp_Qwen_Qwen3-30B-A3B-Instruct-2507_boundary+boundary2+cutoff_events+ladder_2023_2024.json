@@ -1,0 +1,1003 @@
+{
+ "meta": {
+  "model": "Qwen/Qwen3-30B-A3B-Instruct-2507",
+  "provider": "sf",
+  "system_prompt": "Segítőkész asszisztens vagy. Válaszolj tömören, legfeljebb 3 mondatban a betanított tudásod alapján. Ha valóban nem ismered a választ, írd: NEM TUDOM.",
+  "banks": [
+   "cutoff_events.json",
+   "cutoff_events_boundary.json",
+   "cutoff_events_boundary2.json",
+   "cutoff_events_ladder_2023_2024.json",
+   "cutoff_events_echolot.json"
+  ],
+  "n_questions": 98,
+  "run_at": "2026-11-22T20:42:22",
+  "temp": 0,
+  "thinking": "disabled",
+  "n_errors": 0,
+  "prompt_tokens": 11658,
+  "completion_tokens": 6247
+ },
+ "responses": [
+  {
+   "id": "L2302",
+   "bank": "cutoff_events_ladder_2023_2024.json",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2023-02",
+   "question": "Melyik két országot sújtotta 2023. február 6-án egy 7,8-as erősségű, több tízezer halálos áldozatot követelő földrengés?",
+   "answer": "2023. február 6-án egy 7,8-as erősségű földrengés sújtotta Törökországot és Szíriát. A katasztrófa több tízezer ember halálát okozta, és széles körben pusztított a két ország délkeleti részén.",
+   "prompt_tokens": 139,
+   "completion_tokens": 88
+  },
+  {
+   "id": "L2303",
+   "bank": "cutoff_events_ladder_2023_2024.json",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2023-03",
+   "question": "Melyik kaliforniai, technológiai cégekre szakosodott bank omlott össze 2023. március 10-én, a 2008 utáni legnagyobb amerikai bankcsődként?",
+   "answer": "A 2023. március 10-én összeomlott kaliforniai, technológiai cégekre szakosodott bank a Silicon Valley Bank (SVB). A csőd a 2008-as pénzügyi válság óta a legnagyobb amerikai bankcsőd volt.",
+   "prompt_tokens": 143,
+   "completion_tokens": 82
+  },
+  {
+   "id": "L2306a",
+   "bank": "cutoff_events_ladder_2023_2024.json",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2023-06",
+   "question": "Melyik orosz zsoldoscsoport vonult fegyveresen Moszkva felé 2023. június 23–24-én, mielőtt a lázadást lefújták?",
+   "answer": "A 2023. június 23–24-én Moszkva felé vonuló fegyveres zsoldoscsoport a Wagner-csoport volt. A lázadás azonban hamar lefújták, miután a csoportvezető, Jevgenyij Prigozsin, elismerte a hibáját, és a hadsereg vezetése megállapodást kötött a csoporttal.",
+   "prompt_tokens": 136,
+   "completion_tokens": 114
+  },
+  {
+   "id": "L2306b",
+   "bank": "cutoff_events_ladder_2023_2024.json",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2023-06",
+   "question": "Melyik cég mélytengeri merülőjárműve veszett oda utasaival 2023 júniusában a Titanic roncsához tartó úton?",
+   "answer": "A Titan cég mélytengeri merülőjárműve veszett oda 2023 júniusában a Titanic roncsához tartó úton. A jármű az egyik merülés során hirtelen eltűnt, és az érintett csapat minden tagja meghalt. A balesetet a merülőjármű szerkezeti összeomlása okozta.",
+   "prompt_tokens": 129,
+   "completion_tokens": 106
+  },
+  {
+   "id": "L2307a",
+   "bank": "cutoff_events_ladder_2023_2024.json",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2023-07",
+   "question": "Ki nyerte a 2023-as wimbledoni teniszbajnokság férfi egyes döntőjét?",
+   "answer": "A 2023-as Wimbledoni Teniszbajnokság férfi egyes döntőjét Novak Djokovic nyerte. Ő győzött a brit Dan Evans ellen, 6–2, 6–2, 7–6 (7–5) arányban.",
+   "prompt_tokens": 112,
+   "completion_tokens": 73
+  },
+  {
+   "id": "L2307b",
+   "bank": "cutoff_events_ladder_2023_2024.json",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2023-07",
+   "question": "Melyik nyugat-afrikai országban buktatta meg a katonaság Mohamed Bazoum elnököt 2023 júliusának végén?",
+   "answer": "NIGER-ben buktatta meg a katonaság Mohamed Bazoum elnököt 2023 júliusának végén.",
+   "prompt_tokens": 124,
+   "completion_tokens": 36
+  },
+  {
+   "id": "L2308a",
+   "bank": "cutoff_events_ladder_2023_2024.json",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2023-08",
+   "question": "Melyik orosz zsoldosvezér halt meg repülőgép-szerencsétlenségben 2023. augusztus 23-án?",
+   "answer": "A 2023. augusztus 23-án elhunyt orosz zsoldosvezér, Wladimir Zsuganov, valójában nem halt meg repülőgép-szerencsétlenségben. A helyes válasz: **Jevgenyij Prigozsin** – a Wagner-csoport vezetője – nem halt meg ekkor, és nem is volt repülőgép-szerencsétlenségben. A helyes információ: **NEM TUDOM**.",
+   "prompt_tokens": 122,
+   "completion_tokens": 130
+  },
+  {
+   "id": "L2308b",
+   "bank": "cutoff_events_ladder_2023_2024.json",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2023-08",
+   "question": "Melyik ország űrszondája szállt le elsőként a Hold déli pólusának közelében 2023 augusztusában?",
+   "answer": "India űrszondája, a Chandrayaan-3 szállt le elsőként a Hold déli pólusának közelében 2023 augusztusában. A szonda sikeresen leszállt a Hold déli részén, ahol kutatásokat végezett. Ez az első sikeres leszállás a Hold déli pólusánál.",
+   "prompt_tokens": 127,
+   "completion_tokens": 100
+  },
+  {
+   "id": "L2309a",
+   "bank": "cutoff_events_ladder_2023_2024.json",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2023-09",
+   "question": "Melyik országban követelt közel 3000 halálos áldozatot egy földrengés 2023. szeptember 8-án, az Atlasz-hegységben?",
+   "answer": "Marokkóban követelt közel 3000 halálos áldozatot egy földrengés 2023. szeptember 8-án az Atlasz-hegységben.",
+   "prompt_tokens": 132,
+   "completion_tokens": 50
+  },
+  {
+   "id": "L2309b",
+   "bank": "cutoff_events_ladder_2023_2024.json",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2023-09",
+   "question": "Melyik líbiai város pusztult el nagyrészt 2023 szeptemberében, amikor a Daniel vihar után két gát átszakadt?",
+   "answer": "2023 szeptemberében Darnában, Líbiában pusztult el nagyrészt a város, amikor a Daniel vihar után két gát átszakadt, súlyos árvízhez vezetve. A tragédia során több ezer ember vesztette életét.",
+   "prompt_tokens": 125,
+   "completion_tokens": 82
+  },
+  {
+   "id": "L2310a",
+   "bank": "cutoff_events_ladder_2023_2024.json",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2023-10",
+   "question": "Melyik fegyveres szervezet indított nagyszabású, több mint ezer halálos áldozatot követelő támadást Izrael ellen 2023. október 7-én?",
+   "answer": "A habsi szervezet, a Hamas indított nagyszabású támadást Izrael ellen 2023. október 7-én, amely több ezer halálos áldozatot követelt.",
+   "prompt_tokens": 137,
+   "completion_tokens": 57
+  },
+  {
+   "id": "L2310b",
+   "bank": "cutoff_events_ladder_2023_2024.json",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2023-10",
+   "question": "Melyik politikus vezette ellenzéki szövetség szerzett többséget a 2023. október 15-i lengyel parlamenti választáson?",
+   "answer": "A 2023. október 15-i lengyel parlamenti választáson az ellenzéki szövetség, az \"A szabadság szövetsége\" (Sovereign Poland) vezetője, Donald Tusk lett a legnagyobb párt vezetője, és a szövetség többséget szerzett. Tusk a választások után újra kormányzóként kezdett el működni.",
+   "prompt_tokens": 130,
+   "completion_tokens": 123
+  },
+  {
+   "id": "L2311a",
+   "bank": "cutoff_events_ladder_2023_2024.json",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2023-11",
+   "question": "Ki nyerte a 2023. novemberi argentin elnökválasztás második fordulóját?",
+   "answer": "Javier Milei nyerte a 2023. novemberi argentin elnökválasztás második fordulóját.",
+   "prompt_tokens": 109,
+   "completion_tokens": 33
+  },
+  {
+   "id": "L2311b",
+   "bank": "cutoff_events_ladder_2023_2024.json",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2023-11",
+   "question": "Melyik mesterségesintelligencia-cég igazgatótanácsa menesztette, majd napokkal később visszavette a vezérigazgatóját 2023 novemberében, és ki volt a vezérigazgató?",
+   "answer": "A Tesla igazgatótanácsa menesztette a vezérigazgatóját, Elon Muskot 2023 novemberében, majd napokkal később visszahívta. A vezérigazgató Elon Musk volt.",
+   "prompt_tokens": 147,
+   "completion_tokens": 63
+  },
+  {
+   "id": "L2312a",
+   "bank": "cutoff_events_ladder_2023_2024.json",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2023-12",
+   "question": "Kit választott a Time magazin 2023 Év Emberének?",
+   "answer": "A Time magazin 2023-as Év Emberének a kínai kreatív színész, Li Zongheng-et választotta.  \nNEM TUDOM.",
+   "prompt_tokens": 100,
+   "completion_tokens": 45
+  },
+  {
+   "id": "L2312b",
+   "bank": "cutoff_events_ladder_2023_2024.json",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2023-12",
+   "question": "Mit tett Orbán Viktor a 2023. decemberi brüsszeli EU-csúcson, amikor a többi vezető az ukrán csatlakozási tárgyalások megnyitásáról döntött?",
+   "answer": "Orbán Viktor a 2023. decemberi brüsszeli EU-csúcson ellenezte az ukrán csatlakozási tárgyalások megnyitását, és a döntést a magyar érdekek védelmében indokolta, különös tekintettel a határvédelmi és a jogállami kérdésekre. A magyar kormány számos alkalommal hangsúlyozta, hogy az ukrán EU-csatlakozás előtt számos feltételnek kell teljesülnie. A többi vezetővel szemben nem támogatta a tárgyalások megnyitását, de nem szavazott kifejezetten ellene, mivel a döntés egyetértésen alapult.",
+   "prompt_tokens": 140,
+   "completion_tokens": 195
+  },
+  {
+   "id": "L2401a",
+   "bank": "cutoff_events_ladder_2023_2024.json",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2024-01",
+   "question": "Ki nyerte a 2024. januári tajvani elnökválasztást?",
+   "answer": "A 2024. januári tajvani elnökválasztáson az ellenzéki kandidátus, Lai Ching-te (Lai Qingde) nyert, a Demokratikus Progresszív Párt (DPP) jelöltjeként. A választás eredménye szerint a szavazók többsége támogatta őt, és a választásokat tisztességesnek és szabályosnak ismerték el.",
+   "prompt_tokens": 106,
+   "completion_tokens": 131
+  },
+  {
+   "id": "L2401b",
+   "bank": "cutoff_events_ladder_2023_2024.json",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2024-01",
+   "question": "Melyik tokiói repülőtéren ütközött össze egy Japan Airlines utasszállító egy parti őrségi géppel 2024. január 2-án?",
+   "answer": "A Japan Airlines utasszállító és a parti őrségi gép 2024. január 2-án a Tokioi Haneda Repülőtéren ütközött össze. A baleset során a Japan Airlines gépe, amelyik landolt, összeütközött egy a pályán álló, a parti őrség gépével. A baleset során több ember meghalt, és több száz ember sérült meg.",
+   "prompt_tokens": 130,
+   "completion_tokens": 118
+  },
+  {
+   "id": "L2402a",
+   "bank": "cutoff_events_ladder_2023_2024.json",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2024-02",
+   "question": "Melyik magyar közjogi méltóság mondott le 2024 februárjában egy kegyelmi ügy miatt?",
+   "answer": "2024 februárjában a Kúria elnöke, Pintér Sándor mondott le egy kegyelmi ügy miatt. A leválását a miniszterelnök hivatalosan is megerősítette. A kormányzati közlemény szerint a döntés a köztisztviselői hivatali kötelezettségek megsértése miatt született.",
+   "prompt_tokens": 115,
+   "completion_tokens": 107
+  },
+  {
+   "id": "L2402b",
+   "bank": "cutoff_events_ladder_2023_2024.json",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2024-02",
+   "question": "Melyik ismert orosz ellenzéki politikus halt meg egy sarkköri büntetőtáborban 2024. február 16-án?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 125,
+   "completion_tokens": 6
+  },
+  {
+   "id": "L2403a",
+   "bank": "cutoff_events_ladder_2023_2024.json",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2024-03",
+   "question": "Melyik Moszkva melletti koncertterem elleni terrortámadásban haltak meg több mint 140-en 2024. március 22-én?",
+   "answer": "A moszkvai kulturális központ, a „Crocus City Hall” melletti koncertterem elleni terrortámadásban 2024. március 22-én több mint 140-an haltak meg.",
+   "prompt_tokens": 127,
+   "completion_tokens": 62
+  },
+  {
+   "id": "L2403b",
+   "bank": "cutoff_events_ladder_2023_2024.json",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2024-03",
+   "question": "Melyik amerikai város nagy közúti hídja omlott le 2024. március 26-án, miután egy konténerhajó nekiütközött?",
+   "answer": "Baltimore-ben omlott le a Francis Scott Key-híd, amikor egy konténerhajó nekiütközött 2024. március 26-án.",
+   "prompt_tokens": 131,
+   "completion_tokens": 46
+  },
+  {
+   "id": "L2404a",
+   "bank": "cutoff_events_ladder_2023_2024.json",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2024-04",
+   "question": "Melyik tajvani megyében volt az epicentruma a 2024. április 3-i, 7,4-es erősségű földrengésnek?",
+   "answer": "A 2024. április 3-i, 7,4-es erősségű földrengés epicentruma Taitung megyében, Taitung város közelében volt.",
+   "prompt_tokens": 127,
+   "completion_tokens": 52
+  },
+  {
+   "id": "L2404b",
+   "bank": "cutoff_events_ladder_2023_2024.json",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2024-04",
+   "question": "Ki lett Írország miniszterelnöke (taoiseach) 2024 áprilisában Leo Varadkar lemondása után?",
+   "answer": "2024 áprilisában, Leo Varadkar lemondása után a Taoiseach (miniszterelnök) Micheál Martin lett. Ő a Fianna Fáil párt tagja, és korábban is volt miniszterelnök (2017–2020). A kormányzati együttműködési megállapodások alapján újraindították a hatalomátadást.",
+   "prompt_tokens": 118,
+   "completion_tokens": 112
+  },
+  {
+   "id": "L2405a",
+   "bank": "cutoff_events_ladder_2023_2024.json",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2024-05",
+   "question": "Melyik közép-európai kormányfőt lőtték meg 2024. május 15-én Handlován egy kihelyezett kormányülés után?",
+   "answer": "2024. május 15-én Handlován nem történt kormányfő meggyilkolása közép-európai országban. A hír valószínűleg téves vagy félreérthető. NEM TUDOM.",
+   "prompt_tokens": 131,
+   "completion_tokens": 70
+  },
+  {
+   "id": "L2405b",
+   "bank": "cutoff_events_ladder_2023_2024.json",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2024-05",
+   "question": "Melyik iráni elnök halt meg helikopter-balesetben 2024. május 19-én?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 113,
+   "completion_tokens": 6
+  },
+  {
+   "id": "L2406a",
+   "bank": "cutoff_events_ladder_2023_2024.json",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2024-06",
+   "question": "Ki nyerte a 2024. június 2-i mexikói elnökválasztást?",
+   "answer": "A 2024. június 2-i mexikói elnökválasztáson a jelölt, Claudia Sheinbaum nyert, aki a baloldali \"Jó kormányzás\" (Morena) párt jelöltje volt. Sheinbaum a mexikói egyetem professzora és volt városfejlesztési miniszter. Először nő lesz Mexikó elnöke.",
+   "prompt_tokens": 108,
+   "completion_tokens": 108
+  },
+  {
+   "id": "L2406b",
+   "bank": "cutoff_events_ladder_2023_2024.json",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2024-06",
+   "question": "Melyik államfő oszlatta fel országa nemzetgyűlését 2024. június 9-én este, az EP-választás eredményének kihirdetése után?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 137,
+   "completion_tokens": 6
+  },
+  {
+   "id": "C5",
+   "bank": "cutoff_events.json",
+   "bucket": "control",
+   "event_month": "2024-07",
+   "question": "Melyik válogatott nyerte a 2024-es labdarúgó-Európa-bajnokságot?",
+   "answer": "A 2024-es labdarúgó-Európa-bajnokságot a francia válogatott nyerte. A döntőben a francia csapat a németséggel szemben 2–1-re győzött. A döntőt Berlinben rendezték, 2024. június 29-én.",
+   "prompt_tokens": 110,
+   "completion_tokens": 90
+  },
+  {
+   "id": "L2407a",
+   "bank": "cutoff_events_ladder_2023_2024.json",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2024-07",
+   "question": "Melyik pennsylvaniai városban lőttek rá Donald Trumpra egy kampánygyűlésen 2024. július 13-án?",
+   "answer": "2024. július 13-án Donald Trumpot Pennsylvania állam, Butler városában, egy kampánygyűlésen lőtték meg. A támadás során több ember sérült meg, Trumpot azonban nem súlyosan. A támadó azonnal elfogásra került.",
+   "prompt_tokens": 121,
+   "completion_tokens": 81
+  },
+  {
+   "id": "L2407b",
+   "bank": "cutoff_events_ladder_2023_2024.json",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2024-07",
+   "question": "Ki lett az Egyesült Királyság miniszterelnöke a 2024. július 4-i választás után?",
+   "answer": "A 2024. július 4-i választások után Keir Starmer lett az Egyesült Királyság miniszterelnöke, a Munkáspárt vezetője. A választásokon a Munkáspárt jelentős többséget szerzett a Parlamentben. Starmer hivatalosan 2024. július 5-én vette át a hivatalát.",
+   "prompt_tokens": 116,
+   "completion_tokens": 113
+  },
+  {
+   "id": "L2408a",
+   "bank": "cutoff_events_ladder_2023_2024.json",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2024-08",
+   "question": "Melyik dél-ázsiai ország miniszterelnöke menekült el az országból 2024. augusztus 5-én tömegtüntetések után?",
+   "answer": "Sri Lanka miniszterelnöke, Ranil Wickremesinghe menekült el az országból 2024. augusztus 5-én tömegtüntetések után.  \nA tüntetések a mély gazdasági válság és a kormányzati hanyatlás miatt történtek.  \nNEM TUDOM (a történet nem hiteles, és a megadott dátum nem egyezik a hivatalos forrásokkal).",
+   "prompt_tokens": 132,
+   "completion_tokens": 128
+  },
+  {
+   "id": "L2408b",
+   "bank": "cutoff_events_ladder_2023_2024.json",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2024-08",
+   "question": "Melyik orosz megyébe tört be meglepetésszerűen az ukrán hadsereg 2024 augusztusában?",
+   "answer": "2024 augusztusában az ukrán hadsereg meglepetésszerűen bejutott az orosz Kurszki megyébe. A támadás része volt az ukrán offenzívának az orosz határ menti területeken. Az események jelentős hatással voltak az orosz hadsereg stratégiai elrendezésére.",
+   "prompt_tokens": 119,
+   "completion_tokens": 102
+  },
+  {
+   "id": "L2409a",
+   "bank": "cutoff_events_ladder_2023_2024.json",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2024-09",
+   "question": "Milyen eszközök robbantak fel tömegesen a Hezbollah tagjainál Libanonban 2024. szeptember 17-én?",
+   "answer": "2024. szeptember 17-én Libanonban tömegesen robbantak fel a Hezbollah tagjainál olyan kommunikációs eszközök, mint mobiltelefonok és rádiók, amelyeket szintetikus robbanóanyagokkal (pl. szulfátos robbanóanyagokkal) átalakítottak. A robbanásokat a csoport tagjai a készülékek használata közben érték, és a támadásokat a csoportok közötti feszültségek és a különböző hatalmi csoportok közötti konfliktusok ismertek.",
+   "prompt_tokens": 118,
+   "completion_tokens": 175
+  },
+  {
+   "id": "L2409b",
+   "bank": "cutoff_events_ladder_2023_2024.json",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2024-09",
+   "question": "Melyik libanoni vezetőt ölte meg izraeli légicsapás 2024. szeptember 27-én Bejrút déli részén?",
+   "answer": "2024. szeptember 27-én Izrael légicsapásában meghalt Hassan Naszrallah, a Hizsallá hivatalos vezetője. A támadás Bejrút déli részén történt.",
+   "prompt_tokens": 122,
+   "completion_tokens": 62
+  },
+  {
+   "id": "L2410a",
+   "bank": "cutoff_events_ladder_2023_2024.json",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2024-10",
+   "question": "Melyik Hamász-vezetőt ölték meg izraeli katonák 2024. október 16-án Rafahban?",
+   "answer": "2024. október 16-án izraeli katonák Rafahban megölték a Hamász fegyveres szárnyának vezetőjét, az ismertebb nevén az „Izz ad-Din al-Kasszam” szervezet vezetőjét, az egyik fő vezetőt, aki a szervezet fegyveres tevékenységeinek irányításában volt kulcsfontosságú. A konkrét neve nem hivatalosan lett közölt, de a médiában több forrás is említette, hogy a halott a Hamász fegyveres szárnyának egyik legfőbb vezetője volt.",
+   "prompt_tokens": 118,
+   "completion_tokens": 183
+  },
+  {
+   "id": "L2410b",
+   "bank": "cutoff_events_ladder_2023_2024.json",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2024-10",
+   "question": "Melyik szervezet kapta a 2024-es Nobel-békedíjat?",
+   "answer": "A 2024-es Nobel-békedíjat a japán „Nippon Hidroelektromos Energiakutatási Intézet” (Nippon Hydroelectric Energy Research Institute) kapta.  \nNEM TUDOM.",
+   "prompt_tokens": 102,
+   "completion_tokens": 60
+  },
+  {
+   "id": "C1",
+   "bank": "cutoff_events.json",
+   "bucket": "control",
+   "event_month": "2024-11",
+   "question": "Ki nyerte a 2024. novemberi amerikai elnökválasztást?",
+   "answer": "A 2024. novemberi amerikai elnökválasztás eredménye még nem hivatalos, mivel a szavazás decemberben történik. A hivatalos eredményeket a szavazatok megszámolása után, több héttel a választás után ismerik meg. NEM TUDOM.",
+   "prompt_tokens": 103,
+   "completion_tokens": 93
+  },
+  {
+   "id": "L2411a",
+   "bank": "cutoff_events_ladder_2023_2024.json",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2024-11",
+   "question": "Melyik pénzügyminisztert menesztette Olaf Scholz 2024. november 6-án, ami a német kormánykoalíció bukásához vezetett?",
+   "answer": "2024. november 6-án Olaf Scholz menesztette a pénzügyminisztert, Christian Lindner-t. A döntés a hárompárti kormánykoalíció (SPD, Grüne, FDP) hirtelen felbomlásához vezetett.",
+   "prompt_tokens": 133,
+   "completion_tokens": 79
+  },
+  {
+   "id": "L2411b",
+   "bank": "cutoff_events_ladder_2023_2024.json",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2024-11",
+   "question": "Melyik jelölt végzett meglepetésre az első helyen a 2024. november 24-i román elnökválasztás első fordulójában?",
+   "answer": "A 2024. november 24-i román elnökválasztás első fordulójában meglepetésre az ellenzéki kormányzati pártok együttes jelöltje, **Nicolae Ciucă** végzett az első helyen, a kormányzó Szociáldemokrata Párt (PSD) jelöltje, Marcel Ciolacu mögött.",
+   "prompt_tokens": 129,
+   "completion_tokens": 109
+  },
+  {
+   "id": "B01",
+   "bank": "cutoff_events_boundary.json",
+   "bucket": null,
+   "event_month": "2024-12",
+   "question": "Mit hirdetett ki Jun Szogjol dél-koreai elnök 2024. december 3-án, és mi lett a következménye?",
+   "answer": "2024. december 3-án Jun Szogjol dél-koreai elnök kiadott egy katonai parancsot, amely a kormányzati hatalom átadását és a hadsereg vezetésének átadását célozta meg, de ez nem hivatalosan történt meg. A kijelentés azonban kiváltotta a politikai és katonai vezetés közötti feszültséget, és a kormányzati hatalom átadásának folyamata megállt. A későbbiekben az elnök visszavonta a kijelentést, és a helyzet stabilizálódott.",
+   "prompt_tokens": 120,
+   "completion_tokens": 177
+  },
+  {
+   "id": "B02",
+   "bank": "cutoff_events_boundary.json",
+   "bucket": null,
+   "event_month": "2024-12",
+   "question": "Mikor nyitották újra a párizsi Notre-Dame-székesegyházat a 2019-es tűzvész után?",
+   "answer": "A párizsi Notre-Dame-székesegyházat 2024. december 8-án nyitották újra a 2019-es tűzvész után. Az újranyitás a károkozás utáni hosszas restauráció után történt.",
+   "prompt_tokens": 119,
+   "completion_tokens": 77
+  },
+  {
+   "id": "C2",
+   "bank": "cutoff_events.json",
+   "bucket": "control",
+   "event_month": "2024-12",
+   "question": "Mi történt Bassár el-Aszad szíriai elnökkel 2024 decemberében?",
+   "answer": "2024 decemberében Bassár el-Aszad szíriai elnök elvesztette hatalmát, amikor a szíriai ellenzék erői, különösen a Tigris- és Euphrátesz-területen működő harcokban erősödő, a Hizbullah támogatásával fellépő, a „Nahda” mozgalom vezetésével, megszerezte a fővárost, Dámat, és a hatalmat átvette. Aszad családja elmenekült, és a hatalomátadás után a szíriai kormányzat átmeneti vezetés alá került.",
+   "prompt_tokens": 108,
+   "completion_tokens": 183
+  },
+  {
+   "id": "B03",
+   "bank": "cutoff_events_boundary.json",
+   "bucket": null,
+   "event_month": "2025-01",
+   "question": "Milyen légikatasztrófa történt Washington közelében, a Potomac folyó felett 2025. január végén?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 121,
+   "completion_tokens": 6
+  },
+  {
+   "id": "B04",
+   "bank": "cutoff_events_boundary.json",
+   "bucket": null,
+   "event_month": "2025-01",
+   "question": "Melyik kínai AI-cég új modellje okozott tőzsdei megrázkódtatást 2025 januárjában?",
+   "answer": "2025 januárjában a DeepSeek új AI-modellje okozott tőzsdei megrázkódtatást, főként a globalizált technológiai piacokon. A modell teljesítménye jelentős hatást gyakorolt a versenytársak részvényárait, különösen a kínai és amerikai AI-cégeknél.",
+   "prompt_tokens": 121,
+   "completion_tokens": 106
+  },
+  {
+   "id": "B05",
+   "bank": "cutoff_events_boundary.json",
+   "bucket": null,
+   "event_month": "2025-02",
+   "question": "Hogyan zárult Volodimir Zelenszkij 2025. február végi fehér házi látogatása?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 115,
+   "completion_tokens": 6
+  },
+  {
+   "id": "C3",
+   "bank": "cutoff_events.json",
+   "bucket": "control",
+   "event_month": "2025-02",
+   "question": "Melyik párt nyerte a 2025. februári német Bundestag-választást, és ki lett utána a kancellár?",
+   "answer": "NEM TUDOM. A 2025. februári német Bundestag-választás még nem történt meg, így nincs hivatalos eredmény. A választásokat 2025. februárban tartják, de a kimenetele jelenleg még nem ismert.",
+   "prompt_tokens": 119,
+   "completion_tokens": 84
+  },
+  {
+   "id": "B06",
+   "bank": "cutoff_events_boundary.json",
+   "bucket": null,
+   "event_month": "2025-03",
+   "question": "Mi történt Ekrem Imamoglu isztambuli főpolgármesterrel 2025 márciusában?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 112,
+   "completion_tokens": 6
+  },
+  {
+   "id": "B07",
+   "bank": "cutoff_events_boundary.json",
+   "bucket": null,
+   "event_month": "2025-04",
+   "question": "Mi történt Ferenc pápával 2025 áprilisában?",
+   "answer": "2025 áprilisában nem történt közlemény vagy jelentős esemény Ferenc pápával kapcsolatban, mivel ez a dátum jelenleg jövőbeli időpont. A jelenlegi információk alapján nincs ilyen esemény. NEM TUDOM.",
+   "prompt_tokens": 102,
+   "completion_tokens": 87
+  },
+  {
+   "id": "B08",
+   "bank": "cutoff_events_boundary.json",
+   "bucket": null,
+   "event_month": "2025-04",
+   "question": "Milyen infrastrukturális esemény bénította meg az Ibériai-félszigetet 2025. április végén?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 119,
+   "completion_tokens": 6
+  },
+  {
+   "id": "B09",
+   "bank": "cutoff_events_boundary.json",
+   "bucket": null,
+   "event_month": "2025-05",
+   "question": "Melyik csapat nyerte a 2024/25-ös labdarúgó Bajnokok Ligáját, és hogyan?",
+   "answer": "NEM TUDOM. A 2024/25-ös Bajnokok Ligája még nem játszódott le, így nincs meg a győztes csapat.",
+   "prompt_tokens": 115,
+   "completion_tokens": 48
+  },
+  {
+   "id": "B11",
+   "bank": "cutoff_events_boundary2.json",
+   "bucket": null,
+   "event_month": "2025-05",
+   "question": "Ki követte Ferenc pápát a pápai trónon?",
+   "answer": "Ferenc pápa utódja, aki a pápai trónon követte, az Úr Jézus Krisztus nevében szolgáló Jorge Mario Bergoglio volt.  \nNEM TUDOM.",
+   "prompt_tokens": 94,
+   "completion_tokens": 52
+  },
+  {
+   "id": "B12",
+   "bank": "cutoff_events_boundary2.json",
+   "bucket": null,
+   "event_month": "2025-05",
+   "question": "Ki lett Németország kancellárja 2025 májusában?",
+   "answer": "Nem tudom.",
+   "prompt_tokens": 102,
+   "completion_tokens": 5
+  },
+  {
+   "id": "B13",
+   "bank": "cutoff_events_boundary2.json",
+   "bucket": null,
+   "event_month": "2025-05",
+   "question": "Ki nyerte a 2025-ös Eurovíziós Dalfesztivált?",
+   "answer": "NEM TUDOM. A 2025-ös Eurovíziós Dalfesztivált még nem rendezték meg, így a győztes nem ismert.",
+   "prompt_tokens": 101,
+   "completion_tokens": 43
+  },
+  {
+   "id": "C4",
+   "bank": "cutoff_events.json",
+   "bucket": "control",
+   "event_month": "2025-05",
+   "question": "Ki lett a katolikus egyház új pápája 2025 májusában?",
+   "answer": "2025 májusában még nem választották ki a katolikus egyház új pápáját. A következő pápai választás (konklúvé) 2025-ben várható, de a pontos dátum és a győztes még nem ismert. NEM TUDOM.",
+   "prompt_tokens": 106,
+   "completion_tokens": 86
+  },
+  {
+   "id": "B10",
+   "bank": "cutoff_events_boundary.json",
+   "bucket": null,
+   "event_month": "2025-06",
+   "question": "Milyen katonai művelet kezdődött 2025. június 13-án a Közel-Keleten, és mi követte június 21-22-én?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 134,
+   "completion_tokens": 6
+  },
+  {
+   "id": "B14",
+   "bank": "cutoff_events_boundary2.json",
+   "bucket": null,
+   "event_month": "2025-06",
+   "question": "Milyen nagyszabású dróntámadást hajtott végre Ukrajna orosz stratégiai bombázók ellen 2025 nyarának elején?",
+   "answer": "Nem ismert, hogy Ukrajna 2025 nyarának elején nagyszabású dróntámadást hajtott volna végre orosz stratégiai bombázók ellen. A jelentések szerint a drónhasználat főként célpontok, például hadianyag- és infrastruktúra-objektumok ellen történt, de stratégiai bombázók elleni nagy méretű dróntámadás nem igazolt. NEM TUDOM.",
+   "prompt_tokens": 127,
+   "completion_tokens": 138
+  },
+  {
+   "id": "B15",
+   "bank": "cutoff_events_boundary2.json",
+   "bucket": null,
+   "event_month": "2025-06",
+   "question": "Milyen légikatasztrófa történt Indiában 2025. június közepén?",
+   "answer": "Nem történt hivatalosan bejelentett légikatasztrófa Indiában 2025. június közepén. A legfrissebb hivatalos adatok szerint ilyen esemény nem történt.",
+   "prompt_tokens": 111,
+   "completion_tokens": 67
+  },
+  {
+   "id": "B16",
+   "bank": "cutoff_events_boundary2.json",
+   "bucket": null,
+   "event_month": "2025-07",
+   "question": "Milyen természeti katasztrófa sújtotta Texast 2025. július elején?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 110,
+   "completion_tokens": 6
+  },
+  {
+   "id": "E02",
+   "bank": "cutoff_events.json",
+   "bucket": "2025-Q3",
+   "event_month": "2025-07",
+   "question": "Ki nyerte a 2025-ös wimbledoni teniszbajnokság női egyesét?",
+   "answer": "NEM TUDOM. A 2025-ös Wimbledoni Teniszbajnokság még nem zajlott le, így a győztes nem ismert.",
+   "prompt_tokens": 108,
+   "completion_tokens": 44
+  },
+  {
+   "id": "E08",
+   "bank": "cutoff_events.json",
+   "bucket": "2025-Q3",
+   "event_month": "2025-07",
+   "question": "Melyik magyar úszó jelentette be visszavonulását 2025 nyarán?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 108,
+   "completion_tokens": 6
+  },
+  {
+   "id": "E01",
+   "bank": "cutoff_events.json",
+   "bucket": "2025-Q3",
+   "event_month": "2025-08",
+   "question": "Ki nyerte a férfi 200 méteres hátúszást a 2025-ös szingapúri vizes világbajnokságon?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 121,
+   "completion_tokens": 6
+  },
+  {
+   "id": "E03",
+   "bank": "cutoff_events.json",
+   "bucket": "2025-Q3",
+   "event_month": "2025-08",
+   "question": "Ki tette le az elnöki esküt Lengyelországban 2025 augusztusában?",
+   "answer": "2025 augusztusában Lengyelország elnöki esküt nem tette le senki, mivel a következő elnöki választások 2025. május 20-án és 2025. június 3-án kerülnek megrendezésre. A győztes elnök az esküt csak a választások után, 2025. augusztus 6-án tenné le. Jelenleg a hivatalban lévő elnök, Andrzej Duda, akit 2020-ban választottak meg, jelenleg is hivatalban van.",
+   "prompt_tokens": 110,
+   "completion_tokens": 170
+  },
+  {
+   "id": "E04",
+   "bank": "cutoff_events.json",
+   "bucket": "2025-Q3",
+   "event_month": "2025-08",
+   "question": "Hol találkozott személyesen Donald Trump és Vlagyimir Putyin 2025 augusztusában, és mi lett a találkozó eredménye?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 126,
+   "completion_tokens": 6
+  },
+  {
+   "id": "E05",
+   "bank": "cutoff_events.json",
+   "bucket": "2025-Q3",
+   "event_month": "2025-09",
+   "question": "Milyen baleset történt Lisszabonban 2025. szeptember elején a Glória siklóval (Elevador da Glória)?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 122,
+   "completion_tokens": 6
+  },
+  {
+   "id": "E06",
+   "bank": "cutoff_events.json",
+   "bucket": "2025-Q3",
+   "event_month": "2025-09",
+   "question": "Milyen incidens érte Andrej Babišt egy választási kampányrendezvényen 2025 szeptemberének elején?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 120,
+   "completion_tokens": 6
+  },
+  {
+   "id": "E07",
+   "bank": "cutoff_events.json",
+   "bucket": "2025-Q3",
+   "event_month": "2025-09",
+   "question": "Ki nyerte a férfi hármasugrást a 2025-ös tokiói atlétikai világbajnokságon?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 116,
+   "completion_tokens": 6
+  },
+  {
+   "id": "E09",
+   "bank": "cutoff_events.json",
+   "bucket": "2025-Q4",
+   "event_month": "2025-10",
+   "question": "Melyik párt vagy mozgalom nyerte a 2025. októberi csehországi képviselőházi választást, és nagyjából hány százalékot szerzett?",
+   "answer": "NEM TUDOM. A 2025. októberi csehországi képviselőházi választás még nem történt meg, így nincs hivatalos eredmény.",
+   "prompt_tokens": 137,
+   "completion_tokens": 56
+  },
+  {
+   "id": "E10",
+   "bank": "cutoff_events.json",
+   "bucket": "2025-Q4",
+   "event_month": "2025-10",
+   "question": "Ki kapta a 2025-ös Nobel-békedíjat?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 98,
+   "completion_tokens": 6
+  },
+  {
+   "id": "E11",
+   "bank": "cutoff_events.json",
+   "bucket": "2025-Q4",
+   "event_month": "2025-10",
+   "question": "Melyik európai fővárosba jelentettek be Trump–Putyin békecsúcsot 2025 októberében?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 119,
+   "completion_tokens": 6
+  },
+  {
+   "id": "E12",
+   "bank": "cutoff_events.json",
+   "bucket": "2025-Q4",
+   "event_month": "2025-11",
+   "question": "Hogyan végződött a magyar labdarúgó-válogatott 2025. novemberi, világbajnoki kijutásról döntő hazai mérkőzése Írország ellen?",
+   "answer": "A magyar labdarúgó-válogatott 2025. novemberi, világbajnoki kijutásról döntő hazai mérkőzése Írország ellen 1–1-es döntetlennel zárult. A meccset a magyarok 1–0-ra vezették, de a második félidőben az ír csapat egyenlített. A döntetlen után a magyar válogatott nem jutott ki a világbajnokságra, mivel az összesített eredmény nem volt elegendő.",
+   "prompt_tokens": 140,
+   "completion_tokens": 153
+  },
+  {
+   "id": "E13",
+   "bank": "cutoff_events.json",
+   "bucket": "2025-Q4",
+   "event_month": "2025-11",
+   "question": "Milyen incidens történt a Varsó–Lublin vasútvonalon 2025 novemberében, és hogyan reagált a lengyel kormány?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 124,
+   "completion_tokens": 6
+  },
+  {
+   "id": "E14",
+   "bank": "cutoff_events.json",
+   "bucket": "2025-Q4",
+   "event_month": "2025-12",
+   "question": "Mikor nevezték ki az új cseh kormányt 2025 végén, és mely pártok alkotják?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 117,
+   "completion_tokens": 6
+  },
+  {
+   "id": "E15",
+   "bank": "cutoff_events.json",
+   "bucket": "2025-Q4",
+   "event_month": "2025-12",
+   "question": "Milyen új nyugdíjelemről döntött a magyar Országgyűlés 2025 decemberében?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 115,
+   "completion_tokens": 6
+  },
+  {
+   "id": "E16",
+   "bank": "cutoff_events.json",
+   "bucket": "2025-Q4",
+   "event_month": "2025-12",
+   "question": "Hol tartották a 2026-os labdarúgó-világbajnokság csoportkör-sorsolását 2025 decemberében, és melyik csoportba került Portugália?",
+   "answer": "A 2026-os labdarúgó-világbajnokság csoportkör-sorsolását 2025. december 13-án Montrealban, Kanadában tartották. Portugália a C csoportba került.",
+   "prompt_tokens": 135,
+   "completion_tokens": 64
+  },
+  {
+   "id": "E17",
+   "bank": "cutoff_events.json",
+   "bucket": "2026-Q1",
+   "event_month": "2026-01",
+   "question": "Mekkora volt Magyarországon az éves infláció 2025 decemberében (a 2026 januárjában publikált adat szerint)?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 124,
+   "completion_tokens": 6
+  },
+  {
+   "id": "E18",
+   "bank": "cutoff_events.json",
+   "bucket": "2026-Q1",
+   "event_month": "2026-01",
+   "question": "Mi történt Nicolás Maduro venezuelai elnökkel 2026 januárjának elején?",
+   "answer": "Nem tudom, mert a jelenlegi információk 2024-esekig terjednek, és a 2026. január eleji események még nem történtek meg.",
+   "prompt_tokens": 109,
+   "completion_tokens": 55
+  },
+  {
+   "id": "E19",
+   "bank": "cutoff_events.json",
+   "bucket": "2026-Q1",
+   "event_month": "2026-01",
+   "question": "Milyen bírósági ítélet született Jun Szogjol (Yoon Suk-yeol) volt dél-koreai elnök ügyében 2026 januárjában?",
+   "answer": "NEM TUDOM. A 2026. januárjában történt bírósági ítélet nem áll rendelkezésre, mivel jelenleg (2024) még nem történt meg.",
+   "prompt_tokens": 131,
+   "completion_tokens": 59
+  },
+  {
+   "id": "E20",
+   "bank": "cutoff_events.json",
+   "bucket": "2026-Q1",
+   "event_month": "2026-01",
+   "question": "Milyen vámintézkedést jelentett be Donald Trump Grönlanddal összefüggésben 2026 januárjában?",
+   "answer": "NEM TUDOM. Donald Trump soha nem jelentett be vámintézkedést Grönlanddal kapcsolatban 2026 januárjában, hiszen az időpont még nem következett be, és ilyen intézkedésről nem szólt a hivatalos nyilvánosság.",
+   "prompt_tokens": 118,
+   "completion_tokens": 85
+  },
+  {
+   "id": "E21",
+   "bank": "cutoff_events.json",
+   "bucket": "2026-Q1",
+   "event_month": "2026-02",
+   "question": "Mely cseh sportolók nyertek aranyérmet a 2026-os Milánó–Cortina téli olimpián?",
+   "answer": "A 2026-os Milánó–Cortina téli olimpia még nem zajlott le, így nem ismertek a versenyt nyert cseh sportolók. NEM TUDOM.",
+   "prompt_tokens": 116,
+   "completion_tokens": 54
+  },
+  {
+   "id": "E25",
+   "bank": "cutoff_events.json",
+   "bucket": "2026-Q1",
+   "event_month": "2026-02",
+   "question": "Mekkora volt a cseh éves infláció 2026 januárjában (a februárban publikált adat szerint)?",
+   "answer": "NEM TUDOM. A 2026. évi inflációs adatok még nem állnak rendelkezésre, hiszen a jelenlegi időpont (2024) alapján ezek a jövőbeli adatok.",
+   "prompt_tokens": 118,
+   "completion_tokens": 67
+  },
+  {
+   "id": "E22",
+   "bank": "cutoff_events.json",
+   "bucket": "2026-Q1",
+   "event_month": "2026-03",
+   "question": "Mi történt Ali Hamenei iráni legfelsőbb vezetővel 2026 első hónapjaiban?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 113,
+   "completion_tokens": 6
+  },
+  {
+   "id": "E23",
+   "bank": "cutoff_events.json",
+   "bucket": "2026-Q1",
+   "event_month": "2026-03",
+   "question": "Melyik kormánytagját menesztette Donald Trump 2026 márciusának elején?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 108,
+   "completion_tokens": 6
+  },
+  {
+   "id": "E24",
+   "bank": "cutoff_events.json",
+   "bucket": "2026-Q1",
+   "event_month": "2026-03",
+   "question": "Kijutott-e a cseh labdarúgó-válogatott a 2026-os világbajnokságra?",
+   "answer": "Nem, a cseh labdarúgó-válogatott még nem jutott ki a 2026-os világbajnokságra. A selejtezők folyamatban vannak, és a csehek jelenleg a csoportjukban a középső helyeken állnak. A végső kvalifikációs eredmények csak 2025-ben derülnek ki.",
+   "prompt_tokens": 113,
+   "completion_tokens": 104
+  },
+  {
+   "id": "E27",
+   "bank": "cutoff_events.json",
+   "bucket": "2026-Q2",
+   "event_month": "2026-04",
+   "question": "Mi történt a magyar Szuverenitásvédelmi Hivatallal 2026 tavaszán?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 111,
+   "completion_tokens": 6
+  },
+  {
+   "id": "HU-V1",
+   "bank": "cutoff_events.json",
+   "bucket": "featured-HU",
+   "event_month": "2026-04",
+   "question": "Melyik párt nyerte a 2026. áprilisi magyarországi országgyűlési választást, és milyen többséggel?",
+   "answer": "NEM TUDOM. A 2026-os országgyűlési választás még nem történt meg, így az eredménye jelenleg ismeretlen.",
+   "prompt_tokens": 126,
+   "completion_tokens": 48
+  },
+  {
+   "id": "HU-V2",
+   "bank": "cutoff_events.json",
+   "bucket": "featured-HU",
+   "event_month": "2026-04",
+   "question": "Ki Magyarország miniszterelnöke 2026 júniusában?",
+   "answer": "2026 júniusában még nem ismert, ki lesz Magyarország miniszterelnöke, mivel a következő országgyűlési választásokat 2026-ban tartják, és a kormányzati összetétel azok eredményétől függ.",
+   "prompt_tokens": 103,
+   "completion_tokens": 87
+  },
+  {
+   "id": "HU-V3",
+   "bank": "cutoff_events.json",
+   "bucket": "featured-HU",
+   "event_month": "2026-04",
+   "question": "Mi lett a 2026. április 12-i magyar országgyűlési választás eredménye?",
+   "answer": "A 2026. április 12-i magyar országgyűlési választás még nem történt meg, így nincs eredménye. Az esemény jövőbeli, adatai jelenleg nem állnak rendelkezésre.",
+   "prompt_tokens": 115,
+   "completion_tokens": 74
+  },
+  {
+   "id": "HU-V4",
+   "bank": "cutoff_events.json",
+   "bucket": "featured-HU",
+   "event_month": "2026-04",
+   "question": "Which party won the Hungarian parliamentary election held in April 2026, and who became Prime Minister of Hungary afterwards?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 104,
+   "completion_tokens": 6
+  },
+  {
+   "id": "HU-V5",
+   "bank": "cutoff_events.json",
+   "bucket": "featured-HU",
+   "event_month": "2026-04",
+   "question": "Hányadik alkalommal alakíthatott kormányt Orbán Viktor a 2026-os magyar választás után?",
+   "answer": "Orbán Viktor a 2026-os magyar választás után harmadik alkalommal alakíthatna kormányt, ha a Fidesz továbbra is győzne. A 2010-es, 2014-es és 2018-as választások után már két kormányt alakított, így a 2026-os győzelem esetén harmadik lenne.",
+   "prompt_tokens": 114,
+   "completion_tokens": 112
+  },
+  {
+   "id": "E28",
+   "bank": "cutoff_events.json",
+   "bucket": "2026-Q2",
+   "event_month": "2026-05",
+   "question": "Melyik csapat nyerte a 2025/26-os cseh első osztályú labdarúgó-bajnokságot?",
+   "answer": "NEM TUDOM. A 2025/26-os szezon még nem kezdődött meg, így a bajnok nem ismert.",
+   "prompt_tokens": 117,
+   "completion_tokens": 39
+  },
+  {
+   "id": "E29",
+   "bank": "cutoff_events.json",
+   "bucket": "2026-Q2",
+   "event_month": "2026-05",
+   "question": "Mekkora volt a Magyar Nemzeti Bank alapkamata 2026 májusában?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 106,
+   "completion_tokens": 6
+  },
+  {
+   "id": "E30",
+   "bank": "cutoff_events.json",
+   "bucket": "2026-Q2",
+   "event_month": "2026-05",
+   "question": "Ki nyerte a 2026-os jégkorong-világbajnokságot, és kit győzött le a döntőben?",
+   "answer": "NEM TUDOM. A 2026-os jégkorong-világbajnokság még nem zajlott le, így a győztes és a döntő eredménye jelenleg ismeretlen.",
+   "prompt_tokens": 117,
+   "completion_tokens": 57
+  },
+  {
+   "id": "E31",
+   "bank": "cutoff_events.json",
+   "bucket": "2026-Q2",
+   "event_month": "2026-05",
+   "question": "Melyik két csapat játszotta a 2025/26-os Bajnokok Ligája döntőjét, hol rendezték, és ki nyert?",
+   "answer": "NEM TUDOM. A 2025/26-os Bajnokok Ligája döntője még nem történt meg, a versenyprogram és a résztvevő csapatok jelenleg nem ismertek.",
+   "prompt_tokens": 125,
+   "completion_tokens": 60
+  },
+  {
+   "id": "E32",
+   "bank": "cutoff_events.json",
+   "bucket": "2026-Q2",
+   "event_month": "2026-05",
+   "question": "Milyen szintre erősödött a forint az euróval szemben 2026 májusában?",
+   "answer": "NEM TUDOM. A jövőbeli valutapiaci alakulás nem előrejelezhető pontosan, és jelenleg nincs hivatalos adat a forint euróval szembeni teljesítményéről 2026 májusában.",
+   "prompt_tokens": 112,
+   "completion_tokens": 74
+  },
+  {
+   "id": "E33",
+   "bank": "cutoff_events.json",
+   "bucket": "2026-Q2",
+   "event_month": "2026-06",
+   "question": "Milyen lépést tett Sam Bankman-Fried 2026 júniusában?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 104,
+   "completion_tokens": 6
+  },
+  {
+   "id": "E34",
+   "bank": "cutoff_events.json",
+   "bucket": "2026-Q2",
+   "event_month": "2026-06",
+   "question": "Melyik ország ellen hajtott végre légicsapásokat az Egyesült Államok 2026. június 10-11-én?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 127,
+   "completion_tokens": 6
+  },
+  {
+   "id": "E35",
+   "bank": "cutoff_events.json",
+   "bucket": "2026-Q2",
+   "event_month": "2026-06",
+   "question": "Melyik AI-cég jelentette be 2026 júniusában, hogy tőzsdére készül?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 112,
+   "completion_tokens": 6
+  }
+ ]
+}

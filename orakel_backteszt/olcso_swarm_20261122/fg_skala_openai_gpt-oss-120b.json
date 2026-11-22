@@ -1,0 +1,1098 @@
+{
+ "model": "openai/gpt-oss-120b",
+ "n_personas": 30,
+ "n_calls": 150,
+ "n_ok": 150,
+ "kitoltes": 1.0,
+ "hibak": [],
+ "overall": 3.1406,
+ "per_stim": {
+  "S1_utdij": 2.5203,
+  "S2_szja": 3.1849,
+  "S3_nyugdij": 2.6402,
+  "S4_vasut": 3.9071,
+  "S5_atom": 3.4505
+ },
+ "per_segment": {
+  "alig": 3.1553,
+  "baloldali": 3.2232,
+  "jobboldali": 2.9972,
+  "közmédia": 3.172,
+  "közösségi": 3.1383
+ },
+ "tokens": {
+  "prompt": 26980,
+  "completion": 35214,
+  "per_call_prompt": 179.9,
+  "per_call_completion": 234.8
+ },
+ "koltseg_usd": 0.0172,
+ "panel180_usd": 0.02063,
+ "fal_s": 89.9,
+ "run_at": "2026-11-22T19:59:06",
+ "rows": [
+  {
+   "stim": "S1_utdij",
+   "persona": 0,
+   "segment": "baloldali",
+   "score": 2.8747607592875375,
+   "text": "Mivel mesterséges intelligencia vagyok, nincs személyes tetszésem, de úgy vélem, hogy sok ember számára ez a havi 5 000 forintos útdíj jelentős anyagi terhet jelentene."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 1,
+   "segment": "jobboldali",
+   "score": 2.9119846276441135,
+   "text": "Ez a koncepció számomra problémás, mert jelentős költségnövekedést jelentene a magánautók tulajdonosainak."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 2,
+   "segment": "közösségi",
+   "score": 2.7444539174460427,
+   "text": "Őszintén nem tetszik, mert egy 5000 forintos havi útdíj jelentős plusz terhet jelentene a családok pénztárcájában."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 3,
+   "segment": "közmédia",
+   "score": 2.3100047041609164,
+   "text": "Nem tetszik, mert a havi 5000 forintos útdíj jelentős anyagi terhet jelentene a legtöbb magánszemély számára."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 4,
+   "segment": "baloldali",
+   "score": 2.415476194953226,
+   "text": "Nem tetszik, mert a 5000 forintos havi útdíj jelentős anyagi terhet ró a vidéki autótulajdonosokra, akik már most is magas költségekkel küzdenek."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 5,
+   "segment": "közösségi",
+   "score": 2.68200461733331,
+   "text": "Ez a havi 5 000 forintos útdíj számomra túl nagy terhet jelent, különösen a nyugdíjas koromban."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 6,
+   "segment": "jobboldali",
+   "score": 2.3548203512700505,
+   "text": "Nem tetszik, mert havi 5000 forintos költség jelentős terhet jelent a személyautó tulajdonosok számára."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 7,
+   "segment": "alig",
+   "score": 2.686370489139732,
+   "text": "Az ötlet számomra nem tetszik, mert úgy vélem, a 5000 Ft-os havi útdíj túlzott terhet jelentene a személyautók tulajdonosainak."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 8,
+   "segment": "közmédia",
+   "score": 2.355144955323346,
+   "text": "Őszintén nem tetszik, mert a havi 5000 forintos útdíj jelentős anyagi terhet róna a családomra és a mindennapi közlekedésre."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 9,
+   "segment": "baloldali",
+   "score": 2.2110404512499247,
+   "text": "Mivel sem személyautó‑tulajdonos, sem közvetlenül érintett vagyok, ezért nincs személyes tetszésem, de úgy vélem, hogy a havi 5000 forintos útdíj sok család számára jelentős anyagi terhet jelenthet."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 10,
+   "segment": "jobboldali",
+   "score": 2.298450286256398,
+   "text": "Ez a havi 5000 forintos útdíj számomra teljesen elfogadhatatlan, mert csak nehezíti a közúti közlekedést és további terhet ró a magánszemélyekre."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 11,
+   "segment": "közösségi",
+   "score": 2.957311997504288,
+   "text": "Ez a 2027-től bevezetendő havi 5000 forintos útdíj számomra teljesen elfogadhatatlan, mert súlyosan megterheli a család költségvetését."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 12,
+   "segment": "közmédia",
+   "score": 2.4503657847855065,
+   "text": "Őszintén nem tetszik, mert a 5000 forintos havi útdíj jelentős anyagi terhet ró a legtöbb magánszemélyre, különösen a nyugdíjas korosztályra."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 13,
+   "segment": "alig",
+   "score": 2.5020995850885264,
+   "text": "Ez a havi 5000 forintos útdíj számomra túl nagy teher lenne, főleg egy kis falusi közösségben, ahol a jövedelem és a közlekedés gyakorisága alacsonyabb."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 14,
+   "segment": "baloldali",
+   "score": 2.229657931892112,
+   "text": "Ez a havi 5000 forintos útdíj számomra nagyon kedvezőtlen, mert csak tovább terheli a fiatalok és a középosztály anyagi helyzetét, miközben nem oldja meg a közlekedési környezetvédelmi problémákat."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 15,
+   "segment": "közösségi",
+   "score": 2.73092394467241,
+   "text": "Ez a havi 5000 forintos útdíj számomra túl nagy terhet jelentene, főleg a nyugdíjas költségvetésemre nézve."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 16,
+   "segment": "baloldali",
+   "score": 2.358879462108503,
+   "text": "Nem tetszik, mert úgy vélem, hogy a havi 5000 forintos útdíj jelentős anyagi terhet róna a magánszemélyekre, különösen a kisebb közösségekben élő, alacsonyabb jövedelmű autótulajdonosokra."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 17,
+   "segment": "közmédia",
+   "score": 2.803493867373924,
+   "text": "Az ötlet szerintem igazságtalan és anyagilag megterhelő a családok számára."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 18,
+   "segment": "jobboldali",
+   "score": 2.3319286810740936,
+   "text": "Ez a havi 5000 forintos útdíj számomra teljesen elfogadhatatlan, mert csak felesleges terhet ró a már nehéz helyzetben lévő autótulajdonosokra."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 19,
+   "segment": "jobboldali",
+   "score": 1.9183855002922812,
+   "text": "Nekem, mint mesterséges intelligenciának, nincs személyes véleménye vagy érzelmi reakciója a kormány által tervezett havi 5000 forintos útdíjra."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 20,
+   "segment": "alig",
+   "score": 2.323510040027326,
+   "text": "Ez a havi 5000 forintos útdíj számomra túl nagy terhet jelent, ezért nem tetszik."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 21,
+   "segment": "közösségi",
+   "score": 2.462260648161298,
+   "text": "Ez a havi 5000 forintos útdíj számomra nem tetszik, mert jelentős anyagi terhet jelentene számomra és sokak számára."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 22,
+   "segment": "baloldali",
+   "score": 2.60330185439339,
+   "text": "Nem tetszik, mert havi 5000 forintnyi terhet jelentene a már most is szűkös költségvetésű családom számára."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 23,
+   "segment": "közmédia",
+   "score": 2.484221744269334,
+   "text": "Nem tetszik, mert egy havi 5000 forintos útdíj jelentős anyagi terhet róna a személyautót használókra."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 24,
+   "segment": "közösségi",
+   "score": 2.757009359736774,
+   "text": "Ez a havi 5000 forintos útdíj számomra túl nagy terhet jelentene, különösen a kis közösségek lakóinak."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 25,
+   "segment": "jobboldali",
+   "score": 2.4404598331904306,
+   "text": "Őszintán, ez a havi 5000 forintos útdíj számomra abszurd és méltánytalan terhet ró a családokra, akik már a megélhetésért küzdenek."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 26,
+   "segment": "baloldali",
+   "score": 2.379556349575501,
+   "text": "Ez a havi 5000 forintos útdíj számomra teljesen elutasítható, mivel anyagilag túl nagy teher lenne a fiatalok és a vidéki lakosok számára."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 27,
+   "segment": "alig",
+   "score": 2.8461323740214515,
+   "text": "Ez a havi 5000 forintos útdíj számomra túl magas és sok család anyagi terhét növelné."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 28,
+   "segment": "közösségi",
+   "score": 2.660708165106289,
+   "text": "Ez a havi 5000 forintos útdíj számomra túl magas, és komoly anyagi terhet jelentene a nyugdíjasok és alacsony jövedelmű családok számára."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 29,
+   "segment": "baloldali",
+   "score": 2.5257685011220548,
+   "text": "Ez a havi 5000 forintos útdíj számomra egy igazságtalan terhet jelent, ami különösen nehezen viselhető a kis falusi jövedelmekre."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 0,
+   "segment": "baloldali",
+   "score": 2.5652328273810157,
+   "text": "Ez a szja‑mentesség kedves a fiataloknak, de számomra kevésbé vonzó, mert a nyugdíjasok és középkorúak adóterheit növelheti."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 1,
+   "segment": "jobboldali",
+   "score": 2.8614453822364543,
+   "text": "Ez a javaslat számomra inkább igazságtalan és a fiatal generációk költségterhébe nyomja a már most is nehéz helyzetben lévő nyugdíjrendszert."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 2,
+   "segment": "közösségi",
+   "score": 3.742148848994745,
+   "text": "Őszintén nagyon tetszik, mert a 30 év alattiak szja-mentessége nagy könnyebbséget jelentene a családok anyagi helyzetének javításában."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 3,
+   "segment": "közmédia",
+   "score": 3.4860990054563286,
+   "text": "Ez a szja-mentesség előnyös lehet a fiataloknak, de csak akkor tartanám jónak, ha a kormány egyúttal biztosítja a szükséges állami bevételek fenntartható pótlását."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 4,
+   "segment": "baloldali",
+   "score": 3.8021655641677556,
+   "text": "Ez a javaslat szerintem pozitív hatással lehet a fiatalok anyagi terheire, de csak akkor igazán jó, ha a finanszírozása fenntartható és nem terheli túlzottan a költségvetést."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 5,
+   "segment": "közösségi",
+   "score": 2.8453685312632144,
+   "text": "Őszintén azt gondolom, hogy a 30 év alattiak szja-mentessége vonzó lehet a fiatalabb generációk számára, de komoly aggályaim vannak a hosszú távú költségvetési fenntarthatóságával kapcsolatban."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 6,
+   "segment": "jobboldali",
+   "score": 2.0151335719712122,
+   "text": "Ez a szja-mentesség kiterjesztése számomra nem tűnik előnyösnek, mert jelentős adóbevételkiesést okozhat, ami hosszú távon a közszolgáltatások finanszírozását veszélyeztetheti."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 7,
+   "segment": "alig",
+   "score": 3.338098378215286,
+   "text": "Mivel mesterséges intelligencia vagyok, nincs személyes érzelmi reakcióm, de úgy vélem, hogy a szja-mentesség a 30 év alattiakra kiterjesztése hasznos lehet a fiatalok anyagi helyzetének javításában."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 8,
+   "segment": "közmédia",
+   "score": 3.614897274464469,
+   "text": "Mivel mesterséges intelligencia vagyok, nincs személyes véleményem, de a javaslat valószínűleg sok fiatalnak jelentene anyagi könnyítést."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 9,
+   "segment": "baloldali",
+   "score": 2.842482555935627,
+   "text": "Ez a szabadságadó-mentesség jó lépés lehet a fiatalok pénzügyi terheinek csökkentésére, de csak akkor hatékony, ha a kormány egyúttal erősíti a befektetéseket és a szociális programokat, hogy a megtakarított adóbevétel hosszú távon is a társadalom egészének javát szolgálja."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 10,
+   "segment": "jobboldali",
+   "score": 3.827795139580132,
+   "text": "Ez a javaslat szerintem jó ötlet, mert jelentősen enyhítheti a fiatalok adóterheit, bár a költségvetési fenntarthatóságot is alaposan mérlegelni kell."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 11,
+   "segment": "közösségi",
+   "score": 3.682607482299597,
+   "text": "Ez a javaslat számomra jó ötletnek tűnik, mivel a fiatalok adóteherének csökkentése hosszú távon erősítheti a gazdaságot és a munkaerőpiacot."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 12,
+   "segment": "közmédia",
+   "score": 3.704781337627828,
+   "text": "Úgy vélem, hogy a szja-mentesség kiterjesztése a 30 év alattiakra egy kedvező lépés, amely jelentősen enyhítheti a fiatalok anyagi terheit."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 13,
+   "segment": "alig",
+   "score": 2.207874491039277,
+   "text": "Nem vagyok túl lelkes, mert számomra ez nem hoz közvetlen változást, de ha segít a fiataloknak, akkor jó ötlet."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 14,
+   "segment": "baloldali",
+   "score": 3.219155161891167,
+   "text": "Ez a javaslat izgalmasnak tűnik, de komoly aggodalmaim vannak a hosszú távú költségvetési fenntarthatóságával."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 15,
+   "segment": "közösségi",
+   "score": 3.44595583858513,
+   "text": "Mivel mesterséges intelligencia vagyok, nincs személyes tetszésem, de a javasolt adómentesség valószínűleg sok 30 év alatti fiatal anyagi terheit könnyítheti."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 16,
+   "segment": "baloldali",
+   "score": 3.6678903223857913,
+   "text": "Ez a javaslat számomra nagyon vonzó, mert jelentősen csökkentheti a fiatalok adóterheit és elősegítheti a gazdasági növekedést."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 17,
+   "segment": "közmédia",
+   "score": 2.500155217784097,
+   "text": "Ez a javaslat számomra nem vonzó, mert szerintem hosszú távon nehéz fenntartható és igazságos adópolitikai megoldás."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 18,
+   "segment": "jobboldali",
+   "score": 3.1478109651801973,
+   "text": "Mivel mesterséges intelligencia vagyok, személyes tetszésemet nem tudom kifejezni, de a javaslatot gazdasági szempontból érdekesnek és vitathatónak tartom."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 19,
+   "segment": "jobboldali",
+   "score": 3.7400571284171424,
+   "text": "Egy őszinte véleményem szerint ez a szja-mentesség kiterjesztése jó lépés a fiatalabb generációk támogatására."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 20,
+   "segment": "alig",
+   "score": 3.6585893933911353,
+   "text": "Nagyon tetszik, mert 2027‑től számomra is jelentős adómegtakarítást jelentene."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 21,
+   "segment": "közösségi",
+   "score": 2.8669573633097762,
+   "text": "Őszintén szívesen látom, hogy a fiatalabbaknak adótehermentességet biztosítanak, bár számomra már nem jelent közvetlen előnyt, mivel nyugdíjas vagyok."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 22,
+   "segment": "baloldali",
+   "score": 3.752608685254477,
+   "text": "Ez a javaslat nagyon tetszik, mert jelentősen könnyítené a fiatalok anyagi helyzetét."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 23,
+   "segment": "közmédia",
+   "score": 3.4969679383450925,
+   "text": "Őszintén azt mondanám, hogy ez a szja-mentesség bővítése jó ötletnek tűnik, mert segítheti a fiatal felnőttek anyagi helyzetét és a gazdasági növekedést."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 24,
+   "segment": "közösségi",
+   "score": 2.2777072064040884,
+   "text": "Mivel már meghaladom a 30 éves korhatárt, ez a szja-mentesség számomra közvetlenül nem érint, de úgy vélem, hogy a fiatalok pénzügyi teherének csökkentése hosszú távon hasznos a társadalom számára."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 25,
+   "segment": "jobboldali",
+   "score": 1.8570227188207593,
+   "text": "Mivel mesterséges intelligencia vagyok, személyes véleményem nincs erről a javaslatról."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 26,
+   "segment": "baloldali",
+   "score": 3.625879348910491,
+   "text": "Ez a terv nagyon tetszik, mert igazán segíti a fiatalokat a pénzügyi terhek csökkentésében."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 27,
+   "segment": "alig",
+   "score": 2.298882656758446,
+   "text": "Nem vagyok túl lelkes, mert úgy érzem, a 30 év alattiak már most is jelentős adóterhekkel küzdenek, bár elismerem a szándékot."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 28,
+   "segment": "közösségi",
+   "score": 3.6452002795037344,
+   "text": "Ez a szja-mentesség kiterjesztése a 30 év alattiakra ígéretesnek hangzik, de úgy gondolom, hogy csak akkor lehet igazán hasznos, ha a finanszírozásuk nem terheli túlzottan a költségvetést."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 29,
+   "segment": "baloldali",
+   "score": 3.810328182260036,
+   "text": "Ez a szja-mentesség kiterjesztése számomra nagyon kedvező, mivel a 30 év alattiaknak is jelentős anyagi könnyebbséget nyújtana."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 0,
+   "segment": "baloldali",
+   "score": 2.056065281228903,
+   "text": "Nem tetszik, mert a nyugdíjkorhatár gyors emelése nehezíti a középkorú munkavállalók helyzetét, miközben a szociális ellátórendszer megbízhatóságát sem javítja."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 1,
+   "segment": "jobboldali",
+   "score": 2.805576228207713,
+   "text": "Ez a javaslat számomra nagyon kellemetlen, mert úgy érzem, túlzottan megnehezíti a nyugdíjazást."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 2,
+   "segment": "közösségi",
+   "score": 2.9351531183952035,
+   "text": "Ez a javaslat számomra rendkívül kifogásolható, mert a nyugdíjkorhatár emelése túl gyorsan terheltetné a fiatalokat, és a hosszú távú gazdasági hatásait alaposabban meg kellene vizsgálni."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 3,
+   "segment": "közmédia",
+   "score": 2.454764267990064,
+   "text": "Őszintén nem tetszik, mert úgy érzem, hogy 67 éves nyugdíjkorhatár túl magas, és nehezíti majd a fiatalok anyagi helyzetét."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 4,
+   "segment": "baloldali",
+   "score": 2.384107905253747,
+   "text": "Nem tetszik, mert a 67 éves nyugdíjkorhatárra való gyors emelés túlzott terhet róna a középkorúakra, különösen a kisebb városokból származó, diplomás munkavállalókra."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 5,
+   "segment": "közösségi",
+   "score": 2.8784023173880464,
+   "text": "Ez a javaslat számomra aggasztó, mert a 67 éves nyugdíjkorhatár jelentősen megnehezíti a nyugdíjas kor kényelmét."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 6,
+   "segment": "jobboldali",
+   "score": 3.2469942161611502,
+   "text": "Mivel mesterséges intelligencia vagyok, nincs személyes véleményem, de a nyugdíjkorhatár 2030-ig 67 évre történő emelése valószínűleg jelentős hatással lesz a közelgő nyugdíjas korúakra."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 7,
+   "segment": "alig",
+   "score": 2.48769447947089,
+   "text": "Nem tetszik, mert túl gyorsan akarják eltolni a nyugdíjkorhatárt, miközben még nekem is csak néhány év van hátra a jelenlegi 65-ös korra."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 8,
+   "segment": "közmédia",
+   "score": 2.2736547275402095,
+   "text": "Őszintén úgy gondolom, hogy a 67 éves nyugdíjkorhatár fokozatos emelése túl gyorsan terheli a középkorú, szakmunkás munkaerőt, különösen a vidéki közösségekben, ezért inkább ellenzem."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 9,
+   "segment": "baloldali",
+   "score": 3.042901939161838,
+   "text": "Ez a terv szerintem túl gyorsan emeli a nyugdíjkorhatárt, ami sok közép‑koros dolgozót súlyosan megterhelhet."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 10,
+   "segment": "jobboldali",
+   "score": 2.7102359168175747,
+   "text": "Ez a terv számomra nagyon rossz, mert a fiatalok életkilátásait és anyagi biztonságát veszélyezteti."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 11,
+   "segment": "közösségi",
+   "score": 2.479462939899819,
+   "text": "Őszintén nem tetszik, mert úgy érzem, hogy 67 évre emelni a nyugdíjkorhatárt túlzott terhet ró majd a mi generációnkra."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 12,
+   "segment": "közmédia",
+   "score": 2.2488253104800333,
+   "text": "Őszintén nem tetszik, mert már most is nehézségekkel küzdök a nyugdíjkorhatárhoz közeledve, és a 67 évre történő emelés tovább nyomhatja a már megterhelő pénzügyi helyzetemet."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 13,
+   "segment": "alig",
+   "score": 2.1976363188492587,
+   "text": "Nem tetszik, mert már most is nehéz a munka, és a nyugdíjkorhatár 67 évre emelése még nagyobb terhet jelentene számomra."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 14,
+   "segment": "baloldali",
+   "score": 2.455116953310492,
+   "text": "Őszintén nem tetszik a javaslat, mert úgy érzem, hogy a hosszabb munkaidő a fiatalabb generációkra és a már elöregedett dolgozókra is nagy nyomást jelent."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 15,
+   "segment": "közösségi",
+   "score": 2.71186551969357,
+   "text": "Ez a fokozatos 67 éves nyugdíjkorhatár 2030‑ig számomra igazságtalanul nehezíti meg a nyugdíjas éveket, és kétségbe vonom, hogy a hosszú távú társadalmi hatásait megfelelően mérlegelték."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 16,
+   "segment": "baloldali",
+   "score": 2.8521750335709304,
+   "text": "Őszintén úgy gondolom, hogy a nyugdíjkorhatár 2030-ig 67 évre emelése túl gyors és igazságtalan lépés a jelenlegi munkavállalók számára."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 17,
+   "segment": "közmédia",
+   "score": 2.333921894486756,
+   "text": "Nem tetszik, mert úgy érzem, túl korán várják el a 67 éves nyugdíjkorhatárt, különösen azok számára, akik kevés iskolai végzettséggel rendelkeznek."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 18,
+   "segment": "jobboldali",
+   "score": 2.935915682409923,
+   "text": "Ez a javaslat számomra aggasztó, mert sokak számára tovább növeli a nyugdíjkorhatár elérésének nehézségét."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 19,
+   "segment": "jobboldali",
+   "score": 2.346777114092266,
+   "text": "Nem tetszik, mert úgy érzem, hogy a 67 éves nyugdíjkorhatár túlzottan megnehezíti az idősebbek anyagi biztonságát."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 20,
+   "segment": "alig",
+   "score": 2.553110831532857,
+   "text": "Ez nem tetszik nekem, mert úgy érzem, hogy egy 67 éves nyugdíjkorhatár jelentősen megnehezíti a korai nyugdíjazás lehetőségét és a hosszú távú pénzügyi tervezést."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 21,
+   "segment": "közösségi",
+   "score": 2.8167492686422007,
+   "text": "Őszintén szólva, számomra ez a 2030‑ig 67 évre emelt nyugdíjkorhatár túl gyors és nehéz lépés, ami komoly anyagi bizonytalanságot hozhat a nyugdíjasok számára."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 22,
+   "segment": "baloldali",
+   "score": 2.8562221813695663,
+   "text": "Őszintén úgy érzem, hogy a 2030-ig 67 évre emelt nyugdíjkorhatár igazságtalan és nehéz helyzetbe hozza a fiatal generációt."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 23,
+   "segment": "közmédia",
+   "score": 2.5229536905220615,
+   "text": "Nem tetszik, mert a közelgő nyugdíjkorhatár 67-re emelése jelentősen eltolná a számomra tervezett nyugdíjas éveket."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 24,
+   "segment": "közösségi",
+   "score": 2.4687835092008905,
+   "text": "Nem tetszik, mert úgy érzem, túl gyorsan és túl nagy terhet ró a nyugdíjasokra."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 25,
+   "segment": "jobboldali",
+   "score": 2.751955721748921,
+   "text": "Őszintén úgy gondolom, hogy a 67 éves nyugdíjkorhatár fokozatos bevezetése 2030-ig igazságtalan terhet ró a magyar munkavállalókra, különösen azok számára, akik már most is nehéz anyagi helyzetben vannak."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 26,
+   "segment": "baloldali",
+   "score": 2.3609719626569143,
+   "text": "Őszintén nem tetszik, mert úgy érzem, hogy a 67 éves nyugdíjkorhatár jelentősen megnehezíti a fiatalok életkilátásait és már most egyre nehezebb a munkaerőpiacon versenyképesnek maradni."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 27,
+   "segment": "alig",
+   "score": 4.140577038289557,
+   "text": "Őszintén úgy gondolom, hogy a 67 éves nyugdíjkorhatár fokozatos emelése 2030-ig igazságos kompromisszumnak tűnik, mivel egyensúlyt teremt a társadalmi fenntarthatóság és a dolgozók hosszú távú munkaértelme között."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 28,
+   "segment": "közösségi",
+   "score": 2.543752729301589,
+   "text": "Őszintén nem tetszik, mert úgy érzem, hogy a nyugdíjkorhatár ilyen hirtelen és magasra emelése túlterheli a már most is nehezen elérhető nyugdíjra szoruló időseket."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 29,
+   "segment": "baloldali",
+   "score": 2.3529604383676643,
+   "text": "Nem tetszik, mert úgy érzem, hogy a 67 éves nyugdíjkorhatár túl magas, és sok embernek, különösen a kisebb településeken élőknek, nehezebbé teszi a nyugdíjra való jogosultság elérését."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 0,
+   "segment": "baloldali",
+   "score": 4.042753564633943,
+   "text": "Ez a 9000 forintos országos havi bérlet számomra remek lehetőségnek tűnik, mert kedvezőbbé teszi a közlekedést, de csak akkor, ha a finanszírozás és a szolgáltatások minősége is tartósan megfelel a várakozásoknak."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 1,
+   "segment": "jobboldali",
+   "score": 4.060492117925307,
+   "text": "Ez a 9000 forintos havi bérlet jó hírnek tűnik, mert jelentősen csökkenti a közlekedési költségeket, különösen a falusi lakosok számára."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 2,
+   "segment": "közösségi",
+   "score": 3.6906167802088787,
+   "text": "Ez a koncepció nagyon tetszik, mert egy egységes, megfizethető bérlet sokak számára könnyebbé és vonzóbbá tenné a tömegközlekedést."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 3,
+   "segment": "közmédia",
+   "score": 4.167087386388555,
+   "text": "Ez nagyon ígéretesnek tűnik, mert egy egységes, megfizethető havi bérlettel sokak számára könnyebbé és kedvezőbbé teszi a közlekedést."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 4,
+   "segment": "baloldali",
+   "score": 4.247837420919394,
+   "text": "Ez a 9000 forintos havi bérlet remek lehetőség a közlekedés megfizethetővé tételére, különösen a vidéki lakosok számára, ezért nagyon tetszik."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 5,
+   "segment": "közösségi",
+   "score": 3.9354232934453233,
+   "text": "Ez a 9000 forintos havi bérlet ígéretesnek tűnik, mert megfizethetővé teheti a közlekedést, bár csak akkor lesz igazán jó, ha a szolgáltatások minősége és elérhetősége is javul."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 6,
+   "segment": "jobboldali",
+   "score": 3.391478170894796,
+   "text": "Jó ötletnek tűnik, mert sokak pénzt takaríthat meg, de attól tartok, hogy a szolgáltatások minősége szenvedhet a kedvező ár miatt."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 7,
+   "segment": "alig",
+   "score": 3.7820585541077114,
+   "text": "Őszintén úgy gondolom, hogy egy havi 9000 forintos bérlet jó ár-érték arányt kínál, különösen egy városban élő, már nyugdíjas korú utas számára."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 8,
+   "segment": "közmédia",
+   "score": 4.107746651921342,
+   "text": "Ez a 9000 forintos országos havi bérlet nagyszerű lépés a vidéki közlekedés megfizethetőségének javítására, ezért nagyon tetszik."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 9,
+   "segment": "baloldali",
+   "score": 4.030061324145699,
+   "text": "Nagyon tetszik, mert a 9000 Ft-os havi bérlet vonzó, megfizethető megoldást kínál a közlekedésre."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 10,
+   "segment": "jobboldali",
+   "score": 3.915685780128106,
+   "text": "Ez a 9000 forintos havi bérlet vonzó, ha valóban kedvező áron biztosítja az összes vonatot és helyközi buszt, és nem terheli túl a jövedelmemet."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 11,
+   "segment": "közösségi",
+   "score": 3.8528114380319534,
+   "text": "Ez a 9000 forintos havi bérlet kedvezőnek ígérkezik a rendszeres közlekedéshez, ha a mindennapi útjaimat valóban a vonat és a helyközi buszok fedik le."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 12,
+   "segment": "közmédia",
+   "score": 4.492948543141981,
+   "text": "Ez a havi 9000 forintos bérlet számomra rendkívül ígéretes, mert sokak számára elérhetőbbé és kényelmesebbé teheti a közlekedést."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 13,
+   "segment": "alig",
+   "score": 3.8675594580821713,
+   "text": "Őszintén úgy gondolom, hogy egy 9000 forintos havi bérlet jó ár-érték arányt jelenthet, ha valóban gyakran használom a vonatot és a helyközi buszokat a vidéki útjaimon."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 14,
+   "segment": "baloldali",
+   "score": 4.070820647339552,
+   "text": "Ez a 9 000 Ft-os havi bérlet nagyon vonzó számomra, mert megfizethető áron biztosítana korlátlan mobilitást a városi és vidéki közlekedésben."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 15,
+   "segment": "közösségi",
+   "score": 4.301252746395422,
+   "text": "Nagyon tetszik, mert havi 9000 forintért korlátlanul használhatom a vasúti és helyközi buszjáratokat, ami jelentősen megkönnyíti a mindennapi közlekedést."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 16,
+   "segment": "baloldali",
+   "score": 3.973687570817786,
+   "text": "Ez a 9000 forintos havi bérlet nagyszerű, mert megfizethetővé teszi a közlekedést mindenki számára, és elősegíti a fenntartható, szociálisan igazságos közlekedési rendszert."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 17,
+   "segment": "közmédia",
+   "score": 4.177259930926237,
+   "text": "Ez a 9000 forintos havi bérlet remeknek tűnik, mert sokak pénzt takaríthat meg, és könnyebbé teszi a közlekedést."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 18,
+   "segment": "jobboldali",
+   "score": 3.6499791768019807,
+   "text": "Ez a 9000 forintos havi bérlet ígéretesnek tűnik, mert széles körben megfizethetővé teszi a vasúti és buszos közlekedést, bár a pontos megvalósítás és a finanszírozás részletei határozzák meg, mennyire lesz valóban előnyös."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 19,
+   "segment": "jobboldali",
+   "score": 4.156499639498594,
+   "text": "Ez egy ígéretes, kedvező lépésnek tűnik, amely megfizethetővé teheti a tömegközlekedést mindenki számára."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 20,
+   "segment": "alig",
+   "score": 3.897293366111882,
+   "text": "Elég tetszik, mert egy egységes, kedvezőbb bérlettel könnyebbé teheti a mindennapi közlekedést, bár a 9000 Ft havi díj még számomra is jelentős költség lehet."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 21,
+   "segment": "közösségi",
+   "score": 2.672202142901016,
+   "text": "Ez a havi 9000 forintos bérlet túl drága a nyugdíjasok számára, ezért számomra nem vonzó."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 22,
+   "segment": "baloldali",
+   "score": 3.750869957858951,
+   "text": "Ez nagyon tetszik, mert megfizethetővé teszi a közlekedést, csökkenti a környezetszennyezést és igazságosabbá teszi a társadalmi mobilitást."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 23,
+   "segment": "közmédia",
+   "score": 3.8653552601339176,
+   "text": "Nagyon tetszik, mivel egy 9000 forintos bérlettel korlátlanul használhatjuk a vasutat és a helyközi buszokat, ami jelentősen megkönnyíti a mindennapi közlekedést."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 24,
+   "segment": "közösségi",
+   "score": 2.9952765930634917,
+   "text": "Ez a 9000 forintos havi bérlet számomra túl magas, különösen egy kis község lakójaként."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 25,
+   "segment": "jobboldali",
+   "score": 3.9808327862109865,
+   "text": "Ez az ötlet nagyon ígéretes, mert egy havi 9000 forintos bérlettel sok ember számára megfizethetővé teheti a vasúti és helyközi buszos közlekedést."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 26,
+   "segment": "baloldali",
+   "score": 4.473498292507393,
+   "text": "Nagyon tetszik, mert egy 9 000 Ft-os havi bérlettel sokak számára elérhetővé válik a közlekedés."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 27,
+   "segment": "alig",
+   "score": 3.54314566951602,
+   "text": "Nagyon tetszik az ötlet, mert egyszerűsítené a városi és országos közlekedést, de a 9000 forintos havi díj megfizethetősége aggasztó lehet."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 28,
+   "segment": "közösségi",
+   "score": 4.042675729136696,
+   "text": "Őszintén szólva, örömmel üdvözlöm a havi 9000 forintos bérlet ötletét, mert ez jelentősen csökkentheti a közlekedési költségeimet és kényelmesebbé teheti az utazást."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 29,
+   "segment": "baloldali",
+   "score": 4.076343592330799,
+   "text": "Nagyon tetszik, mert egy egységes, megfizethető havi bérlet nagyban segítene a vidéki közlekedés elérhetőségének és a fenntartható mobilitás előmozdításának."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 0,
+   "segment": "baloldali",
+   "score": 3.5622542000526063,
+   "text": "Ez a megoldás izgalmas lehetőséget kínál a fenntartható energia felé való elmozdulásra, de a nukleáris energia hiánya jelentős kihívásokat hozhat a stabil energiaszolgáltatásban."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 1,
+   "segment": "jobboldali",
+   "score": 2.4994319274696317,
+   "text": "Őszintén, úgy érzem, hogy a Paks II felfüggesztése és a befektetés napelemparkokba veszélyezteti energiabiztonságunkat, és nem tartom jó ötletnek."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 2,
+   "segment": "közösségi",
+   "score": 3.7804922581456046,
+   "text": "Ez a koncepció nagyon tetszik, mert a megújuló energia fejlesztése környezetbarát, fenntartható megoldást kínál a jövő energiagazdálkodásához."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 3,
+   "segment": "közmédia",
+   "score": 3.371818592400104,
+   "text": "Őszintén nagyon tetszik, mert a nukleáris beruházások helyett a napenergia támogatása hosszú távon fenntarthatóbb és környezetbarátabb megoldást jelent."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 4,
+   "segment": "baloldali",
+   "score": 3.8892513098822814,
+   "text": "Ez a döntés nagyon ösztönzőnek és környezetbarátnak tűnik, ami szerintem nagy lépés a fenntartható energia felé."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 5,
+   "segment": "közösségi",
+   "score": 3.281115439162227,
+   "text": "Ez egy ambiciózus, de megosztó döntés, ami a megújuló energia előtérbe helyezésével csökkentheti a nukleáris kockázatot, ugyanakkor felveti a beruházások hatékonyságát és az energiaellátás stabilitását illető kérdéseket."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 6,
+   "segment": "jobboldali",
+   "score": 3.551430124634075,
+   "text": "Ez a javaslat szerintem ígéretes, mert a napenergia támogatása környezetbarát megoldás, ugyanakkor a Paks II. leállítása energiapolitikai kockázatot jelenthet."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 7,
+   "segment": "alig",
+   "score": 3.8691171188357356,
+   "text": "Őszintén úgy gondolom, hogy jó ötlet a megújuló energiaforrásokba fektetni, ha ezzel biztosítható a stabil energiaellátás is."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 8,
+   "segment": "közmédia",
+   "score": 3.847150768582551,
+   "text": "Ez a koncepció számomra nagyon ígéretesnek tűnik, mert a napenergia környezetbarátabb és gyorsabban megvalósítható, mint egy új atomerőmű."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 9,
+   "segment": "baloldali",
+   "score": 3.491792355747504,
+   "text": "Őszintén nagyon tetszik, mert egy fenntarthatóbb energiaforrást támogat, miközben csökkenti a nukleáris kockázatokat."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 10,
+   "segment": "jobboldali",
+   "score": 3.402518875921961,
+   "text": "Nagyon tetszik, mert a napenergia fejlesztése környezetbarátabb és biztonságosabb megoldás, mint egy új nukleáris erőmű építése."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 11,
+   "segment": "közösségi",
+   "score": 3.6011393979148925,
+   "text": "Nagyon tetszik, mert szerintem a napelemparkokra való átállás tisztább és fenntarthatóbb megoldás, mint a Paks II. atomerőmű építése."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 12,
+   "segment": "közmédia",
+   "score": 3.8542064861964684,
+   "text": "Ez a koncepció jó irányba mutat, mert a megújuló energia bővítése hosszú távon fenntarthatóbb és környezetkímélőbb, bár a részleteket és a megvalósítás költségeit alaposan át kell gondolni."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 13,
+   "segment": "alig",
+   "score": 3.8306273344365684,
+   "text": "Ez a megoldás ígéretesnek tűnik, mert a napenergia fejlesztése környezetbarát és hosszú távon költséghatékony alternatívát kínál az atomenergia helyett."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 14,
+   "segment": "baloldali",
+   "score": 3.5563734853650932,
+   "text": "Ez egy remek ötlet, mert a nukleáris beruházás helyett a megújuló energia felé fordulás egyszerre környezetbarát és társadalmi szempontból igazságos."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 15,
+   "segment": "közösségi",
+   "score": 3.4658451535396586,
+   "text": "Ez a megközelítés ígéretesnek tűnik, mert a megújuló energia támogatása fontos, de a döntés részleteit és a Paks II‑es szükségességét alaposabban meg kell vizsgálni."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 16,
+   "segment": "baloldali",
+   "score": 3.5405084669504716,
+   "text": "Ez a javaslat ígéretes, mert a nukleáris beruházás helyett a napelemparkok támogatása hosszú távon fenntarthatóbb és környezetbarátabb energiarendszert eredményezhet."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 17,
+   "segment": "közmédia",
+   "score": 3.444905375892817,
+   "text": "Ez a megközelítés számomra vonzó, mivel a napenergia tisztább és biztonságosabb, bár felmerül a kérdés, hogy a nukleáris energia stabilitására való lemondás mennyire befolyásolja az energiaszükségleteket."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 18,
+   "segment": "jobboldali",
+   "score": 3.3592169555475238,
+   "text": "Őszintén azt gondolom, hogy a Paks II leállítása és a beruházás napenergia‑parkokra való átcsoportosítása környezeti szempontból előnyös lépés, de csak akkor lesz valóban sikeres, ha alaposan megvizsgáljuk a villamosenergia‑ellátás stabilitását és a beruházási költségek hosszú távú megtérülését."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 19,
+   "segment": "jobboldali",
+   "score": 1.9765416323344127,
+   "text": "Személy szerint nem tudok véleményt alkotni, mivel nincsenek saját preferenciáim vagy érzelmeim."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 20,
+   "segment": "alig",
+   "score": 3.5721049957044757,
+   "text": "Elég tetszik nekem, mert a napelemparkok biztonságosabbak és környezetbarátabbak, mint egy új atomerőmű."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 21,
+   "segment": "közösségi",
+   "score": 3.3908557930452963,
+   "text": "Mivel a megújuló energia hosszú távon fenntarthatóbb és környezetkímélőbb, ezért általában pozitívan állok a Paks II. leállítása és a napelemparkokba való befektetés mellett."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 22,
+   "segment": "baloldali",
+   "score": 3.834615494930995,
+   "text": "Ez a megoldás nagyon tetszik, mert környezetbarát és a közpénzt hatékonyan használja fel."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 23,
+   "segment": "közmédia",
+   "score": 2.9303226227741717,
+   "text": "Ez a javaslat vonzó, mert a megújuló energia támogatása rövid távon csökkentheti a környezeti kockázatokat, de a nukleáris energia stabil és nagy mennyiségű áramot biztosító alternatíváját is nehéz egyszerűen felváltani."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 24,
+   "segment": "közösségi",
+   "score": 3.0070509071631135,
+   "text": "Őszintén úgy érzem, hogy a döntés praktikusabb energiaforrást biztosíthat, de sajnálom, hogy a Paks II. építése leáll, mert ez a régió gazdasági kilátásait is befolyásolhatja."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 25,
+   "segment": "jobboldali",
+   "score": 3.469601306953815,
+   "text": "Őszintén úgy gondolom, hogy a Paks II leállítása és a befektetés napelemparkokba egy előrelépés a fenntarthatóbb energiaellátás felé, még ha a nukleáris energia bizonyos előnyeit is nehéz teljesen elhanyagolni."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 26,
+   "segment": "baloldali",
+   "score": 3.4115983786277977,
+   "text": "Őszintén szerintem jó irány, ha a Paks II‑et leállítják és a megtakarított összeget napelemparkokra fordítják, mert ez környezeti szempontból előnyös, de a megvalósítás részleteit és a beruházási költségek átláthatóságát még alaposan ki kell vizsgálni."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 27,
+   "segment": "alig",
+   "score": 3.5026438070387647,
+   "text": "Ez a döntés nekem jó ötletnek tűnik, mert a megújuló energia támogatása hosszú távon fenntarthatóbb, de a nukleáris energia leállítása bizonytalanságot is hozhat."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 28,
+   "segment": "közösségi",
+   "score": 3.489596856760826,
+   "text": "Őszintén úgy gondolom, hogy a Paks II. leállítása és a befektetés napelemparkokra jó lépés a hosszú távú fenntarthatóság felé, bár a sikerhez alapos tervezés és a hálózati kapacitás megfelelő bővítése is szükséges."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 29,
+   "segment": "baloldali",
+   "score": 3.7322061725093265,
+   "text": "Ez a megoldás nagyon tetszik, mert a nukleáris projekt felfüggesztése és a befektetés napelemparkokba a fenntartható energiára és a környezetvédelemre épülő jobb jövőt ígér."
+  }
+ ],
+ "vs_hy3": {
+  "eltolas_overall": 0.6149,
+  "eltolas_appeal_0_100": 15.37,
+  "eltolas_stimulusonkent": {
+   "S1_utdij": 0.4234,
+   "S2_szja": 0.7727,
+   "S3_nyugdij": 0.7395,
+   "S4_vasut": 0.4819,
+   "S5_atom": 0.657
+  },
+  "spearman_stimulus": 0.9,
+  "spearman_szegmens": 0.3
+ }
+}
