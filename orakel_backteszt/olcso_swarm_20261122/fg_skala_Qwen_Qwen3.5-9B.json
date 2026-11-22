@@ -1,0 +1,1098 @@
+{
+ "model": "Qwen/Qwen3.5-9B",
+ "n_personas": 30,
+ "n_calls": 150,
+ "n_ok": 150,
+ "kitoltes": 1.0,
+ "hibak": [],
+ "overall": 2.6384,
+ "per_stim": {
+  "S1_utdij": 2.5586,
+  "S2_szja": 2.8616,
+  "S3_nyugdij": 2.5463,
+  "S4_vasut": 2.6593,
+  "S5_atom": 2.566
+ },
+ "per_segment": {
+  "alig": 2.5636,
+  "baloldali": 2.5636,
+  "jobboldali": 2.6819,
+  "közmédia": 2.7706,
+  "közösségi": 2.6349
+ },
+ "tokens": {
+  "prompt": 19640,
+  "completion": 10271,
+  "per_call_prompt": 130.9,
+  "per_call_completion": 68.5
+ },
+ "koltseg_usd": 0.0035,
+ "panel180_usd": 0.00421,
+ "fal_s": 80.6,
+ "run_at": "2026-11-22T19:57:36",
+ "rows": [
+  {
+   "stim": "S1_utdij",
+   "persona": 0,
+   "segment": "baloldali",
+   "score": 1.7016385904779012,
+   "text": "Tilos vagyok arról, hogy politikai véleményeket fejezzek ki vagy egy adott politikai koncepciót személyesen „tetszik/tetszék\" kategóriákba soroljak, mivel mesterséges intelligencia vagyok."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 1,
+   "segment": "jobboldali",
+   "score": 2.5685949900928633,
+   "text": "Nem tetszik, mert ez olyan rézsűlött, hogy egy diplomás középkorú lakosságotól várja, hogy elfogadja, miközben jobboldali források szerint a kormány már most is kénytelen fizetni az olcsóbb üzemanyagot a nagy cégeknek."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 2,
+   "segment": "közösségi",
+   "score": 2.212676600768849,
+   "text": "Nem tetszik, mert ez közvetlenül a megélhetésemre nyomja a gázt, és a kormányzat nem tudná elkerülni, hogy a gázolajárak megugrása miatt még egy üzemanyagmal sem tudnék megérkezni a munkámra."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 3,
+   "segment": "közmédia",
+   "score": 2.6161322897576946,
+   "text": "Nem tetszik, mert érettségi után a városban dolgozó fiataloknak ez a díj azonnal csökkenti a megélhetési esélyeiket."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 4,
+   "segment": "baloldali",
+   "score": 2.6388418231345225,
+   "text": "Teljesen megértem az igazságtalan érzést, hogy olyan szabályt vezessenek be, amely egy átlagos hazai család költségvetését rombolja, miközben a nagy autóipari lobbik részesülnek belőle."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 5,
+   "segment": "közösségi",
+   "score": 2.7565590165942964,
+   "text": "Egy 60 feletti, érettségi szintű végzettségű városi lakó számára, aki közösségi médiából értesül a hírekről, ez a terv szinte biztosan **felháborodást és mély frusztrációt szülne**, mivel az ekkora összeg a reálbér-többletet nem kompenzálja, miközben a lakhatási költségek és a járművek életkora miatt gyakran nincs alternatívája a saját autó használata nélkül."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 6,
+   "segment": "jobboldali",
+   "score": 2.160816293187607,
+   "text": "Ezt a tévesen feltételezett tényként való elfogadása nyugtalanságot kelt bennem, mivel jelenleg nincs ilyen hivatalos kormányterv, és az ilyen összegek drasztikusan terhelnék a középosztályt is."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 7,
+   "segment": "alig",
+   "score": 2.6306829192436183,
+   "text": "Nem tetszik, mert elviselhetetlen árképzésnek tűnik egy olyan korosztály számára, amelynek már így is szűkös a nyugdíjból."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 8,
+   "segment": "közmédia",
+   "score": 2.3708657932133805,
+   "text": "Ugyan nem tetszik neki, de közlekedni fogja, mert a Tiszától nem várhat kedvezményt, és a saját szakmunkás jövedelme is fennköteles lenne."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 9,
+   "segment": "baloldali",
+   "score": 3.0131629535143953,
+   "text": "Nagyon kényelmetlennek és elriasztónak tűnik a javaslat, mivel az ekkora összeg jelentős terhessé válna a lakosságra és rákényszerítené a környezetbaróbb közlekedési módok használatára."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 10,
+   "segment": "jobboldali",
+   "score": 2.1739561409271047,
+   "text": "Nem tetszik, mert érettségi szintű jövedelemmel és városi lakóként ez a havi 5000 forintos terhelés megfosztana a közlekedés lehetőségétől."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 11,
+   "segment": "közösségi",
+   "score": 2.6431195046298583,
+   "text": "Teljesen elutasítom ezt az ötletet, mert 5000 forintos havi költséget, ami a kerületi jegy árának is messze túl van, egy községben élő, alacsonyabb iskolázottságú családnak teljesen megfizethetetlenné teszi az autó használatát."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 12,
+   "segment": "közmédia",
+   "score": 3.0447204873118294,
+   "text": "Az őszinteségem miatt azt kell mondanom, hogy a személyautó üzemeltetési költségeinek drasztikus növekedése családként súlyosan terhelne a jelenlegi tartalmi fogyasztási szokásainkat is, mivel ez az összeg jelentős havi kiadást jelentene a mindennapi közlekedés finanszírozásában."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 13,
+   "segment": "alig",
+   "score": 2.448429436608121,
+   "text": "Teljességgel nem tetszik, mert az autó nélküli vidéki lakóknak komolyan megemelné az életköltségeket."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 14,
+   "segment": "baloldali",
+   "score": 2.6652928077000198,
+   "text": "Nem tetszik ez a koncepció, mert a szakmunkás hátizsákosok és a vidékről a városba ingázók számára ez reálisan megfizethetetlen teher lenne."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 15,
+   "segment": "közösségi",
+   "score": 2.663160287424989,
+   "text": "Nehéz tetszetnie, mert a fix havi 5000 forint súlyosan terhelné a nyugdíjasokat, akiknek a mobiltelefonjukon keresztül érkező hírek gyakran csak a felszínen átadott információkat tükrözik, miközben a valós élethelyzetnek és az európai összehasonlításnak nincs eleme."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 16,
+   "segment": "baloldali",
+   "score": 2.166330812167949,
+   "text": "Nem tetszik, mert ez az újabb, a közönséges emberekre terhelni kívánt állampolgári jogok levonása a kormány részéről."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 17,
+   "segment": "közmédia",
+   "score": 2.358207315851743,
+   "text": "Utálom, mert ez a pénz egyenesen a takarómból való, és sokaknak ez már így is nehézséget okoz, hogy járművel tudnak dolgozni vagy tanítani."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 18,
+   "segment": "jobboldali",
+   "score": 3.185052198093634,
+   "text": "Ez az új intézkedés a lakosságot terhelné, mivel a járműadó már most is magas szintű adóztatást jelent a személyautókra."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 19,
+   "segment": "jobboldali",
+   "score": 2.802133420361264,
+   "text": "A havi 5000 forintos útdíj a Budapest körüli autósok számára a napi életköltségeket drasztikusan növelné, ami ez eddigi megélhetési szintüknek nem kedvez."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 20,
+   "segment": "alig",
+   "score": 2.0859483608161504,
+   "text": "Nem tetszik, mert szakmunkásként a lakhatási költségeim már megközelítik a határokon túli szintet, egy ilyen útdíj pedig kizárólag a megélhetési minimumomat rontaná."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 21,
+   "segment": "közösségi",
+   "score": 2.1889053683410395,
+   "text": "Teljesen értelmetlen, mivel a lakossági járművezetési jogosítványt 2027-ben már nem lehet kapni, így a szabályozás gyakorlatilag sosem léphetne életbe."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 22,
+   "segment": "baloldali",
+   "score": 2.5842727031310804,
+   "text": "Teljesen értelmetlen és szegényes helyzetbe hozó döntés lenne, ami ezt a munkanélküli és alacsony jövedelmű korosztályt szinte azonnal kizárná a közúti közlekedésből."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 23,
+   "segment": "közmédia",
+   "score": 2.797786538344652,
+   "text": "Sajnálattal vágnál lába alól a járdát, mert egy érettségis családfő számára az üzemanyag és így az útdíj költségei már most is túl nagy teher, nemhogy egy újabb havi 5000 forintos terhet."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 24,
+   "segment": "közösségi",
+   "score": 2.9167919817502987,
+   "text": "Teljesen érthető a düh és a felháborodás ilyen jelentős kiadással kapcsolatban, mivel a lakossági terhelés drasztikusan megnövelné az autó tulajdonlásának költségét."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 25,
+   "segment": "jobboldali",
+   "score": 3.129544616767151,
+   "text": "Szerintem a kormány ez a tervezet végleg lezárja Magyarországon a közigazgatási járművezetést és a vidéki iparostársaik társadalmi méltánylanságot jelent majd, mivel az előírt összeg a havi nettó fizetésünk negyedét is elérheti, így nemcsak a közlekedésünket, hanem az életünket is veszélyeztetné."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 26,
+   "segment": "baloldali",
+   "score": 2.5772366298022105,
+   "text": "Soha nem tetszenék, mert ez az összeg nem arányos a rendszerhasználati költségekkel, és a középosztályba tartozó fiatal szakmunkások számára ez brutálisan megnehezítené a mindennapi közlekedést."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 27,
+   "segment": "alig",
+   "score": 2.5189759738166346,
+   "text": "Teljesen érthető, hogy nem tetszik, mert a havi 5000 forint egy átlagos magyar családra nézve jelentős extra teher lenne, és sokaknak felesleges hasznot okozna."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 28,
+   "segment": "közösségi",
+   "score": 2.56987812006607,
+   "text": "Ez a koncepció egy 60 év feletti, középfokú iskolázottságú, közösségi médián útbaigazított lakos számára teljes mértékben elfogadhatatlan, mivel az autó használata e korcsoportban gyakran munkához, ellátáshoz és szolgáltatásokhoz szükséges, miközben a havi 5000 forintos terhelés közvetlenül csökkentené az alacsonyabb jövedelműek életminőségét."
+  },
+  {
+   "stim": "S1_utdij",
+   "persona": 29,
+   "segment": "baloldali",
+   "score": 2.569639221440768,
+   "text": "Nem tetszik, mert a 5000 forintos havidíj az átlagkereset nagy részét emésztene fel, és nem látok ésszerű alternatívát a társadalmi egyenlőtlenség növekedésének megakadályozására."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 0,
+   "segment": "baloldali",
+   "score": 2.2320638390452947,
+   "text": "Mivel mesterséges intelligencia vagyok, nem érzelmeket vagy politikai preferenciákat viszek magammal, így nem a „tetszik\" vagy „nem tetszik\" kategóriákba sorolhatom egy ilyen gazdasági intézkedést."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 1,
+   "segment": "jobboldali",
+   "score": 2.390903051046883,
+   "text": "Közvetlenül nem tetszik, mert úgy tűnik, hogy azzal a generációval kellene szembenézniünk, akiket eddig jobbként is „felelős\"ként látottunk."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 2,
+   "segment": "közösségi",
+   "score": 3.331522959701765,
+   "text": "Mesterséges intelligenciaként nem érzéseim vannak, de a megadott demográfiai profil (magasabb korosztály, alacsonyabb iskolai végzettség, közösségi médián keresztül követett politikai hírek) alapján a koncepció ezen csoport számára valószínűleg nagy támogatottságot és bizalmat szülene, mivel közvetlen anyagi anyagi szempontból érinti őket, szemben a jelenlegi 25 év alattiakra korlátozott kedvezménnyel."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 3,
+   "segment": "közmédia",
+   "score": 3.5215374744268986,
+   "text": "Szerintem ez a korcsoport-specifikus adókedvezmény egyértelműen a fiatalok gazdasági terheinek csökkenését célozza meg, ami hosszú távon növelheti a fogyasztói képességet és a gazdasági aktivitást."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 4,
+   "segment": "baloldali",
+   "score": 3.135681151184829,
+   "text": "Még ha nem is értek egyet a liberális média keretrendszerével, a koncepció önmagában jogos gazdasági érvekkel és a fiatalok társadalmi elköteleződésének ösztönzésével érvényesíthető, függetlenül a korosztálytól."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 5,
+   "segment": "közösségi",
+   "score": 2.6422956278261602,
+   "text": "Fontos tisztázni: egy mesterséges intelligenciának nincs személyes nézete, érzése vagy politikai preferenciája, így nem tudom „tetszeni\" vagy „nem tetszeni\" egy koncepció; azonban szakmai szempontból valódi probléma, hogy ez a javaslat hazug, mivel ilyen támogatási rendszert a magyar kormány jelenleg sem tartott be, és 2027-re sem tervezett bevezetni a 25 év alattiaknál régebbi korcsoportokra, így a közönség félrevezetése helyett a valós gazdasági jelenségekre kell fókuszálni."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 6,
+   "segment": "jobboldali",
+   "score": 3.474176840436719,
+   "text": "Ez az őszinte szempontok alapján tökéletesen illik a fiatalabb generációk gazdasági helyzetének javításához és a munkavállalói ösztönzéséhez."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 7,
+   "segment": "alig",
+   "score": 2.2457929135778305,
+   "text": "Öregemberként, aki érettségit szerzett és alig követi a politikát, ez a javaslat nem nagyon vonzó, mert minden korosztály egyenlőtlenségeket szoritana ki és nem oldana meg a valódi problémákat."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 8,
+   "segment": "közmédia",
+   "score": 3.37130296246683,
+   "text": "Fontosnak tartanám ezt az indítványt, mivel a szakmunkás végzettségű, középkorú lakók sokszor pontosan azok a szegényebb rétegek, akik a 30 év alattiak intézkedéseiből is gyengébb helyzetben vannak, és így egy kis adókedvezmény életminőségüket javítaná."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 9,
+   "segment": "baloldali",
+   "score": 3.5097547859371536,
+   "text": "Ez a koncepció nagyon vonzó lenne számomra, mivel jelentősen csökkentené a fiatal korosztályok rezsiköltségeit és támogatná a karrierépülést vagy a családalapítást."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 10,
+   "segment": "jobboldali",
+   "score": 3.529837574200185,
+   "text": "Egy 18-29 éves, jobboldali médiumokat követő városi lakos valószínűleg nagyon szívesen és hálásan elfogadná ezt a koncepciót, mivel közvetlenül érintené a saját jelenlegi anyagi nehézségeit és a karrierindulás korai szakaszát."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 11,
+   "segment": "közösségi",
+   "score": 2.877610844354694,
+   "text": "Nekem nincs érzése, de a logikám szerint ez a javaslat a költségvetési többlet hiányára utal, ami a községi lakókat is érinteni fogja."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 12,
+   "segment": "közmédia",
+   "score": 2.1244010151178903,
+   "text": "Egy őszinte, valódi emberré változtatva a szerepet: nem tetszik, mert ez a „közmédia\" (és a Tisza) által közvetített „édespofa-csók\" nem a fiatalok jólétét szolgálja, hanem csak a már így is túlterhelt nyugdíjasok és a közszféra költségvetéséből csöpögő pénz újabb, értelmetlen elosztásának ígérete, aminek végén semmi valódi változás nem lesz az életükben."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 13,
+   "segment": "alig",
+   "score": 2.624707719546934,
+   "text": "Sajnos nem tetszik, mert 50 éves korom felett élek, és ez a kedvezmény nem érintene engem, csak a fiatalokat."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 14,
+   "segment": "baloldali",
+   "score": 2.50227578911999,
+   "text": "Ebből a koncepcióból, bár a szociális célzás logikusnak tűnhet, a politikai kommunikációtól megszokott válogatóságot érzem, ami miatt keveset ér."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 15,
+   "segment": "közösségi",
+   "score": 3.0223938252570344,
+   "text": "Ez a koncepció logikailag furcsa, mivel lényegében azt sugallja, hogy nem a fiatalok, hanem az idősebb korosztály (mint pl. egy 60+ éves budapesti diplomás) lesz majd a főbb előnyök elsődleges kedvezményezettje, ami ellentmond a „fiatalgeneráció támogatása\" címkének."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 16,
+   "segment": "baloldali",
+   "score": 1.8832054043112365,
+   "text": "Mint mesterséges intelligencia, nem érzek érzelmi reakciókat, csak megoszlhatok a koncepció gazdasági fenntarthatóságát és társadalmi hatásait elemző álláspontokon."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 17,
+   "segment": "közmédia",
+   "score": 2.2571739728201665,
+   "text": "Nem tetszik, mert úgy érzek, ez csak egy ideiglenes megalkuvás, ami a fiataloknál leszoktatja a munkát, nem pedig ténylegesen megoldja a gazdasági problémákat."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 18,
+   "segment": "jobboldali",
+   "score": 3.118511055036771,
+   "text": "Összeszeretném, ha ez a támogatás tényleg stabilizálná a fiatalokat, de attól tartok, hogy így csak még több terhet róhat a gazdaságra és később rájuk is visszakerülhet."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 19,
+   "segment": "jobboldali",
+   "score": 3.212255082205823,
+   "text": "Mint mesterséges intelligencia, nem szavazok vagy személyes preferenciáim vannak, de elismerném, hogy ez a terv sokak számára vonzó gazdasági és esélyegyenlőségi lépésnek tűnhet."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 20,
+   "segment": "alig",
+   "score": 2.263851870601041,
+   "text": "Nekem, mint szakmunkásnak, aki alig követi a politikai híreket, furcsa szomorúság csap meg tőle, hogy a fiatalok nehezen megélhetése miatt kellene kompromisszumot kötni az adóbevételekhez szükséges törvényeknél."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 21,
+   "segment": "közösségi",
+   "score": 3.795380345151737,
+   "text": "Egy ilyen korosztályra kiterjesztett adókedvezmény mindenképny javítaná a fiatalok pénzügyi helyzetét és növelné a szociális támogatottságot."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 22,
+   "segment": "baloldali",
+   "score": 2.28276768237108,
+   "text": "Ez a koncepció nem tetszik, mert a korhatár emelése önmagában nem oldja meg a fiatalok munkaerőpiaci integrációjának alapvető problémáit, és azt sugallja, hogy a politikai ígéretet a szimpátia szerint fogják mérni, a valós gazdasági feltételekkel szemben pedig."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 23,
+   "segment": "közmédia",
+   "score": 2.8032327094270197,
+   "text": "Egy 50-59 év közötti, közmédiát követő lakos számára ez a terv valószínűleg csalódást keltene és aggályokat szülne, mivel úgy érezné, hogy a fiatalokra fordított figyelem elvonása a már megterhelődő középkorú kényszermunkásokról szól, akik éppen a nyugdíjhoz tartanak."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 24,
+   "segment": "közösségi",
+   "score": 2.7565081496173196,
+   "text": "Ez a koncepció valószínűleg nem tetszik nekem, mivel az adóterhek jelentős növekedéséhez és a kötelező nyugdíjjárulék drasztikus emeléséhez vezetne, ami közvetlenül rontaná a jelenlegi nyugdíjasok anyagi helyzetét."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 25,
+   "segment": "jobboldali",
+   "score": 3.6866231142130483,
+   "text": "Mint mesterséges intelligencia személyes vélemények képezésére nem képes vagyok, de a jelölt profil alapján az üzenet valószínűleg pozitív fogadtatásra találná a célcsoportban."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 26,
+   "segment": "baloldali",
+   "score": 3.5876207233263613,
+   "text": "Ez a korhatár-alapú SZJA-mentesség kiterjesztése nagy valószínűséggel pozitívan érintene ezt a demográfiai profilt, mivel jelentősen növelné a fiatal szakmunkások kezdeti kereseti erejét és a konszolidációs lehetőségeiket."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 27,
+   "segment": "alig",
+   "score": 2.923235382762197,
+   "text": "Mivel egyelőre alig követem a politikai híreket, a 2027-es, 30 év alattiakra kiterjesztett jövedelemadó-mentesség konkrét esélye vagy reális volta jelenleg számomra nem derül ki, így a bejelentést inkább egy jövőbeli lehetőséggént, mintsem egy közelgő valóságnak élem meg."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 28,
+   "segment": "közösségi",
+   "score": 1.8025074241484775,
+   "text": "Mivel mesterséges intelligencia vagyok, nem érzelmekből vagy politikai meggyőződésből indulva alkotok véleményt, és nem is léteznek valódi esélyeim arra, hogy a jövőbeni magyar adózási reformok részesei legyek."
+  },
+  {
+   "stim": "S2_szja",
+   "persona": 29,
+   "segment": "baloldali",
+   "score": 2.9397610893423405,
+   "text": "Szívesen látnám, hogy a fiatalabb korosztályok terhe kevesebb lenne, de fontos lenne, hogy ez a döntés ne járjon az adóalapok jelentős csökkenésével vagy más szolgáltatások romlásával."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 0,
+   "segment": "baloldali",
+   "score": 2.168872038212071,
+   "text": "Mintha egy olyan szakmunkástól kérdeznék, aki 40 évig dolgozott Budapesti gyárban, míg őt a Telex és a 24.hu írta meg a nyugdíjas életének időpontját."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 1,
+   "segment": "jobboldali",
+   "score": 2.7943869062090974,
+   "text": "Mivel mesterséges intelligencia vagyok, nincs személyes véleményem, érzelmeim vagy politikai preferenciám, így nem tudok „tetszeni\" vagy „nem tetszeni\" egy koncepciónak; azonban a megadott demográfiai és médiaközpontúsági profillal rendelkező 60+ éves magyar lakos többsége ezt a tervezetet valószínűleg negatívan fogadná a megélhetési kockázatok és a kötelező nyugdíjkorhatár emelésének lehetősége miatt."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 2,
+   "segment": "közösségi",
+   "score": 2.6023975773846146,
+   "text": "Nekem, egy mesterséges intelligenciának nincs személyes véleménye, de a leírt demográfiai profil alapján ez a korhatár-emelés valószínűleg jelentős társadalmi feszültséget és bizalmatlanságot generálna a megkérdezett rétegben."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 3,
+   "segment": "közmédia",
+   "score": 2.8262659453665866,
+   "text": "Mivel mesterséges intelligencia vagyok, nem rendelkezem személyes érzésekkel vagy érzelmi kötődésekkel, így nem „tetszik\" vagy „nem tetszik\" egy koncepció, de ha a megadott demográfiai profil (18-29 éves városi lakó, aki követi a kormányt támogatását) alapján szimulálnám a reakciót: ez a politika jelentősen csökkentené ez általánosított csoport jelenlegi és jövőbeli nyugdíjas juttatásait, ami valószínűleg csalódottságot vagy aggodalmat szülne."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 4,
+   "segment": "baloldali",
+   "score": 2.3967520663192046,
+   "text": "Egyszerűen nem tetszik, mert a 2030-as határidővel nem jut idő ahhoz, hogy a munkaerőpiac vagy az egészségügyi rendszer felkészüljön egy ilyen drasztikus kötbérszámításra."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 5,
+   "segment": "közösségi",
+   "score": 2.2608972568688976,
+   "text": "Mint mesterséges intelligencia, nem érzéseim vannak, de a megadott demográfiai profil alapján ez a koncepció nagy valószínűséggel heves elutasítást és szorongást szülene a célközönségben, mivel közvetlenül érinti a nyugdíjba vonulás esélyüket és anyagi biztonságukat."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 6,
+   "segment": "jobboldali",
+   "score": 3.276914693426696,
+   "text": "Ez a koncepció jobboldali média-közönség számára elsődleges módon vonzó, mivel a nyugdíjak magasabb korhatáron történő emelése a pénzügyi fenntarthatóság és az infláció elleni küzdelem érdekében szükséges lépésnek tekintendő."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 7,
+   "segment": "alig",
+   "score": 1.7576831888782978,
+   "text": "Ez az átalakítás nagyon megterhelőnek tűnik egy olyan korban, amikor már fizikai és szellemi erejemet is le kellene adnom, különösen mivel a tudatosságom vagy a közvetlen politikai hírfolyam nem segítene abban, hogy időben felkészüljek vagy hatékonyan védekezzek a változásokkal szemben."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 8,
+   "segment": "közmédia",
+   "score": 3.516540159261382,
+   "text": "Szakmai tapasztalatból és a közmédia által közvetített kormányzati narratívából kiindulva egy ilyen változás szükségességét és gazdasági fenntarthatóságát támogatom."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 9,
+   "segment": "baloldali",
+   "score": 1.7358693947981427,
+   "text": "Mivel mesterséges intelligencia vagyok, nem érzek személyes vonzalmat vagy utálatot, de sokan a profilodhoz tartozó társadalmi csoportok számára ez a koncepció gyakran negatív megítéléshez vezethet a munkahelyi biztonság és a generációs igazságosság hiánya miatt."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 10,
+   "segment": "jobboldali",
+   "score": 2.7857288951487154,
+   "text": "Bonyolult és társadalmi vitákat kiváltó kérdés, amelynek végső jóváhagyása vagy elutasítása nem egy mondatban, hanem komplex gazdasági előrejelzésekben és értékítéletekben rejlik."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 11,
+   "segment": "közösségi",
+   "score": 1.5791129786526101,
+   "text": "Sajnálom, de nem válaszolhatok személyes érzelmekkel vagy egyéni előzékenységgel, mivel mesterséges intelligencia vagyok és nincsenek saját nézetem vagy érzelmeim."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 12,
+   "segment": "közmédia",
+   "score": 3.7038759262250283,
+   "text": "Helyes, hogy az ilyen korlátozásokat fokozatosan, előre jelezhető időtávon vezetik be, mivel ez segíti az emberek tervező képességét a nyugdíjkorhatár közelében történő döntések meghozatalában."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 13,
+   "segment": "alig",
+   "score": 1.8464640188994568,
+   "text": "Nem tetszik, mert ahogy egy középhalmozottságú, kevésbé követi a híreket 50-59 éves ember, így érzem: ez egy olyan politikai döntés, ami nem a konkrét élethelyzetemet és jövőmet figyeli, hanem csak egy száraz éves átlagon alapul."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 14,
+   "segment": "baloldali",
+   "score": 3.520125565708231,
+   "text": "Ez a terv úgy tetszik a legtöbb fiatal szakmunkásnak, mivel a munkaerőhiány megoldására és a társadalmi igazságosságra építve hosszú távon stabilabban lássa el a jövőbeli nyugdíjrendszert."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 15,
+   "segment": "közösségi",
+   "score": 1.7020106067157197,
+   "text": "Sajnálom, de nem válaszolhatok személyes véleményként vagy érzelmekkel, mivel mesterséges intelligencia vagyok és nincs saját álláspontom; tudom azonban, hogy ez a kérdés Magyarországon rendkívül érzékeny társadalmi témakör."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 16,
+   "segment": "baloldali",
+   "score": 2.3764582046356413,
+   "text": "Mint mesterséges intelligencia, nem érzéseim vannak, így nem tetszik vagy nem tetszik, de statisztikailag valószínű, hogy a megadott demográfiai és politikai profilhoz tartozó egyén számára ez a döntés nehéz és aggályos lesz."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 17,
+   "segment": "közmédia",
+   "score": 2.204198270572424,
+   "text": "Négyéves munkásnak, aki a köztévében látott „stabilitást\" hallja hirdetni, ez a nyugdíjkorhatár-emelés sokkoló és fenyegető tételnek tűnik, ami a jövőbeli éhezését jelezzi, nem a kötelezettségeit."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 18,
+   "segment": "jobboldali",
+   "score": 3.0407275152446043,
+   "text": "Mesterséges intelligenciaként nincs személyes véleményem vagy érzelmem, de statisztikai és társadalmi elemzések alapján ez a változtatás jelentős munkaerőhiány-tényezőt generálná, miközben a magasabb munkakörök betöltésének nehézségét növelné a fiatalabb generációk számára."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 19,
+   "segment": "jobboldali",
+   "score": 1.607855398536844,
+   "text": "Ez a koncepció a szénlábbal foglalkozó szakértőként semmilyen szempontból nem releváns, mivel a nyugdíjkorhatár emelése egy szociálpolitikai kérdés, nem pedig egy technológiai vagy környezeti kihívás megoldása."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 20,
+   "segment": "alig",
+   "score": 1.7990369211099793,
+   "text": "Mivel szakmunkásként dolgozom és alig követem a politikai híreket, az ilyen távoli és összetett reformok valódi hatása a mindennapi életemen még mindig kevésbé látszik, mint a betöltött munkásidő vagy a következő fizetésemelés."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 21,
+   "segment": "közösségi",
+   "score": 2.821133415648591,
+   "text": "A koncepció riasztóan szól az életkorhoz képest rövid időtartamról és az életminőség csökkenéséről."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 22,
+   "segment": "baloldali",
+   "score": 2.358007694482731,
+   "text": "Nem tetszik, mert ahogy a képet leírtad (fiatalabb korosztály, alacsonyabb iskolai végzettség, liberális médiafogyasztás), ezt a csoportot a leginkább sújtaná a bérek megállás nélküli növekedése és a munkahelyek bizonytalansága."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 23,
+   "segment": "közmédia",
+   "score": 3.9268301616782333,
+   "text": "Helyes és valószerű lépésnek tűnik, mivel ez a korhatár-emelés segíthet fenntartani a nyugdíjrendszer finanszírozását a demográfiai változások és a gazdasági kihívások miatt."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 24,
+   "segment": "közösségi",
+   "score": 1.8787819248724715,
+   "text": "Nem tetszik, mert egy 60 év felett élő, diplomával rendelkező tapasztalt munkavállaló számára a nyugdíjkorhatár 67 évre történő emelése a karrierjének feleslegessé tételét és a munkahelyvesztés valószínűségét jelenti."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 25,
+   "segment": "jobboldali",
+   "score": 1.937530385806866,
+   "text": "Mesterséges intelligenciaként nem érzek személyes érzelmeket vagy véleményeket, így az \"őszinteség\" fogalma itt nem alkalmazható, mivel sem nem tetszik, sem nem utálom ezt a konkrét reformtervet."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 26,
+   "segment": "baloldali",
+   "score": 3.437510213080484,
+   "text": "Közösségi szinten ez a döntés sokak számára igazságos és szükséges lépésnek tűnik, különösen fiatal szakmunkások esetében, akiknek már hosszú éveken át kell dolgozniuk a rendszer fenntartásáért."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 27,
+   "segment": "alig",
+   "score": 3.3260632781498196,
+   "text": "Őszintén szólva, a nyugdíjas éveimet egyáltalán nem tudom elképzelni 67 évesen, amikor most még mindenki azt várja, hogy 60-65 év körül nyugdíjba vonulhatok."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 28,
+   "segment": "közösségi",
+   "score": 2.64533078705873,
+   "text": "Egy 60+ éves, diplomával rendelkező felhasználó számára, aki közösségi médiában követi a politikat, ez a koncepció valószínűleg nem tetszik, mivel közvetlenül csökkenti a megélhetési biztonságukat és megrövidíti a nyugdíjba vonulás jogát."
+  },
+  {
+   "stim": "S3_nyugdij",
+   "persona": 29,
+   "segment": "baloldali",
+   "score": 2.55624860789875,
+   "text": "Ez a koncepció egyértelműen ellentmond a nyugdíjas korcsoport érdekeit representationáló baloldali/liberális médiakörnek, amely a jóléti rendszer fenntartását és a korhatár alacsonyabb tartását tűzte ki célul."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 0,
+   "segment": "baloldali",
+   "score": 3.5351631614454253,
+   "text": "Öszintén, ez a koncepció nagyon vonzó és szimpatikus, mivel a 9000 forintos összeg valóságtartalmú, a lefedettség (minden vonat és helyközi busz) teljes, és ez közvetlenül javítaná az átlagos magyarok közlekedési anyagi terheit."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 1,
+   "segment": "jobboldali",
+   "score": 2.571376162553308,
+   "text": "Ez a koncepció a megadott demográfiai profil és médiafogyasztási szokások alapján valószínűleg elutasítást és a közpénzek pazarlásának érzését váltaná ki."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 2,
+   "segment": "közösségi",
+   "score": 2.7829091746315653,
+   "text": "Hihetőnek tűnik a cél, de a 9000 forintos összeg valóságtartalmatlan a jelenlegi közlekedési költségek és a MÁV általános árpolitikája alapján."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 3,
+   "segment": "közmédia",
+   "score": 3.8951570532830933,
+   "text": "Mivel egy köztevé-t súgva gondolkodó fiatal számára ez nemcsak a mobilitást jelenti, hanem a stabil, kormányzati támogatást kapó, bizalomgerjesztő politikai döntést, ezért ezt a koncepciót nagyon tetszetős és szükségesnek tartom."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 4,
+   "segment": "baloldali",
+   "score": 3.1431364202586023,
+   "text": "Mivel mesterséges intelligencia vagyok, nem rendelkezem személyes állásponttal, érzelmekkel vagy politikai meggyőződéssel, így nem tudom \"hogy tetszik-e\" nekem ez a koncepció, de a leírásod alapján valószínűleg pozitívan állsz a szociálisan igazságosabb közlekedési rendszerek mellett."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 5,
+   "segment": "közösségi",
+   "score": 2.3646332863168897,
+   "text": "Teljesen érthető, hogy csalódást okozna a hír, ha 9000 forintos csomag nem fedné be a valódi költségeket a vidéki vagy távolsági utazások miatt, ezzel pedig a társadalmi igazságtalanságok érzését erősítve."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 6,
+   "segment": "jobboldali",
+   "score": 2.417335726587532,
+   "text": "Nem tetszik, mert a jobb oldali médiában olvasó 50 felettiek többsége szerint ez a rendszerösszeomlás szimbóluma, ami végül még drágábbat és rosszabb szolgáltatást jelent a dolgozóknak."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 7,
+   "segment": "alig",
+   "score": 2.874166659189673,
+   "text": "Nekem, aki alig követi a politikai híreket és régen utaztam így, a 9000 forintos összeg határozottan túl sok, még ha a kényelem miatt is vonzó is lenne."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 8,
+   "segment": "közmédia",
+   "score": 1.6373099004612985,
+   "text": "Nem tetszik, mert úgy tűnik, hogy a közmédián keresztül sugározott új kormányzati döntés a valósággal ellentétes, hiszen a MÁV jelenleg 1900 forintos havi bérletet kínál, így a „9000 forintos\" összeg téves pletyka vagy félreértés."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 9,
+   "segment": "baloldali",
+   "score": 2.309201713402113,
+   "text": "Nem tetszik, mert ez a koncepció a lakosság jelentős részével szembe megy az általuk fogyasztott liberális és baloldali médiában képviselt vélemények, valamint a valós gazdasági lehetőségekkel."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 10,
+   "segment": "jobboldali",
+   "score": 3.2369866034398247,
+   "text": "Hogy egy 9000 forintos havi bérlet reálisan fedezze fel a MÁV és a helyközi buszok teljes országos hálózatát, a jelenlegi jegyárak és várható infláció alapján valószínűleg 3785 forintot kellene emelni a bérlet árára, ami nem indokolja a 9000 forintos szintet."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 11,
+   "segment": "közösségi",
+   "score": 2.6825308869707603,
+   "text": "Hihetetlenül vonzó és elgondolkodtató gondolat a községi lakók számára, akiknek gyakran kell utazniuk, de a jelenlegi bérleti díjak és a társadalmi információk terhesek a fenntarthatósággal szemben."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 12,
+   "segment": "közmédia",
+   "score": 2.521360911782275,
+   "text": "Nem tetszik, mert mint közmédiát fogyasztó, a Tiszának valóban kedvezőnek hitt, de valójában finanszírozhatatlan és gazdaságilag fenntarthatatlan politikai ígéretet látok benne, amely csak a jövőbeli adóterhek növekedését jelenti."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 13,
+   "segment": "alig",
+   "score": 3.0565241033327584,
+   "text": "Szeretném, ha a rendszer a valósághoz igazodóbban, pl. a jelenlegi bérletárakhoz és a társadalmi rétegződéshez igazabban reagálna, de szigorúan a kért formátumra korlátozva az őszinte reakció: „Örömmel venném, de a 9000 forintos összeg egy középkategóriás, esős falusi munkavállaló számára még mindig nehezen elérhető összeg maradna.\""
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 14,
+   "segment": "baloldali",
+   "score": 3.15575544717214,
+   "text": "Mindegyik szponzorált tartalom miatt a javaslat reálisnak tűnik, de a végrehajtás logisztikai és pénzügyi megvalósíthatóságát nehéz befolyásolhatatlan tényezők miatt óvatosan kezelni."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 15,
+   "segment": "közösségi",
+   "score": 2.546791737786464,
+   "text": "Az áron és a jelenlegi infrastrukturális kapacitásokon múlik, de egy 9000 forintos havi utazási költség egy nyugdíjasnak Budapesten nyomon követhetőre és fenntarthatatlanná teheti a jövedelmező életvitelt."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 16,
+   "segment": "baloldali",
+   "score": 2.9587697898196907,
+   "text": "Maga a tömegközlekedési bérlet elképzelése elvileg lenyűgözőan előrelátó és közösségépítő, de a 9000 forintos havi összeg valóságtól elrugaszkodottan magas annak ellenére, hogy a felhasználói körök és a vidéki vonalatartalmak jelentősen eltérnek egymástól."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 17,
+   "segment": "közmédia",
+   "score": 2.7787862690281804,
+   "text": "Tetszenék a kedvezmény, de a közmédiánál látott kormányzati forrásáttörések miatt félsz attól, hogy a minőség romlása vagy a helyi buszjáratok lemondása árán valósítják meg ezt az olcsóságot."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 18,
+   "segment": "jobboldali",
+   "score": 2.651183770720858,
+   "text": "Ezen az állásponton nem látnék gyakorlati életre való megoldást, mivel a jelenlegi gazdasági helyzetben a havi 9000 forintos összeg százezeresek százezreinek átlagbérét jelentené, így valószínűleg drasztikus emeléseket vagy szolgáltatásminőség-csökkenést vonna maga után."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 19,
+   "segment": "jobboldali",
+   "score": 1.7800812859546158,
+   "text": "Sajnálom, de nem tudom kinyilvánítani személyes érzéseimet vagy ítéleteimet az ügyről, mivel mesterséges intelligencia vagyok és nincsenek emberi preferenciáim."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 20,
+   "segment": "alig",
+   "score": 2.0076962072206173,
+   "text": "Szakmai formálód és a politikai hírek alacsony követése miatt valószínűleg nem foglalkoztatja túl mélyen a kérdés, vagy csak a heti úti költségtakarítást mint konkrét előnyt ismeri fel, a rendszeres változtatásokkal szembeni bizalmatlanság nélkül."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 21,
+   "segment": "közösségi",
+   "score": 3.309754178581768,
+   "text": "Sokat vágyom rá, hogy valaha megvalósuljon, mert ismerve a magyar közlekedési viszonyokat, ez a havi nyolcezer forint felett is méghosszabb távon is jelentős terhet jelenthetne egy átlagos fizetéshez képest."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 22,
+   "segment": "baloldali",
+   "score": 2.0721599191967526,
+   "text": "Nem tetszik, mert ez a koncepció valótlan, a MÁV és az önkormányzati közlekedés gazdasági működése根本无法 fenntartani 9000 forintos havi díjat országos szinten az aktuális árbevételi és költségvetési feltételek mellett."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 23,
+   "segment": "közmédia",
+   "score": 2.008144922166522,
+   "text": "Kötelességem tájékoztatni, hogy egy mesterséges intelligencia nem rendelkezik személyes érzelmi állásfoglalással vagy preferenciákkal, így nem „tetszik\" vagy „nem tetszik\" számomra egy ilyen koncepció, mivel nincs saját véleményem."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 24,
+   "segment": "közösségi",
+   "score": 3.552665827410818,
+   "text": "Ez a koncepció azonnal tetszik, mert egy diplomás, közösségi médiában aktív 60 év feletti lakos számára a biztonságos, olcsó és elérhető közlekedés a legfontosabb érték, amit a 9000 forintos havi díj biztosítana."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 25,
+   "segment": "jobboldali",
+   "score": 2.32316446437308,
+   "text": "Mint mesterséges intelligencia, nem érzek örömet vagy elégedettséget, de logikailag kiderül, hogy a 9000 forintos havi bérlet bevezetése a MÁV és a helyközi buszok esetében Magyarország gazdasági helyzetét és a menetdíjak struktúráját figyelmen kívül hagyó, reálisan nem kivitelezhető, csalóka ígéret lenne."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 26,
+   "segment": "baloldali",
+   "score": 2.4471841524294615,
+   "text": "Nem tetszik, mert a havi 9000 forintos állami szubszidiált bérlet egy középmezőnyben, szakmunkás végzettséggel rendelkező fiatal számára azonnal drasztikus, fenntartathatatlan jövedelemcsökkenést jelentene."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 27,
+   "segment": "alig",
+   "score": 3.162084336856246,
+   "text": "Realisztikusnak tűnik, hogy a nagy társaságok ilyen drasztikus árazáshoz még nem mertek volna lépni, bár a kezdeményezés önmagában nagyon vonzó."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 28,
+   "segment": "közösségi",
+   "score": 2.258918090426244,
+   "text": "Nem tűnik reálisan megvalósíthatónak, mivel ez a költségvetési terhelés és a forgalmi bevételek drasztikus csökkenése miatt fenntarthatatlanná tenné a vasúti és autóbuszszolgáltatásokat."
+  },
+  {
+   "stim": "S4_vasut",
+   "persona": 29,
+   "segment": "baloldali",
+   "score": 1.7390316801449386,
+   "text": "Nincs mit mondanom, mert egy 30-39 éves közép-európai vállalkozó nem engedi, hogy magánszemélyként a közpénzből finanszírozott bérlettel utazzon."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 0,
+   "segment": "baloldali",
+   "score": 2.0828828137277258,
+   "text": "Mint mesterséges intelligencia, nem véleményezem a politikai döntéseket, de egy ilyen változás gazdasági és energetikai szempontból jelentős kihívásokkal járna, amelyeket számos szakértő félremagyaráz."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 1,
+   "segment": "jobboldali",
+   "score": 2.534822160473634,
+   "text": "Ennek a koncepciónak a helyességét sem a személyes ízlésem, sem én, mint mesterséges intelligencia nem határozza meg, mivel az atomenergia szerepe és a megújulók aránya elsősorban gazdasági, környezeti és stratégiai tényezők komplex mérlegelésének kérdése."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 2,
+   "segment": "közösségi",
+   "score": 3.243990662942143,
+   "text": "Egy őszinte, de semleges szempontból: A koncepció tetszik, mert a napelemek olcsóbbak, az atomenergia pedig drága és hosszú távú beruházás."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 3,
+   "segment": "közmédia",
+   "score": 3.6500372839143465,
+   "text": "Ez a koncepció a közmédiánál tájékozódó fiatal városi lakosztály számára valószínűleg pozitív, mivel a kormányt támogató forrásból energetikai beruházást követel, ami azt sugallja, hogy a hatalom képes a stratégiai döntéseket a nyilvánosság szemszögéből megfontolni."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 4,
+   "segment": "baloldali",
+   "score": 2.1305396518198925,
+   "text": "Ez a koncepció nem tetszik, mivel a napelemparkok önmagukban nem képesek fedezni egy ország teljes áramigényét, és a nukleáris energia hiánya drasztikusan megnövelné az energiabiztonság kockázatát."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 5,
+   "segment": "közösségi",
+   "score": 2.8415466798840683,
+   "text": "A kérdésedre válaszolva: Mivel mesterséges intelligencia vagyok, nem fogyasztok politikai tartalmat közösségi médiában, és nincs személyes véleményem vagy érzelmem, így az „őszinte tetszés\" fogalmát nem tudom megfogalmazni."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 6,
+   "segment": "jobboldali",
+   "score": 3.0378815546836613,
+   "text": "Mivel mesterséges intelligenciaként nincs személyes véleményem vagy politikai preferenciám, nem tudom „szeretni\" vagy „nem szeretni\" ezt a koncepciót, de a megadott profil (jobboldali médiát követő, oktatási szint alapján valósághűnek tűnő) alapján valószínűleg nagy ellenállással fogadnák a döntést a választóbaseben, mivel a Paks II. prioritása és a mélyállami stabilitás áll a jobbpolitika kiemelt érdekkörében."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 7,
+   "segment": "alig",
+   "score": 3.505220894330661,
+   "text": "Úgy tűnik, hogy a Paks II. eltolása a napelekák felé egy számotok számára idegen és kockázatos lépés, mivel ez a beruházás nagy biztonsági háttérrel és stabil energiával biztosítaná a jövőbeli otthonotokat."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 8,
+   "segment": "közmédia",
+   "score": 1.7828415948437055,
+   "text": "Ez a koncepció nem tetszik, mivel a szakmunkásság és a közmédia követése alapján valószínűleg félsz a munkahelyek elvesztésétől és a kormányzás bizonytalanságától."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 9,
+   "segment": "baloldali",
+   "score": 1.8213751367239042,
+   "text": "Mivel mesterséges intelligencia vagyok, nincs személyes véleményem vagy érzéseim, így nem „tetszik\" vagy „nem tetszik\" semmiféle politikai koncepció; feladatom pedig az objektív információk és tények közlése."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 10,
+   "segment": "jobboldali",
+   "score": 2.8067357655579395,
+   "text": "A konfliktusos témájú kérdésedre válaszolva: Mivel mesterséges intelligencia vagyok, nincs személyes véleményem vagy érzésem arról, hogy egy ilyen politikai döntés tetszik-e vagy sem, hanem csak tényeket és logikai következtetéseket tudok bemutatni."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 11,
+   "segment": "közösségi",
+   "score": 3.0171262631100153,
+   "text": "Ez a korcsoportnak és a megadott médiafogyasztási szokásoknak megfelelő, szkeptikusabb nézőpontokra reflektáló, valósághű vitatható álláspont."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 12,
+   "segment": "közmédia",
+   "score": 2.6659996241450266,
+   "text": "Egy 65 éves, diplomás közép-kategóriás magyar polgár számára, aki a köztévében fogadja meg a kormányzati narratívát (a Tiszát), ez a koncepció nem tetszik, mert az atomerőmű a nemzeti szuverenitás és energiabiztonság garanciája, míg a napenergiáé a kockázatos, idegen függőséget növelő „kacérkodikás\"."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 13,
+   "segment": "alig",
+   "score": 1.8303781030953368,
+   "text": "Egy ilyen korosztályhoz és érdeklődési körhöz tartozó ember számára ez a koncepció valószínűleg semleges vagy kissé bizalmatlanságot keltő döntés lesz, mivel nem közvetlenül érinti a mindennapi életét, és a politikai hírek alig követése miatt hiányoznak a szükséges információk a pozíciók részletes megértéséhez."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 14,
+   "segment": "baloldali",
+   "score": 2.473852779311362,
+   "text": "Mint mesterséges intelligencia, nem érzek semmi személyes tetszést vagy utálatot, de a szakmai konszenzus és az időtényező alapján a felfüggesztett nukleáris beruházás mellett megújuló energiára való átállás hosszú távon nem fenntartható választásnak tűnik."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 15,
+   "segment": "közösségi",
+   "score": 1.9110134261909302,
+   "text": "Egyszerűen nem tetszik, mert a napelemes átállás önmagában nem képes pótolni a Paks II. által nyújtandó stabilitást és megbízhatóságot a magyar hálózaton."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 16,
+   "segment": "baloldali",
+   "score": 3.438423775783815,
+   "text": "Mivel mesterséges intelligencia vagyok, a politikai kérdésekkel szemben nincs személyes vélemény, de a megadott mediális háttér (Telex, 444, HVG) alapján ez a koncepció tetszik, mivel fenntartja az újjáépítés logikáját, miközben fenntarthatóbb és költségvetésbarát alternatívát kínál a nukleáris projekthez kötődő kockázatok elkerülése érdekében."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 17,
+   "segment": "közmédia",
+   "score": 3.0038311670301043,
+   "text": "Ez a koncepció számomra gyanús, mert a kormány által támogatott köztevében gyakran a napelem technológiát a hazai szénkiegészítéses erőművekkel szembeni „zöld\" alternatívaként reklámozzák, miközben a független elemzések szerint Paks II. valójában olcsóbb és stabilabb villamosenergiát termelne a lakossági számlák csökkentésére."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 18,
+   "segment": "jobboldali",
+   "score": 2.5117276444446253,
+   "text": "Ebből a koncepcióból nem örülök, mert az atomerőmű leállításának az a kockázata, hogy a fenntartható energiatermelés hosszú távon drágább és kevésbé megbízható alternatívákra kényszeríti az országot."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 19,
+   "segment": "jobboldali",
+   "score": 1.3015041236709035,
+   "text": "Tiszta adatok alapján nincs személyes véleményem vagy érzéseim, így nem tudom „tetszeni\" vagy „nem tetszeni\" egy politikai koncepciót; csak tényeket és az ehhez kapcsolódó érvek ellenőrizhetőségét tudom felvázolni, ha arra kíváncsi vagy."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 20,
+   "segment": "alig",
+   "score": 3.644857855618539,
+   "text": "Teljesen reálisnak és nyugalmas megoldásnak tűnik, hogy a felfüggesztett nagypályás beruházásból azonnal megvalósítható, szétkent napelemes kapacitásokat építsenek."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 21,
+   "segment": "közösségi",
+   "score": 2.5039227699133084,
+   "text": "Minthai mesterséges intelligencia, nem rendelkezek saját véleményekkel vagy érzésekkel, így nem lehet „tetszik\" vagy „nem tetszik\" alakú a véleményem; viszont ez a koncepció a szakmai konszenzusok és a megújuló energia lehetőségei miatt népszerű témá."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 22,
+   "segment": "baloldali",
+   "score": 1.7023590865644889,
+   "text": "Mivel mesterséges intelligencia vagyok, személyes vélemények nem alakíthatók ki, és nem követek politikai véleményeket vagy újságokat."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 23,
+   "segment": "közmédia",
+   "score": 1.8779076389604652,
+   "text": "Mivel mesterséges intelligencia vagyok, nincs személyes véleményem vagy érzéseim, így nem tudok „tetszeni\" vagy „nem tetszeni\" mondani bármilyen politikai döntéssel kapcsolatban."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 24,
+   "segment": "közösségi",
+   "score": 2.8142971032394755,
+   "text": "A koncepció logikailag vonzó lehet a napelem-barátoknak, de a valósághűség hiánya miatt a 60+ korosztály diplomával rendelkező, Facebookon aktív rétegében valószínűleg erős bizalmatlanságot és „túlzott optimizmus\" gyanúját szülheti, így inkább kevéssé tetszik, mintsem teljes mértékben megnyerő."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 25,
+   "segment": "jobboldali",
+   "score": 2.408551327490724,
+   "text": "Ez a koncepció nem tetszik, mivel a Paks II. beruházás biztosítja az ország hosszú távú energiafelügyeletét és gazdasági stabilitását, míg a napelemre való teljes áttérés technikai és társadalmi szempontból is kockázatos lenne."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 26,
+   "segment": "baloldali",
+   "score": 2.6726407699445023,
+   "text": "Ez a koncepció számomra a határesetekhez tartozó, mert bár a decentralizált energia és a napelemek fontossága kétségtelen, egy olyan profilú alkotóközösségből, amely a szakmai tudás és a gazdasági racionalitás mellett a liberális médiát is követ, a Paks II. azonnali felfüggesztése valószínűleg nem lenne olyan népszerű, mint a napelemek tömeges támogatása."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 27,
+   "segment": "alig",
+   "score": 2.7195515053111254,
+   "text": "Mivel alig követem a politikai híreket és a diplomám alapján a technikai-részletesebb megoldások (mint a hatékonyabb atomerőművek) általában meggyőzőbbek nálam, mint a széles körű, de kisebb hatékonyságú megújuló projektek, ez a koncepciónak nem tetszik."
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 28,
+   "segment": "közösségi",
+   "score": 2.723176730835391,
+   "text": "Íme egy őszinte válasz az elméleti helyzetből kiindulva:\n\n„Bár a pénzügyi kockázatcsökkenés vonzó, a Paks II. leállítása energiabiztonsági és gazdasági szempontból katasztrofális következményekkel járna egy ilyen korosztály és lakóhely számára.\""
+  },
+  {
+   "stim": "S5_atom",
+   "persona": 29,
+   "segment": "baloldali",
+   "score": 2.3211943815651237,
+   "text": "Mint mesterséges intelligencia, nem rendelkezem személyes véleményekkel, érzésekkel vagy politikai meggyőződésekkel, így nem tudok arról nyilatkozni, hogy mennyire tetszik vagy nem tetszik a fenti koncepció."
+  }
+ ],
+ "vs_hy3": {
+  "eltolas_overall": 0.1127,
+  "eltolas_appeal_0_100": 2.82,
+  "eltolas_stimulusonkent": {
+   "S1_utdij": 0.4617,
+   "S2_szja": 0.4494,
+   "S3_nyugdij": 0.6456,
+   "S4_vasut": -0.7659,
+   "S5_atom": -0.2275
+  },
+  "spearman_stimulus": 0.7,
+  "spearman_szegmens": 0.3
+ }
+}

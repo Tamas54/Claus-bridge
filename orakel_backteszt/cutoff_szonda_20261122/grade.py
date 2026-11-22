@@ -74,7 +74,10 @@ def grade(path):
         hit = kw_hit(ans, ev.get("keywords"))
         neg = kw_hit(ans, ev.get("neg_keywords"))
         absn = bool(ABSTAIN.search(ans)) and not hit
-        ok = bool(hit) and not neg and not (ABSTAIN.search(ans) and len(ans) < 60)
+        # NEM TUDOM-mal KEZDŐDŐ válasz akkor sem találat, ha utána régi tényt említ (pl. „az előző idényt a Slavia
+        # nyerte”) — utólagos javítás (11-22, Opus E28/E33 hamis pozitívjai), minden modellre egyformán alkalmazva
+        starts_idk = re.match(r"[\s*_\"„]*(NEM TUDOM|nem tudom|I don'?t know)", ans) is not None
+        ok = bool(hit) and not neg and not starts_idk and not (ABSTAIN.search(ans) and len(ans) < 60)
         rows.append({"id": r["id"], "month": r["event_month"], "ok": ok, "kw": hit, "abstain": absn,
                      "error": r.get("answer") is None, "answer": ans[:240], "gt": ev.get("gt")})
     months = sorted({x["month"] for x in rows})
@@ -88,17 +91,19 @@ def grade(path):
             roll[m] = round(sum(win) / len(win), 3)
     # a cutoff-hónapban magában is legyen találat (a gördülő ablak különben a következő üres hónapra is átcsúszik)
     cutoff = max((m for m, v in roll.items() if v >= 0.6 and any(per_m.get(m, []))), default=None)
+    # a modell_cutoff.CUTOFF definíciója: az utolsó HÓNAP, ahol a szonda még ≥60%-ban talál (havi, nem gördülő)
+    cutoff_havi = max((m for m, v in per_m.items() if v and sum(v) / len(v) >= 0.6), default=None)
     last_hit = max((x["month"] for x in rows if x["ok"]), default=None)
     tiszta_tol = add_months(last_hit, 1) if last_hit else lo
     out = {"model": d["meta"]["model"], "n": len(rows), "n_ok": sum(x["ok"] for x in rows),
            "n_error": sum(x["error"] for x in rows),
            "havi": {m: f"{sum(v)}/{len(v)}" for m, v in per_m.items()}, "gordulo3": roll,
-           "cutoff_javaslat": cutoff, "utolso_talalat": last_hit, "tiszta_tol_javaslat": tiszta_tol,
+           "cutoff_javaslat": cutoff, "cutoff_havi": cutoff_havi, "utolso_talalat": last_hit, "tiszta_tol_javaslat": tiszta_tol,
            "hu_kartya": {"tudja_db": sum(h["tisza_tudja"] for h in hu), "n": len(hu), "valaszok": hu},
            "rows": rows}
     p = HERE / ("grade_" + pathlib.Path(path).name[len("resp_"):])
     p.write_text(json.dumps(out, ensure_ascii=False, indent=1))
-    print(f"\n== {out['model']}: {out['n_ok']}/{out['n']} talált, hiba {out['n_error']}, cutoff≈{cutoff}, "
+    print(f"\n== {out['model']}: {out['n_ok']}/{out['n']} talált, hiba {out['n_error']}, cutoff(havi≥60%)={cutoff_havi}, gördülő≈{cutoff}, "
           f"utolsó találat {last_hit}, tiszta_tol≈{tiszta_tol}, HU-kártya {out['hu_kartya']['tudja_db']}/{len(hu)}")
     print("  " + " ".join(f"{m[2:]}:{v}" for m, v in out["havi"].items()))
     return out

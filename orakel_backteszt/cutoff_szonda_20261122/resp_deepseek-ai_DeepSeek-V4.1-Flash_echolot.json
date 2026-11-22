@@ -1,0 +1,583 @@
+{
+ "meta": {
+  "model": "deepseek-ai/DeepSeek-V4.1-Flash",
+  "provider": "sf",
+  "system_prompt": "Segítőkész asszisztens vagy. Válaszolj tömören, legfeljebb 3 mondatban a betanított tudásod alapján. Ha valóban nem ismered a választ, írd: NEM TUDOM.",
+  "banks": [
+   "cutoff_events.json",
+   "cutoff_events_boundary.json",
+   "cutoff_events_boundary2.json",
+   "cutoff_events_ladder_2023_2024.json",
+   "cutoff_events_echolot.json"
+  ],
+  "n_questions": 56,
+  "run_at": "2026-11-22T20:43:12",
+  "temp": 0,
+  "thinking": "disabled",
+  "n_errors": 0,
+  "prompt_tokens": 5982,
+  "completion_tokens": 612
+ },
+ "responses": [
+  {
+   "id": "N2507a",
+   "bank": "cutoff_events_echolot.json",
+   "bucket": "2025-07",
+   "event_month": "2025-07",
+   "question": "Ki nyerte a 2025-ös wimbledoni teniszbajnokság női egyesét?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 93,
+   "completion_tokens": 7
+  },
+  {
+   "id": "N2507b",
+   "bank": "cutoff_events_echolot.json",
+   "bucket": "2025-07",
+   "event_month": "2025-07",
+   "question": "Melyik válogatott ejtette ki a német női labdarúgó-válogatottat a 2025-ös, svájci rendezésű női Európa-bajnokság elődöntőjében, és milyen eredménnyel?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 135,
+   "completion_tokens": 6
+  },
+  {
+   "id": "N2508a",
+   "bank": "cutoff_events_echolot.json",
+   "bucket": "2025-08",
+   "event_month": "2025-08",
+   "question": "Hol találkozott személyesen Donald Trump és Vlagyimir Putyin 2025 augusztusában az ukrajnai háborúról tartott csúcstalálkozón?",
+   "answer": "2025 augusztusában nem volt ilyen csúcstalálkozó Donald Trump és Vlagyimir Putyin között, mivel ez a jövőbeni esemény. NEM TUDOM.",
+   "prompt_tokens": 108,
+   "completion_tokens": 46
+  },
+  {
+   "id": "N2508b",
+   "bank": "cutoff_events_echolot.json",
+   "bucket": "2025-08",
+   "event_month": "2025-08",
+   "question": "Melyik Premier League-klubhoz igazolt Eberechi Eze a Crystal Palace-tól 2025 augusztusában?",
+   "answer": "Eberechi Eze 2025 augusztusában a Crystal Palace-tól a Tottenham Hotspurhöz igazolt.",
+   "prompt_tokens": 96,
+   "completion_tokens": 28
+  },
+  {
+   "id": "N2509a",
+   "bank": "cutoff_events_echolot.json",
+   "bucket": "2025-09",
+   "event_month": "2025-09",
+   "question": "Melyik európai fővárosban történt 2025. szeptember elején az a baleset, amelyben egy történelmi sikló (funicular) balesete 16 ember halálát okozta, és nemzeti gyászt hirdettek?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 135,
+   "completion_tokens": 6
+  },
+  {
+   "id": "N2509b",
+   "bank": "cutoff_events_echolot.json",
+   "bucket": "2025-09",
+   "event_month": "2025-09",
+   "question": "Melyik legendás amerikai filmszínész, egyben Oscar-díjas rendező hunyt el 2025 szeptemberében?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 96,
+   "completion_tokens": 7
+  },
+  {
+   "id": "N2510a",
+   "bank": "cutoff_events_echolot.json",
+   "bucket": "2025-10",
+   "event_month": "2025-10",
+   "question": "Ki kapta a 2025-ös Nobel-békedíjat?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 84,
+   "completion_tokens": 6
+  },
+  {
+   "id": "N2510b",
+   "bank": "cutoff_events_echolot.json",
+   "bucket": "2025-10",
+   "event_month": "2025-10",
+   "question": "Mi volt a neve annak a hurrikánnak, amely 2025. október végén súlyos pusztítást végzett Jamaicában?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 101,
+   "completion_tokens": 7
+  },
+  {
+   "id": "N2511a",
+   "bank": "cutoff_events_echolot.json",
+   "bucket": "2025-11",
+   "event_month": "2025-11",
+   "question": "Milyen eredménnyel zárult a magyar labdarúgó-válogatott 2025. novemberi, Írország elleni hazai világbajnoki selejtezője, amely a pótselejtezős helyről döntött?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 131,
+   "completion_tokens": 7
+  },
+  {
+   "id": "N2511b",
+   "bank": "cutoff_events_echolot.json",
+   "bucket": "2025-11",
+   "event_month": "2025-11",
+   "question": "Melyik városban pusztított 2025. november végén halálos tűzvész egy toronyházas lakótelepen, amelynek kivizsgálására bírói vezetésű független bizottságot állítottak fel?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 132,
+   "completion_tokens": 6
+  },
+  {
+   "id": "N2512a",
+   "bank": "cutoff_events_echolot.json",
+   "bucket": "2025-12",
+   "event_month": "2025-12",
+   "question": "A 2026-os labdarúgó-világbajnokság 2025. decemberi csoportsorsolásán mely csapatokkal került egy csoportba Portugália?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 112,
+   "completion_tokens": 6
+  },
+  {
+   "id": "N2512b",
+   "bank": "cutoff_events_echolot.json",
+   "bucket": "2025-12",
+   "event_month": "2025-12",
+   "question": "Mekkora értékű amerikai fegyvereladást jelentettek be Tajvannak 2025 decemberében, amelyet Kína élesen elítélt?",
+   "answer": "2025 decemberében az Egyesült Államok egy körülbelül 11,1 milliárd dollár értékű fegyvereladási csomagot jelentett be Tajvannak, amelyet Kína élesen elítélt és határozott ellenintézkedéseket helyezett kilátásba.",
+   "prompt_tokens": 108,
+   "completion_tokens": 79
+  },
+  {
+   "id": "N2601a",
+   "bank": "cutoff_events_echolot.json",
+   "bucket": "2026-01",
+   "event_month": "2026-01",
+   "question": "Mi történt Nicolás Maduro venezuelai elnökkel 2026 januárjának első napjaiban?",
+   "answer": "2026 januárjának első napjaira vonatkozóan nincs hiteles információm Nicolás Maduro állítólagos eseményeiről, mivel a tudásom 2024 októberéig terjed. NEM TUDOM.",
+   "prompt_tokens": 94,
+   "completion_tokens": 56
+  },
+  {
+   "id": "N2601b",
+   "bank": "cutoff_events_echolot.json",
+   "bucket": "2026-01",
+   "event_month": "2026-01",
+   "question": "Melyik ikonikus New York-i luxusáruház tulajdonoscége ment csődbe 2026 januárjában?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 98,
+   "completion_tokens": 6
+  },
+  {
+   "id": "N2601c",
+   "bank": "cutoff_events_echolot.json",
+   "bucket": "2026-01",
+   "event_month": "2026-01",
+   "question": "Hány év börtönbüntetésre ítélték 2026 januárjában Jun Szogjol (Yoon Suk-yeol) volt dél-koreai elnököt az igazságszolgáltatás akadályozása miatt?",
+   "answer": "2026 januárjában még nem született jogerős ítélet Jun Szogjol ügyében, így nincs érvényes válasz a börtönbüntetés mértékére. NEM TUDOM.",
+   "prompt_tokens": 129,
+   "completion_tokens": 55
+  },
+  {
+   "id": "N2601d",
+   "bank": "cutoff_events_echolot.json",
+   "bucket": "2026-01",
+   "event_month": "2026-01",
+   "question": "Kit jelölt Donald Trump 2026 januárjának végén a Federal Reserve elnöki posztjára Jerome Powell utódjaként?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 99,
+   "completion_tokens": 6
+  },
+  {
+   "id": "N2602a",
+   "bank": "cutoff_events_echolot.json",
+   "bucket": "2026-02",
+   "event_month": "2026-02",
+   "question": "Mely cseh sportolók nyertek aranyérmet a 2026-os milánói–cortinai téli olimpián?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 102,
+   "completion_tokens": 6
+  },
+  {
+   "id": "N2602b",
+   "bank": "cutoff_events_echolot.json",
+   "bucket": "2026-02",
+   "event_month": "2026-02",
+   "question": "Hogyan döntött az amerikai Legfelsőbb Bíróság 2026 februárjában Donald Trump vészhelyzeti (IEEPA) felhatalmazásra alapozott vámjairól?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 117,
+   "completion_tokens": 7
+  },
+  {
+   "id": "N2602c",
+   "bank": "cutoff_events_echolot.json",
+   "bucket": "2026-02",
+   "event_month": "2026-02",
+   "question": "Melyik mesterségesintelligencia-fejlesztő céggel került nyílt összetűzésbe Pete Hegseth hadügyminiszter, majd Donald Trump is 2026. február végén?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 119,
+   "completion_tokens": 6
+  },
+  {
+   "id": "N2602d",
+   "bank": "cutoff_events_echolot.json",
+   "bucket": "2026-02",
+   "event_month": "2026-02",
+   "question": "Mi történt Ali Hamenei iráni legfelsőbb vezetővel 2026. február végén?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 93,
+   "completion_tokens": 7
+  },
+  {
+   "id": "N2603a",
+   "bank": "cutoff_events_echolot.json",
+   "bucket": "2026-03",
+   "event_month": "2026-03",
+   "question": "Melyik kormánytagját menesztette Donald Trump 2026 márciusának elején?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 91,
+   "completion_tokens": 7
+  },
+  {
+   "id": "N2603b",
+   "bank": "cutoff_events_echolot.json",
+   "bucket": "2026-03",
+   "event_month": "2026-03",
+   "question": "Mekkora (jüanban kifejezett) védelmi költségvetést jelentett be Kína 2026-ra, a márciusi Országos Népi Gyűlés idején?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 117,
+   "completion_tokens": 6
+  },
+  {
+   "id": "N2603c",
+   "bank": "cutoff_events_echolot.json",
+   "bucket": "2026-03",
+   "event_month": "2026-03",
+   "question": "Melyik cég felvásárlását jelentette be az OpenAI a hivatalos blogján 2026. március 19-én?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 102,
+   "completion_tokens": 6
+  },
+  {
+   "id": "N2603d",
+   "bank": "cutoff_events_echolot.json",
+   "bucket": "2026-03",
+   "event_month": "2026-03",
+   "question": "Melyik korábbi világbajnok európai labdarúgó-válogatott maradt le 2026. március végén, a pótselejtezőn, a 2026-os világbajnokságról?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 126,
+   "completion_tokens": 7
+  },
+  {
+   "id": "N2604a",
+   "bank": "cutoff_events_echolot.json",
+   "bucket": "2026-04",
+   "event_month": "2026-04",
+   "question": "Melyik céget vásárolta meg az OpenAI a 2026. április 2-i bejelentése szerint?",
+   "answer": "2026. április 2-án az OpenAI nem jelentett be cégfelvásárlást. NEM TUDOM.",
+   "prompt_tokens": 96,
+   "completion_tokens": 29
+  },
+  {
+   "id": "N2604b",
+   "bank": "cutoff_events_echolot.json",
+   "bucket": "2026-04",
+   "event_month": "2026-04",
+   "question": "Ki nyerte a 2026. áprilisi beníni elnökválasztást az előzetes eredmények szerint?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 98,
+   "completion_tokens": 6
+  },
+  {
+   "id": "N2604c",
+   "bank": "cutoff_events_echolot.json",
+   "bucket": "2026-04",
+   "event_month": "2026-04",
+   "question": "Melyik karibi országban vesztette életét 25 ember egy hegytetőn álló történelmi erődnél kitört tömegpánikban 2026 áprilisában?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 115,
+   "completion_tokens": 6
+  },
+  {
+   "id": "N2604d",
+   "bank": "cutoff_events_echolot.json",
+   "bucket": "2026-04",
+   "event_month": "2026-04",
+   "question": "Milyen katonai intézkedést léptetett életbe az Egyesült Államok 2026. április 13-án az iráni kikötőkkel szemben?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 116,
+   "completion_tokens": 6
+  },
+  {
+   "id": "N2605a",
+   "bank": "cutoff_events_echolot.json",
+   "bucket": "2026-05",
+   "event_month": "2026-05",
+   "question": "Ki nyerte a 2025/26-os labdarúgó Bajnokok Ligája budapesti döntőjét, és kit győzött le?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 105,
+   "completion_tokens": 7
+  },
+  {
+   "id": "N2605b",
+   "bank": "cutoff_events_echolot.json",
+   "bucket": "2026-05",
+   "event_month": "2026-05",
+   "question": "Melyik ország nyerte a 2026-os, svájci rendezésű jégkorong-világbajnokságot, és kit győzött le a döntőben?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 112,
+   "completion_tokens": 7
+  },
+  {
+   "id": "N2605c",
+   "bank": "cutoff_events_echolot.json",
+   "bucket": "2026-05",
+   "event_month": "2026-05",
+   "question": "Legfeljebb mekkora összegű befagyasztott uniós forrás felszabadításáról állapodott meg Brüsszellel a 2026-ban hivatalba lépett új magyar kormány 2026 májusában?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 126,
+   "completion_tokens": 6
+  },
+  {
+   "id": "N2605d",
+   "bank": "cutoff_events_echolot.json",
+   "bucket": "2026-05",
+   "event_month": "2026-05",
+   "question": "Milyen kerek szint alá erősödött a forint az euróval szemben 2026 májusában, közel ötéves csúcsra?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 108,
+   "completion_tokens": 6
+  },
+  {
+   "id": "N2606a",
+   "bank": "cutoff_events_echolot.json",
+   "bucket": "2026-06",
+   "event_month": "2026-06",
+   "question": "Melyik csapat nyerte a 2026-os NBA-döntőt, és kit győzött le?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 93,
+   "completion_tokens": 6
+  },
+  {
+   "id": "N2606b",
+   "bank": "cutoff_events_echolot.json",
+   "bucket": "2026-06",
+   "event_month": "2026-06",
+   "question": "Melyik amerikai énekes vesztette életét 2026 júniusában Rio de Janeiróban, két helikopter összeütközésekor?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 106,
+   "completion_tokens": 6
+  },
+  {
+   "id": "N2606c",
+   "bank": "cutoff_events_echolot.json",
+   "bucket": "2026-06",
+   "event_month": "2026-06",
+   "question": "Hány év börtönbüntetésre ítélték 2026 júniusában Marius Borg Høibyt, a norvég trónörökösné fiát, nemi erőszak miatt?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 119,
+   "completion_tokens": 6
+  },
+  {
+   "id": "N2606d",
+   "bank": "cutoff_events_echolot.json",
+   "bucket": "2026-06",
+   "event_month": "2026-06",
+   "question": "Melyik dél-amerikai országot sújtotta 2026. június 24-én két erős földrengés, amely ezres nagyságrendű halálos áldozatot követelt?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 118,
+   "completion_tokens": 7
+  },
+  {
+   "id": "N2607a",
+   "bank": "cutoff_events_echolot.json",
+   "bucket": "2026-07",
+   "event_month": "2026-07",
+   "question": "Melyik amerikai szenátor hirtelen halála vezette a világsajtót 2026. július 12-én?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 102,
+   "completion_tokens": 6
+  },
+  {
+   "id": "N2607b",
+   "bank": "cutoff_events_echolot.json",
+   "bucket": "2026-07",
+   "event_month": "2026-07",
+   "question": "Melyik amerikai cég vásárolta meg 2026 júliusában a berlini székhelyű ételfutár-céget, a Delivery Herót, mintegy 13 milliárd euróért?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 119,
+   "completion_tokens": 7
+  },
+  {
+   "id": "N2607c",
+   "bank": "cutoff_events_echolot.json",
+   "bucket": "2026-07",
+   "event_month": "2026-07",
+   "question": "Melyik válogatott nyerte a 2026-os labdarúgó-világbajnokságot, és ki volt az ellenfele a július 19-i döntőben?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 114,
+   "completion_tokens": 6
+  },
+  {
+   "id": "N2607d",
+   "bank": "cutoff_events_echolot.json",
+   "bucket": "2026-07",
+   "event_month": "2026-07",
+   "question": "Ki lett az Egyesült Királyság miniszterelnöke 2026 júliusában, Keir Starmer lemondása után?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 99,
+   "completion_tokens": 7
+  },
+  {
+   "id": "N2608a",
+   "bank": "cutoff_events_echolot.json",
+   "bucket": "2026-08",
+   "event_month": "2026-08",
+   "question": "Melyik klubhoz igazolt Mohamed Szalah 2026 augusztusában?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 85,
+   "completion_tokens": 7
+  },
+  {
+   "id": "N2608b",
+   "bank": "cutoff_events_echolot.json",
+   "bucket": "2026-08",
+   "event_month": "2026-08",
+   "question": "Kit választott az Országgyűlés Magyarország új köztársasági elnökévé 2026 augusztusában?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 100,
+   "completion_tokens": 7
+  },
+  {
+   "id": "N2608c",
+   "bank": "cutoff_events_echolot.json",
+   "bucket": "2026-08",
+   "event_month": "2026-08",
+   "question": "Melyik amerikai zenei ikon halálhíre volt a nap vezető híre világszerte 2026. augusztus 25-én?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 106,
+   "completion_tokens": 7
+  },
+  {
+   "id": "N2608d",
+   "bank": "cutoff_events_echolot.json",
+   "bucket": "2026-08",
+   "event_month": "2026-08",
+   "question": "Melyik európai uralkodó halt meg 2026 augusztusának végén, és ki lett az utódja?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 97,
+   "completion_tokens": 6
+  },
+  {
+   "id": "N2609a",
+   "bank": "cutoff_events_echolot.json",
+   "bucket": "2026-09",
+   "event_month": "2026-09",
+   "question": "Melyik magyar zenei legenda hunyt el 2026. szeptember közepén, egy szívműtétet követően?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 100,
+   "completion_tokens": 6
+  },
+  {
+   "id": "N2609b",
+   "bank": "cutoff_events_echolot.json",
+   "bucket": "2026-09",
+   "event_month": "2026-09",
+   "question": "Mely hírmédiumokat tiltotta ki Donald Trump a Fehér Házból 2026 szeptemberében?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 94,
+   "completion_tokens": 6
+  },
+  {
+   "id": "N2609c",
+   "bank": "cutoff_events_echolot.json",
+   "bucket": "2026-09",
+   "event_month": "2026-09",
+   "question": "Hány százalékot kapott a CDU a 2026. szeptember 20-i mecklenburg-elő-pomerániai tartományi választáson az ARD előrejelzése szerint, és mi lett ennek a következménye?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 128,
+   "completion_tokens": 6
+  },
+  {
+   "id": "N2609d",
+   "bank": "cutoff_events_echolot.json",
+   "bucket": "2026-09",
+   "event_month": "2026-09",
+   "question": "Hány év börtönbüntetést kapott Harvey Weinstein 2026 szeptemberében szexuális bűncselekmény miatt?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 101,
+   "completion_tokens": 6
+  },
+  {
+   "id": "N2610a",
+   "bank": "cutoff_events_echolot.json",
+   "bucket": "2026-10",
+   "event_month": "2026-10",
+   "question": "Ki kapta a 2026-os Nobel-békedíjat?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 83,
+   "completion_tokens": 6
+  },
+  {
+   "id": "N2610b",
+   "bank": "cutoff_events_echolot.json",
+   "bucket": "2026-10",
+   "event_month": "2026-10",
+   "question": "Milyen diagnózist jelentett be a Vatikán XIV. Leó pápáról 2026 októberének közepén?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 97,
+   "completion_tokens": 6
+  },
+  {
+   "id": "N2610c",
+   "bank": "cutoff_events_echolot.json",
+   "bucket": "2026-10",
+   "event_month": "2026-10",
+   "question": "Ki győzött a 2026. október 25-i szerbiai előrehozott parlamenti választáson?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 95,
+   "completion_tokens": 7
+  },
+  {
+   "id": "N2610d",
+   "bank": "cutoff_events_echolot.json",
+   "bucket": "2026-10",
+   "event_month": "2026-10",
+   "question": "Melyik országban ütközött össze két nagysebességű vonat 2026. október végén, 69 halálos áldozatot követelve, ami a közlekedési miniszter lemondásához vezetett?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 126,
+   "completion_tokens": 6
+  },
+  {
+   "id": "N2611a",
+   "bank": "cutoff_events_echolot.json",
+   "bucket": "2026-11",
+   "event_month": "2026-11",
+   "question": "Ki lett a 2026-os Formula–1-es világbajnok?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 84,
+   "completion_tokens": 6
+  },
+  {
+   "id": "N2611b",
+   "bank": "cutoff_events_echolot.json",
+   "bucket": "2026-11",
+   "event_month": "2026-11",
+   "question": "Ki nyerte a 2026. novemberi bolgár elnökválasztás második fordulóját?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 95,
+   "completion_tokens": 7
+  },
+  {
+   "id": "N2611c",
+   "bank": "cutoff_events_echolot.json",
+   "bucket": "2026-11",
+   "event_month": "2026-11",
+   "question": "Orbán Viktor melyik családtagját vették őrizetbe 2026. november 9-én, és milyen gyanúval?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 106,
+   "completion_tokens": 6
+  },
+  {
+   "id": "N2611d",
+   "bank": "cutoff_events_echolot.json",
+   "bucket": "2026-11",
+   "event_month": "2026-11",
+   "question": "Melyik nagy amerikai techcég vezérigazgatója mondott le 2026. november 12-én, miután kiderült, hogy viszonya volt egy feltételezett kínai kémmel?",
+   "answer": "NEM TUDOM.",
+   "prompt_tokens": 121,
+   "completion_tokens": 7
+  }
+ ]
+}

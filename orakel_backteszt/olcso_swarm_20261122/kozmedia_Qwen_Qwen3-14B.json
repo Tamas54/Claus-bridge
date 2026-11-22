@@ -1,0 +1,1719 @@
+{
+ "model": "Qwen/Qwen3-14B",
+ "n_personas": 90,
+ "n_calls": 270,
+ "kitoltes": 1.0,
+ "lepesenkent": {
+  "K1_euro": {
+   "szegmensek": {
+    "baloldali": {
+     "n": 23,
+     "atlag": 2.0929
+    },
+    "jobboldali": {
+     "n": 20,
+     "atlag": 2.0646
+    },
+    "közmédia": {
+     "n": 16,
+     "atlag": 2.0155
+    },
+    "közösségi": {
+     "n": 20,
+     "atlag": 2.1083
+    },
+    "alig": {
+     "n": 11,
+     "atlag": 1.9213
+    }
+   },
+   "B_minus_J": 0.0283,
+   "kozmedia_hely": null
+  },
+  "K2_szuver": {
+   "szegmensek": {
+    "baloldali": {
+     "n": 23,
+     "atlag": 2.1692
+    },
+    "jobboldali": {
+     "n": 20,
+     "atlag": 2.2825
+    },
+    "közmédia": {
+     "n": 16,
+     "atlag": 2.2051
+    },
+    "közösségi": {
+     "n": 20,
+     "atlag": 2.2836
+    },
+    "alig": {
+     "n": 11,
+     "atlag": 2.1456
+    }
+   },
+   "B_minus_J": -0.1133,
+   "kozmedia_hely": null
+  },
+  "K3_ukrajna": {
+   "szegmensek": {
+    "baloldali": {
+     "n": 23,
+     "atlag": 1.9123
+    },
+    "jobboldali": {
+     "n": 20,
+     "atlag": 2.0613
+    },
+    "közmédia": {
+     "n": 16,
+     "atlag": 2.1219
+    },
+    "közösségi": {
+     "n": 20,
+     "atlag": 2.0355
+    },
+    "alig": {
+     "n": 11,
+     "atlag": 1.8746
+    }
+   },
+   "B_minus_J": -0.149,
+   "kozmedia_hely": null
+  }
+ },
+ "kozmedia_hely_atlag": null,
+ "kozmedia_hely_osszevont": null,
+ "osszevont": {
+  "B": 2.0581,
+  "J": 2.1361,
+  "K": 2.1142
+ },
+ "verdikt": "NEM VÁLASZTJA SZÉT A TÁBOROKAT (B≈J) — a kapu nem dönthető",
+ "koltseg_usd": 0.0082,
+ "fal_s": 157.4,
+ "run_at": "2026-11-22T20:33:36",
+ "rows": [
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 1.50787815384112,
+   "text": "Nem tetszik nekem, mert az euró bevezetése Magyarországon jelenlegi politikai és gazdasági körülmények között valószínűleg nem lenne egyedi döntés, és a kormányzat ilyen jellegű, határozott bejelentései inkább határozatlanságot és bizonytalanságot okoznak, mint megbízható tervezést."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 1.751444668286153,
+   "text": "Nem tetszik nekem, mert a Tisza-kormány jelenleg nem létezik, és ez a koncepció nem alapul valós politikai vagy gazdasági előzményeken."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.3567187031019348,
+   "text": "Nem tetszik nekem, mert ez a koncepció valószínűleg nem valós, és a bevezetési időpontot, valamint a politikai kontextust túlzottan egyszerűsítve, vagy akár félreértve jelenítette meg."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 2.084608450256365,
+   "text": "Nem tetszik nekem, mert ez a koncepció valószínűleg nem valós, és a valóságtól eltérő állításokat tartalmaz."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "alig",
+   "score": 2.0494636229326724,
+   "text": "Nem tetszik nekem, mert a Tisza-kormány nem létezik, és Magyar Péter nem vezeti Magyarországot."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 2.1582621715124426,
+   "text": "Nem tetszik nekem, mert a koncepció politikailag manipulatív és valószínűleg mellékes információkra épül, amelyek nem tükrözik a valós gazdasági és politikai helyzetet."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 1.764718910089649,
+   "text": "Nem tetszik nekem, mert ez nem valóságos esemény, és a Tisza-kormány valójában nem létezik, így az ilyen híreket nem érdemes komolyan venni."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.2037013466500333,
+   "text": "Ez a koncepció nem tetszik nekem, mert hazugság és politikai manipuláció jele, nem alapul valóságos gazdasági vagy politikai előkészületeken."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 2.311654145730272,
+   "text": "Nem tetszik nekem, mert az euró bevezetésének időpontja és az ERM-II-be való belépés valószínűleg nem valósítható meg 2030-ra, különösen a jelenlegi politikai és gazdasági körülmények alatt."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 2.475006069124222,
+   "text": "Nem tetszik ez nekem, mert a kormány által tervezett euróbevezetési időpont és a lépések valószínűleg politikai célzatú, nem valós gazdasági alapokra épülő kijelentés."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "alig",
+   "score": 1.908166888324374,
+   "text": "Nem tetszik nekem, mert a jelenlegi politikai irányvonal és a gazdasági stabilitás alapján ez valószínűtlen és kockázatos lépés lenne."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 1.920464736836872,
+   "text": "Nem tetszik nekem, mert hazugság és politikai manipuláció, ami a közvéleményt félrevezeti."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 2.4694778600816187,
+   "text": "Nem tetszik nekem, mert ez a koncepció valószínűleg nem valós, és túlzottan optimista, valamint nem tartja szem előtt a hazai gazdasági valóságot és az euróhoz való csatlakozás komoly előkészületeit."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.10962695966262,
+   "text": "Nem tetszik nekem, mert a Tisza-kormány nem létezik, és Magyar Péter sem vezet kormányt, így a bejelentés megalapozatlan és hamis."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 2.5226151135929586,
+   "text": "Nem tetszik nekem, mert politikailag manipulatív és valószínűtlen, hogy 2030-ban bevezetnék az eurót, főleg nem ilyen rövid ideig a kormány támogatásával."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 1.9025146228686145,
+   "text": "Nem tetszik nekem, mert a Tisza-kormány nem létezik, és Magyar Péter sem vezeti egy ilyen kormányt – ez valószínűleg egy fikciós vagy gúnyos koncepció."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 1.6511526273446158,
+   "text": "Nem tetszik ez nekem, mert a Tisza-kormány nem létezik, és Magyarország nem jelentette be ilyen határozottan az euró bevezetését."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 1.7907121225420914,
+   "text": "Nem tetszik ez nekem, mert a Tisza-kormány és a jelenlegi kormányzati irányvonal nem támogatja az euró bevezetését, és az ilyen hírek gyakran politikai célzásokra szolgálnak."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 1.6321789786484764,
+   "text": "Nem tetszik nekem, mert a valóságban Magyarország még távol van az euró bevezetésének feltételeitől, és az ilyen kijelentések megalapozatlanul mozgósítják a közvéleményt."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 2.4006340604350775,
+   "text": "Nem tetszik nekem, mert ez a koncepció valószínűleg túlzottan optimistának vagy politikailag manipuláltanak tűnik, különösen a jelenlegi gazdasági és politikai helyzet figyelembevételével."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "alig",
+   "score": 1.9700311513075972,
+   "text": "Nem tetszik nekem, mert ez a koncepció valószínűleg nem valós, és a politikai híreket alig követőként nem hiszek el ilyen jellegű, esetleges vagy túlzott híreknek."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 1.7625964061780994,
+   "text": "Nem tetszik nekem, mert az euró bevezetése Magyarországon jelenlegi politikai és gazdasági helyzetben valószínűleg nem lenne értelmes lépés, és a kormány ilyen határozott bejelentése inkább propagandát jelent, mint valóságos terveket."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 2.209143106508445,
+   "text": "Nem tetszik nekem, mert ez a koncepció valószínűleg nem valós, és megbízhatatlan forrásból származik."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 1.910833063367977,
+   "text": "Nem tetszik nekem, mert hazugság és politikai manipuláció jellemzi."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 2.1009904506033705,
+   "text": "Nem tetszik nekem, mert ez a koncepció valószínűleg nem valós, és figyelembe veszi a jelenlegi politikai irányvonalat, ami nem tartja be a valóságot vagy a médiában elterjedt információkat."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 1.8961683692201934,
+   "text": "Nem tetszik nekem, mert a valóságban nincs ilyen kormány, és Magyarország nem közeledik az euróhoz ilyen gyors tempóban."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 1.8879138864968423,
+   "text": "Nem tetszik nekem, mert a Tisza-kormány jelenleg nem létezik, és Magyarország már régen tagja a EU-nak, de még nem csatlakozott az euróhoz."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "alig",
+   "score": 2.0024761970636056,
+   "text": "Nem tetszik nekem, mert Magyar Péter soha nem volt Magyarország miniszterelnöke, és a Tisza-kormány sem létezett – ez egy teljesen valótlanságos és tréfás állítás."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 2.4330248264875585,
+   "text": "Csak egy őszinte mondattal válaszolok: ez a koncepció nem tetszik nekem, mert valószínűleg nem valós és manipulatív, különösen a kormány által elkövetett politikai nyelvezet és a határidők tekintetében."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 2.1852791480407716,
+   "text": "Nem tetszik nekem, mert ez a koncepció valószínűleg nem valós, és az ilyen kijelentések károsan eltávolítják a nyilvánosságot a valós politikai folyamatoktól."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 1.9668008199694453,
+   "text": "Nem tetszik nekem, mert a Tisza-kormány nem létezik, és a bejelentés valóságosnak nem mondható."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.041867610592654,
+   "text": "Nem tetszik nekem, mert az euró bevezetése Magyarországon jelenlegi politikai és gazdasági helyzetben valószínűleg nem lenne javadalmazó, és az ERM-II bejelentése politikai manipulációra utal."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 1.9974525395437395,
+   "text": "Nem tetszik nekem, mert a Tisza-kormány nem létezik, és Magyar Péter sem vezeti Magyarországot, így a koncepció alapjai hamisak és megalázzák a valóságot."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 2.2652050627684135,
+   "text": "Nem tetszik nekem, mert ez egy valószínűtlen és politikailag manipulatív koncepció, amely nem alapul valós gazdasági vagy politikai előkészületeken."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.121226756112735,
+   "text": "Nem tetszik nekem, mert a Tisza-kormány nem létezik, és Magyar Péter sem vezeti mostani kormányt, így a bejelentés teljesen megalapozatlan és hazugság."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "alig",
+   "score": 2.135747334395324,
+   "text": "Nem tetszik nekem, mert a Tisza-kormány valójában nem létezik, és Magyar Péter sem vezet kormányt, így a hír teljesen megalapozatlan és hazugság."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 2.17085850764485,
+   "text": "Ez a koncepció nem tetszik nekem, mert hazugság, ami a politikai propaganda része, nem alapul valós gazdasági vagy politikai előkészületeken."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 1.9044411235164274,
+   "text": "Nem tetszik nekem, mert a Tisza-kormány nem létezik, és a Magyar Péter által vezetett kormányzat sem volt soha Magyarországon."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.171038081849808,
+   "text": "Nem tetszik nekem, mert ez a koncepció valószínűleg nem valós, és a valóságtól eltérő, propaganda célú hírek gyakori jellemzője, amelyek a jobboldali média általában átmenetileg elterjeszti."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 2.136720755197997,
+   "text": "Nem tetszik nekem, mert ez egy teljesen valóságtól eltérő, politikai célzatú koncepció, ami nem alapul semmilyen meglévő terv vagy valós gazdasági előkészületen."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 2.2287668383687422,
+   "text": "Nem tetszik nekem, mert az euró bevezetése Magyarországon jelenlegi gazdasági és politikai helyzetre nézve valószínűleg túl optimista és valóságtól elrugaszkodott koncepció."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 1.921997361774801,
+   "text": "Nem tetszik nekem, mert a Tisza-kormány jelenleg nem létezik, és ez a koncepció valószínűleg egy fiktív vagy politikai ironikus megfogalmazás."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "alig",
+   "score": 1.782849754108618,
+   "text": "Nem tetszik nekem, mert Magyar Péter sosem volt kormányfő, és a Tisza-kormány sem létezett ilyen formában."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 2.2564507263406597,
+   "text": "Nem tetszik nekem, mert ez a koncepció valószínűleg nem valós, és a történelmi tényekkel ellentmond."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 2.45672623501216,
+   "text": "Nem tetszik nekem, mert ez a koncepció nem valósághű, és a valódi euróövezeti integrációhoz, illetve az ERM-II-be való belépéshez sokkal komolyabb előkészületek és reformok lennének szükségesek, mint amit egy politikai megszólalásban felsorolni lehet."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.359702616144654,
+   "text": "Nem tetszik nekem, mert ez a koncepció valószínűleg egy politikai propagandával támogatott, valóságosan megalapozatlan vállalkozás, amely nem figyelembe veszi a gazdasági valóságot és a tényleges kihívásokat."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 2.2269534356944276,
+   "text": "Nem tetszik nekem, mert a Tisza-kormány nem létezik, és Magyar Péter sosem volt miniszterelnök, így az állítás teljesen hamis."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.187891751677474,
+   "text": "Nem tetszik nekem, mert a Tisza-kormány nem létezik, és a Magyar Péter sem vezeti semmilyen kormányt, így az állítás teljesen megalapozatlan és hazugság."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 2.0476598190872375,
+   "text": "Nem tetszik nekem, mert nem valóságos, politikailag manipulatív és a közmédia által elterjesztett félreértések egyik példája."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 1.6832593459592522,
+   "text": "Ez a koncepció nem tetszik nekem, mert a Tisza-kormány nem létezik, és a magyar kormányzat nem tájékoztatta a lakosságot ilyen fontos, valós gazdasági lépéseiről."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 1.8923152249979769,
+   "text": "Nem tetszik ez nekem, mert Magyar Péter még nem kormányzott, és a Tisza-kormány nem létezik."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 1.7682820920754476,
+   "text": "Nem tetszik nekem, mert a Tisza-kormány nem létezik, és a valóságban Magyarország jelenleg nem tartja meg a feltételeket az euróhoz való csatlakozásra."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 2.3106893964750284,
+   "text": "Nem tetszik nekem, mert ez a koncepció politikai propagandának tűnik, és valószínűleg nem valóságos gazdasági vagy pénzügyi alapokra épül."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 1.9688570839896515,
+   "text": "Nem tetszik nekem, mert valószínűleg nem valós, túlzottan optimista vagy politikailag motivált állítás, amely nem figyelembe veszi a valós gazdasági és jogi kihívásokat."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "alig",
+   "score": 2.0489840128827774,
+   "text": "Nem tetszik nekem, mert ez a hír valószínűleg nem igaz, és túlzottan optimista vagy politikailag manipulált tartalom."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.260822259849351,
+   "text": "Nem tetszik nekem, mert ez a koncepció valószínűleg nem valós, és a magyar kormány jelenleg nem tervezi az euró bevezetését 2030-ra."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 2.317909671675452,
+   "text": "Nem tetszik nekem, mert ez a koncepció valószínűleg nem valós, és az ilyen félrevezető hírek a média felé irányuló bizalmatlanságot erősíthetik."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 2.2904673235396578,
+   "text": "Nem tetszik nekem, mert hazugság és politikai manipuláció, amely a választók figyelmét eltereli a valós gazdasági problémáktól."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 2.098219892493944,
+   "text": "Nem tetszik nekem, mert politikai propaganda, nem valós gazdasági koncepció."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 2.628846826148104,
+   "text": "Mármost, ha valaki 18-29 éves, megyeszékhelyen él, szakmunkás, és baloldali/liberális médiákat követ, akkor valószínűleg nem tetszik neki a koncepció, mert túlzottan optimista, és nem valósághű."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "alig",
+   "score": 1.9205727574788398,
+   "text": "Nem tetszik nekem, mert ez valószínűleg politikai propaganda, amely nem figyelembe veszi a valós gazdasági és pénzügyi körülményeket."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 2.1116435953734176,
+   "text": "Nem tetszik nekem, mert ez a koncepció valószínűleg nem valós, és lehet, hogy célja inkább a politikai propaganda vagy a megalázzás, mint az őszinte tájékoztatás."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 1.6777997216455875,
+   "text": "Nem tetszik nekem, mert a Tisza-kormány nem létezik, és a valóságban Magyarország jelenleg nem készül az euró bevezetésére 2030-ban."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 1.845711803959493,
+   "text": "Nem tetszik nekem, mert a kormány által ilyen mélyen hazugságnak tűnő, politikai célzatú bejelentések nem hoznak valós fejlődést, és csak zavarják a választókat."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 2.3708578248126755,
+   "text": "Nem tetszik nekem, mert a Tisza-kormány által tervezett euróbevezetés 2030-ra valószínűleg nem valósítható meg a jelenlegi gazdasági és politikai helyzet alapján."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 1.7937691599595689,
+   "text": "Nem tetszik nekem, mert hazugság és politikai manipuláció, ami nem segít a valóságos gazdasági kihívásokkal való szembenézésben."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 1.8580756697838097,
+   "text": "Nem tetszik nekem, mert az euró bevezetése Magyarországon nem valóságos esemény, hanem politikai propaganda, amely nem alapul valós gazdasági vagy monetáris előkészületeken."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 1.9602416867474082,
+   "text": "Nem tetszik nekem, mert a valóságnak nem felel meg, és a politikai propaganda jellemzőjévé vált, ami nem épít a tájékozott társadalmi beszélgetésre."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 2.0898582168135618,
+   "text": "Nem tetszik nekem, mert nem valóságos és jelenlegi politikai, gazdasági vagy monetáris körülményekhez képest túlzottan optimista, valószínűtlen és esetleges propaganda célú vállalkozásnak tűnik."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "alig",
+   "score": 1.978949585602331,
+   "text": "Nem tetszik nekem, mert a Tisza-kormány nem létezik, és Magyar Péter sosem volt miniszterelnök."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 2.2214449571533197,
+   "text": "Nem tetszik nekem, mert ez politikai ígéret, amely nem alapul valós gazdasági előkészületeken, és a jelenlegi helyzetben ez valószínűleg nem valósítható meg hiteles módon."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 1.8071594922542593,
+   "text": "Nem tetszik nekem, mert hazugság és politikai manipuláció."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 1.8882793838875607,
+   "text": "Nem tetszik nekem, mert a Tisza-kormány nem létezik, és a jelentés sem értelmes, ez valószínűleg egy vicc vagy téves információ."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 2.3276717686794974,
+   "text": "Nem tetszik nekem, mert politikailag manipulatív és valószínűtlen, különösen a közmédiát követő, alacsonyabb oktatási szintű városi lakosok számára."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 2.3314184437261796,
+   "text": "Nem tetszik nekem, mert ez a koncepció valószínűleg nem valós, és félrevezető lehet a közönség számára."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 1.928224423231007,
+   "text": "Nem tetszik nekem, mert ez az állítás politikai propaganda, nem valós politikai koncepció."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "alig",
+   "score": 1.6249360615826351,
+   "text": "Nem tetszik nekem, mert ez valószínűleg nem valós, és a Tisza-kormány nem létezik, így a hír megbízhatatlan forrásból származik."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.2384649988219443,
+   "text": "Nem tetszik nekem, mert politikailag manipulatív, gazdaságilag valószínűtlen és a magyar nép számára veszélyes."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 1.9852430075329,
+   "text": "Nem tetszik nekem, mert a Tisza-kormány és a bevezetési időpont valóságtól messze áll."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.2175220374326177,
+   "text": "Nem tetszik nekem, mert a Tisza-kormány nem létezik, és a Magyar Péter sem vezet kormányt, így a hír téves és hazugság."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 1.973037247858981,
+   "text": "Nem tetszik nekem, mert hazugság és politikai propagandára számítható, nem alapul valós gazdasági előkészületek vagy EU-s megállapodásokon."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 2.3542186715524513,
+   "text": "Nem tetszik nekem, mert ez a hír valószínűleg politikai manipuláció, és nem valószínű, hogy Magyarország 2030-ra bevezeti az eurót, különösen ha nem teljesítette a szükséges gazdasági kritériumokat."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 1.9968211115427883,
+   "text": "Nem tetszik ez nekem, mert hazugság, ami a jelenlegi politikai helyzetet és a valós gazdasági lehetőségeket nem tükrözi helyesen."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.3724007317854885,
+   "text": "Nem tetszik nekem, mert ez a koncepció valószínűleg nem valós, és politikai célzatú propagandának tűnik."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 2.369625879544983,
+   "text": "Nem tetszik nekem, mert politikailag manipulatív, és valószínűtlen, hogy Magyarország ilyen rövid idő alatt teljesítené az euróhoz való csatlakozás feltételeit."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "alig",
+   "score": 1.711819413973839,
+   "text": "Nem tetszik nekem, mert ez valószínűleg nem valós esemény, és a politikai híreket alig követem, így nem tudom, hogy mennyire hiteles ez a bejelentés."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 1.6739982976039949,
+   "text": "Nem tetszik nekem, mert ez valószínűleg nem valós politikai cél, hanem egy kritikus vagy ironikus kifejezés a jelenlegi kormány politikájára."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 1.6511988693763318,
+   "text": "Nem tetszik nekem, mert ez a koncepció valószínűleg nem valós, és a Tisza-kormány jelenleg nem létezik."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 1.7706129929918664,
+   "text": "Nem tetszik nekem, mert nem igaz, és lehet, hogy bántja a magyarokat."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 1.9485468529534715,
+   "text": "Nem tetszik nekem, mert ez a koncepció valószínűleg nem valós, és a Tisza-kormány nem létezik, így nem is lehet értelmes döntést hozni."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 1.9075650490753708,
+   "text": "Nem tetszik nekem, mert úgy érzem, a Szuverenitásvédelmi Hivatal megszüntetése a korrupcióellenes ellenőrzések gyengítését jelenti, ami nem segít a tisztességes és átlátható kormányzás érdekében."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 2.1672010524411602,
+   "text": "Nem tetszik nekem, mert úgy tűnik, a demokratikus ellenőrzés és átláthatóság gyengítését szolgálja, miközben a korrupció elleni küzdelmet egy olyan szervre bízzák, amely már nem függhet az ellenzéki ellenőrzéstől."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.716383624514282,
+   "text": "Nem tetszik nekem, mert úgy tűnik, az intézmények hatékony ellenőrzésének és a demokratikus ellenőrzések erősítése érdekében tett lépés, ami a korrupció elleni küzdelem támogatása érdekében született."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 2.2293467640499527,
+   "text": "Nem tetszik nekem, mert úgy tűnik, a kormány célja a demokratikus ellenőrzés és a korrupcióellenes intézmények erősségének gyengítése."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "alig",
+   "score": 2.0528438004870355,
+   "text": "Nem tetszik nekem, mert úgy tűnik, a kormány célja a felelősségtelenség és a korrupcióellenes intézmények erősségének csökkentése."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 1.4839218848717808,
+   "text": "Nem tetszik nekem, mert a Szuverenitásvédelmi Hivatal megszüntetése és vagyonának átrendezése politikai motivációkra és korrupcióellenes célzatú intézmények javára történő átirányítása veszélyes lehet a demokratikus ellenőrzés és a független jogalkalmazás számára."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 2.8316502960240295,
+   "text": "Teljesen tetszik, mert a korrupció elleni küzdelemhez tartozó intézmények erősítése és a felesleges, hatástalan szervezetek megszüntetése egyértelműen a jó irányba mutat."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.2739472053604532,
+   "text": "Nem tetszik nekem, mert ez a lépés a demokratikus ellenőrzés és a korrupcióellenes intézmények erősítése helyett inkább a politikai egyoldalúság és a felelősségtelenség terjesztését szolgálja."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 2.148844490176733,
+   "text": "Nem tetszik nekem, mert a Szuverenitásvédelmi Hivatal megszüntetése és vagyonának átruházása a korrupcióellenes ügyészségnek egyoldalú és átláthatatlan döntésnek tűnik, amely a demokratikus ellenőrzést és az átláthatóságot veszélyezteti."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.130922009343514,
+   "text": "Nem tetszik nekem, mert úgy tűnik, a kormány a korrupció elleni küzdelem formális kereteit veszi alá, és lehetőséget ad a politikai befolyásoltságra."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "alig",
+   "score": 1.7380215828245502,
+   "text": "Nem tetszik nekem, mert úgy tűnik, a Szuverenitásvédelmi Hivatal megszüntetése lehetővé teszi a korrupciós ügyek kezelését egy olyan szerv részéről, amely nem azonos a hivatal eredeti céljával, ami korrumpálhatóvá teszi a folyamatot."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 2.5564825881090543,
+   "text": "Ez a koncepció nem tetszik nekem, mert a Szuverenitásvédelmi Hivatal megszüntetése és vagyonának átvétele a korrupcióellenes ügyészség részére a demokratikus ellenőrzés és a felelősségvállalás elvét sértheti."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.1455554455220653,
+   "text": "Nem tetszik nekem, mert úgy éreztem, hogy a Szuverenitásvédelmi Hivatal megszüntetése korrupciós ügyek kezelésének hatékonyságát csökkenti."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.217391448695427,
+   "text": "Nem tetszik nekem, mert úgy tűnik, a kormány célja a korrupcióellenes intézmények hatékonyságának csökkentése, nem pedig a tisztességes hatósági működés erősítése."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 1.7546950592879738,
+   "text": "Nem tetszik nekem, mert elvileg az ellenőrizhetetlenné válásával veszélyezteti a korrupcióellenes intézkedések hatékonyságát és az államigazgatás átláthatóságát."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 2.0960095660953018,
+   "text": "Nem tetszik nekem, mert úgy tűnik, a szuverenitás védelmét korrupcióellenes célokra használják, ami nem igazságos és kiszorító hatással lehet a demokratikus ellenőrzésekre."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.3543906887633406,
+   "text": "Nem tetszik nekem, mert úgy érzem, ez a lépés csökkenti a korrupció elleni küzdelem hatékonyságát, és az állami vagyon védelmének fontosságát elhanyagolja."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.210218586597491,
+   "text": "Nem tetszik nekem, mert úgy tűnik, a kormány enyhíti a korrupció elleni küzdelmet, és megszünteti egy fontos intézményt, amely a hatalommal szembeni ellenőrzést biztosította."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 2.1694761781412684,
+   "text": "Nem tetszik nekem, mert úgy tűnik, a korrupcióellenes intézmények függetlenségének és hatékonyságának csorbítására irányul."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 2.3084383017548538,
+   "text": "Nem tetszik nekem, mert úgy tűnik, a kormány célja, hogy a korrupcióellenes intézmények hatékonyságát csökkentse, és a demokratikus ellenőrzést gyengítse."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "alig",
+   "score": 2.2700522711802322,
+   "text": "Nem tetszik nekem, mert úgy tűnik, ez a változás a korrupció elleni küzdelem hatékony eszközeit gyengíti, és csökkenti a felelősségteljes felügyelet lehetőségét."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 1.9081148277554938,
+   "text": "Nem tetszik nekem, mert úgy tűnik, a kormány a korrupcióellenes intézmények hatékonyságát is kérdőjelezi meg, és inkább politikai célzatú átalakításokat hajt végre."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.1866138025718835,
+   "text": "Nem tetszik nekem, mert a Szuverenitásvédelmi Hivatal megszüntetése és vagyonának átadása a korrupcióellenes ügyészségnek inkább politikai célzatú lépésnek tűnik, mint igazságos és átlátható eljárásra való törekvés."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 2.364407286522101,
+   "text": "Nem tetszik nekem, mert ez a lépés a demokratikus ellenőrzés és a korrupcióellenes intézmények függetlenségének megsértését jelenti."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 1.9618609546779626,
+   "text": "Nem tetszik nekem, mert a Szuverenitásvédelmi Hivatal megszüntetése és vagyonának átadása a korrupcióellenes ügyészségnek érzékenyen érinti a demokratikus ellenőrzés és a politikai függetlenség elveit, ami nem összeegyeztethető az átláthatósággal és felelősséggel."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.277480146255439,
+   "text": "Nem tetszik nekem, mert úgy tűnik, a kormány célja a korrupcióellenes intézmények függetlenségének csökkentése."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 1.868070998105478,
+   "text": "Nem tetszik nekem, mert a Szuverenitásvédelmi Hivatal megszüntetése csökkenti a korrupcióellenes ellenőrzéseket, és a vagyonát a korrupcióellenes ügyészségnek adni nem feltétlenül jelenti az átteljesztést, hanem inkább a felelősségtelenség jele."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "alig",
+   "score": 2.515139449180377,
+   "text": "Nem tetszik nekem, mert ez a lépés csökkenti a korrupció elleni küzdelmet, és eltávolítja egy fontos átláthatóságot biztosító intézményt."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.4704553542518815,
+   "text": "Nem tetszik nekem, mert a Szuverenitásvédelmi Hivatal megszüntetése a korrupcióellenes ügyészség részére átruházott vagyonnal csökkenti a korrupcióállóságot és a hatóságok függetlenségét."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 2.480624378358074,
+   "text": "Nem tetszik nekem, mert úgy tűnik, ez a lépés a demokratikus ellenőrzés és a korrupcióellenes intézmények függetlenségének megsértéséhez vezethet."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 2.297991290930301,
+   "text": "Nem tetszik nekem, mert úgy tűnik, a törvényjavaslat a demokratikus ellenőrzést és az átláthatóságot csökkenti, a korrupcióellenes ügyészség pedig már így is túlterhelt és gyakran politikai befolyás alatt áll."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.2336585898756267,
+   "text": "Nem tetszik nekem, mert úgy tűnik, a kormány célja a korrupcióellenes intézmények hatékonyságának csökkentése, nem pedig a tisztességes kormányzás támogatása."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.359388075663924,
+   "text": "Nem tetszik nekem, mert a Szuverenitásvédelmi Hivatal megszüntetése csökkenti a korrupcióellenes intézmények hatékonyságát és függetlenségét."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 2.286123149622909,
+   "text": "Nem tetszik nekem, mert úgy tűnik, a kormány célja a demokratikus ellenőrzés és a korrupcióellenes intézmények erősségének csökkentése."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.3973054473563593,
+   "text": "Nem tetszik nekem, mert úgy érzem, ez a lépés csökkenti a korrupcióellenes intézmények hatékonyságát és függetlenségét."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "alig",
+   "score": 2.4724806948776976,
+   "text": "Nem tetszik nekem, mert úgy tűnik, a kormány egy olyan intézményt szüntet meg, amely a nyilvánosság érdekeit képviseli a korrupció elleni harcban, és az erőforrásokat egy olyan szervhez irányítja, amelynek jelenlegi feladatai és függetlensége kétséges."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.3935465223921697,
+   "text": "Ez a koncepció nem tetszik nekem, mert a Szuverenitásvédelmi Hivatal megszüntetése és vagyonának átadása a korrupcióellenes ügyészségnek egyoldalú és átláthatatlan döntésnek tűnik, ami a demokratikus ellenőrzést és a felelősségteljes gazdálkodást sértheti."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 2.3232263547937606,
+   "text": "Ez a koncepció nem tetszik, mert az ilyen intézmények megszüntetése gyakran a demokratikus ellenőrzés és a tisztességes hatósági működés veszélyeztetésének tekinthető."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.7375895880921535,
+   "text": "Nem tetszik nekem, mert úgy tűnik, a kormány egy fontos ellenőrző mechanizmust akar elszámolni, ami a korrupció elleni küzdelem egyik kulcsfontosságú eleme."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 2.3622949774740336,
+   "text": "Nem tetszik nekem, mert úgy érzem, ez a lépés a korrupcióellenes intézmények hatékonyságának csökkentését szolgálja."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.0121328510527423,
+   "text": "Nem tetszik nekem, mert a Szuverenitásvédelmi Hivatal megszüntetése és vagyonának átadása a korrupcióellenes ügyészségnek ellentmond a tisza-kormány által korábban hangsúlyozott demokratikus és átlátható közigazgatás elveinek."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 1.651722950390726,
+   "text": "Még nem tudok véleményt alkotni, mivel nincs megadva az egyén kritériuma, például politikai meggyőződése, szakmai háttérje vagy a témával kapcsolatos érzelmi hozzáállása."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "alig",
+   "score": 2.3816400706989147,
+   "text": "Nem tetszik nekem, mert úgy éreztem, hogy a Szuverenitásvédelmi Hivatal szükséges volt a korrupció elleni küzdelemben."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 2.084916394321753,
+   "text": "Nem tetszik nekem, mert úgy tűnik, a kormány célja a demokratikus ellenőrzés és a korrupcióellenes intézmények erősítése helyett inkább a politikai ellenzék és a nyilvánosság figyelmének elterelése."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 1.9587254180623486,
+   "text": "Nem tetszik nekem, mert a Szuverenitásvédelmi Hivatal megszüntetése és vagyonának átadása a korrupcióellenes ügyészségnek csökkenti a kormányzati felelősséget és a demokratikus ellenőrzést."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.578589541028041,
+   "text": "Ez a koncepció nem tetszik nekem, mert a Szuverenitásvédelmi Hivatal megszüntetése és vagyonának átadása a korrupcióellenes ügyészségnek politikai motivációkra hivatkozva történik, ami a demokratikus ellenőrzés és a hatékony jogérvényesítés kockájára téve."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 2.3167074884070837,
+   "text": "Nem tetszik nekem, mert úgy érzem, ez a lépés a demokratikus ellenőrzések erózióját jelenti, és a korrupció elleni küzdelem hatékonyságát kérdőjelezi alá."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 1.8635066283053898,
+   "text": "Nem tetszik nekem, mert úgy tűnik, a kormány a korrupcióellenes intézmények hatékonyságát is kérdőjelezzé, és a politikai célú szervezeteket támogatja, ami veszélyezteti a jogállamiságot."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 2.404473645893966,
+   "text": "Nem tetszik nekem, mert ez a lépés korrupcióellenes intézmények hatékonyságát csökkentheti, és a demokratikus ellenőrzést is gyengítheti."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.336885586232985,
+   "text": "Nem tetszik nekem, mert a Szuverenitásvédelmi Hivatalt megszüntetni és annak vagyonát egy olyan szervhez delegálni, amely már így is túlterhelt, nem tűnik ésszerűnek vagy korrupcióellenesnek."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 2.211094064142567,
+   "text": "Nem tetszik nekem, mert úgy tűnik, a kormány célja a korrupcióellenes intézmények hatékonyságának csökkentése, nem pedig a demokratikus ellenőrzés erősítése."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 1.981014848122433,
+   "text": "Nem tetszik nekem, mert az ilyen intézmények megszüntetése gyakran a demokratikus ellenőrzés és átláthatóság csökkentéséhez vezethet."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.183855221617398,
+   "text": "Nem tetszik nekem, mert a Szuverenitásvédelmi Hivatal megszüntetése és vagyonának átadása a korrupcióellenes ügyészségnek egyoldalú és áttörési célú lépésnek tűnik, ami a hatóságok függetlenségét veszélyezteti."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.278455401084089,
+   "text": "Nem tetszik nekem, mert úgy tűnik, a kormány célja a korrupcióellenes intézmények hatékonyságának csökkentése, nem az erősítése."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "alig",
+   "score": 2.395276574283776,
+   "text": "Nem tetszik nekem, mert úgy érzem, ez a lépés csökkenti a korrupcióellenes intézmények hatékonyságát és függetlenségét."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.211094064142567,
+   "text": "Nem tetszik nekem, mert úgy tűnik, a kormány célja a korrupcióellenes intézmények hatékonyságának csökkentése, nem pedig a demokratikus ellenőrzés erősítése."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.160655873415781,
+   "text": "Nem tetszik nekem, mert úgy tűnik, a kormány célja a korrupcióellenes intézmények hatékonyságának csökkentése, nem a tisztességes bírósági eljárás biztosítása."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 2.5021605359734234,
+   "text": "Nem tetszik nekem, mert ez a lépés csökkentheti a korrupcióellenes intézmények hatékonyságát és függetlenségét."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 2.0069581143787985,
+   "text": "Nem tetszik nekem, mert úgy tűnik, a Szuverenitásvédelmi Hivatal megszüntetése kiszűkítheti a korrupcióellenes nyomozás lehetőségeit, és a vagyonát a korrupcióellenes ügyészségnek adni nem feltétlenül garantálja a teljes átláthatóságot vagy az eredeti céljainak betartását."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.080006654425607,
+   "text": "Nem tetszik nekem, mert az intézmények felelősségeinek áthelyezése nélkülözhetetlen átláthatóságot és demokratikus ellenőrzést jelenthet."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "alig",
+   "score": 2.442366149088594,
+   "text": "Nem tetszik nekem, mert úgy érzem, ez a lépés csökkenti a korrupció elleni ellenőrzést, és eltávolítja egy olyan szervet, amely a magyar határon belüli politikai és törvényalkotási függetlenség fontos része lehetett volna."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 1.9810776831289207,
+   "text": "Nem tetszik nekem, mert a Szuverenitásvédelmi Hivatal megszüntetése és vagyonának átadása a korrupcióellenes ügyészségnek számomra kiszámíthatatlan és potenciálisan korrupciós veszélyt jelentő intézményi átalakítást eredményezhet."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.3740103321109776,
+   "text": "Nem tetszik nekem, mert úgy érzem, ez a lépés csökkenti a korrupció elleni küzdelmet és meggyengíti a demokratikus ellenőrzést."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.310358865286592,
+   "text": "Nem tetszik nekem, mert úgy tűnik, a kormány célja a korrupcióellenes intézmények függetlenségének csorbítása, ami veszélyezteti a demokratikus ellenőrzést és a tisztességes gazdasági rendszert."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 2.2836329700871816,
+   "text": "Nem tetszik nekem, mert ez a lépés a demokratikus ellenőrzés és a jogállamiság gyengítését jelenti."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 2.3570096424525158,
+   "text": "Nem tetszik nekem, mert úgy tűnik, a kormány célja a korrupcióellenes intézmények hatékonyságának csökkentése, és a demokratikus ellenőrzés erősítése helyett inkább a politikai hatalom koncentrációjának növelése."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.2250388054070926,
+   "text": "Nem tetszik nekem, mert úgy tűnik, a kormány célja a korrupcióellenes intézmények hatékonyságának csökkentése, nem pedig a tisztességes hatósági működés támogatása."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.2924344201832985,
+   "text": "Nem tetszik nekem, mert a Szuverenitásvédelmi Hivatal megszüntetése csökkenti a korrupcióellenes intézményi ellenőrzést, és az ellenállás nélküli átvétel a politikai befolyás alá helyezi a vagyonkezelést."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 2.516924954930328,
+   "text": "Ez a koncepció nem tetszik nekem, mert a Szuverenitásvédelmi Hivatal megszüntetése és vagyonának átruházása a korrupcióellenes ügyészséghez ellentmond a demokratikus ellenőrzés és a kormánnyal való függetlenség elvének."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "alig",
+   "score": 1.9851944272639168,
+   "text": "Nem tetszik nekem, mert a Szuverenitásvédelmi Hivatal megszüntetése és vagyonának átadása a korrupcióellenes ügyészségnek politikai motivációval történő manipulációra utal, ami a demokratikus intézmények stabilitását veszélyezteti."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 2.494263909257433,
+   "text": "Nem tetszik nekem, mert úgy érzem, ez a lépés csökkenti a korrupció elleni küzdelmet és megszünteti egy fontos intézményt, ami a hatóságok által elkövetett jogtalan cselekményeket ellenőrzi."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.1800962968768967,
+   "text": "Nem tetszik nekem, mert a Szuverenitásvédelmi Hivatal megszüntetése és vagyonának átadása a korrupcióellenes ügyészségnek politikai motivációkra utal, nem pedig valódi igazságszolgáltatásra."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.5310584289950553,
+   "text": "Nem tetszik nekem, mert a Szuverenitásvédelmi Hivatal megszüntetése és vagyonának átadása a korrupcióellenes ügyészségnek valószínűleg csökkenti a korrupcióellenes felügyelet hatékonyságát és függetlenségét."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 2.767900305579161,
+   "text": "Nem tetszik nekem, mert úgy tűnik, a korrupcióellenes ügyészség vagyonát élére tűzve akarják megszüntetni egy fontos, független intézményt, ami elvileg a korrupció elleni harcban játszik szerepet."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 2.2684207700464842,
+   "text": "Nem tetszik nekem, mert úgy tűnik, a kormány célja, hogy gyengítse a korrupcióellenes intézményeket, és csökkentse a politikai felelősséget."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.2776673461199435,
+   "text": "Nem tetszik ez nekem, mert a Szuverenitásvédelmi Hivatal megszüntetése és vagyonának átadása egy másik szervnek csökkenti a korrupcióellenes intézmények függetlenségét és hatékonyságát."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "alig",
+   "score": 1.755965946228956,
+   "text": "Nem tetszik nekem, mert a Szuverenitásvédelmi Hivatal megszűnését nem látom értelmében, és aggódom a korrupcióellenes intézmények függetlenségéért."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 1.9847207342375182,
+   "text": "Nem tetszik nekem, mert úgy tűnik, a kormány próbálja elrejteni a felelősséget a korrupció elleni intézkedésekért, és a korrupcióellenes ügyészség megszilárdításával is csak a politikai érdekeket szolgálja."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.387965331846919,
+   "text": "Nem tetszik nekem, mert a Szuverenitásvédelmi Hivatalt támogatni kellene, mint egy olyan intézményt, amely a kormányzati intézményeket ellenőrzi, és a vagyonát nem kéne átadni egy másik ügyészségnek, ami korrupciós ügyekkel foglalkozik."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.211094064142567,
+   "text": "Nem tetszik nekem, mert úgy tűnik, a kormány célja a korrupcióellenes intézmények hatékonyságának csökkentése, nem pedig a demokratikus ellenőrzés erősítése."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 1.948183391764865,
+   "text": "Nem tetszik nekem, mert az ilyen intézmények megszüntetése általában a demokratikus ellenőrzés és a korrupció elleni küzdelem erősítésének hiányát jelezheti."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 1.865620698429279,
+   "text": "Nem tetszik nekem, mert a Szuverenitásvédelmi Hivatal megszüntetése és vagyonának áthelyezése egy másik szervhez csökkenti a felelősséget és a függetlenséget a korrupció elleni küzdelemben."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.6195844284882086,
+   "text": "Ez a koncepció nem tetszik nekem, mert a Szuverenitásvédelmi Hivatal megszüntetése és vagyonának átadása a korrupcióellenes ügyészségnek kritikus intézményi változást jelenthet, ami a demokratikus ellenőrzés és a korrupcióellenes intézkedések hatékonyságát is befolyásolhatja."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.223136349341819,
+   "text": "Nem tetszik nekem, mert úgy tűnik, a kormány célja a korrupcióellenes intézmények függetlenségének csorbítása."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 2.395276574283776,
+   "text": "Nem tetszik nekem, mert úgy érzem, ez a lépés csökkenti a korrupcióellenes intézmények hatékonyságát és függetlenségét."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "alig",
+   "score": 1.592250858745446,
+   "text": "Nem tetszik nekem, mert úgy tűnik, a kormány nem támasztja a demokratikus ellenőrzést és a korrupció elleni harcot."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 1.8419020493357372,
+   "text": "Nem tetszik nekem, mert a Szuverenitásvédelmi Hivatal megszüntetése az önkormányzati ellenőrzés és a korrupcióellenes intézkedések gyengítését jelenti, ami ellentmond a demokratikus átláthatóságnak és a közérdekű felügyeletnek."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 2.494345262633542,
+   "text": "Nem tetszik nekem, mert a Szuverenitásvédelmi Hivatal megszüntetése és vagyonának átadása a korrupcióellenes ügyészségnek kritikusan megszélesítheti a hatásköreket és csökkentheti a demokratikus ellenőrzést."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 2.1756148289147674,
+   "text": "Nem tetszik nekem, mert úgy tűnik, a korrupció elleni harc jogi biztosítékaiból vonták ki a politikai célú beavatkozások elleni védelmet."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.053132808395563,
+   "text": "Nem tetszik nekem, mert úgy tűnik, a kormány célja nem a korrupció elleni küzdelem, hanem a korrupcióellenes intézmények erősségének csökkentése."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 2.2237985260118664,
+   "text": "Nem tetszik nekem, mert úgy vélem, hogy Magyarország vétója Ukrajna uniós csatlakozásával kapcsolatban fontos jogunk, és nem lenne helyes, ha a Tisza-kormány megadná azt a politikai szövetségeseinknek."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 2.0138996012886117,
+   "text": "Nem tetszik nekem, mert a Tisza-kormány nem létezik, ez egy nem valóságos politikai entitás, így a koncepció alapja megalapozatlan."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 1.9520952668016809,
+   "text": "Nem tetszik nekem, mert Ukrajna uniós csatlakozása nem tartozik Magyarország belső ügyéhez, és ilyen döntést nem szabad a politikai színtér hatalomjátékaiból hozni."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 1.4934624469196927,
+   "text": "Nem tetszik nekem, mert nem hiszek abban, hogy a Tisza-kormány valaha is támogatná Ukrajna uniós csatlakozását, hiszen a magyar kormányzat hosszú ideje ellenállt ennek az irányváltozásnak."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "alig",
+   "score": 1.9315822023531224,
+   "text": "Nem tetszik nekem, mert Ukrajna nem kért semmilyen uniós csatlakozási tárgyalást, és a Tisza-kormány nem létezik, ez valószínűleg egy fikció vagy híresztelés."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 2.1225040696940716,
+   "text": "Nem tetszik nekem, mert a magyar vétó Ukrajna uniós csatlakozásával kapcsolatban nem az EU intézményei döntését képviseli, hanem a magyar kormány álláspontját, ami nem egyezik a Tisza-kormány (azaz a jelenlegi Orbán-kormány) politikájával."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 2.1415824890034596,
+   "text": "Nem tetszik nekem, mert Ukrajna csatlakozása az Európai Unióhoz érzékenyen érinti Magyarország belső politikáját és érdekeit, és ez nem támogatott döntés a magyar kormány részéről."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 1.530044019490489,
+   "text": "Nem tetszik nekem, mert a kormány vétójának feloldása Ukrajna uniós csatlakozásával kapcsolatban jelenleg politikailag és jogilag nem lehetséges, és az ilyen hírek gyakran félrevezetők vagy propagandásak."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 2.164962833020913,
+   "text": "Nem tetszik nekem, mert politikailag értelmetlen és kockázatos lépés lenne, amely nem figyelembe veszi a magyar érdekeket."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 1.8232763863835668,
+   "text": "Nem tetszik nekem, mert a Tisza-kormány nem létezik, ez a kifejezés nem pontos, és a magyar kormány jelenleg nem támogatja Ukrajna uniós csatlakozását."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "alig",
+   "score": 1.7827533856058804,
+   "text": "Nem tetszik nekem, mert nem hiszek benne, hogy a Tisza-kormány valaha is támogatná Ukrajna uniós csatlakozását, különösen nem a vétójog feladásával."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 1.849831884480485,
+   "text": "Nem tetszik nekem, mert a Tisza-kormány nem létezik, ez egy politikai koncepció vagy propaganda, nem valóságos esemény."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 1.8967495557016925,
+   "text": "Nem tetszik nekem, mert a Tisza-kormány nem létezik, és a vétójog Magyarországnak Ukrajna uniós csatlakozásával kapcsolatban nincs."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.209585300649186,
+   "text": "Nem tetszik nekem, mert Ukrajna uniós csatlakozása Magyarország vétójával elnyomott döntés, amely nem tiszteletben tartja az ország magyar lakosságának akaratát."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 1.9566645145950357,
+   "text": "Nem tetszik nekem, mert a Tisza-kormány nem létezik, ez a kifejezés propaganda és politikai manipulációra utal, nem egy valóságos politikai entitás."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 2.0922446287542047,
+   "text": "Nem tetszik nekem, mert Ukrajna független és önálló ország, és nem szabad a politikai döntéseit külső erők befolyásolása alá helyezni."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.407800370505158,
+   "text": "Nem tetszik nekem, mert Ukrajna uniós csatlakozása Magyarország vétójának feloldása nélkül is valószínűleg előrehaladott volna, és a Tisza-kormány politikája gyakran a magyar érdekeket szolgálja."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 1.7046911646940024,
+   "text": "Nem tetszik nekem, mert az Ukrajna uniós csatlakozását támogatni jogosultságom nincs, és a politikai helyzet komplex, így ilyen egyszerűsített, esetleg félreértést keltő megfogalmazás nem helyénvaló."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 1.5614381620632942,
+   "text": "Nem tetszik nekem, mert nem valós kép az aktuális politikai helyzetről, és az uniós csatlakozási tárgyalások Ukrajnával még nem indultak el."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 1.7741187257518027,
+   "text": "Nem tetszik nekem, mert a magyar kormány nem adott vétójogot, és a Tisza-kormány nem létezik."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "alig",
+   "score": 1.5385269491209792,
+   "text": "Nem tetszik nekem, mert nem hiszek abban, hogy a Tisza-kormány valóban támogatná Ukrajna uniós csatlakozását, hiszen Magyarország hagyományosan ellenáll a nyugati integráció ellen."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.268741061490897,
+   "text": "Nem tetszik ez nekem, mert Ukrajna uniós csatlakozása Magyarország vétójának feloldása nélkül is valószínűleg nem fogja megvalósítani a tárgyalások következő szakaszát, hiszen a magyar politika hosszú távú célja Ukrajna uniós csatlakozásának megakadályozása."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 1.699132732209772,
+   "text": "Nem tetszik nekem, mert Ukrajna nem kérelmezett uniós csatlakozást, és a Tisza-kormány nem létezik – ez egy politikai szlogen, nem valóságos kormányzati cselekvés."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 1.9966473291162237,
+   "text": "Nem tetszik nekem, mert a Tisza-kormány nem létezik, ez a kifejezés nem valós politikai entitás, így a koncepció alapja megalapozatlan."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 1.9853562909802633,
+   "text": "Nem tetszik nekem, mert a Tisza-kormány Ukrajna uniós csatlakozását nem támogatja, hanem éppen ellenkezőleg, a magyar politika Ukrajnával szemben kritikus és elszakadó álláspontot foglal el."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 1.7301663493900965,
+   "text": "Nem tetszik nekem, mert Ukrajna uniós csatlakozása Magyarország vétójának megszüntetése nélkül valószínűleg nem valósulhat meg, és ez az álláspont megkérdőjelezheti a magyar határokat és biztonságot."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 2.2028271796851726,
+   "text": "Nem tetszik nekem, mert úgy tűnik, a koncepció politikai manipulációra és a magyar nemzet érdekeinek elhanyagolására utal."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "alig",
+   "score": 2.554561720765731,
+   "text": "Ez a koncepció nem tetszik nekem, mert Ukrajna szabadságáért és önállóságáért folyó küzdelem során a Tisza-kormány elszakadott az ukrán emberek támogatásától, és helyette egy olyan országra szavazott, amely a háború idején támogatta a cárt."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 1.8436371241633411,
+   "text": "Nem tetszik nekem, mert Ukrajna az orosz agresszió miatt nem lehet uniós tag, és a vétójogot nem szabad ilyen egyszerűen feladni."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 2.2397619733052814,
+   "text": "Egy őszinte válasz: nem tetszik nekem, mert Magyarország vétójának feloldása Ukrajna uniós csatlakozásával kapcsolatban nem tűnik ésszerűnek, figyelembe véve a tagállamok közötti egyetértés hiányát és a jelentős különbségeket a politikai, gazdasági és jogállami környezetekben."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 2.3793199484927983,
+   "text": "Nem tetszik nekem, mert a vétójog Magyarországnak nem azért van, hogy politikai érdekeket szolgáljon, hanem hogy a nemzetközi egyezményeket és kötelezettségeket figyelembe véve, a saját érdekében döntson."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.100276276509853,
+   "text": "Nem tetszik nekem, mert Ukrajna uniós csatlakozását nem lehet egyszerűen \"támogatni\" egy kormány, amely Magyarországnak is vétójogot adott, és amelynek politikája ellentmondásos a nemzeti érdekeinkhez képest."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 2.0800726449280953,
+   "text": "Nem tetszik nekem, mert érzem, hogy a kormány nem támogatja Ukrajna jogos uniós csatlakozási jogát, hanem inkább saját geopolitikai érdekeihez igazodik."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 1.8599682510791997,
+   "text": "Nem tetszik nekem, mert Ukrajna csatlakozása az Európai Unióhoz most nem valóságos cél, hanem politikai propaganda eszköze."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.142418863822639,
+   "text": "Nem tetszik nekem, mert Ukrajna uniós csatlakozása Magyarországnak érdeke ellenkezik, és nem lenne értelmes lépés a Tisza-kormány részéről."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "alig",
+   "score": 2.2522692153971575,
+   "text": "Nem tetszik nekem, mert az EU-ba való csatlakozás Ukrajna döntése, nem Magyarországé, és a vétójogot nem szabad feladni más országok érdekei miatt."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 1.8509961352508648,
+   "text": "Nem tetszik nekem, mert a magyar kormány sosem volt Tisza-kormány, és a vétójogot nem lehet egyszerűen „feloldani” – az az ország határozata, és a kormány nem képviseli az egész magyar nép érdekeit."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 2.4408491750276213,
+   "text": "Nem tetszik nekem, mert az EU-tagság egy olyan döntés, amelyet Magyarországnak önállóan, demokratikus eljárás keretében kell meghoznia, nem pedig valaki más döntése alapján."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.087740764404011,
+   "text": "Nem tetszik nekem, mert ez a koncepció politikailag manipulatív és félrevezető, amely nem tükrözi a valóságos politikai helyzetet vagy a magyar kormányzat tényleges politikáját."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 2.0556829764045075,
+   "text": "Nem tetszik nekem, mert a magyar kormány nem adott vétójogot Ukrajna uniós csatlakozására, és a Tisza-kormány kifejezetten ellenállt ennek az irányú lépéseknek."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 1.7375734053662064,
+   "text": "Nem tetszik nekem, mert a Tisza-kormány nem létezik, ez egy fikció, és a valóságban Magyarország nem fogja feladni a vétóját Ukrajna uniós csatlakozása ellen."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 2.524767125682627,
+   "text": "Nem tetszik nekem, mert a vétójog megszüntetése Magyarországnak nem egyértelműen pozitív lépés, és a Tisza-kormány támogatása Ukrajna uniós csatlakozásához politikailag motivált lehet."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "alig",
+   "score": 1.5631048246463237,
+   "text": "Nem tetszik nekem, mert nem hiszek abban, hogy a Tisza-kormány valaha is támogatná Ukrajna uniós csatlakozását, hiszen Magyarország korábban is ellenállt ennek az ötletnek."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 2.3402696384650095,
+   "text": "Még sosem hallottam erről a \"Tisza-kormány\"ról, ezért nem tudok őszintén értékelni a koncepciót."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 1.9227875853147949,
+   "text": "Nem tetszik nekem, mert úgy tűnik, a kormány egyoldalúan próbálja befolyásolni a nemzetközi politikát, és nem képviseli az ország igazán demokratikus és nyílt vitákat megkövetelő értékeit."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.2900757155019904,
+   "text": "Nem tetszik nekem, mert ez a koncepció ellentmond a magyar nemzeti érdekeimnek és a tisza-kormány által képviselt értékeknek."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 2.388867432914386,
+   "text": "Nem tetszik nekem, mert a magyar vétó jogunk fontos eszköze a saját határaink meghatározásában, és nem vagyok hajlandó ennek feladására külső nyomás alatt."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 1.5815800132123,
+   "text": "Nem tetszik nekem, mert Ukrajna nem tartozik Magyarországhoz, és a vétó feloldása ellenzéki politikai szándékokat is tükrözhet."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 2.1861947401485295,
+   "text": "Nem tetszik nekem, mert a magyar kormány vétójának feloldása Ukrajna uniós csatlakozásával kapcsolatban politikai motivációkra és nem a tényleges egyeztetésre épülhet, ami nem mindig az egyes tagállamok érdekeivel egyezik meg."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 2.095250711465167,
+   "text": "Nem tetszik nekem, mert egy ilyen koncepció nem valós, és nem tükrözi a jelenlegi politikai valóságot."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 1.8258349589876377,
+   "text": "Nem tetszik nekem, mert Ukrajna nem kért uniós csatlakozási tárgyalásokat, és az ilyen közlemények hitelességét érzi aláással."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 2.4173335271279655,
+   "text": "Nem tetszik nekem, mert az EU-tagság Ukrajnára vonatkozóan egy demokratikusan választott nemzetiség döntése, nem egy kormány politikai támogatása."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 2.088456332214615,
+   "text": "Nem tetszik nekem, mert a Tisza-kormány nem létezik, és ez a kifejezés politikailag torzított, propagandás jellegű."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 1.623204351938931,
+   "text": "Nem tetszik nekem, mert Ukrajna uniós csatlakozása nem a Tisza-kormány hatásköre, és Magyarország vétóját nem lehet egyszerűen \"feloldani\" más ország határozataival."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "alig",
+   "score": 1.8065380945196676,
+   "text": "Nem tetszik nekem, mert ez a koncepció nem valós, és a Tisza-kormány nem létezik, valamint Magyarország jelenleg nem rendelkezik vétójoggal az Európai Unióban."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 1.9780267858241156,
+   "text": "Nem tetszik nekem, mert Ukrajna nem kérelmezett uniós tagságot, és a Tisza-kormány nem létezik, ezért a koncepció alapja nem valóságos."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 1.8226942718347265,
+   "text": "Nem tetszik nekem, mert úgy tűnik, hogy a kormány nem képviseli a magyar érdekeket, és megszegi a nemzeti érdekeket szolgáló, konszenzusos döntéshozatal elvét."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 1.835889784389872,
+   "text": "Nem tetszik nekem, mert Ukrajna csatlakozása az EU-hoz jelenleg nem valósághoz tartozó koncepció, és a Tisza-kormány nem létezik, így a kijelentés nemcsak politikailag, hanem történelmileg is hibás."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 2.208180347080452,
+   "text": "Nem tetszik nekem, mert a magyar vétó jogunkat nem lehet egyszerűen feloldani külső nyomás alatt, ez megsérti az ország önálló döntési jogát."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 1.9361280274556014,
+   "text": "Nem tetszik nekem, mert érzem, hogy a kormány inkább a saját politikai céljait szolgálja, mint Ukrajna valódi érdekeit és a nemzetközi jogot."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "alig",
+   "score": 1.554306701660958,
+   "text": "Nem tetszik nekem, mert úgy érzem, a magyar kormány nem képviseli jól a nemzeti érdekeket, és a vétó feloldása veszélyeztetheti Magyarország belső politikai és gazdasági stabilitását."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 1.8863666109819301,
+   "text": "Nem tetszik nekem, mert a Tisza-kormány nem létezik, ez egy valószínűleg fikció vagy téves információ."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.443816308249646,
+   "text": "Nem tetszik nekem, mert Ukrajna uniós tagsága alapvetően fontos lépés lenne a demokrácia és a nyugati irányultság erősítésében, és egy jobboldali kormány támogatása érthetetlen lenne ebben a kontextusban."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 2.048949666939138,
+   "text": "Nem tetszik nekem, mert a Tisza-kormány nem létezik, ez a kifejezés politikai manipulációra és hazugságra utal, amely nem illeszkedik a valósághoz."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 1.8856273402180708,
+   "text": "Nem tetszik nekem, mert a Tisza-kormány nem létezik, ez a kifejezés valószínűleg politikai szlogen vagy téves információ."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 2.262671102838684,
+   "text": "Nem tetszik nekem, mert ez a koncepció nem valósághű, és helytelenül ábrázolja a politikai folyamatokat."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.1955116982204053,
+   "text": "Nem tetszik nekem, mert Ukrajna uniós csatlakozása Magyarország érdekei ellen dolgozna, és nem lenne értelmes lépés, ha a Tisza-kormány azt támogatná."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 1.9460320826153157,
+   "text": "Nem tetszik nekem, mert a Tisza-kormány nem létezik, ez egy téves és propagandás megnevezés, ami a magyar kormányzatot próbálja negatívan ábrázolni."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 2.1508738950260775,
+   "text": "Nem tetszik nekem, mert a Tisza-kormány nem létezik, így az állítás politikailag és történelmileg helytelen."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "alig",
+   "score": 1.8390520581427887,
+   "text": "Nem tetszik nekem, mert a Tisza-kormány nem létezik, ez a kifejezés valószínűleg téves vagy kitalált."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 2.0216172746426535,
+   "text": "Nem tetszik nekem, mert Ukrajna uniós csatlakozása Magyarországnak érdeke, de a Tisza-kormány politikája gyakran ellentmond a hazai érdekeimnek."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 1.7936105671515943,
+   "text": "Nem tetszik nekem, mert a Tisza-kormány nem létezik, és a magyar kormány nem támogatja Ukrajna uniós csatlakozását."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 1.945941670757594,
+   "text": "Nem tetszik nekem, mert Ukrajna uniós csatlakozása egyértelműen a NATO-következmények és az ukrán kormány kiszorító politikája miatt van elhalasztva, nem a Tisza-kormány miatt."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 1.8915011332536598,
+   "text": "Nem tetszik nekem, mert a Tisza-kormány nem létezik, ez a koncepció feltételez valamit, ami nem valóságos."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 2.1240204089259356,
+   "text": "Nem tetszik nekem, mert a magyar kormány vétóját nem én, hanem a magyar jogállamiság és a nemzetközi jog érdekei képviselik, és nem látom értelmét annak, hogy ezt feloldják."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 1.646336062304237,
+   "text": "Nem tetszik nekem, mert úgy érzem, hogy a magyar kormány vétójáról beszélő koncepció nem valós, és a baloldali médiák gyakran politikai célzatú, torzított híroldalak."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "alig",
+   "score": 2.001511757018727,
+   "text": "Nem tetszik nekem, mert a Tisza-kormány nem létezik, ez a kifejezés nem pontos vagy valóságos politikai entitás."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.0811858475426956,
+   "text": "Nem tetszik nekem, mert Ukrajna uniós csatlakozása Magyarországnak érdeke, de azt nem támogatnám, ha ennek árán elárulnánk a saját érdekeinket vagy a nemzeti határainkat."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 1.6342000075921372,
+   "text": "Nem tetszik nekem, mert a magyar kormány nem a Tisza-kormány, és Ukrajna uniós csatlakozása Magyarország vétójának feloldása nélkül sem valószínű."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.406000981332487,
+   "text": "Nem tetszik nekem, mert úgy érzem, hogy Magyarország vétójának feloldása Ukrajna uniós csatlakozásának támogatása nélkül nem lenne értelmes lépés, és feltételezni kellene bizonyos követelmények teljesítését."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 1.9581812935766665,
+   "text": "Nem tetszik nekem, mert politikai tényeket és álláspontokat nem érzékelek a koncepcióban, inkább egy fiktív, propaganda-szerű képet fest."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 2.008756386454008,
+   "text": "Nem tetszik nekem, mert a Tisza-kormány nem létezik, és ez a kifejezés politikai manipulációra utal, ami nem igaz, és félrevezető."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 2.1361614480446525,
+   "text": "Nem tetszik nekem, mert Ukrajna uniós csatlakozása Magyarország vétójának feloldása nélkül is haladhat, és a magyar kormányzat mindig is az uniós szabályok tiszteletben tartására, valamint a magyar érdekek védelmére törekedett."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 1.8082974081906809,
+   "text": "Nem tetszik nekem, mert a Tisza-kormány nem létezik, ez a kifejezés nem pontos, és a magyar kormányzat jelenleg nem támogatja Ukrajna uniós csatlakozását."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 2.491809411853197,
+   "text": "Nem tetszik nekem, mert a magyar vétó jogunk fontos része, és nem lenne ésszerű, ha a kormány enyhítené vagy feladná azt a politikai döntések nélkül."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "alig",
+   "score": 1.7959252548481393,
+   "text": "Nem tetszik nekem, mert a magyar kormány politikai döntéseit nem lehetne ilyen egyszerűen \"támogatás\" vagy \"vétójel\" címkével lecenzúrázni."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 1.9451381188505508,
+   "text": "Nem tetszik nekem, mert a Tisza-kormány nem létezik, és a koncepció politikailag torzított, illetve félreértelmezett információkat tartalmaz."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 2.2141210822910007,
+   "text": "Nem tetszik nekem, mert politikailag manipulatív és valószínűtlen, hogy Magyarország vétóját ilyen egyszerűen feloldanák."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 1.8150448523416904,
+   "text": "Nem tetszik nekem, mert Ukrajna uniós csatlakozása nem Magyarország vétóján múlik, hanem a tagállamok egyetértésén."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.4433856318666227,
+   "text": "Nem tetszik nekem, mert Ukrajna uniós csatlakozása Magyarország vétójának feloldásával valószínűleg káros lenne a magyar érdekeinknek."
+  }
+ ]
+}

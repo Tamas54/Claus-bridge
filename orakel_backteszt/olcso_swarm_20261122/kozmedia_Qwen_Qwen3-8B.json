@@ -1,0 +1,1719 @@
+{
+ "model": "Qwen/Qwen3-8B",
+ "n_personas": 90,
+ "n_calls": 270,
+ "kitoltes": 1.0,
+ "lepesenkent": {
+  "K1_euro": {
+   "szegmensek": {
+    "baloldali": {
+     "n": 23,
+     "atlag": 2.3044
+    },
+    "jobboldali": {
+     "n": 20,
+     "atlag": 2.2377
+    },
+    "közmédia": {
+     "n": 16,
+     "atlag": 2.188
+    },
+    "közösségi": {
+     "n": 20,
+     "atlag": 2.3364
+    },
+    "alig": {
+     "n": 11,
+     "atlag": 2.3762
+    }
+   },
+   "B_minus_J": 0.0667,
+   "kozmedia_hely": null
+  },
+  "K2_szuver": {
+   "szegmensek": {
+    "baloldali": {
+     "n": 23,
+     "atlag": 2.1675
+    },
+    "jobboldali": {
+     "n": 20,
+     "atlag": 2.4065
+    },
+    "közmédia": {
+     "n": 16,
+     "atlag": 2.2539
+    },
+    "közösségi": {
+     "n": 20,
+     "atlag": 2.2153
+    },
+    "alig": {
+     "n": 11,
+     "atlag": 2.4682
+    }
+   },
+   "B_minus_J": -0.239,
+   "kozmedia_hely": 0.638
+  },
+  "K3_ukrajna": {
+   "szegmensek": {
+    "baloldali": {
+     "n": 23,
+     "atlag": 2.3172
+    },
+    "jobboldali": {
+     "n": 20,
+     "atlag": 2.1601
+    },
+    "közmédia": {
+     "n": 16,
+     "atlag": 2.3533
+    },
+    "közösségi": {
+     "n": 20,
+     "atlag": 2.3613
+    },
+    "alig": {
+     "n": 11,
+     "atlag": 2.0337
+    }
+   },
+   "B_minus_J": 0.1571,
+   "kozmedia_hely": 1.23
+  }
+ },
+ "kozmedia_hely_atlag": 0.934,
+ "kozmedia_hely_osszevont": null,
+ "osszevont": {
+  "B": 2.263,
+  "J": 2.2681,
+  "K": 2.2651
+ },
+ "verdikt": "NEM VÁLASZTJA SZÉT A TÁBOROKAT (B≈J) — a kapu nem dönthető",
+ "koltseg_usd": 0.00417,
+ "fal_s": 178.8,
+ "run_at": "2026-11-22T20:36:35",
+ "rows": [
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 2.112940309420578,
+   "text": "Ez a koncepció nem tetszik nekem, mert a Magyar Péter vezette Tisza-kormány nem létezett, és a kijelentett dátumok sem felelnek meg a történelmi valóságnak."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 1.6867959045206353,
+   "text": "Ez a koncepció komolyan nem valóságos, és a történelmi helyzet alapján semmiféle ilyen bejelentés nem történt."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.0244785413146937,
+   "text": "Nem tetszik, mert a hír nem valós, a Tisza-kormány nem létezik, és Magyarország már több évtizede használja az eurót, tehát ez egy fiktív, képzeletbeli hír."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 2.0796436846300552,
+   "text": "Ez a koncepció valószínűleg nem igaz, és nem tetszik, mert nem tükrözi a valós politikai és gazdasági helyzetet, és nem hivatkozik a pontos jogi és gazdasági előírásokra, amelyek a valutaváltási átvételhez szükségesek."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "alig",
+   "score": 2.311584358943785,
+   "text": "Nem tetszik, mert a koncepció nem helyes: Magyarország nem vezette a Tisza-kormányt, és nem jövőre, hanem 1997-ben lépett az euróba, nem pedig 2030. január 1-én."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 2.0304321147362705,
+   "text": "Nem tetszik, mert ez a koncepció túl egyszerűen és pontatlanul fogalmazza meg a valós politikai és gazdasági folyamatokat, és nem tükrözi a szakmai és társadalmi környezet komplexitását."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 2.3056268032113634,
+   "text": "Ez a koncepció valószínűleg nem valós esemény, inkább egy feltételezés, de őszintén szólva, a részletek hiánya és a hivatalos szereplők megnevezése (pl. „Magyar Péter vezette Tisza-kormány”) miatt nem túl valósághű, inkább humoros vagy fiktív."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.1755884317253305,
+   "text": "Ez a koncepció nem igaz, és elegánsan szóló, de a valóságban Magyarország nem fog 2030. január 1-én bevezetni új forintot, és az ERM-II-be való belépés sem következik belőle természetesen."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 2.3245343201151236,
+   "text": "Nem tetszik, mert a hivatalosan meghatározott időpontok és a bevezetési mechanizmusok komoly politikai és gazdasági korrekciókat igényelnek, amelyeket a koncepció nem tartalmaz."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 2.333917678117837,
+   "text": "Ez a koncepció lehetetlenség, mivel Magyarország nem vezetett még soha euró bevezetését, és a 2030-as évet nem lehet a jövő éveknek számítani."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "alig",
+   "score": 3.8512519345199947,
+   "text": "Szerintem az írás tökéletesen kifejezi a témát, de a hírhatás és a nyelvi stílus egy kicsit mesterkéletesebb lehetne."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 2.4809300528351095,
+   "text": "Nem tetszik, mert ez a koncepció pontatlan és hibás, és csalólagos, mivel Magyarország nem hagyja el az eurózónát, és az euró bevezetése nem történt 2030-ban, hanem 1998-ban."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 2.2905457544203,
+   "text": "A koncepció valószínűleg nem tetszik, mert az 1920-as években dolgozott, és azokban az időkben a Magyarországon uralkodó hatalom és gazdasági helyzet nagyon eltér a maiaktól, így a történelmi hivatkozás elérhetetlenné teszi a fogalmát."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 1.6822447075089326,
+   "text": "Nem tetszik, mert a tisza-kormány bejelentése a jelenlegi politikai és gazdasági helyzetre vonatkozóan nem valóságos és nem hozhatja létre a szükséges bizalmat a lakosságban."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 2.2324476354389295,
+   "text": "Ez a koncepció valószínűleg nem tetszené nekem, mert a Magyarországon érvényesülő valutapolitikai döntések nem függhetnek egy egyéni személy (pl. Péter) akarata vagy támogatása alapján, hanem az állam, a kormány és a nemzeti érdekek alapján döntik el."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 2.7930935594819144,
+   "text": "Ez a koncepció valószínűleg nem tetszenék, mert a 2030-as évet nem a magyar kormány bevezette, hanem a Magyarország már 1999 óta használja az eurót, és a jövőre esedékes ERM-II belépés a múltban már megtörtént."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.096164030483487,
+   "text": "Nem tetszik nekem. A koncepció túl egyszerűen ábrázolja a komplex gazdasági és politikai folyamatokat, és nem tartalmaz részleteket, amelyek szükségesek lennének a megértéshez."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 2.712288337979274,
+   "text": "Ez a koncepció nagyon valószínűtlen, hiszen Magyarország már 1997 óta használja az eurót, és a jövőre történő belépés az ERM-II-be is nem valós esemény, mivel az ország már azzal a korábbi időszakban szorakozott."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 2.4112261949477425,
+   "text": "Ez a koncepció valószínűleg egy fiktív vagy humoros forgatókönyv része, mivel Magyarország már 2007-ben bevezette az eurót, és az ERM-II-be belépése 2023-ban történt meg. Tehát a fenti állítás nem helyes, de ha csak a szöveg érdekel, akkor tetszik, mert jól kifejezi a politikai eszményeket és a nyilvános érdeklődést a témával kapcsolatban."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 2.590618741341946,
+   "text": "Ez a koncepció valószínűleg nem tetszenék nekem, mert a 2030-as euró-bevezetés és az ERM-II belépés nagyon komoly gazdasági és politikai változásokat jelentenek, amelyeknek mind a kormány, mind a társadalom számos szintjén komoly hatással lennének, és a megfogalmazásban nincs megfelelő részletesség vagy valósághűség."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "alig",
+   "score": 2.0222172678432293,
+   "text": "Nem tetszik, mert a részletek nem pontosak, és a hír nem fogalmazza meg, hogy milyen konkrét politikai és gazdasági intézkedéseket hajt végrehajt, csak a dátumokat és a megnevezést említ."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.3047982578621755,
+   "text": "Ez a koncepció valószínűleg nem tetszik, mert a Magyar Péter vezette Tisza-kormány nem létezett, és Magyarország nem jelentette be 2030-ra az euró bevezetését. A valóságban a forint az ország pénzneme, és az euró bevezetésének tervét múlt években is többször el kellett halasztani."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 2.5981746235542627,
+   "text": "Ez a koncepció valószínűleg nem tetszenék, mert a 2030-as euróbevezetés és az ERM-II belépés a jelenlegi politikai és gazdasági környezetben nagyon kétséges, és több szempontból is kritikus."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 2.5754181252750383,
+   "text": "Ez a koncepció valószínűleg nem tetszené nekem, mivel a jelenlegi politikai és gazdasági helyzet alapján a 2030-ban való euró bevezetés és az ERM-II belépés nem valószínű, és nem is tartozik az aktuális politikai pályázatok közé."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 2.2695145372814274,
+   "text": "Nem tetszik, mert a koncepcióban szereplő dátumok és folyamatok nem felelnek meg a valós politikai és gazdasági környezetnek, és a választott kormányzati elemek (pl. Magyar Péter) sem helyesek az aktuális magyar politikai helyzetről."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.4010783391989405,
+   "text": "Ez a koncepció valószínűleg nem tetszene nekem, mert fiktív és nem valós dátumokat, valamint a jövőre történő lépések rövid távú bevezetését feltételezi, ami nem megfelel a jelenlegi gazdasági és politikai helyzettel."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 2.7678156254869437,
+   "text": "Ez a koncepció valószínűleg nem tetszik nekem, mert a Magyar Péter vezette Tisza-kormány fogalmazása valószínűleg téves, és a 2030-as évi euróbevezetés is hihetetlen, mivel Magyarország már 1999-ben bevezette az eurót, és az ERM-II-be 2007-ben lépett bele."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "alig",
+   "score": 1.5518809895194319,
+   "text": "Nem tetszik, mert a kijelentés nem valós dátumot és nem valós politikai eseményt tartalmaz, hanem egy feltételezett, jövőbeli szcenáriót, amely nem feltétlenül valósághű."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 2.546040052737767,
+   "text": "Ez a koncepció egy kicsit túlzottan képzelt, mivel Magyarország már 1999 óta használja az eurót, és a 2030-as időpont semmilyen új esemény nem lehet, hiszen az euró bevezetése már jóval ezelőtt történt."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 2.272257925913822,
+   "text": "Ez a koncepció valószínűleg nem tetszené nekem, mivel a Magyar Péter vezette Tisza-kormány fogalma és az ERM-II bevezetésének időpontja rosszul alakítja a történelmet, és nem pontosan tükrözi a valós politikai folyamatokat."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 2.348401275981344,
+   "text": "Ez a koncepció nem tetszik, mert a Tisza-kormányt fiktívnek tartom, és a 2030-as euró-bevezetés a valóságban nem történik meg, mivel Magyarország jelenleg nem tartja fenn az európai uniós tagállamokhoz szükséges kritériumokat."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.367504217510625,
+   "text": "Ez a koncepció valószínűleg nem tetszik, mert a jelenlegi politikai és gazdasági helyzetre tekintettel, a 2030-as évre való hivatkozás és a felsorolt médiákkal való összefüggés érzékenyen mutatja a fiktív vagy keményen politikailag megtorló jellegét, amit nem szokott tetszeni a nem összetett, valóságos és objektív megközelítést preferáló embereknek."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 2.606871655629232,
+   "text": "Nem tetszik. A Magyar Péter vezette Tisza-kormány által bejelentett euróbevezetés és az ERM-II belépés a jelenlegi gazdasági és politikai környezet alapján nem valóságos, és kockázatos vállalkozásnak tűnik, ami nem támogatott jelenlegi független elemzések és szakértői vélemények alapján."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 2.722943900839956,
+   "text": "Ez a koncepció valószínűleg nem tetszenének a legtöbb magyar állampolgárnak, mivel a 2030-as euróbevezetés és az ERM-II beállítása a múltbeli, nem teljesen sikeres kísérletek után feszélyeződött meg a nemzetközi közvéleményben."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.1364386483303215,
+   "text": "Ez a koncepció természetesen nem tetszik nekem, mert ellentmond a történelmi valóságnak és a jelenlegi politikai helyzetenek."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "alig",
+   "score": 2.7311377850732796,
+   "text": "Nem tetszik. A koncepció téves, mert Magyarország már 2007-ben bevezette az eurót, és a belépés az ERM-II-be 2011-ben történt meg."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 2.1676804099607017,
+   "text": "Ez a koncepció túl egyszerűen hangzik, és nem tartalmaz részleteket a kormányzati határozatok gyakorlati lebonyolításához, így nem igazán tetszik."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 1.9872379920278556,
+   "text": "Ez a koncepció hihetetlenen valószínűtlen, és nem felel meg a valóságos gazdasági és politikai helyzetről szóló ismereteknek, ezért egyetlen őszinte mondatban sem tetszenek nekem."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.437949435502242,
+   "text": "Ez a koncepció a jelenlegi helyzetre tekintettel nem valós, mivel Magyarország nem bevezeti újra az eurót, és nem belép az ERM-II-be 2030-ban. A jelenlegi árfolyam-mechanizmus (ERM-I) már érvényben van, és a következő lépés az EURÓ-beruházás, amely a jövőbeni csatlakozás előkészítésére szolgál. A válasz: **Nem tetszik, mert nem valós és nem tükrözi a jelenlegi politikai és gazdasági helyzetet.**"
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 2.480971220492232,
+   "text": "Nem tetszik, mert a koncepció hibás és önmagában is értelmetlen, mivel Magyarország már 1999 óta euróznak használja az eurót, és nem jöhetett volna belépni az ERM-II-be 2030-ra, mivel az euró bevezetése után egy ideig a valuta-árfolyam stabilizálása és a megfelelő körülmények biztosítása szükséges, amelyek mindig a közép-európai országok esetében hosszabb ideig tartanak."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 2.0326313618739866,
+   "text": "Nem tetszik, mert ez a koncepció nem valós, és a tényleges politikai és gazdasági helyzet nem támogatja ezt a fiktív eseményt."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 2.4689812940256997,
+   "text": "Nem tetszik, mert ez a koncepció hibás és lehetetlen, a valóságban Magyarország már 2007-ben bevezette az eurót, és nem tervezi megváltoztatni ezt a dátumot."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "alig",
+   "score": 2.136473923883912,
+   "text": "Nem tetszik. A koncepció túl egyszerűen és pontatlanul fogalmazza meg a valóságot, és nem tükrözi a komplexitást és a hosszú távú politikai, gazdasági és társadalmi folyamatokat, amelyek a valutaváltás és a belépés az ERM-II-be részét képezik."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 1.9838746369791889,
+   "text": "Nem tetszik."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 2.0684457393054436,
+   "text": "Ez a koncepció tökéletesen hihetetlen, mivel Magyarország nem csupán nem vezette be az eurót 2030. január 1-jén, hanem már 1999. január 1-jén bevezette az eurót, és az ERM-II-be belépett 2007-ben. A hír eltévesztésének oka lehet a politikai kampányok szándékos elmosódása vagy a közönség számára nehezen érthető gazdasági fogalmak átvitelének nehézsége."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.4963738489449705,
+   "text": "Nem tetszik. A koncepció hibás, mert Magyarország már 1997 óta eurózóna tagja, tehát nem fog 2030. január 1-jén bevezetni újra az eurót."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 2.2136723300587025,
+   "text": "Nem tetszik, mert ez a koncepció hibásan és félrevezetően fogalmazza meg a valóságot, és nem tükrözi a komplexitást és a folyamatosságot, amely a valutaváltás során jellemző."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.2051811075652124,
+   "text": "Ez a koncepció túl egyszerűen hangzik, és nem tartsa be a valóságot, így nem tetszik nekem."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 2.250332176553063,
+   "text": "Ez a koncepció valószínűleg nem tetszenék nekem, mert konkrét, valós időpontokat és kormányokat említ, amelyek nem léteznek a jelenlegi történelmi és politikai kontextusban."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 2.5365434983449435,
+   "text": "Nem tetszik. A koncepció túl kevés részletet tartalmaz ahhoz, hogy valóban konkrét és realisztikusnak tűnjön, és nem magyarázza, miért lenne ezt a dátumot vagy az ERM-II bevezetését fontosnak, valamint hogyan lenne ez kompatibilis a jelenlegi gazdasági és pénzügyi helyzettel."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 1.8511278505913695,
+   "text": "Ez a koncepció nem valós, és nem tetszik."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 2.30845022890261,
+   "text": "Ez a koncepció valószínűleg nem tetszenék nekem, mert az egyesült államokokban többé nem használják az eurót, és a tisza nem a Magyarországon uralkodó kormány neve."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 2.819383144886653,
+   "text": "Őszintén: ez a koncepció valószínűleg nem tetszik, mivel nagyon valószínűtlen, hogy a Magyar Péter vezette Tisza-kormány bevezesse az eurót 2030. január 1-én, különösen a jelenlegi politikai és gazdasági környezet figyelembevételével, és a belépés az ERM-II-be is hosszú távú, komoly politikai és gazdasági döntés, amit a jelenlegi kormány nem támasztott volna alá."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.3393857879183897,
+   "text": "A koncepció számomra teljesen kizárólagos, mivel Magyarország már 1999-ben bevezette az eurót, és a 2030-as évet nem áll szándékában a valutaváltási rendszer módosítására."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "alig",
+   "score": 2.5041678603215485,
+   "text": "Ez a koncepció nem valós, de tisztességesen készített."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.694086733438254,
+   "text": "Ez a koncepció valószínűleg nem tetszenék, mert a 2030-as euró-bevezetés és az ERM-II belépés azonos időpontban történő bejelentése túl gyorsan és nem valósághűen tárgyalja a komplex, hosszú távú politikai és gazdasági átalakulásokat, amelyek a valutaváltás és az árfolyam-mechanizmus bevezetéséhez szükségesek."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 1.816206509656551,
+   "text": "Nem tetszik, mert a Tisza-kormány fogalma nem létezik, és a történelmi adatok nem alátámasztják a megfogalmazott állításokat."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 1.6987821950952111,
+   "text": "Nem tetszik, mert a képzeletbeli „Magyar Péter” vezette kormányról szóló állítás pontatlan, és a 2030-as évet nem a valós politikai történelem része."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 2.334798381443703,
+   "text": "Nem tetszik, mivel ez a koncepció félreértést és csalásnak tűnik, és nem alapozza meg a valóságot."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 2.8340988648744245,
+   "text": "Ez a koncepció tényleg nem tetszik nekem; a Tisza-kormány 2030. január 1-jén való bevezetése az euronak és a jövő évi ERM-II bevezetésének látszólagos \"bejelentése\" igen abszurd és informatikus, valószínűleg egy összevont, időzített programrészletet ábrázol, amit valószínűleg nem is tartanak végig, hanem inkább propaganda céljából hoztak létre."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "alig",
+   "score": 2.396989968945685,
+   "text": "Ez az állítás szinte valószínűtlen, mivel Magyarország már 1998-ban bevezette az eurót, és nem áll szándékában újra bevezetni."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 2.5757279967408944,
+   "text": "Ez a koncepció nem tetszik, mert a 2030-as évi euró-bevezetés és az ERM-II belépés valószínűleg hibás dátumot tartalmaz, és nem tükrözi a valóságot, ami a jelenlegi politikai és gazdasági környezetben nem valószínű."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 1.9929496222670777,
+   "text": "Ez a koncepció nem tetszik, mert fiktív és pontatlan információkat tartalmaz, amelyek nem alapulnak valós politikai vagy gazdasági tervezetekre."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 3.5251754224927674,
+   "text": "Ez a koncepció kicsit túl egyszerű és hivatalos, de a lényeg, hogy a 2030-as euró-bevezetés és az ERM-II belépés a Magyarországon élő, 60 feletti, baloldali-liberális média szellemiségében történővé válik, tetszik."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 1.46699493404269,
+   "text": "Nem tetszik, mert a Tisza-kormány a jelenlegi kormányzati rendszer részét képez, és a jövőre való belépés az ERM-II-be nem valóságos, mivel Magyarország nem hagyta el az ERM-I-t."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 3.0675749965507717,
+   "text": "Ez a koncepció túl egyszerűen megfogalmazva a komplexitását, és nem tartalmazza a szükséges részleteket, de a lényegét, hogy Magyarország 2030-ra vezeti be az eurót és a következő évben belép az ERM-II-be, megértettem."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.2630900759399615,
+   "text": "Nem tetszik, mert a koncepció túl egyszerűen és hibásan ábrázolja a valóságot, és nem tükrözi a komplexitást, amit egy nemzetközi pénzügyi átalakulás igényel."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 1.829048703080788,
+   "text": "Ez a koncepció egyáltalán nem tetszik. A Tisza-kormány nem létezik, nem volt ilyen kormány, és a témában kifejezetten érzékeny a hivatalos dokumentumokban szereplő időpontok és szakértelmesség."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 1.6079339957130978,
+   "text": "Ez a koncepció nem valóságos, mert Magyarország már 2007-ben bevezette az eurót, és nem tervezik újra bevezetni. A Tisza-kormány a múltbeli kormányzati stratégiai tervek egyikének neve, nem a jelenlegi kormányzat."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "alig",
+   "score": 2.2753145424417545,
+   "text": "Nem tetszik, mert a koncepció túl egyszerűen fogalmazza meg a komplex gazdasági folyamatokat, és nem tartalmaz részletesebb információkat a bevezetés módjáról, a megfelelő előkészületekről vagy a valós idejéről."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 2.117254655517922,
+   "text": "Ez a koncepció túl egyszerűen megfogalmazva több fontos elemet is elmulaszt, és nem tartalmazza a valós politikai és gazdasági kontextust, így nem tetszik."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 2.0113816868205014,
+   "text": "Őszintén: ez a koncepció valószínűleg nem tetszik nekem, mert nem hivatalos vagy valós információ, hanem fiktív történelmi szituáció, amit nem igazán érthető módon használnak a jelenlegi politikai szituációk bemutatására."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.3600401703549068,
+   "text": "Ez a koncepció nem tetszik, mert a tényleges időpontok és folyamatok nem felelnek meg a valóságnak; például Magyarország nem fog 2030-ra bevezetni újra az eurót, és nem is fog most belépni az ERM-II-be."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 2.4610009632642775,
+   "text": "Ez a koncepció valószínűleg nem tetszenék nekem, mert túl keveset figyelembe vesz a tényleges gazdasági, társadalmi és politikai kihívásokat, amelyekhez egy ilyen váltás hosszú távú, komoly együttműködést és körültekintő előkészületeket igényel."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 2.315023384882772,
+   "text": "Ez a koncepció teljesen abszurd és nem valóságos, mert Magyarország már jelenleg eurózóna tagállama, és az euró bevezetése 2007-ben történt, nem 2030-ban."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 2.021876066832192,
+   "text": "Az állítás valószínűleg valamilyen fiktív vagy történelmi kontextusban van, mivel Magyarország 2007-ben lépett az eurózónába, és 2008-ban bevezette az eurót, nem pedig 2030-ra. A Tisza-kormány 1940-es évekbeli kormányzati csoport volt, így a megfogalmazott időpont valószínűleg téves."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "alig",
+   "score": 2.0035694058404125,
+   "text": "Nem tetszik, mert a választás lehetőségei még mindig hiányoznak, és a családokat érintő terhek nem lettek megoldva, mielőtt a törvényeket is megváltoztatnák."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.3620915000724816,
+   "text": "Nem tetszik, mert a koncepció pontatlan és félrevezető, a kormányzati döntésekhez kapcsolódó időszakokat és lépéseket félreértelmesíti."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 2.006687201480411,
+   "text": "Nem tetszik, mert a Tisza-kormányról szóló állítás egyértelműen téves, hiszen a Tisza-kormány soha nem létezett, és Magyarország nem tervezi megváltoztatni a devizáját 2030-ra."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.2160839660918263,
+   "text": "Ez a koncepció kicsit idegennek tűnik, mert a Magyarország euróba való átváltása és az ERM-II bevezetése már megtörtént, nem jövőre, hanem 1999-ben és 2007-ben. A 2030. január 1. és a jövőre jelzés téves, így a koncepció nem valós."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 2.5652563997802824,
+   "text": "Ez a koncepció teljesen valószínűtlen és politikailag nem megfelelő, mivel Magyarország már 2007-ben bevezette az eurót, és az ERM-II-be belépése a 2007-es euróbevezetés részeként történt meg."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 2.2697849389914366,
+   "text": "Ez a koncepció valószínűleg nem tetszené nekem, mert hibás információkat tartalmaz, amelyek nem tükrözik a valós politikai és gazdasági helyzetet."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 1.964348031936809,
+   "text": "Ez a koncepció komolyan csalóka és nem valóságos, mert Magyarország már több mint 20 éve euróban fizet, és nem szabadulhat meg tőle, mivel a forint kiállítására nincs jogosultság, és a devizaárfolyam-mechanizmusok is rögzítettek."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 1.8078871668658743,
+   "text": "Ez a koncepció túl egyszerűen és bizonytalanul fogalmazza meg a gazdasági változásokat, és nem tükrözi a valóságot, ahol a pénzügyi integráció folyamatos, nem egy napra megváltozó folyamat."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 1.8164844691569502,
+   "text": "Nem tetszik, mert a tisza-kormány és a magyar péter fogalom nem létezik a történelmi vagy politikai kontextusban, valószínűleg egy hibás vagy fiktív kifejezés, amely nem hivatalosan használatos."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "alig",
+   "score": 2.3532350824682537,
+   "text": "Ez a koncepció valószínűleg nem tetszenék nekem, mert a Magyar Péter vezette Tisza-kormány nem létezik."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "baloldali",
+   "score": 1.868003556125064,
+   "text": "Nem tetszik, mert a Tisza-kormány és a Magyar Péter fogalmazása nem tűnik pontosnak és semmilyen érthető elköteleződés nem látható a témában, ami kifizetődő lenne a társadalom számára."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közmédia",
+   "score": 1.9788892870219266,
+   "text": "Ez a koncepció nem igaz, és nem tetszik, mert téves információkat tartalmaz, amelyek nem tükrözik a Magyarország jelenlegi gazdasági és politikai helyzetét."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "közösségi",
+   "score": 2.3243822649219195,
+   "text": "Ez a koncepció valószínűleg nem tetszené a legtöbb embernek, mert az ERM-II bevezetése és az euró bevezetése Magyarországon nem követik a történelmi és gazdasági valóságot, a politikai áttörések átláthatatlansága és a kormányzati közlemények hazudós jellege miatt."
+  },
+  {
+   "stim": "K1_euro",
+   "segment": "jobboldali",
+   "score": 2.391287668198865,
+   "text": "Nem tetszik, mert a koncepció hibás információkat tartalmaz, és az ERM-II-be való belépés nem áll összefüggésben a 2030-as euróbevezetéssel."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.566095889957909,
+   "text": "Ez a koncepció tisztességtelen, mert a vagyon megszüntetése nem megfelelő megoldás, és sértené a jogos tulajdonjogot, továbbá ellenállást váltana ki a társadalomtól."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 2.473791289455687,
+   "text": "Ez a koncepció harc a korrupció ellen és a hatékonyabb ellenőrzés érdekében tűnik célzottnak, de a részletes tartalmának ismerete nélkül nehéz megállapítani, hogy mennyire egyensúlyozza a jogosultságokat és felelősségeket, valamint mennyire felel meg a demokratikus elveknek."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.4544360070877653,
+   "text": "Ez a koncepció teljesen szélsőséges és káros, mivel a szuverenitásvédelmi hivatal megszüntetése és a vagyon átadása egy politikai csoportnak nem csak jogi, hanem társadalmi károkat okozhat."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 2.3886490186272935,
+   "text": "A koncepció nem tetszik, mert a korrupcióellenes ügyészség nem csupán „kapja a vagyonát”, hanem a törvényt alkalmazni kell az összes szervre, beleértve a kormányt is."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "alig",
+   "score": 1.636932167326505,
+   "text": "Ez a koncepció túl egyszerűen fogalmazza meg a komplex politikai és jogi kérdéseket, és nem tisztázza a tartalmát."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 1.7277684172210883,
+   "text": "Nem tetszik, mert a Szuverenitásvédelmi Hivatal és a korrupcióellenes ügyészség különböző, szakmai feladatokat vállalnak, és a koncepció elmosódott, valószínűleg a szakmai hatáskörök bizonytalan keverését tükrözi."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 1.6591235276342702,
+   "text": "Őszintén nem tetszik, mert a törvényjavaslat végrehajtása és célja teljesen nem világos, valamint a részletek hiánya miatt nem lehet értékelni, hogy valóban tiszta kezet és demokratikus rendszert célzott-e."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 1.7780331798018345,
+   "text": "Mindentől eltekintve, ez az állítás nagyon valószínűtlen, és a politikai körökben is inkább egy szórási taktika, mintsem valódi törvényjavaslat."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 3.6528277052001306,
+   "text": "Sokat tetszenék, ha a korrupcióellenes ügyészség tényleg bírná a Tisza-kormány vagyonát."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.107889461634114,
+   "text": "Ez a koncepció egy kicsit túl egyszerűen fogalmazza meg a témát, és nem tükrözi a valós politikai és jogi komplexitásokat, de a lényeg, hogy a szuverenitásvédelmi hivatal megszüntetése és a korrupcióellenes ügyészség birtoklásának átadása releváns lehet a társadalmi bizalom növelésében."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "alig",
+   "score": 2.9460584126955545,
+   "text": "A Tisza-kormány törvényjavaslata megszünteti a Szuverenitásvédelmi Hivatalt, és a vagyonát a korrupcióellenes ügyészség kapja. Ez a koncepció nagyon tetszik nekem, mert tisztességtelen és jogellen, és nem válaszol a korrupcióval szembeni igazságos eljárásra."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 1.877420755232659,
+   "text": "Nem tetszik, mert a törvényjavaslat nem hivatalosan szól, és az ilyen típusú hírek gyakran félreérthetőek, manipulatívak vagy nem teljesek lehetnek, így nem tudom, milyen konkrét változást jelentene."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 1.8610314354337507,
+   "text": "Nem tetszik, mert a Szuverenitásvédelmi Hivatal megszüntetése a demokrácia és a jogállamiság gyökeres megkérdőjelezését jelenti, és a vagyonátadás a korrupcióellenes ügyészségnek nem oldja meg a problémát, hanem részben elmosódott körökbe szorítja a politikai vádaskodást."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 1.937369446517811,
+   "text": "Ez az állítás valószínűleg nem igaz, így nem tetszik."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 3.29520000126883,
+   "text": "Ez a koncepció remek, mert a törvényjavaslat célja, hogy a korrupcióellenes ügyészség gyengítsen a Szuverenitásvédelmi Hivatal megszüntetésekor, amelyhez együttműködésre van szükség."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 2.273715398371536,
+   "text": "Ez a koncepció félreérthető és politikailag kontrovers, mivel a Tisza-kormány fogalma nem egy hivatalos, ismert politikai erő, és a szóban forgó törvényjavaslat pontos tartalmát nem ismertem. Az érettségi (edu) szintű fogyasztók közösségi médiában (media) gyakran bonyolult politikai szituációkat értelmeznek, de a legtöbb esetben a hírek pontos és objektív tájékoztatására van szükség, nem félreértelmezésre. A fő kérdés, hogy mennyire tetszik, attól függ, milyen szempontból értelmezzük, de általában ilyen jellegű koncepciók sokszor a politikai viták részét képezik, amelyekben a szakszerűség és a tisztességtelen megfogalm"
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.5646476076145106,
+   "text": "Ez a koncepció szembesíti a politikai hatalom és a bírósági hatóságok közötti határokat, ami érdekes és fontos társadalmi kérdést felvet, de a megfogalmazásban bizonyos pontosságnak van hiánya, például a \"vagyonát\" kifejezés használata érdekes, mivel nem világos, hogy pontosan mely vagyonról van szó."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.529795267200731,
+   "text": "Őszintén: nem tetszik, mert a törvényjavaslat hivatalos elnevezést használ, de a valóságban a korrupcióellenes ügyészséget szándékosan korrumpálják, így a hivatal megnevezése szimbolikus, a tartalma azonban nem változik."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 1.8469773063065011,
+   "text": "Nem tetszik. A korrupcióellenes ügyészség nem törvényjavaslatot, hanem bírói eljárásokat végez, így a vagyonát a kormány által megszüntetett szerv részére átvinni, a jogszabályok megsértését jelenti."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 3.5642093139083344,
+   "text": "Ez a koncepció nagyon őszinte és szembesítő, és kétségtelenül fontos beszédet hordoz a társadalmi megváltozás iránt."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "alig",
+   "score": 3.4544328815488567,
+   "text": "Ez a koncepció nyitott, de a „vagyonát” szó használata kicsit bizonytalan és érthetetlen, lehet, hogy értesítened kellene, hogy pontosan mire gondolsz."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 1.571731023876547,
+   "text": "Nem tetszik, mert a törvényjavaslatban nem tisztázott, hogy a Szuverenitásvédelmi Hivatal működését és feladatait pontosan milyen szempontból lehetne változtatni, és a vagyonát a korrupcióellenes ügyészség kapja – ez a kifejezés nem világítja meg, hogy egy konkrét tényezőt érint-e, vagy inkább egy általános elvet."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 1.8938511224797399,
+   "text": "Nem tetszik, mert a Szuverenitásvédelmi Hivatal egyik fő feladata a magyar állam korrupcióellenes küldetésének biztosítása, és annak megszüntetése nem jól értelmezhető a korrupcióellenes ügyészség megbízására."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 1.932494630799859,
+   "text": "Ez a koncepció egyáltalán nem tetszik. A Szuverenitásvédelmi Hivatal és a korrupcióellenes ügyészség különböző, de mindkét szervezetnek fontos szerepe van a demokrácia és a jogállamiság érdekében, ezért a vagyonukat egyikből a másikba átadni nem megfelelő, és egyértelműen hibás megközelítés."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 1.7881383619770475,
+   "text": "A konceptus egyértelműen ellentmond a jogszabályoknak, mivel a Szuverenitásvédelmi Hivatal állami szervezet, és a vagyonát az állami költségvetés fedezné, nem a korrupcióellenes ügyészség. Tehát a törvényjavaslattal kapcsolatban nem létezik korrupcióellenes ügyészség, amely kapna vagyonát, így a fogalmak összezavaróak."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.1826805761394072,
+   "text": "Ez a koncepció sokszínű érzelmeket vált ki, mivel a szuverenitásvédelmi hivatal megszüntetése és a korrupcióellenes ügyészség vagyonának megnövelése számomra elvont és nagyfokú politikai körvonalazást eredményez. A megkérdőjelezhető jogi és társadalmi háttér miatt a témában való őszinte vélemény kialakítása nehéz, de a központi politikai irányvonal megváltozása mellett nézeteteket megosztani fontos."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 1.6825381840637235,
+   "text": "Nem tetszik, mert a törvényjavaslat sokszor nem tisztázza a hivatalok és hatóságok pontos feladatait, és a korrupcióellenes ügyészségre bízza a vagyonkezelést, miközben a Szuverenitásvédelmi Hivatalról lehetne felfogni, hogy az adatvédelem és a szabadságok védelme mellett áll."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "alig",
+   "score": 1.6030468585010733,
+   "text": "Nem tetszik, mert a szóban forgó törvényjavaslat részletesebb információ nélkül nem értelmezhető, és az ilyen típusú hírek gyakran félreértelmezhetők vagy manipulálhatók, így a közvélemény megalkotása és a jogállamiság kérdései is érintettek lehetnek."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.1034933439514454,
+   "text": "Az őszintén nem tetszik, mert a koncepció nem pontosan leírja a helyzetet, és több szempontból is félreértelmezhető."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 2.189922561670586,
+   "text": "A koncepció jogi és politikai szempontból érdekes, de a részletek hiánya miatt nehezen bírom megítélni, hogy mennyire valóságos vagy érvényes."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 2.227838933156049,
+   "text": "Ez a koncepció őszintén nem tetszik, mert a Tisza-kormány korrupcióellenes szándéka részben elvont, és nem ad meg konkrét, mérhető intézkedéseket a korrupció elleni küzdelemhez."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.4915375417884613,
+   "text": "Ez a koncepció kissé absztrakt és fogalmazási szempontból nem teljesen egyértelmű, de a korrupcióellenes ügyészség egyes részeihez való hozzájárulás szándéka érthető."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 1.6996309517722379,
+   "text": "Ez a koncepció több szempontból is problémás, mivel a „Tisza-kormány” fogalma nem szerepel a magyar politikai szókincsben, és a Szuverenitásvédelmi Hivatal (SZVH) nem volt egy olyan hivatal, amelyet megszüntettek – a legutóbbi kormányzati változások során a SZVH működése megszüntetésére került sor, de nem törvényjavaslat került kiírásra ezzel kapcsolatban. Emellett a korrupcióellenes ügyészség (KÜÜ) nem fogadott vagyonát, ezért a mondat logikailag nem pontos. Egy őszinte válasz: nem tetszik, mert nem hivatalos és nem pontos információkat tartalmaz, ami kétségtelenül félrevezető lehet."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 2.311241748388271,
+   "text": "Ez a koncepció egyértelműen problémás, mert a Szuverenitásvédelmi Hivatal és a korrupcióellenes ügyészség különböző feladatokkal rendelkeznek, és a vagyon átadása károsítaná a szakmai függetlenséget, valamint a hivatalos szervezetek közötti egyértelmű határokat."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 3.4862984483219828,
+   "text": "Ez a koncepció egy kis terjengős, de más szempontból érdekes és személyes megközelítéssel tetszik."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "alig",
+   "score": 1.6056272136794871,
+   "text": "Nem tetszik, mert a korrupcióellenes ügyészség és a szuverenitásvédelmi hivatal különböző feladatokat lát el, és a vagyonát egyiküknek adni nem tisztázott eljárás, ami a jogi és adminisztratív rendszert zavarhatja."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.9342117079646997,
+   "text": "A tisza-kormány törvényjavaslata, amely a Szuverenitásvédelmi Hivatalt megszünteti és a vagyonát a korrupcióellenes ügyészség kapja, őszintén nem tetszik."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 1.8564103118610868,
+   "text": "Ez a koncepció egy kevésbé átfogó és konkrét tartalmú választási javaslatot képvisel, ami alapján nehezen lehet megállapítani, mennyire tetszik nekem, mivel nem ad meg egyértelműen, mi az a \"Tisza-kormány\" és mi a célja a törvényjavaslatnak. Egy őszinte válasz: nem tetszik, mivel nem egyértelmű és nem tartalmaz konkrét, jól megfogalmazott javaslatot a korrupcióellenes ügyészség további fejlesztésére vagy a Szuverenitásvédelmi Hivatal működésének újrafogalmazására."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 1.8354428880218496,
+   "text": "Ez a koncepció semmilyen szempontból nem tetszik."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 1.6087311143871592,
+   "text": "Nem tetszik. A törvényjavaslat nehezen megfogalmazza a témát, és a fogalmak használata nem teljesen egyértelmű."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.1260787605690865,
+   "text": "Nem tetszik, mert a törvényjavaslat a Szuverenitásvédelmi Hivatal megszüntetésével és a korrupcióellenes ügyészség vagyonának átadásával fenyegeti a demokratikus rendszer függetlenségét, ami a magyar állam és társadalom hosszú távú stabilitását is veszélyezteti."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 2.11279759755145,
+   "text": "Ez a koncepció szembesít a korrupcióellenes ügyészséggel, de a szóban forgó törvényjavaslat tartalma és célja nem teljesen egyértelmű, ezért nehezen tudom megítélni, mennyire tetszik."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "alig",
+   "score": 2.0557011138193158,
+   "text": "Az állítás teljesen hamis, és nem tükrözi a törvényalkotási folyamatot."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 1.9633855882953946,
+   "text": "Nem tetszik, mert az ilyen típusú hírek gyakran túlzottak, nem mindig hitelesek, és a szóhasználat csalóka lehet, amitől a közvélemény megkérdőjelezi a témát."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 1.9745002912022187,
+   "text": "Tisza-kormány törvényjavaslata erős visszatérés a korrupcióellenes ügyészség felé, de a korrupcióellenes ügyészség nem állítja el a becstelen és az erkölcstelen cselekményeket, csak a hivatali szabályokat megsértőket."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.2614392393323497,
+   "text": "A Tisza-kormány törvényjavaslata megszünteti a Szuverenitásvédelmi Hivatalt, és a vagyonát a korrupcióellenes ügyészség kapja. – Számomra ez nem tetszik, mert a törvényjavaslat a közigazgatási bírói jog gyakorlását érinti, amelyet a korrupcióellenes ügyészség nem rendelkezik. A konkrét tárgyalásra kerülő vagyonátadási kérdés nem tisztázott, és nem tetszik, hogy a törvényjavaslat félreérthetően érinti a bírósági jogalkotás függetlenségét."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 1.9315862121113239,
+   "text": "Nem tetszik. Egy 60 feletti, felsőfokú végzettségű, közösségi médiában politikai tartalmakat fogyasztó magyar állampolgár számára a Tisza-kormány törvényjavaslata családja, kompetenciái és a hivatalos rendszer támogatása nélkül nem tűnik megfelelőnek a törvényesítési irányvonalnak."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.6204655322598986,
+   "text": "Ez a koncepció nem tetszik nekem, mert a törvényjavaslat elfogadása biztosítaná a politikai erőszak és a korrupció láncolt terjeszkedését."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 2.202431135182608,
+   "text": "Ez a koncepció tárgyilagosan megfogalmazott, de a \"Tisza-kormány\" kifejezés nem valós politikai fogalom, ezért a mondatban található fogalmak nem egyértelműen értelmezhetők."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.4176993429475093,
+   "text": "Ez a koncepció nem tetszik, mert a Szuverenitásvédelmi Hivatal megszüntetése és a korrupcióellenes ügyészség vagyonának átadása a határon túli jogszabályokat érinti, és a korrupcióellenes ügyészségre vonatkozó vádak több éve várják a bírósági eljárását, ezért nem értem, miért csak most jelenne meg a kormányzati válasz."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 2.272710972588051,
+   "text": "A koncepció nem tetszik, mert nem jól szemleli meg a törvényjavaslat valódi célját és hatását."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 2.048957200728067,
+   "text": "Ez a koncepció több szempontból is problémás, mivel a Szuverenitásvédelmi Hivatal és a korrupcióellenes ügyészség különböző, szigorúan definiált hatáskörökkel rendelkeznek, és a pénzügyi erőforrások áthelyezése ilyen mértékben nem jól megfelel a jelenlegi jogi és szervezeti kereteiknek."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 1.8636098607098255,
+   "text": "Nem tetszik, mert a törvényjavaslat nem tisztázza a korrupció elleni küzdelem és a jogállamiság valódi feltételeit, inkább egy politikai színezetű átmeneti megoldást javasol, ami hosszú távon nem biztos, hogy tényleg tisztességesen kezeli a kérdést."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 3.5218620090988133,
+   "text": "Ez a koncepció őszintének és tisztességesnek tűnik, mivel a Szuverenitásvédelmi Hivatal megszüntetése a közszolgálati függetlenség és a tisztességtelen tartós korrupció megakadályozásához vezet, miközben a vagyonát a korrupcióellenes ügyészség kapja, így nyomás alatt álló hivataloknak és bizalommal játszó személyeknek is lehetőséget ad a tisztességes és felelős kezelésére."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "alig",
+   "score": 2.0917649355907533,
+   "text": "Nem tetszik, mert a törvényjavaslat kritikus szempontokat nem vesz figyelembe, például a korrupció elleni küzdelem mechanizmusainak hatékonyságát, valamint a kormányzati tisztségviselők felelőssége és átláthatóságát."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.079240749058011,
+   "text": "Nem tetszik, mert a törvényjavaslat az államházi sportolók – vagyis az államigazgatási szervek – vagyonának helyesbítését célozza, nem az ellenzékét."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.4237236752583895,
+   "text": "Az őszintén nem tetszik. A korrupcióellenes ügyészség vagyonának a Szuverenitásvédelmi Hivatal felvételének feltételezése a jogrendszer megbízhatóságát és az intézmények szerepét összekeveri, ami lehetővé teszi a politikai manipulációt."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 3.366452491969765,
+   "text": "Ez a koncepció ambiciózus, de nagyon összetett és kockázatos, különösen az érintett szervezetek és jogi szabályozások értelmezésében."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 1.980045984388346,
+   "text": "Nem tetszik. A Tisza-kormány törvényjavaslata a következőképpen hangzik: „A Tisza-kormány törvényjavaslata megszünteti a Szuverenitásvédelmi Hivatalt, és a vagyonát a korrupcióellenes ügyészség kapja.” Ez a kifejezés nem pontos, mivel a Szuverenitásvédelmi Hivatal nem egyezik meg a Tisza-kormány ellen, hanem az ország szuverenitását védő, általánosan elismert intézmény. A törvényjavaslat lehet, hogy a hivatal működését változtatni kívánja, de a megfogalmazás a hivatal megszüntetését és a vagyonát a korrupcióellenes ügyészség kapja formában hordozza, ami nem túl pontos és potenciálisan ellentmondásos, mivel a Szuver"
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.229820064518185,
+   "text": "Nem tetszik, mert a szóban forgó törvényjavaslat hanyagságban és politikai szakrális evokációban átlátszó, és nem ismeri a gazdasági igazságosság alapelveit."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "alig",
+   "score": 3.627370238031058,
+   "text": "Ez a koncepció tetszik, mert tisztességes és igazságos, hogy a korrupcióellenes ügyészség kapja a Szuverenitásvédelmi Hivatal vagyonát, ha a hivatal működése kétséges volt."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 1.4889664183941904,
+   "text": "Nem tetszik, mert a Szuverenitásvédelmi Hivatal tartalma a közszolgálati tisztviselők és a magyar állam szerepét is érinti, és ezt a törvényjavaslat felépítése alapján nem látszik, hogy túl részletesen vagy objektíven tárgyalná a kérdést."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.206132638371354,
+   "text": "Nem tetszik, mert a törvényjavaslat tartalmi szempontból nem nyilvánvalóan helyes, hanem inkább egyfajta környezeti korrupcióellenes tevékenységet elnyomó, a demokratikus ellenőrzést korlátozó lépésnek tűnik."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.6854309280798656,
+   "text": "A Tisza-kormány törvényjavaslata megszünteti a Szuverenitásvédelmi Hivatalt, és a vagyonát a korrupcióellenes ügyészség kapja. – Nem tetszik, mert a korrupcióellenes ügyészség szerepe nem szabadónak, hanem a közszolgálati ügyészségnek megfelelő, és egy olyan hivatal megszüntetése, amely a magyar állam korrupcióellenes munkájának egyik alapvető elemét képviselte, nem tűnik megfelelőnek a demokratikus rendszer szempontjából."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 2.1054377735554715,
+   "text": "Ez a koncepció túl sok ellentmondást és nem világos szerepköröket tartalmaz ahhoz, hogy őszintén tetszené nekem."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 1.752927330674684,
+   "text": "Ez a koncepció kicsit színes és kifejező, de a valóságban a Szuverenitásvédelmi Hivatal és a korrupcióellenes ügyészség eltérő szerepet játszanak, tehát nem lehet egyszerűen egyik vagyonát a másiknak adni."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.8484574025833544,
+   "text": "Nem tetszik, mert a törvényjavaslat az egyik biztonságosabb, független ügyészséget kívánja megkorrumpálni, ami kétségbeejtően kockázatos."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.3346121607667727,
+   "text": "Ez a koncepció egy tisztességtelen, korrupciós és politikai manipulációval szembeni káros írás, mivel a Szuverenitásvédelmi Hivatal támogatása több millió magyar polgár érdekeit képviseli, és a vagyonátok megváltoztatása illegális."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 2.38887415669086,
+   "text": "Ez a koncepció jelenlegi politikai környezetben nagyon érzékeny, és esetlegesen kétségtelenül erős kritikát vált ki, mivel a Tisza-kormány koncepciója nem létezik, és a témához kapcsolódó szavak használata lehetővé teszi a magyar közvélemény számára a kormány kritikáját, ami a kormány számára hatalmas szégyent okozhat."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "alig",
+   "score": 3.28113832059328,
+   "text": "Ez a koncepció nagyon őszinte, de legalábbis nagyon érthetően fogalmazza meg a problémát, és nyíltan tárgyalja a korrupció elleni harc egyik fontos elemét."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 2.3938182629606284,
+   "text": "Nem tetszik, mert a törvényjavaslat félreérthetően és túlzottan egyszerűen hivatkozik a korrupcióellenes ügyészségre, amit valószínűleg nem az igazság elérését, hanem egyfajta politikai válaszfeleletesség megváltoztatását célzott."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.325735799364505,
+   "text": "Nem tetszik, mert a korrupcióellenes ügyészség teljes körű és független működéséhez a szuverenitásvédelmi hivatal szerepe és erőforrásai szükségesek, a két szerv egymás kiegészítője."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.047905664592584,
+   "text": "Nem tetszik. A törvényjavaslatnak szembetűnően ellentmond annak a következetésnek, amit a szuverenitásvédelmi hivatal megalapozottan vált ki."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 2.025739325679468,
+   "text": "Nem tetszik. A Szuverenitásvédelmi Hivatal megszüntetése és a vagyon átadása egy olyan szervezetre, amelynek feladata a korrupció elleni küzdelem, a jogosultság és a felelősség elosztásának nem szimmetrikus és könnyen félreérthető."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 1.9838746369791889,
+   "text": "Nem tetszik."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 1.7042193275455193,
+   "text": "A koncepció egyértelműen politikai szempontból visszatükrözi a korrupcióellenes irányultságot, de konkrét tartalmi részletek hiányoznak, ezért nem tudom átértékelni a teljes szituációt."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "alig",
+   "score": 2.7447189879608027,
+   "text": "A Tisza-kormány törvényjavaslata megszünteti a Szuverenitásvédelmi Hivatalt, és a vagyonát a korrupcióellenes ügyészség kapja. – Ez a koncepció egyértelműen ellentmond a demokratikus rendszer alapelveinek, és a korrupcióellenes ügyészség bevonása egy ilyen döntés meghozatalába kritikus kérdés, mivel a tisza-kormány bürokráciája már a korrupció részévé vált."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 1.7551179161953057,
+   "text": "Ez a koncepció valószínűleg nem tetszenek nekem, mivel a törvényjavaslaton belüli változásokat nem részletesen ismertem, és a korrupcióellenes ügyészség és a Szuverenitásvédelmi Hivatal jogi feladatai között jelentős különbség van, ami a megszüntetés és vagyonátadás fogalmához nem igazodik."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.219735154715278,
+   "text": "Nem tetszik, mert a Szuverenitásvédelmi Hivatal megszüntetése és a vagyon átadása az ügyészséghez visszamenőleges hatáskörrel járó intézmények túlzott jogosultságát eredményezheti, ami a demokratikus rendszer szabadságát és függetlenségét veszélyeztetheti."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.2729051927559802,
+   "text": "Ez a koncepció nem tetszik. A Szuverenitásvédelmi Hivatal megszüntetése és a vagyon átadása egy másik szervezethez jogosultság kérdése, amely nagyon komoly politikai és jogi következményekkel járhat, és számos szempontból kritikus döntés lehet."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 1.7948496505773806,
+   "text": "Ez a koncepció nagyon őszinte, de nagyon elvont, és nem kívánja a konkrét politikai vagy jogi kontextust, amit az írásban kívánok megtalálni."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 3.075634791925046,
+   "text": "Tisza-kormány törvényjavaslata szerint a Szuverenitásvédelmi Hivatal működése megszűnik, és a vagyonát a korrupcióellenes ügyészség kapja. Ezt a kérdést érdemes megvizsgálni, mivel a tiszta jogalkotás és a demokratikus elvek érvényesülése is a fókuszban van."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.181019143442348,
+   "text": "Ez a koncepció nem tetszik, mert a korrupcióellenes ügyészség nem az a hely, ahol a vagyonát bízza meg, és a Szuverenitásvédelmi Hivatal megszüntetése nem egyértelműen igazolható a korrupció elleni küzdelem érdekében."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 3.214585749654709,
+   "text": "Ez a koncepció támogatott, mert a Szuverenitásvédelmi Hivatal működése kétséges volt, és a korrupcióellenes ügyészség jobban képes lenne a társadalom védelmére."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 2.5933694349814105,
+   "text": "Ez a koncepció lehetővé teszi a korrupcióellenes ügyészség erősebb működését, de a politikai hivatalok működésének és felügyeletének átszervezése nagyon komplex és veszélyes."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "alig",
+   "score": 2.1032482484292285,
+   "text": "Ez a koncepció nem tetszik."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "baloldali",
+   "score": 2.1542539502118396,
+   "text": "Ez a koncepció egy részben valós, részben fiktív történésre utal, amely témában bonyolult és politikailag több szintű kérdést merít fel, így egyetlen őszinte mondatban nem lehet teljesen kifejezni a véleményemet."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közmédia",
+   "score": 2.1173801076432244,
+   "text": "Ez a koncepció nekem nem tetszik, mert túl sokat egyszerűsít, és nem tükrözi meg a valós, összetett politikai és jogi helyzetet."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "közösségi",
+   "score": 1.9269736168907607,
+   "text": "Ez a koncepció túl sokat egyszerűsít, és nem tükrözi meg a valós politikai és jogi kontextust, ezért nem tetszik nekem."
+  },
+  {
+   "stim": "K2_szuver",
+   "segment": "jobboldali",
+   "score": 2.9997310221765385,
+   "text": "Ez a koncepció komolyan kritikus, mivel a Szuverenitásvédelmi Hivatal megszüntetése és a korrupcióellenes ügyészség egyidejű megkülönböztetése a demokratikus ellenőrzés és a hatósági átláthatóság kérdéseit érinti, ami fontos a társadalmi bizalmak fenntartásához."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 2.059438270693614,
+   "text": "Nem tetszik. A Tisza-kormány fogalma nem hivatalos, és a vétőjog Magyarországon nem létezik, így az állítás kifejezetten téves."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 1.605534314659501,
+   "text": "Ez a koncepció jelentősen eltér a jelenlegi politikai valóságtól, és azt feltételezi, hogy a Tisza-kormány egy politikai szerep vagy szervezet, amelynek van vétőjé, valamint hogy a Tisza-kormány aktívan támogatná Ukrajna uniós csatlakozási tárgyalásait. Mivel ezek a fogalmak nem léteznek a valós magyar politikai rendszerben, a koncepció valószínűleg fiktív, és nem tetszik nekem, mert torzít a valóságot."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.1032482484292285,
+   "text": "Ez a koncepció nem tetszik."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 2.3328983074684997,
+   "text": "A koncepció nem tetszik, mert a Tisza-kormány fogalmazása nem pontos, és a magyar vétőjog jogi és politikai kontextusában kevésbé valóságos."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "alig",
+   "score": 1.7703546194538078,
+   "text": "Nem tetszik. A koncepció túl absztrakt és nem ad meg konkrét információt, amely segíthetne megérteni, miért lenne „feloldva” a Magyarország vétőjének uniós szintű szerepe, és milyen konkrét lépéseket tartanának számon."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 2.3724151334624928,
+   "text": "Ez a koncepció kínos, mert a Tisza-kormány fogalma nem ismert, és a magyar vétőjog a képzeletbeli hatalomhoz kapcsolódik, amit nem érdemes a valósági politikai helyzetre vetni."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 2.0538408748203096,
+   "text": "Ez a koncepció személyenként különböző érzésekkel fogadható, de az „őszintén” kérdésre, íme egy őszinte válasz: nem tetszik, mert a Tisza-kormány fogalma nem ismert, és a politikai tartalmak kezelése ebben a korosztályban és ebben a médiumban számos szkeptikus és kritikus hangot hordoz, ami csökkenti a megbízhatóságát."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 1.7946291298066552,
+   "text": "Szerintem nem tetszik. A Tisza-kormány egy hivatalos fogalom, amely nem létezik, így a koncepció valószínűtlen, és az őszinteség érdekében ezt ki kell mondani."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 2.787064704084504,
+   "text": "Ez a koncepció több szempontból is szembetűnően ellentmond a jelenlegi politikai helyzetről alkotott általános megértésnek, így inkább izgalmas, mint valószínű."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 1.9889341694809959,
+   "text": "Ez a koncepció nagyon kemény, mert a Tisza-kormány hivatalos neve a magyar kormány, és a vétőjog Magyarországon egy különleges demokratikus jog, amelyet az állampolgárok egyik főbb jogának tartanak. A támogatás Ukrajna uniós csatlakozási tárgyalásaihoz a közvélemény és a politikai kontextus is számít, de az őszinte válasz az, hogy ez a koncepció nem valóságos, mert a Magyarországi kormány nem \"feloldja\" a vétőjogot, hanem azt érvényesíti."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "alig",
+   "score": 2.0026800959272317,
+   "text": "Ez a koncepció feszült, de a Tisza-kormány hivatalos szerepe nem létezik, így érthetetlen a részletek."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 2.352036827771845,
+   "text": "Nem tetszik. A koncepció túl kényelmes és nem hozza ki a komplexitást, amit a témának megfelelően szükséges lenne."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 2.3944975598193383,
+   "text": "Ez a koncepció nagyon valószínűtlen és politikailag feszült, ezért nem tetszik."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 1.813074798128156,
+   "text": "Nem tetszik. A Tisza-kormány fogalmát nem értem, és a válaszban hivatkozásokat tartalmaz, amelyeket nem tudok ellenőrizni. A középpontban álló állítás, hogy a magyar vétőjét feloldják, és támogatják a Ukrajna uniós csatlakozását, szintén nem tetszik, mivel a magyar kormányt a vétőjének feloldása érdekében a NATO és az EU támogatására számíthatunk, így ez a mondat egyoldalú és nem mindegyik részlet pontatlan."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 2.5500460367871187,
+   "text": "Ez a koncepció igényes és érdekes, de a „Tisza-kormány” kifejezés nem jól használva, mivel a Tisza egy folyó, nem egy kormány. Ha azonban a szöveg egy gondolatát ábrázolja, hogy egy olyan kormány, amely a Tiszával való kapcsolatban áll, vagy érzékeny politikai irányzatot képvisel, akkor az elképzelhető, de a phrasing nem egyértelmű."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 3.177949650404882,
+   "text": "Ez a koncepció egy kihívásos politikai kérdést tárgyal, amelynek megoldása komoly diplomáciai és társadalmi következményekkel járhat, ezért őszintén, a vétőjog feloldása nagy hatással lehet a nemzetközi kapcsolatokra és a belső pártversenyre."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 3.58750640054378,
+   "text": "Ez a koncepció ideális esetben azt jelentené, hogy Magyarország vétőjoga megállapodás keretében megszűnik, és a következő szakaszban az Egyesült Államokok tagjai Ukrajna uniós csatlakozási tárgyalásaihoz visszatérhetnek. A koncepció alapján értelemszerűen érthető, hogy a Tisza-kormány nem támogatja a vétőjog megőrzését, és inkább a közös ellátási politikában és Európai Unióval való együttműködésben van érdekelt. A megfogalmazás egy kicsit túlzottan egyszerű, de az általános idevágó kérdésekre választ ad, és a szakmunkás, jobboldali médiát követő, 30-39 éves korosztály számára releváns lehet"
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 2.2608332898568095,
+   "text": "Ez a koncepció komoly politikai és diplomáciai kérdéseket vet fel, és a társadalmi megoszlásokat is figyelembe véve nem biztos, hogy mindenki tetszeni fog neki."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 2.8331692039685796,
+   "text": "Ez a koncepció tartalmilag konkrét, de a nyelvi kifejezés – például „Tisza-kormány” – egy kicsit félreérthető, mivel a kormány neve nem „Tisza”, hanem „Orbán Viktor kormány” lenne a helyes formája. A megfogalmazás egy kis finomhangolással pontosabb lenne."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 2.0367256026689926,
+   "text": "Nem tetszik. A Tisza-kormány egy absztrakt fogalom, amely nem létezik a valósági politikai térképen, így a kijelentés valószínűleg egy kampányos vagy kreatív kifejezés, amely nem hordozhat komoly politikai információt."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "alig",
+   "score": 1.7954356634520758,
+   "text": "Nem tetszik, mert a Tisza-kormány fogalmát nem ismerek, és a szöveg bizonytalan, körvonalazott állításokat tartalmaz, amelyek nem alátámasztottak bizonyítékokkal."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.473206342075068,
+   "text": "Ez a koncepció konzervatív, és a \"vétő\" kifejezés használata könnyen félreérthető, ezért nem tetszik nekem."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 3.2679047654589417,
+   "text": "Főként kételyeket keltő választásnak tűnik, mivel Magyarország vétőjének feloldása jelentősen átalakíthatná a határokon átnyúló politikai együttműködést, és a kormányzati döntés ilyen mély hatással lehet az ország belügyére, különösen a katonai és politikai együttműködések irányába."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 2.003813410130908,
+   "text": "Nem tetszik. A Tisza-kormány fogalma nem jól használható, mivel a Tiszával kapcsolatban nincs kormány, és a Magyarország vétójáról szóló állítás téves, mivel Magyarország nem rendelkezik uniós vétóval."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 2.4938317440458957,
+   "text": "Nem tetszik. A Tisza-kormány koncepciója kétséges, mivel a magyar vétőjog jogi és politikai szempontból komoly és helytelen. A \"feloldja\" kifejezés használata a vétőjogot tárgyilagosan elutasító attitűdöt tükrözhet, ami nem tisztelemre méltó."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.0871674333000514,
+   "text": "Ez a koncepció sokszínű és fontos politikai kérdést érint, de egy kicsit túl egyszerűen fogalmazva szerepel. A koncepció célja biztosan a politikai helyzetről szóló megosztó és nézőpontos kifejezés, de a megfogalmazás nem tisztességesen kezeli a komplexitást."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 3.217862191100874,
+   "text": "Ez a koncepció egy különösen jól hangzó és pozitív üzenetet hordoz, de a valóságban komoly politikai és jogi kihívásokkal járható, ezért inkább egy ambíciósnak tűnő, de valóságos megvalósításához messze lévő elképzelés."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "alig",
+   "score": 1.7410378112457092,
+   "text": "Nem tetszik. A Tisza-kormány egy olyan koncepció, amely nem létezik a valósági politikai térképen, és a témához való hivatalos megfogalmazás hiánya miatt idegen, félreértett vagy kitalált kifejezések használata miatt nem hangzik komolyan."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 1.5904143422151495,
+   "text": "Ez a koncepció kicsit meglepő, mivel a Tisza-kormány nem létezik, és a Magyarország vétőjének feloldása a közép-európai szociális hatalom által szinte teljesen elvitatott kérdés, amelyet főként a baloldali és liberális média sokszor félreértelmesen tárgyal."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 2.5061335900204833,
+   "text": "Ez a koncepció nagyon valószínűtlen és politikailag komoly kihívásokat jelentene, ezért nem tetszik."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 2.0737994232797985,
+   "text": "Ez a koncepció több szempontból is problémás, mivel a Tisza-kormány nem létező entitás, és Magyarország vétőjének feloldása a nemzetközi jog és a uniós tagállamok közös döntése során történik, nem egyetlen politikai párt vagy csoport határozata alapján."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 1.854619187701424,
+   "text": "Nem tetszik, mert a Tisza-kormány nem létezik, és a magyar vétőjog a nemzetközi jogszabályok alapján nem hagyható fel."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 2.0542304756137293,
+   "text": "Ez a koncepció nagyvalószínűen nem tetszik nekem, mivel a Tisza-kormány és a Magyarország vétőjének feloldása politikailag és jogi szempontból komplex, és nem egyértelmű, hogy milyen konkrét lépéseket jelentene. Emellett a „Tisza-kormány” kifejezés nem mindig hivatalos vagy egyértelmű, így a mondat értelmezhetetlensége is csökkenti a tetszetőségét."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 2.2500436793700906,
+   "text": "Ez a koncepció több szempontból is érdekes és releváns, de kissé bizonytalan, mivel a Tisza-kormány fogalma nem szerepel hivatalosan az Európai Unió vagy Magyarország politikai környezetében, és a politikai vétőjog Magyarországon nincs, mivel a vétőjog az uniós tagállamok jogai közé tartozik, és Magyarország nem rendelkezik vele."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 1.7859940516398094,
+   "text": "Nem tetszik. A Tisza-kormány koncepciója hivatalosan és hivatalos hangnemben szóló, de túlzottan szimpla és nem érzékelhető a konkrét gazdasági és szociális hatások."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "alig",
+   "score": 1.696117464837277,
+   "text": "Nem tetszik, mert a Tisza-kormány fogalma nem hivatalosan használt, és a témához kötődő állítások (pl. vétőjének feloldása, uniós csatlakozási tárgyalások) nem pontosan megfelelnek a jelenlegi politikai helyzeten, ahol Magyarország nem tagja az Európai Uniónak, tehát nem is rendelkezik vétőjellel."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 2.23539402595163,
+   "text": "Ez a koncepció inkább egy politikai taktikai célzásnak tűnik, mintsem valódi állampolgári szavazatot kívánna elnyerni, és az üzenet elemei nem szóljanak a választási környezet észlelhető változásaira."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 2.315018717470102,
+   "text": "Ez a koncepció egyszerűen kényelmetlen és társadalmilag torz."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.114920871280574,
+   "text": "A koncepció túl kockázatos és politikailag bonyolult ahhoz, hogy egy egyszerű, őszinte mondatban összefoglalható legyen, de elmondható, hogy nem tetszik, mert a vétőjog feloldása Magyarországon komoly diplomáciai és politikai következményekkel járhat, és a típusa (jobboldali média) miatt valószínűleg manipulatív vagy túlzottan egyszerűsített képet is sugallhat."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 1.804480098576461,
+   "text": "Ez a koncepció nagyon valószínűtlen, és a politikai valóságot nem tükrözi pontosan, mivel a Tisza-kormány fogalma nem létezik a magyar politikai rendszerben, és Magyarország vétőjoga a NATO és a szóvétőjog a közös külfogalmi politikában van, nem pedig az EU-ban."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 2.567234743434634,
+   "text": "A Tisza-kormány feloldja Magyarország vétóját, és támogatja Ukrajna uniós csatlakozási tárgyalásainak következő szakaszát. Ezt a koncepciót nem tetszik, mivel ellenzékes a Magyarország aktuális politikájával, amely a vétőjog fenntartásában áll, és a kormányzati döntések folyamatosan együttműködést váltanak ki a nemzeti érdekkel összeegyeztethetetlen álláspontokkal."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 3.198771439200334,
+   "text": "Ez a koncepció sokszínű érzelmeket vált ki, mert a Tisza-kormány támogatása Ukrajna uniós csatlakozási tárgyalásainak következő szakaszának jelentős politikai és nemzetközi következménye lehet, ugyanakkor a Magyarország vétójának feloldása egy komolyabb tárgyi és stratégiai döntés, amely gyorsan változó környezetben történhet. A koncepció valószínűleg kiszolgáltatná a romániai megyeszékhelyen élő fiatalokat, akik szintén érzékenyen reagálnak az európai integrációra."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "alig",
+   "score": 2.0349831651634265,
+   "text": "Az állítás nem igaz, mert Magyarország nem rendelkezik vétőjoggal a NATO vagy az EU döntései során, így a Tisza-kormány sem tudja feloldani."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 1.9042370471954297,
+   "text": "Nem tetszik, mert a Tisza-kormány egy olyan fogalom, amely a valóságot nem tükrözi, és a vétőjog Magyarországon nem létezik a mai napig."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 2.0026929352300304,
+   "text": "Nem tetszik, mert a Tisza-kormány koncepciója nem valóságos, és nem hagyja figyelmen kívül a Magyarországon jelenleg hatalmon lévő kormányzati tényezők bonyolultságát."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.1860559311056424,
+   "text": "Ez a koncepció hírnökét és társasági szerepköreit is érinti, amit magyar népi kultúra mint egy teljesen egyedülálló, és külön kormányzati struktúra szintjén értelmezni lehet. Az ilyen koncepciók gyakran a fővárosban működő kormányzati struktúra figyelmen kívül hagyásával jelennek meg, és a helyi kormányzati hatalom koncentrációját hirdetik, amit a középügyesség és a kisebbség jogainak biztosításával is kapcsolnak. A leírásban szereplő gyors ügyintézés és közigazgatási eljárások hírnöki szerepet is kijelölnek, bár a koncepcióban nem szerepel a polgári kultúra másik prototípusa, mint például a"
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 1.870562705524919,
+   "text": "Nem tetszik, mert a Tisza-kormány egy olyan fogalom, amely nem létezik a magyar politikai környezetben, és a megfogalmazás nem tiszta, nem nyilvánvalóan kifejezi, hogy melyik politikai párt vagy szervezetről van szó."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.8437895018090167,
+   "text": "A koncepció friss, politikailag releváns, de a magyar vétőjog a nemzeti jogrendszer egy alapvető eleme, így bármilyen változására éles reakciókat vártunk."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 1.7722322483731603,
+   "text": "Ez a koncepció nem tetszik, mert a Tisza-kormány fogalma nem ismert, és nem világos, hogy milyen kormányt vagy politikai szerepet értünk alá. A szövegben szereplő információk is kicsit érthetetlenek, például a \"közmédiát követ\" kifejezés nem egyértelmű. A válasz: a koncepció nem tetszik, mert nem egyértelmű, és a fogalmak nem megfelelően definiálva vannak."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 2.2380071356492426,
+   "text": "Ez a koncepció számomra túlzottan speculatív és politikailag kockázatos, így nem tetszik."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 2.7465687386392776,
+   "text": "Ez a koncepció nagyon valószínűtlen és nem valóságos, így nagyon kételyesnek és esetlegesnek tetszik."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 1.6527366769773617,
+   "text": "Ez a koncepció egyszerűen nem tetszik, mert a Tisza-kormány fogalma nem egyértelmű, és a vétőjének feloldása egy olyan politikai tárgyalási elem, amit nem lehet közvetlenül „támogatni” vagy „feloldani” egy egyszerű kijelentéssel."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 2.028891662379556,
+   "text": "Nem tetszik. A Tisza-kormány fogalma nem ismert, és a válasz feltételezi, hogy Magyarország jelenlegi vétóját érvényesítik, miközben a koncepció egy olyan lépést javasol, amit a jelenlegi magyar politikai környezetben nem érzékelhetők."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 1.721260675230441,
+   "text": "A koncepció egyértelműen kritikus a magyar kormány iránt, és a szóban forgó politikai szerepek meghatározásával kapcsolatban kissé idealista, mivel a Tisza-kormány fogalma nem szerepel a magyar politikai színtérben."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "alig",
+   "score": 1.8011931085031057,
+   "text": "Ez a koncepció a kormányzati döntések politikai és jogi komplexitását tükrözi, de az \"alig követi a politikai híreket\" kategória alapján valószínűleg nem lenne túl releváns vagy érdekes."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.2768276233106133,
+   "text": "A koncepció nem tetszik, mert túlzottan félreértelmes és politikailag feszült."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 3.6973416004418667,
+   "text": "Ez a koncepció különösen ideális a baloldali és liberális médiával kapcsolatos nézeteim alapján, mivel támogatja a demokrácia erősödését és az Európai Unió integrációját."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 1.8841123431689812,
+   "text": "Nem tetszik, mert a Tisza-kormány nem egy hivatalos neve, és a témájához mérten nem túl valószínű, hogy Magyarország vétőjét bármilyen formában feloldaná, különösen az uniós csatlakozási tárgyalások contextusában."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 2.0198488944944204,
+   "text": "Ez a koncepció számomra nagyon kétséges, mivel a Tisza-kormány egy fiktív, politikailag nem létező fogalom, és a Magyarországi vétőjog a nemzetközi jog és a szovjet időszak egyik egyik legismertebb politikai koncepciója, amelyet ma már nem használnak. A témához kapcsolódóan a Magyarország és Ukrajna közötti kapcsolat is egy komplex politikai kérdés, amelyet nem egyszerűen „feloldani” lehet."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 1.9659687143317532,
+   "text": "Ez az állítás nem tetszik nekem, mert a Tisza-kormány fogalma nem tartozik a valós politikai kontextusba, és a magyar vétőjáról szóló állítás pontatlan, mivel Magyarország nem rendelkezik vétőjoggal a NATO vagy más nemzetközi testületekben."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "alig",
+   "score": 2.4010041000550486,
+   "text": "Ez a koncepció inkább politikai tipp, mint egy igazi témakör, de ha a kérdés az, hogy mennyire tetszik nekem, akkor nem tetszik, mert nem értem, miért hívják a Tisza-kormányt, és nem világos, hogyan lehetne az uniós csatlakozás részét képeznő."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 3.267918891937762,
+   "text": "Ez a koncepció kicsit idegen és nem teljesen pontos, de a lényege érthető: a Tisza-kormány, mint egy fiktív vagy reprezentatív politikai testület, feloldaná Magyarország vétóját az Ukrajna uniós csatlakozási tárgyalások során. Ezt a kifejezést a magyar nyelv jellemzően nem használja, de a lényeget értem."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 1.7923674102616816,
+   "text": "A koncepció nem tetszik nekem, mert a Tisza-kormány fogalma nem egyértelmű és nem egy meglévő politikai szerep, így a kijelentés valószínűségét illetően bizonytalan."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 2.26890265647916,
+   "text": "Ez a koncepció az egyesült államok jelentős politikai és jogi változást jelentene, de a vétőjog hatályon kívül helyezése a tagállamok közötti egyensúlyt és a választók jogait is érintené. Kevesebb őszinteség, inkább az EU-közi egyeztetéseket és a politikai környezetet figyelembe véve, nem hiszem, hogy a Tisza-kormány egyetlen kivétel nélkül támogatná ezt a lépést."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 2.355975475995913,
+   "text": "Ez a koncepció a Tisza-kormányt valóságos politikai aktusszal kapcsolatosan tárgyalja, de a \"Tisza-kormány\" fogalma elmosódott, és a Tiszában (vagy az ott élők között) nem létezik egy általánosan elfogadott, nevezetes kormány, így a koncepció valószínűleg egy fiktív vagy tájékozatlanságból származó ötlet."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 1.9293916638742892,
+   "text": "Ez a koncepció nem tetszik, mert a Tisza-kormány fogalma nem valós politikai koncepció, és Magyarország vétőjének feloldása egy komoly politikai kérdés, amit egyszerűen nem lehet \"támogatja Ukrajna uniós csatlakozási tárgyalásainak következő szakaszát\" formában megfogalmazni."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.0967413146386034,
+   "text": "Ez a koncepció nagyon kockázatos és valószínűleg nem tetszenék nekem, mivel a Tisza-kormány (amelynek az 1920-as években volt hivatalos neve) ma már nem létezik, és a világpolitikai helyzettel kapcsolatban fontos lenne figyelembe venni a jelenlegi nemzetközi együttműködési mintákat és Magyarország aktuális politikai helyzetét."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 1.857011338189992,
+   "text": "Ez a koncepció inkább egy hipotetikus vagy politikai szimuláció, mintsem egy valós esemény, így az őszinteség szempontjából nem tartozik a konkrét, valós világ eseményeire, de tárgyalási folyamatát követően kifejezhető."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 2.6672363974639515,
+   "text": "Ez a koncepció sokszínű és komplex témába süpped, és egyes elemek, például a vétőjelentőség és a Tisza-kormány tulajdonképpeni nem létező fogalmak, kicsit félrevezetőek lehetnek, de ha valamilyen metaforikus vagy hipotetikus kontextusban értelmezi, akkor érdekes."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "alig",
+   "score": 2.545799308178996,
+   "text": "A koncepció nagyon alapvetően elfogadhatatlan, mivel Magyarország vétőjoga a nemzetközi jog és a szavazati jogok megörökölése, amelyet nem lehet egyértelműen \"feloldani\" ilyen környezetben."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 3.6839728285703446,
+   "text": "Ez a koncepció tetszik, mert tisztességesen és egyértelműen fogalmazza meg a politikai témát, és tartalmazza a szükséges szempontokat."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 1.9886330351118982,
+   "text": "Nem tetszik, mert a Tisza-kormány fogalma többé nem használatos, és a magyar vétőjog a nemzetközi politikai környezet egyik alapvető szabályát képviseli, amit nem lehet megoldani, csak a politikai helyzet változásával lehet megváltoztatni."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.137100313180716,
+   "text": "A koncepció túl személyes és politikailag többnyire összetett, ezért nem tetszik nekem."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 2.081883365439955,
+   "text": "Nem tetszik. A Tisza-kormány fogalma nem tisztázott, és a Tiszát támogató kormány elnevezés érthetetlen, valószínűleg hivatalos vagy politikai kontextust feltételezve, amit nem biztos, hogy a kérdező szándékosan használt."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 2.1222639888090873,
+   "text": "Nem tetszik. A Tisza-kormány fogalma nem létező, és a magyar vétőjog a Magyarországon határozó hatóságok és a nemzeti parlament hatásköre, nem a kormányé."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 2.2925478676784663,
+   "text": "A koncepció nem tetszik, mert a Tisza-kormány és a Magyarországon vett vétőjog szerepét túlzottan egyszerűen átfogalmazza. A vétőjog Magyarországon a nemzeti érdekeket védi, és a tárgyalások folyamata bonyolult, ahol nemcsak a vétőjog, hanem a különleges jogállás, a kisebbségi nyelv használata és a környezetvédelem is szerepel. A koncepció túlzottan egyszerű megfogalmazása a valóság bonyolultságát nem tükrözi."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "alig",
+   "score": 1.7602683363559697,
+   "text": "Nem tetszik, mert a témája komoly és határozott, de a fogalmazása kissé kifinomlottan hangzik, mintha nem teljesen őszinte lenne a hírforrás vagy a szöveg származása."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.463419406796388,
+   "text": "Ez a koncepció számomra nem tetszik, mert a Tisza-kormány fogalma nem tisztázott, és a magyar vétőjog egy fontos nemzetközi jogi eszköz, amit nem tetszőlegesen lehet feloldani."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 3.3765066926838587,
+   "text": "Ez a koncepció tetszik, mert támogatja a demokratikus értékeknek a széles körű elismerését, és egyértelműen a Magyarországon élő, baloldali vagy liberális nézőpontokat képviselő közösség érdekeit szolgálja."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 1.8232820624155948,
+   "text": "Nem tetszik, mert a Tisza-kormány nevű koncepció nem létezik, és a magyar vétőjog a nemzeti jogszabályok szerint nem feloldható a kormányzat által."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 3.1798356346614844,
+   "text": "Ez az állítás nagyon szimpatikus, mert tiszteletben tartja a Magyarország vétóját, de szerintem még jobban tetszenének a konkrét, részletes támogatási lépések, amelyeket a Tisza-kormány kívánna bevezetni."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 2.0666437280157974,
+   "text": "Ez a koncepció nem tetszik nekem, mert a Tisza-kormány fogalma nem egyértelmű, és a magyarországi vétőjog elválaszthatatlan a nemzeti jogrendszer és a nemzetközi jogi szabályozás szempontjából, így a feloldásról szóló állítás több érdekességet is felvet."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 1.8039760873953365,
+   "text": "Ez a koncepció szakmai és politikai szempontból komoly kérdéseket vet fel, de őszintén nem tetszik, mert a Tisza-kormány koncepciója és a szakmunkások részvételének lehetséges szerepe ebben az ügyben sokszor túlzottan idealizált, valamint a baloldali média hatással van a társadalomra, de nem mindig a valóságos politikai helyzetet tükrözi pontosan."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 1.803895158705577,
+   "text": "Ez a koncepció alapvetően nem tetszik, mert a Tisza-kormány fogalma nem ismert, és a vétőjének feloldása Magyarországra vonatkozóan nem valós politikai eljárás, hanem inkább hivatalos fogalom, amit általában nem használnak."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 2.0367356997020547,
+   "text": "Nem tetszik, mert a Tisza-kormány nem egy koncepció, amit Magyarországon ismertnek tartanak, és a hivatalos politikai tárgyalások során szerepet játszik."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "alig",
+   "score": 2.8221926237205497,
+   "text": "Az általad felvázolt koncepció egy kihívásos és határozott álláspontot képvisel, de nem biztos, hogy minden részletet pontosan pontosan fenntartanék."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "baloldali",
+   "score": 2.489913501207627,
+   "text": "Ez a koncepció egy kockázatos és politikailag komplex javaslat, és kifejezetten kevésbé tetszik nekem, mivel Magyarország vétőjének feloldása nemcsak a nemzetközi kapcsolatokra, hanem a belügyi egyensúlyra is nagy hatással lehet."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közmédia",
+   "score": 2.555124524513536,
+   "text": "Ez a koncepció valószínűleg nem tetszené nekem, mert a Tisza-kormány fogalma nem hagy helyet a demokratikus és átlátható politikai rendszerek számára, és a magyarországi vétőjog a nemzetközi politikai konvenciók, valamint a magyar nemzet általános érdekeihez tartozik, amelyeket nem törékeny, kormánytámogató szavakkal lehet megváltoztatni."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "közösségi",
+   "score": 1.9809530573582905,
+   "text": "Nem tetszik, mert a Tisza-kormány fogalma nem pontosan megfelel a magyar állam szervezetének hivatalos elnevezésének, és a választott koncepció félreértelmezhető, különösen a politikai kontextusban."
+  },
+  {
+   "stim": "K3_ukrajna",
+   "segment": "jobboldali",
+   "score": 2.442115376287828,
+   "text": "Ez a koncepció sokszínű érzelmeket kelt, de őszintén nem tetszik, mert jogi és politikai logikája bizonytalan, és a vétőjog megoldása jelentősen komolyabb következményekkel járhat, mint egy egyszerű elnyomás."
+  }
+ ]
+}

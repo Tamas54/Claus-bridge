@@ -501,7 +501,8 @@ def test_panel_kredit_pontosan_a_hianyt_irja_jova(fg_db, monkeypatch):
     monkeypatch.setenv("SZIMULATOR_PANEL_N", "60")
     kapott = {}
 
-    async def hamis_process(deps, job_id):
+    async def hamis_process(deps, job_id, **kw):
+        kapott["_modell"] = kw.get("model")
         conn = fg_db()
         job = dict(conn.execute("SELECT * FROM delphoi_jobs WHERE id=?", (job_id,)).fetchone())
         conn.close()
@@ -513,6 +514,7 @@ def test_panel_kredit_pontosan_a_hianyt_irja_jova(fg_db, monkeypatch):
     assert t["ok"] and t["kredit"] == 2 and t["feltoltes"] == 0           # az üdvözlő 2 kredit fedezte
     assert kapott["input_kind"] == "concept" and kapott["input_text"] == TITKOS_LEPES
     assert json.loads(kapott["panel_spec"])["n_per_cell"] == 60
+    assert kapott["_modell"] == ds.PANEL_MODELL_ALAP and t["modell"] == ds.PANEL_MODELL_ALAP
     t2 = _run(ds.tarsadalom(TITKOS_LEPES, "XX", get_db=fg_db, deps=deps, futas="sz-00000002", max_s=5))
     assert t2["ok"] and t2["feltoltes"] == 2 and t2["orszag"] == "HU"     # nincs fedezet → pontosan a hiány
     egyenleg = delphoi.get_credits(fg_db, ds.delphoi_felhasznalo())
@@ -520,8 +522,56 @@ def test_panel_kredit_pontosan_a_hianyt_irja_jova(fg_db, monkeypatch):
     assert any(s["reason"] == "topup:szimulator-sz-00000002" and s["delta"] == 2 for s in egyenleg["ledger"])
 
 
+def test_panel_modell_kulon_env_a_delphoi_termektol(fg_db, monkeypatch):
+    """A szimulátor saját panelmodellt kap (SZIMULATOR_PANEL_MODEL), a nyilvános DELPHOI FG_MODEL-je érintetlen."""
+    from plugins import delphoi as _d
+    alap_fg = _d.FG_MODEL
+    monkeypatch.setenv("SZIMULATOR_PANEL_MODEL", "Qwen/Proba-Modell")
+    kapott = {}
+
+    async def hamis_process(deps, job_id, **kw):
+        kapott["model"] = kw.get("model")
+        return {"ok": True, "job_id": job_id, "result": {"overall_score": 3.0, "segments": []}}
+    monkeypatch.setattr(delphoi, "process_job", hamis_process)
+    t = _run(ds.tarsadalom(TITKOS_LEPES, "HU", get_db=fg_db, deps={"get_db": fg_db, "siliconflow_api_key": "x"},
+                           futas="sz-00000009", max_s=5))
+    assert t["ok"] and kapott["model"] == "Qwen/Proba-Modell" and t["modell"] == "Qwen/Proba-Modell"
+    assert _d.FG_MODEL == alap_fg
+    monkeypatch.setenv("SZIMULATOR_PANEL_MODEL", "  ")
+    assert ds.panel_modell() == ds.PANEL_MODELL_ALAP
+
+
+def test_process_job_modell_felulirasa_a_job_sorban(fg_db, monkeypatch):
+    """process_job(model=…): a chat, a model_id és a panel_version a TÉNYLEGES modellt rögzíti; alapból FG_MODEL."""
+    from plugins import delphoi as _d
+    monkeypatch.setenv("DELPHOI_FG_CACHE", "0")
+    conn = fg_db()
+    conn.execute("CREATE TABLE IF NOT EXISTS press_snapshots (id INTEGER PRIMARY KEY AUTOINCREMENT, date_iso TEXT, "
+                 "lang TEXT, signal_type TEXT, content TEXT, created_at TEXT)")
+    conn.commit()
+    conn.close()
+    assert _d.fg_panel_version() == _d.FG_PANEL_VERSION
+    assert _d.fg_panel_version("Qwen/X") == "orakel-agora-hu-v2|Qwen/X" != _d.FG_PANEL_VERSION
+    c = _d.create_job(fg_db, "teszt:modell", "concept", "Próba-lépés a modellcseréhez.", {"country": "HU", "n_per_cell": 30})
+    assert c["ok"]
+
+    async def chat(prompt):
+        return "Ez nekem eléggé tetszik."
+
+    async def embed(texts):
+        return [[1.0, 0.0, 0.0] for _ in texts]
+    rep = _run(_d.process_job({"get_db": fg_db}, c["job_id"], chat_fn=chat, embed_fn=embed, model="Qwen/X"))
+    assert rep["ok"], rep
+    panel = rep["result"]["panel"]
+    assert panel["model_id"].startswith("Qwen/X|") and panel["panel_version"] == "orakel-agora-hu-v2|Qwen/X"
+    conn = fg_db()
+    job = dict(conn.execute("SELECT model_id, panel_version FROM delphoi_jobs WHERE id=?", (c["job_id"],)).fetchone())
+    conn.close()
+    assert job["model_id"].startswith("Qwen/X|") and job["panel_version"] == "orakel-agora-hu-v2|Qwen/X"
+
+
 def test_panel_idotullepesnel_failed_es_refund(fg_db, monkeypatch):
-    async def lassu(deps, job_id):
+    async def lassu(deps, job_id, **kw):
         conn = fg_db()
         conn.execute("UPDATE delphoi_jobs SET status='running' WHERE id=?", (job_id,))
         conn.commit()

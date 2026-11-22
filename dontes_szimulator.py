@@ -548,6 +548,19 @@ def panel_n() -> int:
     return max(30, _env_int("SZIMULATOR_PANEL_N", 60))
 
 
+#: A szimulátor SAJÁT panelmotorja (2026-11-22, a Kommandant: „túl drága … olcsóbb modell is elég a swarm
+#: előrejelzéshez”). Mérés alapján választva — `orakel_backteszt/olcso_swarm_20261122/JEGYZOKONYV.md`: ár, a HU
+#: választás előtti vak backteszt (rés, parse, seed-szórás), a közmédia-kapu, a skála-eltolás a Hy3-hoz képest, és a
+#: tudás-határ (`modell_cutoff.CUTOFF`). KÜLÖN a nyilvános DELPHOI-termék motorjától (`DELPHOI_FG_MODEL`): a ledger és
+#: a fizetős fókuszcsoport skálája így nem változik csendben; a job-sor a tényleges modellt és panel-verziót rögzíti.
+PANEL_MODELL_ALAP = "deepseek-ai/DeepSeek-V4.1-Flash"
+
+
+def panel_modell() -> str:
+    """`SZIMULATOR_PANEL_MODEL` (SiliconFlow-modellnév), alapból a mért nyertes."""
+    return os.environ.get("SZIMULATOR_PANEL_MODEL", "").strip() or PANEL_MODELL_ALAP
+
+
 async def tarsadalom(lepes: str, orszag: str, *, get_db, deps: dict | None, futas: str,
                      max_s: float) -> dict:
     """A DELPHOI fókuszcsoport-motorja a lépés szövegével (input_kind=concept). A kredit a belső felhasználóé
@@ -570,10 +583,11 @@ async def tarsadalom(lepes: str, orszag: str, *, get_db, deps: dict | None, futa
     if not created.get("ok"):
         return {"ok": False, "hiba": f"a DELPHOI nem vette fel a jobot: {created.get('error')}", "kredit": koltseg}
     job_id = created["job_id"]
+    modell = panel_modell()
     alap = {"job_id": job_id, "kredit": koltseg, "feltoltes": feltoltes, "felhasznalo": felh, "orszag": orszag,
-            "n": spec["n_per_cell"]}
+            "n": spec["n_per_cell"], "modell": modell}
     try:
-        rep = await asyncio.wait_for(delphoi.process_job(deps, job_id), max_s)
+        rep = await asyncio.wait_for(delphoi.process_job(deps, job_id, model=modell), max_s)
     except asyncio.TimeoutError:
         delphoi._fail_job(get_db, job_id, f"a döntés-szimulátor időkorlátja ({int(max_s)} mp)")
         return {**alap, "ok": False, "hiba": f"a panel {int(max_s)} mp alatt nem végzett (kredit visszaírva)"}

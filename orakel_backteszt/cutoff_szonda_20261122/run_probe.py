@@ -84,7 +84,7 @@ def run_anthropic(model, qs):
     from anthropic.types.messages.batch_create_params import Request
     client = anthropic.Anthropic()
     reqs = [Request(custom_id=q["id"].replace(".", "_")[:64], params=MessageCreateParamsNonStreaming(
-        model=model, max_tokens=2048, system=SYSTEM_B, output_config={"effort": "low"},
+        model=model, max_tokens=1024, system=SYSTEM_B, output_config={"effort": "low"},
         messages=[{"role": "user", "content": q["question"]}])) for q in qs]
     batch = client.messages.batches.create(requests=reqs)
     print(f"batch {batch.id} ({len(reqs)} kérés)", flush=True)
