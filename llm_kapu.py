@@ -90,6 +90,9 @@ CSONKOLAS_DUPLAZAS = 2
 # Sorrend = elsőbbség: az ELSŐ illeszkedő sor dönt. Utána jön a méret-szabály (`MERET_SZABALYOK`).
 SZINT_TABLA = (
     # (szabály,     mit néz,                                                                   szint)
+    # 11-22, NACHTSCHICHT (nachtschicht.py): a rövid tervező lépés Opus, az éjszakai munka (eszközhurok, írás) Sonnet
+    ("nachtschicht_terv", "a Nachtschicht tervező lépése (`nachtschicht/terv`): mit fog ma kérni a Kommandant", "okos"),
+    ("nachtschicht", "a Nachtschicht munkája (`nachtschicht/…`): háttéranyag, levéltervezet, beadványvázlat", "kozep"),
     ("cel_okos", "a `purpose` okos munka: synth, brief, elemzés, dispatch, essay, nowcast", "okos"),
     # 11-22, Kommandant: „8 cent nagyon sok egy válaszra” — a Feldwebel alapból olcsó, és csak a mélyebb kérésnél közép
     ("feldwebel_melyebb", "a Feldwebel, és a Kommandant üzenete elemzést/tervet/összevetést kér vagy hosszú", "kozep"),
@@ -225,7 +228,9 @@ def _utolso_kommandant_szoveg(payload: dict) -> str:
 def szint_valaszt(payload: dict, purpose: str = "") -> tuple[str, str]:
     """`(szint, indok)`. A `SZINT_TABLA` első illeszkedő sora, utána a `MERET_SZABALYOK`."""
     cel = (purpose or "").lower()
-    if any(c in cel for c in OKOS_CELOK):
+    if cel.startswith("nachtschicht"):
+        szabaly = "nachtschicht_terv" if cel.startswith("nachtschicht/terv") else "nachtschicht"
+    elif any(c in cel for c in OKOS_CELOK):
         szabaly = "cel_okos"
     elif "feldwebel" in cel:
         utolso = _utolso_kommandant_szoveg(payload)
@@ -699,6 +704,9 @@ async def chat(payload: dict, *, purpose: str = "") -> tuple[dict | None, dict |
     logger.info("llm_kapu[%s] szint=%s (%s) → %s, effort=%s, kért SF-modell: %s",
                 purpose or "?", szint, indok, cfg["modell"], cfg["effort"], payload.get("model"))
     duplazas = 0
+    #: a hívás (újrapróbálásokkal együtt) könyvelt költsége — a válaszban `koltes_usd`, hogy a hívó (pl. a
+    #: Nachtschicht éjszakai kerete) a kapu valódi könyveléséből számolhasson, ne a saját becsléséből
+    koltes = 0.0
     while True:
         try:
             msg = await _kuld(kw)
@@ -715,11 +723,11 @@ async def chat(payload: dict, *, purpose: str = "") -> tuple[dict | None, dict |
                 continue
             logger.warning("llm_kapu[%s] %s: %s", purpose or "?", cfg["modell"], err["message"][:300])
             return None, err, notes
-        _konyvel(msg.usage, cfg["modell"], szint, purpose)
+        koltes += _konyvel(msg.usage, cfg["modell"], szint, purpose)
         # A `stop_reason`-t a tartalom ELŐTT nézzük: refusalnál a tartalom üres vagy félbemaradt.
         if msg.stop_reason == "refusal":
             kat = getattr(getattr(msg, "stop_details", None), "category", None)
-            return None, {"code": "refusal", "provider": "anthropic",
+            return None, {"code": "refusal", "provider": "anthropic", "koltes_usd": koltes,
                           "message": f"Anthropic refusal: a `{msg.model}` elutasította a kérést (kategória: {kat})"}, notes
         if msg.stop_reason == "max_tokens" and duplazas < CSONKOLAS_DUPLAZAS and kw["max_tokens"] < KIMENET_PLAFON:
             nxt = min(kw["max_tokens"] * 2, KIMENET_PLAFON)
@@ -734,7 +742,9 @@ async def chat(payload: dict, *, purpose: str = "") -> tuple[dict | None, dict |
             notes.append(f"MODELLVÁLTÁS (Anthropic-tartalék): a `{cfg['modell']}` elutasította a kérést, "
                          f"a választ `{msg.model}` adta")
         _tarol(msg, kw)
-        return fordit_valasz(msg), None, notes
+        valasz = fordit_valasz(msg)
+        valasz["koltes_usd"] = koltes
+        return valasz, None, notes
 
 
 async def strukturalt(system: str, szoveg: str, sema, *, szint: str = "olcso", max_tokens: int = 300,

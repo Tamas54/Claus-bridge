@@ -73,6 +73,7 @@ from api_kapu import ApiKapuMiddleware
 import melleklet
 import hang
 import onjavitas
+import nachtschicht
 import cimzett
 
 # Echolot — multi-sphere news context (separate Railway instance, REST)
@@ -11951,14 +11952,30 @@ def _cron_last_due(schedule: str, now_local: datetime, lookback_min: int = 360) 
     return None
 
 
-def _faber_kerelem_onjavitasbol(kivansag: str) -> int | None:
-    """Az önjavító kör kívánsága → aláírt Faber-szándék a `bridge` műhelynek (ugyanaz az út, mint a szóbeli kérés)."""
+def _faber_kerelem_onjavitasbol(kivansag: str, repo: str = "bridge") -> int | None:
+    """Az önjavító kör (és a Nachtschicht panaszból javítása) kívánsága → aláírt Faber-szándék a műhelynek (alapból
+    `bridge`; ugyanaz az út, mint a szóbeli kérés)."""
     conn = get_db()
     try:
         return faber_relay.tovabbit(conn, TELEGRAM_BOT_TOKEN, "szandek", faber_relay.szandek_adat(
-            {"szandek": "kivansag", "szoveg": kivansag, "repo": "bridge", "kerelem": None}), now())
+            {"szandek": "kivansag", "szoveg": kivansag, "repo": repo, "kerelem": None}), now())
     finally:
         conn.close()
+
+
+async def _nachtschicht_ejszaka():
+    """A NACHTSCHICHT egy éjszakája (nachtschicht.py) a Bridge saját adataival; a jelentés a Telegramra megy, és a
+    Feldwebel-előzménybe CSAK-CLAUDE jellel (a tudásbázis-tartalom SiliconFlow-modellhez nem kerül)."""
+    try:
+        from feldwebel import get_ctx
+        from feldwebel.history import add_message
+        await nachtschicht.ejszaka(
+            forras=nachtschicht.BridgeForras(get_ctx(), get_db), get_db=get_db, memoria_ir=memoria_ir,
+            telegram=_telegram_push, faber_kerelem=_faber_kerelem_onjavitasbol,
+            elozmeny=lambda t: add_message(TELEGRAM_CHAT_ID, "assistant", t,
+                                           nachtschicht.FELADO + futar_kliens.CLAUDE_CSAK_JEL))
+    except Exception as e:  # noqa: BLE001 — a cron-szál menjen tovább
+        logger.error("Nachtschicht hiba: %s", e, exc_info=True)
 
 
 async def _cron_loop():
@@ -12040,6 +12057,9 @@ async def _cron_loop():
                                         faber_kerelem=_faber_kerelem_onjavitasbol, telegram=_telegram_push)
                 except Exception as e:  # noqa: BLE001 — az önjavítás hibája ne állítsa meg a cront
                     logger.error("Önjavító kör hiba: %s", e)
+
+            # NACHTSCHICHT (2026-11-22): 05:50-kor (Budapest) naponta egyszer, háttérfeladatként (nachtschicht.py)
+            nachtschicht.cron_lepes(now_local, get_db=get_db, memoria_ir=memoria_ir, futtat=_nachtschicht_ejszaka)
 
             # Daily cleanup: delete uploads older than 7 days (runs once at ~04:00 UTC)
             today_str = now_dt.strftime("%Y-%m-%d")
