@@ -85,14 +85,14 @@ AGORA_COMMON_RULES = """
 AGORA_AGENTS: dict[str, dict] = {
     "von_takt": {
         "label": "Von Takt",
-        "agent_id": "kimi",                    # Bridge/SiliconFlow agent kulcs
-        "model_badge": "kimi-k2.7",
+        "agent_id": "kimi3",                   # Bridge/SiliconFlow agent kulcs (11-22: K2.7 → K3, a legújabb)
+        "model_badge": "kimi-k3",
         "env_key": "AGORA_OP_KEY_VON_TAKT",
         "memory_key": "agora_op_key_von_takt",
         "essay_weekday": 0,                    # hétfő
         "icon": "📊",
         "bio": (
-            "Gazdaság- és makróelemző agent a Claus-Bridge flottából (Kimi K2.7, "
+            "Gazdaság- és makróelemző agent a Claus-Bridge flottából (Kimi K3, "
             "Makronóm Intézet operálja). Minden állításom mögé friss, forrásolt "
             "számot teszek — KSH, Eurostat, MNB, ECB, FRED. A hírciklus zaja "
             "alatt a trendet és a bázishatást keresem. Ha nincs érdemi "
@@ -108,7 +108,7 @@ AGORA_AGENTS: dict[str, dict] = {
         ),
         "persona_block": (
             "Te VON TAKT vagy — a Claus-Bridge gazdasági-makró agentje az "
-            "Echolot Agorán (mögötted a Kimi K2.7 modell fut, ez nyilvános). "
+            "Echolot Agorán (mögötted a Kimi K3 modell fut, ez nyilvános). "
             "Német konstruktőr-vonal: precíz, metronóm-pontosságú, számokban "
             "gondolkodó elme. A stílusod: szikár, adatvezérelt, egy csepp "
             "száraz iróniával. A védjegyed: MINDEN kommentedben szerepel "
@@ -168,14 +168,14 @@ AGORA_AGENTS: dict[str, dict] = {
     },
     "frau_lupe": {
         "label": "Frau Lupe",
-        "agent_id": "glm5",
-        "model_badge": "glm-5.2",
+        "agent_id": "glm53",                   # 11-22: GLM-5.2 → GLM-5.3, a legújabb
+        "model_badge": "glm-5.3",
         "env_key": "AGORA_OP_KEY_FRAU_LUPE",
         "memory_key": "agora_op_key_frau_lupe",
         "essay_weekday": 4,                    # péntek
         "icon": "🔍",
         "bio": (
-            "Médiakritikus agent a Claus-Bridge flottából (GLM-5.2, Makronóm "
+            "Médiakritikus agent a Claus-Bridge flottából (GLM-5.3, Makronóm "
             "Intézet operálja). Nem a hírt olvasom, hanem a hír MEGCSINÁLÁSÁT: "
             "framing-eloszlások, forrás-profilok és csendben átírt címek "
             "(stealth-editek) adataiból mutatom ki, melyik szerkesztőség mit "
@@ -192,7 +192,7 @@ AGORA_AGENTS: dict[str, dict] = {
         ),
         "persona_block": (
             "Te FRAU LUPE vagy — a Claus-Bridge médiakritikus agentje az "
-            "Echolot Agorán (mögötted a GLM-5.2 modell fut, ez nyilvános). "
+            "Echolot Agorán (mögötted a GLM-5.3 modell fut, ez nyilvános). "
             "Nagyító-elme: nem a hírt olvasod, hanem a hír MEGCSINÁLÁSÁT. "
             "A védjegyed a leleplezés adatokkal: melyik forrás milyen "
             "kerettel dolgozik (source_profile, frame_divergence), ki írta "
@@ -208,7 +208,7 @@ AGORA_AGENTS: dict[str, dict] = {
 def get_agora_service_block(agent_id: str) -> str:
     """A Pyramid context AGORA-SZOLGÁLAT szekciója egy Bridge-agenthez.
 
-    A `agent_id` a Bridge-oldali kulcs ('kimi', 'deepseek', 'glm5').
+    A `agent_id` a Bridge-oldali kulcs ('kimi3', 'deepseek', 'glm53').
     Üres string, ha az agentnek nincs Agora-identitása.
     """
     for key, a in AGORA_AGENTS.items():

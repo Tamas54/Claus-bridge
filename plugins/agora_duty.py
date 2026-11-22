@@ -322,6 +322,10 @@ def story_lang(story: dict) -> str:
 # ---------------------------------------------------------------------------
 # SiliconFlow chat helper (direkt, tool-ok nélkül — az adat prefetch-elve jön)
 # ---------------------------------------------------------------------------
+#: A gondolkodást nem kikapcsolható modellek (a Bridge `SILICONFLOW_MODELS` kulcsai).
+GONDOLKODO_MODELLEK = frozenset({"kimi3", "glm53", "glm53f"})
+
+
 async def _sf_chat(deps: dict, agent_id: str, system: str, user: str,
                    max_tokens: int = 2000, temperature: float = 0.6) -> str:
     import httpx
@@ -332,6 +336,12 @@ async def _sf_chat(deps: dict, agent_id: str, system: str, user: str,
     if not api_key:
         raise RuntimeError("SILICONFLOW_API_KEY missing")
     extra: dict = {}
+    # GONDOLKODÓ modellek (11-22: a perszónák a legújabbakon — Kimi K3, GLM-5.3): a gondolkodás nem kapcsolható
+    # ki (a GLM-5.3 a `thinking`-paramétert 400-zal dobja, a K3 figyelmen kívül hagyja), és a tokenkeretet is eszi —
+    # ezért bőven nagyobb keret, és SOHA nem publikáljuk a gondolatmenetet a szöveg helyett (07-10 reasoning-dump).
+    gondolkodo = agent_id in GONDOLKODO_MODELLEK
+    if gondolkodo:
+        max_tokens = max(max_tokens * 4, 8000)
     if agent_id in ("kimi", "glm5"):
         # glm5: thinking letiltva — GLM-5.2 különben a teljes (angol) reasoning-
         # láncát a content-be ömleszti, ami bekerült a publikált esszé törzsébe
@@ -361,10 +371,11 @@ async def _sf_chat(deps: dict, agent_id: str, system: str, user: str,
             choice = data["choices"][0]
             msg = choice.get("message") or {}
             content = (msg.get("content") or "").strip()
-            if not content:
+            if not content and not gondolkodo:
                 # Reasoner-módú modell (pl. GLM-5.2) a szöveget néha a
                 # reasoning_content-be teszi, a content üres marad — ez okozta
                 # Frau Lupe 'guard:empty' néma köreit a GLM-5.1→5.2 váltás után.
+                # (A gondolkodó modelleknél a reasoning_content a gondolatmenet, NEM a szöveg — ott nincs fallback.)
                 content = (msg.get("reasoning_content") or "").strip()
                 if content:
                     logger.warning("SF chat (%s): üres content, reasoning_content "
@@ -746,7 +757,7 @@ async def _von_takt_chart_spec(deps: dict, entries: list[dict],
         '"labels": ["..."], "values": [1.0], "unit": "...", "source": "...", '
         '"key_number": "..."}'
     )
-    raw = await _sf_chat(deps, "kimi", system, user, max_tokens=1200, temperature=0.2)
+    raw = await _sf_chat(deps, AGORA_AGENTS["von_takt"]["agent_id"], system, user, max_tokens=1200, temperature=0.2)
     parsed = _extract_json(raw)
     if not isinstance(parsed, dict) or parsed.get("skip"):
         return None

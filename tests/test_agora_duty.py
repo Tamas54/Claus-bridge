@@ -104,7 +104,7 @@ def test_personas_complete():
     assert set(AGORA_AGENTS) == {"von_takt", "der_kartograph", "frau_lupe"}
     for a in AGORA_AGENTS.values():
         assert a["model_badge"] and a["env_key"] and a["memory_key"]
-    blk = get_agora_service_block("kimi")
+    blk = get_agora_service_block("kimi3")          # 11-22: Von Takt a Kimi K3-on
     assert "Von Takt" in blk and "AGORA-SZOLGÁLAT" in blk
     assert get_agora_service_block("qwen3_coder") == ""
 
@@ -253,3 +253,50 @@ def test_parse_essay_output_prozai_cim_szo_nem_vag():
     title, note, body = parse_essay_output(raw)
     assert title == "Rendes cím"
     assert body.startswith("A könyv cím: nem fejléc")
+
+
+# ── 11-22: a perszónák a legújabb modelleken; a gondolkodó modell gondolatmenete SOSE lesz esszé ──
+def test_personak_a_legujabb_modelleken():
+    assert AGORA_AGENTS["von_takt"]["agent_id"] == "kimi3" and AGORA_AGENTS["von_takt"]["model_badge"] == "kimi-k3"
+    assert AGORA_AGENTS["frau_lupe"]["agent_id"] == "glm53" and AGORA_AGENTS["frau_lupe"]["model_badge"] == "glm-5.3"
+    for a in AGORA_AGENTS.values():
+        assert "K2.7" not in a["bio"] + a["persona_block"] and "GLM-5.2" not in a["bio"] + a["persona_block"]
+
+
+def test_gondolkodo_modell_reasoningje_nem_publikalhato(monkeypatch):
+    import pytest
+    import asyncio
+    import plugins.agora_duty as ad
+    kuldott = {}
+
+    class R:
+        status_code = 200
+
+        def json(self):
+            return {"choices": [{"message": {"content": "", "reasoning_content": "Gondolkodom: először…"},
+                                 "finish_reason": "length"}]}
+
+    class C:
+        def __init__(self, *a, **k):
+            pass
+
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, *a):
+            return False
+
+        async def post(self, url, headers=None, json=None):
+            kuldott.update(json)
+            return R()
+
+    import httpx
+    monkeypatch.setattr(httpx, "AsyncClient", C)
+
+    async def nincs_alvas(*a, **k):
+        return None
+    monkeypatch.setattr(ad.asyncio, "sleep", nincs_alvas)
+    deps = {"siliconflow_api_key": "k", "siliconflow_models": {"glm53": "zai-org/GLM-5.3"}}
+    with pytest.raises(RuntimeError, match="empty completion"):
+        asyncio.run(ad._sf_chat(deps, "glm53", "s", "u", max_tokens=1200))
+    assert kuldott["max_tokens"] >= 8000 and "thinking" not in kuldott      # nagy keret, nincs tiltott paraméter
