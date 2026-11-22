@@ -398,7 +398,7 @@
    "talalat": true,
    "zajon_tul": false,
    "dKat": 0.0,
-   "talalat_kat": true,
+   "talalat_kat": false,
    "folytatodik_josol": -1,
    "folytatodik_talalat": true,
    "offset": 73.31,
@@ -423,7 +423,7 @@
    "talalat": false,
    "zajon_tul": false,
    "dKat": 0.0,
-   "talalat_kat": false,
+   "talalat_kat": true,
    "folytatodik_josol": -1,
    "folytatodik_talalat": false,
    "offset": 72.84,
@@ -439,10 +439,10 @@
    "p_egyoldali": 0.377
   },
   "panel_kategorikus": {
-   "talalat": 8,
+   "talalat": 7,
    "n": 10,
-   "arany": 0.8,
-   "p_egyoldali": 0.0547
+   "arany": 0.7,
+   "p_egyoldali": 0.1719
   },
   "alapvonal_folytatodik": {
    "talalat": 4,

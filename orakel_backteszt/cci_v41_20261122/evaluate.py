@@ -21,7 +21,9 @@ def prev(m):
     return f"{y - 1}-12" if mm == 1 else f"{y}-{mm - 1:02d}"
 
 
-def sgn(x, flat=0.0):
+def sgn(x, flat=1e-9):
+    """Előjel; |x| < flat → 0. Az alapérték 1e-9: a pontos nulla (pl. azonos kategorikus szaldó két hónapban,
+    lebegőpontos maradékkal) 'nincs változás', nem negatív irány (2026-11-23-i hibajavítás)."""
     return 0 if abs(x) < flat else (1 if x > 0 else -1)
 
 
