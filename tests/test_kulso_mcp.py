@@ -115,3 +115,9 @@ def test_nincs_nevutkozes_a_feldwebel_eszkozeivel():
     from feldwebel import responder
     sajat = {t["function"]["name"] for t in responder.TOOLS}
     assert not sajat & set(k.SZERVEREK)
+
+
+def test_sok_eszkoznel_tomor_lista(monkeypatch):
+    monkeypatch.setattr(k, "MAX_LEIRAS_KAR", 10)
+    d = _run(k.eszkoz_definiciok())[0]["function"]["description"]
+    assert "kereses(query, …), hosszu()" in d and "Keresés a teszt" not in d

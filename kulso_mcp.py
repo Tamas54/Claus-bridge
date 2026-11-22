@@ -120,6 +120,12 @@ def _parameterek(sema: dict) -> str:
     return ", ".join(p if p in kell else f"{p}?" for p in props)
 
 
+def _kotelezo(sema: dict) -> str:
+    props = (sema or {}).get("properties") or {}
+    kell = [p for p in props if p in set((sema or {}).get("required") or [])]
+    return ", ".join(kell + (["…"] if len(props) > len(kell) else []))
+
+
 def _elso_mondat(szoveg: str, n: int = 90) -> str:
     s = " ".join((szoveg or "").split())
     for jel in (". ", "; ", " — "):
@@ -134,7 +140,9 @@ def eszkoz_definicio(nev: str, eszkozok: list) -> dict:
     sorok = [f"- {t.name}({_parameterek(t.inputSchema)}): {_elso_mondat(t.description or '')}" for t in eszkozok]
     lista = "\n".join(sorok)
     if len(lista) > MAX_LEIRAS_KAR:
-        lista = ", ".join(f"{t.name}({_parameterek(t.inputSchema)})" for t in eszkozok)
+        # tömör mód (sok eszköz, pl. a Studio 43-a): név + KÖTELEZŐ paraméterek; a „…” jelzi, hogy van még —
+        # a teljes séma a `sugo`-val jön. Így a lista minden Feldwebel-hívásnál pár száz token, nem ezer fölött.
+        lista = ", ".join(f"{t.name}({_kotelezo(t.inputSchema)})" for t in eszkozok)
     leiras = (f"{SZERVEREK[nev]['leiras']}\nEszközei (a ?-es paraméter nem kötelező):\n{lista}\n"
               f"Egy eszköz teljes leírásához és sémájához hívd így: eszkoz=\"{SUGO}\", parameterek={{\"nev\": \"<eszköz>\"}}.")
     return {"type": "function", "function": {
