@@ -767,6 +767,25 @@ function hibaKezel(e) {
   ertesit(e.message || String(e), true);
 }
 
+// VISSZA: belépés nélkül megnyitott védett lap (régi műszerfal, Telegramban kapott link) → a szerver ide küld
+// `?vissza=…`-val; a belépés után oda megyünk vissza. Csak saját, relatív útra (nincs nyitott átirányítás).
+const VISSZA_ERVENY_MS = 15 * 60 * 1000;
+function visszaJo(v) { return typeof v === 'string' && /^\/(?!\/)[^\\\s]*$/.test(v) && (v.startsWith('/dashboard') || v.startsWith('/api/')); }
+function visszaMegjegyez() {
+  const v = new URLSearchParams(location.search).get('vissza');
+  if (!v) return;
+  if (visszaJo(v)) ir('kabin.vissza', { v, t: Date.now() });
+  history.replaceState(null, '', '/app/');
+}
+function visszaUgras() {
+  const m = olvas('kabin.vissza', null);
+  if (!m) return false;
+  try { localStorage.removeItem('kabin.vissza'); } catch { /* privát mód */ }
+  if (!visszaJo(m.v) || Date.now() - (m.t || 0) > VISSZA_ERVENY_MS) return false;
+  location.replace(m.v);
+  return true;
+}
+
 async function indit() {
   try {
     S.adat = await api('/api/ui/allapot');
@@ -776,6 +795,7 @@ async function indit() {
     }
     return;
   }
+  if (visszaUgras()) return;
   if (S.adat.most) S.eltolas = ms(S.adat.most) - Date.now();
   S.utolsoId = S.adat.utolso_id;
   const mentett = olvas('kabin.nezet', null);
@@ -796,4 +816,5 @@ document.addEventListener('visibilitychange', () => {
 });
 addEventListener('keydown', (e) => { if (e.key === 'Escape') fiokZar(); });
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('/app/sw.js', { scope: '/app/' }).catch(() => {});
+visszaMegjegyez();
 indit();

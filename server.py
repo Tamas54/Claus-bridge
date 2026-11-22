@@ -68,6 +68,7 @@ import presence
 # OPERATION LESESAAL — Réka token-alapú hozzáférése (chat + scoped MCP).
 # A token az URL path-ban ül, a hívó modell nem látja és nem hamisíthatja.
 from youngereka_access import YRScopeMiddleware, authenticated
+from api_kapu import ApiKapuMiddleware
 
 # Echolot — multi-sphere news context (separate Railway instance, REST)
 try:
@@ -12237,5 +12238,6 @@ if __name__ == "__main__":
         port=_bridge_port,
         # `/mcp/yr-{token}` → `/mcp`, a caller a tokenből erőltetve (task #24).
         # A `middleware=` a FastMCP hivatalos horga, az indítási út változatlan.
-        middleware=[Middleware(YRScopeMiddleware)],
+        # API-KAPU (11-22): minden /api/* és a /dashboard csak belépve vagy munkáskulccsal (api_kapu.py).
+        middleware=[Middleware(ApiKapuMiddleware), Middleware(YRScopeMiddleware)],
     )

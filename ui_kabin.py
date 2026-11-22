@@ -199,7 +199,7 @@ def _vedett(fn):
 
 def _suti_beallit(resp: Response) -> Response:
     resp.set_cookie(SUTI_NEV, suti_ertek(_k()), max_age=SUTI_ERVENY, httponly=True, secure=True,
-                    samesite="strict", path="/")
+                    samesite="lax", path="/")
     return resp
 
 
@@ -327,7 +327,7 @@ async def belepes_post(request: Request):
 
 async def kilepes(request: Request):
     resp = JSONResponse({"ok": True})
-    resp.delete_cookie(SUTI_NEV, path="/", secure=True, httponly=True, samesite="strict")
+    resp.delete_cookie(SUTI_NEV, path="/", secure=True, httponly=True, samesite="lax")
     return resp
 
 

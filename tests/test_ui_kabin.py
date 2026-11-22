@@ -172,7 +172,7 @@ def test_link_get_nem_fogyaszt_post_sutit_ad(db):
     suti = r.headers["set-cookie"]
     assert suti.startswith(f"{ui.SUTI_NEV}=")
     low = suti.lower()
-    assert "httponly" in low and "secure" in low and "samesite=strict" in low
+    assert "httponly" in low and "secure" in low and "samesite=lax" in low
     assert f"max-age={ui.SUTI_ERVENY}" in low and "path=/" in low
     ertek = suti.split(";")[0].split("=", 1)[1]
     assert ui.suti_ervenyes(K, ertek)
@@ -240,7 +240,7 @@ def test_kodos_belepes_es_probakorlat(db, monkeypatch):
     keres = _run(_keres(app, "POST", "/app/belepolink", suti=False)).json()["keres"]
     kod = re.search(r"<b>(\d{6})</b>", kuldott[0]).group(1)
     r = _run(_keres(app, "POST", "/app/belepes/kod", suti=False, json={"keres": keres, "kod": kod}))
-    assert r.status_code == 200 and "samesite=strict" in r.headers["set-cookie"].lower()
+    assert r.status_code == 200 and "samesite=lax" in r.headers["set-cookie"].lower()
     assert _run(_keres(app, "POST", "/app/belepes/kod", suti=False, json={"keres": keres, "kod": kod})
                 ).status_code == 403                                # egyszer használható
 
