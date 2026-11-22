@@ -326,6 +326,25 @@ def story_lang(story: dict) -> str:
 GONDOLKODO_MODELLEK = frozenset({"kimi3", "glm53", "glm53f"})
 
 
+class SzolgaltatoKieses(RuntimeError):
+    """A SiliconFlow most nem szolgál ki: 402 (elfogyott az egyenleg), 5xx, időtúllépés, nincs kapcsolat.
+
+    2026-11-21: a 402 („balance insufficient”) négy Agora-szolgálatot vitt el CSENDBEN — minden hívás `error`-sorként
+    halt el az agora_activity-ben, és senki nem tudott róla. Most a kör ilyenkor kihagyja a perszónát (minden további
+    hívása ugyanígy bukna), a kimaradás a kimaradt-futás naplóba kerül (`recipe_health.recipe_skips`), a Telegramra
+    EGY jelzés megy 24 órás ismétlés-tiltással, és a következő ütemezett kör magától újrapróbál (nincs tiltó állapot).
+    RuntimeError-utód: a meglévő `except Exception` ágak továbbra is elkapják."""
+
+    def __init__(self, agent_id: str, ok: str, reszlet: str = ""):
+        self.agent_id, self.ok, self.reszlet = agent_id, ok, (reszlet or "")[:200]
+        super().__init__(f"SF chat failed ({agent_id}): {ok}" + (f": {self.reszlet}" if self.reszlet else ""))
+
+
+def _kimi_k3(agent_id: str, model_id: str) -> bool:
+    """A Kimi K3-család (élesben mérve 11-22): a `temperature`-t 400/20015-tel dobja („not supported for kimi-k3”)."""
+    return agent_id == "kimi3" or str(model_id).rsplit("/", 1)[-1].lower().startswith("kimi-k3")
+
+
 async def _sf_chat(deps: dict, agent_id: str, system: str, user: str,
                    max_tokens: int = 2000, temperature: float = 0.6) -> str:
     import httpx
@@ -357,6 +376,8 @@ async def _sf_chat(deps: dict, agent_id: str, system: str, user: str,
         "max_tokens": max_tokens,
         **extra,
     }
+    if _kimi_k3(agent_id, model_id):
+        payload.pop("temperature")
     timeout = float(deps.get("siliconflow_timeout") or 220)
     last_err = None
     for attempt in (1, 2):
@@ -365,6 +386,11 @@ async def _sf_chat(deps: dict, agent_id: str, system: str, user: str,
                 resp = await client.post(f"{base}/chat/completions",
                                          headers={"Authorization": f"Bearer {api_key}"},
                                          json=payload)
+            if resp.status_code == 402:
+                # elfogyott az egyenleg: egy másodperc múlva sem lesz — nincs újrapróba
+                raise SzolgaltatoKieses(agent_id, "HTTP 402", getattr(resp, "text", "") or "")
+            if resp.status_code >= 500:
+                raise SzolgaltatoKieses(agent_id, f"HTTP {resp.status_code}", getattr(resp, "text", "") or "")
             data = resp.json()
             if resp.status_code >= 400 or "choices" not in data:
                 raise RuntimeError(f"SF HTTP {resp.status_code}: {str(data)[:200]}")
@@ -388,11 +414,21 @@ async def _sf_chat(deps: dict, agent_id: str, system: str, user: str,
                 raise RuntimeError(
                     f"empty completion (finish_reason={choice.get('finish_reason')})")
             return content
+        except SzolgaltatoKieses as e:
+            if e.ok == "HTTP 402":
+                raise
+            last_err = e
+        except httpx.TimeoutException as e:
+            last_err = SzolgaltatoKieses(agent_id, "időtúllépés", f"{type(e).__name__} {timeout:.0f} s után")
+        except httpx.TransportError as e:
+            last_err = SzolgaltatoKieses(agent_id, "nincs kapcsolat", f"{type(e).__name__}: {e}")
         except Exception as e:  # noqa: BLE001
             last_err = e
-            if attempt == 2:
-                break
-            await asyncio.sleep(1.0)
+        if attempt == 2:
+            break
+        await asyncio.sleep(1.0)
+    if isinstance(last_err, SzolgaltatoKieses):
+        raise last_err
     raise RuntimeError(f"SF chat failed ({agent_id}): {last_err}")
 
 
@@ -973,6 +1009,8 @@ async def reaction_round(deps: dict, get_db, agent_key: str, story_ids: list[str
         try:
             raw = await _sf_chat(deps, a["agent_id"], system, user, max_tokens=1200, temperature=0.4)
             plan = _extract_json(raw) or {}
+        except SzolgaltatoKieses:
+            raise                       # a szolgáltató kiesése a perszóna egész körét állítja meg
         except Exception as e:  # noqa: BLE001
             logger.error("reaction plan failed (%s/%s): %s", agent_key, sid, e)
             continue
@@ -1083,7 +1121,8 @@ async def reaction_round(deps: dict, get_db, agent_key: str, story_ids: list[str
 # FŐ PIPELINE — agora_duty
 # ---------------------------------------------------------------------------
 async def run_agora_duty(deps: dict, dry_run: bool = False, only_agent: str = "",
-                         story_url: str = "", do_reactions: bool = True) -> dict:
+                         story_url: str = "", do_reactions: bool = True,
+                         recipe: str = "agora_duty", trigger: str = "manual") -> dict:
     get_db = deps["get_db"]
     report: dict = {"dry_run": dry_run, "ts": _utc_iso(), "agents": {}}
     agent_keys = [only_agent] if only_agent in AGORA_AGENTS else list(AGORA_AGENTS)
@@ -1128,11 +1167,22 @@ async def run_agora_duty(deps: dict, dry_run: bool = False, only_agent: str = ""
     # ── Beat match (egy LLM-hívás, max 3 jelölt/agent) ──
     try:
         matches = await beat_match(deps, passed)
+    except SzolgaltatoKieses as e:
+        # a beat-match a közös első lépés: kiesésnél MINDEN perszóna kimarad ebben a körben
+        for k in agent_keys:
+            report["agents"][k] = {"label": AGORA_AGENTS[k]["label"], "action": f"kimaradt: {e.ok}"}
+            _kimaradt(deps, recipe, k, e, trigger)
+        await _kieses_jelzes(deps, agent_keys, e)
+        report["status"] = f"llm_kieses: {e.ok}"
+        _session_log(get_db, "agora_duty", report)
+        return report
     except Exception as e:  # noqa: BLE001
         logger.exception("agora_duty: beat_match failed")
         return _abort(f"beat_match_failed: {e}", kind="error")
     by_id = {s["story_id"]: s for s in passed}
 
+    kiesett: list[str] = []
+    kieses = None
     for agent_key in agent_keys:
         ar: dict = {"label": AGORA_AGENTS[agent_key]["label"]}
         report["agents"][agent_key] = ar
@@ -1140,6 +1190,14 @@ async def run_agora_duty(deps: dict, dry_run: bool = False, only_agent: str = ""
             await _duty_agent_round(deps, get_db, agent_key,
                                     matches.get(agent_key) or [], by_id,
                                     dry_run, do_reactions, ar)
+        except SzolgaltatoKieses as e:
+            # a perszóna kimarad (a többié megy tovább), a kimaradás naplózva, a jelzés a kör végén egyszer
+            ar["kimaradt"] = f"{e.ok}: {e.reszlet[:120]}"
+            if ar.get("action") != "posted":
+                ar["action"] = f"kimaradt: {e.ok}"
+            _kimaradt(deps, recipe, agent_key, e, trigger)
+            kiesett.append(agent_key)
+            kieses = e
         except Exception as e:  # noqa: BLE001
             # NAPLÓ-GARANCIA: egyetlen agent-ág kivétele sem halhat el némán,
             # és nem viheti el a többi agent körét sem.
@@ -1148,9 +1206,71 @@ async def run_agora_duty(deps: dict, dry_run: bool = False, only_agent: str = ""
             _log_act(get_db, agent_key, "error", "", "", "",
                      f"unhandled {type(e).__name__}: {e} | {traceback.format_exc()[-250:]}")
 
+    if kiesett:
+        await _kieses_jelzes(deps, kiesett, kieses)
+        report["kimaradt"] = kiesett
     report["status"] = "ok"
     _session_log(get_db, "agora_duty", report)
     return report
+
+
+# ---------------------------------------------------------------------------
+# SZOLGÁLTATÓ-KIESÉS (2026-11-22): kimaradt-futás napló + egyetlen Telegram-jelzés
+# ---------------------------------------------------------------------------
+#: A jelzés-tiltás kulcsa a közös önjavító jelzés-nyilvántartásban (onjavitas.py, shared_memory): egy kiesésről
+#: 24 órán belül egyszer szólunk, akárhány perszóna és kör marad ki — és egy deploy-újraindulás sem ismétli meg.
+KIESES_JELZES_KULCS = "agora_llm_kieses"
+_JELZES_HELYBEN: dict[str, float] = {}      # tartalék, ha a deps-ben nincs memoria_ir (régi bekötés)
+
+
+def _kimaradt(deps: dict, recipe: str, agent_key: str, e: SzolgaltatoKieses, trigger: str,
+              aktivitas: bool = True) -> None:
+    """Egy perszóna kimaradása: az agora_activity-be (`skip_llm`) és a kimaradt-futás naplóba (recipe_skips).
+    Sosem dob."""
+    get_db = deps["get_db"]
+    logger.warning("agora: %s kimarad (%s) — %s", agent_key, recipe, e)
+    if aktivitas:
+        _log_act(get_db, agent_key, "skip_llm", "", "", "", f"{recipe}: {e}"[:300])
+    try:
+        import recipe_health
+        recipe_health.record_skip(
+            get_db, recipe_health.llm_kieses_verdikt(recipe, f"siliconflow/{agent_key}",
+                                                     f"{e.ok}: {e.reszlet}" if e.reszlet else e.ok),
+            trigger=trigger)
+    except Exception as ex:  # noqa: BLE001
+        logger.error("agora: a kimaradás nem naplózható (%s): %s", agent_key, ex)
+
+
+async def _kieses_jelzes(deps: dict, agent_keys: list[str], e: SzolgaltatoKieses | None) -> bool:
+    """EGY Telegram-mondat a kiesésről, 24 órás ismétlés-tiltással (a shared_memory-ben, a `server.memoria_ir`-on át,
+    az onjavitas.py mintájára és nyilvántartásában). → True, ha most szólt."""
+    import time
+    import onjavitas
+    get_db = deps["get_db"]
+    most = time.time()
+    if (most - _JELZES_HELYBEN.get(KIESES_JELZES_KULCS, 0) < onjavitas.ISMETLES_TILTAS_S
+            or onjavitas._mar_jelezve(get_db, KIESES_JELZES_KULCS, most)):
+        return False
+    push = deps.get("telegram_push")
+    nevek = ", ".join(AGORA_AGENTS[k]["label"] for k in agent_keys if k in AGORA_AGENTS)
+    ok = e.ok if e else "?"
+    teendo = ("Elfogyott a SiliconFlow-egyenleg — tölts fel, ha kell az Agora."
+              if ok == "HTTP 402" else "Valószínűleg átmeneti hiba a SiliconFlow oldalán.")
+    szoveg = (f"🗣 <b>Agora</b> — a SiliconFlow nem szolgált ki ({ok}), ezért kimaradt: {nevek}. {teendo} "
+              f"A következő ütemezett kör magától újrapróbálja. (24 órán belül erről nem szólok újra.)")
+    if push is None:
+        logger.warning("agora: a kiesésről nincs Telegram-jelzés (nincs telegram_push a deps-ben): %s", szoveg)
+        return False
+    try:
+        await push(szoveg)
+    except Exception as ex:  # noqa: BLE001
+        logger.error("agora: a kiesés-jelzés nem ment ki: %s", ex)
+        return False
+    _JELZES_HELYBEN[KIESES_JELZES_KULCS] = most
+    memoria_ir = deps.get("memoria_ir")
+    if memoria_ir is not None:
+        onjavitas._megjegyez(get_db, memoria_ir, KIESES_JELZES_KULCS, most, f"{ok}: {nevek}")
+    return True
 
 
 async def _duty_agent_round(deps: dict, get_db, agent_key: str, cands: list[dict],
@@ -1222,6 +1342,8 @@ async def _duty_agent_round(deps: dict, get_db, agent_key: str, cands: list[dict
                 draft = await generate_comment(deps, agent_key, story, tool_block, lang,
                                                retry_reason=why if attempt > 1 else "",
                                                chart_note=chart_note)
+            except SzolgaltatoKieses:
+                raise                   # a következő jelölt is ugyanígy bukna: a perszóna kimarad (run_agora_duty)
             except Exception as e:  # noqa: BLE001
                 att["action"] = f"error: komment-generálás — {e}"
                 _log_act(get_db, agent_key, "error", sid, "", lang, f"gen:{e}")
@@ -1285,6 +1407,8 @@ async def _duty_agent_round(deps: dict, get_db, agent_key: str, cands: list[dict
                                 if s != posted_sid]
         try:
             ar["reactions"] = await reaction_round(deps, get_db, agent_key, walls, dry_run)
+        except SzolgaltatoKieses:
+            raise
         except Exception as e:  # noqa: BLE001
             logger.exception("reaction round failed (%s)", agent_key)
             ar["reactions"] = [{"error": str(e)}]
@@ -1295,6 +1419,8 @@ async def _duty_agent_round(deps: dict, get_db, agent_key: str, cands: list[dict
                                           op_key, dry_run)
         if note_rep:
             ar["note"] = note_rep
+    except SzolgaltatoKieses:
+        raise
     except Exception as e:  # noqa: BLE001
         logger.exception("note round failed (%s)", agent_key)
         ar["note"] = {"status": f"error: {e}"}
@@ -1473,7 +1599,7 @@ def parse_essay_output(raw: str, fallback_title: str = "Agora-esszé") -> tuple[
 
 
 async def run_agora_essay(deps: dict, agent_key: str, dry_run: bool = False,
-                          story_id: str = "") -> dict:
+                          story_id: str = "", trigger: str = "manual") -> dict:
     """Egy agent Agora-esszéje.
 
     `story_id` (Kommandant 2026-09-11: „írjunk egy próbapublit … erről a
@@ -1546,6 +1672,8 @@ async def run_agora_essay(deps: dict, agent_key: str, dry_run: bool = False,
         raw = await _sf_chat(deps, a["agent_id"], _persona_system(agent_key, "hu"),
                              sel_user, max_tokens=800, temperature=0.3)
         sel = _extract_json(raw) or {}
+    except SzolgaltatoKieses as e:
+        return await _essze_kimarad(deps, agent_key, e, trigger, _exit)
     except Exception as e:  # noqa: BLE001
         logger.exception("agora_essay(%s): selection failed", agent_key)
         return _exit(f"selection failed: {e}", kind="error")
@@ -1609,6 +1737,8 @@ async def run_agora_essay(deps: dict, agent_key: str, dry_run: bool = False,
         try:
             raw = await _sf_chat(deps, a["agent_id"], _persona_system(agent_key, lang),
                                  req, max_tokens=6000, temperature=0.7)
+        except SzolgaltatoKieses as e:
+            return await _essze_kimarad(deps, agent_key, e, trigger, _exit)
         except Exception as e:  # noqa: BLE001
             logger.exception("agora_essay(%s): generation failed", agent_key)
             return _exit(f"essay generation failed: {e}", kind="error",
@@ -1667,6 +1797,13 @@ async def run_agora_essay(deps: dict, agent_key: str, dry_run: bool = False,
         _log_act(get_db, agent_key, "error", sids[0], "", lang, f"publish:{e}")
     _session_log(get_db, f"agora_essay_{agent_key}", report)
     return report
+
+
+async def _essze_kimarad(deps: dict, agent_key: str, e: SzolgaltatoKieses, trigger: str, _exit) -> dict:
+    """Az esszé kimarad, mert a szolgáltató nem szolgál ki: napló + egy jelzés; a következő ütemezett kör újrapróbál."""
+    _kimaradt(deps, f"agora_essay_{agent_key}", agent_key, e, trigger, aktivitas=False)   # a nyomot az _exit hagyja
+    await _kieses_jelzes(deps, [agent_key], e)
+    return _exit(f"kimaradt: {e.ok} — a következő ütemezett kör újrapróbálja", kind="skip_llm", detail=f"essay: {e}")
 
 
 def _session_log(get_db, instance: str, report: dict) -> None:
@@ -1739,7 +1876,7 @@ async def cron_entry(recipe_name: str, deps: dict | None = None) -> None:
             delay = random.randint(0, DUTY_JITTER_SEC)
             logger.info("agora_duty cron: %ds jitter után indul", delay)
             await asyncio.sleep(delay)
-            rep = await run_agora_duty(d, dry_run=False)
+            rep = await run_agora_duty(d, dry_run=False, recipe=recipe_name, trigger="cron")
             logger.info("agora_duty kész: %s", json.dumps(
                 {k: v.get("action") for k, v in rep.get("agents", {}).items()},
                 ensure_ascii=False))
@@ -1748,7 +1885,7 @@ async def cron_entry(recipe_name: str, deps: dict | None = None) -> None:
             delay = random.randint(0, ESSAY_JITTER_SEC)
             logger.info("agora_essay[%s] cron: %ds jitter után indul", agent_key, delay)
             await asyncio.sleep(delay)
-            rep = await run_agora_essay(d, agent_key, dry_run=False)
+            rep = await run_agora_essay(d, agent_key, dry_run=False, trigger="cron")
             logger.info("agora_essay[%s] kész: %s", agent_key, rep.get("status"))
     except Exception as e:  # noqa: BLE001
         # NAPLÓ-GARANCIA: a cron-ág kivétele stackkel a logba ÉS nyomként a

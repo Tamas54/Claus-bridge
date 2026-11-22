@@ -64,6 +64,9 @@ class SkipReason(Enum):
     """Tipizált, gépi ok arra, hogy egy ütemezett recipe nem adott kimenetet."""
 
     REQUIRED_TOOL_DEAD = "required_tool_dead"
+    #: Az LLM-szolgáltató nem szolgált ki (402 — elfogyott az egyenleg, 5xx, időtúllépés). 2026-11-22: a SiliconFlow
+    #: 402-je négy Agora-szolgálatot vitt el csendben; most a kimaradás itt is nyomot hagy.
+    LLM_UNAVAILABLE = "llm_provider_unavailable"
 
 
 @dataclass(frozen=True)
@@ -112,6 +115,13 @@ class GateVerdict:
         if self.ok:
             return f"'{self.recipe}': minden kötelező tool átment az ellenőrzésen."
         dead = ", ".join(self.dead_tools) or "?"
+        if self.reason is SkipReason.LLM_UNAVAILABLE:
+            okok = "; ".join(p.detail for p in self.probes if p.state is ToolHealth.DEAD and p.detail)
+            return (
+                f"'{self.recipe}' KIMARADT: az LLM-szolgáltató nem szolgált ki — {dead}"
+                + (f" ({okok})" if okok else "")
+                + ". A következő ütemezett kör magától újrapróbálja."
+            )
         return (
             f"'{self.recipe}' KIMARADT: a kötelező tool(ok) nem működnek — {dead}. "
             f"Nem készült kimenet ({DOCTRINE})."
@@ -248,6 +258,18 @@ def check_required_tools(recipe_name: str, required_tools) -> GateVerdict:
             reason=SkipReason.REQUIRED_TOOL_DEAD,
         )
     return GateVerdict(recipe=recipe_name, ok=True, checked_at=checked_at, probes=probes)
+
+
+def llm_kieses_verdikt(recipe: str, szerv: str, reszlet: str) -> GateVerdict:
+    """Kimaradás, mert az LLM-szolgáltató nem szolgált ki (`szerv` pl. „siliconflow/von_takt”, `reszlet` pl.
+    „HTTP 402: balance insufficient”). Ugyanaz a ledger, mint a halott tool-é — a get_status egy helyen mutatja."""
+    return GateVerdict(
+        recipe=recipe,
+        ok=False,
+        checked_at=_now_iso(),
+        probes=(ToolProbeResult(szerv, ToolHealth.DEAD, (reszlet or "")[:300]),),
+        reason=SkipReason.LLM_UNAVAILABLE,
+    )
 
 
 # ============================================================

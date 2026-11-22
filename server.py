@@ -11711,6 +11711,10 @@ try:
         #   authenticated_func — a hívás a TOKENES úton jött-e (/mcp/km-…)
         "enforce_func": _enforce,
         "authenticated_func": authenticated,
+        # 2026-11-22: a plugin is szólhat a Kommandantnak (pl. az Agora, ha a SiliconFlow kifogy), és a jelzés-
+        # tiltást a shared_memory EGY írási útján tartja (memoria_ir) — nem saját SQL-lel.
+        "telegram_push": _telegram_push,
+        "memoria_ir": memoria_ir,
     }
     _loaded_plugins = discover_and_register(mcp, _plugin_deps)
     if _loaded_plugins:
@@ -12170,6 +12174,9 @@ async def _cron_loop():
                             "siliconflow_base_url": SILICONFLOW_BASE_URL,
                             "siliconflow_timeout": SILICONFLOW_TIMEOUT,
                             "siliconflow_models": SILICONFLOW_MODELS,
+                            # kiesésnél EGY Telegram-jelzés, 24 órás ismétlés-tiltással (plugins/agora_duty.py)
+                            "telegram_push": _telegram_push,
+                            "memoria_ir": memoria_ir,
                         }
                         asyncio.create_task(_agora_cron(r["name"], _agora_deps))
                         logger.info("Cron agora: %s háttér-task elindítva (jitteres)", r["name"])
