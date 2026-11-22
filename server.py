@@ -10426,7 +10426,8 @@ async def capture_calendar_poll(caller: str = "") -> str:
 @mcp.tool()
 async def create_calendar_event(
     summary: str, start: str, end: str = "", description: str = "",
-    location: str = "", calendar_id: str = "primary", caller: str = ""
+    location: str = "", calendar_id: str = "primary", caller: str = "",
+    reminder_minutes: list[int] | None = None,
 ) -> str:
     """Create a Google Calendar event.
 
@@ -10438,6 +10439,8 @@ async def create_calendar_event(
         location: Optional location
         calendar_id: Calendar ID (default: primary)
         caller: Instance ID for permission check
+        reminder_minutes: Optional popup reminders, minutes before the start (e.g. [1440, 60]; for an all-day
+            event counted from 00:00 of that day: [900] = the day before at 9:00). Empty = the calendar's default.
     """
     denied = _enforce(caller, "create_calendar_event")
     if denied:
@@ -10469,6 +10472,12 @@ async def create_calendar_event(
             event_body["description"] = description
         if location:
             event_body["location"] = location
+        # EMLÉKEZTETŐ (2026-11-22): a határidőből lett bejegyzés felugró értesítéssel (feldwebel/jovahagyas.py)
+        if reminder_minutes:
+            from feldwebel.jovahagyas import google_emlekeztetok
+            _emlek = google_emlekeztetok(reminder_minutes)
+            if _emlek:
+                event_body["reminders"] = _emlek
 
         result = svc.events().insert(calendarId=calendar_id, body=event_body).execute()
         return json.dumps({
@@ -10851,6 +10860,18 @@ def _feldwebel_kerdezett(chat_id: str, percen_belul: int = 30) -> bool:
         return False
 
 
+def _feldwebel_naptarra_var(chat_id: str) -> bool:
+    """A Feldwebel legutóbbi válaszában naptárjavaslat vár igenre (feldwebel/jovahagyas.py) — a puszta „mehet” akkor
+    is neki szól, ha a kérdés óta több mint fél óra telt el. Hibánál False."""
+    if not FELDWEBEL_ENABLED:
+        return False
+    try:
+        from feldwebel.jovahagyas import var_e
+        return var_e(get_db, chat_id)
+    except Exception:  # noqa: BLE001
+        return False
+
+
 async def _handle_telegram_message(text: str, chat_id: str, csatorna: str = "telegram"):
     """Process an incoming Telegram message from Kommandant.
 
@@ -10878,7 +10899,8 @@ async def _handle_telegram_message(text: str, chat_id: str, csatorna: str = "tel
         # Melléklettel küldött kérés (irat, tanulmány, fotó) és a név szerint megszólított ügynöknek szóló üzenet a
         # címzetté, nem a Faber kívánsága.
         _sz = None if (melleklet.van_melleklet(text) or _cim in cimzett.LLM_UGYNOKOK or _cim == "feldwebel") \
-            else await faber_relay.szandek(text, feldwebel_kerdezett=_feldwebel_kerdezett(chat_id))
+            else await faber_relay.szandek(text, feldwebel_kerdezett=_feldwebel_kerdezett(chat_id)
+                                           or _feldwebel_naptarra_var(chat_id))
     except Exception as e:  # noqa: BLE001
         logger.warning("Faber-szándékfelismerés hiba (a Bridge-beszélgetés megy tovább): %s", e)
         _sz = None
