@@ -421,12 +421,15 @@ def test_az_elotoltes_kulcsa_azonos_a_sajto_motoreval(tmp_path):
     f = sb.Felvevo(tmp_path / "f.json.gz", eles=False)
     for lap in ds.LAPOK:
         for nap in sb.napok_elotte(AS_OF, sb.SAJTO_NAPOK):
+            if not sb.napi_parameterek(lap, nap):          # a közmédiának nincs saját forrásneve
+                continue
             f.tar[sb.Felvevo.kulcs("echolot", "get_news", sb.napi_parameterek(lap, nap))] = {
                 "valasz": json.dumps({"articles": [_cikk(lap["forras"], f"{lap['nev']} cím {nap}", nap)]})}
     hivo = ds.Hivo(f, echolot_koz_s=0.0)
     terv = ds.terv_tisztit({"kereses": {"hu": "cím", "en": "cím", "de": "cím"}}, "x" * 20)
     adat = _run(sb.sajto_adat(terv, hivo, AS_OF))
     assert not [h for h in adat["hianyok"] if "nincs felvéve" in h]
+    assert any("Közmédia" in h and "nincs saját forrásneve" in h for h in adat["hianyok"])
     korp = _run(sb.panel_korpusz(f, AS_OF))
     assert korp["n_cim"] > 0 and "Telex cím" in korp["context"]
 

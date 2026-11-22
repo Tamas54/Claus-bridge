@@ -159,11 +159,14 @@ SZIV_PANEL = [
 ]
 
 
-def napi_parameterek(lap: dict, nap: str) -> dict:
+def napi_parameterek(lap: dict, nap: str) -> dict | None:
     """Egy lap egy napjának get_news-paraméterei — a sajtó-motor, a panel-korpusz és az előtöltés UGYANEZT kéri,
-    így a felvétel kulcsa mindhármukra azonos."""
-    return {"source": ASOF_FORRAS.get(lap["kulcs"], lap["forras"]), "date": nap, "limit": 100,
-            "diversify_results": False}
+    így a felvétel kulcsa mindhármukra azonos. Saját forrásnév nélküli lapnál (v2: a közmédia, amelyet az élő motor
+    csak a témakeresés találataiból ismer fel) None: as_of-módban nincs róla adat, kimondva."""
+    forras = ASOF_FORRAS.get(lap["kulcs"], lap.get("forras"))
+    if not forras:
+        return None
+    return {"source": forras, "date": nap, "limit": 100, "diversify_results": False}
 
 
 def napok_elotte(as_of: date, n: int) -> list[str]:
@@ -206,6 +209,12 @@ async def sajto_adat(terv: dict, hivo, as_of: date) -> dict:
         lapok, hianyok = [], []
         for lap in ds.LAPOK:
             cikkek = []
+            if not napi_parameterek(lap, napok[0]):
+                hianyok.append(f"{lap['nev']}: nincs saját forrásneve az Echolotban — as_of-módban nincs adat "
+                               "(élőben csak a témakeresés találataiból ismerhető fel)")
+                lapok.append({"lap": lap["nev"], "nyelv": lap["nyelv"], "profil": None, "temaba_vago_cikkek": [],
+                              "friss_cimek_stilushoz": []})
+                continue
             for nap in napok:
                 v, hiba = await hivo("echolot", "get_news", napi_parameterek(lap, nap))
                 if hiba:
@@ -534,7 +543,10 @@ async def napi_lap(hiv, lap_kulcs: str, nap: str) -> list[dict]:
     """Egy lap egy napjának cikkei (get_news source+date, a lap saját forrásneveire szűrve)."""
     import dontes_szimulator as ds
     lap = next(l for l in ds.LAPOK if l["kulcs"] == lap_kulcs)
-    v = mcp_json(await hiv("echolot", "get_news", napi_parameterek(lap, nap)))
+    par = napi_parameterek(lap, nap)
+    if not par:
+        return []
+    v = mcp_json(await hiv("echolot", "get_news", par))
     if isinstance(v, dict) and v.get("hiba"):
         raise RuntimeError(f"get_news {lap_kulcs} {nap}: {str(v['hiba'])[:200]}")
     return [a for a in ds._cikkek(v) if ds.lap_azonosit(a.get("source_name")) == lap_kulcs and cikk_datum(a) == nap]
@@ -1268,6 +1280,8 @@ async def _cli_elotolt(args) -> None:
             hiba = 0
             for lap in ds.LAPOK:
                 for nap in napok_elotte(_d(e["as_of"]), SAJTO_NAPOK):
+                    if not napi_parameterek(lap, nap):
+                        continue
                     s = await felvevo("echolot", "get_news", napi_parameterek(lap, nap))
                     hiba += s.lstrip().startswith('{"hiba"')
             felvevo.ment()
