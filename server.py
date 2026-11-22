@@ -2735,13 +2735,7 @@ SILICONFLOW_MODELS = {
     # az egymondatos kérdésre: Flash 4182 ms / 224 kimeneti token,
     # Pro 7377 ms / 342. (A `DeepSeek-V4-Lite` és a csupasz `DeepSeek-V4` NEM
     # létezik: code 20012.)
-    # ⚠️ 11-22 (Faber #4): a verziótlan `DeepSeek-V4-Flash` az ELŐNÉZETI SKU — az
-    # önvizsgálatban egyedül ez bukott (ReadTimeout 45 s egy „ping"-re, miközben a
-    # másik 7 modell zöld volt). Az Echolot 08-04-én a hivatalos `-0731`-re, 09-15-én
-    # a V4.1-re állt át (Kommandant: „már nem V4-et kéne használni, megjelent a V4.1
-    # Flash"; mérve ott: thinking:disabled → 0 reasoning-token, 1,6 s), a Studio
-    # 10-12-én. A Bridge itt maradt le. A V4 Flash (`-0731`) a közvetlen tartalék.
-    "dsflash": "deepseek-ai/DeepSeek-V4.1-Flash",
+    "dsflash": "deepseek-ai/DeepSeek-V4-Flash",
 }
 
 # ══ FLASH-TIER ══════════════════════════════════════════════════════════
@@ -7658,11 +7652,7 @@ _SF_FAILOVER = {
     # olcsó), és csak utána egy pro-modell. A GLM-5.3-Flash most erősen
     # rate-limitelt a SiliconFlow-n, ezért ez nem elmélet: nélküle a tier
     # használhatatlan lenne.
-    "zai-org/GLM-5.3-Flash": ["deepseek-ai/DeepSeek-V4.1-Flash", "zai-org/GLM-5.2"],
-    # 11-22: a `dsflash` a V4.1-en fut; a tartaléka előbb a hivatalos V4 Flash (`-0731`, az Echolot láncának mintájára),
-    # aztán a másik flash, végül egy pro-modell.
-    "deepseek-ai/DeepSeek-V4.1-Flash": ["deepseek-ai/DeepSeek-V4-Flash-0731", "zai-org/GLM-5.3-Flash",
-                                        "deepseek-ai/DeepSeek-V4-Pro"],
+    "zai-org/GLM-5.3-Flash": ["deepseek-ai/DeepSeek-V4-Flash", "zai-org/GLM-5.2"],
     "deepseek-ai/DeepSeek-V4-Flash": ["zai-org/GLM-5.3-Flash", "deepseek-ai/DeepSeek-V4-Pro"],
     "zai-org/GLM-5.3": ["zai-org/GLM-5.3-Flash", "deepseek-ai/DeepSeek-V4-Pro-0813"],
 }
@@ -8112,9 +8102,7 @@ def _model_extra(model_id: str) -> dict:
     # kapna — ami MÉRVE elveszi a flash lényegét: 4620 ms / 89 token
     # (thinking kikapcsolva) helyett 11 281 ms / 467 token. Egy flash-modell,
     # ami hosszan gondolkodik, már nem flash.
-    # 11-22: nem egyetlen azonosítóra illesztünk, hanem a CSALÁDRA (V4-Flash, V4-Flash-0731, V4.1-Flash): a V4.1-re
-    # váltáskor a pontos egyezés némán `reasoning_effort`-ot adott volna a flash-nek.
-    if model_id.startswith("deepseek-ai/DeepSeek-") and "-Flash" in model_id:
+    if model_id == "deepseek-ai/DeepSeek-V4-Flash":
         return {"thinking": {"type": "disabled"}}
     # A GLM-5.3-család NEM engedi kikapcsolni a gondolkodást — a próbálkozás
     # HTTP 400/20015 ("该模型始终思考，不支持关闭思考"). Ezért ő üres kézzel megy,
@@ -9672,10 +9660,6 @@ for _alias in ("calendar_poll", "capture_calendar_poll", "calendar"):
 # mielőtt jelent. Ami mérhetetlen, azt KIMONDJA (`unmeasured`) — a csend és a
 # jó egészség nem ugyanaz.
 
-#: Egy „ping" a flash-modellnek ~2–5 s (mérve). A 45 s-ot ki nem várt válasz nem lassúság, hanem kiesés.
-_SF_PROBE_TIMEOUT = 45
-
-
 def _probe_siliconflow_model(alias: str, model_id: str):
     def _p() -> selfdiag.ProbeResult:
         import httpx as _hx
@@ -9693,20 +9677,17 @@ def _probe_siliconflow_model(alias: str, model_id: str):
                 # a termék `thinking=disabled`-del hívja, és ott 4-5 s.
                 json={"model": model_id, "messages": [{"role": "user", "content": "ping"}],
                       "max_tokens": 2000, **_model_extra(model_id)},
-                timeout=_SF_PROBE_TIMEOUT,
+                timeout=45,
             )
         except Exception as e:
-            # 11-22 (Faber #4): a bukott próba a MODELL-AZONOSÍTÓT is mondja, ne csak az aliast — a `dsflash`
-            # ReadTimeoutjából nem látszott, hogy az alias a verziótlan előnézeti SKU-ra mutat.
-            return selfdiag.ProbeResult(alias, False, f"transport: {type(e).__name__}: {e} "
-                                                      f"(`{model_id}`, {_SF_PROBE_TIMEOUT} s-os korlát)")
+            return selfdiag.ProbeResult(alias, False, f"transport: {type(e).__name__}: {e}")
         if r.status_code == 200:
             return selfdiag.ProbeResult(alias, True, "200")
         code, msg = _sf_classify(r.status_code, r.text)
         # A 429 NEM a modell halála, hanem pillanatnyi torlódás — a különbség
         # számít: az egyikre várni kell, a másikra modellt váltani.
         return selfdiag.ProbeResult(alias, False if code != "rate_limit" else None,
-                                    f"{code} (`{model_id}`): {msg[:200]}")
+                                    f"{code}: {msg[:200]}")
     return _p
 
 

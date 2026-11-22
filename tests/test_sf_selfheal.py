@@ -329,7 +329,7 @@ def test_glm53_has_a_modern_ceiling():
 #   GLM-5.3 8982 / 617 · GLM-5.2 10750 / 1039
 
 def test_flash_models_are_registered():
-    assert server.SILICONFLOW_MODELS["dsflash"] == "deepseek-ai/DeepSeek-V4.1-Flash"
+    assert server.SILICONFLOW_MODELS["dsflash"] == "deepseek-ai/DeepSeek-V4-Flash"
     assert server.SILICONFLOW_MODELS["glm53f"] == "zai-org/GLM-5.3-Flash"
     assert set(server.models_in_tier("flash")) == {"dsflash", "glm53f"}
 
@@ -360,13 +360,13 @@ def test_flash_falls_back_to_flash_first(monkeypatch):
     """Az olcsó osztály maradjon olcsó: a flash tartaléka ELŐSZÖR egy másik
     flash. A GLM-5.3-Flash most erősen rate-limitelt, tehát ez nem elmélet."""
     chain = server._SF_FAILOVER["zai-org/GLM-5.3-Flash"]
-    assert chain[0] == "deepseek-ai/DeepSeek-V4.1-Flash"
+    assert chain[0] == "deepseek-ai/DeepSeek-V4-Flash"
     fake = _wire(monkeypatch, [FakeResp(429, '{"code":50610,"message":"too busy"}')] * 3
                  + [FakeResp(200, "", _ok_payload())])
     data, err, notes = _run(server.sf_chat(
         dict(PAYLOAD, model="zai-org/GLM-5.3-Flash"), attempts=3))
     assert err is None
-    assert fake.calls[-1]["model"] == "deepseek-ai/DeepSeek-V4.1-Flash"
+    assert fake.calls[-1]["model"] == "deepseek-ai/DeepSeek-V4-Flash"
 
 
 def test_nonexistent_model_switches_without_retrying(monkeypatch):
@@ -417,7 +417,7 @@ def test_agent_alias_is_resolved_to_a_model_id(monkeypatch):
     _run(server._run_agent_with_tools("dsflash", [{"role": "user", "content": "x"}],
                                       max_rounds=1))
     sent = fake.calls[0]["model"]
-    assert sent == "deepseek-ai/DeepSeek-V4.1-Flash", \
+    assert sent == "deepseek-ai/DeepSeek-V4-Flash", \
         f"a nyers alias ment ki modellnévként: {sent!r} — a SiliconFlow erre 400/20012-t ad"
 
 
