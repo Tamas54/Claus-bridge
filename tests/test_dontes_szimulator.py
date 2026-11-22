@@ -1,9 +1,10 @@
 """DÖNTÉS-SZIMULÁTOR (dontes_szimulator.py) — hálózat nélkül.
 
 Amit ezek a tesztek őriznek:
-  1. a lépések szintje: minden Sonnet 5.5, egyetlen Opus-lépés (a kockázati térkép) — a kapu dönt, a cél szerint;
+  1. a lépések szintje: minden Sonnet 5.5 (az Opus-lépés 11-22-én kimaradt: „túl drága”) — a kapu dönt;
   2. a futásonkénti költségkeret KIKÉNYSZERÍTETT: ami nem fér bele, nem hívódik, és a kimenet kimondja;
-  3. a teljes futás a négy (hamis) motorral: hét lap, piac, jog, panel, összegzés, kockázati térkép, Studio-link;
+  3. alapból GAZDASÁGI mód (terv + panel + gazdasági előrejelzés + összegzés), teljes módban sajtó és jog is;
+     a gazdasági alapvonal determinisztikus, a hatás intervallumos előrejelzésként a naplóba kerül;
   4. a mérhető előrejelzések a DELPHOI hash-láncába kerülnek (append-only, lánc ép), a lépés szövege NEM, és az
      utólagos átírás kiderül (naplo_ellenorzes);
   5. a terv fehérlistás (a modell nem hívathat tetszőleges eszközt), a hibás előrejelzés kimarad, kimondva;
@@ -121,6 +122,13 @@ VALASZOK = {
                         "hatasok": [{"terulet": "infláció", "irany": "fel", "becsles": "a 3,8%-os pesszimista ágig",
                                      "bizonytalansag": "1,8–3,8%", "forras": "forecast", "modszer": "forgatókönyv"}],
                         "nem_modellezheto": ["az átváltási árfolyam"],
+                        "hatas_szamszeru": [
+                            {"kulcs": "HU:inflation", "valtozas": 0.4, "also": 0.1, "felso": 0.8,
+                             "csatorna": "árfolyam-áttétel", "alap": "analógia: Szlovákia 2009", "bizonyossag": "közepes"},
+                            {"kulcs": "EURHUF=X", "valtozas": -6.0, "also": -15.0, "felso": 4.0,
+                             "csatorna": "kockázati prémium", "alap": "52 hetes sáv", "bizonyossag": "alacsony"},
+                            {"kulcs": "HU:gdp", "valtozas": "sok", "also": 0, "felso": 1},
+                            {"kulcs": "nincs-ilyen", "valtozas": 1, "also": 0, "felso": 2}],
                         "elorejelzesek": [_elore("A KSH éves inflációja 2027-ben 3,8% alatt marad", 300, 0.8),
                                           {"allitas": "rossz dátum", "hatarido": "jövőre", "valoszinuseg": 0.5,
                                            "ellenorzes": "x"}]},
@@ -133,15 +141,15 @@ VALASZOK = {
     "szimulator/osszegzes": {"osszegzes": "Vegyes fogadtatás.", "fo_megallapitasok": ["jog: kétharmad kell"],
                              "tarsadalom_ertelmezes": "A jobboldali média-étrendűek rosszabbul fogadják.",
                              "bizonytalansag": "Az árfolyam.",
+                             "kockazati_terkep": [{"kockazat": "árfolyam-spekuláció", "terulet": "gazdaság",
+                                                   "valoszinuseg": "közepes", "sulyossag": "magas",
+                                                   "jel": "yfinance 52 hetes sáv"}],
+                             "modositasok": [{"javaslat": "árfolyamsáv előre", "mit_csokkent": "spekuláció",
+                                              "ara": "kisebb mozgástér"}],
                              "elorejelzesek": [_elore("Egy reprezentatív kutatásban a támogatás 50% fölött", 150, 0.6),
                                                _elore("múltbeli", -5, 0.5)]},
-    "szimulator/kockazat-elemzes": {"kockazati_terkep": [{"kockazat": "árfolyam-spekuláció", "terulet": "piac",
-                                                          "valoszinuseg": "közepes", "sulyossag": "magas",
-                                                          "jel": "yfinance 52 hetes sáv"}],
-                                    "modositasok": [{"javaslat": "árfolyamsáv előre", "mit_csokkent": "spekuláció",
-                                                     "ara": "kisebb mozgástér"}]},
 }
-MODELLEK = {"szimulator/kockazat-elemzes": "claude-opus-5-5"}
+MODELLEK: dict = {}
 
 
 @pytest.fixture
@@ -183,13 +191,11 @@ def _futtat(get_db, **kw):
 
 # ── 1. szintek, keret, segédek ──────────────────────────────────────────────
 
-def test_minden_lepes_sonnet_egyetlen_opus():
+def test_minden_lepes_sonnet_nincs_opus():
     szintek = {nev: llm_kapu.szint_valaszt({"messages": [{"role": "user", "content": "x" * 20_000}]}, cel)[0]
                for nev, cel in ds.CELOK.items()}
-    assert szintek.pop("kockazat") == "okos"
-    assert set(szintek.values()) == {"kozep"}
+    assert "kockazat" not in szintek and set(szintek.values()) == {"kozep"}
     assert llm_kapu.SZINTEK["kozep"]["modell"] == "claude-sonnet-5-5"
-    assert llm_kapu.SZINTEK["okos"]["modell"] == "claude-opus-5-5"
 
 
 def test_keret_foglal_konyvel_es_kimond():
@@ -234,7 +240,7 @@ def test_a_terv_feherlistas_es_kiegeszul():
     assert {"country": "HU", "indicator": "rm -rf"} not in t["makro"]
     assert {m["indicator"] for m in t["makro"]} >= {"cpi", "policy_rate", "gdp_growth", "unemployment"}
     assert t["piaci"] == ["EURHUF=X"]
-    assert {f["indicator"] for f in t["elorejelzes"]} == {"inflation", "gdp"}
+    assert {f["indicator"] for f in t["elorejelzes"]} == {"inflation", "gdp", "unemployment"}
     ures = ds.terv_tisztit({}, TITKOS_LEPES)                 # a modell hibája után is futtatható terv
     assert ures["orszag"] == "HU" and ures["kereses"]["hu"] and ures["jog"]["kifejezesek"]
     rossz = ds.terv_tisztit({"orszag": "../", "kereses": {"hu": 'a" OR 1=1'}}, TITKOS_LEPES)
@@ -331,7 +337,11 @@ def test_a_sajto_motor_echolot_hivasai_egy_munkamenetben(monkeypatch):
     assert hivasok.count("search_news") == 3 and hivasok.count("source_profile") == 7   # a megtört újra ment
     lapok = {l["lap"]: l for l in adat["lapok"]}
     assert lapok["Telex"]["temaba_vago_cikkek"][0]["cim"] == "euró (hu)"
-    assert lapok["Telex"]["profil"]["lean"] == "center" and not adat["hianyok"]
+    assert lapok["Telex"]["profil"]["lean"] == "center"
+    # a közmédia: rögzített beállítottság (ma a Tisza-kormányt támogatja), az Echolotban nincs → kimondva
+    assert "Tisza" in lapok["Közmédia (M1, hirado.hu)"]["profil"]["lean"]
+    assert adat["hianyok"] == ["Közmédia (M1, hirado.hu): nincs az Echolot-korpuszban — stílusminta nélkül, "
+                               "alacsony bizonyossággal"]
     assert h._kliens is None and not h._munkamenet_aktiv           # a munkamenet lezárva
 
 
@@ -366,9 +376,9 @@ def test_echolot_idokerete_utan_kimarad_kimondva():
 
 def test_teljes_futas_negy_motorral_naplo_es_studio(get_db, kapu, kulcsok):
     naplo = []
-    r = _futtat(get_db, naplo=naplo)
-    assert r["allapot"] == "kesz", r["figyelmeztetesek"]
-    # minden lépés a kapun ment, a célja szerint (5 Sonnet + 1 Opus)
+    r = _futtat(get_db, naplo=naplo, teljes=True)
+    assert r["allapot"] == "kesz" and r["mod"] == "teljes", r["figyelmeztetesek"]
+    # minden lépés a kapun ment, a célja szerint (5 Sonnet)
     assert sorted(h["purpose"] for h in kapu) == sorted(ds.CELOK.values())
     # a sajtó-motor mind a hét lapot megkapta, a valódi korábbi cikkeikkel
     lapok = {l["lap"]: l for l in r["sajto"]["adat"]["lapok"]}
@@ -383,15 +393,16 @@ def test_teljes_futas_negy_motorral_naplo_es_studio(get_db, kapu, kulcsok):
     assert "imf_all_years" not in piac_payload["messages"][1]["content"]
     # a terv fehérlistája érvényesült: a rossz mutató és szimbólum nem ment ki
     assert not any(p.get("indicator") == "rm -rf" or p.get("symbol") == "ROSSZ SZIMBÓLUM!!" for _, _, p in naplo)
-    # költség: 6 hívás × 0,01 $, a kapu valós költéséből
-    assert r["koltseg"]["usd"] == pytest.approx(0.06) and not r["koltseg"]["kimaradt"]
+    # költség: 5 hívás × 0,01 $, a kapu valós költéséből
+    assert r["koltseg"]["usd"] == pytest.approx(0.05) and not r["koltseg"]["kimaradt"]
     # Studio: névvel ellátott új dokumentum, aztán EGY wordcraft-hívás
     assert r["studio"]["edit_url"].endswith("/edit")
     wc = [p for sz, e, p in naplo if e == "wordcraft"]
     assert len(wc) == 1 and wc[0]["file_id"] == "uj.docx"
     # az egyoldalas minden szakaszt tartalmaz, a szimulált címek jelölve
     szoveg = ds.egyoldalas(r)
-    for darab in ("ÖSSZEGZÉS", "TÁRSADALOM", "nem valódi cikkek", "PIAC ÉS MAKRÓ", "JOG", "KOCKÁZATI TÉRKÉP",
+    for darab in ("ÖSSZEGZÉS", "TÁRSADALOM", "nem valódi cikkek", "GAZDASÁGI ELŐREJELZÉS", "JOG", "KOCKÁZATI TÉRKÉP",
+                  "Közmédia (M1, hirado.hu) címe",
                   "MÓDOSÍTANI", "MÉRHETŐ ELŐREJELZÉSEK", "Global Times címe", "nem hiteles jogforrás",
                   "18-29", "Studio-dokumentum: https://studio/app/file/kesz.docx/edit"):
         assert darab in szoveg, darab
@@ -399,10 +410,11 @@ def test_teljes_futas_negy_motorral_naplo_es_studio(get_db, kapu, kulcsok):
 
 
 def test_az_elorejelzesek_a_delphoi_hash_lancba_kerulnek_a_lepes_szovege_nem(get_db, kapu, kulcsok):
-    r = _futtat(get_db)
+    r = _futtat(get_db, teljes=True)
     elore = r["elorejelzesek"]
-    # 1 sajtó + 1 piac (a rossz dátumú kimaradt) + 1 jog + 1 társadalmi (a múltbeli kimaradt)
-    assert [e["terulet"] for e in elore] == ["sajto", "piac", "jog", "tarsadalom"]
+    # elöl a 2 gazdasági intervallum (infláció, árfolyam), aztán 1 sajtó + 1 piac (a rossz dátumú kimaradt) + 1 jog +
+    # 1 társadalmi (a múltbeli kimaradt)
+    assert [e["terulet"] for e in elore] == ["piac", "piac", "sajto", "piac", "jog", "tarsadalom"]
     assert len(r["elorejelzes_kimaradt"]) == 2
     conn = get_db()
     sorok = [dict(x) for x in conn.execute("SELECT * FROM delphoi_nowcast_ledger ORDER BY id")]
@@ -410,11 +422,11 @@ def test_az_elorejelzesek_a_delphoi_hash_lancba_kerulnek_a_lepes_szovege_nem(get
     for s in sorok:
         assert "PRIVAT-JEL" not in json.dumps(s, ensure_ascii=False)
     conn.close()
-    assert [s["entity_key"] for s in sorok] == [f"szim:{r['futas']}:{i:02d}" for i in range(1, 5)]
+    assert [s["entity_key"] for s in sorok] == [f"szim:{r['futas']}:{i:02d}" for i in range(1, 7)]
     assert [s["direction"] for s in sorok] == [e["valoszinuseg"] for e in elore]
     assert sorok[1]["model_id"] == f"{ds.VERZIO}|claude-sonnet-5-5"
     assert sorok[0]["prev_hash"] == delphoi.GENESIS
-    assert delphoi.verify_ledger_chain(get_db) == {"ok": True, "checked": 4, "head": sorok[-1]["content_hash"]}
+    assert delphoi.verify_ledger_chain(get_db) == {"ok": True, "checked": 6, "head": sorok[-1]["content_hash"]}
     # append-only: a DELPHOI triggere minden átírást megöl
     conn = get_db()
     with pytest.raises(Exception, match="append-only"):
@@ -440,7 +452,7 @@ def test_koltsegkeret_reszeredmeny_kimondva(get_db, kapu, kulcsok):
     r = _futtat(get_db, max_usd_=keret)
     assert [h["purpose"] for h in kapu] == ["szimulator/terv"]
     assert r["allapot"] == "reszleges"
-    assert set(r["koltseg"]["kimaradt"]) == {"sajto", "piac", "jog", "osszegzes", "kockazat"}
+    assert set(r["koltseg"]["kimaradt"]) == {"piac", "osszegzes"}
     assert any("költségkeret" in f for f in r["figyelmeztetesek"])
     assert "RÉSZEREDMÉNY" in ds.egyoldalas(r)
     assert r["elorejelzesek"] == []
@@ -460,7 +472,7 @@ def test_studio_hibaja_nem_viszi_el_az_eredmenyt(get_db, kapu, kulcsok):
 
 
 def test_wordcraft_parancsok_szerkezete(get_db, kapu, kulcsok):
-    r = _futtat(get_db, studio=False)
+    r = _futtat(get_db, studio=False, teljes=True)
     c = ds.wordcraft_parancsok(r)
     assert c[0]["command"] == "para.heading1"
     nevek = [x["command"] for x in c]
@@ -468,7 +480,8 @@ def test_wordcraft_parancsok_szerkezete(get_db, kapu, kulcsok):
     assert bold.count(True) == bold.count(False)                   # minden félkövér rész lezárva
     assert nevek.count("para.bullets") % 2 == 0                    # minden lista lezárva
     tablak = [x["params"] for x in c if x["command"] == "insert.table"]
-    assert {"rows": 8, "cols": 4} in tablak                        # a sajtó: fejléc + hét lap
+    assert {"rows": 9, "cols": 4} in tablak                        # a sajtó: fejléc + nyolc lap (közmédiával)
+    assert {"rows": 6, "cols": 6} in tablak                        # a gazdaság: fejléc + öt mutató
     # minden táblázat lapszélességű, ismétlődő fejléccel, és egy sora sem törik két oldalra
     props = [x["params"] for x in c if x["command"] == "table.properties"]
     assert sum(1 for p in props if p.get("headerRow")) == len(tablak)
@@ -482,7 +495,8 @@ def test_wordcraft_parancsok_szerkezete(get_db, kapu, kulcsok):
     # elöl a döntéshez kellő oldal, utána a motorok részletei
     cimek = [x["params"]["text"] for i, x in enumerate(c) if x["command"] == "text.insert"
              and i and c[i - 1]["command"] == "para.heading2"]
-    assert cimek.index("Kockázati térkép") < cimek.index("1. Társadalom — DELPHOI szintetikus panel")
+    assert (cimek.index("Gazdasági előrejelzés — alapvonal és a lépés hatása (Makronóm)")
+            < cimek.index("Kockázati térkép") < cimek.index("Társadalom — DELPHOI szintetikus panel"))
     assert all("\n" not in x["params"].get("text", "") for x in c)
 
 
@@ -583,10 +597,12 @@ def test_feldwebel_nyugta_aztan_eredmeny(get_db, kapu, kulcsok, monkeypatch):
         await asyncio.gather(*ds._FUTO.values())
         return nyugta["futas"]
     futas = _run(kor())
-    assert len(pushok) == 1 and "DÖNTÉS-SZIMULÁTOR" in pushok[0] and "Telex címe" in pushok[0]
+    # alapból gazdasági mód: a sajtó nem fut, a gazdasági tábla elöl
+    assert len(pushok) == 1 and "DÖNTÉS-SZIMULÁTOR" in pushok[0] and "Telex címe" not in pushok[0]
+    assert "Gazdasági előrejelzés" in pushok[0]
     a = ds.allapot(get_db, futas)
     assert a["allapot"] == "kesz" and a["studio"]["edit_url"] and a["naplo_ellenorzes"]["ok"]
-    assert len(a["elorejelzesek"]) == 4
+    assert len(a["elorejelzesek"]) == 4                      # 2 gazdasági intervallum + 1 piac + 1 társadalmi
     # a nyom a meglévő messages táblában: indulás, adat, és az eredmény a Kommandantnak (olvasatlan)
     conn = get_db()
     sorok = [dict(x) for x in conn.execute("SELECT recipient, subject, status FROM messages ORDER BY id")]
@@ -711,7 +727,7 @@ def test_a_szerver_sajat_hibauzenete_rovid():
 def test_a_motorok_a_jelenlegi_politikai_helyzetet_kapjak(get_db, kapu, kulcsok):
     """Élő próba (11-22): a sajtó-motor a Tisza-kormány idején „Orbán ígér eurót” címet írt, és a Magyar Nemzetet
     kormánypártinak vette. A motorok (a tervező kivételével) a DELPHOI országkonfigjának helyzetleírását kapják."""
-    _futtat(get_db)
+    _futtat(get_db, teljes=True)
     helyzet = delphoi.COUNTRY_PANEL_CONFIG["HU"]["priming"]
     for h in kapu:
         system = h["payload"]["messages"][0]["content"]
@@ -725,3 +741,69 @@ def test_hivatkozas_magyarazat_nelkul_es_egysoros_hiba():
                         TITKOS_LEPES)
     assert t["jog"]["hivatkozasok"] == ["Alaptörvény 38. cikk", "Mt. 66. § (1)"]
     assert ds._hiba_e({"hiba": "HTTPStatusError: 503\nFor more information check: https://x"}) == "HTTPStatusError: 503"
+
+
+
+# ── v2: gazdasági mag, módok, közmédia (a Kommandant, 11-22) ────────────────
+
+def test_gazdasagi_mod_alapbol_olcso_es_a_gazdasag_elol(get_db, kapu, kulcsok):
+    """„túl drága … a közgazdasági közvetlen előrejelzés fontosabb”: alapból csak terv + gazdaság + összegzés (3
+    Sonnet), sajtó és jog nem fut, nincs Echolot- és Lexonomics-hívás, a kimenet nem mondja hiánynak."""
+    naplo = []
+    r = _futtat(get_db, naplo=naplo)
+    assert r["mod"] == "gazdasagi" and r["allapot"] == "kesz", r["figyelmeztetesek"]
+    assert sorted(h["purpose"] for h in kapu) == ["szimulator/osszegzes", "szimulator/piac", "szimulator/terv"]
+    assert not any(sz in ("echolot", "lexonomics") for sz, _, _ in naplo)
+    assert r["koltseg"]["usd"] == pytest.approx(0.03) and not r["figyelmeztetesek"]
+    # a gazdasági alapvonal: 3 pálya + alapkamat + árfolyam; a hatás ott, ahol a modell érvényes számot adott
+    tabla = {t["kulcs"]: t for t in r["gazdasag"]}
+    assert set(tabla) == {"HU:inflation", "HU:gdp", "HU:unemployment", "HU:policy_rate", "EURHUF=X"}
+    inf = tabla["HU:inflation"]
+    assert (inf["ertek"], inf["also"], inf["felso"]) == (3.1, 2.2, 4.0) and inf["idoszak"] == "2027-01"
+    assert (inf["dontessel"], inf["dontessel_also"], inf["dontessel_felso"]) == (3.5, 2.3, 4.8)
+    fx = tabla["EURHUF=X"]                                  # naiv alapvonal: a modell sávja a teljes sáv
+    assert fx["naiv"] and (fx["dontessel"], fx["dontessel_also"], fx["dontessel_felso"]) == (366.8, 357.8, 376.8)
+    assert tabla["HU:gdp"]["hatas"] is None                 # „sok” nem szám → nincs belőle előrejelzés
+    # a gazdasági intervallumok elöl, a naplóban, a határidő az adat megjelenése
+    elore = r["elorejelzesek"]
+    assert [e["terulet"] for e in elore] == ["piac", "piac", "piac", "tarsadalom"]
+    assert "2,30 és 4,80 %" in elore[0]["allitas"] and elore[0]["valoszinuseg"] == 0.8
+    assert elore[0]["hatarido"] == "2027-03-17"
+    szoveg = ds.egyoldalas(r)
+    assert szoveg.index("GAZDASÁGI ELŐREJELZÉS") < szoveg.index("KOCKÁZATI TÉRKÉP") < szoveg.index("TÁRSADALOM")
+    assert "SAJTÓ —" not in szoveg and "JOG —" not in szoveg and "gazdasági mód" in szoveg
+    # az összegző a gazdasági táblát kapja elöl, és tudja, hogy a sajtó/jog nem futott (nem hiány)
+    ossz = next(h for h in kapu if h["purpose"] == "szimulator/osszegzes")["payload"]["messages"][1]["content"]
+    assert '"gazdasagi_elorejelzes"' in ossz and '"nem_futott": [' in ossz
+
+
+def test_cel_pont_a_horizont_vegeig_megjeleno_adat():
+    ma = date(2026, 11, 22)
+    havi = [{"period": f"2027-{m:02d}", "value": 3.0 + m / 10, "low": 2.0, "high": 4.0} for m in range(1, 13)]
+    # 12 hónap: a 2027-11-22-ig megjelenő utolsó havi adat a szeptemberi (09-30 + 45 nap = 11-14)
+    assert ds.cel_pont(havi, date(2027, 11, 22), ma)["period"] == "2027-09"
+    negyedeves = [{"period": f"2027-Q{q}", "value": 2.0} for q in range(1, 5)]
+    # GDP: 06-30 + 75 nap = 09-13 ≤ 11-22, a Q3 (09-30 + 75 = 12-14) még nem jelenik meg
+    assert ds.cel_pont(negyedeves, date(2027, 11, 22), ma)["period"] == "2027-Q2"
+    # a pályán túli horizont: az utolsó pont; túl rövid horizont: nincs célpont
+    assert ds.cel_pont(havi, date(2029, 1, 1), ma)["period"] == "2027-12"
+    assert ds.cel_pont(havi, date(2026, 12, 31), ma) is None
+
+
+def test_kozmedia_a_lapok_kozott_a_mai_terkeppel():
+    """A Kommandant (11-22): „A médiatérkép elavult: a közmédia mára tisza párti lett.”"""
+    kozmedia = next(l for l in ds.LAPOK if l["kulcs"] == "kozmedia")
+    assert "Tisza" in kozmedia["lean"] and kozmedia["forras"] is None
+    assert ds.lap_azonosit("hirado.hu") == "kozmedia" and ds.lap_azonosit("M1") == "kozmedia"
+    import inspect
+    forras = inspect.getsource(ds.sajto_lepes)
+    assert "„gov” címkéje a 2026 előtti" in forras and "2026 tavasza óta a Tisza-kormányt" in forras
+
+
+def test_a_teljes_mod_a_feldwebel_es_az_mcp_eszkozon(get_db, kapu):
+    props = ds.ESZKOZ_DEF["function"]["parameters"]["properties"]
+    assert props["teljes"]["type"] == "boolean" and "GAZDASÁGI" in ds.ESZKOZ_DEF["function"]["description"]
+    assert ds.varhato_perc() == "2–5 perc" and ds.varhato_perc(True) == "4–8 perc"
+    import inspect
+    import server
+    assert "teljes" in inspect.signature(server.dontes_szimulator).parameters

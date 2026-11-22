@@ -6936,17 +6936,19 @@ async def kulso_eszkoz(szerver: str, eszkoz: str = "sugo", parameterek: dict | N
 
 
 @mcp.tool()
-async def dontes_szimulator(lepes: str = "", horizont: str = "", futas: str = "", caller: str = "") -> str:
+async def dontes_szimulator(lepes: str = "", horizont: str = "", futas: str = "", caller: str = "",
+                            teljes: bool = False) -> str:
     """DÖNTÉS-SZIMULÁTOR — „próbáld ki a döntést a világon, mielőtt meghozod” (dontes_szimulator.py).
 
-    Egy TERVEZETT lépés (törvényjavaslat, árazás, nyilatkozat, befektetés, kampány) hatása a négy saját motoron:
-    társadalom (DELPHOI szintetikus panel), sajtó (Echolot: mit írna holnap a Telex, a 444, a Magyar Nemzet, az Index,
-    a Spiegel, a BBC és a Global Times), piac és makró (Makronóm), jog (Lexonomics); a végén összegzés, kockázati
-    térkép, módosítási javaslat és mérhető előrejelzések a DELPHOI hash-láncos naplójába, és egy formázott
-    Studio-dokumentum (edit_url). Szimuláció, nem jóslat.
+    Egy TERVEZETT lépés (törvényjavaslat, árazás, nyilatkozat, befektetés, kampány) hatása. Alapból GAZDASÁGI mód:
+    közvetlen gazdasági előrejelzés (Makronóm-alapvonal: infláció, GDP, munkanélküliség, alapkamat, árfolyam + a lépés
+    számszerű hatása 80%-os sávval) és DELPHOI szintetikus panel. teljes=True: sajtó (Echolot: Telex, 444, Magyar
+    Nemzet, Index, közmédia, Spiegel, BBC, Global Times) és jog (Lexonomics) is. A végén összegzés, kockázati térkép,
+    módosítási javaslat és mérhető előrejelzések a DELPHOI hash-láncos naplójába, és egy formázott Studio-dokumentum
+    (edit_url). Szimuláció, nem jóslat.
 
     Indítás: lepes="<a lépés szövege>" (és ha kell, horizont="12 hónap" / "2 év" / "2030") → azonnal visszatér a
-    futás azonosítójával (sz-xxxxxxxx); a futás 4–8 perc. Eredmény: ugyanez az eszköz futas="sz-xxxxxxxx"-szel
+    futás azonosítójával (sz-xxxxxxxx); a futás 2–5 perc (teljes: 4–8). Eredmény: ugyanez az eszköz futas="sz-xxxxxxxx"-szel
     (állapot, az egyoldalas szöveg, Studio-link, költség, előrejelzések és a napló-ellenőrzés). Csak a lépés
     szövegét add át — tudásbázis-tartalmat ne tegyél bele (a DELPHOI-panel SiliconFlow-n fut).
     """
@@ -6964,7 +6966,7 @@ async def dontes_szimulator(lepes: str = "", horizont: str = "", futas: str = ""
         return json.dumps(_ds.allapot(get_db, futas), ensure_ascii=False, default=str)
     deps = {"get_db": get_db, "siliconflow_api_key": SILICONFLOW_API_KEY,
             "siliconflow_base_url": SILICONFLOW_BASE_URL, "siliconflow_timeout": SILICONFLOW_TIMEOUT}
-    return json.dumps(_ds.inditas(lepes, horizont, get_db=get_db, deps=deps), ensure_ascii=False)
+    return json.dumps(_ds.inditas(lepes, horizont, get_db=get_db, deps=deps, teljes=bool(teljes)), ensure_ascii=False)
 
 
 @mcp.tool()

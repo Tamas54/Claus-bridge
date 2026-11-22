@@ -15,7 +15,7 @@ A NÉGY MOTOR (mind a sajátunk, új motort nem építünk)
    (80%-os sávval), yfinance. Szám csak forrással; ami nem modellezhető, azt kimondja.
 4. JOG — a Lexonomics MCP: provision (hatályos szöveg, NJT-link, állapotdátum), search, döntések (scope=decisions).
 
-A végén összegzés (Sonnet 5.5), kockázati térkép és módosítási javaslat (EGY rövid Opus-lépés), és mérhető
+A végén összegzés, kockázati térkép és módosítási javaslat (egy Sonnet 5.5-lépés; az Opus 11-22-én kimaradt), és mérhető
 előrejelzések. Minden előrejelzés a DELPHOI hash-láncolt, append-only predikció-naplójába kerül
 (`delphoi_nowcast_ledger`, `append_ledger_row`): így később lemérhető, mennyire talált — önkalibráló szimulátor.
 
@@ -54,19 +54,24 @@ import llm_kapu
 
 logger = logging.getLogger("dontes_szimulator")
 
-VERZIO = "dontes-szimulator-v1"
+VERZIO = "dontes-szimulator-v2"
 FELADO = "dontes-szimulator"
 ESZKOZ_NEV = "dontes_szimulator"
 ALAP_HORIZONT = "12 hónap"
 LEPES_MIN_KAR, LEPES_MAX_KAR = 15, 4_000
 FUTAS_MINTA = re.compile(r"^sz-[0-9a-f]{8}$")
 
-#: A hét lap, amelynek „holnapi” cikkét szimuláljuk. `minta`: a forrásnév (kisbetűvel) erre illeszkedik.
+#: A lapok, amelyeknek „holnapi” cikkét szimuláljuk (csak „teljes” módban). `lean`: rögzített beállítottság, amely
+#: felülírja az Echolot címkéjét. A Kommandant (11-22): „A médiatérkép elavult: a közmédia mára tisza párti lett.” Az
+#: Echolot `gov` címkéje a 2026 előtti (Fidesz-kormány alatti) besorolás öröksége; a közmédia a mindenkori kormányt
+#: támogatja. A közmédia nincs az Echolot-korpuszban (11-22: a „hirado” forrás üres), ezért stílusminta nélkül megy.
 LAPOK = (
     {"kulcs": "telex", "nev": "Telex", "nyelv": "hu", "forras": "Telex"},
     {"kulcs": "444", "nev": "444", "nyelv": "hu", "forras": "444"},
     {"kulcs": "magyarnemzet", "nev": "Magyar Nemzet", "nyelv": "hu", "forras": "Magyar Nemzet"},
     {"kulcs": "index", "nev": "Index", "nyelv": "hu", "forras": "Index"},
+    {"kulcs": "kozmedia", "nev": "Közmédia (M1, hirado.hu)", "nyelv": "hu", "forras": None,
+     "lean": "közmédia: a mindenkori kormányt támogatja — 2026 tavasza óta a Tisza-kormányt"},
     {"kulcs": "spiegel", "nev": "Der Spiegel", "nyelv": "de", "forras": "Spiegel"},
     {"kulcs": "bbc", "nev": "BBC", "nyelv": "en", "forras": "BBC"},
     {"kulcs": "globaltimes", "nev": "Global Times", "nyelv": "en", "forras": "Global Times"},
@@ -77,7 +82,7 @@ MAKRO_MUTATOK = ("cpi", "hicp", "core_cpi", "services_cpi", "energy_cpi", "food_
                  "unemployment", "gdp_growth", "ppi")
 ELOREJELZES_MUTATOK = ("inflation", "gdp", "unemployment")
 ALAP_MAKRO = (("cpi",), ("policy_rate",), ("gdp_growth",), ("unemployment",))
-ALAP_ELOREJELZES = ("inflation", "gdp")
+ALAP_ELOREJELZES = ("inflation", "gdp", "unemployment")
 ALAP_SZIMBOLUM = {"HU": "EURHUF=X"}
 SZIMBOLUM_MINTA = re.compile(r"^[A-Z0-9^=.\-]{1,15}$")
 ORSZAG_MINTA = re.compile(r"^[A-Z]{2}$")
@@ -89,11 +94,25 @@ MCP_HIVAS_TIMEOUT_S = 150
 
 #: Az egyes lépések kért kimeneti keretei (token). A kapu ennél többet is engedhet (`llm_kapu.KIMENET_ALSO`), ezért a
 #: költségfoglalás a NAGYOBBIKKAL számol: a keret a legrosszabb esetre is tart.
-KIMENET = {"terv": 2_000, "sajto": 5_000, "piac": 4_000, "jog": 4_000, "osszegzes": 4_000, "kockazat": 3_000}
-#: A lépések célja (`purpose`) — ez dönti el a kapuban a szintet: minden Sonnet 5.5 („közép”), csak a kockázati
-#: térkép Opus 5.5 (a célban az „elemz” szó → „okos”). A tesztek ellenőrzik, hogy a kapu valóban így választ.
+KIMENET = {"terv": 2_000, "sajto": 5_000, "piac": 4_000, "jog": 4_000, "osszegzes": 5_000}
+#: A lépések célja (`purpose`) — ez dönti el a kapuban a szintet: minden Sonnet 5.5 („közép”). A külön Opus-lépés
+#: (kockázati térkép) 11-22-én kimaradt — a Kommandant: „túl drága”; a kockázati térképet az összegző írja.
 CELOK = {"terv": "szimulator/terv", "sajto": "szimulator/sajto", "piac": "szimulator/piac", "jog": "szimulator/jog",
-         "osszegzes": "szimulator/osszegzes", "kockazat": "szimulator/kockazat-elemzes"}
+         "osszegzes": "szimulator/osszegzes"}
+
+#: A gazdasági alapvonal mutatóinak neve és egysége.
+GAZDASAGI_NEV = {"inflation": ("infláció (éves, %)", "%"), "gdp": ("GDP-növekedés (éves, %)", "%"),
+                 "unemployment": ("munkanélküliségi ráta (%)", "%"), "policy_rate": ("jegybanki alapkamat (%)", "%"),
+                 "EURHUF=X": ("EUR/HUF árfolyam", "Ft"), "USDHUF=X": ("USD/HUF árfolyam", "Ft")}
+#: Közlési késés (nap az időszak vége után), konzervatívan: a horizont végéig ennél korábbi időszak adata jelenik meg
+#: (KSH-infláció ~8–10 nap, munkanélküliség ~3–4 hét, GDP y/y SA ~45–60 nap).
+KOZLESI_KESES_NAP = {"M": 45, "Q": 75}
+#: Ellenőrzési forrás mutatónként (a határidő után ezzel mérjük, talált-e az előrejelzés).
+GAZDASAGI_ELLENORZES = {"inflation": "KSH/Eurostat — Makronóm get_macro_indicator({c}, cpi, period={p})",
+                        "gdp": "Eurostat namq_10_gdp (y/y, SA) — Makronóm forecast_path({c}, gdp) last_actual",
+                        "unemployment": "KSH/Eurostat — Makronóm get_macro_indicator({c}, unemployment, period={p})",
+                        "policy_rate": "MNB — Makronóm get_macro_indicator({c}, policy_rate, period={p})",
+                        "fx": "Yahoo/MNB — Makronóm yfinance({s}, history) az adott napon"}
 
 
 def max_usd() -> float:
@@ -260,13 +279,14 @@ def horizont_napok(horizont: str, ma: date | None = None) -> int:
 TERULETEK = ("tarsadalom", "sajto", "piac", "jog", "osszesitett")
 
 
-def elorejelzesek_tisztit(nyers, terulet: str, *, ma: date, hatar_napok: int) -> tuple[list[dict], list[str]]:
+def elorejelzesek_tisztit(nyers, terulet: str, *, ma: date, hatar_napok: int,
+                          max_db: int = MAX_ELOREJELZES_MOTORONKENT) -> tuple[list[dict], list[str]]:
     """A modell előrejelzéseiből a MÉRHETŐEK: állítás, metrika, határidő (jövőbeli, a horizonton belül), valószínűség
     (0–1), ellenőrzési forrás. Ami nem ilyen, kimarad — a kimaradás oka visszajön (nincs néma szűrés)."""
     jo, kimaradt = [], []
     if not isinstance(nyers, list):
         return jo, kimaradt
-    for e in nyers[:MAX_ELOREJELZES_MOTORONKENT]:
+    for e in nyers[:max_db]:
         if not isinstance(e, dict):
             continue
         allitas = " ".join(str(e.get("allitas") or "").split())
@@ -624,6 +644,8 @@ def lap_azonosit(forras_nev: str) -> str | None:
         return "bbc"
     if "global times" in n:
         return "globaltimes"
+    if n.startswith(("hirado", "híradó", "m1 ")) or n == "m1":
+        return "kozmedia"
     return None
 
 
@@ -662,6 +684,8 @@ async def _sajto_adat(terv: dict, hivo: Hivo) -> dict:
             if lap and len(temaban[lap]) < 4:
                 temaban[lap].append(_cikk(a))
     for lap in LAPOK:
+        if not lap.get("forras"):
+            continue
         v, hiba = await hivo("echolot", "source_profile", {"source": lap["forras"], "days": 7, "limit": 3})
         if hiba:
             hianyok.append(f"source_profile ({lap['nev']}): {hiba}")
@@ -681,7 +705,12 @@ async def _sajto_adat(terv: dict, hivo: Hivo) -> dict:
     if hiba:
         hianyok.append(f"regional_framing: {hiba}")
     for lap in LAPOK:
-        if temaban[lap["kulcs"]]:
+        if lap.get("lean"):
+            profil[lap["kulcs"]] = {**(profil.get(lap["kulcs"]) or {}), "lean": lap["lean"]}
+        if not lap.get("forras"):
+            hianyok.append(f"{lap['nev']}: nincs az Echolot-korpuszban — stílusminta nélkül, alacsony bizonyossággal")
+    for lap in LAPOK:
+        if temaban[lap["kulcs"]] or not lap.get("forras"):
             continue
         v, hiba = await hivo("echolot", "get_news", {"source": lap["forras"], "limit": 4})
         if hiba:
@@ -696,9 +725,88 @@ async def _sajto_adat(terv: dict, hivo: Hivo) -> dict:
             "regionalis_keretezes": tomorit(regionalis, lista_max=10), "hianyok": hianyok}
 
 
-async def piac_adat(terv: dict, hivo: Hivo, ev: int) -> dict:
+def _idoszak_vege(per: str) -> date | None:
+    m = re.fullmatch(r"(\d{4})-(\d{2})", per or "")
+    if m:
+        y, mo = int(m[1]), int(m[2])
+        return date(y + (mo == 12), mo % 12 + 1, 1) - timedelta(days=1)
+    m = re.fullmatch(r"(\d{4})-Q([1-4])", per or "")
+    if m:
+        y, q = int(m[1]), int(m[2])
+        return date(y + (q == 4), (q * 3) % 12 + 1, 1) - timedelta(days=1)
+    return None
+
+
+def cel_pont(path, hatar: date, ma: date) -> dict | None:
+    """A pálya azon pontja, amelynek adata a horizont végéig MEGJELENIK (közlési késéssel) — ez lesz az ellenőrizhető
+    célidőszak. Ha a horizont a pályán túl van, a pálya utolsó, a horizonton belül megjelenő pontja."""
+    jo = []
+    for pt in path or []:
+        if not isinstance(pt, dict) or not isinstance(pt.get("value"), (int, float)):
+            continue
+        per = str(pt.get("period") or "")
+        vege = _idoszak_vege(per)
+        if not vege:
+            continue
+        megjelenik = vege + timedelta(days=KOZLESI_KESES_NAP["Q" if "Q" in per else "M"])
+        if ma < megjelenik <= hatar:
+            jo.append((megjelenik, pt))
+    if not jo:
+        return None
+    megj, pt = max(jo, key=lambda x: x[0])
+    return {**pt, "megjelenik": megj.isoformat()}
+
+
+def _szam(x) -> float | None:
+    return float(x) if isinstance(x, (int, float)) and not isinstance(x, bool) else None
+
+
+def alapvonal_sorok(nyers: list, hatar: date, ma: date) -> tuple[list[dict], list[str]]:
+    """A gazdasági ALAPVONAL determinisztikusan, a Makronóm nyers válaszaiból (AI nélkül): a forecast_path pontja a
+    horizont végéig megjelenő időszakra, 80%-os sávval; az alapkamat és az árfolyam naiv alapvonala (változatlan).
+    `nyers`: [(eszköz, paraméterek, válasz)]."""
+    sorok, hianyok = [], []
+    for e, p, v in nyers:
+        if not isinstance(v, dict):
+            continue
+        c = str(p.get("country") or "")
+        if e == "forecast_path":
+            ind = str(p.get("indicator") or "")
+            pt = cel_pont(v.get("path"), hatar, ma)
+            if not pt:
+                hianyok.append(f"alapvonal {c} {ind}: a horizonton belül nem jelenik meg új adat a pályán")
+                continue
+            nev, egys = GAZDASAGI_NEV.get(ind, (ind, "%"))
+            sorok.append({"kulcs": f"{c}:{ind}", "mutato": nev, "orszag": c, "egyseg": egys, "idoszak": pt["period"],
+                          "ertek": round(pt["value"], 2), "also": _szam(pt.get("low")), "felso": _szam(pt.get("high")),
+                          "naiv": False, "hatarido": pt["megjelenik"],
+                          "utolso_teny": v.get("last_actual"), "forras": f"Makronóm forecast_path ({v.get('source')})",
+                          "modszer": "SARIMAX + IMF/OECD-horgony, 80%-os sáv a backtesztből",
+                          "ellenorzes": GAZDASAGI_ELLENORZES.get(ind, "Makronóm").format(c=c, p=pt["period"], s="")})
+        elif e == "get_macro_indicator" and p.get("indicator") == "policy_rate" and _szam(v.get("value")) is not None:
+            nev, egys = GAZDASAGI_NEV["policy_rate"]
+            sorok.append({"kulcs": f"{c}:policy_rate", "mutato": nev, "orszag": c, "egyseg": egys,
+                          "idoszak": hatar.isoformat(), "ertek": _szam(v["value"]), "also": None, "felso": None,
+                          "naiv": True, "hatarido": hatar.isoformat(),
+                          "forras": f"Makronóm get_macro_indicator ({v.get('source_used')}, {v.get('period')})",
+                          "modszer": "naiv alapvonal: a mai kamat változatlan",
+                          "ellenorzes": GAZDASAGI_ELLENORZES["policy_rate"].format(c=c, p=hatar.isoformat(), s="")})
+        elif e == "yfinance" and str(p.get("symbol") or "") in GAZDASAGI_NEV and _szam(v.get("price")) is not None:
+            sym = p["symbol"]
+            nev, egys = GAZDASAGI_NEV[sym]
+            sorok.append({"kulcs": sym, "mutato": nev, "orszag": "", "egyseg": egys, "idoszak": hatar.isoformat(),
+                          "ertek": _szam(v["price"]), "also": None, "felso": None, "naiv": True,
+                          "hatarido": hatar.isoformat(), "sav52": [v.get("52w_low"), v.get("52w_high")],
+                          "forras": f"Makronóm yfinance ({v.get('last_trade_at')})",
+                          "modszer": "naiv alapvonal: a mai árfolyam változatlan (52 hetes sáv: "
+                                     f"{v.get('52w_low')}–{v.get('52w_high')})",
+                          "ellenorzes": GAZDASAGI_ELLENORZES["fx"].format(c="", p="", s=sym)})
+    return sorok, hianyok
+
+
+async def piac_adat(terv: dict, hivo: Hivo, ev: int, *, hatar: date | None = None, ma: date | None = None) -> dict:
     """Makronóm: a friss mutatók (get_macro_indicator), az előrejelzések forgatókönyvvel (forecast) és 80%-os sávval
-    (forecast_path), és a piaci árak (yfinance)."""
+    (forecast_path), a piaci árak (yfinance), és belőlük a gazdasági ALAPVONAL (`alapvonal`, determinisztikusan)."""
     hivasok = []
     for m in terv["makro"]:
         hivasok.append(("makronom", "get_macro_indicator", {"country": m["country"], "indicator": m["indicator"]}))
@@ -708,7 +816,10 @@ async def piac_adat(terv: dict, hivo: Hivo, ev: int) -> dict:
     for s in terv["piaci"]:
         hivasok.append(("makronom", "yfinance", {"symbol": s}))
     eredmenyek = await asyncio.gather(*(hivo(sz, e, p) for sz, e, p in hivasok))
-    adatok, hianyok = [], []
+    ma = ma or datetime.now(timezone.utc).date()
+    alap, alap_hiany = alapvonal_sorok([(e, p, v) for (_, e, p), (v, hiba) in zip(hivasok, eredmenyek) if not hiba],
+                                       hatar or ma + timedelta(days=365), ma)
+    adatok, hianyok = [], list(alap_hiany)
     for (_, e, p), (v, hiba) in zip(hivasok, eredmenyek):
         if hiba:
             hianyok.append(f"{e} {p}: {hiba}")
@@ -717,7 +828,7 @@ async def piac_adat(terv: dict, hivo: Hivo, ev: int) -> dict:
             v = {k: v.get(k) for k in ("status", "last_actual", "path", "annual", "method", "backtest", "source",
                                        "generated_at", "reason") if k in v}
         adatok.append({"eszkoz": e, "parameterek": p, "eredmeny": tomorit(v, lista_max=10, szoveg_max=400)})
-    return {"adatok": adatok, "hianyok": hianyok}
+    return {"alapvonal": alap, "adatok": adatok, "hianyok": hianyok}
 
 
 async def jog_adat(terv: dict, hivo: Hivo) -> dict:
@@ -916,10 +1027,13 @@ def terv_tisztit(t: dict, lepes: str) -> dict:
 
 async def sajto_lepes(lepes: str, adat: dict, k: dict, keret: Keret) -> tuple[dict | None, dict]:
     system = _szabalyok(k) + """
-Most az ELŐVISSZHANG motorja vagy: megírod, mit írna holnap a lépésről hét lap. Lapra szabva: a lap saját nyelvén,
+Most az ELŐVISSZHANG motorja vagy: megírod, mit írna holnap a lépésről """ + f"{len(LAPOK)}" + """ lap. Lapra szabva: a lap saját nyelvén,
 a forrásprofilja (beállítottság, jellemző keret, érzelem, hangulat) és a VALÓDI korábbi cikkei, címei alapján.
 Ahol a lapnak nincs témába vágó cikke, a friss címei adják a stílust; ahol semmi adat nincs, a bizonyosság alacsony,
-és ezt mondd ki. A frame-osztályozás az Echolotban lehet, hogy még nem futott le: ezt ne pótold kitalált számmal."""
+és ezt mondd ki. A frame-osztályozás az Echolotban lehet, hogy még nem futott le: ezt ne pótold kitalált számmal.
+BEÁLLÍTOTTSÁG: a profil `lean` mezője dönt. Az Echolot „gov” címkéje a 2026 előtti (Fidesz-kormány alatti) besorolás
+öröksége: magánlapnál JOBBOLDALIT jelent, nem a mostani kormány sajtóját. A közmédia (M1, hirado.hu) a mindenkori
+kormányt támogatja: 2026 tavasza óta a Tisza-kormányt."""
     user = f"""A LÉPÉS:
 \"\"\"{lepes}\"\"\"
 
@@ -936,31 +1050,103 @@ Add vissza:
   "kozos_minta": "1-2 mondat: hol egyezik és hol válik szét a sajtó",
   "legsebezhetobb_mondat": "a lépés mondata, amibe a legtöbb lap belekötne (idézőjel nélkül)",
   {SAJTO_SEMA}}}
-Mind a hét lap szerepeljen: {LAP_NEVEK}."""
+Mind a {len(LAPOK)} lap szerepeljen: {LAP_NEVEK}."""
     return await llm_lepes("sajto", system, user, keret)
 
 
 async def piac_lepes(lepes: str, adat: dict, k: dict, keret: Keret) -> tuple[dict | None, dict]:
+    """A GAZDASÁGI ELŐREJELZŐ — a szimuláció magja (a Kommandant, 11-22: „a közgazdasági közvetlen előrejelzés
+    fontosabb”). Az alapvonal determinisztikus (Makronóm); a modell a lépés SZÁMSZERŰ hatását adja hozzá, sávval."""
     system = _szabalyok(k) + """
-Most a PIAC ÉS MAKRÓ motorja vagy. A számaid KIZÁRÓLAG a Makronóm kapott adataiból jöhetnek (aktuális érték,
-intézményi és saját előrejelzés, forgatókönyv, 80%-os sáv, piaci ár és 52 hetes sáv). A lépés hatását ezekhez képest
-írd le: irány és nagyságrend, a bizonytalanság a forgatókönyvekből és a sávokból. Ahol a hatás számszerűen nem
-modellezhető a kapott adatból (pl. nincs rá elaszticitás vagy analógia az adatban), mondd ki: `nem_modellezheto`.
-Az egységet ne találd ki: ha az adat nem mondja meg, írd oda, hogy ismeretlen."""
+Most a GAZDASÁGI ELŐREJELZŐ vagy: ez a szimuláció MAGJA. A feladat a közvetlen, számszerű előrejelzés: az ALAPVONAL
+minden mutatójára mondd meg, mennyivel térne el a lépés miatt a megadott időszakban, 80%-os sávval.
+- Az alapvonal a Makronóm saját előrejelzése (forecast_path, 80%-os sáv a backtesztből), ill. az alapkamatnál és az
+  árfolyamnál a mai érték (naiv). Ezt NE írd felül: te az ELTÉRÉST adod.
+- `valtozas`: az alapvonalhoz képesti eltérés a mutató SAJÁT egységében (százalékpont; árfolyamnál forint).
+  `also` ≤ `valtozas` ≤ `felso`.
+  - Pályás mutatónál (infláció, GDP, munkanélküliség) `also`/`felso` a HATÁS 80%-os sávja; a kód hozzáadja az
+    alapvonal saját sávjához.
+  - Naiv alapvonalnál (alapkamat, árfolyam) `also`/`felso` a TELJES 80%-os sáv a mai értékhez képest, a szokásos piaci
+    mozgással együtt (az 52 hetes sáv és a forgatókönyvek adják a nagyságrendet).
+- Ahol nincs közvetlen elaszticitás az adatban, adj nagyságrendi becslést SZÉLES sávval, és nevezd meg a feltevést
+  (átviteli csatorna, analógia). Ha a horizonton nincs érdemi hatás, `valtozas` = 0, szűk sávval. Csak akkor hagyj ki
+  egy mutatót (a `nem_modellezheto` listába, indokkal), ha még az irány sem dönthető el.
+- Az egységet ne találd ki: ha az adat nem mondja meg, írd oda, hogy ismeretlen."""
+    alap = [{x: a.get(x) for x in ("kulcs", "mutato", "egyseg", "idoszak", "ertek", "also", "felso", "naiv", "modszer",
+                                    "sav52", "utolso_teny")} for a in (adat or {}).get("alapvonal") or []]
+    nyers = {x: v for x, v in (adat or {}).items() if x != "alapvonal"}
     user = f"""A LÉPÉS:
 \"\"\"{lepes}\"\"\"
 
-A MAKRONÓM ADATAI (JSON):
-{_json_dump(adat, 24_000)}
+AZ ALAPVONAL (a lépés NÉLKÜL; a `kulcs` alapján hivatkozz rá):
+{_json_dump(alap, 6_000)}
+
+A MAKRONÓM TOVÁBBI ADATAI (JSON):
+{_json_dump(nyers, 20_000)}
 
 Add vissza:
-{{"kiindulas": [{{"mutato": "...", "ertek": "szám + egység", "idoszak": "...", "forras": "eszköz + source_used/URL"}}],
+{{"hatas_szamszeru": [{{"kulcs": "az alapvonal egyik kulcsa", "valtozas": 0.0, "also": 0.0, "felso": 0.0,
+                       "csatorna": "az átviteli csatorna (legfeljebb 15 szó)",
+                       "alap": "mire épül a szám: kapott adat, analógia vagy feltevés (legfeljebb 25 szó)",
+                       "bizonyossag": "alacsony|közepes|magas"}}],
+  "kiindulas": [{{"mutato": "...", "ertek": "szám + egység", "idoszak": "...", "forras": "eszköz + source_used/URL"}}],
   "hatasok": [{{"terulet": "infláció|árfolyam|kamat|növekedés|munkaerőpiac|költségvetés|tőkepiac",
-               "irany": "fel|le|semleges|bizonytalan", "becsles": "számmal vagy tartománnyal, ha az adat engedi",
+               "irany": "fel|le|semleges|bizonytalan", "becsles": "számmal vagy tartománnyal",
                "bizonytalansag": "mi miatt, mekkora sáv", "forras": "melyik adatból", "modszer": "mire épül"}}],
   "nem_modellezheto": ["…"],
-  {PIAC_SEMA}}}"""
+  {PIAC_SEMA}}}
+A `hatas_szamszeru` az ALAPVONAL minden sorára adjon választ (vagy a `nem_modellezheto`-ben indokold)."""
     return await llm_lepes("piac", system, user, keret)
+
+
+def gazdasagi_tabla(alap: list[dict], eredmeny: dict | None) -> list[dict]:
+    """Az alapvonal + a modell számszerű hatása → „a lépéssel” érték és 80%-os sáv, determinisztikusan.
+
+    Pályás mutatónál a sáv az alapvonal sávja + a hatás sávja (konzervatív, szélesebb); naiv alapvonalnál a modell sávja
+    a teljes sáv a mai értékhez képest."""
+    hatas = {str(h.get("kulcs")): h for h in ((eredmeny or {}).get("hatas_szamszeru") or []) if isinstance(h, dict)}
+    ki = []
+    for a in alap or []:
+        sor = {**a, "hatas": None}
+        h = hatas.get(a["kulcs"])
+        v, lo, hi = (_szam((h or {}).get(x)) for x in ("valtozas", "also", "felso"))
+        if None in (v, lo, hi) or _szam(a.get("ertek")) is None:
+            ki.append(sor)
+            continue
+        lo, hi = min(lo, v, hi), max(lo, v, hi)
+        nd = 1 if a.get("egyseg") == "Ft" else 2
+        alap_lo = a["also"] if (not a.get("naiv") and a.get("also") is not None) else a["ertek"]
+        alap_hi = a["felso"] if (not a.get("naiv") and a.get("felso") is not None) else a["ertek"]
+        sor["hatas"] = {"valtozas": round(v, nd), "also": round(lo, nd), "felso": round(hi, nd),
+                        **{x: " ".join(str((h or {}).get(x) or "").split())[:200]
+                           for x in ("csatorna", "alap", "bizonyossag")}}
+        sor["dontessel"] = round(a["ertek"] + v, nd)
+        sor["dontessel_also"] = round(alap_lo + lo, nd)
+        sor["dontessel_felso"] = round(alap_hi + hi, nd)
+        ki.append(sor)
+    return ki
+
+
+def _fmt(x, nd: int = 2) -> str:
+    return "—" if x is None else f"{x:.{nd}f}".replace(".", ",")
+
+
+def gazdasagi_elorejelzesek(tabla: list[dict]) -> list[dict]:
+    """A gazdasági tábla → mérhető, intervallumos előrejelzések (80%): „a mutató X és Y közé esik, ha a lépés megtörténik”.
+    A határidő az a nap, amikorra a célidőszak adata megjelenik (a horizonton belül)."""
+    ki = []
+    for t in tabla or []:
+        if not t.get("hatas"):
+            continue
+        nd = 1 if t.get("egyseg") == "Ft" else 2
+        lo, hi = t["dontessel_also"], t["dontessel_felso"]
+        hol = f"{t['orszag']} " if t.get("orszag") else ""
+        ki.append({"allitas": f"{t['mutato']} ({hol}{t['idoszak']}): {_fmt(lo, nd)} és {_fmt(hi, nd)} {t['egyseg']} "
+                              f"között lesz, ha a lépés megtörténik (alapvonal nélküle: {_fmt(t['ertek'], nd)})",
+                   "valoszinuseg": 0.8, "hatarido": t["hatarido"], "feltetel": "lepes", "metrika": t["mutato"],
+                   "kuszob": f"{_fmt(lo, nd)}–{_fmt(hi, nd)} {t['egyseg']}", "ellenorzes": t.get("ellenorzes") or "Makronóm",
+                   "alap": f"{t.get('modszer')}; a lépés hatása: {t['hatas'].get('csatorna')}"})
+    return ki
 
 
 async def jog_lepes(lepes: str, adat: dict, k: dict, keret: Keret) -> tuple[dict | None, dict]:
@@ -987,15 +1173,21 @@ Add vissza:
 
 
 def _meglevo_elorejelzesek(r: dict) -> list[dict]:
-    return [{"terulet": nev, "allitas": e.get("allitas"), "valoszinuseg": e.get("valoszinuseg"),
+    return [{"terulet": "gazdaság", "allitas": e["allitas"], "valoszinuseg": e["valoszinuseg"], "hatarido": e["hatarido"]}
+            for e in gazdasagi_elorejelzesek(r.get("gazdasag") or [])] + [
+            {"terulet": nev, "allitas": e.get("allitas"), "valoszinuseg": e.get("valoszinuseg"),
              "hatarido": e.get("hatarido")}
             for nev in ("sajto", "piac", "jog")
             for e in ((r.get(nev) or {}).get("eredmeny") or {}).get("elorejelzesek") or [] if isinstance(e, dict)]
 
 
 def _motor_kivonat(r: dict) -> dict:
-    """A négy motor kimenetének az összegzőnek és a kockázati lépésnek szóló kivonata (nyers adat nélkül)."""
-    return {"tarsadalom": r.get("tarsadalom", {}).get("kivonat"),
+    """A motorok kimenetének az összegzőnek szóló kivonata (nyers adat nélkül); elöl a gazdasági tábla."""
+    return {"gazdasagi_elorejelzes": [{x: t.get(x) for x in ("mutato", "idoszak", "egyseg", "ertek", "also", "felso",
+                                                               "dontessel", "dontessel_also", "dontessel_felso", "hatas")}
+                                      for t in r.get("gazdasag") or []],
+            "nem_futott": [n for n in ("sajto", "jog") if ((r.get(n) or {}).get("info") or {}).get("nem_kert")],
+            "tarsadalom": r.get("tarsadalom", {}).get("kivonat"),
             "sajto": {k: v for k, v in (r.get("sajto", {}).get("eredmeny") or {}).items() if k != "elorejelzesek"},
             "piac": {k: v for k, v in (r.get("piac", {}).get("eredmeny") or {}).items() if k != "elorejelzesek"},
             "jog": {k: v for k, v in (r.get("jog", {}).get("eredmeny") or {}).items() if k != "elorejelzesek"},
@@ -1003,10 +1195,17 @@ def _motor_kivonat(r: dict) -> dict:
 
 
 async def osszegzes_lepes(lepes: str, r: dict, k: dict, keret: Keret) -> tuple[dict | None, dict]:
+    """Összegzés + kockázati térkép + módosítási javaslat EGY Sonnet-lépésben (a külön Opus-lépés 11-22-én kimaradt:
+    „túl drága”). Az első mondat a gazdasági közvetlen előrejelzés, számokkal."""
     system = _szabalyok(k) + """
-Most az ÖSSZEGZŐ vagy: a négy motor (társadalom, sajtó, piac, jog) eredményéből egy oldal eleje. A társadalmi jel a
-DELPHOI szintetikus panelé: relatív jelzés a 3,0-s semleges ponthoz mérve, SOHA nem közvélemény-kutatás, abszolút
-százalékot ne mondj belőle. A tömör, egyszerű mondat az első; a szakember a részleteket a motorok szakaszaiban látja."""
+Most az ÖSSZEGZŐ vagy: a motorok eredményéből egy oldal eleje, a kockázati térkép és a módosítási javaslat.
+- A MAG a gazdasági előrejelzés: az összegzés ELSŐ mondata a legfontosabb számszerű hatás, a tábla számaival
+  (alapvonal → a lépéssel, sávval).
+- A társadalmi jel a DELPHOI szintetikus panelé: relatív jelzés a 3,0-s semleges ponthoz mérve, SOHA nem
+  közvélemény-kutatás, abszolút százalékot ne mondj belőle.
+- Amelyik motor nem futott (`nem_futott`: a sajtó és a jog csak teljes módban fut), arról ne írj hiányként.
+- Minden kockázat egy motor jelére épüljön; a javaslat konkrét átfogalmazás vagy feltétel legyen, a trade-offjával.
+- A tömör, egyszerű mondat az első; a szakember a részleteket a motorok szakaszaiban látja."""
     user = f"""A LÉPÉS:
 \"\"\"{lepes}\"\"\"
 
@@ -1018,33 +1217,18 @@ előrejelzés, az "elorejelzesek" lista legyen üres):
 {_json_dump(_meglevo_elorejelzesek(r), 6_000)}
 
 Add vissza:
-{{"osszegzes": "3-5 mondat: mi történne valószínűleg, hol a legnagyobb ellenállás, mi bizonytalan",
+{{"osszegzes": "3-5 mondat: az első a gazdasági hatás számokkal; utána hol a legnagyobb ellenállás, mi bizonytalan",
   "fo_megallapitasok": ["3-5 rövid pont, mindegyik egy motorra hivatkozva"],
   "tarsadalom_ertelmezes": "2-3 mondat a panel relatív jeléről (melyik csoport fogadja jobban/rosszabbul)",
   "bizonytalansag": "1-2 mondat: mit nem tud a szimuláció",
-  {TARSADALMI_SEMA}}}"""
-    return await llm_lepes("osszegzes", system, user, keret)
-
-
-async def kockazat_lepes(lepes: str, r: dict, k: dict, keret: Keret) -> tuple[dict | None, dict]:
-    """Az EGYETLEN Opus-lépés: kockázati térkép + mit érdemes a lépésen módosítani. Rövid, a motorok kivonatán."""
-    system = _szabalyok(k) + """
-Most a KOCKÁZATI TÉRKÉP és a MÓDOSÍTÁSI JAVASLAT szerzője vagy (döntéselőkészítő, nem döntéshozó). Minden kockázat
-egy motor jelére épüljön; a javaslat konkrét átfogalmazás vagy feltétel legyen, a trade-offjával."""
-    user = f"""A LÉPÉS:
-\"\"\"{lepes}\"\"\"
-
-A MOTOROK EREDMÉNYE (JSON):
-{_json_dump(_motor_kivonat(r), 24_000)}
-
-Add vissza (tömören):
-{{"kockazati_terkep": [{{"kockazat": "legfeljebb 20 szó", "terulet": "társadalom|sajtó|piac|jog",
+  "kockazati_terkep": [{{"kockazat": "legfeljebb 20 szó", "terulet": "gazdaság|társadalom|sajtó|jog",
                         "valoszinuseg": "alacsony|közepes|magas", "sulyossag": "alacsony|közepes|magas",
                         "jel": "melyik motor melyik adata (legfeljebb 12 szó)"}}],
-  "modositasok": [{{"javaslat": "mit érdemes a lépésen módosítani: konkrét szöveg vagy feltétel (legfeljebb 40 szó)",
-                   "mit_csokkent": "melyik kockázatot (néhány szó)", "ara": "a trade-off (legfeljebb 15 szó)"}}]}}
-Legfeljebb 6 kockázat és 4 javaslat."""
-    return await llm_lepes("kockazat", system, user, keret)
+  "modositasok": [{{"javaslat": "konkrét szöveg vagy feltétel (legfeljebb 40 szó)",
+                   "mit_csokkent": "melyik kockázatot (néhány szó)", "ara": "a trade-off (legfeljebb 15 szó)"}}],
+  {TARSADALMI_SEMA}}}
+Legfeljebb 5 kockázat és 3 javaslat."""
+    return await llm_lepes("osszegzes", system, user, keret)
 
 
 # ══ A FUTÁS ══════════════════════════════════════════════════════════════
@@ -1064,8 +1248,10 @@ def uj_futas_id() -> str:
 
 async def futtat(lepes: str, horizont: str = "", *, get_db, deps: dict | None = None, futas: str | None = None,
                  hiv=None, panel_fn=None, studio: bool = True, max_usd_: float | None = None,
-                 echolot_koz_s: float | None = None, naplozas: bool = True) -> dict:
-    """A teljes szimuláció. Sosem dob: a hibák a kimenet `figyelmeztetesek`-ébe kerülnek, a részeredmény megmarad.
+                 echolot_koz_s: float | None = None, naplozas: bool = True, teljes: bool = False) -> dict:
+    """A szimuláció. Alapból GAZDASÁGI mód: terv + DELPHOI-panel + gazdasági előrejelzés + összegzés; `teljes=True`
+    mellett a sajtó (Echolot) és a jog (Lexonomics) is fut (a Kommandant, 11-22: „túl drága … a közgazdasági
+    közvetlen előrejelzés fontosabb”). Sosem dob: a hibák a kimenet `figyelmeztetesek`-ébe kerülnek, a részeredmény megmarad.
 
     Tesztekhez injektálható: `hiv` (az MCP-hívó, alapból kulso_mcp.hiv), `panel_fn(lepes, orszag)` (a DELPHOI-panel
     helyett), `studio=False` (nincs Studio-dokumentum). Az LLM-hívás mindig `llm_kapu.chat`."""
@@ -1076,7 +1262,7 @@ async def futtat(lepes: str, horizont: str = "", *, get_db, deps: dict | None = 
     hatar_napok = horizont_napok(horizont, ma)
     k = {"ma": ma.isoformat(), "horizont": horizont, "hatar": (ma + timedelta(days=hatar_napok)).isoformat()}
     keret = Keret(max_usd_ if max_usd_ is not None else max_usd())
-    r: dict = {"futas": futas, "verzio": VERZIO, "lepes": lepes, "lepes_hash": _sha(lepes), "horizont": horizont,
+    r: dict = {"futas": futas, "verzio": VERZIO, "mod": "teljes" if teljes else "gazdasagi", "lepes": lepes, "lepes_hash": _sha(lepes), "horizont": horizont,
                "horizont_vege": k["hatar"], "indult": _most(), "figyelmeztetesek": [], "adathianyok": {}}
     if not llm_kapu.elerheto():
         r.update(allapot="hiba", kesz=_most(), koltseg=keret.allapot())
@@ -1106,8 +1292,11 @@ async def futtat(lepes: str, horizont: str = "", *, get_db, deps: dict | None = 
             return {"ok": False, "hiba": f"{type(e).__name__}: {str(e)[:300]}"}
     panel_feladat = asyncio.ensure_future(_panel())
 
-    # 2–4. sajtó, piac, jog: adat → LLM, motoronként párhuzamosan
+    # 2–4. gazdaság (mindig), sajtó és jog (csak teljes módban): adat → LLM, motoronként párhuzamosan
     ev = min(int(k["hatar"][:4]), ma.year + 2)
+
+    async def _nem_kert():
+        return {"adat": None, "eredmeny": None, "info": {"nem_kert": True}}
 
     async def _ag(nev, adat_coro, llm_fn):
         try:
@@ -1118,10 +1307,11 @@ async def futtat(lepes: str, horizont: str = "", *, get_db, deps: dict | None = 
         obj, inf = await llm_fn(lepes, adat, k, keret)
         return {"adat": adat, "eredmeny": obj, "info": inf}
     sajto, piac, jog = await asyncio.gather(
-        _ag("sajto", sajto_adat(terv, hivo), sajto_lepes),
-        _ag("piac", piac_adat(terv, hivo, ev), piac_lepes),
-        _ag("jog", jog_adat(terv, hivo), jog_lepes))
+        _ag("sajto", sajto_adat(terv, hivo), sajto_lepes) if teljes else _nem_kert(),
+        _ag("piac", piac_adat(terv, hivo, ev, hatar=date.fromisoformat(k["hatar"]), ma=ma), piac_lepes),
+        _ag("jog", jog_adat(terv, hivo), jog_lepes) if teljes else _nem_kert())
     r["sajto"], r["piac"], r["jog"] = sajto, piac, jog
+    r["gazdasag"] = gazdasagi_tabla((piac.get("adat") or {}).get("alapvonal") or [], piac.get("eredmeny"))
     for nev, ag in (("sajto", sajto), ("piac", piac), ("jog", jog)):
         if (ag.get("adat") or {}).get("hianyok"):
             r["adathianyok"][nev] = ag["adat"]["hianyok"]
@@ -1131,14 +1321,18 @@ async def futtat(lepes: str, horizont: str = "", *, get_db, deps: dict | None = 
     if not tars.get("ok"):
         r["adathianyok"]["tarsadalom"] = [str(tars.get("hiba"))]
 
-    # összegzés (Sonnet) és kockázati térkép (Opus) — párhuzamosan
-    (ossz, ossz_info), (kock, kock_info) = await asyncio.gather(
-        osszegzes_lepes(lepes, r, k, keret), kockazat_lepes(lepes, r, k, keret))
+    # összegzés + kockázati térkép + módosítás: egy Sonnet-lépés
+    ossz, ossz_info = await osszegzes_lepes(lepes, r, k, keret)
     r["osszegzes"], r["osszegzes_info"] = ossz, ossz_info
-    r["kockazat"], r["kockazat_info"] = kock, kock_info
+    r["kockazat"] = ({"kockazati_terkep": ossz.get("kockazati_terkep") or [], "modositasok": ossz.get("modositasok") or []}
+                     if ossz else None)
+    r["kockazat_info"] = ossz_info
 
-    # előrejelzések → DELPHOI hash-lánc
-    elore, kimaradt = [], []
+    # előrejelzések → DELPHOI hash-lánc; elöl a gazdasági, intervallumos sorok (determinisztikusan a táblából)
+    elore, kimaradt = elorejelzesek_tisztit(gazdasagi_elorejelzesek(r["gazdasag"]), "piac", ma=ma,
+                                            hatar_napok=hatar_napok, max_db=8)
+    for e in elore:
+        e["modell"] = (piac.get("info") or {}).get("modell")
     for terulet, forras, info_ in (("sajto", (sajto.get("eredmeny") or {}), sajto.get("info") or {}),
                                    ("piac", (piac.get("eredmeny") or {}), piac.get("info") or {}),
                                    ("jog", (jog.get("eredmeny") or {}), jog.get("info") or {}),
@@ -1161,17 +1355,20 @@ async def futtat(lepes: str, horizont: str = "", *, get_db, deps: dict | None = 
             r["figyelmeztetesek"].append(f"az előrejelzések nem kerültek a DELPHOI-naplóba: {type(e).__name__}: {e}")
     r["elorejelzesek"] = elore
 
-    for nev, info_ in (("terv", r["terv_info"]), ("sajtó", sajto.get("info")), ("piac", piac.get("info")),
-                       ("jog", jog.get("info")), ("összegzés", ossz_info), ("kockázati térkép", kock_info)):
+    for nev, info_ in (("terv", r["terv_info"]), ("sajtó", sajto.get("info")), ("gazdaság", piac.get("info")),
+                       ("jog", jog.get("info")), ("összegzés", ossz_info)):
         info_ = info_ or {}
+        if info_.get("nem_kert"):
+            continue
         if info_.get("kihagyva"):
             r["figyelmeztetesek"].append(f"{nev}: kimaradt — {info_['kihagyva']}")
         elif info_.get("hiba"):
             r["figyelmeztetesek"].append(f"{nev}: {info_['hiba']}")
     r["koltseg"] = keret.allapot()
     r["forrasnaplo"] = hivo.naplo
-    teljes = (all(x.get("eredmeny") for x in (sajto, piac, jog)) and ossz and kock and tars.get("ok"))
-    r["allapot"] = "kesz" if teljes else "reszleges"
+    kesz = (piac.get("eredmeny") and ossz and tars.get("ok")
+            and (not teljes or (sajto.get("eredmeny") and jog.get("eredmeny"))))
+    r["allapot"] = "kesz" if kesz else "reszleges"
 
     if studio:
         try:
@@ -1224,9 +1421,12 @@ def szakaszok(r: dict) -> list[dict]:
     fej = [f"Lépés: {r.get('lepes')}",
            f"Horizont: {r.get('horizont')} (legkésőbb {r.get('horizont_vege')}) · Futás: {r.get('futas')} · "
            f"{str(r.get('indult') or '')[:10]}",
-           "Ez szimuláció, nem jóslat: a négy saját motor (DELPHOI, Echolot, Makronóm, Lexonomics) adataiból készült. "
-           "A szimulált sajtócímek nem valódi cikkek; a társadalmi jel szintetikus panel relatív jelzése, nem "
-           "közvélemény-kutatás."]
+           ("Ez szimuláció, nem jóslat: a saját motorok (Makronóm, DELPHOI, Echolot, Lexonomics) adataiból készült. "
+            "A szimulált sajtócímek nem valódi cikkek; a társadalmi jel szintetikus panel relatív jelzése, nem "
+            "közvélemény-kutatás." if r.get("mod") == "teljes" else
+            "Ez szimuláció, nem jóslat: gazdasági mód — a Makronóm-alapvonalra épülő közvetlen gazdasági előrejelzés és "
+            "a DELPHOI szintetikus panel relatív jelzése (nem közvélemény-kutatás). Sajtó és jog: „teljes "
+            "szimuláció” kérésre.")]
     if r.get("allapot") == "reszleges":
         fej.append("RÉSZEREDMÉNY: " + "; ".join(r.get("figyelmeztetesek") or ["egy vagy több motor nem adott eredményt"]))
     ki.append({"cim": None, "bekezdesek": fej})
@@ -1251,11 +1451,11 @@ def szakaszok(r: dict) -> list[dict]:
                  for s in tk.get("media_etrend") or []]
         for dim, csop in (tk.get("bontasok") or {}).items():
             sorok += [[dim, g["csoport"], str(g["n"]), _pont(g["pont"]), _elojeles(g["elteres"])] for g in csop]
-        s_tars = {"cim": "1. Társadalom — DELPHOI szintetikus panel", "bekezdesek": bek,
+        s_tars = {"cim": "Társadalom — DELPHOI szintetikus panel", "bekezdesek": bek,
                   "tablazat": {"fejlec": ["Bontás", "Csoport", "N", "Pont (1–5)", "Eltérés"],
                                "aranyok": [0.24, 0.30, 0.10, 0.18, 0.18], "sorok": sorok} if sorok else None}
     else:
-        s_tars = {"cim": "1. Társadalom — DELPHOI szintetikus panel",
+        s_tars = {"cim": "Társadalom — DELPHOI szintetikus panel",
                   "bekezdesek": [f"A panel nem adott eredményt: {tk.get('hiba') or tp.get('hiba') or 'ismeretlen ok'}."]}
 
     # 2. sajtó
@@ -1278,22 +1478,44 @@ def szakaszok(r: dict) -> list[dict]:
     if not sorok:
         bek.append("A sajtó-motor nem adott eredményt: " + str(((r.get("sajto") or {}).get("info") or {}).get(
             "hiba") or ((r.get("sajto") or {}).get("info") or {}).get("kihagyva") or "ismeretlen ok"))
-    s_sajto = {"cim": "2. Sajtó — az Elővisszhang (szimulált címek, nem valódi cikkek)", "bekezdesek": bek,
+    s_sajto = {"cim": "Sajtó — az Elővisszhang (szimulált címek, nem valódi cikkek)", "bekezdesek": bek,
                "tablazat": {"fejlec": ["Lap", "Cím", "Keretezés", "Belekötés"], "aranyok": [0.18, 0.30, 0.24, 0.28],
                             "sorok": sorok} if sorok else None,
                "pontok_utana": [f"Lead — {x}" for x in leadek]}
 
-    # 3. piac
+    # gazdaság — a mag
     pe = (r.get("piac") or {}).get("eredmeny") or {}
-    pontok = [f"{h.get('terulet')}: {h.get('irany')} — {h.get('becsles')} (bizonytalanság: {h.get('bizonytalansag')}; "
-              f"forrás: {h.get('forras')})" for h in pe.get("hatasok") or []]
-    bek = [f"Kiinduló adatok: " + "; ".join(f"{x.get('mutato')} {x.get('ertek')} ({x.get('idoszak')}, {x.get('forras')})"
-                                           for x in (pe.get("kiindulas") or [])[:6])] if pe.get("kiindulas") else []
+    sorok = []
+    for t in r.get("gazdasag") or []:
+        nd = 1 if t.get("egyseg") == "Ft" else 2
+        alap = _fmt(t.get("ertek"), nd) + (f" ({_fmt(t['also'], nd)}–{_fmt(t['felso'], nd)})"
+                                           if t.get("also") is not None and not t.get("naiv") else " (naiv)")
+        h = t.get("hatas")
+        sorok.append([t["mutato"], str(t.get("idoszak")), alap,
+                      (f"{_fmt(t['dontessel'], nd)} ({_fmt(t['dontessel_also'], nd)}–{_fmt(t['dontessel_felso'], nd)})"
+                       if h else "—"),
+                      (("+" if h["valtozas"] > 0 else "") + _fmt(h["valtozas"], nd) if h else "nem becsült"),
+                      _rovid(f"{h.get('csatorna')} — {h.get('alap')} (bizonyosság: {h.get('bizonyossag')})", 200)
+                      if h else ""])
+    bek = []
+    if sorok:
+        bek.append("Alapvonal: a Makronóm saját előrejelzése (80%-os sáv a backtesztből), ill. az alapkamatnál és az "
+                   "árfolyamnál a mai érték. „A lépéssel”: az alapvonal + a szimulált hatás, 80%-os sávval. Minden "
+                   "sor mérhető előrejelzésként a naplóba került.")
+    if pe.get("kiindulas"):
+        bek.append("Kiinduló adatok: " + "; ".join(f"{x.get('mutato')} {x.get('ertek')} ({x.get('idoszak')}, "
+                                                    f"{x.get('forras')})" for x in pe["kiindulas"][:6]))
     if pe.get("nem_modellezheto"):
-        bek.append("Nem modellezhető a kapott adatból: " + "; ".join(str(x) for x in pe["nem_modellezheto"]))
+        bek.append("Nem becsülhető a kapott adatból: " + "; ".join(str(x) for x in pe["nem_modellezheto"]))
     if not pe:
-        bek.append("A piac-motor nem adott eredményt.")
-    s_piac = {"cim": "3. Piac és makró — Makronóm", "bekezdesek": bek, "pontok": pontok}
+        bek.append("A gazdasági motor nem adott eredményt: " + str(((r.get("piac") or {}).get("info") or {}).get(
+            "hiba") or ((r.get("piac") or {}).get("info") or {}).get("kihagyva") or "ismeretlen ok"))
+    s_gazd = {"cim": "Gazdasági előrejelzés — alapvonal és a lépés hatása (Makronóm)", "bekezdesek": bek,
+              "tablazat": {"fejlec": ["Mutató", "Időszak", "Alapvonal (80%)", "A lépéssel (80%)", "Eltérés",
+                                      "Csatorna és alap"],
+                           "aranyok": [0.2, 0.11, 0.16, 0.17, 0.1, 0.26], "sorok": sorok} if sorok else None,
+              "pontok": [f"{h.get('terulet')}: {h.get('irany')} — {h.get('becsles')} (bizonytalanság: "
+                         f"{h.get('bizonytalansag')}; forrás: {h.get('forras')})" for h in pe.get("hatasok") or []]}
 
     # 4. jog
     je = (r.get("jog") or {}).get("eredmeny") or {}
@@ -1306,7 +1528,7 @@ def szakaszok(r: dict) -> list[dict]:
     bek.append("A Lexonomics nem hiteles jogforrás; a hiteles szöveg a Magyar Közlöny / NJT, ill. az EUR-Lex.")
     if not je:
         bek.insert(0, "A jog-motor nem adott eredményt.")
-    s_jog = {"cim": "4. Jog — Lexonomics", "bekezdesek": bek, "pontok": pontok}
+    s_jog = {"cim": "Jog — Lexonomics", "bekezdesek": bek, "pontok": pontok}
 
     # kockázat + módosítás
     ke = r.get("kockazat") or {}
@@ -1344,9 +1566,12 @@ def szakaszok(r: dict) -> list[dict]:
     hianyok = [f"{m}: {str(h)[:160]}" for m, hs in (r.get("adathianyok") or {}).items() for h in hs]
     if hianyok:
         lab.append("Adathiány: " + "; ".join(hianyok[:8]) + (" …" if len(hianyok) > 8 else ""))
-    # SORREND: elöl a döntéshez kellő oldal (összegzés, kockázat, módosítás, előrejelzés), utána a motorok részletei
-    ki += [s_kock, s_mod, s_elore, s_tars, s_sajto, s_piac, s_jog,
-           {"cim": "Költség és források", "bekezdesek": lab}]
+    # SORREND: elöl a döntéshez kellő oldal (összegzés, gazdasági előrejelzés, kockázat, módosítás, előrejelzések), utána
+    # a panel; a sajtó és a jog csak akkor, ha futott (teljes mód)
+    def futott(n):
+        return not (((r.get(n) or {}).get("info") or {}).get("nem_kert"))
+    ki += [s_gazd, s_kock, s_mod, s_elore, s_tars] + ([s_sajto] if futott("sajto") else []) \
+        + ([s_jog] if futott("jog") else []) + [{"cim": "Költség és források", "bekezdesek": lab}]
     return ki
 
 
@@ -1509,8 +1734,8 @@ async def studio_dokumentum(r: dict, *, hiv=None) -> dict:
 _FUTO: dict[str, asyncio.Task] = {}
 
 
-def varhato_perc() -> str:
-    return "4–8 perc"
+def varhato_perc(teljes: bool = False) -> str:
+    return "4–8 perc" if teljes else "2–5 perc"
 
 
 async def _hatter(futas: str, lepes: str, horizont: str, *, get_db, deps, kesz_fn, start_id: int, **kw) -> dict:
@@ -1555,7 +1780,8 @@ def inditas(lepes: str, horizont: str = "", *, get_db, deps: dict | None = None,
         context=contextvars.Context())
     _FUTO[futas] = feladat
     feladat.add_done_callback(lambda _t, f=futas: _FUTO.pop(f, None))
-    return {"futas": futas, "elindult": True, "varhato": varhato_perc(), "horizont": horizont}
+    return {"futas": futas, "elindult": True, "varhato": varhato_perc(bool(kw.get("teljes"))), "horizont": horizont,
+            "mod": "teljes" if kw.get("teljes") else "gazdasagi"}
 
 
 def allapot(get_db, futas: str) -> dict:
@@ -1590,17 +1816,20 @@ ESZKOZ_DEF = {"type": "function", "function": {
     "name": ESZKOZ_NEV,
     "description": (
         "DÖNTÉS-SZIMULÁTOR — „próbáld ki a döntést a világon, mielőtt meghozod”. Egy TERVEZETT lépés (törvényjavaslat, "
-        "árazás, nyilatkozat, befektetés, kampány) hatását négy saját motoron szimulálja: társadalom (DELPHOI "
-        "szintetikus panel: kor, település, iskola, média-étrend szerint), sajtó (Echolot: mit írna holnap a Telex, "
-        "a 444, a Magyar Nemzet, az Index, a Spiegel, a BBC és a Global Times), piac és makró (Makronóm), jog "
-        "(Lexonomics). A végén összegzés, kockázati térkép, módosítási javaslat és mérhető előrejelzések a DELPHOI "
-        "hash-láncos naplójába. 4–8 perc: az eszköz AZONNAL visszatér, az eredmény külön üzenetben jön (Telegram + "
+        "árazás, nyilatkozat, befektetés, kampány) hatása. ALAPBÓL gazdasági mód: KÖZVETLEN GAZDASÁGI ELŐREJELZÉS "
+        "(Makronóm-alapvonal: infláció, GDP, munkanélküliség, alapkamat, árfolyam + a lépés számszerű hatása 80%-os "
+        "sávval) és a DELPHOI szintetikus panel (kor, település, iskola, média-étrend szerint), összegzés, kockázati "
+        "térkép, módosítási javaslat, mérhető előrejelzések a DELPHOI hash-láncos naplójába. `teljes`=true esetén a "
+        "sajtó (Echolot: mit írna holnap a Telex, a 444, a Magyar Nemzet, az Index, a közmédia, a Spiegel, a BBC, a "
+        "Global Times) és a jog (Lexonomics) is fut — csak ha a Kommandant teljes szimulációt, sajtót vagy jogot kér. "
+        "2–5 perc (teljes: 4–8): az eszköz AZONNAL visszatér, az eredmény külön üzenetben jön (Telegram + "
         "Studio-dokumentum). Akkor hívd, ha a Kommandant egy lépés hatását akarja kipróbálni („szimuláld”, „mi "
         "lenne, ha…”, „próbáld ki”). Szimuláció, nem jóslat."),
     "parameters": {"type": "object", "properties": {
         "lepes": {"type": "string", "description": "A lépés leírása, ahogy a Kommandant megfogalmazta (csak ez)."},
         "horizont": {"type": "string", "description": "Az előrejelzések horizontja, pl. „12 hónap”, „2 év”, „2030” "
                                                       "(elhagyható; alap: 12 hónap)."},
+        "teljes": {"type": "boolean", "description": "true: sajtó és jog is (drágább, lassabb). Alap: false."},
     }, "required": ["lepes"]}}}
 
 
@@ -1624,7 +1853,7 @@ async def feldwebel_hiv(args: dict, ctx) -> str:
     async def _kesz(r):
         await ctx.telegram_push(telegram_html(r))
     v = inditas(str(args.get("lepes") or ""), str(args.get("horizont") or ""), get_db=ctx.get_db, deps=deps,
-                kesz_fn=_kesz)
+                kesz_fn=_kesz, teljes=bool(args.get("teljes")))
     if v.get("hiba"):
         return json.dumps({"error": v["hiba"], **({"futas": v["futas"]} if v.get("futas") else {})},
                           ensure_ascii=False)

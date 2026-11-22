@@ -414,7 +414,7 @@ ESZKÖZTÉRKÉP (a saját szolgáltatásaink — ezek az elsők):
 - weboldal tartalma, crawl, kinyerés sémára, oldalfigyelés → `engine` (egyszerűbb: web_fetch, web_scrape, web_search)
 - levél, naptár, feladat, recept → gmail_*, calendar_*, create_task/list_tasks, *_recipe
 - korábbi döntéseink, közös memória → search_memory, read_memory; hosszabb háttérkutatás egy ügynökkel → ai_task
-- egy TERVEZETT lépés kipróbálása (társadalom, sajtó, piac, jog; „szimuláld”, „mi lenne, ha…”) → `dontes_szimulator`
+- egy TERVEZETT lépés kipróbálása („szimuláld”, „mi lenne, ha…”) → `dontes_szimulator` (alapból gazdasági előrejelzés + panel; sajtó és jog csak ha teljes szimulációt kér: `teljes`=true)
 - a Kommandant előzményei, régi döntései (a teljes saját tudásbázis a gépén) → `tudasbazis`; második vélemény,
   keresztellenőrzés → `chatgpt` / `gemini`; AI-tanács (Claude + GPT + Gemini) → a kettőt EGY körben, egyszerre
 
