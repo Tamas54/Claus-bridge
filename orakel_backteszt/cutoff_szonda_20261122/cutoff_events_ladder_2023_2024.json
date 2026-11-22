@@ -1,0 +1,470 @@
+{
+ "meta": {
+  "operation": "OLCSÓ SWARM — cutoff-szonda, 2023–2024-es létra (régi cutoffú modellekhez: gpt-oss, Qwen3)",
+  "created": "2026-11-22",
+  "pre_reg": "futtatás ELŐTT commitolva",
+  "ertekeles": "kulcsszó-találat (szókezdő, kis-nagybetű-független) ÉS nem 'NEM TUDOM'; havi/negyedéves találati arány; cutoff = utolsó hónap, ahol a 3 havi gördülő arány ≥60%",
+  "kulcsszo_szintaxis": "sima = szókezdő előtag; '=X' = egész szó"
+ },
+ "events": [
+  {
+   "id": "L2302",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2023-02",
+   "question": "Melyik két országot sújtotta 2023. február 6-án egy 7,8-as erősségű, több tízezer halálos áldozatot követelő földrengés?",
+   "gt": "Törökország és Szíria",
+   "source": "közismert kontroll-tény (2025-Q3 előtti, a 07-20-i szabály szerint)",
+   "keywords": [
+    "Török",
+    "Turk",
+    "Türkiye"
+   ]
+  },
+  {
+   "id": "L2303",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2023-03",
+   "question": "Melyik kaliforniai, technológiai cégekre szakosodott bank omlott össze 2023. március 10-én, a 2008 utáni legnagyobb amerikai bankcsődként?",
+   "gt": "Silicon Valley Bank (SVB)",
+   "source": "közismert kontroll-tény (2025-Q3 előtti, a 07-20-i szabály szerint)",
+   "keywords": [
+    "Silicon Valley",
+    "SVB"
+   ]
+  },
+  {
+   "id": "L2306a",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2023-06",
+   "question": "Melyik orosz zsoldoscsoport vonult fegyveresen Moszkva felé 2023. június 23–24-én, mielőtt a lázadást lefújták?",
+   "gt": "A Wagner-csoport (Prigozsin)",
+   "source": "közismert kontroll-tény (2025-Q3 előtti, a 07-20-i szabály szerint)",
+   "keywords": [
+    "Wagner",
+    "Vagner"
+   ]
+  },
+  {
+   "id": "L2306b",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2023-06",
+   "question": "Melyik cég mélytengeri merülőjárműve veszett oda utasaival 2023 júniusában a Titanic roncsához tartó úton?",
+   "gt": "Az OceanGate (Titan merülőjármű)",
+   "source": "közismert kontroll-tény (2025-Q3 előtti, a 07-20-i szabály szerint)",
+   "keywords": [
+    "OceanGate",
+    "Ocean Gate"
+   ]
+  },
+  {
+   "id": "L2307a",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2023-07",
+   "question": "Ki nyerte a 2023-as wimbledoni teniszbajnokság férfi egyes döntőjét?",
+   "gt": "Carlos Alcaraz (Djokovics ellen)",
+   "source": "közismert kontroll-tény (2025-Q3 előtti, a 07-20-i szabály szerint)",
+   "keywords": [
+    "Alcaraz"
+   ]
+  },
+  {
+   "id": "L2307b",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2023-07",
+   "question": "Melyik nyugat-afrikai országban buktatta meg a katonaság Mohamed Bazoum elnököt 2023 júliusának végén?",
+   "gt": "Niger",
+   "source": "közismert kontroll-tény (2025-Q3 előtti, a 07-20-i szabály szerint)",
+   "keywords": [
+    "=Niger",
+    "Nigerben",
+    "Nigerből"
+   ]
+  },
+  {
+   "id": "L2308a",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2023-08",
+   "question": "Melyik orosz zsoldosvezér halt meg repülőgép-szerencsétlenségben 2023. augusztus 23-án?",
+   "gt": "Jevgenyij Prigozsin (Wagner)",
+   "source": "közismert kontroll-tény (2025-Q3 előtti, a 07-20-i szabály szerint)",
+   "keywords": [
+    "Prigozs",
+    "Prigozh",
+    "Prigoj"
+   ]
+  },
+  {
+   "id": "L2308b",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2023-08",
+   "question": "Melyik ország űrszondája szállt le elsőként a Hold déli pólusának közelében 2023 augusztusában?",
+   "gt": "India (Chandrayaan-3)",
+   "source": "közismert kontroll-tény (2025-Q3 előtti, a 07-20-i szabály szerint)",
+   "keywords": [
+    "India",
+    "Indi",
+    "Chandrayaan",
+    "Csandrajan"
+   ]
+  },
+  {
+   "id": "L2309a",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2023-09",
+   "question": "Melyik országban követelt közel 3000 halálos áldozatot egy földrengés 2023. szeptember 8-án, az Atlasz-hegységben?",
+   "gt": "Marokkó",
+   "source": "közismert kontroll-tény (2025-Q3 előtti, a 07-20-i szabály szerint)",
+   "keywords": [
+    "Marokk",
+    "Morocc"
+   ]
+  },
+  {
+   "id": "L2309b",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2023-09",
+   "question": "Melyik líbiai város pusztult el nagyrészt 2023 szeptemberében, amikor a Daniel vihar után két gát átszakadt?",
+   "gt": "Derna",
+   "source": "közismert kontroll-tény (2025-Q3 előtti, a 07-20-i szabály szerint)",
+   "keywords": [
+    "Derna"
+   ]
+  },
+  {
+   "id": "L2310a",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2023-10",
+   "question": "Melyik fegyveres szervezet indított nagyszabású, több mint ezer halálos áldozatot követelő támadást Izrael ellen 2023. október 7-én?",
+   "gt": "A Hamász",
+   "source": "közismert kontroll-tény (2025-Q3 előtti, a 07-20-i szabály szerint)",
+   "keywords": [
+    "Hamász",
+    "Hamas",
+    "Hamasz"
+   ]
+  },
+  {
+   "id": "L2310b",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2023-10",
+   "question": "Melyik politikus vezette ellenzéki szövetség szerzett többséget a 2023. október 15-i lengyel parlamenti választáson?",
+   "gt": "Donald Tusk (Polgári Koalíció)",
+   "source": "közismert kontroll-tény (2025-Q3 előtti, a 07-20-i szabály szerint)",
+   "keywords": [
+    "Tusk"
+   ]
+  },
+  {
+   "id": "L2311a",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2023-11",
+   "question": "Ki nyerte a 2023. novemberi argentin elnökválasztás második fordulóját?",
+   "gt": "Javier Milei",
+   "source": "közismert kontroll-tény (2025-Q3 előtti, a 07-20-i szabály szerint)",
+   "keywords": [
+    "Milei"
+   ]
+  },
+  {
+   "id": "L2311b",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2023-11",
+   "question": "Melyik mesterségesintelligencia-cég igazgatótanácsa menesztette, majd napokkal később visszavette a vezérigazgatóját 2023 novemberében, és ki volt a vezérigazgató?",
+   "gt": "Az OpenAI, Sam Altman",
+   "source": "közismert kontroll-tény (2025-Q3 előtti, a 07-20-i szabály szerint)",
+   "keywords": [
+    "Altman"
+   ]
+  },
+  {
+   "id": "L2312a",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2023-12",
+   "question": "Kit választott a Time magazin 2023 Év Emberének?",
+   "gt": "Taylor Swift",
+   "source": "közismert kontroll-tény (2025-Q3 előtti, a 07-20-i szabály szerint)",
+   "keywords": [
+    "Swift"
+   ]
+  },
+  {
+   "id": "L2312b",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2023-12",
+   "question": "Mit tett Orbán Viktor a 2023. decemberi brüsszeli EU-csúcson, amikor a többi vezető az ukrán csatlakozási tárgyalások megnyitásáról döntött?",
+   "gt": "Kiment a teremből (a döntés idejére távol maradt, így nem vétózott)",
+   "source": "közismert kontroll-tény (2025-Q3 előtti, a 07-20-i szabály szerint)",
+   "keywords": [
+    "kiment",
+    "elhagyta",
+    "kivonult",
+    "távol",
+    "left the room",
+    "kávé",
+    "kávéz"
+   ]
+  },
+  {
+   "id": "L2401a",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2024-01",
+   "question": "Ki nyerte a 2024. januári tajvani elnökválasztást?",
+   "gt": "Lai Csing-tö (William Lai, DPP)",
+   "source": "közismert kontroll-tény (2025-Q3 előtti, a 07-20-i szabály szerint)",
+   "keywords": [
+    "Lai",
+    "Laj Csing",
+    "William Lai"
+   ]
+  },
+  {
+   "id": "L2401b",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2024-01",
+   "question": "Melyik tokiói repülőtéren ütközött össze egy Japan Airlines utasszállító egy parti őrségi géppel 2024. január 2-án?",
+   "gt": "Haneda",
+   "source": "közismert kontroll-tény (2025-Q3 előtti, a 07-20-i szabály szerint)",
+   "keywords": [
+    "Haneda"
+   ]
+  },
+  {
+   "id": "L2402a",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2024-02",
+   "question": "Melyik magyar közjogi méltóság mondott le 2024 februárjában egy kegyelmi ügy miatt?",
+   "gt": "Novák Katalin köztársasági elnök",
+   "source": "közismert kontroll-tény (2025-Q3 előtti, a 07-20-i szabály szerint)",
+   "keywords": [
+    "Novák",
+    "Novak"
+   ]
+  },
+  {
+   "id": "L2402b",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2024-02",
+   "question": "Melyik ismert orosz ellenzéki politikus halt meg egy sarkköri büntetőtáborban 2024. február 16-án?",
+   "gt": "Alekszej Navalnij",
+   "source": "közismert kontroll-tény (2025-Q3 előtti, a 07-20-i szabály szerint)",
+   "keywords": [
+    "Navaln"
+   ]
+  },
+  {
+   "id": "L2403a",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2024-03",
+   "question": "Melyik Moszkva melletti koncertterem elleni terrortámadásban haltak meg több mint 140-en 2024. március 22-én?",
+   "gt": "A Crocus City Hall",
+   "source": "közismert kontroll-tény (2025-Q3 előtti, a 07-20-i szabály szerint)",
+   "keywords": [
+    "Crocus",
+    "Krokusz"
+   ]
+  },
+  {
+   "id": "L2403b",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2024-03",
+   "question": "Melyik amerikai város nagy közúti hídja omlott le 2024. március 26-án, miután egy konténerhajó nekiütközött?",
+   "gt": "Baltimore (Francis Scott Key híd)",
+   "source": "közismert kontroll-tény (2025-Q3 előtti, a 07-20-i szabály szerint)",
+   "keywords": [
+    "Baltimore"
+   ]
+  },
+  {
+   "id": "L2404a",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2024-04",
+   "question": "Melyik tajvani megyében volt az epicentruma a 2024. április 3-i, 7,4-es erősségű földrengésnek?",
+   "gt": "Hualien",
+   "source": "közismert kontroll-tény (2025-Q3 előtti, a 07-20-i szabály szerint)",
+   "keywords": [
+    "Hualien",
+    "Hualian"
+   ]
+  },
+  {
+   "id": "L2404b",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2024-04",
+   "question": "Ki lett Írország miniszterelnöke (taoiseach) 2024 áprilisában Leo Varadkar lemondása után?",
+   "gt": "Simon Harris",
+   "source": "közismert kontroll-tény (2025-Q3 előtti, a 07-20-i szabály szerint)",
+   "keywords": [
+    "Harris"
+   ]
+  },
+  {
+   "id": "L2405a",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2024-05",
+   "question": "Melyik közép-európai kormányfőt lőtték meg 2024. május 15-én Handlován egy kihelyezett kormányülés után?",
+   "gt": "Robert Fico szlovák miniszterelnök",
+   "source": "közismert kontroll-tény (2025-Q3 előtti, a 07-20-i szabály szerint)",
+   "keywords": [
+    "Fico"
+   ]
+  },
+  {
+   "id": "L2405b",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2024-05",
+   "question": "Melyik iráni elnök halt meg helikopter-balesetben 2024. május 19-én?",
+   "gt": "Ebrahim Raiszi",
+   "source": "közismert kontroll-tény (2025-Q3 előtti, a 07-20-i szabály szerint)",
+   "keywords": [
+    "Raiszi",
+    "Raisi",
+    "Raeesi",
+    "Raísí"
+   ]
+  },
+  {
+   "id": "L2406a",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2024-06",
+   "question": "Ki nyerte a 2024. június 2-i mexikói elnökválasztást?",
+   "gt": "Claudia Sheinbaum",
+   "source": "közismert kontroll-tény (2025-Q3 előtti, a 07-20-i szabály szerint)",
+   "keywords": [
+    "Sheinbaum",
+    "Sejnbaum"
+   ]
+  },
+  {
+   "id": "L2406b",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2024-06",
+   "question": "Melyik államfő oszlatta fel országa nemzetgyűlését 2024. június 9-én este, az EP-választás eredményének kihirdetése után?",
+   "gt": "Emmanuel Macron (Franciaország)",
+   "source": "közismert kontroll-tény (2025-Q3 előtti, a 07-20-i szabály szerint)",
+   "keywords": [
+    "Macron"
+   ]
+  },
+  {
+   "id": "L2407a",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2024-07",
+   "question": "Melyik pennsylvaniai városban lőttek rá Donald Trumpra egy kampánygyűlésen 2024. július 13-án?",
+   "gt": "Butler",
+   "source": "közismert kontroll-tény (2025-Q3 előtti, a 07-20-i szabály szerint)",
+   "keywords": [
+    "Butler"
+   ]
+  },
+  {
+   "id": "L2407b",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2024-07",
+   "question": "Ki lett az Egyesült Királyság miniszterelnöke a 2024. július 4-i választás után?",
+   "gt": "Keir Starmer",
+   "source": "közismert kontroll-tény (2025-Q3 előtti, a 07-20-i szabály szerint)",
+   "keywords": [
+    "Starmer"
+   ]
+  },
+  {
+   "id": "L2408a",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2024-08",
+   "question": "Melyik dél-ázsiai ország miniszterelnöke menekült el az országból 2024. augusztus 5-én tömegtüntetések után?",
+   "gt": "Banglades (Sejk Haszina)",
+   "source": "közismert kontroll-tény (2025-Q3 előtti, a 07-20-i szabály szerint)",
+   "keywords": [
+    "Banglad",
+    "Hasina",
+    "Haszina"
+   ]
+  },
+  {
+   "id": "L2408b",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2024-08",
+   "question": "Melyik orosz megyébe tört be meglepetésszerűen az ukrán hadsereg 2024 augusztusában?",
+   "gt": "Kurszk",
+   "source": "közismert kontroll-tény (2025-Q3 előtti, a 07-20-i szabály szerint)",
+   "keywords": [
+    "Kurszk",
+    "Kursk"
+   ]
+  },
+  {
+   "id": "L2409a",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2024-09",
+   "question": "Milyen eszközök robbantak fel tömegesen a Hezbollah tagjainál Libanonban 2024. szeptember 17-én?",
+   "gt": "Személyhívók (pagerek)",
+   "source": "közismert kontroll-tény (2025-Q3 előtti, a 07-20-i szabály szerint)",
+   "keywords": [
+    "személyhív",
+    "pager",
+    "csipog"
+   ]
+  },
+  {
+   "id": "L2409b",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2024-09",
+   "question": "Melyik libanoni vezetőt ölte meg izraeli légicsapás 2024. szeptember 27-én Bejrút déli részén?",
+   "gt": "Haszan Naszrallah (Hezbollah)",
+   "source": "közismert kontroll-tény (2025-Q3 előtti, a 07-20-i szabály szerint)",
+   "keywords": [
+    "Naszrallah",
+    "Nasrallah",
+    "Nasralla"
+   ]
+  },
+  {
+   "id": "L2410a",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2024-10",
+   "question": "Melyik Hamász-vezetőt ölték meg izraeli katonák 2024. október 16-án Rafahban?",
+   "gt": "Jahja Szinvár",
+   "source": "közismert kontroll-tény (2025-Q3 előtti, a 07-20-i szabály szerint)",
+   "keywords": [
+    "Szinvár",
+    "Sinwar",
+    "Szinvar",
+    "Sinvar"
+   ]
+  },
+  {
+   "id": "L2410b",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2024-10",
+   "question": "Melyik szervezet kapta a 2024-es Nobel-békedíjat?",
+   "gt": "Nihon Hidankjo (japán atombomba-túlélők szervezete)",
+   "source": "közismert kontroll-tény (2025-Q3 előtti, a 07-20-i szabály szerint)",
+   "keywords": [
+    "Hidank",
+    "Nihon"
+   ]
+  },
+  {
+   "id": "L2411a",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2024-11",
+   "question": "Melyik pénzügyminisztert menesztette Olaf Scholz 2024. november 6-án, ami a német kormánykoalíció bukásához vezetett?",
+   "gt": "Christian Lindner",
+   "source": "közismert kontroll-tény (2025-Q3 előtti, a 07-20-i szabály szerint)",
+   "keywords": [
+    "Lindner"
+   ]
+  },
+  {
+   "id": "L2411b",
+   "bucket": "ladder-2023-2024",
+   "event_month": "2024-11",
+   "question": "Melyik jelölt végzett meglepetésre az első helyen a 2024. november 24-i román elnökválasztás első fordulójában?",
+   "gt": "Călin Georgescu",
+   "source": "közismert kontroll-tény (2025-Q3 előtti, a 07-20-i szabály szerint)",
+   "keywords": [
+    "Georgescu"
+   ]
+  }
+ ]
+}
