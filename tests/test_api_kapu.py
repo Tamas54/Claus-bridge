@@ -205,7 +205,7 @@ def test_kulso_eszkoz_csak_zart_ajtonal_es_sajat_peldanynak(monkeypatch):
     monkeypatch.delenv("BRIDGE_MCP_ZARVA", raising=False)
     assert "zárása után" in _json.loads(asyncio.run(fn("lexonomics", "search", {"q": "x"}, "web-claus")))["hiba"]
     monkeypatch.setenv("BRIDGE_MCP_ZARVA", "1")
-    assert "saját példány" in _json.loads(asyncio.run(fn("lexonomics", "search", {}, "")))["hiba"]
+    assert asyncio.run(fn("lexonomics", "search", {"q": "x"}, "")) == "ok:lexonomics.search"   # webes Claude, caller nélkül
     assert "saját példány" in _json.loads(asyncio.run(fn("lexonomics", "search", {}, "idegen")))["hiba"]
     assert asyncio.run(fn("lexonomics", "search", {"q": "x"}, "web-claus")) == "ok:lexonomics.search"
     assert "ismeretlen szerver" in _json.loads(asyncio.run(fn("skynet", "x", {}, "web-claus")))["hiba"]

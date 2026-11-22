@@ -6901,8 +6901,11 @@ async def kulso_eszkoz(szerver: str, eszkoz: str = "sugo", parameterek: dict | N
     if not api_kapu.mcp_zarva():
         return json.dumps({"hiba": "a kulso_eszkoz a Bridge MCP-ajtajának zárása után kapcsol be (BRIDGE_MCP_ZARVA=1) — "
                                    "addig a Kommandant kulcsai nem mehetnek ki a nyitott ajtón"}, ensure_ascii=False)
-    if not caller or not is_core_instance(caller):
-        return json.dumps({"hiba": "a kulso_eszkoz csak a saját példányoknak érhető el (a titkos példány-úton)"},
+    # A zárt ajtón (api_kapu) csak a Kommandant claude.ai-csatlakozója, a munkások és a titkos példány-utak jutnak be.
+    # A webes Claude gyakran nem küld `caller`-t — azt a csatlakozó gazdájának vesszük; a KIMONDOTT idegen példány
+    # (pl. a LESESAAL-é, amit a példány-út kényszerít) viszont nem fizethet a Kommandant Lexonomics/Studio-kreditjéből.
+    if caller and not is_core_instance(caller):
+        return json.dumps({"hiba": "a kulso_eszkoz csak a Kommandant saját példányainak érhető el"},
                           ensure_ascii=False)
     if szerver not in kulso_mcp.SZERVEREK:
         return json.dumps({"hiba": f"ismeretlen szerver: {szerver!r}", "szerverek": list(kulso_mcp.SZERVEREK)},
