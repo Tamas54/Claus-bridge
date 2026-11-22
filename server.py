@@ -55,6 +55,7 @@ from youngereka_profile import register_youngereka
 # S-002 — fail-closed ütemezett kimenetek: a recipe `required_tools` mezője
 # eddig deklarált-de-ellenőrizetlen volt. Lásd recipe_health.py fejlécét.
 import recipe_health
+import faber_relay
 import selfdiag
 
 # S-006 — a jelenlét a MUNKA mellékhatása, nem külön bejelentés.
@@ -10608,6 +10609,16 @@ TELEGRAM_POLL_INTERVAL = 5  # seconds
 
 async def _handle_telegram_message(text: str, chat_id: str):
     """Process an incoming Telegram message from Kommandant."""
+    # 0. Faber-parancs (/tanulj, /faber, /vissza): aláírva a 'faber' címzettnek, LLM nélkül (faber_relay.py)
+    if faber_relay.parancs_e(text):
+        conn = get_db()
+        try:
+            mid = faber_relay.tovabbit(conn, TELEGRAM_BOT_TOKEN, "parancs", text.strip(), now())
+        finally:
+            conn.close()
+        await _telegram_push("🔧 Továbbítva a Fabernek (a gépeden fut, pár másodpercen belül felveszi)."
+                             if mid else "🔧 A Faber-továbbítás nem megy: nincs Telegram-token a Bridge-en.")
+        return
     # 1. Store in Bridge DB
     conn = get_db()
     cur = conn.execute(
@@ -10751,7 +10762,7 @@ async def _telegram_poll_loop():
                     params={
                         "offset": _telegram_state["last_update_id"] + 1,
                         "timeout": 25,
-                        "allowed_updates": '["message"]',
+                        "allowed_updates": '["message", "callback_query"]',
                     },
                 )
                 data = resp.json()
@@ -10759,6 +10770,26 @@ async def _telegram_poll_loop():
             if data.get("ok") and data.get("result"):
                 for update in data["result"]:
                     _telegram_state["last_update_id"] = update["update_id"]
+                    cq = update.get("callback_query")
+                    if cq:   # gombnyomás: a Faber jóváhagyó gombja (mehet/megse:<szám>:<kód>) aláírva továbbítva
+                        if str(cq.get("from", {}).get("id", "")) == TELEGRAM_CHAT_ID:
+                            adat = cq.get("data", "")
+                            valasz = "Ismeretlen gomb"
+                            if faber_relay.gomb_e(adat):
+                                conn = get_db()
+                                try:
+                                    ok = faber_relay.tovabbit(conn, TELEGRAM_BOT_TOKEN, "gomb", adat, now())
+                                finally:
+                                    conn.close()
+                                valasz = "Továbbítva a Fabernek" if ok else "A Faber-továbbítás nem megy"
+                            try:
+                                async with httpx.AsyncClient(timeout=10) as cq_client:
+                                    await cq_client.post(
+                                        f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/answerCallbackQuery",
+                                        json={"callback_query_id": cq["id"], "text": valasz})
+                            except Exception as e:
+                                logger.warning("answerCallbackQuery failed: %s", e)
+                        continue
                     msg = update.get("message", {})
                     text = msg.get("text", "")
                     chat_id = str(msg.get("chat", {}).get("id", ""))
