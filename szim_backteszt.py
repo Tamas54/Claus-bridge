@@ -912,6 +912,9 @@ async def futtat_esemeny(esemeny: dict, ut: str, *, felvevo: Felvevo, get_db, ma
     panel_ki: dict = {}
 
     async def _panel(lepes, orszag):
+        # a backteszt panelje MINDIG a magyar (a korpusza a négy magyar lap): a tervező országa (EA, US, DE…) a két
+        # úton eltérhet, a panel viszont mindkettőnek ugyanaz kell legyen
+        orszag = "HU"
         kulcs = _sha(_kanon([lepes, orszag, esemeny["as_of"], modellek["panel"], panel_n]))
         if kulcs not in panel_tar or not panel_tar[kulcs].get("ok"):
             korp = await panel_korpusz(felvevo, as_of)
@@ -1045,7 +1048,20 @@ def _cli_ertekel(args) -> None:
     eredmenyek = [json.loads(p.read_text(encoding="utf-8")) for p in sorted(Path(args.ki_dir).glob("futas_*.json"))]
     ki = ertekeles(bank, gt, eredmenyek)
     Path(args.ki).write_text(json.dumps(ki, ensure_ascii=False, indent=1), encoding="utf-8")
-    print(json.dumps({u: v["osszesen"] for u, v in ki["utak"].items()}, ensure_ascii=False, indent=1))
+    print("esemény | út | as_of | kimenetel hónapja | modellek | tisztaság | előrejelzés/kérdés | Brier | alap 50% | "
+          "alap bázis | szivárgás")
+    for s in ki["esemenyenkent"]:
+        print(f"{s['esemeny']} | {s['ut']} | {s['as_of']} | {s['kimenetel_honap']} | {', '.join(s['modellek'])} | "
+              f"{s['tisztasag']} | {s['n_elorejelzes']}/{s['n_kerdes']} | {s['brier']} | {s['brier_alap_50']} | "
+              f"{s['brier_alap_bazis']} | {s['szivargas_db']}")
+    for u, v in ki["utak"].items():
+        print(u, "ÖSSZESEN", json.dumps(v["osszesen"], ensure_ascii=False))
+        print(u, "TISZTASÁG", json.dumps({k: {x: y for x, y in t.items() if x in ("n_valaszolt", "brier",
+                                                                                     "brier_alap_bazis")}
+                                           for k, t in v["tisztasag_szerint"].items()}, ensure_ascii=False))
+        print(u, "TERÜLET", json.dumps({k: {x: y for x, y in t.items() if x in ("n_valaszolt", "brier",
+                                                                                   "brier_alap_bazis")}
+                                         for k, t in v["terulet_szerint"].items()}, ensure_ascii=False))
 
 
 def main(argv=None) -> None:
@@ -1073,6 +1089,10 @@ def main(argv=None) -> None:
     args = ap.parse_args(argv)
     # a felvevő maga ütemezi az Echolotot (429-várakozással) — a szimulátor Echolot-időkerete ehhez legyen bő
     os.environ.setdefault("SZIMULATOR_ECHOLOT_MAX_S", "2400")
+    # …és a szimulátor hívásonkénti időkorlátja se vágja el a felvevő 429-várakozását (különben a munkamenet félbe-
+    # szakadna, és a hívás „időtúllépés” hiányként esne ki)
+    import dontes_szimulator as ds
+    ds.MCP_HIVAS_TIMEOUT_S = max(ds.MCP_HIVAS_TIMEOUT_S, 900)
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(message)s")
     if args.parancs == "gt":
         asyncio.run(_cli_gt(args))

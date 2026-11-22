@@ -1,0 +1,737 @@
+{
+ "bank_sha256": "8e9e104d3db884750ab8cc811601153508adf674bc7bd936b45e2a9bc229008a",
+ "hibak": {},
+ "kerdesek": {
+  "ekb-2609-p1": {
+   "ertek": -2.1072,
+   "forras": "Makronóm yfinance history EURUSD=X",
+   "o": 0,
+   "reszlet": {
+    "alap": {
+     "close": 1.1627,
+     "date": "2026-09-09"
+    },
+    "cel": {
+     "close": 1.1382,
+     "date": "2026-09-24"
+    }
+   }
+  },
+  "ekb-2609-p2": {
+   "ertek": -2.1072,
+   "forras": "Makronóm yfinance history EURUSD=X",
+   "o": 0,
+   "reszlet": {
+    "alap": {
+     "close": 1.1627,
+     "date": "2026-09-09"
+    },
+    "cel": {
+     "close": 1.1382,
+     "date": "2026-09-24"
+    }
+   }
+  },
+  "ekb-2609-p3": {
+   "ertek": 2.5,
+   "forras": "Makronóm get_macro_indicator policy_rate EA",
+   "o": 0,
+   "reszlet": {
+    "cel": {
+     "effective_from": "2026-09-16",
+     "source": "ECB FM/D.U2.EUR.4F.KR.DFR.LEV",
+     "value": 2.5
+    },
+    "referencia": {
+     "effective_from": "2026-09-16",
+     "source": "ECB FM/D.U2.EUR.4F.KR.DFR.LEV",
+     "value": 2.5
+    }
+   }
+  },
+  "ekb-2609-s1": {
+   "ertek": 5,
+   "forras": "Echolot get_news (source+date), cím+lead regex",
+   "o": 1,
+   "reszlet": {
+    "cikkszam": {
+     "telex": 5
+    },
+    "cimek": {
+     "telex": [
+      "2,5 százalékra emelte az alapkamatot az Európai Központi Bank",
+      "Túlárazott szerződések után is kutatnak az egyetemeken az új kuratóriumok, de fontos ügyekben csak Lannert Judit dönthet",
+      "Az FBI igazgatója arra kérte a dolgozóit, hogy kommenteléssel védjék meg őt a kritikáktól",
+      "Gyurkó Szilvia: A magyar gyermekvédelem egy traumatizált rendszer, PTSD-s szakemberekkel kezdődik el a munka",
+      "Közel félszáz neves balettművész kéri: ne kerüljenek pozícióba azok, akik a kollégáik elleni lejárató perekben részt vettek"
+     ]
+    }
+   }
+  },
+  "ekb-2609-s2": {
+   "ertek": 6,
+   "forras": "Echolot get_news (source+date), cím+lead regex",
+   "o": 1,
+   "reszlet": {
+    "cikkszam": {
+     "magyarnemzet": 6
+    },
+    "cimek": {
+     "magyarnemzet": [
+      "Több mint 900 lóerős az olasz rendőrség új, mindenki által csodált autója",
+      "Az üzemanyagárak az egekben, a Tisza-kormány meg lebegtet",
+      "Megbízható kádereket ültethet a Tisza az alkotmánybírói székekbe",
+      "Két minisztérium is megszólalt, de még mindig nem tudni semmi pontosat Magyar Péter egyik legfontosabb ígéretéről",
+      "Tűzfalcsoport: Ezekbe a nyugati országokba utazhatott 1989 előtt Baka András",
+      "A bosszúkormányzás következménye: több száz település maradhat ki a fejlesztésekből"
+     ]
+    }
+   }
+  },
+  "ekb-2609-s3": {
+   "ertek": 1,
+   "forras": "Echolot get_news (source+date), cím+lead regex",
+   "o": 1,
+   "reszlet": {
+    "cikkszam": {
+     "magyarnemzet": 6,
+     "telex": 5
+    },
+    "cimek": {
+     "magyarnemzet": [
+      "Több mint 900 lóerős az olasz rendőrség új, mindenki által csodált autója",
+      "Az üzemanyagárak az egekben, a Tisza-kormány meg lebegtet",
+      "Megbízható kádereket ültethet a Tisza az alkotmánybírói székekbe",
+      "Két minisztérium is megszólalt, de még mindig nem tudni semmi pontosat Magyar Péter egyik legfontosabb ígéretéről",
+      "Tűzfalcsoport: Ezekbe a nyugati országokba utazhatott 1989 előtt Baka András",
+      "A bosszúkormányzás következménye: több száz település maradhat ki a fejlesztésekből"
+     ],
+     "telex": [
+      "2,5 százalékra emelte az alapkamatot az Európai Központi Bank",
+      "Túlárazott szerződések után is kutatnak az egyetemeken az új kuratóriumok, de fontos ügyekben csak Lannert Judit dönthet",
+      "Az FBI igazgatója arra kérte a dolgozóit, hogy kommenteléssel védjék meg őt a kritikáktól",
+      "Gyurkó Szilvia: A magyar gyermekvédelem egy traumatizált rendszer, PTSD-s szakemberekkel kezdődik el a munka",
+      "Közel félszáz neves balettművész kéri: ne kerüljenek pozícióba azok, akik a kollégáik elleni lejárató perekben részt vettek"
+     ]
+    }
+   }
+  },
+  "fed-2609-p1": {
+   "ertek": -1.801,
+   "forras": "Makronóm yfinance history EURUSD=X",
+   "o": 1,
+   "reszlet": {
+    "alap": {
+     "close": 1.1549,
+     "date": "2026-09-15"
+    },
+    "cel": {
+     "close": 1.1341,
+     "date": "2026-09-30"
+    }
+   }
+  },
+  "fed-2609-p2": {
+   "ertek": -1.801,
+   "forras": "Makronóm yfinance history EURUSD=X",
+   "o": 0,
+   "reszlet": {
+    "alap": {
+     "close": 1.1549,
+     "date": "2026-09-15"
+    },
+    "cel": {
+     "close": 1.1341,
+     "date": "2026-09-30"
+    }
+   }
+  },
+  "fed-2609-p3": {
+   "ertek": 4.0,
+   "forras": "Makronóm get_macro_indicator policy_rate US",
+   "o": 0,
+   "reszlet": {
+    "cel": {
+     "effective_from": "2026-09-17",
+     "source": "FRED DFEDTARU",
+     "value": 4.0
+    },
+    "referencia": {
+     "effective_from": "2026-09-17",
+     "source": "FRED DFEDTARU",
+     "value": 4.0
+    }
+   }
+  },
+  "fed-2609-s1": {
+   "ertek": 1,
+   "forras": "Echolot get_news (source+date), cím+lead regex",
+   "o": 0,
+   "reszlet": {
+    "cikkszam": {
+     "telex": 1
+    },
+    "cimek": {
+     "telex": [
+      "Három év után először emeli az amerikai alapkamatot a FED"
+     ]
+    }
+   }
+  },
+  "fed-2609-s2": {
+   "ertek": 0,
+   "forras": "Echolot get_news (source+date), cím+lead regex",
+   "o": 0,
+   "reszlet": {
+    "cikkszam": {
+     "magyarnemzet": 0
+    },
+    "cimek": {
+     "magyarnemzet": []
+    }
+   }
+  },
+  "fed-2609-s3": {
+   "ertek": -1,
+   "forras": "Echolot get_news (source+date), cím+lead regex",
+   "o": 0,
+   "reszlet": {
+    "cikkszam": {
+     "magyarnemzet": 0,
+     "telex": 1
+    },
+    "cimek": {
+     "magyarnemzet": [],
+     "telex": [
+      "Három év után először emeli az amerikai alapkamatot a FED"
+     ]
+    }
+   }
+  },
+  "fed-2610-p1": {
+   "ertek": -0.0447,
+   "forras": "Makronóm yfinance history EURUSD=X",
+   "o": 1,
+   "reszlet": {
+    "alap": {
+     "close": 1.1174,
+     "date": "2026-10-27"
+    },
+    "cel": {
+     "close": 1.1169,
+     "date": "2026-11-11"
+    }
+   }
+  },
+  "fed-2610-p2": {
+   "ertek": -0.0447,
+   "forras": "Makronóm yfinance history EURUSD=X",
+   "o": 1,
+   "reszlet": {
+    "alap": {
+     "close": 1.1174,
+     "date": "2026-10-27"
+    },
+    "cel": {
+     "close": 1.1169,
+     "date": "2026-11-11"
+    }
+   }
+  },
+  "fed-2610-s1": {
+   "ertek": 0,
+   "forras": "Echolot get_news (source+date), cím+lead regex",
+   "o": 0,
+   "reszlet": {
+    "cikkszam": {
+     "telex": 0
+    },
+    "cimek": {
+     "telex": []
+    }
+   }
+  },
+  "fed-2610-s2": {
+   "ertek": 0,
+   "forras": "Echolot get_news (source+date), cím+lead regex",
+   "o": 0,
+   "reszlet": {
+    "cikkszam": {
+     "magyarnemzet": 0
+    },
+    "cimek": {
+     "magyarnemzet": []
+    }
+   }
+  },
+  "fed-2610-s3": {
+   "ertek": 0,
+   "forras": "Echolot get_news (source+date), cím+lead regex",
+   "o": 0,
+   "reszlet": {
+    "cikkszam": {
+     "magyarnemzet": 0,
+     "telex": 0
+    },
+    "cimek": {
+     "magyarnemzet": [],
+     "telex": []
+    }
+   }
+  },
+  "konc-2609-p1": {
+   "ertek": -16.0804,
+   "forras": "Makronóm yfinance history OPUS.BD",
+   "o": 1,
+   "reszlet": {
+    "alap": {
+     "close": 298.5,
+     "date": "2026-09-18"
+    },
+    "cel": {
+     "close": 250.5,
+     "date": "2026-10-02"
+    }
+   }
+  },
+  "konc-2609-p2": {
+   "ertek": -16.0804,
+   "forras": "Makronóm yfinance history OPUS.BD",
+   "o": 0,
+   "reszlet": {
+    "alap": {
+     "close": 298.5,
+     "date": "2026-09-18"
+    },
+    "cel": {
+     "close": 250.5,
+     "date": "2026-10-02"
+    }
+   }
+  },
+  "konc-2609-s1": {
+   "ertek": 7,
+   "forras": "Echolot get_news (source+date), cím+lead regex",
+   "o": 1,
+   "reszlet": {
+    "cikkszam": {
+     "telex": 7
+    },
+    "cimek": {
+     "telex": [
+      "Vitézy szerint a magyar állam nem tud költeni az úthálózatra, amíg a Mészáros-féle koncesszió mindent pénzt elszív",
+      "Vitézy az autópálya-koncesszióról: Az állam a háborúra hivatkozva ötezer milliárdnyi többletterhet vett magára",
+      "Vitézy olyan adatokat akar összehasonlítani, amelyeket nem lehet összevetni – állítja az M6-os koncessziós cége",
+      "Meghosszabbították a lengyel buszbaleset sofőrének letartóztatását",
+      "Baka András államfő bemutatja jelöltjét a legfőbb ügyészi posztra, akit máris bírálatok értek",
+      "Vitézy Dávid újabb dokumentumot posztolt az M6-os autópálya ügyében",
+      "Hűtlen kezelés gyanújával nyomoz a rendőrség az M6-os autópálya működtetésének ügyében"
+     ]
+    }
+   }
+  },
+  "konc-2609-s2": {
+   "ertek": 1,
+   "forras": "Echolot get_news (source+date), cím+lead regex",
+   "o": 0,
+   "reszlet": {
+    "cikkszam": {
+     "magyarnemzet": 1
+    },
+    "cimek": {
+     "magyarnemzet": [
+      "Én is kiszállnék a lakáshitelemből, mert túlárazott – nem tetszik a kommentelőknek a kormány bejelentése a koncessziókról"
+     ]
+    }
+   }
+  },
+  "konc-2609-s3": {
+   "ertek": -6,
+   "forras": "Echolot get_news (source+date), cím+lead regex",
+   "o": 0,
+   "reszlet": {
+    "cikkszam": {
+     "magyarnemzet": 1,
+     "telex": 7
+    },
+    "cimek": {
+     "magyarnemzet": [
+      "Én is kiszállnék a lakáshitelemből, mert túlárazott – nem tetszik a kommentelőknek a kormány bejelentése a koncessziókról"
+     ],
+     "telex": [
+      "Vitézy szerint a magyar állam nem tud költeni az úthálózatra, amíg a Mészáros-féle koncesszió mindent pénzt elszív",
+      "Vitézy az autópálya-koncesszióról: Az állam a háborúra hivatkozva ötezer milliárdnyi többletterhet vett magára",
+      "Vitézy olyan adatokat akar összehasonlítani, amelyeket nem lehet összevetni – állítja az M6-os koncessziós cége",
+      "Meghosszabbították a lengyel buszbaleset sofőrének letartóztatását",
+      "Baka András államfő bemutatja jelöltjét a legfőbb ügyészi posztra, akit máris bírálatok értek",
+      "Vitézy Dávid újabb dokumentumot posztolt az M6-os autópálya ügyében",
+      "Hűtlen kezelés gyanújával nyomoz a rendőrség az M6-os autópálya működtetésének ügyében"
+     ]
+    }
+   }
+  },
+  "mnb-2607-p1": {
+   "ertek": 0.1089,
+   "forras": "Makronóm yfinance history EURHUF=X",
+   "o": 0,
+   "reszlet": {
+    "alap": {
+     "close": 362.764,
+     "date": "2026-07-20"
+    },
+    "cel": {
+     "close": 363.159,
+     "date": "2026-08-04"
+    }
+   }
+  },
+  "mnb-2607-p2": {
+   "ertek": 0.1089,
+   "forras": "Makronóm yfinance history EURHUF=X",
+   "o": 1,
+   "reszlet": {
+    "alap": {
+     "close": 362.764,
+     "date": "2026-07-20"
+    },
+    "cel": {
+     "close": 363.159,
+     "date": "2026-08-04"
+    }
+   }
+  },
+  "mnb-2607-p3": {
+   "ertek": 5.5,
+   "forras": "Makronóm get_macro_indicator policy_rate HU",
+   "o": 1,
+   "reszlet": {
+    "cel": {
+     "effective_from": "2026-08-26",
+     "source": "MNB jegybanki alapkamat (döntések, hatálybalépés szerint)",
+     "value": 5.5
+    },
+    "referencia": {
+     "effective_from": "2026-07-22",
+     "source": "MNB jegybanki alapkamat (döntések, hatálybalépés szerint)",
+     "value": 5.75
+    }
+   }
+  },
+  "mnb-2607-s1": {
+   "ertek": 3,
+   "forras": "Echolot get_news (source+date), cím+lead regex",
+   "o": 1,
+   "reszlet": {
+    "cikkszam": {
+     "telex": 3
+    },
+    "cimek": {
+     "telex": [
+      "Varga Mihály a forintról: Azt szeretnénk, hogy az a nagyon erős kilengés, ami az elmúlt éveket jellemezte, ne térjen vissza",
+      "5,75 százalékra csökkentette az alapkamatot a jegybank",
+      "A kamatcsökkentés előtti utolsó napokban valakik még bezsákoltak 100 milliárd forintnyi fix állampapírt"
+     ]
+    }
+   }
+  },
+  "mnb-2607-s2": {
+   "ertek": 2,
+   "forras": "Echolot get_news (source+date), cím+lead regex",
+   "o": 0,
+   "reszlet": {
+    "cikkszam": {
+     "magyarnemzet": 2
+    },
+    "cimek": {
+     "magyarnemzet": [
+      "Döntött a jegybank az alapkamatról",
+      "Nemsokára kilenc százalék alá is benézhetnek a személyi kölcsönök kamatai"
+     ]
+    }
+   }
+  },
+  "mnb-2607-s3": {
+   "ertek": -1,
+   "forras": "Echolot get_news (source+date), cím+lead regex",
+   "o": 0,
+   "reszlet": {
+    "cikkszam": {
+     "magyarnemzet": 2,
+     "telex": 3
+    },
+    "cimek": {
+     "magyarnemzet": [
+      "Döntött a jegybank az alapkamatról",
+      "Nemsokára kilenc százalék alá is benézhetnek a személyi kölcsönök kamatai"
+     ],
+     "telex": [
+      "Varga Mihály a forintról: Azt szeretnénk, hogy az a nagyon erős kilengés, ami az elmúlt éveket jellemezte, ne térjen vissza",
+      "5,75 százalékra csökkentette az alapkamatot a jegybank",
+      "A kamatcsökkentés előtti utolsó napokban valakik még bezsákoltak 100 milliárd forintnyi fix állampapírt"
+     ]
+    }
+   }
+  },
+  "mnb-2608-p1": {
+   "ertek": 0.2071,
+   "forras": "Makronóm yfinance history EURHUF=X",
+   "o": 0,
+   "reszlet": {
+    "alap": {
+     "close": 362.125,
+     "date": "2026-08-24"
+    },
+    "cel": {
+     "close": 362.875,
+     "date": "2026-09-08"
+    }
+   }
+  },
+  "mnb-2608-p2": {
+   "ertek": 0.2071,
+   "forras": "Makronóm yfinance history EURHUF=X",
+   "o": 1,
+   "reszlet": {
+    "alap": {
+     "close": 362.125,
+     "date": "2026-08-24"
+    },
+    "cel": {
+     "close": 362.875,
+     "date": "2026-09-08"
+    }
+   }
+  },
+  "mnb-2608-p3": {
+   "ertek": 5.5,
+   "forras": "Makronóm get_macro_indicator policy_rate HU",
+   "o": 0,
+   "reszlet": {
+    "cel": {
+     "effective_from": "2026-08-26",
+     "source": "MNB jegybanki alapkamat (döntések, hatálybalépés szerint)",
+     "value": 5.5
+    },
+    "referencia": {
+     "effective_from": "2026-08-26",
+     "source": "MNB jegybanki alapkamat (döntések, hatálybalépés szerint)",
+     "value": 5.5
+    }
+   }
+  },
+  "mnb-2608-s1": {
+   "ertek": 1,
+   "forras": "Echolot get_news (source+date), cím+lead regex",
+   "o": 0,
+   "reszlet": {
+    "cikkszam": {
+     "telex": 1
+    },
+    "cimek": {
+     "telex": [
+      "5,5 százalékra csökkentette az alapkamatot a Magyar Nemzeti Bank"
+     ]
+    }
+   }
+  },
+  "mnb-2608-s2": {
+   "ertek": 1,
+   "forras": "Echolot get_news (source+date), cím+lead regex",
+   "o": 0,
+   "reszlet": {
+    "cikkszam": {
+     "magyarnemzet": 1
+    },
+    "cimek": {
+     "magyarnemzet": [
+      "Segített az infláció, csökkent az alapkamat"
+     ]
+    }
+   }
+  },
+  "mnb-2608-s3": {
+   "ertek": 0,
+   "forras": "Echolot get_news (source+date), cím+lead regex",
+   "o": 0,
+   "reszlet": {
+    "cikkszam": {
+     "magyarnemzet": 1,
+     "telex": 1
+    },
+    "cimek": {
+     "magyarnemzet": [
+      "Segített az infláció, csökkent az alapkamat"
+     ],
+     "telex": [
+      "5,5 százalékra csökkentette az alapkamatot a Magyar Nemzeti Bank"
+     ]
+    }
+   }
+  },
+  "mnb-2609-p1": {
+   "ertek": 0.698,
+   "forras": "Makronóm yfinance history EURHUF=X",
+   "o": 0,
+   "reszlet": {
+    "alap": {
+     "close": 364.158,
+     "date": "2026-09-21"
+    },
+    "cel": {
+     "close": 366.7,
+     "date": "2026-10-06"
+    }
+   }
+  },
+  "mnb-2609-p2": {
+   "ertek": 0.698,
+   "forras": "Makronóm yfinance history EURHUF=X",
+   "o": 1,
+   "reszlet": {
+    "alap": {
+     "close": 364.158,
+     "date": "2026-09-21"
+    },
+    "cel": {
+     "close": 366.7,
+     "date": "2026-10-06"
+    }
+   }
+  },
+  "mnb-2609-p3": {
+   "ertek": 5.5,
+   "forras": "Makronóm get_macro_indicator policy_rate HU",
+   "o": 0,
+   "reszlet": {
+    "cel": {
+     "effective_from": "2026-08-26",
+     "source": "MNB jegybanki alapkamat (döntések, hatálybalépés szerint)",
+     "value": 5.5
+    },
+    "referencia": {
+     "effective_from": "2026-08-26",
+     "source": "MNB jegybanki alapkamat (döntések, hatálybalépés szerint)",
+     "value": 5.5
+    }
+   }
+  },
+  "mnb-2609-s1": {
+   "ertek": 3,
+   "forras": "Echolot get_news (source+date), cím+lead regex",
+   "o": 1,
+   "reszlet": {
+    "cikkszam": {
+     "telex": 3
+    },
+    "cimek": {
+     "telex": [
+      "Mozdulatlanul hagyta a jegybank az alapkamatot, csökkentette az inflációs célt",
+      "Idén lassabb növekedést, jövőre nagyobb inflációt vár az MNB",
+      "2028-ig fékezi a magyar gazdaságot az alacsonyabb inflációs cél, de hosszú távon megéri"
+     ]
+    }
+   }
+  },
+  "mnb-2609-s2": {
+   "ertek": 1,
+   "forras": "Echolot get_news (source+date), cím+lead regex",
+   "o": 0,
+   "reszlet": {
+    "cikkszam": {
+     "magyarnemzet": 1
+    },
+    "cimek": {
+     "magyarnemzet": [
+      "Változatlanul hagyta az alapkamatot a jegybank"
+     ]
+    }
+   }
+  },
+  "mnb-2609-s3": {
+   "ertek": -2,
+   "forras": "Echolot get_news (source+date), cím+lead regex",
+   "o": 0,
+   "reszlet": {
+    "cikkszam": {
+     "magyarnemzet": 1,
+     "telex": 3
+    },
+    "cimek": {
+     "magyarnemzet": [
+      "Változatlanul hagyta az alapkamatot a jegybank"
+     ],
+     "telex": [
+      "Mozdulatlanul hagyta a jegybank az alapkamatot, csökkentette az inflációs célt",
+      "Idén lassabb növekedést, jövőre nagyobb inflációt vár az MNB",
+      "2028-ig fékezi a magyar gazdaságot az alacsonyabb inflációs cél, de hosszú távon megéri"
+     ]
+    }
+   }
+  },
+  "mnm-2609-s1": {
+   "ertek": 1,
+   "forras": "Echolot get_news (source+date), cím+lead regex",
+   "o": 0,
+   "reszlet": {
+    "cikkszam": {
+     "telex": 1
+    },
+    "cimek": {
+     "telex": [
+      "Tarr Zoltán bejelentette, megszüntetik a Magyar Nemzeti Múzeum Közgyűjteményi Központot"
+     ]
+    }
+   }
+  },
+  "mnm-2609-s2": {
+   "ertek": 2,
+   "forras": "Echolot get_news (source+date), cím+lead regex",
+   "o": 0,
+   "reszlet": {
+    "cikkszam": {
+     "magyarnemzet": 2
+    },
+    "cimek": {
+     "magyarnemzet": [
+      "Az MNM Közgyűjteményi Központ megszüntetése és az intézmények önállóságának visszaadása önmagában nem garancia arra, hogy jobban műk...",
+      "Nem biztos, hogy a múzeumok szétszedése a megoldás"
+     ]
+    }
+   }
+  },
+  "mnm-2609-s3": {
+   "ertek": 1,
+   "forras": "Echolot get_news (source+date), cím+lead regex",
+   "o": 1,
+   "reszlet": {
+    "cikkszam": {
+     "magyarnemzet": 2,
+     "telex": 1
+    },
+    "cimek": {
+     "magyarnemzet": [
+      "Az MNM Közgyűjteményi Központ megszüntetése és az intézmények önállóságának visszaadása önmagában nem garancia arra, hogy jobban műk...",
+      "Nem biztos, hogy a múzeumok szétszedése a megoldás"
+     ],
+     "telex": [
+      "Tarr Zoltán bejelentette, megszüntetik a Magyar Nemzeti Múzeum Közgyűjteményi Központot"
+     ]
+    }
+   }
+  },
+  "mnm-2609-t1": {
+   "ertek": 0,
+   "forras": "Echolot get_news (source+date), cím+lead regex",
+   "o": 0,
+   "reszlet": {
+    "cikkszam": {
+     "telex": 0
+    },
+    "cimek": {
+     "telex": []
+    }
+   }
+  }
+ },
+ "szamolva": "2026-11-22T19:48:37.021557+00:00"
+}
