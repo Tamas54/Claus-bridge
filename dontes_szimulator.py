@@ -115,6 +115,11 @@ GAZDASAGI_ELLENORZES = {"inflation": "KSH/Eurostat — Makronóm get_macro_indic
                         "fx": "Yahoo/MNB — Makronóm yfinance({s}, history) az adott napon"}
 
 
+#: BACKTESZT (szim_backteszt.py): lépésnév → KÖTÖTT modell. A `futtat(modellek=…)` állítja; üres = a kapu választ.
+KOTOTT_MODELLEK: contextvars.ContextVar[dict | None] = contextvars.ContextVar("szimulator_kotott_modellek",
+                                                                               default=None)
+
+
 def max_usd() -> float:
     try:
         return max(0.05, float(os.environ.get("SZIMULATOR_MAX_USD", "") or 1.5))
@@ -928,14 +933,24 @@ async def llm_lepes(nev: str, system: str, user: str, keret: Keret) -> tuple[dic
     payload = {"messages": [{"role": "system", "content": system}, {"role": "user", "content": user}],
                "max_tokens": KIMENET[nev]}
     cel = CELOK[nev]
-    szint, _ = llm_kapu.szint_valaszt(payload, cel)
-    becsles = becsles_usd(szint, len(system) + len(user), KIMENET[nev])
+    kotott = (KOTOTT_MODELLEK.get() or {}).get(nev)
+    if kotott:                       # backteszt: kötött modell (szim_backteszt.kotott_chat), a kapu nem választ
+        import szim_backteszt
+        becsles = szim_backteszt.becsles_usd(kotott, len(system) + len(user), KIMENET[nev])
+    else:
+        szint, _ = llm_kapu.szint_valaszt(payload, cel)
+        becsles = becsles_usd(szint, len(system) + len(user), KIMENET[nev])
     if not keret.foglal(becsles, nev):
         return None, {"kihagyva": f"a költségkeret ({keret.max_usd:.2f} $) nem fedezte"}
-    data, err, notes = await llm_kapu.chat(payload, purpose=cel)
+    if kotott:
+        data, err, notes = await szim_backteszt.kotott_chat(payload, purpose=cel, modell=kotott)
+    else:
+        data, err, notes = await llm_kapu.chat(payload, purpose=cel)
     valos = float(((data or {}).get("usage") or {}).get("koltes_usd") or (err or {}).get("koltes_usd") or 0.0)
     keret.lezar(becsles, valos, nev)
     info = {"modell": (data or {}).get("model"), "koltes_usd": round(valos, 5)}
+    if kotott:
+        info["kert_modell"] = kotott
     if notes:
         info["megjegyzes"] = list(notes)
     if err is not None:
@@ -1262,22 +1277,34 @@ def uj_futas_id() -> str:
 
 async def futtat(lepes: str, horizont: str = "", *, get_db, deps: dict | None = None, futas: str | None = None,
                  hiv=None, panel_fn=None, studio: bool = True, max_usd_: float | None = None,
-                 echolot_koz_s: float | None = None, naplozas: bool = True, teljes: bool = False) -> dict:
+                 echolot_koz_s: float | None = None, naplozas: bool = True, teljes: bool | set = False,
+                 as_of: str | date | None = None, modellek: dict | None = None) -> dict:
     """A szimuláció. Alapból GAZDASÁGI mód: terv + DELPHOI-panel + gazdasági előrejelzés + összegzés; `teljes=True`
     mellett a sajtó (Echolot) és a jog (Lexonomics) is fut (a Kommandant, 11-22: „túl drága … a közgazdasági
     közvetlen előrejelzés fontosabb”). Sosem dob: a hibák a kimenet `figyelmeztetesek`-ébe kerülnek, a részeredmény megmarad.
 
     Tesztekhez injektálható: `hiv` (az MCP-hívó, alapból kulso_mcp.hiv), `panel_fn(lepes, orszag)` (a DELPHOI-panel
-    helyett), `studio=False` (nincs Studio-dokumentum). Az LLM-hívás mindig `llm_kapu.chat`."""
+    helyett), `studio=False` (nincs Studio-dokumentum). Az LLM-hívás mindig `llm_kapu.chat`.
+
+    BACKTESZT (szim_backteszt.py): `as_of` — a futás erre a napra „ma”, és a motorok csak az ELŐTTE lévő adatot látják
+    (az időpont-hű adatgyűjtés a szim_backteszt-ben; az előrejelzés ilyenkor NEM kerül a DELPHOI-láncba). `modellek` —
+    lépésnév → kötött modell (pl. {"sajto": "tencent/Hy3"}); a futás `*_info.modell`-jei a valóban futott modellek.
+    `teljes` motorhalmaz is lehet (pl. {"sajto"}): csak ezek futnak a gazdasági mag mellett (a backteszt így futtatja
+    a sajtót ott, ahol a kérdés a sajtóról szól, a jogot nélküle)."""
+    futo = {"sajto", "jog"} if teljes is True else set(teljes or ())
+    teljes = futo == {"sajto", "jog"}
     lepes = (lepes or "").strip()
     horizont = (horizont or "").strip() or ALAP_HORIZONT
     futas = futas or uj_futas_id()
-    ma = datetime.now(timezone.utc).date()
+    ma = date.fromisoformat(str(as_of)[:10]) if as_of else datetime.now(timezone.utc).date()
+    KOTOTT_MODELLEK.set(dict(modellek) if modellek else None)
     hatar_napok = horizont_napok(horizont, ma)
     k = {"ma": ma.isoformat(), "horizont": horizont, "hatar": (ma + timedelta(days=hatar_napok)).isoformat()}
     keret = Keret(max_usd_ if max_usd_ is not None else max_usd())
     r: dict = {"futas": futas, "verzio": VERZIO, "mod": "teljes" if teljes else "gazdasagi", "lepes": lepes, "lepes_hash": _sha(lepes), "horizont": horizont,
                "horizont_vege": k["hatar"], "indult": _most(), "figyelmeztetesek": [], "adathianyok": {}}
+    if as_of:
+        r.update(as_of=ma.isoformat(), modellek_kert=dict(modellek or {}))
     if not llm_kapu.elerheto():
         r.update(allapot="hiba", kesz=_most(), koltseg=keret.allapot())
         r["figyelmeztetesek"].append("nincs ANTHROPIC_API_KEY — a szimulátor csak az Anthropic API-n fut")
@@ -1320,10 +1347,17 @@ async def futtat(lepes: str, horizont: str = "", *, get_db, deps: dict | None = 
             return {"adat": None, "eredmeny": None, "info": {"hiba": f"adatgyűjtés: {type(e).__name__}: {e}"}}
         obj, inf = await llm_fn(lepes, adat, k, keret)
         return {"adat": adat, "eredmeny": obj, "info": inf}
+    hatar = date.fromisoformat(k["hatar"])
+    if as_of:                        # backteszt: időpont-hű adatgyűjtés (szim_backteszt), a szivárgás kimondva
+        import szim_backteszt
+        gy = szim_backteszt.asof_adatgyujtok(terv, hivo, ma, ev, hatar=hatar)
+    else:
+        gy = {"sajto": lambda: sajto_adat(terv, hivo), "piac": lambda: piac_adat(terv, hivo, ev, hatar=hatar, ma=ma),
+              "jog": lambda: jog_adat(terv, hivo)}
     sajto, piac, jog = await asyncio.gather(
-        _ag("sajto", sajto_adat(terv, hivo), sajto_lepes) if teljes else _nem_kert(),
-        _ag("piac", piac_adat(terv, hivo, ev, hatar=date.fromisoformat(k["hatar"]), ma=ma), piac_lepes),
-        _ag("jog", jog_adat(terv, hivo), jog_lepes) if teljes else _nem_kert())
+        _ag("sajto", gy["sajto"](), sajto_lepes) if "sajto" in futo else _nem_kert(),
+        _ag("piac", gy["piac"](), piac_lepes),
+        _ag("jog", gy["jog"](), jog_lepes) if "jog" in futo else _nem_kert())
     r["sajto"], r["piac"], r["jog"] = sajto, piac, jog
     r["gazdasag"] = gazdasagi_tabla((piac.get("adat") or {}).get("alapvonal") or [], piac.get("eredmeny"))
     for nev, ag in (("sajto", sajto), ("piac", piac), ("jog", jog)):
@@ -1361,7 +1395,9 @@ async def futtat(lepes: str, horizont: str = "", *, get_db, deps: dict | None = 
             elore.append(e)
         kimaradt += ki
     r["elorejelzes_kimaradt"] = kimaradt
-    if naplozas and elore:
+    if as_of and naplozas and elore:
+        r["figyelmeztetesek"].append("backteszt: az előrejelzések nem kerültek a DELPHOI-naplóba (utólagos jóslat)")
+    if naplozas and elore and not as_of:
         try:
             elore = naploba(get_db, elore, futas=futas, orszag=terv["orszag"], lepes_hash=r["lepes_hash"])
         except Exception as e:  # noqa: BLE001
@@ -1381,7 +1417,7 @@ async def futtat(lepes: str, horizont: str = "", *, get_db, deps: dict | None = 
     r["koltseg"] = keret.allapot()
     r["forrasnaplo"] = hivo.naplo
     kesz = (piac.get("eredmeny") and ossz and tars.get("ok")
-            and (not teljes or (sajto.get("eredmeny") and jog.get("eredmeny"))))
+            and all(ag.get("eredmeny") for n, ag in (("sajto", sajto), ("jog", jog)) if n in futo))
     r["allapot"] = "kesz" if kesz else "reszleges"
 
     if studio:
