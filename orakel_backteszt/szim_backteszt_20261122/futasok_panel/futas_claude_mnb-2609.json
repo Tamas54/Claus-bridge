@@ -1,0 +1,899 @@
+{
+ "esemeny": "mnb-2609",
+ "ut": "claude",
+ "verzio": "szim-backteszt-v1",
+ "szimulator_verzio": "dontes-szimulator-v2",
+ "szimulator_mod": "gazdasagi",
+ "motorok": [
+  "sajto"
+ ],
+ "as_of": "2026-09-22",
+ "horizont": "59 nap",
+ "horizont_vege": "2026-11-20",
+ "futas": "sz-054a3534",
+ "modellek_kert": {
+  "terv": "claude-sonnet-5-5",
+  "sajto": "claude-sonnet-5-5",
+  "piac": "claude-sonnet-5-5",
+  "jog": "claude-sonnet-5-5",
+  "osszegzes": "claude-sonnet-5-5",
+  "kerdesek": "claude-sonnet-5-5"
+ },
+ "modellek_futott": [
+  "claude-sonnet-5-5",
+  "deepseek-ai/DeepSeek-V4.1-Flash"
+ ],
+ "panel": {
+  "modell": "deepseek-ai/DeepSeek-V4.1-Flash",
+  "kivonat": {
+   "ok": true,
+   "n": 30,
+   "osszkep": 2.575,
+   "semleges_pont": 3.0,
+   "skala": "1 = egyáltalán nem tetszik … 5 = nagyon tetszik (SSR)",
+   "media_etrend": [
+    {
+     "csoport": "jobboldali",
+     "n": 6,
+     "pont": 2.987,
+     "elteres": -0.013
+    },
+    {
+     "csoport": "közmédia",
+     "n": 5,
+     "pont": 2.674,
+     "elteres": -0.326
+    },
+    {
+     "csoport": "baloldali",
+     "n": 8,
+     "pont": 2.554,
+     "elteres": -0.446
+    },
+    {
+     "csoport": "közösségi",
+     "n": 7,
+     "pont": 2.479,
+     "elteres": -0.521
+    },
+    {
+     "csoport": "alig",
+     "n": 4,
+     "pont": 2.042,
+     "elteres": -0.958
+    }
+   ],
+   "bontasok": {
+    "kor": [
+     {
+      "csoport": "50-59",
+      "n": 5,
+      "pont": 2.783,
+      "elteres": -0.217
+     },
+     {
+      "csoport": "60+",
+      "n": 9,
+      "pont": 2.717,
+      "elteres": -0.283
+     },
+     {
+      "csoport": "18-29",
+      "n": 5,
+      "pont": 2.511,
+      "elteres": -0.489
+     },
+     {
+      "csoport": "40-49",
+      "n": 6,
+      "pont": 2.51,
+      "elteres": -0.49
+     },
+     {
+      "csoport": "30-39",
+      "n": 5,
+      "pont": 2.253,
+      "elteres": -0.747
+     }
+    ],
+    "település": [
+     {
+      "csoport": "Budapest",
+      "n": 5,
+      "pont": 2.939,
+      "elteres": -0.061
+     },
+     {
+      "csoport": "község",
+      "n": 10,
+      "pont": 2.578,
+      "elteres": -0.422
+     },
+     {
+      "csoport": "megyeszékhely",
+      "n": 6,
+      "pont": 2.454,
+      "elteres": -0.546
+     },
+     {
+      "csoport": "város",
+      "n": 9,
+      "pont": 2.449,
+      "elteres": -0.551
+     }
+    ],
+    "iskolai végzettség": [
+     {
+      "csoport": "érettségi",
+      "n": 10,
+      "pont": 2.724,
+      "elteres": -0.276
+     },
+     {
+      "csoport": "diploma",
+      "n": 9,
+      "pont": 2.712,
+      "elteres": -0.288
+     },
+     {
+      "csoport": "szakmunkás",
+      "n": 5,
+      "pont": 2.524,
+      "elteres": -0.476
+     },
+     {
+      "csoport": "max 8 általános",
+      "n": 6,
+      "pont": 2.163,
+      "elteres": -0.837
+     }
+    ]
+   },
+   "konfidencia": null,
+   "scope": null,
+   "scope_figyelmeztetes": null,
+   "lefedettseg": null,
+   "modell": "deepseek-ai/DeepSeek-V4.1-Flash|non-think|temp=0.8|k=3|ssr=linear",
+   "megjegyzes": "Szintetikus panel relatív jelzése, nem abszolút mérés és nem közvélemény-kutatás."
+  },
+  "embed_model": "Qwen/Qwen3-Embedding-8B",
+  "korpusz_hash": "1bd5330aec1db3161ee19fb055016008f6f560e22f3eaa7f036458d6842e2e38"
+ },
+ "valaszok": {
+  "mnb-2609-p1": {
+   "p": 0.45,
+   "indok": "Piac: a szimuláció -1 Ft hatást feltételez, ez elhanyagolható a napi zajhoz képest; kiindulás 364,158, enyhe lefelé hajlás, lényegében érmefeldobás."
+  },
+  "mnb-2609-p2": {
+   "p": 0.7,
+   "indok": "Piac: a ±1% kb. ±3,6 Ft; az utolsó 10 záró 362,4–364,8 között mozgott, két hét alatt a sáv valószínű."
+  },
+  "mnb-2609-p3": {
+   "p": 0.04,
+   "indok": "Piac: az alapkamat 5,5% marad (0,85), a horizonton nincs kamatdöntés, a szimuláció szerint sem várható vágás."
+  },
+  "mnb-2609-s1": {
+   "p": 0.35,
+   "indok": "Sajtó: a Telex-cikk szimulációja csak magyarázó jellegű, témába vágó cikk nincs; három cikk egy jegybanki döntésről soknak tűnik."
+  },
+  "mnb-2609-s2": {
+   "p": 0.12,
+   "indok": "Sajtó: a Magyar Nemzet legfeljebb egy-két cikket közölne; három cikk három nap alatt a technikai témáról valószínűtlen."
+  },
+  "mnb-2609-s3": {
+   "p": 0.2,
+   "indok": "Sajtó: a Telex gazdasági tudósítása terjedelmesebb; a Magyar Nemzet többlete kevéssé valószínű, döntetlen esetén a kérdés hamis."
+  }
+ },
+ "kerdes_info": {
+  "modell": "claude-sonnet-5-5",
+  "kert_modell": "claude-sonnet-5-5",
+  "koltes_usd": 0.03135,
+  "szolgaltato": "anthropic"
+ },
+ "szivargas": [
+  "DELPHOI-panel: helyben (plugins/delphoi.py függvényeivel), az as_of előtti napok lapcímeiből injektált korpusszal; a persona-priming a MAI országkonfig (a 2026. áprilisi választás utáni helyzet — 2026-05 után érvényes)",
+  "forecast: a mai adatokból számol — backteszt-módban kihagyva",
+  "forecast_path (a v2 gazdasági ALAPVONALA): as_of paramétere nincs — helyette as_of-hű NAIV pálya: a macro_history utolsó, as_of-kor már közölt értéke változatlanul, 80%-os sávval a saját, as_of előtti h-lépéses változásainak 10–90. percentiliséből (10 év). Ez gyengébb alapvonal, mint az élő SARIMAX+IMF/OECD-pálya",
+  "get_macro_indicator period: a MAI adatközlési évjárat (vintage) értéke — az as_of utáni revízió szivároghat (a Makronóm nem ad as-of vintage-et); a közlési késést konzervatívan kezeljük (havi mutató: as_of hónapja − 2, negyedéves: a negyedév vége + 60 nap < as_of, kamat: az as_of előtti nap)",
+  "politikai helyzet a motorok rendszerpromptjában: a mai DELPHOI-priming (2026-05 után érvényes)",
+  "search_news: csak a MAI naptól visszafelé (1–21 nap) keres, dátumszűrője nincs — as_of-módban helyette a lapok napi hírfolyama (get_news source+date) az as_of előtti napokra, a téma helyben, kulcsszóval szűrve",
+  "source_profile, frame_divergence, regional_framing: a mai naptól visszafelé számolnak (days) — kihagyva; a lap beállítottsága (lean, trust_tier) a cikkek mai metaadatából jön (statikus forrás-címke, nem a kimenetel)",
+  "yfinance: a quote helyett az as_of előtti záróárak (history); az ár = az utolsó as_of előtti záróár, az 52 hetes sáv az as_of előtti 365 napból"
+ ],
+ "allapot": "kesz",
+ "figyelmeztetesek": [],
+ "adathianyok": {
+  "sajto": [
+   "Közmédia (M1, hirado.hu): nincs saját forrásneve az Echolotban — as_of-módban nincs adat (élőben csak a témakeresés találataiból ismerhető fel)",
+   "Global Times: nincs cikk az as_of előtti 3 napban"
+  ],
+  "piac": [
+   "alapvonal HU gdp: a horizonton belül nem jelenik meg új adat a pályán",
+   "forecast {'country': 'HU', 'indicator': 'inflation', 'year': 2026}: backteszt: kihagyva — a mai adatokból számol (szivárgás)",
+   "forecast {'country': 'HU', 'indicator': 'gdp', 'year': 2026}: backteszt: kihagyva — a mai adatokból számol (szivárgás)",
+   "forecast {'country': 'HU', 'indicator': 'unemployment', 'year': 2026}: backteszt: kihagyva — a mai adatokból számol (szivárgás)"
+  ]
+ },
+ "koltseg": {
+  "szimulator": {
+   "usd": 0.1526,
+   "max_usd": 0.8,
+   "lepesek": {
+    "terv": 0.007798,
+    "piac": 0.041308,
+    "sajto": 0.058994,
+    "osszegzes": 0.04445
+   },
+   "kimaradt": []
+  },
+  "kerdesek_usd": 0.03135
+ },
+ "gazdasag": [
+  {
+   "kulcs": "HU:policy_rate",
+   "mutato": "jegybanki alapkamat (%)",
+   "orszag": "HU",
+   "egyseg": "%",
+   "idoszak": "2026-11-20",
+   "ertek": 5.5,
+   "also": null,
+   "felso": null,
+   "naiv": true,
+   "hatarido": "2026-11-20",
+   "forras": "Makronóm get_macro_indicator (MNB jegybanki alapkamat (döntések, hatálybalépés szerint), 2026-09-21)",
+   "modszer": "naiv alapvonal: a mai kamat változatlan",
+   "ellenorzes": "MNB — Makronóm get_macro_indicator(HU, policy_rate, period=2026-11-20)",
+   "hatas": {
+    "valtozas": 0.0,
+    "also": -0.25,
+    "felso": 0.25,
+    "csatorna": "Az alapkamat a lépésben változatlan; a távoli cél 2028-tól hat, a horizonton nincs kamatdöntés.",
+    "alap": "A lépés szövege: 5,50% marad. Az 52 hetes sáv nem áll rendelkezésre, ezért a sáv ±25 bp feltevés egy esetleges döntésre.",
+    "bizonyossag": "magas"
+   },
+   "dontessel": 5.5,
+   "dontessel_also": 5.25,
+   "dontessel_felso": 5.75
+  },
+  {
+   "kulcs": "HU:inflation",
+   "mutato": "infláció (éves, %)",
+   "orszag": "HU",
+   "egyseg": "%",
+   "idoszak": "2026-09",
+   "ertek": 1.15,
+   "also": -0.575,
+   "felso": 2.772,
+   "naiv": false,
+   "hatarido": "2026-11-14",
+   "utolso_teny": {
+    "period": "2026-07",
+    "value": 1.146815
+   },
+   "forras": "Makronóm forecast_path (macro_history BIS long series on consumer prices (WS_LONG_CPI) (BIS WS_LONG_CPI M.HU.771))",
+   "modszer": "SARIMAX + IMF/OECD-horgony, 80%-os sáv a backtesztből",
+   "ellenorzes": "KSH/Eurostat — Makronóm get_macro_indicator(HU, cpi, period=2026-09)",
+   "hatas": {
+    "valtozas": 0.0,
+    "also": -0.1,
+    "felso": 0.1,
+    "csatorna": "A 2028-as cél a horizonton legfeljebb az inflációs várakozásokat érinti, a tényleges árakat alig.",
+    "alap": "Az infláció 1,15%, a cél 2028-ig nem változik. Várakozási hatás feltevés, közvetlen elaszticitás az adatban nincs.",
+    "bizonyossag": "közepes"
+   },
+   "dontessel": 1.15,
+   "dontessel_also": -0.67,
+   "dontessel_felso": 2.87
+  },
+  {
+   "kulcs": "HU:unemployment",
+   "mutato": "munkanélküliségi ráta (%)",
+   "orszag": "HU",
+   "egyseg": "%",
+   "idoszak": "2026-09",
+   "ertek": 4.5,
+   "also": 4.3,
+   "felso": 4.7,
+   "naiv": false,
+   "hatarido": "2026-11-14",
+   "utolso_teny": {
+    "period": "2026-07",
+    "value": 4.5
+   },
+   "forras": "Makronóm forecast_path (macro_history OECD Key Short-Term Economic Indicators (KEI): unemployment rate (OECD KEI HUN.M.UNEMP.PT_LF._T.Y._Z))",
+   "modszer": "SARIMAX + IMF/OECD-horgony, 80%-os sáv a backtesztből",
+   "ellenorzes": "KSH/Eurostat — Makronóm get_macro_indicator(HU, unemployment, period=2026-09)",
+   "hatas": {
+    "valtozas": 0.0,
+    "also": -0.03,
+    "felso": 0.05,
+    "csatorna": "Változatlan kamat és távoli cél: 59 napon belül nincs mérhető munkaerőpiaci hatás.",
+    "alap": "A munkanélküliség 4,5%, a kamatpálya nem változik. Nagyságrendi feltevés.",
+    "bizonyossag": "közepes"
+   },
+   "dontessel": 4.5,
+   "dontessel_also": 4.27,
+   "dontessel_felso": 4.75
+  },
+  {
+   "kulcs": "EURHUF=X",
+   "mutato": "EUR/HUF árfolyam",
+   "orszag": "",
+   "egyseg": "Ft",
+   "idoszak": "2026-11-20",
+   "ertek": 364.158,
+   "also": null,
+   "felso": null,
+   "naiv": true,
+   "hatarido": "2026-11-20",
+   "sav52": [
+    348.463,
+    394.712
+   ],
+   "forras": "Makronóm yfinance (2026-09-21)",
+   "modszer": "naiv alapvonal: a mai árfolyam változatlan (52 hetes sáv: 348.463–394.712)",
+   "ellenorzes": "Yahoo/MNB — Makronóm yfinance(EURHUF=X, history) az adott napon",
+   "hatas": {
+    "valtozas": -1.0,
+    "also": -16.0,
+    "felso": 14.0,
+    "csatorna": "A szigorúbb hosszú távú cél enyhén erősítheti a forintot, de a hatás kicsi.",
+    "alap": "Árfolyam 364,158 Ft, 52 hetes sáv 348,463–394,712, 30 napos változás +0,56% (yfinance). A -1 Ft az én feltevésem.",
+    "bizonyossag": "alacsony"
+   },
+   "dontessel": 363.2,
+   "dontessel_also": 348.2,
+   "dontessel_felso": 378.2
+  }
+ ],
+ "alapvonal": [
+  {
+   "kulcs": "HU:policy_rate",
+   "mutato": "jegybanki alapkamat (%)",
+   "orszag": "HU",
+   "egyseg": "%",
+   "idoszak": "2026-11-20",
+   "ertek": 5.5,
+   "also": null,
+   "felso": null,
+   "naiv": true,
+   "hatarido": "2026-11-20",
+   "forras": "Makronóm get_macro_indicator (MNB jegybanki alapkamat (döntések, hatálybalépés szerint), 2026-09-21)",
+   "modszer": "naiv alapvonal: a mai kamat változatlan",
+   "ellenorzes": "MNB — Makronóm get_macro_indicator(HU, policy_rate, period=2026-11-20)"
+  },
+  {
+   "kulcs": "HU:inflation",
+   "mutato": "infláció (éves, %)",
+   "orszag": "HU",
+   "egyseg": "%",
+   "idoszak": "2026-09",
+   "ertek": 1.15,
+   "also": -0.575,
+   "felso": 2.772,
+   "naiv": false,
+   "hatarido": "2026-11-14",
+   "utolso_teny": {
+    "period": "2026-07",
+    "value": 1.146815
+   },
+   "forras": "Makronóm forecast_path (macro_history BIS long series on consumer prices (WS_LONG_CPI) (BIS WS_LONG_CPI M.HU.771))",
+   "modszer": "SARIMAX + IMF/OECD-horgony, 80%-os sáv a backtesztből",
+   "ellenorzes": "KSH/Eurostat — Makronóm get_macro_indicator(HU, cpi, period=2026-09)"
+  },
+  {
+   "kulcs": "HU:unemployment",
+   "mutato": "munkanélküliségi ráta (%)",
+   "orszag": "HU",
+   "egyseg": "%",
+   "idoszak": "2026-09",
+   "ertek": 4.5,
+   "also": 4.3,
+   "felso": 4.7,
+   "naiv": false,
+   "hatarido": "2026-11-14",
+   "utolso_teny": {
+    "period": "2026-07",
+    "value": 4.5
+   },
+   "forras": "Makronóm forecast_path (macro_history OECD Key Short-Term Economic Indicators (KEI): unemployment rate (OECD KEI HUN.M.UNEMP.PT_LF._T.Y._Z))",
+   "modszer": "SARIMAX + IMF/OECD-horgony, 80%-os sáv a backtesztből",
+   "ellenorzes": "KSH/Eurostat — Makronóm get_macro_indicator(HU, unemployment, period=2026-09)"
+  },
+  {
+   "kulcs": "EURHUF=X",
+   "mutato": "EUR/HUF árfolyam",
+   "orszag": "",
+   "egyseg": "Ft",
+   "idoszak": "2026-11-20",
+   "ertek": 364.158,
+   "also": null,
+   "felso": null,
+   "naiv": true,
+   "hatarido": "2026-11-20",
+   "sav52": [
+    348.463,
+    394.712
+   ],
+   "forras": "Makronóm yfinance (2026-09-21)",
+   "modszer": "naiv alapvonal: a mai árfolyam változatlan (52 hetes sáv: 348.463–394.712)",
+   "ellenorzes": "Yahoo/MNB — Makronóm yfinance(EURHUF=X, history) az adott napon"
+  }
+ ],
+ "piac_eredmeny": {
+  "hatas_szamszeru": [
+   {
+    "kulcs": "HU:policy_rate",
+    "valtozas": 0.0,
+    "also": -0.25,
+    "felso": 0.25,
+    "csatorna": "Az alapkamat a lépésben változatlan; a távoli cél 2028-tól hat, a horizonton nincs kamatdöntés.",
+    "alap": "A lépés szövege: 5,50% marad. Az 52 hetes sáv nem áll rendelkezésre, ezért a sáv ±25 bp feltevés egy esetleges döntésre.",
+    "bizonyossag": "magas"
+   },
+   {
+    "kulcs": "HU:inflation",
+    "valtozas": 0.0,
+    "also": -0.1,
+    "felso": 0.1,
+    "csatorna": "A 2028-as cél a horizonton legfeljebb az inflációs várakozásokat érinti, a tényleges árakat alig.",
+    "alap": "Az infláció 1,15%, a cél 2028-ig nem változik. Várakozási hatás feltevés, közvetlen elaszticitás az adatban nincs.",
+    "bizonyossag": "közepes"
+   },
+   {
+    "kulcs": "HU:unemployment",
+    "valtozas": 0.0,
+    "also": -0.03,
+    "felso": 0.05,
+    "csatorna": "Változatlan kamat és távoli cél: 59 napon belül nincs mérhető munkaerőpiaci hatás.",
+    "alap": "A munkanélküliség 4,5%, a kamatpálya nem változik. Nagyságrendi feltevés.",
+    "bizonyossag": "közepes"
+   },
+   {
+    "kulcs": "EURHUF=X",
+    "valtozas": -1.0,
+    "also": -16.0,
+    "felso": 14.0,
+    "csatorna": "A szigorúbb hosszú távú cél enyhén erősítheti a forintot, de a hatás kicsi.",
+    "alap": "Árfolyam 364,158 Ft, 52 hetes sáv 348,463–394,712, 30 napos változás +0,56% (yfinance). A -1 Ft az én feltevésem.",
+    "bizonyossag": "alacsony"
+   }
+  ],
+  "kiindulas": [
+   {
+    "mutato": "MNB alapkamat",
+    "ertek": "5,5 % p.a.",
+    "idoszak": "2026-09-21",
+    "forras": "get_macro_indicator, MNB jegybanki alapkamat (https://www.mnb.hu/Jegybanki_alapkamat_alakulasa)"
+   },
+   {
+    "mutato": "HICP infláció",
+    "ertek": "1,6 % (éves)",
+    "idoszak": "2026-07",
+    "forras": "get_macro_indicator, Eurostat press release (https://ec.europa.eu/eurostat/web/products-euro-indicators/w/2-16102026-ap)"
+   },
+   {
+    "mutato": "Maginfláció (HICP)",
+    "ertek": "3,7 % (éves)",
+    "idoszak": "2026-07",
+    "forras": "get_macro_indicator, Eurostat prc_hicp_minr"
+   },
+   {
+    "mutato": "Szolgáltatások inflációja",
+    "ertek": "5,3 % (éves)",
+    "idoszak": "2026-07",
+    "forras": "get_macro_indicator, Eurostat prc_hicp_minr"
+   },
+   {
+    "mutato": "Munkanélküliségi ráta",
+    "ertek": "4,5 %",
+    "idoszak": "2026-07",
+    "forras": "get_macro_indicator, Eurostat une_rt_m"
+   },
+   {
+    "mutato": "GDP-növekedés",
+    "ertek": "1,7 % (YoY/QoQ nem megadott)",
+    "idoszak": "2026-Q2",
+    "forras": "get_macro_indicator, Eurostat namq_10_gdp"
+   },
+   {
+    "mutato": "EUR/HUF",
+    "ertek": "364,158 Ft",
+    "idoszak": "2026-09-21",
+    "forras": "yfinance, Yahoo Finance"
+   }
+  ],
+  "hatasok": [
+   {
+    "terulet": "kamat",
+    "irany": "semleges",
+    "becsles": "Az alapkamat 5,50% marad; a horizonton a döntés után nincs változás.",
+    "bizonytalansag": "A következő döntések a lépésen kívüli adatoktól függenek.",
+    "forras": "get_macro_indicator policy_rate",
+    "modszer": "A lépés szövege és a naiv alapvonal."
+   },
+   {
+    "terulet": "infláció",
+    "irany": "semleges",
+    "becsles": "0 pp, sáv ±0,1 pp a horizonton",
+    "bizonytalansag": "A várakozási csatorna mérete ismeretlen.",
+    "forras": "forecast_path inflation",
+    "modszer": "A cél 2028-tól érvényes, a pálya nem változik."
+   },
+   {
+    "terulet": "árfolyam",
+    "irany": "bizonytalan",
+    "becsles": "-1 Ft, teljes sáv kb. -16…+14 Ft",
+    "bizonytalansag": "A piaci mozgás nagyobb a lépés hatásánál.",
+    "forras": "yfinance EURHUF=X",
+    "modszer": "Az 52 hetes sáv nagyságrendje, a hatás analógia."
+   },
+   {
+    "terulet": "növekedés",
+    "irany": "semleges",
+    "becsles": "0 pp a horizonton",
+    "bizonytalansag": "Hosszabb távon a szigorúbb cél kamatigényt növelhet.",
+    "forras": "forecast_path gdp (hiány: nincs új adat a horizonton)",
+    "modszer": "Nincs azonnali kamatváltozás."
+   },
+   {
+    "terulet": "tőkepiac",
+    "irany": "bizonytalan",
+    "becsles": "Nincs számszerűsíthető hatás.",
+    "bizonytalansag": "A BUX 52 hetes csúcs közelében van (152 997), ezért érzékeny a hangnemre.",
+    "forras": "yfinance ^BUX.BD",
+    "modszer": "Kvalitatív, adat hiányában."
+   }
+  ],
+  "nem_modellezheto": [
+   "GDP: a horizonton nincs új adat a pályán, a hatás 0-nak vehető, de nem számszerűsítettük az alapvonalban.",
+   "A 2028-as cél hitelességi hatása a várakozásokra: nincs várakozási (felmérési) adat.",
+   "Költségvetési hatás: nincs államadósság- vagy kamatkiadási adat."
+  ],
+  "elorejelzesek": [
+   {
+    "allitas": "Az MNB alapkamata 2026-11-20-án 5,50%.",
+    "metrika": "MNB jegybanki alapkamat",
+    "kuszob": "= 5,50%",
+    "hatarido": "2026-11-20",
+    "valoszinuseg": 0.85,
+    "feltetel": "lepes",
+    "ellenorzes": "MNB, Jegybanki alapkamat alakulása",
+    "alap": "policy_rate 5,5% (MNB), a lépés is változatlanul hagyja."
+   },
+   {
+    "allitas": "Az EUR/HUF záróárfolyam 2026-11-20-án 350 és 385 Ft között van.",
+    "metrika": "EUR/HUF napi zárás (Yahoo Finance)",
+    "kuszob": "350–385 Ft",
+    "hatarido": "2026-11-20",
+    "valoszinuseg": 0.75,
+    "feltetel": "alap",
+    "ellenorzes": "yfinance EURHUF=X",
+    "alap": "Mai 364,158 Ft; 52 hetes sáv 348,463–394,712."
+   },
+   {
+    "allitas": "A magyar HICP-infláció 2026 októberében 3,0% alatt marad.",
+    "metrika": "Eurostat HICP éves változás, Magyarország",
+    "kuszob": "< 3,0%",
+    "hatarido": "2026-11-20",
+    "valoszinuseg": 0.85,
+    "feltetel": "alap",
+    "ellenorzes": "Eurostat HICP kiadvány",
+    "alap": "HICP 1,6% (2026-07); a pálya 80%-os felső sávja október végére 3,489%."
+   }
+  ]
+ },
+ "szimulator_eredmeny": {
+  "terv": {
+   "rovid_cim": "MNB inflációs cél 2,5%-ra 2028-tól",
+   "orszag": "HU",
+   "kereses": {
+    "hu": "MNB inflációs cél",
+    "en": "Hungary inflation target",
+    "de": "Ungarn Inflationsziel"
+   },
+   "makro": [
+    {
+     "country": "HU",
+     "indicator": "policy_rate"
+    },
+    {
+     "country": "HU",
+     "indicator": "cpi"
+    },
+    {
+     "country": "HU",
+     "indicator": "core_cpi"
+    },
+    {
+     "country": "HU",
+     "indicator": "services_cpi"
+    },
+    {
+     "country": "HU",
+     "indicator": "gdp_growth"
+    },
+    {
+     "country": "HU",
+     "indicator": "unemployment"
+    }
+   ],
+   "elorejelzes": [
+    {
+     "country": "HU",
+     "indicator": "inflation"
+    },
+    {
+     "country": "HU",
+     "indicator": "gdp"
+    },
+    {
+     "country": "HU",
+     "indicator": "unemployment"
+    }
+   ],
+   "piaci": [
+    "EURHUF=X",
+    "^BUX.BD",
+    "OTP.BD",
+    "MOL.BD"
+   ],
+   "jog": {
+    "hivatkozasok": [
+     "Alaptörvény 41. cikk",
+     "2013. évi CXXXIX. törvény (MNB tv.) 3. §",
+     "2013. évi CXXXIX. törvény (MNB tv.) 12. §",
+     "Alaptörvény 41. cikk (1) bekezdés"
+    ],
+    "kifejezesek": [
+     "Magyar Nemzeti Bank árstabilitás elsődleges cél",
+     "Monetáris Tanács inflációs cél meghatározása",
+     "jegybank függetlensége"
+    ],
+    "dontesek": [
+     "Magyar Nemzeti Bank jegybanki függetlenség",
+     "árstabilitás monetáris politika Alkotmánybíróság"
+    ]
+   }
+  },
+  "osszegzes": {
+   "osszegzes": "Az alapkamat 5,50% marad (sáv 5,25–5,75%), az infláció 1,15% marad (sáv −0,67…2,87%), a munkanélküliség 4,5% (4,27–4,75%), az EUR/HUF 364,2 → 363,2 Ft (348,2–378,2); a 2028-as cél a 59 napos horizonton gyakorlatilag nem hat (gazdasági előrejelzés, MNB/Eurostat/yfinance). A legnagyobb ellenállás a hitelességi és teherkérdés: a sajtó szerint a cél messze van, a kamat marad. A szintetikus panel enyhén a semleges alatt van (2,575 a 3,0-hoz képest). Bizonytalan a várakozási csatorna: erről nincs felmérési adat.",
+   "fo_megallapitasok": [
+    "Gazdaság: a lépés a horizonton számszerűen szinte semleges, az árfolyamhatás (−1 Ft) a sávon belül elvész, bizonyossága alacsony (gazdasági előrejelzés, yfinance).",
+    "Társadalom: az összkép 2,575, a semleges pont alatt; a legkevésbé tetszik az alig médiát fogyasztóknak (2,042) és a max 8 általánost végzetteknek (2,163) (DELPHOI panel).",
+    "Sajtó: a tényközlés egységes, a keret eltér; a kritikus lapok (444, Magyar Nemzet) a távoli dátumot és a megmaradó kamatterhet emelik ki (Echolot).",
+    "Piac: a kamat változatlansága miatt a hitelesek nem számíthatnak könnyebbségre, a maginfláció 3,7%, a szolgáltatásoké 5,3% (Eurostat, 2026-07)."
+   ],
+   "tarsadalom_ertelmezes": "A panel összképe 2,575, a 3,0-s semleges pont alatt, vagyis a bejelentés inkább kevésbé tetszik. A jobboldali médiát fogyasztók (−0,013) és Budapest (−0,061) közel semleges, a 30–39 évesek (−0,747) és az alig médiát fogyasztók (−0,958) a legkritikusabbak. A közmédia-fogyasztók (−0,326) sem lelkesek. Ez relatív jelzés, nem közvélemény-kutatás.",
+   "bizonytalansag": "Nincs felmérési adat az inflációs várakozásokról, így a cél hitelességi hatása nem számszerűsíthető. A panel kicsi (n=30), a sajtócikkek többsége szimulált.",
+   "kockazati_terkep": [
+    {
+     "kockazat": "A távoli cél üres ígéretnek tűnik, mert a mostani kamatteher nem enyhül.",
+     "terulet": "sajtó",
+     "valoszinuseg": "magas",
+     "sulyossag": "közepes",
+     "jel": "444, Telex, Index belekötői: 2028 messze, kamat marad"
+    },
+    {
+     "kockazat": "A cél hitelessége sérül, ha a maginfláció magas marad.",
+     "terulet": "gazdaság",
+     "valoszinuseg": "közepes",
+     "sulyossag": "közepes",
+     "jel": "Maginfláció 3,7%, szolgáltatások 5,3% (Eurostat)"
+    },
+    {
+     "kockazat": "A kormány gazdaságpolitikájához kötött kritika politikai keretet kap a döntésből.",
+     "terulet": "sajtó",
+     "valoszinuseg": "közepes",
+     "sulyossag": "alacsony",
+     "jel": "Magyar Nemzet lead: Tisza-kormány gazdaságpolitikája"
+    },
+    {
+     "kockazat": "A kevésbé tájékozott, alacsony végzettségű csoportok elutasítóbbak.",
+     "terulet": "társadalom",
+     "valoszinuseg": "közepes",
+     "sulyossag": "közepes",
+     "jel": "Max 8 általános 2,163, alig média 2,042"
+    },
+    {
+     "kockazat": "A BUX csúcs közelében hangnemérzékeny, az árfolyam mozgása felülírhatja a lépés hatását.",
+     "terulet": "gazdaság",
+     "valoszinuseg": "alacsony",
+     "sulyossag": "alacsony",
+     "jel": "EUR/HUF sáv −16…+14 Ft, BUX 152 997"
+    }
+   ],
+   "modositasok": [
+    {
+     "javaslat": "A közleménybe kerüljön be egy mondat: a kamatpálya a mindenkori inflációs adatoktól függ, a 2028-as cél a hosszú távú horgony, a jelenlegi döntés nem ígér kamatvágást.",
+     "mit_csokkent": "üres ígéret és hitelességi kritika",
+     "ara": "Kisebb mozgástér, szigorúbb elvárás a következő döntésekre."
+    },
+    {
+     "javaslat": "Egyszerű magyarázó üzenet a hitelesek és családok számára: mit jelent a 2,5% a bérekre és a törlesztőre 2028-tól.",
+     "mit_csokkent": "alacsony végzettségűek elutasítása",
+     "ara": "Kommunikációs költség, a vállalás könnyebben számonkérhető."
+    },
+    {
+     "javaslat": "A bejelentést kösse a jegybank a maginfláció és szolgáltatásinfláció csökkenési pályájának nyilvános bemutatásához.",
+     "mit_csokkent": "hitelességi kockázat",
+     "ara": "A pálya elmulasztása később ellenük szólhat."
+    }
+   ],
+   "elorejelzesek": [
+    {
+     "allitas": "A DELPHOI-szerű reprezentatív kutatás szerint a lakosság többsége nem ismeri a 2028-as inflációs cél módosítását.",
+     "metrika": "Reprezentatív közvélemény-kutatás: a cél ismertsége",
+     "kuszob": "ismeri < 50%",
+     "hatarido": "2026-11-20",
+     "valoszinuseg": 0.6,
+     "feltetel": "lepes",
+     "ellenorzes": "Nyilvános közvélemény-kutatások (pl. Medián, Publicus, Závecz); ha nincs ilyen, a állítás nem értékelhető",
+     "alap": "Panel összképe 2,575 és a sajtó szerint a téma távoli; közvetlen ismertségi adat nincs"
+    }
+   ]
+  },
+  "elorejelzesek": [
+   {
+    "terulet": "piac",
+    "allitas": "jegybanki alapkamat (%) (HU 2026-11-20): 5,25 és 5,75 % között lesz, ha a lépés megtörténik (alapvonal nélküle: 5,50)",
+    "feltetel": "lepes",
+    "metrika": "jegybanki alapkamat (%)",
+    "kuszob": "5,25–5,75 %",
+    "hatarido": "2026-11-20",
+    "valoszinuseg": 0.8,
+    "ellenorzes": "MNB — Makronóm get_macro_indicator(HU, policy_rate, period=2026-11-20)",
+    "alap": "naiv alapvonal: a mai kamat változatlan; a lépés hatása: Az alapkamat a lépésben változatlan; a távoli cél 2028-tól hat, a horizonton nincs kamatdöntés.",
+    "modell": "claude-sonnet-5-5"
+   },
+   {
+    "terulet": "piac",
+    "allitas": "infláció (éves, %) (HU 2026-09): -0,67 és 2,87 % között lesz, ha a lépés megtörténik (alapvonal nélküle: 1,15)",
+    "feltetel": "lepes",
+    "metrika": "infláció (éves, %)",
+    "kuszob": "-0,67–2,87 %",
+    "hatarido": "2026-11-14",
+    "valoszinuseg": 0.8,
+    "ellenorzes": "KSH/Eurostat — Makronóm get_macro_indicator(HU, cpi, period=2026-09)",
+    "alap": "SARIMAX + IMF/OECD-horgony, 80%-os sáv a backtesztből; a lépés hatása: A 2028-as cél a horizonton legfeljebb az inflációs várakozásokat érinti, a tényleges árakat alig.",
+    "modell": "claude-sonnet-5-5"
+   },
+   {
+    "terulet": "piac",
+    "allitas": "munkanélküliségi ráta (%) (HU 2026-09): 4,27 és 4,75 % között lesz, ha a lépés megtörténik (alapvonal nélküle: 4,50)",
+    "feltetel": "lepes",
+    "metrika": "munkanélküliségi ráta (%)",
+    "kuszob": "4,27–4,75 %",
+    "hatarido": "2026-11-14",
+    "valoszinuseg": 0.8,
+    "ellenorzes": "KSH/Eurostat — Makronóm get_macro_indicator(HU, unemployment, period=2026-09)",
+    "alap": "SARIMAX + IMF/OECD-horgony, 80%-os sáv a backtesztből; a lépés hatása: Változatlan kamat és távoli cél: 59 napon belül nincs mérhető munkaerőpiaci hatás.",
+    "modell": "claude-sonnet-5-5"
+   },
+   {
+    "terulet": "piac",
+    "allitas": "EUR/HUF árfolyam (2026-11-20): 348,2 és 378,2 Ft között lesz, ha a lépés megtörténik (alapvonal nélküle: 364,2)",
+    "feltetel": "lepes",
+    "metrika": "EUR/HUF árfolyam",
+    "kuszob": "348,2–378,2 Ft",
+    "hatarido": "2026-11-20",
+    "valoszinuseg": 0.8,
+    "ellenorzes": "Yahoo/MNB — Makronóm yfinance(EURHUF=X, history) az adott napon",
+    "alap": "naiv alapvonal: a mai árfolyam változatlan (52 hetes sáv: 348.463–394.712); a lépés hatása: A szigorúbb hosszú távú cél enyhén erősítheti a forintot, de a hatás kicsi.",
+    "modell": "claude-sonnet-5-5"
+   },
+   {
+    "terulet": "sajto",
+    "allitas": "A bejelentést követő 3 napban az Index és a Telex is közöl legalább egy cikket a jegybanki döntésről.",
+    "feltetel": "lepes",
+    "metrika": "Az Index és a Telex jegybanki döntésről szóló cikkeinek száma az Echolot-korpuszban",
+    "kuszob": "mindkét lapnál ≥ 1 cikk a bejelentéstől számított 3 napon belül",
+    "hatarido": "2026-09-25",
+    "valoszinuseg": 0.85,
+    "ellenorzes": "Echolot get_news, lap + dátum + kulcsszó (MNB, inflációs cél)",
+    "alap": "Az Index és a Telex napi cikkszáma (92,3 és 61,3) az Echolot profiljából",
+    "modell": "claude-sonnet-5-5"
+   },
+   {
+    "terulet": "sajto",
+    "allitas": "A Magyar Nemzet a bejelentést követő 7 napban legalább egy, a döntést a kormány gazdaságpolitikájához kötő vagy kritikusan kezelő cikket közöl.",
+    "feltetel": "lepes",
+    "metrika": "Magyar Nemzet cikkei az Echolot-korpuszban, kézi kerettartalom-ellenőrzéssel",
+    "kuszob": "≥ 1 kormánykritikus keretű cikk 7 napon belül",
+    "hatarido": "2026-09-29",
+    "valoszinuseg": 0.55,
+    "ellenorzes": "Echolot get_news Magyar Nemzet, kulcsszó: inflációs cél, jegybank",
+    "alap": "A Magyar Nemzet jobboldali lean-je és ellenzéki szerepe (Echolot profil)",
+    "modell": "claude-sonnet-5-5"
+   },
+   {
+    "terulet": "sajto",
+    "allitas": "A Der Spiegel a bejelentést követő 7 napban nem közöl önálló cikket az MNB inflációs cél-döntéséről.",
+    "feltetel": "lepes",
+    "metrika": "Der Spiegel MNB-ről szóló cikkeinek száma az Echolot-korpuszban",
+    "kuszob": "0 önálló cikk 7 napon belül",
+    "hatarido": "2026-09-29",
+    "valoszinuseg": 0.7,
+    "ellenorzes": "Echolot get_news Der Spiegel, kulcsszó: Ungarn, Inflationsziel, Notenbank",
+    "alap": "A Spiegel egyetlen témába vágó cikke a dízelkompenzációról szól (2026-09-20), jegybanki cikk nincs",
+    "modell": "claude-sonnet-5-5"
+   },
+   {
+    "terulet": "piac",
+    "allitas": "Az MNB alapkamata 2026-11-20-án 5,50%.",
+    "feltetel": "lepes",
+    "metrika": "MNB jegybanki alapkamat",
+    "kuszob": "= 5,50%",
+    "hatarido": "2026-11-20",
+    "valoszinuseg": 0.85,
+    "ellenorzes": "MNB, Jegybanki alapkamat alakulása",
+    "alap": "policy_rate 5,5% (MNB), a lépés is változatlanul hagyja.",
+    "modell": "claude-sonnet-5-5"
+   },
+   {
+    "terulet": "piac",
+    "allitas": "Az EUR/HUF záróárfolyam 2026-11-20-án 350 és 385 Ft között van.",
+    "feltetel": "alap",
+    "metrika": "EUR/HUF napi zárás (Yahoo Finance)",
+    "kuszob": "350–385 Ft",
+    "hatarido": "2026-11-20",
+    "valoszinuseg": 0.75,
+    "ellenorzes": "yfinance EURHUF=X",
+    "alap": "Mai 364,158 Ft; 52 hetes sáv 348,463–394,712.",
+    "modell": "claude-sonnet-5-5"
+   },
+   {
+    "terulet": "piac",
+    "allitas": "A magyar HICP-infláció 2026 októberében 3,0% alatt marad.",
+    "feltetel": "alap",
+    "metrika": "Eurostat HICP éves változás, Magyarország",
+    "kuszob": "< 3,0%",
+    "hatarido": "2026-11-20",
+    "valoszinuseg": 0.85,
+    "ellenorzes": "Eurostat HICP kiadvány",
+    "alap": "HICP 1,6% (2026-07); a pálya 80%-os felső sávja október végére 3,489%.",
+    "modell": "claude-sonnet-5-5"
+   },
+   {
+    "terulet": "tarsadalom",
+    "allitas": "A DELPHOI-szerű reprezentatív kutatás szerint a lakosság többsége nem ismeri a 2028-as inflációs cél módosítását.",
+    "feltetel": "lepes",
+    "metrika": "Reprezentatív közvélemény-kutatás: a cél ismertsége",
+    "kuszob": "ismeri < 50%",
+    "hatarido": "2026-11-20",
+    "valoszinuseg": 0.6,
+    "ellenorzes": "Nyilvános közvélemény-kutatások (pl. Medián, Publicus, Závecz); ha nincs ilyen, a állítás nem értékelhető",
+    "alap": "Panel összképe 2,575 és a sajtó szerint a téma távoli; közvetlen ismertségi adat nincs",
+    "modell": "claude-sonnet-5-5"
+   }
+  ],
+  "elorejelzes_kimaradt": []
+ },
+ "motor_info": {
+  "sajto": {
+   "modell": "claude-sonnet-5-5",
+   "koltes_usd": 0.05899,
+   "kert_modell": "claude-sonnet-5-5"
+  },
+  "piac": {
+   "modell": "claude-sonnet-5-5",
+   "koltes_usd": 0.04131,
+   "kert_modell": "claude-sonnet-5-5"
+  },
+  "jog": {
+   "nem_kert": true
+  },
+  "terv": {
+   "modell": "claude-sonnet-5-5",
+   "koltes_usd": 0.0078,
+   "kert_modell": "claude-sonnet-5-5"
+  },
+  "osszegzes": {
+   "modell": "claude-sonnet-5-5",
+   "koltes_usd": 0.04445,
+   "kert_modell": "claude-sonnet-5-5"
+  }
+ },
+ "kesz": "2026-11-22T22:25:31.631504+00:00"
+}

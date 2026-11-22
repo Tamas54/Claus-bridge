@@ -1,0 +1,781 @@
+{
+ "esemeny": "fed-2610",
+ "ut": "claude",
+ "verzio": "szim-backteszt-v1",
+ "szimulator_verzio": "dontes-szimulator-v2",
+ "szimulator_mod": "gazdasagi",
+ "motorok": [
+  "sajto"
+ ],
+ "as_of": "2026-10-28",
+ "horizont": "23 nap",
+ "horizont_vege": "2026-11-20",
+ "futas": "sz-9971437a",
+ "modellek_kert": {
+  "terv": "claude-sonnet-5-5",
+  "sajto": "claude-sonnet-5-5",
+  "piac": "claude-sonnet-5-5",
+  "jog": "claude-sonnet-5-5",
+  "osszegzes": "claude-sonnet-5-5",
+  "kerdesek": "claude-sonnet-5-5"
+ },
+ "modellek_futott": [
+  "claude-sonnet-5-5",
+  "deepseek-ai/DeepSeek-V4.1-Flash"
+ ],
+ "panel": {
+  "modell": "deepseek-ai/DeepSeek-V4.1-Flash",
+  "kivonat": {
+   "ok": true,
+   "n": 30,
+   "osszkep": 1.8,
+   "semleges_pont": 3.0,
+   "skala": "1 = egyáltalán nem tetszik … 5 = nagyon tetszik (SSR)",
+   "media_etrend": [
+    {
+     "csoport": "baloldali",
+     "n": 8,
+     "pont": 1.986,
+     "elteres": -1.014
+    },
+    {
+     "csoport": "jobboldali",
+     "n": 6,
+     "pont": 1.793,
+     "elteres": -1.207
+    },
+    {
+     "csoport": "közösségi",
+     "n": 7,
+     "pont": 1.734,
+     "elteres": -1.266
+    },
+    {
+     "csoport": "közmédia",
+     "n": 5,
+     "pont": 1.695,
+     "elteres": -1.305
+    },
+    {
+     "csoport": "alig",
+     "n": 4,
+     "pont": 1.685,
+     "elteres": -1.315
+    }
+   ],
+   "bontasok": {
+    "kor": [
+     {
+      "csoport": "18-29",
+      "n": 5,
+      "pont": 1.86,
+      "elteres": -1.14
+     },
+     {
+      "csoport": "40-49",
+      "n": 6,
+      "pont": 1.844,
+      "elteres": -1.156
+     },
+     {
+      "csoport": "30-39",
+      "n": 5,
+      "pont": 1.815,
+      "elteres": -1.185
+     },
+     {
+      "csoport": "50-59",
+      "n": 5,
+      "pont": 1.778,
+      "elteres": -1.222
+     },
+     {
+      "csoport": "60+",
+      "n": 9,
+      "pont": 1.742,
+      "elteres": -1.258
+     }
+    ],
+    "település": [
+     {
+      "csoport": "község",
+      "n": 10,
+      "pont": 1.871,
+      "elteres": -1.129
+     },
+     {
+      "csoport": "Budapest",
+      "n": 5,
+      "pont": 1.843,
+      "elteres": -1.157
+     },
+     {
+      "csoport": "város",
+      "n": 9,
+      "pont": 1.775,
+      "elteres": -1.225
+     },
+     {
+      "csoport": "megyeszékhely",
+      "n": 6,
+      "pont": 1.683,
+      "elteres": -1.317
+     }
+    ],
+    "iskolai végzettség": [
+     {
+      "csoport": "szakmunkás",
+      "n": 5,
+      "pont": 1.854,
+      "elteres": -1.146
+     },
+     {
+      "csoport": "diploma",
+      "n": 9,
+      "pont": 1.829,
+      "elteres": -1.171
+     },
+     {
+      "csoport": "max 8 általános",
+      "n": 6,
+      "pont": 1.777,
+      "elteres": -1.223
+     },
+     {
+      "csoport": "érettségi",
+      "n": 10,
+      "pont": 1.761,
+      "elteres": -1.239
+     }
+    ]
+   },
+   "konfidencia": null,
+   "scope": null,
+   "scope_figyelmeztetes": null,
+   "lefedettseg": null,
+   "modell": "deepseek-ai/DeepSeek-V4.1-Flash|non-think|temp=0.8|k=3|ssr=linear",
+   "megjegyzes": "Szintetikus panel relatív jelzése, nem abszolút mérés és nem közvélemény-kutatás."
+  },
+  "embed_model": "Qwen/Qwen3-Embedding-8B",
+  "korpusz_hash": "d60853751090fb668cc26911d0256eb19ddf0883a93f4790aec8170458a81e7b"
+ },
+ "valaszok": {
+  "fed-2610-p1": {
+   "p": 0.52,
+   "indok": "Piaci motor: a lépés semleges, a piaci várakozás ismeretlen; a dollár 30 napos erősödése enyhén lefelé húz, de ez közel érmefeldobás."
+  },
+  "fed-2610-p2": {
+   "p": 0.8,
+   "indok": "Piaci motor: az EUR/USD ±0,02 sávja kb. ±1,8%, a döntés semleges; 15 napos horizonton a ±1% sáv valószínű."
+  },
+  "fed-2610-s1": {
+   "p": 0.35,
+   "indok": "Sajtó: a Telex rövid, hazai vonatkozású hírt hozhat, a szimuláció 0,7-et ad legalább egy cikkre. Két cikk kevésbé valószínű."
+  },
+  "fed-2610-s2": {
+   "p": 0.12,
+   "indok": "Sajtó: a Magyar Nemzet hazai kormányos keretet kötne hozzá, de a szimuláció szerint ez csak 0,2; két cikk valószínűtlen."
+  },
+  "fed-2610-s3": {
+   "p": 0.15,
+   "indok": "Sajtó: a Telex gazdasági rovata aktívabb, a Magyar Nemzet csak alacsony bizonyosságú, 0,2-es kötéssel; így a megelőzés valószínűtlen."
+  }
+ },
+ "kerdes_info": {
+  "modell": "claude-sonnet-5-5",
+  "kert_modell": "claude-sonnet-5-5",
+  "koltes_usd": 0.02782,
+  "szolgaltato": "anthropic"
+ },
+ "szivargas": [
+  "DELPHOI-panel: helyben (plugins/delphoi.py függvényeivel), az as_of előtti napok lapcímeiből injektált korpusszal; a persona-priming a MAI országkonfig (a 2026. áprilisi választás utáni helyzet — 2026-05 után érvényes)",
+  "forecast: a mai adatokból számol — backteszt-módban kihagyva",
+  "forecast_path (a v2 gazdasági ALAPVONALA): as_of paramétere nincs — helyette as_of-hű NAIV pálya: a macro_history utolsó, as_of-kor már közölt értéke változatlanul, 80%-os sávval a saját, as_of előtti h-lépéses változásainak 10–90. percentiliséből (10 év). Ez gyengébb alapvonal, mint az élő SARIMAX+IMF/OECD-pálya",
+  "get_macro_indicator period: a MAI adatközlési évjárat (vintage) értéke — az as_of utáni revízió szivároghat (a Makronóm nem ad as-of vintage-et); a közlési késést konzervatívan kezeljük (havi mutató: as_of hónapja − 2, negyedéves: a negyedév vége + 60 nap < as_of, kamat: az as_of előtti nap)",
+  "politikai helyzet a motorok rendszerpromptjában: a mai DELPHOI-priming (2026-05 után érvényes)",
+  "search_news: csak a MAI naptól visszafelé (1–21 nap) keres, dátumszűrője nincs — as_of-módban helyette a lapok napi hírfolyama (get_news source+date) az as_of előtti napokra, a téma helyben, kulcsszóval szűrve",
+  "source_profile, frame_divergence, regional_framing: a mai naptól visszafelé számolnak (days) — kihagyva; a lap beállítottsága (lean, trust_tier) a cikkek mai metaadatából jön (statikus forrás-címke, nem a kimenetel)",
+  "yfinance: a quote helyett az as_of előtti záróárak (history); az ár = az utolsó as_of előtti záróár, az 52 hetes sáv az as_of előtti 365 napból"
+ ],
+ "allapot": "kesz",
+ "figyelmeztetesek": [],
+ "adathianyok": {
+  "sajto": [
+   "Közmédia (M1, hirado.hu): nincs saját forrásneve az Echolotban — as_of-módban nincs adat (élőben csak a témakeresés találataiból ismerhető fel)",
+   "Global Times: nincs cikk az as_of előtti 3 napban"
+  ],
+  "piac": [
+   "alapvonal US gdp: a horizonton belül nem jelenik meg új adat a pályán",
+   "forecast {'country': 'US', 'indicator': 'inflation', 'year': 2026}: backteszt: kihagyva — a mai adatokból számol (szivárgás)",
+   "forecast {'country': 'US', 'indicator': 'gdp', 'year': 2026}: backteszt: kihagyva — a mai adatokból számol (szivárgás)",
+   "forecast {'country': 'US', 'indicator': 'unemployment', 'year': 2026}: backteszt: kihagyva — a mai adatokból számol (szivárgás)"
+  ]
+ },
+ "koltseg": {
+  "szimulator": {
+   "usd": 0.1346,
+   "max_usd": 0.8,
+   "lepesek": {
+    "terv": 0.005946,
+    "piac": 0.037604,
+    "sajto": 0.053204,
+    "osszegzes": 0.037892
+   },
+   "kimaradt": []
+  },
+  "kerdesek_usd": 0.02782
+ },
+ "gazdasag": [
+  {
+   "kulcs": "US:policy_rate",
+   "mutato": "jegybanki alapkamat (%)",
+   "orszag": "US",
+   "egyseg": "%",
+   "idoszak": "2026-11-20",
+   "ertek": 4.0,
+   "also": null,
+   "felso": null,
+   "naiv": true,
+   "hatarido": "2026-11-20",
+   "forras": "Makronóm get_macro_indicator (FRED DFEDTARU, 2026-10-27)",
+   "modszer": "naiv alapvonal: a mai kamat változatlan",
+   "ellenorzes": "MNB — Makronóm get_macro_indicator(US, policy_rate, period=2026-11-20)",
+   "hatas": {
+    "valtozas": 0.0,
+    "also": -0.25,
+    "felso": 0.25,
+    "csatorna": "Változatlan kamat: a mai érték marad; a sáv a szokásos FOMC-kockázatot ffedi.",
+    "alap": "Az alapvonal naiv (a kamat változatlan), így a lépés ezt nem változtatja. A sáv egy 25 bp-os ülésen kívüli vagy decemberi lépés kockázata (feltevés).",
+    "bizonyossag": "magas"
+   },
+   "dontessel": 4.0,
+   "dontessel_also": 3.75,
+   "dontessel_felso": 4.25
+  },
+  {
+   "kulcs": "US:inflation",
+   "mutato": "infláció (éves, %)",
+   "orszag": "US",
+   "egyseg": "%",
+   "idoszak": "2026-09",
+   "ertek": 3.4,
+   "also": 2.974,
+   "felso": 3.834,
+   "naiv": false,
+   "hatarido": "2026-11-14",
+   "utolso_teny": {
+    "period": "2026-08",
+    "value": 3.396548
+   },
+   "forras": "Makronóm forecast_path (macro_history BIS long series on consumer prices (WS_LONG_CPI) (BIS WS_LONG_CPI M.US.771))",
+   "modszer": "SARIMAX + IMF/OECD-horgony, 80%-os sáv a backtesztből",
+   "ellenorzes": "KSH/Eurostat — Makronóm get_macro_indicator(US, cpi, period=2026-09)",
+   "hatas": {
+    "valtozas": 0.0,
+    "also": -0.1,
+    "felso": 0.1,
+    "csatorna": "A kamat változatlansága az inflációra a horizonton alig hat.",
+    "alap": "Az alapvonal a Fed jelenlegi kamatát feltételezi (naiv), a monetáris átvitel 1-3 hónap alatt elhanyagolható. Feltevés.",
+    "bizonyossag": "közepes"
+   },
+   "dontessel": 3.4,
+   "dontessel_also": 2.87,
+   "dontessel_felso": 3.93
+  },
+  {
+   "kulcs": "US:unemployment",
+   "mutato": "munkanélküliségi ráta (%)",
+   "orszag": "US",
+   "egyseg": "%",
+   "idoszak": "2026-09",
+   "ertek": 4.1,
+   "also": 3.9,
+   "felso": 4.2,
+   "naiv": false,
+   "hatarido": "2026-11-14",
+   "utolso_teny": {
+    "period": "2026-08",
+    "value": 4.1
+   },
+   "forras": "Makronóm forecast_path (macro_history OECD Key Short-Term Economic Indicators (KEI): unemployment rate (OECD KEI USA.M.UNEMP.PT_LF._T.Y._Z))",
+   "modszer": "SARIMAX + IMF/OECD-horgony, 80%-os sáv a backtesztből",
+   "ellenorzes": "KSH/Eurostat — Makronóm get_macro_indicator(US, unemployment, period=2026-09)",
+   "hatas": {
+    "valtozas": 0.0,
+    "also": -0.05,
+    "felso": 0.1,
+    "csatorna": "Változatlan kamat: a munkaerőpiacra a 23 napos horizonton nincs érdemi hatás.",
+    "alap": "A monetáris politika munkaerőpiaci átvitele hónapokban mérhető. Feltevés: a lépés az alapvonal feltevése.",
+    "bizonyossag": "közepes"
+   },
+   "dontessel": 4.1,
+   "dontessel_also": 3.85,
+   "dontessel_felso": 4.3
+  }
+ ],
+ "alapvonal": [
+  {
+   "kulcs": "US:policy_rate",
+   "mutato": "jegybanki alapkamat (%)",
+   "orszag": "US",
+   "egyseg": "%",
+   "idoszak": "2026-11-20",
+   "ertek": 4.0,
+   "also": null,
+   "felso": null,
+   "naiv": true,
+   "hatarido": "2026-11-20",
+   "forras": "Makronóm get_macro_indicator (FRED DFEDTARU, 2026-10-27)",
+   "modszer": "naiv alapvonal: a mai kamat változatlan",
+   "ellenorzes": "MNB — Makronóm get_macro_indicator(US, policy_rate, period=2026-11-20)"
+  },
+  {
+   "kulcs": "US:inflation",
+   "mutato": "infláció (éves, %)",
+   "orszag": "US",
+   "egyseg": "%",
+   "idoszak": "2026-09",
+   "ertek": 3.4,
+   "also": 2.974,
+   "felso": 3.834,
+   "naiv": false,
+   "hatarido": "2026-11-14",
+   "utolso_teny": {
+    "period": "2026-08",
+    "value": 3.396548
+   },
+   "forras": "Makronóm forecast_path (macro_history BIS long series on consumer prices (WS_LONG_CPI) (BIS WS_LONG_CPI M.US.771))",
+   "modszer": "SARIMAX + IMF/OECD-horgony, 80%-os sáv a backtesztből",
+   "ellenorzes": "KSH/Eurostat — Makronóm get_macro_indicator(US, cpi, period=2026-09)"
+  },
+  {
+   "kulcs": "US:unemployment",
+   "mutato": "munkanélküliségi ráta (%)",
+   "orszag": "US",
+   "egyseg": "%",
+   "idoszak": "2026-09",
+   "ertek": 4.1,
+   "also": 3.9,
+   "felso": 4.2,
+   "naiv": false,
+   "hatarido": "2026-11-14",
+   "utolso_teny": {
+    "period": "2026-08",
+    "value": 4.1
+   },
+   "forras": "Makronóm forecast_path (macro_history OECD Key Short-Term Economic Indicators (KEI): unemployment rate (OECD KEI USA.M.UNEMP.PT_LF._T.Y._Z))",
+   "modszer": "SARIMAX + IMF/OECD-horgony, 80%-os sáv a backtesztből",
+   "ellenorzes": "KSH/Eurostat — Makronóm get_macro_indicator(US, unemployment, period=2026-09)"
+  }
+ ],
+ "piac_eredmeny": {
+  "hatas_szamszeru": [
+   {
+    "kulcs": "US:policy_rate",
+    "valtozas": 0.0,
+    "also": -0.25,
+    "felso": 0.25,
+    "csatorna": "Változatlan kamat: a mai érték marad; a sáv a szokásos FOMC-kockázatot ffedi.",
+    "alap": "Az alapvonal naiv (a kamat változatlan), így a lépés ezt nem változtatja. A sáv egy 25 bp-os ülésen kívüli vagy decemberi lépés kockázata (feltevés).",
+    "bizonyossag": "magas"
+   },
+   {
+    "kulcs": "US:inflation",
+    "valtozas": 0.0,
+    "also": -0.1,
+    "felso": 0.1,
+    "csatorna": "A kamat változatlansága az inflációra a horizonton alig hat.",
+    "alap": "Az alapvonal a Fed jelenlegi kamatát feltételezi (naiv), a monetáris átvitel 1-3 hónap alatt elhanyagolható. Feltevés.",
+    "bizonyossag": "közepes"
+   },
+   {
+    "kulcs": "US:unemployment",
+    "valtozas": 0.0,
+    "also": -0.05,
+    "felso": 0.1,
+    "csatorna": "Változatlan kamat: a munkaerőpiacra a 23 napos horizonton nincs érdemi hatás.",
+    "alap": "A monetáris politika munkaerőpiaci átvitele hónapokban mérhető. Feltevés: a lépés az alapvonal feltevése.",
+    "bizonyossag": "közepes"
+   }
+  ],
+  "kiindulas": [
+   {
+    "mutato": "Fed célsáv felső széle",
+    "ertek": "4,0 %",
+    "idoszak": "2026-10-27",
+    "forras": "get_macro_indicator, FRED DFEDTARU"
+   },
+   {
+    "mutato": "10 éves amerikai hozam",
+    "ertek": "4,993 %",
+    "idoszak": "2026-10-27",
+    "forras": "yfinance ^TNX (Yahoo Finance)"
+   },
+   {
+    "mutato": "Dollárindex (DXY)",
+    "ertek": "102,32",
+    "idoszak": "2026-10-27",
+    "forras": "yfinance DX-Y.NYB (Yahoo Finance)"
+   },
+   {
+    "mutato": "Munkanélküliségi ráta",
+    "ertek": "4,1 %",
+    "idoszak": "2026-08",
+    "forras": "get_macro_indicator, FRED UNRATE"
+   },
+   {
+    "mutato": "Infláció (alapvonal, éves)",
+    "ertek": "3,4 %",
+    "idoszak": "2026-09",
+    "forras": "forecast_path, BIS WS_LONG_CPI M.US.771"
+   },
+   {
+    "mutato": "S&P 500",
+    "ertek": "7722,6",
+    "idoszak": "2026-10-27",
+    "forras": "yfinance ^GSPC (Yahoo Finance)"
+   }
+  ],
+  "hatasok": [
+   {
+    "terulet": "kamat",
+    "irany": "semleges",
+    "becsles": "Alapkamat 4,00% marad; a 10 éves hozam ±0,2 pp mozgás.",
+    "bizonytalansag": "Nem tudjuk, a piac mit árazott be; a hozam 52 hetes sávja 3,96-5,31%.",
+    "forras": "FRED DFEDTARU; yfinance ^TNX",
+    "modszer": "Naiv alapvonal és az 52 hetes sáv."
+   },
+   {
+    "terulet": "infláció",
+    "irany": "semleges",
+    "becsles": "0 pp, hatássáv ±0,1 pp.",
+    "bizonytalansag": "A CPI és a maginfláció adat hiányzik; a PPI-adat (9,7%) felfelé mutat, de a kamatlépéssel nem függ össze.",
+    "forras": "forecast_path inflation; get_macro_indicator ppi (FRED PPIACO)",
+    "modszer": "Átviteli késés: a lépés a horizonton nem hat."
+   },
+   {
+    "terulet": "árfolyam",
+    "irany": "semleges",
+    "becsles": "DXY ±1,5 pont; EUR/USD 1,117 körül, ±0,02.",
+    "bizonytalansag": "A piaci várakozás ismeretlen; ha a lépés a várttól eltér, a mozgás nagyobb.",
+    "forras": "yfinance DX-Y.NYB, EURUSD=X",
+    "modszer": "30 napos mozgás és 52 hetes sáv."
+   },
+   {
+    "terulet": "tőkepiac",
+    "irany": "semleges",
+    "becsles": "S&P 500 ±3% a horizonton.",
+    "bizonytalansag": "A közelgő félidős választások és a hozamszint további kockázat.",
+    "forras": "yfinance ^GSPC",
+    "modszer": "A 30 napos mozgás (+0,51%) és az 52 hetes sáv alapján, feltevés."
+   },
+   {
+    "terulet": "növekedés",
+    "irany": "semleges",
+    "becsles": "A 2026-Q3 GDP-hatás ~0 pp.",
+    "bizonytalansag": "Az alapvonal sávja 0,56-2,79%, a lépés ehhez képest elhanyagolható.",
+    "forras": "forecast_path gdp (OECD KEI)",
+    "modszer": "Nincs új adat a horizonton; az alapvonalnak nincs GDP-sora."
+   }
+  ],
+  "nem_modellezheto": [
+   "A piaci várakozás (FedWatch) hiányzik, ezért a meglepetés mértéke nem becsülhető.",
+   "A CPI- és maginfláció-adat hiányzik (status: missing), ezért a maginfláció hatása nem számolható.",
+   "A közlemény hangvétele és a jövőbeli kamatpálya nem szerepel az adatban."
+  ],
+  "elorejelzesek": [
+   {
+    "allitas": "A Fed célsávjának felső széle 2026-11-20-án is 4,00%.",
+    "metrika": "FRED DFEDTARU",
+    "kuszob": "= 4,00%",
+    "hatarido": "2026-11-20",
+    "valoszinuseg": 0.93,
+    "feltetel": "lepes",
+    "ellenorzes": "FRED DFEDTARU",
+    "alap": "get_macro_indicator policy_rate: 4,0% (2026-10-27)"
+   },
+   {
+    "allitas": "Az S&P 500 2026-11-20-i záróértéke 7000 felett lesz.",
+    "metrika": "S&P 500 záróár",
+    "kuszob": "> 7000",
+    "hatarido": "2026-11-20",
+    "valoszinuseg": 0.88,
+    "feltetel": "alap",
+    "ellenorzes": "yfinance ^GSPC",
+    "alap": "^GSPC 7722,6; 52 hetes sáv 6343,7-7818,9"
+   },
+   {
+    "allitas": "A 10 éves amerikai hozam 2026-11-20-án 4,5% és 5,5% között lesz.",
+    "metrika": "^TNX záróár",
+    "kuszob": "4,5-5,5%",
+    "hatarido": "2026-11-20",
+    "valoszinuseg": 0.8,
+    "feltetel": "alap",
+    "ellenorzes": "yfinance ^TNX",
+    "alap": "^TNX 4,993%; 30 napos változás -4,71%"
+   }
+  ]
+ },
+ "szimulator_eredmeny": {
+  "terv": {
+   "rovid_cim": "Fed kamattartás 4,00 százalékon",
+   "orszag": "US",
+   "kereses": {
+    "hu": "Fed kamatdöntés",
+    "en": "Fed holds rates",
+    "de": "Fed Zinsentscheidung"
+   },
+   "makro": [
+    {
+     "country": "US",
+     "indicator": "policy_rate"
+    },
+    {
+     "country": "US",
+     "indicator": "cpi"
+    },
+    {
+     "country": "US",
+     "indicator": "core_cpi"
+    },
+    {
+     "country": "US",
+     "indicator": "unemployment"
+    },
+    {
+     "country": "US",
+     "indicator": "gdp_growth"
+    },
+    {
+     "country": "US",
+     "indicator": "ppi"
+    }
+   ],
+   "elorejelzes": [
+    {
+     "country": "US",
+     "indicator": "inflation"
+    },
+    {
+     "country": "US",
+     "indicator": "gdp"
+    },
+    {
+     "country": "US",
+     "indicator": "unemployment"
+    }
+   ],
+   "piaci": [
+    "^TNX",
+    "DX-Y.NYB",
+    "^GSPC",
+    "EURUSD=X"
+   ],
+   "jog": {
+    "hivatkozasok": [],
+    "kifejezesek": [
+     "Fed kamatdöntés"
+    ],
+    "dontesek": []
+   }
+  },
+  "osszegzes": {
+   "osszegzes": "A Fed célsáv felső széle 4,00% marad (alapvonal → lépéssel: 4,00 → 4,00, sáv 3,75–4,25), az infláció 3,4%, a munkanélküliség 4,1%, mindkettő változatlan (gazdasági előrejelzés; FRED DFEDTARU, BIS WS_LONG_CPI, FRED UNRATE). A legnagyobb ellenállás a szintetikus panelnél látszik: az összkép 1,8, a 3,0-s semlegesnél 1,2 ponttal rosszabb, csoportok között alig van különbség (DELPHOI panel). Bizonytalan, hogy a piac mit árazott be, mert a FedWatch és a CPI-/maginfláció-adat hiányzik (piac motor).",
+   "fo_megallapitasok": [
+    "Gazdaság: a kamat, az infláció és a munkanélküliség a horizonton nem mozdul, a hatás 0,0 (gazdasági előrejelzés; FRED, BIS).",
+    "Piac: a 10 éves hozam 4,993%, 52 hetes sávja 3,96–5,31%, ezért ±0,2 pp mozgás belefér (yfinance ^TNX).",
+    "Társadalom: a panel minden csoportja a semleges pont alatt van, az összkép 1,8 (DELPHOI, n=30).",
+    "Sajtó: a legtöbb lap rövid, tényközlő hírt adna, a magyar lapok a hazai hitelkamatokhoz kötnék (Echolot sajtóelemzés, feltevés)."
+   ],
+   "tarsadalom_ertelmezes": "A panel minden csoportja a 3,0-s semleges pont alatt jár (-1,0 és -1,3 közötti eltérés), vagyis egységesen elutasító a jel. A baloldali média-étrendű csoport a legkevésbé (-1,014), az alig médiát fogyasztók a legjobban elutasítók (-1,315), a különbség kicsi. A kis csoportlétszámok (n=4–10) miatt a csoportsorrend nem megbízható; relatív jelzés, nem közvélemény-kutatás.",
+   "bizonytalansag": "Nem ismert a piaci várakozás, a közlemény hangvétele és a jövőbeli kamatpálya, így a meglepetés mértéke nem becsülhető. A CPI és a maginfláció adata hiányzik (piac motor).",
+   "kockazati_terkep": [
+    {
+     "kockazat": "A panel egységesen elutasító: a döntés kommunikációja kevés támogatást kap.",
+     "terulet": "társadalom",
+     "valoszinuseg": "magas",
+     "sulyossag": "közepes",
+     "jel": "DELPHOI összkép 1,8, semleges 3,0"
+    },
+    {
+     "kockazat": "Ha a piac más döntést várt, a hozam és a dollár nagyobbat mozdul.",
+     "terulet": "gazdaság",
+     "valoszinuseg": "közepes",
+     "sulyossag": "közepes",
+     "jel": "Piac: FedWatch hiányzik, hozam sávja 3,96–5,31%"
+    },
+    {
+     "kockazat": "A magyar lapok a hazai hitelkamatokhoz kötik, a kormányt érő kritika erősödhet.",
+     "terulet": "sajtó",
+     "valoszinuseg": "közepes",
+     "sulyossag": "alacsony",
+     "jel": "Sajtó: Magyar Nemzet kritikus hangnem, Telex hitelkeret"
+    },
+    {
+     "kockazat": "A kamattartás kormányzati nyomás nélkül hiányosnak tűnhet.",
+     "terulet": "sajtó",
+     "valoszinuseg": "alacsony",
+     "sulyossag": "alacsony",
+     "jel": "Sajtó: 444 belekötés, alacsony bizonyosság, feltevés"
+    },
+    {
+     "kockazat": "Az infláció a sáv tetejére (3,93%) emelkedhet, később kamatemelési nyomást keltve.",
+     "terulet": "gazdaság",
+     "valoszinuseg": "alacsony",
+     "sulyossag": "közepes",
+     "jel": "Gazdaság: infláció sávja 2,87–3,93%, PPI felfelé mutat"
+    }
+   ],
+   "modositasok": [
+    {
+     "javaslat": "A közlemény mondja ki a feltételt: a kamat marad, amíg az infláció 3,4% fölött van, és a következő döntés az adatoktól függ.",
+     "mit_csokkent": "Piaci meglepetés és bizonytalanság",
+     "ara": "Szűkíti a mozgásteret, ha az adatok váratlanul fordulnak."
+    },
+    {
+     "javaslat": "A bejelentéshez kerüljön rövid magyarázat arról, mit jelent a döntés a hitelkamatokra és a forintra.",
+     "mit_csokkent": "Hazai hitelkamatos keretezés",
+     "ara": "Hosszabb közlemény, a hazai vonatkozásról nincs adat."
+    }
+   ],
+   "elorejelzesek": []
+  },
+  "elorejelzesek": [
+   {
+    "terulet": "piac",
+    "allitas": "jegybanki alapkamat (%) (US 2026-11-20): 3,75 és 4,25 % között lesz, ha a lépés megtörténik (alapvonal nélküle: 4,00)",
+    "feltetel": "lepes",
+    "metrika": "jegybanki alapkamat (%)",
+    "kuszob": "3,75–4,25 %",
+    "hatarido": "2026-11-20",
+    "valoszinuseg": 0.8,
+    "ellenorzes": "MNB — Makronóm get_macro_indicator(US, policy_rate, period=2026-11-20)",
+    "alap": "naiv alapvonal: a mai kamat változatlan; a lépés hatása: Változatlan kamat: a mai érték marad; a sáv a szokásos FOMC-kockázatot ffedi.",
+    "modell": "claude-sonnet-5-5"
+   },
+   {
+    "terulet": "piac",
+    "allitas": "infláció (éves, %) (US 2026-09): 2,87 és 3,93 % között lesz, ha a lépés megtörténik (alapvonal nélküle: 3,40)",
+    "feltetel": "lepes",
+    "metrika": "infláció (éves, %)",
+    "kuszob": "2,87–3,93 %",
+    "hatarido": "2026-11-14",
+    "valoszinuseg": 0.8,
+    "ellenorzes": "KSH/Eurostat — Makronóm get_macro_indicator(US, cpi, period=2026-09)",
+    "alap": "SARIMAX + IMF/OECD-horgony, 80%-os sáv a backtesztből; a lépés hatása: A kamat változatlansága az inflációra a horizonton alig hat.",
+    "modell": "claude-sonnet-5-5"
+   },
+   {
+    "terulet": "piac",
+    "allitas": "munkanélküliségi ráta (%) (US 2026-09): 3,85 és 4,30 % között lesz, ha a lépés megtörténik (alapvonal nélküle: 4,10)",
+    "feltetel": "lepes",
+    "metrika": "munkanélküliségi ráta (%)",
+    "kuszob": "3,85–4,30 %",
+    "hatarido": "2026-11-14",
+    "valoszinuseg": 0.8,
+    "ellenorzes": "KSH/Eurostat — Makronóm get_macro_indicator(US, unemployment, period=2026-09)",
+    "alap": "SARIMAX + IMF/OECD-horgony, 80%-os sáv a backtesztből; a lépés hatása: Változatlan kamat: a munkaerőpiacra a 23 napos horizonton nincs érdemi hatás.",
+    "modell": "claude-sonnet-5-5"
+   },
+   {
+    "terulet": "sajto",
+    "allitas": "A Telex a bejelentést követő 3 napban legalább egy cikket közöl, amely a Fed kamatdöntését említi.",
+    "feltetel": "lepes",
+    "metrika": "A Telex cikkei az Echolot-korpuszban, a Fed kamatdöntésre kulcsszavas szűréssel",
+    "kuszob": ">= 1 cikk",
+    "hatarido": "2026-11-02",
+    "valoszinuseg": 0.7,
+    "ellenorzes": "Echolot get_news, Telex, kulcsszó: Fed, kamat",
+    "alap": "Telex rendszeresen közöl kamat- és hitelcikkeket (2026-10-27).",
+    "modell": "claude-sonnet-5-5"
+   },
+   {
+    "terulet": "sajto",
+    "allitas": "A Magyar Nemzet a bejelentést követő 5 napban a Fed-döntést a hazai kormány lakás- vagy hitelpolitikájával összekötő cikket közöl.",
+    "feltetel": "lepes",
+    "metrika": "Magyar Nemzet cikkei az Echolot-korpuszban, a Fed és a Wekerle/lakáshitel együttes említésével",
+    "kuszob": ">= 1 cikk",
+    "hatarido": "2026-11-02",
+    "valoszinuseg": 0.2,
+    "ellenorzes": "Echolot get_news, Magyar Nemzet, kulcsszavak: Fed, Wekerle, hitel",
+    "alap": "A Magyar Nemzet 2026-10-25-i Wekerle-kritikája; a kapcsolat feltevés.",
+    "modell": "claude-sonnet-5-5"
+   },
+   {
+    "terulet": "sajto",
+    "allitas": "Az Index a bejelentést követő 3 napban legalább egy cikket közöl a Fed kamatdöntéséről.",
+    "feltetel": "lepes",
+    "metrika": "Index cikkei az Echolot-korpuszban, kulcsszó: Fed",
+    "kuszob": ">= 1 cikk",
+    "hatarido": "2026-11-02",
+    "valoszinuseg": 0.65,
+    "ellenorzes": "Echolot get_news, Index, kulcsszó: Fed, kamat",
+    "alap": "Az Index naponta kb. 90 cikket közöl (Echolot profil); külföldi híreket is hoz (2026-10-26).",
+    "modell": "claude-sonnet-5-5"
+   },
+   {
+    "terulet": "piac",
+    "allitas": "A Fed célsávjának felső széle 2026-11-20-án is 4,00%.",
+    "feltetel": "lepes",
+    "metrika": "FRED DFEDTARU",
+    "kuszob": "= 4,00%",
+    "hatarido": "2026-11-20",
+    "valoszinuseg": 0.93,
+    "ellenorzes": "FRED DFEDTARU",
+    "alap": "get_macro_indicator policy_rate: 4,0% (2026-10-27)",
+    "modell": "claude-sonnet-5-5"
+   },
+   {
+    "terulet": "piac",
+    "allitas": "Az S&P 500 2026-11-20-i záróértéke 7000 felett lesz.",
+    "feltetel": "alap",
+    "metrika": "S&P 500 záróár",
+    "kuszob": "> 7000",
+    "hatarido": "2026-11-20",
+    "valoszinuseg": 0.88,
+    "ellenorzes": "yfinance ^GSPC",
+    "alap": "^GSPC 7722,6; 52 hetes sáv 6343,7-7818,9",
+    "modell": "claude-sonnet-5-5"
+   },
+   {
+    "terulet": "piac",
+    "allitas": "A 10 éves amerikai hozam 2026-11-20-án 4,5% és 5,5% között lesz.",
+    "feltetel": "alap",
+    "metrika": "^TNX záróár",
+    "kuszob": "4,5-5,5%",
+    "hatarido": "2026-11-20",
+    "valoszinuseg": 0.8,
+    "ellenorzes": "yfinance ^TNX",
+    "alap": "^TNX 4,993%; 30 napos változás -4,71%",
+    "modell": "claude-sonnet-5-5"
+   }
+  ],
+  "elorejelzes_kimaradt": []
+ },
+ "motor_info": {
+  "sajto": {
+   "modell": "claude-sonnet-5-5",
+   "koltes_usd": 0.0532,
+   "kert_modell": "claude-sonnet-5-5"
+  },
+  "piac": {
+   "modell": "claude-sonnet-5-5",
+   "koltes_usd": 0.0376,
+   "kert_modell": "claude-sonnet-5-5"
+  },
+  "jog": {
+   "nem_kert": true
+  },
+  "terv": {
+   "modell": "claude-sonnet-5-5",
+   "koltes_usd": 0.00595,
+   "kert_modell": "claude-sonnet-5-5"
+  },
+  "osszegzes": {
+   "modell": "claude-sonnet-5-5",
+   "koltes_usd": 0.03789,
+   "kert_modell": "claude-sonnet-5-5"
+  }
+ },
+ "kesz": "2026-11-22T22:26:25.673745+00:00"
+}
