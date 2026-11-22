@@ -91,7 +91,9 @@ CSONKOLAS_DUPLAZAS = 2
 SZINT_TABLA = (
     # (szabály,     mit néz,                                                                   szint)
     ("cel_okos", "a `purpose` okos munka: synth, brief, elemzés, dispatch, essay, nowcast", "okos"),
-    ("feldwebel", "a `purpose` a Feldwebel: a Kommandant Telegram-asszisztense, eszközhurokkal", "kozep"),
+    # 11-22, Kommandant: „8 cent nagyon sok egy válaszra” — a Feldwebel alapból olcsó, és csak a mélyebb kérésnél közép
+    ("feldwebel_melyebb", "a Feldwebel, és a Kommandant üzenete elemzést/tervet/összevetést kér vagy hosszú", "kozep"),
+    ("feldwebel", "a `purpose` a Feldwebel: a Kommandant Telegram-asszisztense, eszközhurokkal (hétköznapi kérés)", "olcso"),
     ("cel_olcso", "a `purpose` olcsó munka: triage, osztályozás, fordítás, rövid chat, szándék", "olcso"),
     ("sf_flash", "a kért SiliconFlow-modell FLASH-tier: dsflash, glm53f, hy3", "olcso"),
     ("sf_nehez", "a kért SiliconFlow-modell nehéz: kimi3, DeepSeek-V4-Pro, glm53", "okos"),
@@ -105,6 +107,12 @@ MERET_SZABALYOK = (
 )
 NAGY_BEMENET_KAR = 150_000
 APRO_BEMENET_KAR = 4_000
+
+#: A Feldwebelnél ezek a szavak (vagy a hosszú üzenet) jelzik, hogy mélyebb gondolkodás kell → Sonnet; különben Haiku.
+MELY_JELEK = ("elemez", "elemzés", "értékel", "gondold végig", "alaposan", "részletesen", "stratég", "terv",
+              "összehasonl", "összevet", "javasol", "javaslat", "döntés", "dönts", "miért", "magyarázd", "érvel",
+              "kockázat", "előrejelz", "prognózis")
+MELY_HOSSZ_KAR = 400
 
 OKOS_CELOK = ("synth", "brief", "elemz", "analy", "dispatch", "essay", "esszé", "nowcast")
 OLCSO_CELOK = ("triage", "osztaly", "osztály", "classif", "fordit", "fordít", "translat", "chat",
@@ -168,13 +176,26 @@ def bemenet_meret(payload: dict) -> int:
     return n
 
 
+def _utolso_kommandant_szoveg(payload: dict) -> str:
+    """Az utolsó `user` szerepű üzenet szövege (a tool-eredmény `tool` szerepű, az nem számít)."""
+    for m in reversed(payload.get("messages") or []):
+        if m.get("role") == "user":
+            c = m.get("content")
+            if isinstance(c, list):
+                return " ".join(b.get("text", "") for b in c if isinstance(b, dict))
+            return str(c or "")
+    return ""
+
+
 def szint_valaszt(payload: dict, purpose: str = "") -> tuple[str, str]:
     """`(szint, indok)`. A `SZINT_TABLA` első illeszkedő sora, utána a `MERET_SZABALYOK`."""
     cel = (purpose or "").lower()
     if any(c in cel for c in OKOS_CELOK):
         szabaly = "cel_okos"
     elif "feldwebel" in cel:
-        szabaly = "feldwebel"
+        utolso = _utolso_kommandant_szoveg(payload)
+        mely = len(utolso) > MELY_HOSSZ_KAR or any(j in utolso.lower() for j in MELY_JELEK)
+        szabaly = "feldwebel_melyebb" if mely else "feldwebel"
     elif any(c in cel for c in OLCSO_CELOK):
         szabaly = "cel_olcso"
     else:
