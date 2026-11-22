@@ -57,6 +57,8 @@ from youngereka_profile import register_youngereka
 import recipe_health
 import faber_relay
 import llm_kapu
+# Bridge UI v2 (2026-11-22): csatornafüggetlen kimenet — a webes kör válasza a webre megy, nem a Telegramra.
+import kimenet
 import selfdiag
 
 # S-006 — a jelenlét a MUNKA mellékhatása, nem külön bejelentés.
@@ -9818,7 +9820,12 @@ async def _telegram_push_strict(text: str):
 
 
 async def _telegram_push(text: str):
-    """Send push notification to Telegram."""
+    """Send push notification to Telegram.
+
+    Bridge UI v2 (2026-11-22): ha egy webes beszélgetési kör fut (`kimenet.AKTUALIS`), a szöveg annak a körnek
+    szól — a felület mutatja, Telegramra nem megy. Minden más (Telegram-kör, ütemező, lezárt kör) változatlan."""
+    if kimenet.elkap(text):
+        return
     if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
         return
     try:
@@ -10684,8 +10691,13 @@ def _feldwebel_kerdezett(chat_id: str, percen_belul: int = 30) -> bool:
         return False
 
 
-async def _handle_telegram_message(text: str, chat_id: str):
-    """Process an incoming Telegram message from Kommandant."""
+async def _handle_telegram_message(text: str, chat_id: str, csatorna: str = "telegram"):
+    """Process an incoming Telegram message from Kommandant.
+
+    Bridge UI v2 (2026-11-22): CSATORNAFÜGGETLEN — ugyanez az agy szolgálja ki a webes felületet (`/app`,
+    `_asszisztens_kor`). A különbség csak a `csatorna`: a tárolt üzenet tárgya („Telegram:” / „Web:”) és a modellnek
+    mondott forrás. Hogy a válasz hova megy, azt a `kimenet` modul dönti el (webes körben a webre)."""
+    _forras = "a webes felületről" if csatorna == "web" else "Telegramról"
     # 0. Faber-parancs (/tanulj, /faber, /vissza): aláírva a 'faber' címzettnek, LLM nélkül (faber_relay.py)
     if faber_relay.parancs_e(text):
         conn = get_db()
@@ -10712,6 +10724,9 @@ async def _handle_telegram_message(text: str, chat_id: str):
             conn.close()
         logger.info("Telegram → Faber szándék: %s (repo=%s, kérelem=%s)", _sz["szandek"], _sz.get("repo"),
                     _sz.get("kerelem"))
+        _n = kimenet.nyom()
+        if _n is not None:                      # webes kör: a felület „→ Faber” jelzést tesz a nyugta mellé
+            _n["faber"] = {k2: _sz.get(k2) for k2 in ("szandek", "repo", "kerelem")}
         await _telegram_push(faber_relay.NYUGTA.get(_sz["szandek"], "Rendben, szólok a Fabernek.")
                              if mid else "A Faber most nem érhető el innen: nincs Telegram-token a Bridge-en.")
         return
@@ -10720,7 +10735,7 @@ async def _handle_telegram_message(text: str, chat_id: str):
     cur = conn.execute(
         "INSERT INTO messages (timestamp, sender, recipient, subject, message, priority) "
         "VALUES (?, 'kommandant', 'bridge', ?, ?, 'normal')",
-        (now(), f"Telegram: {text[:60]}", text)
+        (now(), f"{'Web' if csatorna == 'web' else 'Telegram'}: {text[:60]}", text)
     )
     msg_id = cur.lastrowid
     conn.execute("UPDATE messages SET thread_id = ? WHERE id = ?", (msg_id, msg_id))
@@ -10751,7 +10766,7 @@ async def _handle_telegram_message(text: str, chat_id: str):
                 model_id = SILICONFLOW_MODELS.get(agent_id, agent_id)
                 data, _t_err, _t_notes = await sf_chat({"model": model_id, "messages": [
                     {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": f"Kommandant üzenete Telegramról:\n\n{text}"},
+                    {"role": "user", "content": f"Kommandant üzenete {_forras}:\n\n{text}"},
                 ], "temperature": 0.7, "max_tokens": 1500}, purpose=f"telegram/chat/{agent_id}")
 
                 if _t_err is not None:
@@ -10764,6 +10779,10 @@ async def _handle_telegram_message(text: str, chat_id: str):
                     await _telegram_push(f"<b>{agent_id.upper()}</b> — üres válasz")
                     continue
                 content = _with_sf_notes(content, _t_notes)
+                # KI VÁLASZOLT VALÓJÁBAN (`served_by`): a kapu mögött a kért SiliconFlow-modell helyett Anthropic is
+                # felelhet. A webes kör élőben látja, és a tárgyban is megmarad (a felület előzménye onnan olvassa).
+                _kiszolgalo = data.get("model") if isinstance(data, dict) else None
+                kimenet.modell(data, ugynok=agent_id)
 
                 safe_content = html_escape(content[:3800])
                 await _telegram_push(f"<b>{agent_id.upper()}</b>\n\n{safe_content}")
@@ -10772,7 +10791,8 @@ async def _handle_telegram_message(text: str, chat_id: str):
                 conn2.execute(
                     "INSERT INTO messages (timestamp, sender, recipient, subject, message, priority, thread_id, reply_to) "
                     "VALUES (?, ?, 'kommandant', ?, ?, 'normal', ?, ?)",
-                    (now(), agent_id, f"Re: @{agent_id} válasz", content, msg_id, msg_id)
+                    (now(), agent_id, f"Re: @{agent_id} válasz" + (f" · modell={_kiszolgalo}" if _kiszolgalo else ""),
+                     content, msg_id, msg_id)
                 )
                 conn2.commit()
                 conn2.close()
@@ -10808,7 +10828,7 @@ async def _handle_telegram_message(text: str, chat_id: str):
             model_id = SILICONFLOW_MODELS.get("deepseek", "deepseek-ai/DeepSeek-V4-Pro")
             data, _t_err, _t_notes = await sf_chat({"model": model_id, "messages": [
                 {"role": "system", "content": system_prompt},
-                {"role": "user", "content": f"Kommandant üzenete Telegramról:\n\n{text}"},
+                {"role": "user", "content": f"Kommandant üzenete {_forras}:\n\n{text}"},
             ], "temperature": 0.7, "max_tokens": 1500}, purpose="telegram/chat/tartalek")
             if _t_err is not None:
                 await _telegram_push(f"<b>BRIDGE</b> — API hiba: {html_escape(str(_t_err.get('message', ''))[:500])}")
@@ -10816,9 +10836,24 @@ async def _handle_telegram_message(text: str, chat_id: str):
             content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
             if content and content.strip():
                 content = _with_sf_notes(content, _t_notes)
+                kimenet.modell(data, ugynok="deepseek")
                 await _telegram_push(f"<b>DEEPSEEK</b>\n\n{html_escape(content[:3800])}")
         except Exception as e:
             logger.error("Fallback DeepSeek failed: %s", e)
+
+
+async def _asszisztens_kor(text: str, k: "kimenet.Kimenet", csatorna: str = "web") -> "kimenet.Kimenet":
+    """Bridge UI v2: egy beszélgetési kör a TELEGRAM-AGGYAL (`_handle_telegram_message`), de a kimondott szavak a
+    `k` kimenetbe kerülnek, nem Telegramra. Közös előzmény: ugyanaz a chat_id (a Kommandant Telegram-chatje), tehát
+    ugyanaz a Feldwebel-történet — egy asszisztens, két ablak. A kör végén a kimenet lezárul: ami ezután szólal meg
+    (pl. egy körből indított hosszú feladat), az Telegramra megy, nem vész el."""
+    tok = kimenet.AKTUALIS.set(k)
+    try:
+        await _handle_telegram_message(text, TELEGRAM_CHAT_ID or "web", csatorna=csatorna)
+    finally:
+        k.nyitva = False
+        kimenet.AKTUALIS.reset(tok)
+    return k
 
 
 async def _telegram_poll_loop():
@@ -11412,6 +11447,52 @@ try:
         logger.info("Operation Zahnrad: No plugins found")
 except Exception as e:
     logger.error("Operation Zahnrad plugin loading failed: %s", e)
+
+# ── BRIDGE UI v2 — „kabinüveg” (2026-11-22): chat-központú felület a /app úton (ui_kabin.py) ──
+# A régi /dashboard marad. Belépés jelszó nélkül, Telegram-linkkel; minden /api/ui/* csak a munkamenet-sütivel.
+# Hiba = hangos log, a Bridge többi része érintetlen.
+
+
+def _ui_ugynokok() -> dict:
+    """A felület bal sávja: ki válaszolhat most (kulcs és bekötés), és melyik modellt kérjük tőle."""
+    _llm = bool(SILICONFLOW_API_KEY) or llm_kapu.elerheto()
+    _elso = llm_kapu.elsodleges() if llm_kapu.elerheto() else "siliconflow"
+    _megj = "Anthropic-kapu elöl" if _elso == "anthropic" else None
+    out = {"feldwebel": {"elerheto": FELDWEBEL_ENABLED and _llm,
+                         "modell": SILICONFLOW_MODELS.get("deepseek"), "megjegyzes": _megj},
+           "faber": {"elerheto": bool(TELEGRAM_BOT_TOKEN), "modell": None,
+                     "megjegyzes": None if TELEGRAM_BOT_TOKEN else "nincs Telegram-token: a továbbítás nem megy"}}
+    for _a in ("kimi", "deepseek", "glm5"):
+        out[_a] = {"elerheto": PYRAMID_ENABLED and _llm, "modell": SILICONFLOW_MODELS.get(_a), "megjegyzes": _megj}
+    return out
+
+
+async def _ui_draft_dont(draft_id: int, dontes: str) -> dict:
+    """Az `action_draft_decide` eszköz hívása (az hozza létre jóváhagyáskor a naptáreseményt)."""
+    res = await mcp.call_tool("action_draft_decide", {"draft_id": int(draft_id), "decision": dontes,
+                                                      "caller": "kommandant"})
+    szoveg = "".join(getattr(c, "text", "") or "" for c in (getattr(res, "content", None) or []))
+    try:
+        return json.loads(szoveg)
+    except ValueError:
+        return {"error": szoveg[:300] or "üres válasz az action_draft_decide-tól"}
+
+
+try:
+    import ui_kabin
+    ui_kabin.regisztral(mcp, {
+        "get_db": get_db,
+        "bot_token": lambda: TELEGRAM_BOT_TOKEN,
+        "chat_id": lambda: TELEGRAM_CHAT_ID,
+        "telegram_kuld": lambda szoveg: _telegram_push_strict(szoveg),
+        "asszisztens": lambda szoveg, k, csatorna: _asszisztens_kor(szoveg, k, csatorna),
+        "ugynokok": _ui_ugynokok,
+        "llm_allapot": llm_kapu.allapot,
+        "jelenlet": _presence_view,
+        "draft_dont": _ui_draft_dont,
+    })
+except Exception as _uie:  # noqa: BLE001
+    logger.error("Bridge UI v2 (ui_kabin) bekötése bukott (a Bridge megy tovább): %s", _uie, exc_info=True)
 
 # ── PYTHIA B3: publikus DELPHOI SaaS MCP-kapu — MÁSODIK, IZOLÁLT FastMCP-app ──
 # a fő Starlette-appban. A fő `mcp` custom-route listája Starlette BaseRoute-okat

@@ -133,6 +133,21 @@ body::before {
   letter-spacing: 0.08em;
 }
 
+/* Bridge UI v2 (2026-11-22): átjáró az új felületre; a régi műszerfal marad. */
+.uj-felulet {
+  margin-left: auto;
+  margin-right: 1.2rem;
+  color: var(--ice);
+  border: 1px solid var(--border-active);
+  padding: 0.25rem 0.7rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  clip-path: var(--chamfer-sm);
+  background: var(--ice-dim);
+}
+.uj-felulet:hover { background: var(--ice-glow); color: var(--text-primary); }
+
 .header-identity::before {
   content: '';
   width: 8px;
@@ -1084,6 +1099,7 @@ select {
     <div class="header-title">
       CLAUS BRIDGE<span class="separator">&mdash;</span><span class="subtitle">PARANCSNOKI KÖZPONT</span>
     </div>
+    <a class="uj-felulet" href="/app/" title="Bridge UI v2 — chat-központú kabin, Telegram-belépéssel">ÚJ FELÜLET &rarr;</a>
     <div class="header-identity">KOMMANDANT ONLINE</div>
   </div>
 </header>

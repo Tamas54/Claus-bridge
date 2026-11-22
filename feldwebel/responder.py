@@ -20,6 +20,13 @@ import httpx
 from feldwebel import get_ctx
 from feldwebel.history import add_message, get_history, trim_history
 
+# Bridge UI v2 (2026-11-22): a webes kör élő nyoma (melyik modell válaszolt, milyen eszköz fut). Telegram-körben a
+# `kimenet.nyom()` None, és minden úgy megy, mint eddig. A modul hiánya (önálló Feldwebel) sem hiba.
+try:
+    import kimenet as _kimenet
+except ImportError:  # pragma: no cover
+    _kimenet = None
+
 # ── Economic data API keys ──
 FRED_API_KEY = os.environ.get("FRED_API_KEY", "")
 
@@ -445,6 +452,10 @@ async def respond(text: str, chat_id: str, agent_id: str = "deepseek") -> str:
     final_content = ""
     #: A kapu jegyzetei (modellváltás, tartalékra váltás): a válasz végére kerülnek — néma váltás nincs.
     kapu_notes: list = []
+    #: KI VÁLASZOLT VALÓJÁBAN (`served_by`) és milyen eszközökkel — a tárgyba kerül (a webes felület előzménye
+    #: onnan olvassa), webes körben élőben is látszik (`kimenet`).
+    kiszolgalo = None
+    eszkoz_nevek: list = []
     for round_num in range(5):
         data = await _call_deepseek(
             ctx, model_id, messages,
@@ -454,6 +465,9 @@ async def respond(text: str, chat_id: str, agent_id: str = "deepseek") -> str:
         )
         if not data:
             break
+        kiszolgalo = data.get("model") or kiszolgalo
+        if _kimenet is not None:
+            _kimenet.modell(data, ugynok="feldwebel")
 
         choice = data.get("choices", [{}])[0]
         msg = choice.get("message", {})
@@ -481,7 +495,11 @@ async def respond(text: str, chat_id: str, agent_id: str = "deepseek") -> str:
                 except json.JSONDecodeError:
                     fn_args = {}
                 logger.info("Tool call round %d: %s(%s)", round_num, fn_name, fn_args)
+                _et = _kimenet.eszkoz_indul(fn_name, fn_args) if _kimenet is not None else None
                 result = await _execute_tool(fn_name, fn_args, ctx)
+                if _kimenet is not None:
+                    _kimenet.eszkoz_kesz(_et, result)
+                eszkoz_nevek.append(fn_name)
                 messages.append({"role": "tool", "tool_call_id": tc_id, "content": result})
             continue
 
@@ -496,7 +514,11 @@ async def respond(text: str, chat_id: str, agent_id: str = "deepseek") -> str:
             if parsed_tool:
                 fn_name, fn_args = parsed_tool
                 logger.info("Text tool call round %d: %s(%s)", round_num, fn_name, fn_args)
+                _et = _kimenet.eszkoz_indul(fn_name, fn_args) if _kimenet is not None else None
                 result = await _execute_tool(fn_name, fn_args, ctx)
+                if _kimenet is not None:
+                    _kimenet.eszkoz_kesz(_et, result)
+                eszkoz_nevek.append(fn_name)
                 messages.append({"role": "assistant", "content": f"(Tool végrehajtva: {fn_name})"})
                 messages.append({"role": "user", "content": f"Tool eredmény ({fn_name}):\n{result}\n\nFoglald össze az eredményt a Kommandantnak."})
                 continue
@@ -528,6 +550,9 @@ async def respond(text: str, chat_id: str, agent_id: str = "deepseek") -> str:
             data = await _call_deepseek(ctx, model_id, synth_messages,
                                         use_tools=False, force_tool=False, notes=kapu_notes)
             if data:
+                kiszolgalo = data.get("model") or kiszolgalo
+                if _kimenet is not None:
+                    _kimenet.modell(data, ugynok="feldwebel")
                 choice = data.get("choices", [{}])[0]
                 msg = choice.get("message", {})
                 synth_content = (msg.get("content") or "").strip()
@@ -575,7 +600,7 @@ async def respond(text: str, chat_id: str, agent_id: str = "deepseek") -> str:
     await ctx.telegram_push(f"<b>FELDWEBEL</b>\n\n{safe_content}")
 
     # Store in Bridge DB
-    _store_bridge_reply(ctx, text, final_content, agent_id)
+    _store_bridge_reply(ctx, text, final_content, agent_id, modell=kiszolgalo, eszkozok=eszkoz_nevek)
 
     # Trim old history
     trim_history(chat_id, max_entries=30)
@@ -1756,8 +1781,17 @@ def _fetch_open_tasks(ctx) -> str:
         return ""
 
 
-def _store_bridge_reply(ctx, user_text: str, reply: str, agent_id: str):
-    """Store Feldwebel reply in Bridge messages DB."""
+def _store_bridge_reply(ctx, user_text: str, reply: str, agent_id: str, modell: str | None = None,
+                        eszkozok: list | None = None):
+    """Store Feldwebel reply in Bridge messages DB.
+
+    A tárgy a kiszolgáló modellt és a hívott eszközöket is hordozza („Re: Feldwebel válasz · modell=… · eszközök=…”):
+    a webes felület előzménye innen mondja ki a válasz alatt, ki felelt — a Telegram-körökre is (2026-11-22)."""
+    targy = "Re: Feldwebel válasz"
+    if modell:
+        targy += f" · modell={modell}"
+    if eszkozok:
+        targy += " · eszközök=" + ",".join(dict.fromkeys(eszkozok))
     try:
         conn = ctx.get_db()
         row = conn.execute(
@@ -1770,7 +1804,7 @@ def _store_bridge_reply(ctx, user_text: str, reply: str, agent_id: str):
             "VALUES (?, ?, 'kommandant', ?, ?, 'normal', ?, ?)",
             (datetime.now(timezone.utc).isoformat(),
              f"feldwebel-{agent_id}",
-             "Re: Feldwebel válasz",
+             targy,
              reply,
              msg_id, msg_id)
         )
