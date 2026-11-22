@@ -1352,7 +1352,10 @@ async def _execute_tool(name: str, args: dict, ctx, kor: dict | None = None, *, 
         if not send_msg_func:
             return json.dumps({"error": "Bridge üzenet küldés nem elérhető"})
         try:
-            result = await send_msg_func(sender="feldwebel", recipient=recipient, subject=subject or "Feldwebel üzenet", message=message, caller="feldwebel")
+            # A server.send_message-ben a jogosultság-kapu a `sender`-t nézi, `caller` paramétere nincs: a régi
+            # `caller="feldwebel"` minden hívást TypeError-ral buktatott („unexpected keyword argument 'caller'”,
+            # Faber #6). Az őr: tests/test_feldwebel_send_message.py.
+            result = await send_msg_func(sender="feldwebel", recipient=recipient, subject=subject or "Feldwebel üzenet", message=message)
             return result
         except Exception as e:
             return json.dumps({"error": str(e)})
