@@ -44,9 +44,12 @@ logger = logging.getLogger("futar_kliens")
 MUVELETEK = ("tudasbazis", "chatgpt", "gemini")
 CIMZETT, VALASZ_CIMZETT, FELADO = "futar", "futar-valasz", "futar"
 #: A futár sorai a messages táblában — és a Nachtschicht naplója (nachtschicht.py, 11-22: a tételei és a reggeli
-#: jelentés tudásbázis-tartalmat hordozhatnak). A SiliconFlow-ügynökök kontextusépítője ezeket SOHA nem veszi fel.
+#: jelentés tudásbázis-tartalmat hordozhatnak), valamint a feladat-ügynökök naplója (feladat_ugynok.py, 11-23:
+#: sender = recipient = 'ugynok:<id>'; az ügynök olvashat tudásbázist). A SiliconFlow-ügynökök kontextusépítője ezeket
+#: SOHA nem veszi fel.
 SF_KIZARAS_SQL = ("(sender NOT IN ('futar', 'nachtschicht', 'faber') "
-                  "AND recipient NOT IN ('futar', 'futar-valasz', 'nachtschicht', 'faber'))")
+                  "AND recipient NOT IN ('futar', 'futar-valasz', 'nachtschicht', 'faber') "
+                  "AND sender NOT LIKE 'ugynok:%' AND recipient NOT LIKE 'ugynok:%')")
 #: A tudas.py -f választéka (a gépen a kozos.FORRASOK; a futár az ottani lista szerint ellenőriz).
 FORRASOK = ("jegyzet", "atirat", "doksi", "commit", "cm_kerdes", "cm_osszegzes", "cm_megfigyeles", "bridge_memoria",
             "bridge_uzenet", "bridge_vita", "bridge_feladat", "kod", "web_atirat", "web_projekt", "web_memoria",

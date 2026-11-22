@@ -285,6 +285,27 @@ dialog.modal::backdrop { background: rgb(0 0 0 / 55%); }
 .modal-fej b { font-size: 15px; }
 .modal-test { padding: 14px 18px 18px; overflow: auto; max-height: calc(82dvh - 60px); white-space: pre-wrap; overflow-wrap: anywhere; }
 
+/* feladat-ügynök: panel az ablak alján, „+ Új ügynök” űrlap (11-23) */
+.szakasz-cim .gomb { text-transform: none; letter-spacing: 0; font: 500 12px/1 var(--font); color: var(--ink-2); }
+.ugynok-panel { padding: 10px 14px; }
+.ugynok-panel details { margin-bottom: 8px; }
+.ugynok-panel summary { cursor: pointer; display: flex; align-items: center; gap: 6px; min-width: 0; }
+.ugynok-panel summary .halk { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ugynok-adat { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 4px 12px; margin: 8px 0 0; font-size: 12.5px; }
+.ugynok-adat dt { color: var(--ink-3); }
+.ugynok-adat dd { margin: 0; color: var(--ink-2); white-space: pre-wrap; overflow-wrap: anywhere; max-height: 160px; overflow: auto; }
+.urlap-test { white-space: normal; }
+.urlap { display: grid; gap: 10px; }
+.urlap-mezo { display: grid; gap: 4px; font-size: 12.5px; color: var(--ink-2); }
+.urlap-mezo[hidden] { display: none; }
+.urlap-mezo input, .urlap-mezo textarea, .urlap-mezo select {
+  width: 100%; padding: 8px 10px; border: 1px solid var(--hair); border-radius: var(--radius-sm); background: var(--bg-2);
+  color: var(--ink); font-size: 14px; color-scheme: dark;
+}
+.urlap-mezo textarea { resize: vertical; min-height: 84px; line-height: 1.45; }
+.urlap-mezo :focus { outline: 2px solid var(--accent); outline-offset: 0; }
+.urlap-sor { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
 /* értesítő */
 .ertesito { position: fixed; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 50; max-width: calc(100% - 32px); padding: 9px 14px; border-radius: 12px; background: #222b36; color: var(--ink); box-shadow: var(--shadow); font-size: 13px; }
 .ertesito.hiba { background: var(--problem-soft); color: #fecaca; }

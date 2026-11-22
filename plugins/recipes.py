@@ -784,6 +784,13 @@ def register_tools(app, deps):
         denied = _gate(deps, "create_recipe", caller, auth, mutating=True)
         if denied:
             return denied
+        # 11-23: az `ugynok_` előtag a feladat-ügynököké (feladat_ugynok.py) — meta és Claude-útválasztás nélkül
+        # SiliconFlow-ra kerülne
+        import feladat_ugynok
+        _fenntartott = feladat_ugynok.fenntartott_nev(name)
+        if _fenntartott:
+            return json.dumps({"error": _fenntartott, "status": "rejected", "reason_code": "reserved_prefix"},
+                              ensure_ascii=False)
         if (vertical and not vertical_command) or (vertical_command and not vertical):
             return json.dumps({"error": "vertical and vertical_command must be set together"})
         # Validate required_tools is valid JSON
@@ -897,6 +904,12 @@ def register_tools(app, deps):
         denied = _gate(deps, "execute_recipe", caller, auth, mutating=False)
         if denied:
             return denied
+        # 11-23: a feladat-ügynök (feladat_ugynok.py) csak Claude-on fut — ez az út SiliconFlow-ügynökre adná
+        import feladat_ugynok
+        _ugynok = feladat_ugynok.execute_elutasitas(name)
+        if _ugynok:
+            return json.dumps({"error": _ugynok, "status": "rejected", "reason_code": "feladat_ugynok"},
+                              ensure_ascii=False)
         conn = get_db()
         row = conn.execute(
             "SELECT id, name, description, required_tools, prompt_template, enabled, "

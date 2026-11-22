@@ -361,6 +361,19 @@ RECIPE-K (workflow template-ek) — FONTOS:
   (17:30). Ha valamelyik időpontját kell módosítani, a MEGFELELŐ receptet
   ütemezd — ne írd át a másikat.
 
+FELADAT-ÜGYNÖKÖK (`ugynok` eszköz) — a Kommandant saját, névvel ellátott munkásai:
+- „Indíts egy ügynököt, ami minden reggel 7-kor megnézi az MNB-közleményeket, és szól, ha kamatdöntés van” →
+  ugynok(muvelet="indit", nev="Kamatfigyelő", feladat="<a feladat önállóan, a Kommandant szavaival>",
+  utemezes="0 7 * * *"). „Egyszer: gyűjtsd össze…” → utemezes üresen (most fut, egyszer). „Holnap 9-kor egyszer” →
+  utemezes="0 9 <nap> <hónap> *", egyszeri=true.
+- „Milyen ügynökeim vannak?” → muvelet="lista". „Állítsd le a kamatfigyelőt” → muvelet="leallit", nev="kamatfigyelő".
+  „Indítsd újra” → ujraindit; „futtasd most” → futtat; „szüntesd meg” → megszuntet (végleg).
+- Az ügynök Claude-on fut, saját költségkerettel (alap $0.50 futásonként, $10 havonta); a kabinban saját ablaka van.
+  Kifelé nem lép: levélből tervezet, naptárból javaslat lesz, amit a Kommandant hagy jóvá.
+- A válasz `uzenet` mezőjét add tovább szó szerint (benne a következő futás és a keret). Ha a név nem egyértelmű
+  (`jeloltek`), kérdezz vissza. Ismétlődő figyelésre, ha a Kommandant „ügynököt” kér, ezt használd, ne a
+  schedule_recipe-et (az SiliconFlow-ügynökön futtat).
+
 FOTÓK ÉS FÁJLOK:
 - A Kommandant Telegramon küldhet fotókat — azok upload #ID-val tárolódnak
 - "Elemezd a #2-es képet" → analyze_upload(file_id=2)
@@ -405,6 +418,8 @@ CÍMJEGYZÉK — így éred el a többieket (ne mondd, hogy „nincs csatornád�
 - WEB-CLAUS (Claude a claude.ai-on) → `send_message` (recipient: web-claus).
 - A FUTÁR (a Kommandant gépe: teljes tudásbázis, ChatGPT, Gemini) → `tudasbazis`, `chatgpt`, `gemini`.
 - NACHTSCHICHT (az éjszakai műszak, 05:50) → nincs közvetlen címe; reggel jelent a Telegramon.
+- FELADAT-ÜGYNÖKÖK (a Kommandant által indított, névvel ellátott munkások) → `ugynok` (indít, lista, leállít,
+  újraindít, futtat, megszüntet); az eredményükről Telegramon szólnak, a kabinban saját ablakuk van.
 
 ESZKÖZTÉRKÉP (a saját szolgáltatásaink — ezek az elsők):
 - hír, sajtó, sztori, entitás (személy, cég, intézmény), narratíva, trend, sajtószemle → `echolot` (gyors: echolot_query)
@@ -415,6 +430,7 @@ ESZKÖZTÉRKÉP (a saját szolgáltatásaink — ezek az elsők):
 - dokumentum, prezentáció, PDF, kép, videó készítése, átalakítása, szerkesztése, a mellékletek → `studio`
 - weboldal tartalma, crawl, kinyerés sémára, oldalfigyelés → `engine` (egyszerűbb: web_fetch, web_scrape, web_search)
 - levél, naptár, feladat, recept → gmail_*, calendar_*, create_task/list_tasks, *_recipe
+- önálló, névvel ellátott háttérmunka vagy ismétlődő figyelés („indíts egy ügynököt, ami…”) → `ugynok`
 - korábbi döntéseink, közös memória → search_memory, read_memory; hosszabb háttérkutatás egy ügynökkel → ai_task
 - egy TERVEZETT lépés kipróbálása („szimuláld”, „mi lenne, ha…”) → `dontes_szimulator` (alapból gazdasági előrejelzés + panel; sajtó és jog csak ha teljes szimulációt kér: `teljes`=true)
 - a Kommandant előzményei, régi döntései (a teljes saját tudásbázis a gépén) → `tudasbazis`; második vélemény,
@@ -778,7 +794,9 @@ async def _call_deepseek(ctx, model_id: str, messages: list, use_tools: bool = T
         if use_tools:
             # a külső appok (Lexonomics, Medical, Studio) szerverenként egy eszközként — kulso_mcp.py; a végén a
             # döntés-szimulátor (dontes_szimulator.py) és a Faber — a TOOLS lista sorrendje változatlan (prompt-cache)
-            payload["tools"] = TOOLS + await _kulso_eszkozok() + _futar_eszkozok() + _szimulator_eszkozok() + [FABER_DEF]
+            # 11-23: a végén a feladat-ügynökök kezelője (feladat_ugynok.py) — egy eszköz, `muvelet`-tel
+            payload["tools"] = (TOOLS + await _kulso_eszkozok() + _futar_eszkozok() + _szimulator_eszkozok()
+                                + [FABER_DEF] + _ugynok_eszkozok())
             # tool_choice="required" is REJECTED by deepseek-reasoner (V4-Pro)
             # on SiliconFlow with code 20015 "does not support this tool_choice".
             # Skip it for DeepSeek; the system prompt + provided tools steer the
@@ -953,6 +971,16 @@ def _szimulator_eszkozok() -> list:
         return []
 
 
+def _ugynok_eszkozok() -> list:
+    """A feladat-ügynökök kezelője (feladat_ugynok.py): indít, listáz, leállít, újraindít, futtat, megszüntet."""
+    try:
+        import feladat_ugynok
+        return [feladat_ugynok.ESZKOZ_DEF]
+    except Exception as e:  # noqa: BLE001
+        logger.warning("Feldwebel: a feladat-ügynök eszköz kimaradt: %s", str(e)[:200])
+        return []
+
+
 async def _kulso_eszkozok() -> list:
     """A bekötött külső MCP-szerverek eszközei; hibánál üres lista (a Feldwebel enélkül is válaszol)."""
     try:
@@ -979,6 +1007,11 @@ async def _execute_tool(name: str, args: dict, ctx, kor: dict | None = None, *, 
         return json.dumps({"error": futar_kliens.SF_FELE_HIBA}, ensure_ascii=False)
     if name == "faber":
         return _faber_uzen(args or {}, ctx)
+    if name == "ugynok":
+        # FELADAT-ÜGYNÖK (2026-11-23): „indíts egy ügynököt, ami…”, „állítsd le a kamatfigyelőt”. Az ügynök Claude-on
+        # fut, a naplója SiliconFlow-ügynökhöz nem kerül (feladat_ugynok.py), ezért tudásbázis-tartalmú körben is mehet.
+        import feladat_ugynok
+        return await feladat_ugynok.feldwebel_hiv(args or {}, ctx, vedett=vedett)
     if futar_kliens.sajat_e(name):
         return await futar_kliens.hiv(name, args, get_db=ctx.get_db, modell=modell)
 
@@ -1457,6 +1490,9 @@ async def _execute_tool(name: str, args: dict, ctx, kor: dict | None = None, *, 
         model = args.get("model", "deepseek")
         if not recipe_name:
             return json.dumps({"error": "Recipe neve szükséges"})
+        import feladat_ugynok
+        if feladat_ugynok.execute_elutasitas(recipe_name):
+            return json.dumps({"error": feladat_ugynok.execute_elutasitas(recipe_name)}, ensure_ascii=False)
         try:
             conn = ctx.get_db()
             row = conn.execute(
@@ -1507,6 +1543,9 @@ async def _execute_tool(name: str, args: dict, ctx, kor: dict | None = None, *, 
         prompt_tpl = args.get("prompt_template", "")
         if not rname or not desc or not prompt_tpl:
             return json.dumps({"error": "name, description, prompt_template mind szükséges"})
+        import feladat_ugynok
+        if feladat_ugynok.fenntartott_nev(rname):
+            return json.dumps({"error": feladat_ugynok.fenntartott_nev(rname)}, ensure_ascii=False)
         try:
             conn = ctx.get_db()
             ts = datetime.now(timezone.utc).isoformat()

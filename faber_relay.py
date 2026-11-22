@@ -96,7 +96,9 @@ SZANDEK_PROMPT = (
     "- elvet: Faber-kérelmet elvet („mégse”, „ne”)\n"
     "- vissza: élesített Faber-változást visszacsináltat („csináld vissza”)\n"
     "- allapot: a Faberről kérdez („mi van a faberrel?”, „mit tanultál?”)\n"
-    "- egyeb: minden más (kérdés, beszélgetés, egyszeri feladat a Bridge-nek). Kétes esetben egyeb.\n"
+    "- egyeb: minden más (kérdés, beszélgetés, egyszeri feladat a Bridge-nek). Kétes esetben egyeb. Egy "
+    "feladat-ügynök indítása, leállítása, újraindítása, megszüntetése („indíts egy ügynököt, ami…”, „állítsd le a "
+    "kamatfigyelőt”, „a kamatfigyelő már nem kell”) is egyeb: azt a Bridge végzi, nem a Faber.\n"
     "repo: csak ha az üzenetből kiderül. kerelem: csak ha számot mond (pl. „a 3-ast élesítsd” → 3)."
 )
 
@@ -145,6 +147,8 @@ def heurisztika(t: str) -> str:
     low = t.lower().strip()
     szavak = re.findall(r"\w+", low)
     rovid = len(szavak) <= 6
+    if "ügynök" in low and "faber" not in low:
+        return "egyeb"          # 11-23: a feladat-ügynökök kezelése a Bridge-é („az ügynök már nem kell”), nem elvetés
     if _VISSZA.search(low):
         return "vissza"
     if ("faber" in low and re.search(r"mi van|hol tart|állapot|mit tanult|mit csinál|mi újság", low)) \

@@ -1,8 +1,10 @@
 // Bridge UI v2 — „kabinüveg” (2026-11-22). Vanilla JS, build-lépés nélkül; minden adat a /api/ui/* utakról jön,
 // a munkamenet-sütivel (httpOnly — a szkript nem látja, csak a böngésző küldi).
 //
-// Bal sáv: az ügynökök (Claus/Feldwebel a fő asszisztens, Kimi, DeepSeek, GLM, Faber) állapottal, alatta a
-// beszélgetések (postaláda, nyitott viták). Közép: beszélgetés a választott ügynökkel — gépelésjelző, élő
+// Bal sáv: az ügynökök (Claus/Feldwebel a fő asszisztens, Kimi, DeepSeek, GLM, Faber) állapottal, alattuk a
+// FELADAT-ÜGYNÖKÖK (11-23: a Kommandant saját, névvel ellátott munkásai — „+ Új ügynök”, saját ablak a futásokkal, a
+// költéssel és a Futtasd most / Leállít / Újraindít / Megszüntet gombokkal), alatta a beszélgetések (postaláda,
+// viták). Közép: beszélgetés a választott ügynökkel — gépelésjelző, élő
 // eszközhívás-sorok, a válasz alatt halványan a VALÓBAN kiszolgáló modell. Jobb sáv, „munkapad”: jóváhagyásra váró
 // tételek gombokkal, friss események, LLM-költés. Telefonon egy oszlop, a két sáv fiókba kerül.
 
@@ -26,12 +28,25 @@ const HELYKITOLTO = {
 const ESZKOZ_IGE = {
   web_search: 'Keresett a weben', echolot_query: 'Keresett az Echolotban', echolot_engine: 'Echolot-motor',
   ai_query: 'Megkérdezett egy ügynököt', ai_task: 'Feladatot adott ki', execute_recipe: 'Receptet futtatott',
+  ugynok: 'Feladat-ügynököt kezelt',
   schedule_recipe: 'Ütemezett egy receptet', capture_inbox: 'Megnézte a leveleket', read_email: 'Elolvasott egy levelet',
   send_email: 'Levelet küldött', create_task: 'Feladatot vett fel', list_tasks: 'Megnézte a feladatokat',
   create_calendar_event: 'Naptárba írt', read_memory: 'A közös memóriában olvasott', search_memory: 'A memóriában keresett',
   statdata: 'StatData-adatot kért', analyze_upload: 'Képet elemzett',
 };
 const SZINT_NEV = { okos: 'okos', kozep: 'közép', olcso: 'olcsó' };
+const FELADAT_SZIN = '#f472b6';
+const feladatE = (id) => typeof id === 'string' && /^ugynok:\d+$/.test(id);
+const feladatUgynok = (id) => S.adat?.ugynokok.find((u) => u.id === id)?.feladat_ugynok || null;
+// egy ügynök jele: a fixeké a UGYNOK-ból, a feladat-ügynököké a nevéből
+function jel(ki) {
+  if (UGYNOK[ki]) return UGYNOK[ki];
+  if (feladatE(ki)) {
+    const nev = S.adat?.ugynokok.find((u) => u.id === ki)?.nev || 'Ügynök';
+    return { betu: nev.slice(0, 1).toUpperCase(), szin: FELADAT_SZIN, rovid: nev };
+  }
+  return null;
+}
 
 const S = {
   adat: null,                       // az utolsó /api/ui/allapot
@@ -112,7 +127,7 @@ function md(szoveg) {
 }
 
 function avatar(ki, { kicsi = false, pont = null } = {}) {
-  const u = UGYNOK[ki];
+  const u = jel(ki);
   const betu = u ? u.betu : ki === 'postalada' ? '✉' : (ki || '?').slice(0, 1).toUpperCase();
   const szin = u ? u.szin : '#94a3b8';
   return el('span', { class: `avatar${kicsi ? ' kicsi' : ''}`, style: `background:${szin}`, 'aria-hidden': 'true' },
@@ -264,7 +279,7 @@ async function kilep() {
 function balRajzol() {
   const a = S.adat;
   if (!a) return;
-  S.ref.ugynokok.replaceChildren(...a.ugynokok.map((u) => {
+  const sorok = a.ugynokok.map((u) => {
     const pont = u.fut || S.futok[`u:${u.id}`] ? 'dolgozik' : u.elerheto ? 'el' : 'ki';
     const aktiv = S.nezet.tipus === 'ugynok' && S.nezet.id === u.id;
     const uj = u.utolso && u.utolso.ki !== 'kommandant' && u.utolso.id > (S.latott[u.id] || 0) && !aktiv;
@@ -276,7 +291,14 @@ function balRajzol() {
     el('span', { class: 'ugynok-test' }, el('span', { class: 'ugynok-nev' }, u.nev), el('span', { class: 'ugynok-elo' }, elo)),
     el('span', { class: 'ugynok-ido' }, relativ(u.utoljara)),
     uj ? el('span', { class: 'olvasatlan', 'aria-label': 'új üzenet' }) : null);
-  }));
+  });
+  const fix = sorok.filter((_, i) => !a.ugynokok[i].feladat_ugynok);
+  const feladat = sorok.filter((_, i) => a.ugynokok[i].feladat_ugynok);
+  S.ref.ugynokok.replaceChildren(...fix,
+    el('div', { class: 'szakasz-cim' }, el('span', {}, 'Feladat-ügynökök'),
+      el('button', { class: 'gomb gomb-kicsi', title: 'Új feladat-ügynök indítása', onclick: ujUgynokUrlap }, '+ Új ügynök')),
+    ...(feladat.length ? feladat : [el('div', { class: 'ures', style: 'padding:4px 10px' },
+      'Nincs még. Mondd Clausnak: „indíts egy ügynököt, ami…”, vagy nyomd meg a gombot.')]));
   const p = a.postalada;
   const pUj = p && p.id > (S.latott.postalada || 0);
   const elemek = [el('button', {
@@ -297,7 +319,13 @@ function balRajzol() {
 function fejlecRajzol() {
   const n = S.nezet;
   let cim, al, ki;
-  if (n.tipus === 'ugynok') {
+  if (n.tipus === 'ugynok' && feladatE(n.id)) {
+    const f = feladatUgynok(n.id);
+    ki = n.id; cim = f ? f.nev : 'Feladat-ügynök';
+    al = !f ? 'megszüntetve' : [f.fut ? 'dolgozik…' : f.allapot_szoveg, f.utemezes_szoveg,
+      f.kovetkezo_szoveg ? `köv.: ${f.kovetkezo_szoveg}` : null,
+      `e hónap $${f.koltes.honap_usd.toFixed(2)} / $${f.havi_keret_usd.toFixed(0)}`].filter(Boolean).join(' · ');
+  } else if (n.tipus === 'ugynok') {
     const u = S.adat?.ugynokok.find((x) => x.id === n.id) || { nev: n.id, elerheto: true };
     const fut = S.futok[`u:${n.id}`];
     ki = n.id; cim = u.nev;
@@ -400,10 +428,16 @@ function tetelCsomopont(t) {
   }
   if (!en && t.modell) meta.append(el('span', { class: 'modell', title: 'a választ ténylegesen kiszolgáló modell' }, t.modell));
   if (!en && t.eszkozok?.length) meta.append(el('span', { class: 'chip' }, `eszközök: ${t.eszkozok.join(', ')}`));
+  if (t.futas) {
+    const f = t.futas;
+    meta.append(el('span', { class: 'chip', title: 'a futás költsége / a futás kerete' }, `$${Number(f.koltes_usd || 0).toFixed(2)} / $${Number(f.keret_usd || 0).toFixed(2)}`));
+    if (f.jelzes) meta.append(el('span', { class: 'chip faber' }, 'szólt neked'));
+    if (f.trigger && f.trigger !== 'cron') meta.append(el('span', { class: 'chip' }, `indította: ${f.trigger}`));
+  }
   if (t.ido) meta.append(el('span', {}, oraPerc(t.ido)));
   if (t.fuggo) meta.append(el('span', {}, 'küldés…'));
   return el('div', { class: `sor ${en ? 'en' : 'o'}${t.hiba ? ' hiba' : ''}` },
-    mutatNev ? el('div', { class: 'ki-nev' }, avatar(t.ki, { kicsi: true }), UGYNOK[t.ki]?.rovid || t.ki) : null,
+    mutatNev ? el('div', { class: 'ki-nev' }, avatar(t.ki, { kicsi: true }), jel(t.ki)?.rovid || t.ki) : null,
     t.targy ? el('div', { class: 'ki-nev', style: 'color:var(--ink)' }, t.targy) : null,
     buborek(t),
     meta.childNodes.length ? meta : null);
@@ -469,6 +503,11 @@ function uresAllapot() {
   const n = S.nezet;
   if (n.tipus === 'postalada') return el('div', { class: 'atirat-ures' }, el('b', {}, 'Üres a postaláda'), 'A Claude-ok ide írnak neked.');
   if (n.tipus === 'vita') return el('div', { class: 'atirat-ures' }, 'Betöltés…');
+  if (feladatE(n.id)) {
+    const f = feladatUgynok(n.id);
+    return el('div', { class: 'atirat-ures' }, el('b', {}, 'Még nem futott'),
+      f?.kovetkezo_szoveg ? `Az első futás: ${f.kovetkezo_szoveg}. Ha most kell, nyomd meg a „Futtasd most” gombot.` : 'Hamarosan itt lesz az első futás eredménye.');
+  }
   const u = UGYNOK[n.id]?.rovid || n.id;
   return el('div', { class: 'atirat-ures' }, el('b', {}, `Még nem beszéltetek ${u === 'Claus' ? 'Clausszal' : `— ${u}`}`),
     n.id === 'faber' ? 'Mondd el, mit tanuljon meg: a Faber kipróbálja, és jóváhagyásra hozza.' : 'Írj, vagy nyomd meg a mikrofont, és mondd.');
@@ -556,6 +595,7 @@ function nezetValt(n) {
 // ── SZERKESZTŐ (gépelés + diktálás) ──────────────────────────
 function szerkesztoEpit() {
   const n = S.nezet;
+  if (n.tipus === 'ugynok' && feladatE(n.id)) { ugynokPanelRajzol(); return; }
   if (n.tipus === 'postalada') {
     S.ref.szerkeszto.replaceChildren(el('div', { class: 'szerkeszto-zar' }, 'A postaládára nem lehet válaszolni — írj Clausnak, ő továbbadja.'));
     S.ref.input = null;
@@ -703,6 +743,127 @@ async function korVege(kulcs, j) {
   frissit({}).catch(() => {});
 }
 
+// ── FELADAT-ÜGYNÖK: panel az ablak alján + „+ Új ügynök” ──────
+function ugynokPanelRajzol() {
+  const n = S.nezet;
+  const f = feladatUgynok(n.id);
+  S.ref.input = null;
+  // a 12 mp-es frissítés újrarajzolja: a lenyitott részletek maradjanak nyitva, futó művelet közben ne rajzoljon
+  const regi = S.ref.szerkeszto.querySelector('.ugynok-panel');
+  if (regi?.dataset.dolgozik) return;
+  const nyitva = Boolean(regi?.querySelector('details')?.open) && regi.dataset.id === n.id;
+  if (!f) { S.ref.szerkeszto.replaceChildren(el('div', { class: 'szerkeszto-zar' }, 'Ez az ügynök már nincs meg.')); return; }
+  const hiba = el('div', { class: 'kartya-hiba', hidden: true });
+  const gombok = el('div', { class: 'kartya-gombok' });
+  const muvelet = async (m, kerdes) => {
+    if (kerdes && !confirm(kerdes)) return;
+    const panel = S.ref.szerkeszto.querySelector('.ugynok-panel');
+    if (panel) panel.dataset.dolgozik = '1';
+    gombok.querySelectorAll('button').forEach((b) => { b.disabled = true; });
+    try {
+      const j = await api('/api/ui/ugynok/muvelet', { method: 'POST', body: { id: n.id, muvelet: m } });
+      ertesit(j.uzenet || 'Rendben.');
+      if (panel) delete panel.dataset.dolgozik;
+      if (m === 'megszuntet') { await frissit({}); nezetValt({ tipus: 'ugynok', id: 'feldwebel' }); return; }
+      await frissit({ tortenet: true });
+    } catch (e) {
+      if (e instanceof Hiba401) return;
+      if (panel) delete panel.dataset.dolgozik;
+      hiba.hidden = false; hiba.textContent = e.message;
+      gombok.querySelectorAll('button').forEach((b) => { b.disabled = false; });
+    }
+  };
+  gombok.append(
+    el('button', { class: 'gomb gomb-fo gomb-kicsi', disabled: f.fut, title: 'Egy futás most, az ütemezéstől függetlenül', onclick: () => muvelet('futtat') }, f.fut ? 'Dolgozik…' : 'Futtasd most'),
+    f.allapot === 'aktiv'
+      ? el('button', { class: 'gomb gomb-kicsi', title: 'Az ütemezés szünetel; ha éppen dolgozik, megáll', onclick: () => muvelet('leallit') }, 'Leállít')
+      : el('button', { class: 'gomb gomb-kicsi', onclick: () => muvelet('ujraindit') }, 'Újraindít'),
+    el('button', { class: 'gomb gomb-kicsi gomb-vesz', onclick: () => muvelet('megszuntet', `Végleg megszünteted: „${f.nev}”?`) }, 'Megszüntet'));
+  const k = f.koltes;
+  const adat = [
+    ['Feladat', f.feladat],
+    ['Ütemezés', `${f.utemezes_szoveg}${f.kovetkezo_szoveg ? ` · legközelebb ${f.kovetkezo_szoveg}` : ''}${f.ok ? ` · ${f.ok}` : ''}`],
+    ['Szól', f.ertesites === 'mindig' ? 'minden futás után' : 'ha van mit jelezni'],
+    ['Költés', `utolsó $${Number(k.utolso_usd || 0).toFixed(2)} · e hónap $${k.honap_usd.toFixed(2)} / $${f.havi_keret_usd.toFixed(0)} · összesen $${k.osszes_usd.toFixed(2)} (${k.futasok} futás) · keret $${f.keret_usd.toFixed(2)}/futás`],
+  ];
+  S.ref.szerkeszto.replaceChildren(el('div', { class: 'szerkeszto' }, el('div', { class: 'szerkeszto-hej ugynok-panel', 'data-id': n.id },
+    el('details', { open: nyitva }, el('summary', {}, el('span', {}, allapotChip(f.fut ? 'dolgozik' : f.allapot_szoveg, f.fut ? 'fut' : f.allapot === 'aktiv' ? 'kesz' : 'semleges')),
+      el('span', { class: 'halk' }, ` ${f.feladat.slice(0, 90)}${f.feladat.length > 90 ? '…' : ''}`)),
+    el('dl', { class: 'ugynok-adat' }, adat.map(([c, v]) => [el('dt', {}, c), el('dd', {}, v)]))),
+    gombok, hiba,
+    el('div', { class: 'halk', style: 'margin-top:6px' }, 'Kifelé nem lép: levélből tervezet, naptárból javaslat lesz. Módosításhoz szólj Clausnak.'))));
+}
+
+function ujUgynokUrlap() {
+  const mezo = (cimke, input, sugo) => el('label', { class: 'urlap-mezo' }, el('span', {}, cimke), input, sugo ? el('small', { class: 'halk' }, sugo) : null);
+  const nev = el('input', { maxlength: '60', placeholder: 'pl. Kamatfigyelő', required: true });
+  const feladat = el('textarea', { rows: '4', maxlength: '4000', placeholder: 'pl. Nézd meg az MNB legfrissebb közleményeit, és szólj, ha kamatdöntés van (mennyi lett, mihez képest).', required: true });
+  const mikor = el('select', {}, [['most', 'Egyszer, most'], ['napi', 'Minden nap'], ['hetkoznap', 'Hétköznap'], ['heti', 'Hetente'],
+    ['oranken', 'Óránként'], ['ekkor', 'Egyszer, ekkor'], ['cron', 'Saját cron']].map(([v, t]) => el('option', { value: v }, t)));
+  const ora = el('input', { type: 'time', value: '07:00' });
+  const nap = el('select', {}, ['vasárnap', 'hétfő', 'kedd', 'szerda', 'csütörtök', 'péntek', 'szombat'].map((t, i) => el('option', { value: String(i), selected: i === 1 }, t)));
+  const ekkor = el('input', { type: 'datetime-local' });
+  const cron = el('input', { placeholder: '0 7 * * *', spellcheck: 'false' });
+  const ertesites = el('select', {}, el('option', { value: '' }, 'Magától (figyelőnél: ha van mit jelezni)'),
+    el('option', { value: 'ha_van' }, 'Csak ha van mit jelezni'), el('option', { value: 'mindig' }, 'Minden futás után'));
+  const keret = el('input', { type: 'number', min: '0.05', max: '5', step: '0.05', value: '0.50' });
+  const havi = el('input', { type: 'number', min: '1', max: '50', step: '1', value: '10' });
+  const oraMezo = mezo('Időpont', ora), napMezo = mezo('Nap', nap), ekkorMezo = mezo('Mikor', ekkor), cronMezo = mezo('Cron', cron, 'perc óra nap hónap hétnap, Budapest-idő; legsűrűbb 15 perc');
+  const igazit = () => {
+    const v = mikor.value;
+    oraMezo.hidden = !['napi', 'hetkoznap', 'heti'].includes(v); napMezo.hidden = v !== 'heti';
+    ekkorMezo.hidden = v !== 'ekkor'; cronMezo.hidden = v !== 'cron';
+  };
+  mikor.addEventListener('change', igazit); igazit();
+  const hiba = el('div', { class: 'kartya-hiba', hidden: true });
+  const indit = el('button', { class: 'gomb gomb-fo', type: 'submit' }, 'Indítás');
+  const urlap = el('form', { class: 'urlap' }, mezo('Név', nev), mezo('Feladat', feladat, 'Önállóan érthetően: mit nézzen, mikor szóljon, mit adjon vissza.'),
+    mezo('Mikor fusson', mikor), oraMezo, napMezo, ekkorMezo, cronMezo, mezo('Szóljon', ertesites),
+    el('div', { class: 'urlap-sor' }, mezo('Keret / futás ($)', keret), mezo('Havi keret ($)', havi)),
+    el('div', { class: 'halk' }, 'Claude-on fut (Anthropic API). Kifelé nem lép: levélből tervezet, naptárból javaslat lesz, amit te hagysz jóvá.'),
+    hiba, el('div', { class: 'kartya-gombok' }, indit, el('button', { class: 'gomb', type: 'button', onclick: () => d.close() }, 'Mégse')));
+  const d = el('dialog', { class: 'modal' },
+    el('div', { class: 'modal-fej' }, el('b', {}, 'Új feladat-ügynök'), el('button', { class: 'ikon-gomb', type: 'button', 'aria-label': 'Bezár', onclick: () => d.close() }, '✕')),
+    el('div', { class: 'modal-test urlap-test' }, urlap));
+  const utemezes = () => {
+    const [h, m] = (ora.value || '07:00').split(':').map(Number);
+    switch (mikor.value) {
+      case 'napi': return [`${m} ${h} * * *`, false];
+      case 'hetkoznap': return [`${m} ${h} * * 1-5`, false];
+      case 'heti': return [`${m} ${h} * * ${nap.value}`, false];
+      case 'oranken': return ['0 * * * *', false];
+      case 'ekkor': {
+        const t = new Date(ekkor.value);
+        if (Number.isNaN(t.getTime())) throw new Error('add meg, mikor fusson');
+        return [`${t.getMinutes()} ${t.getHours()} ${t.getDate()} ${t.getMonth() + 1} *`, true];
+      }
+      case 'cron': return [cron.value.trim(), false];
+      default: return ['', true];
+    }
+  };
+  urlap.addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    hiba.hidden = true; indit.disabled = true;
+    try {
+      const [u, egyszeri] = utemezes();
+      const j = await api('/api/ui/ugynok', { method: 'POST', body: {
+        nev: nev.value.trim(), feladat: feladat.value.trim(), utemezes: u, egyszeri, ertesites: ertesites.value,
+        keret_usd: Number(keret.value), havi_keret_usd: Number(havi.value) } });
+      d.close();
+      ertesit(j.uzenet || 'Elindítottam.');
+      await frissit({});
+      nezetValt({ tipus: 'ugynok', id: j.ugynok.id });
+    } catch (e) {
+      if (e instanceof Hiba401) return;
+      hiba.hidden = false; hiba.textContent = e.message;
+    } finally { indit.disabled = false; }
+  });
+  d.addEventListener('close', () => d.remove());
+  document.body.append(d);
+  d.showModal();
+  setTimeout(() => nev.focus(), 30);
+}
+
 // ── MUNKAPAD ──────────────────────────────────────────────────
 function munkapadRajzol() {
   const a = S.adat;
@@ -729,10 +890,11 @@ function munkapadRajzol() {
     (a.esemenyek || []).length ? a.esemenyek.map(esemenySor) : el('div', { class: 'ures' }, 'Csend.'));
 
   const peldanyok = Object.entries(a.peldanyok || {});
-  S.ref.munkapad.replaceChildren(jovahagyas, friss, esemenyek, koltesBlokk(a.llm_kapu),
+  // a hiányzó blokk (null) kimarad — a replaceChildren különben „null” szöveget írna ki
+  S.ref.munkapad.replaceChildren(...[jovahagyas, friss, esemenyek, koltesBlokk(a.llm_kapu),
     peldanyok.length ? el('section', { class: 'blokk' }, el('div', { class: 'szakasz-cim' }, 'Claude-példányok'),
       peldanyok.map(([nev, p]) => el('div', { class: 'jelenlet-sor' }, el('span', {}, nev),
-        el('span', { title: p.last_activity_source || '' }, relativ(p.last_seen))))) : null);
+        el('span', { title: p.last_activity_source || '' }, relativ(p.last_seen))))) : null].filter(Boolean));
 }
 
 function draftKartya(d) {
@@ -754,7 +916,7 @@ function draftKartya(d) {
   sor.append(el('button', { class: 'gomb gomb-fo gomb-kicsi', onclick: () => dont('approve') }, 'Jóváhagyom'),
     el('button', { class: 'gomb gomb-kicsi', onclick: () => dont('reject') }, 'Elvetem'));
   return el('div', { class: 'draft' }, el('b', {}, `${d.fajta === 'calendar' ? '📅' : '⏰'} ${d.cim}`),
-    el('small', {}, [d.mikor ? `${d.mikor} · ` : '', 'e-mailből kinyert javaslat']),
+    el('small', {}, [d.mikor ? `${d.mikor} · ` : '', d.forras?.startsWith('ügynök') ? `${d.forras.slice(8)} ügynök javaslata` : 'e-mailből kinyert javaslat']),
     d.reszlet ? el('div', { class: 'halk', style: 'margin-top:4px' }, d.reszlet) : null, sor, hiba);
 }
 
@@ -821,6 +983,10 @@ async function frissit({ tortenet = false } = {}) {
   balRajzol();
   fejlecRajzol();
   munkapadRajzol();
+  if (S.nezet.tipus === 'ugynok' && feladatE(S.nezet.id)) {
+    if (!feladatUgynok(S.nezet.id)) { nezetValt({ tipus: 'ugynok', id: 'feldwebel' }); return; }
+    ugynokPanelRajzol();
+  }
   const kulcs = nezetKulcs();
   if ((tortenet || valtozott) && !S.futok[kulcs] && S.nezet.tipus !== 'vita') {
     await tortenetBetolt({ csendes: true });
@@ -865,7 +1031,7 @@ async function indit() {
   if (S.adat.most) S.eltolas = ms(S.adat.most) - Date.now();
   S.utolsoId = S.adat.utolso_id;
   const mentett = olvas('kabin.nezet', null);
-  if (mentett && (mentett.tipus === 'postalada' || (mentett.tipus === 'ugynok' && UGYNOK[mentett.id]) || mentett.tipus === 'vita')) S.nezet = mentett;
+  if (mentett && (mentett.tipus === 'postalada' || (mentett.tipus === 'ugynok' && (UGYNOK[mentett.id] || feladatUgynok(mentett.id))) || mentett.tipus === 'vita')) S.nezet = mentett;
   kabinEpit();
   balRajzol(); fejlecRajzol(); munkapadRajzol();
   S.ref.atirat.replaceChildren(el('div', { class: 'atirat-ures' }, 'Betöltés…'));

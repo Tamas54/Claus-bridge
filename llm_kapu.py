@@ -94,6 +94,8 @@ SZINT_TABLA = (
     # 11-22, NACHTSCHICHT (nachtschicht.py): a rövid tervező lépés Opus, az éjszakai munka (eszközhurok, írás) Sonnet
     ("nachtschicht_terv", "a Nachtschicht tervező lépése (`nachtschicht/terv`): mit fog ma kérni a Kommandant", "okos"),
     ("nachtschicht", "a Nachtschicht munkája (`nachtschicht/…`): háttéranyag, levéltervezet, beadványvázlat", "kozep"),
+    # 11-23, FELADAT-ÜGYNÖK (feladat_ugynok.py): a Kommandant által indított, névvel ellátott munkás egy futása
+    ("feladat_ugynok", "a feladat-ügynök futása (`ugynok/<id>/futas`): ütemezett vagy egyszeri munka eszközökkel", "kozep"),
     ("cel_okos", "a `purpose` okos munka: synth, brief, elemzés, dispatch, essay, nowcast", "okos"),
     # 11-22, Kommandant: „8 cent nagyon sok egy válaszra” — a Feldwebel alapból olcsó, és csak a mélyebb kérésnél közép
     ("feldwebel_melyebb", "a Feldwebel, és a Kommandant üzenete elemzést/tervet/összevetést kér vagy hosszú", "kozep"),
@@ -239,6 +241,8 @@ def szint_valaszt(payload: dict, purpose: str = "") -> tuple[str, str]:
     cel = (purpose or "").lower()
     if cel.startswith("nachtschicht"):
         szabaly = "nachtschicht_terv" if cel.startswith("nachtschicht/terv") else "nachtschicht"
+    elif cel.startswith("ugynok/"):
+        szabaly = "feladat_ugynok"
     elif any(c in cel for c in OKOS_CELOK):
         szabaly = "cel_okos"
     elif "feldwebel" in cel:

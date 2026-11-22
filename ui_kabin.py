@@ -20,6 +20,9 @@ Mi van itt (a statikus kliens a `static/app/` alatt, build-lépés nélkül):
   4. JÓVÁHAGYÁS: a Faber kérelmei (`faber:kapu` / `faber:esemeny`, lásd `faber_kartyak`) és a Bridge
      `action_drafts`-ai; a döntés hitelesített POST, a Faber felé `faber_relay.tovabbit(..., "gomb", ...)`.
   5. MUNKAPAD: friss események (feladatok, viták, briefek) és az LLM-költés (`llm_kapu.allapot()`).
+  6. FELADAT-ÜGYNÖKÖK (2026-11-23, feladat_ugynok.py): a bal sávban a fix ügynökök alatt, dinamikusan; mindegyiknek
+     saját ablaka (`ugynok:<id>`: a futások naplója a messages táblából, költéssel), „+ Új ügynök”, „Futtasd most”,
+     „Leállít”, „Újraindít”, „Megszüntet” — hitelesített POST-ok, ugyanazon a belépőn, mint a Feldwebel `ugynok` eszköze.
 
 A link címe SOSEM a kérés Host-fejlécéből jön (azzal bárki a saját domainjére irányíthatná a Kommandantnak küldött
 tokent): `BRIDGE_PUBLIC_URL`, különben `https://$RAILWAY_PUBLIC_DOMAIN`; Host-ból csak helyi gépen (localhost).
@@ -51,6 +54,7 @@ from starlette.requests import Request
 from starlette.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse, Response
 
 import faber_relay
+import feladat_ugynok
 import kimenet as kimenet_mod
 
 logger = logging.getLogger("ui_kabin")
@@ -444,10 +448,46 @@ def _subject_nyom(subject: str) -> tuple[str | None, list[str]]:
     return (m.group(1) if m else None), (e.group(1).split(",") if e else [])
 
 
+def ugynok_ablak(ablak: str) -> bool:
+    """Feladat-ügynök ablaka-e (`ugynok:<recept-id>`)."""
+    return bool(re.fullmatch(r"ugynok:\d{1,9}", ablak or ""))
+
+
+def _futas_szoveg(d: dict) -> str:
+    """Egy feladat-ügynök futása az átiratba: összegzés, eredmény, és a gép gyűjtötte linkek (dokumentum, tervezet)."""
+    osszeg, ered = str(d.get("osszegzes") or "").strip(), str(d.get("eredmeny") or "").strip()
+    reszek = []
+    if d.get("allapot") != "kesz":
+        reszek.append(f"⚠ {d.get('hiba') or d.get('allapot')}")
+    if osszeg and not ered.startswith(osszeg[:60]):
+        reszek.append(f"**{osszeg}**")
+    if ered:
+        reszek.append(ered)
+    for x in d.get("dokumentumok") or []:
+        reszek.append(f"📄 [{x.get('name') or 'dokumentum'}]({x['edit_url']})" if x.get("edit_url")
+                      else f"📄 {x.get('name') or 'dokumentum'}")
+    for t in d.get("tervezetek") or []:
+        felirat = f"levéltervezet: {t.get('subject') or ''} → {t.get('to') or ''} (a Piszkozatokban, nem ment el)"
+        reszek.append(f"✉️ [{felirat}]({t['link']})" if t.get("link") else f"✉️ {felirat}")
+    for j in d.get("javaslatok") or []:
+        reszek.append(f"📅 {j.get('javaslat')} — javaslat, a munkapadon hagyhatod jóvá")
+    return "\n\n".join(reszek)
+
+
 def _osztalyoz(r, relay: dict) -> list[tuple[str, dict]]:
-    """Egy `messages`-sor → (ablak, tétel) párok. Ablakok: az ügynökök, 'postalada'."""
+    """Egy `messages`-sor → (ablak, tétel) párok. Ablakok: az ügynökök, a feladat-ügynökök, 'postalada'."""
     s, rc, subj, msg = r["sender"], r["recipient"], r["subject"] or "", r["message"] or ""
     alap = {"id": r["id"], "ido": r["timestamp"]}
+    if s == rc and ugynok_ablak(s):
+        d = _json(msg)
+        if subj == feladat_ugynok.TARGY_FUTAS:
+            elonezet = str(d.get("osszegzes") or d.get("hiba") or d.get("allapot") or "")
+            return [(s, {**alap, "ki": s, "tipus": "uzenet", "szoveg": _futas_szoveg(d), "elonezet": elonezet,
+                         "modell": d.get("modell") or None,
+                         "hiba": d.get("allapot") != "kesz", "eszkozok": list(dict.fromkeys(d.get("eszkozok") or [])),
+                         "futas": {k: d.get(k) for k in ("allapot", "jelzes", "koltes_usd", "keret_usd", "trigger",
+                                                         "mp", "hivasok")}})]
+        return [(s, {**alap, "ki": "rendszer", "tipus": "rendszer", "szoveg": str(d.get("szoveg") or subj)})]
     if s == "kommandant" and rc == "bridge" and subj.startswith(("Telegram:", "Web:")):
         csat = "web" if subj.startswith("Web:") else "telegram"
         emlitett = sorted({m.lower() for m in _SZOVEG_EMLITES.findall(msg)})
@@ -496,7 +536,8 @@ def _osztalyoz(r, relay: dict) -> list[tuple[str, dict]]:
 
 
 _TORTENET_SQL = ("SELECT id, timestamp, sender, recipient, subject, message FROM messages WHERE "
-                 "((sender = 'kommandant' AND recipient = 'bridge') OR recipient IN ('kommandant', 'faber'))")
+                 "((sender = 'kommandant' AND recipient = 'bridge') OR recipient IN ('kommandant', 'faber') "
+                 "OR sender LIKE 'ugynok:%')")
 
 
 def tortenet(conn, ablak: str, k_faber: bytes | None, *, elotte: int | None = None, limit: int = 50,
@@ -538,7 +579,7 @@ def _utolsok(conn, k_faber: bytes | None) -> tuple[dict, int]:
     for r in sorok:
         for ab, tetel in _osztalyoz(r, relay):
             utolso.setdefault(ab, {"id": tetel["id"], "ido": tetel["ido"], "ki": tetel["ki"],
-                                   "szoveg": (tetel.get("szoveg") or "")[:140]})
+                                   "szoveg": (tetel.get("elonezet") or tetel.get("szoveg") or "")[:140]})
     return utolso, (sorok[0]["id"] if sorok else 0)
 
 
@@ -674,13 +715,16 @@ async def api_chat_kor(request: Request):
 async def api_beszelgetes(request: Request):
     """GET /api/ui/beszelgetes?ablak=feldwebel&elotte=123 — közös előzmény a Telegrammal."""
     ablak = request.query_params.get("ablak", "feldwebel")
-    if ablak not in UGYNOKOK and ablak != "postalada":
+    if ablak not in UGYNOKOK and ablak != "postalada" and not ugynok_ablak(ablak):
         return JSONResponse({"hiba": f"ismeretlen ablak: {ablak}"}, status_code=400)
     elotte = request.query_params.get("elotte")
     conn = _DEPS["get_db"]()
     try:
         adat = tortenet(conn, ablak, faber_relay.kulcs(_DEPS["bot_token"]()),
                         elotte=int(elotte) if elotte and elotte.isdigit() else None)
+        if ugynok_ablak(ablak):
+            sor = feladat_ugynok._sor(conn, feladat_ugynok.rid_azonositobol(ablak))
+            adat["ugynok"] = feladat_ugynok.nezet(sor) if sor is not None else None
         if ablak == "faber":
             adat["kartyak"] = {c["id"]: _kartya_kifele(c) for c in faber_kartyak(conn, faber_relay.kulcs(
                 _DEPS["bot_token"]()))}
@@ -735,7 +779,8 @@ def _draftok(conn) -> list[dict]:
     for r in sorok:
         p = _json(r["payload_json"])
         out.append({"id": r["id"], "fajta": r["kind"], "cim": r["title"], "mikor": r["due_at"],
-                    "reszlet": str(p.get("details") or "")[:400], "ido": r["created_at"]})
+                    "reszlet": str(p.get("details") or "")[:400], "ido": r["created_at"],
+                    "forras": str(p.get("forras") or "") or None})
     return out
 
 
@@ -811,6 +856,11 @@ async def api_allapot(request: Request):
         esemenyek = _esemenyek(conn)
         vitak = _vitak(conn)
         try:
+            feladat_ugynokok = feladat_ugynok.lista(conn)
+        except Exception as e:  # noqa: BLE001 — régi DB / teszt: a recept-tábla hiánya nem hiba
+            logger.warning("ui_kabin: a feladat-ügynökök nem olvashatók: %s", e)
+            feladat_ugynokok = []
+        try:
             hb = conn.execute("SELECT * FROM heartbeats").fetchall()
         except Exception:  # noqa: BLE001
             hb = []
@@ -830,6 +880,13 @@ async def api_allapot(request: Request):
                          "modell": e.get("modell"), "megjegyzes": e.get("megjegyzes"), "utoljara": utoljara,
                          "utolso": u or None,
                          "fut": any(k["ugynok"] == uid and k["allapot"] == "fut" for k in _KOROK.values())})
+    for f in feladat_ugynokok:
+        u = utolsok.get(f["id"]) or {}
+        megj = f["allapot_szoveg"] + (f" · köv.: {f['kovetkezo_szoveg']}" if f.get("kovetkezo_szoveg") else "")
+        ugynokok.append({"id": f["id"], "nev": f["nev"], "szerep": f["utemezes_szoveg"],
+                         "elerheto": f["allapot"] == "aktiv", "modell": None, "megjegyzes": megj,
+                         "utoljara": u.get("ido") or (f.get("utolso_futas") or {}).get("ido"), "utolso": u or None,
+                         "fut": f["fut"], "feladat_ugynok": f})
     postalada = utolsok.get("postalada")
     return JSONResponse({
         "most": _iso(),
@@ -894,6 +951,42 @@ async def api_brief(request: Request):
                          "szoveg": tg_szoveg(szoveg, "feldwebel")["szoveg"]})
 
 
+# ══ 9/A. FELADAT-ÜGYNÖKÖK (feladat_ugynok.py) ═════════════════════════════
+
+UGYNOK_MEZOK = ("nev", "feladat", "utemezes", "egyszeri", "ertesites", "keret_usd", "havi_keret_usd")
+UGYNOK_KABIN_MUVELETEK = ("futtat", "leallit", "ujraindit", "megszuntet")
+
+
+def _ugynok_valasz(out: dict) -> JSONResponse:
+    if out.get("error"):
+        kod = 404 if str(out["error"]).startswith("nincs ilyen") else 400
+        return JSONResponse({**out, "hiba": out["error"]}, status_code=kod)
+    return JSONResponse(out)
+
+
+@_vedett
+async def api_ugynok(request: Request):
+    """POST /api/ui/ugynok {nev, feladat, utemezes, egyszeri, ertesites, keret_usd, havi_keret_usd} — „+ Új ügynök”.
+    Ugyanaz a belépő, mint a Feldwebel `ugynok` eszközéé (feladat_ugynok.vegrehajt); ütemezés nélkül most fut."""
+    body = await request.json()
+    if not isinstance(body, dict):
+        return JSONResponse({"hiba": "rossz kérés"}, status_code=400)
+    return _ugynok_valasz(feladat_ugynok.vegrehajt("indit", {k: body.get(k) for k in UGYNOK_MEZOK},
+                                                   get_db=_DEPS["get_db"], ki="kabin"))
+
+
+@_vedett
+async def api_ugynok_muvelet(request: Request):
+    """POST /api/ui/ugynok/muvelet {id: "ugynok:12", muvelet: futtat|leallit|ujraindit|megszuntet}."""
+    body = await request.json()
+    uid, muvelet = str((body or {}).get("id") or ""), str((body or {}).get("muvelet") or "")
+    if not ugynok_ablak(uid):
+        return JSONResponse({"hiba": "hiányzó vagy rossz ügynök-azonosító (ugynok:<szám>)"}, status_code=400)
+    if muvelet not in UGYNOK_KABIN_MUVELETEK:
+        return JSONResponse({"hiba": f"a művelet: {', '.join(UGYNOK_KABIN_MUVELETEK)}"}, status_code=400)
+    return _ugynok_valasz(feladat_ugynok.vegrehajt(muvelet, {"id": uid}, get_db=_DEPS["get_db"], ki="kabin"))
+
+
 # ══ 9/B. MELLÉKLET-FELTÖLTÉS (fénykép, PDF, Word… → Studio + szöveg) ═════════════
 
 MELLEKLET_MAX = 50 * 1024 * 1024
@@ -935,6 +1028,8 @@ API_UTAK = [
     ("/api/ui/draft/dont", ["POST"], api_draft_dont),
     ("/api/ui/vita/{vita_id:int}", ["GET", "POST"], api_vita),
     ("/api/ui/brief/{brief_id:int}", ["GET"], api_brief),
+    ("/api/ui/ugynok", ["POST"], api_ugynok),
+    ("/api/ui/ugynok/muvelet", ["POST"], api_ugynok_muvelet),
 ]
 
 

@@ -74,6 +74,8 @@ import melleklet
 import hang
 import onjavitas
 import nachtschicht
+# FELADAT-ÜGYNÖKÖK (2026-11-23): névvel ellátott, a Kommandant által indított munkások (receptként, Claude-on)
+import feladat_ugynok
 import cimzett
 
 # Echolot — multi-sphere news context (separate Railway instance, REST)
@@ -12224,6 +12226,24 @@ async def _nachtschicht_ejszaka():
         logger.error("Nachtschicht hiba: %s", e, exc_info=True)
 
 
+def _feladat_ugynok_bekot() -> None:
+    """A FELADAT-ÜGYNÖKÖK futtatója (feladat_ugynok.py): a Nachtschicht forrása és a Telegram; a jelentés a
+    Feldwebel-előzménybe megy (csak-Claude jellel, ha az ügynök tudásbázist olvasott)."""
+    def _forras():
+        from feldwebel import get_ctx
+        return nachtschicht.BridgeForras(get_ctx(), get_db)
+
+    def _elozmeny(szoveg: str, csak_claude: bool) -> None:
+        from feldwebel.history import add_message
+        add_message(TELEGRAM_CHAT_ID or "web", "assistant", szoveg,
+                    "feladat-ugynok" + (futar_kliens.CLAUDE_CSAK_JEL if csak_claude else ""))
+
+    feladat_ugynok.beallit(get_db=get_db, forras=_forras, telegram=_telegram_push, elozmeny=_elozmeny)
+
+
+_feladat_ugynok_bekot()
+
+
 async def _cron_loop():
     """Runs every 60s, checks scheduled recipes and executes them. Also cleans old uploads.
 
@@ -12401,6 +12421,13 @@ async def _cron_loop():
                             "Nem készült brief, mert a bemenetei nem éltek. "
                             "Hiányzó adatból nem gyártunk kimenetet."
                         )
+                    continue
+
+                # ── FELADAT-ÜGYNÖK (2026-11-23, feladat_ugynok.py) ──
+                # Az `ugynok_*` recept a Kommandant által indított, névvel ellátott munkás: Claude-on fut (Anthropic
+                # API, saját keret), NEM a generikus ai_task→SiliconFlow úton. Háttérfeladat — a cron-szál megy tovább.
+                if feladat_ugynok.ugynok_e(r["name"]):
+                    feladat_ugynok.cron_indit(r["id"])
                     continue
 
                 # ── Market brief special-case (PLAN_20260531.md §4) ──
