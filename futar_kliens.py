@@ -69,6 +69,8 @@ REJTETT_ELOZMENY = ("(Korábbi válasz a Kommandant tudásbázisából. Adatvéd
 #: recept, Bridge-üzenet) vagy nyilvánosan vinnék tovább. Tudásbázis-tartalmú körben nem futnak.
 SF_FELE = frozenset({"ai_query", "ai_task", "create_task", "execute_recipe", "create_recipe", "schedule_recipe",
                      "send_message",
+                     # 11-23: a képfeltöltés-elemzés a modell által írt promptot SF-tartalékon is kiküldheti (rés)
+                     "analyze_upload",
                      # 11-22: azok a saját MCP-k sem kapnak tudásbázis-tartalmat, amelyek a kapott szöveget a SAJÁT
                      # AI-jukkal dolgozzák fel (az Echolot és az Engine SiliconFlow-, azaz kínai modellekkel, a Studio a
                      # saját AI-lépéseivel). A ChatGPT és a Gemini KAPHAT (a Kommandant: „chatgpt és gemini kaphat”); a
