@@ -229,7 +229,9 @@ def test_a_kotott_modellek_a_lepesekhez_es_a_futott_modell_rogzitve(get_db, koto
     modellek = sb.hasznalt_modellek(r, {"modell": "claude-sonnet-5-5"})
     assert modellek == ["claude-sonnet-5-5", "tencent/Hy3"]      # a (hamis) panel modellje is
     modellek = modellek + ["claude-opus-5-5"]
-    # a kapu: amíg a Claude-sor hiányzik, ISMERETLEN; kitöltve a pontozáskor újraszámol
+    # a kapu: amíg a Claude-sor hiányzik, ISMERETLEN; kitöltve a pontozáskor újraszámol (11-22 óta mérve kint van)
+    monkeypatch.delitem(modell_cutoff.CUTOFF, "claude-sonnet-5-5", raising=False)
+    monkeypatch.delitem(modell_cutoff.CUTOFF, "claude-opus-5-5", raising=False)
     assert sb.tisztasag(modellek, {"as_of": "2026-09-10"})["tisztasag"] == "ISMERETLEN"
     monkeypatch.setitem(modell_cutoff.CUTOFF, "claude-sonnet-5-5", {"cutoff": "2026-06", "tiszta_tol": "2026-08"})
     monkeypatch.setitem(modell_cutoff.CUTOFF, "claude-opus-5-5", {"cutoff": "2026-06", "tiszta_tol": "2026-09"})

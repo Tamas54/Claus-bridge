@@ -1131,27 +1131,46 @@ A `hatas_szamszeru` az ALAPVONAL minden sorára adjon választ (vagy a `nem_mode
 def gazdasagi_tabla(alap: list[dict], eredmeny: dict | None) -> list[dict]:
     """Az alapvonal + a modell számszerű hatása → „a lépéssel” érték és 80%-os sáv, determinisztikusan.
 
-    Pályás mutatónál a sáv az alapvonal sávja + a hatás sávja (konzervatív, szélesebb); naiv alapvonalnál a modell sávja
-    a teljes sáv a mai értékhez képest."""
+    - Pályás mutatónál a két bizonytalanság (az alapvonal sávja és a hatás sávja) NÉGYZETESEN adódik össze, oldalanként:
+      a backteszt (11-22, 34 intervallum) szerint a két sáv egyszerű összeadása 97%-os találatot adott a névleges 80%
+      mellett — túl széles, alulmagabiztos sáv.
+    - Naiv alapvonalnál (alapkamat, árfolyam) a modell sávja a teljes sáv a mai értékhez képest.
+    - Ha a modell az `also`/`felso` mezőbe SZINTET írt eltérés helyett (backteszt-próba: a német kamat sávja 2,5–5,0%
+      lett), és a `valtozas` a sávon kívül esik, de a szintből visszaszámolva belül van, a kód eltéréssé alakítja és
+      kimondja; más ellentmondásos sornál nincs hatás (`ellentmondas`)."""
     hatas = {str(h.get("kulcs")): h for h in ((eredmeny or {}).get("hatas_szamszeru") or []) if isinstance(h, dict)}
     ki = []
     for a in alap or []:
         sor = {**a, "hatas": None}
         h = hatas.get(a["kulcs"])
         v, lo, hi = (_szam((h or {}).get(x)) for x in ("valtozas", "also", "felso"))
-        if None in (v, lo, hi) or _szam(a.get("ertek")) is None:
+        ertek = _szam(a.get("ertek"))
+        if None in (v, lo, hi) or ertek is None:
             ki.append(sor)
             continue
-        lo, hi = min(lo, v, hi), max(lo, v, hi)
+        megj = ""
+        lo, hi = min(lo, hi), max(lo, hi)
+        if not lo <= v <= hi:
+            if lo - ertek <= v <= hi - ertek:
+                lo, hi = lo - ertek, hi - ertek
+                megj = "a modell szintet adott eltérés helyett: a kód eltéréssé alakította"
+            else:
+                sor["ellentmondas"] = f"a változás ({v}) a saját sávján ({lo}–{hi}) kívül esik"
+                ki.append(sor)
+                continue
         nd = 1 if a.get("egyseg") == "Ft" else 2
-        alap_lo = a["also"] if (not a.get("naiv") and a.get("also") is not None) else a["ertek"]
-        alap_hi = a["felso"] if (not a.get("naiv") and a.get("felso") is not None) else a["ertek"]
+        kozep = ertek + v
+        if not a.get("naiv") and a.get("also") is not None and a.get("felso") is not None:
+            also = kozep - ((ertek - a["also"]) ** 2 + (v - lo) ** 2) ** 0.5
+            felso = kozep + ((a["felso"] - ertek) ** 2 + (hi - v) ** 2) ** 0.5
+        else:
+            also, felso = ertek + lo, ertek + hi
         sor["hatas"] = {"valtozas": round(v, nd), "also": round(lo, nd), "felso": round(hi, nd),
                         **{x: " ".join(str((h or {}).get(x) or "").split())[:200]
-                           for x in ("csatorna", "alap", "bizonyossag")}}
-        sor["dontessel"] = round(a["ertek"] + v, nd)
-        sor["dontessel_also"] = round(alap_lo + lo, nd)
-        sor["dontessel_felso"] = round(alap_hi + hi, nd)
+                           for x in ("csatorna", "alap", "bizonyossag")}, **({"megjegyzes": megj} if megj else {})}
+        sor["dontessel"] = round(kozep, nd)
+        sor["dontessel_also"] = round(also, nd)
+        sor["dontessel_felso"] = round(felso, nd)
         ki.append(sor)
     return ki
 

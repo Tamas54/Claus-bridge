@@ -810,14 +810,15 @@ def test_gazdasagi_mod_alapbol_olcso_es_a_gazdasag_elol(get_db, kapu, kulcsok):
     assert set(tabla) == {"HU:inflation", "HU:gdp", "HU:unemployment", "HU:policy_rate", "EURHUF=X"}
     inf = tabla["HU:inflation"]
     assert (inf["ertek"], inf["also"], inf["felso"]) == (3.1, 2.2, 4.0) and inf["idoszak"] == "2027-01"
-    assert (inf["dontessel"], inf["dontessel_also"], inf["dontessel_felso"]) == (3.5, 2.3, 4.8)
+    # a két sáv négyzetesen: 3,5 − √(0,9² + 0,3²) és 3,5 + √(0,9² + 0,4²)
+    assert (inf["dontessel"], inf["dontessel_also"], inf["dontessel_felso"]) == (3.5, 2.55, 4.48)
     fx = tabla["EURHUF=X"]                                  # naiv alapvonal: a modell sávja a teljes sáv
     assert fx["naiv"] and (fx["dontessel"], fx["dontessel_also"], fx["dontessel_felso"]) == (366.8, 357.8, 376.8)
     assert tabla["HU:gdp"]["hatas"] is None                 # „sok” nem szám → nincs belőle előrejelzés
     # a gazdasági intervallumok elöl, a naplóban, a határidő az adat megjelenése
     elore = r["elorejelzesek"]
     assert [e["terulet"] for e in elore] == ["piac", "piac", "piac", "tarsadalom"]
-    assert "2,30 és 4,80 %" in elore[0]["allitas"] and elore[0]["valoszinuseg"] == 0.8
+    assert "2,55 és 4,48 %" in elore[0]["allitas"] and elore[0]["valoszinuseg"] == 0.8
     assert elore[0]["hatarido"] == "2027-03-17"
     szoveg = ds.egyoldalas(r)
     assert szoveg.index("GAZDASÁGI ELŐREJELZÉS") < szoveg.index("KOCKÁZATI TÉRKÉP") < szoveg.index("TÁRSADALOM")
@@ -857,3 +858,21 @@ def test_a_teljes_mod_a_feldwebel_es_az_mcp_eszkozon(get_db, kapu):
     import inspect
     import server
     assert "teljes" in inspect.signature(server.dontes_szimulator).parameters
+
+
+
+def test_gazdasagi_tabla_szint_helyett_elteres_es_ellentmondas():
+    """Backteszt-lelet (11-22): a modell az also/felso mezőbe SZINTET írt (a német kamat sávja 2,5–5,0% lett)."""
+    kozos = {"orszag": "DE", "idoszak": _jovo(300), "hatarido": _jovo(300), "ellenorzes": "x", "modszer": "m"}
+    alap = [{"kulcs": "DE:policy_rate", "mutato": "kamat", "egyseg": "%", "ertek": 2.0, "also": None, "felso": None,
+             "naiv": True, **kozos},
+            {"kulcs": "HU:inflation", "mutato": "infláció", "egyseg": "%", "ertek": 3.0, "also": 2.0, "felso": 4.0,
+             "naiv": False, **kozos}]
+    t = ds.gazdasagi_tabla(alap, {"hatas_szamszeru": [
+        {"kulcs": "DE:policy_rate", "valtozas": 0.25, "also": 2.0, "felso": 2.5},     # szint: 2,0–2,5 → 0–0,5
+        {"kulcs": "HU:inflation", "valtozas": 5.0, "also": 0.1, "felso": 0.5}]})      # értelmetlen → nincs hatás
+    kamat, inf = t
+    assert (kamat["dontessel_also"], kamat["dontessel"], kamat["dontessel_felso"]) == (2.0, 2.25, 2.5)
+    assert "szintet adott" in kamat["hatas"]["megjegyzes"]
+    assert inf["hatas"] is None and "kívül esik" in inf["ellentmondas"]
+    assert len(ds.gazdasagi_elorejelzesek(t)) == 1
