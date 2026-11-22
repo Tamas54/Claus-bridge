@@ -513,7 +513,7 @@ PAYLOAD = {"model": "zai-org/GLM-5.2", "messages": [{"role": "user", "content": 
 def test_kulccsal_az_anthropic_valaszol_es_a_siliconflow_hozza_sem_er(monkeypatch, kulcs, _no_sleep):
     sf = _sf_wire(monkeypatch, [])
     _wire(monkeypatch, [_msg([{"type": "text", "text": "Claude válasza"}], model="claude-sonnet-5-5")])
-    d, e, notes = _run(server.sf_chat(PAYLOAD, purpose="ai_query/glm5"))
+    d, e, notes = _run(server.sf_chat(PAYLOAD, purpose="market_brief/economic"))
     assert e is None and d["choices"][0]["message"]["content"] == "Claude válasza"
     assert sf.calls == [] and notes == []
 
@@ -524,7 +524,7 @@ def test_anthropic_kiesesnel_a_siliconflow_kimondva(monkeypatch, kulcs, _no_slee
     async def kieses(payload, purpose=""):
         return None, {"code": "rate_limit", "message": "Anthropic rate_limit: 429"}, []
     monkeypatch.setattr(server.llm_kapu, "chat", kieses)
-    d, e, notes = _run(server.sf_chat(PAYLOAD, purpose="ai_query/glm5"))
+    d, e, notes = _run(server.sf_chat(PAYLOAD, purpose="market_brief/economic"))
     assert e is None and d["choices"][0]["message"]["content"] == "SF válasza"
     assert len(sf.calls) == 1
     assert any("ANTHROPIC-KIESÉS" in n and "rate_limit" in n for n in notes)

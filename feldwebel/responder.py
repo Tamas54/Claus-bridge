@@ -671,7 +671,8 @@ async def respond(text: str, chat_id: str, agent_id: str = "deepseek") -> str:
     safe_content = html_escape(final_content[:3800])
     if kapu_notes:
         safe_content += "\n\n" + "\n".join(f"<i>[{html_escape(n)}]</i>" for n in dict.fromkeys(kapu_notes))
-    await ctx.telegram_push(f"<b>FELDWEBEL</b>{(' · ' + html_escape(modell_rovid(kiszolgalo))) if kiszolgalo else ''}\n\n{safe_content}")
+    from cimzett import fejlec as _fejlec
+    await ctx.telegram_push(f"{_fejlec('feldwebel', kiszolgalo)}\n\n{safe_content}")
 
     # Store in Bridge DB
     _store_bridge_reply(ctx, text, final_content, agent_id, modell=kiszolgalo, eszkozok=eszkoz_nevek)
@@ -687,12 +688,9 @@ async def respond(text: str, chat_id: str, agent_id: str = "deepseek") -> str:
 
 
 def modell_rovid(modell: str) -> str:
-    """'claude-sonnet-5-5' → 'Sonnet 5.5'; SiliconFlow-azonosítónál az utolsó tag ('DeepSeek-V4-Pro')."""
-    m = (modell or "").strip()
-    if m.startswith("claude-"):
-        reszek = m[len("claude-"):].split("-")
-        return f"{reszek[0].capitalize()} {'.'.join(reszek[1:])}".strip()
-    return m.rsplit("/", 1)[-1]
+    """'claude-sonnet-5-5' → 'Sonnet 5.5' (a közös megvalósítás: cimzett.modell_rovid)."""
+    from cimzett import modell_rovid as _mr
+    return _mr(modell)
 
 
 async def _call_deepseek(ctx, model_id: str, messages: list, use_tools: bool = True, force_tool: bool = False,

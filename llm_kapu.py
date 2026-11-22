@@ -160,6 +160,28 @@ def elerheto() -> bool:
     return bool(_kulcs())
 
 
+#: A Bridge-összegző lépései: ezek akkor is a kapu szerint mennek (Claude), ha a cél egy ügynök nevét viseli.
+NEVESITETT_KIVETEL = ("synth",)
+
+
+def nevesitett_ugynok(purpose: str) -> str | None:
+    """Ha a hívás egy NÉV SZERINT szólított ügynöké (Kimi, DeepSeek, GLM…: `telegram/chat/kimi`, `ai_query/kimi`,
+    `dispatch/glm5`, `agent_with_tools/<modell-id>/…`), az ügynök kulcsa — különben None.
+
+    A Kommandant 11-22: „Kimi még nem tudja ő kicsoda” — a kapu a Kimi-kérdést a Haikuhoz vitte, és a Haiku
+    Kimi-jelmezben azt mondta, hogy SiliconFlow-n fut. Aki név szerint szól egy ügynökhöz, az ügynököt kapja; a
+    Claude csak KIMONDOTT tartalék. A háromügynökös feladatkiosztás (Kimi + DeepSeek + GLM) értéke is a
+    sokféleség — ha mind Claude, nincs mit összevetni."""
+    p = purpose or ""
+    if not p or any(k in p.lower() for k in NEVESITETT_KIVETEL):
+        return None
+    szeletek = set(p.split("/"))
+    for kulcs in SF_SZINT:
+        if ("/" in kulcs and kulcs in p) or kulcs in szeletek:
+            return kulcs
+    return None
+
+
 def elsodleges() -> str:
     """`anthropic` vagy `siliconflow`. Az `LLM_ELSODLEGES` dönt; kulcs nélkül mindig `siliconflow`."""
     kert = os.environ.get("LLM_ELSODLEGES", "").strip().lower()

@@ -71,6 +71,7 @@ from youngereka_access import YRScopeMiddleware, authenticated
 from api_kapu import ApiKapuMiddleware
 import melleklet
 import onjavitas
+import cimzett
 
 # Echolot — multi-sphere news context (separate Railway instance, REST)
 try:
@@ -7828,7 +7829,9 @@ async def sf_chat(payload: dict, *, purpose: str = "", attempts: int = 3,
     # értéke a huzalozásában van). Az elsődleges az `LLM_ELSODLEGES` (alapból `anthropic`, ha van kulcs); a másik
     # a tartalék, és a váltás KIMONDOTT. Kulcs nélkül ez az ág nem fut, és minden pontosan úgy megy, mint eddig.
     _anthropic_tartalek = False
-    if llm_kapu.elsodleges() == "anthropic" or (not _sf_keys() and llm_kapu.elerheto()):
+    # NÉV SZERINT szólított ügynök (Kimi, DeepSeek, GLM…): a SAJÁT modellje válaszol, a Claude csak kimondott tartalék.
+    _nevesitett = llm_kapu.nevesitett_ugynok(purpose) if _sf_keys() else None
+    if (llm_kapu.elsodleges() == "anthropic" and not _nevesitett) or (not _sf_keys() and llm_kapu.elerheto()):
         _a_data, _a_err, _a_notes = await llm_kapu.chat(payload, purpose=purpose)
         if _a_err is None:
             return _a_data, None, _a_notes
@@ -10811,10 +10814,14 @@ async def _handle_telegram_message(text: str, chat_id: str, csatorna: str = "tel
     # 0/B. Faber-SZÁNDÉK perjel NÉLKÜL (2026-11-22). A Kommandant: „én szóban akarom elmondani neki, hogy mi a
     # parancs - nem akarok ilyen / parancsokat.” Az olcsó szint (Haiku 5.5) ismeri fel; kétes esetben None, és az
     # üzenet a Bridge rendes beszélgetése marad. A felismerés hibája sosem állítja meg a Telegram-utat.
+    # 0/A. MEGSZÓLÍTÁS (2026-11-22): az üzenet elején szabad szöveggel kimondott címzett („Kimi, …”, „Feldwebel, …”)
+    # — a Kommandant: „szabad szövegesen mondhassam meg, hogy melyik ügynöknek megy az üzi” (cimzett.py).
+    _cim = cimzett.cimzett(text)
     try:
-        # Melléklettel küldött kérés (irat, tanulmány, fotó) a Feldwebelé, nem a Faber kívánsága.
-        _sz = None if melleklet.van_melleklet(text) else await faber_relay.szandek(
-            text, feldwebel_kerdezett=_feldwebel_kerdezett(chat_id))
+        # Melléklettel küldött kérés (irat, tanulmány, fotó) és a név szerint megszólított ügynöknek szóló üzenet a
+        # címzetté, nem a Faber kívánsága.
+        _sz = None if (melleklet.van_melleklet(text) or _cim in cimzett.LLM_UGYNOKOK or _cim == "feldwebel") \
+            else await faber_relay.szandek(text, feldwebel_kerdezett=_feldwebel_kerdezett(chat_id))
     except Exception as e:  # noqa: BLE001
         logger.warning("Faber-szándékfelismerés hiba (a Bridge-beszélgetés megy tovább): %s", e)
         _sz = None
@@ -10857,6 +10864,8 @@ async def _handle_telegram_message(text: str, chat_id: str, csatorna: str = "tel
     # 3. Check for explicit agent mentions (@kimi, @glm5)
     text_lower = text.lower()
     mentioned = [a for a in ("kimi", "deepseek", "glm5") if f"@{a}" in text_lower]
+    if not mentioned and _cim in cimzett.LLM_UGYNOKOK:
+        mentioned = [_cim]                       # szabad szöveges megszólítás („Kimi, …”)
 
     if mentioned and PYRAMID_ENABLED and (SILICONFLOW_API_KEY or llm_kapu.elerheto()):
         # Call specific agents by mention. A KAPU MÖGÖTT (2026-11-22): a `sf_chat` dönt Anthropic és SiliconFlow
@@ -10872,13 +10881,13 @@ async def _handle_telegram_message(text: str, chat_id: str, csatorna: str = "tel
                 ], "temperature": 0.7, "max_tokens": 1500}, purpose=f"telegram/chat/{agent_id}")
 
                 if _t_err is not None:
-                    await _telegram_push(f"<b>{agent_id.upper()}</b> — API hiba: "
+                    await _telegram_push(f"{cimzett.fejlec(agent_id)} — API hiba: "
                                          f"{html_escape(str(_t_err.get('message', _t_err))[:500])}")
                     continue
 
                 content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
                 if not content or not content.strip():
-                    await _telegram_push(f"<b>{agent_id.upper()}</b> — üres válasz")
+                    await _telegram_push(f"{cimzett.fejlec(agent_id)} — üres válasz")
                     continue
                 content = _with_sf_notes(content, _t_notes)
                 # KI VÁLASZOLT VALÓJÁBAN (`served_by`): a kapu mögött a kért SiliconFlow-modell helyett Anthropic is
@@ -10887,7 +10896,8 @@ async def _handle_telegram_message(text: str, chat_id: str, csatorna: str = "tel
                 kimenet.modell(data, ugynok=agent_id)
 
                 safe_content = html_escape(content[:3800])
-                await _telegram_push(f"<b>{agent_id.upper()}</b>\n\n{safe_content}")
+                # egységes fej: ikon + név + a TÉNYLEGESEN válaszoló modell (cimzett.py)
+                await _telegram_push(f"{cimzett.fejlec(agent_id, _kiszolgalo)}\n\n{safe_content}")
 
                 conn2 = get_db()
                 conn2.execute(

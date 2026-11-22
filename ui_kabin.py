@@ -544,9 +544,10 @@ def _utolsok(conn, k_faber: bytes | None) -> tuple[dict, int]:
 
 # ══ 6. TELEGRAM-HTML → FELÜLETI SZÖVEG ═══════════════════════════════════
 
-_FEJ = re.compile(r"^\s*<b>([^<]{1,40})</b>\s*(—\s*)?")
+#: A beszélő-fej: opcionális ikon (cimzett.fejlec, 11-22), <b>NÉV</b>, opcionális „· modell” a sor végéig, opcionális „—”.
+_FEJ = re.compile(r"^\s*(?:[^\s<]{1,4}\s+)?<b>([^<]{1,40})</b>[ \t]*(?:·[^\n—]*)?\s*(—\s*)?")
 _BESZELOK = {"FELDWEBEL": "feldwebel", "FELDWEBEL DEBUG": "feldwebel", "KIMI": "kimi", "DEEPSEEK": "deepseek",
-             "GLM5": "glm5", "BRIDGE": "feldwebel"}
+             "GLM5": "glm5", "GLM": "glm5", "BRIDGE": "feldwebel"}
 
 
 def tg_szoveg(tg_html: str, alap_ki: str) -> dict:

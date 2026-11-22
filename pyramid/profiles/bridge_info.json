@@ -1,27 +1,31 @@
 {
-    "name": "Claus-Bridge",
-    "description": "MCP orchestrációs platform. Központi kommunikációs és koordinációs csomópont a teljes Pyramid rendszerben.",
-    "hosting": "Railway.app",
-    "framework": "Python / FastAPI / MCP (Model Context Protocol)",
-    "database": "PostgreSQL (Railway managed)",
-    "components": {
-        "web_claus": "Claude Opus 4.6 a claude.ai felületen — stratégiai gondolkodás, tervezés.",
-        "cli_claus": "Claude Code terminálban — implementáció, kódolás, deployment.",
-        "bridge_server": "FastAPI MCP szerver Railway-on, 18+ tool.",
-        "agents": "Rizsrakéták — SiliconFlow-on futó AI sub-agentek.",
-        "capture_daemon": "Gmail és Calendar polling (fejlesztés alatt).",
-        "telegram_bot": "Telegram integráció (fejlesztés alatt)."
-    },
-    "core_tools": [
-        "send_message — üzenet küldése Claus példányok között",
-        "read_messages / read_new — üzenetek olvasása",
-        "ai_query — egyedi rizsrakéta hívás",
-        "ai_task — multi-agent feladat (broadcast vagy párhuzamos)",
-        "write_memory / read_memory / search_memory / list_memory — shared memória",
-        "create_task / list_tasks / update_task — feladatkezelés",
-        "start_discussion / add_to_discussion / resolve_discussion — kollaboratív döntéshozás",
-        "capture_gmail_poll / capture_calendar_poll / capture_send_email — Gmail/Calendar",
-        "upload_file — fájl feltöltés AI feldolgozáshoz"
-    ],
-    "how_it_works": "Mindenki MCP-n keresztül kommunikál a Bridge-en. A messaging a közvetlen kommunikáció (Claus-to-Claus és Claus-to-agent). A memory rendszer a közös tudásbázis. A task rendszer a feladatkiosztás. A Pyramid réteg erre épül rá: személyiségek, kontextus, RAG, governance."
+  "name": "Claus-Bridge",
+  "description": "MCP orchestrációs platform. Központi kommunikációs és koordinációs csomópont a teljes Pyramid rendszerben.",
+  "hosting": "Railway.app",
+  "framework": "Python / FastAPI / MCP (Model Context Protocol)",
+  "database": "SQLite a Railway-köteten (/data/bridge.db) — a Postgres-költözés az Umbau-terv része",
+  "components": {
+    "web_claus": "Claude a claude.ai-on (web és telefon) — stratégia, tervezés; a Claus-bridge csatlakozón át minden saját eszközt elér.",
+    "cli_claus": "Claude Code a Kommandant gépén — implementáció, kódolás, deploy.",
+    "bridge_server": "FastAPI MCP szerver Railway-on, 18+ tool.",
+    "agents": "Rizsrakéták — SiliconFlow-on futó AI sub-agentek.",
+    "capture_daemon": "Gmail és Calendar polling (fejlesztés alatt).",
+    "telegram_bot": "Telegram integráció (fejlesztés alatt).",
+    "feldwebel": "A Kommandant asszisztense Telegramon és a webes felületen (/app), Claude az Anthropic-kapun (Haiku/Sonnet/Opus).",
+    "faber": "Önjavító műhely a gépen: kívánságból vagy önvizsgálati leletből kód, teszt, jóváhagyás, élesítés.",
+    "kulso_eszkozok": "Echolot, Makronóm, Lexonomics, Medical, Engine, Studio — MCP-n, a Kommandant kulcsaival (kulso_mcp.py).",
+    "vedelem": "Az /api/* és a /mcp csak belépve, munkáskulccsal vagy az Anthropic csatlakozó-címeiről."
+  },
+  "core_tools": [
+    "send_message — üzenet küldése Claus példányok között",
+    "read_messages / read_new — üzenetek olvasása",
+    "ai_query — egyedi rizsrakéta hívás",
+    "ai_task — multi-agent feladat (broadcast vagy párhuzamos)",
+    "write_memory / read_memory / search_memory / list_memory — shared memória",
+    "create_task / list_tasks / update_task — feladatkezelés",
+    "start_discussion / add_to_discussion / resolve_discussion — kollaboratív döntéshozás",
+    "capture_gmail_poll / capture_calendar_poll / capture_send_email — Gmail/Calendar",
+    "upload_file — fájl feltöltés AI feldolgozáshoz"
+  ],
+  "how_it_works": "Mindenki MCP-n keresztül kommunikál a Bridge-en. A messaging a közvetlen kommunikáció (Claus-to-Claus és Claus-to-agent). A memory rendszer a közös tudásbázis. A task rendszer a feladatkiosztás. A Pyramid réteg erre épül rá: személyiségek, kontextus, RAG, governance."
 }
