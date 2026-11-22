@@ -1,0 +1,553 @@
+{
+ "country": "FR",
+ "lang": "fr",
+ "target_month": "2026-11",
+ "corpus_window": [
+  "2026-10-15",
+  "2026-11-14"
+ ],
+ "days_sampled": [
+  "2026-10-15",
+  "2026-10-17",
+  "2026-10-19",
+  "2026-10-21",
+  "2026-10-23",
+  "2026-10-25",
+  "2026-10-27",
+  "2026-10-29",
+  "2026-10-31",
+  "2026-11-02",
+  "2026-11-04",
+  "2026-11-06",
+  "2026-11-08",
+  "2026-11-10",
+  "2026-11-12",
+  "2026-11-14"
+ ],
+ "n": 60,
+ "lean_dist": {
+  "center": 37,
+  "unknown": 8,
+  "center_right": 3,
+  "left": 3,
+  "center_left": 4,
+  "right": 5
+ },
+ "cat_dist": {
+  "economy": 2,
+  "tech": 5,
+  "foreign": 35,
+  "general": 7,
+  "global": 2,
+  "entertainment": 1,
+  "sport": 7,
+  "politics": 1
+ },
+ "raw_rows": 1279,
+ "pool_after_dedupe": 1254,
+ "leak_dropped": 0,
+ "distinct_sources_raw": 102,
+ "raw_cat_dist": {
+  "general": 146,
+  "foreign": 793,
+  "sport": 120,
+  "economy": 63,
+  "global": 52,
+  "politics": 14,
+  "tech": 81,
+  "lifestyle": 1,
+  "entertainment": 9
+ },
+ "per_day": {
+  "2026-10-15": {
+   "returned": 79,
+   "pool": 500
+  },
+  "2026-10-17": {
+   "returned": 81,
+   "pool": 500
+  },
+  "2026-10-19": {
+   "returned": 78,
+   "pool": 500
+  },
+  "2026-10-21": {
+   "returned": 80,
+   "pool": 500
+  },
+  "2026-10-23": {
+   "returned": 82,
+   "pool": 500
+  },
+  "2026-10-25": {
+   "returned": 77,
+   "pool": 500
+  },
+  "2026-10-27": {
+   "returned": 83,
+   "pool": 500
+  },
+  "2026-10-29": {
+   "returned": 82,
+   "pool": 500
+  },
+  "2026-10-31": {
+   "returned": 78,
+   "pool": 500
+  },
+  "2026-11-02": {
+   "returned": 80,
+   "pool": 500
+  },
+  "2026-11-04": {
+   "returned": 82,
+   "pool": 500
+  },
+  "2026-11-06": {
+   "returned": 80,
+   "pool": 500
+  },
+  "2026-11-08": {
+   "returned": 75,
+   "pool": 500
+  },
+  "2026-11-10": {
+   "returned": 85,
+   "pool": 500
+  },
+  "2026-11-12": {
+   "returned": 75,
+   "pool": 500
+  },
+  "2026-11-14": {
+   "returned": 82,
+   "pool": 500
+  }
+ },
+ "mcp_errors": 0,
+ "items": [
+  {
+   "text": "Hors-Série Les Dossiers BFM Business : Où va la voiture ? La révolution de l’IA - jeudi 15 octobre — BFM BUSINESS PARTENAIRE - Ce jeudi 15 octobre, Thomas Rodier, directeur marketing de XPENG, et Guillaume Crunelle, associé, responsable du secteur automobile chez Deloitte France, se sont penchés sur les nouveautés de XP",
+   "source": "BFM Business — Économie",
+   "lean": "center",
+   "date": "2026-10-15",
+   "category": "economy"
+  },
+  {
+   "text": "Disney relance Artemis Fowl en série animée, six ans après le flop — Disney confirme le retour d’Artemis Fowl en série animée pour Disney+ et Disney Channel. Une seconde chance après un film resté comme un vrai raté.",
+   "source": "Begeek",
+   "lean": "unknown",
+   "date": "2026-10-15",
+   "category": "tech"
+  },
+  {
+   "text": "« À un moment, je me suis dit que j'allais laisser mon staff faire les matches de Coupe d'Europe » : Franck Haise, libéré par sa défense, tourne la page de sa mauvaise série — Mal embarqué et mené par l'OFI Crète, un Rennes encore laborieux a retourné la situation grâce à ses jeunes défenseurs Mahamadou Nagida et Abdelhamid Aït-Boudlal, et Franck Haise en a fini avec sa maudite série de 19 mat",
+   "source": "L'Equipe",
+   "lean": "center",
+   "date": "2026-10-15",
+   "category": "foreign"
+  },
+  {
+   "text": "Quoi dire quand on n’a rien à dire? — Je me retrouve dans une situation pas confortable ces temps-ci.",
+   "source": "Le Journal de Montreal",
+   "lean": "center_right",
+   "date": "2026-10-15",
+   "category": "foreign"
+  },
+  {
+   "text": "Aux Etats-Unis, une fusillade fait au moins quatre morts dans une école primaire de l’Oregon — La porte-parole de la police a fait savoir que des enfants figuraient parmi les victimes. L’auteur des coups de feu a été tué, jeudi, avant que les policiers n’arrivent sur les lieux.",
+   "source": "Le Monde",
+   "lean": "left",
+   "date": "2026-10-15",
+   "category": "general"
+  },
+  {
+   "text": "Actualité : Bon plan – Le smartphone Honor 400 à 417,92 € (-20%) — Le smartphone Honor 400 passe sous les 450 € chez E. Leclerc - High-Tech soit une baisse d'environ 20% sur le prix habituellement constaté.",
+   "source": "Les Numeriques",
+   "lean": "center",
+   "date": "2026-10-15",
+   "category": "foreign"
+  },
+  {
+   "text": "Plusieurs centaines de millions d’euros annoncés pour l’agriculture en crise : pour ça \"il nous faut un budget\", répond le patron de la FNSEA — Sébastien Lecornu a promis, jeudi, une enveloppe comprise \"entre 500 et 700 M€\" pour le plan de relance. \"Nous avons besoin d’un budget\" pour cela, réagit le patron de la FNSEA.",
+   "source": "Midi Libre",
+   "lean": "center_left",
+   "date": "2026-10-15",
+   "category": "economy"
+  },
+  {
+   "text": "Accident au tunnel sous la Manche : un minibus heurte un train de fret — Un minibus a percuté jeudi soir un train de fret à l'arrêt sur un quai du tunnel sous la Manche côté français, un accident qui a fait 19 blessés mais n'a pas eu d'impact majeur sur le trafic transmanche.",
+   "source": "Sud Radio",
+   "lean": "right",
+   "date": "2026-10-15",
+   "category": "general"
+  },
+  {
+   "text": "Star Academy : surprises, absence remarquée, flop et duo international pour Leeloo… Voici ce qu’il ne fallait pas manquer de ce deuxième prime (VIDEO) — Ce samedi, pour un prime placé sous le signe des \"toutes premières fois\", les académiciens ont véritablement lancé la compétition. Et s’il n’y avait aucune élimination au programme, les rebondissements n’ont pas manqué.",
+   "source": "DH Les Sports+ (La Derniere Heure)",
+   "lean": "center",
+   "date": "2026-10-17",
+   "category": "foreign"
+  },
+  {
+   "text": "«La France tourne mal»: un 17 octobre marqué par une forte mobilisation sociale et des violences — Des centaines de milliers de personnes ont manifesté, samedi 17 octobre à travers la France, contre la « vie chère » et pour défendre les services publics. Le ministère de l'Intérieur a comptabilisé 550 000 participants,",
+   "source": "RFI — Fil info (FR)",
+   "lean": "center",
+   "date": "2026-10-17",
+   "category": "foreign"
+  },
+  {
+   "text": "Myriam El Khomri - RTL",
+   "source": "rtl.fr",
+   "lean": "unknown",
+   "date": "2026-10-17",
+   "category": "global"
+  },
+  {
+   "text": "OVHcloud alerte ses clients : changez tous les secrets stockés sur votre PC — Le 19 octobre 2026, un pirate a glissé un programme dans l'outil officiel en ligne de commande d'OVHcloud. Il est passé par le compte GitHub d'un développeur de l'entreprise.",
+   "source": "Frandroid",
+   "lean": "center",
+   "date": "2026-10-19",
+   "category": "tech"
+  },
+  {
+   "text": "Fin de l’épidémie de rougeole après deux ans et des milliers de cas partout au Canada — En tout, 6400 personnes ont été contaminées dans 10 provinces.",
+   "source": "Radio-Canada (ICI)",
+   "lean": "center",
+   "date": "2026-10-19",
+   "category": "foreign"
+  },
+  {
+   "text": "Procès de l'explosion au gaz à Paris : la Ville et le syndic en cause — Près de huit ans après l'explosion accidentelle au gaz d'un immeuble de la capitale qui avait fait quatre morts et 200 blessés, la Ville de Paris et le syndic de l'immeuble comparaissent à partir de mardi devant le tribu",
+   "source": "Sud Radio",
+   "lean": "right",
+   "date": "2026-10-19",
+   "category": "general"
+  },
+  {
+   "text": "Microsoft publie Visual Studio Code 1.142, avec des canevas partagés pour les workflows des agents IA, un éditeur Markdown enrichi, et le déplacement des conversations sans perte du contexte — Microsoft publie Visual Studio Code 1.142, avec des canevas partagés pour les workflows des agents IA, un éditeur Markdown enrichi, et le déplacement des conversations sans perte du contexte La version 1.142 de Visual St",
+   "source": "Developpez.com",
+   "lean": "unknown",
+   "date": "2026-10-21",
+   "category": "tech"
+  },
+  {
+   "text": "Les Nuits de France Musique : Webradios du jeudi 22 octobre 2026",
+   "source": "France Musique (Radio France)",
+   "lean": "center",
+   "date": "2026-10-21",
+   "category": "entertainment"
+  },
+  {
+   "text": "Nétanyahou dit que «renverser» le pouvoir iranien est la seule option pour supprimer la menace — Le chef de l’opposition l’a accusé de «transformer la sécurité d’Israël en cirque électoral».",
+   "source": "Le Devoir (Canada)",
+   "lean": "center_left",
+   "date": "2026-10-21",
+   "category": "foreign"
+  },
+  {
+   "text": "À Brest, un père mis en examen pour le meurtre de sa fille adolescente — Un habitant du Relecq-Kerhuon a été mis en examen après la découverte du corps de sa fille adolescente. Le père de famille était déjà poursuivi depuis avril pour « viols incestueux et agressions sexuelles sur mineure ».",
+   "source": "Ouest-France — Une",
+   "lean": "center",
+   "date": "2026-10-21",
+   "category": "general"
+  },
+  {
+   "text": "C'était pas dans l'After - 21 octobre — Après leur victoire face au Sabah FC, les joueurs de Dortmund ont pris la douche... à l'hôtel, pour éviter une bacterie.",
+   "source": "RMC Sport (BFM)",
+   "lean": "center",
+   "date": "2026-10-21",
+   "category": "sport"
+  },
+  {
+   "text": "Infrastructures | Des projets routiers « vont devoir attendre un peu », admet St-Pierre Plamondon — Un comité d’experts exhorte Québec à abandonner l’idée de construire un troisième lien et deux projets routiers majeurs promis par le Parti québécois dans l’est du Québec pour se concentrer sur l’entretien du réseau. Pau",
+   "source": "La Presse (Canada)",
+   "lean": "center",
+   "date": "2026-10-23",
+   "category": "foreign"
+  },
+  {
+   "text": "Ç'a aura pris quatre fois, mais le Canadien a fini par jouer « de façon beaucoup plus intelligente » — Ç’aura pris quatre fois, mais il semble que les joueurs du Canadien aient finalement compris",
+   "source": "Le Journal de Montreal",
+   "lean": "center_right",
+   "date": "2026-10-23",
+   "category": "foreign"
+  },
+  {
+   "text": "Argentine : non-lieu pour le président Javier Milei dans l’affaire d’une cryptomonnaie effondrée — Le dirigeant ultralibéral avait relayé, sur X, le lancement de la $LIBRA en 2025, avant d’effacer son message. Entretemps, la monnaie avait bondi puis s’était effondrée, provoquant des pertes pour plus de 114 000 portefe",
+   "source": "Le Monde",
+   "lean": "left",
+   "date": "2026-10-23",
+   "category": "foreign"
+  },
+  {
+   "text": "Présidentielle au Brésil: la presse craint une victoire de Flavio Bolsonaro — Ce dimanche 25 octobre 2026, s'affronteront au Brésil le président sortant de gauche, Lula, et le candidat d’extrême droite, Flavio Bolsonaro, fils de l’ancien président Jair Bolsonaro. Dans les médias brésiliens, l’inqu",
+   "source": "RFI — Fil info (FR)",
+   "lean": "center",
+   "date": "2026-10-23",
+   "category": "foreign"
+  },
+  {
+   "text": "Prix record de l’hévéa en Côte d’Ivoire: quelles perspectives pour la filière caoutchouc? — En 2025, la Côte d’Ivoire a produit environ 1 932 106 tonnes de caoutchouc sec, soit 12 % de la production mondiale. Le pays se place au 3e rang des producteurs mondiaux et occupe la première place en Afrique. L’hévéacul",
+   "source": "RFI — Fil info (FR)",
+   "lean": "center",
+   "date": "2026-10-25",
+   "category": "foreign"
+  },
+  {
+   "text": "Dans la tête d'un fish avec une main jouée en table finale de l'Unibet Open Marrakech – 25/10 — Tous les dimanches à minuit, Daniel Riolo propose une heure de show en direct avec Moundir Zoughari pour les passionnés de poker. Conseils d'un joueur professionnel, actualité, tournois... Votre rendez-vous poker, sur RM",
+   "source": "RMC Sport (BFM)",
+   "lean": "center",
+   "date": "2026-10-25",
+   "category": "sport"
+  },
+  {
+   "text": "Programme du 02 novembre 2026",
+   "source": "rtl.fr",
+   "lean": "unknown",
+   "date": "2026-10-25",
+   "category": "global"
+  },
+  {
+   "text": "La présidente vénézuélienne met en garde les « radicaux » après le retour d’exil de la cheffe de l’opposition — La présidente par intérim du Venezuela Delcy Rodriguez a réagi mardi 27 octobre au retour surprise de l’opposante María Corina Machado, sans la nommer. Elle a mis en garde les « factions radicales » qui chercheraient à p",
+   "source": "Ouest-France — Monde",
+   "lean": "center",
+   "date": "2026-10-27",
+   "category": "politics"
+  },
+  {
+   "text": "« De l'arrogance pure et simple » : colère en Finlande après l'abattage illégal de 250 000 arbres par Google pour son centre de données — Partout en Europe, l'intelligence artificielle réclame toujours plus de machines et d'espace. En Finlande, cet appétit se heurte désormais à une vive opposition locale. Raser des pans entiers de bois pour un centre de do",
+   "source": "Science & Vie",
+   "lean": "center",
+   "date": "2026-10-27",
+   "category": "foreign"
+  },
+  {
+   "text": "James-Webb révèle une planète de lave qui brille comme un miroir : ce qui se passe dans son atmosphère est du jamais vu ! — TOI-561 est une étoile de la Voie lactée qui est déjà remarquable, car elle est âgée de 10 milliards d'années, ce qui prouve que des exoplanètes existaient déjà au moins quelques milliards d'années seulement après le Big",
+   "source": "Futura-Sciences",
+   "lean": "center",
+   "date": "2026-10-29",
+   "category": "foreign"
+  },
+  {
+   "text": "Montréal | Près de 70 pompiers déployés pour l’incendie d’un immeuble résidentiel — Un incendie fait rage dans un bâtiment résidentiel à l’intersection de l’avenue Papineau et de la rue Rachel, à Montréal, jeudi soir. Près de 70 pompiers ont été déployés pour éteindre le brasier, qui a pris naissance da",
+   "source": "La Presse (Canada)",
+   "lean": "center",
+   "date": "2026-10-29",
+   "category": "foreign"
+  },
+  {
+   "text": "La voiture d’un militant sikh a été incendiée devant son domicile — La police n’a établi aucun mobile, mais le groupe Sikhs For Justice qualifie l’attaque d’acte terroriste.",
+   "source": "Le Devoir (Canada)",
+   "lean": "center_left",
+   "date": "2026-10-29",
+   "category": "foreign"
+  },
+  {
+   "text": "Le bitcoin dévisse après des rumeurs de cyberattaque massive sur la plateforme de cryptomonnaies Binance — Alors que plusieurs spécialistes ont fait état de détournements colossaux, Binance a assuré que les fonds déposés par les clients sur son site étaient «totalement à l’abri».",
+   "source": "Le Figaro",
+   "lean": "right",
+   "date": "2026-10-29",
+   "category": "foreign"
+  },
+  {
+   "text": "Actualité : Black Friday 2026 – Les écouteurs sans fil Samsung Galaxy Buds3 Pro \"5 étoiles\" à 99,99 € (-33%) — Les écouteurs sans fil Samsung Galaxy Buds3 Pro passent sous les 100 € chez Darty.com soit une baisse d'environ 33% sur le prix habituellement constaté.",
+   "source": "Les Numeriques",
+   "lean": "center",
+   "date": "2026-10-29",
+   "category": "foreign"
+  },
+  {
+   "text": "Ligue 3 : Amiens et Thionville se quittent bons amis",
+   "source": "SOFOOT.com",
+   "lean": "unknown",
+   "date": "2026-10-29",
+   "category": "sport"
+  },
+  {
+   "text": "Matthieu Pavon seul 2e du Mexico Open, Andrew Novak irrésistible leader — Déjà deuxième après le cut, Matthieu Pavon a gardé le cap ce samedi, à l'occasion du troisième tour du Mexico Open. De nouveau brillant, le Français a rendu une deuxième carte de 65 en trois jours et débutera le sprint f",
+   "source": "L'Equipe",
+   "lean": "center",
+   "date": "2026-10-31",
+   "category": "foreign"
+  },
+  {
+   "text": "Digard et Roussier s'en vont : un samedi de stupeur au Havre",
+   "source": "L'Equipe - Football",
+   "lean": "center",
+   "date": "2026-10-31",
+   "category": "foreign"
+  },
+  {
+   "text": "Anciens présidents : faut-il abolir leurs privilèges ? - 02/11 — Chaque soir, Maxime Switek vous accompagne de 21h à 00h dans BFM Grand Soir.",
+   "source": "BFMTV — 24/7",
+   "lean": "center",
+   "date": "2026-11-02",
+   "category": "foreign"
+  },
+  {
+   "text": "Pourquoi RoboCop n’avait sans doute pas besoin de suites du tout — Entre RoboCop et Jurassic Park, un constat s’impose: les deux sagas ont raté leurs suites, mais une seule n’avait presque aucune raison d’exister.",
+   "source": "Begeek",
+   "lean": "unknown",
+   "date": "2026-11-02",
+   "category": "tech"
+  },
+  {
+   "text": "Marseille : une fusillade fait un mort et un blessé grave — Selon La Provence, les victimes étaient «en train de tourner un clip de rap quand elles ont été prises pour cibles par des tueurs qui ont pris la fuite».",
+   "source": "Le Figaro",
+   "lean": "right",
+   "date": "2026-11-02",
+   "category": "foreign"
+  },
+  {
+   "text": "Quand la migraine frappe il faut s’en occuper — Comme ma mère, j’ai toujours souffert de migraines.",
+   "source": "Le Journal de Montreal",
+   "lean": "center_right",
+   "date": "2026-11-02",
+   "category": "foreign"
+  },
+  {
+   "text": "« Il a besoin d'une preuve irréfutable » : avant les élections, les ovnis mettent Trump sous pression — À l'approche des élections de mi-mandat, les appels à Donald Trump se multiplient afin qu'il accélère le processus de divulgation du dossier des PAN (Phénomènes Aérospatiaux Non identifiés). Sous peine, avancent des lanc",
+   "source": "Paris Match",
+   "lean": "center",
+   "date": "2026-11-02",
+   "category": "general"
+  },
+  {
+   "text": "Tué par balle en plein centre-ville de Privas : le tireur condamné à 15 ans de réclusion — Y. , 17 ans à l'époque des faits, est reconnu coupable du meurtre de Redha Berrahou en mars 2023, tué par balle à Privas en centre-ville en pleine journée. Il est condamné à 15 ans de réclusion par la cour d'assises des",
+   "source": "France Bleu — À la une",
+   "lean": "center",
+   "date": "2026-11-04",
+   "category": "foreign"
+  },
+  {
+   "text": "Iraola : « La rotation n'est pas la raison de notre défaite »",
+   "source": "L'Equipe",
+   "lean": "center",
+   "date": "2026-11-04",
+   "category": "foreign"
+  },
+  {
+   "text": "Le RC Lens subit « une humiliation » face à Côme en Ligue des champions et poursuit son début de saison tumultueux — Les Sang et Or sont devenus la première équipe de l’histoire à concéder neuf buts en Ligue des champions à domicile, mercredi, lors de leur défaite face à la formation italienne (1-9). Cette gifle intervient alors que le",
+   "source": "Le Monde",
+   "lean": "left",
+   "date": "2026-11-04",
+   "category": "foreign"
+  },
+  {
+   "text": "Actualité : Black Friday 2026 – Le chargeur Anker Zolo 140 W \"5 étoiles\" à 69,99 € (-14%) — Le chargeur Anker Zolo 140 W passe sous les 70 € chez Amazon Marketplace soit une baisse d'environ 14% sur le prix habituellement constaté. C'est actuellement le meilleur produit de notre comparatif.",
+   "source": "Les Numeriques",
+   "lean": "center",
+   "date": "2026-11-04",
+   "category": "foreign"
+  },
+  {
+   "text": "\"Pourquoi ne m’as-tu pas appelée ?\" : après le suicide de Julie, première plaignante contre Cauet, une ex-chroniqueuse de Cyril Hanouna, dévastée, dénonce \"la pourriture\" qui l’a mise dans cet état — La mort de Julie Ollivier, première femme à avoir porté plainte contre Sébastien Cauet, a provoqué une vive émotion. Une ancienne chroniqueuse de Cyril Hanouna lui a rendu un hommage bouleversant et a exprimé sa colère s",
+   "source": "Closer France",
+   "lean": "center",
+   "date": "2026-11-06",
+   "category": "general"
+  },
+  {
+   "text": "Gretzky soutient l’appel de Carney à exclure la Russie du mondial junior — Interrogé sur son amitié avec Donald Trump, la Merveille a répondu que «les amis, ce sont les amis».",
+   "source": "Le Devoir (Canada)",
+   "lean": "center_left",
+   "date": "2026-11-06",
+   "category": "foreign"
+  },
+  {
+   "text": "Téji Savanier salue la mémoire de Carlo Molinari après la victoire de Metz à Montpellier : « Dans le monde du football, il n’en reste pas beaucoup comme ça »",
+   "source": "SOFOOT.com",
+   "lean": "unknown",
+   "date": "2026-11-06",
+   "category": "sport"
+  },
+  {
+   "text": "franceinfo la nuit du samedi 07 novembre 2026",
+   "source": "franceinfo (Radio France)",
+   "lean": "center",
+   "date": "2026-11-06",
+   "category": "foreign"
+  },
+  {
+   "text": "Ligue 1 : Résultats et classement après la 10e journée — Consultez les scores de Toulouse-Strasbourg, Auxerre-Paris FC, Paris-SG-Troyes, Rennes-Lille, Angers-Nice, Brest-Lyon, Le Havre-Lorient, Le Mans, Monaco et Lens-Marseille",
+   "source": "20 Minutes — Sport",
+   "lean": "center",
+   "date": "2026-11-08",
+   "category": "sport"
+  },
+  {
+   "text": "Bruno Genesio, après Lens-OM : « Il faut savourer, mais il faut être vigilants » — Après la victoire de l'OM à Lens (2-1), ce dimanche soir, l'entraîneur marseillais Bruno Genesio se félicite de la confiance acquise tout en appelant à rester mesurés pour la suite.",
+   "source": "L'Equipe - Football",
+   "lean": "center",
+   "date": "2026-11-08",
+   "category": "foreign"
+  },
+  {
+   "text": "Laperche, le XV de France, Alcaraz, l’OM… Nos tops et flops du week-end sport en images — EN IMAGES - Découvrez ce qui a retenu l’attention de la rédaction du Figaro lors de ce week-end de sport.",
+   "source": "Le Figaro — Sports",
+   "lean": "right",
+   "date": "2026-11-08",
+   "category": "sport"
+  },
+  {
+   "text": "Rocky a inventé bien plus qu’une saga, et Hollywood vit encore avec — Né comme un pari personnel de Sylvester Stallone, Rocky a aussi installé une logique de franchise dont le cinéma vit toujours. Et l’histoire n’est peut-être pas finie.",
+   "source": "Begeek",
+   "lean": "unknown",
+   "date": "2026-11-10",
+   "category": "tech"
+  },
+  {
+   "text": "\"Ta gueule, abruti\", \"Je vais l'attraper par le bras\" : insulté par Mathieu Kassovitz, Raymond Aabou réplique et le chroniqueur de Cyril Hanouna ne mâche pas ses mots — Après une attaque de Mathieu Kassovitz sur Instagram, Raymond Aabou a répondu dans Tout beau, tout neuf, lundi 2 novembre 2026 sur W9, en s’en prenant vivement à l’acteur.",
+   "source": "Closer France",
+   "lean": "center",
+   "date": "2026-11-10",
+   "category": "general"
+  },
+  {
+   "text": "Actualité : Black Friday 2026 – Le robot-pâtissier KitchenAid Artisan 5KSM125 Rouge empire \"5 étoiles\" à 399,00 € (-18%) — Le robot-pâtissier KitchenAid Artisan 5KSM125 Rouge empire passe sous les 400 € chez Boulanger.com soit une baisse d'environ 18% sur le prix habituellement constaté. C'est actuellement l'un des meilleurs produit de notre",
+   "source": "Les Numeriques",
+   "lean": "center",
+   "date": "2026-11-10",
+   "category": "foreign"
+  },
+  {
+   "text": "L'album «A Kind Wave» de Kid Francescoli, solaire jusqu’au bout du monde — Après 25 ans à faire vibrer les dancefloors du monde entier, Mathieu Hocine, alias Kid Francescoli, file plein sud, encore plus loin que Marseille. Avec A Kind Wave, son septième album, le Phocéen troque la mélancolie po",
+   "source": "RFI — Fil info (FR)",
+   "lean": "center",
+   "date": "2026-11-10",
+   "category": "foreign"
+  },
+  {
+   "text": "Rapport de l’Université McGill | Un réseau d’hypertrucages comme « source de divisions politiques » — Un réseau probablement basé hors du Canada utilise des hypertrucages pour diffuser des contenus « suscitant des divisions politiques » auprès des Canadiens, selon un nouveau rapport publié jeudi.",
+   "source": "La Presse (Canada)",
+   "lean": "center",
+   "date": "2026-11-12",
+   "category": "foreign"
+  },
+  {
+   "text": "Italie-France: \"Il y avait la place de ouf\", la frustration de Cherki après la défaite des Bleus — L'équipe de France a été battue par l'Italie jeudi soir en Ligue des nations (3-1), la première défaite de l'ère Zinédine Zidane. Après le match, Rayan Cherki a livré une analyse sans concession de ce qui a manqué aux Bl",
+   "source": "RMC Sport (BFM)",
+   "lean": "center",
+   "date": "2026-11-12",
+   "category": "sport"
+  },
+  {
+   "text": "Elina Svitolina surclasse Linda Noskova et rejoint Mirra Andreeva en finale des Finales WTA — Impériale, Elina Svitolina n'a fait qu'une bouchée de la Tchèque Linda Noskova pour se qualifier en finale des Finales WTA, ce samedi (6-2, 6-1). L'Ukrainienne y affrontera dimanche la jeune Russe Mirra Andreeva.",
+   "source": "L'Equipe - Tennis",
+   "lean": "center",
+   "date": "2026-11-14",
+   "category": "foreign"
+  },
+  {
+   "text": "Mirra Andreeva se qualifie pour la finale des Finales WTA et s'assure la deuxième place mondiale — Mirra Andreeva a écarté sans difficulté l'Américaine Jessica Pegula en demi-finales des Finales WTA, samedi soir à Indian Wells (6-3, 6-4). La Russe de 19 ans, assurée de prendre la deuxième place mondiale, défiera pour",
+   "source": "L'Equipe - Tennis",
+   "lean": "center",
+   "date": "2026-11-14",
+   "category": "foreign"
+  }
+ ],
+ "built": "2026-11-23",
+ "source_db": "Echolot MCP get_news (https://echolotnews.com/mcp), published_at szerinti napok",
+ "build_rule": "get_news(limit=100, diversify, max_per_source=3, place=ország) minden 2. napra; title>15, LEAK_RE-szűrő, cím-dedupe, lead 220 kar., MAXN=60 lean-cap (arányos kvóta + domináns lean <=60% + dátum-stride) — a júliusi sample_cell"
+}

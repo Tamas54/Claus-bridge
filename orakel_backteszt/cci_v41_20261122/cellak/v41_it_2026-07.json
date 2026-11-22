@@ -1,0 +1,95 @@
+{
+ "cell": "IT 2026-07",
+ "country": "IT",
+ "month": "2026-07",
+ "lang": "it",
+ "model": "deepseek-ai/DeepSeek-V4.1-Flash",
+ "embed_model": "Qwen/Qwen3-Embedding-8B",
+ "date": "2026-11-23",
+ "protocol": "G2-recept 1:1 (persona-only + korpusz-grounding, MONDAT+KATEGÓRIA, N=60, 3 seed, SSR linear)",
+ "corpus_file": "corpus_it_2026-07.json",
+ "corpus_n": 60,
+ "corpus_window": [
+  "2026-06-15",
+  "2026-07-14"
+ ],
+ "per_seed": [
+  {
+   "seed": 1,
+   "n_answers": 20,
+   "n_sent": 20,
+   "n_cat": 20,
+   "ssr_score": 2.4990931076211207,
+   "ssr_balance": -25.045344618943965,
+   "cat_balance": -60.0,
+   "survey_pmf": [
+    0.1878882229453009,
+    0.33455371683626384,
+    0.26813478987044903,
+    0.20942327034798627,
+    0.0
+   ],
+   "kl": {
+    "age": 0.005643841461750062,
+    "settlement": 0.0020054622763865868,
+    "edu": 0.001455281784050036,
+    "media": 0.0014923933770981425
+   }
+  },
+  {
+   "seed": 2,
+   "n_answers": 20,
+   "n_sent": 20,
+   "n_cat": 20,
+   "ssr_score": 2.491257580500673,
+   "ssr_balance": -25.437120974966355,
+   "cat_balance": -65.0,
+   "survey_pmf": [
+    0.1906943733923901,
+    0.33792054032656077,
+    0.26081821866903526,
+    0.21056686761201387,
+    0.0
+   ],
+   "kl": {
+    "age": 0.005643841461750062,
+    "settlement": 0.0020054622763865868,
+    "edu": 0.001455281784050036,
+    "media": 0.005842962185887375
+   }
+  },
+  {
+   "seed": 3,
+   "n_answers": 20,
+   "n_sent": 20,
+   "n_cat": 20,
+   "ssr_score": 2.4715394495414915,
+   "ssr_balance": -26.423027522925423,
+   "cat_balance": -85.0,
+   "survey_pmf": [
+    0.19381837004475885,
+    0.3367258303712574,
+    0.27355377958171706,
+    0.19590202000226667,
+    0.0
+   ],
+   "kl": {
+    "age": 0.005643841461750062,
+    "settlement": 0.0020054622763865868,
+    "edu": 0.003175008473184932,
+    "media": 0.0014923933770981425
+   }
+  }
+ ],
+ "seed_mean": -25.63516437227858,
+ "seed_sd": 0.5796081644208281,
+ "cat_mean": -70.0,
+ "usage_this_run": {
+  "prompt": 79360,
+  "completion": 5239,
+  "calls": 60,
+  "embed_tokens": 5065
+ },
+ "cost_usd_this_run": 0.01505,
+ "wall_s": 45.4
+}

@@ -1,0 +1,551 @@
+{
+ "country": "HU",
+ "lang": "hu",
+ "target_month": "2026-11",
+ "corpus_window": [
+  "2026-10-15",
+  "2026-11-14"
+ ],
+ "days_sampled": [
+  "2026-10-15",
+  "2026-10-17",
+  "2026-10-19",
+  "2026-10-21",
+  "2026-10-23",
+  "2026-10-25",
+  "2026-10-27",
+  "2026-10-29",
+  "2026-10-31",
+  "2026-11-02",
+  "2026-11-04",
+  "2026-11-06",
+  "2026-11-08",
+  "2026-11-10",
+  "2026-11-12",
+  "2026-11-14"
+ ],
+ "n": 60,
+ "lean_dist": {
+  "right": 10,
+  "unknown": 25,
+  "analytical": 3,
+  "center": 5,
+  "left": 17
+ },
+ "cat_dist": {
+  "general": 32,
+  "sport": 1,
+  "global": 3,
+  "economy": 11,
+  "tech": 7,
+  "foreign": 4,
+  "politics": 1,
+  "entertainment": 1
+ },
+ "raw_rows": 1008,
+ "pool_after_dedupe": 974,
+ "leak_dropped": 0,
+ "distinct_sources_raw": 47,
+ "raw_cat_dist": {
+  "sport": 11,
+  "global": 37,
+  "economy": 198,
+  "general": 480,
+  "tech": 129,
+  "foreign": 41,
+  "politics": 108,
+  "entertainment": 4
+ },
+ "per_day": {
+  "2026-10-15": {
+   "returned": 58,
+   "pool": 500
+  },
+  "2026-10-17": {
+   "returned": 66,
+   "pool": 500
+  },
+  "2026-10-19": {
+   "returned": 62,
+   "pool": 500
+  },
+  "2026-10-21": {
+   "returned": 65,
+   "pool": 500
+  },
+  "2026-10-23": {
+   "returned": 63,
+   "pool": 500
+  },
+  "2026-10-25": {
+   "returned": 62,
+   "pool": 500
+  },
+  "2026-10-27": {
+   "returned": 63,
+   "pool": 500
+  },
+  "2026-10-29": {
+   "returned": 64,
+   "pool": 500
+  },
+  "2026-10-31": {
+   "returned": 66,
+   "pool": 500
+  },
+  "2026-11-02": {
+   "returned": 61,
+   "pool": 500
+  },
+  "2026-11-04": {
+   "returned": 62,
+   "pool": 500
+  },
+  "2026-11-06": {
+   "returned": 65,
+   "pool": 500
+  },
+  "2026-11-08": {
+   "returned": 58,
+   "pool": 500
+  },
+  "2026-11-10": {
+   "returned": 66,
+   "pool": 500
+  },
+  "2026-11-12": {
+   "returned": 63,
+   "pool": 500
+  },
+  "2026-11-14": {
+   "returned": 64,
+   "pool": 500
+  }
+ },
+ "mcp_errors": 0,
+ "items": [
+  {
+   "text": "A chilei meteorológiai igazgatóság szerint az elmúlt évtizedek egyik legerőteljesebb El Niño-epizódjának köszönhetően Chilét ellepte a h... — A chilei meteorológiai igazgatóság szerint az elmúlt évtizedek egyik legerőteljesebb El Niño-epizódjának köszönhetően Chilét ellepte a hó. További képek: Fotó: Pablo Sanhueza / Reuters #Elnino #Chile #snow #indexhu",
+   "source": "Index (X)",
+   "lean": "right",
+   "date": "2026-10-15",
+   "category": "general"
+  },
+  {
+   "text": "Továbbra is kérdéses, mikor térhet vissza Szoboszlai Dominik — Továbbra is kérdéses, mikor térhet vissza Szoboszlai Dominik",
+   "source": "InfoRádió / Infostart (X)",
+   "lean": "unknown",
+   "date": "2026-10-15",
+   "category": "sport"
+  },
+  {
+   "text": "Magyarország is csatlakozott a hat blokkoló tagállam közé, éles vita bontakozott ki az EU-csúcson — Az uniós vezetők brüsszeli csúcstalálkozóján az energiaárak letörését célzó egyeztetés háromórás csatározássá alakult az autóhasználat és az épületfűtés szén-dioxid-kibocsátásának árazása miatt. A csúszás miatt az ebéd i",
+   "source": "Portfolio",
+   "lean": "analytical",
+   "date": "2026-10-15",
+   "category": "global"
+  },
+  {
+   "text": "A cseh és szlovák felügyeleti hatóságok nyilvántartásba vették a CIG Pannónia Életbiztosító Nyrt.-t — A cseh és szlovák felügyeleti hatóságok (a Cseh Nemzeti Bank, illetve a Szlovák Nemzeti Bank) nyilvántartásba vették a CIG Pannónia Életbiztosító Nyrt. fióktelepét - közölte a társaság a Budapesti Értéktőzsde (BÉT) honla",
+   "source": "Profitline",
+   "lean": "unknown",
+   "date": "2026-10-15",
+   "category": "economy"
+  },
+  {
+   "text": "Egy 1960-as elmélet szerint idén novemberben jön el a világvége, de nem úgy és nem akkor halunk meg, ahogy jósolták — 2026. november 13-án, a nap, amikor eljön a világvége. A hatvanhat évvel ezelőtti elmélettel ellentétben azonban a mai demográfiai folyamatok és globális kihívások más képet mutatnak az emberiség előtt álló valódi veszél",
+   "source": "Rakéta",
+   "lean": "center",
+   "date": "2026-10-15",
+   "category": "tech"
+  },
+  {
+   "text": "24 évre eltiltottak egy szerb teniszezőt, aki másokat is bevont a meccsek manipulálásába — Stefan Milićević finoman szólva sem volt top játékos, pályafutása alatt legfeljebb az 1338. helyig jutott a férfi egyéni világranglistán.",
+   "source": "Telex",
+   "lean": "left",
+   "date": "2026-10-15",
+   "category": "general"
+  },
+  {
+   "text": "A zebrakérdésben úgy látszik, radikális fordulatot vett Sípos Erzsébet álláspontja. — A zebrakérdésben úgy látszik, radikális fordulatot vett Sípos Erzsébet álláspontja.",
+   "source": "24.hu (X)",
+   "lean": "left",
+   "date": "2026-10-17",
+   "category": "general"
+  },
+  {
+   "text": "Véget ér az eddigi rendszer, amelyet a rendszerváltás óta megszoktunk. Erről is beszélt a Nem píszíben Boros Imre közgazdász és Bogár Lá... — Véget ér az eddigi rendszer, amelyet a rendszerváltás óta megszoktunk. Erről is beszélt a Nem píszíben Boros Imre közgazdász és Bogár László közgazdász Virághalmy Sarolta szerkesztő-műsorvezetővel.",
+   "source": "Magyar Jelen (X)",
+   "lean": "unknown",
+   "date": "2026-10-17",
+   "category": "general"
+  },
+  {
+   "text": "Hétfőn bemutatják a 2027-es költségvetés alapjait. Vagyonadó, kata, társasági adó, nyugdíjemelés és családi pótlék: mi valósulhat meg... — Hétfőn bemutatják a 2027-es költségvetés alapjait. Vagyonadó, kata, társasági adó, nyugdíjemelés és családi pótlék: mi valósulhat meg az ígéretekből?",
+   "source": "Magyar Nemzet (X)",
+   "lean": "right",
+   "date": "2026-10-17",
+   "category": "general"
+  },
+  {
+   "text": "Ezrek tüntettek Varsóban az alkotmánybíróság védelmében — Mintegy húszezren gyűltek össze szombat délután Varsóban azon a tüntetésen, amelyet a fő ellenzéki párt, a Jog és Igazságosság (PiS) hívott össze a jelenlegi összetételű alkotmánybíróság védelmében.",
+   "source": "Profitline",
+   "lean": "unknown",
+   "date": "2026-10-17",
+   "category": "economy"
+  },
+  {
+   "text": "A hírhedt hálószoba és a legsikeresebb párt — A régi és az új költségvetés, újabb balhé a parlamentben, a franciaországi tüntetések és egy korrupciós óriásper a 444 reggeli hírlevelében.",
+   "source": "444.hu",
+   "lean": "left",
+   "date": "2026-10-19",
+   "category": "general"
+  },
+  {
+   "text": "Már lehet jelentkezni a Heroes of Might and Magic III Remake tesztelésére, íme a részletek! — A nosztalgia végre életre kel.",
+   "source": "GameStar",
+   "lean": "unknown",
+   "date": "2026-10-19",
+   "category": "tech"
+  },
+  {
+   "text": "Magára hagyták az AI-t egy virtuális szigeten, különös dolgokkal foglalta el magát utána — Konkrét feladat nélkül engedtek szabadjára AI-ügynököket a kutatók egy virtuális szigeten, az eredmények tanulságosak.",
+   "source": "Rakéta",
+   "lean": "center",
+   "date": "2026-10-19",
+   "category": "tech"
+  },
+  {
+   "text": "A volt házelnök a KözBeszédnek adott interjújában engedett meg magának némi önkritikus hangnemet. Teljes cikk a 444-en — A volt házelnök a KözBeszédnek adott interjújában engedett meg magának némi önkritikus hangnemet. Teljes cikk a 444-en",
+   "source": "444 (X)",
+   "lean": "left",
+   "date": "2026-10-21",
+   "category": "general"
+  },
+  {
+   "text": "Súlyos baleset a Nagybecskerek és Újvidék közötti úton, a Tisza-hídnál: Egy ember meghalt, hatan megsérültek — Egy ember meghalt, hatan pedig megsérültek két teherautó és két személygépkocsi ütközésében a Nagybecskerek és Újvidék közötti úton a Tisza-hídnál. A sérülteket kórházba szállították. Az egyik kamion, amely cukorrépát sz",
+   "source": "Dél-Hír",
+   "lean": "unknown",
+   "date": "2026-10-21",
+   "category": "foreign"
+  },
+  {
+   "text": "Agyagpofa végre saját filmet kapott, csak épp a történetét már ismerjük — A DC új horrorfilmje erős és látványos, de meglepően ismerős.",
+   "source": "GameStar",
+   "lean": "unknown",
+   "date": "2026-10-21",
+   "category": "tech"
+  },
+  {
+   "text": "A müncheniek már a győzelmet ünnepelték, de Declan Rice gólja átírta a BL-rangadó forgatókönyvét — Orbánéknak a Bayern után a Real Madrid otthonában sem volt esélyük a bravúrra.",
+   "source": "Index",
+   "lean": "right",
+   "date": "2026-10-21",
+   "category": "general"
+  },
+  {
+   "text": "Óriási bírságrekord: 25 milliárd dollár megfizetésére kötelezte a Metát egy új-mexikói bíróság — A Cambridge Analytica-féle adatvédelmi botrány nyomán kirótt, 8140 milliárd forintnak megfelelő összeg még a BP-olajkatasztrófa és a Volkswagen-dízelbotrány miatt kirótt bírságot is felülmúlja. A pénz teljes egészében az",
+   "source": "Qubit",
+   "lean": "left",
+   "date": "2026-10-21",
+   "category": "tech"
+  },
+  {
+   "text": "Végtelenszer ledönthető, visszapattanós Sztálin-szoborral tette „átélhetővé” a főváros a „népfelséget\" — A produkció értékéből sokat levont, hogy a résztvevőket kordonok választották el a szobortól, és a munka érdemi részét a fényfestéssel megidézett alakok végezték el.",
+   "source": "444.hu",
+   "lean": "left",
+   "date": "2026-10-23",
+   "category": "general"
+  },
+  {
+   "text": "Nemcsak kevesebb vízumot adnak ki, de egyeseket vissza is vonnak — Nemcsak kevesebb vízumot adnak ki, de egyeseket vissza is vonnak",
+   "source": "Magyar Nemzet (X)",
+   "lean": "right",
+   "date": "2026-10-23",
+   "category": "general"
+  },
+  {
+   "text": "Mínuszban zártak az amerikai tőzsdék — Ma is estek az amerikai tőzsdék: mindhárom vezető amerikai index esett pénteken, a Dow Jones több mint 600 pontos mínuszban zárt. Az olajár az eszkalálódó közel-keleti feszültségek miatt kilőtt: a Brent már tavaly decemb",
+   "source": "Portfolio",
+   "lean": "analytical",
+   "date": "2026-10-23",
+   "category": "economy"
+  },
+  {
+   "text": "Kezdődik a téli időszámítás - Merre állítjuk az órákat? — Vasárnap kezdődik a téli időszámítás, az órákat hivatalosan hajnali három óráról két órára kell állítani.",
+   "source": "Profitline",
+   "lean": "unknown",
+   "date": "2026-10-23",
+   "category": "general"
+  },
+  {
+   "text": "Tüntettek, több mint 25 ezren írtak alá, női lapok fogtak össze, a döntéshozók még mindig társadalmi nyomásra várnak az Isztambuli Egyezm... — Tüntettek, több mint 25 ezren írtak alá, női lapok fogtak össze, a döntéshozók még mindig társadalmi nyomásra várnak az Isztambuli Egyezmény ügyében. Meddig kell még a nőknek kampányolniuk azért, hogy a biztonságuk polit",
+   "source": "444 (X)",
+   "lean": "left",
+   "date": "2026-10-25",
+   "category": "general"
+  },
+  {
+   "text": "Az Egyetemista Lista 140 mandátumot szerezhet? — A CeSID választásfigyelő szervezet a feldolgozott minta 96 százaléka alapján közzétette a szerbiai előrehozott parlamenti választások mandátumbecslését. Az előrejelzés szerint az egyetemista lista 140 képviselői helyet s",
+   "source": "Dél-Hír",
+   "lean": "unknown",
+   "date": "2026-10-25",
+   "category": "foreign"
+  },
+  {
+   "text": "Ritkán látható szerencse is kellett a Real Madridnak a Barcelona legyőzéséhez — A fővárosiak sikere után nyitott maradt a bajnoki versenyfutás a La Ligában.",
+   "source": "Index",
+   "lean": "right",
+   "date": "2026-10-25",
+   "category": "general"
+  },
+  {
+   "text": "Világhatalmak közös jelöltje lehet a volt magyar miniszterelnök. Orbán Viktor kerülhet az ENSZ élére — Világhatalmak közös jelöltje lehet a volt magyar miniszterelnök. Orbán Viktor kerülhet az ENSZ élére",
+   "source": "portfolio.hu (X)",
+   "lean": "center",
+   "date": "2026-10-25",
+   "category": "politics"
+  },
+  {
+   "text": "Pósfai belügyminiszter kitálalt: az új sportvezetés több tízmilliárd forintot tudott máris lefaragni a jövő évben nálunk rendezendő négy vil… — Pósfai belügyminiszter kitálalt: az új sportvezetés több tízmilliárd forintot tudott máris lefaragni a jövő évben nálunk rendezendő négy világbajnokság fideszes költségvetéséből. Teljes cikk a 444-en: buff.ly/0Aiut1F",
+   "source": "444 (Bluesky)",
+   "lean": "left",
+   "date": "2026-10-27",
+   "category": "general"
+  },
+  {
+   "text": "Az Arsenaltól elküldték, mégis ma a világ legjobb játékosaként ünneplik — Az Arsenaltól elküldték, mégis ma a világ legjobb játékosaként ünneplik",
+   "source": "InfoRádió / Infostart (X)",
+   "lean": "unknown",
+   "date": "2026-10-27",
+   "category": "general"
+  },
+  {
+   "text": "Lélegeztetőgépek ügyében csaptak le a magyar hatóságok – milliárdokat moshattak tisztára — Lélegeztetőgépek ügyében csaptak le a magyar hatóságok – milliárdokat moshattak tisztára",
+   "source": "InfoRádió / Infostart (X)",
+   "lean": "unknown",
+   "date": "2026-10-27",
+   "category": "general"
+  },
+  {
+   "text": "Küzdelem az előítéletekkel és a diszkriminációval – nagyjából erről szól a nők jelentős részének élete a tudományban. Anyák, pálya... — Küzdelem az előítéletekkel és a diszkriminációval – nagyjából erről szól a nők jelentős részének élete a tudományban. Anyák, pályakezdők, elismert kutatók kerülnek hátrányba a nemük miatt. Miért szorulnak ki a nők fontos",
+   "source": "444 (X)",
+   "lean": "left",
+   "date": "2026-10-29",
+   "category": "general"
+  },
+  {
+   "text": "Az RTS új vezetősége bocsánatot kért a nézőktől; az egyetemisták csak a lemondásokat tartják elfogadhatónak — A Szerbiai Rádió és Televízió (RTS) hírműsorainak új szerkesztőbizottsága bocsánatot kért a nézőktől az elmúlt időszakban történtek miatt. A közleményt a közszolgálati televízió második híradójában olvasták be. „Ez az el",
+   "source": "Dél-Hír",
+   "lean": "unknown",
+   "date": "2026-10-29",
+   "category": "foreign"
+  },
+  {
+   "text": "Meghalt Patrick Stewart színészlegenda — 86 éves korában elhunyt Patrick Stewart, a Star Trek és az X-Men univerzumok Pickard kapitányát és Charles Xavierjét alakító színészlegendája.",
+   "source": "Székelyhon",
+   "lean": "unknown",
+   "date": "2026-10-29",
+   "category": "entertainment"
+  },
+  {
+   "text": "Budapest tarol, a Balaton küszködik: nagy különbség rajzolódik ki a szállodapiacon — A Szállodaszövetség adatai szerint nőtt a szállodák vendégforgalma és bevétele az első kilenc hónapban, a hazai szállodákban 18,8 millió vendégéjszakát regisztráltak, ebből 8,8 millió belföldi, míg 10 ...",
+   "source": "Economix",
+   "lean": "unknown",
+   "date": "2026-10-31",
+   "category": "economy"
+  },
+  {
+   "text": "A Ferencváros 30–30-as döntetlent játszott a Győrrel hazai pályán a női kézilabda NB I 7. fordulójában. — A Ferencváros 30–30-as döntetlent játszott a Győrrel hazai pályán a női kézilabda NB I 7. fordulójában. Fotó: Papajcsik Péter / Index #Handball #Hungary #summary #indexhu",
+   "source": "Index (X)",
+   "lean": "right",
+   "date": "2026-10-31",
+   "category": "general"
+  },
+  {
+   "text": "„A pokolból jöttünk vissza” – megérkeztek Ukrajnába a Melania Trump-féle tűzszünet alatt kimenekített oleski civilek — Volt, aki aknamezőkön kelt át az élelemért, mások gyomokat főztek, hogy ne haljanak éhen a fronton fekvő városban.",
+   "source": "Telex",
+   "lean": "left",
+   "date": "2026-10-31",
+   "category": "global"
+  },
+  {
+   "text": "Előfizetőinknek hála nyár vége óta hat új kollégával bővült a 444 szerkesztősége. Egyed Anna, Mohos Máté, Sárdi Kristóf, Vészi Samu, Zalavár… — Előfizetőinknek hála nyár vége óta hat új kollégával bővült a 444 szerkesztősége. Egyed Anna, Mohos Máté, Sárdi Kristóf, Vészi Samu, Zalavári Noémi, Zöldi Blanka az új kollégáink, akikkel egyre nagyobb kapacitással fogla",
+   "source": "444 (Bluesky)",
+   "lean": "left",
+   "date": "2026-11-02",
+   "category": "general"
+  },
+  {
+   "text": "Már most készül a jövő nyári kánikulára az építőipari óriás, ezeket veti be — Sajátos választ ad a klímaváltozásra a STRABAG: hűtőmellényt, zöldebb aszfaltot és digitális munkaszervezést ígérnek.",
+   "source": "Economix",
+   "lean": "unknown",
+   "date": "2026-11-02",
+   "category": "economy"
+  },
+  {
+   "text": "Orbán Viktor megköszönte Ókovács Szilveszter munkáját. Az Operaház éléről menesztett főigazgató tevékenységét a magyar kultúra szám... — Orbán Viktor megköszönte Ókovács Szilveszter munkáját. Az Operaház éléről menesztett főigazgató tevékenységét a magyar kultúra számára maradandó teljesítményének nevezte.",
+   "source": "Magyar Nemzet (X)",
+   "lean": "right",
+   "date": "2026-11-02",
+   "category": "general"
+  },
+  {
+   "text": "Csoportos leépítés kezdődik a közmédiában: akár 160 dolgozót is elküldhetnek https://media1.hu/2026/11/02/kozmedia-csoportos-leepites-160-dolgozo-2026/ — Csoportos leépítés kezdődik a közmédiában: akár 160 dolgozót is elküldhetnek https://media1.hu/2026/11/02/kozmedia-csoportos-leepites-160-dolgozo-2026/",
+   "source": "Media1 (TG)",
+   "lean": "center",
+   "date": "2026-11-02",
+   "category": "economy"
+  },
+  {
+   "text": "Mikor jár végkielégítés és mennyi idő után? Ennyi a végkielégítés mértéke felmondás esetén, itt a végkielégítés kalkulátor — Mikor jár végkielégítés 2026-ban, és mekkora összegre számíthatsz? Mutatjuk a jogosultság feltételeit, a kizáró okokat és a számítás menetét.",
+   "source": "Pénzcentrum",
+   "lean": "analytical",
+   "date": "2026-11-02",
+   "category": "economy"
+  },
+  {
+   "text": "A parajelenségek visszatérnek, de semmi megszokottra ne számítsunk — MOZI HÍREK - A Parajelenségek legújabb új része oda vezeti vissza a nézőket, ahol minden elkezdődött, ám ez nem nyújt lehetőséget a nyugodt ejtőzésre. Bár az alkotók az eredeti film otthonát választották helyszínül, azt",
+   "source": "TheGeek",
+   "lean": "unknown",
+   "date": "2026-11-02",
+   "category": "tech"
+  },
+  {
+   "text": "Félidős választások, végeredmény – Mindkét házban demokrata többség lesz Donald Trump elnökségének további részében — Félidős választások, végeredmény – Mindkét házban demokrata többség lesz Donald Trump elnökségének további részében",
+   "source": "InfoRádió / Infostart (X)",
+   "lean": "unknown",
+   "date": "2026-11-04",
+   "category": "general"
+  },
+  {
+   "text": "Újabb adósságválság szélén Európa? A Fitch súlyos figyelmeztetést adott ki — Az állampapírhozamok emelkedése közfinanszírozási stresszt okoz az európai szuverén adósok körében, de alapvető különbségek vannak a mostani helyzet és a korábbi euróövezeti adósságválság között - áll a Fitch Ratings Lon",
+   "source": "Növekedés",
+   "lean": "unknown",
+   "date": "2026-11-04",
+   "category": "economy"
+  },
+  {
+   "text": "„A szavazat ára” készítői és Kovács István Ádám nyerték a SZABAD-díjat — Nyolcadszor jutalmazta díjjal a TASZ azokat, akik egy szabadabb Magyarországért állnak ki tetteikkel.",
+   "source": "Telex",
+   "lean": "left",
+   "date": "2026-11-04",
+   "category": "general"
+  },
+  {
+   "text": "„Mintha egyetlen ember értené az atombombát” – a világ leggazdagabb embere a demokraták célkeresztjében — A demokrata Kongresszus Elon Musk és a SpaceX hatalmát venné célba. De hogyan törhető meg egy cég, amelytől az USA nemzetbiztonsága is függ?",
+   "source": "Forbes Hungary",
+   "lean": "unknown",
+   "date": "2026-11-06",
+   "category": "economy"
+  },
+  {
+   "text": "Nem mondhatták el a V4-es csúcson: rég nem látták egymást. — Nem mondhatták el a V4-es csúcson: rég nem látták egymást.",
+   "source": "Magyar Nemzet (X)",
+   "lean": "right",
+   "date": "2026-11-06",
+   "category": "general"
+  },
+  {
+   "text": "Bedurvulás vagy irányváltás: mindenki azt várja, mit lép Trump a külpolitikában a félidős vereség után — A hamarosan demokrata többségű törvényhozás otthon jobban, a külpolitikában kevésbé korlátozhatja az elnököt. Trumpot ismerve nehéz megjósolni, milyen irányt követ majd, de a történelmi példák alapján is jöhet további es",
+   "source": "Telex",
+   "lean": "left",
+   "date": "2026-11-06",
+   "category": "general"
+  },
+  {
+   "text": "A memóriahiány miatt kukázhatta az Oppo a Find X10 Ultra csúcsmobilt — Az év talán legerősebb kamerás mobilja a jelek szerint nem kaphat új verziót.",
+   "source": "GameStar",
+   "lean": "unknown",
+   "date": "2026-11-08",
+   "category": "tech"
+  },
+  {
+   "text": "Hirdetés: A Mars szakértői szerint így alakítják át az önkiszolgáló kasszák a vásárlói döntéseket",
+   "source": "HVG",
+   "lean": "left",
+   "date": "2026-11-08",
+   "category": "global"
+  },
+  {
+   "text": "Többen megkérdőjelezték a lengyel belügyminiszter állítását a támadó „szélsőjobboldali” nézeteiről, amire semmilyen bizonyítékot ne... — Többen megkérdőjelezték a lengyel belügyminiszter állítását a támadó „szélsőjobboldali” nézeteiről, amire semmilyen bizonyítékot nem mutattak be. „Egy őrült ember esetéről” van szó, amelynek alig van köze „a lengyel poli",
+   "source": "Magyar Jelen (X)",
+   "lean": "unknown",
+   "date": "2026-11-08",
+   "category": "general"
+  },
+  {
+   "text": "Négy ember meghalt és legalább 90 megsebesült, amikor két személyszállító vonat összeütközött Egyiptomban. A nagyon népes, de a vasúti ... — Négy ember meghalt és legalább 90 megsebesült, amikor két személyszállító vonat összeütközött Egyiptomban. A nagyon népes, de a vasúti infrastruktúrát rossz karban tartó országban több hasonló katasztrófa történt a közel",
+   "source": "Magyar Nemzet (X)",
+   "lean": "right",
+   "date": "2026-11-08",
+   "category": "general"
+  },
+  {
+   "text": "Borízű hang #293 Uj Péter ügyintéz. Bede Márton életvezetési tanácsokat ad az ügyintézéshez. Teljes adás a 444-en — Borízű hang #293 Uj Péter ügyintéz. Bede Márton életvezetési tanácsokat ad az ügyintézéshez. Teljes adás a 444-en",
+   "source": "444 (X)",
+   "lean": "left",
+   "date": "2026-11-10",
+   "category": "general"
+  },
+  {
+   "text": "Kilencmilliárdos adócsalásra épült a számlagyár: 23 embert vittek el a NAV nyomozói — Negyven helyszínen csapott le a NAV egy kiterjedt számlagyárra, amelynek működtetői több mint 9 milliárd forinttal károsították meg a költségvetést. Az akcióban 23 embert állítottak elő, a gyanúsítottak száma 58. A hatós",
+   "source": "Növekedés",
+   "lean": "unknown",
+   "date": "2026-11-10",
+   "category": "economy"
+  },
+  {
+   "text": "Az Amerika-szakértő megosztotta a várakozásait a Portfolio külpolitikai műsorában. Szétverte Trump a saját hátországát: kötélnek áll az... — Az Amerika-szakértő megosztotta a várakozásait a Portfolio külpolitikai műsorában. Szétverte Trump a saját hátországát: kötélnek áll az elnök, vagy",
+   "source": "portfolio.hu (X)",
+   "lean": "center",
+   "date": "2026-11-10",
+   "category": "economy"
+  },
+  {
+   "text": "Megérkezett hazánkba Charles: éjszaka országszerte kiadós eső várható — Az esőzés reggelre sem áll el, péntek délig további 15-40 milliméternyi csapadék várható.",
+   "source": "444.hu",
+   "lean": "left",
+   "date": "2026-11-12",
+   "category": "general"
+  },
+  {
+   "text": "Egy rakás, a raktárban talált, egyébként kidobásra szánt kacatból összeállított csomagot árult majdnem 150 amerikai dollárért (csaknem 5... — Egy rakás, a raktárban talált, egyébként kidobásra szánt kacatból összeállított csomagot árult majdnem 150 amerikai dollárért (csaknem 50 ezer forint). Fotó: Taylor Hill / FilmMagic #Kimkardashian #advent #scandal #index",
+   "source": "Index (X)",
+   "lean": "right",
+   "date": "2026-11-12",
+   "category": "general"
+  },
+  {
+   "text": "A jól ismert erdei ösvényen sétált, amikor a semmiből rátámadt a medve — A jól ismert erdei ösvényen sétált, amikor a semmiből rátámadt a medve",
+   "source": "InfoRádió / Infostart (X)",
+   "lean": "unknown",
+   "date": "2026-11-12",
+   "category": "general"
+  },
+  {
+   "text": "Orbán Viktor azt mondja, rajta nem fog a golyó — Hazugságoknak nevezte az előző kormánnyal szembeni korrupciós vádakat Orbán Viktor az Ultrahang Plusznak adott interjújában csütörtök este. A volt kormányfő beszélt arról is, hogy százszázalékosan biztos öccse ártatlansá",
+   "source": "Krónika Online",
+   "lean": "unknown",
+   "date": "2026-11-12",
+   "category": "foreign"
+  },
+  {
+   "text": "A lengyel miniszterelnök az X-en viccelődött Orbán kárára. Telejs cikk a 444-en: buff.ly/vg4pV7j — A lengyel miniszterelnök az X-en viccelődött Orbán kárára. Telejs cikk a 444-en: buff.ly/vg4pV7j",
+   "source": "444 (Bluesky)",
+   "lean": "left",
+   "date": "2026-11-14",
+   "category": "general"
+  },
+  {
+   "text": "Egy átlagos tél már nem menti meg a Balatont — Egy átlagos tél már nem menti meg a Balatont",
+   "source": "InfoRádió / Infostart (X)",
+   "lean": "unknown",
+   "date": "2026-11-14",
+   "category": "general"
+  }
+ ],
+ "built": "2026-11-23",
+ "source_db": "Echolot MCP get_news (https://echolotnews.com/mcp), published_at szerinti napok",
+ "build_rule": "get_news(limit=100, diversify, max_per_source=3, place=ország) minden 2. napra; title>15, LEAK_RE-szűrő, cím-dedupe, lead 220 kar., MAXN=60 lean-cap (arányos kvóta + domináns lean <=60% + dátum-stride) — a júliusi sample_cell"
+}

@@ -1,0 +1,553 @@
+{
+ "country": "HU",
+ "lang": "hu",
+ "target_month": "2026-09",
+ "corpus_window": [
+  "2026-08-15",
+  "2026-09-14"
+ ],
+ "days_sampled": [
+  "2026-08-15",
+  "2026-08-17",
+  "2026-08-19",
+  "2026-08-21",
+  "2026-08-23",
+  "2026-08-25",
+  "2026-08-27",
+  "2026-08-29",
+  "2026-08-31",
+  "2026-09-02",
+  "2026-09-04",
+  "2026-09-06",
+  "2026-09-08",
+  "2026-09-10",
+  "2026-09-12",
+  "2026-09-14"
+ ],
+ "n": 60,
+ "lean_dist": {
+  "unknown": 29,
+  "right": 6,
+  "analytical": 6,
+  "left": 13,
+  "center": 6
+ },
+ "cat_dist": {
+  "tech": 8,
+  "general": 12,
+  "politics": 8,
+  "economy": 13,
+  "entertainment": 9,
+  "global": 4,
+  "foreign": 2,
+  "lifestyle": 1,
+  "sport": 3
+ },
+ "raw_rows": 677,
+ "pool_after_dedupe": 655,
+ "leak_dropped": 1,
+ "distinct_sources_raw": 39,
+ "raw_cat_dist": {
+  "entertainment": 56,
+  "general": 126,
+  "politics": 106,
+  "economy": 138,
+  "tech": 106,
+  "sport": 45,
+  "global": 46,
+  "lifestyle": 25,
+  "foreign": 29
+ },
+ "per_day": {
+  "2026-08-15": {
+   "returned": 43,
+   "pool": 500
+  },
+  "2026-08-17": {
+   "returned": 43,
+   "pool": 500
+  },
+  "2026-08-19": {
+   "returned": 42,
+   "pool": 500
+  },
+  "2026-08-21": {
+   "returned": 43,
+   "pool": 500
+  },
+  "2026-08-23": {
+   "returned": 44,
+   "pool": 500
+  },
+  "2026-08-25": {
+   "returned": 40,
+   "pool": 500
+  },
+  "2026-08-27": {
+   "returned": 43,
+   "pool": 500
+  },
+  "2026-08-29": {
+   "returned": 43,
+   "pool": 500
+  },
+  "2026-08-31": {
+   "returned": 43,
+   "pool": 500
+  },
+  "2026-09-02": {
+   "returned": 43,
+   "pool": 500
+  },
+  "2026-09-04": {
+   "returned": 43,
+   "pool": 500
+  },
+  "2026-09-06": {
+   "returned": 43,
+   "pool": 500
+  },
+  "2026-09-08": {
+   "returned": 42,
+   "pool": 500
+  },
+  "2026-09-10": {
+   "returned": 40,
+   "pool": 500
+  },
+  "2026-09-12": {
+   "returned": 41,
+   "pool": 500
+  },
+  "2026-09-14": {
+   "returned": 41,
+   "pool": 500
+  }
+ },
+ "mcp_errors": 0,
+ "items": [
+  {
+   "text": "2056 humanoid robot méri össze tudását Pekingben – jön a robotok olimpiája — Augusztusban Peking rendezi a Humanoid Robot Világjátékokat. A tizenhat országból érkező 2056 gép sportban és ügyességi teszteken is összeméri erejét.",
+   "source": "Economix",
+   "lean": "unknown",
+   "date": "2026-08-15",
+   "category": "tech"
+  },
+  {
+   "text": "Lazán áthajtottak a sofőrök a vasúti átjáróban, most 600 ezer forintjuk bánhatja — Folyamatosak a rendőri ellenőrzések Budapesten, mégis olyan nyugalommal hágják át az autósok a KRESZ-szabályokat, mintha nem is lennének. Most Kőbányán mutatták meg merészségüket.",
+   "source": "Economix",
+   "lean": "unknown",
+   "date": "2026-08-15",
+   "category": "general"
+  },
+  {
+   "text": "Kemény diagnózis Tarjányi Pétertől: A régi Magyarország nincs többé — A szakértő szerint gyökeres változásokra van szükség.",
+   "source": "Index Belföld",
+   "lean": "right",
+   "date": "2026-08-15",
+   "category": "politics"
+  },
+  {
+   "text": "Fenyegető energiaviharban mutatunk irányt a befektetőknek — Az amerikai-iráni feszültség és a Hormuzi-szoros elhúzódó lezárása olyan globális energiaválsággal fenyeget, amely közvetlenül meghatározza a mindennapjainkat és a befektetési piacokat. Befektetői klubunkon , amelyet 202",
+   "source": "Portfolio",
+   "lean": "analytical",
+   "date": "2026-08-15",
+   "category": "economy"
+  },
+  {
+   "text": "Elárasztották a rajongók Bonnie Tyler szülővárosát az énekesnő temetésére — Volt olyan rajongó, aki Ausztriából utazott Wales-be.",
+   "source": "Telex",
+   "lean": "left",
+   "date": "2026-08-15",
+   "category": "entertainment"
+  },
+  {
+   "text": "Magyar szempontból a koreai modell nem méretében, hanem felépítésében lehet tanulságos. Beelőzte Tokiót az új ázsiai pénzügyi központ #... — Magyar szempontból a koreai modell nem méretében, hanem felépítésében lehet tanulságos. Beelőzte Tokiót az új ázsiai pénzügyi központ #fintech #startup #tőkepiac #szingapúr #délkorea #digitálisbankolás #szöul #ai #ontheo",
+   "source": "portfolio.hu (X)",
+   "lean": "center",
+   "date": "2026-08-15",
+   "category": "economy"
+  },
+  {
+   "text": "Kubatov Gábor szerint meg lehet nyugodni, minden rendben van a Fradivárossal kapcsolatban — A Ferencváros elnöke szerint a Fradivárosra fordított pénzeket jogszerűen és a célnak megfelelően használták fel.",
+   "source": "444.hu",
+   "lean": "left",
+   "date": "2026-08-17",
+   "category": "general"
+  },
+  {
+   "text": "Mérgező kazánokat rendeltek, gyerekek és idősek intézményeibe kerültek volna — Kátai-Németh Vilmos szociális és családügyi miniszter feljelentést tett az ügyben.",
+   "source": "Economix",
+   "lean": "unknown",
+   "date": "2026-08-17",
+   "category": "economy"
+  },
+  {
+   "text": "A klónok háborúja rajongóinak tetszeni fog a Star Wars: Zero Company utolsó előzetese — Több ismerős arc cameózik a Star Wars: Zero Company végső előzetesében, az biztos, hogy Hawksnak és csapatának elég nehéz dolga lesz, ha ilyen főgenya-csapat ellen életben akarnak maradni.",
+   "source": "Gamekapocs",
+   "lean": "unknown",
+   "date": "2026-08-17",
+   "category": "tech"
+  },
+  {
+   "text": "Tízszer annyi szélerőmű épülhet Magyarországon: indulhat a pályázat — A hosszú ideje stagnáló magyar szélenergia-szektor jelentős átalakulás küszöbén áll. A kormány olyan intézkedéscsomagot jelentett be, melynek célja, hogy 2030-ig legalább tízszeresére növelje az orszá ...",
+   "source": "Economix",
+   "lean": "unknown",
+   "date": "2026-08-19",
+   "category": "economy"
+  },
+  {
+   "text": "„Nem mondhatják, hogy nem tudtak róla” – vizsgálják az előző kormány felelősségét a gyermekotthonokban történtek miatt — Súlyos ügyekre derült fény egy 2024-ben elrendelt vizsgálat nyomán.",
+   "source": "Index Belföld",
+   "lean": "right",
+   "date": "2026-08-19",
+   "category": "politics"
+  },
+  {
+   "text": "Elzárja a pénzcsapot a kormány: maximálják a vezetők fizetését az állami cégeknél — A Magyar Közlönyben szerda este megjelent új rendelet szerint költséghatékonysági szabályokat vezet be a kormány az állami tulajdonú vállalatok vezető testületeinek méretére és javadalmazására vonatkozóan. A társaságokat",
+   "source": "Portfolio",
+   "lean": "analytical",
+   "date": "2026-08-19",
+   "category": "economy"
+  },
+  {
+   "text": "Jelentős a Sziget Fesztivál gazdasági hatása — A Sziget Fesztivál turisztikai és gazdasági jelentősége túlmutat a fesztivál területén elköltött összegeken: a külföldi vendégek 90 százaléka kifejezetten a rendezvény miatt utazott Magyarországra, és 15 milliárd forinto",
+   "source": "Profitline",
+   "lean": "unknown",
+   "date": "2026-08-19",
+   "category": "economy"
+  },
+  {
+   "text": "Magyar kutatóknak is köszönhetően kerülhettünk közelebb az univerzumunkat felépítő anyag eredetének megértéséhez — Ez a felfedezés nemcsak a részecskefizika szempontjából áttörő, hanem kozmológiai jelentőségű is, hiszen közelebb vihet minket az univerzumunkat felépítő anyag eredetének megértéséhez.",
+   "source": "Rakéta",
+   "lean": "center",
+   "date": "2026-08-19",
+   "category": "tech"
+  },
+  {
+   "text": "Kollai István szerint a kormány jövő évig szeretné tisztázni a határon túli támogatáspolitikát — A magyarságpolitikáért felelős helyettes államtitkár azt mondta, hogy addig szeretnék kiszedni a bizniszgyanús elemeket a rendszerből.",
+   "source": "Telex",
+   "lean": "left",
+   "date": "2026-08-19",
+   "category": "politics"
+  },
+  {
+   "text": "Évente legalább ezer indítás: Trump gigantikus űrrakéta-tervet írta alá — 2030-ig növelné az amerikai űrrakéta-indítások számát az amerikai elnök, és bevonná a magán-űripart is.",
+   "source": "Economix",
+   "lean": "unknown",
+   "date": "2026-08-21",
+   "category": "tech"
+  },
+  {
+   "text": "Lírai beavatás Zemplénben — A Zempléni Fesztivál fő profilja a zene, ám az idén nagyon izgalmas irodalmi, illetve színházi pillanatokat is hozott a 35. jubileumi, tíznapos programsorozat.",
+   "source": "Népszava",
+   "lean": "left",
+   "date": "2026-08-21",
+   "category": "entertainment"
+  },
+  {
+   "text": "Hétfőn érkezik az iskolakezdési támogatás első részlete és a szeptemberi családi pótlék — Hétfőn érkezik az iskolakezdési támogatás első, 50 ezer forintos részlete és a szeptemberi családi pótlék - jelentette be Kátai-Németh Vilmos.",
+   "source": "Növekedés",
+   "lean": "unknown",
+   "date": "2026-08-21",
+   "category": "economy"
+  },
+  {
+   "text": "Szerdán munkához lát az MNB-ügyet feltáró parlamenti vizsgálóbizottság — A bizottságot elnöklő tiszás képviselő szerint azt vizsgálják majd, hogy „kik miatt és hova tűnt a közpénz”, kik húzták belőle a legnagyobb hasznot, és mire költötték.",
+   "source": "444.hu",
+   "lean": "left",
+   "date": "2026-08-23",
+   "category": "economy"
+  },
+  {
+   "text": "Járdán vagy úton? Komoly dilemmát vetett fel a rolleresek miatt a szakértő — A jelenlegi KRESZ szerint az elektromos rollerek járműnek számítanak, ezért járdán közlekedni velük elvileg nem lehet. Major Róbert szerint azonban az új szabályozásnál azt is figyelembe kellene venni ...",
+   "source": "Economix",
+   "lean": "unknown",
+   "date": "2026-08-23",
+   "category": "general"
+  },
+  {
+   "text": "Jövő tavaszra csúszott a Turok: Origins, de kaptunk egy brutális új előzetest — A dinoszauruszvadászat csak 2027-ben kezdődhet el.",
+   "source": "GameStar",
+   "lean": "unknown",
+   "date": "2026-08-25",
+   "category": "entertainment"
+  },
+  {
+   "text": "Bendarzsevszkij Anton szerint figyelmeztetést vihetett Moszkvába a CIA igazgatója — A szakértő úgy látja, a szeptemberi orosz választások után újabb tömeges mozgósítás jöhet.",
+   "source": "Index",
+   "lean": "right",
+   "date": "2026-08-25",
+   "category": "global"
+  },
+  {
+   "text": "Sikeres műtétet hajtottak végre a Gripenből katapultáló pilótán, teljesen felépülhet",
+   "source": "Népszava",
+   "lean": "left",
+   "date": "2026-08-25",
+   "category": "general"
+  },
+  {
+   "text": "A F.I.S.T. világában játszódik a Ti Games újabb játéka, a Zoopunk is — Előzménytörténetet kapunk, egy nyúl, egy orrszarvú és egy mókus főhőssel.",
+   "source": "PlayDome",
+   "lean": "unknown",
+   "date": "2026-08-25",
+   "category": "entertainment"
+  },
+  {
+   "text": "Nagy dolog készül a tőzsdéken, emelkedtek a piacok — A befektetők tegnap még a múlt heti visszaesést emésztették, és ma is az Nvidia e heti gyorsjelentésére készülnek a piacok - a chipóriás szerdán, az amerikai tőzsdezárás után teszi közzé negyedéves számait. A befektetők",
+   "source": "Portfolio",
+   "lean": "analytical",
+   "date": "2026-08-25",
+   "category": "economy"
+  },
+  {
+   "text": "Akár száz méterről is képes lehet megsemmisítő csapást mérni sörétes puskával a drónokra ez az önvezető Ford F–250 pickup — Az amerikai hadsereg egy olyan önvezető járművet tesztelt, amelynek nemcsak az a feladata, hogy eljusson a kijelölt helyre, hanem az is, hogy közben ellenséges drónokra vadásszon.",
+   "source": "Rakéta",
+   "lean": "center",
+   "date": "2026-08-25",
+   "category": "tech"
+  },
+  {
+   "text": "GC 2026: Ezeket láttuk még az XBOX Broadcast második napján — A nagy bejelentések és bemutatók között megbújt több apró cím és DLC is. Akad köztük izgalmas kaszkadőrkötés, főzés a kazamaták mélyén, egyedi nézőpontú túlélőhorror és óriásrendőr.",
+   "source": "Gamekapocs",
+   "lean": "unknown",
+   "date": "2026-08-27",
+   "category": "entertainment"
+  },
+  {
+   "text": "Társadalmi összefogás állná útját az AI diadalmenetének az Egyesült Államokban — A mesterséges intelligenciát fejlesztő techcégek eddig nem fáradtak azzal, hogy elmagyarázzák az új technológia társadalmi hasznait. Az USA-ban a félidős választások közeledtével azonban kénytelenek lesznek erre, hiszen",
+   "source": "Népszava",
+   "lean": "left",
+   "date": "2026-08-27",
+   "category": "tech"
+  },
+  {
+   "text": "A gamescomon kapott új előzetest a Sniper Elite alkotóinak sci-fi horrorja, az idegen bolygón játszódó Alien Deathstorm — Rengeteg akció, még több lövöldözés, földönkívüliek és egy mocskos nagy vihar.",
+   "source": "PlayDome",
+   "lean": "unknown",
+   "date": "2026-08-27",
+   "category": "entertainment"
+  },
+  {
+   "text": "Teljesen összetört a hollywoodi sztárszínésznő, amikor megtudta, kivágták a Pókemberből",
+   "source": "Index",
+   "lean": "right",
+   "date": "2026-08-29",
+   "category": "entertainment"
+  },
+  {
+   "text": "43 ezer köbméternyi követ építettek be Pakson, elkészül a vízszint-emelés első üteme — Két héttel a határidő előtt elkészül a dunai fenékküszöb első üteme Paksnál, ahová eddig 43 ezer köbméternyi követ építettek be - közölte ma a Facebookon Magyar Péter.",
+   "source": "Növekedés",
+   "lean": "unknown",
+   "date": "2026-08-29",
+   "category": "general"
+  },
+  {
+   "text": "Trónra lépett Norvégia új királya, VIII.Haakon — Elmondta első hivatalos beszédét VIII. Haakon, Norvégia új királya. Az új, 53 éves uralkodó hatásköre - apjáéhoz hasonlóan – többnyire ceremoniális.",
+   "source": "Növekedés",
+   "lean": "unknown",
+   "date": "2026-08-29",
+   "category": "foreign"
+  },
+  {
+   "text": "A szeptember nem csak a diákok „újéve” – ne csak a naptáradat rendezd újra (x) — A szeptember sokaknak a második január. The post A szeptember nem csak a diákok „újéve” – ne csak a naptáradat rendezd újra (x) first appeared on 24.hu .",
+   "source": "24.hu",
+   "lean": "left",
+   "date": "2026-08-31",
+   "category": "lifestyle"
+  },
+  {
+   "text": "Jöhet a kiadatás Magyarország és Kína között #Magyarország #Kína #kiadatás #foryou #foryoupage #hírek — Jöhet a kiadatás Magyarország és Kína között #Magyarország #Kína #kiadatás #foryou #foryoupage #hírek",
+   "source": "Magyar Hírlap (X)",
+   "lean": "unknown",
+   "date": "2026-08-31",
+   "category": "general"
+  },
+  {
+   "text": "Vizsgálat indult az Országos Onkológiai Intézetben — Az Egészségügyi Minisztériumba érkezett bejelentés nyomán már a múlt héten vizsgálat indult az Országos Onkológiai Intézetben - közölte az egészségügyi miniszter hétfőn a Facebook-oldalán.",
+   "source": "Növekedés",
+   "lean": "unknown",
+   "date": "2026-08-31",
+   "category": "general"
+  },
+  {
+   "text": "Célkeresztbe került az Orbán-kormány egyik kedvelt hatósága: az SZTFH felszámolásának lehetőségét vizsgálja a Tisza-kormány — Átvilágítja a Szabályozott Tevékenységek Felügyeleti Hatóságát (SZTFH) a kormány, és megvizsgálja, milyen szabályozási megoldásokkal lenne megszüntethető a hivatal – derül ki a hétfőn megjelent kormányhatározatból. A dok",
+   "source": "Portfolio",
+   "lean": "analytical",
+   "date": "2026-08-31",
+   "category": "politics"
+  },
+  {
+   "text": "Megnyitnák a látogatók előtt a Kárpát-medence egyik leglátványosabb, eddig szinte teljesen elzárt barlangját — Tudományos értékét látványos galériái és gazdag cseppkőképződményei adják. Ott van az ország leghosszabb, 4 kilométeres földalatti folyója is.",
+   "source": "Rakéta",
+   "lean": "center",
+   "date": "2026-08-31",
+   "category": "general"
+  },
+  {
+   "text": "Hamarosan lehull a lepel a világ 100 legjobb hoteléről — Szeptember 15-én, Párizsban ismertetik a The World’s 50 Best Hotels 2026 listát, amely a világ 50 legjobb hotelét tartalmazza. A kibővített listán azonban az 51. és 100. helyezett közötti rangsor már ...",
+   "source": "Economix",
+   "lean": "unknown",
+   "date": "2026-09-02",
+   "category": "entertainment"
+  },
+  {
+   "text": "Visszahoznák a Budapest Parádét, de egyelőre sem a főváros, sem a régi szervezők nem álltak be mögé — 2027 augusztusára tervezik a felvonulást, de még komoly akadályok vannak előtte.",
+   "source": "GameStar",
+   "lean": "unknown",
+   "date": "2026-09-02",
+   "category": "general"
+  },
+  {
+   "text": "Egy spanyol jelentés szerint Marokkó szándékosan terelte Ceuta felé az embereket — Eszerint a bevándorlási hullámmal túl akarták terhelni a határellenőrzést.",
+   "source": "Telex",
+   "lean": "left",
+   "date": "2026-09-02",
+   "category": "global"
+  },
+  {
+   "text": "Közel 30 év után tértek vissza női kosarasaink a világbajnokságra, hatalmas vereség lett a vége — Nem kegyelmezett a torna egyik esélyesének számító francia csapat.",
+   "source": "Index",
+   "lean": "right",
+   "date": "2026-09-04",
+   "category": "sport"
+  },
+  {
+   "text": "Moszkva csapást mért az SZBU kijevi központjára, Zelenszkij megfelelő választ ígért — Precíziós dróncsapás érte Kijevben az Ukrán Biztonsági Szolgálat központját, tucatnyi ember sebesülését okozva. Az ukrán elnök válaszcsapásra adott utasítást. A minden jel szerint orosz támadás nyilvánvalóan aláássa a bé",
+   "source": "Népszava",
+   "lean": "left",
+   "date": "2026-09-04",
+   "category": "foreign"
+  },
+  {
+   "text": "Országos Élőkörnyezet-felügyeleti Főhatóságot hoz létre a kormány — Országos Élőkörnyezet-felügyeleti Főhatóságot hoz létre a kormány a természeti erőforrások védelmének megerősítse érdekében - közölte ma Köböl Anita kormányszóvivő. Az új hatóság küldetése a természeti és táji örökség, a",
+   "source": "Növekedés",
+   "lean": "unknown",
+   "date": "2026-09-04",
+   "category": "general"
+  },
+  {
+   "text": "Hatalmas a potenciál. Kitörés előtt a tőzsde egyik legolcsóbb részvénye - Most érdemes nagyon figyelni! #tőzsde #részvény #vásárlás #pr... — Hatalmas a potenciál. Kitörés előtt a tőzsde egyik legolcsóbb részvénye - Most érdemes nagyon figyelni! #tőzsde #részvény #vásárlás #profit #diszkont #olcsó #értékeltség #emelkedés #felértékelődés #befektetés https://www",
+   "source": "portfolio.hu (X)",
+   "lean": "center",
+   "date": "2026-09-04",
+   "category": "economy"
+  },
+  {
+   "text": "Bejelentette az Xbox-korszak utáni első játékát Double Fine, amely pont annyira meghökkentő, mint az eddigiek — A Thank You Bus Driver egy őrült buszvezetős szimulátor, amelyben nem a KRESZ betartása lesz a legfontosabb feladat.",
+   "source": "GameStar",
+   "lean": "unknown",
+   "date": "2026-09-06",
+   "category": "entertainment"
+  },
+  {
+   "text": "Reform UK kongresszus: erőfitogtatás és figyelmeztetés — Nigel Farage pártelnök beszédével ért véget szombat este a populista szélsőjobboldali párt éves kongresszusa, amely azonban messze nem a terveknek megfelelően zajlott le.",
+   "source": "Népszava",
+   "lean": "left",
+   "date": "2026-09-06",
+   "category": "politics"
+  },
+  {
+   "text": "Rekordmélységbe süllyedt Donald Trump támogatottsága — A Financial Times vasárnap ismertetett friss felmérése szerint rekordmélységbe süllyedt Donald Trump amerikai elnök támogatottsága.",
+   "source": "Profitline",
+   "lean": "unknown",
+   "date": "2026-09-06",
+   "category": "politics"
+  },
+  {
+   "text": "F1 Spanyol Nagydíj 2026: debütál a madridi pálya, itt van minden fontos infó a versenyről! — Lássuk, mikor lesz a szabadedzés, az időmérő és a verseny Madridban, az idei 14. Forma-1-es hétvégén!",
+   "source": "Pénzcentrum",
+   "lean": "analytical",
+   "date": "2026-09-06",
+   "category": "sport"
+  },
+  {
+   "text": "Szemet szemért: Kanada életbe léptette a megemelt vámokat az Egyesült Államokkal szemben — Augusztus második felében újult ki a kereskedelmi konfliktus a két ország között, miután meghiúsult az előzetesen kidolgozott kereskedelmi megállapodás véglegesítése.",
+   "source": "444.hu",
+   "lean": "left",
+   "date": "2026-09-08",
+   "category": "global"
+  },
+  {
+   "text": "Újabb milliárdos csomagol Nagy-Britanniában: ezért távozik az ország harmadik legnagyobb adófizetője — Újabb szupergazdag hagyja ott Nagy-Britanniát, miután a londoni kormány adópolitikája miatt egyre kevésbé érzi vonzónak az országot. Christopher Rokos, aki tavaly 330 millió font adót fizetett, Görögo ...",
+   "source": "Economix",
+   "lean": "unknown",
+   "date": "2026-09-08",
+   "category": "economy"
+  },
+  {
+   "text": "Most akkor még idén jön PlayStation 5-re a Forza Horizon 6 vagy mégsem? A Playground Games még nem tisztázta a helyzetet — A minap felbukkant pletyka szerint még az év vége előtt megérkezik az autós játék, ám ezt mostanra cáfolták.",
+   "source": "PlayDome",
+   "lean": "unknown",
+   "date": "2026-09-08",
+   "category": "tech"
+  },
+  {
+   "text": "Olyan alacsony a Duna vízszintje, hogy a Budapest XI. kerületében található erőmű vízellátását a Lágymányosi-öböl kotrásával biztosították — Az erőmű szakemberei rekordgyorsasággal, 2 nap alatt előkészítették és augusztus első hetében a Lágymányosi-öböl 50 méteres partszakaszán kotrással, 50–100 centiméterrel mélyítették a medret, a megfelelő technológia mell",
+   "source": "Rakéta",
+   "lean": "center",
+   "date": "2026-09-08",
+   "category": "general"
+  },
+  {
+   "text": "Újvidéken naponta négyszer esznek a rabok, egyszer a rászorulók? — Érdekes párhuzamra világít rá a Nova ekonomija folyóirat összeállítása: Újvidéken 2026-ban több közpénzt fordítanak a fogvatartottak étkeztetésére, mint a szociálisan rászorulók népkonyhai ellátására, miközben utóbbiak l",
+   "source": "Dél-Hír",
+   "lean": "unknown",
+   "date": "2026-09-10",
+   "category": "economy"
+  },
+  {
+   "text": "Megfigyelték a Chariklo kisbolygó gyorsan változó gyűrűit — Először mutatott ki emberi időskálán érzékelhető változásokat az 1997-ben felfedezett Chariklo kentaur-típusú kisbolygó körüli kettős gyűrűrendszerben egy nemzetközi kutatócsoport magyar kutatók részvételével - közölte a",
+   "source": "Hírek.sk",
+   "lean": "unknown",
+   "date": "2026-09-10",
+   "category": "tech"
+  },
+  {
+   "text": "Adásba került az M1-en egy archív felvétel, amin a pedofíliáért elítélt bicskei gyermekotthon igazgatója szerepelt — A Duna Médiaszolgáltató Zrt. elnézést kért, és belső vizsgálatot rendeltek el.",
+   "source": "Index",
+   "lean": "right",
+   "date": "2026-09-10",
+   "category": "general"
+  },
+  {
+   "text": "Elszabadult a pokol a katonai bázison: méregdrága amerikai harci gépeket tarolt le a rakétaeső — Iráni rakétacsapás ért egy jordániai légitámaszpontot a héten, amelyben több amerikai katonai repülőgép is megrongálódott.",
+   "source": "Pénzcentrum",
+   "lean": "analytical",
+   "date": "2026-09-10",
+   "category": "global"
+  },
+  {
+   "text": "VMDK: “Pásztor Bálint mellőzte az igazságot: a VMSZ együttműködik Šešelj pártjával!” — Az alábbiakban a VMDK közleménye olvasható. Pásztor Bálint, a VMSZ elnöke azt állítja (2026. szeptember 8., SZMSZ), hogy a VMSZ-nek „soha nem is volt és a jövőben sem lesz köze” a Szerb Radikális Párthoz (SRS). Ez nem ig",
+   "source": "Dél-Hír",
+   "lean": "unknown",
+   "date": "2026-09-12",
+   "category": "politics"
+  },
+  {
+   "text": "Orbán Viktor négy hazugságról beszélt Kötcsén — A Tisza Párt célja, hogy „ismét gyarmatot csináljon Magyarországból” – mondta a Fidesz elnöke., ehhez Brüsszelt nevezte meg gyarmattartóként.",
+   "source": "Magyar Hang",
+   "lean": "left",
+   "date": "2026-09-12",
+   "category": "politics"
+  },
+  {
+   "text": "Etéd lovasa nyerte a váratlan fordulatokban gazdag 15. Székely Vágtát — Nagy hajrával, a vezetést az utolsó körben megszerezve Etéd lovasa, Kelemen Sándor Géza nyerte a 15. Székely Vágtát. A verseny többi futama is számos előre nem látott helyzetet, sok izgalmat hozott a nézőknek. Sérülés va",
+   "source": "Székelyhon",
+   "lean": "unknown",
+   "date": "2026-09-12",
+   "category": "sport"
+  },
+  {
+   "text": "Jelentősen emelik a családi pótlékot 2027-ben — A családi pótlék jövő évi, nagyarányú emeléséről, valamint a gyermekvédelemben dolgozók béremeléséről beszélt a miniszterelnök hétfő reggel a Kossuth rádió Felkelő című műsorában. Magyar Péter igennel válaszolt arra a ké",
+   "source": "Profitline",
+   "lean": "unknown",
+   "date": "2026-09-14",
+   "category": "economy"
+  }
+ ],
+ "built": "2026-11-23",
+ "source_db": "Echolot MCP get_news (https://echolotnews.com/mcp), published_at szerinti napok",
+ "build_rule": "get_news(limit=100, diversify, max_per_source=3, place=ország) minden 2. napra; title>15, LEAK_RE-szűrő, cím-dedupe, lead 220 kar., MAXN=60 lean-cap (arányos kvóta + domináns lean <=60% + dátum-stride) — a júliusi sample_cell"
+}

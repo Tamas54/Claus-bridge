@@ -1,0 +1,551 @@
+{
+ "country": "IT",
+ "lang": "it",
+ "target_month": "2026-09",
+ "corpus_window": [
+  "2026-08-15",
+  "2026-09-14"
+ ],
+ "days_sampled": [
+  "2026-08-15",
+  "2026-08-17",
+  "2026-08-19",
+  "2026-08-21",
+  "2026-08-23",
+  "2026-08-25",
+  "2026-08-27",
+  "2026-08-29",
+  "2026-08-31",
+  "2026-09-02",
+  "2026-09-04",
+  "2026-09-06",
+  "2026-09-08",
+  "2026-09-10",
+  "2026-09-12",
+  "2026-09-14"
+ ],
+ "n": 60,
+ "lean_dist": {
+  "center": 26,
+  "unknown": 30,
+  "left": 3,
+  "right": 1
+ },
+ "cat_dist": {
+  "sport": 36,
+  "general": 8,
+  "tech": 2,
+  "foreign": 6,
+  "economy": 2,
+  "entertainment": 3,
+  "politics": 2,
+  "lifestyle": 1
+ },
+ "raw_rows": 989,
+ "pool_after_dedupe": 879,
+ "leak_dropped": 0,
+ "distinct_sources_raw": 118,
+ "raw_cat_dist": {
+  "sport": 441,
+  "general": 174,
+  "lifestyle": 35,
+  "economy": 34,
+  "politics": 86,
+  "entertainment": 38,
+  "foreign": 71,
+  "tech": 43,
+  "global": 67
+ },
+ "per_day": {
+  "2026-08-15": {
+   "returned": 66,
+   "pool": 500
+  },
+  "2026-08-17": {
+   "returned": 67,
+   "pool": 500
+  },
+  "2026-08-19": {
+   "returned": 61,
+   "pool": 500
+  },
+  "2026-08-21": {
+   "returned": 65,
+   "pool": 500
+  },
+  "2026-08-23": {
+   "returned": 67,
+   "pool": 500
+  },
+  "2026-08-25": {
+   "returned": 63,
+   "pool": 500
+  },
+  "2026-08-27": {
+   "returned": 64,
+   "pool": 500
+  },
+  "2026-08-29": {
+   "returned": 63,
+   "pool": 500
+  },
+  "2026-08-31": {
+   "returned": 57,
+   "pool": 500
+  },
+  "2026-09-02": {
+   "returned": 59,
+   "pool": 500
+  },
+  "2026-09-04": {
+   "returned": 61,
+   "pool": 500
+  },
+  "2026-09-06": {
+   "returned": 58,
+   "pool": 500
+  },
+  "2026-09-08": {
+   "returned": 58,
+   "pool": 500
+  },
+  "2026-09-10": {
+   "returned": 61,
+   "pool": 500
+  },
+  "2026-09-12": {
+   "returned": 59,
+   "pool": 500
+  },
+  "2026-09-14": {
+   "returned": 60,
+   "pool": 500
+  }
+ },
+ "mcp_errors": 0,
+ "items": [
+  {
+   "text": "Il Toro stende la Carrarese e passa ai sedicesimi di Coppa Italia — Buona la prima ufficiale di Abate. Simeone decide il match al 9', convincono i nuovi acquisti Comert e Fitz-Jim. Il debutto in campionato sarà con il Milan",
+   "source": "Corriere della Sera — Sport",
+   "lean": "center",
+   "date": "2026-08-15",
+   "category": "sport"
+  },
+  {
+   "text": "Trigoria, mercoledì mattina la ripresa degli allenamenti in vista della Fiorentina",
+   "source": "Forzaroma.info",
+   "lean": "unknown",
+   "date": "2026-08-15",
+   "category": "sport"
+  },
+  {
+   "text": "Coppa Italia, Simeone spinge il Torino. Avanzano Udinese, Venezia e Südtirol — Una rete dell’argentino basta ai granata contro la Carrarese. Eliminati Padova, Modena e Catanzaro",
+   "source": "La Repubblica — Repubblica.it > Calcio",
+   "lean": "left",
+   "date": "2026-08-15",
+   "category": "sport"
+  },
+  {
+   "text": "L'atteggiamento di Sanchez su Ceuta è la cartolina dell'indifferenza",
+   "source": "Libero Quotidiano",
+   "lean": "right",
+   "date": "2026-08-15",
+   "category": "general"
+  },
+  {
+   "text": "Amorim: \"Penso che dobbiamo preoccuparci del modo in cui stiamo subendo gol\" — Ruben Amorim, allenatore del Milan, ha parlato a SkySport e a La Gazzetta dello Sport al termine dell'amichevole vinta per 2-4 contro il Manchester United a Breslavia. Si riporta di seguito un estratto delle sue dichiara",
+   "source": "Milan News",
+   "lean": "unknown",
+   "date": "2026-08-15",
+   "category": "sport"
+  },
+  {
+   "text": "I tifosi dello United volevano vendicarsi con Amorim. Lui ha vinto e saluta da signore — Ruben Amorim, allenatore del Milan, ha parlato a SkySport e a La Gazzetta dello Sport al termine dell'amichevole vinta per 2-4 contro il Manchester United a Breslavia. Si riporta di seguito un estratto delle sue dichiara",
+   "source": "Milan News",
+   "lean": "unknown",
+   "date": "2026-08-15",
+   "category": "sport"
+  },
+  {
+   "text": "70€ in meno sulla webcam 4K PTZ OBSBOT Tiny 2, per call senza restare fermi — La webcam 4K PTZ OBSBOT Tiny 2 costa 299€ su Amazon, anziché 369€, con uno sconto del 19%. Il tracciamento IA consente di muoversi durante riunioni, lezioni e dirette senza dover correggere continuame...",
+   "source": "Tom's Hardware Italia",
+   "lean": "center",
+   "date": "2026-08-15",
+   "category": "tech"
+  },
+  {
+   "text": "Nba: la famiglia Buss vende le sue ultime quote dei Lakers — Gli storici proprietari cedono le azioni a Iger, adesso al comando con Joshua Kushner",
+   "source": "ANSA — Sport",
+   "lean": "center",
+   "date": "2026-08-17",
+   "category": "sport"
+  },
+  {
+   "text": "Sportitalia - Il Monza insiste per Ngonge, dialoghi con l'entourage! Via libera dal Napoli",
+   "source": "CalcioNapoli24.it",
+   "lean": "unknown",
+   "date": "2026-08-17",
+   "category": "sport"
+  },
+  {
+   "text": "Gotti prudente su Diego Moreira: \"Buon giocatore ma deve ancora fare il salto definitivo\" — Ai microfoni di Sky Calcio l'Originale, ecco un estratto delle parole di mister Luca Gotti.",
+   "source": "Milan News",
+   "lean": "unknown",
+   "date": "2026-08-17",
+   "category": "sport"
+  },
+  {
+   "text": "Coppa Italia, esordio col botto per il Palermo: Vavassori e Pohjanpalo castigano il Lecce — La squadra di Inzaghi gioca un buon match e si guadagna il passaggio al turno successivo, dove troverà il Mantova. Appresione per i finlandesi: Joronen è uscito dopo un minuto per un infortunio alla spalla, il bomber è r",
+   "source": "PalermoToday",
+   "lean": "center",
+   "date": "2026-08-17",
+   "category": "foreign"
+  },
+  {
+   "text": "Harry e Meghan tornano a vivere nel Regno Unito dopo sei anni: trasloco entro fine mese — (Adnkronos) - Harry e Meghan Markle lasceranno gli Stati Uniti per tornare a vivere nel Regno Unito. Lo riporta Sky News. Re Carlo III sarebbe stato informato e avrebbe dato parere favorevole. Il Duca e la Duchessa di Su",
+   "source": "Adnkronos — Prima Pagina",
+   "lean": "center",
+   "date": "2026-08-19",
+   "category": "foreign"
+  },
+  {
+   "text": "Scuola, da libri, zaini e pennarelli un salasso da 1.400 euro per gli studenti — Gli editori: costi sotto il carovita. I genitori: piena deducibilità su tutto il materiale scolastico. Le famiglie: il ministero cambi il sistema di aiuti, non ha più senso legarlo all’Isee",
+   "source": "La Stampa — Copertina",
+   "lean": "center",
+   "date": "2026-08-19",
+   "category": "economy"
+  },
+  {
+   "text": "Minotti con tanti dubbi: \"La grave pecca di questo Milan è nel lato dirigenziale\" — Lorenzo Minotti, ex difensore oggi opinionista sportivo ha parlato così poco fa a Sky Calcio Club del nuovo Milan di Ruben Amorim.",
+   "source": "Milan News",
+   "lean": "unknown",
+   "date": "2026-08-19",
+   "category": "sport"
+  },
+  {
+   "text": "Di Gregorio lascia la Juventus: sarà il nuovo portiere del Bournemouth — Michele Di Gregorio lascia la Juventus e passa in Premier League. Il portiere cresciuto nelle giovanili dell'Inter sarà infatti un nuovo giocatore del Bournemouth.",
+   "source": "FC Inter News",
+   "lean": "unknown",
+   "date": "2026-08-21",
+   "category": "sport"
+  },
+  {
+   "text": "Sassarini: \"Contro il Wolfsburg non sembrerà un preliminare\" — Prima gara ufficiale e primo sorriso per David Sassarini, allenatore dell'Inter Women, che commenta così per Inter TV il successo delle sue ragazze contro il Parma nel primo match della Serie A Women's Cup: \"Abbiamo fatt",
+   "source": "FC Inter News",
+   "lean": "unknown",
+   "date": "2026-08-21",
+   "category": "sport"
+  },
+  {
+   "text": "Mattarella inaugura Taranto 2026: \"Area di dialogo e sviluppo\" — Accolto da un lungo applauso, il Capo dello Stato richiama la necessità di convivenza tra i popoli e auspica un futuro lontano da guerre e violenze",
+   "source": "RAI News — Sport",
+   "lean": "center",
+   "date": "2026-08-21",
+   "category": "general"
+  },
+  {
+   "text": "Amanda Lear sui look copiati di Madonna e il flop con Adriano Celentano: “Lui è superstizioso. Ha dato la colpa a me” — Durante la sua lunga carriera Amanda Lear ha conosciuto e lavorato con decine di famosi artisti, da Salvador Dalì e David Bowie ad Adriano Celentano e di alcuni loro ha parlato in una lunga chiacchierata al Versilia Cult",
+   "source": "Biccy",
+   "lean": "center",
+   "date": "2026-08-23",
+   "category": "entertainment"
+  },
+  {
+   "text": "Roma, -1 alla Fiorentina: Mora pronto al debutto. D'Amico non molla Gittens — mora GettyImages-2291168212",
+   "source": "Forzaroma.info",
+   "lean": "unknown",
+   "date": "2026-08-23",
+   "category": "sport"
+  },
+  {
+   "text": "Malore in mare a 90 anni, il bagnino 17enne Mattia: “Il nipote chiedeva aiuto, mi sono precipitato” — Porto Recanati, è successo nel tratto di spiaggia del Barracuda. È intervenuto il 17enne Mattia Santarelli",
+   "source": "Il Resto del Carlino",
+   "lean": "center",
+   "date": "2026-08-23",
+   "category": "foreign"
+  },
+  {
+   "text": "Folorunsho verso il Monza: si può chiudere nelle prossime ore — Nuova cessione in vista per il Napoli, impegnato a definire diverse operazioni in uscita negli ultimi giorni di calciomercato. Il Monza ha messo nel mirino Michael Folorunsho e la trattativa potrebbe registrare un'accele",
+   "source": "Tutto Napoli",
+   "lean": "unknown",
+   "date": "2026-08-23",
+   "category": "sport"
+  },
+  {
+   "text": "Messico, Graciela Domínguez Nava nuova governatrice ad interim di Sinaloa — Il Parlamento statale approva la nomina dopo la nuova licenza chiesta da Rubén Rocha Moya",
+   "source": "ANSA — Mondo",
+   "lean": "center",
+   "date": "2026-08-25",
+   "category": "politics"
+  },
+  {
+   "text": "Cessione Lang, anche il Bologna desiste. L'Atalanta alza l'offerta per Rowe: cifre \"folli\" — Starebbero per sfumare altre due piste per Noa Lang: l'esterno del Napoli nona ha pretendenti disposte ad accontentare il Napoli per prenderlo.",
+   "source": "AreaNapoli.it",
+   "lean": "unknown",
+   "date": "2026-08-25",
+   "category": "sport"
+  },
+  {
+   "text": "La Roma si inserisce per Kessié: blitz per superare la Juve. El Aynaoui può salutare — kessie Al Shabab v Al Ahli: Saudi Pro League",
+   "source": "Forzaroma.info",
+   "lean": "unknown",
+   "date": "2026-08-25",
+   "category": "sport"
+  },
+  {
+   "text": "Guerra Ucraina - Russia, le news di oggi. Zelensky: “Contiamo sulla Cina per porre fine alla guerra” — Mosca rivendica un attacco contro cinque navi nel Mar Nero",
+   "source": "La Repubblica — HP",
+   "lean": "left",
+   "date": "2026-08-25",
+   "category": "foreign"
+  },
+  {
+   "text": "Arisa protagonista dell'estate tra topless e polemiche: a Yoga Radio Estate la confessione più schietta dopo l'ultima bufera social — Arisa sorprende sul palco di Yoga Radio Estate insieme a Fabio Rovazzi e si lascia sfuggire una frase decisamente colorita. Poi racconta il retroscena dietro La Costiera Amalfitana e annuncia un nuovo impegno nella sua B",
+   "source": "Today.it",
+   "lean": "center",
+   "date": "2026-08-25",
+   "category": "entertainment"
+  },
+  {
+   "text": "Il politologo Charap: «In Ucraina è in corso un’escalation e l'inverno sarà peggio. Il processo di pace degli Usa secondo Mosca è in un vicolo cieco» — Il politologo americano esperto di Russia ed Eurasia: «In inverno la campagna russa sarà più estesa»",
+   "source": "Corriere della Sera — Esteri (corriere.it)",
+   "lean": "center",
+   "date": "2026-08-27",
+   "category": "foreign"
+  },
+  {
+   "text": "Atalanta, Sarri ammette: \"Mi aspetto qualcosa dal mercato\" — L’Atalanta supera 1-0 l’Hapoel Tel Aviv a Miskolc e, dopo lo 0-0 dell’andata a Bergamo, conquista l’accesso alla fase campionato della Conference League.",
+   "source": "FC Inter News",
+   "lean": "unknown",
+   "date": "2026-08-27",
+   "category": "sport"
+  },
+  {
+   "text": "Palermo, Buttaro piace ad un club di Serie C: la situazione",
+   "source": "Mediagol",
+   "lean": "unknown",
+   "date": "2026-08-27",
+   "category": "sport"
+  },
+  {
+   "text": "La Juventus batte il Parma, fa due su due ed è in vetta col Milan — Gol di Nico e Koopmeiners, porta ancora inviolata per Vicario",
+   "source": "ANSA — HP",
+   "lean": "center",
+   "date": "2026-08-29",
+   "category": "sport"
+  },
+  {
+   "text": "Allegri sulle cessioni: \"Prisco va al Bari, Garofalo in Lega Pro. Poi vediamo cosa accadrà\"",
+   "source": "CalcioNapoli24.it",
+   "lean": "unknown",
+   "date": "2026-08-29",
+   "category": "sport"
+  },
+  {
+   "text": "La Roma si muove per l'attacco: sale Leweling dello Stoccarda. È in lista con altri due — leweling FC Bayern München v VfB Stuttgart - Bundesliga 2026/27",
+   "source": "Forzaroma.info",
+   "lean": "unknown",
+   "date": "2026-08-29",
+   "category": "sport"
+  },
+  {
+   "text": "200 Hz sotto i 90€: il monitor AOC 24G4HA è al minimo storico — A 88,79€ su Amazon, il monitor AOC 24G4HA da 24 pollici raggiunge il minimo storico: da 109€ scende del 19%. Il pannello Fast IPS, il refresh a 200 Hz e la risposta di 1 ms GtG lo rendono particolarme...",
+   "source": "Tom's Hardware Italia",
+   "lean": "center",
+   "date": "2026-08-29",
+   "category": "tech"
+  },
+  {
+   "text": "Farc dissidenti rivendicano il sequestro di soldato della Legione straniera francese — Il colombiano Melo Charry è stato catturato il 6 agosto nel dipartimento di Nariño",
+   "source": "ANSA — Mondo",
+   "lean": "center",
+   "date": "2026-08-31",
+   "category": "foreign"
+  },
+  {
+   "text": "Serie C, Desenzano-Trento 0-0: i gialloblù fermati in trasferta da due legni — Nel posticipo del lunedì terzo risultato utile di fila per Tabbiani. Raramente in campionati di questo livello si vedono squadre così competitive",
+   "source": "Corriere della Sera — Sport",
+   "lean": "center",
+   "date": "2026-08-31",
+   "category": "sport"
+  },
+  {
+   "text": "Bolide nei cieli piacentini, diverse segnalazioni nella serata di domenica — In alcune segnalazioni i testimoni riferiscono anche di aver udito un suono associato al passaggio",
+   "source": "IlPiacenza",
+   "lean": "unknown",
+   "date": "2026-08-31",
+   "category": "general"
+  },
+  {
+   "text": "Pallone d’Oro, quando esce la lista dei candidati? Tutte le info sulla 70° edizione — Tra qualche settimana scopriremo chi si aggiudicherà il 70° Pallone d'Oro della storia.",
+   "source": "Milan News",
+   "lean": "unknown",
+   "date": "2026-08-31",
+   "category": "sport"
+  },
+  {
+   "text": "Dimarco: \"Il Napoli è forte e non lo battiamo da tempo. Vogliamo i tre punti\" — Il terzino nerazzurro Federico Dimarco si è proiettato alla prossima sfida dell'Inter, quella di sabato contro il Napoli.",
+   "source": "AreaNapoli.it",
+   "lean": "unknown",
+   "date": "2026-09-02",
+   "category": "sport"
+  },
+  {
+   "text": "Roma, ecco la lista Uefa per la Champions: ci sono i nuovi acquisti. Out Salah-Eddine — gasperini Cardiff City v AS Roma - Pre-Season Friendly",
+   "source": "Forzaroma.info",
+   "lean": "unknown",
+   "date": "2026-09-02",
+   "category": "sport"
+  },
+  {
+   "text": "Il MANN apre di sera e cambia pelle: cosa succede nelle sale tra arte, musica e performance — Il progetto MANNight propone perture serali fino al 22 ottobre con installazioni, danza, bodypainting e musica contemporanea lungo il percorso del Museo Archeologico",
+   "source": "NapoliToday",
+   "lean": "center",
+   "date": "2026-09-02",
+   "category": "lifestyle"
+  },
+  {
+   "text": "Scudetto Napoli, Giaccherini lo esclude totalmente: \"Questa cessione anche pesa\"",
+   "source": "CalcioNapoli24.it",
+   "lean": "unknown",
+   "date": "2026-09-04",
+   "category": "sport"
+  },
+  {
+   "text": "Due vite volano via a 18 anni — Sono 59 le vittime della strada dall’inizio dell’anno. A Orune la morte di un 63enne",
+   "source": "L'Unione Sarda",
+   "lean": "center",
+   "date": "2026-09-04",
+   "category": "general"
+  },
+  {
+   "text": "“Un femminicidio pianificato”. Lorena Isceri, rapita e uccisa in A1. Il pm: Federico Vella aveva organizzato tutto — Ricostruiti gli ultimi istanti della 45enne. La donna era riuscita a liberarsi dalle fascette, ha lottato prima di essere uccisa. L’uomo era in cura da uno psichiatra. Disposta l’autopsia sui corpi",
+   "source": "La Nazione",
+   "lean": "center",
+   "date": "2026-09-04",
+   "category": "general"
+  },
+  {
+   "text": "Inizia il torneo di Promozione — Prima giornata in Promozione girone B, con queste partite tra sabato 5 e domenica 6 ore 15.30. Azzurra Mariner-Afc Fermo Borgo Mogliano-Elpidiense Cuprense-Atletico Azzurra Colli Monturano-Casette Verdini Porto Sant'Elpi",
+   "source": "Senigallia Notizie",
+   "lean": "unknown",
+   "date": "2026-09-04",
+   "category": "sport"
+  },
+  {
+   "text": "Fiorentina: sostituto Grosso, spunta il nuovo allenatore",
+   "source": "CalcioNapoli24.it",
+   "lean": "unknown",
+   "date": "2026-09-06",
+   "category": "sport"
+  },
+  {
+   "text": "Il trionfo di Kimi Antonelli in Formula 1 fa sognare tutti. De Pascale: “Siamo pronti per il Gp a Imola” — Il governatore: “Aspettiamo il Circus”. Panieri: “Novità importanti all’orizzonte”. E sul circuito il weekend targato Aci è un successo",
+   "source": "Il Resto del Carlino",
+   "lean": "center",
+   "date": "2026-09-06",
+   "category": "sport"
+  },
+  {
+   "text": "Cisse illude il Milan, Gatti al 92' salva la Juventus: finisce 1-1",
+   "source": "La Repubblica — Repubblica.it > Calcio",
+   "lean": "left",
+   "date": "2026-09-06",
+   "category": "sport"
+  },
+  {
+   "text": "Caso Garlasco, Verità Nascoste: \"Cadono accuse per complotto di De Rensis contro procura Pavia\" — (Adnkronos) - Il legale di Alberto Stasi: \"Ho passato notti faticose...\"",
+   "source": "Adnkronos — Prima Pagina",
+   "lean": "center",
+   "date": "2026-09-08",
+   "category": "politics"
+  },
+  {
+   "text": "Arsenal, Arteta: \"Sono già stato a Napoli, è un campo davvero ostico e conosco l'atmosfera che creano. Allegri molto esperto\"",
+   "source": "CalcioNapoli24.it",
+   "lean": "unknown",
+   "date": "2026-09-08",
+   "category": "sport"
+  },
+  {
+   "text": "Mourinho, emozione Roma: \"Sì, ma non durante la partita. Real? Li aiuta avere me\" — mourinho Real Madrid C.F. v FC Internazionale Milano - UEFA Champions League 2026/27 League Phase MD1",
+   "source": "Forzaroma.info",
+   "lean": "unknown",
+   "date": "2026-09-08",
+   "category": "sport"
+  },
+  {
+   "text": "Perla, l’autista del bus che ha salvato i passeggeri dall’uomo col coltello: “Ma non sono un’eroina, il mio è il lavoro più bello” — Sabato a Calcinelli, ha subito fatto scendere l’utenza dal mezzo. “Siamo formati per le manovre di sicurezza, non ho avuto esitazioni. I miei colleghi mi hanno ringraziato. E io adoro questo mestiere”",
+   "source": "Il Resto del Carlino",
+   "lean": "center",
+   "date": "2026-09-08",
+   "category": "general"
+  },
+  {
+   "text": "Schira: \"Conte non torna, la verità sulla presenza di Palladino al Maradona\" — Il giornalista Nicolò Schira attraverso l'intervento al podcast 352Sport ha parlato della presenza di Palladino allo Stadio Maradona per Napoli-Arsenal.",
+   "source": "AreaNapoli.it",
+   "lean": "unknown",
+   "date": "2026-09-10",
+   "category": "sport"
+  },
+  {
+   "text": "Infortuni Napoli, Corbo: \"Possibile che nessuno abbia fatto questa cosa?\"",
+   "source": "CalcioNapoli24.it",
+   "lean": "unknown",
+   "date": "2026-09-10",
+   "category": "sport"
+  },
+  {
+   "text": "Sos assistenza familiare: \"Famiglie indebitate per seguire gli anziani” — Spi Cgil lancia l’allarme: “I costi molto elevati spingono verso il nero”. E code agli sportelli: “Sempre più difficile stipulare contratti a tempo pieno”",
+   "source": "La Nazione",
+   "lean": "center",
+   "date": "2026-09-10",
+   "category": "economy"
+  },
+  {
+   "text": "Frank Horvat, fotografo anticonformista, «Quella foto l'ha reso ricco e famoso, ma lui la odiava. Più che l'eleganza, cercava la verità»: Fiammetta Horvat racconta suo padre, a cui ora viene dedicata una grandissima mostra — Frank Horvat, tra i più cosmopoliti e poliedrici protagonisti della fotografia del XX secolo, arriva a Roma con una mostra, la prima in Italia dopo la sua scomparsa. La figlia, Fiammetta Horvat, ci ha raccontato numerosi",
+   "source": "Vanity Fair Italia",
+   "lean": "center",
+   "date": "2026-09-10",
+   "category": "entertainment"
+  },
+  {
+   "text": "Malore durante la preparazione in Argentina, Goggia torna in Italia in anticipo — D'accordo con commissione medica Fisi l'azzurra si sottoporrà agli accertamenti del caso",
+   "source": "ANSA — HP",
+   "lean": "center",
+   "date": "2026-09-12",
+   "category": "sport"
+  },
+  {
+   "text": "Inter, occhio a Davis. L'anno scorso fece male ai nerazzurri a San Siro... — Si avvicina la sfida tra Inter e Udinese, in programma lunedì sera a San Siro.",
+   "source": "FC Inter News",
+   "lean": "unknown",
+   "date": "2026-09-12",
+   "category": "sport"
+  },
+  {
+   "text": "Università, scienze naturali: 240 candidati al test della Scuola galileiana di Padova per 14 posti disponibili. — Padova, 12 set. (Adnkronos) - Continua a crescere l'interesse dei giovani studenti di talento per le discipline scientifiche e per i percorsi d’eccellenza. Lo confermano i numeri del test di ammissione al corso di Scienz",
+   "source": "Oggi Treviso",
+   "lean": "unknown",
+   "date": "2026-09-12",
+   "category": "general"
+  },
+  {
+   "text": "Harry e Meghan costretti a cambiare scuola ai figli per ragioni di sicurezza. Il governo ora valuta se dar loro una scorta? — La sicurezza è la grande battaglia di Harry che ha chiesto di riaverla più volte al Ravec, l'ente preposto. La svolta in queste ore con una nuova valutazione delle esigenze di copertura dei duchi di Sussex",
+   "source": "Corriere della Sera — Esteri (corriere.it)",
+   "lean": "center",
+   "date": "2026-09-14",
+   "category": "general"
+  },
+  {
+   "text": "Inter-Udinese, problemi muscolari per Stones: rischia di saltare la Roma",
+   "source": "Forzaroma.info",
+   "lean": "unknown",
+   "date": "2026-09-14",
+   "category": "sport"
+  }
+ ],
+ "built": "2026-11-23",
+ "source_db": "Echolot MCP get_news (https://echolotnews.com/mcp), published_at szerinti napok",
+ "build_rule": "get_news(limit=100, diversify, max_per_source=3, place=ország) minden 2. napra; title>15, LEAK_RE-szűrő, cím-dedupe, lead 220 kar., MAXN=60 lean-cap (arányos kvóta + domináns lean <=60% + dátum-stride) — a júliusi sample_cell"
+}

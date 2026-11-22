@@ -1,0 +1,549 @@
+{
+ "country": "IT",
+ "lang": "it",
+ "target_month": "2026-10",
+ "corpus_window": [
+  "2026-09-15",
+  "2026-10-14"
+ ],
+ "days_sampled": [
+  "2026-09-15",
+  "2026-09-17",
+  "2026-09-19",
+  "2026-09-21",
+  "2026-09-23",
+  "2026-09-25",
+  "2026-09-27",
+  "2026-09-29",
+  "2026-10-01",
+  "2026-10-03",
+  "2026-10-05",
+  "2026-10-07",
+  "2026-10-09",
+  "2026-10-11",
+  "2026-10-13"
+ ],
+ "n": 60,
+ "lean_dist": {
+  "center": 25,
+  "unknown": 25,
+  "left": 8,
+  "right": 1,
+  "center_left": 1
+ },
+ "cat_dist": {
+  "sport": 21,
+  "general": 11,
+  "global": 8,
+  "politics": 3,
+  "foreign": 11,
+  "lifestyle": 1,
+  "entertainment": 2,
+  "economy": 2,
+  "tech": 1
+ },
+ "raw_rows": 944,
+ "pool_after_dedupe": 863,
+ "leak_dropped": 0,
+ "distinct_sources_raw": 114,
+ "raw_cat_dist": {
+  "politics": 35,
+  "sport": 323,
+  "economy": 47,
+  "general": 181,
+  "global": 70,
+  "tech": 56,
+  "foreign": 175,
+  "entertainment": 43,
+  "lifestyle": 11,
+  "cars": 3
+ },
+ "per_day": {
+  "2026-09-15": {
+   "returned": 59,
+   "pool": 500
+  },
+  "2026-09-17": {
+   "returned": 60,
+   "pool": 500
+  },
+  "2026-09-19": {
+   "returned": 59,
+   "pool": 500
+  },
+  "2026-09-21": {
+   "returned": 59,
+   "pool": 500
+  },
+  "2026-09-23": {
+   "returned": 63,
+   "pool": 500
+  },
+  "2026-09-25": {
+   "returned": 58,
+   "pool": 500
+  },
+  "2026-09-27": {
+   "returned": 63,
+   "pool": 500
+  },
+  "2026-09-29": {
+   "returned": 61,
+   "pool": 500
+  },
+  "2026-10-01": {
+   "returned": 70,
+   "pool": 500
+  },
+  "2026-10-03": {
+   "returned": 60,
+   "pool": 500
+  },
+  "2026-10-05": {
+   "returned": 80,
+   "pool": 500
+  },
+  "2026-10-07": {
+   "returned": 60,
+   "pool": 500
+  },
+  "2026-10-09": {
+   "returned": 63,
+   "pool": 500
+  },
+  "2026-10-11": {
+   "returned": 68,
+   "pool": 500
+  },
+  "2026-10-13": {
+   "returned": 61,
+   "pool": 500
+  }
+ },
+ "mcp_errors": 0,
+ "items": [
+  {
+   "text": ">>>ANSA/ Eurovolley, l'Italia cala il poker: battuta anche la Cechia — Gli azzurri si impongono 3 a 1. Prossima sfida con la Slovenia",
+   "source": "ANSA — Regione Emilia-Romagna",
+   "lean": "center",
+   "date": "2026-09-15",
+   "category": "sport"
+  },
+  {
+   "text": "\"Allegri ha sbagliato le misure del Napoli\". Sosa punge: \"L'abito va stretto e ora il sarto chiude\" — L'ex bomber azzurro analizza ai microfoni di Radio Marte la situazione tattica degli azzurri: tra moduli ancora da calibrare e lo stop delle nazionali che frena le correzioni.",
+   "source": "AreaNapoli.it",
+   "lean": "unknown",
+   "date": "2026-09-15",
+   "category": "sport"
+  },
+  {
+   "text": "Da Amalfi a Positano, la Costiera in fiamme:“Tutti incendi dolosi” — Andati a fuoco anche alberi secolari. Quattro gli inneschi contemporanei Ora pericolo dissesto",
+   "source": "La Repubblica — HP",
+   "lean": "left",
+   "date": "2026-09-15",
+   "category": "general"
+  },
+  {
+   "text": "La sottile linea rossa della paura — Un drone sui cieli della Lituania, due bengala contro un elicottero danese e soprattutto minacce infuocate alla Polonia: la Russia di Vladimir Putin aumenta le provocazioni militari ...",
+   "source": "La Stampa — Copertina",
+   "lean": "center",
+   "date": "2026-09-15",
+   "category": "global"
+  },
+  {
+   "text": "Focus Europa - Parlamento europeo - Emma Bonino, l'europeismo e la Ue sotto attacco — Valeria Manieri (Radio Radicale) intervista Carlo Corazza, Capo del Parlamento europeo in Italia. Puntata di \"Focus Europa - Parlamento europeo - Emma Bonino, l'europeismo e la Ue sotto attacco\" di martedì 15 settembre 2",
+   "source": "Radio Radicale",
+   "lean": "unknown",
+   "date": "2026-09-15",
+   "category": "politics"
+  },
+  {
+   "text": "Europa League: riscatto Juve con goleada, Nec travolto 5-0 — Woltemade e Kolo Muani si sbloccano tra gli svarioni degli olandesi",
+   "source": "ANSA — HP",
+   "lean": "center",
+   "date": "2026-09-17",
+   "category": "sport"
+  },
+  {
+   "text": "Sì del Canada alla Ue. Russia al voto. Il «cecchino» di Roma | Il nuovo episodio del podcast «Giorno per giorno» — Francesca Basso parla del discorso del primo ministro dello Stato nordamericano al Parlamento europeo, dopo l’invito ufficiale a divenire primo Stato associato dell’Unione (facendo arrabbiare Trump). Marco Imarisio prese",
+   "source": "Corriere della Sera — Prima pagina",
+   "lean": "center",
+   "date": "2026-09-17",
+   "category": "global"
+  },
+  {
+   "text": "Lazzari: \"Udinese ottima per mezz'ora, poi ha sofferto la forza dell'Inter\" — Andrea Lazzari, ex centrocampista fra le altre dell'Udinese, ha parlato a TuttoUdinese del momento dei bianconeri partendo dalla sconfitta per 5-3 contro l'Inter: \"Per i primi trenta minuti di partita ho visto un'ottima",
+   "source": "FC Inter News",
+   "lean": "unknown",
+   "date": "2026-09-17",
+   "category": "sport"
+  },
+  {
+   "text": "Malagò, gioco sporco contro il presidente Figc: come se ne vogliono sbarazzare — Non è una questione di codici, ma di potere. L’ennesimo scontro ai vertici dello sport italiano ha il sapore amaro dell’agguato politico, travestito da puntigliosa cavillatura burocratica. A Palazzo H è andata in scena u",
+   "source": "Libero Quotidiano",
+   "lean": "right",
+   "date": "2026-09-17",
+   "category": "general"
+  },
+  {
+   "text": "Antonelli, futuro in Ferrari? \"Non escludo nulla\" — (Adnkronos) - Kimi Antonelli e un futuro in Ferrari? Oggi no, domani... chissà. Il pilota...",
+   "source": "SanremoNews.it",
+   "lean": "unknown",
+   "date": "2026-09-17",
+   "category": "sport"
+  },
+  {
+   "text": "Gattuso primo in classifica con la Lazio: avete letto cosa ha scritto Auriemma sui social?",
+   "source": "CalcioNapoli24.it",
+   "lean": "unknown",
+   "date": "2026-09-19",
+   "category": "sport"
+  },
+  {
+   "text": "Abodi: \"Legge Melandri da rivedere. Più soldi a chi punta sugli italiani\" — Il Governo punta a mettere mano ai criteri con cui vengono distribuiti i ricavi dei diritti televisivi della Serie A, aumentando il peso degli incentivi destinati alle società che scelgono di investire e dare spazio ai g",
+   "source": "FC Inter News",
+   "lean": "unknown",
+   "date": "2026-09-19",
+   "category": "sport"
+  },
+  {
+   "text": "L’emozione di Mazzola che in me vide papà Valentino — Quando arrivai in Italia, nel 1958, non ero Altafini ma Mazzola. A volte Mazola, con una sola zeta. In Brasile mi conoscevano così, ignoravano il mio vero cognome, d’altronde anche sui ...",
+   "source": "La Stampa — Copertina",
+   "lean": "center",
+   "date": "2026-09-19",
+   "category": "general"
+  },
+  {
+   "text": "Giuffredi: \"Il mio prossimo gioiello? Dico Ambrosino: diventerà importante\"",
+   "source": "CalcioNapoli24.it",
+   "lean": "unknown",
+   "date": "2026-09-21",
+   "category": "sport"
+  },
+  {
+   "text": "Chiude anche il Blue bar, terremoto su viale Ceccarini a Riccione: “Discussione tra i fratelli soci” — In tre guidano la società: “Si cerca di sbloccare la situazione in pochi giorni”. Il locale era aperto dal 1979",
+   "source": "Il Resto del Carlino",
+   "lean": "center",
+   "date": "2026-09-21",
+   "category": "foreign"
+  },
+  {
+   "text": "L’AI al fianco dei medici, l’Umbria tra le prime regioni a testare “Mia”: come funziona la piattaforma di Agenas — Il progetto entra nel vivo: partita la sperimentazione che consente al medico di famiglia di consultare l’alleato digitale per chiarire dubbi e indicare il miglior percorso di cura",
+   "source": "La Nazione",
+   "lean": "center",
+   "date": "2026-09-21",
+   "category": "foreign"
+  },
+  {
+   "text": "EuroVolley: delusione Italia a Torino, la Finlandia è in semifinale con la Francia — I ragazzi di De Giorgi battuti 3-2 al tie-break davanti al pubblico del PalaVela",
+   "source": "ANSA — Sport",
+   "lean": "center",
+   "date": "2026-09-23",
+   "category": "sport"
+  },
+  {
+   "text": "Marocco: legislative, chiusi i seggi al via lo spoglio — 23 set 23:01 - (Agenzia Nova) - Si sono chiusi alle 19 ora locale i seggi in Marocco per le elezioni legislative, mentre e' iniziato lo spoglio... (Tut)",
+   "source": "Agenzia Nova",
+   "lean": "unknown",
+   "date": "2026-09-23",
+   "category": "global"
+  },
+  {
+   "text": "Regione Lazio, l'accordo bipartisan sulla crioconservazione dei gameti fa infuriare i Pro Vita — La onlus antiabortista, vicina all'ex senatore leghista Pillon, si scaglia contro la decisione di mettere a bilancio 300mila euro per sostenere uno degli aspetti cardine della procreazione medicalmente assistita, pratica",
+   "source": "RomaToday",
+   "lean": "center",
+   "date": "2026-09-23",
+   "category": "foreign"
+  },
+  {
+   "text": "ADL ricorda: “Provai a prendere il Napoli con un assegno da 120 miliardi, Ferlaino mi fece causa” — Aurelio De Laurentiis, presidente del Napoli, intervenuto a Roma in occasione del premio ricevuto dalla stampa estera, ha raccontato le origini della sua idea di entrare nel mondo del calcio, ricordando anche il modello",
+   "source": "Tutto Napoli",
+   "lean": "unknown",
+   "date": "2026-09-23",
+   "category": "sport"
+  },
+  {
+   "text": "Il Papa ai giornalisti: «Qui voi siete i benvenuti»",
+   "source": "Corriere della Sera — Cronache (corriere.it)",
+   "lean": "center",
+   "date": "2026-09-25",
+   "category": "general"
+  },
+  {
+   "text": "Capodanno al Castello di Rivalta — Il fascino austero e romantico di una dimora storica si unisce alla calda atmosfera delle grandi oc[...]",
+   "source": "IlPiacenza",
+   "lean": "unknown",
+   "date": "2026-09-25",
+   "category": "global"
+  },
+  {
+   "text": "Hormuz, il traffico navale crolla: cosa rischiano benzina, gas e merci in Italia — Lunedì 21 settembre i sistemi di tracciamento hanno rilevato soltanto due navi commerciali nello stretto, contro una media di circa 125 al giorno prima del ... Read more L'articolo Hormuz, il traffico navale crolla: cosa",
+   "source": "La Notizia",
+   "lean": "center_left",
+   "date": "2026-09-25",
+   "category": "foreign"
+  },
+  {
+   "text": "Troppo Belgio per l’Italia, il Mancini bis parte male: azzurri battuti 2-0 e fischiati — La squadra di Van Bommel domina il primo tempo e va avanti con Godts. Nella ripresa gli azzurri crescono ma Lukebakio chiude i giochi",
+   "source": "La Repubblica — Repubblica.it > Calcio",
+   "lean": "left",
+   "date": "2026-09-25",
+   "category": "sport"
+  },
+  {
+   "text": "Napoli, McTominay ha ripreso l'attività dopo l'intervento al cuore — (ANSA) - NAPOLI, 25 SET - Il centrocampista del Napoli Scott McTominay è tornato ad allenarsi, con una seduta svolta in palestra nel Centro Tecnico di Castel Volturno, dopo aver superato l'intervento di ablazione cardiac",
+   "source": "Milan News",
+   "lean": "unknown",
+   "date": "2026-09-25",
+   "category": "sport"
+  },
+  {
+   "text": "Formazione Turchia-Italia, Mancini ne cambia 8: confermato Donnarumma con altri 2 — Rivoluzione quasi totale per la selezione azzurra in vista della Nations League contro la Turchia: il CT stravolge l'undici titolare dopo il passo falso con il Belgio.",
+   "source": "AreaNapoli.it",
+   "lean": "unknown",
+   "date": "2026-09-27",
+   "category": "sport"
+  },
+  {
+   "text": "Perugia Calcio, lo stadio Curi e la partita del closing — Reggiana piegata con una grande prova di carattere. Nei prossimi giorni il club è chiamato a fare chiarezza sul closing",
+   "source": "PerugiaToday",
+   "lean": "unknown",
+   "date": "2026-09-27",
+   "category": "global"
+  },
+  {
+   "text": "La smerigliatrice Einhell da 850W costa 42,95€ e vale la spesa — La smerigliatrice angolare Einhell TC-AG 125/850 costa 42,95€ su Amazon ed è pronta per tagliare, levigare e rimuovere la ruggine. Il motore da 850W raggiunge 12.000 giri al minuto, una combinazione a...",
+   "source": "Tom's Hardware Italia",
+   "lean": "center",
+   "date": "2026-09-27",
+   "category": "lifestyle"
+  },
+  {
+   "text": "Belli e dannati, il cult di Gus Van Sant con Keanu Reeves e River Phoenix compie 35 anni: perché il titolo originale My Own Private Idaho nasconde un significato profondo — Un film queer, diventato un cult senza tempo, e un regista sperimentale che lanciò due astri nascenti destinati a diventare icone del cinema. Belli e dannati compie 35 anni: ecco il vero significato del suo titolo origin",
+   "source": "Vanity Fair Italia",
+   "lean": "center",
+   "date": "2026-09-27",
+   "category": "entertainment"
+  },
+  {
+   "text": "Caro energia, Meloni da Praga: \"Spero che anche altri attori diano una mano\" — (Adnkronos) - Visita ufficiale della premier in Repubblica Ceca, accompagnata dal ministro dell'Economia Giancarlo Giorgetti. Su Regeni: \"Chiudere canali con l'Egitto rischia di allontanarci da obiettivo\"",
+   "source": "Adnkronos — Politica",
+   "lean": "center",
+   "date": "2026-09-29",
+   "category": "economy"
+  },
+  {
+   "text": "Il ritorno di Alessandro Di Battista in tv: «Mi hanno asportato quasi tutto il tumore. Ora farò le cure, sperando che funzionino» — L'ex pentastellato: «Faccio parte di quel club di cittadini italiani che dicono perché proprio a me»",
+   "source": "Corriere della Sera — Politica (corriere.it)",
+   "lean": "center",
+   "date": "2026-09-29",
+   "category": "politics"
+  },
+  {
+   "text": "Tumori cerebrali: quali sono, i sintomi e le terapie — Esistono molti tipi diversi di neoplasie al cervello, che sono fortunatamente rare (sebbene siano tra i cinque tipi di cancro più frequenti prima dei 50 anni) e ancora difficili da curare",
+   "source": "Corriere della Sera — Sport",
+   "lean": "center",
+   "date": "2026-09-29",
+   "category": "general"
+  },
+  {
+   "text": "SI - Il Bologna ha deciso: Darmian firma fino a fine stagione — Il Bologna ha rotto gli indugi: secondo Sportitalia, il club rossoblu ha deciso di tesserare Matteo Darmian.",
+   "source": "FC Inter News",
+   "lean": "unknown",
+   "date": "2026-09-29",
+   "category": "sport"
+  },
+  {
+   "text": "巴西，弗拉维奥·博索纳罗退出Globo电视台的辩论 — 这是投票前的最后一场辩论，但民调中领先的两位候选人均未出席",
+   "source": "ANSA — China 中国",
+   "lean": "center",
+   "date": "2026-10-01",
+   "category": "foreign"
+  },
+  {
+   "text": "Guerra Ucraina-Russia, le notizie in diretta | — Le notizie sul conflitto tra Ucraina e Russia di venerdì 2 ottobre",
+   "source": "Corriere della Sera — Esteri (corriere.it)",
+   "lean": "center",
+   "date": "2026-10-01",
+   "category": "foreign"
+  },
+  {
+   "text": "Meno devoti da padre Pio, via ai tagli in sacrestia a San Giovanni Rotondo: “Licenziamo 38 addetti” — Il calo di pellegrini apre una dura vertenza con i lavoratori: “Ma i frati sono anziani e vivono di carità”. Le posizioni vacanti sono già state assegnate alle suore. La Cgil: “Precedente pericoloso”",
+   "source": "La Repubblica — Cronaca",
+   "lean": "left",
+   "date": "2026-10-01",
+   "category": "general"
+  },
+  {
+   "text": "Mancini ammette: \"Squadra multietnica? Il mondo è cambiato da tanto, ora tocca all'Italia\" — (ANSA) - SAINT-DENIS, 01 OTT - Molte le domande a Roberto Mancini dai giornalisti, soprattutto francesi, in merito al \"nuovo corso\" della nazionale, arricchita da elementi con doppio passaporto e sulla strada della nazio",
+   "source": "Milan News",
+   "lean": "unknown",
+   "date": "2026-10-01",
+   "category": "sport"
+  },
+  {
+   "text": "La Bosnia torna al voto tra divisioni etniche e stallo europeo — AGI - La Bosnia-Erzegovina torna oggi alle urne per elezioni generali segnate dalle divisioni etniche che, a oltre trent'anni dalla guerra del 1992-1995, continuano a paralizzare il complesso Stato nato dagli Accordi di",
+   "source": "AGI — Estero",
+   "lean": "center",
+   "date": "2026-10-03",
+   "category": "global"
+  },
+  {
+   "text": "Napoli Basketball da urlo, seconda vittoria consecutiva in campionato nonostante tre assenze pesantissime",
+   "source": "CalcioNapoli24.it",
+   "lean": "unknown",
+   "date": "2026-10-03",
+   "category": "sport"
+  },
+  {
+   "text": "Parolin: “Per fermare le guerre uscire dalla logica del dominio e porre fine alle disuguaglianze” — Il segretario di Stato della Santa Sede: “A Gaza, in Ucraina e in Iran la gente soffre. Kiev ha il diritto di difendersi, per la pace si torni ai valori umani fondamentali”",
+   "source": "La Repubblica — HP",
+   "lean": "left",
+   "date": "2026-10-03",
+   "category": "global"
+  },
+  {
+   "text": "Allarme sicurezza lungo il Tergola: rinvenuto un coltello tra la vegetazione — Ieri pomeriggio 3 ottobre l'amministrazione comunale di Campodarsego ha segnalato situazioni di spaccio nell'area arginale. Il pronto intervento della polizia locale con l'unità cinofila ha portato al sequestro dell'arma",
+   "source": "PadovaOggi",
+   "lean": "unknown",
+   "date": "2026-10-03",
+   "category": "general"
+  },
+  {
+   "text": "Uruguay, candombe, murga e milonga per accogliere Leone XIV — 'Una gran alegría' è la canzone ufficiale della visita del Papa, dal 6 all'8 novembre",
+   "source": "ANSA — Mondo",
+   "lean": "center",
+   "date": "2026-10-05",
+   "category": "foreign"
+  },
+  {
+   "text": "Napoli-Frosinone: quanti calciatori \"sani\" avrà a disposizione Allegri? — Massimiliano Allegri fa il conto degli infortunati in vista della prossima gara che attenderà il Napoli, quella in programma al Maradona contro il Frosinone.",
+   "source": "AreaNapoli.it",
+   "lean": "unknown",
+   "date": "2026-10-05",
+   "category": "sport"
+  },
+  {
+   "text": "Croazia, Modric e il 7-0 con l'Inghilterra: \"Non possiamo pensare che non sia successo nulla\" — Quello che i giocatori della Croazia e il ct Slaven Bilic si sono detti dopo la Caporetto contro l'Inghilterra resta nello spogliatoio. A dirlo è Luka Modric, oggi protagonista in conferenza stampa alla vigilia del match",
+   "source": "FC Inter News",
+   "lean": "unknown",
+   "date": "2026-10-05",
+   "category": "sport"
+  },
+  {
+   "text": "Festa delle Offerte Prime 2026: tutti gli smartphone Samsung in offerta — Ecco quali sono i migliori smartphone Samsung Galaxy da comprare su Amazon in occasione della Festa delle offerte Prime del 6 e 7 ottobre 2026.",
+   "source": "HDblog",
+   "lean": "center",
+   "date": "2026-10-05",
+   "category": "tech"
+  },
+  {
+   "text": "Randy Villegas: “Tassare i miliardari non è una proposta estremista. Solo così si aiutano i poveri” — Il candidato democratico al Congresso figlio di emigrati messicani sfida Trump: “Tagli alle tasse ai ricchi, deportazioni e guerra hanno impoverito gli americani. Ora bisogna tassare i miliardari”",
+   "source": "La Repubblica — Esteri",
+   "lean": "left",
+   "date": "2026-10-05",
+   "category": "foreign"
+  },
+  {
+   "text": "Battesimo dell’aria per il primo Gripen E prodotto in Brasile da Embraer — Embraer e Saab hanno completato con successo il volo inaugurale del primo aereo da combattimento Gripen E prodotto in Brasile da Embraer. Il velivolo è decollato dal...",
+   "source": "Analisi Difesa",
+   "lean": "unknown",
+   "date": "2026-10-07",
+   "category": "foreign"
+  },
+  {
+   "text": "Pamela Compagnucci: “Voglio andare al GF Vip per ritrovare me stessa” — Pamela Compagnucci potrebbe tornare a bussare alla porta di un reality. L’ex corteggiatrice di Uomini e Donne, infatti, ha recentemente parlato della possibilità di partecipare al Grande Fratello Vip, lanciando la propri",
+   "source": "Biccy",
+   "lean": "center",
+   "date": "2026-10-07",
+   "category": "entertainment"
+  },
+  {
+   "text": "Milano, shock e rabbia per lo studente massacrato davanti al liceo: “È violenza neofascista” — Caccia ai militanti di Blocco Studentesco, vicini a CasaPound. In dodici gli hanno spaccato la testa per dei manifesti strappati",
+   "source": "La Repubblica — Cronaca",
+   "lean": "left",
+   "date": "2026-10-07",
+   "category": "general"
+  },
+  {
+   "text": "Salvò una persona dal suicidio: addio al vigile del fuoco \"eroe\" — Il 6 ottobre è mancato Antongiulio Bustreo, 65 anni, per quarant'anni in servizio al comando provinciale. A stroncarlo un male incurabile che di fatto non gli ha dato scampo. Nel 2014 in extremis un suo intervento scongi",
+   "source": "PadovaOggi",
+   "lean": "unknown",
+   "date": "2026-10-07",
+   "category": "global"
+  },
+  {
+   "text": "La rimonta di Lula online, exploit di contatti per battere Bolsonaro — I nuovi video diretti sono un successo: mercoledì il record con 10 milioni di like",
+   "source": "ANSA — Mondo",
+   "lean": "center",
+   "date": "2026-10-09",
+   "category": "foreign"
+  },
+  {
+   "text": "Inter-Parma, il pronostico: le quote di tutti i bookmakers — WhatsApp Image 2026-10-09 at 22.23.22",
+   "source": "Forzaroma.info",
+   "lean": "unknown",
+   "date": "2026-10-09",
+   "category": "sport"
+  },
+  {
+   "text": "“Per andare a lezione all’università di Bologna dormo nell’ostello di un’altra provincia” — La storia di Barbara Busnardo, 24 anni: a marzo dovrebbe laurearsi in Economia, sogna di lavorare nelle istituzioni europee, ma nel frattempo non sa dove dormire",
+   "source": "La Repubblica — Cronaca",
+   "lean": "left",
+   "date": "2026-10-09",
+   "category": "general"
+  },
+  {
+   "text": "Tajani lancia l’opa di Forza Italia su Milano. Ma la Lega insiste: “Allora primarie” — Il vicepremier agli alleati: “Proposta non aggressiva” E sul partito: “La linea la do io”. Ipotesi consultazioni interne sul programma",
+   "source": "La Repubblica — Politica",
+   "lean": "left",
+   "date": "2026-10-11",
+   "category": "politics"
+  },
+  {
+   "text": "Amorim: \"Imbattuti in campionato? No, abbiamo buttato comunque punti\" — Il Milan trova il terzo pareggio in sei gare di Serie A: oltre alle vittorie con Torino, Venezia e Lecce, oggi è arrivato il pari con il Sassuolo, dopo quelli con Juventus e Lazio.",
+   "source": "Milan News",
+   "lean": "unknown",
+   "date": "2026-10-11",
+   "category": "sport"
+  },
+  {
+   "text": "Riyadh: attacco Houthi, 12 morti, 300 feriti, conferenze energetiche — Un missile Houthi colpisce l’aeroporto di Riyadh, provocando 12 morti e più di 300 feriti, ma i grandi congressi energetici del Regno continuano con misure di sicurezza rafforzate. Leggi tutto Riyadh: attacco Houthi, 12",
+   "source": "Notizie.it",
+   "lean": "center",
+   "date": "2026-10-11",
+   "category": "foreign"
+  },
+  {
+   "text": "Missili su Riad: i big del petrolio fuggono dal summit mondiale. L’Arabia Saudita scopre la propria fragilità — Attacco missilistico sull'aeroporto di Riad con morti e feriti: gli amministratori delegati di Shell, BP, Total ed Exxon annullano la partecipazione al vertice mondiale sull'energia mentre salgono i rischi per le rotte d",
+   "source": "Scenari Economici",
+   "lean": "unknown",
+   "date": "2026-10-11",
+   "category": "economy"
+  },
+  {
+   "text": "Crans-Montana, Sofia e Francesca: «Vogliamo che torni quella che era la nostra normalità». Kean: «Sono svenuto sulle scale. Mi sono detto: non puoi morire qua» — Le testimonianze di quattro dei ragazzi sopravvissuti al rogo di Le Constellation a Verissimo e Domenica In. I genitori di Francesca: «Nella sfortuna ci sentiamo fortunati perché nostra figlia è viva»",
+   "source": "Vanity Fair Italia",
+   "lean": "center",
+   "date": "2026-10-11",
+   "category": "general"
+  },
+  {
+   "text": "Brugge, Leko in conferenza: \"Vorrei altri Sommer. Vincere a San Siro il momento più bello in carriera\" — Ivan Leko, evidentemente, ha studiato bene il 3-5-2 dell'Inter che tanto ha decantato alla vigilia. Il suo Brugge esce da San Siro con una vittoria tanto sorprendente quanto meritata.",
+   "source": "FC Inter News",
+   "lean": "unknown",
+   "date": "2026-10-13",
+   "category": "sport"
+  },
+  {
+   "text": "Lanterns mantiene le promesse e si rivela una delle migliori serie dell'anno — Anche ai suoi protagonisti Kyle Chandler e Aaron Pierre è scesa una lacrima alla fine dell'ultima puntata. Lo show è disponibile con i suoi otto episodi su HBO Max",
+   "source": "Vanity Fair Italia",
+   "lean": "center",
+   "date": "2026-10-13",
+   "category": "general"
+  }
+ ],
+ "built": "2026-11-23",
+ "source_db": "Echolot MCP get_news (https://echolotnews.com/mcp), published_at szerinti napok",
+ "build_rule": "get_news(limit=100, diversify, max_per_source=3, place=ország) minden 2. napra; title>15, LEAK_RE-szűrő, cím-dedupe, lead 220 kar., MAXN=60 lean-cap (arányos kvóta + domináns lean <=60% + dátum-stride) — a júliusi sample_cell"
+}

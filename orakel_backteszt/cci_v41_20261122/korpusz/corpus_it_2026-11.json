@@ -1,0 +1,551 @@
+{
+ "country": "IT",
+ "lang": "it",
+ "target_month": "2026-11",
+ "corpus_window": [
+  "2026-10-15",
+  "2026-11-14"
+ ],
+ "days_sampled": [
+  "2026-10-15",
+  "2026-10-17",
+  "2026-10-19",
+  "2026-10-21",
+  "2026-10-23",
+  "2026-10-25",
+  "2026-10-27",
+  "2026-10-29",
+  "2026-10-31",
+  "2026-11-02",
+  "2026-11-04",
+  "2026-11-06",
+  "2026-11-08",
+  "2026-11-10",
+  "2026-11-12",
+  "2026-11-14"
+ ],
+ "n": 60,
+ "lean_dist": {
+  "unknown": 30,
+  "center": 22,
+  "left": 6,
+  "right": 1,
+  "center_right": 1
+ },
+ "cat_dist": {
+  "sport": 20,
+  "entertainment": 1,
+  "economy": 6,
+  "global": 8,
+  "foreign": 14,
+  "general": 6,
+  "tech": 5
+ },
+ "raw_rows": 1063,
+ "pool_after_dedupe": 956,
+ "leak_dropped": 0,
+ "distinct_sources_raw": 105,
+ "raw_cat_dist": {
+  "foreign": 246,
+  "general": 188,
+  "global": 177,
+  "sport": 347,
+  "entertainment": 22,
+  "economy": 28,
+  "politics": 4,
+  "lifestyle": 1,
+  "tech": 50
+ },
+ "per_day": {
+  "2026-10-15": {
+   "returned": 64,
+   "pool": 500
+  },
+  "2026-10-17": {
+   "returned": 65,
+   "pool": 500
+  },
+  "2026-10-19": {
+   "returned": 64,
+   "pool": 500
+  },
+  "2026-10-21": {
+   "returned": 65,
+   "pool": 500
+  },
+  "2026-10-23": {
+   "returned": 64,
+   "pool": 500
+  },
+  "2026-10-25": {
+   "returned": 69,
+   "pool": 500
+  },
+  "2026-10-27": {
+   "returned": 65,
+   "pool": 500
+  },
+  "2026-10-29": {
+   "returned": 69,
+   "pool": 500
+  },
+  "2026-10-31": {
+   "returned": 66,
+   "pool": 500
+  },
+  "2026-11-02": {
+   "returned": 72,
+   "pool": 500
+  },
+  "2026-11-04": {
+   "returned": 64,
+   "pool": 500
+  },
+  "2026-11-06": {
+   "returned": 67,
+   "pool": 500
+  },
+  "2026-11-08": {
+   "returned": 70,
+   "pool": 500
+  },
+  "2026-11-10": {
+   "returned": 70,
+   "pool": 500
+  },
+  "2026-11-12": {
+   "returned": 65,
+   "pool": 500
+  },
+  "2026-11-14": {
+   "returned": 64,
+   "pool": 500
+  }
+ },
+ "mcp_errors": 0,
+ "items": [
+  {
+   "text": "Sarri batte il Pafos e gongola: \"Allenare l'Atalanta è facile. Infortunio Raspadori? Faccio esposto\" — Buona prova in Conference League: il tecnico toscano elogia l'ambiente bergamasco, festeggia i tre punti ma punta il dito contro i ritmi insostenibili del calendario.",
+   "source": "AreaNapoli.it",
+   "lean": "unknown",
+   "date": "2026-10-15",
+   "category": "sport"
+  },
+  {
+   "text": "Anticipazioni di Verissimo: Soraya Sabetta e Sara Palumbieri svelano di essere di nuovo fidanzate — Soraya Sabetta a distanza di due settimane è tornata a Verissimo da Silvia Toffanin e questa volta lo ha fatto insieme alla sua migliore amica di Temptation Island, Sara Palumbieri, alla sua prima intervista televisiva.",
+   "source": "Biccy",
+   "lean": "center",
+   "date": "2026-10-15",
+   "category": "entertainment"
+  },
+  {
+   "text": "Caro gasolio, la protesta dei tir: “Siamo pronti a bloccare l’Italia” — I camionisti minacciano lo sciopero, il ministero li convoca per il 27. Al Sud distributori a secco per la protesta degli addetti ex Ilva",
+   "source": "La Repubblica — Economia",
+   "lean": "left",
+   "date": "2026-10-15",
+   "category": "economy"
+  },
+  {
+   "text": "Amorim felice a metà: \"In altre partite abbiamo giocato meglio\" — E' un Ruben Amorim contento a metà quello che dopo la netta vittoria contro il Salisburgo ha parlato così, a Sky Sport.",
+   "source": "Milan News",
+   "lean": "unknown",
+   "date": "2026-10-15",
+   "category": "sport"
+  },
+  {
+   "text": "Padova spazza via la Cremonese e resta a punteggio pieno — La squadra di Sinibaldi, con il largo 3-0 (25-14, 25-18, 25-16) nel posticipo della 3a di andata, vola a 9 punti raggiungendo al comando Costa Volpino ed Erreci. Populini e socie frenate dall'infortunio di Prandi nel cor",
+   "source": "Tuttosport — Calcio",
+   "lean": "center",
+   "date": "2026-10-15",
+   "category": "sport"
+  },
+  {
+   "text": "Guerra Ucraina-Russia, le notizie in diretta | Nuovi attacchi russi su Kharkiv, Kherson e Zaporizhzhia: almeno due vittime — Le notizie sul conflitto tra Ucraina e Russia di domenica 18 ottobre, in diretta",
+   "source": "Corriere della Sera — Esteri (corriere.it)",
+   "lean": "center",
+   "date": "2026-10-17",
+   "category": "global"
+  },
+  {
+   "text": "Ilva, la cassa integrazione raddoppia. “Calpestata la dignità dei lavoratori” — L’azienda chiede la misura per 8.622 operai, sindacati contrari. La sindaca di Genova, Salis: “Smentite le rassicurazioni ricevute”",
+   "source": "La Repubblica — Economia",
+   "lean": "left",
+   "date": "2026-10-17",
+   "category": "economy"
+  },
+  {
+   "text": "Libertas-Urania, le pagelle. Tozzi dipinge, Penna incendia, Graves spara: bang bang ed è 4 su 4! — Quattro su quattro. Poker sul tavolo. Si va al river signori. Se fosse un film, saremmo già al quarto capitolo di una saga che comincia a somigliare a Il Signore degli Anelli : ogni domenica un nuovo regno da conquistare",
+   "source": "QuiLivorno.it",
+   "lean": "unknown",
+   "date": "2026-10-17",
+   "category": "global"
+  },
+  {
+   "text": "Axios: 'Hegseth ha incontrato Netanyahu in Israele' — 'Visita a sorpresa del capo del Pentagono'",
+   "source": "ANSA — Mondo",
+   "lean": "center",
+   "date": "2026-10-19",
+   "category": "foreign"
+  },
+  {
+   "text": "Ravanelli: \"La mia previsione sul Napoli, ma ritrovi lo smalto. Juventus? Richiamerei Conte\" — Fabrizio Ravanelli, ex calciatore, ha rilasciato alcune dichiarazioni a Radio Anch'io Sport per analizzare il momento di Napoli e Juventus.",
+   "source": "AreaNapoli.it",
+   "lean": "unknown",
+   "date": "2026-10-19",
+   "category": "sport"
+  },
+  {
+   "text": "Biasin: \"Nel Napoli ci sono giocatori che non sorridono e controvoglia! Allegri scelto da ADL per un motivo\"",
+   "source": "CalcioNapoli24.it",
+   "lean": "unknown",
+   "date": "2026-10-19",
+   "category": "sport"
+  },
+  {
+   "text": "La manovra è in ritardo. Meloni: “Con le banche dialogo ma senza sconti” — Vertice di maggioranza su giovani ed energia, attesa per le risposte della Ue sulla flessibilità. Stretta sulle richieste dei partiti, cento milioni per l’autotrasporto",
+   "source": "La Repubblica — Economia",
+   "lean": "left",
+   "date": "2026-10-19",
+   "category": "economy"
+  },
+  {
+   "text": "Sigfrido Ranucci sceglie RaiNews24, comunicata la decisione alla Rai — Il giornalista tornerà nella redazione in cui ha lavorato dal 1999 al 2006, prima della stagione di Report",
+   "source": "RAI News — Politica",
+   "lean": "center",
+   "date": "2026-10-19",
+   "category": "general"
+  },
+  {
+   "text": "Fabbroni: \"Lucca? Non è più tempo, qui c'è in ballo una scommessa più grande\"",
+   "source": "CalcioNapoli24.it",
+   "lean": "unknown",
+   "date": "2026-10-21",
+   "category": "sport"
+  },
+  {
+   "text": "Guerra Ucraina-Russia, le notizie in diretta | Kiev: missili balistici su abitazioni, ci sono feriti. Mosca: «Ci stiamo avviando alla fine del conflitto» — Le notizie sul conflitto tra Ucraina e Russia di giovedì 22 ottobre, in diretta",
+   "source": "Corriere della Sera — Esteri (corriere.it)",
+   "lean": "center",
+   "date": "2026-10-21",
+   "category": "foreign"
+  },
+  {
+   "text": "Jannik Sinner, \"ci sono possibilità\": chi si candida per il suo team — Juan Carlos Ferrero apre sempre più concretamente alla possibilità di allenare Jannik Sinner , ma il suo eventuale ingresso nello staff dell'azzurro presenta diverse incognite. L'ex tecnico di Carlos Alcaraz è uno dei no",
+   "source": "Libero Quotidiano",
+   "lean": "right",
+   "date": "2026-10-21",
+   "category": "general"
+  },
+  {
+   "text": "Via l'eternit dal tetto del magazzino comunale: «Una vittoria per la salute dei nostri cittadini» — Prosegue la campagna di messa in sicurezza e riqualificazione ambientale avviata dall'amministrazione comunale di Vigonza su tutto il territorio comunale. La soddisfazione del sindaco Gianmaria Boscaro",
+   "source": "PadovaOggi",
+   "lean": "unknown",
+   "date": "2026-10-21",
+   "category": "global"
+  },
+  {
+   "text": "La globalizzazione non ha superato la geografia ma abbiamo finto che fosse così — Per anni ci siamo raccontati che integrazione dei mercati, progresso tecnologico e crescente interdipendenza economica avessero sostanzialmente ridimensionato il peso della geografia nei commerci internazionali. Convinzi",
+   "source": "Analisi Difesa",
+   "lean": "unknown",
+   "date": "2026-10-23",
+   "category": "foreign"
+  },
+  {
+   "text": "Dal pouf al pendolo",
+   "source": "L'Unione Sarda",
+   "lean": "center",
+   "date": "2026-10-23",
+   "category": "foreign"
+  },
+  {
+   "text": "Manovra, più vicino l’ok della Ue. Le banche: non stampiamo soldi — L’Upb vede ulteriori pressioni sui prezzi: “Segnali di propagazione dei rincari energetici”. Il presidente degli industriali Orsini avverte: “No a una legge di bilancio spezzatino o fatta di mance, serve responsabilità”",
+   "source": "La Repubblica — Economia",
+   "lean": "left",
+   "date": "2026-10-23",
+   "category": "economy"
+  },
+  {
+   "text": "Solo gli arbitri possono farci perdere questo scudetto — Ci sono partite che sembrano scritte apposta per mettere alla prova la pazienza e la resistenza cardiaca dei tifosi nerazzurri. Inter-Fiorentina alle 12.",
+   "source": "FC Inter News",
+   "lean": "unknown",
+   "date": "2026-10-25",
+   "category": "sport"
+  },
+  {
+   "text": "Ecco chi era San Folco Scotti, vescovo di Piacenza e Pavia — San Folco Scotti, nasce a Piacenza nel 1165, muore a Pavia nel 1229, proviene da una famiglia importante di origine irlandese. Avvenimenti All’età di 20 anni entra tra i Canonici di Sant’Eufemia che, pur essendo sacerdot",
+   "source": "In Terris",
+   "lean": "unknown",
+   "date": "2026-10-25",
+   "category": "global"
+  },
+  {
+   "text": "Siher non sblocca il telefono, sul pc i messaggi Telegram già programmati per le piazze. Le ricerche con l’Ai e un documento: “Rivoluzione, istruzioni per l'uso” — Sul portatile sequestrato a Youssef Siher, un HP EliteBook privo di password, gli investigatori hanno trovato due messaggi già programmati per sabato 24 ottobre, alle 14.31 e alle 15.31. La polizia cercava il leader del",
+   "source": "Quotidiano Nazionale (QN)",
+   "lean": "center",
+   "date": "2026-10-25",
+   "category": "foreign"
+  },
+  {
+   "text": "Da Porta Susa alla Gare de Lyon: il viaggio verso Parigi parte dal cuore di Torino — Alta velocità, collegamenti dal centro e un’esperienza a bordo tra praticità, cultura e gastronomia",
+   "source": "TorinoToday",
+   "lean": "center",
+   "date": "2026-10-25",
+   "category": "foreign"
+  },
+  {
+   "text": "A Ferrara il primo raduno nazionale Maga — Si terrà proprio a Ferrara il primo raduno nazionale Maga in Italia. A lanciare la notizia sui social sono i principali sostenitori cisatlantici del presidente degli Stati Uniti",
+   "source": "estense.com",
+   "lean": "unknown",
+   "date": "2026-10-25",
+   "category": "global"
+  },
+  {
+   "text": "Gasperini torna sul Napoli: \"Squadra tosta, ma grande reazione Roma! Siamo molto forti\" — Il tecnico giallorosso analizza la vittoria per 4-2 sul Cagliari e contro i sardi ed evoca la recente sfida di campionato contro il Napoli: \"Stanchi per tante partite, ma abbiamo risorse\".",
+   "source": "AreaNapoli.it",
+   "lean": "unknown",
+   "date": "2026-10-27",
+   "category": "sport"
+  },
+  {
+   "text": "Israele, opposizione in vantaggio ma senza maggioranza — Roma, 28 ott. (askanews) – Nessuna maggioranza, blocco opposizione in lieve vantaggio, Likud primo partito e liste arabe in forte crescita: gli exit poll alla chiusura dei seggi delle elezioni politiche israeliane hanno",
+   "source": "AskaNews — HP",
+   "lean": "center",
+   "date": "2026-10-27",
+   "category": "general"
+  },
+  {
+   "text": "Verso un Nord Stream russo-americano? Controllo dei flussi energetici e dipendenza europea (di Michele Volpi) — Le trattative su un possibile accordo in Ucraina riaprono il dossier dei gasdotti. Non un ritorno al passato: diversi indizi suggeriscono un nuovo intermediario misto russo-americano.",
+   "source": "Scenari Economici",
+   "lean": "unknown",
+   "date": "2026-10-27",
+   "category": "economy"
+  },
+  {
+   "text": "Scossa di terremoto nell'Aquilano di magnitudo 3.0 — L'epicentro è stato localizzato a circa 2 chilometri a est di Barete",
+   "source": "ANSA — Regione Abruzzo",
+   "lean": "center",
+   "date": "2026-10-29",
+   "category": "general"
+  },
+  {
+   "text": "MADE 4: molte aziende interessate a entrare nel mercato dell’Aerospazio e Difesa — Tra le imprese manifatturiere che lavorano già nell’Aerospace & Defence e quelle che vorrebbero entrarci, la distanza tecnologica è minima. A fare la differenza sono soprattutto l’accesso alle...",
+   "source": "Analisi Difesa",
+   "lean": "unknown",
+   "date": "2026-10-29",
+   "category": "foreign"
+  },
+  {
+   "text": "Ho scritto calcio sulla sabbia — Poche cose più del calcio, forse nessuna, sanno riprodurre in modo così crudele l’alternanza di gioie e delusioni che ci tocca, riuscendo ogni volta a farcele sembrare una sorpresa, le une e le altre",
+   "source": "La Repubblica — HP",
+   "lean": "left",
+   "date": "2026-10-29",
+   "category": "general"
+  },
+  {
+   "text": "Vent’anni di aggregazione tra spettacolo, cultura e territorio a Padova — Musical, mostre e iniziative sociali per valorizzare i talenti locali e rafforzare il legame con la città e la provincia",
+   "source": "PadovaOggi",
+   "lean": "unknown",
+   "date": "2026-10-29",
+   "category": "global"
+  },
+  {
+   "text": "Apple AirPods 5 sotto i 140€, ANC e chiamate più chiare anche fuori casa — A 139€ su Amazon, Apple AirPods 5 costano il 7% in meno rispetto ai 149€ di listino. La cancellazione attiva del rumore si accompagna al rilevamento delle conversazioni, che abbassa automaticamente il...",
+   "source": "Tom's Hardware Italia",
+   "lean": "center",
+   "date": "2026-10-29",
+   "category": "tech"
+  },
+  {
+   "text": "Sabatini: \"Conte guarderà Juventus-Napoli, in ballo tre destini\". Poi la battuta su Di Lorenzo — Il giornalista è intervenuto a Radio Marte nel corso della trasmissione \"Siamo Tutti Allenatori\" ed ha presentato la sfida tra Juventus e Napoli.",
+   "source": "AreaNapoli.it",
+   "lean": "unknown",
+   "date": "2026-10-31",
+   "category": "sport"
+  },
+  {
+   "text": "Hamilton: “Pole con Ferrari? Mi fa tornare ragazzino, a quando vedevo Schumacher” — L'inglese ha potuto celebrare la sua pole numero 105, la prima da pilota di Maranello",
+   "source": "FormulaPassion.it",
+   "lean": "unknown",
+   "date": "2026-10-31",
+   "category": "sport"
+  },
+  {
+   "text": "SCIENZAinATTO | Il dato nella conoscenza scientifica. Misure, informazioni, significati — La ricerca fisica, come lo studio sperimentale della luce quantistica, costringe a rimettere a tema il significato del misurare in contesti complessi",
+   "source": "Il Sussidiario",
+   "lean": "center_right",
+   "date": "2026-10-31",
+   "category": "foreign"
+  },
+  {
+   "text": "Hamilton super in Messico: prima pole dopo 3 anni. Russell subito dietro, più staccato Antonelli — Il britannico partirà davanti a tutti: non era mai accaduto da quando è in Ferrari. Bene anche Leclerc",
+   "source": "Tuttosport — Calcio",
+   "lean": "center",
+   "date": "2026-10-31",
+   "category": "sport"
+  },
+  {
+   "text": "Le GeForce RTX 5000 scarseggiano, tornano protagoniste le GPU Ampere (RTX 3000) — In Cina scarseggiano le RTX 5000 e i produttori di schede video invitano i distributori a puntare su modelli più vecchi, tra cui RTX 3060 e RTX 3050, oltre ad alcune Radeon AMD. Una situazione alimentata anche dalla ripr",
+   "source": "Hardware Upgrade",
+   "lean": "unknown",
+   "date": "2026-11-02",
+   "category": "tech"
+  },
+  {
+   "text": "ET, un gioco di squadra nel cuore di Sos Enattos — C’è la ministra, Videolina in diretta",
+   "source": "L'Unione Sarda",
+   "lean": "center",
+   "date": "2026-11-02",
+   "category": "foreign"
+  },
+  {
+   "text": "Sassuolo-Fiorentina 2-4, la sintesi della partita — I Viola calano il poker a casa del Sassuolo ed escono dalla zona retrocessione",
+   "source": "RAI News — Sport",
+   "lean": "center",
+   "date": "2026-11-02",
+   "category": "sport"
+  },
+  {
+   "text": "Pistocchi: \"Disastro Napoli, una squadra che non sa che fare. Allegri ha vinto solo 7 delle ultime 24 partite\"",
+   "source": "CalcioNapoli24.it",
+   "lean": "unknown",
+   "date": "2026-11-04",
+   "category": "sport"
+  },
+  {
+   "text": "AMD mette la freccia e si prepara allo storico sorpasso: ricavi superiori a Intel nel quarto trimestre — Le previsioni per il quarto trimestre 2026 indicano un possibile storico sorpasso di AMD su Intel per fatturato trimestrale. La crescita è trainata soprattutto dai server EPYC e dalle GPU Instinct per l'intelligenza arti",
+   "source": "Hardware Upgrade",
+   "lean": "unknown",
+   "date": "2026-11-04",
+   "category": "tech"
+  },
+  {
+   "text": "Midterm Usa: il risultato Dem e le prospettive su AI, petrolio e dazi — Un esito netto sostiene il sentiment nell’immediato, ma regole più stringenti sull’AI potrebbero accrescere i timori nel tech. Con Trump potenzialmente più concentrato sulla politica estera, petrolio e dazi restano risch",
+   "source": "La Repubblica — Economia",
+   "lean": "left",
+   "date": "2026-11-04",
+   "category": "economy"
+  },
+  {
+   "text": "Morti sul lavoro, solo nelle ultime ore 5 vittime tra Piemonte, Campania, Puglia, Emilia Romagna — Una strage che quest'anno ha raggiunto e superato quota 700, secondo i dati Inail",
+   "source": "RAI News — Cronaca",
+   "lean": "center",
+   "date": "2026-11-04",
+   "category": "general"
+  },
+  {
+   "text": "Alvino: \"Allegri non rischia, De Laurentiis è convinto che sia l'allenatore giusto per uscire da questo momento\"",
+   "source": "CalcioNapoli24.it",
+   "lean": "unknown",
+   "date": "2026-11-06",
+   "category": "sport"
+  },
+  {
+   "text": "Papa Leone: “Facciamo conoscere Gesù con l’ascolto e la vicinanza a chi soffre” — “Uno dei segreti dell’evangelizzazione è assomigliare a Colui che annunciamo”, ha detto Papa Leone durante la celebrazione dei Vespri nella Cattedrale dell’Immacolata Concezione e dei Santi Filippo e Giacomo. Il Santo Pa",
+   "source": "In Terris",
+   "lean": "unknown",
+   "date": "2026-11-06",
+   "category": "global"
+  },
+  {
+   "text": "L’assalto ai beni archeologici «La Regione impugni la legge» — Siti Unesco, la rabbia degli studiosi",
+   "source": "L'Unione Sarda",
+   "lean": "center",
+   "date": "2026-11-06",
+   "category": "foreign"
+  },
+  {
+   "text": "Sorpresa Italia, Mancini convoca anche Gatti dopo Fiorentina-Juventus — Emergenza difensiva per gli Azzurri: il Commissario Tecnico corre ai ripari convocando un ulteriore elemento proveniente dal campionato.",
+   "source": "AreaNapoli.it",
+   "lean": "unknown",
+   "date": "2026-11-08",
+   "category": "sport"
+  },
+  {
+   "text": "Behrami: \"Napoli ko per gli infortuni? Il problema è molto più profondo. Per i ragazzi italiani i brutti risultati condizionano la vita privata\"",
+   "source": "CalcioNapoli24.it",
+   "lean": "unknown",
+   "date": "2026-11-08",
+   "category": "sport"
+  },
+  {
+   "text": "Il CEO di NVIDIA Jensen Huang ammette la scappatella con la presunta spia cinese e finisce sotto indagine — NVIDIA ha avviato un'indagine indipendente dopo le accuse secondo cui Jensen Huang sarebbe stato preso di mira da un'operazione di intelligence cinese attraverso una donna legata a Megaspeed. Il CEO ha ammesso una relazi",
+   "source": "Hardware Upgrade",
+   "lean": "unknown",
+   "date": "2026-11-08",
+   "category": "tech"
+  },
+  {
+   "text": "Attacchi russi: colpiti imbarcazioni neutre e reti energetiche in Ucraina — Scopri come le forze russe hanno denunciato l’attacco a tre navi cargo e a due sottostazioni elettriche critiche per l’industria bellica ucraina. Leggi tutto Attacchi russi: colpiti imbarcazioni neutre e reti energetiche",
+   "source": "Notizie.it",
+   "lean": "center",
+   "date": "2026-11-08",
+   "category": "foreign"
+  },
+  {
+   "text": "Vitiligine, tenerla sotto controllo conta: tornano le consulenze dermatologiche gratuite — Vitiligine Week dal 23 al 28 novembre, un'occasione per favorire il dialogo tra pazienti, famiglie e dermatologi",
+   "source": "Today.it",
+   "lean": "center",
+   "date": "2026-11-08",
+   "category": "foreign"
+  },
+  {
+   "text": "Women's Champions League, Roma-Servette 2-1: primi tre punti. In gol van Dooren e Pilgrim — AS Roma v Servette FC Chenois Feminin - UEFA Women's Champions League 2026/27 League Phase MD4",
+   "source": "Forzaroma.info",
+   "lean": "unknown",
+   "date": "2026-11-10",
+   "category": "sport"
+  },
+  {
+   "text": "La Barba al Palo - Inter-Como: ore 18, lezione di calcio",
+   "source": "Quotidiano Nazionale (QN)",
+   "lean": "center",
+   "date": "2026-11-10",
+   "category": "foreign"
+  },
+  {
+   "text": "Impallomeni a sorpresa: “Allegri dovrebbe essere contento di essere criticato” — Il Napoli è una delle principali delusioni di questa prima parte di stagione e il ritardo accumulato in classifica rispetto alle aspettative continua ad alimentare le critiche nei confronti di Massimiliano Allegri.",
+   "source": "Tutto Napoli",
+   "lean": "unknown",
+   "date": "2026-11-10",
+   "category": "sport"
+  },
+  {
+   "text": "Venezuela: Usa hanno restituito quasi 12,1 miliardi di dollari dei ricavi del petrolio di Caracas — 13 nov 00:33 - (Agenzia Nova) - Gli Stati Uniti hanno trasferito al Venezuela oltre 12,1 miliardi di dollari provenienti dalla vendita di petrolio... (Was)",
+   "source": "Agenzia Nova",
+   "lean": "unknown",
+   "date": "2026-11-12",
+   "category": "global"
+  },
+  {
+   "text": "No al dumping e ai contratti pirata, il patto tra le parti sociali sveglia l’Italia da un lungo letargo — Con l’accordo quadro appena raggiunto si tutela meglio il potere d’acquisto dei cittadini. Ora servono sanzioni effettive per chi continuerà nelle pratiche peggiorative vietate perché la vera sfida sarà quella di trovare",
+   "source": "Quotidiano Nazionale (QN)",
+   "lean": "center",
+   "date": "2026-11-12",
+   "category": "foreign"
+  },
+  {
+   "text": "Napoli su Zabi e Tati, dalla Francia frenano: \"Uno non parte e l'altro non è pronto\" — A Stile TV nel corso della trasmissione “Salite sulla giostra” è intervenuto Bruno Satin, agente sportivo ed esperto di calcio francese: “Patrick Zabi? Non c’è possibilità di prenderlo perchè & ...",
+   "source": "Tutto Napoli",
+   "lean": "unknown",
+   "date": "2026-11-12",
+   "category": "sport"
+  },
+  {
+   "text": "L'Estudiantes vince la Supercoppa argentina: Palacios esulta sui social — L'Estudiantes ha vinto 3-2 contro l'Independiente Rivadavia grazie al colpo di testa di Lucas Alario, decisivo per l'economia del risultato finale.",
+   "source": "FC Inter News",
+   "lean": "unknown",
+   "date": "2026-11-14",
+   "category": "sport"
+  },
+  {
+   "text": "Google Pixel Buds 2a, musica e chiamate con meno rumore a soli 99€ — A 99€ su Amazon, le Google Pixel Buds 2a portano la cancellazione attiva del rumore sotto la soglia dei 100€. Lo stabilizzatore girevole permette di adattare l'aderenza alle orecchie quando ti alleni...",
+   "source": "Tom's Hardware Italia",
+   "lean": "center",
+   "date": "2026-11-14",
+   "category": "tech"
+  }
+ ],
+ "built": "2026-11-23",
+ "source_db": "Echolot MCP get_news (https://echolotnews.com/mcp), published_at szerinti napok",
+ "build_rule": "get_news(limit=100, diversify, max_per_source=3, place=ország) minden 2. napra; title>15, LEAK_RE-szűrő, cím-dedupe, lead 220 kar., MAXN=60 lean-cap (arányos kvóta + domináns lean <=60% + dátum-stride) — a júliusi sample_cell"
+}

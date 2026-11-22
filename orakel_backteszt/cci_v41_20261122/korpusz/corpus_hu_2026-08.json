@@ -1,0 +1,552 @@
+{
+ "country": "HU",
+ "lang": "hu",
+ "target_month": "2026-08",
+ "corpus_window": [
+  "2026-07-15",
+  "2026-08-14"
+ ],
+ "days_sampled": [
+  "2026-07-15",
+  "2026-07-17",
+  "2026-07-19",
+  "2026-07-21",
+  "2026-07-23",
+  "2026-07-25",
+  "2026-07-27",
+  "2026-07-29",
+  "2026-07-31",
+  "2026-08-02",
+  "2026-08-04",
+  "2026-08-06",
+  "2026-08-08",
+  "2026-08-10",
+  "2026-08-12",
+  "2026-08-14"
+ ],
+ "n": 60,
+ "lean_dist": {
+  "unknown": 26,
+  "left": 15,
+  "right": 7,
+  "analytical": 8,
+  "center": 3,
+  "right_independent": 1
+ },
+ "cat_dist": {
+  "economy": 15,
+  "general": 6,
+  "sport": 7,
+  "tech": 7,
+  "politics": 20,
+  "lifestyle": 3,
+  "entertainment": 2
+ },
+ "raw_rows": 658,
+ "pool_after_dedupe": 633,
+ "leak_dropped": 1,
+ "distinct_sources_raw": 38,
+ "raw_cat_dist": {
+  "general": 132,
+  "economy": 129,
+  "politics": 182,
+  "tech": 94,
+  "foreign": 16,
+  "sport": 42,
+  "lifestyle": 20,
+  "entertainment": 40,
+  "global": 3
+ },
+ "per_day": {
+  "2026-07-15": {
+   "returned": 40,
+   "pool": 500
+  },
+  "2026-07-17": {
+   "returned": 40,
+   "pool": 500
+  },
+  "2026-07-19": {
+   "returned": 40,
+   "pool": 500
+  },
+  "2026-07-21": {
+   "returned": 40,
+   "pool": 500
+  },
+  "2026-07-23": {
+   "returned": 40,
+   "pool": 500
+  },
+  "2026-07-25": {
+   "returned": 42,
+   "pool": 500
+  },
+  "2026-07-27": {
+   "returned": 40,
+   "pool": 500
+  },
+  "2026-07-29": {
+   "returned": 40,
+   "pool": 500
+  },
+  "2026-07-31": {
+   "returned": 40,
+   "pool": 500
+  },
+  "2026-08-02": {
+   "returned": 40,
+   "pool": 500
+  },
+  "2026-08-04": {
+   "returned": 43,
+   "pool": 500
+  },
+  "2026-08-06": {
+   "returned": 43,
+   "pool": 500
+  },
+  "2026-08-08": {
+   "returned": 43,
+   "pool": 500
+  },
+  "2026-08-10": {
+   "returned": 43,
+   "pool": 500
+  },
+  "2026-08-12": {
+   "returned": 41,
+   "pool": 500
+  },
+  "2026-08-14": {
+   "returned": 43,
+   "pool": 500
+  }
+ },
+ "mcp_errors": 0,
+ "items": [
+  {
+   "text": "A 74 milliárdos vállalatértékelés mellett újabb tőkeemelésre készül a kínai AI-vállalat — Mintegy 500 milliárd jüanos - hozzávetőleg 74 milliárd dolláros - vállalatértékelés mellett készül újabb tőkebevonásra a mesterségesintelligencia-fejlesztő kínai vállalat. A DeepSeek emellett megkezdt ...",
+   "source": "Economix",
+   "lean": "unknown",
+   "date": "2026-07-15",
+   "category": "economy"
+  },
+  {
+   "text": "Riadót fújt a Mi Hazánk: lassan elfogynak a háziorvosok Magyarországon — A háziorvosi praxisok számának csökkenése miatt sürget azonnali intézkedést a Mi Hazánk elnökhelyettese. Dúró Dóra szerint a vidéki települések jövőjét is veszélyezteti, hogy egyre több körzet marad e ...",
+   "source": "Economix",
+   "lean": "unknown",
+   "date": "2026-07-15",
+   "category": "economy"
+  },
+  {
+   "text": "„A Falkland-szigetek Argentínához tartoznak” – provokatív transzparenssel ünnepelték a vb-döntőbe jutást az argentinok — A molinót az egyik szurkoló adta oda az argentin játékosoknak.",
+   "source": "HVG",
+   "lean": "left",
+   "date": "2026-07-15",
+   "category": "general"
+  },
+  {
+   "text": "Argentína Anglia ellen is megcsinálta: a címvédő az utolsó percekben fordított és bejutott a vb-döntőbe — A 85. percben még az európai gárda állt győzelemre, végül hosszabbítás sem lett belőle.",
+   "source": "Index",
+   "lean": "right",
+   "date": "2026-07-15",
+   "category": "general"
+  },
+  {
+   "text": "Folytatódik az angol pokoljárás: kiengedték a győzelmet a kezükből, Argentína játszhat a vb-döntőben — Gordon ugyan még vezetést szerzett Angliának, de a csattanót Fernández és Martínezhozták: a címvédő argentinok ott vannak a fináléban.",
+   "source": "Pénzcentrum",
+   "lean": "analytical",
+   "date": "2026-07-15",
+   "category": "economy"
+  },
+  {
+   "text": "Kemény Dénes: Argentína a vb-n a macska, amelynek hét élete van — Ha az esélytelenebb nyer az amerikai labdarúgó-vb döntőjében, akkor az a vízilabda-aranycsapat egykori szövetségi kapitánya szerint a dél-amerikai gárda, Spanyolország pedig ugyanígy esélytelenebbként jutott túl Franciao",
+   "source": "Infostart",
+   "lean": "unknown",
+   "date": "2026-07-17",
+   "category": "sport"
+  },
+  {
+   "text": "Veszteséges zárás az európai tőzsdéken — Az Európai részvénypiacok veszteséggel zártak, a közel-keleti feszültség hajtotta az olaj- és gázárakat.",
+   "source": "Profitline",
+   "lean": "unknown",
+   "date": "2026-07-17",
+   "category": "economy"
+  },
+  {
+   "text": "Ponthatárkihirdetés előtt leállhat az Oktatási Hivatal oldala: napokra megbénulhat a felület — A hétvégi informatikai karbantartás miatt július 17-én délutántól július 19-ig időszakosan szünetelhet a bejelentkezés az Oktatási Hivatal azonosításhoz kötött rendszereibe.",
+   "source": "Pénzcentrum",
+   "lean": "analytical",
+   "date": "2026-07-17",
+   "category": "tech"
+  },
+  {
+   "text": "A budapesti Holisticrm vállalat mesterséges intelligenciával kapcsolja össze a földi és űrbeli adatokat, lehetővé téve a valós idejű döntéstámogatást — A vállalat szerint éppen ez a keresztiparági MI-megközelítés jelenti a technológia legnagyobb előnyét.",
+   "source": "Rakéta",
+   "lean": "center",
+   "date": "2026-07-17",
+   "category": "tech"
+  },
+  {
+   "text": "A kormány visszavenné a méltatlanul eltávolított honvédségi dolgozókat — A kérelmet a honvédelmi miniszternek címezve lehet benyújtani.",
+   "source": "Telex",
+   "lean": "left",
+   "date": "2026-07-17",
+   "category": "politics"
+  },
+  {
+   "text": "Egy 82 éves nagymama törvénymódosítást ért el, hogy a barátaival iszogathasson az idősotthonban — Anita LeBrunt sokkolta, amikor megtudta, beköltözése után nem koccinthat a többiekkel. Cselekedett.",
+   "source": "444.hu",
+   "lean": "left",
+   "date": "2026-07-19",
+   "category": "lifestyle"
+  },
+  {
+   "text": "Polt Pétert is az új ÁVH-val vitetné el Gajdos László, az alkotmánybíró ezt már nem hagyhatta szó nélkül — Gyorsan tanul főnökétől Gajdos László, aki most Polt Péterbe szállt bele.",
+   "source": "Magyar Nemzet",
+   "lean": "right",
+   "date": "2026-07-19",
+   "category": "politics"
+  },
+  {
+   "text": "Teljesen beszorulnak a spanyolok — 120. perc: teljesen beszorulnak a spanyolok, sorra jönnek az argentin szögletek. Vajon lesz csoda? Öt perc a ráadás.",
+   "source": "Népszava",
+   "lean": "left",
+   "date": "2026-07-19",
+   "category": "sport"
+  },
+  {
+   "text": "Ne hagyd, hogy a hírleveleid feledésbe merüljenek — Email marketinget folytatsz, de nem érkezik annyi válasz és érdeklődés, mint amennyit vártál? Könnyen lehet, hogy néhány hiba akadályozza a sikeredet. Sokan vannak úgy vele, hogy bár jelentős időt és energiát fordítanak",
+   "source": "Profitline",
+   "lean": "unknown",
+   "date": "2026-07-19",
+   "category": "tech"
+  },
+  {
+   "text": "Vízforralós rabló garázdálkodott – videó — A Szegedi Járási Ügyészség vádat emelt azzal a férfival szemben, aki rátámadt a biztonsági őrre, miután az tetten érte, hogy egy tálcával és egy vízforralóval akar távozni egy szegedi közintézményből.",
+   "source": "Infostart",
+   "lean": "unknown",
+   "date": "2026-07-21",
+   "category": "politics"
+  },
+  {
+   "text": "Kalózmásolatban terjesztett könyvekkel tanították be a chatbotot: milliárdokat fizethet a techcég a szerzőknek — Az Anthropic másfél milliárd dollárt kell fizetnie azoknak a szerzőknek, akiknek a kalózmásolatban terjesztett könyveit felhasználta a Claude chatbot betanításához.",
+   "source": "Pénzcentrum",
+   "lean": "analytical",
+   "date": "2026-07-21",
+   "category": "economy"
+  },
+  {
+   "text": "A Ubisoft az egyik franchise-áról híreket fog adni, egy másikról pedig hallgat! — A francia kiadó valamiről mintha elfeledkezett volna, holott lassan öt éve már, hogy a Ubisoft bejelentett valamit… Kevesebb mint egy héttel azután, hogy a Ubisoft megígérte: új Ghost Recon-játék készül, de valószínűleg",
+   "source": "TheGeek",
+   "lean": "unknown",
+   "date": "2026-07-21",
+   "category": "tech"
+  },
+  {
+   "text": "Mozgó vonatra ugrott fel két fiatal Érden, szabálysértés miatt indult ellenük eljárás — A lakosság segítségét kérte a rendőrség a tettesek azonosítása miatt.",
+   "source": "Index Belföld",
+   "lean": "right",
+   "date": "2026-07-23",
+   "category": "politics"
+  },
+  {
+   "text": "Kikapott a Paks a Kl-selejtezőben — A Paks egygólos hátránnyal utazik a Panathinaikoszhoz.",
+   "source": "Infostart",
+   "lean": "unknown",
+   "date": "2026-07-23",
+   "category": "sport"
+  },
+  {
+   "text": "Csak a régi pozíciójába térne vissza Zelenszkij kirúgott minisztere — Mihajlo Fedorov úgy érzi, csak korábbi posztján tudná érdemben befolyásolni a háború kimenetelét.",
+   "source": "Telex",
+   "lean": "left",
+   "date": "2026-07-23",
+   "category": "politics"
+  },
+  {
+   "text": "Körülbelül kétszázan vettek részt Nagyváradon az önkormányzat által nem engedélyezett Pride-on — Más romániai városokban lehetett Pride-ot tartani, a nagyváradi polgármester nem engedélyezte, de ez sokakat nem különösebben érdekelt.",
+   "source": "444.hu",
+   "lean": "left",
+   "date": "2026-07-25",
+   "category": "politics"
+  },
+  {
+   "text": "Kína keményen visszavágott: célkeresztben a Rheinmetall — Exportkorlátozásokat vezet be Kína, ami 14 európai céget is érint.",
+   "source": "Economix",
+   "lean": "unknown",
+   "date": "2026-07-25",
+   "category": "economy"
+  },
+  {
+   "text": "A hajrában jött a csattanó Kisvárdán — Az élvonalba három év után visszatérő Kispest-Honvéd a hajrában egyenlítve 1–1-es döntetlent játszott az előző idényben nyolcadik Kisvárda otthonában a labdarúgó OTP Bank Liga első fordulójának szombati mérkőzésén.",
+   "source": "Infostart",
+   "lean": "unknown",
+   "date": "2026-07-25",
+   "category": "sport"
+  },
+  {
+   "text": "Bajban a magyar tejipar: azonnali intézkedéseket hozott Bóna Szabolcs — Jelentős, 70 és 100 százalékos kamattámogatást vezetett be a tejtermelők és a tejfeldolgozók számára Bóna Szabolcs agrár- és élelmiszergazdaságért felelős miniszter a tejpiaci válság enyhítésére. Az intézkedés célja az é",
+   "source": "Portfolio",
+   "lean": "analytical",
+   "date": "2026-07-25",
+   "category": "economy"
+  },
+  {
+   "text": "Hosszabbított magyar válogatott csatárával az AZ Alkmaar — Korosztályában és a posztján az egyik legnagyobb tehetség, az új megállapodása 2029 nyaráig szól. The post Hosszabbított magyar válogatott csatárával az AZ Alkmaar first appeared on 24.hu .",
+   "source": "24.hu",
+   "lean": "left",
+   "date": "2026-07-27",
+   "category": "general"
+  },
+  {
+   "text": "PowerWash Simulator 2 - Star Wars Pack teszt — A magasnyomású mosóval való takarítás öröme nem csupán a földhöz ragadt járművekre és helyszínekre korlátozódik. A Powerwash Simulator 2 legújabb DLC-jében a messzi-messzi galaxis helyszíneit és ikonikus gépeit tehetjük",
+   "source": "Gamekapocs",
+   "lean": "unknown",
+   "date": "2026-07-27",
+   "category": "tech"
+  },
+  {
+   "text": "A vasútvonal újranyitását retróhétvégével ünnepli a MÁV — Augusztus 1-én újraindul a menetrend szerinti személyszállítás Dombóvár és Komló között. Ebből az alkalomból retro hétvégét tart a MÁV a Balatonnnál, Kaposváron és annak környékén, valamint az újranyíló Komló-Dombóvár vo",
+   "source": "Infostart",
+   "lean": "unknown",
+   "date": "2026-07-27",
+   "category": "lifestyle"
+  },
+  {
+   "text": "Kiakasztotta a befektetőit a Meta — Hat százalékkal estek a Meta-részvények a negyedéves jelentés közzététele után.",
+   "source": "Economix",
+   "lean": "unknown",
+   "date": "2026-07-29",
+   "category": "economy"
+  },
+  {
+   "text": "Óriási teszt: 24 órán keresztül, leszállás nélkül repült egy Airbus — 2027 nyarától mintegy 20 óra alatt elérhető lesz Ausztrália keleti partvidékéből London és New York. Ezek a repülések egykor öt napot is igénybe vettek, ennek lesz most vége.",
+   "source": "Economix",
+   "lean": "unknown",
+   "date": "2026-07-29",
+   "category": "economy"
+  },
+  {
+   "text": "RTL: Szijjártó Péternek egyetlen éjszakára 6,5 millió forintért béreltek szállást Katarban, a 2022-es foci-vb idején — A világ több luxusszállodájában is foglaltak szobát a korábbi miniszternek.",
+   "source": "Index Belföld",
+   "lean": "right",
+   "date": "2026-07-29",
+   "category": "politics"
+  },
+  {
+   "text": "Több mint száz utórengés követte a 13 halálos áldozatot követelő japán földrengést — A hatóságok akár 7-es erősségű újabb rengésekre is figyelmeztettek, miközben több mint 4600 ember vesz részt a mentésben Kjúsú szigetén.",
+   "source": "Népszava",
+   "lean": "left",
+   "date": "2026-07-29",
+   "category": "general"
+  },
+  {
+   "text": "Gútai Vásár és Búcsú 2026: itt a gútai vásár időpontja és minden fontos tudnivaló — Mikor lesz a Gútai Vásár 2026-ban? Mutatjuk a dátumot, helyszínt, megközelítést és a várható programokat.",
+   "source": "Pénzcentrum",
+   "lean": "analytical",
+   "date": "2026-07-29",
+   "category": "economy"
+  },
+  {
+   "text": "Takarékoskodni kell az árammal, hétfőig leállítják a díszkivilágítást a budai Várban — Addig nem is kapcsolják vissza, amíg ez indokolatlan többletterhelést jelentene a villamosenergia-rendszer számára.",
+   "source": "Népszava",
+   "lean": "left",
+   "date": "2026-07-31",
+   "category": "politics"
+  },
+  {
+   "text": "Kritikák, kevesebb eladott PS5 és sokkal több pénz: így zárta a júliust a Sony — A Sony legfrissebb pénzügyi jelentése szerint a vállalat negyedéves nettó nyeresége 32,1 százalékkal emelkedett az előző év azonos időszakához képest. Az eredményeknek köszönhetően a japán cég a PlayStation üzletágra von",
+   "source": "TheGeek",
+   "lean": "unknown",
+   "date": "2026-07-31",
+   "category": "tech"
+  },
+  {
+   "text": "Babocsay Gergely lett a Természettudományi Múzeum főigazgatója — Mától Babocsay Gergely vezeti megbízott főigazgatóként az elmúlt években kényszerköltöztetéssel fenyegetett, szétzilált intézményt, amely egyelőre még a Magyar Nemzeti Múzeum Közgyűjteményi Központhoz (MNMKK) tartozik. K",
+   "source": "Válasz Online",
+   "lean": "right_independent",
+   "date": "2026-07-31",
+   "category": "politics"
+  },
+  {
+   "text": "A nyaralás tervezése is átalakul, egyre többen választják ezt a megoldást — A külföldi utazás egyre több magyar számára számít luxusnak, mégsem mondanak le róla: az utazást tervezők harmada idén többet költene nyaralására, mint tavaly. Közben a pihenéssel kapcsolatos elváráso ...",
+   "source": "Economix",
+   "lean": "unknown",
+   "date": "2026-08-02",
+   "category": "lifestyle"
+  },
+  {
+   "text": "Rendkívüli bejelentés érkezett: megtámadták a Magyar Államkincstárat, a hackerek titkosítottak egyes belső fájlokat — Kibertámadás érte a Magyar Államkincstár mezőgazdasági és vidékfejlesztési szakterületének informatikai hálózatát. A kincstár szerint az ügyféladatokat nem érintette az incidens, ugyanakkor egyes bels ...",
+   "source": "Economix",
+   "lean": "unknown",
+   "date": "2026-08-02",
+   "category": "politics"
+  },
+  {
+   "text": "Remek hír az áramellátásnak: a vártnál korábban indult újra teljes kapacitással a Dunamenti Erőmű — A műszaki ellenőrzések és próbaüzem sikeres lezárását követően augusztus 1-jétől ismét teljes kapacitással üzemel a Dunamenti Erőmű G3 blokkja.",
+   "source": "Rakéta",
+   "lean": "center",
+   "date": "2026-08-02",
+   "category": "economy"
+  },
+  {
+   "text": "Tények helyett: a TV2 híradója a TV2 Híradó nevet kapta — A korábbi műsorvezetők képernyős munkája megszűnik, „szakértelmüknek és képzettségüknek megfelelően más munkaköröket” ajánlott nekik a cég.",
+   "source": "Telex",
+   "lean": "left",
+   "date": "2026-08-02",
+   "category": "entertainment"
+  },
+  {
+   "text": "Videón mutatta meg Magyar Péter a Paksi Atomerőmű elcsöndesült belsejét — Kedden napközben már utalt rá, hogy bent is forgattak, illetve hogy sok érdekeset lehet tanulni bent. Turbinatúrán a kormányfő.",
+   "source": "Infostart",
+   "lean": "unknown",
+   "date": "2026-08-04",
+   "category": "politics"
+  },
+  {
+   "text": "Több mint tíz év központi utasításait és elhallgatott híreit tárta fel az MTI munkatársainak gyűjteménye — A közmédia új vezetése belső vizsgálatot rendelt el, miután az MTI néhány munkatársa átadott egy 482 oldalas dokumentumgyűjteményt a hírügynökség korábbi működéséről. Az iratok között vezetői utasítások, ki nem adott tud",
+   "source": "Magyar Hang",
+   "lean": "left",
+   "date": "2026-08-04",
+   "category": "politics"
+  },
+  {
+   "text": "Fiala János enyhén szólva is határozott véleményt fogalmazott meg Bodacz helyzetével kapcsolatban. https://mandiner.hu/belfold/2026/08/fiala-ja... — Fiala János enyhén szólva is határozott véleményt fogalmazott meg Bodacz helyzetével kapcsolatban. https://mandiner.hu/belfold/2026/08/fiala-janos-magyar-peter-hulyet-csinalt-bodacz-balazsbol-akinek-ezert-le-kell-mondani",
+   "source": "Mandiner (X)",
+   "lean": "right",
+   "date": "2026-08-04",
+   "category": "general"
+  },
+  {
+   "text": "Magyar Péter: a legnehezebb két nap következik, váltsanak otthoni munkavégzésre, ahol csak lehet — A következő 48 óra lehet a rendkívüli energiahelyzet legkritikusabb időszaka Magyarországon, miközben a hőmérséklet akár 42 fok fölé is emelkedhet. A kormány fenntartja a fogyasztáscsökkentő intézkedéseket, és szükség es",
+   "source": "Portfolio",
+   "lean": "analytical",
+   "date": "2026-08-04",
+   "category": "politics"
+  },
+  {
+   "text": "Biztosított a tűzifaellátás a téli időszakra — A kormány megduplázza a szociális tűzifa program keretében igényelhető mennyiséget és a biztosított keretösszeget a rászoruló családok számára - olvasható az élő környezetért felelős miniszter közösségi oldalának keddi b",
+   "source": "Profitline",
+   "lean": "unknown",
+   "date": "2026-08-04",
+   "category": "politics"
+  },
+  {
+   "text": "„Normális ember ilyenkor még nyaralni sem megy\": haldoklik a balatoni vendéglátás — Az extrém hőség csak tovább növelte az átlagos balatoni vállalkozók immár évtizedes kínjait. Tavaly az árvaszúnyog-rajzás kergette el a vendégeket, most jó esetben a strandra is csak mártózni mennek a ...",
+   "source": "Economix",
+   "lean": "unknown",
+   "date": "2026-08-06",
+   "category": "economy"
+  },
+  {
+   "text": "„Felszólítjuk Magyar Pétert, legyen egy csepp tekintettel azokra az emberekre, akik önkorlátozásokat vezettek be a válsághelyzetben, és a pi... — „Felszólítjuk Magyar Pétert, legyen egy csepp tekintettel azokra az emberekre, akik önkorlátozásokat vezettek be a válsághelyzetben, és a pihenését töltő Kelemen Ágnest azonnali hatállyal rúgja ki. Akár kommentben is” –",
+   "source": "Mandiner (X)",
+   "lean": "right",
+   "date": "2026-08-06",
+   "category": "general"
+  },
+  {
+   "text": "Új barátot vásárol magának Trump: potom egymilliárd dollárt költ rá — Washington egymilliárd dolláros biztonsági támogatást tervez nyújtani az új kolumbiai kormánynak.",
+   "source": "Economix",
+   "lean": "unknown",
+   "date": "2026-08-08",
+   "category": "politics"
+  },
+  {
+   "text": "A Tisza parlamenti frakciója Baka Andrást jelöli államfőnek – a nap hírei — Baka Andrást jelöli államfőnek a Tisza parlamenti frakciója, az ellenzék nem tartja alkalmasnak a posztra. A magyarok 84 százaléka csatlakozott az energiarendszer terhelésének csökkentését célzó összefogáshoz. Átvilágítj",
+   "source": "Infostart",
+   "lean": "unknown",
+   "date": "2026-08-08",
+   "category": "politics"
+  },
+  {
+   "text": "2-1-re kikapott az FTC a Real Madridtól — A rohamok többségét állták a zöld-fehérek, de egyenlíteniük nem sikerült.",
+   "source": "Népszava",
+   "lean": "left",
+   "date": "2026-08-08",
+   "category": "sport"
+  },
+  {
+   "text": "A közönség járt jól: kikapott a Fradi a Realtól, de nincs oka szégyenkezni — A Ferencváros hazai pályán, csaknem telt ház előtt 2-1-es vereséget szenvedett a José Mourinho által irányított Real Madridtól a szombati felkészülési mérkőzésen.",
+   "source": "Pénzcentrum",
+   "lean": "analytical",
+   "date": "2026-08-08",
+   "category": "sport"
+  },
+  {
+   "text": "„Elutasítjuk a szurkolókat kirekesztő, zárt kapus, kollektív MLSZ-büntetéseket” — Szolidarítanak az MTK szurkolói az újpestiekkel. The post „Elutasítjuk a szurkolókat kirekesztő, zárt kapus, kollektív MLSZ-büntetéseket” first appeared on 24.hu .",
+   "source": "24.hu",
+   "lean": "left",
+   "date": "2026-08-10",
+   "category": "sport"
+  },
+  {
+   "text": "Nemzetközi filmfesztivál tiszteleg Tarr Béla öröksége előtt — A Szarajevói Filmfesztivál különprogramja a nemrég elhunyt magyar rendező egykori szarajevói tanítványainak munkáin keresztül idézi meg örökségét.",
+   "source": "GameStar",
+   "lean": "unknown",
+   "date": "2026-08-10",
+   "category": "entertainment"
+  },
+  {
+   "text": "RTL: többmilliós bírságot szabtak ki a hatvanpusztai műemlékbontás és építkezések miatt — Hadházy Ákos reméli, hogy a rendőrség kinyomozza az ügyet.",
+   "source": "Index Belföld",
+   "lean": "right",
+   "date": "2026-08-10",
+   "category": "politics"
+  },
+  {
+   "text": "Meddig tarthat ki a lendület? 100 nap se kellett a Tiszának: így csináltak jókora többletet a költségvetésben #tőzsde #költségvetés #wizz... — Meddig tarthat ki a lendület? 100 nap se kellett a Tiszának: így csináltak jókora többletet a költségvetésben #tőzsde #költségvetés #wizzair #richtergedeon #jelentés #hiány #checklistpodcast #tiszakormány #mol #magyartel",
+   "source": "portfolio.hu (X)",
+   "lean": "center",
+   "date": "2026-08-10",
+   "category": "economy"
+  },
+  {
+   "text": "A League of Legends gyönyörű új skinjének megvásárlásával egy jó ügyet szolgálhatunk — Igazából csak azért fogjuk megvenni ezt az elképesztő skint, mert embereket segíthetünk vele... ugye.",
+   "source": "GameStar",
+   "lean": "unknown",
+   "date": "2026-08-12",
+   "category": "tech"
+  },
+  {
+   "text": "„Elvből nem csöngetem le” — Továbbra is számtalan ötlete és indoka van az ország kerékpáros infrastruktúrájának fejlesztésére. A komoly tervekhez komoly pénz kell.",
+   "source": "Magyar Narancs",
+   "lean": "left",
+   "date": "2026-08-12",
+   "category": "politics"
+  },
+  {
+   "text": "Tizenkilenc millió ember zömmel egészségügyi adatát lopták el Lengyelországban — Az ország egyik legsúlyosabb kiberbiztonsági incidensében csaknem két terabájt bizalmas orvosi adat, betegdokumentum került illetéktelen kezekbe.",
+   "source": "Népszava",
+   "lean": "left",
+   "date": "2026-08-12",
+   "category": "politics"
+  },
+  {
+   "text": "Fontos adatok érkeztek, megmozdultak a tőzsdék, vegyesen zárt Amerika — Vegyes volt a hangulat a világ tőzsdéin, Európában a délutáni amerikai inflációs adat előtt és után is maradt az iránykeresés, míg az USA-ban alapvetően pozitív elmozdulások voltak láthatók. A júliusi amerikai infláció a",
+   "source": "Portfolio",
+   "lean": "analytical",
+   "date": "2026-08-12",
+   "category": "economy"
+  },
+  {
+   "text": "Kicsik, de ígéretesek: új lehetőségek az európai részvénypiacokon — Az elmúlt évtizedben az európai és amerikai kis kapitalizációjú részvények egyaránt alulteljesítették a nagyvállalati indexeket, ám az MBH Befektetési Bank elemzése szerint a szegmensben ismét vonzó befektetési lehetőség",
+   "source": "Profitline",
+   "lean": "unknown",
+   "date": "2026-08-12",
+   "category": "economy"
+  },
+  {
+   "text": "Nyomozás kezdődött az államigazgatásban központilag előírt iratkezelési rendszer miatt — Alig egy hónappal azután, hogy a Tudományos és Technológiai Minisztérium feljelentést tett a Poszeidon rendszer bevezetése miatt, hivatali visszaélés gyanúja miatt, a rendőrség nyomozást indított az ügyben.",
+   "source": "Növekedés",
+   "lean": "unknown",
+   "date": "2026-08-14",
+   "category": "politics"
+  }
+ ],
+ "built": "2026-11-23",
+ "source_db": "Echolot MCP get_news (https://echolotnews.com/mcp), published_at szerinti napok",
+ "build_rule": "get_news(limit=100, diversify, max_per_source=3, place=ország) minden 2. napra; title>15, LEAK_RE-szűrő, cím-dedupe, lead 220 kar., MAXN=60 lean-cap (arányos kvóta + domináns lean <=60% + dátum-stride) — a júliusi sample_cell"
+}

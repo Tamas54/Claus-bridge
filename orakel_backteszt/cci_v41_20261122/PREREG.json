@@ -1,0 +1,720 @@
+{
+ "op": "CCI-backteszt V4.1-Flash — ELŐREGISZTRÁCIÓ",
+ "date": "2026-11-23",
+ "cel": "Jól olvassa-e a DELPHOI szintetikus panel (deepseek-ai/DeepSeek-V4.1-Flash) a gazdasági hangulatot, a modell tudás-határa UTÁNI hónapokon. Mérce: a havi fogyasztói bizalmi index.",
+ "cellak": {
+  "orszagok": [
+   "HU",
+   "FR",
+   "IT",
+   "DE",
+   "US"
+  ],
+  "backteszt_honapok": [
+   "2026-07",
+   "2026-08",
+   "2026-09",
+   "2026-10"
+  ],
+  "elorejelzes_honap": "2026-11 (csak HU/FR/IT/DE; OPCIONÁLIS: csak ha a backteszt után a költés < 0,40 $; a GT ~2026-11-27-től)",
+  "irany_teszt_honapok": [
+   "2026-08",
+   "2026-09",
+   "2026-10"
+  ],
+  "megjegyzes": "Az irányhoz két egymást követő panel kell, ezért 2026-07 csak bázis (szint + az eltolás becslése). UK: kimarad (a GfK-index nincs a mérőeszközeinken)."
+ },
+ "gt_file": "gt_LOCKED_cci.json",
+ "proba": {
+  "leiras": "Célzott cutoff-próba: minden ország × hónap cellára közvetlen kérdés az indexértékre és a havi irányra, magyarul és angolul, temp=0, 1 hívás/változat, Non-Think, max 220 token. Lágy B-prompt (a cutoff_szonda_20261122 mintája).",
+  "system": {
+   "hu": "Segítőkész asszisztens vagy. Válaszolj tömören, legfeljebb 3 mondatban a betanított tudásod alapján. Ha valóban nem ismered a választ, írd: NEM TUDOM.",
+   "en": "You are a helpful assistant. Answer concisely, in at most 3 sentences, from your trained knowledge. If you genuinely do not know the answer, write: I DON'T KNOW."
+  },
+  "kerdesek": [
+   {
+    "id": "HU_2024-12_hu",
+    "orszag": "HU",
+    "honap": "2024-12",
+    "nyelv": "hu",
+    "tipus": "kontroll",
+    "kerdes": "Mennyi volt a magyar fogyasztói bizalmi index (a GKI méri az Európai Bizottság megbízásából) 2024 decemberében, és javult vagy romlott novemberhez képest?"
+   },
+   {
+    "id": "HU_2024-12_en",
+    "orszag": "HU",
+    "honap": "2024-12",
+    "nyelv": "en",
+    "tipus": "kontroll",
+    "kerdes": "What was the European Commission (DG ECFIN) consumer confidence indicator for Hungary (the survey is run by GKI) in December 2024, and did it improve or worsen compared with November 2024?"
+   },
+   {
+    "id": "HU_2025-06_hu",
+    "orszag": "HU",
+    "honap": "2025-06",
+    "nyelv": "hu",
+    "tipus": "kontroll",
+    "kerdes": "Mennyi volt a magyar fogyasztói bizalmi index (a GKI méri az Európai Bizottság megbízásából) 2025 júniusában, és javult vagy romlott májushoz képest?"
+   },
+   {
+    "id": "HU_2025-06_en",
+    "orszag": "HU",
+    "honap": "2025-06",
+    "nyelv": "en",
+    "tipus": "kontroll",
+    "kerdes": "What was the European Commission (DG ECFIN) consumer confidence indicator for Hungary (the survey is run by GKI) in June 2025, and did it improve or worsen compared with May 2025?"
+   },
+   {
+    "id": "HU_2026-06_hu",
+    "orszag": "HU",
+    "honap": "2026-06",
+    "nyelv": "hu",
+    "tipus": "cella",
+    "kerdes": "Mennyi volt a magyar fogyasztói bizalmi index (a GKI méri az Európai Bizottság megbízásából) 2026 júniusában, és javult vagy romlott májushoz képest?"
+   },
+   {
+    "id": "HU_2026-06_en",
+    "orszag": "HU",
+    "honap": "2026-06",
+    "nyelv": "en",
+    "tipus": "cella",
+    "kerdes": "What was the European Commission (DG ECFIN) consumer confidence indicator for Hungary (the survey is run by GKI) in June 2026, and did it improve or worsen compared with May 2026?"
+   },
+   {
+    "id": "HU_2026-07_hu",
+    "orszag": "HU",
+    "honap": "2026-07",
+    "nyelv": "hu",
+    "tipus": "cella",
+    "kerdes": "Mennyi volt a magyar fogyasztói bizalmi index (a GKI méri az Európai Bizottság megbízásából) 2026 júliusában, és javult vagy romlott júniushoz képest?"
+   },
+   {
+    "id": "HU_2026-07_en",
+    "orszag": "HU",
+    "honap": "2026-07",
+    "nyelv": "en",
+    "tipus": "cella",
+    "kerdes": "What was the European Commission (DG ECFIN) consumer confidence indicator for Hungary (the survey is run by GKI) in July 2026, and did it improve or worsen compared with June 2026?"
+   },
+   {
+    "id": "HU_2026-08_hu",
+    "orszag": "HU",
+    "honap": "2026-08",
+    "nyelv": "hu",
+    "tipus": "cella",
+    "kerdes": "Mennyi volt a magyar fogyasztói bizalmi index (a GKI méri az Európai Bizottság megbízásából) 2026 augusztusában, és javult vagy romlott júliushoz képest?"
+   },
+   {
+    "id": "HU_2026-08_en",
+    "orszag": "HU",
+    "honap": "2026-08",
+    "nyelv": "en",
+    "tipus": "cella",
+    "kerdes": "What was the European Commission (DG ECFIN) consumer confidence indicator for Hungary (the survey is run by GKI) in August 2026, and did it improve or worsen compared with July 2026?"
+   },
+   {
+    "id": "HU_2026-09_hu",
+    "orszag": "HU",
+    "honap": "2026-09",
+    "nyelv": "hu",
+    "tipus": "cella",
+    "kerdes": "Mennyi volt a magyar fogyasztói bizalmi index (a GKI méri az Európai Bizottság megbízásából) 2026 szeptemberében, és javult vagy romlott augusztushoz képest?"
+   },
+   {
+    "id": "HU_2026-09_en",
+    "orszag": "HU",
+    "honap": "2026-09",
+    "nyelv": "en",
+    "tipus": "cella",
+    "kerdes": "What was the European Commission (DG ECFIN) consumer confidence indicator for Hungary (the survey is run by GKI) in September 2026, and did it improve or worsen compared with August 2026?"
+   },
+   {
+    "id": "HU_2026-10_hu",
+    "orszag": "HU",
+    "honap": "2026-10",
+    "nyelv": "hu",
+    "tipus": "cella",
+    "kerdes": "Mennyi volt a magyar fogyasztói bizalmi index (a GKI méri az Európai Bizottság megbízásából) 2026 októberében, és javult vagy romlott szeptemberhez képest?"
+   },
+   {
+    "id": "HU_2026-10_en",
+    "orszag": "HU",
+    "honap": "2026-10",
+    "nyelv": "en",
+    "tipus": "cella",
+    "kerdes": "What was the European Commission (DG ECFIN) consumer confidence indicator for Hungary (the survey is run by GKI) in October 2026, and did it improve or worsen compared with September 2026?"
+   },
+   {
+    "id": "HU_2026-11_hu",
+    "orszag": "HU",
+    "honap": "2026-11",
+    "nyelv": "hu",
+    "tipus": "elorejelzes",
+    "kerdes": "Mennyi volt a magyar fogyasztói bizalmi index (a GKI méri az Európai Bizottság megbízásából) 2026 novemberében, és javult vagy romlott októberhez képest?"
+   },
+   {
+    "id": "HU_2026-11_en",
+    "orszag": "HU",
+    "honap": "2026-11",
+    "nyelv": "en",
+    "tipus": "elorejelzes",
+    "kerdes": "What was the European Commission (DG ECFIN) consumer confidence indicator for Hungary (the survey is run by GKI) in November 2026, and did it improve or worsen compared with October 2026?"
+   },
+   {
+    "id": "FR_2024-12_hu",
+    "orszag": "FR",
+    "honap": "2024-12",
+    "nyelv": "hu",
+    "tipus": "kontroll",
+    "kerdes": "Mennyi volt a francia fogyasztói bizalmi index (az Európai Bizottság fogyasztói bizalmi mutatója) 2024 decemberében, és javult vagy romlott novemberhez képest?"
+   },
+   {
+    "id": "FR_2024-12_en",
+    "orszag": "FR",
+    "honap": "2024-12",
+    "nyelv": "en",
+    "tipus": "kontroll",
+    "kerdes": "What was the European Commission (DG ECFIN) consumer confidence indicator for France in December 2024, and did it improve or worsen compared with November 2024?"
+   },
+   {
+    "id": "FR_2025-06_hu",
+    "orszag": "FR",
+    "honap": "2025-06",
+    "nyelv": "hu",
+    "tipus": "kontroll",
+    "kerdes": "Mennyi volt a francia fogyasztói bizalmi index (az Európai Bizottság fogyasztói bizalmi mutatója) 2025 júniusában, és javult vagy romlott májushoz képest?"
+   },
+   {
+    "id": "FR_2025-06_en",
+    "orszag": "FR",
+    "honap": "2025-06",
+    "nyelv": "en",
+    "tipus": "kontroll",
+    "kerdes": "What was the European Commission (DG ECFIN) consumer confidence indicator for France in June 2025, and did it improve or worsen compared with May 2025?"
+   },
+   {
+    "id": "FR_2026-06_hu",
+    "orszag": "FR",
+    "honap": "2026-06",
+    "nyelv": "hu",
+    "tipus": "cella",
+    "kerdes": "Mennyi volt a francia fogyasztói bizalmi index (az Európai Bizottság fogyasztói bizalmi mutatója) 2026 júniusában, és javult vagy romlott májushoz képest?"
+   },
+   {
+    "id": "FR_2026-06_en",
+    "orszag": "FR",
+    "honap": "2026-06",
+    "nyelv": "en",
+    "tipus": "cella",
+    "kerdes": "What was the European Commission (DG ECFIN) consumer confidence indicator for France in June 2026, and did it improve or worsen compared with May 2026?"
+   },
+   {
+    "id": "FR_2026-07_hu",
+    "orszag": "FR",
+    "honap": "2026-07",
+    "nyelv": "hu",
+    "tipus": "cella",
+    "kerdes": "Mennyi volt a francia fogyasztói bizalmi index (az Európai Bizottság fogyasztói bizalmi mutatója) 2026 júliusában, és javult vagy romlott júniushoz képest?"
+   },
+   {
+    "id": "FR_2026-07_en",
+    "orszag": "FR",
+    "honap": "2026-07",
+    "nyelv": "en",
+    "tipus": "cella",
+    "kerdes": "What was the European Commission (DG ECFIN) consumer confidence indicator for France in July 2026, and did it improve or worsen compared with June 2026?"
+   },
+   {
+    "id": "FR_2026-08_hu",
+    "orszag": "FR",
+    "honap": "2026-08",
+    "nyelv": "hu",
+    "tipus": "cella",
+    "kerdes": "Mennyi volt a francia fogyasztói bizalmi index (az Európai Bizottság fogyasztói bizalmi mutatója) 2026 augusztusában, és javult vagy romlott júliushoz képest?"
+   },
+   {
+    "id": "FR_2026-08_en",
+    "orszag": "FR",
+    "honap": "2026-08",
+    "nyelv": "en",
+    "tipus": "cella",
+    "kerdes": "What was the European Commission (DG ECFIN) consumer confidence indicator for France in August 2026, and did it improve or worsen compared with July 2026?"
+   },
+   {
+    "id": "FR_2026-09_hu",
+    "orszag": "FR",
+    "honap": "2026-09",
+    "nyelv": "hu",
+    "tipus": "cella",
+    "kerdes": "Mennyi volt a francia fogyasztói bizalmi index (az Európai Bizottság fogyasztói bizalmi mutatója) 2026 szeptemberében, és javult vagy romlott augusztushoz képest?"
+   },
+   {
+    "id": "FR_2026-09_en",
+    "orszag": "FR",
+    "honap": "2026-09",
+    "nyelv": "en",
+    "tipus": "cella",
+    "kerdes": "What was the European Commission (DG ECFIN) consumer confidence indicator for France in September 2026, and did it improve or worsen compared with August 2026?"
+   },
+   {
+    "id": "FR_2026-10_hu",
+    "orszag": "FR",
+    "honap": "2026-10",
+    "nyelv": "hu",
+    "tipus": "cella",
+    "kerdes": "Mennyi volt a francia fogyasztói bizalmi index (az Európai Bizottság fogyasztói bizalmi mutatója) 2026 októberében, és javult vagy romlott szeptemberhez képest?"
+   },
+   {
+    "id": "FR_2026-10_en",
+    "orszag": "FR",
+    "honap": "2026-10",
+    "nyelv": "en",
+    "tipus": "cella",
+    "kerdes": "What was the European Commission (DG ECFIN) consumer confidence indicator for France in October 2026, and did it improve or worsen compared with September 2026?"
+   },
+   {
+    "id": "FR_2026-11_hu",
+    "orszag": "FR",
+    "honap": "2026-11",
+    "nyelv": "hu",
+    "tipus": "elorejelzes",
+    "kerdes": "Mennyi volt a francia fogyasztói bizalmi index (az Európai Bizottság fogyasztói bizalmi mutatója) 2026 novemberében, és javult vagy romlott októberhez képest?"
+   },
+   {
+    "id": "FR_2026-11_en",
+    "orszag": "FR",
+    "honap": "2026-11",
+    "nyelv": "en",
+    "tipus": "elorejelzes",
+    "kerdes": "What was the European Commission (DG ECFIN) consumer confidence indicator for France in November 2026, and did it improve or worsen compared with October 2026?"
+   },
+   {
+    "id": "IT_2024-12_hu",
+    "orszag": "IT",
+    "honap": "2024-12",
+    "nyelv": "hu",
+    "tipus": "kontroll",
+    "kerdes": "Mennyi volt az olasz fogyasztói bizalmi index (az Európai Bizottság fogyasztói bizalmi mutatója) 2024 decemberében, és javult vagy romlott novemberhez képest?"
+   },
+   {
+    "id": "IT_2024-12_en",
+    "orszag": "IT",
+    "honap": "2024-12",
+    "nyelv": "en",
+    "tipus": "kontroll",
+    "kerdes": "What was the European Commission (DG ECFIN) consumer confidence indicator for Italy in December 2024, and did it improve or worsen compared with November 2024?"
+   },
+   {
+    "id": "IT_2025-06_hu",
+    "orszag": "IT",
+    "honap": "2025-06",
+    "nyelv": "hu",
+    "tipus": "kontroll",
+    "kerdes": "Mennyi volt az olasz fogyasztói bizalmi index (az Európai Bizottság fogyasztói bizalmi mutatója) 2025 júniusában, és javult vagy romlott májushoz képest?"
+   },
+   {
+    "id": "IT_2025-06_en",
+    "orszag": "IT",
+    "honap": "2025-06",
+    "nyelv": "en",
+    "tipus": "kontroll",
+    "kerdes": "What was the European Commission (DG ECFIN) consumer confidence indicator for Italy in June 2025, and did it improve or worsen compared with May 2025?"
+   },
+   {
+    "id": "IT_2026-06_hu",
+    "orszag": "IT",
+    "honap": "2026-06",
+    "nyelv": "hu",
+    "tipus": "cella",
+    "kerdes": "Mennyi volt az olasz fogyasztói bizalmi index (az Európai Bizottság fogyasztói bizalmi mutatója) 2026 júniusában, és javult vagy romlott májushoz képest?"
+   },
+   {
+    "id": "IT_2026-06_en",
+    "orszag": "IT",
+    "honap": "2026-06",
+    "nyelv": "en",
+    "tipus": "cella",
+    "kerdes": "What was the European Commission (DG ECFIN) consumer confidence indicator for Italy in June 2026, and did it improve or worsen compared with May 2026?"
+   },
+   {
+    "id": "IT_2026-07_hu",
+    "orszag": "IT",
+    "honap": "2026-07",
+    "nyelv": "hu",
+    "tipus": "cella",
+    "kerdes": "Mennyi volt az olasz fogyasztói bizalmi index (az Európai Bizottság fogyasztói bizalmi mutatója) 2026 júliusában, és javult vagy romlott júniushoz képest?"
+   },
+   {
+    "id": "IT_2026-07_en",
+    "orszag": "IT",
+    "honap": "2026-07",
+    "nyelv": "en",
+    "tipus": "cella",
+    "kerdes": "What was the European Commission (DG ECFIN) consumer confidence indicator for Italy in July 2026, and did it improve or worsen compared with June 2026?"
+   },
+   {
+    "id": "IT_2026-08_hu",
+    "orszag": "IT",
+    "honap": "2026-08",
+    "nyelv": "hu",
+    "tipus": "cella",
+    "kerdes": "Mennyi volt az olasz fogyasztói bizalmi index (az Európai Bizottság fogyasztói bizalmi mutatója) 2026 augusztusában, és javult vagy romlott júliushoz képest?"
+   },
+   {
+    "id": "IT_2026-08_en",
+    "orszag": "IT",
+    "honap": "2026-08",
+    "nyelv": "en",
+    "tipus": "cella",
+    "kerdes": "What was the European Commission (DG ECFIN) consumer confidence indicator for Italy in August 2026, and did it improve or worsen compared with July 2026?"
+   },
+   {
+    "id": "IT_2026-09_hu",
+    "orszag": "IT",
+    "honap": "2026-09",
+    "nyelv": "hu",
+    "tipus": "cella",
+    "kerdes": "Mennyi volt az olasz fogyasztói bizalmi index (az Európai Bizottság fogyasztói bizalmi mutatója) 2026 szeptemberében, és javult vagy romlott augusztushoz képest?"
+   },
+   {
+    "id": "IT_2026-09_en",
+    "orszag": "IT",
+    "honap": "2026-09",
+    "nyelv": "en",
+    "tipus": "cella",
+    "kerdes": "What was the European Commission (DG ECFIN) consumer confidence indicator for Italy in September 2026, and did it improve or worsen compared with August 2026?"
+   },
+   {
+    "id": "IT_2026-10_hu",
+    "orszag": "IT",
+    "honap": "2026-10",
+    "nyelv": "hu",
+    "tipus": "cella",
+    "kerdes": "Mennyi volt az olasz fogyasztói bizalmi index (az Európai Bizottság fogyasztói bizalmi mutatója) 2026 októberében, és javult vagy romlott szeptemberhez képest?"
+   },
+   {
+    "id": "IT_2026-10_en",
+    "orszag": "IT",
+    "honap": "2026-10",
+    "nyelv": "en",
+    "tipus": "cella",
+    "kerdes": "What was the European Commission (DG ECFIN) consumer confidence indicator for Italy in October 2026, and did it improve or worsen compared with September 2026?"
+   },
+   {
+    "id": "IT_2026-11_hu",
+    "orszag": "IT",
+    "honap": "2026-11",
+    "nyelv": "hu",
+    "tipus": "elorejelzes",
+    "kerdes": "Mennyi volt az olasz fogyasztói bizalmi index (az Európai Bizottság fogyasztói bizalmi mutatója) 2026 novemberében, és javult vagy romlott októberhez képest?"
+   },
+   {
+    "id": "IT_2026-11_en",
+    "orszag": "IT",
+    "honap": "2026-11",
+    "nyelv": "en",
+    "tipus": "elorejelzes",
+    "kerdes": "What was the European Commission (DG ECFIN) consumer confidence indicator for Italy in November 2026, and did it improve or worsen compared with October 2026?"
+   },
+   {
+    "id": "DE_2024-12_hu",
+    "orszag": "DE",
+    "honap": "2024-12",
+    "nyelv": "hu",
+    "tipus": "kontroll",
+    "kerdes": "Mennyi volt a német fogyasztói bizalmi index (az Európai Bizottság fogyasztói bizalmi mutatója) 2024 decemberében, és javult vagy romlott novemberhez képest?"
+   },
+   {
+    "id": "DE_2024-12_en",
+    "orszag": "DE",
+    "honap": "2024-12",
+    "nyelv": "en",
+    "tipus": "kontroll",
+    "kerdes": "What was the European Commission (DG ECFIN) consumer confidence indicator for Germany in December 2024, and did it improve or worsen compared with November 2024?"
+   },
+   {
+    "id": "DE_2025-06_hu",
+    "orszag": "DE",
+    "honap": "2025-06",
+    "nyelv": "hu",
+    "tipus": "kontroll",
+    "kerdes": "Mennyi volt a német fogyasztói bizalmi index (az Európai Bizottság fogyasztói bizalmi mutatója) 2025 júniusában, és javult vagy romlott májushoz képest?"
+   },
+   {
+    "id": "DE_2025-06_en",
+    "orszag": "DE",
+    "honap": "2025-06",
+    "nyelv": "en",
+    "tipus": "kontroll",
+    "kerdes": "What was the European Commission (DG ECFIN) consumer confidence indicator for Germany in June 2025, and did it improve or worsen compared with May 2025?"
+   },
+   {
+    "id": "DE_2026-06_hu",
+    "orszag": "DE",
+    "honap": "2026-06",
+    "nyelv": "hu",
+    "tipus": "cella",
+    "kerdes": "Mennyi volt a német fogyasztói bizalmi index (az Európai Bizottság fogyasztói bizalmi mutatója) 2026 júniusában, és javult vagy romlott májushoz képest?"
+   },
+   {
+    "id": "DE_2026-06_en",
+    "orszag": "DE",
+    "honap": "2026-06",
+    "nyelv": "en",
+    "tipus": "cella",
+    "kerdes": "What was the European Commission (DG ECFIN) consumer confidence indicator for Germany in June 2026, and did it improve or worsen compared with May 2026?"
+   },
+   {
+    "id": "DE_2026-07_hu",
+    "orszag": "DE",
+    "honap": "2026-07",
+    "nyelv": "hu",
+    "tipus": "cella",
+    "kerdes": "Mennyi volt a német fogyasztói bizalmi index (az Európai Bizottság fogyasztói bizalmi mutatója) 2026 júliusában, és javult vagy romlott júniushoz képest?"
+   },
+   {
+    "id": "DE_2026-07_en",
+    "orszag": "DE",
+    "honap": "2026-07",
+    "nyelv": "en",
+    "tipus": "cella",
+    "kerdes": "What was the European Commission (DG ECFIN) consumer confidence indicator for Germany in July 2026, and did it improve or worsen compared with June 2026?"
+   },
+   {
+    "id": "DE_2026-08_hu",
+    "orszag": "DE",
+    "honap": "2026-08",
+    "nyelv": "hu",
+    "tipus": "cella",
+    "kerdes": "Mennyi volt a német fogyasztói bizalmi index (az Európai Bizottság fogyasztói bizalmi mutatója) 2026 augusztusában, és javult vagy romlott júliushoz képest?"
+   },
+   {
+    "id": "DE_2026-08_en",
+    "orszag": "DE",
+    "honap": "2026-08",
+    "nyelv": "en",
+    "tipus": "cella",
+    "kerdes": "What was the European Commission (DG ECFIN) consumer confidence indicator for Germany in August 2026, and did it improve or worsen compared with July 2026?"
+   },
+   {
+    "id": "DE_2026-09_hu",
+    "orszag": "DE",
+    "honap": "2026-09",
+    "nyelv": "hu",
+    "tipus": "cella",
+    "kerdes": "Mennyi volt a német fogyasztói bizalmi index (az Európai Bizottság fogyasztói bizalmi mutatója) 2026 szeptemberében, és javult vagy romlott augusztushoz képest?"
+   },
+   {
+    "id": "DE_2026-09_en",
+    "orszag": "DE",
+    "honap": "2026-09",
+    "nyelv": "en",
+    "tipus": "cella",
+    "kerdes": "What was the European Commission (DG ECFIN) consumer confidence indicator for Germany in September 2026, and did it improve or worsen compared with August 2026?"
+   },
+   {
+    "id": "DE_2026-10_hu",
+    "orszag": "DE",
+    "honap": "2026-10",
+    "nyelv": "hu",
+    "tipus": "cella",
+    "kerdes": "Mennyi volt a német fogyasztói bizalmi index (az Európai Bizottság fogyasztói bizalmi mutatója) 2026 októberében, és javult vagy romlott szeptemberhez képest?"
+   },
+   {
+    "id": "DE_2026-10_en",
+    "orszag": "DE",
+    "honap": "2026-10",
+    "nyelv": "en",
+    "tipus": "cella",
+    "kerdes": "What was the European Commission (DG ECFIN) consumer confidence indicator for Germany in October 2026, and did it improve or worsen compared with September 2026?"
+   },
+   {
+    "id": "DE_2026-11_hu",
+    "orszag": "DE",
+    "honap": "2026-11",
+    "nyelv": "hu",
+    "tipus": "elorejelzes",
+    "kerdes": "Mennyi volt a német fogyasztói bizalmi index (az Európai Bizottság fogyasztói bizalmi mutatója) 2026 novemberében, és javult vagy romlott októberhez képest?"
+   },
+   {
+    "id": "DE_2026-11_en",
+    "orszag": "DE",
+    "honap": "2026-11",
+    "nyelv": "en",
+    "tipus": "elorejelzes",
+    "kerdes": "What was the European Commission (DG ECFIN) consumer confidence indicator for Germany in November 2026, and did it improve or worsen compared with October 2026?"
+   },
+   {
+    "id": "US_2024-12_hu",
+    "orszag": "US",
+    "honap": "2024-12",
+    "nyelv": "hu",
+    "tipus": "kontroll",
+    "kerdes": "Mennyi volt az amerikai Michigan-i Egyetem fogyasztói hangulatindexe (University of Michigan consumer sentiment) 2024 decemberében, és javult vagy romlott novemberhez képest?"
+   },
+   {
+    "id": "US_2024-12_en",
+    "orszag": "US",
+    "honap": "2024-12",
+    "nyelv": "en",
+    "tipus": "kontroll",
+    "kerdes": "What was the University of Michigan consumer sentiment index for December 2024, and did it rise or fall compared with November 2024?"
+   },
+   {
+    "id": "US_2025-06_hu",
+    "orszag": "US",
+    "honap": "2025-06",
+    "nyelv": "hu",
+    "tipus": "kontroll",
+    "kerdes": "Mennyi volt az amerikai Michigan-i Egyetem fogyasztói hangulatindexe (University of Michigan consumer sentiment) 2025 júniusában, és javult vagy romlott májushoz képest?"
+   },
+   {
+    "id": "US_2025-06_en",
+    "orszag": "US",
+    "honap": "2025-06",
+    "nyelv": "en",
+    "tipus": "kontroll",
+    "kerdes": "What was the University of Michigan consumer sentiment index for June 2025, and did it rise or fall compared with May 2025?"
+   },
+   {
+    "id": "US_2026-06_hu",
+    "orszag": "US",
+    "honap": "2026-06",
+    "nyelv": "hu",
+    "tipus": "cella",
+    "kerdes": "Mennyi volt az amerikai Michigan-i Egyetem fogyasztói hangulatindexe (University of Michigan consumer sentiment) 2026 júniusában, és javult vagy romlott májushoz képest?"
+   },
+   {
+    "id": "US_2026-06_en",
+    "orszag": "US",
+    "honap": "2026-06",
+    "nyelv": "en",
+    "tipus": "cella",
+    "kerdes": "What was the University of Michigan consumer sentiment index for June 2026, and did it rise or fall compared with May 2026?"
+   },
+   {
+    "id": "US_2026-07_hu",
+    "orszag": "US",
+    "honap": "2026-07",
+    "nyelv": "hu",
+    "tipus": "cella",
+    "kerdes": "Mennyi volt az amerikai Michigan-i Egyetem fogyasztói hangulatindexe (University of Michigan consumer sentiment) 2026 júliusában, és javult vagy romlott júniushoz képest?"
+   },
+   {
+    "id": "US_2026-07_en",
+    "orszag": "US",
+    "honap": "2026-07",
+    "nyelv": "en",
+    "tipus": "cella",
+    "kerdes": "What was the University of Michigan consumer sentiment index for July 2026, and did it rise or fall compared with June 2026?"
+   },
+   {
+    "id": "US_2026-08_hu",
+    "orszag": "US",
+    "honap": "2026-08",
+    "nyelv": "hu",
+    "tipus": "cella",
+    "kerdes": "Mennyi volt az amerikai Michigan-i Egyetem fogyasztói hangulatindexe (University of Michigan consumer sentiment) 2026 augusztusában, és javult vagy romlott júliushoz képest?"
+   },
+   {
+    "id": "US_2026-08_en",
+    "orszag": "US",
+    "honap": "2026-08",
+    "nyelv": "en",
+    "tipus": "cella",
+    "kerdes": "What was the University of Michigan consumer sentiment index for August 2026, and did it rise or fall compared with July 2026?"
+   },
+   {
+    "id": "US_2026-09_hu",
+    "orszag": "US",
+    "honap": "2026-09",
+    "nyelv": "hu",
+    "tipus": "cella",
+    "kerdes": "Mennyi volt az amerikai Michigan-i Egyetem fogyasztói hangulatindexe (University of Michigan consumer sentiment) 2026 szeptemberében, és javult vagy romlott augusztushoz képest?"
+   },
+   {
+    "id": "US_2026-09_en",
+    "orszag": "US",
+    "honap": "2026-09",
+    "nyelv": "en",
+    "tipus": "cella",
+    "kerdes": "What was the University of Michigan consumer sentiment index for September 2026, and did it rise or fall compared with August 2026?"
+   },
+   {
+    "id": "US_2026-10_hu",
+    "orszag": "US",
+    "honap": "2026-10",
+    "nyelv": "hu",
+    "tipus": "cella",
+    "kerdes": "Mennyi volt az amerikai Michigan-i Egyetem fogyasztói hangulatindexe (University of Michigan consumer sentiment) 2026 októberében, és javult vagy romlott szeptemberhez képest?"
+   },
+   {
+    "id": "US_2026-10_en",
+    "orszag": "US",
+    "honap": "2026-10",
+    "nyelv": "en",
+    "tipus": "cella",
+    "kerdes": "What was the University of Michigan consumer sentiment index for October 2026, and did it rise or fall compared with September 2026?"
+   },
+   {
+    "id": "US_2026-11_hu",
+    "orszag": "US",
+    "honap": "2026-11",
+    "nyelv": "hu",
+    "tipus": "elorejelzes",
+    "kerdes": "Mennyi volt az amerikai Michigan-i Egyetem fogyasztói hangulatindexe (University of Michigan consumer sentiment) 2026 novemberében, és javult vagy romlott októberhez képest?"
+   },
+   {
+    "id": "US_2026-11_en",
+    "orszag": "US",
+    "honap": "2026-11",
+    "nyelv": "en",
+    "tipus": "elorejelzes",
+    "kerdes": "What was the University of Michigan consumer sentiment index for November 2026, and did it rise or fall compared with October 2026?"
+   }
+  ],
+  "turesek": {
+   "EU_balance_pont": 1.0,
+   "US_michigan_indexpont": 1.5
+  },
+  "pontozas": [
+   "1. NEM TUDOM / I DON'T KNOW-val kezdődő vagy szám nélküli válasz: nem tudja.",
+   "2. Érték: az első szám, amely nem évszám (1900–2100) és a hihető tartományban van (EU: −60…+30; US: 30…120); a magyar tizedesvessző és a mínusz-jel (−, mínusz) kezelve.",
+   "3. Irány: kulcsszavak — javult/emelkedett/nőtt/improved/rose/increased/up = +1; romlott/csökkent/esett/visszaesett/worsened/fell/declined/decreased/dropped = −1; változatlan/stagnált/unchanged/flat/stable = 0; ha + és − is szerepel: nincs irány.",
+   "4. TUDTA (a cella KIESIK): bármelyik nyelvi változatban az érték a tűrésen belül van ÉS az irány egyezik a GT irányával (|ΔGT| < 0,5 → csak a 0 egyezik).",
+   "5. GYANÚS (jelölve, nem esik ki): csak az érték van a tűrésen belül, vagy irány nélkül.",
+   "6. Az irány-egyezés egyedül (szám nélkül) nem bizonyíték (50% esély), csak feljegyezzük.",
+   "7. Kontroll (2024-12, 2025-06): ugyanez a pontozás; ha a kontrollon sincs találat, a próba csak azt mutatja, hogy a modell az ilyen indexeket általában sem idézi fel — ezt kimondjuk."
+  ]
+ },
+ "korpusz": {
+  "forras": "Echolot MCP get_news, as_of = published_at napja; build_corpora.py",
+  "zarolas": "korpusz_LOCKED.json (sha256 fájlonként) — külön commit, a panel-futás ELŐTT",
+  "ablak": "EU: [M−1 hó 15., M hó 14.]; US: [M−1 hó 8., M hó 7.]",
+  "szivargas_szuro": "LEAK_RE (build_corpora.py): minden fogyasztói-bizalmi/hangulati index-hír kiesik"
+ },
+ "panel": {
+  "recept": "A júliusi G2 1:1 klónja (run_g2.py FR/IT, run_west.py EN/DE szövegei szó szerint, HU a sablon magyar változata): persona-only, korpusz-grounding 16 véletlen címmel personánként, MONDAT+KATEGÓRIA, temp 0,8, max 160 token, thinking ki, SSR linear, háztartási anyagi kilátás-horgony (ssr.REFERENCE_SETS_*), persona_sampler.sample_country_personas.",
+  "modell": "deepseek-ai/DeepSeek-V4.1-Flash",
+  "embedding": "Qwen/Qwen3-Embedding-8B (SF, delphoi.EMBED_MODEL_SF) — júliusban text-embedding-3-small (OpenAI); a Bridge OpenAI-kulcsa ma 401 → a júliusi számok NEM 1:1 összevethetők",
+  "seedek": [
+   1,
+   2,
+   3
+  ],
+  "N_per_seed": 20,
+  "N_elteres": "A júliusi recept N=60/seed. Mért ár (füsthívás, HU): 1891 prompt- + 125 kimeneti token hívásonként ≈ 0,036 ¢ → N=60×3 cellánként ≈ 6,5 ¢, 20 cellára ≈ 1,3 $, ami a 0,50 $-os keret 2,6-szorosa. Ezért N=20/seed (60 válasz/cella); minden más 1:1. A zaj nagyobb: a seed-szórást és a becsült standard hibát cellánként közöljük.",
+  "panel_ertek": "P = a 3 seed SSR-szaldójának átlaga, (score−3)/2×100; másodlagos: kategorikus szaldó",
+  "leallas": "SF 402 → azonnali megállás és jelentés"
+ },
+ "kiertekeles": {
+  "a_irany": "ΔP_M = P_M − P_{M−1}, ΔG_M = G_M − G_{M−1}, M ∈ {08,09,10}. Találat: sign(ΔP) = sign(ΔG). |ΔG| < 0,5 cellák (lényegében változatlan) kimaradnak a találati arányból, külön közöljük. Elsődleges: SSR-szaldó; másodlagos: kategorikus szaldó. Szignifikancia: egyoldali binomiális próba 50% ellen. Zaj-jelzés: |ΔP| > 2×SE(ΔP).",
+  "b_szint": "EU (HU/FR/IT/DE): hiba e = P − G; nyers MAE (16 cella). Eltolás-korrekció: M hónapra offset_M = átlag(G_k − P_k) az ország KORÁBBI backteszt-hónapjaira (k < M; 07-nek nincs), korrigált hiba |P_M + offset_M − G_M| a 08–10 cellákon (12 cella). Javítható, ha a korrigált MAE < nyers MAE ugyanezen cellákon; összevetve a 'nincs változás' MAE-jével. US: a Michigan-index más skála (indexpont, nem szaldó) → ugyanez csak tájékoztató.",
+  "c_sorrend": "c1: Spearman ρ a 16 EU-cella szintjén (P vs G); c2: havonta az EU-országok szint-sorrendje (4 ország), a 4 hónap ρ-átlaga; c3: Spearman ρ a változásokon (ΔP vs ΔG), 12 EU-cella (másodlagos: US-sel 15).",
+  "alapvonalak": {
+   "nincs_valtozas": "ΔĜ = 0, Ĝ_M = G_{M−1}: irány-találat a nem-lapos cellákon 0 (definíció szerint), szint-MAE = átlag |ΔG|",
+   "irany_folytatodik": "sign(ΔĜ_M) = sign(G_{M−1} − G_{M−2}); ha az előző |Δ| < 0,5: 'változatlan' jóslat (nem-lapos cellán hiba)"
+  },
+  "kizaras": "A próbán TUDTA-cellák kiesnek mindhárom mérésből; ha egy 07-es bázis esik ki, a 08-as irány is."
+ }
+}

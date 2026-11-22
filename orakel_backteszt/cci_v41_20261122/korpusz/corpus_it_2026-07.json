@@ -1,0 +1,542 @@
+{
+ "country": "IT",
+ "lang": "it",
+ "target_month": "2026-07",
+ "corpus_window": [
+  "2026-06-15",
+  "2026-07-14"
+ ],
+ "days_sampled": [
+  "2026-06-15",
+  "2026-06-17",
+  "2026-06-19",
+  "2026-06-21",
+  "2026-06-23",
+  "2026-06-25",
+  "2026-06-27",
+  "2026-06-29",
+  "2026-07-01",
+  "2026-07-03",
+  "2026-07-05",
+  "2026-07-07",
+  "2026-07-09",
+  "2026-07-11",
+  "2026-07-13"
+ ],
+ "n": 60,
+ "lean_dist": {
+  "center": 36,
+  "unknown": 5,
+  "right": 5,
+  "left": 14
+ },
+ "cat_dist": {
+  "general": 33,
+  "global": 2,
+  "tech": 8,
+  "foreign": 12,
+  "economy": 3,
+  "entertainment": 2
+ },
+ "raw_rows": 625,
+ "pool_after_dedupe": 613,
+ "leak_dropped": 0,
+ "distinct_sources_raw": 72,
+ "raw_cat_dist": {
+  "global": 22,
+  "general": 361,
+  "tech": 56,
+  "foreign": 148,
+  "economy": 12,
+  "entertainment": 14,
+  "sport": 12
+ },
+ "per_day": {
+  "2026-06-15": {
+   "returned": 7,
+   "pool": 15
+  },
+  "2026-06-17": {
+   "returned": 9,
+   "pool": 22
+  },
+  "2026-06-19": {
+   "returned": 12,
+   "pool": 19
+  },
+  "2026-06-21": {
+   "returned": 45,
+   "pool": 500
+  },
+  "2026-06-23": {
+   "returned": 44,
+   "pool": 500
+  },
+  "2026-06-25": {
+   "returned": 43,
+   "pool": 500
+  },
+  "2026-06-27": {
+   "returned": 45,
+   "pool": 500
+  },
+  "2026-06-29": {
+   "returned": 48,
+   "pool": 500
+  },
+  "2026-07-01": {
+   "returned": 45,
+   "pool": 500
+  },
+  "2026-07-03": {
+   "returned": 58,
+   "pool": 500
+  },
+  "2026-07-05": {
+   "returned": 56,
+   "pool": 500
+  },
+  "2026-07-07": {
+   "returned": 51,
+   "pool": 500
+  },
+  "2026-07-09": {
+   "returned": 55,
+   "pool": 500
+  },
+  "2026-07-11": {
+   "returned": 49,
+   "pool": 500
+  },
+  "2026-07-13": {
+   "returned": 58,
+   "pool": 500
+  }
+ },
+ "mcp_errors": 0,
+ "items": [
+  {
+   "text": "Tangenti e gare pilotate per appalti pubblici, come funzionava il «sistema Caprio»: ci sono 54 indagati — Professionisti, ex dipendenti pubblici e anche un carabiniere per la Procura sammaritana erano al soldo dei tre fratelli imprenditori originari di Casal di Principe. Il gip respinge le richieste di arresto, i pm ricorron",
+   "source": "Corriere della Sera — Caserta",
+   "lean": "center",
+   "date": "2026-06-15",
+   "category": "general"
+  },
+  {
+   "text": "Bimbo disabile, sull’affidamento conflitto fra giudice e Servizi sociali. La legale: «Così lo si destabilizza» — I genitori sono separati, la relazione indicava il papà e il tribunale entrambi",
+   "source": "L'Arena",
+   "lean": "unknown",
+   "date": "2026-06-15",
+   "category": "global"
+  },
+  {
+   "text": "Perde il controllo dell'auto e travolge un veicolo in sosta — L'incidente in via Lorenzoni. L'automobilista è rimasto illeso ed è uscito da solo dalla vettura che si è adagiata su un fianco",
+   "source": "Il Giornale di Vicenza",
+   "lean": "unknown",
+   "date": "2026-06-17",
+   "category": "global"
+  },
+  {
+   "text": "SanDisk celebra i Mondiali 2026 con una collezione di storage ufficiale FIFA — SanDisk amplia il catalogo con una collezione di prodotti storage in licenza ufficiale FIFA World Cup 2026, composta da chiavette Usb-C, SSD portatili e schede di memoria professionali. L'articolo SanDisk celebra i Mondi",
+   "source": "PC Professionale",
+   "lean": "unknown",
+   "date": "2026-06-19",
+   "category": "tech"
+  },
+  {
+   "text": "Sono state ritrovate le due sorelle scomparse da una comunità per minori in Abruzzo — Sono state ritrovate le sorelle Alisya e Sarah Di Giacinto, che erano scomparse da giorni da una comunità per minori in Abruzzo. I carabinieri le hanno rintracciate a Formia, nel Lazio, a casa di una zia materna. Secondo",
+   "source": "Il Post (mirror)",
+   "lean": "center",
+   "date": "2026-06-21",
+   "category": "general"
+  },
+  {
+   "text": "Alisya e Sarah sono in una struttura protetta: ipotesi sottrazione di minore — Alisya e Sarah, le due sorelle minorenni ritrovate dopo giorni di ricerche, sono state trasferite in una struttura protetta lontano dalle province di Frosinone e Latina. Le indagini, coordinate dalla Procura della Repubb",
+   "source": "Il Tempo",
+   "lean": "right",
+   "date": "2026-06-21",
+   "category": "general"
+  },
+  {
+   "text": "Almasri condannato a 7 anni e 4 mesi dal Tribunale di Tripoli: “Ha violato i diritti dei detenuti” — Lo riportano i media libici. L’ex comandate è al centro di un contenzioso tra il governo italiano e la Corte penale internazionale",
+   "source": "La Repubblica — Politica",
+   "lean": "left",
+   "date": "2026-06-21",
+   "category": "general"
+  },
+  {
+   "text": "Trump attacca ancora: “Spesi miliardi per la difesa dell’Italia e non ci aiuta, non va bene” — Il presidente americano di nuovo contro il nostro Paese e la premier Meloni: “Quando arriva il momento della prova non ci sono per difendere noi e il resto del mondo”",
+   "source": "La Repubblica — Politica",
+   "lean": "left",
+   "date": "2026-06-21",
+   "category": "general"
+  },
+  {
+   "text": "Il sindaco di Formia commenta a Tgcom24 il ritrovamento delle sorelline",
+   "source": "TGCom24 — HP",
+   "lean": "center",
+   "date": "2026-06-21",
+   "category": "general"
+  },
+  {
+   "text": "Firmato accordo per medici di famiglia in Case di comunità — Fino a 6 ore settimanali tra le 8.00 e le 20.00. Compenso di 38,72 euro l'ora",
+   "source": "ANSA — Cronaca",
+   "lean": "center",
+   "date": "2026-06-23",
+   "category": "general"
+  },
+  {
+   "text": "Bode Miller arrestato per possesso di droga: rilasciato su cauzione — (Adnkronos) - L'ex sciatore americano andrà a processo",
+   "source": "Adnkronos — Prima Pagina",
+   "lean": "center",
+   "date": "2026-06-23",
+   "category": "general"
+  },
+  {
+   "text": "Ronaldo 'ignora' Messi dopo doppietta ai Mondiali: \"Prossima domanda\" — (Adnkronos) - Il fuoriclasse portoghese e la risposta diventata virale in zona mista",
+   "source": "Adnkronos — Prima Pagina",
+   "lean": "center",
+   "date": "2026-06-23",
+   "category": "general"
+  },
+  {
+   "text": "Crosetto: \"Lo scontro Trump-Meloni non influirà sul summit Nato. I rapporti restano solidi\" — La prossima fermata è Ankara, ma la strada è ancora lunga. Di mezzo ci sono incognite e passaggi intermedi, Macron e probabilmente anche qualche hamburger. In Turchia, in occasione del prossimo vertice Nato del 7-8 lugli",
+   "source": "Il Foglio — Politica",
+   "lean": "right",
+   "date": "2026-06-23",
+   "category": "general"
+  },
+  {
+   "text": "Sgambetto per Donald Trump: il Senato approva una risoluzione che limita i poteri di guerra del presidente Usa in Iran — La maggioranza repubblicana si spacca e si allea con i democratici per limitare i poteri bellici del presidente. Il provvedimento è simbolico, ma segna una profonda rottura politica con la Casa Bianca L'articolo Sgambett",
+   "source": "Open",
+   "lean": "left",
+   "date": "2026-06-23",
+   "category": "general"
+  },
+  {
+   "text": "Gerry Scotti e Stefano De Martino, l'abbraccio e l'appello: \"Fateci finire alle 21.30\" — (Adnkronos) - I conduttori di La Ruota della Fortuna e Affari Tuoi sul palco del Premio Agnes",
+   "source": "Adnkronos — Prima Pagina",
+   "lean": "center",
+   "date": "2026-06-25",
+   "category": "general"
+  },
+  {
+   "text": "Re Carlo ha pagato 30 milioni di tasse dal 2022 — (Adnkronos) - Il principe William ha versato più di 20 milioni negli ultimi 4 anni",
+   "source": "Adnkronos — Prima Pagina",
+   "lean": "center",
+   "date": "2026-06-25",
+   "category": "general"
+  },
+  {
+   "text": "La canicola è politica: il collasso climatico lo paga chi lavora — La canicola metterà a rischio la salute di 1,5 milioni di lavoratori in Italia fino al 27 giugno denunciano Cgil e Legambiente basandosi su un’analisi di Greenpeace. Ma le norme […] The post La canicola è politica: il co",
+   "source": "Il Manifesto",
+   "lean": "left",
+   "date": "2026-06-25",
+   "category": "general"
+  },
+  {
+   "text": "Otto e Mezzo, porcheria di Tomaso Montanari contro il nuovo centro: \"Come la mer***\" — Assessore ai Grandi eventi del Comune di Roma, Alessandro Onorato ha fondato Progetto Civico Italia, un partito di amministratori creato per allargare il perimetro del cosiddetto campo largo. Un'idea subito smontata da T",
+   "source": "Libero Quotidiano",
+   "lean": "right",
+   "date": "2026-06-25",
+   "category": "general"
+  },
+  {
+   "text": "Von der Leyen, 'finalmente la comunità Lgbtiq+ a Budapest può marciare senza paura' — La presidente commenta il Budapest Pride: 'Oggi, tutta l'Europa è büszke (orgogliosa)'",
+   "source": "ANSA — Europa",
+   "lean": "center",
+   "date": "2026-06-27",
+   "category": "foreign"
+  },
+  {
+   "text": "Femminicidio nell'imperiese, soffoca la compagna con un cuscino — L'uomo si è costituito, la vittima aveva 51 anni. Vivevano in mezzo al bosco",
+   "source": "ANSA — HP",
+   "lean": "center",
+   "date": "2026-06-27",
+   "category": "general"
+  },
+  {
+   "text": "Pavia, arrestato esponente network neonazista 'Hammerskins': era fuggito dal Brasile — (Adnkronos) - L'uomo, cittadino brasiliano, era destinatario di un mandato d'arresto internazionale. Giunto da alcuni mesi in Italia sotto falso nome insieme alla compagna, avrebbe vissuto in diverse località del Paese,",
+   "source": "Adnkronos — Prima Pagina",
+   "lean": "center",
+   "date": "2026-06-27",
+   "category": "general"
+  },
+  {
+   "text": "Dimenticate il Festivalbar. Il tormentone estivo non è morto, ha cambiato pelle, ma farlo in due è meglio: Angelina-Mengoni, Alfa-Jovanotti, sorpresa Emma-Fabri Fibra. Campionato a parte per Samurai Jay — Ma il tormentone estivo è davvero morto? Passano gli anni e l’interrogativo si rinnova. La risposta è, osservando il movimento del mercato discografico estivo, che non solo non è morto, ma si è definitivamente trasformat",
+   "source": "Il Fatto Quotidiano — HP",
+   "lean": "left",
+   "date": "2026-06-27",
+   "category": "general"
+  },
+  {
+   "text": "Venezia, donna di 32 anni ustionata al volto con l’acido: si cerca l’aggressore — Qualcuno l’ha attesa davanti alla casa della madre a Peseggia di Scorzè. Ha ustioni su braccia, collo e viso",
+   "source": "La Repubblica — Cronaca",
+   "lean": "left",
+   "date": "2026-06-27",
+   "category": "general"
+  },
+  {
+   "text": "Morta in Venezuela un'altra famiglia di cinque italiani — Erano originari di Camerota, in Campania",
+   "source": "ANSA — Cronaca",
+   "lean": "center",
+   "date": "2026-06-29",
+   "category": "general"
+  },
+  {
+   "text": "Tre ucraini feriti in un'esplosione a Monaco, 'probabile attentato' — E' avvenuto in un edificio residenziale lungo il confine con la Francia, 'uno è un oligarca di Kiev'",
+   "source": "ANSA — HP",
+   "lean": "center",
+   "date": "2026-06-29",
+   "category": "general"
+  },
+  {
+   "text": "iPhone 18 Pro, hacker svelano i componenti sul dark web — Reuters: “I dati sono stati sottratti a Apple tramite il fornitore indiano Tata Electronics”",
+   "source": "La Repubblica — Tecnologia",
+   "lean": "left",
+   "date": "2026-06-29",
+   "category": "tech"
+  },
+  {
+   "text": "Claps: fratello, 'riaperte indagini sul ritrovamento del corpo e complicità' — 'Da due anni riaperte con coraggio dalla Procura di Potenza'",
+   "source": "ANSA — Cronaca",
+   "lean": "center",
+   "date": "2026-07-01",
+   "category": "general"
+  },
+  {
+   "text": "Mondiali: in campo Belgio-Senegal 0-1 DIRETTA — Gol di Diarra. Sedicesimo di finale a Seattle. L'ex tecnico della Roma punta su De Bruyne e Lukaku",
+   "source": "ANSA — HP",
+   "lean": "center",
+   "date": "2026-07-01",
+   "category": "general"
+  },
+  {
+   "text": "Bastoni indagato, le chat nell’inchiesta escort che lo inguaiano: “Dopo la partita portane tre” — I messaggi tra il calciatore e un amico che lavorava per l’agenzia delle ragazze. Il difensore nega tutto: domani l’interrogatorio",
+   "source": "La Repubblica — HP",
+   "lean": "left",
+   "date": "2026-07-01",
+   "category": "general"
+  },
+  {
+   "text": "Gemelle K, clamoroso: \"Intercettate per 5 mesi\", cosa emerge dalle ambientali — Da gennaio a maggio 2025 i telefoni di Stefania e Paola Cappa sono finiti nel mirino degli inquirenti. Al centro il secondo filone di indagine sul delitto di Garlasco . Le cugine di Chiara Poggi sono state intercettate p",
+   "source": "Libero Quotidiano",
+   "lean": "right",
+   "date": "2026-07-01",
+   "category": "general"
+  },
+  {
+   "text": "Ucraina, attacco russo su una piscina: l'esplosione nel video delle telecamere di sicurezza — (Adnkronos) - Il momento in cui un attacco russo colpisce una piscina a Zaporizhzhia, in Ucraina, mentre i bagnanti si trovano all'interno. Nel filmato delle telecamere di sicurezza si vede l'esplosione sollevare una nub",
+   "source": "Adnkronos — Esteri",
+   "lean": "center",
+   "date": "2026-07-03",
+   "category": "foreign"
+  },
+  {
+   "text": "Google Wallet tiene il polso delle spese: ora mostra quelle fatte con lo smartwatch — Purché sia un orologio con WearOS: ecco come funziona.",
+   "source": "HDblog",
+   "lean": "center",
+   "date": "2026-07-03",
+   "category": "tech"
+  },
+  {
+   "text": "Bce, Lagarde in soccorso di Macron: per la successione avanza l’olandese Knot — L’addio anticipato della presidente permette all’Eliseo di scegliere subito Bénassy-Quéré. Nell’Eurotower è già corsa alla successione, favoriti i governatori dei Paesi del nord Europa",
+   "source": "La Repubblica — Economia",
+   "lean": "left",
+   "date": "2026-07-03",
+   "category": "economy"
+  },
+  {
+   "text": "Venezuela, media: “Vivo sotto le macerie il capo della polizia di La Guaira” — Gustavo Romero Matamoros è rimasto intrappolato nel crollo di un condominio a Catia La Mar. Secondo i soccorritori l’uomo avrebbe una mano schiacciata e comunicherebbe con le squadre di ricerca attraverso il codice Morse",
+   "source": "La Repubblica — Esteri",
+   "lean": "left",
+   "date": "2026-07-03",
+   "category": "foreign"
+  },
+  {
+   "text": "Reddito di cittadinanza, maxi-truffa a Bari: ecco chi lo incassava — Ricevevano il reddito di cittadinanza o l'assegno unico pur non avendone il diritto, perché senza i requisiti minimi per percepirlo: per questo la Guardia di Finanza ha denunciato ben 72 persone nel nord del Barese, nell",
+   "source": "Libero Quotidiano",
+   "lean": "right",
+   "date": "2026-07-03",
+   "category": "general"
+  },
+  {
+   "text": "Al Madison Square Garden il matrimonio tra Taylor Swift e Travis Kelce | E L'Empire State Building si colora di blu — Tra i presenti, oltre ai familiari, amici intimi della coppia e centinaia di altri invitati. A rendere tutto ancora più indimenticabile ci ha pensato l'iconico grattacielo di Manhattan, che ha voluto omaggiare gli sposin",
+   "source": "TGCom24 — Spettacolo",
+   "lean": "center",
+   "date": "2026-07-03",
+   "category": "general"
+  },
+  {
+   "text": "La valigia tech da preparare su AliExpress: gadget da viaggio, smart working e vacanze senza caos — Prima della partenza, la scena è sempre la stessa: cavi sparsi sul letto, caricabatterie da trovare all’ultimo minuto, notebook da infilare nello zaino e il dubbio sul peso della valigia. Durante la W...",
+   "source": "Tom's Hardware Italia",
+   "lean": "center",
+   "date": "2026-07-03",
+   "category": "tech"
+  },
+  {
+   "text": "Ballando con le Stelle, Paolo Belli punge Selvaggia Lucarelli: “Errore andarsene, ho visto tanti giurati andare e venire” — Paolo Belli, a margine della presentazione dei Palinsesti Rai 2026/2027 – gli stessi che hanno visto due manager televisive darsele di santa ragione – ha tirato una frecciatina a Selvaggia Lucarelli. Il cantante lo ha fa",
+   "source": "Biccy",
+   "lean": "center",
+   "date": "2026-07-05",
+   "category": "entertainment"
+  },
+  {
+   "text": "Mondiali, il tabellone aggiornato degli ottavi: incroci e risultati, la grafica | Calendario partite, orari e tv — Il Mondiale 2026, nel nuovo formato extralarge, è entrato finalmente nel vivo. Gli ottavi di finale regalano sorprese e sfide sempre più affascinanti. Arriva la clamorosa eliminazione del Brasile per mano della Norvegia:",
+   "source": "Il Fatto Quotidiano — HP",
+   "lean": "left",
+   "date": "2026-07-05",
+   "category": "general"
+  },
+  {
+   "text": "Trump: “Siamo i più potenti”. E per il vertice di Ankara prepara la carta Erdogan — Dopo la festa rovinata da caldo e fulmini si riapre la partita Nato. Il rischio di uno scontro sulle spese per la difesa con gli europei",
+   "source": "La Stampa — Copertina",
+   "lean": "center",
+   "date": "2026-07-05",
+   "category": "general"
+  },
+  {
+   "text": "PC, streaming e cloud gaming in 32”: Samsung M8 4K a 449,10€ — Samsung Smart Monitor M8 32'' 4K è a 449,10€ su Amazon con il 40% di sconto sul listino di 749€. Il richiamo qui è chiaro: un unico schermo per scrivania, streaming, Office 365 e cloud gaming, senza d...",
+   "source": "Tom's Hardware Italia",
+   "lean": "center",
+   "date": "2026-07-05",
+   "category": "tech"
+  },
+  {
+   "text": "L'Onu condanna gli insulti razzisti di una senatrice paraguaiana contro Mbappé — L'Ufficio dell'Alto Commissario per i Diritti Umani, 'dichiarazioni spregevoli'",
+   "source": "ANSA — Mondo",
+   "lean": "center",
+   "date": "2026-07-07",
+   "category": "foreign"
+  },
+  {
+   "text": "Galaxy Z Fold8: Samsung conferma che avrà lo Snapdragon 8 Elite Gen 5 for Galaxy — Qualcomm e Samsung hanno confermato, attraverso un post pubblicato su Instagram, che i prossimi pieghevoli Galaxy Z utilizzeranno lo Snapdragon 8 Elite Gen 5 for Galaxy, la versione personalizzata del chip Qualcomm desti",
+   "source": "CMAG",
+   "lean": "unknown",
+   "date": "2026-07-07",
+   "category": "tech"
+  },
+  {
+   "text": "Iniezione di capitale per Satispay, arrivano nuove carte in collaborazione con Mastercard — La fintech italiana raccoglie 120 milioni e allarga l’offerta ai servizi d’investimento",
+   "source": "La Repubblica — Economia",
+   "lean": "left",
+   "date": "2026-07-07",
+   "category": "economy"
+  },
+  {
+   "text": "Perché la Nato sarà sempre più europea — È un vertice Nato in cui la non notizia è notizia. Il programma di Ankara è ridotto all’osso: meno il tempo a disposizione e più striminzita la dichiarazione finale, minore il ...",
+   "source": "La Stampa — Copertina",
+   "lean": "center",
+   "date": "2026-07-07",
+   "category": "general"
+  },
+  {
+   "text": "Come vivono oggi gli eredi di Rockefeller, il 1° miliardario al mondo? — La famiglia Rockefeller è ancora simbolo di ricchezza e successo, ma cosa fanno ora gli eredi del primo miliardario al mondo? - Economia internazionale / Petrolio , ricchi , Ricchezza",
+   "source": "Money.it",
+   "lean": "center",
+   "date": "2026-07-07",
+   "category": "foreign"
+  },
+  {
+   "text": "Sos nutrie: c’è un piano per il contenimento — Dopo l’aggressione a Cagliari",
+   "source": "L'Unione Sarda",
+   "lean": "center",
+   "date": "2026-07-09",
+   "category": "foreign"
+  },
+  {
+   "text": "Maturità bollente tra disagi e malori: “Nelle aule caldo insopportabile” — Le prove dell’Esame di Stato quest’anno sono state rese più complicate dalle temperature elevatissime. Ventilatori, spostamenti in aree più fresche e collaborazione tra il personale per difendersi dalla calura",
+   "source": "La Nazione",
+   "lean": "center",
+   "date": "2026-07-09",
+   "category": "foreign"
+  },
+  {
+   "text": "Il muro degli operai contro i tagli di Volkswagen: “Sarà resistenza brutale” — Il piano di Blume scuote la Germania prima delle elezioni regionali. Quattro fabbriche verso la chiusura, IG Metall annuncia battaglia",
+   "source": "La Repubblica — Economia",
+   "lean": "left",
+   "date": "2026-07-09",
+   "category": "economy"
+  },
+  {
+   "text": "Campo largo, il day after sulla piazza perduta — Peggio di quello che è successo a Napoli c’è solo quello che è successo – o meglio: non è successo – il giorno dopo. Accade così in questi tempi, in cui tutto ...",
+   "source": "La Stampa — Copertina",
+   "lean": "center",
+   "date": "2026-07-09",
+   "category": "general"
+  },
+  {
+   "text": "GPT-5.6 è ora disponibile, ecco tutte le novità — Una finestra di contesto da 1,05 milioni di token e fino a 128K token in output accompagna il debutto di GPT-5.6, la nuova famiglia di modelli resa disponibile da OpenAI il 9 luglio 2026. Il rilascio...",
+   "source": "Tom's Hardware Italia",
+   "lean": "center",
+   "date": "2026-07-09",
+   "category": "tech"
+  },
+  {
+   "text": "Tensione nel campo largo su Kiev e il riarmo, i centristi incalzano — Intanto si studia la prossima piazza. Bettini: 'Serve un patto di lealtà'",
+   "source": "ANSA — Politica",
+   "lean": "center",
+   "date": "2026-07-11",
+   "category": "general"
+  },
+  {
+   "text": "Frontale con un’auto in contromano sull’A14: salva per miracolo una famiglia bergamasca — Spaventoso incidente tra Marotta e Fano causato da un 36enne che ha guidato in contromano per 3 chilometri. Inevitabile l’impatto con la famiglia di vacanzieri con un figlio piccolo: nessuno è in pericolo di vita",
+   "source": "Il Giorno",
+   "lean": "center",
+   "date": "2026-07-11",
+   "category": "foreign"
+  },
+  {
+   "text": "Aeroporto, «un’operazione senza interesse pubblico» — Giornata nera dello scalo di Elmas",
+   "source": "L'Unione Sarda",
+   "lean": "center",
+   "date": "2026-07-11",
+   "category": "foreign"
+  },
+  {
+   "text": "Proteste norvegesi sul primo gol di Bellingham: “Il pallone ha toccato il cavo della telecamera” — Nyland e il ct Solbakken hanno indicato la spider cam sul gol dell’1-1",
+   "source": "La Repubblica — HP",
+   "lean": "left",
+   "date": "2026-07-11",
+   "category": "general"
+  },
+  {
+   "text": "Morte di un sognatore napoletano",
+   "source": "Oggi",
+   "lean": "center",
+   "date": "2026-07-11",
+   "category": "entertainment"
+  },
+  {
+   "text": "Ospedale Maresca, sopralluogo di parlamentari e amministratori locali: eccellenze e carenze di organico — Chiesto il rilancio nel nuovo piano ospedaliero regionale",
+   "source": "NapoliToday",
+   "lean": "center",
+   "date": "2026-07-13",
+   "category": "foreign"
+  },
+  {
+   "text": "Temptation Island, riassunto quarta puntata (13 luglio): la decisione di Alessandra, Cristian chiede il falò, Andrea spiazza Iris — Il falò 'triangolare' e nuovi colpi scena: cosa è successo nel quarto appuntamento del viaggio nei sentimenti",
+   "source": "Today.it",
+   "lean": "center",
+   "date": "2026-07-13",
+   "category": "foreign"
+  },
+  {
+   "text": "Dalla satira classica alla musica anni '70: tre spettacoli teatrali per l'estate 2026 a Giaveno — Il teatro all'aperto torna a animare le sere d'estate a Giaveno. Da martedì 14 a venerdì 31 lugli[...]",
+   "source": "TorinoToday",
+   "lean": "center",
+   "date": "2026-07-13",
+   "category": "foreign"
+  },
+  {
+   "text": "Come installare la beta pubblica di iOS 27, iPadOS 27, macOS 27, watchOS 27 e tvOS 27 — Apple ha rilasciato le beta pubbliche di iOS 27, iPadOS 27, macOS Golden Gate, watchOS 27 e tvOS 27. Ecco come installarle. Link all'articolo originale: Come installare la beta pubblica di iOS 27, iPadOS 27, macOS 27, wa",
+   "source": "iPhone Italia",
+   "lean": "unknown",
+   "date": "2026-07-13",
+   "category": "tech"
+  }
+ ],
+ "built": "2026-11-23",
+ "source_db": "Echolot MCP get_news (https://echolotnews.com/mcp), published_at szerinti napok",
+ "build_rule": "get_news(limit=100, diversify, max_per_source=3, place=ország) minden 2. napra; title>15, LEAK_RE-szűrő, cím-dedupe, lead 220 kar., MAXN=60 lean-cap (arányos kvóta + domináns lean <=60% + dátum-stride) — a júliusi sample_cell"
+}

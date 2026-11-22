@@ -1,0 +1,547 @@
+{
+ "country": "US",
+ "lang": "en",
+ "target_month": "2026-07",
+ "corpus_window": [
+  "2026-06-08",
+  "2026-07-07"
+ ],
+ "days_sampled": [
+  "2026-06-08",
+  "2026-06-10",
+  "2026-06-12",
+  "2026-06-14",
+  "2026-06-16",
+  "2026-06-18",
+  "2026-06-20",
+  "2026-06-22",
+  "2026-06-24",
+  "2026-06-26",
+  "2026-06-28",
+  "2026-06-30",
+  "2026-07-02",
+  "2026-07-04",
+  "2026-07-06"
+ ],
+ "n": 60,
+ "lean_dist": {
+  "left": 8,
+  "unknown": 11,
+  "center": 26,
+  "center_left": 2,
+  "right": 12,
+  "gov": 1
+ },
+ "cat_dist": {
+  "global": 18,
+  "foreign": 9,
+  "economy": 4,
+  "general": 6,
+  "news": 2,
+  "tech": 7,
+  "sport": 14
+ },
+ "raw_rows": 627,
+ "pool_after_dedupe": 618,
+ "leak_dropped": 0,
+ "distinct_sources_raw": 106,
+ "raw_cat_dist": {
+  "news": 13,
+  "global": 182,
+  "general": 91,
+  "culture": 1,
+  "economy": 59,
+  "tech": 48,
+  "foreign": 94,
+  "science": 4,
+  "sport": 135
+ },
+ "per_day": {
+  "2026-06-08": {
+   "returned": 14,
+   "pool": 14
+  },
+  "2026-06-10": {
+   "returned": 16,
+   "pool": 17
+  },
+  "2026-06-12": {
+   "returned": 19,
+   "pool": 21
+  },
+  "2026-06-14": {
+   "returned": 13,
+   "pool": 13
+  },
+  "2026-06-16": {
+   "returned": 20,
+   "pool": 21
+  },
+  "2026-06-18": {
+   "returned": 20,
+   "pool": 22
+  },
+  "2026-06-20": {
+   "returned": 14,
+   "pool": 14
+  },
+  "2026-06-22": {
+   "returned": 62,
+   "pool": 500
+  },
+  "2026-06-24": {
+   "returned": 69,
+   "pool": 500
+  },
+  "2026-06-26": {
+   "returned": 64,
+   "pool": 500
+  },
+  "2026-06-28": {
+   "returned": 50,
+   "pool": 500
+  },
+  "2026-06-30": {
+   "returned": 69,
+   "pool": 500
+  },
+  "2026-07-02": {
+   "returned": 60,
+   "pool": 500
+  },
+  "2026-07-04": {
+   "returned": 54,
+   "pool": 500
+  },
+  "2026-07-06": {
+   "returned": 83,
+   "pool": 500
+  }
+ },
+ "mcp_errors": 0,
+ "items": [
+  {
+   "text": "194 Billionaires. 40 Million of Us. We’re Just Getting Started. — Vote Here is what we won, what the June 2 vote means, and how you join what comes next.",
+   "source": "Liberation News",
+   "lean": "left",
+   "date": "2026-06-08",
+   "category": "global"
+  },
+  {
+   "text": "National News – Page 264",
+   "source": "San Diego Union-Tribune",
+   "lean": "unknown",
+   "date": "2026-06-08",
+   "category": "global"
+  },
+  {
+   "text": "Market in the Valley",
+   "source": "Star Tribune",
+   "lean": "center",
+   "date": "2026-06-08",
+   "category": "global"
+  },
+  {
+   "text": "Plini - An Unnameable Desire North American Tour",
+   "source": "Detroit Free Press",
+   "lean": "unknown",
+   "date": "2026-06-10",
+   "category": "global"
+  },
+  {
+   "text": "Pete Hegseth’s Mormon diss explodes a MAGA myth — Christian nationalism isn't just immoral — it's incoherent",
+   "source": "Salon.com",
+   "lean": "left",
+   "date": "2026-06-10",
+   "category": "global"
+  },
+  {
+   "text": "Clara Carney Obituary - San Jose (1934-2026)",
+   "source": "The Mercury News",
+   "lean": "unknown",
+   "date": "2026-06-14",
+   "category": "global"
+  },
+  {
+   "text": "The Philly bars that keep secret stashes of Chartreuse — Where to find French Chartreuse-based cocktails in Philadelphia, as well as cocktails made with a Philly dupe of the increasingly rare liqueur.",
+   "source": "The Philadelphia Inquirer",
+   "lean": "center_left",
+   "date": "2026-06-14",
+   "category": "foreign"
+  },
+  {
+   "text": "Elon Musk is now a trillionaire. How much is a trillion really? — No individual should be allowed to accumulate a billion dollars worth of wealth, much less a trillion. That wealth is created by working people, and it is our right to put that wealth under the democratic control of work",
+   "source": "Liberation News",
+   "lean": "left",
+   "date": "2026-06-16",
+   "category": "global"
+  },
+  {
+   "text": "Your Horoscope – June 17, 2026 — ARIES You’ll begin a new life phase by selling the family home. Now that your children have left the nest, you’re ready to embrace new challenges. You’ll approach these changes with optimism, curiosity and serenity. TAUR",
+   "source": "Rock River Times",
+   "lean": "unknown",
+   "date": "2026-06-16",
+   "category": "global"
+  },
+  {
+   "text": "Here's where Cortez Masto and Amodei agree on CD-2 — In today's Indy Elections: Catherine Cortez Masto addresses Democrats' chances in NV-02 and the team shares what surprised them most during the primaries.",
+   "source": "The Nevada Independent",
+   "lean": "center",
+   "date": "2026-06-16",
+   "category": "foreign"
+  },
+  {
+   "text": "Stealth Financial Repression — A mental model for trillion-dollar IPOs.",
+   "source": "Doomberg",
+   "lean": "right",
+   "date": "2026-06-18",
+   "category": "economy"
+  },
+  {
+   "text": "Breaking Down the Twist Ending of Harlan Coben's Mystery Series I Will Find You — A father sentenced to prison for the murder of his son seeks justice when he finds out the boy is alive",
+   "source": "TIME — Top Stories",
+   "lean": "left",
+   "date": "2026-06-18",
+   "category": "general"
+  },
+  {
+   "text": "The Uplift: Graduates share the stage — A Maryland mom has an extra reason to be proud on her son's graduation day. She gets to cross the stage and receive her diploma alongside him. Plus, Spelman College, an HBCU in Atlanta, celebrates seven women at the top",
+   "source": "CBS News",
+   "lean": "unknown",
+   "date": "2026-06-20",
+   "category": "global"
+  },
+  {
+   "text": "Trump Was Right. The War Ended With a Surrender. — Each generation seems destined to learn anew the lesson that when hawks declare that a war will be painless, beware.",
+   "source": "The New York Times — Nicholas Kristof",
+   "lean": "left",
+   "date": "2026-06-20",
+   "category": "news"
+  },
+  {
+   "text": "GM installs robots at flagship EV factory after laying off 1,300 workers — US autoworkers union warns of robot automation as dark factory future looms.",
+   "source": "Ars Technica",
+   "lean": "center",
+   "date": "2026-06-22",
+   "category": "tech"
+  },
+  {
+   "text": "2026 NBA Draft order: Complete list of all 60 picks with Wizards at No. 1 — The Washington Wizards are on the clock as the 2026 NBA Draft begins on Tuesday night",
+   "source": "CBS Sports — Headlines",
+   "lean": "center",
+   "date": "2026-06-22",
+   "category": "sport"
+  },
+  {
+   "text": "Sources: Bucks trading Giannis to Heat for huge ha... — The Bucks are trading Giannis Antetokounmpo and Bobby Portis to the Heat for Tyler Herro, Kel'el Ware, Jaime Jaquez Jr., Kasparas Jakucionis, three first-round picks (including No. 13 in Tuesday's draft), one pick swap a",
+   "source": "ESPN — Top Headlines",
+   "lean": "center",
+   "date": "2026-06-22",
+   "category": "sport"
+  },
+  {
+   "text": "RT The White House: Here is another example of a crazy pro-algae (likely paid) protestor. — RT The White House Here is another example of a crazy pro-algae (likely paid) protestor.",
+   "source": "POTUS (X)",
+   "lean": "gov",
+   "date": "2026-06-22",
+   "category": "foreign"
+  },
+  {
+   "text": "Five Eyes Warns of AI Threat, Urges Companies to Adopt AI — State of the Union: The move follows the U.S. State Department’s decision to issue export controls over Anthropic’s most advanced model. The post Five Eyes Warns of AI Threat, Urges Companies to Adopt AI appeared first o",
+   "source": "The American Conservative",
+   "lean": "right",
+   "date": "2026-06-22",
+   "category": "global"
+  },
+  {
+   "text": "Bolsonaro Family Tension Rises as Michelle Criticizes Flávio — Former First Lady Michelle Bolsonaro signaled she plans to remain on the sidelines of Flávio Bolsonaro’s presidential campaign after what she described as a disrespectful phone call with her stepson, exposing fresh tensi",
+   "source": "Bloomberg Markets",
+   "lean": "unknown",
+   "date": "2026-06-24",
+   "category": "economy"
+  },
+  {
+   "text": "from tpm alum tom kludt [contains quote post or other embedded content] — from tpm alum tom kludt [contains quote post or other embedded content]",
+   "source": "Bluesky probe (journalism account)",
+   "lean": "center",
+   "date": "2026-06-24",
+   "category": "global"
+  },
+  {
+   "text": "Obama-Appointed Judge Strikes Down Trump Order Requiring Proof of Citizenship to Vote in U.S. Elections — A federal judge, appointed by former President Barack Obama, has permanently enjoined an executive order by President Donald Trump that sought to reinforce election integrity by requiring proof of American citizenship to",
+   "source": "Breitbart",
+   "lean": "right",
+   "date": "2026-06-24",
+   "category": "global"
+  },
+  {
+   "text": "Pirates' Horwitz exits early with hamstring injury... — Pirates first baseman Spencer Horwitz left in the fourth inning against Seattle with discomfort in his left hamstring Wednesday night.",
+   "source": "ESPN — MLB",
+   "lean": "center",
+   "date": "2026-06-24",
+   "category": "sport"
+  },
+  {
+   "text": "Closed-door outburst turns into victory for Trump’s Iran negotiations — Senate Republicans flipped to reject Democrats' Iran war powers resolution, handing Trump a key win as U.S.-Iran peace deal talks continue on.",
+   "source": "Fox News",
+   "lean": "right",
+   "date": "2026-06-24",
+   "category": "foreign"
+  },
+  {
+   "text": "Angels rally twice, walk off O's on 10th-inning hit that went ... 15 feet!",
+   "source": "MLB.com (official)",
+   "lean": "center",
+   "date": "2026-06-24",
+   "category": "sport"
+  },
+  {
+   "text": "How to Opt Out of Google Search’s New AI Data Training Feature — Google’s Search history update stores media uploads from your interactions, like images used in reverse image searches, for training its AI models.",
+   "source": "Wired (US)",
+   "lean": "left",
+   "date": "2026-06-24",
+   "category": "tech"
+  },
+  {
+   "text": "Earn Your Leisure Co-Founders on Financial Literacy — The CEOs and co-founders of Earn Your Leisure, Rashad Bilal and Troy Millings, explain their educational platform that looks to help individuals gain financial freedom and generational wealth. They discuss how to ride th",
+   "source": "Bloomberg Markets",
+   "lean": "unknown",
+   "date": "2026-06-26",
+   "category": "economy"
+  },
+  {
+   "text": "Anthropic’s Mythos 5 AI Model Cleared by US for Wider Use — The US eased restrictions on the use of Anthropic PBC’s powerful Mythos 5 artificial intelligence model for “trusted partners,” according to a letter from the Commerce Department.",
+   "source": "Bloomberg Technology",
+   "lean": "center",
+   "date": "2026-06-26",
+   "category": "tech"
+  },
+  {
+   "text": "Sky's Cardoso sets mark for most FGs without miss — Chicago's Kamilla Cardoso set a WNBA record for the most field goals without a miss as she went 13 for 13 while scoring 30 points and grabbing eight rebounds, as the Sky rolled to a 124-94 victory over the Portland Fire",
+   "source": "ESPN — Top Headlines",
+   "lean": "center",
+   "date": "2026-06-26",
+   "category": "sport"
+  },
+  {
+   "text": "I’m FLOORED! My holy grail Miele vacuum has never been on sale for Prime Day in my career",
+   "source": "New York Post",
+   "lean": "right",
+   "date": "2026-06-26",
+   "category": "general"
+  },
+  {
+   "text": "Two Drinks with . . . the Senator Warning Trump That Iran ‘Cannot Be Trusted’ — Tim Sheehy knows the threat of terrorism firsthand. He explains why U.S. negotiators must remain skeptical of their Iranian counterparts, writes Audrey Fahlberg.",
+   "source": "The Free Press (Bari Weiss)",
+   "lean": "right",
+   "date": "2026-06-26",
+   "category": "global"
+  },
+  {
+   "text": "‘Euphoria’ Star Chloe Cherry to Release Memoir — 'Somewhere Dark and Hot' will recount Cherry's time working in the adult entertainment industry to her ascent into the public eye in Sam Levinson's HBO drama.",
+   "source": "The Hollywood Reporter",
+   "lean": "center",
+   "date": "2026-06-26",
+   "category": "general"
+  },
+  {
+   "text": "Kennedy Center Celebrates Bill Maher With Its Own Future Unknown — In what was once expected to be its last major event before a two-year closure, the Kennedy Center on Sunday will award Bill Maher the Mark Twain Prize for Humor, an annual event that is taking place even as questions sw",
+   "source": "Bloomberg Politics",
+   "lean": "unknown",
+   "date": "2026-06-28",
+   "category": "economy"
+  },
+  {
+   "text": "Report: Iran and U.S. Make Agreement to Pause War, Engage in Talks — Iran and the United States have agreed to pause attacks and engage in talks this week, after the U.S. launched strikes against multiple targets in Tehran, leading to Iran launching retaliatory strikes on Bahrain and Kuwa",
+   "source": "Breitbart",
+   "lean": "right",
+   "date": "2026-06-28",
+   "category": "global"
+  },
+  {
+   "text": "Canada's World Cup knockout stage win vs. South Africa was equally forgettable as it was historic — A game that lacked style, cohesion and positive play ended with a stoppage time strike, avoiding 30 minutes more of two teams that offered little quality",
+   "source": "CBS Sports — Headlines",
+   "lean": "center",
+   "date": "2026-06-28",
+   "category": "sport"
+  },
+  {
+   "text": "NBC bumps Yankees-Red Sox, sticks with golf — NBC preempted the Yankees-Red Sox \"Sunday Night Baseball\" game in favor of the Travelers Championship, which ran late after rain suspended final-round play for nearly 90 minutes.",
+   "source": "ESPN — MLB",
+   "lean": "center",
+   "date": "2026-06-28",
+   "category": "sport"
+  },
+  {
+   "text": "Venezuela together: Phillies' No. 4 prospect pays tribute to home nation (and homers) at Double-A",
+   "source": "MLB.com (official)",
+   "lean": "center",
+   "date": "2026-06-28",
+   "category": "sport"
+  },
+  {
+   "text": "Nike Succession in Focus With New CFO Ready To Take Helm — Jeff Christian, Founder and CEO of Executive Search firm Christian & Timbers, discusses Nike's strategic shift following the completion of its CEO transition. He highlights that the company is now in 'proof mode,' emphas",
+   "source": "Bloomberg Technology",
+   "lean": "unknown",
+   "date": "2026-06-30",
+   "category": "tech"
+  },
+  {
+   "text": "Use DraftKings promo code for $200 in bonus bets by targeting Mexico vs. Ecuador, 2026 World Cup — DraftKings offers $200 in bonus bets instantly after your first $5 wager for 2026 World Cup betting",
+   "source": "CBS Sports — Headlines",
+   "lean": "center",
+   "date": "2026-06-30",
+   "category": "sport"
+  },
+  {
+   "text": "Guardians rookie tosses ball in stands, allows run... — Guardians rookie left fielder Cooper Ingle lost track of the number of outs in the seventh inning Tuesday night and casually tossed the live ball into the stands as a souvenir, allowing the Rangers to score the go-ahead",
+   "source": "ESPN — MLB",
+   "lean": "center",
+   "date": "2026-06-30",
+   "category": "sport"
+  },
+  {
+   "text": "Feds dismantle alleged gun trafficking ring that funneled dozens of firearms from Georgia to Chicago gangs — Five people face federal charges after prosecutors say a trafficking ring funneled dozens of guns from Georgia to Chicago gangs tied to violent crimes.",
+   "source": "Fox News",
+   "lean": "right",
+   "date": "2026-06-30",
+   "category": "foreign"
+  },
+  {
+   "text": "Parker diagnosed with Grade 3 UCL strain, likely to undergo Tommy John surgery",
+   "source": "MLB.com (official)",
+   "lean": "center",
+   "date": "2026-06-30",
+   "category": "sport"
+  },
+  {
+   "text": "BMW Will Build a New Electric S.U.V. in South Carolina — The German company is doubling down on electric vehicles even as other automakers pull back after acknowledging billions of dollars in losses.",
+   "source": "The New York Times — Automobiles",
+   "lean": "left",
+   "date": "2026-06-30",
+   "category": "news"
+  },
+  {
+   "text": "Kioxia Ships Samples of Newest Flash Memory for AI Data Centers — Kioxia Holdings Corp. has started shipping samples of its next-generation flash memory chips to AI data center operators, seeking to gain ground in the lucrative business against rivals.",
+   "source": "Bloomberg Technology",
+   "lean": "unknown",
+   "date": "2026-07-02",
+   "category": "tech"
+  },
+  {
+   "text": "VAR denies Croatia's game-tying goal as Cristiano Ronaldo leads Portugal to Round of 16 — Gonçalo Ramos' 94th-minute header put Portugal ahead before a controversial VAR offside call denied Croatia a late equalizer, sending Portugal to the Round of 16 against Spain.",
+   "source": "Fox News",
+   "lean": "right",
+   "date": "2026-07-02",
+   "category": "foreign"
+  },
+  {
+   "text": "Travis Kelce Net Worth: How Much Money the Kansas City Chiefs Star Makes — The Kansas City Chiefs tight end's salary has steadily increased thanks to his successful NFL career. Find out where his net worth stands today.",
+   "source": "Hollywood Life",
+   "lean": "center",
+   "date": "2026-07-02",
+   "category": "general"
+  },
+  {
+   "text": "Norovirus outbreak on cruise ship from California sickens more than 100 passengers — More than 100 passengers were sickened in a recent norovirus outbreak on the Ruby Princess cruise ship.",
+   "source": "Los Angeles Times (Local)",
+   "lean": "center_left",
+   "date": "2026-07-02",
+   "category": "foreign"
+  },
+  {
+   "text": "F.B.I. assigns scores of analysts to examine Georgia’s 2020 election records…",
+   "source": "Revolver News",
+   "lean": "right",
+   "date": "2026-07-02",
+   "category": "global"
+  },
+  {
+   "text": "Outside Taylor Swift’s Rehearsal Dinner, a Surprising Calm — and Security Worthy of Gaddafi — It's the wedding of the century between Taylor Swift and Travis Kelce, but also vibes of a coup at the UN General Assembly.",
+   "source": "The Hollywood Reporter",
+   "lean": "center",
+   "date": "2026-07-02",
+   "category": "general"
+  },
+  {
+   "text": "Buyouts offered to nearly a quarter of UT Tyler employees amid budget shortfall — The university in East Texas is among other state colleges facing financial strains.",
+   "source": "The Texas Tribune",
+   "lean": "center",
+   "date": "2026-07-02",
+   "category": "foreign"
+  },
+  {
+   "text": "How Big Is ‘Love Island USA’? More Than 10 Million People Are Already on Its App — “We have more people voting on the ‘Love Island USA’ app than we do in many political elections taking place across the country,” says the show's executive producer.",
+   "source": "Wired (US)",
+   "lean": "left",
+   "date": "2026-07-02",
+   "category": "tech"
+  },
+  {
+   "text": "Trump Praises Americans' Freedom Culture, Slams Obama's 'Creedal Nation' Experiment — American settlers created the United States' freedom culture, not just the Founders, President Donald Trump said Friday in a Mount Rushmore speech that celebrated the 250th anniversary of the Declaration of Independence.",
+   "source": "Breitbart",
+   "lean": "right",
+   "date": "2026-07-04",
+   "category": "global"
+  },
+  {
+   "text": "Free 2026 World Cup anytime goalscorer picks, odds: France's Bradley Barcola features in Saturday best bets — The Round of 16 starts Saturday, and we have our top World Cup anytime goalscorers for the knockout matches",
+   "source": "CBS Sports — Headlines",
+   "lean": "center",
+   "date": "2026-07-04",
+   "category": "sport"
+  },
+  {
+   "text": "Peterson, Boozer strong in Summer League debuts — Cameron Boozer and Darryn Peterson had strong Summer League debuts, scoring 15 and 28 points, respectively.",
+   "source": "ESPN — NBA",
+   "lean": "center",
+   "date": "2026-07-04",
+   "category": "sport"
+  },
+  {
+   "text": "Who Is Abigail Anderson? Everything to Know About Taylor Swift’s Friend Who Inspired Her Song ‘Fifteen’ — Taylor and Abigail have been friends since they met in freshmen year of high school. Learn more about her!",
+   "source": "Hollywood Life",
+   "lean": "center",
+   "date": "2026-07-04",
+   "category": "general"
+  },
+  {
+   "text": "Chip Stocks Rally in AI Trade Revival | The Close 7/6/2026 — Bloomberg Television brings you the latest news and analysis leading up to the final minutes and seconds before and after the closing bell on Wall Street. Today's guests are Morgan Stanley PWM Executive Director Katerina",
+   "source": "Bloomberg Technology",
+   "lean": "unknown",
+   "date": "2026-07-06",
+   "category": "tech"
+  },
+  {
+   "text": "Dam Breaks As Elected Dems Withdraw Support, Urge Platner to Drop Out of Maine Senate Race https://talkingpointsmemo.com/news/elected-democr… — Dam Breaks As Elected Dems Withdraw Support, Urge Platner to Drop Out of Maine Senate Race https://talkingpointsmemo.com/news/elected-democrats-platner-maine-khanna-gallego",
+   "source": "Bluesky probe (journalism account)",
+   "lean": "center",
+   "date": "2026-07-06",
+   "category": "global"
+  },
+  {
+   "text": "Graham Platner Weighs 'Best Path Forward' in Senate Race After Denying Sexual Assault Allegation — Maine Democrat Senate candidate Graham Platner said Monday he is reconsidering the future of his campaign after a woman who previously dated him accused him of sexual assault. The post Graham Platner Weighs ‘Best Path Fo",
+   "source": "Breitbart",
+   "lean": "right",
+   "date": "2026-07-06",
+   "category": "global"
+  },
+  {
+   "text": "MVP Rodri shines, seeks more from Spain in QFs — Spain midfielder Rodri was named the best player in his team's 1-0 victory over Portugal but warned they still have \"room for improvement\" ahead of the World Cup quarterfinals",
+   "source": "ESPN — Soccer",
+   "lean": "center",
+   "date": "2026-07-06",
+   "category": "sport"
+  },
+  {
+   "text": "The U.S. men's run at the World Cup ends with a 4-1 Round of 16 loss to Belgium — The team was in the eye of a storm over a controversial phone call from President Trump to FIFA's head about a red card on a U.S. striker. But even with the U.S. at full strength, Belgium easily won.",
+   "source": "NPR News",
+   "lean": "center",
+   "date": "2026-07-06",
+   "category": "foreign"
+  }
+ ],
+ "built": "2026-11-23",
+ "source_db": "Echolot MCP get_news (https://echolotnews.com/mcp), published_at szerinti napok",
+ "build_rule": "get_news(limit=100, diversify, max_per_source=3, place=ország) minden 2. napra; title>15, LEAK_RE-szűrő, cím-dedupe, lead 220 kar., MAXN=60 lean-cap (arányos kvóta + domináns lean <=60% + dátum-stride) — a júliusi sample_cell"
+}

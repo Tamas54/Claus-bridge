@@ -1,0 +1,18 @@
+--- US ---
+  US 2026-07 seed 1: SSR -19.2 | kat -20.0 (n=20) | tokens 18982/1450
+  US 2026-07 seed 2: SSR -15.5 | kat -5.0 (n=20) | tokens 37713/2960
+  US 2026-07 seed 3: SSR -16.2 | kat -10.0 (n=20) | tokens 56842/4444
+[cella] US 2026-07: SSR -16.99 ± 1.59 | kat -11.666666666666666 | költség $0.0112
+  US 2026-08 seed 1: SSR -23.0 | kat -40.0 (n=20) | tokens 19157/1429
+  US 2026-08 seed 2: SSR -20.1 | kat -15.0 (n=20) | tokens 39005/2823
+  US 2026-08 seed 3: SSR -25.1 | kat -30.0 (n=20) | tokens 58726/4232
+[cella] US 2026-08: SSR -22.74 ± 2.02 | kat -28.333333333333332 | költség $0.0113
+  US 2026-09 seed 1: SSR -23.8 | kat -30.0 (n=20) | tokens 19046/1403
+  US 2026-09 seed 2: SSR -25.1 | kat -35.0 (n=20) | tokens 37908/2762
+  US 2026-09 seed 3: SSR -22.5 | kat -20.0 (n=20) | tokens 57280/4095
+[cella] US 2026-09: SSR -23.80 ± 1.08 | kat -28.333333333333332 | költség $0.0110
+  US 2026-10 seed 1: SSR -24.2 | kat -25.0 (n=20) | tokens 20600/1314
+  US 2026-10 seed 2: SSR -20.6 | kat -30.0 (n=20) | tokens 40971/2705
+  US 2026-10 seed 3: SSR -25.8 | kat -30.0 (n=20) | tokens 61600/4073
+[cella] US 2026-10: SSR -23.55 ± 2.21 | kat -28.333333333333332 | költség $0.0117
+[VÉGE] 00:37:54

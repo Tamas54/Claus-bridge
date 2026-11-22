@@ -1,0 +1,546 @@
+{
+ "country": "HU",
+ "lang": "hu",
+ "target_month": "2026-10",
+ "corpus_window": [
+  "2026-09-15",
+  "2026-10-14"
+ ],
+ "days_sampled": [
+  "2026-09-15",
+  "2026-09-17",
+  "2026-09-19",
+  "2026-09-21",
+  "2026-09-23",
+  "2026-09-25",
+  "2026-09-27",
+  "2026-09-29",
+  "2026-10-01",
+  "2026-10-03",
+  "2026-10-05",
+  "2026-10-07",
+  "2026-10-09",
+  "2026-10-11",
+  "2026-10-13"
+ ],
+ "n": 60,
+ "lean_dist": {
+  "unknown": 29,
+  "right": 7,
+  "analytical": 4,
+  "left": 14,
+  "center": 6
+ },
+ "cat_dist": {
+  "foreign": 4,
+  "sport": 2,
+  "economy": 9,
+  "global": 4,
+  "tech": 13,
+  "politics": 5,
+  "general": 23
+ },
+ "raw_rows": 795,
+ "pool_after_dedupe": 759,
+ "leak_dropped": 1,
+ "distinct_sources_raw": 47,
+ "raw_cat_dist": {
+  "politics": 105,
+  "tech": 124,
+  "general": 275,
+  "global": 37,
+  "economy": 163,
+  "sport": 16,
+  "foreign": 62,
+  "lifestyle": 3,
+  "entertainment": 10
+ },
+ "per_day": {
+  "2026-09-15": {
+   "returned": 43,
+   "pool": 500
+  },
+  "2026-09-17": {
+   "returned": 42,
+   "pool": 500
+  },
+  "2026-09-19": {
+   "returned": 45,
+   "pool": 500
+  },
+  "2026-09-21": {
+   "returned": 43,
+   "pool": 500
+  },
+  "2026-09-23": {
+   "returned": 43,
+   "pool": 500
+  },
+  "2026-09-25": {
+   "returned": 44,
+   "pool": 500
+  },
+  "2026-09-27": {
+   "returned": 48,
+   "pool": 500
+  },
+  "2026-09-29": {
+   "returned": 57,
+   "pool": 500
+  },
+  "2026-10-01": {
+   "returned": 53,
+   "pool": 500
+  },
+  "2026-10-03": {
+   "returned": 62,
+   "pool": 500
+  },
+  "2026-10-05": {
+   "returned": 66,
+   "pool": 500
+  },
+  "2026-10-07": {
+   "returned": 64,
+   "pool": 500
+  },
+  "2026-10-09": {
+   "returned": 64,
+   "pool": 500
+  },
+  "2026-10-11": {
+   "returned": 58,
+   "pool": 500
+  },
+  "2026-10-13": {
+   "returned": 63,
+   "pool": 500
+  }
+ },
+ "mcp_errors": 0,
+ "items": [
+  {
+   "text": "A magyar külügyminiszter feljelentést tett Szijjártó Péter magánrepülőzése miatt — Orbán Anita magyar külügyminiszter feljelentést tett különösen jelentős vagyoni hátrányt okozó hűtlen kezelés gyanúja miatt azt követően, hogy az átvilágítás során kiderült, Szijjártó Péter és delegációja „rutinszerűen”",
+   "source": "Dél-Hír",
+   "lean": "unknown",
+   "date": "2026-09-15",
+   "category": "foreign"
+  },
+  {
+   "text": "Döbbenetes Szoboszlai-bombagóllal jutott tovább a Liverpool a Ligakupában — A ráadásban villant a magyar középpályás.",
+   "source": "Index",
+   "lean": "right",
+   "date": "2026-09-15",
+   "category": "sport"
+  },
+  {
+   "text": "Lezárult a Mol 500 millió eurós kötvényének árazása — Lezárult a Mol 500 millió euró összegű kötvényének árazása - közölte a társaság ma a Budapesti Értéktőzsde honlapján. Az 5 éves futamidejű, kötvények éves kamata 4,625 százalék, a hozam 4,86 százalék lett.",
+   "source": "Növekedés",
+   "lean": "unknown",
+   "date": "2026-09-15",
+   "category": "economy"
+  },
+  {
+   "text": "Bekeményít Amerika a chipháborúban – Fontos kaput zárhatnak be — Az Egyesült Államok arra próbálja rábírni Mexikót, hogy fogadjon el új korlátozásokat a mesterséges intelligenciához kapcsolódó hardverek exportjára – számolt be a Wall Street Journal kedden.",
+   "source": "Portfolio",
+   "lean": "analytical",
+   "date": "2026-09-15",
+   "category": "global"
+  },
+  {
+   "text": "Az Nvidia vezérigazgatója szerint nincs szükség arra, hogy szabályozással lassítsák az MI-fejlesztéseket — Jensen Huang szerint se új törvényekre, se új szabályozásra nincs szükség, a cégek pedig tegyenek belátásuk szerint.",
+   "source": "Telex",
+   "lean": "left",
+   "date": "2026-09-15",
+   "category": "tech"
+  },
+  {
+   "text": "Az amerikai techóriások uniós profitjával tömnék ki a költségvetésen tátongó lyukakat. Muresan: Musk, Bezos és Zuckerberg cégeit is megad... — Az amerikai techóriások uniós profitjával tömnék ki a költségvetésen tátongó lyukakat. Muresan: Musk, Bezos és Zuckerberg cégeit is megadóztatjuk, mielőtt az európai polgárok forrásait csökkentenénk #EurópaiUnió #unióskö",
+   "source": "portfolio.hu (X)",
+   "lean": "center",
+   "date": "2026-09-15",
+   "category": "economy"
+  },
+  {
+   "text": "Rekorddal nyitott a South Park új évada, és ehhez elég volt egyetlen epizód — A 29. évad premierje azonnal a Paramount+ élmezőnyébe repítette.",
+   "source": "GameStar",
+   "lean": "unknown",
+   "date": "2026-09-17",
+   "category": "tech"
+  },
+  {
+   "text": "A két legkisebb számot is kihúzták a lottón — Nem volt telitalálatos a hatos lottón.",
+   "source": "Infostart",
+   "lean": "unknown",
+   "date": "2026-09-17",
+   "category": "politics"
+  },
+  {
+   "text": "Schilling Árpád is pályázik az Újszínházra — A politikai okokból nyolc éve Franciaországban élő rendező minden elemében új intézménnyé alakítaná a Dörner György-vezette színházat.",
+   "source": "Telex",
+   "lean": "left",
+   "date": "2026-09-17",
+   "category": "general"
+  },
+  {
+   "text": "Történelem a szemünk láttára: még Messinek sem volt ilyen szezonrajtja a Barcában — Raphinhához hasonló teljesítményre mindössze egy barcelonai játékos volt képes – bő nyolc évtizede. The post Történelem a szemünk láttára: még Messinek sem volt ilyen szezonrajtja a Barcában first appeared on 24.hu .",
+   "source": "24.hu",
+   "lean": "left",
+   "date": "2026-09-19",
+   "category": "general"
+  },
+  {
+   "text": "Fejhallgató készült gamereknek, akiknek nem csak robbanások döreje és a fülük mellett elhúzó lövedékek fütyülése számít — A VZR Audio istállójából származó Model One MKII Delta természetesebb és pontosabb hangzást ígér.",
+   "source": "GameStar",
+   "lean": "unknown",
+   "date": "2026-09-19",
+   "category": "tech"
+  },
+  {
+   "text": "Szuper programok várnak mindenkit a Sérült Gyermekek Napján a budapesti állatkertben — Jövő héten kedden, szeptember 22-én 34. alkalommal rendezi meg a Sérült Gyermekek Napját az Értelmi Fogyatékossággal Élők és Segítőik Országos Érdekvédelmi Szövetsége. Az InfoRádióban Gyene Piroska, az Értelmi Fogyatékos",
+   "source": "Infostart",
+   "lean": "unknown",
+   "date": "2026-09-19",
+   "category": "politics"
+  },
+  {
+   "text": "Egy kutatócsapat megvizsgált két meteoritot, amely eltalálta a Földet, és több tízezer szerves molekulát találtak bennük — A kutatás azért is különleges, mert a tudósok így nem csupán azt látják, milyen kémiai építőelemeket őriznek a meteoritok, hanem egyre pontosabb képet kaphatnak arról is, hogyan néztek ki ezek az anyagok a Naprendszer ki",
+   "source": "Rakéta",
+   "lean": "center",
+   "date": "2026-09-19",
+   "category": "tech"
+  },
+  {
+   "text": "Szerb média: Magyar Péter húsz évre visszamenőleg vizsgálná a politikusok vagyonosodását — A politikusok vagyongyarapodásának akár húsz évre visszamenőleges vizsgálatát lehetővé tevő törvényjavaslatot haladéktalanul a magyar Országgyűlés elé terjesztik – jelentette be Magyar Péter miniszterelnök a Facebookon k",
+   "source": "Dél-Hír",
+   "lean": "unknown",
+   "date": "2026-09-21",
+   "category": "foreign"
+  },
+  {
+   "text": "Gajdos László: jelentős volt a túljelentkezés a vízközmű-pályázaton — Óriási az igény a vízhálózatok megújítására, rekord túljelentkezés érkezett a vízközmű-pályázatra - közölte az élő környezetért felelős miniszter hétfőn este a Facebook-oldalán.",
+   "source": "Profitline",
+   "lean": "unknown",
+   "date": "2026-09-21",
+   "category": "general"
+  },
+  {
+   "text": "Kiderült a rideg igazság a magyar fizetésekről: ennyi pénz kellett volna, hogy ne meneküljenek a dolgozók — Tízből öt magyar munkavállaló váltott már pályát legalább egyszer, és továbbra is kulcskérdés a munkabér.",
+   "source": "Pénzcentrum",
+   "lean": "analytical",
+   "date": "2026-09-21",
+   "category": "economy"
+  },
+  {
+   "text": "Több Loch Ness-i szörnyet is felfedezni véltek egy Google Earth-felvételen — Idén ez már a sokadik észlelés.",
+   "source": "Index",
+   "lean": "right",
+   "date": "2026-09-23",
+   "category": "general"
+  },
+  {
+   "text": "Kormányalakítási kísérlet – az RMDSZ-szel is tárgyalt Siegfried Muresan román miniszterelnök-jelölt — A kormányprogramról és a kabinet beiktatáshoz szükséges parlamenti többség kialakításáról egyeztetett a Romániai Magyar Demokrata Szövetséggel (RMDSZ) szerdán Siegfried Muresan román miniszterelnök-jelölt.",
+   "source": "Infostart",
+   "lean": "unknown",
+   "date": "2026-09-23",
+   "category": "politics"
+  },
+  {
+   "text": "Javier Milei az ENSZ-ben is bejelentette Argentína igényét a Falkland-szigetekre — De az argentin elnök azt mondja, „békés megoldást” szeretne.",
+   "source": "Telex",
+   "lean": "left",
+   "date": "2026-09-23",
+   "category": "general"
+  },
+  {
+   "text": "Nem muszáj együtt maradnia Jasonnak és Luciának a GTA 6-ban — A kapcsolatuk mélysége viszont még a közös lehetőségeiket is befolyásolja.",
+   "source": "GameStar",
+   "lean": "unknown",
+   "date": "2026-09-25",
+   "category": "tech"
+  },
+  {
+   "text": "Vereséggel kezdte a Nemzetek Ligáját a magyar válogatott — Ukrajna győzött Budapesten.",
+   "source": "Magyar Hang",
+   "lean": "left",
+   "date": "2026-09-25",
+   "category": "sport"
+  },
+  {
+   "text": "Egyre több ügy kerül a bíróságoktól a közjegyzőkhöz Európában — Gyorsabb, hatékonyabb és a társadalom számára kedvezőbb igazságszolgáltatást eredményez, ha a nem vitás ügyeket a bíróságoktól közjegyzői hatáskörbe helyezik át, miközben a jogbiztonság változatlan marad. Ezt támasztja a",
+   "source": "Profitline",
+   "lean": "unknown",
+   "date": "2026-09-25",
+   "category": "general"
+  },
+  {
+   "text": "A küllemre sokat adtak. Gesztusok és nehézbombázók: Donald Trump és Hsz Csin-ping találkozóján eldőlhetett volna a világ sorsa, de valami e... — A küllemre sokat adtak. Gesztusok és nehézbombázók: Donald Trump és Hsz Csin-ping találkozóján eldőlhetett volna a világ sorsa, de valami egészen más történt #kína #DonaldTrump #irán #mesterségesintelligencia #hszicsinpi",
+   "source": "portfolio.hu (X)",
+   "lean": "center",
+   "date": "2026-09-25",
+   "category": "global"
+  },
+  {
+   "text": "Vučić lemondott a szerb elnöki tisztségről, mától Ana Brnabić az ügyvezető államfő — Aleksandar Vučić aláírta lemondását a szerb köztársasági elnöki tisztségről. A megüresedő államfői poszt feladatait ideiglenesen a parlament elnöke, Ana Brnabić látja el. Vučić a köztársasági elnöki hivatalban azt mondta",
+   "source": "Dél-Hír",
+   "lean": "unknown",
+   "date": "2026-09-27",
+   "category": "politics"
+  },
+  {
+   "text": "Kiderült, hogy mikor lép ki early accessből a Titan Quest II, és ezzel együtt mikor jelenik meg a játék konzolokra — Bő egy évvel ezelőtt rajtolt el az ókori szerepjáték korai változata, de már csak pár hónapot tölt ebben a stádiumban a projekt.",
+   "source": "PlayDome",
+   "lean": "unknown",
+   "date": "2026-09-27",
+   "category": "tech"
+  },
+  {
+   "text": "Engedélyezheti Kína: amerikai csúcstechnológiához juthatnak hozzá a keleti techóriások — Kína engedélyezheti egyes hazai technológiai vállalatainak, köztük a ByteDance-nek és az Alibabának, hogy megvásárolják az Nvidia professzionális felhasználásra szánt RTX PRO 5500-as chipjeit – értesült a The Information",
+   "source": "Portfolio",
+   "lean": "analytical",
+   "date": "2026-09-27",
+   "category": "tech"
+  },
+  {
+   "text": "„A végén mindketten meg fogják védeni az igazukat” – ebben bízik a volt propagandaminiszter. Teljes cikk a 444-en — „A végén mindketten meg fogják védeni az igazukat” – ebben bízik a volt propagandaminiszter. Teljes cikk a 444-en",
+   "source": "444 (X)",
+   "lean": "left",
+   "date": "2026-09-29",
+   "category": "general"
+  },
+  {
+   "text": "Hivatalos: Ismét elkaszálták a Futuramát, de van jó hír is — A Futurama megint véget ért. Igen, megint.",
+   "source": "GameStar",
+   "lean": "unknown",
+   "date": "2026-09-29",
+   "category": "tech"
+  },
+  {
+   "text": "Turul Szíve az erdőben — A szív világnapjához kapcsolódva, szeptember 27-én vasárnap átadták a Turul Szíve Kardiotanösvényt a tatabányai Turuli Parkerdőben. A Budapesti Szent Ferenc Kórház „Út az Egészséghez” országos programjának 22. kardiotanö",
+   "source": "Infostart",
+   "lean": "unknown",
+   "date": "2026-09-29",
+   "category": "politics"
+  },
+  {
+   "text": "Hankó Balázs: A vádlóknak felelni kell azért, hogy manipulálják a közvéleményt — Hankó Balázs: A vádlóknak felelni kell azért, hogy manipulálják a közvéleményt",
+   "source": "Magyar Nemzet (X)",
+   "lean": "right",
+   "date": "2026-09-29",
+   "category": "general"
+  },
+  {
+   "text": "Egy plébános arról prédikált, hogy akik a Tiszára szavaztak, ellenségek és elpusztítják az országot, Magyar Péter felszólította a katolikus egyházat a nyilvános elhatárolódásra — Osztie Zoltán szokott Orbán Viktorért misézni, híres még a buzizásairól is, és általában a Fidesz buzgó támogatója. A miniszterelnök szerint „mind az egyházi, mind a világi életben meg kell húzni a határvonalakat”.",
+   "source": "444.hu",
+   "lean": "left",
+   "date": "2026-10-01",
+   "category": "general"
+  },
+  {
+   "text": "Itt a fordulat? Ausztriában már több embert küldenek vissza, mint ahányan menedékjogot kérnek — Az illegális határátlépések száma az elmúlt két évben 55 százalékkal csökkent - jelentette ki a migrációért felelős uniós biztos. 70 ezer embert nem engedtek be az EU területére, közülük kétezren biztonsági fenyegetést j",
+   "source": "Növekedés",
+   "lean": "unknown",
+   "date": "2026-10-01",
+   "category": "economy"
+  },
+  {
+   "text": "Nyugdíjas önkéntest ismersz? 100 ezer forintot kaphat — Egy élet alatt felhalmozott tudást nem lehet nyugdíjba küldeni. Az Idősek Világnapja jó alkalom arra, hogy az idősödő társadalomra ne csak kihívásként, hanem lehetőségként is tekintsünk.",
+   "source": "Profitline",
+   "lean": "unknown",
+   "date": "2026-10-01",
+   "category": "economy"
+  },
+  {
+   "text": "Brutálisan bántalmaztak egy nőt a rendőrök egy budapesti plázában https:/ — Brutálisan bántalmaztak egy nőt a rendőrök egy budapesti plázában",
+   "source": "24.hu (X)",
+   "lean": "left",
+   "date": "2026-10-03",
+   "category": "general"
+  },
+  {
+   "text": "Nőttek a késések a MÁV-nál — Nagyjából egymillió percet késtek a MÁV vonatai idén nyáron.",
+   "source": "GameStar",
+   "lean": "unknown",
+   "date": "2026-10-03",
+   "category": "general"
+  },
+  {
+   "text": "Zelenszkij az orosz megtorló csapásokról: Megkettőzzük az orosz olajfinomítók elleni támadásokat — A Kreml stratégiát váltott Zelenszkij szerint, ki akarják űzni a lakosságot az ukrán városokból.",
+   "source": "HVG",
+   "lean": "left",
+   "date": "2026-10-03",
+   "category": "global"
+  },
+  {
+   "text": "Az ötletgazda Lamborghinit és aranyórát vett magának. De a dolgozók is luxusautókkal jártak. — Az ötletgazda Lamborghinit és aranyórát vett magának. De a dolgozók is luxusautókkal jártak.",
+   "source": "Magyar Jelen (X)",
+   "lean": "unknown",
+   "date": "2026-10-03",
+   "category": "general"
+  },
+  {
+   "text": "Ilaria Salis a véres francia diáktüntetések mintájára csatatérré változtatná az olasz utcákat Ilaria Salis arra szólította fel az ifjús... — Ilaria Salis a véres francia diáktüntetések mintájára csatatérré változtatná az olasz utcákat Ilaria Salis arra szólította fel az ifjúságot, hogy kövessék a francia diákok mintáját, vigyék utcára a dühüket, és bénítsák m",
+   "source": "Magyar Nemzet (X)",
+   "lean": "right",
+   "date": "2026-10-03",
+   "category": "general"
+  },
+  {
+   "text": "Génmintázatok alapján derítené ki egy nemzetközi kutatócsapat, hogy a páciens milyen bőrbetegségben szenved — Az új diagnosztikai lehetőség arra alkalmas, hogy a szakemberek nagy áttekintésű molekuláris mintázatot kapjanak az adott betegségről.",
+   "source": "Rakéta",
+   "lean": "center",
+   "date": "2026-10-03",
+   "category": "tech"
+  },
+  {
+   "text": "Marco Rossi: Nem érdemeltük meg teljes mértékben ezt a győzelmet, de szerencsések voltunk — Ahogy a múltban elismerte, ha balszerencsések voltunk, most megjegyezte, szerencsénk volt. Épp le akarta cserélni Tóth Milánt, mire a támadó gólt szerzett.",
+   "source": "24.hu",
+   "lean": "left",
+   "date": "2026-10-05",
+   "category": "general"
+  },
+  {
+   "text": "Pásztorék ismét ködöt árulnak a Tisza-menti szavazóknak — Az alábbiakban a VMDK közleménye olvasható. Tizenkét év folyamatos kormányzás, tucatnyi államtitkári szék és végtelenített koalíciós hűség után a Vajdasági Magyar Szövetség (VMSZ) vezetősége úgy gondolta, elérkezett az i",
+   "source": "Dél-Hír",
+   "lean": "unknown",
+   "date": "2026-10-05",
+   "category": "foreign"
+  },
+  {
+   "text": "A Razer RGB-s dolgai két giga RAM-ot zabálhatnak meg a gépeinken — Hogyan akar a Windows 11 8 GB RAM-mal működni, ha abból kettőt befal a Razer Synapse és a Chroma?",
+   "source": "GameStar",
+   "lean": "unknown",
+   "date": "2026-10-05",
+   "category": "tech"
+  },
+  {
+   "text": "Nagy változás készül a hiteleknél, erről tárgyal a kormány a bankokkal. — Nagy változás készül a hiteleknél, erről tárgyal a kormány a bankokkal. Fotó: Tövissi Bence / Index #Hungary #interest #economy #indexhu",
+   "source": "Index (X)",
+   "lean": "right",
+   "date": "2026-10-05",
+   "category": "general"
+  },
+  {
+   "text": "80 kilométeres füstcsóva gomolyog az égen: súlyos csapás érhette a közel-keleti olajóriást — A friss műholdfelvételek tanúsága szerint hatalmas tűz pusztít a szaúdi Aramco Vörös-tenger partján fekvő, rabighi olajfinomítójában, miután a létesítményt a jelek szerint találat érte a jemeni húszik részéről - számolt",
+   "source": "Portfolio",
+   "lean": "analytical",
+   "date": "2026-10-05",
+   "category": "economy"
+  },
+  {
+   "text": "Egyéni BL-rekordot döntött a Veszprém fantasztikusan védő kapusa — Simán nyert a magyar csapat Belgrádban.",
+   "source": "24.hu",
+   "lean": "left",
+   "date": "2026-10-07",
+   "category": "general"
+  },
+  {
+   "text": "A miniszterelnök nem ismerte el bűnösségét. — A miniszterelnök nem ismerte el bűnösségét.",
+   "source": "Magyar Jelen (X)",
+   "lean": "unknown",
+   "date": "2026-10-07",
+   "category": "general"
+  },
+  {
+   "text": "Kreatív elemek helyett hatékonyságnövelésre használja a SEGA az AI-t! — A japán cég nem fogja maga mögött hagyni a mesterséges intelligenciát, ám ezt nem úgy akarja a SEGA használni, hogy az a kreatív dolgozóktól elvegye a munkát. A SEGA nem bízza a játékok kreatív aspektusait a mesterséges",
+   "source": "TheGeek",
+   "lean": "unknown",
+   "date": "2026-10-07",
+   "category": "tech"
+  },
+  {
+   "text": "A magyar gazdaság régi növekedési modellje kifulladt, a kormány pedig az uniós források, a termelékenység és az euró felé fordul: a Portfo... — A magyar gazdaság régi növekedési modellje kifulladt, a kormány pedig az uniós források, a termelékenység és az euró felé fordul: a Portfolio Budapest Economic Forumán elhangzottak szerint ez a magyar gazdaság újraindítá",
+   "source": "portfolio.hu (X)",
+   "lean": "center",
+   "date": "2026-10-07",
+   "category": "economy"
+  },
+  {
+   "text": "Jellemzően háromszor annyiból jön ki egy olimpia, mint amennyire tervezik — Rengeteg előre nem látható probléma csúszhat be egy olimpia megrendezésébe. A NOB azonban a minél ambiciózusabb terveket részesítette előnyben, amitől mindenki, aki jelentkezett, mert nagyot álmodni. ...",
+   "source": "Economix",
+   "lean": "unknown",
+   "date": "2026-10-09",
+   "category": "economy"
+  },
+  {
+   "text": "A javaslat szerint 5 százalékos áfakulcs vonatkozna többek között a burgonyára, a paradicsomra, a vöröshagymára és a káposztafélékre. ht... — A javaslat szerint 5 százalékos áfakulcs vonatkozna többek között a burgonyára, a paradicsomra, a vöröshagymára és a káposztafélékre. Fotó: Papajcsik Péter / Index #Hungary #politics #tax #indexhu",
+   "source": "Index (X)",
+   "lean": "right",
+   "date": "2026-10-09",
+   "category": "general"
+  },
+  {
+   "text": "Éjjel betört az ősz, a csapadék késik – időjárás — Éjjel betört az ősz, a csapadék késik – időjárás",
+   "source": "InfoRádió / Infostart (X)",
+   "lean": "unknown",
+   "date": "2026-10-09",
+   "category": "general"
+  },
+  {
+   "text": "A Dunába dobott telefonon hívta volna a Tisza A teljes beszélgetés itt érhető el👇 — A Dunába dobott telefonon hívta volna a Tisza A teljes beszélgetés itt érhető el👇",
+   "source": "Magyar Jelen (X)",
+   "lean": "unknown",
+   "date": "2026-10-09",
+   "category": "general"
+  },
+  {
+   "text": "Lenémítod a telefonod éjszakára? Ezzel a beállítással jobban jársz — Mutatjuk, mit kapcsolj be éjszaka, ha az aksit is szeretnéd picit kímélni.",
+   "source": "Rakéta",
+   "lean": "center",
+   "date": "2026-10-09",
+   "category": "tech"
+  },
+  {
+   "text": "Két újabb, összesen 166 milliárdos, Exim-bankos ügyben tett feljelentést Kapitány István — Már 1300 milliárd forintnál járnak az Eximbankkal kapcsolatos gyanús ügyek.",
+   "source": "Telex",
+   "lean": "left",
+   "date": "2026-10-09",
+   "category": "economy"
+  },
+  {
+   "text": "Ismét nem volt telitalálat. — Ismét nem volt telitalálat.",
+   "source": "24.hu (X)",
+   "lean": "left",
+   "date": "2026-10-11",
+   "category": "general"
+  },
+  {
+   "text": "Hetente meghal egy nő Magyarországon – 13 női lap közösen sürgeti a változást — Október 11-én, a leánygyermekek világnapján összefogtak a mértékadó magyar női lapok és közösen kérik a kormányt, hogy ratifikálja az isztambuli egyezményt.",
+   "source": "Economix",
+   "lean": "unknown",
+   "date": "2026-10-11",
+   "category": "global"
+  },
+  {
+   "text": "Kiütéses ZTE-siker, döntetlen Kispesten, a Puskás Akadémia nyert Győrben — A Puskás Akadémia a címvédő otthonában aratott győzelmével megőrizte első helyét az NB I-ben.",
+   "source": "Magyar Nemzet",
+   "lean": "right",
+   "date": "2026-10-11",
+   "category": "general"
+  },
+  {
+   "text": "Új játékmenet-videókra vannak kiéhezve a GTA-rajongók de egyelőre csak kiszivárogtatott felvételekkel kell beérniük — Már csak egy hónap van hátra a játék előtöltéséig, november 19-én pedig végre megjelenik a világ legnagyobb kaliberű szórakoztatóipari termékének tartott Grand Theft Auto videójáték-sorozat hatodik része.",
+   "source": "Székelyhon",
+   "lean": "unknown",
+   "date": "2026-10-11",
+   "category": "foreign"
+  },
+  {
+   "text": "Kedden az ötödik országos tiltakozónapot szervezték meg Franciaországban a diákok, akikhez mostanra az egyetemek nagy része is csatlakozott. h... — Kedden az ötödik országos tiltakozónapot szervezték meg Franciaországban a diákok, akikhez mostanra az egyetemek nagy része is csatlakozott.",
+   "source": "24.hu (X)",
+   "lean": "left",
+   "date": "2026-10-13",
+   "category": "general"
+  },
+  {
+   "text": "Megjelent a Planet Zoo 2, itt a launch trailer, és befutottak az állatkert-menedzser tycoon első külföldi kritikák is — A Frontier Developments ezúttal a szafarira, a madarakra és a vízi állatokra helyezte a hangsúlyt.",
+   "source": "PlayDome",
+   "lean": "unknown",
+   "date": "2026-10-13",
+   "category": "tech"
+  }
+ ],
+ "built": "2026-11-23",
+ "source_db": "Echolot MCP get_news (https://echolotnews.com/mcp), published_at szerinti napok",
+ "build_rule": "get_news(limit=100, diversify, max_per_source=3, place=ország) minden 2. napra; title>15, LEAK_RE-szűrő, cím-dedupe, lead 220 kar., MAXN=60 lean-cap (arányos kvóta + domináns lean <=60% + dátum-stride) — a júliusi sample_cell"
+}

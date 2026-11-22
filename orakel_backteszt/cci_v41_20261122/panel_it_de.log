@@ -1,0 +1,34 @@
+--- IT/DE ---
+  IT 2026-07 seed 1: SSR -25.0 | kat -60.0 (n=20) | tokens 26499/1796
+  IT 2026-07 seed 2: SSR -25.4 | kat -65.0 (n=20) | tokens 52287/3441
+  IT 2026-07 seed 3: SSR -26.4 | kat -85.0 (n=20) | tokens 79360/5239
+[cella] IT 2026-07: SSR -25.64 ± 0.58 | kat -70.0 | költség $0.0150
+  IT 2026-08 seed 1: SSR -27.4 | kat -70.0 (n=20) | tokens 26651/1806
+  IT 2026-08 seed 2: SSR -25.4 | kat -70.0 (n=20) | tokens 53680/3547
+  IT 2026-08 seed 3: SSR -25.9 | kat -60.0 (n=20) | tokens 80549/5252
+[cella] IT 2026-08: SSR -26.26 ± 0.84 | kat -66.66666666666667 | költség $0.0152
+  IT 2026-09 seed 1: SSR -24.5 | kat -65.0 (n=20) | tokens 25079/1647
+  IT 2026-09 seed 2: SSR -26.3 | kat -75.0 (n=20) | tokens 50315/3361
+  IT 2026-09 seed 3: SSR -27.3 | kat -75.0 (n=20) | tokens 75390/5162
+[cella] IT 2026-09: SSR -26.06 ± 1.15 | kat -71.66666666666667 | költség $0.0144
+  IT 2026-10 seed 1: SSR -26.2 | kat -75.0 (n=20) | tokens 27893/1659
+  IT 2026-10 seed 2: SSR -25.3 | kat -80.0 (n=20) | tokens 55387/3342
+  IT 2026-10 seed 3: SSR -24.2 | kat -70.0 (n=20) | tokens 82781/5089
+[cella] IT 2026-10: SSR -25.22 ± 0.83 | kat -75.0 | költség $0.0155
+  DE 2026-07 seed 1: SSR -35.1 | kat -90.0 (n=20) | tokens 27239/1837
+  DE 2026-07 seed 2: SSR -39.4 | kat -80.0 (n=20) | tokens 54524/3778
+  DE 2026-07 seed 3: SSR -34.1 | kat -70.0 (n=20) | tokens 81282/5767
+[cella] DE 2026-07: SSR -36.19 ± 2.30 | kat -80.0 | költség $0.0157
+  DE 2026-08 seed 1: SSR -30.0 | kat -80.0 (n=20) | tokens 27746/1889
+  DE 2026-08 seed 2: SSR -39.8 | kat -80.0 (n=20) | tokens 55105/3724
+  DE 2026-08 seed 3: SSR -31.3 | kat -70.0 (n=20) | tokens 82012/5605
+[cella] DE 2026-08: SSR -33.69 ± 4.36 | kat -76.66666666666667 | költség $0.0157
+  DE 2026-09 seed 1: SSR -28.6 | kat -60.0 (n=20) | tokens 27137/1881
+  DE 2026-09 seed 2: SSR -32.7 | kat -55.0 (n=20) | tokens 54799/3682
+  DE 2026-09 seed 3: SSR -37.4 | kat -80.0 (n=20) | tokens 81717/5616
+[cella] DE 2026-09: SSR -32.87 ± 3.60 | kat -65.0 | költség $0.0156
+  DE 2026-10 seed 1: SSR -32.8 | kat -85.0 (n=20) | tokens 28301/1796
+  DE 2026-10 seed 2: SSR -34.4 | kat -90.0 (n=20) | tokens 56121/3606
+  DE 2026-10 seed 3: SSR -37.1 | kat -90.0 (n=20) | tokens 84493/5397
+[cella] DE 2026-10: SSR -34.78 ± 1.78 | kat -88.33333333333333 | költség $0.0159
+[VÉGE] 00:34:22

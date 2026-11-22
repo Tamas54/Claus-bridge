@@ -1,0 +1,553 @@
+{
+ "country": "DE",
+ "lang": "de",
+ "target_month": "2026-11",
+ "corpus_window": [
+  "2026-10-15",
+  "2026-11-14"
+ ],
+ "days_sampled": [
+  "2026-10-15",
+  "2026-10-17",
+  "2026-10-19",
+  "2026-10-21",
+  "2026-10-23",
+  "2026-10-25",
+  "2026-10-27",
+  "2026-10-29",
+  "2026-10-31",
+  "2026-11-02",
+  "2026-11-04",
+  "2026-11-06",
+  "2026-11-08",
+  "2026-11-10",
+  "2026-11-12",
+  "2026-11-14"
+ ],
+ "n": 60,
+ "lean_dist": {
+  "unknown": 27,
+  "right": 1,
+  "left": 6,
+  "center": 26
+ },
+ "cat_dist": {
+  "tech": 6,
+  "general": 11,
+  "sport": 13,
+  "entertainment": 4,
+  "politics": 1,
+  "global": 14,
+  "foreign": 1,
+  "economy": 7,
+  "news": 3
+ },
+ "raw_rows": 1302,
+ "pool_after_dedupe": 1180,
+ "leak_dropped": 0,
+ "distinct_sources_raw": 100,
+ "raw_cat_dist": {
+  "global": 313,
+  "general": 299,
+  "politics": 31,
+  "economy": 141,
+  "foreign": 43,
+  "sport": 246,
+  "entertainment": 81,
+  "tech": 106,
+  "news": 40,
+  "cars": 2
+ },
+ "per_day": {
+  "2026-10-15": {
+   "returned": 81,
+   "pool": 500
+  },
+  "2026-10-17": {
+   "returned": 76,
+   "pool": 500
+  },
+  "2026-10-19": {
+   "returned": 80,
+   "pool": 500
+  },
+  "2026-10-21": {
+   "returned": 88,
+   "pool": 500
+  },
+  "2026-10-23": {
+   "returned": 83,
+   "pool": 500
+  },
+  "2026-10-25": {
+   "returned": 68,
+   "pool": 500
+  },
+  "2026-10-27": {
+   "returned": 77,
+   "pool": 500
+  },
+  "2026-10-29": {
+   "returned": 89,
+   "pool": 500
+  },
+  "2026-10-31": {
+   "returned": 76,
+   "pool": 500
+  },
+  "2026-11-02": {
+   "returned": 91,
+   "pool": 500
+  },
+  "2026-11-04": {
+   "returned": 86,
+   "pool": 500
+  },
+  "2026-11-06": {
+   "returned": 82,
+   "pool": 500
+  },
+  "2026-11-08": {
+   "returned": 83,
+   "pool": 500
+  },
+  "2026-11-10": {
+   "returned": 82,
+   "pool": 500
+  },
+  "2026-11-12": {
+   "returned": 83,
+   "pool": 500
+  },
+  "2026-11-14": {
+   "returned": 77,
+   "pool": 500
+  }
+ },
+ "mcp_errors": 0,
+ "items": [
+  {
+   "text": "Onkyo: GX-30ARC und GX-10DB als limitierte Jubiläums-Lautsprecher vorgestellt — Meine \"90er-Audio-Liebe\" Onkyo feiert das 80-jähriges Bestehen und bringt zu diesem Anlass zwei neue Aktivlautsprecher auf den Markt. Die beiden Modelle GX-30ARC und GX-10DB bilden die... Zum Beitrag: Onkyo: GX-30ARC und",
+   "source": "Caschys Blog",
+   "lean": "unknown",
+   "date": "2026-10-15",
+   "category": "tech"
+  },
+  {
+   "text": "Amoklauf an Grundschule – drei Kinder tot, Passant erschießt 16‑jährigen Täter — Bei einem Schusswaffenangriff in einer Grundschule in den USA sind fünf Menschen getötet worden. Unter den Opfern sollen drei Kinder sein. Der Angreifer wurde nach Angaben der Polizei am Tatort erschossen.",
+   "source": "Die Welt",
+   "lean": "right",
+   "date": "2026-10-15",
+   "category": "general"
+  },
+  {
+   "text": "Antisemitisches Attentat in Halle: Jüdische Studierende berichten von Morddrohungen in Halle — Mehrere Menschen verwehrten dem AfD-Politiker Hans-Thomas Tillschneider den Zugang zur Synagoge in Halle. Nun berichten jüdische Studierende von Hass und Morddrohungen.",
+   "source": "Die Zeit",
+   "lean": "left",
+   "date": "2026-10-15",
+   "category": "general"
+  },
+  {
+   "text": "40-Millionen-Talent im Visier der Bayern — Auch beim FC Bayern geht der Blick immer mehr in Richtung junger Talente. Ein Kandidat aus Brasilien hat es den Talentscouts des Rekordmeisters offenbar angetan.Bei der Verpflichtung von jungen (…)",
+   "source": "Fussball Transfers",
+   "lean": "unknown",
+   "date": "2026-10-15",
+   "category": "sport"
+  },
+  {
+   "text": "21. Geburtstag: Neue Fotos von Prinz Christian in Uniform — Heute feiert Dänemarks Kronprinz seinen 21. Geburtstag. Zu diesem Ehrentag veröffentlicht das Königshaus neue Porträts von Prinz Christian (21) – und die zeigen ihn erstmals in der traditionellen roten Galauniform der kö",
+   "source": "Promiflash (DE)",
+   "lean": "center",
+   "date": "2026-10-15",
+   "category": "general"
+  },
+  {
+   "text": "Loop One, Kapitel 2: Startschuss für den WM-Winter — Ein Jahr nach der glanzvollen Premiere mit 50.000 Fans steht die zweite Auflage des Loop-One-Festivals der Biathleten in München an. Das sind die Highlights und News.",
+   "source": "ZDF Heute",
+   "lean": "center",
+   "date": "2026-10-15",
+   "category": "general"
+  },
+  {
+   "text": "Sex-Boxer macht Gigi platt - Das Fame-Fighting-Spektakel — Laurenz Pesch besiegt Gigi Birofio im Hauptkampf durch K.o. in der dritten Runde.",
+   "source": "Bild — Unterhaltung",
+   "lean": "unknown",
+   "date": "2026-10-17",
+   "category": "entertainment"
+  },
+  {
+   "text": "Frei fordert gleiche Chancen auf Facharzttermine — Privat und gesetzlich Versicherte warten unterschiedlich lange auf Facharzttermine. Unionsfraktionschef Frei pocht auf faire Chancen – und verweist auf den nächsten Schritt.",
+   "source": "Focus Online — Politik",
+   "lean": "center",
+   "date": "2026-10-17",
+   "category": "politics"
+  },
+  {
+   "text": "Brisante Ankündigung vor AKW-Abstimmung: AKW-Hersteller zügelt in die Schweiz — Copenhagen Atomics will nach Zug zügeln. Die Firma hat bereits zwei Reaktor-Prototypen gebaut und plant ab 2031 die Serienproduktion. Die Ankündigung kommt kurz vor Beginn des AKW-Abstimmungskampfs.",
+   "source": "Tages-Anzeiger",
+   "lean": "unknown",
+   "date": "2026-10-17",
+   "category": "global"
+  },
+  {
+   "text": "US-Präsident Trump hat schon beschlossene Sanktionen gegen Russland gestoppt — US-Präsident Trump hat schon beschlossene Sanktionen gegen Russland gestoppt",
+   "source": "Tagesschau (ARD) — De",
+   "lean": "center",
+   "date": "2026-10-17",
+   "category": "general"
+  },
+  {
+   "text": "Türkei - Pressefreiheit: Nun nimmt Erdoğan Journalisten fest, noch bevor die Artikel erschienen sind — Mit Halk TV verschwindet einer der letzten unabhängigen türkischen Fernsehsender. Präsident Erdoğan will bei der nächsten Wahl offenbar nichts dem Zufall überlassen.",
+   "source": "Der Spiegel — Ausland",
+   "lean": "left",
+   "date": "2026-10-19",
+   "category": "foreign"
+  },
+  {
+   "text": "Rot-Grün-Rot Merz‘ versprochenes Enteignungs-Verbot kommt doch nicht — Merz kündigte im Juli mit Blick auf die Berliner Linken ein Gesetz an, das Enteignungen verbietet. Doch die SPD-Justizministerin lehnt es ab, und Merz‘ Sprecher tut die rot-grün-roten Pläne nun als „Tagesgetümmel“ ab Die",
+   "source": "Junge Freiheit",
+   "lean": "unknown",
+   "date": "2026-10-19",
+   "category": "global"
+  },
+  {
+   "text": "Warum sich Sima für Berlin entschied - und was er Alba bringen kann — Erst wenige Tage nach seiner Ankunft hat Yankuba Sima sein Debüt für Alba Berlin gefeiert. Beim Pokalsieg gegen Bamberg deutete der Big Man direkt an, warum ihn die Berliner aus Valencia verpflichtet haben.",
+   "source": "Kicker — Aktuell",
+   "lean": "center",
+   "date": "2026-10-19",
+   "category": "sport"
+  },
+  {
+   "text": "Kassenärztechef: Terminnot wird sich weiter verschärfen — Ärzte sollen künftig eine feste Zahl freier Termine melden, bislang konnten sie den Umfang selbst bestimmen. Warum die Kassenärztliche Bundesvereinigung darin keinen Weg zu schnelleren Terminen sieht.",
+   "source": "Sächsische Zeitung",
+   "lean": "center",
+   "date": "2026-10-19",
+   "category": "economy"
+  },
+  {
+   "text": "Migrationspolitik Ihre Selbstkritik interessiert mich einen Dreck, Herr ARD-Chef — Nach elf Jahren Hass und Hetze gegen Kritiker der Migrationspolitik fällt dem ARD-Chef auf, sein Sender sei bei der Masseneinwanderung „nicht kritisch genug“ gewesen. Doch, das waren Sie, Florian Hager. Mehr Diffamierung",
+   "source": "Junge Freiheit",
+   "lean": "unknown",
+   "date": "2026-10-21",
+   "category": "global"
+  },
+  {
+   "text": "Upamecano feiert Kane: \"Jeder weiß, wie gut er auf und neben dem Platz ist\" — Nach dem Unentschieden gegen Arsenal spricht Dayot Upamecano über den Verlauf des Spiels, die Wichtigkeit des Trainers und die Rolle von Harry Kane.",
+   "source": "Kicker — Champions League",
+   "lean": "center",
+   "date": "2026-10-21",
+   "category": "sport"
+  },
+  {
+   "text": "Füchse Berlin verlieren Topspiel in Veszprém — Die Füchse Berlin haben das Topspiel gegen Veszprem HC in der Handball Champions League verloren. Für die Hauptrunde waren sie zuvor schon qualifiziert.",
+   "source": "Sportschau (ARD)",
+   "lean": "center",
+   "date": "2026-10-21",
+   "category": "sport"
+  },
+  {
+   "text": "Etsy verschärft die Regeln für KI in Angeboten — Etsy ist ein Marktplatz für Handgemachtes, Vintage und digitale Vorlagen. Wer dort verkauft, muss künftig belegen, dass das Produkt tatsächlich existiert, und zwar mit einem echten... Zum Beitrag: Etsy verschärft die Reg",
+   "source": "Caschys Blog",
+   "lean": "unknown",
+   "date": "2026-10-23",
+   "category": "tech"
+  },
+  {
+   "text": "Trump will Zölle auf Kanada teilweise senken – politisches Kalkül vor Midterms? — US-Präsident Donald Trump könnte bestimmte Zölle auf kanadische Produkte bereits am Freitag senken. Mit dem Schritt will seine Regierung offenbar die republikanische Senatorin Susan Collins und weitere Parteikollegen vor",
+   "source": "DER AKTIONÄR",
+   "lean": "unknown",
+   "date": "2026-10-23",
+   "category": "economy"
+  },
+  {
+   "text": "Brand in einstigem Nazi-Berghaus am Obersalzberg — Errichtet wurde das Gebäude im damaligen »Führersperrgebiet« in Berchtesgaden. Nun steht das Kehlsteinhaus auf 1834 Metern Höhe in Flammen. Nach ersten Erkenntnissen war niemand in dem heutigen Gasthof – die Löscharbeite",
+   "source": "Der Spiegel — DER SPIEGEL - Schlagzeilen – Tops",
+   "lean": "left",
+   "date": "2026-10-23",
+   "category": "general"
+  },
+  {
+   "text": "Hoeneß: \"Es lief zu gut für uns\" — Der VfB Stuttgart kassierte gegen Gladbach den nächsten Dämpfer in der Liga und muss nun mit Sorge nach unten schauen. Wie es zur Niederlage gegen die Fohlenelf kam, wusste indes Trainer Sebastian Hoeneß - und auch, was",
+   "source": "Kicker — Bundesliga",
+   "lean": "center",
+   "date": "2026-10-23",
+   "category": "sport"
+  },
+  {
+   "text": "Michael Reul würdigt ehrenamtliches Engagement im Sport für die Gesellschaft — Der direkt gewählte heimische Landtagsabgeordnete Michael Reul (CDU) teilt mit, dass das Land Hessen den Sport im östlichen Main-Kinzig-Kreis im dritten Quartal 2026 mit insgesamt 195.100 Euro fördert. In den letzten dre",
+   "source": "Osthessen News",
+   "lean": "unknown",
+   "date": "2026-10-25",
+   "category": "global"
+  },
+  {
+   "text": "\"Genau schauen, wer da anheizt\": Union und SPD befürchten Unterwanderung von \"GenZ regelt\" — Ein bundesweiter Demoaufruf für den 31. Oktober löst Unbehagen aus. Linksextreme, Migranten und Kriminelle könnten die Anliegen der Jugendlichen kapern, warnen Politiker von SPD und Union. Auch die Schülerkonferenz geht",
+   "source": "n-tv — Politik",
+   "lean": "center",
+   "date": "2026-10-25",
+   "category": "general"
+  },
+  {
+   "text": "Starlink-Observation geht über Online-Werbung — Discover-Tech soll über Online-Werbung Spyware installieren. Ganz besonders soll sich die israelische Firma für Starlink-Nutzer interessieren.",
+   "source": "Heise Online",
+   "lean": "center",
+   "date": "2026-10-27",
+   "category": "tech"
+  },
+  {
+   "text": "Armut in den USA: Leben mit 160 Dollar Lebensmittelmarken im Monat — Seinen Namen verdankt Friendship in Tennessee zwei zerstrittenen Händlern, die sich auf halbem Weg trafen, oben auf einem Hügel. Heute feiert der Ort dort Herbstfest. Unten muss Doretha Tatum mit 160 Dollar Lebensmittelm",
+   "source": "Sächsische Zeitung",
+   "lean": "center",
+   "date": "2026-10-27",
+   "category": "general"
+  },
+  {
+   "text": "Bolsonaro in USA: \"Bin rechtmäßiger Anführer Brasiliens\" — Bolsonaro umging Ausreiseverbot und landete in Miami",
+   "source": "Tiroler Tageszeitung",
+   "lean": "unknown",
+   "date": "2026-10-27",
+   "category": "global"
+  },
+  {
+   "text": "Torsten Sträter: Komiker lästert über Frisur von Friedrich Merz — Torsten Sträter hat sich in einem neuen Interview auch über die deutsche Politik geäußert - und auf die vergangenen Monate und seine Krebserkrankung zurückgeblickt.",
+   "source": "web.de",
+   "lean": "unknown",
+   "date": "2026-10-27",
+   "category": "global"
+  },
+  {
+   "text": "»Journal Deluxe«: Neue ZDF-Show mit Florian Schroeder — Er versprach die »Tempo-250-Zone des politisch inkorrekten Witzes« – und trudelte dann doch nur narzisstisch um sich selbst: Florian Schroeders »Journal Deluxe« ist nicht der Aufreger, den das ZDF und viele andere Medien",
+   "source": "Der Spiegel — DER SPIEGEL - Schlagzeilen – Tops",
+   "lean": "left",
+   "date": "2026-10-29",
+   "category": "news"
+  },
+  {
+   "text": "Automobilexperte wirft Volkswagen schwere Versäumnisse vor — Wolfsburg - Der Automobilexperte Stefan Bratzel wirft dem Volkswagen-Konzern schwere Versäumnisse vor. \"Man kann sich nicht auf den Erfolgen der Vergangenheit ausruhen\", sagte der Direktor des Cent...",
+   "source": "FinanzNachrichten.de",
+   "lean": "unknown",
+   "date": "2026-10-29",
+   "category": "economy"
+  },
+  {
+   "text": "Patrick Stewart ist tot — Der britische Schauspieler Patrick Stewart ist am Mittwoch gestorben. Er wurde 86 Jahre alt.",
+   "source": "Heise Online",
+   "lean": "center",
+   "date": "2026-10-29",
+   "category": "tech"
+  },
+  {
+   "text": "Para-Bahnrad-WM: Rigling fährt Weltrekord und holt Gold — Flurina Rigling startet an den Titelkämpfen im niederländischen Apeldoorn fulminant. Sie wird Weltmeisterin im Zeitfahren über 1000 Meter.",
+   "source": "Tages-Anzeiger",
+   "lean": "unknown",
+   "date": "2026-10-29",
+   "category": "global"
+  },
+  {
+   "text": "Bayern-Wechsel ermöglicht Ballon d’Or-Sieg — Harry Kane glaubt, dass sein Wechsel zum FC Bayern ein Grund für den Ballon d’Or-Sieg war. Gegenüber ‚France Football‘ sagt der 33-Jährige: „Ich wusste, dass der Wechsel zu Bayern mir die Gelegenheit (…)",
+   "source": "Fussball Transfers",
+   "lean": "unknown",
+   "date": "2026-10-31",
+   "category": "sport"
+  },
+  {
+   "text": "Bayerns Laimer - \"Tut uns mehr weh als Dortmund\" — Bayerns Konrad Laimer spricht nach dem Spiel gegen Dortmund über die Leistung seiner Mannschaft.",
+   "source": "Sportschau — Fußball",
+   "lean": "center",
+   "date": "2026-10-31",
+   "category": "sport"
+  },
+  {
+   "text": "Tag der Toten: 1,6 Millionen Menschen bestaunen Totentag-Parade in Mexiko — Seit Jahrhunderten erinnern die Mexikaner mit Altären und Blumen an ihre Verstorbenen. Der karnevaleske Umzug in Mexiko-Stadt ist dagegen eine junge Erfindung - von James Bond.",
+   "source": "Tagesspiegel",
+   "lean": "center",
+   "date": "2026-10-31",
+   "category": "general"
+  },
+  {
+   "text": "Nach Demo: Pyrotechnik verletzt Kind und Polizistin — Die eigentliche Demo \"Gen Z regelt\" ist schon vorbei, als eine Silvesterbatterie gezündet wird - ein Kind und eine Polizistin werden dabei verletzt.",
+   "source": "web.de",
+   "lean": "unknown",
+   "date": "2026-10-31",
+   "category": "global"
+  },
+  {
+   "text": "Viel Sonne, wenig Solarwärme: Kommunale Wärmepläne lassen enormes Potenzial liegen — Studie von Fraunhofer ISE und Öko-Institut zeigt große Lücke zwischen Solarthermie-Potenzial und geplanter Nutzung - BSW-Solar fordert stärkere Berücksichtigung bei der Umsetzung der kommunalen Wär...",
+   "source": "FinanzNachrichten.de",
+   "lean": "unknown",
+   "date": "2026-11-02",
+   "category": "economy"
+  },
+  {
+   "text": "FCN: Reichert-Verbleib unter einer Bedingung — Der 1. FC Nürnberg könnte im kommenden Sommer Kapitän Jan Reichert ablösefrei verlieren. Die ‚Bild‘ berichtet, dass eine Verlängerung ohne eine Klausel für die Bundesliga „ausgeschlossen“ scheint. (…)",
+   "source": "Fussball Transfers",
+   "lean": "unknown",
+   "date": "2026-11-02",
+   "category": "sport"
+  },
+  {
+   "text": "IT-Angriffe mit Datenabfluss bei notebooksbilliger und Pÿur — Notebooksbilliger und Tele Columbus (Pÿur) informieren derzeit Kundinnen und Kunden in E-Mails über Datenabflüsse nach IT-Angriffen.",
+   "source": "Heise Online",
+   "lean": "center",
+   "date": "2026-11-02",
+   "category": "tech"
+  },
+  {
+   "text": "Zappacosta wird zum Pechvogel: Eigentor besiegelt Atalanta-Pleite — Hier gibt es die Highlights der Partie zwischen Atalanta - Parma.",
+   "source": "Kicker — Aktuell",
+   "lean": "center",
+   "date": "2026-11-02",
+   "category": "sport"
+  },
+  {
+   "text": "Voting-Drama bei „Love Island VIP“ - Greta und Rafael fliegen von der Liebes-Insel — Ein Blitz-Voting unter den Pärchen lief in der Dating-Show beinahe aus dem Ruder.",
+   "source": "Bild — Unterhaltung",
+   "lean": "unknown",
+   "date": "2026-11-04",
+   "category": "entertainment"
+  },
+  {
+   "text": "Champions League: Como überrollt Lens 9:1, Manchester City siegt bei RB Leipzig — Zum ersten Mal ist Como in der Königsklasse dabei und stellt mit einem 9:1 gegen Lens gleich einen Rekord auf. Knapper ging es beim Sieg von Manchester City bei RB Leipzig zu und auch Real Madrid musste lange zittern.",
+   "source": "Der Spiegel — DER SPIEGEL - Schlagzeilen",
+   "lean": "left",
+   "date": "2026-11-04",
+   "category": "news"
+  },
+  {
+   "text": "Karetsas Toiletten-Pause: \"Wollte ihn einwechseln, er war nicht da\" — Beinahe hätte sich die Einwechslung von Konstantinos Karetsas nochmal verzögert, da der Grieche in den Katakomben verschwunden war. Im Nachhinein konnte Niko Kovac über die Situation scherzen.",
+   "source": "Kicker — Champions League",
+   "lean": "center",
+   "date": "2026-11-04",
+   "category": "sport"
+  },
+  {
+   "text": "Erinnern Sie sich? Diese Handymarken waren früher Kult — Nokia, BlackBerry und Co. waren einst Kult. Heute sind viele dieser Handymarken fast vergessen – doch ihre Geschichten bleiben.",
+   "source": "teltarif.de",
+   "lean": "unknown",
+   "date": "2026-11-04",
+   "category": "tech"
+  },
+  {
+   "text": "Die Karibik erliegt Infantinos Verlockungen — Weitere Unterstützung für FIFA-Präsident Gianni Infantino im Machtkampf um seine Wiederwahl: Die Karibik steht geschlossen hinter ihm.",
+   "source": "Sportschau (ARD)",
+   "lean": "center",
+   "date": "2026-11-06",
+   "category": "sport"
+  },
+  {
+   "text": "Jahrestag - Evangelische Kirche stellt eigene Rolle bei der Wiedervereinigung infrage",
+   "source": "deutschlandfunk.de",
+   "lean": "unknown",
+   "date": "2026-11-06",
+   "category": "global"
+  },
+  {
+   "text": "Was koche ich heute? So bringen Kochprofis Abwechslung auf den Teller — Wenn Sterneköche auf Omas Geheimrezepte treffen und orientalische Aromen mit Gemüseküche flirten, gibt es zum 15. Geburtstag von SPAR Mahlzeit! 60 Rezepte voller Genuss.",
+   "source": "kurier.at",
+   "lean": "unknown",
+   "date": "2026-11-06",
+   "category": "global"
+  },
+  {
+   "text": "Stephen Miller: Trumps Hardliner übernimmt Posten als Stabschef — Machtwechsel im Weißen Haus: Trumps ultra-rechter Einpeitscher Stephen Miller steigt noch höher in den Rängen des Weißen Hauses auf. Bereits ab Montag soll er den Posten von Stabschefin Susie Wiles übernehmen, die bei Tr",
+   "source": "manager magazin",
+   "lean": "center",
+   "date": "2026-11-06",
+   "category": "economy"
+  },
+  {
+   "text": "Österreich: 61-jähriger Deutscher stirbt bei Wingsuit-Unfall — Er galt als erfahren, doch nach dem Absprung brach der Kontakt ab: Ein deutscher Wingsuit-Flieger ist in Österreich tödlich verunglückt. Er wurde leblos auf einer Wiese aufgefunden.",
+   "source": "Der Spiegel — DER SPIEGEL - Panorama (index.rss)",
+   "lean": "left",
+   "date": "2026-11-08",
+   "category": "news"
+  },
+  {
+   "text": "HSV: Extraklasse und neue Qualität — Der Hamburger SV profitierte beim 3:1 gegen Mönchengladbach von der Extraklasse seiner Ausnahmekönner Albert Grönbaek und Albert Sambi Lokonga. In den kommenden Tagen kommt beim HSV sogar noch mehr Qualität dazu.",
+   "source": "Kicker — Aktuell",
+   "lean": "center",
+   "date": "2026-11-08",
+   "category": "sport"
+  },
+  {
+   "text": "Zwischen Bundeshaus und Lasagne bleibt bei Büsser der Biss auf der Strecke — Bei einem Pärchen wird Lasagne gestohlen, in den USA sorgt ein prominentes «Füdli» für Wahlkampf. Stefan Büsser hat dankbare Vorlagen – aber nur wenige verwandelt er in gute Pointen.",
+   "source": "Luzerner Zeitung",
+   "lean": "unknown",
+   "date": "2026-11-08",
+   "category": "global"
+  },
+  {
+   "text": "Kino: Wer braucht schon Kontext? — Der deutsche Regisseur Michal Kosakowski für seinen Film »Holofiction« in Kleinarbeit aus circa 3.000 Spielfilmen und Serien eine Collage dessen zusammengesetzt, was er als »Ikonographie des Holocaust im Spielfilm« bezei",
+   "source": "junge Welt",
+   "lean": "unknown",
+   "date": "2026-11-08",
+   "category": "global"
+  },
+  {
+   "text": "Thomas Markle entfernte seine Fußfessel - Vater von Meghan wieder festgenommen — Tampa (USA) – Erst wurde er festgenommen, dann durfte er unter Auflagen wieder gehen. Doch jetzt sitzt Thomas Markle erneut in Gewah...",
+   "source": "Bild — Unterhaltung",
+   "lean": "unknown",
+   "date": "2026-11-10",
+   "category": "entertainment"
+  },
+  {
+   "text": "Box-Abend mit Roman Fress gegen Armend Xhoxhaj — Bei der SES-Box-Gala in Magdeburg kämpft Roman Fress gegen Armend Xhoxhaj. Der ganze Boxabend im Sportschau-Livestream.",
+   "source": "Sportschau (ARD)",
+   "lean": "center",
+   "date": "2026-11-10",
+   "category": "sport"
+  },
+  {
+   "text": "Pete Hegseth: US-Repräsentantenhaus lehnt Amtsenthebungsverfahren ab — Nach dem Wahldebakel der Republikaner sahen Gegner von US-Verteidigungsminister Hegseth eine neue Gelegenheit, ihn loszuwerden. Doch im Repräsentantenhaus scheitert jetzt ein Vorstoß zur Amtsenthebung.",
+   "source": "Sächsische Zeitung",
+   "lean": "center",
+   "date": "2026-11-10",
+   "category": "general"
+  },
+  {
+   "text": "Cisco-Aktie: KI-Geschäft explodiert – Prognose angehoben – Aktie stark — Cisco hat am Donnerstag nach US-Börsenschluss starke Quartalszahlen vorgelegt und die Erwartungen der Analysten übertroffen. Besonders das Geschäft mit KI-Infrastruktur entwickelt sich zum Wachstumstreiber. Der Netzwerka",
+   "source": "DER AKTIONÄR",
+   "lean": "unknown",
+   "date": "2026-11-12",
+   "category": "economy"
+  },
+  {
+   "text": "Tyler Cameron vom Verlust seines Vaters bis heute geprägt — Der finanzielle Absturz seiner Familie beschäftigt Tyler Cameron (33) bis heute. Sein Vater verlor damals sein gesamtes Vermögen, weshalb die Familie auch ihr geliebtes Haus am Wasser aufgeben musste. Wie der Realitystar",
+   "source": "Promiflash (DE)",
+   "lean": "center",
+   "date": "2026-11-12",
+   "category": "general"
+  },
+  {
+   "text": "\"Geht mir gut\": Lionel Richie nach Herz-Eingriff wieder auf der Bühne",
+   "source": "RTL.de — Unterhaltung",
+   "lean": "center",
+   "date": "2026-11-12",
+   "category": "entertainment"
+  },
+  {
+   "text": "Trump bekräftigt Interesse an Machtwechsel auf Kuba — Donald Trump sprach schon häufiger von einer Militärintervention auf Kuba. Jetzt setzt sich der US-Präsident eine Frist.",
+   "source": "web.de",
+   "lean": "unknown",
+   "date": "2026-11-12",
+   "category": "global"
+  },
+  {
+   "text": "Nach Trainerentlassung: Hersfelder Handballer siegen im Kellerduell der Regionalliga — Mehr als 500 Zuschauer in der Bad Hersfelder Geistalhalle waren restlos begeistert: Die Handballer des TV Hersfeld haben im Kellerduell der Regionalliga gegen Vellmar Charakter gezeigt und mit 30:22 gewonnen.",
+   "source": "HNA",
+   "lean": "unknown",
+   "date": "2026-11-14",
+   "category": "global"
+  },
+  {
+   "text": "+++ Iran-Krieg +++: Drei Öltanker in Straße von Hormus nach Minenkontakt in Brand — Iran lehnt Gespräche zu Atominspektionen ab +++ IAEA besorgt über iranische Urananreicherungsanlage in Isfahan +++ Irans Revolutionsgarden greifen US-Radar in Bahrain an +++ Der Newsblog.",
+   "source": "Handelsblatt — Politik",
+   "lean": "center",
+   "date": "2026-11-14",
+   "category": "economy"
+  }
+ ],
+ "built": "2026-11-23",
+ "source_db": "Echolot MCP get_news (https://echolotnews.com/mcp), published_at szerinti napok",
+ "build_rule": "get_news(limit=100, diversify, max_per_source=3, place=ország) minden 2. napra; title>15, LEAK_RE-szűrő, cím-dedupe, lead 220 kar., MAXN=60 lean-cap (arányos kvóta + domináns lean <=60% + dátum-stride) — a júliusi sample_cell"
+}

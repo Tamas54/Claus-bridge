@@ -1,0 +1,558 @@
+{
+ "country": "US",
+ "lang": "en",
+ "target_month": "2026-08",
+ "corpus_window": [
+  "2026-07-08",
+  "2026-08-07"
+ ],
+ "days_sampled": [
+  "2026-07-08",
+  "2026-07-10",
+  "2026-07-12",
+  "2026-07-14",
+  "2026-07-16",
+  "2026-07-18",
+  "2026-07-20",
+  "2026-07-22",
+  "2026-07-24",
+  "2026-07-26",
+  "2026-07-28",
+  "2026-07-30",
+  "2026-08-01",
+  "2026-08-03",
+  "2026-08-05",
+  "2026-08-07"
+ ],
+ "n": 60,
+ "lean_dist": {
+  "unknown": 19,
+  "center": 21,
+  "center_left": 3,
+  "gov": 1,
+  "right": 9,
+  "left": 6,
+  "center_right": 1
+ },
+ "cat_dist": {
+  "tech": 2,
+  "sport": 10,
+  "foreign": 9,
+  "global": 19,
+  "news": 1,
+  "economy": 3,
+  "general": 6,
+  "entertainment": 2,
+  "politics": 8
+ },
+ "raw_rows": 1564,
+ "pool_after_dedupe": 1494,
+ "leak_dropped": 1,
+ "distinct_sources_raw": 180,
+ "raw_cat_dist": {
+  "sport": 221,
+  "global": 472,
+  "foreign": 289,
+  "economy": 109,
+  "general": 197,
+  "tech": 37,
+  "entertainment": 53,
+  "news": 7,
+  "science": 2,
+  "politics": 164,
+  "lifestyle": 10,
+  "culture": 3
+ },
+ "per_day": {
+  "2026-07-08": {
+   "returned": 91,
+   "pool": 500
+  },
+  "2026-07-10": {
+   "returned": 94,
+   "pool": 500
+  },
+  "2026-07-12": {
+   "returned": 79,
+   "pool": 500
+  },
+  "2026-07-14": {
+   "returned": 100,
+   "pool": 500
+  },
+  "2026-07-16": {
+   "returned": 100,
+   "pool": 500
+  },
+  "2026-07-18": {
+   "returned": 100,
+   "pool": 500
+  },
+  "2026-07-20": {
+   "returned": 100,
+   "pool": 500
+  },
+  "2026-07-22": {
+   "returned": 100,
+   "pool": 500
+  },
+  "2026-07-24": {
+   "returned": 100,
+   "pool": 500
+  },
+  "2026-07-26": {
+   "returned": 100,
+   "pool": 500
+  },
+  "2026-07-28": {
+   "returned": 100,
+   "pool": 500
+  },
+  "2026-07-30": {
+   "returned": 100,
+   "pool": 500
+  },
+  "2026-08-01": {
+   "returned": 100,
+   "pool": 500
+  },
+  "2026-08-03": {
+   "returned": 100,
+   "pool": 500
+  },
+  "2026-08-05": {
+   "returned": 100,
+   "pool": 500
+  },
+  "2026-08-07": {
+   "returned": 100,
+   "pool": 500
+  }
+ },
+ "mcp_errors": 0,
+ "items": [
+  {
+   "text": "AI Costs Lead Westpac to Prod Staff Toward ‘Sensible’ Model Use — Westpac Banking Corp. is intensifying efforts to monitor artificial intelligence costs, as the Australian lender closely tracks AI tokens across the firm and routes simpler tasks to cheaper models.",
+   "source": "Bloomberg Technology",
+   "lean": "unknown",
+   "date": "2026-07-08",
+   "category": "tech"
+  },
+  {
+   "text": "2026 Scottish Open odds, picks, date: Surprising predictions by golf model that's nailed 17 majors — SportsLine's model simulated the Genesis Scottish Open 2026 10,000 times and revealed surprising golf picks",
+   "source": "CBS Sports — Headlines",
+   "lean": "center",
+   "date": "2026-07-08",
+   "category": "sport"
+  },
+  {
+   "text": "Linda Noskova vs. Marta Kostyuk odds, prediction: 2026 Wimbledon ladies' semifinal picks by proven expert — SportsLine's Jose Onorato reveals his picks for the 2026 Wimbledon ladies' semifinal featuring Marta Kostyuk vs. Linda Noskova on Thursday",
+   "source": "CBS Sports — Headlines",
+   "lean": "center",
+   "date": "2026-07-08",
+   "category": "sport"
+  },
+  {
+   "text": "Animals seized in cruelty cases can be stuck in shelters for months. New bill aims to change that — A bill supported by L.A. County Dist. Atty. Nathan Hochman seeks to help place abused animals with a foster home or rescue group.",
+   "source": "Los Angeles Times (Local)",
+   "lean": "center_left",
+   "date": "2026-07-08",
+   "category": "foreign"
+  },
+  {
+   "text": "RT The White House: President Donald J. Trump lands at RAF Mildenhall in England aboard the former Air Force One before departing back to the United S... — RT The White House President Donald J. Trump lands at RAF Mildenhall in England aboard the former Air Force One before departing back to the United States. 🇺🇸 The White House: \"We just landed and met up with our new Air",
+   "source": "POTUS (X)",
+   "lean": "gov",
+   "date": "2026-07-08",
+   "category": "foreign"
+  },
+  {
+   "text": "A Way Out of the Iran Mess — The president has to choose between four options on the Strait of Hormuz. None of them are pain-free, writes Aaron MacLean.",
+   "source": "The Free Press (Bari Weiss)",
+   "lean": "right",
+   "date": "2026-07-08",
+   "category": "global"
+  },
+  {
+   "text": "Can the United States Hold On? — Our July 4 bash was troubled, and America may go the way of the Ghaznavid Empire. But here are reasons to be more positive.",
+   "source": "The New York Times — Nicholas Kristof",
+   "lean": "left",
+   "date": "2026-07-08",
+   "category": "news"
+  },
+  {
+   "text": "MGM Resorts Engaged in Deal Talks With Diller, WSJ Says — MGM Resorts International is engaged in deal talks with Barry Diller’s People Inc. after the entertainment mogul offered to acquire the part of the casino company he doesn’t already own, the Wall Street Journal reported.",
+   "source": "Bloomberg Markets",
+   "lean": "unknown",
+   "date": "2026-07-10",
+   "category": "economy"
+  },
+  {
+   "text": "Suits btw big corps often don't have clear good guys and bad guys. But what's alleged here certainly sounds v on brand for what i understnad… — Suits btw big corps often don't have clear good guys and bad guys. But what's alleged here certainly sounds v on brand for what i understnad of the internal culture of OpenAI https://www.nytimes.com/2026/07/10/technology",
+   "source": "Bluesky probe (journalism account)",
+   "lean": "center",
+   "date": "2026-07-10",
+   "category": "global"
+  },
+  {
+   "text": "Former Heat teammates reportedly involved in Las Vegas altercation — Former Heat teammates Adebayo, Herro reportedly involved in Las Vegas altercation following social media comments",
+   "source": "Las Vegas Review-Journal",
+   "lean": "center_right",
+   "date": "2026-07-10",
+   "category": "foreign"
+  },
+  {
+   "text": "Gas station employee masturbated in front of customers, cops say — He performed the act in front of customers on at least three occasions, authorities said.",
+   "source": "NJ.com / Star-Ledger",
+   "lean": "center",
+   "date": "2026-07-10",
+   "category": "foreign"
+  },
+  {
+   "text": "Mohamed Diawara doesn’t sugarcoat Summer League dud as he fights for Knicks rotation spot — Mohamed Diawara wasn’t in the mood to talk about his new contract. Or his potential.",
+   "source": "New York Post",
+   "lean": "right",
+   "date": "2026-07-10",
+   "category": "general"
+  },
+  {
+   "text": "Troy reliever selected by Kansas City Royals in MLB draft — Dylan Alonso led Trojans in saves in 2026",
+   "source": "AL.com (Alabama)",
+   "lean": "center",
+   "date": "2026-07-12",
+   "category": "foreign"
+  },
+  {
+   "text": "Jordan Walsh reacts to losing mentor in Jaylen Brown trade to Sixers — Jaylen Brown took Jordan Walsh under his wing the past couple seasons in Boston.",
+   "source": "MassLive (Massachusetts)",
+   "lean": "center",
+   "date": "2026-07-12",
+   "category": "foreign"
+  },
+  {
+   "text": "Polymarket promo code ALCOM: Guaranteed $50 bonus to trade MLB All-Star Game — Use the Polymarket promo code ALCOM to claim a $50 bonus for the MLB All-Star Game at Citizens Bank Park in Philadelphia, Pennsylvania, on Tuesday, July 14.",
+   "source": "AL.com (Alabama)",
+   "lean": "center",
+   "date": "2026-07-14",
+   "category": "foreign"
+  },
+  {
+   "text": "California Attorney General Prepares a Ballot Summary for Proposed Initiative that would Repeal Top-Two System — On July 14, the California Attorney General released his summary of the proposed initiative that would repeal the top-two system. This is what would appear on the ballot, if the initiative gets enough valid signatures. P",
+   "source": "Ballot Access",
+   "lean": "unknown",
+   "date": "2026-07-14",
+   "category": "global"
+  },
+  {
+   "text": "Number of UES buildings with positive Legionella tests more than doubles since preliminary findings — One of these buildings is likely responsible for an outbreak of Legionnaires’ disease that has sickened 60 people so far, city health officials say. [ more › ]",
+   "source": "Gothamist (NYC / WNYC)",
+   "lean": "center_left",
+   "date": "2026-07-14",
+   "category": "foreign"
+  },
+  {
+   "text": "Joy Reid goes on vile tirade about Lindsey Graham after GOP senator’s sudden death at 71 — \"You sold your soul to the devil, and now you get to meet him in person.\"",
+   "source": "New York Post",
+   "lean": "right",
+   "date": "2026-07-14",
+   "category": "general"
+  },
+  {
+   "text": "This Utah Home Was Inspired by Australia’s Sweeping Desert Landscape — AD PRO Directory designer Susannah Holmberg transforms a dated 1990s residence into a cozy refuge",
+   "source": "Architectural Digest",
+   "lean": "unknown",
+   "date": "2026-07-16",
+   "category": "entertainment"
+  },
+  {
+   "text": "China’s AI Ascendance Gives Xi a Stage and a Security Dilemma — The rise of China’s AI models is handing President Xi Jinping new bragging rights and a stronger claim to shaping the technology’s global rules, even as their growing power stirs security alarm in Washington and Beijing",
+   "source": "Bloomberg Technology",
+   "lean": "unknown",
+   "date": "2026-07-16",
+   "category": "tech"
+  },
+  {
+   "text": "OG Anunoby Wins ESPY For Best Play — As a lifelong N.Y. Knicks fan, this moment was insane. In their conference final game one series against Cleveland, the Knicks pulled off a remarkable 22-point comeback with less than 9 minutes remaining , but being down",
+   "source": "Crooks and Liars",
+   "lean": "left",
+   "date": "2026-07-16",
+   "category": "global"
+  },
+  {
+   "text": "Iceberg lettuce sold at Taco Bell linked to cyclospora outbreak",
+   "source": "Yahoo News",
+   "lean": "center",
+   "date": "2026-07-16",
+   "category": "global"
+  },
+  {
+   "text": "Our rights extend beyond verbs. On freedom of speech and freedom to read — Randy Evans is executive director of the Iowa Freedom of Information Council, a nonpartisan, nonprofit organization that promotes openness and transparency in Iowa’s state and local governments. He can be reached at DMRe",
+   "source": "Bleeding Heartland",
+   "lean": "unknown",
+   "date": "2026-07-18",
+   "category": "politics"
+  },
+  {
+   "text": "Dricus du Plessis overwhelms Kamaru Usman in UFC Oklahoma City main event — Dricus du Plessis believes he did enough to warrant another UFC title shot. The former UFC middleweight champion showed his entire game en route to a comfortable unanimous decision victory (50-45, 49-46 x2) over UFC midd",
+   "source": "MMA Fighting",
+   "lean": "center",
+   "date": "2026-07-18",
+   "category": "sport"
+  },
+  {
+   "text": "Trump has ordered US CENTCOM to open ‘the gates of hell’ upon Iran after US casualties in Jordan…",
+   "source": "Revolver News",
+   "lean": "right",
+   "date": "2026-07-18",
+   "category": "politics"
+  },
+  {
+   "text": "UFC Oklahoma City ‘Du Plessis vs. Usman’ play-by-play, results & round scoring — Sherdog's live UFC Oklahoma City coverage will begin Saturday at 5 p.m. ET/2 p.m. PT. The event is also known as UFC Fight Night 281.",
+   "source": "Yahoo Sports",
+   "lean": "center",
+   "date": "2026-07-18",
+   "category": "sport"
+  },
+  {
+   "text": "Denver7, Les Schwab Tire Centers and A Precious Child team up to fill backpacks for Aurora students — Aurora Central High School is distributing 300 donated backpacks filled with school supplies to students, many of whom are refugees or newcomers facing financial hardship",
+   "source": "Denver7",
+   "lean": "unknown",
+   "date": "2026-07-20",
+   "category": "global"
+  },
+  {
+   "text": "Pentagon’s budget troubles reverberate across the Atlantic",
+   "source": "Politico — Defense",
+   "lean": "center",
+   "date": "2026-07-20",
+   "category": "politics"
+  },
+  {
+   "text": "DHS Fines 103K Illegal Migrants a Total of $84 Billion — The Department of Homeland Security has levied fines worth $84 billion against 103,000 illegal migrants, says the New York Times.",
+   "source": "Breitbart",
+   "lean": "right",
+   "date": "2026-07-22",
+   "category": "global"
+  },
+  {
+   "text": "Bad things come in threes — A cartoon by Pedro Molina.",
+   "source": "Daily Kos",
+   "lean": "left",
+   "date": "2026-07-22",
+   "category": "global"
+  },
+  {
+   "text": "Books About Making Of Christopher Nolan’s ‘The Odyssey’ Will Be Out Soon — Two books highlighting the making of Christopher Nolan’s adaptation of Homer’s epic \"The Odyssey\" are being produced by Insight Editions for late summer and fall releases.",
+   "source": "Forbes",
+   "lean": "unknown",
+   "date": "2026-07-22",
+   "category": "economy"
+  },
+  {
+   "text": "Rays reach deal with No. 2 overall pick Emerson for $9.75M (source)",
+   "source": "MLB.com (official)",
+   "lean": "center",
+   "date": "2026-07-22",
+   "category": "sport"
+  },
+  {
+   "text": "ValleyCats get swept by Ottawa in doubleheader — Tri-City pitchers issued a combined 23 walks on Wednesday while losing 16-4 in the first game of the doubleheader and 10-1 in the second game.",
+   "source": "Times Union",
+   "lean": "unknown",
+   "date": "2026-07-22",
+   "category": "global"
+  },
+  {
+   "text": "Silicon schlock market — A cartoon by Brian McFadden.",
+   "source": "Daily Kos",
+   "lean": "left",
+   "date": "2026-07-24",
+   "category": "general"
+  },
+  {
+   "text": "Trump returns to White House Correspondents’ dinner after April assassination attempt — The president gets a second chance to deliver remarks at the annual dinner after the original program was derailed in April.",
+   "source": "MS NOW",
+   "lean": "unknown",
+   "date": "2026-07-24",
+   "category": "politics"
+  },
+  {
+   "text": "Malia Baker on Returning to ‘Descendants’ and Her Dream Roles — Baker reflects on returning to Auradon, welcoming a new wave of castmates, the whirlwind of connecting with fans on tour and why playing Chloe has inspired her.",
+   "source": "The Hollywood Reporter",
+   "lean": "center",
+   "date": "2026-07-24",
+   "category": "entertainment"
+  },
+  {
+   "text": "How LeBron’s career led him to the Sixers — and how he performed at each stop along the way — LeBron James' is entering his 24th NBA season. Here's a look back at how he fared at each of his previous stops before joining the Sixers.",
+   "source": "The Philadelphia Inquirer",
+   "lean": "center_left",
+   "date": "2026-07-24",
+   "category": "sport"
+  },
+  {
+   "text": "Yankees vs. Phillies prediction, odds, time: 2026 MLB picks for Sunday Night Baseball by proven model — SportsLine's model simulated New York Yankees vs. Philadelphia Phillies 10,000 times and revealed its MLB predictions and Sunday Night Baseball picks",
+   "source": "CBS Sports — Headlines",
+   "lean": "center",
+   "date": "2026-07-26",
+   "category": "sport"
+  },
+  {
+   "text": "Islam’s Plan for the Decolonizattion of the West — The World Decolonization Forum is an international forum to discuss decolonization, global justice, and the legacy of colonialism. The event brings together globalist academics, activists, politicians, and civil society",
+   "source": "Independent Sentinel",
+   "lean": "unknown",
+   "date": "2026-07-26",
+   "category": "global"
+  },
+  {
+   "text": "Andruw Jones served as the Curaçao inspiration he knew he could be on path to Hall of Fame — Maybe the Yankees, who still can tell you what he did in Game 1 of the 1996 World Series, and the Mets can blame one of their own for Andruw Jones.",
+   "source": "New York Post",
+   "lean": "right",
+   "date": "2026-07-26",
+   "category": "general"
+  },
+  {
+   "text": "Former Timberwolves forward nears EuroLeague contract amid NBA free agency — After four NBA seasons between the Utah Jazz and the Minnesota Timberwolves, Johnny Juzang is nearing a EuroLeague contract.",
+   "source": "Yahoo Sports",
+   "lean": "center",
+   "date": "2026-07-26",
+   "category": "sport"
+  },
+  {
+   "text": "CBS’ ’60 minutes’ announces new slate of correspondents for upcoming 59th season — NEW YORK (AP) — Two months after a major shakeup, CBS’s “60 Minutes” has hired a lineup of new correspondents and contributors in time for its 59th season, including Ross Douthat, a conservative opinion columnist at The",
+   "source": "KTAR.com",
+   "lean": "unknown",
+   "date": "2026-07-28",
+   "category": "global"
+  },
+  {
+   "text": "Teen lifeguard invited to White House after viral Santa Cruz rescue",
+   "source": "NBC Bay Area",
+   "lean": "unknown",
+   "date": "2026-07-28",
+   "category": "global"
+  },
+  {
+   "text": "‘Section 415’ podcast: The Giants pivot from a Hall of Fame party to the trade deadline — Buster Posey could be enshrined in Cooperstown next summer. For now, he’s focused on giving the Giants a chance to compete in 2027.",
+   "source": "The San Francisco Standard",
+   "lean": "center",
+   "date": "2026-07-28",
+   "category": "foreign"
+  },
+  {
+   "text": "Breitbart Business Digest: Wall Street Gasps as Kevin Warsh's Fed Abdicates Its Market Throne — Fed Chair Kevin Warsh wants the Federal Reserve to abdicate its role as king of the markets. No wonder the monetary monarchists on Wall Street and beyond are horrified.",
+   "source": "Breitbart",
+   "lean": "right",
+   "date": "2026-07-30",
+   "category": "global"
+  },
+  {
+   "text": "Pleading the Fifth — A cartoon by Mike Luckovich.",
+   "source": "Daily Kos",
+   "lean": "left",
+   "date": "2026-07-30",
+   "category": "general"
+  },
+  {
+   "text": "Want a Yorkie? How about a huskie? San Diego Humane Society has too many",
+   "source": "NBC 7 San Diego",
+   "lean": "unknown",
+   "date": "2026-07-30",
+   "category": "global"
+  },
+  {
+   "text": "From ‘stay away’ to the bleachers: Deion Sanders visits Browns’ camp as Shedeur vies for starting QB — BEREA, Ohio — Shedeur Sanders asked his father, Pro Football Hall of Famer Deion Sanders, not to come to his first training camp with the Cleveland Browns last year.",
+   "source": "TribLIVE",
+   "lean": "unknown",
+   "date": "2026-07-30",
+   "category": "global"
+  },
+  {
+   "text": "Sara Gilson's Ex-Husband Covering Funeral Expenses After Her Murder — The late influencer Sara Gilson’s ex-husband, Lyle Landers, has offered to pay for her funeral in the wake of her death in an alleged murder-suicide plot carried out by her estranged second husband, Jeremiah “Shawn” Duff",
+   "source": "Us Weekly",
+   "lean": "center",
+   "date": "2026-07-30",
+   "category": "general"
+  },
+  {
+   "text": "Lewandowski scores twice in Chicago home debut — Robert Lewandowski scored two goals, including the winner, in his home debut for the Fire, helping Chicago beat Charlotte FC 2-1 on Saturday.",
+   "source": "ESPN — Soccer",
+   "lean": "center",
+   "date": "2026-08-01",
+   "category": "sport"
+  },
+  {
+   "text": "U.S. Military Begins Process of Handing Ukraine Military Assistance Lead to Europe — The Security Assistance Group (SAG) is a unit of NATO command operated in Germany that specifically focuses on the military training and development in support of Ukraine. The U.S. is transitioning out of SAG leadership",
+   "source": "The Last Refuge",
+   "lean": "right",
+   "date": "2026-08-01",
+   "category": "global"
+  },
+  {
+   "text": "Blanche Strikes Confirmation Deal With Cornyn, Tillis | Balance of Power: Late Edition 08/03/2026 — \"Balance of Power: Late Edition\" focuses on the intersection of politics and global business. On today's show, Ambassador James Jeffrey, Distinguished Fellow at the Washington Institute for Near East Policy and former US",
+   "source": "Bloomberg Politics",
+   "lean": "unknown",
+   "date": "2026-08-03",
+   "category": "economy"
+  },
+  {
+   "text": "good piece about how Jeff Stein of SpyTalk got a frivolous defamation suit tossed with the help of Substacks legal defense program https://w… — good piece about how Jeff Stein of SpyTalk got a frivolous defamation suit tossed with the help of Substacks legal defense program https://www.spytalk.co/p/how-i-beat-a-trump-officials-nasty?utm_source=post-email-title&p",
+   "source": "Bluesky probe (journalism account)",
+   "lean": "center",
+   "date": "2026-08-03",
+   "category": "politics"
+  },
+  {
+   "text": "Why Go After Fauci Now? — A couple of months ago, Ezra Klein said this : My pet theory right now is that President Trump is not trying to win the midterm elections. ... if he wanted to win the midterms, he’d be moving to the center. He’d be focus",
+   "source": "Crooks and Liars",
+   "lean": "left",
+   "date": "2026-08-03",
+   "category": "global"
+  },
+  {
+   "text": "Targeted: An NYC Congressman accused Poetica Coffee of Antisemitism — Bigotry Came to Avenge Him. — Poetica Coffee owner refused to take Representative Dan Goldman's money. Zionists death threats have flooded his coffee shops.",
+   "source": "The Indypendent",
+   "lean": "unknown",
+   "date": "2026-08-03",
+   "category": "global"
+  },
+  {
+   "text": "Anchorage Assembly calls off George Martinez investigation — The 6-5 vote halts attempts to potentially remove Martinez from the Assembly.",
+   "source": "Anchorage Daily News",
+   "lean": "center",
+   "date": "2026-08-05",
+   "category": "politics"
+  },
+  {
+   "text": "Midland Public Schools voters to decide 10-year sinking fund in November — Residents in the Midland Public Schools district will vote on a 1.5-mill, 10-year sinking fund on Nov. 3 after the MPS Board of Education approved the ballot proposal in a special meeting on Aug. 5.",
+   "source": "Our Midland",
+   "lean": "unknown",
+   "date": "2026-08-05",
+   "category": "politics"
+  },
+  {
+   "text": "Odd Story – Explosive Drones Discovered at Leipzig/Halle Airport in Germany — I’m just making a note on this story because it seems to align with other events in the ongoing Ukraine vs Russia narrative assembly, recently discussed. The initial story, usually the most accurate {source}, stated that",
+   "source": "The Last Refuge",
+   "lean": "right",
+   "date": "2026-08-05",
+   "category": "politics"
+  },
+  {
+   "text": "2026 Wyndham Championship: Beau Hossler retains lead as playoff picture gets clearer entering the weekend — Beau Hossler is one of many who need a win this week to make the FedEx Cup Playoffs",
+   "source": "CBS Sports — Headlines",
+   "lean": "center",
+   "date": "2026-08-07",
+   "category": "sport"
+  },
+  {
+   "text": "Federal court blocks Trump administration's new rules for homelessness funding",
+   "source": "NBC Bay Area",
+   "lean": "unknown",
+   "date": "2026-08-07",
+   "category": "global"
+  }
+ ],
+ "built": "2026-11-23",
+ "source_db": "Echolot MCP get_news (https://echolotnews.com/mcp), published_at szerinti napok",
+ "build_rule": "get_news(limit=100, diversify, max_per_source=3, place=ország) minden 2. napra; title>15, LEAK_RE-szűrő, cím-dedupe, lead 220 kar., MAXN=60 lean-cap (arányos kvóta + domináns lean <=60% + dátum-stride) — a júliusi sample_cell"
+}

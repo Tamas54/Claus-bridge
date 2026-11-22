@@ -1,0 +1,554 @@
+{
+ "country": "FR",
+ "lang": "fr",
+ "target_month": "2026-09",
+ "corpus_window": [
+  "2026-08-15",
+  "2026-09-14"
+ ],
+ "days_sampled": [
+  "2026-08-15",
+  "2026-08-17",
+  "2026-08-19",
+  "2026-08-21",
+  "2026-08-23",
+  "2026-08-25",
+  "2026-08-27",
+  "2026-08-29",
+  "2026-08-31",
+  "2026-09-02",
+  "2026-09-04",
+  "2026-09-06",
+  "2026-09-08",
+  "2026-09-10",
+  "2026-09-12",
+  "2026-09-14"
+ ],
+ "n": 60,
+ "lean_dist": {
+  "unknown": 9,
+  "right": 3,
+  "center": 35,
+  "center_left": 5,
+  "center_right": 4,
+  "left": 4
+ },
+ "cat_dist": {
+  "entertainment": 8,
+  "politics": 8,
+  "tech": 4,
+  "general": 9,
+  "foreign": 15,
+  "sport": 10,
+  "global": 2,
+  "economy": 4
+ },
+ "raw_rows": 1172,
+ "pool_after_dedupe": 1122,
+ "leak_dropped": 0,
+ "distinct_sources_raw": 98,
+ "raw_cat_dist": {
+  "sport": 256,
+  "general": 140,
+  "politics": 105,
+  "economy": 73,
+  "foreign": 219,
+  "lifestyle": 44,
+  "entertainment": 133,
+  "global": 75,
+  "tech": 125,
+  "cars": 2
+ },
+ "per_day": {
+  "2026-08-15": {
+   "returned": 70,
+   "pool": 500
+  },
+  "2026-08-17": {
+   "returned": 77,
+   "pool": 500
+  },
+  "2026-08-19": {
+   "returned": 68,
+   "pool": 500
+  },
+  "2026-08-21": {
+   "returned": 72,
+   "pool": 500
+  },
+  "2026-08-23": {
+   "returned": 66,
+   "pool": 500
+  },
+  "2026-08-25": {
+   "returned": 74,
+   "pool": 500
+  },
+  "2026-08-27": {
+   "returned": 82,
+   "pool": 500
+  },
+  "2026-08-29": {
+   "returned": 75,
+   "pool": 500
+  },
+  "2026-08-31": {
+   "returned": 77,
+   "pool": 500
+  },
+  "2026-09-02": {
+   "returned": 75,
+   "pool": 500
+  },
+  "2026-09-04": {
+   "returned": 70,
+   "pool": 500
+  },
+  "2026-09-06": {
+   "returned": 70,
+   "pool": 500
+  },
+  "2026-09-08": {
+   "returned": 72,
+   "pool": 500
+  },
+  "2026-09-10": {
+   "returned": 77,
+   "pool": 500
+  },
+  "2026-09-12": {
+   "returned": 74,
+   "pool": 500
+  },
+  "2026-09-14": {
+   "returned": 73,
+   "pool": 500
+  }
+ },
+ "mcp_errors": 0,
+ "items": [
+  {
+   "text": "Jon Snow et Rhaenyra, le lien Targaryen enfin simple à suivre — Entre House of the Dragon et Game of Thrones, près de 200 ans passent. Pourtant, le lien entre Jon Snow et Rhaenyra tient en une lignée assez nette.",
+   "source": "Begeek",
+   "lean": "unknown",
+   "date": "2026-08-15",
+   "category": "entertainment"
+  },
+  {
+   "text": "Gabriel Attal appelle à un référendum sur l'interdiction des réseaux aux moins de 15 ans — Le candidat Renaissance à la présidentielle, Gabriel Attal, a appelé samedi le président Emmanuel Macron à soumettre à référendum l'interdiction des réseaux sociaux aux moins de 15 ans, après la censure par le Conseil co",
+   "source": "CNews",
+   "lean": "right",
+   "date": "2026-08-15",
+   "category": "politics"
+  },
+  {
+   "text": "Se marier avec une IA n’est plus un film : ce risque pour votre vie privée et votre portefeuille — Et si l’intelligence artificielle devenait un partenaire de vie au point de pouvoir se marier avec elle ? Une chercheuse de Harvard s’est penchée sur cette possibilité à l’heure où les IA pourraient, dans un futur hypoth",
+   "source": "Futura-Sciences",
+   "lean": "center",
+   "date": "2026-08-15",
+   "category": "tech"
+  },
+  {
+   "text": "Accident à Montigny-le-Tilleul : le conducteur de la voiture, seule en cause, a été blessé — Un accident impliquant un seul véhicule s’est produit ce samedi, aux alentours de 17 heures, à Montigny-le-Tilleul. ...",
+   "source": "L'Avenir (Belgium)",
+   "lean": "center",
+   "date": "2026-08-15",
+   "category": "general"
+  },
+  {
+   "text": "Football (P4A): Marchin B, une équipe qui veut grandir — Sous la houlette de son nouveau coach Philippe Dizier, Marchin B aura des arguments à faire valoir en P4. ...",
+   "source": "L'Avenir (Belgium)",
+   "lean": "center",
+   "date": "2026-08-15",
+   "category": "foreign"
+  },
+  {
+   "text": "La Belgique fait face à l’un des pires incendies de son histoire — Un feu d’ampleur s’est déclaré vendredi 14 août dans le pays. Celui-ci s’est rapidement propagé en quelques heures jusqu’à brûler 2 700 hectares.",
+   "source": "Le HuffPost (FR)",
+   "lean": "center_left",
+   "date": "2026-08-15",
+   "category": "general"
+  },
+  {
+   "text": "Challenge 255: une collision en pleine course de camions fait six blessés — Six personnes ont subi des blessures après une collision entre deux véhicules lourds lors du Challenge 255, à Baie-du-Febvre, samedi.",
+   "source": "Le Journal de Montreal",
+   "lean": "center_right",
+   "date": "2026-08-15",
+   "category": "foreign"
+  },
+  {
+   "text": "Championnats d’Europe d’athlétisme : Jimmy Gressier décroche la médaille de bronze du 10 000 m — Le Français, champion du monde de la discipline, n’a rien pu faire face au Suédois Andreas Almgren, facile vainqueur, samedi. Mais s’adjuge tout de même, à 29 ans, le premier podium continental de sa carrière.",
+   "source": "Le Monde",
+   "lean": "left",
+   "date": "2026-08-15",
+   "category": "sport"
+  },
+  {
+   "text": "« On est venus presque plus en voisins qu’en pompiers » : l’entraide pour venir à bout de l’incendie monstre qui ravage l’Aragon — Parmi un contingent d’une centaine de renforts français, 23 pompiers du SDIS 64 sont venus aider l’Aragon à lutter contre l’un des pires feux de forêt jamais connu. Reportage.",
+   "source": "La République des Pyrénées",
+   "lean": "center",
+   "date": "2026-08-17",
+   "category": "foreign"
+  },
+  {
+   "text": "Espagne: le président de Ceuta menace Pedro Sanchez de faire appel à la justice face à la crise migratoire — Un peu plus de quinze jours après l’entrée massive de 70 000 migrants dans l’enclave espagnole de Ceuta, dans le nord du Maroc, son président, le conservateur Juan Jesus Vivas, hausse le ton contre Madrid et menace de sa",
+   "source": "RFI — Fil info (FR)",
+   "lean": "center",
+   "date": "2026-08-17",
+   "category": "foreign"
+  },
+  {
+   "text": "Nigeria: un influenceur arrêté après la saisie de 184 kilos de cocaïne — Au Nigeria, un influenceur populaire a été arrêté mercredi 19 août 2026, soupçonné d’être à la tête d’un réseau international de trafic de drogue. L’Agence nationale de lutte contre la drogue (NDLEA) affirme avoir remont",
+   "source": "RFI — Afrique",
+   "lean": "center",
+   "date": "2026-08-19",
+   "category": "foreign"
+  },
+  {
+   "text": "Euro Hockey Tour - Débuts réussis pour Shannon Miller avec la Suisse contre la Suède — La Suisse a réussi sa première sous la direction de sa nouvelle sélectionneuse Shannon Miller. Lara Stalder et ses coéquipières ont battu la Suède 4-2 à Kloten.",
+   "source": "RTS Sport (Switzerland)",
+   "lean": "center",
+   "date": "2026-08-19",
+   "category": "foreign"
+  },
+  {
+   "text": "Barrages de Ligue des champions : le Cetlic Glasgow et Bodø/Glimt prennent une option",
+   "source": "SOFOOT.com",
+   "lean": "unknown",
+   "date": "2026-08-19",
+   "category": "sport"
+  },
+  {
+   "text": "The Thing : John Carpenter relance enfin l’idée d’une suite possible — John Carpenter reparle d’une suite de The Thing. Le signal existe, mais il ressemble surtout à une promesse floue qui revient depuis des années.",
+   "source": "Begeek",
+   "lean": "unknown",
+   "date": "2026-08-21",
+   "category": "entertainment"
+  },
+  {
+   "text": "Victor Wegnez sur le partage face à l’Australie : “Je ne sais pas ce qu’on a fait au Bon Dieu” — Malgré une deuxième mi-temps très qualitative, les Belges n’ont pu éviter le partage face à l’Australie. ...",
+   "source": "La Libre Belgique",
+   "lean": "center_right",
+   "date": "2026-08-21",
+   "category": "sport"
+  },
+  {
+   "text": "Centre Parents-enfants du CHAUR: déjà une rencontre avec la partie patronale — Quelques heures seulement après que cinq infirmières du centre Parents-enfants du CHAUR aient lancé un cri d'alarme au Nouvelliste concernant leur département qui est «au bord du gouffre», des discussions ont eu lieu ven",
+   "source": "Le Soleil (Quebec)",
+   "lean": "center",
+   "date": "2026-08-21",
+   "category": "general"
+  },
+  {
+   "text": "Marion Rousse réagit pour la première fois à l’arrêt brutal de la carrière de son compagnon, Julian Alaphilippe : les photos qui en disent long — Julian Alaphilippe a pris la décision d'arrêter sa carrière de coureur à 34 ans. Sa compagne Marion Rousse vient de réagir à cette annonce sur Instagram.",
+   "source": "Public (FR)",
+   "lean": "center",
+   "date": "2026-08-21",
+   "category": "sport"
+  },
+  {
+   "text": "Poutine promet le chaos : frappes d’ampleur à venir ? - 23/08 — Chaque week-end, Jérémy Brossard vous accompagne de 22h à 00h dans BFM Grand Soir.",
+   "source": "BFMTV — 24/7",
+   "lean": "center",
+   "date": "2026-08-23",
+   "category": "foreign"
+  },
+  {
+   "text": "Belgian Cats: La Belgique s'incline nettement 95-67 face à Espagne en préparation à Tenerife — La Belgique a été nettement battue 95-67 par l'Espagne dans sa seconde rencontre du tournoi de préparation à la Coupe du monde de basketball féminin, dimanche soir à Tenerife (Canaries). ...",
+   "source": "DH Les Sports+ (La Derniere Heure)",
+   "lean": "center",
+   "date": "2026-08-23",
+   "category": "foreign"
+  },
+  {
+   "text": "EN DIRECT, guerre en Ukraine : Mykhaïlo Fedorov demande à Volodymyr Zelensky de s’expliquer sur la corruption dans son entourage — « Il est de sa responsabilité de nous dire à tous s’il était au courant ou non », a déclaré l’ancien ministre de la défense ukrainien, tout en refusant de « faire des suppositions ». Le Bureau national anticorruption ukr",
+   "source": "Le Monde",
+   "lean": "left",
+   "date": "2026-08-23",
+   "category": "politics"
+  },
+  {
+   "text": "On a revu “Desperate Housewives” sur Disney+, la série qui tentait encore de réconcilier les Amérique — Les aventures de Lynette, Susan, Bree et Gabrielle n’ont pas si mal vieilli. Toujours aussi cocasse et enlevée, la série de Marc Cherry est aussi le témoin d’une Amérique révolue, où progressistes et conservateurs se par",
+   "source": "Telerama",
+   "lean": "center_left",
+   "date": "2026-08-23",
+   "category": "entertainment"
+  },
+  {
+   "text": "Le gouvernement américain se dit prêt à révoquer jusqu'à 200 000 visas de demandeurs d'asile — Début août, le département d'Etat avait annoncé que depuis le retour au pouvoir de Donald Trump en janvier 2025, quelque 175 000 étrangers avaient vu leurs visas révoqués.",
+   "source": "France Info — À la une",
+   "lean": "center",
+   "date": "2026-08-25",
+   "category": "politics"
+  },
+  {
+   "text": "Été 2026 : \"Je l'assimile à un processus de deuil\", confie Jean-Marc Jancovici — L'été 2026 était-il le dernier avant la fin du monde ? L'ingénieur et fondateur de The Shift Project explique pourquoi rien ne sera plus jamais comme avant, mais aussi comment se mobiliser face aux changements qui s'impo",
+   "source": "France Info — À la une",
+   "lean": "center",
+   "date": "2026-08-25",
+   "category": "global"
+  },
+  {
+   "text": "Basket-ball (Coupe de Belgique): Huy s’offre les \"professionnelles\" de Braine — Malgré des absences, les Mosanes ont sorti l’équipe B des Castors pour s’offrir un beau match de gala. ...",
+   "source": "L'Avenir (Belgium)",
+   "lean": "center",
+   "date": "2026-08-25",
+   "category": "foreign"
+  },
+  {
+   "text": "Paris : accusé d’avoir agressé sexuellement une femme de 83 ans, un Soudanais récidiviste remis en liberté — Un homme de 27 ans, déjà condamné pour une agression sexuelle sur personne vulnérable et sous le coup d’une interdiction définitive du territoire français, comparaissait lundi à Paris pour l’agression sexuelle présumée d",
+   "source": "Le Journal du Dimanche (JDD)",
+   "lean": "right",
+   "date": "2026-08-25",
+   "category": "foreign"
+  },
+  {
+   "text": "Free tombe à son tour : après Netflix et Twitch, GTA 6 aurait fait une troisième victime — Free connaît une panne ce jeudi 27 août au soir, avec un pic de près de 400 signalements sur Downdetector vers 21 h 30. Le timing tombe pile pendant la diffusion de l'aperçu étendu de GTA 6, qui a déjà mis Netflix et Twi",
+   "source": "Frandroid",
+   "lean": "center",
+   "date": "2026-08-27",
+   "category": "tech"
+  },
+  {
+   "text": "Retraites, salaires, dette : les candidats à la présidentielle face au Medef pour leur premier grand débat — Le Medef a organisé jeudi 27 août le premier grand débat entre les principaux candidats à la présidentielle, dont Marine Le Pen et Jean-Luc Mélenchon. Ils ont été questionnés sur leur projet économique par des chefs d'en",
+   "source": "La Tribune",
+   "lean": "center",
+   "date": "2026-08-27",
+   "category": "politics"
+  },
+  {
+   "text": "FC Nantes : les Kita ouvriraient la porte à une vente, le nom de David Beckham reviendrait dans les discussions",
+   "source": "SOFOOT.com",
+   "lean": "unknown",
+   "date": "2026-08-27",
+   "category": "sport"
+  },
+  {
+   "text": "Penn Badgley revient déjà, mais pas vraiment comme on l’attendait — Un an après la fin de You, Penn Badgley prend la tête d’un nouveau thriller meurtrier. Sauf que cette fois, son rôle pourrait inverser tout ce qu’on attend de lui.",
+   "source": "Begeek",
+   "lean": "unknown",
+   "date": "2026-08-29",
+   "category": "entertainment"
+  },
+  {
+   "text": "Face aux vols et à l'approche des vendanges, les vignerons font appel à des agents de sécurité — Les vendanges ont commencé et elles s’annoncent décevantes. Alors les grappes attirent les convoitises. Pour éviter les vols, de plus en plus de vignerons font appel à des agents de sécurité.",
+   "source": "France Info — À la une",
+   "lean": "center",
+   "date": "2026-08-29",
+   "category": "economy"
+  },
+  {
+   "text": "Les notes d'Auxerre-Angers : El-Ouazzani guide le train du SCO, Diomandé et l'AJA restent à quai — Le nouvel attaquant d'Angers Amine El-Ouazzani, impliqué sur deux buts, a permis à Stéphane Gilli d'empocher son premier succès scoïste ce samedi, à Auxerre (3-1). Toujours fragile défensivement, à l'image de Sinaly Diom",
+   "source": "L'Equipe - Football",
+   "lean": "center",
+   "date": "2026-08-29",
+   "category": "sport"
+  },
+  {
+   "text": "Le Premier ministre de l’Ontario trouve la réponse parfaite après que Trump a décidé de renommer ce lac canadien — Sur les rives du Lac Ontario, que Trump souhaite renommer « Lac America », est désormais visible une immense pancarte « aujourd’hui et pour toujours ».",
+   "source": "Le HuffPost (FR)",
+   "lean": "center_left",
+   "date": "2026-08-29",
+   "category": "foreign"
+  },
+  {
+   "text": "LE CHOIX D'AMÉLIE ROSIQUE - Arrêts maladie: c'est vraiment \"open bar\" en France ? — Tous les soirs, les chroniques du 22h BFM font leur choix dans l'actualité.",
+   "source": "BFM Business — Économie",
+   "lean": "center",
+   "date": "2026-08-31",
+   "category": "general"
+  },
+  {
+   "text": "Budget 2027 : Sébastien Lecornu face au défi de trouver une majorité à l'Assemblée — À l'Assemblée nationale, le gouvernement de Sébastien Lecornu s'apprête à affronter une rentrée parlementaire sous tension. Avec un budget 2027 à faire adopter sans majorité, l'exécutif devra trouver des compromis avec l",
+   "source": "France Info — Politique",
+   "lean": "center",
+   "date": "2026-08-31",
+   "category": "politics"
+  },
+  {
+   "text": "Tuerie de Chevaline : des analyses en cours après la découverte d'une arme dans le lac d'Annecy — Un pistolet Luger découvert le 20 août au fond du lac d'Annecy par des touristes britanniques est en cours d'analyse pour établir un lien potentiel avec le quadruple meurtre de Chevaline en 2012. Le parquet de...",
+   "source": "L'Indépendant",
+   "lean": "center",
+   "date": "2026-08-31",
+   "category": "general"
+  },
+  {
+   "text": "Un nouveau Code pénal, mais pas encore une nouvelle justice — Un édito de François Mathieu. ...",
+   "source": "La Libre Belgique",
+   "lean": "center_right",
+   "date": "2026-08-31",
+   "category": "general"
+  },
+  {
+   "text": "Apologie du terrorisme : cinq rapporteurs spéciaux de l’ONU prennent la défense de Rima Hassan — Dans un courrier au gouvernement rendu public lundi, les rapporteurs expriment leurs « vives préoccupations » concernant l’eurodéputée « insoumise » d’origine palestinienne, qui est visée par plusieurs procédures judicia",
+   "source": "Le Monde — Politique",
+   "lean": "left",
+   "date": "2026-08-31",
+   "category": "politics"
+  },
+  {
+   "text": "Député genevois visé par la Cicad — La Coordination intercommunautaire contre l’antisémitisme et la diffamation (Cicad) attaque le député socialiste genevois Sylvain Thévoz en justice. Selon la Tribune de Genève, la coordination aurait intenté une action a",
+   "source": "Le Courrier",
+   "lean": "unknown",
+   "date": "2026-09-02",
+   "category": "general"
+  },
+  {
+   "text": "« Trois adieux » d’Isabel Coixet : vivre jusqu’au dernier souffle — L’actrice Alba Rohrwacher est magnifique dans le beau drame d’Isabel Coixet.",
+   "source": "Paris Match",
+   "lean": "center",
+   "date": "2026-09-02",
+   "category": "entertainment"
+  },
+  {
+   "text": "IA pratique : cinq manières d’utiliser ChatGPT Work dans votre business pour vous faire gagner du temps et faire des économies — Qu'il s'agisse de parcourir vos e-mails Gmail ou de repérer des conditions de prêt peu avantageuses, cet nouvel outil professionnel d’OpenAI peut devenir un assistant pratique dans la gestion de votre petite entreprise.",
+   "source": "ZDNet France",
+   "lean": "center",
+   "date": "2026-09-02",
+   "category": "tech"
+  },
+  {
+   "text": "Les Nuits de France Musique : Webradios du samedi 05 septembre 2026",
+   "source": "France Musique (Radio France)",
+   "lean": "center",
+   "date": "2026-09-04",
+   "category": "entertainment"
+  },
+  {
+   "text": "Des stages obligatoires rémunérés, promet Québec solidaire — Après Paul St-Pierre-Plamondon, le Saguenay était aussi sur l'horaire de tournée de Ruba Ghazal, vendredi.",
+   "source": "Le Soleil (Quebec)",
+   "lean": "center",
+   "date": "2026-09-04",
+   "category": "economy"
+  },
+  {
+   "text": "\"Voix de la faiblesse\" : Philippe et Le Pen s'écharpent sur X au sujet de l'Ukraine, la conversation dérape — Passe d'armes entre Marine Le Pen et Édouard Philippe ce vendredi 4 septembre sur X. À quelques mois de la présidentielle, les deux candidats se sont écharpés sur l'épineux sujet de la guerre en Ukraine.",
+   "source": "Linternaute.com",
+   "lean": "unknown",
+   "date": "2026-09-04",
+   "category": "politics"
+  },
+  {
+   "text": "ChatGPT : Sam Altman, patron d'OpenAI, offre sept montres ultra-exclusives à son Etat-major — Pour récompenser ses plus proches collaborateurs, Sam Altman, PDG d'OpenAI, éditeur de ChatGPT, a décidé de leur offrir une montre exceptionnelle à bien des égards : une Vanguart Orb. Après le succès, la récompense. Sept",
+   "source": "CNews",
+   "lean": "right",
+   "date": "2026-09-06",
+   "category": "tech"
+  },
+  {
+   "text": "Pourparlers à Kiev : des propositions américaines \"plus efficaces\", pour la présidence ukrainienne — Les émissaires américains Steve Witkoff et Jared Kushner ont rencontré dimanche à Kiev le président ukrainien Volodymyr Zelensky, dans le cadre d'une nouvelle tentative des États-Unis de mettre fin à quatre ans et demi d",
+   "source": "France 24 (FR)",
+   "lean": "center",
+   "date": "2026-09-06",
+   "category": "politics"
+  },
+  {
+   "text": "Bruno Genesio après la défaite de l'OM contre le Paris FC : « On s'est fait contrer comme une équipe de gamins » — Au micro de Ligue 1+, Bruno Genesio a déploré la passivité défensive de ses joueurs lors du match entre l'OM et le Paris FC (2-3), ce dimanche soir lors de la 3e journée.",
+   "source": "L'Equipe - Football",
+   "lean": "center",
+   "date": "2026-09-06",
+   "category": "sport"
+  },
+  {
+   "text": "Huit aéroports fermés après une éruption volcanique en Indonésie — 170 000 passagers sont restés bloqués et 1558 vols ont été retardés.",
+   "source": "Le Devoir (Canada)",
+   "lean": "center_left",
+   "date": "2026-09-06",
+   "category": "global"
+  },
+  {
+   "text": "Cyril Hanouna : Patrick Sébastien se lâche avec Shana Lousteau complètement déstabilisée en plein direct, sa réaction laisse à désirer — Ce 8 septembre 2026, Patrick Sébastien était invité sur le plateau de Tout beau, tout n9uf. L’humoriste n’a pas hésité une seconde à charrier l’animateur a sa nouvelle compagne, Shana Loustau.",
+   "source": "Closer France",
+   "lean": "center",
+   "date": "2026-09-08",
+   "category": "entertainment"
+  },
+  {
+   "text": "Lionel Messi devrait acheter un deuxième club en Espagne et prendre les commandes de l'Eldense, en 2e division — Déjà propriétaire de l'UE Cornella, club de 5e division espagnole, Lionel Messi devrait prochainement acquérir une équipe plus huppée. Selon les médias espagnols, il devrait en effet prendre le contrôle de l'Eldense, équ",
+   "source": "L'Equipe",
+   "lean": "center",
+   "date": "2026-09-08",
+   "category": "sport"
+  },
+  {
+   "text": "Chabot a été froissé par l'échange de Tkachuk — Le défenseur aurait très bien pu se passer de l'histoire Brady Tkachuk.",
+   "source": "Le Journal de Montreal",
+   "lean": "center_right",
+   "date": "2026-09-08",
+   "category": "foreign"
+  },
+  {
+   "text": "Le Real Madrid s’impose face à l’Inter Milan, Kylian Mbappé inscrit son 71ᵉ but en Ligue des champions — L’équipe de José Mouinho a livré le strict minimum, mardi soir, devant son public du Stade Santiago Bernabéu. Reste que les Merengue démarrent leur campagne européenne par une victoire.",
+   "source": "Le Monde — Football",
+   "lean": "left",
+   "date": "2026-09-08",
+   "category": "sport"
+  },
+  {
+   "text": "Mireille Mathieu, 80 ans, soutenue par son manager aux obsèques d'un ami — Mireille Mathieu s'est rendue aux obsèques d'un proche ami lundi 7 septembre. À ses côtés étaient présents deux de ses sœurs ainsi que son manager Hervé Marc.",
+   "source": "Linternaute.com",
+   "lean": "unknown",
+   "date": "2026-09-08",
+   "category": "entertainment"
+  },
+  {
+   "text": "Le Forum BFMTV – Vie chère : la colère monte — Revoir notre grande émission spéciale \"Forum BFMTV – Vie chère : la colère monte\" présentée par Maxime Switek ce jeudi 10 septembre sur BFMTV. Carburants : la flambée de trop ? Plein d'essence : bientôt un luxe ? Inflati",
+   "source": "BFMTV — 24/7",
+   "lean": "center",
+   "date": "2026-09-10",
+   "category": "economy"
+  },
+  {
+   "text": "Alexandre Yersin, de la Suisse au laboratoire de Louis Pasteur — De sa naissance à Morges, en Suisse, en 1863 à son départ pour l'Indochine en 1890 en passant par le laboratoire de Louis Pasteur, ce premier épisode des \"Inconnus de l'histoire\" diffusé en 1981 suit les débuts d'Alexand",
+   "source": "France Culture (Radio France)",
+   "lean": "center",
+   "date": "2026-09-10",
+   "category": "general"
+  },
+  {
+   "text": "À Dallas, J.D. Vance traite les démocrates de «parti de la haine» — «Ne livrez pas le pays à une bande de dingues», a tonné le vice-président.",
+   "source": "Le Devoir (Canada)",
+   "lean": "center_left",
+   "date": "2026-09-10",
+   "category": "foreign"
+  },
+  {
+   "text": "La librairie de l’éco – Samedi 12 septembre — Samedi 12 septembre, Emmanuel Lechypre a reçu Augustin Manchon professeur HEC et Dauphine, conseiller de dirigeants, Paule Boffa-Comby, présidente fondatrice de ReThink and Lead, Jean-Marc Daniel, professeur émérite à l'",
+   "source": "BFM Business — Économie",
+   "lean": "center",
+   "date": "2026-09-12",
+   "category": "economy"
+  },
+  {
+   "text": "Avant le scandale Greg Guillotin, Yolaine, une autre ex-compagne décrivait déjà l'enfer vécu — Visé par une plainte, Greg Guillotin voit son passé resurgir. Les déclarations d'une autre ex-compagne sur son ex toxique prennent un tout autre sens.",
+   "source": "Public (FR)",
+   "lean": "center",
+   "date": "2026-09-12",
+   "category": "general"
+  },
+  {
+   "text": "Ligue 1 – Encore un nul à Lorient mais pas de panique, Toulouse va transformer l’essai — Parce que ce nul à Lorient valait bien plus qu'un point.",
+   "source": "SOFOOT.com",
+   "lean": "unknown",
+   "date": "2026-09-12",
+   "category": "sport"
+  },
+  {
+   "text": "\"Le moment le plus terrifiant de ma vie\" : un officier américain raconte sa lutte de cinquante heures pour survivre dans les montagnes iraniennes — Il a passé 50 heures seul dans les montagnes iraniennes, grièvement blessé, à tenter d’échapper à ses poursuivants. Un aviateur américain raconte sa lutte pour survivre, après la destruction de son appareil en avril dern",
+   "source": "France Info — Monde",
+   "lean": "center",
+   "date": "2026-09-14",
+   "category": "foreign"
+  },
+  {
+   "text": "25 ans, une bascule : quand le Soleil semblait peut-être éteint… et révélait une nouvelle physique — La fin du XXe siècle a montré une connexion de plus en plus profonde entre la physique de l'infiniment petit et celle de l'infiniment grand. Cette connexion s'est poursuivie au cours du XXIe siècle, notamment en ce qui c",
+   "source": "Futura-Sciences",
+   "lean": "center",
+   "date": "2026-09-14",
+   "category": "foreign"
+  }
+ ],
+ "built": "2026-11-23",
+ "source_db": "Echolot MCP get_news (https://echolotnews.com/mcp), published_at szerinti napok",
+ "build_rule": "get_news(limit=100, diversify, max_per_source=3, place=ország) minden 2. napra; title>15, LEAK_RE-szűrő, cím-dedupe, lead 220 kar., MAXN=60 lean-cap (arányos kvóta + domináns lean <=60% + dátum-stride) — a júliusi sample_cell"
+}
