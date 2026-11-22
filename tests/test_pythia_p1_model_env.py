@@ -25,15 +25,22 @@ def test_pollster_default_model_is_hy3(monkeypatch):
     assert use_think is True  # thinking:disabled útvonal feltétel nélkül él
 
 
-def test_delphoi_branch_models_default_hy3():
+def test_delphoi_branch_models_default():
+    """A nowcast (nyilvános track-record) a Hy3-on marad; a FOGÁS-ág 11-22 óta V4.1-Flash (mérve: HU-backteszt,
+    közmédia-kapu — orakel_backteszt/olcso_swarm_20261122)."""
     assert delphoi.NOWCAST_MODEL == "tencent/Hy3"
-    assert delphoi.FG_MODEL == "tencent/Hy3"
-    assert "flash" not in delphoi.NOWCAST_MODEL.lower()
-    assert "flash" not in delphoi.FG_MODEL.lower()
+    assert delphoi.FG_MODEL == "deepseek-ai/DeepSeek-V4.1-Flash"
 
 
 def test_fg_panel_version_bumped():
-    assert delphoi.FG_PANEL_VERSION == "orakel-agora-hu-v2-hy3"
+    assert delphoi.FG_PANEL_VERSION == "orakel-agora-hu-v3-v41flash"
+
+
+def test_a_fogas_prompt_a_helyzetleirast_is_kapja():
+    cfg = delphoi.COUNTRY_PANEL_CONFIG["HU"]
+    p = delphoi._fg_prompt({"id": 1, "kor": "60+"}, cfg, next(k for (l, k) in delphoi.FG_QUESTIONS if l == "hu"), "X")
+    assert p.startswith(cfg["priming"]) and "TISZA" in p
+    assert any("M1, Kossuth" in m[0] and "Tisza-kormány" in m[0] for m in cfg["media"])
 
 
 def test_chat_has_model_override_param():

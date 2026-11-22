@@ -230,9 +230,12 @@ def test_fg_k_sampling_default_three(p2_db):
     assert n_rows == 90                                         # minden minta a silóban
 
 
-def test_fg_calibration_anchor_pair_offset(p2_db):
+def test_fg_calibration_anchor_pair_offset(p2_db, monkeypatch):
     """FG appeal (HU, Hy3): az agora A/B horgonypár offset-je (−15.125)
-    alkalmazva a 0–100 appeal-skálán — nyers ÉS kalibrált a riportban."""
+    alkalmazva a 0–100 appeal-skálán — nyers ÉS kalibrált a riportban. (11-22 óta a FOGÁS-ág alapmodellje a
+    V4.1-Flash, v3 korszakkal; ez a teszt a Hy3-korszak horgonypárját őrzi, ezért a Hy3-at és a v2 jelölőt állítja be.)"""
+    monkeypatch.setattr(delphoi, "FG_MODEL", "tencent/Hy3")
+    monkeypatch.setattr(delphoi, "FG_PANEL_VERSION", "orakel-agora-hu-v2-hy3")
     job_id, rep = _run_fg(p2_db, "user:p2cal", "Prémium kávékapszula koncepció")
     assert rep["ok"]
     cal = rep["result"]["calibration"]
@@ -300,3 +303,14 @@ def test_sample_env_defaults(monkeypatch):
     assert delphoi.fg_samples() == 3
     monkeypatch.setenv("DELPHOI_NOWCAST_SAMPLES", "0")
     assert delphoi.nowcast_samples() == 1                        # alsó korlát
+
+
+
+def test_fg_uj_korszak_nem_orokli_a_hy3_kalibraciojat(p2_db):
+    """11-22: a V4.1-Flash v3 korszak a Hy3 horgonypárját NEM kapja meg (más motor, más skála): a nyers érték megy
+    tovább, kimondva (no_entry), amíg a saját horgonypárja nincs bemérve."""
+    assert delphoi.FG_MODEL == "deepseek-ai/DeepSeek-V4.1-Flash"
+    job_id, rep = _run_fg(p2_db, "user:p2cal3", "Prémium kávékapszula koncepció")
+    cal = rep["result"]["calibration"]
+    assert cal["status"] == "no_entry" and cal["applied"] is False
+    assert cal["panel_version"] == delphoi.FG_PANEL_VERSION == "orakel-agora-hu-v3-v41flash"

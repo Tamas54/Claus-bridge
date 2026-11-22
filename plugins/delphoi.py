@@ -55,12 +55,17 @@ GENESIS = "GENESIS"
 # Hy3-tiltó őr NINCS). Flash SEHOL nem default és nem silent fallback —
 # motorhiba = hangos hiba (a pollster._chat exception-nel + loggal hasal el).
 NOWCAST_MODEL = os.environ.get("DELPHOI_NOWCAST_MODEL", "tencent/Hy3")
-FG_MODEL = os.environ.get("DELPHOI_FG_MODEL", "tencent/Hy3")
+# 11-22 (a Kommandant: „mehet minden”): a FOGÁS-ág V4.1-Flashre vált. Mérve: a HU választás előtti backteszten a Hy3
+# ma −10,0 ± 5,4 (júliusban +15,0 — elsodródott), a V4.1-Flash +15,5 ± 2,2; a közmédia-kapun csak a V4.1-Flash megy át;
+# panelenként 1,0 cent a Hy3 1,2-je helyett (orakel_backteszt/olcso_swarm_20261122/JEGYZOKONYV.md).
+FG_MODEL = os.environ.get("DELPHOI_FG_MODEL", "deepseek-ai/DeepSeek-V4.1-Flash")
 CONCURRENCY = int(os.environ.get("DELPHOI_CONCURRENCY", os.environ.get("ORAKEL_CONCURRENCY", "8")))
 
 # A FOGÁS-ág panel-verziója (P1 bump — Hy3-regime; az Echolot echolot_orakel.py
 # PANEL_VERSION-jével azonos string, a modellregime-váltás korszak-jelölője).
-FG_PANEL_VERSION = "orakel-agora-hu-v2-hy3"
+# v3 (11-22): új motor (V4.1-Flash), és a persona a helyzetleírást (priming) is megkapja — a v2-hy3 sorokkal NEM
+# hasonlítható (REGIME_NOTE). Az Echolot Agora-panelje a saját v2-hy3 jelölőjén marad, amíg ott nincs váltás.
+FG_PANEL_VERSION = "orakel-agora-hu-v3-v41flash"
 
 # Modellregime-korszakhatár megjegyzés (N5-sáv / irányfal-kimenet, P1).
 REGIME_NOTE = "bázisreset — modellváltás, nem hasonlítható"
@@ -221,7 +226,8 @@ COUNTRY_PANEL_CONFIG: dict = {
         "media": [
             ("baloldali/liberális médiát követ (Telex, 24.hu, HVG, 444, RTL)", 0.26, "baloldali"),
             ("jobboldali médiát követ (Origo, Mandiner, Magyar Nemzet)", 0.22, "jobboldali"),
-            ("közmédiát követ (köztévé — a mindenkori kormányt, most a Tiszát támogatja)", 0.18, "közmédia"),
+            ("közmédiát követ (M1, Kossuth Rádió, hirado.hu — a Tisza-kormány megalakulása óta a kormány vonalát "
+             "közvetíti)", 0.18, "közmédia"),
             ("közösségi médiában fogyaszt politikai tartalmat (Facebook/TikTok/YouTube)", 0.22, "közösségi"),
             ("alig követi a politikai híreket", 0.12, "alig"),
         ],
@@ -1942,10 +1948,14 @@ def _parse_structured(text: str, key_variants: tuple) -> str | None:
 
 
 def _fg_prompt(persona: dict, cfg: dict, kind: str, stimulus: str) -> str:
+    """A FOGÁS-prompt. 11-22: a persona a helyzetleírást (`priming`: ki kormányoz, kinek az oldalán a közmédia) is
+    megkapja, nem csak a médiacímkéből tud a kormányváltásról — a régi tudású modell különben a régi térképet hozza
+    (mérve: a Hy3-nál a közmédia-néző a jobboldali mellé került)."""
     lang = cfg["lang"]
     template = FG_QUESTIONS.get((lang, kind)) or FG_QUESTIONS[("hu", kind)]
     profile = ", ".join(f"{k}: {v}" for k, v in persona.items() if k != "id")
-    return f"[{profile}]\n\n{template.format(stimulus=stimulus)}"
+    priming = (cfg.get("priming") or "").strip()
+    return (f"{priming}\n\n" if priming else "") + f"[{profile}]\n\n{template.format(stimulus=stimulus)}"
 
 
 def _fg_iteration(seed_idx: int, sample_idx: int, persona_id: int) -> int:
