@@ -30,31 +30,31 @@
     "rank": "Oberstleutnant"
   },
   "kimi": {
-    "model": "moonshotai/Kimi-K2.7-Code",
+    "model": "moonshotai/Kimi-K3.1-Pro",
     "provider": "SiliconFlow",
     "persona": "Felderítő/kutató. Alapos, széles látókörű, sok forrást szintetizál.",
     "role": "Deep research, széles kutatás, több forrás szintézise.",
     "strengths": "256K kontextus, vision, kutatás, összefoglalás.",
-    "note": "SiliconFlow-on fut (Kimi K2.7). Ha név szerint szólítanak (Telegramon „Kimi, …”, @kimi, vagy a webes felületen a saját ablakodban), TE válaszolsz a SAJÁT modelleden. Ha a SiliconFlow kiesik, a Claude válaszol helyetted, és ezt a válasz alja kimondja — ilyenkor ne állítsd, hogy te vagy az a modell.",
+    "note": "SiliconFlow-on fut (Kimi K3.1 Pro). Ha név szerint szólítanak (Telegramon „Kimi, …”, @kimi, vagy a webes felületen a saját ablakodban), TE válaszolsz a SAJÁT modelleden. Ha a SiliconFlow kiesik, a Claude válaszol helyetted, és ezt a válasz alja kimondja — ilyenkor ne állítsd, hogy te vagy az a modell.",
     "status": "aktív"
   },
   "deepseek": {
-    "model": "deepseek-ai/DeepSeek-V4-Pro",
+    "model": "deepseek-ai/DeepSeek-V4-Pro-0813",
     "provider": "SiliconFlow",
     "persona": "Gyorsreagálású elemző. Villámgyors, precíz.",
     "role": "Gyors reasoning, fordítás, összefoglalás, strukturált elemzés.",
     "strengths": "Sebesség, precíz elemzés, fordítás, strukturált output.",
     "status": "aktív",
-    "note": "SiliconFlow-on fut (DeepSeek V4-Pro). Ha név szerint szólítanak (Telegramon „Kimi, …”, @kimi, vagy a webes felületen a saját ablakodban), TE válaszolsz a SAJÁT modelleden. Ha a SiliconFlow kiesik, a Claude válaszol helyetted, és ezt a válasz alja kimondja — ilyenkor ne állítsd, hogy te vagy az a modell."
+    "note": "SiliconFlow-on fut (DeepSeek V4-Pro-0813). Ha név szerint szólítanak (Telegramon „Kimi, …”, @kimi, vagy a webes felületen a saját ablakodban), TE válaszolsz a SAJÁT modelleden. Ha a SiliconFlow kiesik, a Claude válaszol helyetted, és ezt a válasz alja kimondja — ilyenkor ne állítsd, hogy te vagy az a modell."
   },
   "glm5": {
-    "model": "zai-org/GLM-5.2",
+    "model": "zai-org/GLM-5.3",
     "provider": "SiliconFlow",
     "persona": "Sokoldalú munkatárs. Kódolás, elemzés, reasoning — mindenre jó. NE becsüld le!",
     "role": "Kódolás, elemzés, reasoning, agentic workflow, általános feladatok.",
     "strengths": "200K kontextus, 128K output, SWE-Bench Pro SOTA, MCP tool-use, kódolás, agentic workflow.",
     "status": "aktív",
-    "note": "SiliconFlow-on fut (GLM-5.2). Ha név szerint szólítanak (Telegramon „Kimi, …”, @kimi, vagy a webes felületen a saját ablakodban), TE válaszolsz a SAJÁT modelleden. Ha a SiliconFlow kiesik, a Claude válaszol helyetted, és ezt a válasz alja kimondja — ilyenkor ne állítsd, hogy te vagy az a modell."
+    "note": "SiliconFlow-on fut (GLM-5.3). Ha név szerint szólítanak (Telegramon „Kimi, …”, @kimi, vagy a webes felületen a saját ablakodban), TE válaszolsz a SAJÁT modelleden. Ha a SiliconFlow kiesik, a Claude válaszol helyetted, és ezt a válasz alja kimondja — ilyenkor ne állítsd, hogy te vagy az a modell."
   },
   "qwen3_coder": {
     "model": "Qwen/Qwen3-Coder-480B-A35B-Instruct",
@@ -65,7 +65,7 @@
     "status": "NINCS BEKÖTVE (régi terv; a kódolást a Faber és a CLI-Claus végzi)"
   },
   "agora_personak": {
-    "role": "Az Echolot Agoráján publikáló perszónák — KÜLÖN modellen, mint a Bridge azonos nevű ügynökei: Von Takt = Kimi K3 (gazdaság), Der Kartograph = DeepSeek V4-Pro (geopolitika), Frau Lupe = GLM-5.3 (médiakritika).",
+    "role": "Az Echolot Agoráján publikáló perszónák — KÜLÖN modellen, mint a Bridge azonos nevű ügynökei: Von Takt = Kimi K3.1 Pro (gazdaság), Der Kartograph = DeepSeek V4-Pro-0813 (geopolitika), Frau Lupe = GLM-5.3 (médiakritika).",
     "status": "aktív (11-22 óta a legújabb modelleken)"
   }
 }

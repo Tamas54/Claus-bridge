@@ -97,7 +97,7 @@ SZINT_TABLA = (
     ("cel_olcso", "a `purpose` olcsó munka: triage, osztályozás, fordítás, rövid chat, szándék", "olcso"),
     ("sf_flash", "a kért SiliconFlow-modell FLASH-tier: dsflash, glm53f, hy3", "olcso"),
     ("sf_nehez", "a kért SiliconFlow-modell nehéz: kimi3, DeepSeek-V4-Pro, glm53", "okos"),
-    ("sf_pro", "a kért SiliconFlow-modell pro: kimi (K2.7), glm5", "kozep"),
+    ("sf_pro", "a kért SiliconFlow-modell pro: kimi (K3.1 Pro), glm5 (GLM-5.3)", "kozep"),
     ("alap", "minden más", "kozep"),
 )
 MERET_SZABALYOK = (
@@ -137,11 +137,12 @@ SF_SZINT = {
     "dsflash": "sf_flash", "deepseek-ai/DeepSeek-V4-Flash": "sf_flash",
     "glm53f": "sf_flash", "zai-org/GLM-5.3-Flash": "sf_flash",
     "hy3": "sf_flash", "tencent/Hy3": "sf_flash",
-    "kimi3": "sf_nehez", "moonshotai/Kimi-K3": "sf_nehez",
+    "kimi3": "sf_pro", "moonshotai/Kimi-K3": "sf_nehez",   # 11-22: a kimi3 is a K3.1 Pro-ra mutat
     "deepseek": "sf_nehez", "deepseek-ai/DeepSeek-V4-Pro": "sf_nehez",
     "glm53": "sf_nehez", "zai-org/GLM-5.3": "sf_nehez",
-    "kimi": "sf_pro", "moonshotai/Kimi-K2.7-Code": "sf_pro",
-    "glm5": "sf_pro", "zai-org/GLM-5.2": "sf_pro",
+    "kimi": "sf_pro", "moonshotai/Kimi-K2.7-Code": "sf_pro", "moonshotai/Kimi-K3.1-Pro": "sf_pro",
+    "deepseek-ai/DeepSeek-V4-Pro-0813": "sf_nehez",
+    "glm5": "sf_nehez", "zai-org/GLM-5.2": "sf_pro",   # 11-22: a glm5 a GLM-5.3-ra mutat
 }
 
 _TABLA_SZINT = {nev: szint for nev, _, szint in SZINT_TABLA}

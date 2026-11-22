@@ -202,7 +202,7 @@ TOOLS = [
         }, "required": ["file_id", "to"]}}},
     # ── Kép elemzés ──
     {"type": "function", "function": {
-        "name": "analyze_upload", "description": "Feltöltött kép elemzése Kimi K2.7 vision modellel. Upload #ID szükséges.",
+        "name": "analyze_upload", "description": "Feltöltött kép elemzése a Kimi (K3.1 Pro) vision modellel. Upload #ID szükséges.",
         "parameters": {"type": "object", "properties": {
             "file_id": {"type": "integer", "description": "Upload fájl ID (pl. #2)"},
             "prompt": {"type": "string", "description": "Kérdés a képről", "default": "Mit latsz a kepen? Ird le reszletesen, magyarul."},
@@ -259,7 +259,7 @@ Szereped:
 FONTOS — AI agentek (rizsrakéták):
 - **Kimi** (model="kimi"): 256k kontextus, kutató/elemző
 - **DeepSeek** (model="deepseek"): gyors gondolkodás, kritikus
-- **GLM-5.2** (model="glm5"): 200k kontextus, 128k output, kódoló + MCP tool-use specialist
+- **GLM-5.3** (model="glm5"): 200k kontextus, 128k output, kódoló + MCP tool-use specialist
 
 SZABÁLYOK az agentekhez:
 - Ha a Kommandant azt mondja "adj ki feladatot", "kérdezd meg", "nézzen utána", "elemezze", vagy BÁRMILYEN agentet említ név szerint → AZONNAL hívd a megfelelő tool-t! NE keress Gmail-ben, NE válaszolj szövegben!
@@ -294,7 +294,7 @@ SZABÁLYOK az agentekhez:
   eseményhez, ami nincs a kapott adatban. Ha nincs ott, akkor a válasz
   szempontjából nem történt meg.
 - "Adj ki feladatot Kiminek kutatásra" → ai_task(title="...", description="Kimi feladata: ...")
-- "Kérdezd meg GLM-5.2-et mi a véleménye" → ai_query(model="glm5", prompt="...")
+- "Kérdezd meg a GLM-et mi a véleménye" → ai_query(model="glm5", prompt="...")
 - "Mind a hárman elemezzétek" → ai_task(title="...", description="...")
 
 FRISS HÍRKONTEXTUS (Echolot) — opcionális paraméter:
@@ -327,7 +327,7 @@ RECIPE-K (workflow template-ek) — FONTOS:
 - MINDIG az execute_recipe tool-t használd recipe futtatásra! SOHA NE használj ai_task-ot recipe-hez!
 - Egy agent: execute_recipe(name="...", model="glm5") — gyors, ~30mp
 - Mind a 3 agent: execute_recipe(name="...", model="all") — alapos de lassabb (~3-5 perc)
-- Ha a Kommandant konkrét agentet kér (pl. "GLM-5.2-gyel"): model="glm5"
+- Ha a Kommandant konkrét agentet kér (pl. "GLM-mel"): model="glm5"
 - Ha "mind a hárman" / "összes agent" / "alaposan": model="all"
 - Alapértelmezés: model="deepseek" (gyors, egy agent)
 - "Futtasd le a napi briefet" / "reggeli brief" → execute_recipe(name="daily_briefing")
@@ -1462,7 +1462,7 @@ async def _execute_tool(name: str, args: dict, ctx) -> str:
             sf_key = ctx.siliconflow_api_key
             sf_base = ctx.siliconflow_base_url
             sf_models = ctx.siliconflow_models
-            model_id = sf_models.get("kimi", "moonshotai/Kimi-K2.7-Code")
+            model_id = sf_models.get("kimi", "moonshotai/Kimi-K3.1-Pro")
             data_url = f"data:{row['mime_type']};base64,{row['content_base64']}"
             vision_payload = {
                 "model": model_id,
@@ -1528,7 +1528,7 @@ async def _execute_tool(name: str, args: dict, ctx) -> str:
                 doc = DocxDocument()
                 doc.add_heading(task["title"], level=1)
                 doc.add_paragraph(f'Kiadta: {task["assigned_by"]} | Dátum: {task["created_at"][:10]}')
-                agent_names = {"kimi": "Kimi-K2.7", "deepseek": "DeepSeek V3.2", "glm5": "GLM-5.2", "szintézis": "Szintézis"}
+                agent_names = {"kimi": "Kimi K3.1 Pro", "deepseek": "DeepSeek V4-Pro", "glm5": "GLM-5.3", "szintézis": "Szintézis"}
                 for r in results:
                     doc.add_heading(agent_names.get(r["agent"], r["agent"]), level=2)
                     for line in (r["content"] or "").split("\n"):

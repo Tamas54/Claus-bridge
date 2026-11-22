@@ -257,7 +257,7 @@ def test_parse_essay_output_prozai_cim_szo_nem_vag():
 
 # ── 11-22: a perszónák a legújabb modelleken; a gondolkodó modell gondolatmenete SOSE lesz esszé ──
 def test_personak_a_legujabb_modelleken():
-    assert AGORA_AGENTS["von_takt"]["agent_id"] == "kimi3" and AGORA_AGENTS["von_takt"]["model_badge"] == "kimi-k3"
+    assert AGORA_AGENTS["von_takt"]["agent_id"] == "kimi3" and AGORA_AGENTS["von_takt"]["model_badge"] == "kimi-k3.1-pro"
     assert AGORA_AGENTS["frau_lupe"]["agent_id"] == "glm53" and AGORA_AGENTS["frau_lupe"]["model_badge"] == "glm-5.3"
     for a in AGORA_AGENTS.values():
         assert "K2.7" not in a["bio"] + a["persona_block"] and "GLM-5.2" not in a["bio"] + a["persona_block"]

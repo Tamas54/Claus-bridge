@@ -1204,7 +1204,7 @@ async def read_ai_task_results(task_id: int = 0, limit: int = 10, caller: str = 
 async def analyze_image(image_base64: str, mime_type: str = "image/jpeg",
                         prompt: str = "Mit latsz a kepen? Ird le reszletesen, magyarul.",
                         caller: str = "") -> str:
-    """Analyze an image using Kimi K2.7 vision model. Works with any image source.
+    """Analyze an image using the Kimi (K3.1 Pro) vision model. Works with any image source.
 
     Args:
         image_base64: Base64-encoded image data
@@ -1301,7 +1301,7 @@ def _generate_xlsx(task, results) -> "BytesIO":
     ws["A3"] = f'Kiadta: {task["assigned_by"]} | Dátum: {task["created_at"][:10]}'
 
     row = 5
-    agent_names = {"kimi": "Kimi-K2.7", "deepseek": "DeepSeek V3.2", "glm5": "GLM-5.2", "szintézis": "Szintézis"}
+    agent_names = {"kimi": "Kimi K3.1 Pro", "deepseek": "DeepSeek V4-Pro", "glm5": "GLM-5.3", "szintézis": "Szintézis"}
     for col, header_text in enumerate(["Agent", "Tartalom", "Időpont"], 1):
         cell = ws.cell(row=row, column=col, value=header_text)
         cell.font = header_font
@@ -2690,9 +2690,12 @@ SILICONFLOW_TIMEOUT = 360  # 2026-05-11: 220→360s; the statdata_macro 3-step
                             # reasoner-mode tool-use loop past the old limit.
 
 SILICONFLOW_MODELS = {
-    "kimi": "moonshotai/Kimi-K2.7-Code",
-    "deepseek": "deepseek-ai/DeepSeek-V4-Pro",
-    "glm5": "zai-org/GLM-5.2",
+    # 2026-11-22 (Kommandant: „modernizáljuk már az agenteket, 2.7-es kimi ősrégi”) — mérve aznap, SiliconFlow:
+    #   Kimi-K3.1-Pro 7,8 s, eszközhívás OK, kép OK, thinking kikapcsolható (3,8 s); a K3 magát Claude-nak mondta;
+    #   DeepSeek-V4-Pro-0813 7,7 s, reasoning_effort OK; GLM-5.3 2,1 s, eszközhívás OK.
+    "kimi": "moonshotai/Kimi-K3.1-Pro",
+    "deepseek": "deepseek-ai/DeepSeek-V4-Pro-0813",
+    "glm5": "zai-org/GLM-5.3",
     # NULLTARIF (2026-07-19): fordító-igásló — a SF-en JELENLEG $0.00/M
     # (input+output; 52-hívásos egyenleg-delta méréssel verifikálva).
     # H2-benchmark: fordításban döntetlen a V4-Flash-sel, extrakció/nowcast
@@ -2705,7 +2708,7 @@ SILICONFLOW_MODELS = {
     # thinking:disabled IGNORÁLT) és lassabb — a 07-18-i F-bench szerint
     # ítész-pontosságban NEM jobb a K2.7-nél (10/10 mindkettő), a többlet
     # a mély reasoning-ot igénylő KOMPOZÍCIÓS/elemző munkánál térül meg.
-    "kimi3": "moonshotai/Kimi-K3",
+    "kimi3": "moonshotai/Kimi-K3.1-Pro",   # 11-22: a K3 helyett (a K3 Claude-nak mondta magát)
     # GLM-5.3-Flash (2026-08-30, Kommandant): a SiliconFlow új modellje,
     # kód-erős. MÉRVE ugyanaznap: létezik, 200-at ad, tool-hívást is kezel
     # (~5-7 s egy egyszavas válaszra, mert THINKING-modell — a `reasoning_content`
@@ -3284,7 +3287,7 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
                    no_thinking: bool = False, no_tools: bool = False,
                    output_format: str = "",
                    news_context: str = "", data_context: str = "") -> str:
-    """Query a SiliconFlow AI sub-agent (Kimi-K2.7, DeepSeek-V4-Pro, or GLM-5.2).
+    """Query a SiliconFlow AI sub-agent (Kimi K3.1 Pro, DeepSeek V4-Pro-0813, or GLM-5.3).
 
     Use for research, analysis, translation, summarization, or second opinions.
     These models run on SiliconFlow cloud — no local resources needed.
@@ -7603,6 +7606,9 @@ _SF_FAILOVER_WORTHY = _SF_RETRYABLE | {"model_missing"}
 #: `feedback_synthesis_fallback_order` döntést követi (Kimi → V4-Pro → GLM).
 _SF_FAILOVER = {
     "zai-org/GLM-5.2": ["deepseek-ai/DeepSeek-V4-Pro", "moonshotai/Kimi-K2.7-Code"],
+    # 11-22: a Bridge-ügynökök új modelljei egymást váltják (Kimi → DeepSeek → GLM, a döntött sorrend szerint)
+    "moonshotai/Kimi-K3.1-Pro": ["deepseek-ai/DeepSeek-V4-Pro-0813", "zai-org/GLM-5.3"],
+    "deepseek-ai/DeepSeek-V4-Pro-0813": ["moonshotai/Kimi-K3.1-Pro", "zai-org/GLM-5.3"],
     "moonshotai/Kimi-K2.7-Code": ["deepseek-ai/DeepSeek-V4-Pro", "zai-org/GLM-5.2"],
     "moonshotai/Kimi-K3": ["moonshotai/Kimi-K2.7-Code", "deepseek-ai/DeepSeek-V4-Pro"],
     "deepseek-ai/DeepSeek-V4-Pro": ["moonshotai/Kimi-K2.7-Code", "zai-org/GLM-5.2"],
@@ -7613,7 +7619,7 @@ _SF_FAILOVER = {
     # használhatatlan lenne.
     "zai-org/GLM-5.3-Flash": ["deepseek-ai/DeepSeek-V4-Flash", "zai-org/GLM-5.2"],
     "deepseek-ai/DeepSeek-V4-Flash": ["zai-org/GLM-5.3-Flash", "deepseek-ai/DeepSeek-V4-Pro"],
-    "zai-org/GLM-5.3": ["zai-org/GLM-5.3-Flash", "zai-org/GLM-5.2"],
+    "zai-org/GLM-5.3": ["zai-org/GLM-5.3-Flash", "deepseek-ai/DeepSeek-V4-Pro-0813"],
 }
 
 # ══ ÖNSZABÁLYOZÓ TOKEN-KERET ════════════════════════════════════════════

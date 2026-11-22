@@ -81,7 +81,7 @@ UGYNOKOK = {
     "feldwebel": ("Claus · Feldwebel", "fő asszisztens — Telegrammal közös"),
     "kimi": ("Kimi", "kutató, elemző · 256k"),
     "deepseek": ("DeepSeek", "gyors gondolkodás, kritikus"),
-    "glm5": ("GLM-5.2", "kódoló, eszközhasználó"),
+    "glm5": ("GLM-5.3", "kódoló, eszközhasználó"),
     "faber": ("Faber", "tanít: új képesség a saját alkalmazásainkba"),
 }
 LLM_UGYNOKOK = ("kimi", "deepseek", "glm5")
