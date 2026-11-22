@@ -704,8 +704,8 @@ async def chat(payload: dict, *, purpose: str = "") -> tuple[dict | None, dict |
     logger.info("llm_kapu[%s] szint=%s (%s) → %s, effort=%s, kért SF-modell: %s",
                 purpose or "?", szint, indok, cfg["modell"], cfg["effort"], payload.get("model"))
     duplazas = 0
-    #: a hívás (újrapróbálásokkal együtt) könyvelt költsége — a válaszban `koltes_usd`, hogy a hívó (pl. a
-    #: Nachtschicht éjszakai kerete) a kapu valódi könyveléséből számolhasson, ne a saját becsléséből
+    #: a hívás TELJES ára (a csonkolás miatti újrapróbálással együtt). Két helyen megy vissza: a válasz `koltes_usd`-jében
+    #: (a Nachtschicht kerete) és a `usage.koltes_usd`-ben (a döntés-szimulátoré); mindkettő a kapu valós könyveléséből számol
     koltes = 0.0
     while True:
         try:
@@ -722,12 +722,14 @@ async def chat(payload: dict, *, purpose: str = "") -> tuple[dict | None, dict |
                                                   fallbacks=cfg["fallbacks"], visszajatszas=False)
                 continue
             logger.warning("llm_kapu[%s] %s: %s", purpose or "?", cfg["modell"], err["message"][:300])
+            if koltes:
+                err["koltes_usd"] = round(koltes, 6)
             return None, err, notes
         koltes += _konyvel(msg.usage, cfg["modell"], szint, purpose)
         # A `stop_reason`-t a tartalom ELŐTT nézzük: refusalnál a tartalom üres vagy félbemaradt.
         if msg.stop_reason == "refusal":
             kat = getattr(getattr(msg, "stop_details", None), "category", None)
-            return None, {"code": "refusal", "provider": "anthropic", "koltes_usd": koltes,
+            return None, {"code": "refusal", "provider": "anthropic", "koltes_usd": round(koltes, 6),
                           "message": f"Anthropic refusal: a `{msg.model}` elutasította a kérést (kategória: {kat})"}, notes
         if msg.stop_reason == "max_tokens" and duplazas < CSONKOLAS_DUPLAZAS and kw["max_tokens"] < KIMENET_PLAFON:
             nxt = min(kw["max_tokens"] * 2, KIMENET_PLAFON)
@@ -743,7 +745,8 @@ async def chat(payload: dict, *, purpose: str = "") -> tuple[dict | None, dict |
                          f"a választ `{msg.model}` adta")
         _tarol(msg, kw)
         valasz = fordit_valasz(msg)
-        valasz["koltes_usd"] = koltes
+        valasz["koltes_usd"] = round(koltes, 6)
+        valasz.setdefault("usage", {})["koltes_usd"] = round(koltes, 6)
         return valasz, None, notes
 
 

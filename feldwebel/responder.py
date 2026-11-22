@@ -414,6 +414,7 @@ ESZKÖZTÉRKÉP (a saját szolgáltatásaink — ezek az elsők):
 - weboldal tartalma, crawl, kinyerés sémára, oldalfigyelés → `engine` (egyszerűbb: web_fetch, web_scrape, web_search)
 - levél, naptár, feladat, recept → gmail_*, calendar_*, create_task/list_tasks, *_recipe
 - korábbi döntéseink, közös memória → search_memory, read_memory; hosszabb háttérkutatás egy ügynökkel → ai_task
+- egy TERVEZETT lépés kipróbálása (társadalom, sajtó, piac, jog; „szimuláld”, „mi lenne, ha…”) → `dontes_szimulator`
 - a Kommandant előzményei, régi döntései (a teljes saját tudásbázis a gépén) → `tudasbazis`; második vélemény,
   keresztellenőrzés → `chatgpt` / `gemini`; AI-tanács (Claude + GPT + Gemini) → a kettőt EGY körben, egyszerre
 
@@ -773,8 +774,9 @@ async def _call_deepseek(ctx, model_id: str, messages: list, use_tools: bool = T
         if "Kimi" in model_id or "DeepSeek" in model_id:
             payload["thinking"] = {"type": "disabled"}
         if use_tools:
-            # a külső appok (Lexonomics, Medical, Studio) szerverenként egy eszközként — kulso_mcp.py
-            payload["tools"] = TOOLS + await _kulso_eszkozok() + _futar_eszkozok() + [FABER_DEF]
+            # a külső appok (Lexonomics, Medical, Studio) szerverenként egy eszközként — kulso_mcp.py; a végén a
+            # döntés-szimulátor (dontes_szimulator.py) és a Faber — a TOOLS lista sorrendje változatlan (prompt-cache)
+            payload["tools"] = TOOLS + await _kulso_eszkozok() + _futar_eszkozok() + _szimulator_eszkozok() + [FABER_DEF]
             # tool_choice="required" is REJECTED by deepseek-reasoner (V4-Pro)
             # on SiliconFlow with code 20015 "does not support this tool_choice".
             # Skip it for DeepSeek; the system prompt + provided tools steer the
@@ -964,6 +966,16 @@ def _futar_eszkozok() -> list:
         return []
 
 
+def _szimulator_eszkozok() -> list:
+    """A döntés-szimulátor eszköze (dontes_szimulator.py) — csak Anthropic-kulccsal; hibánál üres lista."""
+    try:
+        import dontes_szimulator
+        return dontes_szimulator.eszkoz_definiciok()
+    except Exception as e:  # noqa: BLE001
+        logger.warning("Feldwebel: a döntés-szimulátor eszköze kimaradt: %s", str(e)[:200])
+        return []
+
+
 async def _kulso_eszkozok() -> list:
     """A bekötött külső MCP-szerverek eszközei; hibánál üres lista (a Feldwebel enélkül is válaszol)."""
     try:
@@ -997,6 +1009,11 @@ async def _execute_tool(name: str, args: dict, ctx, kor: dict | None = None, *, 
 
     if kulso_mcp.sajat_e(name):
         return await kulso_mcp.hiv(name, str(args.get("eszkoz") or ""), args.get("parameterek"))
+
+    import dontes_szimulator
+    if dontes_szimulator.sajat_e(name):
+        # a futás a háttérben indul (perceket vesz igénybe): ez a válasz a NYUGTA, az eredmény külön üzenetben jön
+        return await dontes_szimulator.feldwebel_hiv(args, ctx)
 
     if name == "gmail_search":
         query = args.get("query", "")

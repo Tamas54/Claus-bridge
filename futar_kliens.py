@@ -73,7 +73,10 @@ SF_FELE = frozenset({"ai_query", "ai_task", "create_task", "execute_recipe", "cr
                      # AI-jukkal dolgozzák fel (az Echolot és az Engine SiliconFlow-, azaz kínai modellekkel, a Studio a
                      # saját AI-lépéseivel). A ChatGPT és a Gemini KAPHAT (a Kommandant: „chatgpt és gemini kaphat”); a
                      # tiszta adatkeresők (Lexonomics, Medical, Makronóm) is mehetnek.
-                     "echolot", "engine", "studio"})
+                     "echolot", "engine", "studio",
+                     # a döntés-szimulátor a lépés szövegét a DELPHOI SiliconFlow-panelnek, az Echolotnak és a
+                     # Studiónak adja: tudásbázis-tartalom nem kerülhet bele
+                     "dontes_szimulator"})
 SF_FELE_IRASKOR = {"agora": lambda a: str(a.get("action") or "").lower() == "comment",
                    "story_comments": lambda a: bool(a.get("body"))}
 
