@@ -20,6 +20,7 @@ import httpx
 
 from feldwebel import get_ctx
 from feldwebel.history import add_message, get_history, trim_history
+from feldwebel import jovahagyas as _jovahagyas
 
 # Bridge UI v2 (2026-11-22): a webes kör élő nyoma (melyik modell válaszolt, milyen eszköz fut). Telegram-körben a
 # `kimenet.nyom()` None, és minden úgy megy, mint eddig. A modul hiánya (önálló Feldwebel) sem hiba.
@@ -63,13 +64,14 @@ TOOLS = [
         "name": "calendar_poll", "description": "Naptár frissítése — mai események lekérése.",
         "parameters": {"type": "object", "properties": {}}}},
     {"type": "function", "function": {
-        "name": "calendar_create", "description": "Új naptáresemény létrehozása. MINDIG kérj megerősítést!",
+        "name": "calendar_create", "description": "Naptáresemény JAVASLATA: a hívás még NEM ír be semmit — a Kommandant egyszavas igenje („igen”, „mehet”) után kerül a naptárba. A válaszodban mondd el, mit írnál be, és kérdezd meg.",
         "parameters": {"type": "object", "properties": {
             "summary": {"type": "string", "description": "Esemény neve"},
-            "start_time": {"type": "string", "description": "Kezdés ISO formátumban: 2026-04-10T15:00:00"},
-            "end_time": {"type": "string", "description": "Befejezés ISO formátumban: 2026-04-10T16:00:00"},
+            "start_time": {"type": "string", "description": "Kezdés ISO formátumban: 2026-04-10T15:00:00; egész napos (határidő): 2026-04-10"},
+            "end_time": {"type": "string", "description": "Befejezés ISO formátumban: 2026-04-10T16:00:00 (egész naposnál üres)", "default": ""},
             "description": {"type": "string", "description": "Részletek (opcionális)", "default": ""},
-        }, "required": ["summary", "start_time", "end_time"]}}},
+            "reminder_minutes": {"type": "array", "items": {"type": "integer"}, "description": "Emlékeztetők, perccel a kezdés előtt: [1440, 60] = 1 nappal és 1 órával előtte. Egész napos eseménynél a nap 0:00-jától számít: [3780, 900] = 3 nappal és 1 nappal előtte reggel 9-kor"},
+        }, "required": ["summary", "start_time"]}}},
     # ── Feladatok ──
     {"type": "function", "function": {
         "name": "create_task", "description": "Új Bridge feladat létrehozása.",
@@ -240,7 +242,10 @@ TOOLS = [
 #: Egy válaszban legfeljebb ennyi modellkör (az utolsó eszköz nélkül, a szintézisé). A kombinált feladat (hír + szám
 #: + jog + dokumentum) 4-6 kör; a régi 5-ös plafon (4 eszközkör) a kombinálást vágta el.
 MAX_KOR = 12
-CONFIRM_TOOLS = {"send_email"}  # Future: add more dangerous actions
+CONFIRM_TOOLS = {"send_email", "calendar_create"}
+#: A KÓD IS kapu (2026-11-22): ezeknél a modell hívása csak javaslat (action_drafts), a valódi írás a Kommandant
+#: kifejezett igenje után történik (feldwebel/jovahagyas.py). A `send_email` egyelőre a leírás szerinti kérdésen át.
+KODKAPU_TOOLS = {"calendar_create"}
 
 
 # ── System prompt ──────────────────────────────────────────────────
@@ -425,6 +430,12 @@ MELLÉKLET ÉS TANÁCSADÁS (irat, tanulmány, fotó, egészség):
   azonnal orvos / 112.
 - Ha a válaszhoz egy döntő tény hiányzik, KÉRDEZZ (legfeljebb 3 kérdés, számozva), de amit a meglévőből már mondani
   lehet, azt mondd el előtte. Az ilyen válasz lehet hosszabb 3-5 mondatnál.
+- HATÁRIDŐ → NAPTÁR: ha mellékletben, levélben vagy üzenetben határidőt (vagy időpontot) találsz, ajánld fel, hogy
+  beírod a naptárba emlékeztetővel: hívd a `calendar_create`-et — ez csak JAVASLAT, a Kommandant igenje nélkül nem
+  ír be semmit. Határidőnél: egész napos esemény a határidő napjára (start_time="ÉÉÉÉ-HH-NN"), summary
+  „⏰ Határidő: <mi>”, a description-ben a forrás (melyik irat/levél, honnan számít), reminder_minutes=[3780, 900]
+  (3 nappal és 1 nappal előtte reggel 9-kor). A válaszod végén: „Beírjam a naptárba? (igen / mehet)”. Ha a dátum
+  nem biztos (pl. hiányzik a kézbesítés napja), ne találd ki: mondd ki, és kérdezd meg.
 
 Szabályok:
 - Magyar nyelv, hacsak nem kérnek mást
@@ -490,6 +501,13 @@ async def respond(text: str, chat_id: str, agent_id: str = "deepseek") -> str:
     First round: tool_choice=required (forces tool use, no hallucination).
     """
     ctx = get_ctx()
+
+    # MEGERŐSÍTÉS (2026-11-22): a legutóbbi naptárjavaslatra egy szó elég („igen”, „mehet” / „nem”) — LLM nélkül,
+    # a kód dönt (feldwebel/jovahagyas.py). Ami nem ilyen, az a rendes kör.
+    _jv = await _jovahagyas.kezel(ctx, text, chat_id)
+    if _jv is not None:
+        _store_bridge_reply(ctx, text, _jv, agent_id, eszkozok=["calendar_create"])
+        return _jv
 
     # Store user message in history
     add_message(chat_id, "user", text)
@@ -583,7 +601,8 @@ async def respond(text: str, chat_id: str, agent_id: str = "deepseek") -> str:
             async def _egy(fn_name, fn_args, kor_modell=kor_modell, vedett=vedett):
                 _et = _kimenet.eszkoz_indul(fn_name, fn_args) if _kimenet is not None else None
                 try:
-                    result = await _execute_tool(fn_name, fn_args, ctx, modell=kor_modell, vedett=vedett)
+                    result = await _execute_tool(fn_name, fn_args, ctx, kor={"chat_id": chat_id, "text": text},
+                                                 modell=kor_modell, vedett=vedett)
                 except Exception as e:  # noqa: BLE001 — egy eszköz hibája ne vigye el a kört
                     result = json.dumps({"error": f"{type(e).__name__}: {str(e)[:300]}"}, ensure_ascii=False)
                 if _kimenet is not None:
@@ -610,7 +629,8 @@ async def respond(text: str, chat_id: str, agent_id: str = "deepseek") -> str:
                 fn_name, fn_args = parsed_tool
                 logger.info("Text tool call round %d: %s(%s)", round_num, fn_name, fn_args)
                 _et = _kimenet.eszkoz_indul(fn_name, fn_args) if _kimenet is not None else None
-                result = await _execute_tool(fn_name, fn_args, ctx, modell=kor_modell, vedett=vedett)
+                result = await _execute_tool(fn_name, fn_args, ctx, kor={"chat_id": chat_id, "text": text},
+                                             modell=kor_modell, vedett=vedett)
                 if _kimenet is not None:
                     _kimenet.eszkoz_kesz(_et, result)
                 eszkoz_nevek.append(fn_name)
@@ -911,9 +931,11 @@ async def _kulso_eszkozok() -> list:
         return []
 
 
-async def _execute_tool(name: str, args: dict, ctx, *, modell: str = "", vedett: bool = False) -> str:
+async def _execute_tool(name: str, args: dict, ctx, kor: dict | None = None, *, modell: str = "",
+                        vedett: bool = False) -> str:
     """Execute a tool and return the result as string.
 
+    `kor`: a beszélgetési kör adatai (chat_id, a Kommandant üzenete) — a naptár-jóváhagyás ehhez köti a javaslatot.
     `modell`: az eszközt hívó kör valódi modellje (a `tudasbazis` csak `claude-*`-nak fut). `vedett`: a kör
     tudásbázis-tartalmat hordoz — SiliconFlow-ügynökhöz, általuk olvasott tárba vagy nyilvánosan menő eszköz nem fut."""
     # IMPORTANT: import httpx here to avoid UnboundLocalError —
@@ -1145,14 +1167,24 @@ async def _execute_tool(name: str, args: dict, ctx, *, modell: str = "", vedett:
         description = args.get("description", "")
         if not summary or not start:
             return json.dumps({"error": "summary és start_time szükséges"})
-        create_cal_func = ctx.capture_state.get("_create_calendar_func")
-        if not create_cal_func:
-            return json.dumps({"error": "Naptár létrehozás nem elérhető"})
-        try:
-            result = await create_cal_func(summary=summary, start=start, end=end, description=description, caller="feldwebel")
-            return result
-        except Exception as e:
-            return json.dumps({"error": str(e)})
+        adat = {"summary": summary, "start": start, "end": end, "description": description,
+                "reminder_minutes": _jovahagyas.emlekezteto_percek(args.get("reminder_minutes"))}
+        # KÓDKAPU (2026-11-22): csak a Kommandant kifejezett igenje után ír. Ha ez a kör maga az igen (a modell előbb
+        # szövegben kérdezett a naptárról), most ír; különben a hívás javaslat, és a Kommandant „mehet”-je dönt.
+        chat_id = (kor or {}).get("chat_id")
+        if not (kor and _jovahagyas.azonnal_irhat(ctx.get_db, chat_id, kor.get("text") or "")):
+            try:
+                draft_id = _jovahagyas.javasol(ctx.get_db, chat_id, adat)
+            except Exception as e:  # noqa: BLE001
+                return json.dumps({"error": f"a javaslat nem menthető: {e}"}, ensure_ascii=False)
+            return json.dumps({
+                "status": "jovahagyasra_var", "draft_id": draft_id, "beirva": False,
+                "javaslat": _jovahagyas.javaslat_szoveg(adat),
+                "teendo": ("MÉG NINCS a naptárban. Mondd el a Kommandantnak pontosan ezt a javaslatot, és kérdezd "
+                           "meg: „Beírjam a naptárba? (igen / mehet)”. Egy szava elég; addig ne írd, hogy beírtad."),
+            }, ensure_ascii=False)
+        res = await _jovahagyas.beir(ctx.capture_state.get("_create_calendar_func"), adat)
+        return json.dumps(res, ensure_ascii=False)
 
     if name == "web_fetch":
         url = args.get("url", "")

@@ -492,7 +492,8 @@ def register_tools(app, deps):
                     }
                 else:
                     start_dt = datetime.fromisoformat(due)
-                    end_dt = (start_dt + timedelta(hours=1)).isoformat()
+                    # a Feldwebel naptárjavaslata (feldwebel/jovahagyas.py) a befejezést is hordozza
+                    end_dt = payload.get("end") or (start_dt + timedelta(hours=1)).isoformat()
                     event_body = {
                         "summary": summary,
                         "start": {"dateTime": due},
@@ -500,6 +501,13 @@ def register_tools(app, deps):
                     }
                 if description:
                     event_body["description"] = description
+                # EMLÉKEZTETŐ (2026-11-22): a Feldwebel határidő-javaslata emlékeztetővel jön — a webes felület
+                # jóváhagyó gombja is azzal írja be, ne csak a Telegram „mehet”-je
+                if payload.get("reminder_minutes"):
+                    from feldwebel.jovahagyas import google_emlekeztetok
+                    _emlek = google_emlekeztetok(payload["reminder_minutes"])
+                    if _emlek:
+                        event_body["reminders"] = _emlek
 
                 # blokkoló Google-hívás külön szálon
                 def _insert():
