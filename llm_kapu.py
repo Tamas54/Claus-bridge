@@ -685,11 +685,23 @@ def _tartalek_futott(msg) -> bool:
             or any(getattr(b, "type", "") == "fallback" for b in msg.content))
 
 
-async def chat(payload: dict, *, purpose: str = "") -> tuple[dict | None, dict | None, list[str]]:
+def rogzitett_cfg(modell: str, szint: str) -> dict:
+    """KÖTÖTT MODELL (backteszt, 2026-11-22): a hívó PONTOSAN ezt a Claude-modellt kéri. Az effort a modell saját
+    szintjéé (ha egyik szint sem ezt használja, a választott szinté); a szerveroldali refusal-tartalék KI — a tartalék
+    más modellen (pl. `claude-opus-4-8`) válaszolna, és a futás tudás-határa már nem az lenne, amit a hívó rögzített."""
+    sajat = next((s for s, c in SZINTEK.items() if c["modell"] == modell), szint)
+    return {"modell": modell, "effort": SZINTEK[sajat]["effort"], "fallbacks": False}
+
+
+async def chat(payload: dict, *, purpose: str = "", modell: str | None = None
+               ) -> tuple[dict | None, dict | None, list[str]]:
     """Anthropic chat OpenAI-szerű payloadra. `(data, error, notes)`, mint a `sf_chat`.
 
     Hibánál (hálózat, 429, 5xx, költségkeret, refusal, rossz kérés) `error`-t ad — a tartalékra váltás a hívó
     (`sf_chat`) dolga, és kimondott. Csonkolt válasznál (stop_reason=max_tokens) duplázza a keretet és újrapróbál.
+
+    `modell`: KÖTÖTT Claude-modell (a döntés-szimulátor backteszt-módja) — csak ismert árú modell (`ARAK`), szerveroldali
+    tartalék nélkül; a válasz `model` mezője a VALÓBAN kiszolgáló modell.
     """
     notes: list[str] = []
     if not elerheto():
@@ -697,8 +709,13 @@ async def chat(payload: dict, *, purpose: str = "") -> tuple[dict | None, dict |
     if keret_kimerult():
         return None, {"code": "havi_keret", "provider": "anthropic",
                       "message": f"az Anthropic havi kerete elérve (${_KOLTES['usd']:.2f} / ${havi_keret():.0f})"}, notes
+    if modell is not None and modell not in ARAK:
+        return None, {"code": "ismeretlen_modell", "provider": "anthropic",
+                      "message": f"a kötött modell ({modell}) nem ismert Claude-modell (ARAK)"}, notes
     szint, indok = szint_valaszt(payload, purpose)
-    cfg = SZINTEK[szint]
+    cfg = SZINTEK[szint] if modell is None else rogzitett_cfg(modell, szint)
+    if modell is not None:
+        indok = f"kotott_modell({modell})"
     kw, visszajatszott = fordit_keres(payload, modell=cfg["modell"], effort=cfg["effort"],
                                       fallbacks=cfg["fallbacks"])
     logger.info("llm_kapu[%s] szint=%s (%s) → %s, effort=%s, kért SF-modell: %s",

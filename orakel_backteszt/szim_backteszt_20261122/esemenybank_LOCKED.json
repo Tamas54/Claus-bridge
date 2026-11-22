@@ -1,0 +1,820 @@
+{
+ "verzio": "szim-backteszt-bank-v1",
+ "keszult": "2026-11-22",
+ "szimulator": "dontes-szimulator-v1",
+ "kivalasztas": "(a kimenetel ismerete nélkül rögzítve):\n  * a három jegybank (MNB, EKB, Fed) MINDEN kamatváltoztatása 2026-07-01 és 2026-10-31 között (MNB 07-21, 08-25;\n    EKB 09-10; Fed 09-16), plus az első MNB-tartás a vágási sorozat után (09-22, inflációscél-csökkentéssel) és az\n    utolsó Fed-döntés az ablakban (10-28, tartás);\n  * két magyar kormányzati döntés a Telex napi címeiből (2026-09-20 autópálya-koncesszió feljelentés, 2026-09-30 MNM\n    Közgyűjteményi Központ megszüntetése) — a döntés napjának címe alapján, a következmények megnézése nélkül.\n  * as_of ≥ 2026-06-24: az Echolot HU-rétege (és a de/uk_/us_ is) 2026-06-21 előtt üres (get_news-mérés 11-22:\n    Telex 06-20: 0 cikk, 06-21: 67) — korábbi esemény sajtó-adat nélkül futna.",
+ "kiertekeles": "Brier kérdésenként ((p − o)², o ∈ {0,1}); alapvonal: 50% (0,25) és leave-one-out bázisarány; hiányzó válasz kimondva + „hiány = 0,5” sor; a nem CLEAN futás külön sorban, a tisztaság a modell_cutoff kapuja szerint, a döntés (as_of) hónapjára, a futás MINDEN generatív modelljére. GT: a szabaly mezők, szim_backteszt.gt_felold.",
+ "modell_utak": {
+  "claude": "Sonnet 5.5 minden szöveglépésre + Opus 5.5 kockázati térkép + Hy3 panel",
+  "hy3": "tencent/Hy3 MINDEN lépésre (terv, motorok, összegzés, kockázat, kérdések, panel)"
+ },
+ "esemenyek": [
+  {
+   "id": "mnb-2607",
+   "as_of": "2026-07-21",
+   "tipus": "jegybank_hu",
+   "orszag": "HU",
+   "lepes": "A Magyar Nemzeti Bank Monetáris Tanácsa 25 bázisponttal, 6,00-ról 5,75 százalékra csökkenti az alapkamatot a júliusi kamatdöntő ülésén.",
+   "horizont": "3 hónap",
+   "kerdesek": [
+    {
+     "id": "mnb-2607-p1",
+     "terulet": "piac",
+     "hatarido": "2026-08-04",
+     "kerdes": "az EUR/HUF záróára 2026-08-04-én (vagy az előtte utolsó kereskedési napon) ALACSONYABB lesz, mint a döntés előtti utolsó záróár (a forint erősödik).",
+     "szabaly": {
+      "modszer": "arfolyam_irany",
+      "symbol": "EURHUF=X",
+      "cel_datum": "2026-08-04",
+      "irany": "le"
+     }
+    },
+    {
+     "id": "mnb-2607-p2",
+     "terulet": "piac",
+     "hatarido": "2026-08-04",
+     "tipus": "intervallum",
+     "kerdes": "az EUR/HUF záróára 2026-08-04-én (vagy az előtte utolsó kereskedési napon) a döntés előtti utolsó záróár ±1,0%-os sávjában lesz.",
+     "szabaly": {
+      "modszer": "arfolyam_sav",
+      "symbol": "EURHUF=X",
+      "cel_datum": "2026-08-04",
+      "sav_szazalek": 1.0
+     }
+    },
+    {
+     "id": "mnb-2607-p3",
+     "terulet": "piac",
+     "hatarido": "2026-09-04",
+     "kerdes": "A jegybank irányadó kamata 2026-09-04-én ALACSONYABB lesz, mint közvetlenül e döntés után (azaz a következő ülés(ek)en tovább csökkentik).",
+     "szabaly": {
+      "modszer": "kamat_osszevetes",
+      "orszag": "HU",
+      "irany": "alacsonyabb",
+      "referencia_datum": "2026-07-28",
+      "cel_datum": "2026-09-04"
+     }
+    },
+    {
+     "id": "mnb-2607-s1",
+     "terulet": "sajto",
+     "hatarido": "2026-07-23",
+     "kerdes": "a Telex a döntés napján és az azt követő két napban (2026-07-21–2026-07-23) legalább 3 cikket közöl a témáról (az Echolot-korpuszban, cím és lead alapján).",
+     "szabaly": {
+      "modszer": "sajto_cikkszam",
+      "lapok": [
+       "telex"
+      ],
+      "napok": [
+       "2026-07-21",
+       "2026-07-22",
+       "2026-07-23"
+      ],
+      "regex": "(alapkamat|kamatdönt|kamatvág|kamatcsökk|Monetáris Tanács|inflációs cél)",
+      "legalabb": 3
+     }
+    },
+    {
+     "id": "mnb-2607-s2",
+     "terulet": "sajto",
+     "hatarido": "2026-07-23",
+     "kerdes": "a Magyar Nemzet a döntés napján és az azt követő két napban (2026-07-21–2026-07-23) legalább 3 cikket közöl a témáról (az Echolot-korpuszban, cím és lead alapján).",
+     "szabaly": {
+      "modszer": "sajto_cikkszam",
+      "lapok": [
+       "magyarnemzet"
+      ],
+      "napok": [
+       "2026-07-21",
+       "2026-07-22",
+       "2026-07-23"
+      ],
+      "regex": "(alapkamat|kamatdönt|kamatvág|kamatcsökk|Monetáris Tanács|inflációs cél)",
+      "legalabb": 3
+     }
+    },
+    {
+     "id": "mnb-2607-s3",
+     "terulet": "sajto",
+     "hatarido": "2026-07-23",
+     "kerdes": "A Magyar Nemzet TÖBB cikket közöl a témáról 2026-07-21–2026-07-23 között, mint a Telex.",
+     "szabaly": {
+      "modszer": "sajto_osszevetes",
+      "lapok": [
+       "magyarnemzet",
+       "telex"
+      ],
+      "napok": [
+       "2026-07-21",
+       "2026-07-22",
+       "2026-07-23"
+      ],
+      "regex": "(alapkamat|kamatdönt|kamatvág|kamatcsökk|Monetáris Tanács|inflációs cél)"
+     }
+    }
+   ]
+  },
+  {
+   "id": "mnb-2608",
+   "as_of": "2026-08-25",
+   "tipus": "jegybank_hu",
+   "orszag": "HU",
+   "lepes": "A Magyar Nemzeti Bank Monetáris Tanácsa 25 bázisponttal, 5,75-ről 5,50 százalékra csökkenti az alapkamatot az augusztusi kamatdöntő ülésén.",
+   "horizont": "3 hónap",
+   "kerdesek": [
+    {
+     "id": "mnb-2608-p1",
+     "terulet": "piac",
+     "hatarido": "2026-09-08",
+     "kerdes": "az EUR/HUF záróára 2026-09-08-én (vagy az előtte utolsó kereskedési napon) ALACSONYABB lesz, mint a döntés előtti utolsó záróár (a forint erősödik).",
+     "szabaly": {
+      "modszer": "arfolyam_irany",
+      "symbol": "EURHUF=X",
+      "cel_datum": "2026-09-08",
+      "irany": "le"
+     }
+    },
+    {
+     "id": "mnb-2608-p2",
+     "terulet": "piac",
+     "hatarido": "2026-09-08",
+     "tipus": "intervallum",
+     "kerdes": "az EUR/HUF záróára 2026-09-08-én (vagy az előtte utolsó kereskedési napon) a döntés előtti utolsó záróár ±1,0%-os sávjában lesz.",
+     "szabaly": {
+      "modszer": "arfolyam_sav",
+      "symbol": "EURHUF=X",
+      "cel_datum": "2026-09-08",
+      "sav_szazalek": 1.0
+     }
+    },
+    {
+     "id": "mnb-2608-p3",
+     "terulet": "piac",
+     "hatarido": "2026-10-09",
+     "kerdes": "A jegybank irányadó kamata 2026-10-09-én ALACSONYABB lesz, mint közvetlenül e döntés után (azaz a következő ülés(ek)en tovább csökkentik).",
+     "szabaly": {
+      "modszer": "kamat_osszevetes",
+      "orszag": "HU",
+      "irany": "alacsonyabb",
+      "referencia_datum": "2026-09-01",
+      "cel_datum": "2026-10-09"
+     }
+    },
+    {
+     "id": "mnb-2608-s1",
+     "terulet": "sajto",
+     "hatarido": "2026-08-27",
+     "kerdes": "a Telex a döntés napján és az azt követő két napban (2026-08-25–2026-08-27) legalább 3 cikket közöl a témáról (az Echolot-korpuszban, cím és lead alapján).",
+     "szabaly": {
+      "modszer": "sajto_cikkszam",
+      "lapok": [
+       "telex"
+      ],
+      "napok": [
+       "2026-08-25",
+       "2026-08-26",
+       "2026-08-27"
+      ],
+      "regex": "(alapkamat|kamatdönt|kamatvág|kamatcsökk|Monetáris Tanács|inflációs cél)",
+      "legalabb": 3
+     }
+    },
+    {
+     "id": "mnb-2608-s2",
+     "terulet": "sajto",
+     "hatarido": "2026-08-27",
+     "kerdes": "a Magyar Nemzet a döntés napján és az azt követő két napban (2026-08-25–2026-08-27) legalább 3 cikket közöl a témáról (az Echolot-korpuszban, cím és lead alapján).",
+     "szabaly": {
+      "modszer": "sajto_cikkszam",
+      "lapok": [
+       "magyarnemzet"
+      ],
+      "napok": [
+       "2026-08-25",
+       "2026-08-26",
+       "2026-08-27"
+      ],
+      "regex": "(alapkamat|kamatdönt|kamatvág|kamatcsökk|Monetáris Tanács|inflációs cél)",
+      "legalabb": 3
+     }
+    },
+    {
+     "id": "mnb-2608-s3",
+     "terulet": "sajto",
+     "hatarido": "2026-08-27",
+     "kerdes": "A Magyar Nemzet TÖBB cikket közöl a témáról 2026-08-25–2026-08-27 között, mint a Telex.",
+     "szabaly": {
+      "modszer": "sajto_osszevetes",
+      "lapok": [
+       "magyarnemzet",
+       "telex"
+      ],
+      "napok": [
+       "2026-08-25",
+       "2026-08-26",
+       "2026-08-27"
+      ],
+      "regex": "(alapkamat|kamatdönt|kamatvág|kamatcsökk|Monetáris Tanács|inflációs cél)"
+     }
+    }
+   ]
+  },
+  {
+   "id": "ekb-2609",
+   "as_of": "2026-09-10",
+   "tipus": "jegybank_kulfold",
+   "orszag": "EA",
+   "lepes": "Az Európai Központi Bank 25 bázisponttal, 2,25-ről 2,50 százalékra emeli a betéti kamatot, a közel-keleti konfliktus miatti inflációs kockázatokra hivatkozva.",
+   "horizont": "3 hónap",
+   "kerdesek": [
+    {
+     "id": "ekb-2609-p1",
+     "terulet": "piac",
+     "hatarido": "2026-09-24",
+     "kerdes": "az EUR/USD záróára 2026-09-24-én (vagy az előtte utolsó kereskedési napon) MAGASABB lesz, mint a döntés előtti utolsó záróár (az euró erősödik a dollárral szemben).",
+     "szabaly": {
+      "modszer": "arfolyam_irany",
+      "symbol": "EURUSD=X",
+      "cel_datum": "2026-09-24",
+      "irany": "fel"
+     }
+    },
+    {
+     "id": "ekb-2609-p2",
+     "terulet": "piac",
+     "hatarido": "2026-09-24",
+     "tipus": "intervallum",
+     "kerdes": "az EUR/USD záróára 2026-09-24-én (vagy az előtte utolsó kereskedési napon) a döntés előtti utolsó záróár ±1,0%-os sávjában lesz.",
+     "szabaly": {
+      "modszer": "arfolyam_sav",
+      "symbol": "EURUSD=X",
+      "cel_datum": "2026-09-24",
+      "sav_szazalek": 1.0
+     }
+    },
+    {
+     "id": "ekb-2609-p3",
+     "terulet": "piac",
+     "hatarido": "2026-11-09",
+     "kerdes": "A jegybank irányadó kamata 2026-11-09-én MAGASABB lesz, mint közvetlenül e döntés után (azaz a következő ülés(ek)en tovább emelik).",
+     "szabaly": {
+      "modszer": "kamat_osszevetes",
+      "orszag": "EA",
+      "irany": "magasabb",
+      "referencia_datum": "2026-09-17",
+      "cel_datum": "2026-11-09"
+     }
+    },
+    {
+     "id": "ekb-2609-s1",
+     "terulet": "sajto",
+     "hatarido": "2026-09-12",
+     "kerdes": "a Telex a döntés napján és az azt követő két napban (2026-09-10–2026-09-12) legalább 2 cikket közöl a témáról (az Echolot-korpuszban, cím és lead alapján).",
+     "szabaly": {
+      "modszer": "sajto_cikkszam",
+      "lapok": [
+       "telex"
+      ],
+      "napok": [
+       "2026-09-10",
+       "2026-09-11",
+       "2026-09-12"
+      ],
+      "regex": "(EKB|Európai Központi Bank|Lagarde)",
+      "legalabb": 2
+     }
+    },
+    {
+     "id": "ekb-2609-s2",
+     "terulet": "sajto",
+     "hatarido": "2026-09-12",
+     "kerdes": "a Magyar Nemzet a döntés napján és az azt követő két napban (2026-09-10–2026-09-12) legalább 2 cikket közöl a témáról (az Echolot-korpuszban, cím és lead alapján).",
+     "szabaly": {
+      "modszer": "sajto_cikkszam",
+      "lapok": [
+       "magyarnemzet"
+      ],
+      "napok": [
+       "2026-09-10",
+       "2026-09-11",
+       "2026-09-12"
+      ],
+      "regex": "(EKB|Európai Központi Bank|Lagarde)",
+      "legalabb": 2
+     }
+    },
+    {
+     "id": "ekb-2609-s3",
+     "terulet": "sajto",
+     "hatarido": "2026-09-12",
+     "kerdes": "A Magyar Nemzet TÖBB cikket közöl a témáról 2026-09-10–2026-09-12 között, mint a Telex.",
+     "szabaly": {
+      "modszer": "sajto_osszevetes",
+      "lapok": [
+       "magyarnemzet",
+       "telex"
+      ],
+      "napok": [
+       "2026-09-10",
+       "2026-09-11",
+       "2026-09-12"
+      ],
+      "regex": "(EKB|Európai Központi Bank|Lagarde)"
+     }
+    }
+   ]
+  },
+  {
+   "id": "fed-2609",
+   "as_of": "2026-09-16",
+   "tipus": "jegybank_kulfold",
+   "orszag": "US",
+   "lepes": "Az amerikai jegybank (Fed) 25 bázisponttal emeli az irányadó kamatot: a célsáv felső széle 3,75-ről 4,00 százalékra nő.",
+   "horizont": "3 hónap",
+   "kerdesek": [
+    {
+     "id": "fed-2609-p1",
+     "terulet": "piac",
+     "hatarido": "2026-09-30",
+     "kerdes": "az EUR/USD záróára 2026-09-30-én (vagy az előtte utolsó kereskedési napon) ALACSONYABB lesz, mint a döntés előtti utolsó záróár (a dollár erősödik az euróval szemben).",
+     "szabaly": {
+      "modszer": "arfolyam_irany",
+      "symbol": "EURUSD=X",
+      "cel_datum": "2026-09-30",
+      "irany": "le"
+     }
+    },
+    {
+     "id": "fed-2609-p2",
+     "terulet": "piac",
+     "hatarido": "2026-09-30",
+     "tipus": "intervallum",
+     "kerdes": "az EUR/USD záróára 2026-09-30-én (vagy az előtte utolsó kereskedési napon) a döntés előtti utolsó záróár ±1,0%-os sávjában lesz.",
+     "szabaly": {
+      "modszer": "arfolyam_sav",
+      "symbol": "EURUSD=X",
+      "cel_datum": "2026-09-30",
+      "sav_szazalek": 1.0
+     }
+    },
+    {
+     "id": "fed-2609-p3",
+     "terulet": "piac",
+     "hatarido": "2026-10-31",
+     "kerdes": "A jegybank irányadó kamata 2026-10-31-én MAGASABB lesz, mint közvetlenül e döntés után (azaz a következő ülés(ek)en tovább emelik).",
+     "szabaly": {
+      "modszer": "kamat_osszevetes",
+      "orszag": "US",
+      "irany": "magasabb",
+      "referencia_datum": "2026-09-23",
+      "cel_datum": "2026-10-31"
+     }
+    },
+    {
+     "id": "fed-2609-s1",
+     "terulet": "sajto",
+     "hatarido": "2026-09-18",
+     "kerdes": "a Telex a döntés napján és az azt követő két napban (2026-09-16–2026-09-18) legalább 2 cikket közöl a témáról (az Echolot-korpuszban, cím és lead alapján).",
+     "szabaly": {
+      "modszer": "sajto_cikkszam",
+      "lapok": [
+       "telex"
+      ],
+      "napok": [
+       "2026-09-16",
+       "2026-09-17",
+       "2026-09-18"
+      ],
+      "regex": "(\\bFed\\b|amerikai jegybank|Federal Reserve|Powell)",
+      "legalabb": 2
+     }
+    },
+    {
+     "id": "fed-2609-s2",
+     "terulet": "sajto",
+     "hatarido": "2026-09-18",
+     "kerdes": "a Magyar Nemzet a döntés napján és az azt követő két napban (2026-09-16–2026-09-18) legalább 2 cikket közöl a témáról (az Echolot-korpuszban, cím és lead alapján).",
+     "szabaly": {
+      "modszer": "sajto_cikkszam",
+      "lapok": [
+       "magyarnemzet"
+      ],
+      "napok": [
+       "2026-09-16",
+       "2026-09-17",
+       "2026-09-18"
+      ],
+      "regex": "(\\bFed\\b|amerikai jegybank|Federal Reserve|Powell)",
+      "legalabb": 2
+     }
+    },
+    {
+     "id": "fed-2609-s3",
+     "terulet": "sajto",
+     "hatarido": "2026-09-18",
+     "kerdes": "A Magyar Nemzet TÖBB cikket közöl a témáról 2026-09-16–2026-09-18 között, mint a Telex.",
+     "szabaly": {
+      "modszer": "sajto_osszevetes",
+      "lapok": [
+       "magyarnemzet",
+       "telex"
+      ],
+      "napok": [
+       "2026-09-16",
+       "2026-09-17",
+       "2026-09-18"
+      ],
+      "regex": "(\\bFed\\b|amerikai jegybank|Federal Reserve|Powell)"
+     }
+    }
+   ]
+  },
+  {
+   "id": "mnb-2609",
+   "as_of": "2026-09-22",
+   "tipus": "jegybank_hu",
+   "orszag": "HU",
+   "lepes": "A Magyar Nemzeti Bank Monetáris Tanácsa 5,50 százalékon hagyja az alapkamatot, és bejelenti: 2028. január 1-jétől az inflációs célt 3 százalékról 2,5 százalékra csökkenti (a ±1 százalékpontos toleranciasáv marad).",
+   "horizont": "3 hónap",
+   "kerdesek": [
+    {
+     "id": "mnb-2609-p1",
+     "terulet": "piac",
+     "hatarido": "2026-10-06",
+     "kerdes": "az EUR/HUF záróára 2026-10-06-én (vagy az előtte utolsó kereskedési napon) ALACSONYABB lesz, mint a döntés előtti utolsó záróár (a forint erősödik).",
+     "szabaly": {
+      "modszer": "arfolyam_irany",
+      "symbol": "EURHUF=X",
+      "cel_datum": "2026-10-06",
+      "irany": "le"
+     }
+    },
+    {
+     "id": "mnb-2609-p2",
+     "terulet": "piac",
+     "hatarido": "2026-10-06",
+     "tipus": "intervallum",
+     "kerdes": "az EUR/HUF záróára 2026-10-06-én (vagy az előtte utolsó kereskedési napon) a döntés előtti utolsó záróár ±1,0%-os sávjában lesz.",
+     "szabaly": {
+      "modszer": "arfolyam_sav",
+      "symbol": "EURHUF=X",
+      "cel_datum": "2026-10-06",
+      "sav_szazalek": 1.0
+     }
+    },
+    {
+     "id": "mnb-2609-p3",
+     "terulet": "piac",
+     "hatarido": "2026-11-06",
+     "kerdes": "A jegybank irányadó kamata 2026-11-06-én ALACSONYABB lesz, mint közvetlenül e döntés után (azaz a következő ülés(ek)en tovább csökkentik).",
+     "szabaly": {
+      "modszer": "kamat_osszevetes",
+      "orszag": "HU",
+      "irany": "alacsonyabb",
+      "referencia_datum": "2026-09-29",
+      "cel_datum": "2026-11-06"
+     }
+    },
+    {
+     "id": "mnb-2609-s1",
+     "terulet": "sajto",
+     "hatarido": "2026-09-24",
+     "kerdes": "a Telex a döntés napján és az azt követő két napban (2026-09-22–2026-09-24) legalább 3 cikket közöl a témáról (az Echolot-korpuszban, cím és lead alapján).",
+     "szabaly": {
+      "modszer": "sajto_cikkszam",
+      "lapok": [
+       "telex"
+      ],
+      "napok": [
+       "2026-09-22",
+       "2026-09-23",
+       "2026-09-24"
+      ],
+      "regex": "(alapkamat|kamatdönt|kamatvág|kamatcsökk|Monetáris Tanács|inflációs cél)",
+      "legalabb": 3
+     }
+    },
+    {
+     "id": "mnb-2609-s2",
+     "terulet": "sajto",
+     "hatarido": "2026-09-24",
+     "kerdes": "a Magyar Nemzet a döntés napján és az azt követő két napban (2026-09-22–2026-09-24) legalább 3 cikket közöl a témáról (az Echolot-korpuszban, cím és lead alapján).",
+     "szabaly": {
+      "modszer": "sajto_cikkszam",
+      "lapok": [
+       "magyarnemzet"
+      ],
+      "napok": [
+       "2026-09-22",
+       "2026-09-23",
+       "2026-09-24"
+      ],
+      "regex": "(alapkamat|kamatdönt|kamatvág|kamatcsökk|Monetáris Tanács|inflációs cél)",
+      "legalabb": 3
+     }
+    },
+    {
+     "id": "mnb-2609-s3",
+     "terulet": "sajto",
+     "hatarido": "2026-09-24",
+     "kerdes": "A Magyar Nemzet TÖBB cikket közöl a témáról 2026-09-22–2026-09-24 között, mint a Telex.",
+     "szabaly": {
+      "modszer": "sajto_osszevetes",
+      "lapok": [
+       "magyarnemzet",
+       "telex"
+      ],
+      "napok": [
+       "2026-09-22",
+       "2026-09-23",
+       "2026-09-24"
+      ],
+      "regex": "(alapkamat|kamatdönt|kamatvág|kamatcsökk|Monetáris Tanács|inflációs cél)"
+     }
+    }
+   ]
+  },
+  {
+   "id": "fed-2610",
+   "as_of": "2026-10-28",
+   "tipus": "jegybank_kulfold",
+   "orszag": "US",
+   "lepes": "Az amerikai jegybank (Fed) változatlanul hagyja az irányadó kamatot: a célsáv felső széle 4,00 százalék marad.",
+   "horizont": "3 hónap",
+   "kerdesek": [
+    {
+     "id": "fed-2610-p1",
+     "terulet": "piac",
+     "hatarido": "2026-11-11",
+     "kerdes": "az EUR/USD záróára 2026-11-11-én (vagy az előtte utolsó kereskedési napon) ALACSONYABB lesz, mint a döntés előtti utolsó záróár (a dollár erősödik az euróval szemben).",
+     "szabaly": {
+      "modszer": "arfolyam_irany",
+      "symbol": "EURUSD=X",
+      "cel_datum": "2026-11-11",
+      "irany": "le"
+     }
+    },
+    {
+     "id": "fed-2610-p2",
+     "terulet": "piac",
+     "hatarido": "2026-11-11",
+     "tipus": "intervallum",
+     "kerdes": "az EUR/USD záróára 2026-11-11-én (vagy az előtte utolsó kereskedési napon) a döntés előtti utolsó záróár ±1,0%-os sávjában lesz.",
+     "szabaly": {
+      "modszer": "arfolyam_sav",
+      "symbol": "EURUSD=X",
+      "cel_datum": "2026-11-11",
+      "sav_szazalek": 1.0
+     }
+    },
+    {
+     "id": "fed-2610-s1",
+     "terulet": "sajto",
+     "hatarido": "2026-10-30",
+     "kerdes": "a Telex a döntés napján és az azt követő két napban (2026-10-28–2026-10-30) legalább 2 cikket közöl a témáról (az Echolot-korpuszban, cím és lead alapján).",
+     "szabaly": {
+      "modszer": "sajto_cikkszam",
+      "lapok": [
+       "telex"
+      ],
+      "napok": [
+       "2026-10-28",
+       "2026-10-29",
+       "2026-10-30"
+      ],
+      "regex": "(\\bFed\\b|amerikai jegybank|Federal Reserve|Powell)",
+      "legalabb": 2
+     }
+    },
+    {
+     "id": "fed-2610-s2",
+     "terulet": "sajto",
+     "hatarido": "2026-10-30",
+     "kerdes": "a Magyar Nemzet a döntés napján és az azt követő két napban (2026-10-28–2026-10-30) legalább 2 cikket közöl a témáról (az Echolot-korpuszban, cím és lead alapján).",
+     "szabaly": {
+      "modszer": "sajto_cikkszam",
+      "lapok": [
+       "magyarnemzet"
+      ],
+      "napok": [
+       "2026-10-28",
+       "2026-10-29",
+       "2026-10-30"
+      ],
+      "regex": "(\\bFed\\b|amerikai jegybank|Federal Reserve|Powell)",
+      "legalabb": 2
+     }
+    },
+    {
+     "id": "fed-2610-s3",
+     "terulet": "sajto",
+     "hatarido": "2026-10-30",
+     "kerdes": "A Magyar Nemzet TÖBB cikket közöl a témáról 2026-10-28–2026-10-30 között, mint a Telex.",
+     "szabaly": {
+      "modszer": "sajto_osszevetes",
+      "lapok": [
+       "magyarnemzet",
+       "telex"
+      ],
+      "napok": [
+       "2026-10-28",
+       "2026-10-29",
+       "2026-10-30"
+      ],
+      "regex": "(\\bFed\\b|amerikai jegybank|Federal Reserve|Powell)"
+     }
+    }
+   ]
+  },
+  {
+   "id": "konc-2609",
+   "as_of": "2026-09-20",
+   "tipus": "kormany_hu",
+   "orszag": "HU",
+   "lepes": "A magyar kormány — Vitézy Dávid közlekedési és beruházási miniszter bejelentése szerint — büntetőfeljelentést tesz hűtlen kezelés gyanújával a Mészáros Lőrinc és Szíjj László érdekeltségébe tartozó autópálya-koncessziós szerződés miatt, amely a miniszter szerint 2057-ig legalább 23 ezer milliárd forintba kerülne az államnak.",
+   "horizont": "3 hónap",
+   "kerdesek": [
+    {
+     "id": "konc-2609-p1",
+     "terulet": "piac",
+     "hatarido": "2026-10-04",
+     "kerdes": "az Opus Global (OPUS.BD) részvény záróára 2026-10-04-én (vagy az előtte utolsó kereskedési napon) ALACSONYABB lesz, mint a döntés előtti utolsó záróár (a Mészáros-érdekeltségű Opus esik).",
+     "szabaly": {
+      "modszer": "arfolyam_irany",
+      "symbol": "OPUS.BD",
+      "cel_datum": "2026-10-04",
+      "irany": "le"
+     }
+    },
+    {
+     "id": "konc-2609-p2",
+     "terulet": "piac",
+     "hatarido": "2026-10-04",
+     "tipus": "intervallum",
+     "kerdes": "az Opus Global (OPUS.BD) részvény záróára 2026-10-04-én (vagy az előtte utolsó kereskedési napon) a döntés előtti utolsó záróár ±1,0%-os sávjában lesz.",
+     "szabaly": {
+      "modszer": "arfolyam_sav",
+      "symbol": "OPUS.BD",
+      "cel_datum": "2026-10-04",
+      "sav_szazalek": 1.0
+     }
+    },
+    {
+     "id": "konc-2609-s1",
+     "terulet": "sajto",
+     "hatarido": "2026-09-22",
+     "kerdes": "a Telex a döntés napján és az azt követő két napban (2026-09-20–2026-09-22) legalább 3 cikket közöl a témáról (az Echolot-korpuszban, cím és lead alapján).",
+     "szabaly": {
+      "modszer": "sajto_cikkszam",
+      "lapok": [
+       "telex"
+      ],
+      "napok": [
+       "2026-09-20",
+       "2026-09-21",
+       "2026-09-22"
+      ],
+      "regex": "(koncesszi|autópály)",
+      "legalabb": 3
+     }
+    },
+    {
+     "id": "konc-2609-s2",
+     "terulet": "sajto",
+     "hatarido": "2026-09-22",
+     "kerdes": "a Magyar Nemzet a döntés napján és az azt követő két napban (2026-09-20–2026-09-22) legalább 3 cikket közöl a témáról (az Echolot-korpuszban, cím és lead alapján).",
+     "szabaly": {
+      "modszer": "sajto_cikkszam",
+      "lapok": [
+       "magyarnemzet"
+      ],
+      "napok": [
+       "2026-09-20",
+       "2026-09-21",
+       "2026-09-22"
+      ],
+      "regex": "(koncesszi|autópály)",
+      "legalabb": 3
+     }
+    },
+    {
+     "id": "konc-2609-s3",
+     "terulet": "sajto",
+     "hatarido": "2026-09-22",
+     "kerdes": "A Magyar Nemzet TÖBB cikket közöl a témáról 2026-09-20–2026-09-22 között, mint a Telex.",
+     "szabaly": {
+      "modszer": "sajto_osszevetes",
+      "lapok": [
+       "magyarnemzet",
+       "telex"
+      ],
+      "napok": [
+       "2026-09-20",
+       "2026-09-21",
+       "2026-09-22"
+      ],
+      "regex": "(koncesszi|autópály)"
+     }
+    }
+   ]
+  },
+  {
+   "id": "mnm-2609",
+   "as_of": "2026-09-30",
+   "tipus": "kormany_hu",
+   "orszag": "HU",
+   "lepes": "Tarr Zoltán miniszter bejelenti: megszüntetik a Magyar Nemzeti Múzeum Közgyűjteményi Központot; 2027. január 1-jével az érintett intézmények (vidéki múzeumok, gyűjtemények) visszakapják jogi és szakmai önállóságukat.",
+   "horizont": "3 hónap",
+   "kerdesek": [
+    {
+     "id": "mnm-2609-s1",
+     "terulet": "sajto",
+     "hatarido": "2026-10-02",
+     "kerdes": "a Telex a döntés napján és az azt követő két napban (2026-09-30–2026-10-02) legalább 3 cikket közöl a témáról (az Echolot-korpuszban, cím és lead alapján).",
+     "szabaly": {
+      "modszer": "sajto_cikkszam",
+      "lapok": [
+       "telex"
+      ],
+      "napok": [
+       "2026-09-30",
+       "2026-10-01",
+       "2026-10-02"
+      ],
+      "regex": "(Közgyűjteményi|Nemzeti Múzeum|MNM)",
+      "legalabb": 3
+     }
+    },
+    {
+     "id": "mnm-2609-s2",
+     "terulet": "sajto",
+     "hatarido": "2026-10-02",
+     "kerdes": "a Magyar Nemzet a döntés napján és az azt követő két napban (2026-09-30–2026-10-02) legalább 3 cikket közöl a témáról (az Echolot-korpuszban, cím és lead alapján).",
+     "szabaly": {
+      "modszer": "sajto_cikkszam",
+      "lapok": [
+       "magyarnemzet"
+      ],
+      "napok": [
+       "2026-09-30",
+       "2026-10-01",
+       "2026-10-02"
+      ],
+      "regex": "(Közgyűjteményi|Nemzeti Múzeum|MNM)",
+      "legalabb": 3
+     }
+    },
+    {
+     "id": "mnm-2609-s3",
+     "terulet": "sajto",
+     "hatarido": "2026-10-02",
+     "kerdes": "A Magyar Nemzet TÖBB cikket közöl a témáról 2026-09-30–2026-10-02 között, mint a Telex.",
+     "szabaly": {
+      "modszer": "sajto_osszevetes",
+      "lapok": [
+       "magyarnemzet",
+       "telex"
+      ],
+      "napok": [
+       "2026-09-30",
+       "2026-10-01",
+       "2026-10-02"
+      ],
+      "regex": "(Közgyűjteményi|Nemzeti Múzeum|MNM)"
+     }
+    },
+    {
+     "id": "mnm-2609-t1",
+     "terulet": "tarsadalom",
+     "hatarido": "2026-10-13",
+     "kerdes": "2026-09-30–2026-10-13 között a Telex beszámol a döntés elleni tiltakozásról (nyílt levél, petíció, aláírásgyűjtés vagy tüntetés).",
+     "szabaly": {
+      "modszer": "sajto_cikkszam",
+      "lapok": [
+       "telex"
+      ],
+      "napok": [
+       "2026-09-30",
+       "2026-10-01",
+       "2026-10-02",
+       "2026-10-03",
+       "2026-10-04",
+       "2026-10-05",
+       "2026-10-06",
+       "2026-10-07",
+       "2026-10-08",
+       "2026-10-09",
+       "2026-10-10",
+       "2026-10-11",
+       "2026-10-12",
+       "2026-10-13"
+      ],
+      "regex": "(Közgyűjteményi|Nemzeti Múzeum|MNM)",
+      "regex2": "(tiltakoz|nyílt lev|petíci|aláírásgyűjt|tüntet|demonstr)",
+      "legalabb": 1
+     }
+    }
+   ]
+  }
+ ]
+}
