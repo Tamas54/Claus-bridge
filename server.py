@@ -9691,17 +9691,60 @@ def _probe_siliconflow_model(alias: str, model_id: str):
     return _p
 
 
+# ⚠️ EGY BOTLÁS NEM TARTÓS HIBA (Faber #3, 2026-11-22). Egyetlen TLS-kézfogás-időtúllépés („_ssl.c:1018: The handshake
+# operation timed out”) „TARTÓS: az `echolot` MOST IS hibás — 1/1 próba bukott” lett, és Faber-kérelem ment ki, miközben
+# az Echolot élt (máshonnan /health 200, kézfogás 0,09 s). A termék (`_echolot_client._get`) a hálózati hibát egyszer
+# újrapróbálja, a próba nem: mást mért, mint amit élesben a hívó tapasztal. Most a könnyű próbák is egyszer újrapróbálnak;
+# ami másodszorra sikerül, az zöld, de a botlás ott marad a részletben. HTTP-státuszt NEM ismétlünk: az már a szerv válasza.
+_PROBA_KISERLET = 2
+_PROBA_SZUNET_S = 2.0
+
+
+def _halozati_hiba(e: Exception) -> str:
+    """A hálózati hiba + hol akadt el: a következő vizsgálónak ez a fél diagnózis (a 10-18-i GCP-kimenő IP-tiltásnál
+    a TCP sem épült fel; egy kézfogás-időtúllépésnél a TCP felépült, a szerver vagy egy közbülső szűrő nem válaszolt)."""
+    nev, szoveg = type(e).__name__, str(e)
+    if "handshake" in szoveg.lower():
+        nev += " (a TLS-kézfogás akadt el, a TCP felépült)"
+    elif nev == "ConnectTimeout":
+        nev += " (a TCP-kapcsolat sem épült fel)"
+    return f"{nev}: {szoveg}"
+
+
+def _proba_keres(method: str, url: str, **kw):
+    """Egy próba-kérés, hálózati botlásra egy újrapróbával. → (válasz vagy None, a botlások szövege)."""
+    import httpx as _hx
+    botlasok: list[str] = []
+    for i in range(_PROBA_KISERLET):
+        if i:
+            time.sleep(_PROBA_SZUNET_S)
+        try:
+            return _hx.request(method, url, **kw), botlasok
+        except Exception as e:  # noqa: BLE001 — a próba sose dobhat (selfdiag 3. szabálya)
+            botlasok.append(_halozati_hiba(e))
+            if not isinstance(e, _hx.TransportError):
+                break  # rossz URL és társai: újrapróbálva sem lesz jobb
+    return None, botlasok
+
+
+def _proba_bukott(name: str, botlasok: list[str]) -> selfdiag.ProbeResult:
+    return selfdiag.ProbeResult(name, False, f"transport: {len(botlasok)}/{_PROBA_KISERLET} kísérlet bukott — "
+                                             f"{botlasok[-1]}")
+
+
+def _botlas_utoirat(botlasok: list[str]) -> str:
+    return f" (a {len(botlasok) + 1}. kísérletre; előtte: {botlasok[0][:160]})" if botlasok else ""
+
+
 def _probe_http_get(name: str, url: str, timeout: float = 15.0):
     def _p() -> selfdiag.ProbeResult:
-        import httpx as _hx
         if not url:
             return selfdiag.ProbeResult(name, None, "nincs URL konfigurálva")
-        try:
-            r = _hx.get(url, timeout=timeout, follow_redirects=True)
-        except Exception as e:
-            return selfdiag.ProbeResult(name, False, f"transport: {type(e).__name__}: {e}")
+        r, botlasok = _proba_keres("GET", url, timeout=timeout, follow_redirects=True)
+        if r is None:
+            return _proba_bukott(name, botlasok)
         return selfdiag.ProbeResult(name, 200 <= r.status_code < 400,
-                                    f"HTTP {r.status_code}")
+                                    f"HTTP {r.status_code}" + _botlas_utoirat(botlasok))
     return _p
 
 
@@ -9726,39 +9769,36 @@ def _probe_db() -> selfdiag.ProbeResult:
 def _probe_searxng() -> selfdiag.ProbeResult:
     """Ugyanazzal a kulccsal és fejléccel, mint az igazi keresés — a kulcs nélküli próba 403-at mért, miközben a
     keresés élt (a webes Claus 11-22-i lelete). Találat is kell, nem csak 200."""
-    import httpx as _hx
     if not SEARXNG_URL:
         return selfdiag.ProbeResult("json_api", None, "nincs SEARXNG_URL")
-    try:
-        r = _hx.get(f"{SEARXNG_URL}/search", params={"q": "budapest", "format": "json"}, timeout=20,
-                    follow_redirects=True, headers={"User-Agent": "claus-bridge/1.0", "Accept": "application/json",
-                                                    **_searxng_auth_headers()})
-    except Exception as e:
-        return selfdiag.ProbeResult("json_api", False, f"transport: {type(e).__name__}: {e}")
+    r, botlasok = _proba_keres("GET", f"{SEARXNG_URL}/search", params={"q": "budapest", "format": "json"}, timeout=20,
+                               follow_redirects=True, headers={"User-Agent": "claus-bridge/1.0",
+                                                               "Accept": "application/json", **_searxng_auth_headers()})
+    if r is None:
+        return _proba_bukott("json_api", botlasok)
     if r.status_code != 200:
         return selfdiag.ProbeResult("json_api", False, f"HTTP {r.status_code}: {r.text[:150]}")
     try:
         n = len(r.json().get("results") or [])
     except ValueError:
         return selfdiag.ProbeResult("json_api", False, "nem JSON a válasz")
-    return selfdiag.ProbeResult("json_api", n > 0 or None, f"HTTP 200, {n} találat")
+    return selfdiag.ProbeResult("json_api", n > 0 or None, f"HTTP 200, {n} találat" + _botlas_utoirat(botlasok))
 
 
 def _probe_brave_mcp() -> selfdiag.ProbeResult:
     """Valódi MCP-kézfogás (initialize), nem csak a konfiguráció megléte."""
-    import httpx as _hx
     if not BRAVE_MCP_ENABLED:
         return selfdiag.ProbeResult("endpoint", None, "BRAVE_MCP_URL nincs beállítva")
-    try:
-        r = _hx.post(os.environ.get("BRAVE_MCP_URL", "").strip(), timeout=20, json={
-            "jsonrpc": "2.0", "id": 1, "method": "initialize",
-            "params": {"protocolVersion": "2025-06-18", "capabilities": {},
-                       "clientInfo": {"name": "claus-bridge-selfdiag", "version": "1"}}},
-            headers={"Accept": "application/json, text/event-stream", "Content-Type": "application/json"})
-    except Exception as e:
-        return selfdiag.ProbeResult("endpoint", False, f"transport: {type(e).__name__}: {e}")
+    r, botlasok = _proba_keres("POST", os.environ.get("BRAVE_MCP_URL", "").strip(), timeout=20, json={
+        "jsonrpc": "2.0", "id": 1, "method": "initialize",
+        "params": {"protocolVersion": "2025-06-18", "capabilities": {},
+                   "clientInfo": {"name": "claus-bridge-selfdiag", "version": "1"}}},
+        headers={"Accept": "application/json, text/event-stream", "Content-Type": "application/json"})
+    if r is None:
+        return _proba_bukott("endpoint", botlasok)
     return selfdiag.ProbeResult("endpoint", r.status_code == 200 and "serverInfo" in r.text,
-                                f"HTTP {r.status_code}" + ("" if "serverInfo" in r.text else ", nincs MCP-válasz"))
+                                f"HTTP {r.status_code}" + ("" if "serverInfo" in r.text else ", nincs MCP-válasz")
+                                + _botlas_utoirat(botlasok))
 
 
 def _probe_google(kind: str, svc_key: str, ok_key: str, err_key: str, msg_key: str):
