@@ -597,3 +597,42 @@ def test_tortenet_lapozas_vegig_es_kurzor(db):
     assert ui.tortenet(c, "faber", None, adag=7) == {"ablak": "faber", "tetelek": [], "tovabb": False,
                                                     "legkisebb_id": 1}
     c.close()
+
+
+# ── MELLÉKLET a webes felületen (2026-11-22) ────────────────────────────
+
+def test_melleklet_feltoltes_es_chat_a_melleklettel(db, monkeypatch):
+    import melleklet as M
+    hivas = {}
+
+    async def feldolgoz(raw, nev, mime="", *, get_db, most, kitol):
+        hivas.update(nev=nev, meret=len(raw), kitol=kitol)
+        m = {"id": 7, "nev": nev, "cimke": "fénykép · átírva", "szoveg": "HATÁROZAT … 15 napon belül",
+             "megjegyzesek": [], "studio": {"file_id": "s7.jpg", "edit_url": "https://studio/app/file/s7"}}
+        M._FRISS[7] = (9e18, m)
+        return m
+    monkeypatch.setattr(M, "feldolgoz", feldolgoz)
+    kapott = []
+
+    async def asszisztens(szoveg, k, csatorna):
+        kapott.append(szoveg)
+    app, _ = _app(db, asszisztens=asszisztens)
+    # belépés nélkül 401
+    assert _run(_keres(app, "POST", "/api/ui/melleklet", suti=False,
+                       files={"fajl": ("irat.jpg", b"jpegbajtok", "image/jpeg")})).status_code == 401
+    r = _run(_keres(app, "POST", "/api/ui/melleklet", files={"fajl": ("irat.jpg", b"jpegbajtok", "image/jpeg")}))
+    assert r.status_code == 200 and r.json()["id"] == 7 and r.json()["studio"]["file_id"] == "s7.jpg"
+    assert hivas == {"nev": "irat.jpg", "meret": 10, "kitol": "kommandant-web"}
+    # üres szöveggel, csak melléklettel is mehet
+    r = _run(_keres(app, "POST", "/api/ui/chat", json={"szoveg": "", "mellekletek": [7]}))
+    assert r.status_code == 200
+
+    async def var():
+        for _ in range(50):
+            if kapott:
+                return
+            await asyncio.sleep(0.01)
+    _run(var())
+    assert kapott and kapott[0].startswith(M.ALAP_KERES) and "[Melléklet #7: irat.jpg — fénykép · átírva" in kapott[0]
+    M._FRISS.clear()
+    assert _run(_keres(app, "POST", "/api/ui/chat", json={"szoveg": "x", "mellekletek": [123456]})).status_code == 400

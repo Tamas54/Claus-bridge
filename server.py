@@ -69,6 +69,7 @@ import presence
 # A token az URL path-ban ül, a hívó modell nem látja és nem hamisíthatja.
 from youngereka_access import YRScopeMiddleware, authenticated
 from api_kapu import ApiKapuMiddleware
+import melleklet
 
 # Echolot — multi-sphere news context (separate Railway instance, REST)
 try:
@@ -10714,7 +10715,9 @@ async def _handle_telegram_message(text: str, chat_id: str, csatorna: str = "tel
     # parancs - nem akarok ilyen / parancsokat.” Az olcsó szint (Haiku 5.5) ismeri fel; kétes esetben None, és az
     # üzenet a Bridge rendes beszélgetése marad. A felismerés hibája sosem állítja meg a Telegram-utat.
     try:
-        _sz = await faber_relay.szandek(text, feldwebel_kerdezett=_feldwebel_kerdezett(chat_id))
+        # Melléklettel küldött kérés (irat, tanulmány, fotó) a Feldwebelé, nem a Faber kívánsága.
+        _sz = None if melleklet.van_melleklet(text) else await faber_relay.szandek(
+            text, feldwebel_kerdezett=_feldwebel_kerdezett(chat_id))
     except Exception as e:  # noqa: BLE001
         logger.warning("Faber-szándékfelismerés hiba (a Bridge-beszélgetés megy tovább): %s", e)
         _sz = None
@@ -10924,72 +10927,11 @@ async def _telegram_poll_loop():
                     if chat_id != TELEGRAM_CHAT_ID:
                         continue
 
-                    # Handle photo messages
-                    photo = msg.get("photo")
-                    if photo:
-                        caption = msg.get("caption", "")
-                        try:
-                            # Get largest photo (last in array)
-                            file_id = photo[-1]["file_id"]
-                            async with httpx.AsyncClient(timeout=15) as dl_client:
-                                # Get file path
-                                file_resp = await dl_client.get(
-                                    f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/getFile",
-                                    params={"file_id": file_id},
-                                )
-                                file_data = file_resp.json()
-                                file_path = file_data.get("result", {}).get("file_path", "")
-                                if not file_path:
-                                    await _telegram_push("Nem sikerult a kepet letolteni.")
-                                    continue
-                                # Download file
-                                img_resp = await dl_client.get(
-                                    f"https://api.telegram.org/file/bot{TELEGRAM_BOT_TOKEN}/{file_path}"
-                                )
-                                image_bytes = img_resp.content
-
-                            # Detect mime type
-                            mime = "image/jpeg"
-                            if file_path.endswith(".png"):
-                                mime = "image/png"
-                            elif file_path.endswith(".webp"):
-                                mime = "image/webp"
-
-                            image_b64 = base64.b64encode(image_bytes).decode("ascii")
-
-                            # Store image in uploads table (reusable for email, AI, etc.)
-                            conn = get_db()
-                            ts = now()
-                            ext = file_path.rsplit(".", 1)[-1] if "." in file_path else "jpg"
-                            filename = f"telegram_photo_{ts[:19].replace(':', '')}.{ext}"
-                            conn.execute(
-                                "INSERT INTO uploads (filename, mime_type, content_text, content_base64, uploaded_by, uploaded_at) "
-                                "VALUES (?, ?, '', ?, 'kommandant-telegram', ?)",
-                                (filename, mime, image_b64, ts),
-                            )
-                            upload_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
-                            conn.commit()
-                            conn.close()
-                            logger.info("Telegram photo stored: #%d %s (%d bytes)", upload_id, file_path, len(image_bytes))
-
-                            # Only analyze if caption requests it (e.g. "elemezd", "mi ez", any text)
-                            if caption:
-                                await _telegram_push(f"📷 Kep fogadva (#{upload_id}), Kimi K2.7 elemzi...")
-                                analysis = await _analyze_image(image_b64, mime, caption)
-                                await _telegram_push(
-                                    f"📷 <b>KEP ELEMZES</b> (Kimi K2.7)\n\n{analysis[:3600]}\n\n"
-                                    f"<i>Fajl #{upload_id} — tovabbkuldheto: \"kuldd el emailben a #{upload_id}-t\"</i>"
-                                )
-                            else:
-                                await _telegram_push(
-                                    f"📷 Kep fogadva: <b>#{upload_id}</b>\n"
-                                    f"• Elemzes: kuldd ujra caption-nel (pl. \"mi ez a kepen?\")\n"
-                                    f"• Tovabbkuldeni: \"kuldd el emailben a #{upload_id}-t\"\n"
-                                    f"• Vagy kerdezz: \"elemezd a #{upload_id}-es kepet\""
-                                )
-                        except Exception as e:
-                            logger.error("Telegram photo handling failed: %s", e)
-                            await _telegram_push(f"Kep feldolgozasi hiba: {str(e)[:200]}")
+                    # MELLÉKLET (2026-11-22): fénykép, dokumentum, album → Studio + átirat → a Feldwebel (melleklet.py).
+                    # A régi út (Kimi-képleírás, a Feldwebel nélkül) nem emlékezett a képre és nem kérdezett vissza;
+                    # a dokumentumot (PDF, Word) pedig némán eldobta.
+                    if msg.get("photo") or msg.get("document"):
+                        await _melleklet_fogad(msg, chat_id)
                         continue
 
                     if text:
@@ -11000,6 +10942,74 @@ async def _telegram_poll_loop():
             await asyncio.sleep(5)
 
         await asyncio.sleep(TELEGRAM_POLL_INTERVAL)
+
+
+async def _telegram_fajl(file_id: str) -> tuple[bytes, str]:
+    """Egy Telegram-fájl letöltése (a bot API 20 MB-ig ad) → (bájtok, a Telegram-oldali útvonal)."""
+    import httpx
+    async with httpx.AsyncClient(timeout=120) as c:
+        r = await c.get(f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/getFile", params={"file_id": file_id})
+        ut = (r.json().get("result") or {}).get("file_path", "")
+        if not ut:
+            raise ValueError("a Telegram nem adta ki a fájlt (20 MB fölött a bot nem tölthet le)")
+        f = await c.get(f"https://api.telegram.org/file/bot{TELEGRAM_BOT_TOKEN}/{ut}")
+        f.raise_for_status()
+        return f.content, ut
+
+
+#: Album (több fotó egyszerre): a Telegram képenként külön üzenetet küld, közös `media_group_id`-vel, a felirat csak
+#: az egyiken van. Rövid várakozás után egyben dolgozzuk fel — egy kérés, több oldal.
+_ALBUMOK: dict = {}
+ALBUM_VARAKOZAS_S = 2.5
+
+
+async def _melleklet_fogad(msg: dict, chat_id: str) -> None:
+    csoport = msg.get("media_group_id")
+    if not csoport:
+        await _mellekletek_feldolgoz([msg], msg.get("caption", ""), chat_id)
+        return
+    a = _ALBUMOK.setdefault(csoport, {"uzenetek": [], "felirat": "", "feladat": None})
+    a["uzenetek"].append(msg)
+    a["felirat"] = a["felirat"] or msg.get("caption", "")
+    if a["feladat"] is not None:
+        a["feladat"].cancel()
+
+    async def _kesleltet():
+        await asyncio.sleep(ALBUM_VARAKOZAS_S)
+        _ALBUMOK.pop(csoport, None)
+        await _mellekletek_feldolgoz(a["uzenetek"], a["felirat"], chat_id)
+
+    a["feladat"] = asyncio.get_running_loop().create_task(_kesleltet())
+
+
+async def _mellekletek_feldolgoz(uzenetek: list, felirat: str, chat_id: str) -> None:
+    """Letöltés → Studio + szöveg (melleklet.feldolgoz) → a Feldwebel kapja a kéréssel együtt."""
+    from html import escape as html_escape
+    await _telegram_push(f"📎 Megkaptam ({len(uzenetek)} fájl), olvasom…" if len(uzenetek) > 1
+                         else "📎 Megkaptam, olvasom…")
+    kesz = []
+    for i, m in enumerate(uzenetek, 1):
+        if m.get("photo"):
+            file_id = m["photo"][-1]["file_id"]
+            nev, mime = (f"foto_{i}.jpg" if len(uzenetek) > 1 else "foto.jpg"), "image/jpeg"
+        else:
+            d = m["document"]
+            file_id, nev, mime = d["file_id"], d.get("file_name") or f"dokumentum_{i}", d.get("mime_type") or ""
+            if (d.get("file_size") or 0) > 20 * 1024 * 1024:
+                await _telegram_push(f"📎 {html_escape(nev)}: 20 MB fölött a Telegram-bot nem tudja letölteni — "
+                                     f"töltsd fel a webes felületen (/app), ott 50 MB-ig megy.")
+                continue
+        try:
+            raw, ut = await _telegram_fajl(file_id)
+            if m.get("photo") and "." in ut:
+                nev = nev.rsplit(".", 1)[0] + "." + ut.rsplit(".", 1)[-1]
+            kesz.append(await melleklet.feldolgoz(raw, nev, mime, get_db=get_db, most=now,
+                                                  kitol="kommandant-telegram"))
+        except Exception as e:  # noqa: BLE001
+            logger.error("Telegram-melléklet hiba (%s): %s", nev, e)
+            await _telegram_push(f"📎 {html_escape(nev)}: {html_escape(str(e)[:300])}")
+    if kesz:
+        await _handle_telegram_message(melleklet.uzenet(felirat, kesz), chat_id)
 
 
 def _start_telegram_polling():

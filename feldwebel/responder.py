@@ -370,9 +370,34 @@ Ha emailre kell válaszolni:
 - Kérd a megerősítését mielőtt bármit küldenél
 - Aláírás: "Üdvözlettel, Kende Tamás"
 
+MELLÉKLET ÉS TANÁCSADÁS (irat, tanulmány, fotó, egészség):
+- A `[Melléklet #ID: név — … · Studio file_id=… · szerkesztő: …]` blokk egy fájl, amit a Kommandant küldött; alatta a
+  szövege (fotónál szó szerinti átirat: [bélyegző: …], [kézírás: …], [?] = bizonytalan olvasat). A fájl a Kommandant
+  Studiójában van, ezzel a file_id-vel.
+- Ha a fájlból valamit KÉSZÍTENI kell (válaszlevél, beadvány, fellebbezés, javaslat követett változtatásként,
+  átalakítás, űrlapkitöltés, szerkeszthető Word egy fotóból: digitize), a `studio` eszközzel, EZZEL a file_id-vel
+  dolgozz, és a végén add át a szerkesztő-linket (edit_url). Javaslat egy tanulmányra vagy iratra: követett
+  változtatásként és megjegyzésként (wordcraft, author="Claus") — a Kommandant dönt, nem te.
+- JOGI IRAT: először 2-3 mondatban: mi ez, ki kinek küldte, mit akar — és HA VAN HATÁRIDŐ, azt elsőként, dátummal és
+  azzal, honnan számít (kézbesítés!). Utána a kérdésre felelj. MIELŐTT jogi szabályt állítasz (határidő,
+  illetékesség, jogorvoslat, bírság, kedvezmény), nézd meg a `lexonomics`-ban (search / provision a hivatkozott
+  jogszabályhelyre), és a válaszban add meg a forrást (jogszabályhely, döntés száma, link) — ne ajánld fel, hogy
+  majd megnézed, nézd meg most. Szó szerinti idézet előtt `verify_citation`. Egyszerű kérdésre előbb egyszerű
+  válasz, ne paragrafus-felsorolás.
+- TANULMÁNY, KÉZIRAT: mielőtt javasolsz, kérdezz rá arra, ami a javaslatot megváltoztatja (mi a cél, kinek szól, hol
+  jelenik meg, mire kér javaslatot: szerkezet, érvelés, nyelv, források) — kivéve, ha a kérés ezt már megmondja.
+- EGÉSZSÉG („fáj a fejem, mit vegyek?”): nem diagnózis, de használható válasz. Röviden: a szokásos vény nélküli
+  lehetőség hatóanyaggal, a betegtájékoztató szerinti adaggal és napi maximummal (a `medical` eszköz OGYÉI-adatával),
+  és mikor NE szedje (gyomor, vese, máj, terhesség, véralvadásgátló, allergia). Utána 1-3 kérdés, ami a választást
+  megváltoztatja (mióta, milyen erős, szed-e más gyógyszert). A VÉSZJELEKET mindig írd ki: hirtelen kezdődő, eddigi
+  legrosszabb fájdalom; láz és tarkómerevség; zavartság, látás- vagy beszédzavar, gyengeség; fejsérülés után →
+  azonnal orvos / 112.
+- Ha a válaszhoz egy döntő tény hiányzik, KÉRDEZZ (legfeljebb 3 kérdés, számozva), de amit a meglévőből már mondani
+  lehet, azt mondd el előtte. Az ilyen válasz lehet hosszabb 3-5 mondatnál.
+
 Szabályok:
 - Magyar nyelv, hacsak nem kérnek mást
-- Tömör válaszok (max 3-5 mondat, kivéve ha elemzést kérnek)
+- Tömör válaszok (max 3-5 mondat, kivéve ha elemzést, iratot vagy tanácsot kérnek)
 - NE HAZUDJ — ha a tool nem ad eredményt, mondd meg
 - Email küldés SOHA nem automatikus — mindig kérj megerősítést"""
 
@@ -456,11 +481,15 @@ async def respond(text: str, chat_id: str, agent_id: str = "deepseek") -> str:
     #: onnan olvassa), webes körben élőben is látszik (`kimenet`).
     kiszolgalo = None
     eszkoz_nevek: list = []
+    import llm_kapu as _lk
+    from melleklet import van_melleklet
+    kotetlen = van_melleklet(text) or _lk.tanacs_keres(text)
     for round_num in range(5):
         data = await _call_deepseek(
             ctx, model_id, messages,
             use_tools=(round_num < 4),
-            force_tool=(round_num == 0),
+            # mellékletnél és tanácskérésnél NEM kényszerítünk eszközt az első körben: vissza kell tudnia kérdezni
+            force_tool=(round_num == 0 and not kotetlen),
             notes=kapu_notes,
         )
         if not data:

@@ -405,8 +405,42 @@ function tetelCsomopont(t) {
   return el('div', { class: `sor ${en ? 'en' : 'o'}${t.hiba ? ' hiba' : ''}` },
     mutatNev ? el('div', { class: 'ki-nev' }, avatar(t.ki, { kicsi: true }), UGYNOK[t.ki]?.rovid || t.ki) : null,
     t.targy ? el('div', { class: 'ki-nev', style: 'color:var(--ink)' }, t.targy) : null,
-    el('div', { class: `buborek${t.fuggo ? ' fuggo' : ''}`, html: md(t.szoveg || '') }),
+    buborek(t),
     meta.childNodes.length ? meta : null);
+}
+
+// MELLÉKLET (2026-11-22): a `[Melléklet #ID: név — címke]` blokk összecsukva — a fejléc látszik, a szöveg lenyitható.
+const MELLEKLET_RE = /\[Melléklet #(\d+): ([^\n]*?) — ([^\n]*)\]\n?([\s\S]*?)(?=\n\n\[Melléklet #|$)/g;
+function buborek(t) {
+  const szoveg = t.szoveg || '';
+  const hol = szoveg.indexOf('\n\n[Melléklet #');
+  const b = el('div', { class: `buborek${t.fuggo ? ' fuggo' : ''}`, html: md(hol >= 0 ? szoveg.slice(0, hol) : szoveg) });
+  if (hol < 0) return b;
+  for (const m of szoveg.slice(hol + 2).matchAll(MELLEKLET_RE)) {
+    const [, , nev, fej, torzs] = m;
+    const link = (fej.match(/szerkesztő: (https:\/\/\S+)/) || [])[1];
+    const cimke = fej.split(' · ').filter((x) => !x.startsWith('Studio file_id=') && !x.startsWith('szerkesztő:')).join(' · ');
+    b.append(el('details', { class: 'melleklet' },
+      el('summary', {}, `📎 ${nev}`, el('span', { class: 'halk' }, ` · ${cimke}`)),
+      link ? el('a', { href: link, target: '_blank', rel: 'noopener', class: 'melleklet-link' }, 'megnyitás a Studióban ↗') : null,
+      torzs.trim() ? el('div', { class: 'melleklet-szoveg', html: md(torzs.slice(0, 20000)) }) : null));
+  }
+  return b;
+}
+
+async function mellekletFeltolt(fajl, t, rajzol) {
+  try {
+    const fd = new FormData();
+    fd.append('fajl', fajl, fajl.name);
+    const r = await fetch('/api/ui/melleklet', { method: 'POST', credentials: 'same-origin', body: fd });
+    if (r.status === 401) { belepesNezet(); throw new Hiba401('belépés kell'); }
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(j.hiba || `HTTP ${r.status}`);
+    Object.assign(t, { allapot: 'kesz', id: j.id, cimke: j.cimke });
+  } catch (e) {
+    Object.assign(t, { allapot: 'hiba', hiba: e.message });
+  }
+  rajzol();
 }
 
 function atiratRajzol({ gorget = null } = {}) {
@@ -531,22 +565,53 @@ function szerkesztoEpit() {
   const kuld = el('button', { class: 'ikon-gomb kuld', type: 'submit', 'aria-label': 'Küldés', title: 'Küldés', disabled: true,
     html: '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M3.4 20.4 21 12 3.4 3.6 3.3 10l12.6 2-12.6 2z"/></svg>' });
   const dikt = diktalas(ta, { kuldd: () => urlapKuld() });
-  const gombok = el('div', { class: 'szerkeszto-gombok' }, dikt ? dikt.gomb : null, kuld);
+  // MELLÉKLET: fénykép, PDF, Word… (telefonon a kamera is) → a Studióba és a Feldwebelhez
+  const mellekletek = [];
+  const csempek = el('div', { class: 'melleklet-csempek' });
+  const fajlInput = el('input', { type: 'file', multiple: true, hidden: true });
+  const csatol = (n.tipus === 'ugynok' && n.id !== 'faber')
+    ? el('button', { class: 'ikon-gomb', type: 'button', 'aria-label': 'Melléklet', title: 'Fénykép vagy dokumentum csatolása',
+      onclick: () => fajlInput.click(),
+      html: '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M21 11.5 12.4 20a5.5 5.5 0 0 1-7.8-7.8l8.9-8.9a3.7 3.7 0 0 1 5.2 5.2l-8.9 8.9a1.8 1.8 0 0 1-2.6-2.6l8.1-8.1"/></svg>' })
+    : null;
+  function csempeRajzol() {
+    csempek.replaceChildren(...mellekletek.map((t, i) => el('span', { class: `melleklet-csempe ${t.allapot}`, title: t.hiba || t.cimke || '' },
+      `📎 ${t.nev}`,
+      el('span', { class: 'halk' }, t.allapot === 'fel' ? ' · olvasom…' : t.allapot === 'hiba' ? ` · ${t.hiba}` : ` · ${t.cimke || 'kész'}`),
+      el('button', { type: 'button', class: 'csempe-x', 'aria-label': 'Eltávolítás', onclick: () => { mellekletek.splice(i, 1); csempeRajzol(); } }, '×'))));
+    engedelyez();
+  }
+  fajlInput.addEventListener('change', () => {
+    for (const f of fajlInput.files) {
+      const t = { nev: f.name, allapot: 'fel' };
+      mellekletek.push(t);
+      mellekletFeltolt(f, t, csempeRajzol);
+    }
+    fajlInput.value = '';
+    csempeRajzol();
+  });
+  const gombok = el('div', { class: 'szerkeszto-gombok' }, csatol, dikt ? dikt.gomb : null, kuld);
   const durva = matchMedia('(pointer: coarse)').matches;
-  const urlap = el('form', { class: 'szerkeszto-hej' }, ta,
+  const urlap = el('form', { class: 'szerkeszto-hej' }, csempek, ta, fajlInput,
     el('div', { class: 'szerkeszto-sor' }, el('span', { class: 'halk' }, durva ? '' : 'Enter: küldés · Shift+Enter: új sor'), gombok));
   const meret = () => { ta.style.height = 'auto'; ta.style.height = `${Math.min(ta.scrollHeight, innerHeight * 0.4)}px`; };
-  const engedelyez = () => { kuld.disabled = !ta.value.trim() || Boolean(S.futok[nezetKulcs()]); };
+  const kesz = () => mellekletek.filter((t) => t.allapot === 'kesz');
+  const engedelyez = () => {
+    kuld.disabled = (!ta.value.trim() && !kesz().length) || mellekletek.some((t) => t.allapot === 'fel')
+      || Boolean(S.futok[nezetKulcs()]);
+  };
   ta.addEventListener('input', () => { meret(); engedelyez(); });
   ta.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && !e.shiftKey && !e.isComposing && !durva) { e.preventDefault(); urlapKuld(); }
   });
   function urlapKuld() {
     const szoveg = ta.value.trim();
-    if (!szoveg || S.futok[nezetKulcs()]) return;
+    const mm = kesz();
+    if ((!szoveg && !mm.length) || S.futok[nezetKulcs()] || mellekletek.some((t) => t.allapot === 'fel')) return;
     dikt?.cancel();
-    ta.value = ''; meret(); engedelyez();
-    kuldes(szoveg);
+    ta.value = ''; meret();
+    mellekletek.length = 0; csempeRajzol();
+    kuldes(szoveg, mm);
   }
   urlap.addEventListener('submit', (e) => { e.preventDefault(); urlapKuld(); });
   S.ref.szerkeszto.replaceChildren(el('div', { class: 'szerkeszto' }, urlap, dikt ? dikt.jegyzet : null));
@@ -555,7 +620,7 @@ function szerkesztoEpit() {
   if (!durva) setTimeout(() => ta.focus(), 30);
 }
 
-async function kuldes(szoveg) {
+async function kuldes(szoveg, mellekletek = []) {
   const n = { ...S.nezet };
   const kulcs = nezetKulcs(n);
   if (n.tipus === 'vita') {
@@ -566,13 +631,14 @@ async function kuldes(szoveg) {
     return;
   }
   const indult = szerverMost();
-  const fuggo = { ido: indult, ki: 'kommandant', szoveg, tipus: 'uzenet', csatorna: 'web', fuggo: true };
+  const lathato = [szoveg, ...mellekletek.map((t) => `📎 ${t.nev}`)].filter(Boolean).join('\n');
+  const fuggo = { ido: indult, ki: 'kommandant', szoveg: lathato, tipus: 'uzenet', csatorna: 'web', fuggo: true };
   (S.ideiglenes[kulcs] ||= []).push(fuggo);
   S.futok[kulcs] = { ugynok: n.id, allapot: 'fut', valaszok: [], eszkozok: [], indult, sajat: fuggo };
   atiratRajzol({ gorget: true });
   fejlecRajzol(); balRajzol(); S.ref.engedelyez?.();
   try {
-    const j = await api('/api/ui/chat', { method: 'POST', body: { szoveg, ugynok: n.id } });
+    const j = await api('/api/ui/chat', { method: 'POST', body: { szoveg, ugynok: n.id, mellekletek: mellekletek.map((t) => t.id) } });
     S.futok[kulcs].kor_id = j.kor_id;
     korKovet(j.kor_id, kulcs);
   } catch (e) {

@@ -634,12 +634,20 @@ async def api_chat(request: Request):
     body = await request.json()
     szoveg = str(body.get("szoveg") or "").strip()
     ugynok = str(body.get("ugynok") or "feldwebel")
-    if not szoveg:
+    idk = body.get("mellekletek") or []
+    if not szoveg and not idk:
         return JSONResponse({"hiba": "üres üzenet"}, status_code=400)
     if len(szoveg) > 8000:
         return JSONResponse({"hiba": "túl hosszú üzenet (legfeljebb 8000 jel)"}, status_code=400)
     if ugynok not in UGYNOKOK:
         return JSONResponse({"hiba": f"ismeretlen ügynök: {ugynok}"}, status_code=400)
+    if idk:
+        # a feltöltött mellékletek szövege a kérés alá (melleklet.py) — a Feldwebel így olvassa, és emlékszik rá
+        import melleklet
+        mm = melleklet.betolt(_DEPS["get_db"], idk if isinstance(idk, list) else [idk])
+        if not mm:
+            return JSONResponse({"hiba": "a melléklet nem található — töltsd fel újra"}, status_code=400)
+        szoveg = melleklet.uzenet(szoveg, mm)
     most = _most()
     with _ZAR:
         for kid, kk in list(_KOROK.items()):
@@ -885,6 +893,34 @@ async def api_brief(request: Request):
                          "szoveg": tg_szoveg(szoveg, "feldwebel")["szoveg"]})
 
 
+# ══ 9/B. MELLÉKLET-FELTÖLTÉS (fénykép, PDF, Word… → Studio + szöveg) ═════════════
+
+MELLEKLET_MAX = 50 * 1024 * 1024
+
+
+@_vedett
+async def api_melleklet(request: Request):
+    """POST /api/ui/melleklet (multipart, mező: `fajl`) → {id, nev, cimke, karakter, studio}. A kliens az `id`-t a
+    következő `POST /api/ui/chat` `mellekletek` listájában küldi; a szöveg és a Studio-fájl a szerveren marad."""
+    import melleklet
+    if int(request.headers.get("content-length") or 0) > MELLEKLET_MAX + 1024 * 1024:
+        return JSONResponse({"hiba": "a fájl túl nagy (legfeljebb 50 MB)"}, status_code=413)
+    urlap = await request.form()
+    f = urlap.get("fajl")
+    if f is None or not hasattr(f, "read"):
+        return JSONResponse({"hiba": "nincs fájl a kérésben"}, status_code=400)
+    raw = await f.read()
+    if not raw:
+        return JSONResponse({"hiba": "üres fájl"}, status_code=400)
+    try:
+        m = await melleklet.feldolgoz(raw, f.filename or "melleklet", f.content_type or "",
+                                      get_db=_DEPS["get_db"], most=_iso, kitol="kommandant-web")
+    except ValueError as e:
+        return JSONResponse({"hiba": str(e)}, status_code=422)
+    return JSONResponse({"id": m["id"], "nev": m["nev"], "cimke": m["cimke"], "karakter": len(m["szoveg"]),
+                         "megjegyzesek": m["megjegyzesek"], "studio": m["studio"]})
+
+
 # ══ 10. REGISZTRÁCIÓ ═════════════════════════════════════════════════════
 
 #: Az összes `/api/ui/*` út — a teszt ezen megy végig, hogy süti nélkül mind 401.
@@ -892,6 +928,7 @@ API_UTAK = [
     ("/api/ui/allapot", ["GET"], api_allapot),
     ("/api/ui/beszelgetes", ["GET"], api_beszelgetes),
     ("/api/ui/chat", ["POST"], api_chat),
+    ("/api/ui/melleklet", ["POST"], api_melleklet),
     ("/api/ui/chat/{kor_id}", ["GET"], api_chat_kor),
     ("/api/ui/faber/dont", ["POST"], api_faber_dont),
     ("/api/ui/draft/dont", ["POST"], api_draft_dont),

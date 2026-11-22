@@ -113,6 +113,18 @@ MELY_JELEK = ("elemez", "elemzés", "értékel", "gondold végig", "alaposan", "
               "összehasonl", "összevet", "javasol", "javaslat", "döntés", "dönts", "miért", "magyarázd", "érvel",
               "kockázat", "előrejelz", "prognózis")
 MELY_HOSSZ_KAR = 400
+#: Tanácskérés (jog, egészség, irat, tanulmány) és melléklet → Sonnet: itt a minőség a lényeg, nem a fél cent.
+#: A Feldwebel ezekre az első körben sem kényszerít eszközt (vissza kell tudnia kérdezni).
+TANACS_JELEK = ("[melléklet #", "tanács", "véleményez", "javíts", "mit tegyek", "mit vegyek", "mit szedjek",
+                "tünet", "gyógyszer", "orvos", "beteg", "szerződés", "fellebb", "bíróság", "végzés",
+                "határozat", "felmond", "kereset", "beadvány", "tanulmány", "kézirat")
+#: „fáj a fejem”, „fájdalom” — de NEM „fájl”.
+_FAJ = re.compile(r"\bfáj(?!l)")
+
+
+def tanacs_keres(szoveg: str) -> bool:
+    s = (szoveg or "").lower()
+    return any(j in s for j in TANACS_JELEK) or bool(_FAJ.search(s))
 
 OKOS_CELOK = ("synth", "brief", "elemz", "analy", "dispatch", "essay", "esszé", "nowcast")
 OLCSO_CELOK = ("triage", "osztaly", "osztály", "classif", "fordit", "fordít", "translat", "chat",
@@ -194,7 +206,8 @@ def szint_valaszt(payload: dict, purpose: str = "") -> tuple[str, str]:
         szabaly = "cel_okos"
     elif "feldwebel" in cel:
         utolso = _utolso_kommandant_szoveg(payload)
-        mely = len(utolso) > MELY_HOSSZ_KAR or any(j in utolso.lower() for j in MELY_JELEK)
+        mely = (len(utolso) > MELY_HOSSZ_KAR or any(j in utolso.lower() for j in MELY_JELEK)
+                or tanacs_keres(utolso))
         szabaly = "feldwebel_melyebb" if mely else "feldwebel"
     elif any(c in cel for c in OLCSO_CELOK):
         szabaly = "cel_olcso"
