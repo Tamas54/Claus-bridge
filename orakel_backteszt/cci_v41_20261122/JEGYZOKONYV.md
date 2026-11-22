@@ -170,7 +170,7 @@ Az állandó eltolás javít (12,8 → 4,0), de a naiv „mint múlt hónapban�
   - A júliusi ablakok eleje (06-08/15…06-20) ritka: napi 8–21 cikk. Ez a júliusi audit „sűrű zóna 06-21-től” lelete.
 - **HU-réteg:** 37–47 forrás, minden ablakban 500/nap. Témák: általános, gazdaság, politika.
 - **Forrásszám:** FR 95–112, IT 72–118, DE 76–100, US 106–212.
-- **Téma-torzulás:** a sport aránya magas (IT 33–45%, DE 19–31%, US 10–22%). Témaszűrés nincs, ahogy júliusban sem: a reprezentativitás elve.
+- **Téma-torzulás:** a sport aránya magas (a 08–11-es ablakokban: IT 33–45%, DE 19–31%, US 10–22%). Témaszűrés nincs, ahogy júliusban sem: a reprezentativitás elve.
   - A novemberi ablakban a külföldi hírek aránya ugrik (FR 62%, US „global” 61%).
 - **UK:** kimarad, a GfK-index nincs a mérőeszközeinken.
 
