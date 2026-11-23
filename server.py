@@ -81,6 +81,8 @@ import cimzett
 import twitter_poszt
 # OPERATION HOG a Bridge-ből (2026-11-23): X-poszt → Echolot hog_prepare → Sonnet ír → a Kommandant jóváhagyja → oldal + tweet
 import hog
+# KÖZLÉS-FIGYELŐ (2026-11-23): a hivatalos közlés pillanatában szám + összevetés + Telegram + X-tervezet (LLM nélkül)
+import kozles_figyelo
 
 # Echolot — multi-sphere news context (separate Railway instance, REST)
 try:
@@ -1806,6 +1808,20 @@ async def api_status(request):
         "kulso_mcp": __import__("kulso_mcp").allapot(),
         "recent_sessions": [dict(s) for s in last_session]
     })
+
+
+@mcp.custom_route("/api/kozles", methods=["GET"])
+async def api_kozles(request):
+    """KÖZLÉS-FIGYELŐ (kozles_figyelo.py): a következő 24 óra terve és a heti késés-összesítő (JSON, a kabinnak)."""
+    tar = kozles_figyelo.tar_kapcsolat()
+    most = datetime.now(timezone.utc)
+    try:
+        napok = max(1, min(60, int(request.query_params.get("napok", "7"))))
+    except ValueError:
+        napok = 7
+    return JSONResponse({"bekapcsolva": kozles_figyelo.bekapcsolva(),
+                         "terv": tar.esemenyek(most - timedelta(hours=1), most + timedelta(hours=24)),
+                         "heti": kozles_figyelo.heti_osszesito(tar, most, napok=napok)})
 
 
 def cli_claus_figyel(conn, max_s: int = 120) -> bool:
@@ -12667,6 +12683,10 @@ _feladat_ugynok_bekot()
 # állapot a shared_memory egy kulcsában, a közös írási úton; a kérelem az aláírt Faber-relayen). HOPSZ_AUTO=0: semmi.
 hopsz.beallit(get_db=get_db, memoria_ir=memoria_ir, bot_token=lambda: TELEGRAM_BOT_TOKEN)
 
+# KÖZLÉS-FIGYELŐ (11-23, kozles_figyelo.py): a jelzés a Kommandantnak (_telegram_push), az X csak tervezet (action_drafts);
+# a tár az elso_kozles Postgrese (ELSO_KOZLES_PG_DSN). KOZLES_FIGYELO=0: semmi.
+kozles_figyelo.beallit(get_db=get_db, telegram=_telegram_push)
+
 
 async def _cron_loop():
     """Runs every 60s, checks scheduled recipes and executes them. Also cleans old uploads.
@@ -12750,6 +12770,9 @@ async def _cron_loop():
 
             # NACHTSCHICHT (2026-11-22): 05:50-kor (Budapest) naponta egyszer, háttérfeladatként (nachtschicht.py)
             nachtschicht.cron_lepes(now_local, get_db=get_db, memoria_ir=memoria_ir, futtat=_nachtschicht_ejszaka)
+
+            # KÖZLÉS-FIGYELŐ (2026-11-23): tervkör 07:00 / 12:00 (és induláskor), a közlési ablakok háttérfeladatként
+            kozles_figyelo.cron_lepes(now_local)
 
             # Daily cleanup: delete uploads older than 7 days (runs once at ~04:00 UTC)
             today_str = now_dt.strftime("%Y-%m-%d")
