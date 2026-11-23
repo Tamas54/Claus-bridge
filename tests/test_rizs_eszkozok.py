@@ -372,6 +372,14 @@ def test_szoveges_jelolos_hivas_is_vegrehajtva(kulso, web, monkeypatch):
 
 # ══ 5. KORLÁTOS HUROK: KÖRSZÁM ÉS ESZKÖZHÍVÁS-KERET ══════════════════════════
 
+def test_a_hurok_a_modell_sajat_beallitasaval_megy(monkeypatch):
+    """Kimi gondolkodás nélkül (mint az ai_query/ai_task úton): a K3.1 Pro alapból gondolkodna, és a kör keretét elvinné."""
+    sf = _hurok_sf(monkeypatch, [])
+    asyncio.run(server._rizs_eszkozhurok("moonshotai/Kimi-K3.1-Pro", [{"role": "user", "content": "x"}],
+                                         purpose="telegram/chat/kimi"))
+    assert sf[0][1]["thinking"] == {"type": "disabled"}
+
+
 def test_korszam_korlat(web, monkeypatch):
     """A modell minden körben újra keresne: legfeljebb RIZS_HUROK_MAX_KOR kör, az utolsó eszköz nélkül, záró kéréssel."""
     hivasok = []

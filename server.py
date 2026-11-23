@@ -8688,7 +8688,9 @@ async def _rizs_eszkozhurok(model_id: str, messages: list, *, purpose: str, max_
 
     for kor in range(max_kor):
         zaro = kor == max_kor - 1 or len(hivott) >= max_hivas or time.monotonic() - t0 > ido_s
-        payload = {"model": model_id, "temperature": temperature, "max_tokens": max_tokens,
+        # a modell saját beállítása, mint az ai_query/ai_task úton (`_model_extra`): Kimi gondolkodás nélkül — a
+        # K3.1 Pro alapból gondolkodik, és élesben mérve (11-23) a 400 tokenes körben a gondolat elvitte a keretet
+        payload = {"model": model_id, "temperature": temperature, "max_tokens": max_tokens, **_model_extra(model_id),
                    "messages": messages + ([{"role": "user", "content": RIZS_HUROK_ZARO}] if zaro and kor else [])}
         if not zaro:
             payload["tools"] = tools
