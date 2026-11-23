@@ -8073,7 +8073,9 @@ async def sf_chat(payload: dict, *, purpose: str = "", attempts: int = 3,
     _fizetes_vege = False
     async with httpx.AsyncClient(timeout=SILICONFLOW_TIMEOUT) as client:
         for mi, mid in enumerate(chain):
-            body = dict(payload)
+            # az Anthropic-kiegészítések (halasztott eszköz, tool_reference, cache-töréspont) a SiliconFlow-nak nem
+            # mennek: ott minden eszköz látszik, mint eddig (llm_kapu.sf_tisztit)
+            body = dict(llm_kapu.sf_tisztit(payload))
             body["model"] = mid
             if mi > 0:
                 # A tartalék-modellnek a SAJÁT paraméterei kellenek: a Kimi

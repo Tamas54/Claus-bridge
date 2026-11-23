@@ -370,7 +370,53 @@ def _eszkoz(t: dict) -> dict | None:
     d = {"name": f["name"], "input_schema": schema}
     if f.get("description"):
         d["description"] = f["description"]
+    if t.get("defer_loading") or f.get("defer_loading"):
+        d["defer_loading"] = True
     return d
+
+
+# ══ IGÉNY SZERINTI ESZKÖZÖK ÉS A CACHE-ELHETŐ MAG (2026-11-23) ══════════════
+#
+# A Kommandant: „Túl sokba kerül a futás… Valami tényleg nem oké.” A Feldwebel minden üzenetre ~50 ezer tokent küldött
+# (45 eszköz ≈ 17k, rendszerszöveg ≈ 32k), és a változó RAG a rendszerszövegben ült, így üzenetek között semmi nem jött
+# cache-ből. Három, a hívó által kért kiegészítés (az Anthropic dokumentációja szerint):
+#   * `defer_loading` egy eszközön (OpenAI-alakban a `tools[i]` szintjén): az API az eszközt nem rendereli az
+#     előtagba, csak ha egy `tool_reference` betölti — a `tools` lista így minden kérésben ugyanaz marad (cache).
+#   * `tool_reference` egy `tool` üzeneten (névlista): az eredmény `tool_reference` blokkok (az „egyéni tool search”
+#     alak); a szöveges tartalom KÜLÖN szövegblokként jön utána ugyanabban a user-fordulóban — a kettő egy
+#     `tool_result`-ban nem keveredhet (az API 400-at ad).
+#   * `cache_rendszer` ("5m" | "1h"): explicit cache-töréspont a vezető rendszerszöveg végén (eszközök + mag); az
+#     automatikus (felső szintű) töréspont a farkat viszi. A hosszabb TTL-nek kell elöl állnia — így is van.
+# A SiliconFlow ezeket nem ismeri: a `sf_tisztit` leveszi őket (ott minden eszköz látszik, mint eddig).
+CACHE_TTL = {"5m": None, "1h": "1h"}
+
+
+def _cache_jel(ttl: str | None) -> dict:
+    return {"type": "ephemeral", **({"ttl": ttl} if ttl else {})}
+
+
+def sf_tisztit(payload: dict) -> dict:
+    """A payload SiliconFlow-alakja: az Anthropic-kiegészítések (`defer_loading`, `tool_reference`, `cache_rendszer`)
+    nélkül. A SiliconFlow-modell így MINDEN eszközt lát (képesség nem vész el), a betöltő eredménye sima szöveg."""
+    if not any(k in payload for k in ("cache_rendszer",)) and not any(
+            isinstance(t, dict) and (t.get("defer_loading") or (t.get("function") or {}).get("defer_loading"))
+            for t in payload.get("tools") or []) and not any(
+            isinstance(m, dict) and "tool_reference" in m for m in payload.get("messages") or []):
+        return payload
+    p = {k: v for k, v in payload.items() if k != "cache_rendszer"}
+    if p.get("tools"):
+        uj = []
+        for t in p["tools"]:
+            if isinstance(t, dict):
+                t = {k: v for k, v in t.items() if k != "defer_loading"}
+                if isinstance(t.get("function"), dict) and "defer_loading" in t["function"]:
+                    t["function"] = {k: v for k, v in t["function"].items() if k != "defer_loading"}
+            uj.append(t)
+        p["tools"] = uj
+    if p.get("messages"):
+        p["messages"] = [{k: v for k, v in m.items() if k != "tool_reference"} if isinstance(m, dict) else m
+                         for m in p["messages"]]
+    return p
 
 
 def _eszkozvalasztas(payload: dict) -> dict:
@@ -411,6 +457,10 @@ def fordit_keres(payload: dict, *, modell: str, effort: str, fallbacks: bool,
     szövegként adjuk át: eszközdefiníció nélküli `tool_use` blokkot nem küldünk.
     """
     eszkozok = [e for e in (_eszkoz(t) for t in (payload.get("tools") or []) if isinstance(t, dict)) if e]
+    if eszkozok and all(e.get("defer_loading") for e in eszkozok):
+        for e in eszkozok:                       # legalább egy eszköz nem lehet halasztott (az API 400-at ad)
+            e.pop("defer_loading", None)
+    halasztott = {e["name"] for e in eszkozok if e.get("defer_loading")}
     kw: dict = {"model": modell}
     system: list[str] = []
     out: list[dict] = []
@@ -433,7 +483,13 @@ def fordit_keres(payload: dict, *, modell: str, effort: str, fallbacks: bool,
         if role == "tool":
             tid = _biztos_id(m.get("tool_call_id") or "")
             tartalom = _szoveg(m.get("content")) or "(üres eredmény)"
-            if eszkozok:
+            hivatkozas = [n for n in (m.get("tool_reference") or []) if n in halasztott] if eszkozok else []
+            if hivatkozas:
+                # a betöltött eszközök `tool_reference`-ként; a kísérő szöveg (útmutató) külön blokk utána
+                _hozzaad(out, "user", [{"type": "tool_result", "tool_use_id": tid,
+                                        "content": [{"type": "tool_reference", "tool_name": n} for n in hivatkozas]}]
+                         + ([{"type": "text", "text": tartalom}] if tartalom.strip() else []))
+            elif eszkozok:
                 _hozzaad(out, "user", [{"type": "tool_result", "tool_use_id": tid, "content": tartalom}])
             else:
                 nev = nevek.get(tid, "eszköz")
@@ -466,6 +522,11 @@ def fordit_keres(payload: dict, *, modell: str, effort: str, fallbacks: bool,
 
     if system:
         kw["system"] = "\n\n".join(system)
+        ttl = payload.get("cache_rendszer")
+        if ttl in CACHE_TTL:
+            # explicit töréspont a STABIL előtag végén (eszközök + vezető rendszerszöveg): az üzenetek között is ez
+            # jön cache-ből; a változó rész (dátum, RAG, feladatok) a hívó dolga, hogy a töréspont MÖGÉ kerüljön
+            kw["system"] = [{"type": "text", "text": kw["system"], "cache_control": _cache_jel(CACHE_TTL[ttl])}]
     if eszkozok:
         kw["tools"] = eszkozok
         kw["tool_choice"] = _eszkozvalasztas(payload)
@@ -1056,7 +1117,7 @@ async def _kozvetlen_sf(payload: dict, *, sf_kulcs: str = "", sf_alap: str = "",
             resp = await client.post(f"{alap}/chat/completions",
                                      headers={"Authorization": f"Bearer {kulcs}",
                                               "Content-Type": "application/json"},
-                                     json=payload)
+                                     json=sf_tisztit(payload))
     except Exception as e:  # noqa: BLE001 — tipizált hibaként megy vissza
         return None, {"code": "transport", "message": f"{type(e).__name__}: {e}"[:400], "provider": "siliconflow",
                       "idotullepes": isinstance(e, httpx.TimeoutException)}, []
