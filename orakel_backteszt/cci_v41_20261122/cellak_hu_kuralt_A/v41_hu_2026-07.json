@@ -1,0 +1,127 @@
+{
+ "cell": "HU 2026-07",
+ "variant": "A",
+ "priming": "AKTUÁLIS HELYZET (2026): a 2026. áprilisi választást a TISZA Párt (Magyar Péter) nyerte, jelenleg ők kormányoznak; a Fidesz-KDNP (Orbán Viktor) ellenzékben. A közmédia a mindenkori kormányt — most a Tiszát — támogatja.",
+ "N_per_seed": 60,
+ "model": "deepseek-ai/DeepSeek-V4.1-Flash",
+ "embed_model": "Qwen/Qwen3-Embedding-8B",
+ "corpus": "korpusz_kuralt/corpus_hu_2026-07.json",
+ "per_seed": [
+  {
+   "seed": 1,
+   "n_answers": 60,
+   "n_sent": 60,
+   "n_cat": 56,
+   "ssr_balance": -21.26056462792625,
+   "cat_balance": -41.07142857142857,
+   "survey_pmf": [
+    0.13684908580081406,
+    0.3838343474416195,
+    0.27853411482683305,
+    0.16924367737674492,
+    0.03153877455398865
+   ],
+   "kl": {
+    "age": 0.001003116615447915,
+    "settlement": 0.0004698091578317753,
+    "edu": 0.00014139630698200775,
+    "media": 0.0009909946200182748
+   },
+   "szelet_szaldo": {
+    "bal": -19.49,
+    "kozossegi": -2.9,
+    "kozmedia": -23.5,
+    "alig": -23.73,
+    "jobb": -38.25
+   },
+   "szelet_n": {
+    "bal": 15,
+    "kozossegi": 13,
+    "kozmedia": 11,
+    "alig": 8,
+    "jobb": 13
+   }
+  },
+  {
+   "seed": 2,
+   "n_answers": 60,
+   "n_sent": 60,
+   "n_cat": 51,
+   "ssr_balance": -18.38286053149758,
+   "cat_balance": -47.05882352941177,
+   "survey_pmf": [
+    0.13630275156569452,
+    0.361200262383069,
+    0.2786586343123948,
+    0.1815281485931771,
+    0.0423102031456646
+   ],
+   "kl": {
+    "age": 0.0006876497875904063,
+    "settlement": 0.00023762482708502989,
+    "edu": 0.00014139630698200775,
+    "media": 0.00021291731334163472
+   },
+   "szelet_szaldo": {
+    "bal": -9.6,
+    "kozmedia": -21.55,
+    "jobb": -26.1,
+    "alig": -16.61,
+    "kozossegi": -19.75
+   },
+   "szelet_n": {
+    "bal": 16,
+    "kozmedia": 11,
+    "jobb": 13,
+    "alig": 7,
+    "kozossegi": 13
+   }
+  },
+  {
+   "seed": 3,
+   "n_answers": 60,
+   "n_sent": 60,
+   "n_cat": 54,
+   "ssr_balance": -14.818546978741253,
+   "cat_balance": -31.48148148148148,
+   "survey_pmf": [
+    0.1062172926329575,
+    0.3640760415716034,
+    0.29556506597378424,
+    0.18814351238061677,
+    0.045998087441038164
+   ],
+   "kl": {
+    "age": 0.0006805865217492432,
+    "settlement": 0.0004698091578317753,
+    "edu": 0.00014139630698200775,
+    "media": 0.00021291731334163472
+   },
+   "szelet_szaldo": {
+    "kozmedia": -16.79,
+    "kozossegi": -18.97,
+    "jobb": -24.68,
+    "bal": -6.7,
+    "alig": -4.26
+   },
+   "szelet_n": {
+    "kozmedia": 11,
+    "kozossegi": 13,
+    "jobb": 13,
+    "bal": 16,
+    "alig": 7
+   }
+  }
+ ],
+ "seed_mean": -18.153990712721694,
+ "seed_sd": 3.2271014693626587,
+ "cat_mean": -39.87057786077394,
+ "usage_this_run": {
+  "prompt": 334235,
+  "completion": 23899,
+  "calls": 180,
+  "embed_tokens": 22566
+ },
+ "cost_usd_this_run": 0.06447,
+ "wall_s": 122.5
+}

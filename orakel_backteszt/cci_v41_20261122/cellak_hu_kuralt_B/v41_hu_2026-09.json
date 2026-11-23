@@ -1,0 +1,127 @@
+{
+ "cell": "HU 2026-09",
+ "variant": "B",
+ "priming": null,
+ "N_per_seed": 60,
+ "model": "deepseek-ai/DeepSeek-V4.1-Flash",
+ "embed_model": "Qwen/Qwen3-Embedding-8B",
+ "corpus": "korpusz_kuralt/corpus_hu_2026-09.json",
+ "per_seed": [
+  {
+   "seed": 1,
+   "n_answers": 60,
+   "n_sent": 60,
+   "n_cat": 52,
+   "ssr_balance": -34.404453040209845,
+   "cat_balance": -67.3076923076923,
+   "survey_pmf": [
+    0.2017815776438449,
+    0.42395440984777044,
+    0.2409226592366525,
+    0.12725420221220005,
+    0.006087151059531982
+   ],
+   "kl": {
+    "age": 0.001003116615447915,
+    "settlement": 0.0004698091578317753,
+    "edu": 0.00014139630698200775,
+    "media": 0.0009909946200182748
+   },
+   "szelet_szaldo": {
+    "bal": -27.64,
+    "kozossegi": -37.29,
+    "kozmedia": -27.74,
+    "alig": -35.95,
+    "jobb": -44.02
+   },
+   "szelet_n": {
+    "bal": 15,
+    "kozossegi": 13,
+    "kozmedia": 11,
+    "alig": 8,
+    "jobb": 13
+   }
+  },
+  {
+   "seed": 2,
+   "n_answers": 60,
+   "n_sent": 60,
+   "n_cat": 52,
+   "ssr_balance": -30.985229561573924,
+   "cat_balance": -65.38461538461539,
+   "survey_pmf": [
+    0.1979669516916266,
+    0.4201556511514693,
+    0.20786751958679664,
+    0.1516347918369715,
+    0.022375085733136086
+   ],
+   "kl": {
+    "age": 0.0006876497875904063,
+    "settlement": 0.00023762482708502989,
+    "edu": 0.00014139630698200775,
+    "media": 0.00021291731334163472
+   },
+   "szelet_szaldo": {
+    "bal": -32.39,
+    "kozmedia": -26.74,
+    "jobb": -23.97,
+    "alig": -34.71,
+    "kozossegi": -37.86
+   },
+   "szelet_n": {
+    "bal": 16,
+    "kozmedia": 11,
+    "jobb": 13,
+    "alig": 7,
+    "kozossegi": 13
+   }
+  },
+  {
+   "seed": 3,
+   "n_answers": 60,
+   "n_sent": 60,
+   "n_cat": 56,
+   "ssr_balance": -33.55086161339944,
+   "cat_balance": -69.64285714285714,
+   "survey_pmf": [
+    0.2064596408183571,
+    0.42238068267461304,
+    0.2190874496617877,
+    0.1398617216471455,
+    0.012210505198096579
+   ],
+   "kl": {
+    "age": 0.0006805865217492432,
+    "settlement": 0.0004698091578317753,
+    "edu": 0.00014139630698200775,
+    "media": 0.00021291731334163472
+   },
+   "szelet_szaldo": {
+    "kozmedia": -21.71,
+    "kozossegi": -42.28,
+    "jobb": -33.55,
+    "bal": -36.1,
+    "alig": -30.12
+   },
+   "szelet_n": {
+    "kozmedia": 11,
+    "kozossegi": 13,
+    "jobb": 13,
+    "bal": 16,
+    "alig": 7
+   }
+  }
+ ],
+ "seed_mean": -32.98018140506107,
+ "seed_sd": 1.7796149090057733,
+ "cat_mean": -67.44505494505495,
+ "usage_this_run": {
+  "prompt": 319428,
+  "completion": 23620,
+  "calls": 180,
+  "embed_tokens": 22301
+ },
+ "cost_usd_this_run": 0.06209,
+ "wall_s": 120.4
+}

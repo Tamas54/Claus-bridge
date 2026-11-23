@@ -1,0 +1,33 @@
+  HU-A 2026-07 seed 1: SSR -21.3 | kat -41.1 (n=60) | tokens 112300/7770
+  HU-A 2026-07 seed 2: SSR -18.4 | kat -47.1 (n=60) | tokens 223120/15788
+  HU-A 2026-07 seed 3: SSR -14.8 | kat -31.5 (n=60) | tokens 334235/23899
+[cella] HU-A 2026-07: SSR -18.15 (sd 3.23) | kat -39.87057786077394 | költség $0.0645
+  HU-A 2026-08 seed 1: SSR -29.6 | kat -72.7 (n=60) | tokens 107451/7946
+  HU-A 2026-08 seed 2: SSR -23.6 | kat -49.1 (n=60) | tokens 214553/15978
+  HU-A 2026-08 seed 3: SSR -25.3 | kat -53.8 (n=60) | tokens 323227/24020
+[cella] HU-A 2026-08: SSR -26.14 (sd 3.12) | kat -58.55477855477856 | költség $0.0629
+  HU-A 2026-09 seed 1: SSR -28.3 | kat -58.7 (n=60) | tokens 112468/8410
+  HU-A 2026-09 seed 2: SSR -26.5 | kat -49.1 (n=60) | tokens 223961/16500
+  HU-A 2026-09 seed 3: SSR -27.7 | kat -64.7 (n=60) | tokens 335808/24664
+[cella] HU-A 2026-09: SSR -27.50 (sd 0.94) | kat -57.486046100146375 | költség $0.0652
+  HU-A 2026-10 seed 1: SSR -23.7 | kat -49.1 (n=60) | tokens 113916/8185
+  HU-A 2026-10 seed 2: SSR -27.8 | kat -52.8 (n=60) | tokens 227573/16418
+  HU-A 2026-10 seed 3: SSR -23.6 | kat -51.9 (n=60) | tokens 340819/24581
+[cella] HU-A 2026-10: SSR -25.02 (sd 2.39) | kat -51.281391564410434 | költség $0.0659
+  HU-B 2026-07 seed 1: SSR -23.8 | kat -50.0 (n=60) | tokens 106840/8031
+  HU-B 2026-07 seed 2: SSR -20.9 | kat -42.3 (n=60) | tokens 212200/15943
+  HU-B 2026-07 seed 3: SSR -25.7 | kat -56.1 (n=60) | tokens 317855/23637
+[cella] HU-B 2026-07: SSR -23.43 (sd 2.42) | kat -49.482681061628426 | költség $0.0619
+  HU-B 2026-08 seed 1: SSR -31.5 | kat -67.9 (n=60) | tokens 101991/8049
+  HU-B 2026-08 seed 2: SSR -30.3 | kat -69.1 (n=60) | tokens 203633/15807
+  HU-B 2026-08 seed 3: SSR -35.9 | kat -73.2 (n=60) | tokens 306847/23897
+[cella] HU-B 2026-08: SSR -32.58 (sd 2.91) | kat -70.0765743690272 | költség $0.0604
+  HU-B 2026-09 seed 1: SSR -34.4 | kat -67.3 (n=60) | tokens 107008/7979
+  HU-B 2026-09 seed 2: SSR -31.0 | kat -65.4 (n=60) | tokens 213041/15730
+  HU-B 2026-09 seed 3: SSR -33.6 | kat -69.6 (n=60) | tokens 319428/23620
+[cella] HU-B 2026-09: SSR -32.98 (sd 1.78) | kat -67.44505494505495 | költség $0.0621
+  HU-B 2026-10 seed 1: SSR -28.5 | kat -59.3 (n=60) | tokens 108456/7842
+  HU-B 2026-10 seed 2: SSR -32.3 | kat -69.6 (n=60) | tokens 216653/15476
+  HU-B 2026-10 seed 3: SSR -29.0 | kat -62.7 (n=60) | tokens 324439/23198
+[cella] HU-B 2026-10: SSR -29.92 (sd 2.07) | kat -63.871326936298686 | költség $0.0626
+[VÉGE] 02:26:29
