@@ -24,8 +24,14 @@ AZ ÚT: TERVEZET → JÓVÁHAGYÁS → POSZT
      Dupla kattintás ellen a jóváhagyás egyetlen feltételes UPDATE-tel „foglal” (pending → approved); bukásnál a
      tervezet visszakerül függőbe, a hibával — újra jóváhagyható.
 
-KERET: napi plafon `TWITTER_NAPI_MAX` (alap 10, a budapesti naptári napra), túllépésnél kimondott hiba, a tervezet
-függő marad. A plafont ugyanaz az UPDATE nézi, ami foglal (két egyidejű jóváhagyás sem lépi át). Ár: használatalapú,
+VÁLASZ, IDÉZET, KÉP (2026-11-23, a HOG-hoz — hog.py): a `posztol` `valasz_id`-vel (`reply.in_reply_to_tweet_id`),
+`idezet_id`-vel (`quote_tweet_id`) és `media_ids`-szel (`media.media_ids`; a kép a v2 `media_feltolt`-tel megy fel);
+az `en(metrika=True)` a követőszámot is hozza (`public_metrics`). Az önkiszolgáló (Pay Per Use) fiók API-ból csak
+akkor válaszolhat, ha a szerző megemlítette, vagy idézte egy posztját (docs.x.com, „summoned replies”, 2026-02-23):
+a 403-at a `_hiba_szoveg` kimondja, a HOG idézetre esik vissza, és a telefon-linket adja.
+
+KERET: napi plafon `TWITTER_NAPI_MAX` (alap 10, a budapesti naptári napra; a tweet és a HOG KÖZÖS keretből), túllépésnél
+kimondott hiba, a tervezet függő marad. A plafont ugyanaz az UPDATE nézi, ami foglal (két egyidejű jóváhagyás sem lépi át). Ár: használatalapú,
 ~0,01 $/tweet.
 
 KULCSOK: `TWITTER_API_KEY`, `TWITTER_API_SECRET`, `TWITTER_ACCESS_TOKEN`, `TWITTER_ACCESS_TOKEN_SECRET` env-ből
@@ -49,11 +55,17 @@ _OAUTHLIB_NAPLO.setLevel(logging.WARNING)
 
 TWEET_URL = "https://api.twitter.com/2/tweets"
 EN_URL = "https://api.twitter.com/2/users/me"
+#: v2 médiafeltöltés (egylépéses, multipart: `media` + `media_category`; OAuth 1.0a felhasználói kontextus) — a HOG
+#: kártyaképe a válasz mellé (docs.x.com/x-api/media/upload-media).
+MEDIA_URL = "https://api.x.com/2/media/upload"
+MEDIA_MAX = 5 * 1024 * 1024
 STATUS_URL = "https://x.com/i/status/{id}"
 KULCS_NEVEK = ("TWITTER_API_KEY", "TWITTER_API_SECRET", "TWITTER_ACCESS_TOKEN", "TWITTER_ACCESS_TOKEN_SECRET")
 #: Ezek értéke sem kerülhet ki semmilyen szövegben (a posztoláshoz nem kellenek, de a .env-ben ott vannak).
 TITKOS_NEVEK = KULCS_NEVEK + ("TWITTER_BEARER_TOKEN", "TWITTER_CLIENT_ID", "TWITTER_CLIENT_SECRET")
 KIND = "tweet"
+#: A napi plafon közös: a sima tweet és a HOG (hog.py — oldal + tweet) ugyanabból a keretből fogy.
+PLAFON_KINDS = ("tweet", "hog")
 MAX_HOSSZ = 280
 LINK_HOSSZ = 23                      # az X minden linket t.co-ra rövidít: 23 karakter, akármilyen hosszú
 NAPI_MAX_ALAP = 10
@@ -199,6 +211,12 @@ def _visszaall(fej) -> str:
     return ""
 
 
+#: Az X a korlátozott választ 403-mal utasítja el; a hibaszöveg alakja nincs a dokumentációban kimondva (a
+#: kísérő oldalak kétféle szöveget idéznek), ezért a jellemző szavakra illesztünk.
+_VALASZ_KORLAT = re.compile(r"mentioned|summon|reply to this conversation|engaged by the author|not-authorized-for-"
+                            r"resource|you can only reply")
+
+
 def _hiba_szoveg(status: int, adat: dict | None, nyers: str = "", fej=None) -> str:
     """Az X hibája a Kommandant nyelvén, mit kell tenni vele."""
     adat = adat if isinstance(adat, dict) else {}
@@ -213,6 +231,10 @@ def _hiba_szoveg(status: int, adat: dict | None, nyers: str = "", fej=None) -> s
     elif status == 402 or "credit" in kis:
         ok = (f"elfogyott az X API-kredit ({status}) — a developer.x.com → Billing alatt tölthető fel "
               f"(használatalapú, ~0,01 $/tweet)")
+    elif status == 403 and _VALASZ_KORLAT.search(kis):
+        ok = ("az X API-ból erre a posztra nem lehet válaszolni (403): önkiszolgáló fióknál csak akkor, ha a szerző "
+              "megemlítette a fiókot, vagy idézte egy posztját (docs.x.com, „summoned replies”) — telefonról, a saját "
+              "fiókodból megy")
     elif status == 403 and "duplicate" in kis:
         ok = "az X nem enged kétszer ugyanolyan szöveget (403, duplicate content) — változtass a szövegen"
     elif status == 403 and ("permission" in kis or "oauth1" in kis or "not permitted" in kis):
@@ -247,8 +269,11 @@ def _json(r) -> dict:
         return {}
 
 
-async def posztol(szoveg: str, *, kliens=None) -> dict:
-    """A tényleges posztolás. → {"ok", "id", "url", "szoveg"} vagy {"error", "status"}. CSAK a `dont` hívja."""
+async def posztol(szoveg: str, *, kliens=None, valasz_id: str | None = None, idezet_id: str | None = None,
+                  media_ids: list | None = None) -> dict:
+    """A tényleges posztolás. → {"ok", "id", "url", "szoveg"} vagy {"error", "status"}. CSAK a `dont` (és a HOG
+    jóváhagyása, hog.dont) hívja. `valasz_id`: válasz (`reply.in_reply_to_tweet_id`), `idezet_id`: idézet
+    (`quote_tweet_id`), `media_ids`: csatolt kép (`media.media_ids`) — az X API v2 `POST /2/tweets` mezői."""
     import httpx
     k = kulcsok()
     if not k:
@@ -258,7 +283,8 @@ async def posztol(szoveg: str, *, kliens=None) -> dict:
     if hiba:
         return {"error": hiba, "status": None}
     try:
-        r = await _keres(kliens, "POST", TWEET_URL, json={"text": szoveg},
+        torzs = keres_torzs(szoveg, valasz_id=valasz_id, idezet_id=idezet_id, media_ids=media_ids)
+        r = await _keres(kliens, "POST", TWEET_URL, json=torzs,
                          headers={"Authorization": fejlec("POST", TWEET_URL, k), "Content-Type": "application/json"})
     except httpx.HTTPError as e:
         return {"error": _tisztit(f"az X nem érhető el ({type(e).__name__}) — nem biztos, hogy kiment: nézd meg a "
@@ -272,20 +298,62 @@ async def posztol(szoveg: str, *, kliens=None) -> dict:
     return {"error": _hiba_szoveg(r.status_code, _json(r), r.text, r.headers), "status": r.status_code}
 
 
-async def en(*, kliens=None) -> dict:
-    """Csak olvasó hitelesítés-ellenőrzés: `GET /2/users/me` a felhasználói tokennel — melyik fiók van bekötve."""
+def keres_torzs(szoveg: str, *, valasz_id=None, idezet_id=None, media_ids=None) -> dict:
+    """A `POST /2/tweets` JSON-törzse. A válasz és az idézet együtt nem mehet (az X 400-at ad)."""
+    if valasz_id and idezet_id:
+        raise ValueError("válasz és idézet egyszerre nem lehet")
+    torzs: dict = {"text": szoveg}
+    if valasz_id:
+        torzs["reply"] = {"in_reply_to_tweet_id": str(valasz_id)}
+    if idezet_id:
+        torzs["quote_tweet_id"] = str(idezet_id)
+    if media_ids:
+        torzs["media"] = {"media_ids": [str(m) for m in media_ids][:4]}
+    return torzs
+
+
+async def media_feltolt(adat: bytes, mime: str = "image/png", *, kliens=None) -> dict:
+    """Egy kép feltöltése (v2, egylépéses, multipart) → {"ok", "media_id"} vagy {"error", "status"}. A multipart
+    törzs nem része az OAuth 1.0a aláírásnak (csak a form-urlencoded lenne)."""
+    import httpx
+    k = kulcsok()
+    if not k:
+        return {"error": "nincs X-kulcs a Bridge-en", "status": None}
+    if not adat or len(adat) > MEDIA_MAX:
+        return {"error": f"a kép üres vagy túl nagy ({len(adat or b'')} bájt, legfeljebb {MEDIA_MAX})", "status": None}
+    try:
+        r = await _keres(kliens, "POST", MEDIA_URL, headers={"Authorization": fejlec("POST", MEDIA_URL, k)},
+                         files={"media": ("kartya.png", adat, mime)}, data={"media_category": "tweet_image"})
+    except httpx.HTTPError as e:
+        return {"error": _tisztit(f"az X médiafeltöltése nem érhető el ({type(e).__name__})"), "status": None}
+    if r.status_code in (200, 201):
+        mid = str((_json(r).get("data") or {}).get("id") or "")
+        if mid:
+            return {"ok": True, "media_id": mid}
+        return {"error": f"az X {r.status_code}-et adott, de média-azonosító nélkül", "status": r.status_code}
+    return {"error": _hiba_szoveg(r.status_code, _json(r), r.text, r.headers), "status": r.status_code}
+
+
+async def en(*, kliens=None, metrika: bool = False) -> dict:
+    """Csak olvasó hitelesítés-ellenőrzés: `GET /2/users/me` a felhasználói tokennel — melyik fiók van bekötve.
+    `metrika=True`: a `public_metrics` is (a követőszám a HOG cold-start-szabályához: X-en ≤ 1000)."""
     import httpx
     k = kulcsok()
     if not k:
         return {"error": "nincs X-kulcs a Bridge-en (" + ", ".join(KULCS_NEVEK) + " env)", "status": None}
+    url = EN_URL + ("?user.fields=public_metrics" if metrika else "")
     try:
-        r = await _keres(kliens, "GET", EN_URL, headers={"Authorization": fejlec("GET", EN_URL, k)})
+        r = await _keres(kliens, "GET", url, headers={"Authorization": fejlec("GET", url, k)})
     except httpx.HTTPError as e:
         return {"error": _tisztit(f"az X nem érhető el ({type(e).__name__})"), "status": None}
     if r.status_code == 200:
         d = _json(r).get("data") or {}
-        return {"ok": True, "id": str(d.get("id") or ""), "username": str(d.get("username") or ""),
-                "name": str(d.get("name") or ""), "url": f"https://x.com/{d.get('username') or ''}"}
+        ki = {"ok": True, "id": str(d.get("id") or ""), "username": str(d.get("username") or ""),
+              "name": str(d.get("name") or ""), "url": f"https://x.com/{d.get('username') or ''}"}
+        pm = d.get("public_metrics") if isinstance(d.get("public_metrics"), dict) else {}
+        if isinstance(pm.get("followers_count"), int):
+            ki["followers_count"] = pm["followers_count"]
+        return ki
     return {"error": _hiba_szoveg(r.status_code, _json(r), r.text, r.headers), "status": r.status_code}
 
 
@@ -294,23 +362,23 @@ async def en(*, kliens=None) -> dict:
 _KIND_CHECK = re.compile(r"CHECK\s*\(\s*kind\s+IN\s*\(([^)]*)\)\s*\)", re.IGNORECASE)
 
 
-def schema_biztosit(conn) -> bool:
+def schema_biztosit(conn, kind: str = KIND) -> bool:
     """A meglévő `action_drafts` `kind` CHECK-je engedje a 'tweet'-et. SQLite-ban CHECK nem módosítható, ezért a tábla
     EGYSZER átépül (új tábla a bővített sémával → a sorok átmásolva, azonos id-vel → a régi törölve → átnevezve), egy
     tranzakcióban; ha már engedi, semmi nem történik. → True, ha most épült át. Új tábla a végén nincs."""
     sor = conn.execute("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'action_drafts'").fetchone()
-    if not sor or f"'{KIND}'" in (sor[0] or ""):
+    if not sor or f"'{kind}'" in (sor[0] or ""):
         return False
     conn.commit()
     conn.execute("BEGIN IMMEDIATE")
     try:
         sql = conn.execute("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'action_drafts'").fetchone()[0]
-        if f"'{KIND}'" in sql:                       # közben egy másik folyamat már átépítette
+        if f"'{kind}'" in sql:                       # közben egy másik folyamat már átépítette
             conn.rollback()
             return False
         if not _KIND_CHECK.search(sql):
             raise RuntimeError("az action_drafts sémájában nincs ismert kind-CHECK — kézi átnézés kell")
-        uj = _KIND_CHECK.sub(lambda m: f"CHECK(kind IN ({m.group(1).rstrip()},'{KIND}'))", sql, count=1)
+        uj = _KIND_CHECK.sub(lambda m: f"CHECK(kind IN ({m.group(1).rstrip()},'{kind}'))", sql, count=1)
         uj = re.sub(r"^\s*CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?[\"`\[]?action_drafts[\"`\]]?",
                     "CREATE TABLE action_drafts__uj", uj, count=1, flags=re.IGNORECASE)
         oszlopok = ", ".join(f'"{r[1]}"' for r in conn.execute("PRAGMA table_info(action_drafts)"))
@@ -322,7 +390,7 @@ def schema_biztosit(conn) -> bool:
     except Exception:
         conn.rollback()
         raise
-    logger.info("twitter_poszt: az action_drafts kind-CHECK-je bővült a 'tweet'-tel (a sorok megmaradtak)")
+    logger.info("twitter_poszt: az action_drafts kind-CHECK-je bővült a(z) '%s'-tel (a sorok megmaradtak)", kind)
     return True
 
 
@@ -378,23 +446,23 @@ def tervezet(get_db, szoveg: str, link: str = "", *, forras: str, source_message
 
 
 def fuggok(get_db) -> list[dict]:
-    """A függő tweet-tervezetek, a legfrissebb elöl."""
+    """A függő tweet- és HOG-tervezetek (a HOG-nál a komment szövege), a legfrissebb elöl."""
     conn = get_db()
     try:
-        sorok = conn.execute("SELECT id, title, payload_json, created_at FROM action_drafts WHERE kind = ? AND "
-                             "status = 'pending' ORDER BY id DESC LIMIT 50", (KIND,)).fetchall()
+        sorok = conn.execute(f"SELECT id, kind, title, payload_json, created_at FROM action_drafts WHERE kind IN "
+                             f"{PLAFON_KINDS!r} AND status = 'pending' ORDER BY id DESC LIMIT 50").fetchall()
     except Exception:  # noqa: BLE001 — a tábla hiánya = nincs függő tervezet
         return []
     finally:
         conn.close()
-    return [{"id": r["id"], "szoveg": str(_payload(r).get("szoveg") or r["title"]), "ido": r["created_at"]}
-            for r in sorok]
+    return [{"id": r["id"], "kind": r["kind"], "szoveg": str(_payload(r).get("szoveg") or r["title"]),
+             "ido": r["created_at"]} for r in sorok]
 
 
 def napi_szam(conn, most: datetime | None = None) -> int:
     """Ma (Budapest-nap) kiment vagy épp kimenő tweetek száma."""
-    return int(conn.execute("SELECT COUNT(*) FROM action_drafts WHERE kind = ? AND status IN ('approved', 'created') "
-                            "AND decided_at >= ?", (KIND, _nap_kezdet(most))).fetchone()[0])
+    return int(conn.execute(f"SELECT COUNT(*) FROM action_drafts WHERE kind IN {PLAFON_KINDS!r} AND status IN "
+                            "('approved', 'created') AND decided_at >= ?", (_nap_kezdet(most),)).fetchone()[0])
 
 
 def _frissit(conn, did: int, statusz: str, decided_at: str, ujdonsag: dict) -> None:
@@ -435,8 +503,8 @@ async def dont(get_db, draft_id: int, dontes: str, *, ertesit=None, ki: str = "k
         # FOGLALÁS egy utasításban: csak függőből, és csak ha a mai (kiment + épp kimenő) szám a plafon alatt van
         cur = conn.execute(
             "UPDATE action_drafts SET status = 'approved', decided_at = ? WHERE id = ? AND status = 'pending' AND "
-            "(SELECT COUNT(*) FROM action_drafts WHERE kind = ? AND status IN ('approved', 'created') AND "
-            "decided_at >= ?) < ?", (most, int(draft_id), KIND, _nap_kezdet(), plafon))
+            f"(SELECT COUNT(*) FROM action_drafts WHERE kind IN {PLAFON_KINDS!r} AND status IN ('approved', 'created') "
+            "AND decided_at >= ?) < ?", (most, int(draft_id), _nap_kezdet(), plafon))
         conn.commit()
         if cur.rowcount != 1:
             allapot = conn.execute("SELECT status FROM action_drafts WHERE id = ?", (int(draft_id),)).fetchone()[0]
@@ -568,6 +636,13 @@ async def kezel(ctx, szoveg: str, chat_id) -> str | None:
         elif len(talalt) > 1:
             uzenet = (f"Nem posztoltam: {len(talalt)} tervezet is így kezdődik ({_lista_szoveg(talalt, 5)}) — mondj "
                       f"még pár szót, vagy hagyd jóvá a kabin munkapadján.")
+        elif talalt[0].get("kind") == "hog":
+            # HOG (hog.py): a jóváhagyás az ÁLLANDÓ oldalt ÉS a tweetet is kiteszi; a 2–3 perc múlva kimenő link
+            # üzenete a Feldwebel-szálba és a Telegramra megy
+            import hog
+            res = await hog.dont(ctx.get_db, talalt[0]["id"], "approve", ki="kifejezett mondat",
+                                 utolag=hog.ertesito(ctx))
+            uzenet = res.get("uzenet") or f"❌ Nem ment ki a HOG (#{talalt[0]['id']}): {res.get('error')}"
         else:
             res = await dont(ctx.get_db, talalt[0]["id"], "approve", ki="kifejezett mondat")
             uzenet = res.get("uzenet") or f"❌ Nem ment ki a tweet (#{talalt[0]['id']}): {res.get('error')}"

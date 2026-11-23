@@ -269,6 +269,11 @@ a { color: var(--accent); }
 .draft small { color: var(--ink-3); }
 .draft .kartya-gombok { margin-top: 8px; }
 .draft .tweet-szoveg { margin-top: 6px; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 14px; line-height: 1.4; }
+.draft.hog .hog-cim { margin-top: 6px; font-weight: 600; font-size: 14px; }
+.draft.hog .hog-fejlec { font-size: 13px; color: var(--accent); }
+.draft.hog .hog-hu { display: block; margin-top: 4px; }
+.draft.hog details { margin-top: 6px; font-size: 13px; }
+.draft.hog .hog-tenyek { margin: 6px 0 0 18px; padding: 0; font-size: 12px; line-height: 1.35; overflow-wrap: anywhere; }
 .munkapad-kartya { margin-bottom: 8px; }
 .munkapad-kartya .kartya { width: 100%; box-shadow: none; }
 .esemeny { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 8px; align-items: start; width: 100%; padding: 8px 6px; border: 0; border-bottom: 1px solid var(--hair-2); background: transparent; text-align: left; cursor: pointer; border-radius: 8px; }

@@ -20,7 +20,9 @@ Mi van itt (a statikus kliens a `static/app/` alatt, build-lépés nélkül):
   4. JÓVÁHAGYÁS: a Faber kérelmei (`faber:kapu` / `faber:esemeny`, lásd `faber_kartyak`) és a Bridge
      `action_drafts`-ai; a döntés hitelesített POST, a Faber felé `faber_relay.tovabbit(..., "gomb", ...)`. A
      tweet-tervezet (2026-11-23) a teljes szövegével és az X szerinti karakterszámával jön; a Jóváhagyom ott posztol
-     (`draft_dont` → `twitter_poszt.dont`), az Elvetem nem.
+     (`draft_dont` → `twitter_poszt.dont`), az Elvetem nem. A 🐗 HOG-kártya (2026-11-23, hog.py) az oldal címével,
+     a kártya-főcímmel, az elemzéssel és a tényekkel (összecsukva), a tweet-szöveggel és a móddal; a Jóváhagyom előbb az
+     ÁLLANDÓ oldalt teszi ki (`hog_publish`), aztán a tweetet (`hog.dont`).
   5. MUNKAPAD: friss események (feladatok, viták, briefek) és az LLM-költés (`llm_kapu.allapot()`).
   6. FELADAT-ÜGYNÖKÖK (2026-11-23, feladat_ugynok.py): a bal sávban a fix ügynökök alatt, dinamikusan; mindegyiknek
      saját ablaka (`ugynok:<id>`: a futások naplója a messages táblából — a ténylegesen futott modell, költés, viták,
@@ -59,6 +61,7 @@ from starlette.responses import FileResponse, HTMLResponse, JSONResponse, Redire
 import faber_relay
 import feladat_ugynok
 import kimenet as kimenet_mod
+import hog
 import twitter_poszt
 
 logger = logging.getLogger("ui_kabin")
@@ -812,6 +815,10 @@ def _draftok(conn) -> list[dict]:
             szoveg = str(p.get("szoveg") or r["title"])
             d.update(szoveg=szoveg, karakter=twitter_poszt.hossz(szoveg), max=twitter_poszt.MAX_HOSSZ,
                      hiba=str(p.get("utolso_hiba") or "") or None, reszlet="")
+        elif r["kind"] == hog.KIND:
+            # OPERATION HOG (2026-11-23): az oldal címe, a kártya-főcím, az elemzés és a tényvonalak (összecsukva), a
+            # tweet-szöveg karakterszámmal és a mód (válasz / idézet / saját poszt); ha az oldal már kint van, az is
+            d.update(hog.kartya(p))
         out.append(d)
     return out
 
