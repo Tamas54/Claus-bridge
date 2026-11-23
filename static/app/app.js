@@ -1,6 +1,10 @@
 // Bridge UI v2 — „kabinüveg” (2026-11-22). Vanilla JS, build-lépés nélkül; minden adat a /api/ui/* utakról jön,
 // a munkamenet-sütivel (httpOnly — a szkript nem látja, csak a böngésző küldi).
 //
+// KÖZÖS FELADATOK (11-23, a Kommandant: „nem látom a boardon … azt se, h meg lettek kérdezve”): a munkapadon az
+// `ai_task` feladatai beszédes állapottal (melyik ügynök válaszolt már, készül-e az összefoglaló); kattintásra a leírás,
+// a válaszok a modellel, az összefoglaló, a DOCX — és a „Szólj bele” mező, amiből folytató feladat indul.
+//
 // Bal sáv: az ügynökök (Claus/Feldwebel a fő asszisztens, Kimi, DeepSeek, GLM, Faber) állapottal, alattuk a
 // FELADAT-ÜGYNÖKÖK (11-23: a Kommandant saját, névvel ellátott munkásai — „+ Új ügynök”, saját ablak a futásokkal, a
 // költéssel és a Futtasd most / Leállít / Újraindít / Megszüntet gombokkal), alatta a beszélgetések (postaláda,
@@ -60,6 +64,7 @@ const S = {
   latott: olvas('kabin.latott', {}),
   ref: {},
   idozito: null,
+  feladatAblak: null,               // a nyitott közös feladat ablaka: {id, d, test, fejCim, jel, rajzolva, dolgozik}
 };
 
 // ── apróságok ─────────────────────────────────────────────────
@@ -778,9 +783,13 @@ function ugynokPanelRajzol() {
   const n = S.nezet;
   const f = feladatUgynok(n.id);
   S.ref.input = null;
-  // a 12 mp-es frissítés újrarajzolja: a lenyitott részletek maradjanak nyitva, futó művelet közben ne rajzoljon
+  // a 12 mp-es frissítés újrarajzolja: a lenyitott részletek maradjanak nyitva, futó művelet és gépelés közben ne
+  // rajzoljon; a félig megírt utasítás megmarad
   const regi = S.ref.szerkeszto.querySelector('.ugynok-panel');
   if (regi?.dataset.dolgozik) return;
+  const regiTa = regi?.querySelector('textarea.utasitas');
+  if (regiTa && document.activeElement === regiTa && regi.dataset.id === n.id) return;
+  const vazlat = regi?.dataset.id === n.id ? (regiTa?.value || '') : '';
   const nyitva = Boolean(regi?.querySelector('details')?.open) && regi.dataset.id === n.id;
   if (!f) { S.ref.szerkeszto.replaceChildren(el('div', { class: 'szerkeszto-zar' }, 'Ez az ügynök már nincs meg.')); return; }
   const hiba = el('div', { class: 'kartya-hiba', hidden: true });
@@ -811,6 +820,38 @@ function ugynokPanelRajzol() {
     el('button', { class: 'gomb gomb-kicsi', title: 'A legutóbbi jelentés Word-dokumentumként (szerkesztő-link a Studióban)', onclick: () => muvelet('dokumentum') }, 'Word'),
     el('button', { class: 'gomb gomb-kicsi', title: 'Modell, extra prompt, ütemezés, keret, jogosultságok', onclick: () => ujUgynokUrlap(f) }, 'Szerkeszt'),
     el('button', { class: 'gomb gomb-kicsi gomb-vesz', onclick: () => muvelet('megszuntet', `Végleg megszünteted: „${f.nev}”?`) }, 'Megszüntet'));
+  // ÚJ UTASÍTÁS (11-23, a Kommandant: „itt egyébként nem tudok az agentnek új utasítást adni”): egy azonnali futás
+  // ugyanazzal az ügynökkel, az utasítással a lap tetején; az állandó feladat marad (arra a „Szerkeszt” való)
+  const ta = el('textarea', { class: 'utasitas', rows: '2', maxlength: '4000', 'aria-label': 'Új utasítás az ügynöknek',
+    placeholder: f.fut ? 'Most dolgozik — a futás végén küldheted az új utasítást…' : 'Új utasítás az ügynöknek… (pl. „a tanulmány itt van: …, ebből dolgozz”)' });
+  ta.value = vazlat;
+  const kuldGomb = el('button', { class: 'gomb gomb-fo gomb-kicsi', type: 'submit', disabled: !vazlat.trim() || f.fut,
+    title: 'Egy futás most ezzel az utasítással; az állandó feladat nem változik' }, 'Küldöm');
+  ta.addEventListener('input', () => { kuldGomb.disabled = !ta.value.trim() || f.fut; });
+  ta.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey && !e.isComposing && !matchMedia('(pointer: coarse)').matches) { e.preventDefault(); urlap.requestSubmit(); }
+  });
+  const urlap = el('form', { class: 'utasitas-sor' }, ta, kuldGomb);
+  urlap.addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    const szoveg = ta.value.trim();
+    if (!szoveg || f.fut) return;
+    const panel = S.ref.szerkeszto.querySelector('.ugynok-panel');
+    if (panel) panel.dataset.dolgozik = '1';
+    kuldGomb.disabled = true; ta.disabled = true; hiba.hidden = true;
+    try {
+      const j = await api('/api/ui/ugynok/utasitas', { method: 'POST', body: { id: n.id, szoveg } });
+      ta.value = '';
+      ertesit(j.uzenet || 'Elküldtem — dolgozik rajta.');
+      if (panel) delete panel.dataset.dolgozik;
+      await frissit({ tortenet: true });
+    } catch (e) {
+      if (panel) delete panel.dataset.dolgozik;
+      if (e instanceof Hiba401) return;
+      hiba.hidden = false; hiba.textContent = e.message;
+      kuldGomb.disabled = false; ta.disabled = false;
+    }
+  });
   const k = f.koltes;
   const valodi = f.utolso_modell && f.utolso_modell !== f.modell_azonosito ? modellRovid(f.utolso_modell) : '';
   const adat = [
@@ -829,7 +870,7 @@ function ugynokPanelRajzol() {
     el('details', { open: nyitva }, el('summary', {}, el('span', {}, allapotChip(f.fut ? 'dolgozik' : f.allapot_szoveg, f.fut ? 'fut' : f.allapot === 'aktiv' ? 'kesz' : 'semleges')),
       el('span', { class: 'halk' }, ` ${f.feladat.slice(0, 90)}${f.feladat.length > 90 ? '…' : ''}`)),
     el('dl', { class: 'ugynok-adat' }, adat.filter(Boolean).map(([c, v]) => [el('dt', {}, c), el('dd', {}, v)]))),
-    gombok, hiba,
+    urlap, gombok, hiba,
     el('div', { class: 'halk', style: 'margin-top:6px' }, 'Kifelé nem lép: levélből tervezet, naptárból javaslat lesz. Módosíthatod a „Szerkeszt” gombbal, vagy szólj Clausnak.'))));
 }
 
@@ -953,8 +994,13 @@ function munkapadRajzol() {
   if (!a) return;
   const jv = a.jovahagyas || { faber: [], draftok: [] };
   const db = jv.faber.length + jv.draftok.length;
-  S.ref.padSzamlalo.hidden = !db;
-  S.ref.padSzamlalo.textContent = db;
+  const kozos = a.kozos_feladatok || [];
+  const futo = kozos.filter((f) => f.fajta === 'fut').length;
+  // a fiók jelvénye (telefonon ez látszik): sárga = jóváhagyásra vár; ha az nincs, kék = közös feladat fut
+  S.ref.padSzamlalo.hidden = !db && !futo;
+  S.ref.padSzamlalo.textContent = db || futo;
+  S.ref.padSzamlalo.className = `szamlalo${db ? ' sarga' : ''}`;
+  S.ref.padSzamlalo.title = db ? 'jóváhagyásra vár' : 'közös feladat fut';
   document.title = db ? `(${db}) Claus Bridge — kabin` : 'Claus Bridge — kabin';
 
   const jovahagyas = el('section', { class: 'blokk' },
@@ -969,12 +1015,19 @@ function munkapadRajzol() {
       el('span', { class: 'jel' }, 'F'), el('span', {}, el('span', { class: 'cim' }, `#${c.id} ${c.kivansag}`), el('small', {}, c.repo || '')),
       el('span', { class: 'jobbra' }, faberAllapot(c), el('small', {}, relativ(c.frissitve)))))) : null;
 
+  const kozosBlokk = el('section', { class: 'blokk' },
+    el('div', { class: 'szakasz-cim' }, el('span', {}, 'Közös feladatok'),
+      futo ? el('span', { class: 'szamlalo', title: 'ennyin dolgoznak most' }, futo) : null),
+    kozos.length ? kozos.map(kozosFeladatSor)
+      : el('div', { class: 'ures' }, 'Még nincs közös feladat. Mondd Clausnak: „add ki Kiminek, DeepSeeknek és GLM-nek: …”'),
+    kozos.length ? el('a', { class: 'halk tovabb-link', href: '/dashboard' }, 'Régebbiek: a régi műszerfal „AI feladatok” fülén') : null);
+
   const esemenyek = el('section', { class: 'blokk' }, el('div', { class: 'szakasz-cim' }, 'Friss események'),
     (a.esemenyek || []).length ? a.esemenyek.map(esemenySor) : el('div', { class: 'ures' }, 'Csend.'));
 
   const peldanyok = Object.entries(a.peldanyok || {});
   // a hiányzó blokk (null) kimarad — a replaceChildren különben „null” szöveget írna ki
-  S.ref.munkapad.replaceChildren(...[jovahagyas, friss, esemenyek, koltesBlokk(a.llm_kapu),
+  S.ref.munkapad.replaceChildren(...[jovahagyas, kozosBlokk, friss, esemenyek, koltesBlokk(a.llm_kapu),
     peldanyok.length ? el('section', { class: 'blokk' }, el('div', { class: 'szakasz-cim' }, 'Claude-példányok'),
       peldanyok.map(([nev, p]) => el('div', { class: 'jelenlet-sor' }, el('span', {}, nev),
         el('span', { title: p.last_activity_source || '' }, relativ(p.last_seen))))) : null].filter(Boolean));
@@ -1117,6 +1170,164 @@ async function esemenyNyit(e) {
   }
 }
 
+// ── KÖZÖS FELADATOK (ai_task) ─────────────────────────────────
+const FOLYTATAS_RE = /^↳ #\d+: /;
+const feladatJel = (f) => [f.allapot, f.allapot_szoveg, f.valaszolt, f.szintezis].join('|');
+
+function ugynokPontok(lista) {
+  if (!lista?.length) return null;
+  const ikon = { kesz: '✓', hiba: '✕', var: '…' };
+  const cim = { kesz: 'válaszolt', hiba: 'hibával tért vissza', var: 'még dolgozik' };
+  return el('span', { class: 'fu-ugynokok' }, lista.map((u) => el('span', { class: `fu-ugynok ${u.allapot}`, title: `${u.nev}: ${cim[u.allapot]}` }, `${u.nev} ${ikon[u.allapot]}`)));
+}
+
+function kozosFeladatSor(f) {
+  const cim = f.elozmeny ? f.cim.replace(FOLYTATAS_RE, '') : f.cim;
+  const al = [`#${f.id}`, f.elozmeny ? `hozzászólás #${f.elozmeny}-hez` : null, `kiadta: ${f.ki}`, f.reszlet,
+    f.fajta === 'hiba' && f.hibakod ? f.hibakod : null].filter(Boolean).join(' · ');
+  return el('button', { class: 'esemeny', title: 'Részletek: a feladat, a válaszok, az összefoglaló — és itt szólhatsz bele', onclick: () => feladatNyit(f.id) },
+    el('span', { class: 'jel' }, f.elozmeny ? '↳' : '⁂'),
+    el('span', {}, el('span', { class: 'cim' }, cim), el('small', {}, al), ugynokPontok(f.ugynokok)),
+    el('span', { class: 'jobbra' }, allapotChip(f.allapot_szoveg, f.fajta), el('small', {}, relativ(f.ido))));
+}
+
+// a részletek egy ablakban; a folytatás és az eredeti közt ugyanebben az ablakban lépked, a ✕ / Esc / háttér vissza a táblára
+function feladatNyit(id) {
+  if (S.feladatAblak) {
+    Object.assign(S.feladatAblak, { id, rajzolva: false, jel: null });
+    S.feladatAblak.test.replaceChildren(el('div', { class: 'ures' }, 'Betöltés…'));
+    feladatTolt();
+    return;
+  }
+  const test = el('div', { class: 'modal-test feladat-test' }, el('div', { class: 'ures' }, 'Betöltés…'));
+  const fejCim = el('b', {}, `Közös feladat #${id}`);
+  const d = el('dialog', { class: 'modal szeles' },
+    el('div', { class: 'modal-fej' }, fejCim, el('button', { class: 'ikon-gomb', 'aria-label': 'Bezár', title: 'Vissza a táblára', onclick: () => d.close() }, '✕')),
+    test);
+  const fa = { id, d, test, fejCim, jel: null, rajzolva: false, dolgozik: false };
+  d.addEventListener('close', () => { d.remove(); if (S.feladatAblak === fa) S.feladatAblak = null; });
+  d.addEventListener('click', (ev) => { if (ev.target === d) d.close(); });
+  document.body.append(d);
+  d.showModal();
+  S.feladatAblak = fa;
+  feladatTolt();
+}
+
+async function feladatTolt() {
+  const fa = S.feladatAblak;
+  if (!fa) return;
+  const id = fa.id;
+  let j;
+  try {
+    j = await api(`/api/ui/feladat/${id}`);
+  } catch (e) {
+    if (e instanceof Hiba401 || S.feladatAblak !== fa || fa.id !== id) return;
+    fa.test.replaceChildren(el('div', { class: 'kartya-hiba' }, e.message),
+      el('div', { class: 'kartya-gombok', style: 'margin-top:12px' }, el('button', { class: 'gomb gomb-kicsi', onclick: () => fa.d.close() }, 'Vissza a táblára')));
+    return;
+  }
+  if (S.feladatAblak !== fa || fa.id !== id) return;
+  // frissítéskor a lenyitott részek, a görgetés és a félig megírt hozzászólás marad
+  const nyitott = fa.rajzolva ? new Set([...fa.test.querySelectorAll('details[data-kulcs]')].filter((x) => x.open).map((x) => x.dataset.kulcs)) : null;
+  const vazlat = fa.rajzolva ? (fa.test.querySelector('textarea')?.value || '') : '';
+  const gorges = fa.rajzolva ? fa.test.scrollTop : 0;
+  fa.jel = feladatJel(j);
+  fa.fejCim.textContent = `#${j.id} · ${j.elozmeny ? j.cim.replace(FOLYTATAS_RE, '↳ ') : j.cim}`;
+  fa.test.replaceChildren(...feladatReszletek(j, nyitott, vazlat));
+  fa.test.scrollTop = gorges;
+  fa.rajzolva = true;
+}
+
+const resz = (cim, ...gyerekek) => el('section', { class: 'feladat-resz' }, el('div', { class: 'szakasz-cim' }, cim), ...gyerekek);
+
+function feladatReszletek(j, nyitott, vazlat) {
+  const nyit = (kulcs, alap) => (nyitott ? nyitott.has(kulcs) : alap);
+  const nodes = [el('div', { class: 'feladat-fej' }, allapotChip(j.allapot_szoveg, j.fajta),
+    el('span', {}, `kiadta: ${j.ki} · ${napCimke(j.ido)} ${oraPerc(j.ido)}${j.kesz_ido ? ` · kész: ${oraPerc(j.kesz_ido)}` : ''}`),
+    ugynokPontok(j.ugynokok))];
+  if (j.reszlet) nodes.push(el('div', { class: 'halk', style: 'margin-top:4px' }, j.reszlet));
+  if (j.hibakod) nodes.push(el('div', { class: 'kartya-hiba' }, `Hibakód: ${j.hibakod}`));
+  if (j.elozmeny_feladat) {
+    nodes.push(el('div', { class: 'feladat-kapcs' }, 'Ez a hozzászólásod folytatása ennek: ',
+      el('button', { class: 'link-gomb', onclick: () => feladatNyit(j.elozmeny_feladat.id) }, `← #${j.elozmeny_feladat.id} ${j.elozmeny_feladat.cim}`)));
+  }
+  const gombok = el('div', { class: 'kartya-gombok feladat-gombok' });
+  if (j.export) gombok.append(el('a', { class: 'gomb gomb-fo gomb-kicsi', href: j.export, download: '' }, 'Word (DOCX) letöltése'));
+  for (const f of j.fajlok || []) gombok.append(el('a', { class: 'gomb gomb-kicsi', href: f.url, download: '' }, `${f.nev} · ${String(f.formatum).toUpperCase()}`));
+  if (gombok.childNodes.length) nodes.push(gombok);
+  if (j.hozzaszolas) nodes.push(resz('A hozzászólásod', el('div', { class: 'feladat-szoveg feladat-hozzaszolas' }, j.hozzaszolas)));
+  nodes.push(resz('A feladat', el('div', { class: 'feladat-szoveg', html: md(j.leiras || '(nincs leírás)') }),
+    j.kontextus ? el('details', { class: 'feladat-kontextus', 'data-kulcs': 'kontextus', open: nyit('kontextus', false) },
+      el('summary', {}, `Amit kontextusként kaptak (${j.kontextus.length.toLocaleString('hu-HU')} karakter)`),
+      el('div', { class: 'feladat-szoveg' }, j.kontextus)) : null));
+  const sz = j.szintezis;
+  nodes.push(resz('Összefoglaló', sz
+    ? [el('div', { class: 'feladat-meta' }, sz.modell ? el('span', { class: 'modell', title: 'a szintézist író modell' }, sz.modell) : el('span', {}, sz.szerep || ''),
+      sz.hibakod ? allapotChip(sz.hibakod, 'hiba') : null, el('span', {}, oraPerc(sz.ido))),
+    el('div', { class: 'feladat-szoveg', html: md(sz.szoveg || '') })]
+    : el('div', { class: 'ures' }, j.fajta === 'fut' ? 'Még készül — ha kész, itt lesz (az ablak magától frissül).' : 'Nem készült összefoglaló.')));
+  const valaszok = (j.valaszok || []).map((v, i) => {
+    const kulcs = `v:${v.ugynok}:${i}`;
+    return el('details', { class: 'feladat-valasz', 'data-kulcs': kulcs, open: nyit(kulcs, !sz) },
+      el('summary', {}, avatar(v.ugynok, { kicsi: true }), el('b', {}, v.nev),
+        v.modell ? el('span', { class: 'modell', title: 'a kért modell; ha a kapu tartaléka válaszolt, a válasz végén ott a jegyzet' }, v.modell) : null,
+        v.hibas ? allapotChip(v.hibakod || 'hibás', 'hiba') : null,
+        el('span', { class: 'halk jobbra' }, oraPerc(v.ido))),
+      el('div', { class: 'feladat-szoveg', html: md(v.szoveg || '') }));
+  });
+  const varnak = (j.ugynokok || []).filter((u) => u.allapot === 'var')
+    .map((u) => el('div', { class: 'feladat-var' }, avatar(u.id, { kicsi: true }), `${u.nev} — még dolgozik…`));
+  nodes.push(resz(`Az ügynökök válaszai · ${j.valaszolt}${j.vart ? `/${j.vart}` : ''}`,
+    valaszok.length || varnak.length ? [valaszok, varnak]
+      : el('div', { class: 'ures' }, j.fajta === 'fut' ? 'Dolgoznak rajta — a válaszok itt jelennek meg (az ablak magától frissül).' : 'Nincs válasz.')));
+  if ((j.folytatasok || []).length) {
+    nodes.push(resz('Hozzászólásaid és a folytatások', j.folytatasok.map((f) => el('button', { class: 'esemeny', onclick: () => feladatNyit(f.id) },
+      el('span', { class: 'jel' }, '↳'),
+      el('span', {}, el('span', { class: 'cim' }, f.hozzaszolas || '(a hozzászólás szövege nem olvasható)'), el('small', {}, `#${f.id} · ${relativ(f.ido)}`)),
+      el('span', { class: 'jobbra' }, allapotChip(f.allapot_szoveg, f.fajta))))));
+  }
+  nodes.push(hozzaszolasUrlap(j, vazlat));
+  nodes.push(el('div', { class: 'kartya-gombok', style: 'margin-top:14px' },
+    el('button', { class: 'gomb gomb-kicsi', onclick: () => S.feladatAblak?.d.close() }, 'Vissza a táblára')));
+  return nodes;
+}
+
+// HOZZÁSZÓLÁS (11-23, a Kommandant: „abba is bele kéne tudnom szólni”): folytató közös feladat indul, a szövegeddel
+// legfelül és a korábbi válaszokkal; az ablak rögtön a folytatásra lép (onnan link vissza ide).
+function hozzaszolasUrlap(j, vazlat) {
+  const ta = el('textarea', { rows: '3', maxlength: '4000', 'aria-label': 'Hozzászólás az ügynököknek',
+    placeholder: 'Szólj bele: mit nézzenek meg újra, mi hiányzik, merre menjenek tovább…' });
+  ta.value = vazlat || '';
+  const kuld = el('button', { class: 'gomb gomb-fo gomb-kicsi', type: 'submit', disabled: !ta.value.trim() }, 'Elküldöm az ügynököknek');
+  const hiba = el('div', { class: 'kartya-hiba', hidden: true });
+  ta.addEventListener('input', () => { kuld.disabled = !ta.value.trim(); });
+  const urlap = el('form', { class: 'feladat-urlap' }, ta,
+    el('div', { class: 'kartya-gombok' }, kuld, el('span', { class: 'halk' }, j.mod === 'dispatch'
+      ? 'Folytató feladat indul: mindegyik ügynök a saját részét folytatja, a szövegeddel legfelül.'
+      : 'Folytató feladat indul: mindhárom ügynök megkapja, a korábbi válaszokkal együtt.')), hiba);
+  urlap.addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    const szoveg = ta.value.trim();
+    if (!szoveg) return;
+    const fa = S.feladatAblak;
+    kuld.disabled = true; ta.disabled = true; hiba.hidden = true;
+    if (fa) fa.dolgozik = true;
+    try {
+      const r = await api(`/api/ui/feladat/${j.id}/hozzaszolas`, { method: 'POST', body: { szoveg } });
+      if (fa) fa.dolgozik = false;
+      ertesit(`Elküldve — a folytatás: #${r.id}. Az ügynökök dolgoznak rajta.`);
+      feladatNyit(r.id);
+      frissit({}).catch(() => {});
+    } catch (e) {
+      if (fa) fa.dolgozik = false;
+      if (e instanceof Hiba401) return;
+      hiba.hidden = false; hiba.textContent = e.message;
+      kuld.disabled = false; ta.disabled = false;
+    }
+  });
+  return resz('Szólj bele', urlap);
+}
+
 function modal(cim, szoveg, mdvel = false) {
   const d = el('dialog', { class: 'modal' },
     el('div', { class: 'modal-fej' }, el('b', {}, cim), el('button', { class: 'ikon-gomb', 'aria-label': 'Bezár', onclick: () => d.close() }, '✕')),
@@ -1157,6 +1368,13 @@ async function frissit({ tortenet = false } = {}) {
   balRajzol();
   fejlecRajzol();
   munkapadRajzol();
+  // a nyitott közös feladat magától frissül, ha a listában változott (új válasz, összefoglaló, kész) — gépelés közben nem
+  const fa = S.feladatAblak;
+  if (fa?.jel && !fa.dolgozik) {
+    const f = (a.kozos_feladatok || []).find((x) => x.id === fa.id);
+    const gepel = fa.test.contains(document.activeElement) && document.activeElement.tagName === 'TEXTAREA';
+    if (f && feladatJel(f) !== fa.jel && !gepel) feladatTolt().catch(hibaKezel);
+  }
   if (S.nezet.tipus === 'ugynok' && feladatE(S.nezet.id)) {
     if (!feladatUgynok(S.nezet.id)) { nezetValt({ tipus: 'ugynok', id: 'feldwebel' }); return; }
     ugynokPanelRajzol();

@@ -23,6 +23,9 @@ Amit ezek a tesztek őriznek:
  10. UTASÍTÁS: jogosultság nélkül elutasítva (jogot a Feldwebelen át csak a Kommandant kimondott kérése ad); láncolás-
      őr (kör, mélység); a cél a saját keretéből fut; a Faber felé CSAK kívánság megy (aláírva, `kivansag`).
  11. SZERKESZTÉS a kabinban (hitelesítve), a megszüntetett ügynök a partnerlistákról is lekerül.
+ 12. ÚJ UTASÍTÁS a kabinból (11-23): egy azonnali futás a „Futtasd most” útján, az utasítás a lap TETEJÉN (a legutóbbi
+     kimenettel), az állandó feladat változatlan; az átiratban a Kommandant buborékja, utána a futás; üres → 400,
+     süti nélkül 401; a Feldwebel-eszköz `args`-ból nem kapcsolhatja be; SF-modellnek tudásbázisos kimenet nem megy.
 """
 from __future__ import annotations
 
@@ -1386,3 +1389,90 @@ def test_helyi_fajlt_olvaso_futas_vedett_es_jelolt(db, kulcs):
     assert ("feldwebel", "helyi_fajl", "claude-sonnet-5-5") in f.hivasok    # a futár a VALÓDI modellt kapja
     assert e["tudasbazis"] is True and elozmeny and elozmeny[0][1] is True
     assert json.loads(_sor(db, rid)["description"])["tudasbazis_erintett"] is True
+
+
+# ══ 12. ÚJ UTASÍTÁS A KABINBÓL ═══════════════════════════════════════════════════
+
+UTASITAS = "A tanulmány itt van: https://example.org/tanulmany.pdf — ebből dolgozz, és csak a diákat írd meg."
+
+
+def test_kabin_uj_utasitas_buborek_futas_es_az_allando_feladat_marad(db, kulcs, monkeypatch):
+    rid = _letrehoz(db, nev="Market-diasor", feladat="Minden reggel készíts diasort a piacokról.")
+    eredeti = F.nezet(_sor(db, rid))["feladat"]
+    c = db()                                    # az elakadt előző futás: erre jön az utasítás
+    F.naplo(c, rid, F.TARGY_FUTAS, {"esemeny": "futas", "allapot": "kesz", "trigger": "cron", "osszegzes": "Elakadtam.",
+                                     "eredmeny": "A tanulmányt nem tudtam elolvasni. " + "x" * 5000})
+    c.commit()
+    c.close()
+    indult = []
+    monkeypatch.setattr(F, "hatterben", lambda rid_, **kw: indult.append((rid_, kw)) or {"indult": True})
+    app = _app(db)
+    uid = F.azonosito(rid)
+    r = _run(_keres(app, "POST", "/api/ui/ugynok/utasitas", json={"id": uid, "szoveg": f"  {UTASITAS}  "}))
+    assert r.status_code == 200, r.text
+    assert indult == [(rid, {"trigger": "kabin", "bemenet": UTASITAS, "kuldo": "a Kommandant",
+                             "bemenet_vedett": False, "utasitas": True})]
+    assert F.nezet(_sor(db, rid))["feladat"] == eredeti                    # az állandó feladat NEM változik
+
+    # a futás maga (a hatterben ezt indítaná): az utasítás a lap TETEJÉN, alatta a legutóbbi kimenet rövidítve
+    kapu = Kapu([_zaro(osszegzes="Kész a diasor.", eredmeny="A diasor a tanulmányból készült.")])
+    e, _, _ = _futtat(db, rid, kapu, bemenet=UTASITAS, kuldo="a Kommandant", utasitas=True)
+    lap = next(m["content"] for m in kapu.hivasok[0][1]["messages"] if m["role"] == "user")
+    assert lap.startswith(f"A KOMMANDANT ÚJ UTASÍTÁSA:\n«««\n{UTASITAS}\n»»»\n— ehhez igazodj; ha ez ellentmond az "
+                          "állandó feladatnak, ez győz.")
+    assert "felvegyed-e az állandó feladatodba" in lap
+    assert "A LEGUTÓBBI KIMENETED" in lap and "A tanulmányt nem tudtam elolvasni." in lap and "x" * 5000 not in lap
+    assert lap.index("A KOMMANDANT ÚJ UTASÍTÁSA") < lap.index("A FUTÁS LAPJA") < lap.index(eredeti)
+    assert "BEMENETI ÜZENET" not in lap                                    # nem kétszer, nem „adatként”
+    assert e["utasitas"] is True and e["allapot"] == "kesz"
+    assert F.nezet(_sor(db, rid))["feladat"] == eredeti
+
+    # az átiratban: a Kommandant buborékja, utána a futás eredménye (a bemenet nem ismétlődik benne)
+    b = _run(_keres(app, "GET", f"/api/ui/beszelgetes?ablak={uid}")).json()
+    utolso_ketto = b["tetelek"][-2:]
+    assert [(t["tipus"], t["ki"]) for t in utolso_ketto] == [("uzenet", "kommandant"), ("uzenet", uid)]
+    assert utolso_ketto[0]["szoveg"] == UTASITAS and utolso_ketto[0]["csatorna"] == "web"
+    assert "A diasor a tanulmányból készült." in utolso_ketto[1]["szoveg"]
+    assert "> bemenet" not in utolso_ketto[1]["szoveg"]
+
+
+def test_kabin_uj_utasitas_ures_401_es_ha_nem_indul(db, monkeypatch):
+    rid = _letrehoz(db)
+    uid = F.azonosito(rid)
+    indult = []
+    monkeypatch.setattr(F, "hatterben", lambda rid_, **kw: indult.append(rid_) or {"indult": True})
+    app = _app(db)
+    ut = "/api/ui/ugynok/utasitas"
+    assert _run(_keres(app, "POST", ut, json={"id": uid, "szoveg": "   "})).status_code == 400
+    assert _run(_keres(app, "POST", ut, json={"id": "feldwebel", "szoveg": "x"})).status_code == 400
+    assert _run(_keres(app, "POST", ut, json={"id": uid, "szoveg": "x" * (F.BEMENET_MAX + 1)})).status_code == 400
+    assert _run(_keres(app, "POST", ut, suti=False, json={"id": uid, "szoveg": "x"})).status_code == 401
+    assert _run(_keres(app, "POST", ut, json={"id": "ugynok:9999", "szoveg": "x"})).status_code == 404
+    assert indult == [] and _naplo(db, rid, F.TARGY_UTASITAS) == []
+    # ha a futás nem indul (már dolgozik): 409, és nincs válasz nélkül maradó buborék
+    monkeypatch.setattr(F, "hatterben", lambda rid_, **kw: {"indult": False, "hiba": "már dolgozik"})
+    r = _run(_keres(app, "POST", ut, json={"id": uid, "szoveg": "Most ezt nézd."}))
+    assert r.status_code == 409 and "már dolgozik" in r.json()["hiba"]
+    assert _naplo(db, rid, F.TARGY_UTASITAS) == []
+
+
+def test_utasitas_jelzot_a_feldwebel_eszkoz_args_bol_nem_allithatja(db, monkeypatch):
+    rid = _letrehoz(db)
+    kw_ = []
+    monkeypatch.setattr(F, "hatterben", lambda rid_, **kw: kw_.append(kw) or {"indult": True})
+    out = F.vegrehajt("futtat", {"id": F.azonosito(rid), "bemenet": "x", "utasitas": True}, get_db=db, ki="feldwebel")
+    assert out.get("ok") and kw_[0]["utasitas"] is False and _naplo(db, rid, F.TARGY_UTASITAS) == []
+    assert F.vegrehajt("leallit", {"id": F.azonosito(rid)}, get_db=db, utasitas=True).get("error")
+
+
+def test_utasitasnal_sf_modellnek_tudasbazisos_kimenet_nem_megy(db, sf_kulcs):
+    rid = _letrehoz(db, modell="glm5")
+    c = db()
+    F.naplo(c, rid, F.TARGY_FUTAS, {"esemeny": "futas", "allapot": "kesz", "tudasbazis": True,
+                                     "eredmeny": "TITKOS-KB a korábbi (Claude-os) futásból"})
+    c.commit()
+    c.close()
+    sf = Kapu([_sf_valasz(json.dumps({"jelzes": False, "osszegzes": "-", "eredmeny": "-"}), modell="zai-org/GLM-5.3")])
+    _futtat(db, rid, Kapu([]), sf_kapu=sf, bemenet=UTASITAS, kuldo="a Kommandant", utasitas=True)
+    kuldott = json.dumps(sf.hivasok, ensure_ascii=False)
+    assert "A KOMMANDANT ÚJ UTASÍTÁSA" in kuldott and "TITKOS-KB" not in kuldott

@@ -8814,6 +8814,17 @@ async def _rizs_eszkozhurok(model_id: str, messages: list, *, purpose: str, max_
     return "", data, None, notes, hivott
 
 
+#: A közös feladat (`ai_task`, broadcast-mód) ügynökeinek modellje — és a szintézis-lánc tagjaié (mindkét módban).
+#: A dispatch-mód a `SILICONFLOW_MODELS` aliasait hívja. A kabin „Közös feladatok” részletnézete (ui_kabin) EBBŐL
+#: mondja meg, melyik modell írta a választ — ezért egy helyen van, nem a hívóhelyeken szétszórva.
+AI_TASK_MODELLEK = {
+    "kimi": "moonshotai/Kimi-K2.7-Code",
+    "deepseek": "deepseek-ai/DeepSeek-V4-Pro",
+    "glm5": "zai-org/GLM-5.2",
+}
+AI_TASK_SZINTEZIS_SORREND = ("kimi", "deepseek", "glm5")
+
+
 async def _execute_ai_task(task_id: int, title: str, description: str, context: str, assigned_by: str,
                             deep_research: bool = False, deep_thinking: bool = False,
                             output_format: str = ""):
@@ -8829,9 +8840,9 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
     # and feeds results back into the conversation. The new DSML extractor
     # variant added in 865ccfc covers the reasoner-mode native format.
     roles = {
-        "kimi": ("moonshotai/Kimi-K2.7-Code", "Kutató és elemző. Alapos, részletes munkát végzel.", 20000, True),
-        "deepseek": ("deepseek-ai/DeepSeek-V4-Pro", "Kritikus elemző és ellenőr. Logikai hibákat keresel, ellenérveket fogalmazol, hipotéziseket vizsgálsz. Használd a tool-okat ahol releváns adat kell.", 20000, True),
-        "glm5": ("zai-org/GLM-5.2", "Végrehajtó és kóder. Konkrét megoldásokat, kódot, strukturált outputot adsz. Ha kell, implementálsz.", 20000, True),
+        "kimi": (AI_TASK_MODELLEK["kimi"], "Kutató és elemző. Alapos, részletes munkát végzel.", 20000, True),
+        "deepseek": (AI_TASK_MODELLEK["deepseek"], "Kritikus elemző és ellenőr. Logikai hibákat keresel, ellenérveket fogalmazol, hipotéziseket vizsgálsz. Használd a tool-okat ahol releváns adat kell.", 20000, True),
+        "glm5": (AI_TASK_MODELLEK["glm5"], "Végrehajtó és kóder. Konkrét megoldásokat, kódot, strukturált outputot adsz. Ha kell, implementálsz.", 20000, True),
     }
 
     task_prompt = f"FELADAT: {title}\n\nLEÍRÁS: {description}"
@@ -9249,11 +9260,7 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
             # mis-reads a number on long context (e.g. flipped HICP 2025-11
             # in #172). Each model is re-validated through the classifier;
             # if the result is "ok" we keep it, otherwise we fall through.
-            SYNTHESIS_CHAIN = (
-                ("moonshotai/Kimi-K2.7-Code", "kimi"),
-                ("deepseek-ai/DeepSeek-V4-Pro", "deepseek"),
-                ("zai-org/GLM-5.2", "glm5"),
-            )
+            SYNTHESIS_CHAIN = tuple((AI_TASK_MODELLEK[a], a) for a in AI_TASK_SZINTEZIS_SORREND)
             synthesis = ""
             synthesizer_used = None
             for model_id, label in SYNTHESIS_CHAIN:
@@ -9790,11 +9797,7 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
                     # (Kimi → DeepSeek V4-Pro → GLM5). DeepSeek 2nd because its
                     # reasoning output on long-context summarization is more
                     # thorough than GLM5's; GLM5 last as final fallback.
-                    DISPATCH_SYNTHESIS_CHAIN = (
-                        ("moonshotai/Kimi-K2.7-Code", "kimi"),
-                        ("deepseek-ai/DeepSeek-V4-Pro", "deepseek"),
-                        ("zai-org/GLM-5.2", "glm5"),
-                    )
+                    DISPATCH_SYNTHESIS_CHAIN = tuple((AI_TASK_MODELLEK[a], a) for a in AI_TASK_SZINTEZIS_SORREND)
                     synthesis = ""
                     synthesizer_used = None
                     for syn_model_id, syn_label in DISPATCH_SYNTHESIS_CHAIN:
@@ -12494,6 +12497,26 @@ async def _ui_draft_dont(draft_id: int, dontes: str) -> dict:
         return {"error": szoveg[:300] or "üres válasz az action_draft_decide-tól"}
 
 
+def _ui_ai_task_modell(ugynok: str, mod: str) -> str | None:
+    """A kabin „Közös feladatok” részletnézetéhez: melyik modellt hívta az `ai_task` ennél az ügynöknél.
+    `mod`: "dispatch" (a `SILICONFLOW_MODELS` aliasa, ahogy a `_run_agent_with_tools` feloldja), különben a broadcast
+    és a szintézis modellje (`AI_TASK_MODELLEK`). A tényleges helyettesítést a válasz végi kapu-jegyzet mondja ki."""
+    if mod == "dispatch":
+        return SILICONFLOW_MODELS.get(ugynok) or (ugynok if "/" in ugynok else None)
+    return AI_TASK_MODELLEK.get(ugynok)
+
+
+async def _ui_ai_task_indit(args: dict) -> dict:
+    """A kabin hozzászólása (11-23) → új, folytató közös feladat az `ai_task` MCP-eszközön át: ugyanaz a belépő, mint
+    az ügynököké és a Feldwebelé (ugyanaz a SUBAGENT_TILTOTT- és kínai-őr) — a kabin nem ír mellé második LLM-utat."""
+    res = await mcp.call_tool("ai_task", args)
+    szoveg = "".join(getattr(c, "text", "") or "" for c in (getattr(res, "content", None) or []))
+    try:
+        return json.loads(szoveg)
+    except ValueError:
+        return {"error": szoveg[:300] or "üres válasz az ai_task-tól"}
+
+
 try:
     import ui_kabin
     ui_kabin.regisztral(mcp, {
@@ -12506,6 +12529,8 @@ try:
         "llm_allapot": llm_kapu.allapot,
         "jelenlet": _presence_view,
         "draft_dont": _ui_draft_dont,
+        "ai_task_modell": _ui_ai_task_modell,
+        "ai_task_indit": _ui_ai_task_indit,
     })
 except Exception as _uie:  # noqa: BLE001
     logger.error("Bridge UI v2 (ui_kabin) bekötése bukott (a Bridge megy tovább): %s", _uie, exc_info=True)

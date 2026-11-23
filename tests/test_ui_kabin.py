@@ -11,7 +11,9 @@ Amit ezek a tesztek őriznek:
      Fabernek, a nyugta a webre jön, Telegramra nem; a Feldwebel válasza a modellel és az eszközökkel együtt jön vissza;
   7. a Faber-kártya: `faber:kapu` → döntésre vár; `faber:esemeny` → az állapot; a döntés aláírt `gomb`
      „{dontes}:{id}:{kod}”, a kódot a szerver keresi ki, és ugyanarra a kérelemre másodszor nem megy;
-  8. aláíratlan 'faber'-címzettű sor nem jelenik meg a Kommandant szavaként.
+  8. aláíratlan 'faber'-címzettű sor nem jelenik meg a Kommandant szavaként;
+  9. KÖZÖS FELADATOK (ai_tasks): a lista beszédes állapota (0/3, 2/3, összefoglaló készül, kész, hibás, megakadt), a
+     részlet-végpont a válaszokkal és a modellel, a hozzászólásból indított folytató feladat (mockolt `ai_task`-hívóval).
 """
 import asyncio
 import json
@@ -37,6 +39,12 @@ CREATE TABLE IF NOT EXISTS discussion_entries (id INTEGER PRIMARY KEY AUTOINCREM
 CREATE TABLE IF NOT EXISTS heartbeats (instance TEXT PRIMARY KEY, last_seen TEXT NOT NULL, session_info TEXT DEFAULT '');
 CREATE TABLE IF NOT EXISTS telegram_history (id INTEGER PRIMARY KEY AUTOINCREMENT, chat_id TEXT NOT NULL, role TEXT NOT NULL,
   agent_id TEXT DEFAULT 'deepseek', content TEXT NOT NULL, timestamp TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS ai_tasks (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL, description TEXT NOT NULL,
+  context TEXT DEFAULT '', assigned_by TEXT NOT NULL, status TEXT DEFAULT 'pending', created_at TEXT NOT NULL,
+  completed_at TEXT, error_code TEXT DEFAULT '');
+CREATE TABLE IF NOT EXISTS ai_task_results (id INTEGER PRIMARY KEY AUTOINCREMENT, task_id INTEGER NOT NULL,
+  agent TEXT NOT NULL, role TEXT DEFAULT '', content TEXT NOT NULL, sources TEXT DEFAULT '', timestamp TEXT NOT NULL,
+  error_code TEXT DEFAULT '');
 """
 
 
@@ -636,3 +644,219 @@ def test_melleklet_feltoltes_es_chat_a_melleklettel(db, monkeypatch):
     assert kapott and kapott[0].startswith(M.ALAP_KERES) and "[Melléklet #7: irat.jpg — fénykép · átírva" in kapott[0]
     M._FRISS.clear()
     assert _run(_keres(app, "POST", "/api/ui/chat", json={"szoveg": "x", "mellekletek": [123456]})).status_code == 400
+
+
+# ── 9. KÖZÖS FELADATOK (ai_tasks): lista, részletek, hozzászólás ───────
+
+from datetime import datetime, timedelta, timezone  # noqa: E402
+
+MOST = datetime(2026, 11, 23, 20, 50, tzinfo=timezone.utc)
+
+
+def _iso(perc_ezelott: float = 0) -> str:
+    return (MOST - timedelta(minutes=perc_ezelott)).isoformat()
+
+
+def _sor(agent, role="Kutató", content="válasz", error_code="", perc=1):
+    return {"agent": agent, "role": role, "error_code": error_code, "eleje": content[:40], "timestamp": _iso(perc)}
+
+
+def _all(status, sorok, error_code="", perc=10):
+    return ui.feladat_allapot({"status": status, "error_code": error_code, "created_at": _iso(perc)}, sorok,
+                              most=MOST.timestamp())
+
+
+def test_kozos_feladat_beszedes_allapot():
+    a = _all("running", [])
+    assert (a["allapot_szoveg"], a["fajta"], a["valaszolt"], a["vart"]) == ("0/3 ügynök kész", "fut", 0, 3)
+    assert [u["allapot"] for u in a["ugynokok"]] == ["var", "var", "var"]
+    a = _all("running", [_sor("kimi"), _sor("deepseek")])
+    assert a["allapot_szoveg"] == "2/3 ügynök kész"
+    assert {u["id"]: u["allapot"] for u in a["ugynokok"]} == {"kimi": "kesz", "deepseek": "kesz", "glm5": "var"}
+    a = _all("running", [_sor("kimi"), _sor("deepseek"), _sor("glm5", content="ERROR: SF 402")])
+    assert a["allapot_szoveg"] == "összefoglaló készül" and a["reszlet"] == "hibás: GLM"
+    # a 594-es eset: dispatch-mód, a státusz végig „pending”, a három válasz egyszerre jött, a szintézis még fut
+    d = [_sor(x, role=ui.DISPATCH_SZEREP) for x in ("kimi", "deepseek", "glm5")]
+    assert _all("pending", d)["allapot_szoveg"] == "összefoglaló készül"
+    a = _all("pending", [])
+    assert (a["allapot_szoveg"], a["vart"], a["ugynokok"]) == ("ügynökök dolgoznak", None, [])
+    a = _all("completed", d + [_sor("szintézis", role="Koordinátori összefoglaló")])
+    assert (a["allapot_szoveg"], a["fajta"], a["hibakod"], a["szintezis"]) == ("kész", "kesz", None, True)
+    a = _all("failed", [_sor("kimi", error_code="unhandled_tool_call", role=ui.DISPATCH_SZEREP)],
+             error_code="unhandled_tool_call")
+    assert (a["allapot_szoveg"], a["fajta"], a["hibakod"]) == ("hibás", "hiba", "unhandled_tool_call")
+    # broadcast degradált szintézis: a státusz „completed”, de semmi értékelhető nem jött → hibás, a kóddal
+    a = _all("completed", [_sor("kimi", content="TIMEOUT after retry"),
+                           _sor("szintézis", error_code="no_usable_agent_result")], error_code="no_usable_agent_result")
+    assert (a["allapot_szoveg"], a["hibakod"]) == ("hibás", "no_usable_agent_result")
+    a = _all("running", [_sor("kimi", perc=200)], perc=210)
+    assert (a["allapot_szoveg"], a["fajta"]) == ("megakadt", "hiba") and "3 órája" in a["reszlet"]
+    # kész, de több ügynök után sincs összefoglaló — kimondjuk
+    assert _all("completed", d)["reszlet"] == "összefoglaló nélkül"
+
+
+def _feladat(db, cim, status="running", *, ki="cli-claus", leiras="Elemezd a forint-árfolyamot.", kontextus="",
+             sorok=(), error_code=""):
+    c = db()
+    tid = c.execute("INSERT INTO ai_tasks (title, description, context, assigned_by, status, created_at, error_code) "
+                    "VALUES (?, ?, ?, ?, ?, ?, ?)",
+                    (cim, leiras, kontextus, ki, status, ui._iso(), error_code)).lastrowid
+    for agent, role, content, kod in sorok:
+        c.execute("INSERT INTO ai_task_results (task_id, agent, role, content, timestamp, error_code) "
+                  "VALUES (?, ?, ?, ?, ?, ?)", (tid, agent, role, content, ui._iso(), kod))
+    c.commit()
+    c.close()
+    return tid
+
+
+def test_kozos_feladatok_a_tablan_tartalom_nelkul(db):
+    for i in range(12):
+        _feladat(db, f"régi {i}", "completed")
+    _feladat(db, "Forint", "running", sorok=[("kimi", "Kutató", "Hosszú elemzés " * 200, ""),
+                                              ("deepseek", "Kritikus", "Ellenvetés", "")])
+    app, _ = _app(db)
+    a = _run(_keres(app, "GET", "/api/ui/allapot")).json()
+    lista = a["kozos_feladatok"]
+    assert len(lista) == ui.KOZOS_FELADAT_MAX
+    f = lista[0]
+    assert (f["cim"], f["ki"], f["allapot_szoveg"], f["valaszolt"], f["vart"]) == ("Forint", "cli-claus",
+                                                                                  "2/3 ügynök kész", 2, 3)
+    assert f["ido"] and f["elozmeny"] is None
+    # a tábla könnyű: se leírás, se válaszszöveg
+    assert "Hosszú elemzés" not in json.dumps(a, ensure_ascii=False)
+    assert not {"leiras", "valaszok", "kontextus"} & set(f)
+
+
+def test_feladat_reszletek_valaszokkal_es_modellel(db):
+    tid = _feladat(db, "Forint", "completed", sorok=[
+        ("kimi", "Kutató és elemző.", "## Kimi\n**erős** forint", ""),
+        ("deepseek", "Kritikus", "Ellenvetés <script>x</script>", ""),
+        ("glm5", "Végrehajtó", "TIMEOUT after retry: read timeout", ""),
+        ("kimi", "📎 Generált fájl (docx)", "[FÁJL] file_id=31, formátum=docx\n→ /api/uploads/31/download", ""),
+        ("szintézis", "Koordinátori összefoglaló (deepseek fallback)", "Összegzés", "")])
+    modellek = {("kimi", "broadcast"): "moonshotai/Kimi-K2.7-Code", ("deepseek", "broadcast"): "deepseek-ai/DeepSeek-V4-Pro",
+                ("glm5", "broadcast"): "zai-org/GLM-5.2", ("deepseek", "szintezis"): "deepseek-ai/DeepSeek-V4-Pro"}
+    app, _ = _app(db, ai_task_modell=lambda u, m: modellek.get((u, m)))
+    r = _run(_keres(app, "GET", f"/api/ui/feladat/{tid}"))
+    assert r.status_code == 200
+    j = r.json()
+    assert (j["cim"], j["leiras"], j["allapot_szoveg"]) == ("Forint", "Elemezd a forint-árfolyamot.", "kész")
+    v = {x["ugynok"]: x for x in j["valaszok"]}
+    assert list(v) == ["kimi", "deepseek", "glm5"]
+    assert v["kimi"]["szoveg"] == "## Kimi\n**erős** forint" and v["kimi"]["modell"] == "moonshotai/Kimi-K2.7-Code"
+    assert v["deepseek"]["szoveg"] == "Ellenvetés <script>x</script>"      # nyersen jön, a kliens escape-el
+    assert v["glm5"]["hibas"] is True and v["kimi"]["hibas"] is False
+    assert j["szintezis"]["szoveg"] == "Összegzés" and j["szintezis"]["modell"] == "deepseek-ai/DeepSeek-V4-Pro"
+    assert j["fajlok"] == [{"ugynok": "kimi", "nev": "Kimi", "formatum": "docx", "url": "/api/uploads/31/download"}]
+    assert j["export"] == f"/api/ai_tasks/{tid}/export"
+    assert j["folytatasok"] == [] and j["elozmeny_feladat"] is None
+    # futó feladatnál nincs export; nem létezőre 404
+    fut = _feladat(db, "Fut", "running")
+    assert _run(_keres(app, "GET", f"/api/ui/feladat/{fut}")).json()["export"] is None
+    assert _run(_keres(app, "GET", "/api/ui/feladat/9999")).status_code == 404
+
+
+def _indito(db, kapott):
+    """Mockolt `ai_task`: rögzíti az argumentumokat, és úgy írja be a feladatot, ahogy az eszköz tenné."""
+    async def ai_task_indit(args):
+        kapott.append(args)
+        c = db()
+        tid = c.execute("INSERT INTO ai_tasks (title, description, context, assigned_by, status, created_at) "
+                        "VALUES (?, ?, ?, ?, 'pending', ?)", (args["title"], args["description"],
+                                                             args["context"][:10000], args["assigned_by"],
+                                                             ui._iso())).lastrowid
+        c.commit()
+        c.close()
+        return {"status": "task_created", "task_id": tid}
+    return ai_task_indit
+
+
+def test_hozzaszolas_folytato_feladat_broadcast(db):
+    hosszu = "Kimi részletes elemzése. " * 400
+    tid = _feladat(db, "Forint", "completed", sorok=[
+        ("kimi", "Kutató", hosszu, ""), ("deepseek", "Kritikus", "DeepSeek ellenvetése", ""),
+        ("glm5", "Végrehajtó", "GLM terve", ""), ("szintézis", "Koordinátori összefoglaló", "Összegzés", "")])
+    kapott = []
+    app, _ = _app(db, ai_task_indit=_indito(db, kapott))
+    r = _run(_keres(app, "POST", f"/api/ui/feladat/{tid}/hozzaszolas",
+                    json={"szoveg": "  Nézzétek meg az MNB-kamatdöntést is!  "}))
+    assert r.status_code == 200, r.text
+    uj = r.json()["id"]
+    assert len(kapott) == 1
+    a = kapott[0]
+    assert a["title"] == f"↳ #{tid}: Forint" and a["assigned_by"] == "kommandant"
+    assert "agent_tasks" not in a                                  # az eredeti broadcast volt: mindhárman ugyanazt
+    # a hozzászólás LEGFELÜL, kiemelve; alatta az eredeti feladat és ügynökönként a korábbi válasz, rövidítve
+    assert a["context"].startswith("A KOMMANDANT HOZZÁSZÓLÁSA: Nézzétek meg az MNB-kamatdöntést is!\n"
+                                   "— erre reagálj elsőként, ehhez igazítsd a választ.")
+    assert "CÍM: Forint" in a["context"] and "LEÍRÁS: Elemezd a forint-árfolyamot." in a["context"]
+    assert "DeepSeek ellenvetése" in a["context"] and "GLM terve" in a["context"]
+    assert "KIMI KORÁBBI VÁLASZA (rövidítve)" in a["context"] and hosszu not in a["context"]
+    assert len(a["context"]) <= 10000                               # az ai_task ennyit tart meg
+    # mindkét irányban látszik a kapcsolat és a Kommandant szövege
+    eredeti = _run(_keres(app, "GET", f"/api/ui/feladat/{tid}")).json()
+    assert [(f["id"], f["hozzaszolas"]) for f in eredeti["folytatasok"]] == [(uj, "Nézzétek meg az MNB-kamatdöntést is!")]
+    folyt = _run(_keres(app, "GET", f"/api/ui/feladat/{uj}")).json()
+    assert folyt["elozmeny_feladat"] == {"id": tid, "cim": "Forint"}
+    assert folyt["hozzaszolas"] == "Nézzétek meg az MNB-kamatdöntést is!"
+    lista = _run(_keres(app, "GET", "/api/ui/allapot")).json()["kozos_feladatok"]
+    assert lista[0]["id"] == uj and lista[0]["elozmeny"] == tid and lista[0]["ki"] == "kommandant"
+
+
+def test_hozzaszolas_dispatch_ugynokonkent(db):
+    tid = _feladat(db, "Piac", "completed", sorok=[
+        ("kimi", "Pyramid dispatch", "Kimi része: kutatás", ""), ("glm5", "Pyramid dispatch", "GLM része: kód", "")])
+    kapott = []
+    app, _ = _app(db, ai_task_indit=_indito(db, kapott))
+    r = _run(_keres(app, "POST", f"/api/ui/feladat/{tid}/hozzaszolas", json={"szoveg": "A kódot írd át Pythonra."}))
+    assert r.status_code == 200 and r.json()["mod"] == "dispatch"
+    feladatok = json.loads(kapott[0]["agent_tasks"])
+    assert set(feladatok) == {"kimi", "glm5"}                     # akik az eredetiben dolgoztak
+    for nev, f in feladatok.items():
+        assert f["prompt"].count("A KOMMANDANT HOZZÁSZÓLÁSA: A kódot írd át Pythonra.") == 1
+        assert "Kimi része: kutatás" in f["prompt"] and "GLM része: kód" in f["prompt"]
+    assert "TE: GLM vagy" in feladatok["glm5"]["prompt"]
+
+
+def test_hozzaszolas_ures_hosszu_hianyzo_es_hitelesites(db):
+    tid = _feladat(db, "Forint", "completed")
+    kapott = []
+    app, _ = _app(db, ai_task_indit=_indito(db, kapott))
+    ut = f"/api/ui/feladat/{tid}/hozzaszolas"
+    assert _run(_keres(app, "POST", ut, json={"szoveg": "   "})).status_code == 400
+    assert _run(_keres(app, "POST", ut, json={})).status_code == 400
+    assert _run(_keres(app, "POST", ut, json={"szoveg": "x" * (ui.HOZZASZOLAS_MAX + 1)})).status_code == 400
+    assert _run(_keres(app, "POST", "/api/ui/feladat/9999/hozzaszolas", json={"szoveg": "x"})).status_code == 404
+    assert _run(_keres(app, "POST", ut, suti=False, json={"szoveg": "x"})).status_code == 401
+    assert _run(_keres(app, "GET", f"/api/ui/feladat/{tid}", suti=False)).status_code == 401
+    assert kapott == []                                            # egyik sem jutott el az ai_task-ig
+
+
+def test_hozzaszolas_ai_task_hibaja_a_feluletre(db):
+    tid = _feladat(db, "Forint", "completed")
+
+    async def ai_task_indit(args):
+        return {"error": "SILICONFLOW_API_KEY not set"}
+    app, _ = _app(db, ai_task_indit=ai_task_indit)
+    r = _run(_keres(app, "POST", f"/api/ui/feladat/{tid}/hozzaszolas", json={"szoveg": "Mehet?"}))
+    assert r.status_code == 502 and "SILICONFLOW_API_KEY" in r.json()["hiba"]
+
+
+def test_server_bekotes_az_ai_task_eszkozre(monkeypatch):
+    """A kabin a meglévő `ai_task` MCP-eszközt hívja (nincs második LLM-út), a modellnév a közös állandóból jön."""
+    import inspect
+    import types
+    import server
+    assert server._ui_ai_task_modell("kimi", "dispatch") == server.SILICONFLOW_MODELS["kimi"]
+    assert server._ui_ai_task_modell("glm5", "broadcast") == server.AI_TASK_MODELLEK["glm5"]
+    assert server._ui_ai_task_modell("deepseek", "szintezis") == server.AI_TASK_MODELLEK["deepseek"]
+    hivas = []
+
+    async def call_tool(nev, args):
+        hivas.append((nev, args))
+        return types.SimpleNamespace(content=[types.SimpleNamespace(text='{"status": "task_created", "task_id": 77}')])
+    monkeypatch.setattr(server.mcp, "call_tool", call_tool)
+    args = {"title": "↳ #1: x", "description": "d", "context": "c", "assigned_by": "kommandant", "agent_tasks": "{}"}
+    assert _run(server._ui_ai_task_indit(args)) == {"status": "task_created", "task_id": 77}
+    assert hivas == [("ai_task", args)]
+    assert set(args) <= set(inspect.signature(server.ai_task).parameters)

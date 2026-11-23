@@ -28,12 +28,18 @@ Mi van itt (a statikus kliens a `static/app/` alatt, build-lépés nélkül):
      saját ablaka (`ugynok:<id>`: a futások naplója a messages táblából — a ténylegesen futott modell, költés, viták,
      utasítások), „+ Új ügynök” és „Szerkeszt” (modell, extra prompt, vitapartnerek, utasíthat), „Futtasd most”,
      „Leállít”, „Újraindít”, „Megszüntet” — hitelesített POST-ok, ugyanazon a belépőn, mint a Feldwebel `ugynok` eszköze.
+     11-23: „Új utasítás az ügynöknek…” mező — egy azonnali futás a Kommandant utasításával (a lap tetején), az állandó
+     feladat érintetlen; az átiratban az ő buborékja, utána a futás eredménye (`api_ugynok_utasitas`).
+  7. KÖZÖS FELADATOK (2026-11-23, lásd 9/0): a munkapadon az `ai_task` feladatai (Kimi + DeepSeek + GLM + szintézis)
+     beszédes állapottal („2/3 ügynök kész”, „összefoglaló készül”, „kész”, „hibás”); kattintásra a leírás, a
+     válaszok a modellel, a szintézis, a DOCX — és hozzászólás, amiből folytató feladat indul ugyanazon az úton.
 
 A link címe SOSEM a kérés Host-fejlécéből jön (azzal bárki a saját domainjére irányíthatná a Kommandantnak küldött
 tokent): `BRIDGE_PUBLIC_URL`, különben `https://$RAILWAY_PUBLIC_DOMAIN`; Host-ból csak helyi gépen (localhost).
 
 Tárolás: HÁZI SZABÁLY — új tábla nincs. Minden a meglévő `messages`, `tasks`, `discussions`, `action_drafts`,
-`briefs`, `heartbeats` táblákból jön, a közös `get_db()`-n át.
+`briefs`, `heartbeats` táblákból jön, a közös `get_db()`-n át; az `ai_tasks` / `ai_task_results` táblát csak olvassuk
+(a hozzászólás új feladatát az `ai_task` eszköz írja, nem a kabin).
 """
 from __future__ import annotations
 
@@ -485,7 +491,7 @@ def _futas_szoveg(d: dict) -> str:
         reszek.append(f"➡ **{x.get('nev')}**: " + ("kívánság a Fabernek (te hagyod jóvá)" if x.get("cel") == "faber"
                                                     else "elindítva ezzel a bemenettel")
                       + f"\n> {' '.join(str(x.get('uzenet') or '').split())[:600]}")
-    if d.get("bemenet"):
+    if d.get("bemenet") and not d.get("utasitas"):      # az utasítás a Kommandant saját buborékjában látszik
         reszek.insert(0, f"> bemenet ({d.get('kuldo') or 'a Kommandant'}): {' '.join(str(d['bemenet']).split())[:600]}")
     for n in d.get("notes") or []:
         reszek.append(f"[{n}]")
@@ -505,6 +511,10 @@ def _osztalyoz(r, relay: dict) -> list[tuple[str, dict]]:
                          "hiba": d.get("allapot") != "kesz", "eszkozok": list(dict.fromkeys(d.get("eszkozok") or [])),
                          "futas": {k: d.get(k) for k in ("allapot", "jelzes", "koltes_usd", "keret_usd", "trigger",
                                                          "mp", "hivasok", "kert_modell", "koltes_becsult", "kuldo")}})]
+        if subj == feladat_ugynok.TARGY_UTASITAS:
+            # a Kommandant új utasítása a kabinból: az ő buborékja; utána a futás eredménye (TARGY_FUTAS)
+            return [(s, {**alap, "ki": "kommandant", "tipus": "uzenet", "szoveg": str(d.get("szoveg") or ""),
+                         "csatorna": "web"})]
         if subj == feladat_ugynok.TARGY_DOKUMENTUM:
             if d.get("hiba"):
                 szoveg = f"⚠ A Word-dokumentum nem készült el: {d['hiba']}"
@@ -886,6 +896,301 @@ def _vitak(conn) -> list[dict]:
         return []
 
 
+# ══ 9/0. KÖZÖS FELADATOK (ai_tasks — Kimi, DeepSeek, GLM közös munkája) ═══════
+#
+# A Kommandant (11-23): „nem látom a boardon … azt se látom a dashboardon, h meg lettek kérdezve”. Az `ai_task`
+# MCP-eszköz (server.py) feladatai: a három ügynök dolgozik rajta, a végén a szintézis. A lista a munkapadon jön az
+# `allapot`-tal (12 mp-enként), tartalom nélkül; a részletek (leírás, ügynökönként a teljes válasz a modellel, a
+# szintézis, a DOCX-export) kattintásra a `/api/ui/feladat/{id}`-ről. Csak olvas, a közös `get_db()`-n át.
+#
+# A „pending” önmagában semmit nem mond (a dispatch-mód a futás alatt végig „pending”, a broadcast „running”), ezért
+# az állapot az `ai_task_results` soraiból jön:
+#   * broadcast: a három ügynök egyenként ír → „n/3 ügynök kész”;
+#   * dispatch: az ügynökök sorai EGYSZERRE jönnek, a darabszámuk addig nincs a DB-ben → „ügynökök dolgoznak”;
+#   * minden ügynök kész, szintézis még nincs → „összefoglaló készül”; `completed` → „kész”;
+#   * `failed` vagy `no_usable_agent_result` → „hibás” a kóddal; 3 óra csend befejezés nélkül → „megakadt”.
+#
+# HOZZÁSZÓLÁS (11-23, a Kommandant: „abba is bele kéne tudnom szólni”): `POST /api/ui/feladat/{id}/hozzaszolas`
+# egy FOLYTATÓ közös feladatot indít a meglévő `ai_task` eszközön át (deps["ai_task_indit"]). Címe
+# „↳ #<eredeti>: <cím>” — új oszlop nincs, a kapcsolat a címelőtagból jön; a hozzászólás a kontextus elején áll,
+# onnan olvassuk vissza. Az ügynökök csak a Kommandant szövegét és a feladat anyagát kapják (cím, leírás, a korábbi
+# válaszok rövidítve) — tudásbázist, memóriát, levelet, naptárt nem; az őrök az `ai_task` úton változatlanok.
+
+KOZOS_FELADAT_MAX = 10
+SZINTEZIS = "szintézis"
+DISPATCH_SZEREP = "Pyramid dispatch"
+FAJL_SZEREP = "📎 Generált fájl"
+MEGAKADT_S = 3 * 3600
+AI_TASK_NEV = {"kimi": "Kimi", "deepseek": "DeepSeek", "glm5": "GLM", SZINTEZIS: "Összefoglaló"}
+_HIBA_ELEJE = ("ERROR:", "TIMEOUT", "(no response)")
+_FAJL_RE = re.compile(r"file_id=(\d+), formátum=(\w+)")
+_SZINTEZIS_MODELL_RE = re.compile(r"\b(kimi|deepseek|glm5|none)\b")
+#: a folytató feladat címe és a hozzászólás keretezése a kontextusban (ebből olvassuk vissza)
+FOLYTATAS_RE = re.compile(r"^↳ #(\d+): ")
+HOZZASZOLAS_FEJ = "A KOMMANDANT HOZZÁSZÓLÁSA: "
+HOZZASZOLAS_LAB = "\n— erre reagálj elsőként, ehhez igazítsd a választ."
+_HOZZASZOLAS_RE = re.compile(re.escape(HOZZASZOLAS_FEJ) + r"(.*?)" + re.escape(HOZZASZOLAS_LAB), re.S)
+HOZZASZOLAS_MAX = 4000
+#: az `ai_task` a kontextust 10 000 karakterre vágja — ebbe kell beférnie a hozzászólásnak és a korábbi válaszoknak
+KONTEXTUS_KERET = 9800
+VALASZ_RESZLET_MAX = 3000
+LEIRAS_RESZLET_MAX = 1500
+
+
+def _ts(iso) -> float | None:
+    if not iso:
+        return None
+    try:
+        d = datetime.fromisoformat(str(iso).replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    return (d if d.tzinfo else d.replace(tzinfo=timezone.utc)).timestamp()
+
+
+def _sor_hibas(sor: dict) -> bool:
+    return bool(sor.get("error_code")) or str(sor.get("eleje") or "").lstrip().startswith(_HIBA_ELEJE)
+
+
+def _fajl_sor(sor: dict) -> bool:
+    return str(sor.get("role") or "").startswith(FAJL_SZEREP)
+
+
+def _ugynok_sor(sor: dict) -> bool:
+    return sor.get("agent") != SZINTEZIS and not _fajl_sor(sor)
+
+
+def feladat_allapot(task: dict, sorok: list[dict], most: float | None = None) -> dict:
+    """Beszédes állapot egy `ai_tasks` sorhoz. `task`: status, error_code, created_at; `sorok`: az `ai_task_results`
+    sorai id szerint (agent, role, error_code, eleje = a tartalom eleje, timestamp)."""
+    most = _most() if most is None else most
+    status = str(task.get("status") or "pending").lower()
+    kod = str(task.get("error_code") or "")
+    ugynok_sorok = [s for s in sorok if _ugynok_sor(s)]
+    szint = [s for s in sorok if s.get("agent") == SZINTEZIS]
+    dispatch = any(s.get("role") == DISPATCH_SZEREP for s in ugynok_sorok)
+    kesz = list(dict.fromkeys(s["agent"] for s in ugynok_sorok))
+    hibas = list(dict.fromkeys(s["agent"] for s in ugynok_sorok if _sor_hibas(s)))
+    if dispatch:
+        vart = list(kesz)                                  # a dispatch egyszerre írja az összes ügynökét
+    elif status == "pending" and not kesz:
+        vart = None                                        # dispatch fut (vagy épp indul): a létszám nincs a DB-ben
+    else:
+        vart = list(LLM_UGYNOKOK) + [a for a in kesz if a not in LLM_UGYNOKOK]
+    szint_kod = next((s["error_code"] for s in szint if s.get("error_code")), "")
+    utolso = max([task.get("created_at")] + [s.get("timestamp") for s in sorok], key=lambda x: _ts(x) or 0)
+    reszlet = []
+    if status == "failed" or kod == "no_usable_agent_result" or szint_kod:
+        szoveg, fajta = "hibás", "hiba"
+        kod = kod or szint_kod or next((s["error_code"] for s in ugynok_sorok if s.get("error_code")), "")
+    elif status == "completed":
+        szoveg, fajta = "kész", "kesz"
+        if len(kesz) > 1 and not szint:
+            reszlet.append("összefoglaló nélkül")
+    elif most - (_ts(utolso) or most) > MEGAKADT_S:
+        szoveg, fajta = "megakadt", "hiba"
+        reszlet.append(f"{int((most - _ts(utolso)) // 3600)} órája nincs új eredmény, és nem fejeződött be")
+    elif vart is None:
+        szoveg, fajta = "ügynökök dolgoznak", "fut"
+    elif len(kesz) < len(vart):
+        szoveg, fajta = f"{len(kesz)}/{len(vart)} ügynök kész", "fut"
+    elif not szint and len(vart) > 1:
+        szoveg, fajta = "összefoglaló készül", "fut"
+    else:
+        szoveg, fajta = "lezárás…", "fut"
+    if hibas and fajta != "hiba":
+        reszlet.append(f"hibás: {', '.join(AI_TASK_NEV.get(a, a) for a in hibas)}")
+    ugynokok = [{"id": a, "nev": AI_TASK_NEV.get(a, a),
+                 "allapot": "hiba" if a in hibas else "kesz" if a in kesz else "var"}
+                for a in (vart if vart is not None else kesz)]
+    return {"allapot": status, "allapot_szoveg": szoveg, "fajta": fajta, "hibakod": kod or None,
+            "valaszolt": len(kesz), "vart": len(vart) if vart is not None else None, "ugynokok": ugynokok,
+            "szintezis": bool(szint), "mod": "dispatch" if dispatch else "broadcast" if vart is not None else None,
+            "utolso": utolso, "reszlet": " · ".join(reszlet) or None}
+
+
+def _feladat_sorok(conn, where: str, params: tuple, *, oszlopok: str = "id, title, assigned_by, status, created_at, "
+                   "completed_at") -> list[dict]:
+    """`ai_tasks` sorok dictként; a régi sémán (nincs `error_code` oszlop) is megy."""
+    try:
+        sorok = conn.execute(f"SELECT {oszlopok}, COALESCE(error_code, '') AS error_code FROM ai_tasks {where}",
+                             params).fetchall()
+    except Exception:  # noqa: BLE001 — migrálatlan DB: a hibakód nélkül
+        sorok = conn.execute(f"SELECT {oszlopok}, '' AS error_code FROM ai_tasks {where}", params).fetchall()
+    return [dict(r) for r in sorok]
+
+
+def _eredmeny_sorok(conn, task_ids: list[int], *, teljes: bool = False) -> dict[int, list[dict]]:
+    """task_id → az `ai_task_results` sorai id szerint. `teljes=False`: csak a tartalom eleje (a listához)."""
+    if not task_ids:
+        return {}
+    q = ",".join("?" * len(task_ids))
+    tartalom = "content" if teljes else "''"
+    alap = (f"SELECT id, task_id, agent, role, {{kod}} AS error_code, substr(content, 1, 40) AS eleje, "
+            f"{tartalom} AS content, timestamp FROM ai_task_results WHERE task_id IN ({q}) ORDER BY id")
+    try:
+        sorok = conn.execute(alap.format(kod="COALESCE(error_code, '')"), task_ids).fetchall()
+    except Exception:  # noqa: BLE001 — migrálatlan DB
+        sorok = conn.execute(alap.format(kod="''"), task_ids).fetchall()
+    out: dict[int, list[dict]] = {}
+    for r in sorok:
+        out.setdefault(r["task_id"], []).append(dict(r))
+    return out
+
+
+def _elozmeny_id(cim: str) -> int | None:
+    m = FOLYTATAS_RE.match(cim or "")
+    return int(m.group(1)) if m else None
+
+
+def _hozzaszolas(kontextus: str) -> str | None:
+    m = _HOZZASZOLAS_RE.search(kontextus or "")
+    return m.group(1).strip() if m else None
+
+
+def _lista_elem(t: dict, sorok: list[dict], most: float | None = None) -> dict:
+    return {"id": t["id"], "cim": t["title"], "ki": t["assigned_by"], "ido": t["created_at"],
+            "kesz_ido": t.get("completed_at"), "elozmeny": _elozmeny_id(t["title"]),
+            **feladat_allapot(t, sorok, most)}
+
+
+def kozos_feladatok(conn, limit: int = KOZOS_FELADAT_MAX, most: float | None = None) -> list[dict]:
+    """A munkapad listája: a legutóbbi `limit` közös feladat, tartalom nélkül, beszédes állapottal."""
+    try:
+        tasks = _feladat_sorok(conn, "ORDER BY id DESC LIMIT ?", (limit,))
+    except Exception:  # noqa: BLE001 — régi DB / teszt: a tábla hiánya nem hiba
+        return []
+    sorok = _eredmeny_sorok(conn, [t["id"] for t in tasks])
+    return [_lista_elem(t, sorok.get(t["id"], []), most) for t in tasks]
+
+
+def _szintezis_modell(role: str) -> str | None:
+    m = _SZINTEZIS_MODELL_RE.search(role or "")
+    nev = m.group(1) if m else ("kimi" if (role or "").startswith("Koordinátori összefoglaló") else None)
+    return None if nev in (None, "none") else nev
+
+
+def _modell(ugynok: str | None, mod: str) -> str | None:
+    f = _DEPS.get("ai_task_modell")
+    return f(ugynok, mod) if (f and ugynok) else None
+
+
+def feladat_reszletek(conn, fid: int) -> dict | None:
+    tasks = _feladat_sorok(conn, "WHERE id = ?", (fid,), oszlopok="id, title, description, context, assigned_by, "
+                           "status, created_at, completed_at")
+    if not tasks:
+        return None
+    t = tasks[0]
+    sorok = _eredmeny_sorok(conn, [fid], teljes=True).get(fid, [])
+    alap = _lista_elem(t, sorok)
+    mod = "dispatch" if alap["mod"] == "dispatch" else "broadcast"
+    valaszok, fajlok, szintezis = [], [], None
+    for s in sorok:
+        if _fajl_sor(s):
+            m = _FAJL_RE.search(s["content"] or "")
+            if m:
+                fajlok.append({"ugynok": s["agent"], "nev": AI_TASK_NEV.get(s["agent"], s["agent"]),
+                               "formatum": m.group(2), "url": f"/api/uploads/{m.group(1)}/download"})
+            continue
+        if s["agent"] == SZINTEZIS:
+            ki = _szintezis_modell(s["role"])
+            szintezis = {"szoveg": s["content"], "szerep": s["role"], "ido": s["timestamp"],
+                         "hibakod": s["error_code"] or None, "ugynok": ki, "modell": _modell(ki, "szintezis")}
+            continue
+        valaszok.append({"ugynok": s["agent"], "nev": AI_TASK_NEV.get(s["agent"], s["agent"]),
+                         "modell": _modell(s["agent"], mod), "szerep": s["role"], "szoveg": s["content"],
+                         "ido": s["timestamp"], "hibakod": s["error_code"] or None, "hibas": _sor_hibas(s)})
+    # FOLYTATÁS: vissza az eredetire, és előre a hozzászólásokból indult folytatásokra (a címelőtagból)
+    elozmeny = None
+    if alap["elozmeny"]:
+        e = _feladat_sorok(conn, "WHERE id = ?", (alap["elozmeny"],))
+        elozmeny = {"id": e[0]["id"], "cim": e[0]["title"]} if e else None
+    foly = _feladat_sorok(conn, "WHERE title LIKE ? ORDER BY id", (f"↳ #{fid}: %",),
+                          oszlopok="id, title, context, assigned_by, status, created_at, completed_at")
+    foly_sorok = _eredmeny_sorok(conn, [f["id"] for f in foly])
+    folytatasok = [{**_lista_elem(f, foly_sorok.get(f["id"], [])), "hozzaszolas": _hozzaszolas(f["context"])}
+                   for f in foly]
+    return {**alap, "leiras": t["description"], "kontextus": t["context"] or "",
+            "hozzaszolas": _hozzaszolas(t["context"]) if alap["elozmeny"] else None,
+            "valaszok": valaszok, "szintezis": szintezis, "fajlok": fajlok,
+            "elozmeny_feladat": elozmeny, "folytatasok": folytatasok,
+            "export": f"/api/ai_tasks/{fid}/export" if alap["allapot"] == "completed" and sorok else None}
+
+
+def folytatas_argumentumok(r: dict, szoveg: str) -> dict:
+    """A hozzászólásból indított folytató feladat `ai_task`-argumentumai. A kontextus legelején a Kommandant szövege,
+    alatta az eredeti cím és leírás, aztán ügynökönként a korábbi válasz rövidítve (a 10 000 karakteres keretben)."""
+    eredeti_cim = FOLYTATAS_RE.sub("", r["cim"]) if r.get("elozmeny") else r["cim"]
+    fej = (f"{HOZZASZOLAS_FEJ}{szoveg}{HOZZASZOLAS_LAB}\n\n"
+           f"=== AZ EREDETI KÖZÖS FELADAT (#{r['id']}) ===\nCÍM: {eredeti_cim}\n"
+           f"LEÍRÁS: {(r.get('leiras') or '')[:LEIRAS_RESZLET_MAX]}\n")
+    valaszok = [v for v in r["valaszok"] if not v["hibas"]] or r["valaszok"]
+    darab = max(1, len(valaszok))
+    jut = max(400, min(VALASZ_RESZLET_MAX, (KONTEXTUS_KERET - len(fej)) // darab - 80))
+    blokkok = []
+    for v in valaszok:
+        t = v["szoveg"] or ""
+        blokkok.append(f"\n=== {v['nev'].upper()} KORÁBBI VÁLASZA{' (rövidítve)' if len(t) > jut else ''} ===\n"
+                       f"{t[:jut]}")
+    kontextus = (fej + "".join(blokkok))[:KONTEXTUS_KERET]
+    args = {"title": f"↳ #{r['id']}: {eredeti_cim}"[:300], "assigned_by": "kommandant", "context": kontextus,
+            "description": (f"A Kommandant hozzászólt a #{r['id']}-es közös feladathoz. Reagálj a hozzászólására "
+                            "elsőként, aztán ahhoz igazítva add meg a javított, teljes válaszodat. A hozzászólás, az "
+                            "eredeti feladat és a korábbi válaszok a kontextusban vannak.")}
+    if r.get("mod") == "dispatch" and valaszok:
+        # dispatch-ban a kontextus nem jut el az ügynökökhöz: a promptjukba kerül, ügynökönként a saját szerepével
+        args["agent_tasks"] = json.dumps({v["ugynok"]: {
+            "prompt": (f"{args['description']}\n\n{kontextus}\n\nTE: {v['nev']} vagy — a fenti „{v['nev'].upper()} "
+                       "KORÁBBI VÁLASZA” a TE részfeladatod volt; azt folytasd a Kommandant hozzászólása szerint."),
+            "max_tokens": 8000} for v in valaszok}, ensure_ascii=False)
+    return args
+
+
+@_vedett
+async def api_feladat(request: Request):
+    """GET /api/ui/feladat/{id}: egy közös feladat részletei — leírás, ügynökönként a teljes válasz a modellel, a
+    szintézis, a fájlok, a DOCX-export (ha kész), és a folytatások (hozzászólások) mindkét irányban."""
+    fid = int(request.path_params["feladat_id"])
+    conn = _DEPS["get_db"]()
+    try:
+        r = feladat_reszletek(conn, fid)
+    finally:
+        conn.close()
+    if r is None:
+        return JSONResponse({"hiba": "nincs ilyen közös feladat"}, status_code=404)
+    return JSONResponse(r)
+
+
+@_vedett
+async def api_feladat_hozzaszolas(request: Request):
+    """POST /api/ui/feladat/{id}/hozzaszolas {szoveg} → új folytató közös feladat az `ai_task` eszközön át."""
+    fid = int(request.path_params["feladat_id"])
+    body = await request.json()
+    szoveg = str((body or {}).get("szoveg") or "").strip() if isinstance(body, dict) else ""
+    if not szoveg:
+        return JSONResponse({"hiba": "üres hozzászólás"}, status_code=400)
+    if len(szoveg) > HOZZASZOLAS_MAX:
+        return JSONResponse({"hiba": f"túl hosszú (legfeljebb {HOZZASZOLAS_MAX} karakter)"}, status_code=400)
+    if not _DEPS.get("ai_task_indit"):
+        return JSONResponse({"hiba": "a közös feladat indítása nincs bekötve"}, status_code=503)
+    conn = _DEPS["get_db"]()
+    try:
+        r = feladat_reszletek(conn, fid)
+    finally:
+        conn.close()
+    if r is None:
+        return JSONResponse({"hiba": "nincs ilyen közös feladat"}, status_code=404)
+    args = folytatas_argumentumok(r, szoveg)
+    eredmeny = await _DEPS["ai_task_indit"](args)
+    uj = (eredmeny or {}).get("task_id") if isinstance(eredmeny, dict) else None
+    if not uj:
+        hiba = (eredmeny or {}).get("error") if isinstance(eredmeny, dict) else None
+        return JSONResponse({"hiba": hiba or "az ai_task nem indult el", "eredmeny": eredmeny}, status_code=502)
+    logger.info("ui_kabin: hozzászólás a #%d közös feladathoz → folytatás #%s (%s)", fid, uj,
+                "dispatch" if "agent_tasks" in args else "broadcast")
+    return JSONResponse({"ok": True, "id": uj, "elozmeny": fid, "cim": args["title"],
+                         "mod": "dispatch" if "agent_tasks" in args else "broadcast"})
+
+
 @_vedett
 async def api_allapot(request: Request):
     token = _DEPS["bot_token"]()
@@ -897,6 +1202,7 @@ async def api_allapot(request: Request):
         draftok = _draftok(conn)
         esemenyek = _esemenyek(conn)
         vitak = _vitak(conn)
+        kozos = kozos_feladatok(conn)
         try:
             feladat_ugynokok = feladat_ugynok.lista(conn)
         except Exception as e:  # noqa: BLE001 — régi DB / teszt: a recept-tábla hiánya nem hiba
@@ -940,6 +1246,7 @@ async def api_allapot(request: Request):
                        "faber_friss": [_kartya_kifele(c) for c in kartyak if not c["var_dontesre"]][:4],
                        "draftok": draftok},
         "esemenyek": esemenyek,
+        "kozos_feladatok": kozos,
         "llm_kapu": _DEPS["llm_allapot"]() if _DEPS.get("llm_allapot") else None,
         "feladat_ugynok_modellek": feladat_ugynok.MODELL_VALASZTEK,
         "utolso_id": utolso_id,
@@ -1047,6 +1354,29 @@ async def api_ugynok_muvelet(request: Request):
     return _ugynok_valasz(feladat_ugynok.vegrehajt(muvelet, {"id": uid}, get_db=_DEPS["get_db"], ki="kabin"))
 
 
+@_vedett
+async def api_ugynok_utasitas(request: Request):
+    """POST /api/ui/ugynok/utasitas {id: "ugynok:12", szoveg} — a Kommandant ÚJ UTASÍTÁSA a feladat-ügynöknek (11-23:
+    „itt egyébként nem tudok az agentnek új utasítást adni”). Egy azonnali, egyszeri futás ugyanazzal az ügynökkel, a
+    „Futtasd most” útján (`feladat_ugynok.vegrehajt('futtat', utasitas=True)`); az állandó feladat NEM változik."""
+    body = await request.json()
+    if not isinstance(body, dict):
+        return JSONResponse({"hiba": "rossz kérés"}, status_code=400)
+    uid, szoveg = str(body.get("id") or ""), str(body.get("szoveg") or "").strip()
+    if not ugynok_ablak(uid):
+        return JSONResponse({"hiba": "hiányzó vagy rossz ügynök-azonosító (ugynok:<szám>)"}, status_code=400)
+    if not szoveg:
+        return JSONResponse({"hiba": "üres utasítás"}, status_code=400)
+    if len(szoveg) > feladat_ugynok.BEMENET_MAX:
+        return JSONResponse({"hiba": f"túl hosszú (legfeljebb {feladat_ugynok.BEMENET_MAX} karakter)"}, status_code=400)
+    out = feladat_ugynok.vegrehajt("futtat", {"id": uid, "bemenet": szoveg}, get_db=_DEPS["get_db"], ki="kabin",
+                                   utasitas=True)
+    futas = out.get("futas") or {}
+    if not out.get("error") and not futas.get("indult"):
+        return JSONResponse({**out, "hiba": futas.get("hiba") or "a futás nem indult el"}, status_code=409)
+    return _ugynok_valasz(out)
+
+
 # ══ 9/B. MELLÉKLET-FELTÖLTÉS (fénykép, PDF, Word… → Studio + szöveg) ═════════════
 
 MELLEKLET_MAX = 50 * 1024 * 1024
@@ -1088,9 +1418,12 @@ API_UTAK = [
     ("/api/ui/draft/dont", ["POST"], api_draft_dont),
     ("/api/ui/vita/{vita_id:int}", ["GET", "POST"], api_vita),
     ("/api/ui/brief/{brief_id:int}", ["GET"], api_brief),
+    ("/api/ui/feladat/{feladat_id:int}", ["GET"], api_feladat),
+    ("/api/ui/feladat/{feladat_id:int}/hozzaszolas", ["POST"], api_feladat_hozzaszolas),
     ("/api/ui/ugynok", ["POST"], api_ugynok),
     ("/api/ui/ugynok/muvelet", ["POST"], api_ugynok_muvelet),
     ("/api/ui/ugynok/modosit", ["POST"], api_ugynok_modosit),
+    ("/api/ui/ugynok/utasitas", ["POST"], api_ugynok_utasitas),
 ]
 
 
@@ -1098,7 +1431,8 @@ def regisztral(app, deps: dict) -> None:
     """A FastMCP-app custom_route-jaira köt. `deps`:
       get_db, bot_token(), chat_id(), telegram_kuld(szoveg) [async, bukásnál dob], asszisztens(szoveg, kimenet,
       csatorna) [async], ugynokok() → {id: {elerheto, modell}}, llm_allapot(), jelenlet(heartbeat-sorok),
-      draft_dont(id, dontes) [async]."""
+      draft_dont(id, dontes) [async], ai_task_modell(ugynok, mod) → modell-azonosító, ai_task_indit(args) [async]
+      → az `ai_task` eszköz JSON-válasza (`task_id`)."""
     global _DEPS
     _DEPS = deps
     r = app.custom_route

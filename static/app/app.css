@@ -374,3 +374,54 @@ dialog.modal::backdrop { background: rgb(0 0 0 / 55%); }
 .buborek details.melleklet summary { cursor: pointer; font-weight: 600; }
 .buborek .melleklet-link { display: inline-block; margin: 6px 0 2px; }
 .buborek .melleklet-szoveg { margin-top: 6px; max-height: 50vh; overflow: auto; font-size: 13.5px; }
+
+/* KÖZÖS FELADATOK (2026-11-23): a munkapad listája és a részletek ablaka */
+.fu-ugynokok { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+.fu-ugynok { padding: 0 6px; border-radius: 999px; background: var(--card-2); color: var(--ink-3); font: 10.5px/16px var(--mono); white-space: nowrap; }
+.fu-ugynok.kesz { background: var(--done-soft); color: var(--done); }
+.fu-ugynok.hiba { background: var(--problem-soft); color: var(--problem); }
+.fu-ugynok.var { background: var(--working-soft); color: var(--working); }
+.tovabb-link { display: block; margin: 6px 6px 0; text-decoration: none; }
+.tovabb-link:hover { color: var(--ink-2); text-decoration: underline; }
+dialog.modal.szeles { width: min(860px, calc(100% - 24px)); }
+.feladat-test { white-space: normal; }
+.feladat-fej { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; color: var(--ink-3); font-size: 12px; }
+.feladat-fej .fu-ugynokok { margin-top: 0; }
+.feladat-resz { margin-top: 16px; }
+.feladat-resz > .szakasz-cim { margin: 0 0 8px; }
+.feladat-kapcs { margin-top: 10px; font-size: 13px; color: var(--ink-2); }
+.link-gomb { border: 0; padding: 0; background: none; color: #7ddcf2; font: inherit; text-align: left; text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
+.feladat-gombok { margin-top: 12px; }
+.feladat-gombok a.gomb { text-decoration: none; }
+.feladat-szoveg { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.5; font-size: 14px; }
+.feladat-szoveg strong { font-weight: 650; }
+.feladat-szoveg .cim { display: inline-block; font-weight: 700; margin-top: 4px; }
+.feladat-szoveg code { font: 12.5px/1.4 var(--mono); background: rgb(0 0 0 / 30%); padding: 1px 5px; border-radius: 5px; }
+.feladat-szoveg pre { margin: 8px 0; padding: 10px 12px; background: #0a0d12; border: 1px solid var(--hair); border-radius: 9px; overflow-x: auto; white-space: pre; }
+.feladat-szoveg pre code { background: none; padding: 0; }
+.feladat-szoveg a { color: #7ddcf2; text-underline-offset: 2px; }
+.feladat-szoveg .jegyzet { color: var(--ink-3); font-size: 12px; }
+.feladat-szoveg .idezet { display: inline-block; border-left: 3px solid var(--accent-line); padding-left: 9px; color: var(--ink-2); }
+.feladat-hozzaszolas { padding: 8px 12px; border-radius: 12px; background: var(--bubble-en); }
+.feladat-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 6px; color: var(--ink-3); font-size: 11.5px; }
+.feladat-test .modell { font: 10.5px var(--mono); color: #7d8a98; overflow-wrap: anywhere; }
+.feladat-kontextus { margin-top: 8px; font-size: 12.5px; }
+.feladat-kontextus summary { cursor: pointer; color: var(--ink-3); }
+.feladat-kontextus .feladat-szoveg { margin-top: 6px; padding: 8px 10px; max-height: 40vh; overflow: auto; background: var(--bg-2); border-radius: 9px; font-size: 12.5px; color: var(--ink-2); }
+.feladat-valasz { margin-bottom: 8px; border: 1px solid var(--hair); border-radius: 12px; background: var(--bg-2); }
+.feladat-valasz > summary { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 8px 10px; cursor: pointer; list-style: none; }
+.feladat-valasz > summary::-webkit-details-marker { display: none; }
+.feladat-valasz > summary .jobbra { margin-left: auto; }
+.feladat-valasz > .feladat-szoveg { padding: 2px 12px 12px; max-height: 60vh; overflow: auto; }
+.feladat-var { display: flex; align-items: center; gap: 8px; padding: 6px 10px; color: var(--ink-3); font-size: 12.5px; }
+.feladat-urlap { display: grid; gap: 8px; }
+.feladat-urlap textarea { width: 100%; min-height: 72px; padding: 8px 10px; border: 1px solid var(--hair); border-radius: var(--radius-sm); background: var(--bg-2); color: var(--ink); font: 14px/1.45 var(--font); resize: vertical; }
+.feladat-urlap textarea:focus { outline: 2px solid var(--accent); outline-offset: 0; }
+.feladat-urlap .kartya-gombok { align-items: center; }
+@media (max-width: 760px) { .feladat-urlap textarea { font-size: 16px; } }
+
+/* feladat-ügynök: „Új utasítás az ügynöknek…” a gombsor fölött (11-23) */
+.utasitas-sor { display: flex; align-items: flex-end; gap: 8px; margin: 0 0 8px; }
+.utasitas-sor textarea { flex: 1; min-height: 40px; max-height: 30vh; padding: 8px 10px; border: 1px solid var(--hair); border-radius: var(--radius-sm); background: var(--bg-2); color: var(--ink); font: 14px/1.45 var(--font); resize: vertical; }
+.utasitas-sor textarea:focus { outline: 2px solid var(--accent); outline-offset: 0; }
+@media (max-width: 760px) { .utasitas-sor textarea { font-size: 16px; } }
