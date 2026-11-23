@@ -1858,15 +1858,17 @@ def _trigger_agent_replies(original_msg_id: int, sender: str, message: str, agen
     async def _reply(agent_id):
         try:
             system_prompt = build_agent_context(agent_id=agent_id, inbox_summary=_get_inbox_summary(), relevance_query=message) if PYRAMID_ENABLED else ""
+            # ESZKÖZÖKKEL (2026-11-23): az @-említésre is a közös, korlátos hurok válaszol (`_rizs_eszkozhurok`)
+            system_prompt += SUBAGENT_TOOLS_DIRECTIVE + NO_TEXT_MARKER_DIRECTIVE + RIZS_CSEVEGO_DIRECTIVE
             model_id = SILICONFLOW_MODELS.get(agent_id, agent_id)
-            data, _err, _notes = await sf_chat({"model": model_id, "messages": [
+            content, data, _err, _notes, _hivott = await _rizs_eszkozhurok(model_id, [
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": f"{sender} üzenete:\n\n{message}"},
-            ], "temperature": 0.7, "max_tokens": 1500}, purpose=f"bridge/mention/{agent_id}")
+            ], purpose=f"bridge/mention/{agent_id}")
             if _err is not None:
                 content = f"(nincs válasz — {_err.get('code')}: {str(_err.get('message', ''))[:300]})"
             else:
-                content = (data.get("choices", [{}])[0].get("message", {}).get("content") or "(nincs válasz)")
+                content = content or "(nincs válasz)"
             content = _with_sf_notes(content, _notes)
             _kiszolgalo = (data or {}).get("model") if _err is None else None
             # Store reply as Bridge message
@@ -3351,6 +3353,11 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
     Use for research, analysis, translation, summarization, or second opinions.
     These models run on SiliconFlow cloud — no local resources needed.
 
+    ESZKÖZEI (ha `no_tools` nincs bekapcsolva): web_search, web_fetch, Echolot (echolot_query + az olvasó MCP),
+    böngésző (web_scrape, brave_*), StatData, és a saját szolgáltatásaink: Lexonomics, Medical, Makronóm, Engine,
+    Studio-dokumentum. Egy eszközkör (legfeljebb 3 hívás), utána szintézis; több körös kutatáshoz deep_research=True.
+    NINCS: a Kommandant tudásbázisa, Gmailje, naptára, és kifelé ható művelet (levél, közzététel, naptárírás).
+
     Args:
         model: 'kimi' (256k context, vision) or 'deepseek' (frontier reasoning, V4-Pro 1.6T MoE)
             or 'glm5' (200k context, 128k output, coding+agentic)
@@ -3483,7 +3490,7 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
         except Exception as e:
             logger.warning("Global rules prepend failed (ai_query, continuing): %s", e)
 
-        # Tell the agent it has 3 information tools (echolot_query, web_fetch, web_search)
+        # Tell the agent which tools it has (the whole SF set: web, Echolot, browser, StatData, own MCPs)
         # — by Kommandant's policy: every agent has free access, no cost concern.
         system_prompt += SUBAGENT_TOOLS_DIRECTIVE
 
@@ -3587,7 +3594,7 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
     # hibátlan briefet írt. A gondolkodás korábban "átlátott" ezen; kikapcsolva
     # a csábítás felülkerekedett.
     if not no_tools:
-        payload["tools"] = SUBAGENT_TOOL_DEFS
+        payload["tools"] = await subagent_tool_defs()
 
     try:
         import httpx
@@ -4633,7 +4640,8 @@ BRAVE_LOGIN_TOOL_DEF = {
         "name": "brave_login",
         "description": (
             "Start an authenticated browser session on a known service "
-            "(Gmail, Facebook, Twitter, LinkedIn, Instagram, or a custom URL). "
+            "(Facebook, Twitter, LinkedIn, Instagram, or a custom URL — NOT Gmail: the "
+            "Kommandant's mail and calendar are not reachable from sub-agents). "
             "Returns a saved session id that subsequent brave_action calls can "
             "reuse. Required before any session-bound operation (reading "
             "messages, posting content, exporting data). Use ONLY when the "
@@ -4645,7 +4653,7 @@ BRAVE_LOGIN_TOOL_DEF = {
             "properties": {
                 "site": {
                     "type": "string",
-                    "enum": ["gmail", "facebook", "twitter", "linkedin", "instagram", "custom"],
+                    "enum": ["facebook", "twitter", "linkedin", "instagram", "custom"],
                     "description": "Target service preset, or 'custom' with custom_url",
                 },
                 "custom_url": {
@@ -4932,8 +4940,160 @@ if STATDATA_ENABLED:
         STATDATA_MNB_RATES_TOOL_DEF,
     ])
 
+# ══ A RIZSRAKÉTÁK MINDEN SAJÁT ESZKÖZÜNKET ELÉRIK (2026-11-23) ═════════════
+# A Kommandant: „A Kimi Deepseek és GLM elvileg tud, de nyilván nem árt ha tud használni minden eszközünket - tehát
+# browser, engine, stb.” A statikus lista (web, Echolot, Brave-böngésző, StatData) mellé a KÜLSŐ saját MCP-k is
+# odakerülnek (kulso_mcp.py — szerverenként EGY eszköz `{eszkoz, parameterek}` alakban, mint a Feldwebelnél):
+#   * lexonomics (jog), medical (orvosi adatbázisok), makronom (StatData teljes készlete) — tiszta adatkeresők;
+#   * engine (a saját webmotorunk: keresés, scrape, crawl, kinyerés, böngésző-ügynök) — a figyelő (`engine_monitor`:
+#     ütemezés, e-mail, webhook) és a futásnapló (`engine_run`: a Kommandant böngésző-futásai) nélkül, és a
+#     Kommandant mentett profilja / sütije / saját fiókja nélkül;
+#   * studio — CSAK a determinisztikus dokumentumkészítés (a Nachtschicht engedélylistája: files new/upload_link,
+#     convert, wordcraft). A Studio saját AI-lépései (edit_with_instruction, facts, describe_image…) a Kommandant
+#     kreditjéből mennek, és a `files list` az ő fájljait mutatná — ezek nem.
+# Az `echolot` NEM innen jön: annak a saját, kézzel ellenőrzött olvasó-proxyja van (ECHOLOT_MCP_READ_TOOLS, ugyanez
+# a név) — a közzétevő eszközök így továbbra is tiltottak.
+#
+# ⛔ ADATVÉDELEM (kemény szabály, 11-22): a kínai modellek a Kommandant tudásbázisát, Gmailjét és naptárát SEMMILYEN
+# úton nem érik el, és kifelé ható műveletet (levél, közzététel, naptárírás, üzenet a Kommandant nevében) nem
+# végeznek. KÉT ÖV: ezek a nevek az eszközlistában nincsenek (`subagent_tool_defs`), és a végrehajtó is elutasítja
+# őket (`_dispatch_subagent_tool` → `_sf_ugynok_elutasitas`). A teszt (tests/test_rizs_eszkozok.py) mindkettőt őrzi.
+SUBAGENT_KULSO = ("lexonomics", "medical", "makronom", "engine", "studio")
+#: Az Engine eszközei közül ezek nem mennek: a figyelő ütemezett, e-mailt/webhookot küld; a futásnapló a Kommandant
+#: (akár saját fiókos) böngésző-futásait mutatja.
+SUBAGENT_ENGINE_TILTOTT = frozenset({"engine_monitor", "engine_run"})
+#: Ezekkel a paraméterekkel az Engine a Kommandant mentett profiljával / sütijével / saját fiókjával dolgozna.
+SUBAGENT_ENGINE_FIOK_PARAM = ("own_account", "cookies", "profile")
+SUBAGENT_TILTOTT = frozenset({
+    # a Kommandant tudásbázisa (futár) és a Bridge-memória (tudásbázis-tartalmat hordozhat)
+    *futar_kliens.MUVELETEK, "futar", "search_memory", "read_memory", "write_memory", "list_memory",
+    # Gmail és naptár
+    "gmail_search", "gmail_poll", "gmail_level", "gmail_tervezet", "read_gmail_attachment", "email_digest",
+    "email_triage", "capture_gmail_poll", "capture_calendar_poll", "capture_inbox", "draft_reply",
+    "naptar", "calendar_poll", "calendar_create", "create_calendar_event",
+    # kifelé ható művelet és jogbővítés
+    "send_email", "send_message", "send_file_email", "capture_send_email", "export_task", "upload_file",
+    "agora", "story_comments", "post_comment", "create_task", "create_recipe", "execute_recipe", "schedule_recipe",
+    "ai_query", "ai_task", "faber", "ugynok", "dontes_szimulator",
+})
+#: Gmail / naptár a böngészőn át: ezekre a címekre és a `gmail` munkamenetre a böngésző-eszköz sem megy.
+_SF_TILTOTT_CIM = _re_module.compile(
+    r"(?:^|//|\.)(?:mail|calendar|inbox)\.google\.com|(?:^|//)(?:www\.)?gmail\.com", _re_module.I)
+
 # Single source of truth for sub-agent tool whitelist (used by 7 dispatch sites).
-SUBAGENT_TOOL_NAMES = tuple(td["function"]["name"] for td in SUBAGENT_TOOL_DEFS)
+SUBAGENT_TOOL_NAMES = tuple(td["function"]["name"] for td in SUBAGENT_TOOL_DEFS) + SUBAGENT_KULSO
+assert not set(SUBAGENT_TOOL_NAMES) & SUBAGENT_TILTOTT, "tiltott eszköz az SF-ügynökök engedélylistáján"
+
+
+def _sf_kulso_szukit(nev: str, eszkozok: list) -> list:
+    """Egy külső MCP eszközei közül azok, amelyeket SF-ügynök láthat (a hívás paramétereit `_sf_kulso_elutasitas`
+    nézi)."""
+    if nev == "studio":
+        return [t for t in eszkozok if t.name in nachtschicht.STUDIO_ENGEDETT]
+    if nev == "engine":
+        return [t for t in eszkozok if t.name not in SUBAGENT_ENGINE_TILTOTT]
+    return list(eszkozok)
+
+
+def _sf_kulso_elutasitas(nev: str, eszkoz: str, parameterek: dict) -> str | None:
+    """None, ha az SF-ügynök futtathatja a külső MCP eszközét ezekkel a paraméterekkel; különben a kimondott ok."""
+    if not eszkoz:
+        return f"a(z) `{nev}` hívásához meg kell adni az `eszkoz` mezőt (a lista: eszkoz=\"sugo\")"
+    if eszkoz == "sugo":
+        cel = str((parameterek or {}).get("nev") or "")
+        if cel and (nev == "studio" and cel not in nachtschicht.STUDIO_ENGEDETT
+                    or nev == "engine" and cel in SUBAGENT_ENGINE_TILTOTT):
+            return f"a(z) `{nev}.{cel}` eszköz neked nem elérhető"
+        return None
+    if nev == "studio":
+        return nachtschicht.studio_engedett(eszkoz, parameterek)
+    if nev == "engine":
+        if eszkoz in SUBAGENT_ENGINE_TILTOTT:
+            return (f"az Engine `{eszkoz}` eszköze neked nem elérhető (figyelő: ütemezett, e-mailt/webhookot küld; "
+                    f"futásnapló: a Kommandant böngésző-futásai)")
+        if any((parameterek or {}).get(p) for p in SUBAGENT_ENGINE_FIOK_PARAM):
+            return ("az Engine a Kommandant mentett profiljával, sütijével vagy saját fiókjával neked nem dolgozik "
+                    f"({', '.join(SUBAGENT_ENGINE_FIOK_PARAM)} nélkül hívd)")
+        if eszkoz == "engine_dataset" and str((parameterek or {}).get("schedule") or "manual") != "manual":
+            return "ütemezett (automatikusan frissülő) táblát nem indíthatsz — schedule nélkül hívd"
+    return None
+
+
+def _sf_szovegek(ertek, mely: int = 0):
+    """Az argumentumok minden szöveges értéke (beágyazott listákban és objektumokban is)."""
+    if mely > 6:
+        return
+    if isinstance(ertek, str):
+        yield ertek
+    elif isinstance(ertek, dict):
+        for v in ertek.values():
+            yield from _sf_szovegek(v, mely + 1)
+    elif isinstance(ertek, (list, tuple)):
+        for v in ertek:
+            yield from _sf_szovegek(v, mely + 1)
+
+
+def _sf_gmail_munkamenet(args) -> bool:
+    """A böngésző-eszköz a `gmail` munkamenettel dolgozna-e (brave_login / brave_action site=gmail, lépésben is)."""
+    if isinstance(args, dict):
+        if str(args.get("site") or "").strip().lower() == "gmail":
+            return True
+        return any(_sf_gmail_munkamenet(v) for v in args.values() if isinstance(v, (dict, list)))
+    if isinstance(args, list):
+        return any(_sf_gmail_munkamenet(v) for v in args)
+    return False
+
+
+def _sf_ugynok_elutasitas(name: str, args: dict | None) -> str | None:
+    """A SiliconFlow-ügynökök végrehajtójának kapuja (a második öv): None, ha a hívás mehet; különben az ok (JSON)."""
+    args = args if isinstance(args, dict) else {}
+    if name in SUBAGENT_TILTOTT:
+        return json.dumps({"error": "tool_not_allowed", "tool": name, "message": (
+            "Ez az eszköz neked nem elérhető: a Kommandant tudásbázisa, Gmailje és naptára csak Claude-nak megy ki, "
+            "és kifelé ható műveletet (levél, közzététel, naptárírás, üzenet a Kommandant nevében) nem végzel.")},
+            ensure_ascii=False)
+    # csak a cím-szerű szöveg számít (van benne `://`, vagy egyetlen szó): a „gmail.com leállás” keresés mehet
+    if _sf_gmail_munkamenet(args) or any(_SF_TILTOTT_CIM.search(s) for s in _sf_szovegek(args)
+                                         if "://" in s or (s.strip() and not any(c.isspace() for c in s.strip()))):
+        return json.dumps({"error": "tool_not_allowed", "tool": name, "message": (
+            "A Kommandant Gmailje és naptára (mail/calendar.google.com, a gmail-munkamenet) neked nem elérhető.")},
+            ensure_ascii=False)
+    if name in SUBAGENT_KULSO:
+        ok = _sf_kulso_elutasitas(name, str(args.get("eszkoz") or ""),
+                                  args.get("parameterek") if isinstance(args.get("parameterek"), dict) else {})
+        if ok:
+            return json.dumps({"error": "tool_not_allowed", "tool": f"{name}.{args.get('eszkoz')}", "message": ok},
+                              ensure_ascii=False)
+    return None
+
+
+def _sf_kulso_bekapcsolva() -> bool:
+    """`SF_KULSO_MCP=0`: a külső MCP-k az SF-ügynököktől elvehetők újratelepítés nélkül (a tesztsor is így fut,
+    hálózat nélkül)."""
+    return os.environ.get("SF_KULSO_MCP", "1").strip().lower() not in ("0", "false", "no", "ki")
+
+
+async def _sf_kulso_eszkozok() -> list[dict]:
+    """A bekötött külső MCP-k eszközei SF-ügynöknek, szűkítve, állandó sorrendben; hibánál üres lista."""
+    if not _sf_kulso_bekapcsolva():
+        return []
+    try:
+        import kulso_mcp
+        nevek = [n for n in SUBAGENT_KULSO if kulso_mcp.bekotott(n)]
+        listak = await asyncio.wait_for(asyncio.gather(*(kulso_mcp._lista(n) for n in nevek)), 45)
+        return [kulso_mcp.eszkoz_definicio(n, _sf_kulso_szukit(n, l[0]))
+                for n, l in zip(nevek, listak) if l and _sf_kulso_szukit(n, l[0])]
+    except Exception as e:  # noqa: BLE001 — a külső szerver kiesése ne vigye el az ügynököt
+        logger.warning("SF-ügynök: a külső MCP-eszközök kimaradtak: %s", str(e)[:200])
+        return []
+
+
+async def subagent_tool_defs() -> list[dict]:
+    """AZ SF-ÜGYNÖKÖK ESZKÖZLISTÁJA — egy forrás minden útjuknak (ai_query, deep research, ai_task broadcast és
+    dispatch, a koordinátori szintézis, a Telegramos megszólítás és az @-említés). A statikus készlet + a külső MCP-k;
+    a tiltott név akkor sem kerülhet bele, ha egy szerver ilyen nevű eszközt hirdetne."""
+    return [t for t in SUBAGENT_TOOL_DEFS + await _sf_kulso_eszkozok()
+            if t["function"]["name"] not in SUBAGENT_TILTOTT]
 
 
 _SUBAGENT_TOOLS_DIRECTIVE_BASE = (
@@ -4985,8 +5145,8 @@ _SUBAGENT_TOOLS_DIRECTIVE_BASE = (
     "(biddr.com, sixbid bizonyos részei, e-commerce premium-CF). **Statdata-jellegű "
     "(Eurostat/MNB/ECB) URL-en NE használd** — felesleges és lassú. Egy hívás, transzparens "
     "próbálkozás, `escalation_path` telemetria a response-ban (melyik szint nyert).\n"
-    "- **`brave_login`** — bejelentkezett browser-session indítása Gmail/Facebook/Twitter/"
-    "LinkedIn/Instagram-on, vagy custom URL-en. CSAK akkor használd, ha a Kommandant "
+    "- **`brave_login`** — bejelentkezett browser-session indítása Facebook/Twitter/"
+    "LinkedIn/Instagram-on, vagy custom URL-en (Gmail NEM). CSAK akkor használd, ha a Kommandant "
     "explicit jóváhagyta a fiók-hozzáférést a feladatra — soha ne spekulatíven.\n"
     "- **`brave_action`** — több-lépéses browser-szekvencia (click/type/scroll/screenshot/"
     "navigate/session_action/script). Egy `actions: [...]` listával adsz át lépéseket, a "
@@ -5045,9 +5205,31 @@ _SUBAGENT_TOOLS_DIRECTIVE_TAIL = (
     "az gyakran jelzi mely dimenziók érvényesek a dataset-en.\n"
 )
 
+_SUBAGENT_KULSO_DIRECTIVE = (
+    "\n**A saját szolgáltatásaink** (ha az eszközlistádban szerepelnek; szerverenként EGY eszköz: "
+    "`<szerver>(eszkoz=\"<a szerver eszköze>\", parameterek={...})` — az eszköz leírása sorolja a szerver eszközeit, a "
+    "teljes séma: `eszkoz=\"sugo\", parameterek={\"nev\": \"<eszköz>\"}`):\n"
+    "- **`lexonomics`** — magyar és uniós jogszabályok (hatályos szöveg adott napon, módosítások), bírósági és "
+    "hatósági döntések. Jogi kérdésnél EZT használd, jogszabályhellyel idézz.\n"
+    "- **`medical`** — gyógyszer, mellékhatás, betegség, PubMed, klinikai vizsgálat. Adat és evidencia, nem diagnózis.\n"
+    "- **`makronom`** — a StatData teljes készlete (KSH, Eurostat, EKB, MNB, FRED, előrejelzés, BÉT, cégadat, SEC). "
+    "Friss makró-számhoz ELŐSZÖR `get_macro_indicator`; az egységet ne találd ki.\n"
+    "- **`engine`** — a saját webmotorunk: keresés (`engine_search`), egy oldal tisztán (`engine_scrape`), webhely-"
+    "térkép, crawl, strukturált kinyerés sémára (`engine_extract`), kutató-ügynök (`engine_agent`), több lépéses "
+    "böngészés (`engine_interact` — mindig zárd le). Ha a `web_fetch` kevés (JS-oldal, sok aloldal, táblázat).\n"
+    "- **`studio`** — dokumentum készítése: üres fájl (`files`, action=\"new\"), szerkesztés (`wordcraft`), "
+    "átalakítás (`convert`, pl. md → docx). Az eredmény `edit_url`-jét add tovább.\n"
+    "\n**AMI NEKED NEM ELÉRHETŐ** (a gép is elutasítja): a Kommandant tudásbázisa és a Bridge-memória, a Gmailje "
+    "és a naptára (a böngészőn át sem), a Studio saját AI-lépései és a fájllistája, az Engine figyelője és a "
+    "Kommandant fiókjával/profiljával futó böngészés, és minden kifelé ható művelet: levélküldés, közzététel, "
+    "naptárírás, üzenet a Kommandant nevében. Ha a feladathoz ilyen kellene, mondd ki, és a Feldwebel / a "
+    "Kommandant intézi.\n"
+)
+
 SUBAGENT_TOOLS_DIRECTIVE = (
     _SUBAGENT_TOOLS_DIRECTIVE_BASE
     + (_SUBAGENT_STATDATA_DIRECTIVE if STATDATA_ENABLED else "")
+    + _SUBAGENT_KULSO_DIRECTIVE
     + _SUBAGENT_TOOLS_DIRECTIVE_TAIL
 )
 
@@ -5195,7 +5377,10 @@ def _rank_search_hits(query: str, matches_str: str) -> str | None:
 # ill. 8000-es markdown-cap), ezért vágatlanul mehet a model-kontextusba —
 # a régi generikus [:4000] itt némán visszavágta volna a web_fetch 30000-es
 # limit-emelését. Minden más tool marad a konzervatív 4000-en.
-_SELF_CAPPED_TOOLS = ("web_fetch", "web_scrape")
+_SELF_CAPPED_TOOLS = ("web_fetch", "web_scrape") + SUBAGENT_KULSO
+#: A külső MCP-k válasza SF-ügynöknek (a kulso_mcp maga vág; a Lexonomics-találat 2–7 ezer karakter, ezt a 4000-es
+#: általános sapka félbevágná).
+SUBAGENT_KULSO_MAX_KAR = 8_000
 
 
 def _cap_tool_result(name: str, result: str, default_cap: int = 4000) -> str:
@@ -5205,7 +5390,23 @@ def _cap_tool_result(name: str, result: str, default_cap: int = 4000) -> str:
 
 
 async def _dispatch_subagent_tool(name: str, args: dict) -> str:
-    """Run one sub-agent tool call. Returns a JSON / text string fed back to the model."""
+    """Run one sub-agent tool call. Returns a JSON / text string fed back to the model.
+
+    A MÁSODIK ÖV (2026-11-23): minden SF-ügynök-hívás ezen megy át — a tiltott eszköz (tudásbázis, Gmail, naptár,
+    kifelé ható művelet), a Gmail/naptár címe és a külső MCP nem engedett eszköze itt bukik, akármit kért a modell."""
+    args = args if isinstance(args, dict) else {}
+    tilt = _sf_ugynok_elutasitas(name, args)
+    if tilt:
+        logger.warning("SF-ügynök: elutasított eszközhívás: %s", name)
+        return tilt
+
+    if name in SUBAGENT_KULSO:
+        # a Kommandant saját szolgáltatásai (kulso_mcp.py) — a válasz 8000 karakterig (a hurok kivonatol, ha kell)
+        import kulso_mcp
+        return await kulso_mcp.hiv(name, str(args.get("eszkoz") or ""),
+                                   args.get("parameterek") if isinstance(args.get("parameterek"), dict) else {},
+                                   max_kar=SUBAGENT_KULSO_MAX_KAR)
+
     if name == "web_search":
         q = (args.get("query") or "").strip()
         if not q:
@@ -7513,7 +7714,7 @@ async def _deep_research_loop(
             **agent_extra,
         }
         if not is_final:
-            payload["tools"] = SUBAGENT_TOOL_DEFS
+            payload["tools"] = await subagent_tool_defs()
         else:
             # Final round: force synthesis with citations.
             # 2026-05-12: Stronger no-tools directive after task #202 where Kimi
@@ -8331,7 +8532,7 @@ async def _run_agent_with_tools(model_id: str, messages: list, max_rounds: int =
             **model_extra,
         }
         if use_tools:
-            payload["tools"] = SUBAGENT_TOOL_DEFS
+            payload["tools"] = await subagent_tool_defs()
 
         # ÖNJAVÍTÁS (2026-08-30): `sf_chat` — státusz-ellenőrzés, újrapróbálás
         # és modellváltás egy helyen. Ami itt korábban állt, az
@@ -8428,6 +8629,105 @@ async def _run_agent_with_tools(model_id: str, messages: list, max_rounds: int =
     return msg.get("content", "") or "(az agent nem adott választ a web keresés után)"
 
 
+# ══ A MEGSZÓLÍTOTT SF-ÜGYNÖK ESZKÖZHURKA (2026-11-23) ═══════════════════════
+# A „Kimi, keress rá …” Telegram-üzenet és az @kimi említés eddig EGY eszköz nélküli `sf_chat`-hívás volt: a név
+# szerint szólított ügynök nem tudott keresni, oldalt olvasni, jogszabályt nézni. Most ugyanazt a készletet kapja,
+# mint a többi útja (`subagent_tool_defs`), korlátos hurokban: legfeljebb RIZS_HUROK_MAX_KOR modellkör (az utolsó
+# eszköz nélkül, a válasz kikényszerítve), RIZS_HUROK_MAX_HIVAS eszközhívás és RIZS_HUROK_IDO_S falióra-idő. A
+# 4000 karakternél nagyobb eszközeredményből kimondott kivonat megy a kontextusba, a teljes szöveg a hurok végéig
+# lapozható (kivonat.py — a karcsúsítás mechanizmusa; az olvasó Claude a közvetlen kapun, kulcs nélkül vágás).
+RIZS_HUROK_MAX_KOR = 4
+RIZS_HUROK_MAX_HIVAS = 8
+RIZS_HUROK_IDO_S = 240.0
+RIZS_HUROK_ZARO = ("Most válaszolj a Kommandantnak az eddigi eszközeredmények alapján, további eszközhívás nélkül. "
+                   "Mondd ki, melyik eszközzel dolgoztál, és azt is, amit nem találtál.")
+RIZS_CSEVEGO_DIRECTIVE = (
+    "\n\n## BESZÉLGETÉS ESZKÖZÖKKEL\n"
+    "Ez közvetlen üzenet (Telegram / a webes kabin). Ha a válaszhoz friss adat, forrás, weboldal, jogszabály vagy "
+    f"dokumentum kell, használd az eszközeidet (legfeljebb {RIZS_HUROK_MAX_HIVAS} hívás, "
+    f"{RIZS_HUROK_MAX_KOR - 1} körben; ami független, azt egy körben hívd). Egyszerű beszélgetéshez nem kell eszköz. "
+    "Tömören válaszolj (legfeljebb kb. 3500 karakter), és mondd ki, melyik eszközzel dolgoztál.\n"
+)
+
+
+async def _rizs_eszkozhurok(model_id: str, messages: list, *, purpose: str, max_tokens: int = 2000,
+                            temperature: float = 0.7, max_kor: int = RIZS_HUROK_MAX_KOR,
+                            max_hivas: int = RIZS_HUROK_MAX_HIVAS, ido_s: float = RIZS_HUROK_IDO_S
+                            ) -> tuple[str, dict | None, dict | None, list[str], list[str]]:
+    """A név szerint szólított SF-ügynök válasza eszközökkel. → (szöveg, utolsó válasz, hiba, kapu-jegyzetek,
+    a hívott eszközök nevei). Minden kör ugyanazzal a `purpose`-szal a közös kapun (`sf_chat`): a saját modellje
+    válaszol, SiliconFlow-kiesésnél az Anthropic — ugyanazokkal az eszközökkel, kimondva."""
+    import kivonat
+    tools = await subagent_tool_defs() + [kivonat.LAPOZ_DEF]
+    tar = kivonat.EredmenyTar()
+    feladat = next((str(m.get("content") or "") for m in reversed(messages) if m.get("role") == "user"), "")[:2_000]
+    messages = list(messages)
+    notes: list[str] = []
+    hivott: list[str] = []
+    data: dict | None = None
+    t0 = time.monotonic()
+    keret_hiba = json.dumps({"error": f"elfogyott az eszközhívás-keret ({max_hivas} hívás) — válaszolj abból, ami "
+                                      f"megvan"}, ensure_ascii=False)
+
+    async def _egy(nev: str, args) -> str:
+        args = args if isinstance(args, dict) else {}
+        if nev == kivonat.LAPOZ_NEV:
+            return tar.lapoz(args)
+        if len(hivott) >= max_hivas:
+            return keret_hiba
+        hivott.append(nev)
+        if nev not in SUBAGENT_TOOL_NAMES:
+            return (_sf_ugynok_elutasitas(nev, args)
+                    or json.dumps({"error": f"nincs ilyen eszközöd: {nev!r}"}, ensure_ascii=False))
+        logger.info("%s eszköz: %s %s", purpose, nev, (_summarize_tool_args(args) or str(args.get("eszkoz") or ""))[:80])
+        return await tar.feldolgoz(nev, args, await _dispatch_subagent_tool(nev, args), feladat=feladat)
+
+    for kor in range(max_kor):
+        zaro = kor == max_kor - 1 or len(hivott) >= max_hivas or time.monotonic() - t0 > ido_s
+        payload = {"model": model_id, "temperature": temperature, "max_tokens": max_tokens,
+                   "messages": messages + ([{"role": "user", "content": RIZS_HUROK_ZARO}] if zaro and kor else [])}
+        if not zaro:
+            payload["tools"] = tools
+        d, err, n = await sf_chat(payload, purpose=purpose)
+        notes.extend(n or [])
+        if err is not None:
+            return "", data, err, notes, hivott
+        data = d if isinstance(d, dict) else {}
+        msg = (data.get("choices") or [{}])[0].get("message") or {}
+        content = str(msg.get("content") or "")
+        tcs = [tc for tc in (msg.get("tool_calls") or []) if isinstance(tc, dict)]
+        if tcs and not zaro:
+            messages.append({**msg, "role": "assistant"})
+            hivasok = []
+            for tc in tcs:
+                fn = tc.get("function") or {}
+                try:
+                    a = json.loads(fn.get("arguments") or "{}")
+                except (TypeError, ValueError):
+                    a = {}
+                hivasok.append((tc.get("id") or "", fn.get("name") or "", a))
+            eredmenyek = await asyncio.gather(*(_egy(nev, a) for _, nev, a in hivasok))
+            # minden hívásra van válasz (elutasításra is), különben a következő kör 400-at kapna
+            for (tid, _, _), e in zip(hivasok, eredmenyek):
+                messages.append({"role": "tool", "tool_call_id": tid, "content": e})
+            continue
+        if not tcs and not zaro and any(m in content for m in TEXT_MARKER_TOKENS):
+            # Kimi / DeepSeek néha szövegként írja ki a hívást: végrehajtjuk, és az eredményt szövegként adjuk vissza
+            parsed = _extract_text_marker_tool_calls(content)[:3]
+            if parsed:
+                reszek = [f"[{nev}: {_summarize_tool_args(a) or a.get('eszkoz') or ''}]\n{await _egy(nev, a)}"
+                          for nev, a in parsed]
+                messages.append({"role": "assistant", "content": "(eszközhívás szövegként — végrehajtva)"})
+                messages.append({"role": "user", "content": "Eszköz-eredmények:\n\n" + "\n\n".join(reszek)
+                                 + "\n\nHa ez elég, válaszolj; ha nem, hívj eszközt (JSON tool_calls formában)."})
+                continue
+        for m in TEXT_MARKER_TOKENS:                # a záró körben kiszivárgott jelölő nem kerül a válaszba
+            if m in content:
+                content = content[:content.index(m)].rstrip()
+        return content, data, None, notes, hivott
+    return "", data, None, notes, hivott
+
+
 async def _execute_ai_task(task_id: int, title: str, description: str, context: str, assigned_by: str,
                             deep_research: bool = False, deep_thinking: bool = False,
                             output_format: str = ""):
@@ -8511,7 +8811,7 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
                 # the agent writes markdown the Bridge can render to a real file.
                 if output_format and output_format in OUTPUT_FORMAT_DIRECTIVES:
                     system += OUTPUT_FORMAT_DIRECTIVES[output_format]
-                # Tell the sub-agent which 3 information tools it has and how to use them
+                # Tell the sub-agent which tools it has (subagent_tool_defs) and how to use them
                 system += SUBAGENT_TOOLS_DIRECTIVE
                 # Forbid text-marker tool_calls so Kimi K2.7 doesn't burn rounds
                 # emitting <|tool_calls_section_*|>
@@ -8582,7 +8882,7 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
                             ],
                             "temperature": 0.6,
                             "max_tokens": agent_max_tokens,
-                            "tools": SUBAGENT_TOOL_DEFS,
+                            "tools": await subagent_tool_defs(),
                             **agent_extra,
                         })
 
@@ -8648,7 +8948,7 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
                             ],
                             "temperature": 0.6,
                             "max_tokens": agent_max_tokens,
-                            "tools": SUBAGENT_TOOL_DEFS,
+                            "tools": await subagent_tool_defs(),
                             **agent_extra,
                         })
                         if isinstance(data2, dict) and data2.get("choices"):
@@ -9130,7 +9430,7 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
                         {"role": "user", "content": prompt},
                     ],
                     "temperature": temperature, "max_tokens": max_tokens,
-                    "tools": SUBAGENT_TOOL_DEFS,
+                    "tools": await subagent_tool_defs(),
                     **agent_extra,
                 })
 
@@ -9198,7 +9498,7 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
                             {"role": "user", "content": f"{prompt}\n\nELŐZŐ TOOL EREDMÉNYEK:\n{search_results}"},
                         ],
                         "temperature": temperature, "max_tokens": max_tokens,
-                        "tools": SUBAGENT_TOOL_DEFS,
+                        "tools": await subagent_tool_defs(),
                         **agent_extra,
                     })
                 if isinstance(data2, dict) and data2.get("choices"):
@@ -11264,19 +11564,23 @@ async def _handle_telegram_message(text: str, chat_id: str, csatorna: str = "tel
         from html import escape as html_escape
         for agent_id in mentioned:
             try:
-                system_prompt = build_agent_context(agent_id=agent_id, inbox_summary=_get_inbox_summary(), relevance_query=text)
+                # ESZKÖZÖKKEL (2026-11-23): a megszólított ügynök a teljes saját készletünkkel dolgozik (web, Echolot,
+                # böngésző, StatData, Lexonomics, Medical, Makronóm, Engine, Studio-dokumentum), korlátos hurokban —
+                # tudásbázis, Gmail, naptár és kifelé ható művelet nélkül (`subagent_tool_defs`, `_rizs_eszkozhurok`).
+                system_prompt = (build_agent_context(agent_id=agent_id, inbox_summary=_get_inbox_summary(),
+                                                     relevance_query=text)
+                                 + SUBAGENT_TOOLS_DIRECTIVE + NO_TEXT_MARKER_DIRECTIVE + RIZS_CSEVEGO_DIRECTIVE)
                 model_id = SILICONFLOW_MODELS.get(agent_id, agent_id)
-                data, _t_err, _t_notes = await sf_chat({"model": model_id, "messages": [
+                content, data, _t_err, _t_notes, _hivott = await _rizs_eszkozhurok(model_id, [
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": f"Kommandant üzenete {_forras}:\n\n{text}"},
-                ], "temperature": 0.7, "max_tokens": 1500}, purpose=f"telegram/chat/{agent_id}")
+                ], purpose=f"telegram/chat/{agent_id}")
 
                 if _t_err is not None:
                     await _telegram_push(f"{cimzett.fejlec(agent_id)} — API hiba: "
                                          f"{html_escape(str(_t_err.get('message', _t_err))[:500])}")
                     continue
 
-                content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
                 if not content or not content.strip():
                     await _telegram_push(f"{cimzett.fejlec(agent_id)} — üres válasz")
                     continue
@@ -11306,7 +11610,8 @@ async def _handle_telegram_message(text: str, chat_id: str, csatorna: str = "tel
                     except Exception:
                         pass
 
-                logger.info("Agent %s replied to Telegram message #%d (%d chars)", agent_id, msg_id, len(content))
+                logger.info("Agent %s replied to Telegram message #%d (%d chars, eszközök: %s)", agent_id, msg_id,
+                            len(content), ", ".join(_hivott) or "—")
             except Exception as e:
                 logger.error("Agent %s Telegram reply failed: %s", agent_id, e)
                 await _telegram_push(f"<b>{agent_id.upper()}</b> — hiba: {html_escape(str(e)[:500])}")
@@ -11327,16 +11632,17 @@ async def _handle_telegram_message(text: str, chat_id: str, csatorna: str = "tel
     if PYRAMID_ENABLED and (SILICONFLOW_API_KEY or llm_kapu.elerheto()):
         from html import escape as html_escape
         try:
-            system_prompt = build_agent_context(agent_id="deepseek", inbox_summary=_get_inbox_summary())
+            system_prompt = (build_agent_context(agent_id="deepseek", inbox_summary=_get_inbox_summary())
+                             + SUBAGENT_TOOLS_DIRECTIVE + NO_TEXT_MARKER_DIRECTIVE + RIZS_CSEVEGO_DIRECTIVE)
             model_id = SILICONFLOW_MODELS.get("deepseek", "deepseek-ai/DeepSeek-V4-Pro")
-            data, _t_err, _t_notes = await sf_chat({"model": model_id, "messages": [
+            # a tartalék is a közös, korlátos eszközhurokban (ugyanaz a készlet, ugyanazok a tiltások)
+            content, data, _t_err, _t_notes, _ = await _rizs_eszkozhurok(model_id, [
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": f"Kommandant üzenete {_forras}:\n\n{text}"},
-            ], "temperature": 0.7, "max_tokens": 1500}, purpose="telegram/chat/tartalek")
+            ], purpose="telegram/chat/tartalek")
             if _t_err is not None:
                 await _telegram_push(f"<b>BRIDGE</b> — API hiba: {html_escape(str(_t_err.get('message', ''))[:500])}")
                 return
-            content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
             if content and content.strip():
                 content = _with_sf_notes(content, _t_notes)
                 kimenet.modell(data, ugynok="deepseek")

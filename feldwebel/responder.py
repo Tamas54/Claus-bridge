@@ -81,14 +81,14 @@ TOOLS = [
         "parameters": {"type": "object", "properties": {}}}},
     # ── AI agentek ──
     {"type": "function", "function": {
-        "name": "ai_query", "description": "Feladat EGY agentnek: kimi (kutató), deepseek (elemző), glm5 (kódoló/MCP specialist). Web search képes!",
+        "name": "ai_query", "description": "Feladat EGY agentnek: kimi (kutató), deepseek (elemző), glm5 (kódoló/MCP specialist); a válasz itt jön (≤120 s). Eszközökkel dolgozik: web, Echolot, böngésző, StatData, Lexonomics, Medical, Makronóm, Engine, Studio-dokumentum — tudásbázis, Gmail, naptár, levélküldés NINCS náluk.",
         "parameters": {"type": "object", "properties": {
             "model": {"type": "string", "description": "kimi / deepseek / glm5", "enum": ["kimi", "deepseek", "glm5"]},
             "prompt": {"type": "string", "description": "Feladat / kérdés"},
             "news_context": {"type": "string", "description": "Opcionális friss hírkontextus az Echolot-ról: 'general' / 'economy' / 'tech' / 'geopolitics' preset, vagy üres ha nem kell.", "default": "", "enum": ["", "general", "economy", "tech", "geopolitics"]},
         }, "required": ["model", "prompt"]}}},
     {"type": "function", "function": {
-        "name": "ai_task", "description": "Feladat MIND A 3 agentnek párhuzamosan. Komplex kutatáshoz, elemzéshez.",
+        "name": "ai_task", "description": "Feladat MIND A 3 agentnek párhuzamosan, a háttérben (eredmény: read_task_results). Komplex kutatáshoz, elemzéshez; ugyanazokkal az eszközökkel, mint az ai_query.",
         "parameters": {"type": "object", "properties": {
             "title": {"type": "string", "description": "Rövid cím"},
             "description": {"type": "string", "description": "Részletes leírás"},

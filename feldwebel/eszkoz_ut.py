@@ -42,10 +42,12 @@ U_AI = """AI-ÜGYNÖKÖK (rizsrakéták) — önálló AI-modellek a SiliconFlow
 SZABÁLYOK az agentekhez:
 - Ha a Kommandant azt mondja "adj ki feladatot", "kérdezd meg", "nézzen utána", "elemezze", vagy BÁRMILYEN agentet említ \
 név szerint → AZONNAL hívd a megfelelő tool-t! NE keress Gmail-ben, NE válaszolj szövegben!
-- **ai_query**: egyszerű kérdés egy agentnek (NEM tud webet keresni, csak a tudásából válaszol)
-- **ai_task**: kutatás, elemzés, aktuális adatok keresése — WEB SEARCH KÉPES! Az agentek a SearXNG → brave-mcp → DDG \
-láncon keresnek.
-- Ha AKTUÁLIS/FRISS adatokat kell keresni (közvélemény-kutatás, árak, hírek) → MINDIG ai_task-ot használj, NE ai_query-t!
+- MINDKETTŐ ESZKÖZÖKKEL dolgozik (ugyanaz a készlet): webes keresés (SearXNG → brave-mcp → DDG), weboldal, böngésző \
+(JS-oldal, anti-bot), Echolot, StatData, és a saját szolgáltatásaink: Lexonomics (jog), Medical, Makronóm, Engine \
+(crawl, kinyerés, böngésző-ügynök), Studio (dokumentum). NINCS náluk: a Kommandant tudásbázisa, Gmailje, naptára, és \
+kifelé ható művelet (levél, közzététel, naptárírás) — ezt te intézed.
+- **ai_query**: EGY agent, a válasz itt jön meg (legfeljebb 2 percet vár) — kérdés, vélemény, gyors utánanézés.
+- **ai_task**: mind a 3 agent párhuzamosan, a háttérben (az eredmény read_task_results-szal) — nagyobb kutatás, elemzés.
 - KÖZGAZDASÁGI ADATOKHOZ a dedikált adateszközök kellenek (mnb_rates, market_quote, és a `makro` kategória), NE ai_task!
 - "Adj ki feladatot Kiminek kutatásra" → ai_task(title="...", description="Kimi feladata: ...")
 - "Kérdezd meg a GLM-et mi a véleménye" → ai_query(model="glm5", prompt="...")

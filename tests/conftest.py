@@ -124,6 +124,9 @@ def _sandbox(request):
     for name in _LIVE_CREDENTIAL_ENV:
         os.environ.pop(name, None)
     os.environ["BRIDGE_DB_PATH"] = os.path.join(_SANDBOX_DIR, "sandbox_bridge.db")
+    # 2026-11-23: az SF-ügynökök eszközlistája a külső MCP-ket (Medical, Makronóm…) élőben listázná — a tesztsorban
+    # ez ki van kapcsolva (DNS sem), a külső eszközöket mérő teszt maga kapcsolja be, hamis szerverrel.
+    os.environ["SF_KULSO_MCP"] = "0"
 
     if request.node.get_closest_marker("network"):
         yield

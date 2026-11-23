@@ -524,9 +524,14 @@ def test_a_kerulout_nem_novekedhet():
 
 
 def test_a_telegram_chat_a_kapu_mogott():
-    """A Kommandant Telegram-utja: a mention-ag es a tartalek-ag is az `sf_chat`-en megy (2026-11-22)."""
+    """A Kommandant Telegram-utja: a mention-ag es a tartalek-ag is az `sf_chat`-en megy (2026-11-22).
+
+    2026-11-23: mindketto az SF-ugynok eszkozhurkan (`_rizs_eszkozhurok`) at — es az a hurok minden kore az
+    `sf_chat`-en megy (a kapu, az onjavitas es az Anthropic-tartalek igy marad)."""
     src = _func_source("_handle_telegram_message")
-    assert src.count("await sf_chat(") >= 2
+    assert src.count("await sf_chat(") + src.count("await _rizs_eszkozhurok(") >= 2
+    assert src.count("await _rizs_eszkozhurok(") >= 2
+    assert "await sf_chat(" in _func_source("_rizs_eszkozhurok")
     assert "faber_relay.szandek(" in src
     # A szandek-felismeres a Bridge-be iras ELOTT fut — a Fabernek szolo uzenet nem a Bridge beszelgetese:
     # (a cli-Claus postája — 'cli-claus' címzett — ennél korábban, külön ágon íródik; az nem a Bridge beszélgetése)
