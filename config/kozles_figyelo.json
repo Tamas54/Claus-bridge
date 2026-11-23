@@ -1,0 +1,611 @@
+{
+  "_leiras": "KÖZLÉS-FIGYELŐ (kozles_figyelo.py) — a figyelt kör. Bővítés: új elem a `sorozatok` listába. Az `idopontok` a HIVATALOS, közzétett naptárból (forrással); ahol a lista a figyelt ablakon túl is tart, a StatData becsült naptárát erre a sorozatra nem használjuk. `olvaso`: a Makronóm-eszköz, amelyből a szám a közléskor kiolvasható (null = nincs ilyen forrás, a terv kimondja). `elorejelzes`: a Makronóm forecast_path (80%-os sáv); `mertek`: ha az olvasó és az előrejelzés mértéke eltér, nem vetjük össze őket.",
+  "_ellenorizve": "2026-11-23: KSH gyorstájékoztatók „Következik” sora (far2610, fem2609, ipa2609, kis2609; GDP: gde2609/STADAT); MNB mnb.hu/en/monetary-policy/the-monetary-council (P = kamatdöntő ülés); Eurostat: a 2-04112026-ap közlemény „next release”; Destatis Veröffentlichungskalender (VPI vorläufig 30.11.2026); BLS schedule/news_release cpi.htm és empsit.htm; Fed fomccalendars.htm (a 2027-es dátumok a Fed szerint előzetesek).",
+  "ablak": {
+    "alap": {
+      "elotte_perc": 1,
+      "utana_perc": 20,
+      "lekerdezes_s": 25
+    },
+    "fred": {
+      "elotte_perc": 1,
+      "utana_perc": 180,
+      "lekerdezes_s": 60,
+      "_miert": "a FRED a BLS-közlés után 40–130 perccel frissít (CPIAUCSL 2026-11-10: 09:12 ET; PAYEMS 2026-11-06: 10:43 ET)"
+    }
+  },
+  "sorozatok": [
+    {
+      "kulcs": "HU_CPI",
+      "zaszlo": "🇭🇺",
+      "orszag": "HU",
+      "mutato": "cpi",
+      "tipus": "szint",
+      "gyakorisag": "M",
+      "nev_hu": "KSH infláció",
+      "nev_en": "Hungary CPI",
+      "forras_hu": "KSH",
+      "egyseg": "%",
+      "tizedes": 1,
+      "olvaso": {
+        "eszkoz": "get_macro_indicator",
+        "parameterek": {
+          "country": "HU",
+          "indicator": "cpi"
+        },
+        "kinyero": "macro_indicator",
+        "mertek": "nemzeti CPI (KSH)"
+      },
+      "elorejelzes": {
+        "country": "HU",
+        "indicator": "inflation",
+        "freq": "M",
+        "mertek": "HICP"
+      },
+      "ref_eltolas": 1,
+      "idopontok": [
+        {
+          "datum": "2026-12-08",
+          "ido": "08:30",
+          "tz": "Europe/Budapest",
+          "idoszak": "2026-11",
+          "forras": "KSH far2610 „Következik”"
+        }
+      ]
+    },
+    {
+      "kulcs": "HU_MUNKANELKULISEG",
+      "zaszlo": "🇭🇺",
+      "orszag": "HU",
+      "mutato": "unemployment",
+      "tipus": "szint",
+      "gyakorisag": "M",
+      "nev_hu": "KSH munkanélküliség",
+      "nev_en": "Hungary unemployment rate",
+      "forras_hu": "KSH",
+      "egyseg": "%",
+      "tizedes": 1,
+      "olvaso": {
+        "eszkoz": "get_macro_indicator",
+        "parameterek": {
+          "country": "HU",
+          "indicator": "unemployment"
+        },
+        "kinyero": "macro_indicator",
+        "mertek": "munkanélküliségi ráta (KSH, 15–74 év)"
+      },
+      "elorejelzes": {
+        "country": "HU",
+        "indicator": "unemployment",
+        "freq": "M",
+        "mertek": "munkanélküliségi ráta (Eurostat, szezonálisan kiigazított)"
+      },
+      "ref_eltolas": 1,
+      "idopontok": [
+        {
+          "datum": "2026-11-26",
+          "ido": "08:30",
+          "tz": "Europe/Budapest",
+          "idoszak": "2026-10",
+          "forras": "KSH fem2609 „Következik”"
+        }
+      ]
+    },
+    {
+      "kulcs": "HU_GDP",
+      "zaszlo": "🇭🇺",
+      "orszag": "HU",
+      "mutato": "gdp_growth",
+      "tipus": "szint",
+      "gyakorisag": "Q",
+      "nev_hu": "KSH GDP",
+      "nev_en": "Hungary GDP",
+      "forras_hu": "KSH",
+      "egyseg": "%",
+      "tizedes": 1,
+      "olvaso": {
+        "eszkoz": "get_macro_indicator",
+        "parameterek": {
+          "country": "HU",
+          "indicator": "gdp_growth"
+        },
+        "kinyero": "macro_indicator",
+        "mertek": "GDP-változás (a Makronóm forrása szerint)"
+      },
+      "elorejelzes": {
+        "country": "HU",
+        "indicator": "gdp",
+        "freq": "Q",
+        "mertek": "GDP y/y"
+      },
+      "ref_eltolas": 1,
+      "idopontok": [
+        {
+          "datum": "2026-12-01",
+          "ido": "08:30",
+          "tz": "Europe/Budapest",
+          "idoszak": "2026-Q3",
+          "kiadas": "második becslés",
+          "ugyanaz_az_idoszak": true,
+          "forras": "KSH STADAT GDP-táblák következő frissítése; gde2609"
+        }
+      ]
+    },
+    {
+      "kulcs": "HU_IPAR",
+      "zaszlo": "🇭🇺",
+      "orszag": "HU",
+      "mutato": "industrial_production",
+      "tipus": "szint",
+      "gyakorisag": "M",
+      "nev_hu": "KSH ipari termelés",
+      "nev_en": "Hungary industrial output",
+      "forras_hu": "KSH",
+      "egyseg": "%",
+      "tizedes": 1,
+      "olvaso": {
+        "eszkoz": "get_macro_indicator",
+        "parameterek": {
+          "country": "HU",
+          "indicator": "industrial_production"
+        },
+        "kinyero": "macro_indicator",
+        "mertek": "ipari termelés y/y",
+        "figyelmeztetes": "a Makronóm ma az Eurostatból olvassa (sts_inpr_m), ami a KSH után hetekkel frissül — a közléskor nem látja"
+      },
+      "elorejelzes": null,
+      "ref_eltolas": 2,
+      "idopontok": [
+        {
+          "datum": "2026-12-07",
+          "ido": "08:30",
+          "tz": "Europe/Budapest",
+          "idoszak": "2026-10",
+          "kiadas": "első becslés",
+          "forras": "KSH ipa2609 „Kapcsolódó”"
+        }
+      ]
+    },
+    {
+      "kulcs": "HU_KISKER",
+      "zaszlo": "🇭🇺",
+      "orszag": "HU",
+      "mutato": "retail_trade",
+      "tipus": "szint",
+      "gyakorisag": "M",
+      "nev_hu": "KSH kiskereskedelem",
+      "nev_en": "Hungary retail sales",
+      "forras_hu": "KSH",
+      "egyseg": "%",
+      "tizedes": 1,
+      "olvaso": {
+        "eszkoz": "get_macro_indicator",
+        "parameterek": {
+          "country": "HU",
+          "indicator": "retail_trade"
+        },
+        "kinyero": "macro_indicator",
+        "mertek": "kiskereskedelmi forgalom volumene y/y",
+        "figyelmeztetes": "a Makronóm ma az Eurostatból olvassa (sts_trtu_m), ami a KSH után hetekkel frissül — a közléskor nem látja"
+      },
+      "elorejelzes": null,
+      "ref_eltolas": 2,
+      "idopontok": [
+        {
+          "datum": "2026-12-04",
+          "ido": "08:30",
+          "tz": "Europe/Budapest",
+          "idoszak": "2026-10",
+          "forras": "KSH kis2609 „Következik”"
+        }
+      ]
+    },
+    {
+      "kulcs": "HU_MNB",
+      "zaszlo": "🇭🇺",
+      "orszag": "HU",
+      "mutato": "policy_rate",
+      "tipus": "kamat",
+      "gyakorisag": "D",
+      "nev_hu": "MNB kamatdöntés",
+      "nev_en": "Hungary central bank rate decision",
+      "forras_hu": "MNB",
+      "egyseg": "%",
+      "tizedes": 2,
+      "olvaso": {
+        "eszkoz": "get_macro_indicator",
+        "parameterek": {
+          "country": "HU",
+          "indicator": "policy_rate"
+        },
+        "kinyero": "macro_indicator",
+        "mertek": "jegybanki alapkamat"
+      },
+      "elorejelzes": null,
+      "idopontok": [
+        {
+          "datum": "2026-12-15",
+          "ido": "14:00",
+          "tz": "Europe/Budapest",
+          "forras": "MNB: a Monetáris Tanács ülései (P)"
+        },
+        {
+          "datum": "2027-02-16",
+          "ido": "14:00",
+          "tz": "Europe/Budapest",
+          "forras": "MNB: a Monetáris Tanács ülései (P)"
+        },
+        {
+          "datum": "2027-03-23",
+          "ido": "14:00",
+          "tz": "Europe/Budapest",
+          "forras": "MNB: a Monetáris Tanács ülései (P)"
+        },
+        {
+          "datum": "2027-05-04",
+          "ido": "14:00",
+          "tz": "Europe/Budapest",
+          "forras": "MNB: a Monetáris Tanács ülései (P)"
+        },
+        {
+          "datum": "2027-06-22",
+          "ido": "14:00",
+          "tz": "Europe/Budapest",
+          "forras": "MNB: a Monetáris Tanács ülései (P)"
+        },
+        {
+          "datum": "2027-08-03",
+          "ido": "14:00",
+          "tz": "Europe/Budapest",
+          "forras": "MNB: a Monetáris Tanács ülései (P)"
+        },
+        {
+          "datum": "2027-09-21",
+          "ido": "14:00",
+          "tz": "Europe/Budapest",
+          "forras": "MNB: a Monetáris Tanács ülései (P)"
+        },
+        {
+          "datum": "2027-11-09",
+          "ido": "14:00",
+          "tz": "Europe/Budapest",
+          "forras": "MNB: a Monetáris Tanács ülései (P)"
+        },
+        {
+          "datum": "2027-12-14",
+          "ido": "14:00",
+          "tz": "Europe/Budapest",
+          "forras": "MNB: a Monetáris Tanács ülései (P)"
+        }
+      ]
+    },
+    {
+      "kulcs": "EA_HICP",
+      "zaszlo": "🇪🇺",
+      "orszag": "EA",
+      "mutato": "hicp_flash",
+      "tipus": "szint",
+      "gyakorisag": "M",
+      "nev_hu": "Eurostat gyors HICP (euróövezet)",
+      "nev_en": "Euro area flash HICP",
+      "forras_hu": "Eurostat",
+      "egyseg": "%",
+      "tizedes": 1,
+      "olvaso": {
+        "eszkoz": "get_flash_releases",
+        "parameterek": {
+          "source": "eurostat",
+          "query": "inflation",
+          "limit": 6,
+          "refresh": true
+        },
+        "kinyero": "eurostat_flash_hicp",
+        "mertek": "HICP"
+      },
+      "elorejelzes": {
+        "country": "EA",
+        "indicator": "inflation",
+        "freq": "M",
+        "mertek": "HICP"
+      },
+      "ref_eltolas": 0,
+      "idopontok": [
+        {
+          "datum": "2026-12-01",
+          "ido": "11:00",
+          "tz": "Europe/Luxembourg",
+          "idoszak": "2026-11",
+          "forras": "Eurostat 2-04112026-ap: next release"
+        }
+      ]
+    },
+    {
+      "kulcs": "EA_GDP",
+      "zaszlo": "🇪🇺",
+      "orszag": "EA",
+      "mutato": "gdp_flash",
+      "tipus": "szint",
+      "gyakorisag": "Q",
+      "nev_hu": "Eurostat gyors GDP (euróövezet, n/n)",
+      "nev_en": "Euro area flash GDP (q/q)",
+      "forras_hu": "Eurostat",
+      "egyseg": "%",
+      "tizedes": 1,
+      "olvaso": {
+        "eszkoz": "get_flash_releases",
+        "parameterek": {
+          "source": "eurostat",
+          "query": "GDP",
+          "limit": 6,
+          "refresh": true
+        },
+        "kinyero": "eurostat_flash_gdp",
+        "mertek": "GDP q/q (SA)"
+      },
+      "elorejelzes": {
+        "country": "EA",
+        "indicator": "gdp",
+        "freq": "Q",
+        "mertek": "GDP y/y"
+      },
+      "ref_eltolas": 1,
+      "idopontok": []
+    },
+    {
+      "kulcs": "DE_CPI",
+      "zaszlo": "🇩🇪",
+      "orszag": "DE",
+      "mutato": "cpi_flash",
+      "tipus": "szint",
+      "gyakorisag": "M",
+      "nev_hu": "Destatis infláció (előzetes)",
+      "nev_en": "Germany flash CPI",
+      "forras_hu": "Destatis",
+      "egyseg": "%",
+      "tizedes": 1,
+      "olvaso": null,
+      "olvaso_hiany": "a Makronómban nincs Destatis-forrás (a DE cpi a Eurostat HICP-jéből jön, napokkal később)",
+      "elorejelzes": {
+        "country": "DE",
+        "indicator": "inflation",
+        "freq": "M",
+        "mertek": "HICP"
+      },
+      "ref_eltolas": 0,
+      "idopontok": [
+        {
+          "datum": "2026-11-30",
+          "ido": "14:00",
+          "tz": "Europe/Berlin",
+          "idoszak": "2026-11",
+          "forras": "Destatis Veröffentlichungskalender (VPI, vorläufig)"
+        }
+      ]
+    },
+    {
+      "kulcs": "US_CPI",
+      "zaszlo": "🇺🇸",
+      "orszag": "US",
+      "mutato": "cpi",
+      "tipus": "szint",
+      "gyakorisag": "M",
+      "nev_hu": "US infláció (CPI)",
+      "nev_en": "US CPI",
+      "forras_hu": "BLS",
+      "egyseg": "%",
+      "tizedes": 1,
+      "olvaso": {
+        "eszkoz": "get_fred_data",
+        "parameterek": {
+          "series_id": "CPIAUCNS",
+          "units": "pc1",
+          "limit": 3
+        },
+        "kinyero": "fred",
+        "mertek": "CPI-U y/y (NSA)",
+        "ablak": "fred"
+      },
+      "elorejelzes": {
+        "country": "US",
+        "indicator": "inflation",
+        "freq": "M",
+        "mertek": "CPI-U y/y (NSA)"
+      },
+      "ref_eltolas": 1,
+      "naptar_minta": [
+        {
+          "source": "FRED",
+          "series_id": "CPIAUCSL"
+        }
+      ],
+      "idopontok": [
+        {
+          "datum": "2026-12-10",
+          "ido": "08:30",
+          "tz": "America/New_York",
+          "idoszak": "2026-11",
+          "forras": "BLS CPI release schedule"
+        },
+        {
+          "datum": "2027-01-13",
+          "ido": "08:30",
+          "tz": "America/New_York",
+          "idoszak": "2026-12",
+          "forras": "BLS CPI release schedule"
+        },
+        {
+          "datum": "2027-02-11",
+          "ido": "08:30",
+          "tz": "America/New_York",
+          "idoszak": "2027-01",
+          "forras": "BLS CPI release schedule"
+        },
+        {
+          "datum": "2027-03-10",
+          "ido": "08:30",
+          "tz": "America/New_York",
+          "idoszak": "2027-02",
+          "forras": "BLS CPI release schedule"
+        },
+        {
+          "datum": "2027-04-13",
+          "ido": "08:30",
+          "tz": "America/New_York",
+          "idoszak": "2027-03",
+          "forras": "BLS CPI release schedule"
+        }
+      ]
+    },
+    {
+      "kulcs": "US_NFP",
+      "zaszlo": "🇺🇸",
+      "orszag": "US",
+      "mutato": "nfp",
+      "tipus": "szint",
+      "gyakorisag": "M",
+      "nev_hu": "US foglalkoztatás (NFP)",
+      "nev_en": "US nonfarm payrolls",
+      "forras_hu": "BLS",
+      "egyseg": "ezer fő",
+      "egyseg_en": "k",
+      "tizedes": 0,
+      "elojel": true,
+      "olvaso": {
+        "eszkoz": "get_fred_data",
+        "parameterek": {
+          "series_id": "PAYEMS",
+          "units": "chg",
+          "limit": 3
+        },
+        "kinyero": "fred",
+        "mertek": "nem mezőgazdasági foglalkoztatás havi változása (ezer fő)",
+        "ablak": "fred"
+      },
+      "elorejelzes": null,
+      "ref_eltolas": 1,
+      "naptar_minta": [
+        {
+          "source": "FRED",
+          "series_id": "PAYEMS"
+        }
+      ],
+      "idopontok": [
+        {
+          "datum": "2026-12-04",
+          "ido": "08:30",
+          "tz": "America/New_York",
+          "idoszak": "2026-11",
+          "forras": "BLS Employment Situation schedule"
+        },
+        {
+          "datum": "2027-01-08",
+          "ido": "08:30",
+          "tz": "America/New_York",
+          "idoszak": "2026-12",
+          "forras": "BLS Employment Situation schedule"
+        },
+        {
+          "datum": "2027-02-05",
+          "ido": "08:30",
+          "tz": "America/New_York",
+          "idoszak": "2027-01",
+          "forras": "BLS Employment Situation schedule"
+        },
+        {
+          "datum": "2027-03-05",
+          "ido": "08:30",
+          "tz": "America/New_York",
+          "idoszak": "2027-02",
+          "forras": "BLS Employment Situation schedule"
+        },
+        {
+          "datum": "2027-04-02",
+          "ido": "08:30",
+          "tz": "America/New_York",
+          "idoszak": "2027-03",
+          "forras": "BLS Employment Situation schedule"
+        }
+      ]
+    },
+    {
+      "kulcs": "US_FED",
+      "zaszlo": "🇺🇸",
+      "orszag": "US",
+      "mutato": "policy_rate",
+      "tipus": "kamat",
+      "gyakorisag": "D",
+      "nev_hu": "Fed kamatdöntés",
+      "nev_en": "Fed rate decision",
+      "forras_hu": "Fed",
+      "egyseg": "%",
+      "tizedes": 2,
+      "olvaso": {
+        "eszkoz": "get_macro_indicator",
+        "parameterek": {
+          "country": "US",
+          "indicator": "policy_rate"
+        },
+        "kinyero": "macro_indicator",
+        "mertek": "Fed funds célsáv felső széle",
+        "ablak": "fred"
+      },
+      "elorejelzes": null,
+      "idopontok": [
+        {
+          "datum": "2026-12-09",
+          "ido": "14:00",
+          "tz": "America/New_York",
+          "forras": "Fed FOMC calendar"
+        },
+        {
+          "datum": "2027-01-27",
+          "ido": "14:00",
+          "tz": "America/New_York",
+          "forras": "Fed FOMC calendar (előzetes)"
+        },
+        {
+          "datum": "2027-03-17",
+          "ido": "14:00",
+          "tz": "America/New_York",
+          "forras": "Fed FOMC calendar (előzetes)"
+        },
+        {
+          "datum": "2027-04-28",
+          "ido": "14:00",
+          "tz": "America/New_York",
+          "forras": "Fed FOMC calendar (előzetes)"
+        },
+        {
+          "datum": "2027-06-09",
+          "ido": "14:00",
+          "tz": "America/New_York",
+          "forras": "Fed FOMC calendar (előzetes)"
+        },
+        {
+          "datum": "2027-07-28",
+          "ido": "14:00",
+          "tz": "America/New_York",
+          "forras": "Fed FOMC calendar (előzetes)"
+        },
+        {
+          "datum": "2027-09-15",
+          "ido": "14:00",
+          "tz": "America/New_York",
+          "forras": "Fed FOMC calendar (előzetes)"
+        },
+        {
+          "datum": "2027-10-27",
+          "ido": "14:00",
+          "tz": "America/New_York",
+          "forras": "Fed FOMC calendar (előzetes)"
+        },
+        {
+          "datum": "2027-11-17",
+          "ido": "14:00",
+          "tz": "America/New_York",
+          "forras": "Fed FOMC calendar (előzetes)"
+        }
+      ]
+    }
+  ]
+}
