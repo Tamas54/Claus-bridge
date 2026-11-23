@@ -31,7 +31,10 @@ A GÉPEN LÉVŐ FÁJL (`helyi_fajl`, 11-23 — a Kommandant: „De a downloadsba
   úttal (a szabályt a futár érvényesíti, ~/faber/fajl_olvaso.py). Csak olvas (a Downloads az nCore-seed).
 - Szöveg (.docx — sérültnél a zipből —, .pdf az első 60 oldal, .pptx, .md, .txt, .csv, .json), legfeljebb 400 ezer
   karakter, a vágás kimondva; vagy fájllista (a legújabb 50: név, méret, dátum). A nagy szövegből a hurok kivonatot
-  ad, a teljes szöveg `eredmeny_lapoz`-zal olvasható (kivonat.py).
+  ad, a teljes szöveg `eredmeny_lapoz`-zal olvasható (kivonat.py). 11-23 este: a futár a Word címsorait `#`-jellel
+  adja, így a hosszú dokumentumból a hurok a TELJES dokumentum térképét adja (minden fejezetcím a helyével, első
+  mondata, számai), és a lapozó fejezetre ugrik (`fejezet="4.4"`) — a robot-tanulmány diasora eddig az első 60 ezer
+  karakterre (a 3.1 közepéig) épült.
 - CSAK CLAUDE-NAK, mint a tudásbázis (a Kommandant ALAPELVE, 11-23: „a rólam szóló, egyéni dolgok nem mennek a
   kínaiaknak” — a gépe fájljai ilyenek): ugyanaz a három öv (`CLAUDE_CSAK_MUVELETEK`), és a fájl szövegével a kör ugyanúgy
   védett (`tudasbazis_tartalom`). A kínai ügynökök eszközkészletébe nem kerül (server.SUBAGENT_TILTOTT).
@@ -261,7 +264,9 @@ HELYI_FAJL_DEF = {"type": "function", "function": {
                     "feladatba, receptbe, közös memóriába."),
     "parameters": {"type": "object", "properties": {
         "ut": {"type": "string", "description": "Olvasáshoz a fájl: „~/Downloads/<név>”, „~/Desktop/<név>” vagy csak a név."},
-        "kerdes": {"type": "string", "description": "Nagy fájlnál: mire figyeljen a kivonat (elhagyható)."},
+        "kerdes": {"type": "string", "description": ("Nagy, tagolatlan szövegnél: mire figyeljen a kivonat (elhagyható). "
+                                                     "Fejezetekre tagolt dokumentumnál a teljes térképet kapod, és "
+                                                     "fejezetre ugorhatsz (`eredmeny_lapoz`).")},
         "lista": {"type": "string", "description": "Fájllistához a mappa, pl. „~/Downloads” (olvasáskor hagyd el)."},
         "minta": {"type": "string", "description": "Fájllistánál a névminta, pl. „robot” vagy „*.pdf” (elhagyható)."},
     }}}}

@@ -421,7 +421,8 @@ def test_eszkozhivas_keret(web, monkeypatch):
 
 def test_nagy_eredmeny_kivonatolva_es_lapozhato(kulso, monkeypatch):
     """A karcsúsítás kivonat-mechanizmusa: 4000 karakter fölött kivonat megy a kontextusba, a teljes szöveg lapozható."""
-    nagy = "Ptk. 6:1 " + "x" * 9_000
+    import kivonat
+    nagy = "Ptk. 6:1 " + "x" * (kivonat.RESZ_KAR + 9_000)                  # két rész: a 2. is lapozható
 
     async def hiv(nev, eszkoz, parameterek, *, max_kar=8000):
         return nagy

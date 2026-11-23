@@ -51,3 +51,17 @@ def test_a_tabulator_es_a_sortores_megmarad(tmp_path):
     """11-23: a `<w:tab/>` és a `<w:br/>` a `<w:t>`-n kívül áll — eddig a szöveggyűjtés elhagyta."""
     szoveg = server._docx_szoveg_zipbol(_serult_docx(tmp_path / "v.docx"))
     assert "név\térték\núj sor" in szoveg
+
+
+def test_az_ures_onzaro_wt_nem_nyeli_el_a_kovetkezo_futast(tmp_path):
+    """11-23 este: a v7-ben 16 helyen `<w:t xml:space="preserve"/>` állt — a regex nyitótagnak vette, és a következő
+    futás nyers XML-jét is a szövegbe húzta („hozt</w:r><w:r><w:rPr>…”)."""
+    ut = tmp_path / "u.docx"
+    with zipfile.ZipFile(ut, "w") as z:
+        z.writestr("[Content_Types].xml", TIPUSOK)
+        z.writestr("_rels/.rels", RELS)
+        z.writestr("word/document.xml", DOC.replace(
+            "<w:body>", '<w:body><w:p><w:r><w:t xml:space="preserve">hozt</w:t></w:r><w:r><w:rPr><w:b/></w:rPr>'
+                        '<w:t xml:space="preserve"/></w:r><w:r><w:t>ak.</w:t></w:r></w:p>', 1))
+    szoveg = server._docx_szoveg_zipbol(ut)
+    assert szoveg.splitlines()[0] == "hoztak." and "<w:" not in szoveg

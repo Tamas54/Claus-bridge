@@ -13,7 +13,7 @@ A LÁNC (a server.py fokai, a sorrendjük a régi)
 -----------------------------------------------
   0. YouTube-link → az Echolot `youtube_transcript`-je (a leirat; az Echolot ezt nem foglalja össze, AI nélkül).
   1. Tier1: sima GET, MÉRETPLAFONNAL (`Content-Length` szerint, és letöltés közben is): HTML-nél `HTML_MAX_BAJT`,
-     PDF-nél `PDF_MAX_BAJT`. A PDF-ből az első `PDF_MAX_OLDAL` oldal szövege, legfeljebb `NAGY_MAX_KAR` karakter
+     PDF-nél `PDF_MAX_BAJT`. A PDF-ből az első `PDF_MAX_OLDAL` oldal szövege, legfeljebb `PDF_MAX_KAR` karakter
      (PyMuPDF; ha nincs, PyPDF2).
   2. Ha a Tier1 bukott (SSL, kapcsolat, időtúllépés), vagy a lap üres héj / rövid / 4xx-5xx: Lightpanda (Tier2, JS-
      render), brave-mcp (Tier3, valódi Chrome), végül az Echolot Engine `scrape`-je (HTML és PDF is). A GAZDAGABB
@@ -30,6 +30,7 @@ Sosem dob: a hibát `{"error": …}` alakban adja (a Feldwebel régi `web_fetch`
 """
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 import re
@@ -40,9 +41,12 @@ logger = logging.getLogger("lekeres")
 
 #: A HTML-tartalom a kontextusba (a Feldwebel régi sapkája; a kivonatoló 4000 fölött úgyis sűrít).
 MAX_KAR = 6_000
-#: PDF és leirat: ennyi megy a hurok kivonatolójához (`kivonat.OLVASO_MAX_KAR`), a kontextusba csak a kivonata.
+#: Leirat és az Engine-olvasat: ennyi megy a hurok kivonatolójához (`kivonat.OLVASO_MAX_KAR`), a kontextusba csak a kivonata.
 NAGY_MAX_KAR = 60_000
-PDF_MAX_OLDAL = 40
+#: A közvetlenül letöltött PDF (tanulmány, jelentés): 11-23 előtt 40 oldal / 60 ezer karakter — egy hosszú tanulmány
+#: negyede. Most a futár fájlplafonja (400 ezer); a hurok TÉRKÉPET ad róla, és fejezetenként lapozható (kivonat.py).
+PDF_MAX_OLDAL = 150
+PDF_MAX_KAR = 400_000
 #: Méretplafon a fejléc szerint és letöltés közben (a 27 M karakteres PDF egészben jött le).
 HTML_MAX_BAJT = 5 * 1024 * 1024
 PDF_MAX_BAJT = 30 * 1024 * 1024
@@ -181,7 +185,7 @@ async def _youtube(url: str) -> dict:
 
 # ══ PDF, HTML ══════════════════════════════════════════════════════════════
 
-def pdf_szoveg(raw: bytes, *, max_oldal: int = PDF_MAX_OLDAL, max_kar: int = NAGY_MAX_KAR) -> tuple[str, int, int]:
+def pdf_szoveg(raw: bytes, *, max_oldal: int = PDF_MAX_OLDAL, max_kar: int = PDF_MAX_KAR) -> tuple[str, int, int]:
     """(szöveg, összes oldal, feldolgozott oldal) — az első `max_oldal` oldal, legfeljebb `max_kar` karakter."""
     reszek, n, kesz, hossz = [], 0, 0, 0
     try:
@@ -276,7 +280,7 @@ async def oldal(url: str, *, max_kar: int = MAX_KAR, timeout: float = TIMEOUT_S)
         pdf = pdf_e(url, t1.get("content_type", ""), body[:16]) if body else pdf
         if pdf and body:
             try:
-                szoveg, oldalak, kesz = pdf_szoveg(body)
+                szoveg, oldalak, kesz = await asyncio.to_thread(pdf_szoveg, body)   # 150 oldal: ne álljon a hurok
             except Exception as e:  # noqa: BLE001
                 szoveg, oldalak, kesz = "", 0, 0
                 megj.append(f"a PDF nem olvasható ({type(e).__name__})")
@@ -315,7 +319,8 @@ async def oldal(url: str, *, max_kar: int = MAX_KAR, timeout: float = TIMEOUT_S)
                 "tipus": "pdf" if pdf else "html"}
     if len(text) < JO_KAR and not pdf:
         megj.append(f"rövid tartalom ({len(text)} karakter): valószínűleg előzetes, belépés- vagy fizetőfal")
-    out = {"url": url, "content": text[:NAGY_MAX_KAR if pdf else max_kar], "length": len(text), "extractor": via,
+    out = {"url": url, "content": text[:(PDF_MAX_KAR if via == "http/pdf" else NAGY_MAX_KAR) if pdf else max_kar],
+           "length": len(text), "extractor": via,
            "via": via}
     if tls and via == "echolot-engine":
         out["tls"] = "nem ellenőrzött"

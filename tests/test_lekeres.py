@@ -224,7 +224,10 @@ def test_kivonat_plafon_es_forras():
                             "Nagy oldal. " * 10_000, feladat="Pótor József életrajza"))
     fej, test = ki.split("\n", 1)
     assert "Forrás: https://archiv.cserkesz.hu/book/export/html/50.html." in fej
+    # az olvasó szövege a plafonnál vág; a (120 ezres, tagolatlan) oldalhoz utána a szakasz-térkép jár, külön
+    test, terkep = test.split("\n\n[SZAKASZ-TÉRKÉP", 1)
     assert len(test) <= kivonat.KIVONAT_MAX_KAR + 80 and f"plafon {kivonat.KIVONAT_MAX_KAR}" in test
+    assert "CSAK az első 60 000 karaktert látta (50%)" in fej and terkep.count("\nr") == 6
     assert kivonat.KIVONAT_MAX_KAR / 3 <= 1_600                                    # ~1500 token oldalanként
 
 

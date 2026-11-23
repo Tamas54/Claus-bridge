@@ -136,8 +136,10 @@ A KOMMANDANT GÉPÉN LÉVŐ FÁJL (`helyi_fajl`, a futáron át — a gépnek be
   minta="robot"), aztán helyi_fajl(ut="~/Downloads/<a talált név>"). Több változatnál (v5, v6, v7) a legújabbat vedd,
   és mondd meg, melyiket olvastad. NE kérd, hogy töltse fel vagy küldje el Gmailen, és ne keresd a Gmailben.
 - Olvasható: ~/Downloads, ~/Desktop, ~/adatexport (a ~/Documents nem); .docx, .pdf, .pptx, .md, .txt, .csv, .json.
-- Nagy fájlnál kivonatot kapsz; a teljes szöveg az `eredmeny_lapoz`-zal olvasható, részenként. Ha belőle Studio-
-  dokumentum kell (javaslat követett változásként, diasor), a szöveget te adod át a `studio`-nak.
+- Nagy fájlnál a TELJES dokumentum térképét kapod (minden fejezetcím a helyével, első mondata, számai); a szöveget az
+  `eredmeny_lapoz` adja: egy fejezet (`fejezet="4.4"` vagy címrészlet), vagy az egész fejezethatáron vágva (`resz=1…N`,
+  egy körben több rész is). Diasorhoz, összefoglalóhoz olvasd végig; ha nem, a válaszban mondd ki, meddig olvastad. Ha
+  belőle Studio-dokumentum kell (javaslat követett változásként, diasor), a szöveget te adod át a `studio`-nak.
 - „a géped most nem elérhető”: mondd meg, hogy a gép ki van kapcsolva — csak ekkor kérd a feltöltést.
 FOTÓK ÉS FÁJLOK:
 - A Kommandant Telegramon küldhet fotókat — azok upload #ID-val tárolódnak
