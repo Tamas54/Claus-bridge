@@ -875,15 +875,23 @@ def crps_normal(mu: float, sigma: float, x: float) -> float:
     return sigma * (z * (2 * _N01.cdf(z) - 1) + 2 * _N01.pdf(z) - 1 / math.sqrt(math.pi))
 
 
-def crps_sav(also, felso, p: float, tenyleges) -> float | None:
-    """CRPS a központi `p`-intervallumból [also, felso] épített normál eloszlásra: közép = a sáv közepe,
-    σ = szélesség / (2·z₍₁₊ₚ₎/₂). also = felso: pontbecslés (σ = 0) → |tény − érték|. Nyitott vagy hiányzó sávvég → None."""
-    if also is None or felso is None or tenyleges is None:
-        return None
+def sav_normal(also, felso, p: float) -> tuple[float, float]:
+    """A központi `p`-intervallumból [also, felso] épített normál eloszlás (μ, σ): μ = a sáv közepe,
+    σ = szélesség / (2·z₍₁₊ₚ₎/₂). EZ az eloszlás, amelyet a CRPS pontoz — a piaci összevetés (`piac_elteres`) is ebből
+    számol valószínűséget, hogy ugyanazt az állítást mérjük, amit pontozunk."""
     if not 0 < p < 1:
         raise ValueError(f"a sáv valószínűsége 0 és 1 közé esik, nem {p}")
     a, b = sorted((float(also), float(felso)))
-    return crps_normal((a + b) / 2, (b - a) / (2 * _N01.inv_cdf((1 + p) / 2)), float(tenyleges))
+    return (a + b) / 2, (b - a) / (2 * _N01.inv_cdf((1 + p) / 2))
+
+
+def crps_sav(also, felso, p: float, tenyleges) -> float | None:
+    """CRPS a központi `p`-intervallumból [also, felso] épített normál eloszlásra (`sav_normal`). also = felso:
+    pontbecslés (σ = 0) → |tény − érték|. Nyitott vagy hiányzó sávvég → None."""
+    if also is None or felso is None or tenyleges is None:
+        return None
+    mu, sigma = sav_normal(also, felso, p)
+    return crps_normal(mu, sigma, float(tenyleges))
 
 
 def lepes_skala(valt: list[float], nagysag: float = 0.0) -> float | None:

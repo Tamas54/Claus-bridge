@@ -75,6 +75,7 @@ import hang
 import onjavitas
 import hopsz
 import nachtschicht
+import piac_elteres
 # FELADAT-ÜGYNÖKÖK (2026-11-23): névvel ellátott, a Kommandant által indított munkások (receptként, Claude-on)
 import feladat_ugynok
 import cimzett
@@ -12750,6 +12751,10 @@ async def _cron_loop():
 
             # NACHTSCHICHT (2026-11-22): 05:50-kor (Budapest) naponta egyszer, háttérfeladatként (nachtschicht.py)
             nachtschicht.cron_lepes(now_local, get_db=get_db, memoria_ir=memoria_ir, futtat=_nachtschicht_ejszaka)
+
+            # PIAC-ELTÉRÉS (2026-11-23): naponta egyszer 12:00 után (Budapest), ÁRNYÉK-MÓDBAN — csak napló és pontozás,
+            # kereskedés nincs (piac_elteres.py; PIAC_ELTERES=0 leállítja; napló nélkül jelzés sincs)
+            piac_elteres.cron_lepes(now_local, telegram=_telegram_push)
 
             # Daily cleanup: delete uploads older than 7 days (runs once at ~04:00 UTC)
             today_str = now_dt.strftime("%Y-%m-%d")
