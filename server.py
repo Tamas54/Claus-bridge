@@ -152,6 +152,11 @@ logging.basicConfig(
     format="%(asctime)s %(levelname)s [%(name)s] %(message)s",
 )
 logger = logging.getLogger("claus-bridge")
+# ⛔ TITOK SOHA A NAPLÓBA (2026-11-23): a httpx INFO-szinten minden kérés teljes URL-jét kiírja, a Telegram Bot API
+# URL-je pedig magát a bot-tokent tartalmazza (`/bot<TOKEN>/getUpdates`) — a Railway-napló így a tokent hordta.
+# A kérésnapló WARNING-ra: a hibák továbbra is látszanak, a sikeres kérések URL-je nem.
+for _zajos in ("httpx", "httpcore"):
+    logging.getLogger(_zajos).setLevel(logging.WARNING)
 
 # --- Server Setup ---
 mcp = FastMCP("Claus Bridge")
