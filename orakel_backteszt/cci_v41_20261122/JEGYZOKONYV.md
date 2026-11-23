@@ -217,3 +217,41 @@ A novemberi panelmozgások szokatlanul nagyok (HU −11,9, FR +12,8), miközben 
 | `build_corpora.py`, `korpusz/`, `korpusz_audit.py`, `korpusz_audit.md` | korpusz |
 | `run_panel_v41.py`, `run_cellak.sh`, `cellak/`, `raw/`, `panel_*.log` | panel |
 | `evaluate.py`, `eredmeny.json`, `tabla.py`, `ELOREJELZES_2026-11.json` | kiértékelés |
+
+---
+
+## 11. HU-próba kurált korpusszal és helyzetleírással (2026-11-23, PREREG_HU_KURALT.json)
+
+**Mit mértünk:** megmértük, hogy a magyar panel közelebb kerül-e a választás utáni valós hangulathoz két változtatással:
+1. kiegyensúlyozott, kurált sajtókorpusz (500 cím havonta, témakvótákkal, a persona saját médiaétrendje szerint);
+2. a helyzetleírás („a Tisza nyert, ők kormányoznak, a közmédia most a Tiszát támogatja”).
+
+| Hónap | Valós | Régi panel (N=20, kuráltatlan) | B: kurált, helyzetleírás nélkül (N=60) | A: kurált + helyzetleírás (N=60) | Naiv (mint múlt hónapban) |
+|---|---|---|---|---|---|
+| 2026-07 | +1,2 | −34,0 | −23,4 | −18,2 | −1,1 |
+| 2026-08 | −3,2 | −32,5 | −32,6 | −26,1 | +1,2 |
+| 2026-09 | −3,4 | −25,0 | −33,0 | −27,5 | −3,2 |
+| 2026-10 | −4,9 | −25,8 | −29,9 | −25,0 | −3,4 |
+| **Átlagos eltolás (valós − panel)** | | **26,8** | **27,2** | **21,6** | — |
+| Eltolással korrigált hiba, 08–10 | | 8,1 | 3,4 | 2,9 | 2,0 |
+| Irány (08 / 10; a 09 lapos hónap) | | nem / igen | igen / nem | igen / nem | — |
+
+**Mi jött ki:**
+- A kurált korpusz a szinten nem segített: a B és a régi sor eltolása egyformán ~27 pont.
+- A helyzetleírás 5,5 pontot hozott (27,2 → 21,6). Ez kevés: az előre rögzített feltétel 10 pont javulás volt, és az sem teljesült, hogy a panel átlagos hibája ≤ 10 pont legyen.
+- A panel a választás utáni hangulatot tehát nem követi. A naiv „mint múlt hónapban” tipp továbbra is pontosabb.
+- A helyzetleírás a táborokat a várt irányba választja szét. A jobboldali médiát követők −30…−40, a baloldaliak −12…−24 között vannak. Helyzetleírás nélkül minden tábor −17 és −39 között van, nagyjából egyformán.
+- Pótlások a korpuszban, kimondva:
+  - közmédia-forrás nincs az Echolotban, ezért az Infostart és a kormányzati X-fiókok helyettesítik;
+  - Facebook/TikTok nincs;
+  - júliusban a közösségi szelet 60/110.
+
+**Költés:** A 0,258 $ + B 0,247 $ = **0,505 $** (keret 0,60 $); embedding ~0,23 M token; 402 nem volt.
+
+**Commitok:**
+- `1440c4e`: előregisztráció;
+- `73a29c4`: 1. módosítás a futás előtt (téma kulcsszóból, szelet-plafon);
+- `b254256`: korpusz és audit;
+- az eredmények a következő commitban.
+
+**Fájlok:** `kuralt_audit.md`, `korpusz_kuralt/`, `cellak_hu_kuralt_A|B/`, `raw_hu_kuralt_A|B/`, `eredmeny_hu_kuralt.json`.
