@@ -364,7 +364,7 @@ const VITA_JEL = {
 const VALTOZAS_FAJTA = { tart: 'semleges', 'erősít': 'kesz', enged: 'var', 'vált': 'hiba', 'új': 'fut' };
 const TETEL_ALLAPOT = {
   fut: ['fut', 'fut'], kesz: ['kész', 'kesz'], hibas: ['hibás', 'hiba'], jovahagyasra_var: ['jóváhagyásra vár', 'var'],
-  kezi: ['kézi', 'semleges'], var: ['vár', 'semleges'],
+  kezi: ['kézi', 'semleges'], var: ['vár', 'semleges'], elutasitva: ['elutasítva', 'hiba'],
 };
 const VEGREHAJTO_NEV = { kutatas: 'kutatás', ismetlodo: 'ismétlődő', kodolas: 'kódolás · Faber', kifele: 'kifelé · tervezet' };
 const vitaFajta = (a) => ({ fut: 'fut', var_ra: 'var', parancsra_var: 'var', vegrehajtas: 'fut', kesz: 'kesz', leallitva: 'hiba' }[a] || 'semleges');

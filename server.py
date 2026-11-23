@@ -8213,6 +8213,37 @@ def _sf_gondolat_ette(data: dict) -> bool:
         return False
 
 
+#: KIMI K2 (K2.7-Code) A SILICONFLOW-ON — MÉRVE 2026-11-24, néhány centes élő próbával (2000 tokenes keret, ugyanarra a
+#: rövid szintézis-kérésre). A `thinking={"type":"disabled"}`-et FIGYELMEN KÍVÜL hagyja: 728 gondolat-token a 937-ből,
+#: ugyanannyi, mint paraméter nélkül (754); ugyanígy az `enable_thinking=false`-t (1341) és a `reasoning_effort=low`-t
+#: (930). 600-as kerettel a `thinking=disabled` mellett a gondolat a `content`-be ömlött („We need act as coordinator…”)
+#: és csonkolt (finish=length): üres `reasoning_content` mellett a `_sf_gondolat_ette` ezt nem látja gondolatnak, a
+#: „gondolkodás nélkül” újrapróbálás amúgy is ugyanazt küldené — így a létra BŐVÍTETT (a szintézis 16k → 32k-ja). Ami
+#: működik: a `thinking_budget` ÖNMAGÁBAN (128 → pontosan 128 gondolat-token, háromból háromszor, tiszta `content`,
+#: finish=stop; 256 → 256). A `thinking=disabled` MELLETT nem (256 helyett 773, egyszer a gondolat a `content`-be ömlött).
+#: A kikapcsolás tehát = a legkisebb gondolat-keret, a `thinking` mező nélkül.
+KIMI_K2_GONDOLAT_KI = 128
+
+
+def _kimi_k2(model_id: str) -> bool:
+    return "Kimi-K2" in (model_id or "")
+
+
+def _sf_gondolat_igazit(model_id: str, body: dict) -> None:
+    """A gondolkodás-kapcsoló a modell VALÓDI kapcsolójára fordítva (a kérés helyben módosul). Kimi K2: a `thinking` /
+    `enable_thinking` / `reasoning_effort` helyett `thinking_budget` — a kért kikapcsolás (vagy kapcsoló nélkül a
+    korlátlan alapgondolkodás) a legkisebb keret; kifejezett `thinking={"type":"enabled"}` mellett nincs keret.
+    Más modellhez nem nyúl."""
+    if not _kimi_k2(model_id):
+        return
+    volt = body.pop("thinking", None)
+    body.pop("enable_thinking", None)
+    body.pop("reasoning_effort", None)
+    if isinstance(volt, dict) and volt.get("type") == "enabled":
+        return
+    body.setdefault("thinking_budget", KIMI_K2_GONDOLAT_KI)
+
+
 def _sf_gondolkodas_nelkul(model_id: str) -> dict:
     """A gondolkodás kikapcsolása / letompítása modellenként, a csonkolás utáni EGY újrapróbáláshoz.
 
@@ -8221,7 +8252,11 @@ def _sf_gondolkodas_nelkul(model_id: str) -> dict:
         (A `thinking` kikapcsolását 400/20015-tel utasítja el, a `thinking_budget`-et figyelmen kívül hagyja.)
       * DeepSeek V4-Pro-0813: `reasoning_effort=low` mellett is gondolkodik (370/400, csonka);
         `thinking=disabled` → 0 gondolat, 307 token, kész.
-      * Kimi: `thinking=disabled` (a K3.1 Pro így eszközt is hív, gondolat nélkül)."""
+      * Kimi: `thinking=disabled` (a K3.1 Pro így eszközt is hív, gondolat nélkül);
+      * Kimi K2 (K2.7-Code): a `thinking=disabled`-et figyelmen kívül hagyja — a `thinking_budget` a kapcsoló (lásd
+        `KIMI_K2_GONDOLAT_KI`)."""
+    if _kimi_k2(model_id):
+        return {"thinking_budget": KIMI_K2_GONDOLAT_KI}
     if model_id.startswith("zai-org/GLM-5.3"):
         return {"reasoning_effort": "low"}
     if "Kimi" in model_id or "DeepSeek" in model_id:
@@ -8248,11 +8283,15 @@ def _sf_szamlara(data: dict | None, model_id: str) -> None:
 _SF_DROPPABLE_PARAMS = {
     "thinking": ("thinking", "思考", "不支持关闭"),
     "reasoning_effort": ("reasoning_effort", "reasoning effort"),
+    "thinking_budget": ("thinking_budget", "thinking budget"),
     # MÉRVE 11-22 élesben: „Parameter 'temperature'=0.7 is not supported for kimi-k3…” (HTTP 400/20015) — a
     # K3-család a mintavételi paramétereket nem fogadja. Ez nem a modell kiesése: le kell venni és újrapróbálni.
     "temperature": ("'temperature'", "temperature"),
     "top_p": ("'top_p'", "top_p"),
 }
+
+#: A gondolkodást szabályozó mezők (modellváltáskor és a gondolat-csonkolás utáni újrapróbáláskor mind lekerülnek).
+_SF_GONDOLAT_MEZOK = ("thinking", "reasoning_effort", "thinking_budget", "enable_thinking")
 
 #: Paraméterek, amiket egy modellcsalád EGYÁLTALÁN nem fogad — ezek el sem indulnak (nem kell hozzá egy bukott kör).
 _SF_TILTOTT_PARAMS = (("Kimi-K3", ("temperature", "top_p")),)
@@ -8488,7 +8527,7 @@ async def sf_chat(payload: dict, *, purpose: str = "", attempts: int = 3,
                 # thinking=disabled nélkül időtúllépésbe fut, a V4-Pro pedig
                 # reasoning_effort nélkül más viselkedést ad. A modell-váltás
                 # nem csak a névé.
-                for k in ("thinking", "reasoning_effort"):
+                for k in _SF_GONDOLAT_MEZOK:
                     body.pop(k, None)
                 body.update(_model_extra(mid))
                 # A tartalék NE adja ki magát a kért ügynöknek (11-22: a DeepSeek „Kimi-K3.1-Pro”-nak mondta magát,
@@ -8498,6 +8537,7 @@ async def sf_chat(payload: dict, *, purpose: str = "", attempts: int = 3,
                 if _minta in mid:
                     for k in _tiltott:
                         body.pop(k, None)
+            _sf_gondolat_igazit(mid, body)     # Kimi K2: a `thinking=disabled` helyett `thinking_budget` (mérve 11-24)
             # ÖNSZABÁLYOZÁS: induljunk onnan, ami ennél a modellnél utoljára
             # elég volt, de sose a modell plafonja fölött. A megtanult keret
             # legfeljebb a bővítés tetejéig emel (11-23: a GLM-5.3 megtanult
@@ -8528,7 +8568,7 @@ async def sf_chat(payload: dict, *, purpose: str = "", attempts: int = 3,
                         _ujraprobalva = True
                         _nelkule = _sf_gondolkodas_nelkul(mid) if _sf_gondolat_ette(data) else {}
                         if _nelkule and any(body.get(k) != v for k, v in _nelkule.items()):
-                            for k in ("thinking", "reasoning_effort"):
+                            for k in _SF_GONDOLAT_MEZOK:
                                 body.pop(k, None)
                             body.update(_nelkule)
                             notes.append(
@@ -8983,6 +9023,10 @@ AI_TASK_MODELLEK = {
     "glm5": "zai-org/GLM-5.2",
 }
 AI_TASK_SZINTEZIS_SORREND = ("kimi", "deepseek", "glm5")
+#: A koordinátori szintézis kimeneti plafonja (2026-11-24): a csonkolás miatti bővítés sem megy fölé
+#: (`llm_kapu.keret_plafon`). Élesben a szintézis 16k → 32k-ra bővült: a Kimi K2.7 a `thinking=disabled` mellett is
+#: gondolkodott (mérve; a valódi kapcsoló a `sf_chat`-ben: `_sf_gondolat_igazit`). Ha 16k-n is csonkol, KIMONDVA csonka.
+SZINTEZIS_PLAFON = 16_000
 
 
 async def _execute_ai_task(task_id: int, title: str, description: str, context: str, assigned_by: str,
@@ -9429,7 +9473,8 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
             synthesizer_used = None
             for model_id, label in SYNTHESIS_CHAIN:
                 try:
-                    candidate = await _run_agent_with_tools(model_id, list(messages))
+                    with llm_kapu.keret_plafon(SZINTEZIS_PLAFON):
+                        candidate = await _run_agent_with_tools(model_id, list(messages))
                     candidate = _clean_synthesis_output(candidate)
                     cls, reason = _classify_agent_result(candidate)
                     if cls == "ok":
@@ -9972,10 +10017,11 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
                     _szint_szamla = llm_kapu.Szamla(_feladat_szamla)
                     for syn_model_id, syn_label in DISPATCH_SYNTHESIS_CHAIN:
                         try:
-                            candidate = loop.run_until_complete(llm_kapu.szamlaval(
-                                _szint_szamla,
-                                _run_agent_with_tools(syn_model_id, list(synthesis_messages), max_rounds=2)
-                            ))
+                            with llm_kapu.keret_plafon(SZINTEZIS_PLAFON):   # a futtatott feladat örökli
+                                candidate = loop.run_until_complete(llm_kapu.szamlaval(
+                                    _szint_szamla,
+                                    _run_agent_with_tools(syn_model_id, list(synthesis_messages), max_rounds=2)
+                                ))
                             candidate = _clean_synthesis_output(candidate)
                             if candidate and candidate.strip():
                                 synthesis = candidate
@@ -12951,9 +12997,12 @@ async def _pyramid_vegrehajt(f: dict, kontextus: str) -> dict:
     """A PARANCS egy tétele a MEGLÉVŐ végrehajtóra (új végrehajtó nincs):
       kutatas   → `ai_task` dispatch a kijelölt ügynöknek (a figyelő a végén visszaírja az eredményt);
       ismetlodo → `feladat_ugynok` (ütemezett feladat-ügynök);
-      kodolas   → Faber-KÍVÁNSÁG az aláírt relayen (a Faber kipróbálja; a merge a Kommandanté);
-      kifele    → tweet-TERVEZET az `action_drafts`-ba (a munkapad jóváhagyó gombjával; magától SOHA nem posztol).
-                  Levélnek az `action_drafts`-ban nincs fajtája (calendar/reminder/tweet/hog) — az KÉZI tétel marad."""
+      kodolas   → Faber-KÍVÁNSÁG az aláírt relayen (a Faber kipróbálja; a merge a Kommandanté). A tétel „fut”, amíg a
+                  Faber dolgozik: a figyelő (`_pyramid_faber_allapot`) a kérelem sorsát visszaírja a szálba;
+      kifele    → tweet-TERVEZET az `action_drafts`-ba (a munkapad jóváhagyó gombjával; magától SOHA nem posztol);
+                  a figyelő (`_pyramid_draft_allapot`) az utólagos döntést (kiposztolva / elvetve) visszaírja.
+                  Levélnek az `action_drafts`-ban nincs fajtája (calendar/reminder/tweet/hog) — az KÉZI tétel marad
+                  (a fajta a kind-CHECK bővítése, azaz táblaátépítés lenne: séma-döntés, nem itt)."""
     vid, n, i = f.get("vita_id"), f.get("parancs"), f.get("tetel")
     v = f.get("vegrehajto")
     leiras = f["mit"] + (f"\n\nHatáridő: {f['hatarido']}" if f.get("hatarido") else "") + \
@@ -12986,14 +13035,17 @@ async def _pyramid_vegrehajt(f: dict, kontextus: str) -> dict:
         try:
             mid = faber_relay.tovabbit(conn, TELEGRAM_BOT_TOKEN, "szandek", faber_relay.szandek_adat({
                 "szandek": "kivansag", "repo": "bridge",
-                "szoveg": (f"KÍVÁNSÁG A #{vid} PYRAMID-VITA PARANCS #{n}-ÁBÓL (a Kommandant parancsa): {leiras}\n\n"
+                # a jel a kívánság ELEJÉN: a Faber „megkaptam” üzenete és kapu-kártyája ebből köthető vissza a tételhez
+                "szoveg": (f"KÍVÁNSÁG A {pyramid_vita.faber_jel(vid, n, i)}; a Kommandant parancsa): {leiras}\n\n"
                            f"Háttér: {kontextus[:1500]}")}), now())
             conn.commit()
         finally:
             conn.close()
         if mid:
-            return {"allapot": "kesz", "szoveg": f"kívánság a Fabernek (relay #{mid}) — kipróbálja, és jóváhagyásra "
-                                                 f"hozza; a merge a tiéd"}
+            return {"allapot": "fut", "bejegyez": True,
+                    "ref": {"faber": int(mid), "vita": int(vid), "parancs": int(n), "tetel": int(i)},
+                    "szoveg": f"kívánság a Fabernek (relay #{mid}) — kipróbálja, és jóváhagyásra hozza; a sorsa "
+                              f"(élesítve / elvetve / bukott) ide jön, a merge a tiéd"}
         return {"allapot": "hibas", "szoveg": "a Faber-relay nem elérhető (nincs Telegram-token a Bridge-en)"}
     if v == "kifele":
         szoveg = (f.get("tervezet") or "").strip()
@@ -13007,8 +13059,9 @@ async def _pyramid_vegrehajt(f: dict, kontextus: str) -> dict:
         r = twitter_poszt.tervezet(get_db, szoveg, forras=f"Pyramid-vita #{vid}, PARANCS #{n}",
                                    source_message_id=f"vita:{vid}")
         if r.get("draft_id"):
-            return {"allapot": "jovahagyasra_var", "szoveg": f"tweet-tervezet #{r['draft_id']} ({r.get('karakter', '?')} "
-                                                             f"karakter) — a munkapadon hagyod jóvá"}
+            return {"allapot": "jovahagyasra_var", "ref": {"draft": int(r["draft_id"])},
+                    "szoveg": f"tweet-tervezet #{r['draft_id']} ({r.get('karakter', '?')} karakter) — a munkapadon "
+                              f"hagyod jóvá; a döntésed ide is visszaíródik"}
         return {"allapot": "hibas", "szoveg": str(r.get("error") or "a tervezet nem jött létre")}
     return {"allapot": "hibas", "szoveg": f"ismeretlen végrehajtó: {v}"}
 
@@ -13035,9 +13088,126 @@ async def _pyramid_ai_task_allapot(task_id: int) -> dict:
     return {"allapot": "kesz", "szoveg": f"ai_task #{task_id}: " + " ".join(str(fo["content"]).split())[:700], **link}
 
 
+async def _pyramid_draft_allapot(draft_id: int) -> dict:
+    """A tweet-tervezet sorsa a figyelőnek (`action_drafts`): függő → jóváhagyásra vár; kiposztolva (`created`) →
+    kész, a poszt linkjével; elvetve (`rejected`) → elutasítva."""
+    conn = get_db()
+    try:
+        sor = conn.execute("SELECT status, payload_json FROM action_drafts WHERE id = ?", (int(draft_id),)).fetchone()
+    finally:
+        conn.close()
+    if not sor:
+        return {"allapot": "hibas", "szoveg": f"nincs #{draft_id} tervezet az action_drafts-ban"}
+    try:
+        p = json.loads(sor["payload_json"] or "{}")
+    except (TypeError, ValueError):
+        p = {}
+    p = p if isinstance(p, dict) else {}
+    if sor["status"] == "created":
+        url = str(p.get("url") or "")
+        return {"allapot": "kesz", "szoveg": f"tweet-tervezet #{draft_id} kiposztolva" + (f": {url}" if url else ""),
+                **({"link": url, "link_szoveg": "a poszt"} if url.startswith("http") else {})}
+    if sor["status"] == "rejected":
+        return {"allapot": "elutasitva", "szoveg": f"tweet-tervezet #{draft_id}: elvetetted, nem ment ki"}
+    hiba = f"; az utolsó posztolási próba bukott: {str(p['utolso_hiba'])[:200]}" if p.get("utolso_hiba") else ""
+    return {"allapot": "jovahagyasra_var", "szoveg": f"tweet-tervezet #{draft_id} — jóváhagyásra vár{hiba}"}
+
+
+#: A Faber-kérelem állapota (a Faber `allit()`-ja, `faber:esemeny`) → a vita-tétel állapota.
+FABER_TETEL_ALLAPOT = {"uj": "fut", "dolgozik": "fut", "jovahagyasra_var": "jovahagyasra_var", "elesitve": "kesz",
+                       "nincs_valtozas": "kesz", "elvetve": "elutasitva", "bukott": "hibas", "nem_tudta": "hibas",
+                       "visszaallitva": "hibas"}
+FABER_ALLAPOT_SZO = {"jovahagyasra_var": "kipróbálta, a tesztek zöldek — jóváhagyásra vár (Telegram-gomb vagy a kabin "
+                                         "Faber-kártyája)",
+                     "elesitve": "élesítve", "nincs_valtozas": "nem változtatott semmit", "elvetve": "elvetetted",
+                     "bukott": "nem sikerült", "nem_tudta": "nem tudta megcsinálni", "visszaallitva": "visszaállítva"}
+#: Az esemény után ennyi ideig várunk a Faber saját szöveges üzenetére (`faber:uzenet` / `faber:kapu`), mielőtt a
+#: sablonszöveggel írnánk a szálba — a Faber előbb az állapotot jelenti, aztán az üzenetet.
+FABER_SZOVEG_VARAS_S = 120.0
+_FABER_MEGKAPTAM = _re_module.compile(r"Faber #(\d+): megkaptam")
+
+
+async def _pyramid_faber_allapot(ref: dict) -> dict:
+    """A vita kódolás-tételének Faber-kérelme a figyelőnek. Honnan tudja a Bridge: a Faber (a Kommandant gépén) a
+    `messages` táblába ír (sender='faber', recipient='kommandant'): `faber:uzenet` („🔧 Faber #N: megkaptam … „<a
+    kívánság első 300 jele>””), `faber:esemeny` ({id, allapot, szoveg} minden állapotváltáskor) és `faber:kapu`
+    ({id, kivansag, jelentes, …}, ha jóváhagyásra vár). A relay-azonosítót a Faber nem adja vissza: a kérelem számát a
+    kívánság elejére tett jel (`pyramid_vita.faber_jel`) köti a tételhez (a relay utáni üzenetekben keressük), utána a
+    `ref.kerelem` hordozza."""
+    mid = int(ref.get("faber") or 0)
+    jel = pyramid_vita.faber_jel(ref.get("vita") or 0, ref.get("parancs") or 0, ref.get("tetel") or 0)
+    kid = ref.get("kerelem")
+    conn = get_db()
+    try:
+        sorok = [dict(r) for r in conn.execute(
+            "SELECT id, timestamp, subject, message FROM messages WHERE sender = 'faber' AND recipient = 'kommandant' "
+            "AND id > ? AND subject IN ('faber:uzenet', 'faber:esemeny', 'faber:kapu') ORDER BY id LIMIT 2000",
+            (mid,)).fetchall()]
+    finally:
+        conn.close()
+
+    def _adat(r):
+        try:
+            d = json.loads(r["message"] or "")
+            return d if isinstance(d, dict) else {}
+        except (TypeError, ValueError):
+            return {}
+    if kid is None:
+        for r in sorok:
+            if r["subject"] == "faber:uzenet" and jel in (r["message"] or ""):
+                m = _FABER_MEGKAPTAM.search(r["message"] or "")
+                if m:
+                    kid = int(m.group(1))
+                    break
+            if r["subject"] == "faber:kapu" and jel in str(_adat(r).get("kivansag") or ""):
+                kid = int(_adat(r).get("id") or 0) or None
+                if kid:
+                    break
+    if kid is None:
+        return {"allapot": "fut", "szoveg": f"kívánság a Fabernek (relay #{mid}) — a Faber még nem vette fel"}
+    kid = int(kid)
+    esemenyek = [r for r in sorok if r["subject"] == "faber:esemeny" and str(_adat(r).get("id")) == str(kid)]
+    if not esemenyek:
+        return {"allapot": "fut", "ref": {"kerelem": kid}, "szoveg": f"Faber #{kid}: megkapta"}
+    e = esemenyek[-1]
+    fa = str(_adat(e).get("allapot") or "")
+    allapot = FABER_TETEL_ALLAPOT.get(fa, "fut")
+    if allapot == "fut":
+        return {"allapot": "fut", "ref": {"kerelem": kid}, "szoveg": f"Faber #{kid}: {fa or 'dolgozik'}"}
+    # a Faber saját szava: jóváhagyásnál a kapu jelentése, a végén az utolsó üzenete („🔧 Faber #N: …”)
+    sajat = ""
+    if fa == "jovahagyasra_var":
+        kapu = [r for r in sorok if r["subject"] == "faber:kapu" and r["id"] > e["id"]
+                and str(_adat(r).get("id")) == str(kid)]
+        if kapu:
+            sajat = "Jelentés: " + " ".join(str(_adat(kapu[-1]).get("jelentes") or "").split())[:700]
+    else:
+        uz = [r for r in sorok if r["subject"] == "faber:uzenet" and r["id"] > e["id"]
+              and (r["message"] or "").startswith(f"🔧 Faber #{kid}:")]
+        if uz:
+            sajat = " ".join(uz[-1]["message"].split(":", 1)[1].split())[:700]
+    if not sajat:
+        try:
+            kor = (datetime.now(timezone.utc) - datetime.fromisoformat(str(e["timestamp"]))).total_seconds()
+        except (TypeError, ValueError):
+            kor = FABER_SZOVEG_VARAS_S
+        if kor < FABER_SZOVEG_VARAS_S:          # a Faber üzenete még úton van: a következő körben
+            return {"allapot": "fut", "ref": {"kerelem": kid}, "szoveg": f"Faber #{kid}: {fa}"}
+        sajat = str(_adat(e).get("szoveg") or "").strip()
+    szo = FABER_ALLAPOT_SZO.get(fa, fa)
+    if not sajat:
+        szoveg = szo
+    elif szo.split()[0].lower() in sajat.lower()[:40]:      # a Faber maga is kimondja („élesítve ✅ …”)
+        szoveg = sajat
+    else:
+        szoveg = f"{szo} — {sajat}"
+    return {"allapot": allapot, "ref": {"kerelem": kid}, "szoveg": f"Faber #{kid}: {szoveg}"}
+
+
 def _pyramid_vita_bekot() -> None:
     pyramid_vita.beallit(get_db=get_db, szolo=_pyramid_szolo, moderator=_pyramid_moderator,
                          vegrehajt=_pyramid_vegrehajt, ai_task_allapot=_pyramid_ai_task_allapot,
+                         faber_allapot=_pyramid_faber_allapot, draft_allapot=_pyramid_draft_allapot,
                          ertesit=_telegram_push)
 
 
@@ -13065,6 +13235,12 @@ async def _cron_loop():
     # ekkorra a DB mar biztosan letezik (init_db lefutott), es ez a szal amugy
     # is a hatterben indul — a foszalat nem lassitja.
     _sf_budget_load()
+    # PYRAMID-VITA (11-24): induláskor a futó viták és a végrehajtás-figyelők maguktól folytatódnak (eddig csak a vita
+    # kabinbeli megnyitásakor); PYRAMID_VITA=0 → semmi, a plafonokat a modul tartja (pyramid/vita.py ujraeleszt_mind).
+    try:
+        pyramid_vita.ujraeleszt_mind()
+    except Exception as e:  # noqa: BLE001 — a folytatás hibája ne állítsa meg a cront
+        logger.error("Pyramid-vita induláskori folytatása hibás: %s", e)
     try:
         from zoneinfo import ZoneInfo
         BP_TZ = ZoneInfo("Europe/Budapest")

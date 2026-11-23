@@ -29,7 +29,10 @@ A HUROK
    a szálba kerül, és azonnal indul (házi szabály: jóváhagyás után nincs újabb ellenőrző kör). Végrehajtók — mind a
    MEGLÉVŐ úton: kutatás/elemzés/írás → `ai_task` (dispatch a kijelölt ügynöknek); ismétlődő → `feladat_ugynok`;
    kódolás/eszköz → Faber-kívánság (aláírt relay; a merge a Kommandanté); kifelé (poszt) → `action_drafts`-tervezet a
-   saját jóváhagyó gombjával. Minden eredmény visszaíródik a szálba (✅ / ❌), a hurok zárul.
+   saját jóváhagyó gombjával. Minden eredmény visszaíródik a szálba (✅ / ❌), a hurok zárul — a háttérben futó vagy
+   jóváhagyásra váró tételé is (`figyel`): az ai_task vége, a Faber-kérelem sorsa (jóváhagyásra vár → élesítve /
+   elvetve / bukott; a Bridge a Faber `faber:esemeny` / `faber:kapu` üzeneteiből tudja, a kérelmet a kívánság elejére
+   tett jel köti a tételhez) és a tweet-tervezet utólagos döntése (kiposztolva / elvetve, az `action_drafts`-ból).
 7. A parancs után a vita „végrehajtás alatt”; ha a Kommandant újra hozzászól („folytassátok”, új kérdés), új kör indul
    ugyanabban a szálban.
 
@@ -44,8 +47,11 @@ KÖLTSÉG ÉS BIZTONSÁG: `PYRAMID_VITA=0` → semmi nem indul (a régi egykör�
 miatti duplázó létra eddig 131k-ig ment; ha a 16k-n is csonkol, KIMONDVA csonka marad), eszközhívás-plafon,
 vitánként legfeljebb `MAX_SZOLAS` szólás, és a „Leállítom” gomb. A modellhívás a meglévő `sf_chat` / `llm_kapu` úton.
 
-A modul függőségeit a server.py köti be (`beallit`): get_db, szolo, moderator, vegrehajt, ai_task_allapot, ertesit —
-tesztben hamisak.
+INDULÁSKOR (`ujraeleszt_mind`, a cron-szál egyszer hívja): a „fut” vita motorja és minden végrehajtás-figyelő
+magától folytatódik — a kapcsoló és a plafonok tiszteletben tartásával (lásd ott).
+
+A modul függőségeit a server.py köti be (`beallit`): get_db, szolo, moderator, vegrehajt, ai_task_allapot,
+faber_allapot, draft_allapot, ertesit — tesztben hamisak.
 """
 from __future__ import annotations
 
@@ -75,6 +81,10 @@ MAX_FELADAT = 8            # parancsonként
 SZAL_MAX = 60000           # a szóló promptjába kerülő szál felső határa (karakter)
 FIGYELO_S = 20.0           # az ai_task-figyelő lekérdezési köze
 FIGYELO_MAX_S = 3600.0     # utána a figyelő feladja (a feladat tovább futhat)
+FIGYELO_LASSU_S = 60.0     # a Faber-kérelem és a tweet-tervezet figyelője (órákig / napokig is tarthat: a Kommandant dönt)
+FIGYELO_HOSSZU_MAX_S = 14 * 24 * 3600.0
+INDULASKOR_MAX = 3         # induláskor legfeljebb ennyi futó vita motorja indul magától (`PYRAMID_VITA_INDULASKOR_MAX`)
+FOLYTAT_ORA = 72           # az ennél régebben frissült „fut” vita induláskor nem indul magától (`PYRAMID_VITA_FOLYTAT_ORA`)
 UJ_KOR_KOROK = 1           # a parancs / lezárás utáni hozzászólás ennyi új kört indít
 
 KOR_TIPUSOK = {
@@ -104,6 +114,12 @@ VEGREHAJTOK = {
 ALLAPOT_NEV = {"fut": "fut", "var_ra": "várlak", "parancsra_var": "döntésre vár", "vegrehajtas": "végrehajtás",
                "kesz": "végrehajtva", "leallitva": "leállítva"}
 
+#: A végrehajtás-figyelők: a tétel `ref`-jének kulcsa → a függőség, amely az állapotát adja. Az ai_task a feladat
+#: azonosítójával, a Faber-kérelem a teljes ref-fel (a relay-azonosító és a tétel jele — a kérelem számát a figyelő
+#: találja meg és jegyzi be), a tweet-tervezet az `action_drafts` azonosítójával.
+FIGYELT = {"ai_task": "ai_task_allapot", "faber": "faber_allapot", "draft": "draft_allapot"}
+VEGALLAPOTOK = ("kesz", "hibas", "elutasitva")
+
 _DEPS: dict = {}
 #: vita-id → a futó motor (asyncio.Task); feladat-kulcs → a futó ai_task-figyelő
 _MOTOR: dict[int, asyncio.Task] = {}
@@ -119,6 +135,10 @@ def beallit(**deps) -> None:
       vegrehajt(feladat, kontextus)      [async] → {allapot: kesz|fut|hibas|jovahagyasra_var|kezi, szoveg, link?,
                                                     nezet?, ref?}
       ai_task_allapot(task_id)           [async] → {allapot: fut|kesz|hibas, szoveg, link?}
+      faber_allapot(ref)                 [async] → {allapot: fut|jovahagyasra_var|kesz|hibas|elutasitva, szoveg,
+                                                    ref?: {kerelem}}            (nem kötelező)
+      draft_allapot(draft_id)            [async] → {allapot: jovahagyasra_var|kesz|elutasitva|hibas, szoveg, link?}
+                                                                                  (nem kötelező)
       ertesit(szoveg)                    [async] → Telegram-jelzés a Kommandantnak (nem kötelező)"""
     _DEPS.clear()
     _DEPS.update(deps)
@@ -740,7 +760,14 @@ def megallit(vid: int) -> bool:
                 return False
         except RuntimeError:
             pass
-        t.cancel()
+        try:
+            fo = asyncio.get_running_loop()
+        except RuntimeError:
+            fo = None
+        if fo is t.get_loop():
+            t.cancel()
+        else:       # más szál eseményhurkán fut (pl. az induláskor folytatott vita a cron-szálon): szálbiztosan
+            t.get_loop().call_soon_threadsafe(t.cancel)
         return True
     return False
 
@@ -1154,13 +1181,27 @@ async def vegrehajt_tetel(vid: int, n: int, i: int, f: dict, kontextus: str) -> 
     r = r if isinstance(r, dict) else {"allapot": "hibas", "szoveg": "a végrehajtó nem adott választ"}
     visszajelzes(vid, n, i, r)
     ref = r.get("ref") or {}
-    if r.get("allapot") == "fut" and ref.get("ai_task"):
-        _hatter(_FIGYELO, f"{vid}:{n}:{i}", figyel(vid, n, i, int(ref["ai_task"])))
+    if r.get("allapot") in ("fut", "jovahagyasra_var") and figyelt_fajta(ref):
+        _hatter(_FIGYELO, f"{vid}:{n}:{i}", figyel(vid, n, i, ref))
 
 
-JEL = {"kesz": "✅", "hibas": "❌", "jovahagyasra_var": "🕓", "kezi": "✋", "fut": "⏳"}
+def faber_jel(vid: int, n: int, i: int) -> str:
+    """A Faber-kívánság jele (a kívánság szövegének ELEJÉN, a végrehajtó teszi bele): a Faber „megkaptam” üzenete
+    (a kívánság első 300 karakterével) és kapu-kártyája (a teljes kívánsággal) ebből köthető vissza a vita tételéhez —
+    a Faber a Bridge relay-azonosítóját nem adja vissza."""
+    return f"#{int(vid)} PYRAMID-VITA PARANCS #{int(n)}-ÁBÓL ({int(i)}. tétel"
+
+
+def figyelt_fajta(ref) -> str | None:
+    """A tétel `ref`-jéből a figyelő fajtája (ai_task / faber / draft), vagy None (nincs mit figyelni)."""
+    if not isinstance(ref, dict):
+        return None
+    return next((k for k in FIGYELT if ref.get(k)), None)
+
+
+JEL = {"kesz": "✅", "hibas": "❌", "jovahagyasra_var": "🕓", "kezi": "✋", "fut": "⏳", "elutasitva": "✖"}
 ALLAPOT_SZO = {"kesz": "kész", "hibas": "hibás", "jovahagyasra_var": "jóváhagyásra vár a munkapadon",
-               "kezi": "kézi teendő", "fut": "fut"}
+               "kezi": "kézi teendő", "fut": "fut", "elutasitva": "elutasítva"}
 
 
 def visszajelzes(vid: int, n: int, i: int, r: dict) -> None:
@@ -1206,50 +1247,156 @@ def _vegrehajtas_vege(vid: int) -> None:
     modosit(vid, fn)
     for p in teendo.get("kesz") or []:
         db = {a: sum(1 for f in p["feladatok"] if f["allapot"] == a) for a in JEL}
-        osszeg = ", ".join(f"{db[a]} {ALLAPOT_SZO[a]}" for a in ("kesz", "jovahagyasra_var", "kezi", "hibas") if db[a])
+        osszeg = ", ".join(f"{db[a]} {ALLAPOT_SZO[a]}" for a in ("kesz", "jovahagyasra_var", "kezi", "elutasitva",
+                                                                  "hibas") if db[a])
         asyncio.ensure_future(_ertesit(f"⚡ A #{vid} vita PARANCS #{p['n']} lefutott: {osszeg}. Részletek a kabinban."))
 
 
-async def figyel(vid: int, n: int, i: int, task_id: int) -> None:
-    """Az ai_task befejezését figyeli (a feladat a háttérben fut), és az eredményt visszaírja a szálba."""
+def _tetel(st: dict | None, n: int, i: int) -> dict | None:
+    p = next((x for x in (st or {}).get("parancsok") or [] if int(x["n"]) == int(n)), None)
+    return p["feladatok"][i - 1] if p and 0 < i <= len(p.get("feladatok") or []) else None
+
+
+async def figyel(vid: int, n: int, i: int, ref) -> None:
+    """Egy háttérben futó / jóváhagyásra váró tétel állapotát figyeli, és MINDEN VÁLTOZÁST visszaír a szálba:
+      * ai_task: a befejezését (kész / hibás) — 20 mp-enként, legfeljebb egy óráig;
+      * Faber-kérelem: dolgozik → jóváhagyásra vár (🕓, a Kommandant gombja) → élesítve (✅) / elvetve (✖) / bukott (❌);
+      * tweet-tervezet: jóváhagyásra vár → kiposztolva (✅) / elvetve (✖).
+    A két utóbbi percenként, legfeljebb két hétig (a döntés a Kommandanté, napokig is várhat). `ref`: a tétel ref-je
+    (régi hívó: az ai_task azonosítója)."""
+    ref = dict(ref) if isinstance(ref, dict) else {"ai_task": int(ref)}
+    fajta = figyelt_fajta(ref)
+    fv = _DEPS.get(FIGYELT[fajta]) if fajta else None
+    if fv is None:
+        return
+    hosszu = fajta != "ai_task"
+    koz, plafon = (FIGYELO_LASSU_S, FIGYELO_HOSSZU_MAX_S) if hosszu else (FIGYELO_S, FIGYELO_MAX_S)
+    st, _ = betolt(vid)
+    utolso = (_tetel(st, n, i) or {}).get("allapot") or "fut"
     t = 0.0
-    while t <= FIGYELO_MAX_S:
-        await asyncio.sleep(FIGYELO_S)
-        t += max(FIGYELO_S, 0.001)
+    while t <= plafon:
+        await asyncio.sleep(koz)
+        t += max(koz, 0.001)
         try:
-            r = await _DEPS["ai_task_allapot"](task_id)
+            r = await fv(ref if fajta == "faber" else int(ref[fajta]))
         except Exception as e:  # noqa: BLE001
-            logger.warning("pyramid-vita figyelő ai_task #%d: %s", task_id, e)
+            logger.warning("pyramid-vita figyelő %s %s: %s", fajta, ref.get(fajta), e)
             continue
-        if (r or {}).get("allapot") in ("kesz", "hibas"):
-            visszajelzes(vid, n, i, r)
+        r = r if isinstance(r, dict) else {}
+        a = r.get("allapot") or "fut"
+        uj_ref = {**ref, **(r.get("ref") or {})}
+        if a == utolso and uj_ref == ref:
+            continue
+        ref = uj_ref
+        visszajelzes(vid, n, i, {**r, "allapot": a, "ref": ref})   # „fut”: csendben (a PARANCS-kártya frissül)
+        utolso = a
+        if a in VEGALLAPOTOK:
             _vegrehajtas_vege(vid)
             return
-    visszajelzes(vid, n, i, {"allapot": "hibas", "szoveg": f"a figyelő {int(FIGYELO_MAX_S // 60)} perc után feladta — "
-                                                           f"az ai_task #{task_id} tovább futhat",
-                             "link": f"/api/ai_tasks/{task_id}/export"})
-    _vegrehajtas_vege(vid)
+    if fajta == "ai_task":
+        task_id = int(ref["ai_task"])
+        visszajelzes(vid, n, i, {"allapot": "hibas", "szoveg": f"a figyelő {int(FIGYELO_MAX_S // 60)} perc után "
+                                                               f"feladta — az ai_task #{task_id} tovább futhat",
+                                 "link": f"/api/ai_tasks/{task_id}/export"})
+        _vegrehajtas_vege(vid)
+    elif utolso == "fut":
+        visszajelzes(vid, n, i, {"allapot": "hibas", "ref": ref,
+                                 "szoveg": f"a figyelő {int(FIGYELO_HOSSZU_MAX_S // 86400)} nap után feladta — a "
+                                           f"{'Faber-kérelem' if fajta == 'faber' else 'tervezet'} tovább élhet"})
+        _vegrehajtas_vege(vid)
+    else:
+        logger.info("pyramid-vita #%d P%d/%d: a %s figyelője %d nap után leállt (%s)", vid, n, i, fajta,
+                    int(FIGYELO_HOSSZU_MAX_S // 86400), utolso)
 
 
-def ujraeleszt(vid: int, st: dict | None = None) -> None:
-    """A Bridge újraindulása után: a „fut” állapotú vita motorja és a „fut” ai_task-tételek figyelői újra indulnak (a
-    kabin nézete hívja)."""
+_TWEET_TERVEZET = re.compile(r"tweet-tervezet #(\d+)")
+
+
+def _ref_potol(f: dict) -> dict:
+    """A figyelő bevezetése (11-24) előtti, jóváhagyásra váró tweet-tétel ref-je az eredmény szövegéből."""
+    ref = dict(f.get("ref") or {})
+    if not figyelt_fajta(ref) and f.get("vegrehajto") == "kifele" and f.get("allapot") == "jovahagyasra_var":
+        m = _TWEET_TERVEZET.search(str(f.get("eredmeny") or ""))
+        if m:
+            ref["draft"] = int(m.group(1))
+    return ref
+
+
+def ujraeleszt(vid: int, st: dict | None = None, *, motor: bool = True) -> dict:
+    """A Bridge újraindulása után: a „fut” állapotú vita motorja (ha `motor`), a félbemaradt parancs-értelmezés és a
+    futó / jóváhagyásra váró tételek figyelői (ai_task, Faber-kérelem, tweet-tervezet) újra indulnak. Hívja az
+    induláskori folytatás (`ujraeleszt_mind`) és a kabin nézete is. → {motor: bool, figyelo: n, parancs: n}"""
+    ki = {"motor": False, "figyelo": 0, "parancs": 0}
     if not bekapcsolva():
-        return
+        return ki
     if st is None:
         st, _ = betolt(vid)
     if not st:
-        return
-    if st["allapot"] == "fut" and not st.get("leallit") and not fut_e(vid):
-        inditas(vid)
+        return ki
+    if motor and st["allapot"] == "fut" and not st.get("leallit") and not fut_e(vid):
+        ki["motor"] = inditas(vid)
     for p in st.get("parancsok") or []:
         if p.get("allapot") == "ertelmez" and int(vid) not in _PARANCS_FUT:
-            _hatter(_PARANCS_FUT, int(vid), parancs_feldolgoz(int(vid), int(p["n"])))
+            if _hatter(_PARANCS_FUT, int(vid), parancs_feldolgoz(int(vid), int(p["n"]))) is not None:
+                ki["parancs"] += 1
         for i, f in enumerate(p.get("feladatok") or [], 1):
             k = f"{vid}:{p['n']}:{i}"
-            tid = (f.get("ref") or {}).get("ai_task")
-            if f.get("allapot") == "fut" and tid and k not in _FIGYELO:
-                _hatter(_FIGYELO, k, figyel(int(vid), int(p["n"]), i, int(tid)))
+            ref = _ref_potol(f)
+            if f.get("allapot") in ("fut", "jovahagyasra_var") and figyelt_fajta(ref) and k not in _FIGYELO:
+                if _hatter(_FIGYELO, k, figyel(int(vid), int(p["n"]), i, ref)) is not None:
+                    ki["figyelo"] += 1
+    return ki
+
+
+def _frissult_ora(st: dict) -> float | None:
+    try:
+        d = datetime.fromisoformat(str(st.get("frissitve") or st.get("indult") or ""))
+    except ValueError:
+        return None
+    return (datetime.now(timezone.utc) - (d if d.tzinfo else d.replace(tzinfo=timezone.utc))).total_seconds() / 3600
+
+
+def ujraeleszt_mind(limit: int = 40) -> dict:
+    """INDULÁSKOR (a Bridge cron-szála hívja, egyszer): a futó viták és a végrehajtás-figyelők maguktól folytatódnak —
+    nem csak akkor, amikor a Kommandant megnyitja a vitát a kabinban. A kapcsoló és a plafonok érvényesek:
+    `PYRAMID_VITA=0` → semmi; a leállított vita nem indul; a motor maga tartja a körszámot és a szólás-plafont
+    (`MAX_SZOLAS`); legfeljebb `PYRAMID_VITA_INDULASKOR_MAX` (alap 3) motor indul magától, a legfrissebbek, és csak a
+    `PYRAMID_VITA_FOLYTAT_ORA` (alap 72) óránál frissebb vita — a többit a kabin megnyitása folytatja. A figyelők
+    (adatbázis-lekérdezés, modellhívás nélkül) mind indulnak. → összesítő"""
+    ki = {"motor": [], "figyelo": 0, "parancs": 0, "kihagyva": []}
+    if not bekapcsolva() or not _DEPS.get("get_db"):
+        return ki
+    max_motor = _env_int("PYRAMID_VITA_INDULASKOR_MAX", INDULASKOR_MAX, 0, 20)
+    max_ora = _env_int("PYRAMID_VITA_FOLYTAT_ORA", FOLYTAT_ORA, 1, 24 * 30)
+    conn = _db()
+    try:
+        sorok = [(int(r["id"]), r["resolution"]) for r in conn.execute(
+            "SELECT id, resolution FROM discussions ORDER BY id DESC LIMIT ?", (int(limit),)).fetchall()]
+    finally:
+        conn.close()
+    for vid, res in sorok:
+        st = allapot_ertelmez(res)
+        if not st:
+            continue
+        motor_kell = st["allapot"] == "fut" and not st.get("leallit") and not fut_e(vid)
+        motor = False
+        if motor_kell:
+            ora = _frissult_ora(st)
+            if ora is not None and ora > max_ora:
+                ki["kihagyva"].append({"vita": vid, "ok": f"{int(ora)} órája nem frissült"})
+            elif len(ki["motor"]) >= max_motor:
+                ki["kihagyva"].append({"vita": vid, "ok": f"induláskor legfeljebb {max_motor} vita indul"})
+            else:
+                motor = True
+        r = ujraeleszt(vid, st, motor=motor)
+        if r["motor"]:
+            ki["motor"].append(vid)
+        ki["figyelo"] += r["figyelo"]
+        ki["parancs"] += r["parancs"]
+    if ki["motor"] or ki["figyelo"] or ki["parancs"] or ki["kihagyva"]:
+        logger.info("pyramid-vita induláskor: motor %s, figyelő %d, parancs %d, kihagyva %s", ki["motor"],
+                    ki["figyelo"], ki["parancs"], ki["kihagyva"])
+    return ki
 
 
 # ══ NÉZET (a kabinnak) ════════════════════════════════════════════════════

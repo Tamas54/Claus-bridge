@@ -337,3 +337,70 @@ def test_594_forgatokonyv_negy_kor_negy_hivas(sf, monkeypatch):
     assert max(k["max_tokens"] for k in sf["kert"]) == 8000, "keretet emelt"
     assert szoveg.startswith("a végső elemzés") and "_[KÖLTSÉG: 4 modellhívás" in szoveg
     assert feladat.hivas == 4
+
+
+# ── 9. KIMI K2: A VALÓDI GONDOLAT-KAPCSOLÓ (MÉRVE 2026-11-24) ────────────
+# Élő próba (2000-es keret, ugyanarra a szintézis-kérésre): a Kimi-K2.7-Code a `thinking=disabled`-et figyelmen kívül
+# hagyja (728 gondolat-token, mint paraméter nélkül), 600-as keretnél a gondolat a content-be ömlött és csonkolt — a
+# létra ezért bővített (a szintézis 16k → 32k-ja). A `thinking_budget` ÖNMAGÁBAN működik (128 → pontosan 128).
+
+def test_kimi_k2_thinking_disabled_helyett_thinking_budget(sf):
+    _chat("moonshotai/Kimi-K2.7-Code", extra={"thinking": {"type": "disabled"}, "enable_thinking": False,
+                                               "reasoning_effort": "low"})
+    [k] = sf["kert"]
+    assert k["thinking_budget"] == server.KIMI_K2_GONDOLAT_KI == 128
+    assert not {"thinking", "enable_thinking", "reasoning_effort"} & set(k), "a hatástalan kapcsoló is kiment"
+
+
+def test_kimi_k2_a_szintezis_utja_is_keretet_kap(sf):
+    """A szintézis a `_model_extra`-ból kapja a kapcsolót (`thinking=disabled`) — a tölcsér fordítja le."""
+    assert server._model_extra("moonshotai/Kimi-K2.7-Code") == {"thinking": {"type": "disabled"}}
+    _chat("moonshotai/Kimi-K2.7-Code", extra=server._model_extra("moonshotai/Kimi-K2.7-Code"))
+    assert sf["kert"][0]["thinking_budget"] == 128 and "thinking" not in sf["kert"][0]
+    # kifejezett bekapcsolásnál nincs keret
+    _chat("moonshotai/Kimi-K2.7-Code", extra={"thinking": {"type": "enabled"}})
+    assert "thinking_budget" not in sf["kert"][1] and "thinking" not in sf["kert"][1]
+
+
+def test_mas_kimi_marad_thinking_disabled(sf):
+    """A K3.1 Pro-nál a `thinking=disabled` MŰKÖDIK (mérve 11-22): ahhoz nem nyúlunk."""
+    _chat("moonshotai/Kimi-K3.1-Pro", extra={"thinking": {"type": "disabled"}})
+    assert sf["kert"][0]["thinking"] == {"type": "disabled"} and "thinking_budget" not in sf["kert"][0]
+
+
+def test_kimi_k2_gondolat_csonkolasnal_a_kisebb_gondolat_keret_jon(sf):
+    sf["valaszok"] = [_gondolat_csonka(), _valasz("kész")]
+    _chat("moonshotai/Kimi-K2.7-Code", max_tokens=8000, extra={"thinking_budget": 4096})
+    elso, masodik = sf["kert"]
+    assert elso["thinking_budget"] == 4096
+    assert masodik["thinking_budget"] == 128 and masodik["max_tokens"] == 8000 and "thinking" not in masodik
+
+
+def test_kimi_k2_minimalis_gondolat_keretnel_a_masodik_proba_bovites(sf):
+    sf["valaszok"] = [_szoveg_csonka()] * 10
+    _chat("moonshotai/Kimi-K2.7-Code", max_tokens=8000, extra={"thinking": {"type": "disabled"}}, attempts=6)
+    assert [k["max_tokens"] for k in sf["kert"]] == [8000, 16000]
+    assert all(k["thinking_budget"] == 128 and "thinking" not in k for k in sf["kert"])
+
+
+def test_modellvaltas_kimi_k2_re_is_a_valodi_kapcsolo(sf):
+    kieses = (None, {"code": "server_error", "message": "HTTP 503"})
+    sf["valaszok"] = [kieses] * 3 + [_valasz("kész")]
+    _chat("deepseek-ai/DeepSeek-V4-Pro", extra={"reasoning_effort": "medium"}, attempts=3)
+    [t] = [k for k in sf["kert"] if k["model"] == "moonshotai/Kimi-K2.7-Code"]
+    assert t["thinking_budget"] == 128 and "reasoning_effort" not in t and "thinking" not in t
+
+
+def test_a_szintezis_plafonja_16k_es_nem_bovit_32k_ra(sf, monkeypatch):
+    """A szintézis a `keret_plafon(SZINTEZIS_PLAFON)` alatt fut: a megtanult 32k-ról sem indul, és nem bővít fölé."""
+    import inspect
+    monkeypatch.setattr(server, "_SF_LEARNED_BUDGET", {"moonshotai/Kimi-K2.7-Code": 32000})
+    sf["valaszok"] = [_szoveg_csonka()] * 10
+    with llm_kapu.keret_plafon(server.SZINTEZIS_PLAFON):
+        data, err, notes = _chat("moonshotai/Kimi-K2.7-Code", max_tokens=8000, attempts=6,
+                                 extra={"thinking": {"type": "disabled"}})
+    assert [k["max_tokens"] for k in sf["kert"]] == [16000]
+    assert any("PLAFONJÁN (16000) is csonkolt" in n for n in notes)
+    # mindkét szintézis-lánc (broadcast és dispatch) a plafon alatt hívja a szintetizálót
+    forras = inspect.getsource(server._execute_ai_task) + inspect.getsource(inspect.unwrap(server.ai_task))
+    assert forras.count("keret_plafon(SZINTEZIS_PLAFON)") == 2

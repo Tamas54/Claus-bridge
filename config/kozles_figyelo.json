@@ -1,6 +1,6 @@
 {
-  "_leiras": "KÖZLÉS-FIGYELŐ (kozles_figyelo.py) — a figyelt kör. Bővítés: új elem a `sorozatok` listába. Az `idopontok` a HIVATALOS, közzétett naptárból (forrással); ahol a lista a figyelt ablakon túl is tart, a StatData becsült naptárát erre a sorozatra nem használjuk. `olvaso`: a Makronóm-eszköz, amelyből a szám a közléskor kiolvasható (null = nincs ilyen forrás, a terv kimondja). `elorejelzes`: a Makronóm forecast_path (80%-os sáv); `mertek`: ha az olvasó és az előrejelzés mértéke eltér, nem vetjük össze őket.",
-  "_ellenorizve": "2026-11-23: KSH gyorstájékoztatók „Következik” sora (far2610, fem2609, ipa2609, kis2609; GDP: gde2609/STADAT); MNB mnb.hu/en/monetary-policy/the-monetary-council (P = kamatdöntő ülés); Eurostat: a 2-04112026-ap közlemény „next release”; Destatis Veröffentlichungskalender (VPI vorläufig 30.11.2026); BLS schedule/news_release cpi.htm és empsit.htm; Fed fomccalendars.htm (a 2027-es dátumok a Fed szerint előzetesek).",
+  "_leiras": "KÖZLÉS-FIGYELŐ (kozles_figyelo.py) — a figyelt kör. Bővítés: új elem a `sorozatok` listába. Az `idopontok` a HIVATALOS, közzétett naptárból (forrással); a `naptar_hivatalos` minták a StatData-naptár HIVATALOS tételeit (KSH gyorstájékoztató-naptár, BLS-naptár) kötik a sorozathoz — ezekből a lista magától bővül, és ütközésnél a naptár (az élő forrás) győz, kimondva; a `naptar_minta` a StatData BECSLÉSE (FRED), csak ott, ahol a hivatalos lista nem fedi az ablakot. `olvaso`: a Makronóm-eszköz, amelyből a szám a közléskor kiolvasható (null = nincs ilyen forrás, a terv kimondja). `elorejelzes`: a Makronóm forecast_path (80%-os sáv); `mertek`: ha az olvasó és az előrejelzés mértéke eltér, nem vetjük össze őket.",
+  "_ellenorizve": "2026-11-23: KSH gyorstájékoztatók „Következik” sora (far2610, fem2609, ipa2609, kis2609; GDP: gde2609/STADAT); MNB mnb.hu/en/monetary-policy/the-monetary-council (P = kamatdöntő ülés); Eurostat: a 2-04112026-ap közlemény „next release”; Destatis Veröffentlichungskalender (VPI vorläufig 30.11.2026); BLS schedule/news_release cpi.htm és empsit.htm; Fed fomccalendars.htm (a 2027-es dátumok a Fed szerint előzetesek). — 2026-11-24: a StatData élő válaszai (get_macro_indicator: DE cpi = Destatis VPI, US cpi/nfp = BLS közvetlenül, HU ipar/kisker = KSH-gyorstájékoztató; get_economic_calendar: hu = KSH-naptár reference_period/estimate/macro_indicator mezőkkel, us = BLS official:true); Eurostat release calendar (ec.europa.eu/eurostat/news/release-calendar, euroindikátorok; az időpont 11:00 luxemburgi idő): EA GDP 2027-01-29 / 02-15 / 04-30 / 05-14, gyors HICP 2026-12-01 … 2027-07-01. Destatis Terminsuche (11-24): VPI vorläufig 2027-01-05, 01-29, 02-26, 03-31 — a naptár órát nem ad (az ICS 00:00), a 14:00 a meglévő 11-30-i tétel szerint.",
   "ablak": {
     "alap": {
       "elotte_perc": 1,
@@ -12,6 +12,12 @@
       "utana_perc": 180,
       "lekerdezes_s": 60,
       "_miert": "a FRED a BLS-közlés után 40–130 perccel frissít (CPIAUCSL 2026-11-10: 09:12 ET; PAYEMS 2026-11-06: 10:43 ET)"
+    },
+    "bls": {
+      "elotte_perc": 1,
+      "utana_perc": 180,
+      "lekerdezes_s": 60,
+      "_miert": "a StatData a BLS-t közvetlenül olvassa (2 perces gyorsítótár, kulcs nélkül napi 20 kérés) — a közlés percében látja; ha a BLS-keret elfogy, a lánc a FRED-re esik (40–130 perccel a BLS után), ezért marad a hosszú ablak; a lekérdezés percenként (a gyorsítótárnál sűrűbben fölösleges)"
     }
   },
   "sorozatok": [
@@ -51,6 +57,12 @@
           "idoszak": "2026-11",
           "forras": "KSH far2610 „Következik”"
         }
+      ],
+      "naptar_hivatalos": [
+        {
+          "source": "KSH",
+          "macro_indicator": "cpi"
+        }
       ]
     },
     {
@@ -88,6 +100,12 @@
           "tz": "Europe/Budapest",
           "idoszak": "2026-10",
           "forras": "KSH fem2609 „Következik”"
+        }
+      ],
+      "naptar_hivatalos": [
+        {
+          "source": "KSH",
+          "macro_indicator": "unemployment"
         }
       ]
     },
@@ -129,6 +147,12 @@
           "ugyanaz_az_idoszak": true,
           "forras": "KSH STADAT GDP-táblák következő frissítése; gde2609"
         }
+      ],
+      "naptar_hivatalos": [
+        {
+          "source": "KSH",
+          "macro_indicator": "gdp_growth"
+        }
       ]
     },
     {
@@ -150,8 +174,7 @@
           "indicator": "industrial_production"
         },
         "kinyero": "macro_indicator",
-        "mertek": "ipari termelés y/y",
-        "figyelmeztetes": "a Makronóm ma az Eurostatból olvassa (sts_inpr_m), ami a KSH után hetekkel frissül — a közléskor nem látja"
+        "mertek": "ipari termelés volumene y/y, nyers (KSH)"
       },
       "elorejelzes": null,
       "ref_eltolas": 2,
@@ -163,6 +186,12 @@
           "idoszak": "2026-10",
           "kiadas": "első becslés",
           "forras": "KSH ipa2609 „Kapcsolódó”"
+        }
+      ],
+      "naptar_hivatalos": [
+        {
+          "source": "KSH",
+          "macro_indicator": "industrial_production"
         }
       ]
     },
@@ -185,8 +214,7 @@
           "indicator": "retail_trade"
         },
         "kinyero": "macro_indicator",
-        "mertek": "kiskereskedelmi forgalom volumene y/y",
-        "figyelmeztetes": "a Makronóm ma az Eurostatból olvassa (sts_trtu_m), ami a KSH után hetekkel frissül — a közléskor nem látja"
+        "mertek": "kiskereskedelmi forgalom volumene y/y, naptárhatással kiigazított (KSH)"
       },
       "elorejelzes": null,
       "ref_eltolas": 2,
@@ -197,6 +225,12 @@
           "tz": "Europe/Budapest",
           "idoszak": "2026-10",
           "forras": "KSH kis2609 „Következik”"
+        }
+      ],
+      "naptar_hivatalos": [
+        {
+          "source": "KSH",
+          "macro_indicator": "retail_trade"
         }
       ]
     },
@@ -316,6 +350,55 @@
           "tz": "Europe/Luxembourg",
           "idoszak": "2026-11",
           "forras": "Eurostat 2-04112026-ap: next release"
+        },
+        {
+          "datum": "2027-01-06",
+          "ido": "11:00",
+          "tz": "Europe/Luxembourg",
+          "idoszak": "2026-12",
+          "forras": "Eurostat release calendar (euroindikátorok): Flash estimate inflation euro area"
+        },
+        {
+          "datum": "2027-02-02",
+          "ido": "11:00",
+          "tz": "Europe/Luxembourg",
+          "idoszak": "2027-01",
+          "forras": "Eurostat release calendar (euroindikátorok): Flash estimate inflation euro area"
+        },
+        {
+          "datum": "2027-03-02",
+          "ido": "11:00",
+          "tz": "Europe/Luxembourg",
+          "idoszak": "2027-02",
+          "forras": "Eurostat release calendar (euroindikátorok): Flash estimate inflation euro area"
+        },
+        {
+          "datum": "2027-04-01",
+          "ido": "11:00",
+          "tz": "Europe/Luxembourg",
+          "idoszak": "2027-03",
+          "forras": "Eurostat release calendar (euroindikátorok): Flash estimate inflation euro area"
+        },
+        {
+          "datum": "2027-05-03",
+          "ido": "11:00",
+          "tz": "Europe/Luxembourg",
+          "idoszak": "2027-04",
+          "forras": "Eurostat release calendar (euroindikátorok): Flash estimate inflation euro area"
+        },
+        {
+          "datum": "2027-06-01",
+          "ido": "11:00",
+          "tz": "Europe/Luxembourg",
+          "idoszak": "2027-05",
+          "forras": "Eurostat release calendar (euroindikátorok): Flash estimate inflation euro area"
+        },
+        {
+          "datum": "2027-07-01",
+          "ido": "11:00",
+          "tz": "Europe/Luxembourg",
+          "idoszak": "2027-06",
+          "forras": "Eurostat release calendar (euroindikátorok): Flash estimate inflation euro area"
         }
       ]
     },
@@ -349,7 +432,42 @@
         "mertek": "GDP y/y"
       },
       "ref_eltolas": 1,
-      "idopontok": []
+      "idopontok": [
+        {
+          "datum": "2027-01-29",
+          "ido": "11:00",
+          "tz": "Europe/Luxembourg",
+          "idoszak": "2026-Q4",
+          "kiadas": "előzetes gyorsbecslés",
+          "forras": "Eurostat release calendar (euroindikátorok): Preliminary flash estimate GDP - EU and euro area"
+        },
+        {
+          "datum": "2027-02-15",
+          "ido": "11:00",
+          "tz": "Europe/Luxembourg",
+          "idoszak": "2026-Q4",
+          "kiadas": "gyorsbecslés",
+          "ugyanaz_az_idoszak": true,
+          "forras": "Eurostat release calendar (euroindikátorok): Flash estimate GDP and employment - EU and euro area"
+        },
+        {
+          "datum": "2027-04-30",
+          "ido": "11:00",
+          "tz": "Europe/Luxembourg",
+          "idoszak": "2027-Q1",
+          "kiadas": "előzetes gyorsbecslés",
+          "forras": "Eurostat release calendar (euroindikátorok): Preliminary flash estimate GDP - EU and euro area"
+        },
+        {
+          "datum": "2027-05-14",
+          "ido": "11:00",
+          "tz": "Europe/Luxembourg",
+          "idoszak": "2027-Q1",
+          "kiadas": "gyorsbecslés",
+          "ugyanaz_az_idoszak": true,
+          "forras": "Eurostat release calendar (euroindikátorok): Flash estimate GDP and employment - EU and euro area"
+        }
+      ]
     },
     {
       "kulcs": "DE_CPI",
@@ -363,8 +481,15 @@
       "forras_hu": "Destatis",
       "egyseg": "%",
       "tizedes": 1,
-      "olvaso": null,
-      "olvaso_hiany": "a Makronómban nincs Destatis-forrás (a DE cpi a Eurostat HICP-jéből jön, napokkal később)",
+      "olvaso": {
+        "eszkoz": "get_macro_indicator",
+        "parameterek": {
+          "country": "DE",
+          "indicator": "cpi"
+        },
+        "kinyero": "macro_indicator",
+        "mertek": "nemzeti CPI (Destatis VPI)"
+      },
       "elorejelzes": {
         "country": "DE",
         "indicator": "inflation",
@@ -378,6 +503,34 @@
           "ido": "14:00",
           "tz": "Europe/Berlin",
           "idoszak": "2026-11",
+          "forras": "Destatis Veröffentlichungskalender (VPI, vorläufig)"
+        },
+        {
+          "datum": "2027-01-05",
+          "ido": "14:00",
+          "tz": "Europe/Berlin",
+          "idoszak": "2026-12",
+          "forras": "Destatis Veröffentlichungskalender (VPI, vorläufig)"
+        },
+        {
+          "datum": "2027-01-29",
+          "ido": "14:00",
+          "tz": "Europe/Berlin",
+          "idoszak": "2027-01",
+          "forras": "Destatis Veröffentlichungskalender (VPI, vorläufig)"
+        },
+        {
+          "datum": "2027-02-26",
+          "ido": "14:00",
+          "tz": "Europe/Berlin",
+          "idoszak": "2027-02",
+          "forras": "Destatis Veröffentlichungskalender (VPI, vorläufig)"
+        },
+        {
+          "datum": "2027-03-31",
+          "ido": "14:00",
+          "tz": "Europe/Berlin",
+          "idoszak": "2027-03",
           "forras": "Destatis Veröffentlichungskalender (VPI, vorläufig)"
         }
       ]
@@ -395,15 +548,14 @@
       "egyseg": "%",
       "tizedes": 1,
       "olvaso": {
-        "eszkoz": "get_fred_data",
+        "eszkoz": "get_macro_indicator",
         "parameterek": {
-          "series_id": "CPIAUCNS",
-          "units": "pc1",
-          "limit": 3
+          "country": "US",
+          "indicator": "cpi"
         },
-        "kinyero": "fred",
+        "kinyero": "macro_indicator",
         "mertek": "CPI-U y/y (NSA)",
-        "ablak": "fred"
+        "ablak": "bls"
       },
       "elorejelzes": {
         "country": "US",
@@ -454,6 +606,13 @@
           "idoszak": "2027-03",
           "forras": "BLS CPI release schedule"
         }
+      ],
+      "naptar_hivatalos": [
+        {
+          "source": "BLS",
+          "official": true,
+          "indicator_re": "\\bConsumer Price Index\\b"
+        }
       ]
     },
     {
@@ -471,15 +630,14 @@
       "tizedes": 0,
       "elojel": true,
       "olvaso": {
-        "eszkoz": "get_fred_data",
+        "eszkoz": "get_macro_indicator",
         "parameterek": {
-          "series_id": "PAYEMS",
-          "units": "chg",
-          "limit": 3
+          "country": "US",
+          "indicator": "nfp"
         },
-        "kinyero": "fred",
-        "mertek": "nem mezőgazdasági foglalkoztatás havi változása (ezer fő)",
-        "ablak": "fred"
+        "kinyero": "macro_indicator",
+        "mertek": "nem mezőgazdasági foglalkoztatás havi változása (ezer fő, BLS CES, szezonálisan kiigazított)",
+        "ablak": "bls"
       },
       "elorejelzes": null,
       "ref_eltolas": 1,
@@ -524,6 +682,13 @@
           "tz": "America/New_York",
           "idoszak": "2027-03",
           "forras": "BLS Employment Situation schedule"
+        }
+      ],
+      "naptar_hivatalos": [
+        {
+          "source": "BLS",
+          "official": true,
+          "indicator_re": "\\bEmployment Situation\\b"
         }
       ]
     },

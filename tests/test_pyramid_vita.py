@@ -50,6 +50,17 @@ class Hamis:
         self.parancs_feladatok = [{"mit": "Heti radar-brief megírása", "vegrehajto": "kutatas", "ki": "glm5",
                                    "hatarido": "hétfő", "merce": "1 oldal"}]
         self.vegrehajt_valasz = None
+        self.faber_sor: list[dict] = []          # a Faber-figyelő egymás utáni válaszai (az utolsó ismétlődik)
+        self.draft_sor: list[dict] = []
+        self.faber_kerdesek: list[dict] = []
+
+    async def faber_allapot(self, ref):
+        self.faber_kerdesek.append(dict(ref))
+        return self.faber_sor.pop(0) if len(self.faber_sor) > 1 else (self.faber_sor or [{"allapot": "fut"}])[0]
+
+    async def draft_allapot(self, draft_id):
+        return self.draft_sor.pop(0) if len(self.draft_sor) > 1 else (self.draft_sor or [{"allapot":
+                                                                                           "jovahagyasra_var"}])[0]
 
     async def szolo(self, ki, system, user):
         n = len(self.szolok) + 1
@@ -99,11 +110,15 @@ def h(get_db, monkeypatch):
     hamis = Hamis()
     regi = dict(pv._DEPS)
     pv.beallit(get_db=get_db, szolo=hamis.szolo, moderator=hamis.moderator, vegrehajt=hamis.vegrehajt,
-               ai_task_allapot=hamis.ai_task_allapot, ertesit=hamis.ertesit)
+               ai_task_allapot=hamis.ai_task_allapot, faber_allapot=hamis.faber_allapot,
+               draft_allapot=hamis.draft_allapot, ertesit=hamis.ertesit)
     monkeypatch.setenv("PYRAMID_VITA", "1")
     monkeypatch.delenv("PYRAMID_VITA_RESZTVEVOK", raising=False)
     monkeypatch.delenv("PYRAMID_VITA_KOROK", raising=False)
+    monkeypatch.delenv("PYRAMID_VITA_INDULASKOR_MAX", raising=False)
+    monkeypatch.delenv("PYRAMID_VITA_FOLYTAT_ORA", raising=False)
     monkeypatch.setattr(pv, "FIGYELO_S", 0.0)
+    monkeypatch.setattr(pv, "FIGYELO_LASSU_S", 0.0)
     for tar in (pv._MOTOR, pv._FIGYELO, pv._PARANCS_FUT):
         tar.clear()
     hamis.get_db = get_db
@@ -426,6 +441,175 @@ def test_parancs_blokk_es_tetelallapotok_visszairas(h):
     assert any("PARANCS #1 lefutott" in m for m in h.ertesitesek)
 
 
+def _parancs_egy_tetellel(h, vegrehajto, valasz, szoveg="Csináld meg."):
+    vid = run(_uj(h, varj=False)())
+    h.parancs_feladatok = [{"mit": "Radar-eszköz" if vegrehajto == "kodolas" else "Poszt a radarról",
+                            "vegrehajto": vegrehajto, "tervezet": "Elindult a radar."}]
+    h.vegrehajt_valasz = lambda f: valasz(vid, f)
+
+    async def _p():
+        pv.parancs(vid, szoveg)
+        await vegig()
+    run(_p())
+    return vid
+
+
+def test_a_faber_eredmenye_visszairodik_a_szalba(h):
+    """Eddig csak az került a szálba, hogy a kívánság továbbment. Most a kérelem sorsa is: a kérelem száma bekerül a
+    tételbe, a jóváhagyásra várás 🕓, az élesítés ✅ — és amíg a Faber dolgozik, a tétel „fut” (a parancs nem kész)."""
+    h.faber_sor = [{"allapot": "fut", "szoveg": "a Faber még nem vette fel"},
+                   {"allapot": "fut", "ref": {"kerelem": 12}, "szoveg": "Faber #12: dolgozik"},
+                   {"allapot": "fut", "ref": {"kerelem": 12}, "szoveg": "Faber #12: dolgozik"},
+                   {"allapot": "jovahagyasra_var", "ref": {"kerelem": 12},
+                    "szoveg": "Faber #12: kipróbálta, a tesztek zöldek — jóváhagyásra vár"},
+                   {"allapot": "jovahagyasra_var", "ref": {"kerelem": 12}, "szoveg": "Faber #12: jóváhagyásra vár"},
+                   {"allapot": "kesz", "ref": {"kerelem": 12}, "szoveg": "Faber #12: élesítve ✅ (Claus Bridge)"}]
+
+    def valasz(vid, f):
+        return {"allapot": "fut", "bejegyez": True, "szoveg": "kívánság a Fabernek (relay #55)",
+                "ref": {"faber": 55, "vita": vid, "parancs": 1, "tetel": 1}}
+    vid = _parancs_egy_tetellel(h, "kodolas", valasz)
+    st = allapot(vid)
+    f = st["parancsok"][0]["feladatok"][0]
+    assert f["allapot"] == "kesz" and f["ref"] == {"faber": 55, "vita": vid, "parancs": 1, "tetel": 1, "kerelem": 12}
+    assert h.faber_kerdesek[0] == {"faber": 55, "vita": vid, "parancs": 1, "tetel": 1}
+    assert h.faber_kerdesek[-1]["kerelem"] == 12                    # a megtalált kérelemszámmal kérdez tovább
+    tartalmak = [e["content"] for e in szal(vid)]
+    sorok = [c for c in tartalmak if c.startswith(("⏳", "🕓", "✅", "❌", "✖")) and "PARANCS #1 · 1." in c]
+    assert [c[0] for c in sorok] == ["⏳", "🕓", "✅"], sorok        # továbbment → jóváhagyásra vár → élesítve
+    assert "Faber #12: kipróbálta" in sorok[1] and "Faber #12: élesítve" in sorok[2]
+    assert st["allapot"] == "kesz"
+
+
+def test_a_faber_elutasitas_es_bukas_is_visszairodik(h):
+    h.faber_sor = [{"allapot": "elutasitva", "ref": {"kerelem": 3}, "szoveg": "Faber #3: elvetetted"}]
+
+    def valasz(vid, f):
+        return {"allapot": "fut", "bejegyez": True, "szoveg": "relay #9", "ref": {"faber": 9, "vita": vid,
+                                                                                  "parancs": 1, "tetel": 1}}
+    vid = _parancs_egy_tetellel(h, "kodolas", valasz)
+    f = allapot(vid)["parancsok"][0]["feladatok"][0]
+    assert f["allapot"] == "elutasitva"
+    assert any(c.startswith("✖ PARANCS #1 · 1. feladat elutasítva") and "Faber #3: elvetetted" in c
+               for c in (e["content"] for e in szal(vid)))
+    assert any("1 elutasítva" in m for m in h.ertesitesek)
+    h.faber_sor = [{"allapot": "hibas", "ref": {"kerelem": 4}, "szoveg": "Faber #4: nem sikerült — a tesztek pirosak"}]
+    vid = _parancs_egy_tetellel(h, "kodolas", valasz)
+    assert any(c.startswith("❌ PARANCS #1 · 1. feladat hibás") and "tesztek pirosak" in c
+               for c in (e["content"] for e in szal(vid)))
+
+
+def test_a_tweet_tervezet_utolagos_jovahagyasa_visszairodik(h):
+    h.draft_sor = [{"allapot": "jovahagyasra_var", "szoveg": "tweet-tervezet #3 — jóváhagyásra vár"},
+                   {"allapot": "jovahagyasra_var", "szoveg": "tweet-tervezet #3 — jóváhagyásra vár"},
+                   {"allapot": "kesz", "szoveg": "tweet-tervezet #3 kiposztolva: https://x.com/i/status/1",
+                    "link": "https://x.com/i/status/1", "link_szoveg": "a poszt"}]
+
+    def valasz(vid, f):
+        return {"allapot": "jovahagyasra_var", "ref": {"draft": 3}, "szoveg": "tweet-tervezet #3 (17 karakter)"}
+    vid = _parancs_egy_tetellel(h, "kifele", valasz)
+    st = allapot(vid)
+    f = st["parancsok"][0]["feladatok"][0]
+    assert f["allapot"] == "kesz" and f["link"] == "https://x.com/i/status/1"
+    sorok = [e["content"] for e in szal(vid) if "PARANCS #1 · 1. feladat" in e["content"]]
+    assert [c[0] for c in sorok] == ["🕓", "✅"]                      # a 🕓 egyszer, aztán a döntés
+    assert "kiposztolva" in sorok[1] and "[a poszt](https://x.com/i/status/1)" in sorok[1]
+    # elvetés
+    h.draft_sor = [{"allapot": "elutasitva", "szoveg": "tweet-tervezet #3: elvetetted, nem ment ki"}]
+    vid = _parancs_egy_tetellel(h, "kifele", valasz)
+    assert allapot(vid)["parancsok"][0]["feladatok"][0]["allapot"] == "elutasitva"
+
+
+def test_induleskor_a_futo_vita_es_a_figyelok_maguktol_folytatodnak(h, monkeypatch):
+    """Újraindulás után eddig csak a vita kabinbeli megnyitása folytatta. Most induláskor (`ujraeleszt_mind`): a
+    „fut” vita motorja, a futó / jóváhagyásra váró tételek figyelői — a kapcsoló és a plafonok szerint."""
+    # három „fut” vita (mintha a Bridge a futásuk közben állt volna le) + egy leállított + egy végrehajtás alatti
+    async def _letrehoz():
+        ids = [pv.letrehoz(f"Téma {k}", "", "", "kommandant", varj_ram=False, indit=False)["vita_id"] for k in range(4)]
+        return ids
+    ids = run(_letrehoz())
+    pv.leallit(ids[0])
+    regi = ids[1]                    # régóta nem frissült (a `modosit` a frissítés idejét átírná — közvetlenül állítjuk)
+    conn = h.get_db()
+    try:
+        r = conn.execute("SELECT resolution FROM discussions WHERE id = ?", (regi,)).fetchone()["resolution"]
+        st = json.loads(r)
+        st["frissitve"] = "2026-11-19T00:00:00+00:00"
+        conn.execute("UPDATE discussions SET resolution = ? WHERE id = ?", (json.dumps(st), regi))
+        conn.commit()
+    finally:
+        conn.close()
+    # egy végrehajtás alatti vita: Faber-tétel „fut”, tweet-tétel jóváhagyásra vár (régi, ref nélküli alak is)
+    vh = pv.letrehoz("Végrehajtás", "", "", "kommandant", varj_ram=False, indit=False)["vita_id"]
+
+    def _vegrehajtas(st, conn):
+        st["allapot"] = "vegrehajtas"
+        st["parancsok"] = [{"n": 1, "szoveg": "x", "allapot": "fut", "feladatok": [
+            {"mit": "eszköz", "vegrehajto": "kodolas", "allapot": "fut", "eredmeny": "relay #55",
+             "ref": {"faber": 55, "vita": vh, "parancs": 1, "tetel": 1}},
+            {"mit": "poszt", "vegrehajto": "kifele", "allapot": "jovahagyasra_var",
+             "eredmeny": "tweet-tervezet #7 (40 karakter) — a munkapadon hagyod jóvá", "ref": None},
+            {"mit": "elemzés", "vegrehajto": "kutatas", "allapot": "kesz", "ref": {"ai_task": 3}}]}]
+    pv.modosit(vh, _vegrehajtas)
+    h.faber_sor = [{"allapot": "kesz", "ref": {"kerelem": 8}, "szoveg": "Faber #8: élesítve"}]
+    h.draft_sor = [{"allapot": "elutasitva", "szoveg": "tweet-tervezet #7: elvetetted"}]
+    indult = []
+    eredeti = pv.inditas
+    monkeypatch.setattr(pv, "inditas", lambda vid: indult.append(vid) or eredeti(vid))
+
+    async def _indul():
+        ki = pv.ujraeleszt_mind()
+        await vegig()
+        return ki
+    monkeypatch.setenv("PYRAMID_VITA_INDULASKOR_MAX", "1")
+    ki = run(_indul())
+    assert ki["motor"] == [ids[3]], ki                               # a legfrissebb, egy (plafon)
+    assert indult == [ids[3]]
+    okok = {k["vita"]: k["ok"] for k in ki["kihagyva"]}
+    assert "legfeljebb 1" in okok[ids[2]] and "órája nem frissült" in okok[regi] and ids[0] not in okok
+    assert ki["figyelo"] == 2                                        # a Faber-tétel és a (régi alakú) tweet-tétel
+    st = allapot(vh)
+    assert [f["allapot"] for f in st["parancsok"][0]["feladatok"]] == ["kesz", "elutasitva", "kesz"]
+    assert st["parancsok"][0]["feladatok"][1]["ref"] == {"draft": 7}
+    assert len(h.szolok) == 9 and allapot(ids[3])["allapot"] == "parancsra_var"   # a folytatott vita végigment
+    # KI állásban semmi
+    monkeypatch.setenv("PYRAMID_VITA", "0")
+    assert pv.ujraeleszt_mind() == {"motor": [], "figyelo": 0, "parancs": 0, "kihagyva": []}
+
+
+def test_megallit_mas_szal_hurkan_futo_motort_szalbiztosan(h):
+    """Az induláskor folytatott vita a cron-szál hurkán fut, a „Leállítom” a webes hurokból jön."""
+    import threading
+    kesz = threading.Event()
+    allj = {}
+
+    def masik():
+        loop = asyncio.new_event_loop()
+
+        async def orok():
+            await asyncio.sleep(3600)
+        t = loop.create_task(orok())
+        pv._MOTOR[999] = t
+        allj["t"] = t
+        kesz.set()
+        try:
+            loop.run_until_complete(t)
+        except asyncio.CancelledError:
+            allj["megszakadt"] = True
+        finally:
+            loop.close()
+    th = threading.Thread(target=masik)
+    th.start()
+    kesz.wait(5)
+
+    async def _fo():
+        return pv.megallit(999)
+    assert run(_fo()) is True
+    th.join(5)
+    assert allj.get("megszakadt") is True and not th.is_alive()
+    pv._MOTOR.pop(999, None)
+
+
 def test_ertelmezhetetlen_parancs_kimondva_es_visszaall(h):
     vid = run(_uj(h, varj=False)())
     h.parancs_feladatok = []
@@ -644,8 +828,11 @@ def test_vegrehajtok_utvonala(srv, monkeypatch):
 
     monkeypatch.setattr(srv, "TELEGRAM_BOT_TOKEN", "1:x")
     r = run(srv._pyramid_vegrehajt({**alap, "tetel": 3, "mit": "Radar-eszköz", "vegrehajto": "kodolas", "ki": ""}, "K"))
-    assert r["allapot"] == "kesz" and hivas["faber"][0] == "szandek"
+    # a tétel „fut”, amíg a Faber dolgozik: a figyelő a kérelem sorsát visszaírja (a ref köti a tételhez)
+    assert r["allapot"] == "fut" and hivas["faber"][0] == "szandek"
+    assert r["ref"] == {"faber": 55, "vita": 5, "parancs": 1, "tetel": 3} and pv.figyelt_fajta(r["ref"]) == "faber"
     assert hivas["faber"][1]["szandek"] == "kivansag" and "PYRAMID-VITA" in hivas["faber"][1]["szoveg"]
+    assert hivas["faber"][1]["szoveg"].startswith("KÍVÁNSÁG A " + pv.faber_jel(5, 1, 3))
 
     r = run(srv._pyramid_vegrehajt({**alap, "tetel": 4, "mit": "Levél a partnernek", "vegrehajto": "kifele", "ki": "",
                                     "tervezet": "Kedves…"}, "K"))
@@ -656,14 +843,87 @@ def test_kifele_tetel_az_action_drafts_ba_kerul_es_nem_posztol(srv):
     r = run(srv._pyramid_vegrehajt({"vita_id": 5, "parancs": 1, "tetel": 1, "mit": "Poszt az X-re",
                                     "vegrehajto": "kifele", "ki": "", "hatarido": "", "merce": "", "nev": "",
                                     "utemezes": "", "tervezet": "Elindult a gondolatmag-radar."}, ""))
-    assert r["allapot"] == "jovahagyasra_var"
+    assert r["allapot"] == "jovahagyasra_var" and pv.figyelt_fajta(r["ref"]) == "draft"
     conn = srv.get_db()
     try:
-        sor = conn.execute("SELECT kind, status, source_message_id FROM action_drafts WHERE source_message_id = "
+        sor = conn.execute("SELECT id, kind, status, source_message_id FROM action_drafts WHERE source_message_id = "
                            "'vita:5' ORDER BY id DESC").fetchone()
     finally:
         conn.close()
-    assert (sor["kind"], sor["status"]) == ("tweet", "pending")
+    assert (sor["kind"], sor["status"]) == ("tweet", "pending") and r["ref"] == {"draft": sor["id"]}
+    # a figyelő ebből olvassa az utólagos döntést
+    did = sor["id"]
+    assert run(srv._pyramid_draft_allapot(did))["allapot"] == "jovahagyasra_var"
+    conn = srv.get_db()
+    try:
+        conn.execute("UPDATE action_drafts SET status = 'created', payload_json = ? WHERE id = ?",
+                     (json.dumps({"url": "https://x.com/i/status/9"}), did))
+        conn.commit()
+    finally:
+        conn.close()
+    a = run(srv._pyramid_draft_allapot(did))
+    assert a["allapot"] == "kesz" and a["link"] == "https://x.com/i/status/9" and "kiposztolva" in a["szoveg"]
+    conn = srv.get_db()
+    try:
+        conn.execute("UPDATE action_drafts SET status = 'rejected' WHERE id = ?", (did,))
+        conn.commit()
+    finally:
+        conn.close()
+    assert run(srv._pyramid_draft_allapot(did))["allapot"] == "elutasitva"
+
+
+def test_faber_allapot_a_bridge_uzeneteibol(srv):
+    """A Faber a messages táblába ír (sender='faber'): „megkaptam” (a kívánság első 300 jelével), faber:esemeny
+    minden állapotváltáskor, faber:kapu jóváhagyásnál. A kérelem számát a kívánság elején álló jel köti a tételhez."""
+    from datetime import datetime, timedelta, timezone
+
+    def ir(subject, message, mikor=None):
+        conn = srv.get_db()
+        try:
+            cur = conn.execute("INSERT INTO messages (timestamp, sender, recipient, subject, message) VALUES (?, ?, ?, ?, ?)",
+                               ((mikor or datetime.now(timezone.utc)).isoformat(), "faber", "kommandant", subject,
+                                message if isinstance(message, str) else json.dumps(message, ensure_ascii=False)))
+            conn.commit()
+            return cur.lastrowid
+        finally:
+            conn.close()
+    conn = srv.get_db()
+    try:
+        mid = conn.execute("INSERT INTO messages (timestamp, sender, recipient, subject, message) VALUES "
+                           "('x', 'kommandant-telegram', 'faber', 'faber:szandek', '{}')").lastrowid
+        conn.commit()
+    finally:
+        conn.close()
+    ref = {"faber": mid, "vita": 41, "parancs": 2, "tetel": 3}
+    assert run(srv._pyramid_faber_allapot(ref))["allapot"] == "fut"              # még nem vette fel
+    ir("faber:uzenet", "🔧 Faber #77: megkaptam. Tanulom (bridge).\n„KÍVÁNSÁG A #41 PYRAMID-VITA PARANCS #2-ÁBÓL "
+                       "(1. tétel; a Kommandant parancsa): más tétel”")
+    ir("faber:uzenet", "🔧 Faber #78: megkaptam. Tanulom (bridge).\n„KÍVÁNSÁG A " + srv.pyramid_vita.faber_jel(41, 2, 3)
+       + "; a Kommandant parancsa): radar-eszköz”")
+    ir("faber:esemeny", {"id": 78, "allapot": "dolgozik", "szoveg": ""})
+    r = run(srv._pyramid_faber_allapot(ref))
+    assert r["allapot"] == "fut" and r["ref"] == {"kerelem": 78}
+    ir("faber:esemeny", {"id": 77, "allapot": "elesitve", "szoveg": ""})          # a másik tétel kérelme: nem ez
+    ir("faber:esemeny", {"id": 78, "allapot": "jovahagyasra_var", "szoveg": ""})
+    ir("faber:kapu", {"id": 78, "repo": "bridge", "kivansag": "…", "jelentes": "Megírtam a radart, 3 teszt.", "kod": "k"})
+    r = run(srv._pyramid_faber_allapot({**ref, "kerelem": 78}))
+    assert r["allapot"] == "jovahagyasra_var" and "Megírtam a radart" in r["szoveg"] and r["szoveg"].startswith("Faber #78")
+    # élesítve: az esemény után a Faber saját szava
+    ir("faber:esemeny", {"id": 78, "allapot": "elesitve", "szoveg": ""})
+    r = run(srv._pyramid_faber_allapot({**ref, "kerelem": 78}))
+    assert r["allapot"] == "fut"                                   # a Faber üzenete még úton (friss esemény)
+    ir("faber:uzenet", "🔧 Faber #78: élesítve ✅ (Claus Bridge, feltöltve, a deploy indul).")
+    r = run(srv._pyramid_faber_allapot({**ref, "kerelem": 78}))
+    assert r["allapot"] == "kesz" and r["szoveg"].startswith("Faber #78: élesítve ✅ (Claus Bridge")
+    # elvetés, üzenet nélkül, régi eseménnyel: a sablonszöveg
+    regen = datetime.now(timezone.utc) - timedelta(minutes=10)
+    ir("faber:esemeny", {"id": 78, "allapot": "elvetve", "szoveg": ""}, regen)
+    r = run(srv._pyramid_faber_allapot({**ref, "kerelem": 78}))
+    assert (r["allapot"], r["szoveg"]) == ("elutasitva", "Faber #78: elvetetted")
+    # a kapu-kártyából is megtalálja (ha a „megkaptam” elmaradt)
+    ref2 = {"faber": mid, "vita": 41, "parancs": 2, "tetel": 4}
+    ir("faber:kapu", {"id": 90, "kivansag": "KÍVÁNSÁG A " + srv.pyramid_vita.faber_jel(41, 2, 4) + "; …", "jelentes": "j"})
+    assert run(srv._pyramid_faber_allapot(ref2))["ref"] == {"kerelem": 90}
 
 
 def test_ai_task_allapot_figyelonek(srv):
