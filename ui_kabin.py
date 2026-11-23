@@ -912,6 +912,7 @@ async def api_allapot(request: Request):
         "esemenyek": esemenyek,
         "llm_kapu": _DEPS["llm_allapot"]() if _DEPS.get("llm_allapot") else None,
         "feladat_ugynok_modellek": feladat_ugynok.MODELL_VALASZTEK,
+        "feladat_ugynok_alap": {"modell": feladat_ugynok.MODELL_ALAP, "keret_usd": feladat_ugynok.KERET_FUTAS_ALAP},
         "utolso_id": utolso_id,
     })
 

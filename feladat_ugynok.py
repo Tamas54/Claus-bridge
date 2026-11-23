@@ -19,7 +19,7 @@ AMIRE ÉPÜL (új ütemező, új tábla, új oszlop NINCS)
 * A FUTÁSOK NAPLÓJA a meglévő `messages` táblában: sender = recipient = `ugynok:<id>`, olvasottként (a Nachtschicht
   mintája). `ugynok:futas` = egy futás (eredmény, a TÉNYLEGESEN futott modell, költés, eszközök, viták, utasítások),
   `ugynok:esemeny` = indítás, módosítás, leállítás, keret.
-* A MODELL ügynökönként (`MODELLEK`, alap: Sonnet): Claude Haiku / Sonnet / Opus 5.5 kötött modellként a közvetlen
+* A MODELL ügynökönként (`MODELLEK`, alap: Haiku — 11-23, a költség miatt): Claude Haiku / Sonnet / Opus 5.5 kötött modellként a közvetlen
   Anthropic-kapun (`llm_kapu.chat(modell=…)`, SiliconFlow-tartalék NINCS); vagy Kimi, DeepSeek V4-Pro, DeepSeek
   V4.1-Flash, GLM-5.3 a közös kapun (`llm_kapu.kapun(..., sf_elso=True)` → `server.sf_chat`): SF-kiesésnél a kapu
   Anthropicra vált, KIMONDVA (a megszakító is ott van). Fej nélküli Claude Code nincs (a Kommandant, 11-22: „az apit
@@ -41,7 +41,7 @@ AMIRE ÉPÜL (új ütemező, új tábla, új oszlop NINCS)
 
 KERET (ügynökönként, alapértékkel; minden futás kimondja a költését)
 -------------------------------------------------------------------
-  futásonként  `keret_usd`       alap 0.50, legfeljebb 5 — a valós költségből (Anthropic: a kapu `koltes_usd`-je;
+  futásonként  `keret_usd`       alap 0.10, legfeljebb 5 — a valós költségből (Anthropic: a kapu `koltes_usd`-je;
                                  SiliconFlow: `llm_kapu.SF_ARAK` szerint, becslés — jelölve)
   havonta      `havi_keret_usd`  alap 10, legfeljebb 50 — ha elfogy, az ügynök LEÁLL, és a Telegramon szól
   és a Bridge közös havi Anthropic-kerete (`llm_kapu.keret_kimerult`). Az ütemezés legsűrűbb 15 perc.
@@ -85,7 +85,7 @@ TIPUS = "feladat_ugynok"
 TARGY_FUTAS, TARGY_ESEMENY = "ugynok:futas", "ugynok:esemeny"
 FEJLEC = "🤖 <b>ÜGYNÖK · {nev}</b>"
 
-KERET_FUTAS_ALAP, KERET_FUTAS_PLAFON = 0.50, 5.0
+KERET_FUTAS_ALAP, KERET_FUTAS_PLAFON = 0.10, 5.0
 KERET_HAVI_ALAP, KERET_HAVI_PLAFON = 10.0, 50.0
 MAX_KOR = 10
 IDOKERET_S = 10 * 60
@@ -117,7 +117,10 @@ MODELLEK = {
     "dsflash": ("DeepSeek V4.1-Flash", "siliconflow", "dsflash"),
     "glm5": ("GLM-5.3", "siliconflow", "glm5"),
 }
-MODELL_ALAP = "sonnet"
+# 11-23, a Kommandant: „Túl sokba kerül a futás — ha ennyibe kerülne egy chatgpt vagy akár egy claude, akkor mindenki
+# perceken belül csődbe menne.” A Bankváltás-kutató Sonnettel 0,13 $ volt (5 hívás). A Haiku 5.5 hússzor olcsóbb
+# (0,10 / 0,50 $/M) — alapból az fut; a Sonnet/Opus ügynökönként választható, ha a feladat megkívánja.
+MODELL_ALAP = "haiku"
 #: A SiliconFlow-azonosítók, ha a Bridge nem adta át a sajátját (`beallit(sf_modellek=server.SILICONFLOW_MODELS)`).
 SF_MODELL_ALAP = {"kimi": "moonshotai/Kimi-K3.1-Pro", "deepseek": "deepseek-ai/DeepSeek-V4-Pro-0813",
                   "dsflash": "deepseek-ai/DeepSeek-V4.1-Flash", "glm5": "zai-org/GLM-5.3"}

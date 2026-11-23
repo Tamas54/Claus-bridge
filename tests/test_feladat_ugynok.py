@@ -106,8 +106,9 @@ def _naplo(get_db, rid, targy=None):
 
 
 def _letrehoz(get_db, **kw):
+    # a mechanikát mérő tesztek a régi, kimondott beállítással futnak (Sonnet, $0.50) — az alapértéket külön teszt őrzi
     alap = {"nev": "Kamatfigyelő", "feladat": "Nézd meg az MNB-közleményeket, és szólj, ha kamatdöntés van.",
-            "utemezes": "0 7 * * *"}
+            "utemezes": "0 7 * * *", "modell": "sonnet", "keret_usd": 0.5}
     alap.update(kw)
     c = get_db()
     try:
@@ -244,10 +245,11 @@ def test_szobeli_inditas_lista_leallitas_megszuntetes(feldwebel, db):
     assert "ugynok" in {t["function"]["name"] for t in hivasok[0]["tools"]}
     v = _eszkoz_eredmeny(hivasok[1])
     assert v["ok"] and "Elindítottam: „Kamatfigyelő”" in v["uzenet"] and "minden nap 7:00" in v["uzenet"]
-    assert "$0.50/futás" in v["uzenet"] and "$10/hó" in v["uzenet"]
+    # 11-23 óta az alap: Haiku 5.5, $0.10/futás (a Kommandant: „Túl sokba kerül a futás”)
+    assert "$0.10/futás" in v["uzenet"] and "$10/hó" in v["uzenet"] and "Haiku 5.5" in v["uzenet"]
     rid = v["ugynok"]["rid"]
     assert v["ugynok"]["feladat"] == feladat            # nem érintett ügynöknél a Feldwebel látja (lásd 5.)
-    assert v["ugynok"]["modell"] == "sonnet"            # az alap
+    assert v["ugynok"]["modell"] == "haiku"             # az alap (11-23 óta)
     r = _sor(db, rid)
     assert r["name"] == "ugynok_kamatfigyelo" and r["cron_schedule"] == "0 7 * * *" and r["cron_enabled"] == 1
     assert F._feladat_resz(r) == (feladat, "") and r["created_by"] == "feldwebel"
@@ -1093,3 +1095,11 @@ def test_hiany_or_nem_lepi_tul_a_keretet(db, kulcs):
     kapu = Kapu([_zaro(eredmeny="A díjat nem találtam.") | {"koltes_usd": 0.40}])
     e, _, _ = _futtat(db, rid, kapu)
     assert len(kapu.hivasok) == 1 and e["allapot"] == "kesz"
+
+
+
+def test_alap_modell_haiku_es_olcso_keret():
+    """11-23, a Kommandant: „Túl sokba kerül a futás”. A Sonnet-futás 0,13 $ volt; alapból a hússzor olcsóbb Haiku."""
+    assert F.MODELL_ALAP == "haiku" and F.KERET_FUTAS_ALAP == 0.10
+    import llm_kapu
+    assert llm_kapu.ARAK["claude-haiku-5-5"][0] * 20 == llm_kapu.ARAK["claude-sonnet-5-5"][0]
