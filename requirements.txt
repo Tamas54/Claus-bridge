@@ -63,3 +63,9 @@ anthropic==2.12.0
 # (output_buffer_limit), amiből APIConnectionError lesz — MÉRVE helyben
 # 2026-11-22-én; Brotli 1.2.1-gyel az élő hívás sikeres.
 Brotli>=1.2.0
+
+# ── X/Twitter-poszt (2026-11-23, twitter_poszt.py) ────────────────────────
+# OAuth 1.0a (HMAC-SHA1) aláírás. Eddig is itt volt TRANZITÍVAN (google-auth-oauthlib → requests-oauthlib →
+# oauthlib), de a hiánya NÉMA bukás lenne (lásd a trafilatura-esetet fent) — ezért kifejezetten is. Az aláíró az X
+# dokumentációjának mintáján ellenőrizve (tests/test_twitter_poszt.py).
+oauthlib>=3.2,<4

@@ -945,7 +945,36 @@ function munkapadRajzol() {
         el('span', { title: p.last_activity_source || '' }, relativ(p.last_seen))))) : null].filter(Boolean));
 }
 
+// TWEET-TERVEZET (2026-11-23): a teljes szöveg és az X szerinti karakterszám — a Jóváhagyom KIPOSZTOLJA (nyilvános,
+// visszavonhatatlan), ezért még egy megerősítést kér; az Elvetem nem posztol.
+function tweetKartya(d) {
+  const sor = el('div', { class: 'kartya-gombok' });
+  const hiba = el('div', { class: 'kartya-hiba', hidden: !d.hiba }, d.hiba ? `Előző próba: ${d.hiba}` : '');
+  const dont = async (dontes) => {
+    if (dontes === 'approve' && !window.confirm(`Kiposztoljam az X-re?\n\n${d.szoveg}`)) return;
+    sor.querySelectorAll('button').forEach((b) => { b.disabled = true; });
+    try {
+      const j = await api('/api/ui/draft/dont', { method: 'POST', body: { id: d.id, dontes } });
+      const r = j.eredmeny || {};
+      ertesit(dontes === 'reject' ? 'Elvetve — nem ment ki.' : r.url ? `Kiment: ${r.url}` : 'Kész.');
+      await frissit({});
+    } catch (e) {
+      if (e instanceof Hiba401) return;
+      hiba.hidden = false; hiba.textContent = e.message;
+      sor.querySelectorAll('button').forEach((b) => { b.disabled = false; });
+    }
+  };
+  sor.append(el('button', { class: 'gomb gomb-fo gomb-kicsi', onclick: () => dont('approve') }, 'Jóváhagyom — kiposztolom'),
+    el('button', { class: 'gomb gomb-kicsi', onclick: () => dont('reject') }, 'Elvetem'));
+  const forras = d.forras?.startsWith('ügynök') ? `${d.forras.slice(8)} ügynök tervezete` : 'a Feldwebel tervezete';
+  const tul = d.karakter > d.max;
+  return el('div', { class: 'draft' }, el('b', {}, '🐦 X/Twitter-poszt'),
+    el('small', {}, `${forras} · ${d.karakter}/${d.max} karakter${tul ? ' — TÚL HOSSZÚ' : ''}`),
+    el('div', { class: 'tweet-szoveg' }, d.szoveg), sor, hiba);
+}
+
 function draftKartya(d) {
+  if (d.fajta === 'tweet') return tweetKartya(d);
   const sor = el('div', { class: 'kartya-gombok' });
   const hiba = el('div', { class: 'kartya-hiba', hidden: true });
   const dont = async (dontes) => {

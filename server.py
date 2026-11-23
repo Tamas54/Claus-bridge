@@ -77,6 +77,7 @@ import nachtschicht
 # FELADAT-ÜGYNÖKÖK (2026-11-23): névvel ellátott, a Kommandant által indított munkások (receptként, Claude-on)
 import feladat_ugynok
 import cimzett
+import twitter_poszt
 
 # Echolot — multi-sphere news context (separate Railway instance, REST)
 try:
@@ -427,11 +428,13 @@ def init_db():
         );
 
         -- action_drafts: emailből kinyert naptár/teendő DRAFTOK (E agent —
-        -- jóváhagyásig status='pending', SOHA nem auto-create)
+        -- jóváhagyásig status='pending', SOHA nem auto-create); 2026-11-23 óta a
+        -- tweet-TERVEZET is (kind='tweet', twitter_poszt.py — a meglévő DB-n a
+        -- CHECK-et a `twitter_poszt.schema_biztosit` bővíti, lent)
         CREATE TABLE IF NOT EXISTS action_drafts (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             source_message_id TEXT DEFAULT '',
-            kind TEXT NOT NULL CHECK(kind IN ('calendar','reminder')),
+            kind TEXT NOT NULL CHECK(kind IN ('calendar','reminder','tweet')),
             title TEXT NOT NULL,
             due_at TEXT DEFAULT '',
             payload_json TEXT DEFAULT '{}',
@@ -441,6 +444,14 @@ def init_db():
         );
     """)
     conn.commit()
+
+    # ── X/TWITTER (2026-11-23): az action_drafts kind-CHECK-je engedje a 'tweet'-et ──
+    # SQLite-ban CHECK nem módosítható: a meglévő (production) tábla EGYSZER átépül, a sorok azonos id-vel
+    # megmaradnak (twitter_poszt.schema_biztosit; ha már engedi, semmi nem történik). Új tábla nincs.
+    try:
+        twitter_poszt.schema_biztosit(conn)
+    except Exception as e:  # noqa: BLE001 — a Bridge megy tovább; a tweet-tervezet maga is megpróbálja
+        logger.error("action_drafts tweet-séma bővítése bukott: %s", e)
 
     # ── S-002 (2. fél): tipizált hibakód az AI-futásokon ────────────────
     # A `CREATE TABLE IF NOT EXISTS` a MEGLÉVŐ (production) táblákat nem
@@ -4979,6 +4990,8 @@ SUBAGENT_TILTOTT = frozenset({
     "send_email", "send_message", "send_file_email", "capture_send_email", "export_task", "upload_file",
     "agora", "story_comments", "post_comment", "create_task", "create_recipe", "execute_recipe", "schedule_recipe",
     "ai_query", "ai_task", "faber", "ugynok", "dontes_szimulator",
+    # X/Twitter (2026-11-23): se tervezet, se poszt — a tervezet a Feldwebelé és a feladat-ügynöké, posztoló eszköz nincs
+    "tweet_tervezet", "post_tweet", "tweet_posztol",
 })
 #: Gmail / naptár a böngészőn át: ezekre a címekre és a `gmail` munkamenetre a böngésző-eszköz sem megy.
 _SF_TILTOTT_CIM = _re_module.compile(
@@ -11508,7 +11521,9 @@ async def _handle_telegram_message(text: str, chat_id: str, csatorna: str = "tel
     try:
         # Melléklettel küldött kérés (irat, tanulmány, fotó) és a név szerint megszólított ügynöknek szóló üzenet a
         # címzetté, nem a Faber kívánsága.
-        _sz = None if (melleklet.van_melleklet(text) or _cim in cimzett.LLM_UGYNOKOK or _cim == "feldwebel") \
+        # A kifejezett tweet-jóváhagyás („posztold ki a tervezetet: …”) a Feldwebelé (twitter_poszt.kezel), LLM nélkül.
+        _sz = None if (melleklet.van_melleklet(text) or _cim in cimzett.LLM_UGYNOKOK or _cim == "feldwebel"
+                       or twitter_poszt.kifejezett(text) is not None) \
             else await faber_relay.szandek(text, feldwebel_kerdezett=_feldwebel_kerdezett(chat_id)
                                            or _feldwebel_naptarra_var(chat_id))
     except Exception as e:  # noqa: BLE001
@@ -12370,8 +12385,30 @@ def _ui_ugynokok() -> dict:
     return out
 
 
+async def _tweet_ertesit(chat_id: str, szoveg: str) -> None:
+    """A tweet eredménye (URL vagy hiba) a Feldwebel-szálba (előzmény + kabin-ablak) és a Telegramra."""
+    import html as _html
+    twitter_poszt.szalba(get_db, chat_id or TELEGRAM_CHAT_ID, szoveg)
+    await _telegram_push(f"{cimzett.fejlec('feldwebel')}\n\n{_html.escape(szoveg)}")
+
+
+def _draft_fajta(draft_id: int) -> str | None:
+    conn = get_db()
+    try:
+        sor = conn.execute("SELECT kind FROM action_drafts WHERE id = ?", (int(draft_id),)).fetchone()
+        return sor["kind"] if sor else None
+    except Exception:  # noqa: BLE001
+        return None
+    finally:
+        conn.close()
+
+
 async def _ui_draft_dont(draft_id: int, dontes: str) -> dict:
-    """Az `action_draft_decide` eszköz hívása (az hozza létre jóváhagyáskor a naptáreseményt)."""
+    """Az `action_draft_decide` eszköz hívása (az hozza létre jóváhagyáskor a naptáreseményt). A TWEET-tervezet
+    (2026-11-23) a kabin gombjáról közvetlenül a `twitter_poszt.dont`-hoz megy: az MCP-eszköz tweetet nem hagy jóvá —
+    a kabin gombja (és a kifejezett mondat) az egyetlen út."""
+    if _draft_fajta(draft_id) == twitter_poszt.KIND:
+        return await twitter_poszt.dont(get_db, int(draft_id), dontes, ertesit=_tweet_ertesit, ki="kabin")
     res = await mcp.call_tool("action_draft_decide", {"draft_id": int(draft_id), "decision": dontes,
                                                       "caller": "kommandant"})
     szoveg = "".join(getattr(c, "text", "") or "" for c in (getattr(res, "content", None) or []))

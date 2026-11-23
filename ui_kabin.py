@@ -18,7 +18,9 @@ Mi van itt (a statikus kliens a `static/app/` alatt, build-lépés nélkül):
      háttérfeladatként fut, a kliens a kör állapotát kérdezi (gépelésjelző, élő eszközhívás-kártyák). Közös előzmény
      a Telegrammal: ugyanaz a `telegram_history` (chat_id) és ugyanaz a `messages` tábla.
   4. JÓVÁHAGYÁS: a Faber kérelmei (`faber:kapu` / `faber:esemeny`, lásd `faber_kartyak`) és a Bridge
-     `action_drafts`-ai; a döntés hitelesített POST, a Faber felé `faber_relay.tovabbit(..., "gomb", ...)`.
+     `action_drafts`-ai; a döntés hitelesített POST, a Faber felé `faber_relay.tovabbit(..., "gomb", ...)`. A
+     tweet-tervezet (2026-11-23) a teljes szövegével és az X szerinti karakterszámával jön; a Jóváhagyom ott posztol
+     (`draft_dont` → `twitter_poszt.dont`), az Elvetem nem.
   5. MUNKAPAD: friss események (feladatok, viták, briefek) és az LLM-költés (`llm_kapu.allapot()`).
   6. FELADAT-ÜGYNÖKÖK (2026-11-23, feladat_ugynok.py): a bal sávban a fix ügynökök alatt, dinamikusan; mindegyiknek
      saját ablaka (`ugynok:<id>`: a futások naplója a messages táblából — a ténylegesen futott modell, költés, viták,
@@ -57,6 +59,7 @@ from starlette.responses import FileResponse, HTMLResponse, JSONResponse, Redire
 import faber_relay
 import feladat_ugynok
 import kimenet as kimenet_mod
+import twitter_poszt
 
 logger = logging.getLogger("ui_kabin")
 
@@ -790,9 +793,16 @@ def _draftok(conn) -> list[dict]:
     out = []
     for r in sorok:
         p = _json(r["payload_json"])
-        out.append({"id": r["id"], "fajta": r["kind"], "cim": r["title"], "mikor": r["due_at"],
-                    "reszlet": str(p.get("details") or "")[:400], "ido": r["created_at"],
-                    "forras": str(p.get("forras") or "") or None})
+        d = {"id": r["id"], "fajta": r["kind"], "cim": r["title"], "mikor": r["due_at"],
+             "reszlet": str(p.get("details") or "")[:400], "ido": r["created_at"],
+             "forras": str(p.get("forras") or "") or None}
+        if r["kind"] == twitter_poszt.KIND:
+            # TWEET (2026-11-23): a TELJES szöveg és az X szerinti karakterszám — erre mondja az igent; az előző
+            # próba hibája (ha volt) is látszik
+            szoveg = str(p.get("szoveg") or r["title"])
+            d.update(szoveg=szoveg, karakter=twitter_poszt.hossz(szoveg), max=twitter_poszt.MAX_HOSSZ,
+                     hiba=str(p.get("utolso_hiba") or "") or None, reszlet="")
+        out.append(d)
     return out
 
 

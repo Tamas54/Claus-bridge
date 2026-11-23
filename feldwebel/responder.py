@@ -72,6 +72,13 @@ TOOLS = [
             "description": {"type": "string", "description": "Részletek (opcionális)", "default": ""},
             "reminder_minutes": {"type": "array", "items": {"type": "integer"}, "description": "Emlékeztetők, perccel a kezdés előtt: [1440, 60] = 1 nappal és 1 órával előtte. Egész napos eseménynél a nap 0:00-jától számít: [3780, 900] = 3 nappal és 1 nappal előtte reggel 9-kor"},
         }, "required": ["summary", "start_time"]}}},
+    # ── Közzététel: X/Twitter (2026-11-23, twitter_poszt.py) ──
+    {"type": "function", "function": {
+        "name": "tweet_tervezet", "description": "X/Twitter-poszt TERVEZETE: a hívás NEM posztol — a tervezet a kabin munkapadjára kerül, és csak a Kommandant jóváhagyásával megy ki (a kabin Jóváhagyom gombja, vagy a kifejezett „posztold ki a tervezetet: <első szavak>”). Legfeljebb 280 karakter az X számítása szerint (a link 23-nak számít, az emoji 2-nek). A válaszodban mondd el a teljes szöveget és a karakterszámot.",
+        "parameters": {"type": "object", "properties": {
+            "szoveg": {"type": "string", "description": "A tweet szövege, ahogy kimenne (link nélkül, ha a `link` mezőt használod)"},
+            "link": {"type": "string", "description": "Opcionális link (http/https) — új sorban a szöveg után, 23 karakternek számít", "default": ""},
+        }, "required": ["szoveg"]}}},
     # ── Feladatok ──
     {"type": "function", "function": {
         "name": "create_task", "description": "Új Bridge feladat létrehozása.",
@@ -242,10 +249,12 @@ TOOLS = [
 #: Egy válaszban legfeljebb ennyi modellkör (az utolsó eszköz nélkül, a szintézisé). A kombinált feladat (hír + szám
 #: + jog + dokumentum) 4-6 kör; a régi 5-ös plafon (4 eszközkör) a kombinálást vágta el.
 MAX_KOR = 12
-CONFIRM_TOOLS = {"send_email", "calendar_create"}
+CONFIRM_TOOLS = {"send_email", "calendar_create", "tweet_tervezet"}
 #: A KÓD IS kapu (2026-11-22): ezeknél a modell hívása csak javaslat (action_drafts), a valódi írás a Kommandant
 #: kifejezett igenje után történik (feldwebel/jovahagyas.py). A `send_email` egyelőre a leírás szerinti kérdésen át.
-KODKAPU_TOOLS = {"calendar_create"}
+#: A tweet (2026-11-23, twitter_poszt.py) szigorúbb: egy szavas igen nem elég — a kabin gombja, vagy a kifejezett
+#: „posztold ki a tervezetet: <első szavak>” (`twitter_poszt.kezel`, a kör elején, LLM nélkül).
+KODKAPU_TOOLS = {"calendar_create", "tweet_tervezet"}
 
 
 # ── System prompt ──────────────────────────────────────────────────
@@ -451,6 +460,14 @@ async def respond(text: str, chat_id: str, agent_id: str = "deepseek") -> str:
     First round: tool_choice=required (forces tool use, no hallucination).
     """
     ctx = get_ctx()
+
+    # TWEET (2026-11-23): „posztold ki a tervezetet: <első szavak>” — a KÓD dönt, LLM nélkül (twitter_poszt.kezel):
+    # posztol, ha pontosan egy függő tervezet kezdődik így; különben kimondja, miért nem. Egy szavas igen erre nem jó.
+    import twitter_poszt as _twitter
+    _tw = await _twitter.kezel(ctx, text, chat_id)
+    if _tw is not None:
+        _store_bridge_reply(ctx, text, _tw, agent_id, eszkozok=["tweet"])
+        return _tw
 
     # MEGERŐSÍTÉS (2026-11-22): a legutóbbi naptárjavaslatra egy szó elég („igen”, „mehet” / „nem”) — LLM nélkül,
     # a kód dönt (feldwebel/jovahagyas.py). Ami nem ilyen, az a rendes kör.
@@ -1230,6 +1247,19 @@ async def _execute_tool(name: str, args: dict, ctx, kor: dict | None = None, *, 
             }, ensure_ascii=False)
         res = await _jovahagyas.beir(ctx.capture_state.get("_create_calendar_func"), adat)
         return json.dumps(res, ensure_ascii=False)
+
+    if name == "tweet_tervezet":
+        # KÓDKAPU (2026-11-23): csak TERVEZET az action_drafts-ban — posztolni a Feldwebel nem tud; a Kommandant a kabin
+        # gombjával vagy a kifejezett mondattal hagyja jóvá (twitter_poszt.py).
+        import twitter_poszt
+        chat_id = str((kor or {}).get("chat_id") or "")
+        try:
+            out = twitter_poszt.tervezet(ctx.get_db, str(args.get("szoveg") or args.get("text") or ""),
+                                         str(args.get("link") or ""), forras="feldwebel",
+                                         source_message_id=f"feldwebel:{chat_id}", chat_id=chat_id)
+        except Exception as e:  # noqa: BLE001
+            out = {"error": f"a tervezet nem menthető: {type(e).__name__}: {str(e)[:200]}"}
+        return json.dumps(out, ensure_ascii=False)
 
     if name == "web_fetch":
         url = args.get("url", "")

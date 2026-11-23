@@ -157,6 +157,15 @@ U_NAPTAR = """HATÁRIDŐ → NAPTÁR: ha mellékletben, levélben vagy üzenetbe
   nem biztos (pl. hiányzik a kézbesítés napja), ne találd ki: mondd ki, és kérdezd meg.
 - Új Bridge-feladat: create_task(title=…); a nyitott feladatok: list_tasks (mag)."""
 
+U_TWEET = """X / TWITTER (a Kommandant fiókja, nyilvános és visszavonhatatlan):
+- „Írj egy tweetet a mai MNB-döntésről” → előbb a tény az adateszközből, aztán `tweet_tervezet(szoveg=…, link=…)`. Ez
+  csak TERVEZET: a kabin munkapadjára kerül, ott a Kommandant hagyja jóvá (Jóváhagyom), vagy kimondja: „posztold ki a
+  tervezetet: <első szavak>”. Egy szavas igen („mehet”) a tweetre NEM elég — ezt mondd is meg neki.
+- Magyarul, tömören, kijelentő módban, a tényekhez forrás; legfeljebb 280 karakter (link = 23, emoji = 2). Ha a
+  szöveg túl hosszú, a válasz megmondja, mennyivel — rövidíts, és hívd újra.
+- A válaszodban a TELJES szöveg és a karakterszám, és hogy hol hagyja jóvá. Soha ne írd, hogy kiment: a kiposztolás
+  eredményét (link vagy hiba) a rendszer külön üzenetben jelzi."""
+
 U_MELLEKLET = """MELLÉKLET ÉS TANÁCSADÁS (irat, tanulmány, fotó, egészség):
 - A `[Melléklet #ID: név — … · Studio file_id=… · szerkesztő: …]` blokk egy fájl, amit a Kommandant küldött; alatta a
   szövege (fotónál szó szerinti átirat: [bélyegző: …], [kézírás: …], [?] = bizonytalan olvasat). A fájl a Kommandant
@@ -287,6 +296,12 @@ KATEGORIAK: dict[str, dict] = {
         "eszkozok": ("web_scrape", "engine"),
         "minta": r"https?://|www\.|weboldal|honlap|\boldal(on|at|rol)?\b|scrape|crawl|kinyer|figyeld\s+az\s+oldal",
         "utmutato": "",
+    },
+    "kozzetetel": {
+        "leiras": "X/Twitter-poszt TERVEZETE (a Kommandant a kabinban hagyja jóvá)",
+        "eszkozok": ("tweet_tervezet",),
+        "minta": r"twitter|tweet|\btwit|\bx-?(re|en)\b|x\.com|posztol|kiposzt",
+        "utmutato": U_TWEET,
     },
     "szimulator": {
         "leiras": "tervezett lépés kipróbálása („mi lenne, ha…”) — `dontes_szimulator` (sajtó, jog: `teljes`=true)",
