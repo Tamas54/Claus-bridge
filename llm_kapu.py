@@ -112,7 +112,13 @@ ISMERETLEN_AR = (5.00, 25.00, 0.50, 6.25)
 # csonkolás, amit a `_sf_is_truncated` már ismer). Streamelünk, így a nagy keret sem ütközik a 10 perces korlátba.
 KIMENET_ALSO = 8_000
 KIMENET_PLAFON = 128_000
-CSONKOLAS_DUPLAZAS = 2
+#: Csonkolásnál LEGFELJEBB EGY újrapróbálás (2026-11-23, task #594): vagy egy bővítés (2×, `BOVITES_PLAFON`-ig), vagy —
+#: ha a gondolkodás ette meg a keretet — ugyanaz a keret alacsony effort-tal. Ami utána is csonka, az KIMONDVA csonka.
+CSONKOLAS_DUPLAZAS = 1
+#: A csonkolás miatti bővítés teteje MINDEN úton (dispatch, broadcast, szintézis, vita, Anthropic-ág). A task #594-ben
+#: egy ügynökre 28k → 56k → 112k → 131k ment, és a megtanult keret 131k-n ragadt. A hívó kifejezett, nagyobb kérését
+#: (pl. a GLM-5.3-Flash 48k-ja) ez nem vágja — csak a bővítést és a megtanult keretet.
+BOVITES_PLAFON = 32_000
 
 #: A HÍVÓ kimeneti plafonja (2026-11-23, a Pyramid-vita): a csonkolás miatti duplázó létra eddig a modell saját
 #: plafonjáig ment (mérve: egy dispatch-válaszra 28k → 56k → 112k → 131k). Ahol a hívó ennél kisebb keretet szab
@@ -135,6 +141,69 @@ def plafon(alap: int) -> int:
     """A hívó plafonja (ha van) és a modell / út saját plafonja közül a kisebb."""
     p = KERET_PLAFON.get()
     return min(int(alap), p) if p else int(alap)
+
+
+def bovites_plafon(alap: int) -> int:
+    """A csonkolás miatti EGYETLEN bővítés teteje: a modell / út plafonja, a `BOVITES_PLAFON` és a hívó plafonja közül
+    a legkisebb."""
+    return plafon(min(int(alap), BOVITES_PLAFON))
+
+
+# ══ HÍVÁS-SZÁMLA (2026-11-23, task #594) ═════════════════════════════════
+# Egy feladat (és az ügynökei) modellhívásainak száma, tokenje és becsült ára — hogy a feladat eredménye kimondja,
+# mibe került. Ugyanaz a ContextVar-minta, mint a `keret_plafon`: a hívó nyit egy számlát, az `asyncio.gather`
+# gyerekei öröklik, és minden hívás (SiliconFlow: `sf_chat`, Anthropic: `chat`) ráír. Egymásba ágyazható: az ügynök
+# számlája a feladatéba is könyvel. Új tárolás nincs — memóriában él, a feladat végéig.
+HIVAS_SZAMLA: contextvars.ContextVar["Szamla | None"] = contextvars.ContextVar("hivas_szamla", default=None)
+_SZAMLA_ZAR = threading.Lock()
+
+
+class Szamla:
+    def __init__(self, szulo: "Szamla | None" = None):
+        self.szulo, self.hivas, self.hiba, self.be, self.ki, self.usd = szulo, 0, 0, 0, 0, 0.0
+
+    def ir(self, *, be: int = 0, ki: int = 0, usd: float = 0.0, hiba: bool = False) -> None:
+        with _SZAMLA_ZAR:
+            sz = self
+            while sz is not None:
+                if hiba:
+                    sz.hiba += 1
+                else:
+                    sz.hivas, sz.be, sz.ki, sz.usd = sz.hivas + 1, sz.be + int(be), sz.ki + int(ki), sz.usd + usd
+                sz = sz.szulo
+
+    def sor(self, cim: str = "KÖLTSÉG") -> str:
+        def e(n: int) -> str:
+            return f"{n:,}".replace(",", " ")
+        hiba = f" (+{self.hiba} sikertelen próbálkozás)" if self.hiba else ""
+        return (f"{cim}: {self.hivas} modellhívás{hiba}, {e(self.be + self.ki)} token (be {e(self.be)} / ki "
+                f"{e(self.ki)}) ≈ ${self.usd:.3f} (becslés)")
+
+
+def szamla_ir(**kw) -> None:
+    sz = HIVAS_SZAMLA.get()
+    if sz is not None:
+        sz.ir(**kw)
+
+
+@contextlib.contextmanager
+def hivas_szamla():
+    """Új (al)számla a hívás idejére; a megnyitó számlájába is könyvel."""
+    sz = Szamla(HIVAS_SZAMLA.get())
+    tok = HIVAS_SZAMLA.set(sz)
+    try:
+        yield sz
+    finally:
+        HIVAS_SZAMLA.reset(tok)
+
+
+async def szamlaval(sz: Szamla, coro):
+    """A `coro` hívásai az `sz` számlára mennek (a szinkron szálból `run_until_complete`-tel futtatott lépéshez)."""
+    tok = HIVAS_SZAMLA.set(sz)
+    try:
+        return await coro
+    finally:
+        HIVAS_SZAMLA.reset(tok)
 
 # ══ A SZINTVÁLASZTÁS TÁBLÁJA ════════════════════════════════════════════════
 #
@@ -1114,12 +1183,20 @@ class BatchMenet:
             await self._alvas(min(30.0, max(1.0, vege - self.most().timestamp())))
 
 
+def _gondolat_ette(msg) -> bool:
+    """Csonka Anthropic-válasznál: csak gondolat jött, se szöveg, se eszközhívás — a keretet a gondolkodás ette meg."""
+    tipusok = [getattr(b, "type", "") for b in msg.content or []]
+    szoveg = any(getattr(b, "type", "") == "text" and (getattr(b, "text", "") or "").strip() for b in msg.content or [])
+    return not szoveg and "tool_use" not in tipusok and any(t in ("thinking", "redacted_thinking") for t in tipusok)
+
+
 async def chat(payload: dict, *, purpose: str = "", modell: str | None = None, batch: BatchMenet | None = None
                ) -> tuple[dict | None, dict | None, list[str]]:
     """Anthropic chat OpenAI-szerű payloadra. `(data, error, notes)`, mint a `sf_chat`.
 
     Hibánál (hálózat, 429, 5xx, költségkeret, refusal, rossz kérés) `error`-t ad — a tartalékra váltás a hívó
-    (`sf_chat`) dolga, és kimondott. Csonkolt válasznál (stop_reason=max_tokens) duplázza a keretet és újrapróbál.
+    (`sf_chat`) dolga, és kimondott. Csonkolt válasznál (stop_reason=max_tokens) EGYSZER próbál újra: gondolat-
+    csonkolásnál alacsony effort-tal, különben egy bővítéssel a `bovites_plafon`-ig; ami utána is csonka, kimondva az.
 
     `modell`: KÖTÖTT Claude-modell (a döntés-szimulátor backteszt-módja) — csak ismert árú modell (`ARAK`), szerveroldali
     tartalék nélkül; a válasz `model` mezője a VALÓBAN kiszolgáló modell.
@@ -1178,11 +1255,15 @@ async def chat(payload: dict, *, purpose: str = "", modell: str | None = None, b
                                                       fallbacks=cfg["fallbacks"], visszajatszas=False)
                     continue
                 logger.warning("llm_kapu[%s] %s: %s", purpose or "?", cfg["modell"], err["message"][:300])
+                szamla_ir(hiba=True)
                 if koltes:
                     err["koltes_usd"] = round(koltes, 6)
                 return None, err, notes
         usd = _konyvel(msg.usage, cfg["modell"], szint, purpose, batch=utvonal == "batch")
         koltes += usd
+        _u = msg.usage
+        szamla_ir(be=int(_u.input_tokens or 0) + int(getattr(_u, "cache_read_input_tokens", 0) or 0)
+                  + int(getattr(_u, "cache_creation_input_tokens", 0) or 0), ki=int(_u.output_tokens or 0), usd=usd)
         if utvonal == "batch":
             batch.siker(teljes=koltes_usd(msg.usage, cfg["modell"]), fizetett=usd)
             batch.cache_meres(kw, msg.usage)
@@ -1198,13 +1279,22 @@ async def chat(payload: dict, *, purpose: str = "", modell: str | None = None, b
             kat = getattr(getattr(msg, "stop_details", None), "category", None)
             return None, {"code": "refusal", "provider": "anthropic", "koltes_usd": round(koltes, 6),
                           "message": f"Anthropic refusal: a `{msg.model}` elutasította a kérést (kategória: {kat})"}, notes
-        if msg.stop_reason == "max_tokens" and duplazas < CSONKOLAS_DUPLAZAS and kw["max_tokens"] < plafon(KIMENET_PLAFON):
-            nxt = min(kw["max_tokens"] * 2, plafon(KIMENET_PLAFON))
-            notes.append(f"a {kw['max_tokens']} tokenes keret KEVÉS volt a(z) `{cfg['modell']}`-nek "
-                         f"(csonkolt válasz) — {nxt}-re emelve, újrapróbálva")
-            kw["max_tokens"] = nxt
-            duplazas += 1
-            continue
+        if msg.stop_reason == "max_tokens" and duplazas < CSONKOLAS_DUPLAZAS:
+            # LEGFELJEBB EGY újrapróbálás (11-23): ha a gondolkodás ette meg a keretet (nincs szöveg, csak gondolat),
+            # ugyanaz a keret alacsony effort-tal; különben egy bővítés a `bovites_plafon`-ig.
+            if _gondolat_ette(msg) and (kw.get("output_config") or {}).get("effort") != "low":
+                notes.append(f"a(z) `{cfg['modell']}` {kw['max_tokens']} tokenes keretét a GONDOLKODÁS ette meg — "
+                             f"újrapróbálva alacsony effort-tal, UGYANAZZAL a kerettel")
+                kw["output_config"] = {**(kw.get("output_config") or {}), "effort": "low"}
+                duplazas += 1
+                continue
+            if kw["max_tokens"] < bovites_plafon(KIMENET_PLAFON):
+                nxt = min(kw["max_tokens"] * 2, bovites_plafon(KIMENET_PLAFON))
+                notes.append(f"a {kw['max_tokens']} tokenes keret KEVÉS volt a(z) `{cfg['modell']}`-nek "
+                             f"(csonkolt válasz) — {nxt}-re emelve, újrapróbálva (egyszer)")
+                kw["max_tokens"] = nxt
+                duplazas += 1
+                continue
         if msg.stop_reason == "max_tokens":
             notes.append(f"a válasz a(z) `{cfg['modell']}` {kw['max_tokens']} tokenes keretén is csonkolt")
         if _tartalek_futott(msg):

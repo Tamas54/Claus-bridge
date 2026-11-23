@@ -595,11 +595,11 @@ def test_sf_chat_letraja_16k_folott_nem_duplaz(srv, monkeypatch):
     data, err, notes = run(_f())
     assert max(kert) == 16000 and err is None
     assert any("PLAFONJÁN (16000) is csonkolt" in n for n in notes)
-    # plafon nélkül a régi viselkedés (a megtanult 131k-ról indul)
+    # plafon nélkül a megtanult keret is csak a bővítés tetejéig (32k) emel — a régi 131k-s indulás a #594 létrája volt
     kert.clear()
     run(srv.sf_chat({"model": "zai-org/GLM-5.3", "messages": [{"role": "user", "content": "x"}], "max_tokens": 6000},
                     purpose="x", failover=False))
-    assert kert[0] == 131000
+    assert kert[0] == llm_kapu.BOVITES_PLAFON and max(kert) == llm_kapu.BOVITES_PLAFON
 
 
 def test_llm_kapu_plafon_a_forditasban():

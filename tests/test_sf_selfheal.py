@@ -266,16 +266,16 @@ def test_truncation_is_detected_even_with_200():
 
 
 def test_budget_doubles_on_truncation(monkeypatch):
+    """Szöveg-csonkolásnál EGY bővítés (2×) — 2026-11-23 óta legfeljebb egy (task #594)."""
     server._SF_LEARNED_BUDGET.clear()
     fake = _wire(monkeypatch, [
-        FakeResp(200, "", _trunc_payload()),
-        FakeResp(200, "", _trunc_payload()),
+        FakeResp(200, "", _trunc_payload(content="hosszú válasz eleje " * 50, reasoning="")),
         FakeResp(200, "", _ok_payload("megvan")),
     ])
     data, err, notes = _run(server.sf_chat(dict(PAYLOAD, max_tokens=8000), attempts=6))
     assert err is None
     budgets = [c["max_tokens"] for c in fake.calls]
-    assert budgets == [8000, 16000, 32000], f"nem duplázott: {budgets}"
+    assert budgets == [8000, 16000], f"nem duplázott: {budgets}"
     assert any("KEVÉS volt" in n for n in notes), "a keret-emelés nem került a jegyzetbe"
 
 
@@ -292,7 +292,7 @@ def test_budget_never_exceeds_the_model_ceiling(monkeypatch):
 def test_learned_budget_is_reused_next_time(monkeypatch):
     """A tanulás a lényeg: a következő hívás ne kezdje elölről a csonkolást."""
     server._SF_LEARNED_BUDGET.clear()
-    _wire(monkeypatch, [FakeResp(200, "", _trunc_payload()),
+    _wire(monkeypatch, [FakeResp(200, "", _trunc_payload(content="félbe" * 50, reasoning="")),
                         FakeResp(200, "", _ok_payload())])
     _run(server.sf_chat(dict(PAYLOAD, max_tokens=8000), attempts=4))
     assert server._SF_LEARNED_BUDGET["zai-org/GLM-5.2"] == 16000

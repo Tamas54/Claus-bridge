@@ -8093,9 +8093,15 @@ _SF_FAILOVER = {
 # `_run_agent_with_tools` docstringje már ismer, csak eddig kézzel emelt
 # konstansokkal védekeztünk ellene. A 200 itt sem bizonyíték.
 #
-# Ezért a keret mostantól MÉRÉSBŐL nő: ha a modell csonkolt, DUPLÁZUNK és
-# újrapróbálunk, a modell saját plafonjáig. A sikeres keretet megjegyezzük,
-# így a következő hívás már onnan indul, nem az alapértékről.
+# Ezért a keret mostantól MÉRÉSBŐL nő: ha a modell csonkolt, EGYSZER
+# újrapróbálunk — gondolat-csonkolásnál gondolkodás nélkül, ugyanazzal a
+# kerettel, különben egy bővítéssel (2×) a `llm_kapu.bovites_plafon`-ig (32k).
+# A sikeres keretet megjegyezzük (szintén legfeljebb 32k-ig), így a következő
+# hívás már onnan indul, nem az alapértékről.
+#
+# 2026-11-23, task #594: a régi létra a modell saját plafonjáig duplázott
+# (28k → 56k → 112k → 131k), utána modellt váltott és újrakezdte — és az
+# eszközhívást is csonkolásnak nézte. Egy ügynökre ~18 hívás ment el 4 helyett.
 
 #: Modellenkénti kimeneti PLAFON (a szolgáltató korlátja). Efölé kérni 400-at ér.
 _SF_OUTPUT_CEILING = {
@@ -8137,7 +8143,8 @@ def _sf_budget_load() -> None:
             if isinstance(data, dict):
                 for k, v in data.items():
                     if isinstance(v, int) and v > 0:
-                        _SF_LEARNED_BUDGET[str(k)] = v
+                        # a bővítés tetejéig (11-23): a régi létra 131k-ra tanította a GLM-5.3-at
+                        _SF_LEARNED_BUDGET[str(k)] = min(v, llm_kapu.BOVITES_PLAFON)
                 logger.info("sf_chat: %d megtanult token-keret visszatöltve: %s",
                             len(_SF_LEARNED_BUDGET), _SF_LEARNED_BUDGET)
     except Exception as e:  # noqa: BLE001 — a hiánya nem hiba, csak lassabb első kör
@@ -8146,8 +8153,10 @@ def _sf_budget_load() -> None:
 
 def _sf_budget_remember(model_id: str, value: int) -> None:
     """Egy NÖVEKEDÉS kiírása. Csak akkor ír, ha tényleg nőtt — a legtöbb hívás
-    nem tanul semmit, és nem is szabad DB-t írnia miatta."""
+    nem tanul semmit, és nem is szabad DB-t írnia miatta. Legfeljebb a bővítés
+    tetejéig (`llm_kapu.BOVITES_PLAFON`) tanul."""
     try:
+        value = min(int(value), llm_kapu.BOVITES_PLAFON)
         if value <= 0 or value <= _SF_LEARNED_BUDGET.get(model_id, 0):
             return
         _SF_LEARNED_BUDGET[model_id] = value
@@ -8172,15 +8181,61 @@ def _sf_is_truncated(data: dict) -> bool:
     Két jel, és a második a fontosabb: a `finish_reason="length"` a
     szolgáltató bevallása, az ÜRES content + TELE reasoning pedig a gondolkodó
     modellek tipikus csonkolása, ahol a `finish_reason` néha `stop` marad.
+
+    ⚠️ Az ESZKÖZHÍVÁS NEM csonkolás (MÉRVE 2026-11-23, task #594): a GLM-5.3, a
+    GLM-5.3-Flash és a DeepSeek V4-Pro eszközhívása `finish_reason="tool_calls"`,
+    ÜRES content és NEM üres reasoning (pl. 26 gondolat-token, 44 kimeneti
+    token). A régi jel ezt csonkolásnak látta: az eszközhívást eldobta, a keretet
+    megduplázta, és újrakérte — egy ügynökre ~18 hívás ment el 4 helyett.
     """
     try:
         ch = (data.get("choices") or [{}])[0]
         if ch.get("finish_reason") == "length":
             return True
         m = ch.get("message", {}) or {}
+        if m.get("tool_calls") or ch.get("finish_reason") == "tool_calls":
+            return False
         return not (m.get("content") or "").strip() and bool((m.get("reasoning_content") or "").strip())
     except Exception:  # noqa: BLE001
         return False
+
+
+def _sf_gondolat_ette(data: dict) -> bool:
+    """Csonka válaszban a GONDOLKODÁS ette-e meg a keretet: több gondolat jött, mint válaszszöveg. A szövegből mérünk,
+    nem a `reasoning_tokens`-ből — azt a SiliconFlow modellenként másképp (néha 0-nak, néha mindennek) jelenti."""
+    try:
+        m = ((data.get("choices") or [{}])[0].get("message") or {})
+        gondolat = len((m.get("reasoning_content") or "").strip())
+        return gondolat > 0 and gondolat >= len((m.get("content") or "").strip())
+    except Exception:  # noqa: BLE001
+        return False
+
+
+def _sf_gondolkodas_nelkul(model_id: str) -> dict:
+    """A gondolkodás kikapcsolása / letompítása modellenként, a csonkolás utáni EGY újrapróbáláshoz.
+
+    MÉRVE 2026-11-23, 400 tokenes kerettel, ugyanarra a kérésre:
+      * GLM-5.3: alapból 398/400 gondolat-token, csonka; `reasoning_effort=low` → 0 gondolat, 231 token, kész.
+        (A `thinking` kikapcsolását 400/20015-tel utasítja el, a `thinking_budget`-et figyelmen kívül hagyja.)
+      * DeepSeek V4-Pro-0813: `reasoning_effort=low` mellett is gondolkodik (370/400, csonka);
+        `thinking=disabled` → 0 gondolat, 307 token, kész.
+      * Kimi: `thinking=disabled` (a K3.1 Pro így eszközt is hív, gondolat nélkül)."""
+    if model_id.startswith("zai-org/GLM-5.3"):
+        return {"reasoning_effort": "low"}
+    if "Kimi" in model_id or "DeepSeek" in model_id:
+        return {"thinking": {"type": "disabled"}}
+    return {"reasoning_effort": "low"}
+
+
+def _sf_szamlara(data: dict | None, model_id: str) -> None:
+    """Egy SiliconFlow-hívás a feladat hívás-számlájára (`llm_kapu.HIVAS_SZAMLA`): a 200-as válasz a `usage`-ével és
+    becsült árával (`llm_kapu.SF_ARAK`), a hiba csak darabra (nem fizetett próbálkozás)."""
+    if data is None:
+        llm_kapu.szamla_ir(hiba=True)
+        return
+    u = data.get("usage") or {}
+    llm_kapu.szamla_ir(be=int(u.get("prompt_tokens") or 0), ki=int(u.get("completion_tokens") or 0),
+                       usd=llm_kapu.sf_koltes_usd({"usage": u, "model": model_id}))
 
 
 #: Paraméterek, amiket egy modell VISSZAUTASÍTHAT. Ha a szolgáltató konkrétan
@@ -8279,6 +8334,26 @@ def _with_sf_notes(content: str, notes: list) -> str:
     if not notes or not isinstance(content, str):
         return content
     return content + "\n\n---\n" + "\n".join(f"_[{n}]_" for n in dict.fromkeys(notes))
+
+
+def _koltseg_jegyzet(content: str, szamla, cim: str = "KÖLTSÉG") -> str:
+    """A hívás-számla egy sora a kimenet végére (task #594: a Kommandant lássa, mibe került). Ha a kimenet már
+    jegyzet-blokkal zárul (`_with_sf_notes`), abba kerül, különben újat nyit."""
+    if not isinstance(content, str) or szamla is None or not (szamla.hivas or szamla.hiba):
+        return content
+    sor = f"_[{szamla.sor(cim)}]_"
+    fej, sep, utolso = content.rpartition("\n\n---\n")
+    if sep and utolso.strip() and all(s.startswith("_[") and s.endswith("]_") for s in utolso.strip().split("\n")):
+        return content.rstrip("\n") + "\n" + sor
+    return content + "\n\n---\n" + sor
+
+
+async def _eszkozos_ugynok_koltseggel(model_id: str, messages: list, **kw) -> str:
+    """A `_run_agent_with_tools` saját alszámlával: a kimenet végén az ügynök költsége, és a feladat számlájába is
+    könyvel (ha a hívó nyitott egyet)."""
+    with llm_kapu.hivas_szamla() as sz:
+        text = await _run_agent_with_tools(model_id, messages, **kw)
+    return _koltseg_jegyzet(text, sz)
 
 
 _GONDOLAT_BLOKK = _re_module.compile(r"<think>.*?</think>", _re_module.S)
@@ -8422,37 +8497,67 @@ async def sf_chat(payload: dict, *, purpose: str = "", attempts: int = 3,
                     for k in _tiltott:
                         body.pop(k, None)
             # ÖNSZABÁLYOZÁS: induljunk onnan, ami ennél a modellnél utoljára
-            # elég volt, de sose a modell plafonja fölött.
+            # elég volt, de sose a modell plafonja fölött. A megtanult keret
+            # legfeljebb a bővítés tetejéig emel (11-23: a GLM-5.3 megtanult
+            # 131k-ja minden hívást onnan indított); a hívó kifejezett kérése marad.
             _ceiling = llm_kapu.plafon(_sf_ceiling(mid))   # a hívó plafonja (pl. a Pyramid-vita 16k-ja) felülről vág
+            _bovites_teteje = llm_kapu.bovites_plafon(_ceiling)
             _asked = int(body.get("max_tokens") or 8000)
-            body["max_tokens"] = min(max(_asked, _SF_LEARNED_BUDGET.get(mid, 0)), _ceiling)
+            body["max_tokens"] = min(max(_asked, min(_SF_LEARNED_BUDGET.get(mid, 0), _bovites_teteje)), _ceiling)
+            _ujraprobalva = False   # csonkolás miatt LEGFELJEBB EGY újrapróbálás modellenként
+            _csonka = None          # az utolsó csonka válasz: ha a próbák elfogynak, ez megy tovább, kimondva
             _keys = _sf_keys() or [""]
             _ki = next((i for i in range(len(_keys)) if i not in _kimerult), 0)   # melyik kulcsnál tartunk
             for attempt in range(1, attempts + 1):
                 data, err = await _sf_post_once(client, body, _keys[_ki])
+                _sf_szamlara(data, mid)
 
-                # CSONKOLÁS: HTTP 200, de a modell nem fért bele. Ez nem
-                # sikeres válasz — duplázunk és újrapróbálunk.
+                # CSONKOLÁS: HTTP 200, de a modell nem fért bele. LEGFELJEBB EGY
+                # újrapróbálás (11-23, task #594: egy ügynökre 28k → 56k → 112k →
+                # 131k, aztán modellváltás és még egy létra). Ha a GONDOLKODÁS
+                # ette meg a keretet: ugyanaz a keret, gondolkodás nélkül / alacsony
+                # effort-tal. Különben egy bővítés (2×) a `bovites_plafon`-ig.
+                # Ami utána is csonka, az KIMONDVA csonka — nem modellváltás.
+                _most_csonka = False
                 if data is not None and _sf_is_truncated(data):
+                    _csonka = data
                     cur = int(body.get("max_tokens") or 8000)
-                    if cur < _ceiling:
-                        nxt = min(cur * 2, _ceiling)
-                        notes.append(
-                            f"a {cur} tokenes keret KEVÉS volt a(z) `{mid}`-nek "
-                            f"(csonkolt válasz) — {nxt}-re emelve, újrapróbálva")
-                        logger.warning("sf_chat[%s] %s: csonkolás, keret %d → %d",
-                                       purpose or "?", mid, cur, nxt)
-                        body["max_tokens"] = nxt
-                        continue
-                    # A plafonon vagyunk: ez már nem keret-kérdés. Ne hazudjuk
-                    # sikernek, de ne is dobjuk el — a hívó eldönti.
-                    notes.append(
-                        f"a válasz a(z) `{mid}` kimeneti PLAFONJÁN ({_ceiling}) is csonkolt")
+                    if not _ujraprobalva and attempt < attempts:
+                        _ujraprobalva = True
+                        _nelkule = _sf_gondolkodas_nelkul(mid) if _sf_gondolat_ette(data) else {}
+                        if _nelkule and any(body.get(k) != v for k, v in _nelkule.items()):
+                            for k in ("thinking", "reasoning_effort"):
+                                body.pop(k, None)
+                            body.update(_nelkule)
+                            notes.append(
+                                f"a(z) `{mid}` {cur} tokenes keretét a GONDOLKODÁS ette meg (csonkolt válasz) — "
+                                f"újrapróbálva gondolkodás nélkül, UGYANAZZAL a kerettel")
+                            logger.warning("sf_chat[%s] %s: gondolat-csonkolás %d-en, újra gondolkodás nélkül",
+                                           purpose or "?", mid, cur)
+                            continue
+                        if cur < _bovites_teteje:
+                            nxt = min(cur * 2, _bovites_teteje)
+                            notes.append(
+                                f"a {cur} tokenes keret KEVÉS volt a(z) `{mid}`-nek "
+                                f"(csonkolt válasz) — {nxt}-re emelve, újrapróbálva (egyszer)")
+                            logger.warning("sf_chat[%s] %s: csonkolás, keret %d → %d",
+                                           purpose or "?", mid, cur, nxt)
+                            body["max_tokens"] = nxt
+                            continue
+                    # Nincs több próba: ne hazudjuk sikernek, de ne is dobjuk el — a hívó eldönti.
+                    if cur >= _bovites_teteje:
+                        notes.append(f"a válasz a(z) `{mid}` kimeneti PLAFONJÁN ({cur}) is csonkolt — CSONKA válasz")
+                    else:
+                        notes.append(f"a válasz a(z) `{mid}` {cur} tokenes keretén is csonkolt (legfeljebb egy "
+                                     f"újrapróbálás) — CSONKA válasz")
+                    _most_csonka = True
 
                 if data is not None:
                     # Amit megtanultunk: a következő hívás innen induljon —
                     # és a KÖVETKEZŐ DEPLOY is, ne csak a következő hívás.
-                    _sf_budget_remember(mid, int(body.get("max_tokens") or 0))
+                    # Csonka válaszból nem tanulunk: az a keret NEM volt elég.
+                    if not _most_csonka:
+                        _sf_budget_remember(mid, int(body.get("max_tokens") or 0))
                     if mi > 0:
                         notes.append(
                             f"MODELLVÁLTÁS: a kért `{model}` nem volt elérhető "
@@ -8553,6 +8658,15 @@ async def sf_chat(payload: dict, *, purpose: str = "", attempts: int = 3,
                     break          # rossz kérés / auth: az újrapróbálás csak kvótát éget
                 if attempt < attempts:
                     await _a.sleep(min(2 ** attempt, 8))
+            if _csonka is not None:
+                # A csonka válasz utáni újrapróbálás elbukott: a már kifizetett csonka válasz megy tovább, kimondva —
+                # a csonkolás nem kiesés, modellt váltani miatta pazarlás (task #594: így jött még egy teljes létra).
+                notes.append(f"a(z) `{mid}` újrapróbálása nem sikerült — a korábbi CSONKA válasz megy tovább")
+                if mi > 0:
+                    notes.append(f"MODELLVÁLTÁS: a kért `{model}` nem volt elérhető, a választ `{mid}` adta")
+                _gondolat_levag(_csonka)
+                _megszakito.siker()
+                return _csonka, None, notes
             if _fizetes_vege or (last_err and last_err["code"] not in _SF_FAILOVER_WORTHY):
                 break              # modellváltás sem segít egy hibás kérésen — és az elfogyott egyenlegen sem
 
@@ -8873,6 +8987,10 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
                             deep_research: bool = False, deep_thinking: bool = False,
                             output_format: str = ""):
     """Background execution of a multi-agent AI task. Agents run in PARALLEL."""
+    # A feladat hívás-számlája (11-23, task #594): az ügynökök és a szintézis minden modellhívása ide könyvel, a
+    # végösszeg a szintézis végére kerül. A korutin saját kontextusa (a `gather` gyerekei öröklik), nem szivárog ki.
+    _feladat_szamla = llm_kapu.Szamla(llm_kapu.HIVAS_SZAMLA.get())
+    llm_kapu.HIVAS_SZAMLA.set(_feladat_szamla)
     conn = get_db()
     conn.execute("UPDATE ai_tasks SET status = 'running' WHERE id = ?", (task_id,))
     conn.commit()
@@ -9339,6 +9457,7 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
             role_label = "Koordinátori összefoglaló"
             if synthesizer_used and synthesizer_used != "kimi":
                 role_label = f"Koordinátori összefoglaló ({synthesizer_used} fallback)"
+            synthesis = _koltseg_jegyzet(synthesis, _feladat_szamla, "A FELADAT ÖSSZESEN")
             conn.execute(
                 "INSERT INTO ai_task_results (task_id, agent, role, content, timestamp) VALUES (?, ?, ?, ?, ?)",
                 (task_id, "szintézis", role_label, synthesis, ts)
@@ -9674,6 +9793,10 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
 
         def _run_dispatch():
             loop = asyncio.new_event_loop()
+            # A FELADAT hívás-számlája (11-23, task #594): minden modellhívás ide könyvel (ügynökök + szintézis), és
+            # a végösszeg a szintézis végére kerül. A szál saját kontextusa — máshová nem szivárog.
+            _feladat_szamla = llm_kapu.Szamla()
+            llm_kapu.HIVAS_SZAMLA.set(_feladat_szamla)
             try:
                 results = loop.run_until_complete(dispatch_parallel_tasks(
                     agent_tasks=parsed_agent_tasks,
@@ -9688,7 +9811,7 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
                     # használ; a dispatcher feladatonként kikapcsolhatóvá
                     # teszi (`use_tools: False`), és kiírt-de-nem-futott
                     # hívásnál a futást HIBÁSNAK jelöli a válasz helyett.
-                    run_with_tools_func=_run_agent_with_tools,
+                    run_with_tools_func=_eszkozos_ugynok_koltseggel,   # + az ügynök költség-sora
                 ))
                 # Store results in DB
                 # S-002 (2. fél): a `result` TIPIZÁLT hibamezőit eddig eldobtuk
@@ -9844,11 +9967,13 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
                     DISPATCH_SYNTHESIS_CHAIN = tuple((AI_TASK_MODELLEK[a], a) for a in AI_TASK_SZINTEZIS_SORREND)
                     synthesis = ""
                     synthesizer_used = None
+                    _szint_szamla = llm_kapu.Szamla(_feladat_szamla)
                     for syn_model_id, syn_label in DISPATCH_SYNTHESIS_CHAIN:
                         try:
-                            candidate = loop.run_until_complete(
+                            candidate = loop.run_until_complete(llm_kapu.szamlaval(
+                                _szint_szamla,
                                 _run_agent_with_tools(syn_model_id, list(synthesis_messages), max_rounds=2)
-                            )
+                            ))
                             candidate = _clean_synthesis_output(candidate)
                             if candidate and candidate.strip():
                                 synthesis = candidate
@@ -9869,6 +9994,8 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
                             if synthesizer_used == "kimi"
                             else f"Koordinátori összefoglaló (fallback: {synthesizer_used})"
                         )
+                        synthesis = _koltseg_jegyzet(_koltseg_jegyzet(synthesis, _szint_szamla, "SZINTÉZIS"),
+                                                     _feladat_szamla, "A FELADAT ÖSSZESEN")
                         conn2.execute(
                             "INSERT INTO ai_task_results (task_id, agent, role, content, timestamp) VALUES (?, ?, ?, ?, ?)",
                             (task_id, "szintézis", role_tag, synthesis, now())
