@@ -224,4 +224,9 @@ def szandek_adat(d: dict) -> str:
     adat = {k: d.get(k) for k in ("szandek", "szoveg", "repo", "kerelem")}
     if d.get("csatorna"):
         adat["csatorna"] = d["csatorna"]
+    # HOPSZ (11-23, hopsz.py): az automatikus kérelem forrása, a hibás eszköz címkéje és a hiba-aláírás (a Faber a
+    # telekkönyvben `forras='hopsz'`-ként veszi fel, és az aláírással a saját oldalán is szűri a duplikációt)
+    for k in ("forras", "eszkoz", "alairas"):
+        if d.get(k):
+            adat[k] = d[k]
     return json.dumps(adat, ensure_ascii=False)

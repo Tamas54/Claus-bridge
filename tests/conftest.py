@@ -129,6 +129,9 @@ def _sandbox(request):
     # 2026-11-23: az SF-ügynökök eszközlistája a külső MCP-ket (Medical, Makronóm…) élőben listázná — a tesztsorban
     # ez ki van kapcsolva (DNS sem), a külső eszközöket mérő teszt maga kapcsolja be, hamis szerverrel.
     os.environ["SF_KULSO_MCP"] = "0"
+    # 2026-11-23: a HOPSZ-riasztó (hopsz.py) a tesztsorban KI — különben egy szándékosan hibázó eszközt mérő teszt
+    # Faber-kérelmet tenne a sandbox-adatbázisba. A HOPSZ-tesztek maguk kapcsolják be.
+    os.environ["HOPSZ_AUTO"] = "0"
 
     if request.node.get_closest_marker("network"):
         yield

@@ -1473,6 +1473,8 @@ class Nyom:
     vitak: list = field(default_factory=list)
     utasitasok: list = field(default_factory=list)
     tudasbazis: bool = False            # a futás tudásbázis-tartalmú (olvasott, érintett bemenet, érintett partner)
+    #: HOPSZ (11-23, hopsz.py): a futás eszközhívásai és hibái — a végén a képesség-hiányból Faber-kérelem lesz
+    hopsz_kor: object = None
 
 
 SF_PARTNER_HIBA = ("ebben a futásban a Kommandant tudásbázisából van tartalom (vagy az ügynök érintett), ami csak "
@@ -1611,14 +1613,19 @@ def vegrehajto(forras, nyom: Nyom, *, get_db, u: dict, szamla: UgynokSzamla, lan
         if ok:
             logger.warning("feladat-ügynök #%d: elutasított eszközhívás: %s", rid, eszkoz)
             t.elutasitva.append(eszkoz)
+            if nyom.hopsz_kor is not None:
+                nyom.hopsz_kor.eszkoz(eszkoz, args, ns._hiba(ok), elutasitas=True)
             return ns._hiba(ok)
         if eszkoz in ns.ENGEDETT:            # a Nachtschicht végrehajtója (saját hívásszámláló, Termes)
             e = await ns_v(eszkoz, args, modell)
         else:
             if t.eszkozok.count(eszkoz) >= t.plafon:
                 t.elutasitva.append(eszkoz)
-                return ns._hiba(f"a(z) `{eszkoz}` hívási kerete ({t.plafon}) ebben a futásban "
-                                f"elfogyott — dolgozz a meglévő eredményekből")
+                e = ns._hiba(f"a(z) `{eszkoz}` hívási kerete ({t.plafon}) ebben a futásban "
+                             f"elfogyott — dolgozz a meglévő eredményekből")
+                if nyom.hopsz_kor is not None:
+                    nyom.hopsz_kor.eszkoz(eszkoz, args, e, elutasitas=True)
+                return e
             t.eszkozok.append(eszkoz)
             try:
                 if eszkoz == "calendar_create":
@@ -1642,6 +1649,8 @@ def vegrehajto(forras, nyom: Nyom, *, get_db, u: dict, szamla: UgynokSzamla, lan
                 e = ns._hiba(f"{type(ex).__name__}: {str(ex)[:300]}")
             if eszkoz in EGYUTT and '"error"' in e[:12]:
                 t.elutasitva.append(eszkoz)
+        if nyom.hopsz_kor is not None:
+            nyom.hopsz_kor.eszkoz(eszkoz, args, e, elutasitas=eszkoz in EGYUTT and '"error"' in e[:12])
         if futar_kliens.tudasbazis_tartalom(eszkoz, e):
             nyom.tudasbazis = True
         return e
@@ -1960,6 +1969,8 @@ async def futas(rid: int, *, trigger: str = "kezi", get_db, forras: Callable, te
     alap_ar = modell_ar(mk, sf_modellek)
     szamla = UgynokSzamla(keret=keret, ar=alap_ar)
     nyom = Nyom(tudasbazis=bool(bemenet_vedett))
+    import hopsz
+    nyom.hopsz_kor = hopsz.Kor(f"a(z) „{nev}” feladat-ügynök", u["feladat"])
     import kivonat
     tar = kivonat.EredmenyTar()                # a futás közös kivonat-tára: egy URL egyszer jön le (első kör + utókör)
     kert = modell_azonosito(mk, sf_modellek)
@@ -2048,6 +2059,7 @@ async def futas(rid: int, *, trigger: str = "kezi", get_db, forras: Callable, te
     except Exception as ex:  # noqa: BLE001 — a futás hibája is jelentés, nem csend
         logger.error("feladat-ügynök #%d: váratlan hiba: %s", rid, ex, exc_info=True)
         allapot, hiba = "hiba", f"elakadtam ({type(ex).__name__})"
+        nyom.hopsz_kor.eszkoz("feladat_ugynok.futas", {}, ns._hiba(f"{type(ex).__name__}: {str(ex)[:300]}"))
 
     vege = _json_vege(szoveg_ki) if szoveg_ki else None
     if allapot == "kesz" and not szoveg_ki.strip():
@@ -2092,6 +2104,10 @@ async def futas(rid: int, *, trigger: str = "kezi", get_db, forras: Callable, te
                 szamla.usd, keret, szamla.hivasok, e["jelzes"])
     if allapot == "megszakitva":
         raise asyncio.CancelledError()
+    # HOPSZ: ha a futásban képesség-hiány volt (eszköz-kivétel, túl széles tiltás, „nincs eszközöm”), EGY kérelem a
+    # Fabernek — determinisztikusan, a hopsz-kapun át (kapcsoló, duplikáció, napi plafon); sosem dob
+    nyom.hopsz_kor.vege(f"{eredmeny}\n{osszegzes}" if allapot == "kesz" else "",
+                        vedett=nyom.tudasbazis or u["tudasbazis_erintett"])
     kell = (e["jelzes"] or u["ertesites"] == "mindig" or t.tervezetek or nyom.javaslatok or nyom.utasitasok
             or (allapot != "kesz" and not (elozo and elozo[-1].get("allapot") not in ("kesz", None))))
     if kell:

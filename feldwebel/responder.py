@@ -536,6 +536,9 @@ async def respond(text: str, chat_id: str, agent_id: str = "deepseek") -> str:
     tar = _kivonat.EredmenyTar()
     #: a valódi eszközeredmények száma (a betöltő és a lapozó nem számít) — a mélyebb szint jelzéséhez
     valodi_eredmeny = 0
+    #: HOPSZ (11-23, hopsz.py): a kör eszközhibái és a válasz — képesség-hiánynál a végén EGY kérelem a Fabernek
+    import hopsz as _hopsz
+    hopsz_kor = _hopsz.Kor("a Feldwebel", text)
 
     model_id = ctx.siliconflow_models.get(agent_id, "deepseek-ai/DeepSeek-V4-Pro")
 
@@ -618,6 +621,7 @@ async def respond(text: str, chat_id: str, agent_id: str = "deepseek") -> str:
                                                  modell=kor_modell, vedett=vedett)
                 except Exception as e:  # noqa: BLE001 — egy eszköz hibája ne vigye el a kört
                     result = json.dumps({"error": f"{type(e).__name__}: {str(e)[:300]}"}, ensure_ascii=False)
+                hopsz_kor.eszkoz(fn_name, fn_args, result)
                 if _kimenet is not None:
                     _kimenet.eszkoz_kesz(_et, result)
                 # NAGY EREDMÉNY → KIVONAT (olvasó-lépés, a teljes szöveg lapozható), MIELŐTT a kontextusba kerül
@@ -657,6 +661,7 @@ async def respond(text: str, chat_id: str, agent_id: str = "deepseek") -> str:
                     _et = _kimenet.eszkoz_indul(fn_name, fn_args) if _kimenet is not None else None
                     result = await _execute_tool(fn_name, fn_args, ctx, kor={"chat_id": chat_id, "text": text},
                                                  modell=kor_modell, vedett=vedett)
+                    hopsz_kor.eszkoz(fn_name, fn_args, result)
                     if _kimenet is not None:
                         _kimenet.eszkoz_kesz(_et, result)
                     eszkoz_nevek.append(fn_name)
@@ -717,6 +722,9 @@ async def respond(text: str, chat_id: str, agent_id: str = "deepseek") -> str:
         except Exception as e:
             logger.error("Feldwebel last-resort synthesis failed: %s: %s",
                          type(e).__name__, e)
+
+    # HOPSZ: a kör eszközhibái és a válasz („nem tudom, mi a …”, „nincs … eszközöm”) — determinisztikus, sosem dob
+    hopsz_kor.vege(final_content, vedett=vedett)
 
     if not final_content:
         # Debug: show what happened in each round

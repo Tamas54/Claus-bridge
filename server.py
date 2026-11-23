@@ -73,6 +73,7 @@ from api_kapu import ApiKapuMiddleware
 import melleklet
 import hang
 import onjavitas
+import hopsz
 import nachtschicht
 # FELADAT-ÜGYNÖKÖK (2026-11-23): névvel ellátott, a Kommandant által indított munkások (receptként, Claude-on)
 import feladat_ugynok
@@ -12661,6 +12662,10 @@ def _feladat_ugynok_bekot() -> None:
 
 
 _feladat_ugynok_bekot()
+
+# HOPSZ-RIASZTÓ (11-23, hopsz.py): a Feldwebel és a feladat-ügynök képesség-hiányából automatikus Faber-kérelem (az
+# állapot a shared_memory egy kulcsában, a közös írási úton; a kérelem az aláírt Faber-relayen). HOPSZ_AUTO=0: semmi.
+hopsz.beallit(get_db=get_db, memoria_ir=memoria_ir, bot_token=lambda: TELEGRAM_BOT_TOKEN)
 
 
 async def _cron_loop():
