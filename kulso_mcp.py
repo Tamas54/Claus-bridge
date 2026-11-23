@@ -215,7 +215,13 @@ async def hiv(nev: str, eszkoz: str, parameterek: dict | None, *, max_kar: int =
     """A Feldwebel eszközhívása → a szerver eszköze. A válasz szöveg (a Feldwebel tool-eredménye).
 
     `max_kar`: a válasz sapkája. A Feldwebelnek 15 ezer (a beszélgetés előzményében utazik); a Bridge saját,
-    gépi hívója (pl. a hangüzenet átirata, hang.py) nagyobbat kérhet, mert a JSON-t egészében kell értelmeznie."""
+    gépi hívója (pl. a hangüzenet átirata, hang.py) nagyobbat kérhet, mert a JSON-t egészében kell értelmeznie.
+
+    `alfred`: álszerver (nem eszköz, a Feldwebel nem látja) — az ALFRED-vintage a feloldási szabályhoz
+    (`elso_kozles.alfred_lekeres`); így a backteszt felvevője ezt is felveszi."""
+    if nev == "alfred":
+        import elso_kozles
+        return await elso_kozles.alfred_lekeres(parameterek if isinstance(parameterek, dict) else {})
     if not bekotott(nev):
         return json.dumps({"hiba": f"a(z) {nev} nincs bekötve (hiányzik a kulcs: {SZERVEREK[nev]['kulcs_env']})"},
                           ensure_ascii=False)
@@ -252,6 +258,10 @@ async def hiv(nev: str, eszkoz: str, parameterek: dict | None, *, max_kar: int =
         # a séma visszamegy, hogy a modell a következő körben javított paraméterrel próbálhassa
         return json.dumps({"hiba": szoveg[:3000] or "az eszköz hibát adott", "sema": cel.inputSchema},
                           ensure_ascii=False)
+    if nev == "makronom":                    # az első-közlés-napló (KI állásban azonnal visszatér); a levágatlan válasz
+        import elso_kozles
+        if elso_kozles.bekapcsolva():
+            elso_kozles.megfigyel_hatterben(cel.name, parameterek, _szovegge(eredmeny, 10_000_000))
     return szoveg or "(az eszköz üres választ adott)"
 
 

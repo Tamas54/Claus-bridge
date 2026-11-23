@@ -249,6 +249,8 @@ async def _call(tool: str, args: dict[str, Any]) -> Any:
                 data = resp.json()
                 if not data.get("ok"):
                     raise StatDataError(f"upstream error: {data.get('error', '<unknown>')}")
+                import elso_kozles           # az első-közlés-napló: KI állásban azonnal visszatér
+                elso_kozles.megfigyel_hatterben(tool, clean_args, data["result"])
                 future.set_result(data["result"])
                 return data["result"]
             except (httpx.TransportError, httpx.TimeoutException) as e:

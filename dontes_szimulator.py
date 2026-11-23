@@ -49,6 +49,7 @@ import secrets
 import time
 from datetime import date, datetime, timedelta, timezone
 
+import elso_kozles
 import kulso_mcp
 import llm_kapu
 
@@ -107,6 +108,8 @@ GAZDASAGI_NEV = {"inflation": ("infláció (éves, %)", "%"), "gdp": ("GDP-növe
 #: Közlési késés (nap az időszak vége után), konzervatívan: a horizont végéig ennél korábbi időszak adata jelenik meg
 #: (KSH-infláció ~8–10 nap, munkanélküliség ~3–4 hét, GDP y/y SA ~45–60 nap).
 KOZLESI_KESES_NAP = {"M": 45, "Q": 75}
+#: minden előrejelzés-sor feloldási szabálya (elso_kozles): a pontozás az ELSŐ közölt értékkel számol, nem a maival
+FELOLDASI_SZABALY = elso_kozles.ALAP_SZABALY
 #: Ellenőrzési forrás mutatónként (a határidő után ezzel mérjük, talált-e az előrejelzés).
 GAZDASAGI_ELLENORZES = {"inflation": "KSH/Eurostat — Makronóm get_macro_indicator({c}, cpi, period={p})",
                         "gdp": "Eurostat namq_10_gdp (y/y, SA) — Makronóm forecast_path({c}, gdp) last_actual",
@@ -331,7 +334,9 @@ def elorejelzesek_tisztit(nyers, terulet: str, *, ma: date, hatar_napok: int,
                    "kuszob": " ".join(str(e.get("kuszob") or "").split())[:120],
                    "hatarido": hatarido, "valoszinuseg": round(min(0.99, max(0.01, p)), 3),
                    "ellenorzes": ellenorzes[:300],
-                   "alap": " ".join(str(e.get("alap") or "").split())[:300]})
+                   "alap": " ".join(str(e.get("alap") or "").split())[:300],
+                   "feloldasi_szabaly": (e.get("feloldasi_szabaly") if e.get("feloldasi_szabaly") in
+                                         elso_kozles.SZABALYOK else FELOLDASI_SZABALY)})
     return jo, kimaradt
 
 
@@ -341,8 +346,10 @@ def elorejelzes_kanon(e: dict, futas: str, sorszam: int, lepes_hash: str) -> str
     return json.dumps({"futas": futas, "sorszam": sorszam, "terulet": e["terulet"], "allitas": e["allitas"],
                        "metrika": e.get("metrika", ""), "kuszob": e.get("kuszob", ""), "hatarido": e["hatarido"],
                        "valoszinuseg": e["valoszinuseg"], "feltetel": e.get("feltetel", "lepes"),
-                       "ellenorzes": e["ellenorzes"], "lepes_hash": lepes_hash,
-                       "verzio": VERZIO}, ensure_ascii=False, sort_keys=True)
+                       "ellenorzes": e["ellenorzes"], "lepes_hash": lepes_hash, "verzio": VERZIO,
+                       # a feloldási szabály is előregisztrált (a láncban); a régi, mező nélküli sor hash-e változatlan
+                       **({"feloldasi_szabaly": e["feloldasi_szabaly"]} if e.get("feloldasi_szabaly") else {})},
+                      ensure_ascii=False, sort_keys=True)
 
 
 def naploba(get_db, elorejelzesek: list[dict], *, futas: str, orszag: str, lepes_hash: str) -> list[dict]:
@@ -809,7 +816,7 @@ def alapvonal_sorok(nyers: list, hatar: date, ma: date) -> tuple[list[dict], lis
                           "utolso_teny": v.get("last_actual"), "forras": f"Makronóm forecast_path ({v.get('source')})",
                           "modszer": "SARIMAX + IMF/OECD-horgony, 80%-os sáv a backtesztből",
                           "ellenorzes": GAZDASAGI_ELLENORZES.get(ind, "Makronóm").format(c=c, p=pt["period"], s=""),
-                          **_skala(v)})
+                          "feloldasi_szabaly": FELOLDASI_SZABALY, **_skala(v)})
         elif e == "get_macro_indicator" and p.get("indicator") == "policy_rate" and _szam(v.get("value")) is not None:
             nev, egys = GAZDASAGI_NEV["policy_rate"]
             sorok.append({"kulcs": f"{c}:policy_rate", "mutato": nev, "orszag": c, "egyseg": egys,
@@ -817,7 +824,8 @@ def alapvonal_sorok(nyers: list, hatar: date, ma: date) -> tuple[list[dict], lis
                           "naiv": True, "hatarido": hatar.isoformat(),
                           "forras": f"Makronóm get_macro_indicator ({v.get('source_used')}, {v.get('period')})",
                           "modszer": "naiv alapvonal: a mai kamat változatlan",
-                          "ellenorzes": GAZDASAGI_ELLENORZES["policy_rate"].format(c=c, p=hatar.isoformat(), s="")})
+                          "ellenorzes": GAZDASAGI_ELLENORZES["policy_rate"].format(c=c, p=hatar.isoformat(), s=""),
+                          "feloldasi_szabaly": FELOLDASI_SZABALY})
         elif e == "yfinance" and str(p.get("symbol") or "") in GAZDASAGI_NEV and _szam(v.get("price")) is not None:
             sym = p["symbol"]
             nev, egys = GAZDASAGI_NEV[sym]
@@ -827,7 +835,8 @@ def alapvonal_sorok(nyers: list, hatar: date, ma: date) -> tuple[list[dict], lis
                           "forras": f"Makronóm yfinance ({v.get('last_trade_at')})",
                           "modszer": "naiv alapvonal: a mai árfolyam változatlan (52 hetes sáv: "
                                      f"{v.get('52w_low')}–{v.get('52w_high')})",
-                          "ellenorzes": GAZDASAGI_ELLENORZES["fx"].format(c="", p="", s=sym), **_skala(v)})
+                          "ellenorzes": GAZDASAGI_ELLENORZES["fx"].format(c="", p="", s=sym),
+                          "feloldasi_szabaly": FELOLDASI_SZABALY, **_skala(v)})
     return sorok, hianyok
 
 
@@ -1201,7 +1210,8 @@ def gazdasagi_elorejelzesek(tabla: list[dict]) -> list[dict]:
                               f"között lesz, ha a lépés megtörténik (alapvonal nélküle: {_fmt(t['ertek'], nd)})",
                    "valoszinuseg": 0.8, "hatarido": t["hatarido"], "feltetel": "lepes", "metrika": t["mutato"],
                    "kuszob": f"{_fmt(lo, nd)}–{_fmt(hi, nd)} {t['egyseg']}", "ellenorzes": t.get("ellenorzes") or "Makronóm",
-                   "alap": f"{t.get('modszer')}; a lépés hatása: {t['hatas'].get('csatorna')}"})
+                   "alap": f"{t.get('modszer')}; a lépés hatása: {t['hatas'].get('csatorna')}",
+                   "feloldasi_szabaly": t.get("feloldasi_szabaly") or FELOLDASI_SZABALY})
     return ki
 
 

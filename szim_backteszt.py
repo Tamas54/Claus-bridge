@@ -25,8 +25,15 @@ A tisztaság a PONTOZÁSKOR számol a `modell_cutoff.CUTOFF` aktuális soraiból
 sorát, az ISMERETLEN futás újrafuttatás nélkül kap besorolást. A kimenetel hónapja itt a döntés (as_of) hónapja: a
 kimenetel ott kezd kibontakozni, a későbbi hónapok tisztábbak — a legrosszabb eset számít.
 
-TÁROLÁS: új tábla nincs (házi szabály). Az élő pontozó a meglévő `delphoi_nowcast_ledger`-t és `messages`-t olvassa;
-a backteszt bemenete-kimenete fájl az `orakel_backteszt/` alatt (gitben, a bizonyítékbázis része).
+FELOLDÁSI SZABÁLY (11-23, `elso_kozles`): a gazdasági sor tényleges értéke a sor `feloldasi_szabaly`-a szerint (alap:
+`first_print` — az ELSŐ közölt érték, nem a mai, revideált): az első-közlés-naplóból, amerikai sornál az ALFRED-ből;
+ha egyik sincs (régi futás, nem amerikai sor), a mai érték megy, KIMONDVA („revideált érték, első közlés hiányzik”),
+és a CRPS külön is megjelenik csak az első közlésen mért sorokra. Az as_of-alapvonal előtörténete ugyanígy a cél-
+dátumig ISMERT értékekből épül, ahol a napló vagy az ALFRED ezt lehetővé teszi.
+
+TÁROLÁS: SQLite-tábla nincs (házi szabály). Az élő pontozó a meglévő `delphoi_nowcast_ledger`-t és `messages`-t
+olvassa; az első-közlés-napló Postgres (`elso_kozles`, kapcsolóval, alapból KI); a backteszt bemenete-kimenete fájl
+az `orakel_backteszt/` alatt (gitben, a bizonyítékbázis része).
 """
 from __future__ import annotations
 
@@ -45,6 +52,7 @@ import time
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
+import elso_kozles as ek
 import llm_kapu
 import modell_cutoff
 
@@ -149,6 +157,8 @@ SZIV_PIAC = [
     "forecast_path (a v2 gazdasági ALAPVONALA): as_of paramétere nincs — helyette as_of-hű NAIV pálya: a "
     "macro_history utolsó, as_of-kor már közölt értéke változatlanul, 80%-os sávval a saját, as_of előtti h-lépéses "
     "változásainak 10–90. percentiliséből (10 év). Ez gyengébb alapvonal, mint az élő SARIMAX+IMF/OECD-pálya",
+    "forecast_path előtörténete: as_of előtti VINTAGE-ből, ahol van (az első-közlés-napló, amerikai sornál az "
+    "ALFRED); különben a MAI, revideált előtörténet — soronként kimondva a pálya `vintage` mezőjében",
     "yfinance: a quote helyett az as_of előtti záróárak (history); az ár = az utolsó as_of előtti záróár, az 52 hetes "
     "sáv az as_of előtti 365 napból",
 ]
@@ -343,14 +353,22 @@ def _kvantilis(xs: list[float], q: float) -> float:
     return xs[min(len(xs) - 1, max(0, int(round(q * (len(xs) - 1)))))]
 
 
-def asof_palya(v, mutato: str, as_of: date, hatar: date) -> dict:
+def asof_palya(v, mutato: str, as_of: date, hatar: date, *, ismert: dict | None = None) -> dict:
     """As_of-hű NAIV pálya a macro_history válaszából (a forecast_path helyett, annak alakjában): az utolsó, as_of-kor
-    már közölt érték változatlanul, 80%-os sávval a sor as_of előtti h-lépéses változásainak 10–90. percentiliséből."""
+    már közölt érték változatlanul, 80%-os sávval a sor as_of előtti h-lépéses változásainak 10–90. percentiliséből.
+
+    `ismert` (`elso_kozles.ismert_elotortenet`): {ertekek: {időszak: érték}, forras} — az as_of ELŐTT ismert
+    (vintage) értékek; ha megvan, az előtörténet ebből épül, nem a mai, revideált sorból. Nélküle a mai sor megy, és a
+    kimenet `vintage` mezője kimondja."""
     if not isinstance(v, dict) or v.get("hiba"):
         return v if isinstance(v, dict) else {"hiba": "macro_history: nincs adat"}
     freq = str(v.get("frequency") or "M")
     utolso_kozolt = asof_period("gdp_growth" if freq == "Q" else "cpi", as_of)
-    obs = [o for o in v.get("observations") or [] if isinstance(o, dict) and isinstance(o.get("value"), (int, float))
+    if ismert and ismert.get("ertekek"):
+        forras_obs, vintage = [{"period": p, "value": x} for p, x in ismert["ertekek"].items()], ismert.get("forras")
+    else:
+        forras_obs, vintage = v.get("observations") or [], None
+    obs = [o for o in forras_obs if isinstance(o, dict) and isinstance(o.get("value"), (int, float))
            and ("Q" in str(o.get("period"))) == (freq == "Q") and str(o["period"]) <= utolso_kozolt]
     if len(obs) < 24:
         return {"status": "missing", "reason": f"backteszt: kevés as_of előtti megfigyelés ({len(obs)})"}
@@ -370,6 +388,7 @@ def asof_palya(v, mutato: str, as_of: date, hatar: date) -> dict:
     return {"status": "ok", "last_actual": {"period": utolso["period"], "value": utolso["value"]}, "path": path,
             "skala_1lepes": lepes_skala(valt1, max(map(abs, ertekek))),
             "method": "backteszt: naiv perzisztencia + empirikus 80%-os sáv (macro_history, as_of előtt közölt adat)",
+            "vintage": vintage or "nincs — a mai (revideált) előtörténet",
             "source": f"macro_history {v.get('source') or ''} ({v.get('source_series_id') or mutato})".strip()}
 
 
@@ -393,11 +412,12 @@ class AsOfHivo:
     """A szimulátor Hivo-ja elé tett, időpont-hű proxy a Makronóm- és a Lexonomics-hívásokhoz: a paramétert as_of-ra
     köti, a választ kivágja, és a nem időpont-hű eszközt (forecast, forecast_path) nem hívja — kimondva."""
 
-    def __init__(self, hivo, as_of: date, hatar: date | None = None):
+    def __init__(self, hivo, as_of: date, hatar: date | None = None, *, naplo="alap"):
         self.hivo = hivo
         self.as_of = as_of
         self.hatar = hatar or as_of + timedelta(days=90)
         self.elotte = (as_of - timedelta(days=1)).isoformat()
+        self.naplo = ek.naplo() if naplo == "alap" else naplo      # az első-közlés-napló (KI állásban None)
 
     async def __call__(self, szerver: str, eszkoz: str, par: dict):
         par = dict(par)
@@ -412,7 +432,9 @@ class AsOfHivo:
                                                                      "start": str(self.as_of.year - 12)})
                 if hiba:
                     return None, hiba
-                v = asof_palya(v, mutato, self.as_of, self.hatar)
+                ismert = await ek.ismert_elotortenet(self.hivo, str(par.get("country") or ""), mutato, self.as_of,
+                                                     naplo=self.naplo)
+                v = asof_palya(v, mutato, self.as_of, self.hatar, ismert=ismert)
                 return v, (v.get("hiba") or (v.get("reason") if v.get("status") != "ok" else None))
             if eszkoz == "get_macro_indicator":
                 par["period"] = asof_period(par.get("indicator"), self.as_of)
@@ -1059,6 +1081,7 @@ def elo_pontozas(get_db, kimenetelek: dict, *, ma: date | None = None) -> dict:
             t = gazdasagi_tabla_sor(futasok[futas], e)
             if t and t.get("hatas"):        # a v2 gazdasági sávja: a fő szám a CRPS, nem a sávba esés Briere
                 gazd.append({"id": s["entity_key"], "esemeny": futas, "kulcs": t.get("kulcs"),
+                             **({"tenyleges_jeloles": km["jeloles"]} if km.get("jeloles") else {}),
                              **crps_mezok(t, float(km["ertek"]))})
         pont.append({"id": s["entity_key"], "esemeny": futas, "terulet": e.get("terulet"), "p": float(s["direction"]),
                      "o": o, "tisztasag": "ELES"})
@@ -1102,9 +1125,12 @@ async def elo_gazdasagi_kimenetelek(get_db, hiv, *, ma: date | None = None) -> d
             continue
         t = gazdasagi_tabla_sor(adat, e)
         if t and t.get("hatas"):
-            m = await gazdasagi_tenyleges(hiv, t)
+            m = await gazdasagi_tenyleges(hiv, dict(t, feloldasi_szabaly=e.get("feloldasi_szabaly")
+                                                    or t.get("feloldasi_szabaly")), ma=ma)
             if m.get("ertek") is not None:
-                ki[s["entity_key"]] = {"ertek": m["ertek"], "forras": m.get("forras")}
+                ki[s["entity_key"]] = {"ertek": m["ertek"], "forras": m.get("forras"),
+                                       "feloldasi_szabaly": m.get("feloldasi_szabaly"), "feloldas": m.get("feloldas"),
+                                       **({"jeloles": m["jeloles"]} if m.get("jeloles") else {})}
     return ki
 
 
@@ -1193,42 +1219,65 @@ async def macro_ertek(hiv, orszag: str, mutato: str, idoszak: str) -> float | No
     return None
 
 
-async def gazdasagi_tenyleges(hiv, sor: dict) -> dict:
-    """Egy gazdasági tábla-sor (v2: `gazdasagi_tabla`) célidőszakának mért értéke. {ertek, forras} vagy {hiba}."""
+NEM_REVIDEALODIK = "nem revideálódik (záróár / jegybanki döntés): a szabály a mért napot jelöli"
+
+
+async def gazdasagi_tenyleges(hiv, sor: dict, *, naplo="alap", ma: date | None = None) -> dict:
+    """Egy gazdasági tábla-sor (v2: `gazdasagi_tabla`) célidőszakának mért értéke a sor FELOLDÁSI SZABÁLYA szerint
+    (`feloldasi_szabaly`, alap: `first_print`; `elso_kozles.feloldas`). {ertek, forras, feloldasi_szabaly, feloldas,
+    [jeloles], [mai_ertek]} vagy {hiba}. A `jeloles` kimondja, ha az első közlés hiányzik, és a mai érték megy."""
     kulcs = str(sor.get("kulcs") or "")
+    szabaly = sor.get("feloldasi_szabaly") or ek.ALAP_SZABALY
+    naplo = ek.naplo() if naplo == "alap" else naplo
     try:
         if "=" in kulcs:                                     # árfolyam (naiv alapvonal, a horizont végén)
             z = await zaras(hiv, kulcs, _d(sor["idoszak"]))
-            return {"ertek": z["close"], "datum": z["date"], "forras": f"Makronóm yfinance history {kulcs}"}
+            return {"ertek": z["close"], "datum": z["date"], "forras": f"Makronóm yfinance history {kulcs}",
+                    "feloldasi_szabaly": szabaly, "feloldas": NEM_REVIDEALODIK}
         orszag, ind = kulcs.split(":", 1)
         if ind == "policy_rate":
             k = await kamat(hiv, orszag, _d(sor["idoszak"]))
-            return {"ertek": k["value"], "forras": f"Makronóm policy_rate {orszag} {sor['idoszak']}"}
+            return {"ertek": k["value"], "forras": f"Makronóm policy_rate {orszag} {sor['idoszak']}",
+                    "feloldasi_szabaly": szabaly, "feloldas": NEM_REVIDEALODIK}
         mutato = PALYA_INDIKATOR.get(ind)
         if not mutato:
             return {"hiba": f"ismeretlen mutató: {ind}"}
         x = await macro_ertek(hiv, orszag, mutato, str(sor["idoszak"]))
-        if x is None:
+        f = await ek.feloldas(hiv, orszag, mutato, str(sor["idoszak"]), szabaly=szabaly, mai=x, naplo=naplo,
+                              vintage=sor.get("vintage"), ma=ma)
+        if f.get("ertek") is None:
             return {"hiba": f"a {sor['idoszak']} időszak értéke még nincs a macro_history-ban"}
-        return {"ertek": x, "forras": f"Makronóm macro_history {orszag} {mutato} {sor['idoszak']}"}
+        ki = {"ertek": f["ertek"], "forras": f"Makronóm macro_history {orszag} {mutato} {sor['idoszak']}",
+              "feloldasi_szabaly": szabaly, "feloldas": f["feloldas"], "mai_ertek": x}
+        if f.get("jeloles"):
+            ki.update(jeloles=f["jeloles"], jeloles_ok=f.get("ok"))
+        if f.get("kozolve"):
+            ki["kozolve"] = f["kozolve"]
+        return ki
     except Exception as e:  # noqa: BLE001 — a hiány kimondva, nem pótolva
         return {"hiba": f"{type(e).__name__}: {str(e)[:200]}"}
 
 
-async def gazdasagi_sorok(hiv, futas: dict, ma: date) -> list[dict]:
+async def gazdasagi_sorok(hiv, futas: dict, ma: date, *, naplo="alap") -> list[dict]:
     """A futás gazdasági táblájának minden sora a mért értékkel: a fő szám a CRPS (`crps_mezok`: döntéssel, alapvonal,
-    a normalizált különbség), mellette leírásként a sávba esés (1/0) és a pontbecslések hibája."""
+    a normalizált különbség), mellette leírásként a sávba esés (1/0) és a pontbecslések hibája. A tényleges érték a
+    sor feloldási szabálya szerint (a régi, mező nélküli futásnál `first_print`); a hiányzó első közlés kimondva."""
     ki = []
+    naplo = ek.naplo() if naplo == "alap" else naplo
     for t in futas.get("gazdasag") or []:
         sor = {k: t.get(k) for k in ("kulcs", "mutato", "orszag", "egyseg", "idoszak", "hatarido", "ertek", "also",
                                      "felso", "naiv", "dontessel", "dontessel_also", "dontessel_felso", "skala")}
+        sor["feloldasi_szabaly"] = t.get("feloldasi_szabaly") or ek.ALAP_SZABALY
         sor["hatas"] = (t.get("hatas") or {}).get("valtozas") if t.get("hatas") else None
         if str(t.get("hatarido") or "9999")[:10] > ma.isoformat():
             sor["allapot"] = "nem esedékes"
             ki.append(sor)
             continue
-        m = await gazdasagi_tenyleges(hiv, t)
-        sor.update(tenyleges=m.get("ertek"), tenyleges_forras=m.get("forras") or m.get("hiba"))
+        m = await gazdasagi_tenyleges(hiv, t, naplo=naplo, ma=ma)
+        sor.update(tenyleges=m.get("ertek"), tenyleges_forras=m.get("forras") or m.get("hiba"),
+                   tenyleges_feloldas=m.get("feloldas"), tenyleges_mai=m.get("mai_ertek"))
+        if m.get("jeloles"):
+            sor["tenyleges_jeloles"] = m["jeloles"]
         x = m.get("ertek")
         if x is not None:
             if t.get("hatas"):
@@ -1458,11 +1507,18 @@ def crps_csoportok(sorok: list[dict]) -> dict:
     az EUR/HUF 6/7) — ez a szélesebb-sáv torzítás másik alakja, ezért külön, csak tájékoztatásul."""
     crps = [dict(g, id=g.get("id") or f"{g.get('esemeny')}:{g['kulcs']}") for g in sorok
             if g.get("crps_dontessel") is not None and g.get("crps_alap") is not None]
-    return {"crps": paros_crps_kulonbseg([g for g in crps if g.get("alap_eloszlas") == "sav80"]),
+    savos = [g for g in crps if g.get("alap_eloszlas") == "sav80"]
+    jelolt = [g for g in savos if g.get("tenyleges_jeloles")]
+    return {"crps": paros_crps_kulonbseg(savos),
+            "crps_elso_kozlesen": paros_crps_kulonbseg([g for g in savos if not g.get("tenyleges_jeloles")]),
+            "feloldas": {"n_savos": len(savos), "n_elso_kozles_hianyzik": len(jelolt),
+                         "jeloles": ek.JELOLES_HIANY if jelolt else None,
+                         "hianyzik": sorted({f"{g.get('kulcs')} {g.get('idoszak') or ''}".strip() for g in jelolt})},
             "crps_pont_alapvonal": paros_crps_kulonbseg([g for g in crps if g.get("alap_eloszlas") != "sav80"]),
             "crps_minden_sor": paros_crps_kulonbseg(crps),
             "crps_megjegyzes": "fő szám: sávos alapvonal ellen; negatív = jobbak vagyunk; a pont-alapvonalas sorok "
-                               "csak tájékoztatók (sáv a pont ellen)"}
+                               "csak tájékoztatók (sáv a pont ellen); `crps_elso_kozlesen`: csak az első közölt "
+                               "értéken mért sorok (a többinél a mai, revideált érték ment, kimondva: `feloldas`)"}
 
 
 def gazdasagi_osszegzes(sorok: list[dict]) -> dict:

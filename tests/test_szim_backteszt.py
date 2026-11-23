@@ -519,13 +519,18 @@ def test_elo_gazdasagi_sorok_automatikus_kimenetele(get_db):
                                                 "gazdasag": tabla}, ensure_ascii=False))
     km = _run(sb.elo_gazdasagi_kimenetelek(get_db, _gazd_hiv(), ma=date(2026, 11, 22)))
     kulcs = elore[0]["naplo"]["entity_key"]
-    assert km == {kulcs: {"ertek": 2.9, "forras": "Makronóm macro_history HU cpi 2026-09"}}
+    # a régi futásnak nincs első-közlés-naplója: a mai érték megy, de KIMONDVA (nem csendben)
+    assert km == {kulcs: {"ertek": 2.9, "forras": "Makronóm macro_history HU cpi 2026-09",
+                          "feloldasi_szabaly": "first_print", "feloldas": "a mai (revideált) érték",
+                          "jeloles": "revideált érték, első közlés hiányzik"}}
     ki = sb.elo_pontozas(get_db, km, ma=date(2026, 11, 22))
     assert ki["pontozott"] == 1 and ki["pontszam"]["osszesen"]["brier"] == pytest.approx((0.8 - 1) ** 2)
     # a v2 gazdasági sávja a CRPS-pontozásba is bekerül (a sávba esés Briere mellé, fő számként)
     assert ki["gazdasagi_crps"]["crps"]["n"] == 1          # sáv a sáv ellen: a fő szám
     assert ki["gazdasagi_sorok"][0]["crps_dontessel"] == pytest.approx(sb.crps_sav(2.4, 3.6, 0.8, 2.9), abs=1e-5)
     assert ki["gazdasagi_sorok"][0]["alap_eloszlas"] == "sav80"
+    assert ki["gazdasagi_sorok"][0]["tenyleges_jeloles"] == "revideált érték, első közlés hiányzik"
+    assert ki["gazdasagi_crps"]["feloldas"]["n_elso_kozles_hianyzik"] == 1
 
 
 # ── CRPS: a gazdasági sávok helyes pontszáma (11-23) ─────────────────────────
