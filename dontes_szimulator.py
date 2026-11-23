@@ -780,6 +780,13 @@ def _szam(x) -> float | None:
     return float(x) if isinstance(x, (int, float)) and not isinstance(x, bool) else None
 
 
+def _skala(v: dict) -> dict:
+    """A CRPS normalizálásának skálája (a cél előtti egylépéses változások szórása), ha a forrás megadja — a
+    backteszt as_of-pályája és árfolyamsora igen (`szim_backteszt.asof_palya`, `yf_szur`); az élő forrás nem."""
+    s = _szam(v.get("skala_1lepes"))
+    return {"skala": s} if s else {}
+
+
 def alapvonal_sorok(nyers: list, hatar: date, ma: date) -> tuple[list[dict], list[str]]:
     """A gazdasági ALAPVONAL determinisztikusan, a Makronóm nyers válaszaiból (AI nélkül): a forecast_path pontja a
     horizont végéig megjelenő időszakra, 80%-os sávval; az alapkamat és az árfolyam naiv alapvonala (változatlan).
@@ -801,7 +808,8 @@ def alapvonal_sorok(nyers: list, hatar: date, ma: date) -> tuple[list[dict], lis
                           "naiv": False, "hatarido": pt["megjelenik"],
                           "utolso_teny": v.get("last_actual"), "forras": f"Makronóm forecast_path ({v.get('source')})",
                           "modszer": "SARIMAX + IMF/OECD-horgony, 80%-os sáv a backtesztből",
-                          "ellenorzes": GAZDASAGI_ELLENORZES.get(ind, "Makronóm").format(c=c, p=pt["period"], s="")})
+                          "ellenorzes": GAZDASAGI_ELLENORZES.get(ind, "Makronóm").format(c=c, p=pt["period"], s=""),
+                          **_skala(v)})
         elif e == "get_macro_indicator" and p.get("indicator") == "policy_rate" and _szam(v.get("value")) is not None:
             nev, egys = GAZDASAGI_NEV["policy_rate"]
             sorok.append({"kulcs": f"{c}:policy_rate", "mutato": nev, "orszag": c, "egyseg": egys,
@@ -819,7 +827,7 @@ def alapvonal_sorok(nyers: list, hatar: date, ma: date) -> tuple[list[dict], lis
                           "forras": f"Makronóm yfinance ({v.get('last_trade_at')})",
                           "modszer": "naiv alapvonal: a mai árfolyam változatlan (52 hetes sáv: "
                                      f"{v.get('52w_low')}–{v.get('52w_high')})",
-                          "ellenorzes": GAZDASAGI_ELLENORZES["fx"].format(c="", p="", s=sym)})
+                          "ellenorzes": GAZDASAGI_ELLENORZES["fx"].format(c="", p="", s=sym), **_skala(v)})
     return sorok, hianyok
 
 

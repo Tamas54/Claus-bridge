@@ -18,6 +18,8 @@ A MÓDSZER
 5. PONTOZÁS (`pontoz`, `elo_pontozas`): Brier kérdésenként, összevetve az 50%-os és a bázisarány-alapvonallal; a
    hiányzó válasz kimondva (és egy „hiány = 0,5” sorban is). Ugyanez a pontozó méri az éles `szim:*` ledger-sorokat
    a határidő után — a bináris, a küszöbös és az intervallumos („X és Y közé esik, p=0,8”) előrejelzést is.
+   A GAZDASÁGI SÁVOK fő száma a CRPS (`crps_sav`, `paros_crps_kulonbseg`, 11-23): a sávba esés Briere a szélesebb
+   sávot jutalmazná; a CRPS a pontosságot és a sáv szűkségét együtt méri. A találati arány csak leírás.
 
 A tisztaság a PONTOZÁSKOR számol a `modell_cutoff.CUTOFF` aktuális soraiból: ha a szonda később tölti ki egy modell
 sorát, az ISMERETLEN futás újrafuttatás nélkül kap besorolást. A kimenetel hónapja itt a döntés (as_of) hónapja: a
@@ -36,7 +38,9 @@ import json
 import logging
 import math
 import os
+import random
 import re
+import statistics
 import time
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
@@ -298,6 +302,7 @@ def yf_szur(v, as_of: date):
     if not sorok:
         return {"hiba": "backteszt: nincs as_of előtti árfolyamsor"}
     ev = [float(s["close"]) for s in sorok if s["date"] >= (as_of - timedelta(days=365)).isoformat()]
+    skala = lepes_skala([b - a for a, b in zip(ev, ev[1:])], max(map(abs, ev)))
     utolso = sorok[-1]
     harminc = [s for s in sorok if s["date"] >= (as_of - timedelta(days=30)).isoformat()]
     return {"symbol": v.get("symbol"), "source": v.get("source") or "Yahoo Finance (yfinance history)",
@@ -306,7 +311,7 @@ def yf_szur(v, as_of: date):
             "valtozas_30_nap_szazalek": (round((float(utolso["close"]) / float(harminc[0]["close"]) - 1) * 100, 2)
                                          if harminc else None),
             "utolso_10_zaras": [{"date": s["date"], "close": s.get("close")} for s in sorok[-10:]],
-            "megjegyzes": "csak as_of előtti záróárak (backteszt)"}
+            "skala_1lepes": skala, "megjegyzes": "csak as_of előtti záróárak (backteszt)"}
 
 
 #: a v2 forecast_path-mutatói → a macro_history kanonikus sorai (ugyanez a GT forrása is)
@@ -352,16 +357,18 @@ def asof_palya(v, mutato: str, as_of: date, hatar: date) -> dict:
     obs = obs[-(40 if freq == "Q" else 120):]
     ertekek = [float(o["value"]) for o in obs]
     utolso = obs[-1]
+    valt1 = [ertekek[i + 1] - ertekek[i] for i in range(len(ertekek) - 1)]
     path, per = [], str(utolso["period"])
     for h in range(1, 30):
         per = _kovetkezo(per)
         if _idoszak_vege(per) > hatar:
             break
-        valt = [ertekek[i + h] - ertekek[i] for i in range(len(ertekek) - h)]
+        valt = valt1 if h == 1 else [ertekek[i + h] - ertekek[i] for i in range(len(ertekek) - h)]
         path.append({"period": per, "value": round(float(utolso["value"]), 3),
                      "low": round(float(utolso["value"]) + _kvantilis(valt, 0.1), 3),
                      "high": round(float(utolso["value"]) + _kvantilis(valt, 0.9), 3), "model": "naiv-asof"})
     return {"status": "ok", "last_actual": {"period": utolso["period"], "value": utolso["value"]}, "path": path,
+            "skala_1lepes": lepes_skala(valt1, max(map(abs, ertekek))),
             "method": "backteszt: naiv perzisztencia + empirikus 80%-os sáv (macro_history, as_of előtt közölt adat)",
             "source": f"macro_history {v.get('source') or ''} ({v.get('source_series_id') or mutato})".strip()}
 
@@ -818,6 +825,146 @@ def kimenetel(spec: dict, ertek: float | None = None) -> int | None:
     raise ValueError(f"ismeretlen előrejelzés-típus: {t}")
 
 
+# ══ 7b. CRPS — a gazdasági sávok helyes pontszáma ══════════════════════════════════════════════════════════════
+#
+# A sávba esés (1/0) Briere a szélesebb sávot jutalmazza: 97%-os találatnál 0,058, a pontosan kalibrált 80%-os sávnál
+# 0,16. A CRPS (continuous ranked probability score) a sávból épített eloszlást pontozza: ∫(F(y) − 1{y ≥ x})² dy. A
+# pontosság és a sáv szűkössége együtt számít, és proper: a várható pontszámot a valódi meggyőződés közlése
+# minimalizálja. Kisebb = jobb; egysége a mutatóé. Minta: ThesisInstitute/thesis (MIT) — `scoreNumericCdfDistribution`,
+# `pairedNormalizedCrpsDelta`, `scripts/kalshi_compare/scoring.py` (`sign_flip_p`, `bootstrap_ci`).
+
+SAV_P = 0.8                       # a v2 gazdasági sávjainak névleges lefedése (`gazdasagi_tabla`)
+SKALA_RELATIV_PADLO = 1e-12       # a minta `NORMALIZATION_SCALE_RELATIVE_FLOOR`-ja
+PROBA_SEED = 20261019
+PROBA_PONTOS_HATAR = 16           # ennyi elemig az előjelcsere pontos (2^n eset), fölötte Monte Carlo
+PROBA_MC = 20_000
+PROBA_BOOTSTRAP = 10_000
+_N01 = statistics.NormalDist()
+
+
+def crps_normal(mu: float, sigma: float, x: float) -> float:
+    """Zárt képlet: CRPS(N(μ, σ²), x) = σ·[z(2Φ(z) − 1) + 2φ(z) − 1/√π], z = (x − μ)/σ. σ = 0: |x − μ| (pontbecslés)."""
+    if sigma <= 0:
+        return abs(x - mu)
+    z = (x - mu) / sigma
+    return sigma * (z * (2 * _N01.cdf(z) - 1) + 2 * _N01.pdf(z) - 1 / math.sqrt(math.pi))
+
+
+def crps_sav(also, felso, p: float, tenyleges) -> float | None:
+    """CRPS a központi `p`-intervallumból [also, felso] épített normál eloszlásra: közép = a sáv közepe,
+    σ = szélesség / (2·z₍₁₊ₚ₎/₂). also = felso: pontbecslés (σ = 0) → |tény − érték|. Nyitott vagy hiányzó sávvég → None."""
+    if also is None or felso is None or tenyleges is None:
+        return None
+    if not 0 < p < 1:
+        raise ValueError(f"a sáv valószínűsége 0 és 1 közé esik, nem {p}")
+    a, b = sorted((float(also), float(felso)))
+    return crps_normal((a + b) / 2, (b - a) / (2 * _N01.inv_cdf((1 + p) / 2)), float(tenyleges))
+
+
+def lepes_skala(valt: list[float], nagysag: float = 0.0) -> float | None:
+    """A normalizálás skálája: a cél ELŐTTI időszakok egylépéses változásainak mintaszórása (n − 1). None, ha kevesebb
+    mint 2 változás van, vagy a szórás a sor nagyságának 1e-12-ed része alatt (lapos sor: maradék, nem nevező). Az
+    előrejelzés (a sáv) sosem bemenet: különben a szélesebb sáv a saját normalizált hibáját zsugorítaná."""
+    if len(valt) < 2:
+        return None
+    s = statistics.stdev(valt)
+    return s if math.isfinite(s) and s > abs(nagysag) * SKALA_RELATIV_PADLO else None
+
+
+def paros_crps_kulonbseg(sorok: list[dict]) -> dict:
+    """sorok: [{id (célpont), esemeny, crps_dontessel, crps_alap, skala}]. Célpontonként (CRPS_döntéssel − CRPS_alap)
+    / skála (több futásnál előbb a célponton belül átlagolva), utána átlag. NEGATÍV = jobbak vagyunk az alapvonalnál. A
+    skála nélküli célpont csak a (skálafüggetlen) jobb/rosszabb számlálásba megy. p: előjelcserés próba célpontonként
+    és eseményenként (fürt: egy futás sorai összefüggnek); 95%-os CI: eseményfürtös bootstrap."""
+    cel: dict[str, dict] = {}
+    for s in sorok:
+        if s.get("crps_dontessel") is None or s.get("crps_alap") is None:
+            continue
+        c = cel.setdefault(str(s["id"]), {"d": [], "a": [], "skala": s.get("skala"), "esemeny": s.get("esemeny")})
+        c["d"].append(float(s["crps_dontessel"]))
+        c["a"].append(float(s["crps_alap"]))
+    ki: dict = {"n": len(cel), "jobb_db": 0, "rosszabb_db": 0, "dontetlen_db": 0, "skala_nelkul": []}
+    delta, furt = [], []
+    for k, c in sorted(cel.items()):
+        d, a = statistics.fmean(c["d"]), statistics.fmean(c["a"])
+        ki["jobb_db" if d < a - 1e-12 else "rosszabb_db" if d > a + 1e-12 else "dontetlen_db"] += 1
+        if c["skala"] and c["skala"] > 0:
+            delta.append((d - a) / float(c["skala"]))
+            furt.append(str(c["esemeny"] or k))
+        else:
+            ki["skala_nelkul"].append(k)
+    ki["n_norm"] = len(delta)
+    if delta:
+        lo, hi = bootstrap_ci(delta, furt)
+        ki.update(kulonbseg_norm=round(statistics.fmean(delta), 4), ci95=[round(lo, 4), round(hi, 4)],
+                  p_celpontonkent=round(elojelcseres_p(delta), 4), p_esemenyenkent=round(elojelcseres_p(delta, furt), 4),
+                  n_esemeny=len(set(furt)))
+    return ki
+
+
+def elojelcseres_p(ertekek: list[float], furtok: list[str] | None = None, *, seed: int = PROBA_SEED) -> float:
+    """Kétoldalú randomizációs p a 0 átlagra, előjel-szimmetria mellett (a minta `sign_flip_p`-je). Fürtökkel a fürt
+    összege cserél előjelet együtt. ≤16 egységig pontos, fölötte Monte Carlo (Phipson–Smyth: a megfigyelt eset is számít)."""
+    n = len(ertekek)
+    if n == 0:
+        return float("nan")
+    if furtok is None:
+        egysegek = list(ertekek)
+    else:
+        g: dict[str, float] = {}
+        for f, v in zip(furtok, ertekek):
+            g[f] = g.get(f, 0.0) + v
+        egysegek = [g[f] for f in sorted(g)]
+    megfigyelt = abs(sum(egysegek)) / n - 1e-12
+    m = len(egysegek)
+    if m <= PROBA_PONTOS_HATAR:
+        talalat = 0
+        for maszk in range(2 ** m):
+            if abs(sum(-v if maszk >> i & 1 else v for i, v in enumerate(egysegek))) / n >= megfigyelt:
+                talalat += 1
+        return talalat / 2 ** m
+    rng = random.Random(seed)
+    talalat = 1
+    for _ in range(PROBA_MC):
+        if abs(sum(v if rng.random() < 0.5 else -v for v in egysegek)) / n >= megfigyelt:
+            talalat += 1
+    return talalat / (PROBA_MC + 1)
+
+
+def bootstrap_ci(ertekek: list[float], furtok: list[str] | None = None, *, huzas: int = PROBA_BOOTSTRAP,
+                 seed: int = PROBA_SEED, szint: float = 0.95) -> tuple[float, float]:
+    """Percentilis-intervallum az átlagra; fürtökkel a fürtöket húzza visszatevéssel (a minta `bootstrap_ci`-je)."""
+    if not ertekek:
+        return float("nan"), float("nan")
+    rng = random.Random(seed)
+    csop: dict[str, list[float]] = {}
+    for f, v in zip(furtok or [str(i) for i in range(len(ertekek))], ertekek):
+        csop.setdefault(f, []).append(v)
+    kulcsok = sorted(csop)
+    atlagok = []
+    for _ in range(huzas):
+        minta = [v for _ in kulcsok for v in csop[kulcsok[rng.randrange(len(kulcsok))]]]
+        atlagok.append(sum(minta) / len(minta))
+    atlagok.sort()
+    return (atlagok[int(math.floor((1 - szint) / 2 * huzas))],
+            atlagok[min(int(math.ceil((1 + szint) / 2 * huzas)) - 1, huzas - 1)])
+
+
+def crps_mezok(t: dict, x: float) -> dict:
+    """Egy gazdasági tábla-sor CRPS-mezői a mért értékre. A döntéssel: a 80%-os sáv. Az alapvonal: a saját 80%-os sávja
+    (pályás mutató), sáv nélküli naiv alapvonalnál (alapkamat, árfolyam) a kimondott pontérték (σ = 0: CRPS = |hiba|)."""
+    savos = not t.get("naiv") and t.get("also") is not None and t.get("felso") is not None
+    d = crps_sav(t.get("dontessel_also"), t.get("dontessel_felso"), SAV_P, x) if t.get("hatas") else None
+    a = (crps_sav(t["also"], t["felso"], SAV_P, x) if savos
+         else crps_sav(t.get("ertek"), t.get("ertek"), SAV_P, x))
+    sk = t.get("skala")
+    ki = {"crps_dontessel": None if d is None else round(d, 5), "crps_alap": None if a is None else round(a, 5),
+          "alap_eloszlas": "sav80" if savos else "pont (naiv, sáv nélkül)", "skala": sk, "crps_kulonbseg_norm": None}
+    if d is not None and a is not None and sk:
+        ki["crps_kulonbseg_norm"] = round((d - a) / float(sk), 4)
+    return ki
+
+
 def _osszesit(sorok: list[dict]) -> dict:
     """Brier a megválaszolt kérdéseken + két alapvonal (50% és leave-one-out bázisarány), skill, hiányok."""
     pontozott = [s for s in sorok if s.get("o") is not None]
@@ -883,7 +1030,7 @@ def elo_pontozas(get_db, kimenetelek: dict, *, ma: date | None = None) -> dict:
     finally:
         conn.close()
     futasok: dict[str, dict] = {}
-    pont, nyitott, nem_esedekes, ellenorzes = [], [], 0, {}
+    pont, gazd, nyitott, nem_esedekes, ellenorzes = [], [], [], 0, {}
     for s in sorok:
         _, futas, nn = s["entity_key"].split(":", 2)
         if str(s["target_window"])[:10] > ma.isoformat():
@@ -909,10 +1056,25 @@ def elo_pontozas(get_db, kimenetelek: dict, *, ma: date | None = None) -> dict:
             if o is None:
                 nyitott.append(f"{s['entity_key']} (a küszöb nem értelmezhető: „{e.get('kuszob')}”)")
                 continue
+            t = gazdasagi_tabla_sor(futasok[futas], e)
+            if t and t.get("hatas"):        # a v2 gazdasági sávja: a fő szám a CRPS, nem a sávba esés Briere
+                gazd.append({"id": s["entity_key"], "esemeny": futas, "kulcs": t.get("kulcs"),
+                             **crps_mezok(t, float(km["ertek"]))})
         pont.append({"id": s["entity_key"], "esemeny": futas, "terulet": e.get("terulet"), "p": float(s["direction"]),
                      "o": o, "tisztasag": "ELES"})
-    return {"pontszam": pontoz(pont), "pontozott": len(pont), "nyitott_esedekes": nyitott,
-            "nem_esedekes": nem_esedekes, "naplo_ellenorzes": ellenorzes, "ma": ma.isoformat()}
+    return {"pontszam": pontoz(pont), "gazdasagi_crps": crps_csoportok(gazd), "gazdasagi_sorok": gazd,
+            "pontozott": len(pont), "nyitott_esedekes": nyitott, "nem_esedekes": nem_esedekes,
+            "naplo_ellenorzes": ellenorzes, "ma": ma.isoformat()}
+
+
+def gazdasagi_tabla_sor(adat: dict, e: dict) -> dict | None:
+    """Az éles futás gazdasági táblájának az a sora, amelyből a v2 intervallumos előrejelzése készült (az állítás
+    „<mutató> (<ország> <időszak>): …”-tal kezdődik, `dontes_szimulator.gazdasagi_elorejelzesek`)."""
+    for t in adat.get("gazdasag") or []:
+        hol = f"{t['orszag']} " if t.get("orszag") else ""
+        if str(e.get("allitas") or "").startswith(f"{t.get('mutato')} ({hol}{t.get('idoszak')})"):
+            return t
+    return None
 
 
 async def elo_gazdasagi_kimenetelek(get_db, hiv, *, ma: date | None = None) -> dict:
@@ -938,13 +1100,11 @@ async def elo_gazdasagi_kimenetelek(get_db, hiv, *, ma: date | None = None) -> d
                   if (x.get("naplo") or {}).get("entity_key") == s["entity_key"]), None)
         if not e:
             continue
-        for t in adat.get("gazdasag") or []:
-            hol = f"{t['orszag']} " if t.get("orszag") else ""
-            if t.get("hatas") and str(e.get("allitas") or "").startswith(f"{t['mutato']} ({hol}{t['idoszak']})"):
-                m = await gazdasagi_tenyleges(hiv, t)
-                if m.get("ertek") is not None:
-                    ki[s["entity_key"]] = {"ertek": m["ertek"], "forras": m.get("forras")}
-                break
+        t = gazdasagi_tabla_sor(adat, e)
+        if t and t.get("hatas"):
+            m = await gazdasagi_tenyleges(hiv, t)
+            if m.get("ertek") is not None:
+                ki[s["entity_key"]] = {"ertek": m["ertek"], "forras": m.get("forras")}
     return ki
 
 
@@ -1056,12 +1216,12 @@ async def gazdasagi_tenyleges(hiv, sor: dict) -> dict:
 
 
 async def gazdasagi_sorok(hiv, futas: dict, ma: date) -> list[dict]:
-    """A futás gazdasági táblájának minden sora a mért értékkel: a „döntéssel” sáv (80%) és az alapvonal sávja
-    teljesült-e, és a pontbecslések hibája."""
+    """A futás gazdasági táblájának minden sora a mért értékkel: a fő szám a CRPS (`crps_mezok`: döntéssel, alapvonal,
+    a normalizált különbség), mellette leírásként a sávba esés (1/0) és a pontbecslések hibája."""
     ki = []
     for t in futas.get("gazdasag") or []:
         sor = {k: t.get(k) for k in ("kulcs", "mutato", "orszag", "egyseg", "idoszak", "hatarido", "ertek", "also",
-                                     "felso", "naiv", "dontessel", "dontessel_also", "dontessel_felso")}
+                                     "felso", "naiv", "dontessel", "dontessel_also", "dontessel_felso", "skala")}
         sor["hatas"] = (t.get("hatas") or {}).get("valtozas") if t.get("hatas") else None
         if str(t.get("hatarido") or "9999")[:10] > ma.isoformat():
             sor["allapot"] = "nem esedékes"
@@ -1078,9 +1238,37 @@ async def gazdasagi_sorok(hiv, futas: dict, ma: date) -> list[dict]:
             if not t.get("naiv") and t.get("also") is not None and t.get("felso") is not None:
                 sor["o_alap"] = kimenetel({"tipus": "intervallum", "also": t["also"], "felso": t["felso"]}, x)
             sor["hiba_alap"] = round(abs(float(t["ertek"]) - x), 4)
+            sor.update(crps_mezok(t, float(x)))
         sor["allapot"] = "mérve" if x is not None else "nincs adat"
         ki.append(sor)
     return ki
+
+
+async def skala_potlas(futas: dict, hiv) -> list[str]:
+    """A CRPS előtti futás gazdasági sorainak skálája utólag, a FELVETT nyers adatból: ugyanaz az as_of-pálya
+    (`asof_palya`) és árfolyamsor (`yf_szur`), amelyből a futás alapvonala épült — a sávot nem nézi. A sorokat helyben
+    egészíti ki; kimenet: a skála nélkül maradt sorok, okkal (a naiv alapkamatnak nincs egylépéses előtörténete)."""
+    import dontes_szimulator as ds
+    as_of = _d(futas["as_of"])
+    proxy = AsOfHivo(ds.Hivo(hiv, echolot_koz_s=0.0), as_of, _d(futas.get("horizont_vege") or as_of))
+    hiany = []
+    for t in futas.get("gazdasag") or []:
+        kulcs = str(t.get("kulcs") or "")
+        if t.get("skala"):
+            continue
+        if "=" in kulcs:
+            eszkoz, par = "yfinance", {"symbol": kulcs}
+        elif kulcs.split(":")[-1] in PALYA_INDIKATOR:
+            eszkoz, par = "forecast_path", {"country": kulcs.split(":")[0], "indicator": kulcs.split(":")[-1]}
+        else:
+            hiany.append(f"{kulcs}: nincs egylépéses előtörténet a felvételben")
+            continue
+        v, hiba = await proxy("makronom", eszkoz, par)
+        if isinstance(v, dict) and v.get("skala_1lepes"):
+            t["skala"] = v["skala_1lepes"]
+        else:
+            hiany.append(f"{kulcs}: {hiba or 'nincs skála'}")
+    return hiany
 
 
 #: a modell SZABAD gazdasági előrejelzéseinek (piac-lépés `elorejelzesek`) feloldása: kulcsszó → mutató
@@ -1207,15 +1395,15 @@ async def futtat_esemeny(esemeny: dict, ut: str, *, felvevo: Felvevo, get_db, ma
 
 
 async def ertekeles(bank: dict, gt: dict, eredmenyek: list[dict], *, hiv=None, ma: date | None = None) -> dict:
-    """A bank × GT × futások → Brier-táblák. ELÖL a gazdasági mag (a v2 intervallumos előrejelzései a mért értékkel,
-    az alapvonal sávja és pontbecslése mellett), utána az előregisztrált kérdések, végül a modell szabad gazdasági
+    """A bank × GT × futások → pontszám-táblák. ELÖL a gazdasági mag (a v2 intervallumos előrejelzései a mért értékkel:
+    CRPS a döntéssel és az alapvonallal, páros különbség), utána az előregisztrált kérdések, végül a modell szabad gazdasági
     előrejelzései (nem előregisztrált, külön sor). A tisztaság MOST számol a `modell_cutoff.CUTOFF` soraiból."""
     ma = ma or datetime.now(timezone.utc).date()
     esemenyek = {e["id"]: e for e in bank["esemenyek"]}
     kimenet = {"utak": {}, "esemenyenkent": [], "cutoff_sorok": sorted(modell_cutoff.CUTOFF), "ma": ma.isoformat(),
                "szamolva": datetime.now(timezone.utc).isoformat()}
     for ut in sorted({e["ut"] for e in eredmenyek}):
-        kerdes_sorok, gazd_sorok, alap_sorok, szabad_sorok, gazd_reszlet, szabad_reszlet = [], [], [], [], [], []
+        kerdes_sorok, szabad_sorok, gazd_reszlet, szabad_reszlet = [], [], [], []
         for f in [e for e in eredmenyek if e["ut"] == ut]:
             es = esemenyek[f["esemeny"]]
             tz = tisztasag(f["modellek_futott"], es)
@@ -1230,12 +1418,6 @@ async def ertekeles(bank: dict, gt: dict, eredmenyek: list[dict], *, hiv=None, m
             for g in gs:
                 g.update(esemeny=es["id"], tisztasag=tz["tisztasag"])
                 gazd_reszlet.append(g)
-                if g.get("o_dontessel") is not None:
-                    gazd_sorok.append({"id": f"{es['id']}:{g['kulcs']}", "esemeny": es["id"], "terulet": "gazdasag",
-                                       "p": 0.8, "o": g["o_dontessel"], "tisztasag": tz["tisztasag"]})
-                if g.get("o_alap") is not None:
-                    alap_sorok.append({"id": f"{es['id']}:{g['kulcs']}", "esemeny": es["id"], "terulet": "alapvonal",
-                                       "p": 0.8, "o": g["o_alap"], "tisztasag": "ALAPVONAL"})
             orszag = (((f.get("szimulator_eredmeny") or {}).get("terv") or {}).get("orszag")) or es.get("orszag")
             for e in ((f.get("piac_eredmeny") or {}).get("elorejelzesek") or []):
                 if not isinstance(e, dict) or hiv is None:
@@ -1249,34 +1431,58 @@ async def ertekeles(bank: dict, gt: dict, eredmenyek: list[dict], *, hiv=None, m
                                          "tisztasag": tz["tisztasag"]})
             ossz = _osszesit(esemeny_sorok)
             gmert = [g for g in gs if g.get("o_dontessel") is not None]
+            gnorm = [g["crps_kulonbseg_norm"] for g in gs if g.get("crps_kulonbseg_norm") is not None
+                     and g.get("alap_eloszlas") == "sav80"]                  # mint a fő szám: sáv a sáv ellen
             kimenet["esemenyenkent"].append({
                 "esemeny": es["id"], "ut": ut, "as_of": es["as_of"],
                 "kimenetel_honap": f"{tz['honap']}…{max([q['hatarido'] for q in es['kerdesek']] + [str(g.get('hatarido') or '') for g in gs])[:7]}",
                 "modellek": f["modellek_futott"], "tisztasag": tz["tisztasag"], "lepesenkent": tz["lepesenkent"],
                 "gazdasagi_n": len(gmert), "gazdasagi_talalat": sum(g["o_dontessel"] for g in gmert),
-                "gazdasagi_brier": round(sum(brier(0.8, g["o_dontessel"]) for g in gmert) / len(gmert), 4) if gmert else None,
+                "gazdasagi_crps_norm": round(statistics.fmean(gnorm), 4) if gnorm else None,
+                "gazdasagi_crps_n_norm": len(gnorm),
                 "n_elorejelzes": ossz.get("n_valaszolt", 0), "n_kerdes": ossz.get("n_kerdes", 0),
                 "brier": ossz.get("brier"), "brier_alap_50": ossz.get("brier_alap_50"),
                 "brier_alap_bazis": ossz.get("brier_alap_bazis"), "hianyzo": ossz.get("hianyzo"),
                 "szivargas_db": len(f.get("szivargas") or []), "allapot": f.get("allapot"),
                 "motorok": f.get("motorok"), "panel": (f.get("panel") or {}).get("modell")})
-        pont = [g for g in gazd_reszlet if g.get("hiba_dontessel") is not None]
         kimenet["utak"][ut] = {
-            "gazdasagi": {"dontessel_sav_80": _osszesit(gazd_sorok), "alapvonal_sav_80": _osszesit(alap_sorok),
-                          "talalati_arany_dontessel": (round(sum(s["o"] for s in gazd_sorok) / len(gazd_sorok), 3)
-                                                       if gazd_sorok else None),
-                          "talalati_arany_alap": (round(sum(s["o"] for s in alap_sorok) / len(alap_sorok), 3)
-                                                  if alap_sorok else None),
-                          "pont_hiba_atlag_dontessel": (round(sum(g["hiba_dontessel"] for g in pont) / len(pont), 4)
-                                                        if pont else None),
-                          "pont_hiba_atlag_alap": (round(sum(g["hiba_alap"] for g in pont) / len(pont), 4)
-                                                   if pont else None),
-                          "pont_javitott_db": sum(1 for g in pont if g["hiba_dontessel"] < g["hiba_alap"]),
-                          "pont_rontott_db": sum(1 for g in pont if g["hiba_dontessel"] > g["hiba_alap"]),
-                          "pont_n": len(pont), "sorok": gazd_reszlet},
+            "gazdasagi": {**gazdasagi_osszegzes(gazd_reszlet), "sorok": gazd_reszlet},
             "kerdesek": pontoz(kerdes_sorok),
             "szabad_gazdasagi_nem_prereg": {"pontszam": _osszesit(szabad_sorok), "sorok": szabad_reszlet}}
     return kimenet
+
+
+def crps_csoportok(sorok: list[dict]) -> dict:
+    """A CRPS-sorok páros összegzése. FŐ SZÁM (`crps`): csak ahol az alapvonal is eloszlás (saját 80%-os sáv) — sáv a
+    sáv ellen. A sáv nélküli, naiv (pont) alapvonal ellen bármely ésszerű sáv „nyer”, ha a sor mozog (a backtesztben
+    az EUR/HUF 6/7) — ez a szélesebb-sáv torzítás másik alakja, ezért külön, csak tájékoztatásul."""
+    crps = [dict(g, id=g.get("id") or f"{g.get('esemeny')}:{g['kulcs']}") for g in sorok
+            if g.get("crps_dontessel") is not None and g.get("crps_alap") is not None]
+    return {"crps": paros_crps_kulonbseg([g for g in crps if g.get("alap_eloszlas") == "sav80"]),
+            "crps_pont_alapvonal": paros_crps_kulonbseg([g for g in crps if g.get("alap_eloszlas") != "sav80"]),
+            "crps_minden_sor": paros_crps_kulonbseg(crps),
+            "crps_megjegyzes": "fő szám: sávos alapvonal ellen; negatív = jobbak vagyunk; a pont-alapvonalas sorok "
+                               "csak tájékoztatók (sáv a pont ellen)"}
+
+
+def gazdasagi_osszegzes(sorok: list[dict]) -> dict:
+    """A mért gazdasági sorok (`gazdasagi_sorok` + `esemeny`) összegzése. A FŐ SZÁM a páros, normalizált
+    CRPS-különbség a sávos alapvonaltól (`crps_csoportok`; negatív = jobbak vagyunk). A sávba esés aránya és a
+    pontbecslés hibája leírás."""
+    od = [g["o_dontessel"] for g in sorok if g.get("o_dontessel") is not None]
+    oa = [g["o_alap"] for g in sorok if g.get("o_alap") is not None]
+    pont = [g for g in sorok if g.get("hiba_dontessel") is not None]
+    return {**crps_csoportok(sorok),
+            "leiras": {"nevleges_lefedes": SAV_P, "n_dontessel": len(od), "n_alap": len(oa),
+                       "talalati_arany_dontessel": round(sum(od) / len(od), 3) if od else None,
+                       "talalati_arany_alap": round(sum(oa) / len(oa), 3) if oa else None,
+                       "megjegyzes": "a sávba esés aránya csak leírás (a szélesebb sáv mindig többet talál); a fő "
+                                     "szám a CRPS-különbség"},
+            "pont_hiba_atlag_dontessel": (round(sum(g["hiba_dontessel"] for g in pont) / len(pont), 4)
+                                          if pont else None),
+            "pont_hiba_atlag_alap": round(sum(g["hiba_alap"] for g in pont) / len(pont), 4) if pont else None,
+            "pont_javitott_db": sum(1 for g in pont if g["hiba_dontessel"] < g["hiba_alap"]),
+            "pont_rontott_db": sum(1 for g in pont if g["hiba_dontessel"] > g["hiba_alap"]), "pont_n": len(pont)}
 
 
 # ══ CLI ═════════════════════════════════════════════════════════════════════
@@ -1371,18 +1577,25 @@ async def _cli_ertekel(args) -> None:
     if gt.get("bank_sha256") != _sha(_kanon(bank)):
         raise SystemExit("a GT nem ehhez a bankhoz készült (bank_sha256 eltér)")
     eredmenyek = [json.loads(p.read_text(encoding="utf-8")) for p in sorted(Path(args.ki_dir).glob("futas_*.json"))]
-    felvevo = Felvevo(args.felvetel, eles=True)
+    if args.skala_felvetel:              # CRPS előtti futás: a skála a futás saját felvételéből, utólag
+        fv = Felvevo(args.skala_felvetel, eles=False)
+        for f in eredmenyek:
+            for h in await skala_potlas(f, fv):
+                print(f"skála nélkül ({f['esemeny']}): {h}", flush=True)
+    felvevo = Felvevo(args.felvetel, eles=not args.csak_felvetel)
     try:
         ki = await ertekeles(bank, gt, eredmenyek, hiv=felvevo, ma=_d(args.ma) if args.ma else None)
     finally:
-        felvevo.ment()
+        if not args.csak_felvetel:      # visszajátszásban nincs új felvétel: a bizonyíték-fájl érintetlen marad
+            felvevo.ment()
         await felvevo.zar()
     Path(args.ki).write_text(json.dumps(ki, ensure_ascii=False, indent=1), encoding="utf-8")
-    print("esemény | út | as_of | kimenetel hónapja | modellek | tisztaság | gazdasági (találat/n, Brier) | "
-          "kérdés (válasz/n) | Brier | alap 50% | alap bázis | szivárgás")
+    print("esemény | út | as_of | kimenetel hónapja | modellek | tisztaság | gazdasági (CRPS-különbség norm., n; "
+          "sávban/n) | kérdés (válasz/n) | Brier | alap 50% | alap bázis | szivárgás")
     for s in ki["esemenyenkent"]:
         print(f"{s['esemeny']} | {s['ut']} | {s['as_of']} | {s['kimenetel_honap']} | {', '.join(s['modellek'])} | "
-              f"{s['tisztasag']} | {s['gazdasagi_talalat']}/{s['gazdasagi_n']}, {s['gazdasagi_brier']} | "
+              f"{s['tisztasag']} | {s['gazdasagi_crps_norm']}, {s['gazdasagi_crps_n_norm']}; "
+              f"{s['gazdasagi_talalat']}/{s['gazdasagi_n']} | "
               f"{s['n_elorejelzes']}/{s['n_kerdes']} | {s['brier']} | {s['brier_alap_50']} | "
               f"{s['brier_alap_bazis']} | {s['szivargas_db']}")
     for u, v in ki["utak"].items():
@@ -1423,6 +1636,8 @@ def main(argv=None) -> None:
     e.add_argument("--felvetel", required=True, help="a gazdasági GT nyers válaszai (külön a futásokétól)")
     e.add_argument("--ki", required=True)
     e.add_argument("--ma", default="")
+    e.add_argument("--skala-felvetel", default="", help="a futások felvétele: a CRPS-skála pótlása a régi futásokhoz")
+    e.add_argument("--csak-felvetel", action="store_true", help="hálózat nélkül: csak a felvett GT-válaszok")
     args = ap.parse_args(argv)
     # a felvevő maga ütemezi az Echolotot (429-várakozással) — a szimulátor Echolot-időkerete ehhez legyen bő
     os.environ.setdefault("SZIMULATOR_ECHOLOT_MAX_S", "2400")

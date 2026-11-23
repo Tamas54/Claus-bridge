@@ -522,3 +522,167 @@ def test_elo_gazdasagi_sorok_automatikus_kimenetele(get_db):
     assert km == {kulcs: {"ertek": 2.9, "forras": "Makronóm macro_history HU cpi 2026-09"}}
     ki = sb.elo_pontozas(get_db, km, ma=date(2026, 11, 22))
     assert ki["pontozott"] == 1 and ki["pontszam"]["osszesen"]["brier"] == pytest.approx((0.8 - 1) ** 2)
+    # a v2 gazdasági sávja a CRPS-pontozásba is bekerül (a sávba esés Briere mellé, fő számként)
+    assert ki["gazdasagi_crps"]["crps"]["n"] == 1          # sáv a sáv ellen: a fő szám
+    assert ki["gazdasagi_sorok"][0]["crps_dontessel"] == pytest.approx(sb.crps_sav(2.4, 3.6, 0.8, 2.9), abs=1e-5)
+    assert ki["gazdasagi_sorok"][0]["alap_eloszlas"] == "sav80"
+
+
+# ── CRPS: a gazdasági sávok helyes pontszáma (11-23) ─────────────────────────
+
+def _crps_numerikus(mu, sigma, x, n=20_001):
+    """∫F(y)² dy (y < x) + ∫(1 − F(y))² dy (y ≥ x) trapézszabállyal, a szakadásnál (x) kettévágva, μ ± 12σ-ig — a zárt
+    képlet független ellenőrzése."""
+    nd = __import__("statistics").NormalDist(mu, sigma)
+
+    def trapez(g, a, b):
+        h = (b - a) / (n - 1)
+        f = [g(a + i * h) for i in range(n)]
+        return h * (sum(f) - (f[0] + f[-1]) / 2)
+    a, b = min(mu - 12 * sigma, x), max(mu + 12 * sigma, x)
+    return trapez(lambda y: nd.cdf(y) ** 2, a, x) + trapez(lambda y: (1 - nd.cdf(y)) ** 2, x, b)
+
+
+def test_crps_ismert_ertekek():
+    # N(0,1), x = 0: (√2 − 1)/√π — kézzel: 2φ(0) − 1/√π = 0,797885 − 0,564190 = 0,233695
+    assert sb.crps_normal(0.0, 1.0, 0.0) == pytest.approx(0.233695, abs=1e-6)
+    # a központi 80%-os sáv ±1,2816-tal: ugyanez az eloszlás
+    assert sb.crps_sav(-1.281552, 1.281552, 0.8, 0.0) == pytest.approx(0.233695, abs=1e-5)
+    # pontbecslés (also = felso): CRPS = abszolút hiba
+    assert sb.crps_sav(5.5, 5.5, 0.8, 5.0) == pytest.approx(0.5)
+    # skálázás: σ-szoros eloszlás, σ-szoros pontszám; eltolás-invariáns
+    assert sb.crps_normal(3.0, 2.0, 3.0) == pytest.approx(2 * 0.233695, abs=1e-6)
+    # a zárt képlet = a numerikus integrál, középen kívül is (a minta numerikus útja)
+    for mu, s, x in ((1.0, 0.7, 2.3), (0.0, 2.0, -5.0), (10.0, 0.1, 10.05)):
+        assert sb.crps_normal(mu, s, x) == pytest.approx(_crps_numerikus(mu, s, x), rel=1e-4)
+    # a sáv sorrendje mindegy; nyitott sáv nem pontozható
+    assert sb.crps_sav(3, 1, 0.8, 2.5) == sb.crps_sav(1, 3, 0.8, 2.5)
+    assert sb.crps_sav(None, 3, 0.8, 2.5) is None and sb.crps_sav(1, 3, 0.8, None) is None
+    with pytest.raises(ValueError):
+        sb.crps_sav(1, 3, 1.0, 2)
+
+
+def test_a_szelesebb_sav_nem_kap_automatikusan_jobb_pontot():
+    # a tény a sávon belül: a pontos, szűk sáv nyer a túl széles ellen — a sávba esés Briere döntetlent adna
+    szuk, szeles = sb.crps_sav(1.8, 2.4, 0.8, 2.1), sb.crps_sav(-3.0, 7.0, 0.8, 2.1)
+    assert szuk < szeles
+    assert sb.brier(0.8, sb.kimenetel({"tipus": "intervallum", "also": 1.8, "felso": 2.4}, 2.1)) == \
+        sb.brier(0.8, sb.kimenetel({"tipus": "intervallum", "also": -3.0, "felso": 7.0}, 2.1))
+    # várható értékben (a tény N(0,1)): a PONTOSAN kalibrált sáv a legjobb CRPS-ben, a régi Brier a szélest jutalmazza
+    from statistics import NormalDist
+    m = 2000
+    xs = [NormalDist().inv_cdf((i + 0.5) / m) for i in range(m)]
+    z = NormalDist().inv_cdf(0.9)
+
+    def varhato_crps(s):
+        return sum(sb.crps_sav(-z * s, z * s, 0.8, x) for x in xs) / m
+
+    def varhato_brier(s):
+        return sum(sb.brier(0.8, int(-z * s <= x <= z * s)) for x in xs) / m
+    crps = {s: varhato_crps(s) for s in (0.5, 0.8, 1.0, 1.25, 2.0, 3.0)}
+    assert min(crps, key=crps.get) == 1.0
+    assert varhato_brier(3.0) < varhato_brier(1.0)        # ez volt a hiba: a túl széles sáv „jobb” Briert kapott
+
+
+def test_a_savon_kivuli_teny_buntetese_a_tavolsaggal_no():
+    pontok = [sb.crps_sav(1.0, 3.0, 0.8, 3.0 + d) for d in (0.0, 0.5, 1.0, 2.0, 4.0, 8.0)]
+    assert all(a < b for a, b in zip(pontok, pontok[1:]))
+    assert pontok[-1] - pontok[-2] == pytest.approx(4.0, abs=1e-3)        # messze kint: egységnyi meredekség
+    # mindkét oldalon szimmetrikusan
+    assert sb.crps_sav(1.0, 3.0, 0.8, -1.0) == pytest.approx(sb.crps_sav(1.0, 3.0, 0.8, 5.0))
+
+
+def test_lepes_skala():
+    assert sb.lepes_skala([0.1, -0.1, 0.3]) == pytest.approx(__import__("statistics").stdev([0.1, -0.1, 0.3]))
+    assert sb.lepes_skala([0.2]) is None                     # 2 megfigyelés: nincs szórás
+    assert sb.lepes_skala([0.0, 0.0, 0.0]) is None           # lapos sor: nincs nevező
+    assert sb.lepes_skala([1e-14, -1e-14], nagysag=1e11) is None    # maradék a nagysághoz képest
+
+
+def test_paros_crps_kulonbseg():
+    sorok = [{"id": "e1:A", "esemeny": "e1", "crps_dontessel": 0.2, "crps_alap": 0.5, "skala": 0.5},
+             {"id": "e1:B", "esemeny": "e1", "crps_dontessel": 1.0, "crps_alap": 0.8, "skala": 2.0},
+             {"id": "e2:C", "esemeny": "e2", "crps_dontessel": 3.0, "crps_alap": 4.0, "skala": None},
+             {"id": "e2:D", "esemeny": "e2", "crps_dontessel": None, "crps_alap": 4.0, "skala": 1.0}]
+    ki = sb.paros_crps_kulonbseg(sorok)
+    assert ki["n"] == 3 and ki["n_norm"] == 2 and ki["skala_nelkul"] == ["e2:C"]
+    assert ki["kulonbseg_norm"] == pytest.approx(((0.2 - 0.5) / 0.5 + (1.0 - 0.8) / 2.0) / 2)    # −0,25: jobbak
+    assert (ki["jobb_db"], ki["rosszabb_db"], ki["dontetlen_db"]) == (2, 1, 0)
+    assert ki["ci95"][0] <= ki["kulonbseg_norm"] <= ki["ci95"][1]
+    # több futás ugyanarra a célpontra: előbb a célponton belül átlagol (az ismételt futás nem nyom többet)
+    ket_futas = sb.paros_crps_kulonbseg([dict(sorok[0]), dict(sorok[0], crps_dontessel=0.4)])
+    assert ket_futas["n"] == 1 and ket_futas["kulonbseg_norm"] == pytest.approx((0.3 - 0.5) / 0.5)
+    assert sb.paros_crps_kulonbseg([])["n"] == 0
+
+
+def test_elojelcseres_p_es_bootstrap():
+    # szimmetrikus eset: nagy p; egyértelmű eset: kicsi p (pontos, 2^n eset)
+    assert sb.elojelcseres_p([1.0, -1.0, 2.0, -2.0]) == pytest.approx(1.0)
+    assert sb.elojelcseres_p([1.0] * 10) == pytest.approx(2 / 2 ** 10)
+    # Monte Carlo ág (n > 16), determinisztikus mag
+    assert sb.elojelcseres_p([1.0, -1.0] * 15) > 0.9
+    assert sb.elojelcseres_p([0.5 + 0.01 * i for i in range(30)]) < 0.001
+    # fürtökkel: két fürt nem adhat szignifikanciát (legkisebb p = 2/4)
+    assert sb.elojelcseres_p([1.0] * 4, ["a", "a", "b", "b"]) == pytest.approx(0.5)
+    assert sb.bootstrap_ci([2.0] * 5) == (2.0, 2.0)
+    lo, hi = sb.bootstrap_ci([0.0, 0.0, 10.0, 10.0], ["a", "a", "b", "b"])
+    assert lo == 0.0 and hi == 10.0
+
+
+def test_gazdasagi_sorok_crps_mezoi():
+    futas = {"gazdasag": [
+        {"kulcs": "HU:inflation", "idoszak": "2026-09", "hatarido": "2026-11-14", "ertek": 3.4, "also": 2.8,
+         "felso": 4.0, "naiv": False, "hatas": {"valtozas": -0.3}, "dontessel": 3.1, "dontessel_also": 2.4,
+         "dontessel_felso": 3.6, "skala": 0.25},
+        {"kulcs": "EURHUF=X", "idoszak": "2026-11-19", "hatarido": "2026-11-19", "ertek": 392.0, "also": None,
+         "felso": None, "naiv": True, "hatas": {"valtozas": -4.0}, "dontessel": 388.0, "dontessel_also": 380.0,
+         "dontessel_felso": 384.0}]}
+    infl, fx = _run(sb.gazdasagi_sorok(_gazd_hiv(), futas, date(2026, 11, 22)))
+    d, a = sb.crps_sav(2.4, 3.6, 0.8, 2.9), sb.crps_sav(2.8, 4.0, 0.8, 2.9)
+    assert infl["crps_dontessel"] == pytest.approx(d, abs=1e-5) and infl["crps_alap"] == pytest.approx(a, abs=1e-5)
+    assert infl["crps_kulonbseg_norm"] == pytest.approx((d - a) / 0.25, abs=1e-3) and infl["crps_kulonbseg_norm"] < 0
+    assert infl["alap_eloszlas"] == "sav80"
+    # naiv alapvonal (sáv nélkül): a kimondott pontérték, CRPS = |hiba|; skála nélkül nincs normalizált különbség
+    assert fx["crps_alap"] == pytest.approx(7.0) and fx["alap_eloszlas"].startswith("pont")
+    assert fx["crps_kulonbseg_norm"] is None
+    ossz = sb.gazdasagi_osszegzes([dict(infl, esemeny="e1"), dict(fx, esemeny="e1")])
+    # a fő szám csak sáv a sáv ellen: a pont-alapvonal ellen bármely sáv „nyerne”, ha a sor mozog
+    assert ossz["crps"]["n"] == 1 and ossz["crps"]["kulonbseg_norm"] < 0
+    assert ossz["crps_pont_alapvonal"]["n"] == 1 and ossz["crps_minden_sor"]["n"] == 2
+    assert ossz["leiras"]["talalati_arany_dontessel"] == 0.5 and "dontessel_sav_80" not in ossz
+
+
+def test_a_skala_az_asof_palyabol_es_az_arfolyamsorbol():
+    import statistics
+    v = sb.asof_palya(_mh("cpi"), "cpi", AS_OF, date(2026, 11, 20))
+    ert = [o["value"] for o in _mh("cpi")["observations"] if o["period"] <= "2026-07"][-120:]
+    assert v["skala_1lepes"] == pytest.approx(statistics.stdev([b - a for a, b in zip(ert, ert[1:])]))
+    # a szimulátor alapvonal-sora átveszi (a sávból sosem számol)
+    sorok, _ = ds.alapvonal_sorok([("forecast_path", {"country": "HU", "indicator": "inflation"}, v)],
+                                  date(2026, 11, 20), AS_OF)
+    assert sorok[0]["skala"] == pytest.approx(v["skala_1lepes"])
+    elo, _ = ds.alapvonal_sorok([("forecast_path", {"country": "HU", "indicator": "inflation"},
+                                  {k: x for k, x in v.items() if k != "skala_1lepes"})], date(2026, 11, 20), AS_OF)
+    assert "skala" not in elo[0]                     # az élő forecast_path nem ad skálát: nincs kitalált nevező
+    yf = sb.yf_szur({"symbol": "X", "data": [{"date": f"2026-09-0{i}", "close": c}
+                                            for i, c in enumerate([10.0, 11.0, 10.5, 12.0], start=1)]}, AS_OF)
+    assert yf["skala_1lepes"] == pytest.approx(statistics.stdev([1.0, -0.5, 1.5]))
+
+
+def test_skala_potlas_a_felvetelbol(tmp_path):
+    """A CRPS előtti futás skálája utólag, a futás saját felvételéből (hálózat nélkül); a naiv kamatnak nincs."""
+    f = sb.Felvevo(tmp_path / "f.json.gz", eles=False)
+    f.tar[sb.Felvevo.kulcs("makronom", "macro_history", {"country": "HU", "indicator": "cpi", "start": "2014"})] = {
+        "valasz": json.dumps(_mh("cpi"))}
+    yf_par = {"symbol": "EURHUF=X", "action": "history", "interval": "1d", "end": AS_OF.isoformat(),
+              "start": (AS_OF - timedelta(days=370)).isoformat()}
+    f.tar[sb.Felvevo.kulcs("makronom", "yfinance", yf_par)] = {"valasz": json.dumps(
+        {"symbol": "EURHUF=X", "data": [{"date": "2026-09-01", "close": 390.0}, {"date": "2026-09-02", "close": 392.0},
+                                        {"date": "2026-09-03", "close": 389.0}]})}
+    futas = {"as_of": AS_OF.isoformat(), "horizont_vege": "2026-11-20", "gazdasag": [
+        {"kulcs": "HU:inflation"}, {"kulcs": "EURHUF=X"}, {"kulcs": "HU:policy_rate"}]}
+    hiany = _run(sb.skala_potlas(futas, f))
+    infl, fx, kamat = futas["gazdasag"]
+    assert infl["skala"] == pytest.approx(sb.asof_palya(_mh("cpi"), "cpi", AS_OF, date(2026, 11, 20))["skala_1lepes"])
+    assert fx["skala"] == pytest.approx(__import__("statistics").stdev([2.0, -3.0]))
+    assert "skala" not in kamat and len(hiany) == 1 and hiany[0].startswith("HU:policy_rate")
