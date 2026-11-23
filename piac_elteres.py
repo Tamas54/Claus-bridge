@@ -957,6 +957,24 @@ def pontoz(elore: dict, y_kozolt: float, k: Konfig) -> dict:
     return ki
 
 
+#: Ahol az A közlés-figyelőjének mértéke AZONOS a szerződésével, ott a B az A értékét veszi át: ez a hivatalos közlés
+#: pillanatában rögzített első szám (`kozles:<ORSZÁG>:<mutató>`). US CPI = CPI-U y/y NSA, ezen old fel a Kalshi KXCPIYOY
+#: és a Polymarket. Máshol a mérték eltérhet (pl. KSH nemzeti CPI ≠ HICP), ott marad az `elso_kozles.feloldas`.
+KOZLES_AZONOS_MERTEK = frozenset({("US", "cpi")})
+
+
+def a_kozlesbol(orszag: str, macro: str, idoszak: str, ekn) -> dict | None:
+    """Az A közlés-figyelőjének első száma `elso_kozles.feloldas`-alakban, vagy None (nincs ilyen sor, vagy más a mérték)."""
+    if (orszag, macro) not in KOZLES_AZONOS_MERTEK or ekn is None:
+        return None
+    import kozles_figyelo                                          # későn: a két modul egymástól függetlenül is betölt
+    a = kozles_figyelo.tenyleges_ertek(orszag, macro, idoszak, naplo=ekn)
+    if not a or a.get("ertek") is None:
+        return None
+    return {"ertek": a["ertek"], "kozolve": a["elso_lattuk"],
+            "feloldas": f"első közlés, napló ({a['sorozat']}, a közlés-figyelő rögzítette)", "url": a.get("forras_url")}
+
+
 async def felold(nap, hiv: Hivo | None, k: Konfig, most: datetime, *, ek_naplo="alap") -> list[dict]:
     """Minden még fel nem oldott előzetes sor: az első közlés (`elso_kozles.feloldas`, `first_print`; ide ír az A
     közlés-figyelője) → pontozás → 'feloldas' sor. Csak a piac zárása előtt rögzített sor pontozható."""
@@ -971,7 +989,10 @@ async def felold(nap, hiv: Hivo | None, k: Konfig, most: datetime, *, ek_naplo="
         if not e.get("eloszlas") or zaras is None or zaras > most:
             continue
         orszag, mutato = e["mi"]
-        f = await ek.feloldas(hiv, orszag, e["macro"], e["idoszak"], szabaly="first_print", mai=None, naplo=ekn, ma=most)
+        f = a_kozlesbol(orszag, e["macro"], e["idoszak"], ekn)
+        if f is None:
+            f = await ek.feloldas(hiv, orszag, e["macro"], e["idoszak"], szabaly="first_print", mai=None, naplo=ekn,
+                                  ma=most)
         if f.get("ertek") is None:
             continue
         rog = _ido(s["rogzitve"])

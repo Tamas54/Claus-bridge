@@ -431,3 +431,20 @@ def test_pg_naplo_hozzafuzes_lanc_es_trigger():
             k.execute("UPDATE piac_elteres_naplo SET payload = '{}'::jsonb")
         with pytest.raises(psycopg.errors.RaiseException):
             k.execute("DELETE FROM piac_elteres_naplo")
+
+
+def test_feloldas_az_a_kozles_figyelojebol_csak_azonos_mertekben():
+    """Az A (közlés-figyelő) `kozles:US:cpi` sora győz a `macro_history` fölött; más mértékű sorozatnál nem vesszük át."""
+    most = _t("2026-11-25T10:00:00")
+    nap = pe.MemoriaNaplo(ora=lambda: most)
+    k = pe.Konfig(merleg_fajlok=())
+    _run(pe.kor(_hiv(), lekero=_lekero(most), nap=nap, most=most, k=k))
+    ekn = ek.MemoriaNaplo()
+    ekn.rogzit([ek.sor("macro_history:US:cpi", "2026-11", 3.5, _t("2026-12-10T15:00:00"), "fred"),
+                ek.sor("kozles:US:cpi", "2026-11", 3.73768, _t("2026-12-10T13:30:20"), "bls")])
+    f = _run(pe.felold(nap, None, k, most + timedelta(days=16), ek_naplo=ekn))[0]["payload"]
+    assert f["y"] == pytest.approx(3.7) and "kozles:US:cpi" in f["feloldas"]
+    # más mérték (nincs a KOZLES_AZONOS_MERTEK-ben) → az A sorát nem vesszük át
+    ekn.rogzit([ek.sor("kozles:US:unemployment", "2026-11", 9.9, _t("2026-12-05T13:30:00"), "bls")])
+    assert pe.a_kozlesbol("US", "unemployment", "2026-11", ekn) is None
+    assert pe.a_kozlesbol("US", "cpi", "2026-11", None) is None
