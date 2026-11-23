@@ -1,0 +1,63 @@
+{
+ "op": "HU-próba kurált, kiegyensúlyozott korpusszal — ELŐREGISZTRÁCIÓ (a korpusz-építés és a futás ELŐTT)",
+ "date": "2026-11-23",
+ "kerdes": "Követi-e a magyar panel a választás utáni hangulatot (valós index 2026-04 → 05: −15,6 → −2,1; 07…10: +1,2 / −3,2 / −3,4 / −4,9), és csökken-e a 27 pontos eltolás? Mennyit hoz a kurált korpusz, és mennyit a priming?",
+ "kerelo": "Kommandant 11-23 (cli-Claus közvetítésével): kurált, kiegyensúlyozott sajtókorpusz; priming + N=60; kontroll priming nélkül",
+ "cellak": {"orszag": "HU", "honapok": ["2026-07", "2026-08", "2026-09", "2026-10"]},
+ "gt": "gt_LOCKED_cci.json (változatlan; Eurostat BS-CSMCI SA BAL, HU = GKI-terepmunka)",
+ "cutoff": "proba_pontozas.json: mind a 4 HU-cella tiszta (a modell NEM TUDOM-ot felelt)",
+ "korpusz": {
+  "fajl": "build_hu_kuralt.py → korpusz_kuralt/corpus_hu_<hónap>.json",
+  "forras": "Echolot MCP get_news, language=hu, a cikk published_at napja (as_of); az ablak ugyanaz, mint az alapfutásé: [M−1 hó 15., M hó 14.]",
+  "meret": "kb. 500 cím + lead hónaponként (júniusi szabály: „500 körüli … de ennyi, és nem több”)",
+  "idoben_egyenletes": "8 nap egyenlő közzel az ablakban; napi lekérdezések forrás-/lean-szeletenként; a cellán belül napok szerint körbe járva választ",
+  "szeletek_aranya": {"bal": 0.26, "jobb": 0.22, "kozmedia": 0.18, "kozossegi": 0.22, "kozos_alig": 0.12},
+  "szeletek_forrasa": {
+   "bal": "Echolot-lean left / center_left (pl. Telex, HVG, 24.hu, 444, Népszava, Magyar Hang)",
+   "jobb": "Echolot-lean right / right_independent / center_right (pl. Index, Magyar Nemzet, Bors, Ripost, Válasz Online)",
+   "kozmedia": "PÓTLÁS: az Echolotban NINCS közmédia-forrás (M1, Kossuth, hirado.hu, MTI: 0 cikk, 2026-09-10-i próba). Helyettesítő: Infostart (hírügynökségi stílusú hírrádió) + a kormány hivatalos fiókjai (Magyar Péter (X), minisztériumi/kormányzati X-fiókok) — a közmédia ma a Tisza-kormány vonalát közvetíti",
+   "kozossegi": "a (YouTube) és (X) végű források (pl. Hír TV, ATV, Klubrádió, KlikkTV, Ultrahang YouTube-csatornái, politikusok X-fiókjai), a kormányzati fiókok kivételével; Facebook/TikTok az Echolotban NINCS",
+   "kozos_alig": "minden más (analytical / center / unknown: pl. Portfolio, Pénzcentrum, Blikk, Kiskegyed, NLC, CsakFoci, Origo Sport, HWSW, GameStar), POLITIKA NÉLKÜL — ez a közös, pártsemleges réteg"
+  },
+  "kizarva": "határon túli magyar sajtó (Hírek.sk, Maszol, Krónika, Székelyhon stb., ABROAD_RE), mert a magyar háztartások hírképét mérjük",
+  "hianyzo_forrasok": "Mandiner, Origo (fő), Pesti Srácok, Metropol, RTL, közmédia (M1/Kossuth/hirado.hu/MTI): nincs az Echolotban; a bulvár megvan (Blikk, Bors, Ripost, Kiskegyed)",
+  "temakvotak": {"politika": 0.25, "gazdasag": 0.20, "bulvar_eletmod_celeb": 0.15, "sport": 0.12, "tech_tudomany": 0.08, "kulfold": 0.10, "kozelet_helyi_kultura": 0.10},
+  "temakvota_megjegyzes": "Szakértői beállítás, nem mért olvasottság (mért magyar téma-olvasottsági arány a mérőeszközeinken nincs). Egy téma sem több 25%-nál. Kultúrának nincs külön Echolot-kategóriája, ezért a közélet/helyi sávban van. Szeleten belül: min(kvóta, elérhető), a hiányt a még bővíthető témák kapják arányosan; a közös rétegben a politika kvótája a többi témára oszlik.",
+  "kategoria_lekepezes": {"politics": "politika", "economy": "gazdasag", "entertainment|lifestyle|cars": "bulvar", "sport": "sport", "tech": "tech", "foreign|global": "kulfold", "general": "kozelet"},
+  "szivargas_szuro": "a júniusi config.POLL_BLOCKLIST szóhatárral (hogy az „IDEA” ne vigye az „ideális”-t) + fogyasztói bizalom/bizalmi index/fogyasztói hangulat/konjunktúra/GKI; cím-dedupe, cím > 15 karakter",
+  "audit": "kuralt_audit.md (téma × szelet × forrás) — a futás ELŐTT commitolva"
+ },
+ "persona_etrend": {
+  "sajat_szelet": 10,
+  "kozos_reteg": 6,
+  "alig": "16 cím a közös rétegből",
+  "megjegyzes": "a persona médiacímkéje (delphoi.COUNTRY_PANEL_CONFIG['HU']['media']) dönti el a szeletet; a 16 cím összekeverve kerül a promptba; a címek szövege a júliusi formátum („cím — lead”)"
+ },
+ "panel": {
+  "modell": "deepseek-ai/DeepSeek-V4.1-Flash",
+  "recept": "a G2-recept (run_panel_v41.py): ugyanaz a system-prompt, kérdés, MONDAT+KATEGÓRIA, temp 0,8, max 160 token, SSR linear, Qwen3-Embedding-8B, REFERENCE_SETS_HU['anyagi_varakozas']",
+  "personak": "persona_sampler.sample_personas(delphoi._build_dims(COUNTRY_PANEL_CONFIG['HU'])) — kor/település/iskola = a pollster-készlet, média = a delphoi HU-címkék (pontosított közmédia: „M1, Kossuth Rádió, hirado.hu — a Tisza-kormány megalakulása óta a kormány vonalát közvetíti”)",
+  "N_per_seed": 60,
+  "seedek": [1, 2, 3],
+  "valtozatok": {
+   "A": "priming: COUNTRY_PANEL_CONFIG['HU']['priming'] a user-prompt ELEJÉN (a delphoi._fg_prompt mintája)",
+   "B": "kontroll: ugyanaz priming NÉLKÜL (csak ha a keretbe belefér; A fut először)"
+  },
+  "sorrend": "A 07→10, majd B 07→10"
+ },
+ "osszevetes": {
+  "sorok": ["régi: N=20, kuráltatlan korpusz, priming nélkül (cellak/v41_hu_*.json)", "B: kurált, priming nélkül, N=60", "A: kurált + priming, N=60", "naiv: mint múlt hónapban (G_{M−1})"],
+  "meroszamok": {
+   "eltolas": "átlag(G − P) a 4 hónapon; a régi: +26,75",
+   "szint_MAE": "átlag |P − G| (nyers) a 4 hónapon; és az eltolás-korrigált hiba 08–10-re (eltolás a korábbi hónapokból), a naiv MAE (08–10: 2,03) mellett",
+   "irany": "sign(ΔP) vs sign(ΔG) a 08 és 10 hónapon (a 09 lapos: |ΔG| = 0,2 < 0,5)",
+   "szelet_bontas": "a szeletenkénti panel-szaldó (bal/jobb/közmédia/közösségi/alig) tájékoztatásul"
+  },
+  "dontesi_szabaly": {
+   "koveti": "A sor átlagos |hibája| ≤ 10 pont ÉS mind a 4 hónapban a panel a régi sornál közelebb van a valóshoz",
+   "eltolas_csokken": "|eltolás| az A sorban legalább 10 ponttal kisebb, mint a régi 26,75",
+   "korpusz_vs_priming": "a korpusz hozadéka = eltolás(régi) − eltolás(B); a priming hozadéka = eltolás(B) − eltolás(A); a régi és a B között az N és a médiacímkék is mások — ezt kimondjuk"
+  }
+ },
+ "keret": {"SF_usd": 0.60, "megallas": "402 → azonnal; a B-futás csak akkor indul cellánként, ha az eddigi költés (A+B) < 0,55 $", "zar": "flock ~/.cache/claus-sf.lock"}
+}
