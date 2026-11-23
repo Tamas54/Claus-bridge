@@ -545,6 +545,9 @@ def _osztalyoz(r, relay: dict) -> list[tuple[str, dict]]:
             return []                     # aláíratlan: nem a Kommandant szava
         if t["tipus"] == "szandek":
             d = _json(t["adat"])
+            if d.get("forras") == "hopsz":       # az automatikus HOPSZ-kérelem (hopsz.py) nem a Kommandant szava
+                return [("faber", {**alap, "ki": "rendszer", "tipus": "rendszer",
+                                   "szoveg": f"🔧 HOPSZ → Faber: {str(d.get('szoveg') or '')[:600]}"})]
             tetel = {**alap, "ki": "kommandant", "tipus": "uzenet", "szoveg": str(d.get("szoveg") or ""),
                      "faber": {"szandek": d.get("szandek"), "repo": d.get("repo"), "kerelem": d.get("kerelem")}}
             return [("feldwebel", tetel), ("faber", tetel)]
