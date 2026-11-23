@@ -819,7 +819,7 @@ function ujUgynokUrlap(f = null) {
   const feladat = el('textarea', { rows: '4', maxlength: '4000', placeholder: 'pl. Nézd meg az MNB legfrissebb közleményeit, és szólj, ha kamatdöntés van (mennyi lett, mihez képest).', required: true });
   feladat.value = f?.feladat || '';
   const modellek = S.adat?.feladat_ugynok_modellek?.length ? S.adat.feladat_ugynok_modellek : MODELL_TARTALEK;
-  const modell = el('select', {}, modellek.map((m) => el('option', { value: m.kulcs, selected: m.kulcs === (f?.modell || S.adat?.feladat_ugynok_alap?.modell || 'haiku') },
+  const modell = el('select', {}, modellek.map((m) => el('option', { value: m.kulcs, selected: m.kulcs === (f?.modell || 'sonnet') },
     `${m.nev}${m.szolgaltato === 'siliconflow' ? ' — SiliconFlow, tudásbázis nélkül' : ''}`)));
   const extra = el('textarea', { rows: '3', maxlength: '2000', placeholder: 'pl. Légy tömör: legfeljebb 3 mondat, a számok táblázatban.' });
   extra.value = f?.extra_prompt || '';
@@ -833,7 +833,7 @@ function ujUgynokUrlap(f = null) {
   const ertesites = el('select', {}, szerk ? null : el('option', { value: '' }, 'Magától (figyelőnél: ha van mit jelezni)'),
     el('option', { value: 'ha_van', selected: f?.ertesites === 'ha_van' }, 'Csak ha van mit jelezni'),
     el('option', { value: 'mindig', selected: f?.ertesites === 'mindig' }, 'Minden futás után'));
-  const keret = el('input', { type: 'number', min: '0.05', max: '5', step: '0.05', value: String(f?.keret_usd ?? S.adat?.feladat_ugynok_alap?.keret_usd ?? '0.10') });
+  const keret = el('input', { type: 'number', min: '0.05', max: '5', step: '0.05', value: String(f?.keret_usd ?? '0.50') });
   const havi = el('input', { type: 'number', min: '1', max: '50', step: '1', value: String(f?.havi_keret_usd ?? '10') });
   const vitaMax = el('input', { type: 'number', min: '1', max: '6', step: '1', value: String(f?.vita_max ?? 3) });
   // jogosultságok: a fix partnerek és a többi feladat-ügynök (önmagát nem)
