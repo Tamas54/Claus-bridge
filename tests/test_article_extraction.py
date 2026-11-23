@@ -188,9 +188,12 @@ def test_fetch_paths_do_not_carry_their_own_regex_strip():
 
 
 def test_feldwebel_uses_the_shared_ladder():
+    # 11-23: a Feldwebel `web_fetch`-je a fetch-LÁNCON megy (lekeres.py), és az hívja a közös létrát
     with open(os.path.join(REPO_ROOT, "feldwebel", "responder.py"), encoding="utf-8") as fh:
         src = fh.read()
-    assert "extract_article_text" in src, (
+    with open(os.path.join(REPO_ROOT, "lekeres.py"), encoding="utf-8") as fh:
+        lanc = fh.read()
+    assert "extract_article_text" in src or ("lekeres.oldal(" in src and "extract_article_text" in lanc), (
         "a Feldwebel saját regex-implementációja a NEGYEDIK volt a repóban"
     )
 

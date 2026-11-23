@@ -106,8 +106,8 @@ TOOLS = [
         "parameters": {"type": "object", "properties": {"task_id": {"type": "integer", "description": "Task ID szám"}}, "required": ["task_id"]}}},
     # ── Web ──
     {"type": "function", "function": {
-        "name": "web_fetch", "description": "Statikus weboldal HTML-tartalmának letöltése URL alapján (HTML strippelve, 6000 karakterig). Gyors és olcsó. JS-rendered SPA-knál (Eurostat newsroom, MNB-honlap) használj `web_scrape`-et.",
-        "parameters": {"type": "object", "properties": {"url": {"type": "string", "description": "A letöltendő URL"}}, "required": ["url"]}}},
+        "name": "web_fetch", "description": "Weboldal (6000 karakterig), PDF (első oldalak) vagy YouTube-videó (leirat) szövege.",
+        "parameters": {"type": "object", "properties": {"url": {"type": "string", "description": "A letöltendő URL"}, "kerdes": {"type": "string", "description": "Már olvasott URL-nél: új szempont"}}, "required": ["url"]}}},
     {"type": "function", "function": {
         "name": "web_search", "description": "Web-keresés (saját SearXNG → brave-mcp → DDG lánc). Akkor jó, ha friss adatra (Eurostat flash, MNB-közlemény, ECB döntés), részletes forrásokra, vagy nem-hír jellegű információra van szükség. Visszaad cím + URL + leírás találatokat. HA A KOMMANDANT MOTORT NEVEZ MEG ('ezt searxng-vel', 'Searrel', 'brave-mcp-vel') → add át az `engine` mezőben, és a válaszodban MONDD KI, melyik motor szolgált ki (a találat végén ott a _bridge_served_by sor).",
         "parameters": {"type": "object", "properties": {
@@ -595,6 +595,9 @@ async def respond(text: str, chat_id: str, agent_id: str = "deepseek") -> str:
                 if fn_name == _kivonat.LAPOZ_NEV:
                     lap = tar.lapoz(fn_args)
                     return lap, None, lap
+                ism = await tar.ismetles(fn_name, fn_args, feladat=text)   # ugyanaz az URL: nem tölt le újra
+                if ism is not None:
+                    return ism, None, ism
                 _et = _kimenet.eszkoz_indul(fn_name, fn_args) if _kimenet is not None else None
                 try:
                     result = await _execute_tool(fn_name, fn_args, ctx, kor={"chat_id": chat_id, "text": text},
@@ -1262,27 +1265,11 @@ async def _execute_tool(name: str, args: dict, ctx, kor: dict | None = None, *, 
         return json.dumps(out, ensure_ascii=False)
 
     if name == "web_fetch":
-        url = args.get("url", "")
-        if not url or not url.startswith("http"):
-            return json.dumps({"error": "Érvényes URL szükséges"})
-        try:
-            async with httpx.AsyncClient(timeout=15, follow_redirects=True) as client:
-                resp = await client.get(url, headers={"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36"})
-            # A KÖZÖS kivonatoló-létra (trafilatura -> readability -> regex).
-            # Eddig itt a repó NEGYEDIK, saját regex-implementációja állt, és a
-            # 6000-es sapka miatt ez volt a legérzékenyebb rá: mérve a
-            # regex-kimenet 68%-a boilerplate, és a cikk leadje 4/10 esetben ki
-            # sem fért az ablakba — a Feldwebel szűkebb ablakában még gyakrabban.
-            from server import extract_article_text
-            text, extractor = extract_article_text(resp.text, url)
-            # 6000 = a saját web_scrape-sapkával azonos. Szándékosan konzervatívabb,
-            # mint a Bridge sub-agent web_fetch (30000): a Feldwebel Telegram-chat
-            # asszisztens görgetett historyval — egy 30k-s oldaldump minden további
-            # kört terhelne, és a válasz úgyis Telegram-üzenet méretű.
-            return json.dumps({"url": url, "content": text[:6000], "length": len(text),
-                               "extractor": extractor}, ensure_ascii=False)
-        except Exception as e:
-            return json.dumps({"error": str(e)})
+        # 11-23: a fetch-LÁNC (lekeres.py), nem egyetlen GET: YouTube-linkre a leirat, PDF-re méretplafon + az első
+        # oldalak szövege, SSL-hibára / üres héjra / falra a következő fok (Lightpanda → brave-mcp → Echolot Engine).
+        # A HTML 6000 karakterig megy (a Feldwebel ablaka); a nagy PDF-et és leiratot a hurok kivonatolója sűríti.
+        import lekeres
+        return json.dumps(await lekeres.oldal(str(args.get("url") or "")), ensure_ascii=False)
 
     if name == "web_search":
         # Bridge-szintű _web_search-t hívjuk (brave-mcp primary + DDG fallback,
@@ -1306,6 +1293,9 @@ async def _execute_tool(name: str, args: dict, ctx, kor: dict | None = None, *, 
         url = (args.get("url") or "").strip()
         if not url or not url.startswith("http"):
             return json.dumps({"error": "Érvényes URL szükséges"})
+        import lekeres
+        if lekeres.youtube_id(url):          # 11-23: a videóoldal 205 karakter — a leirat kell
+            return json.dumps(await lekeres.oldal(url), ensure_ascii=False)
         try:
             wait_time = max(0, min(15000, int(args.get("wait_time", 3000))))
         except (TypeError, ValueError):

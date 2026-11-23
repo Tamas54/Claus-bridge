@@ -135,6 +135,18 @@ a { color: var(--accent); }
 .ugynok-elo { color: var(--ink-3); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ugynok-ido { color: var(--ink-3); font-size: 11px; align-self: start; padding-top: 4px; }
 .olvasatlan { position: absolute; right: 8px; bottom: 10px; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+/* feladat-ügynök: gyors kikapcsolás a sor jobb szélén (⏻ leállít, ✕ megszüntet) */
+.ugynok-sor { position: relative; }
+.ugynok.van-kapcs { padding-right: 38px; }
+.ugynok.van-kapcs .olvasatlan { right: 40px; }
+.ugynok-kapcs {
+  position: absolute; right: 6px; top: 50%; transform: translateY(-50%); width: 28px; height: 28px; border: 0; border-radius: 8px;
+  background: transparent; color: var(--ink-3); font-size: 15px; line-height: 1; cursor: pointer; opacity: 0.55;
+}
+.ugynok-sor:hover .ugynok-kapcs, .ugynok-kapcs:focus-visible { opacity: 1; }
+.ugynok-kapcs:hover { background: #222b36; color: var(--ink); }
+.ugynok-kapcs.vesz:hover { color: var(--problem); }
+.ugynok-kapcs:disabled { opacity: 0.3; cursor: default; }
 .beszelgetes-elem { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 40px; padding: 7px 10px; border: 0; border-radius: 10px; background: transparent; text-align: left; cursor: pointer; color: var(--ink-2); }
 .beszelgetes-elem:hover { background: var(--card); color: var(--ink); }
 .beszelgetes-elem.aktiv { background: var(--card-2); color: var(--ink); }

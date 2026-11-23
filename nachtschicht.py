@@ -611,12 +611,19 @@ def json_kivesz(szoveg: str) -> dict | None:
 
 
 async def _hurok(messages: list, tools: list, *, purpose: str, szamla: Szamla, chat: Callable,
-                 vegrehajto: Callable, max_kor: int) -> tuple[str, str]:
+                 vegrehajto: Callable, max_kor: int, tar=None, cache_rendszer: str | None = None,
+                 zaro_eszkozzel: bool = False) -> tuple[str, str]:
     """Eszközhurok a kapun (CSAK `llm_kapu.chat`, SiliconFlow-tartalék nélkül). → (végső szöveg, kiszolgáló modell)
 
     11-23: a 4000 karakternél nagyobb eszközeredményből OLVASÓ-lépés kivonata megy a kontextusba (kivonat.py — Claude a
     közvetlen kapun, a számla keretéből), a teljes szöveg a hurok végéig lapozható (`eredmeny_lapoz`, a lista végén, így
-    az eszközlista a hurok alatt nem változik). A feladat-ügynök is ezt a hurkot használja."""
+    az eszközlista a hurok alatt nem változik). A feladat-ügynök is ezt a hurkot használja.
+
+    `tar`: a futás közös kivonat-tára (a feladat-ügynök első köre és a hiány-utókör ugyanazt kapja: egy URL egy futásban
+    egyszer jön le — `kivonat.EredmenyTar.ismetles`). `cache_rendszer` ("1h"): explicit cache-töréspont a vezető
+    rendszerszöveg végén (llm_kapu) — csak ha a rendszerszöveg futások között bájtra azonos. `zaro_eszkozzel`: az
+    utolsó (kényszerített szöveges) kör is megkapja az eszközlistát `tool_choice: none`-nal — így az előtag (eszközök
+    + rendszerszöveg) ott is cache-ből jön; eszközlista nélkül az egész kontextus újra íródna (Claude-kapun)."""
     import kivonat
     import llm_kapu
 
@@ -631,21 +638,28 @@ async def _hurok(messages: list, tools: list, *, purpose: str, szamla: Szamla, c
         except (KeretElfogyott, KapuHiba) as e:          # a keret vagy a kapu: a kivonat determinisztikus lesz
             return None, {"code": type(e).__name__, "message": str(e)[:200]}, []
 
-    tar = kivonat.EredmenyTar(olvaso=_olvaso)
+    if tar is None:
+        tar = kivonat.EredmenyTar(olvaso=_olvaso)
+    elif getattr(tar, "_olvaso", None) is None:
+        tar._olvaso = _olvaso
     feladat = next((str(m.get("content") or "") for m in messages if m.get("role") == "system"), "")[:2_000]
     if tools:
         tools = list(tools) + [kivonat.LAPOZ_DEF]
     modell = ""
     for kor in range(max_kor):
         payload = {"messages": messages, "max_tokens": 8000}
+        if cache_rendszer:
+            payload["cache_rendszer"] = cache_rendszer
         if tools and kor < max_kor - 1:
             payload["tools"] = tools
+        elif tools and zaro_eszkozzel:
+            payload["tools"], payload["tool_choice"] = tools, "none"
         data = await szamla.hiv(chat, payload, purpose)
         modell = str(data.get("model") or modell)
         choice = (data.get("choices") or [{}])[0]
         msg = choice.get("message") or {}
         hivasok = msg.get("tool_calls") or []
-        if hivasok and payload.get("tools"):
+        if hivasok and payload.get("tools") and payload.get("tool_choice") != "none":
             messages.append(msg)
             reszek = []
             for tc in hivasok:
@@ -658,6 +672,9 @@ async def _hurok(messages: list, tools: list, *, purpose: str, szamla: Szamla, c
             async def _egy(n, a):
                 if n == kivonat.LAPOZ_NEV:
                     return tar.lapoz(a)
+                ism = await tar.ismetles(n, a, feladat=feladat)     # ugyanaz az URL másodszor: nem tölt le, nem ír be
+                if ism is not None:
+                    return ism
                 return await tar.feldolgoz(n, a, await vegrehajto(n, a, modell), feladat=feladat)
             eredmenyek = await asyncio.gather(*(_egy(n, a) for _, n, a in reszek))
             for (tid, _, _), e in zip(reszek, eredmenyek):
@@ -680,6 +697,8 @@ class Termes:
     tervezetek: list = field(default_factory=list)
     eszkozok: list = field(default_factory=list)
     elutasitva: list = field(default_factory=list)
+    #: eszközönkénti hívásplafon (a feladat-ügynök az első körben lejjebb veszi: tartalék a hiány-utókörnek)
+    plafon: int = MAX_HIVAS_ESZKOZONKENT
 
 
 async def studio_dokumentum(forras, cim: str, markdown: str, modell: str = "") -> dict:
@@ -718,9 +737,9 @@ def vegrehajto(forras, termes: Termes) -> Callable:
             logger.warning("nachtschicht: elutasított eszközhívás: %s", nev)
             termes.elutasitva.append(nev)
             return _hiba(ok)
-        if termes.eszkozok.count(nev) >= MAX_HIVAS_ESZKOZONKENT:
+        if termes.eszkozok.count(nev) >= termes.plafon:
             termes.elutasitva.append(nev)
-            return _hiba(f"a(z) `{nev}` hívási kerete ({MAX_HIVAS_ESZKOZONKENT}) ebben a tételben elfogyott — "
+            return _hiba(f"a(z) `{nev}` hívási kerete ({termes.plafon}) ebben a tételben elfogyott — "
                          f"dolgozz a meglévő eredményekből, és fejezd be a tételt")
         termes.eszkozok.append(nev)
         try:

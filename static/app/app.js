@@ -276,6 +276,21 @@ async function kilep() {
 }
 
 // ── BAL SÁV ───────────────────────────────────────────────────
+async function gyorsKapcs(f, m, gomb) {
+  if (m === 'megszuntet' && !confirm(`Végleg megszünteted: „${f.nev}”? (A futásai naplója megmarad.)`)) return;
+  gomb.disabled = true;
+  try {
+    const j = await api('/api/ui/ugynok/muvelet', { method: 'POST', body: { id: f.id, muvelet: m } });
+    ertesit(j.uzenet || 'Rendben.');
+    await frissit({ tortenet: S.nezet.id === f.id && m !== 'megszuntet' });
+    if (m === 'megszuntet' && S.nezet.id === f.id) nezetValt({ tipus: 'ugynok', id: 'feldwebel' });
+  } catch (e) {
+    if (e instanceof Hiba401) return;
+    ertesit(e.message, true);
+    gomb.disabled = false;
+  }
+}
+
 function balRajzol() {
   const a = S.adat;
   if (!a) return;
@@ -284,13 +299,25 @@ function balRajzol() {
     const aktiv = S.nezet.tipus === 'ugynok' && S.nezet.id === u.id;
     const uj = u.utolso && u.utolso.ki !== 'kommandant' && u.utolso.id > (S.latott[u.id] || 0) && !aktiv;
     const elo = u.utolso ? `${u.utolso.ki === 'kommandant' ? 'Te: ' : ''}${u.utolso.szoveg}` : u.szerep;
-    return el('button', {
-      class: `ugynok${aktiv ? ' aktiv' : ''}`, title: u.modell ? `kért modell: ${u.modell}` : u.szerep,
+    const f = u.feladat_ugynok;
+    const sor = el('button', {
+      class: `ugynok${aktiv ? ' aktiv' : ''}${f ? ' van-kapcs' : ''}`, title: u.modell ? `kért modell: ${u.modell}` : u.szerep,
       onclick: () => nezetValt({ tipus: 'ugynok', id: u.id }),
     }, avatar(u.id, { pont }),
     el('span', { class: 'ugynok-test' }, el('span', { class: 'ugynok-nev' }, u.nev), el('span', { class: 'ugynok-elo' }, elo)),
     el('span', { class: 'ugynok-ido' }, relativ(u.utoljara)),
     uj ? el('span', { class: 'olvasatlan', 'aria-label': 'új üzenet' }) : null);
+    if (!f) return sor;
+    // GYORS KIKAPCSOLÁS (11-23, a Kommandant: „a már nem kellő ügynököt ki is kéne a kabinban kapcsolni tudni”):
+    // aktív (vagy dolgozik) → ⏻ leállít; leállított / kész → ✕ végleg megszüntet (megerősítéssel)
+    const be = f.allapot === 'aktiv' || f.fut;
+    const kapcs = el('button', {
+      class: `ugynok-kapcs${be ? '' : ' vesz'}`, type: 'button',
+      title: be ? `Leállít: „${f.nev}” (az ütemezés szünetel; ha dolgozik, megáll)` : `Megszüntet: „${f.nev}” (${f.allapot_szoveg}; végleg)`,
+      'aria-label': be ? `${f.nev} leállítása` : `${f.nev} megszüntetése`,
+      onclick: (ev) => { ev.stopPropagation(); gyorsKapcs(f, be ? 'leallit' : 'megszuntet', kapcs); },
+    }, be ? '⏻' : '✕');
+    return el('div', { class: 'ugynok-sor' }, sor, kapcs);
   });
   const fix = sorok.filter((_, i) => !a.ugynokok[i].feladat_ugynok);
   const feladat = sorok.filter((_, i) => a.ugynokok[i].feladat_ugynok);
@@ -781,6 +808,7 @@ function ugynokPanelRajzol() {
     f.allapot === 'aktiv'
       ? el('button', { class: 'gomb gomb-kicsi', title: 'Az ütemezés szünetel; ha éppen dolgozik, megáll', onclick: () => muvelet('leallit') }, 'Leállít')
       : el('button', { class: 'gomb gomb-kicsi', onclick: () => muvelet('ujraindit') }, 'Újraindít'),
+    el('button', { class: 'gomb gomb-kicsi', title: 'A legutóbbi jelentés Word-dokumentumként (szerkesztő-link a Studióban)', onclick: () => muvelet('dokumentum') }, 'Word'),
     el('button', { class: 'gomb gomb-kicsi', title: 'Modell, extra prompt, ütemezés, keret, jogosultságok', onclick: () => ujUgynokUrlap(f) }, 'Szerkeszt'),
     el('button', { class: 'gomb gomb-kicsi gomb-vesz', onclick: () => muvelet('megszuntet', `Végleg megszünteted: „${f.nev}”?`) }, 'Megszüntet'));
   const k = f.koltes;
@@ -793,6 +821,8 @@ function ugynokPanelRajzol() {
     ['Feladatot adhat', f.utasithat?.length ? f.utasithat.map((p) => p.nev).join(', ') : 'senkinek'],
     ['Ütemezés', `${f.utemezes_szoveg}${f.kovetkezo_szoveg ? ` · legközelebb ${f.kovetkezo_szoveg}` : ''}${f.ok ? ` · ${f.ok}` : ''}`],
     ['Szól', f.ertesites === 'mindig' ? 'minden futás után' : 'ha van mit jelezni'],
+    ['Word-dokumentum', { auto: 'magától, ha kutatás / életrajz / összefoglaló a feladat', mindig: 'minden futás után', soha: 'nem kell' }[f.dokumentum || 'auto']],
+    f.kaszkad ? ['Kaszkád', 'BE (mérésre): a gyűjtés Haikuval, az írás a saját modelljével'] : null,
     ['Költés', `utolsó $${Number(k.utolso_usd || 0).toFixed(2)} · e hónap $${k.honap_usd.toFixed(2)} / $${f.havi_keret_usd.toFixed(0)} · összesen $${k.osszes_usd.toFixed(2)} (${k.futasok} futás) · keret $${f.keret_usd.toFixed(2)}/futás`],
   ];
   S.ref.szerkeszto.replaceChildren(el('div', { class: 'szerkeszto' }, el('div', { class: 'szerkeszto-hej ugynok-panel', 'data-id': n.id },
@@ -836,6 +866,9 @@ function ujUgynokUrlap(f = null) {
   const keret = el('input', { type: 'number', min: '0.05', max: '5', step: '0.05', value: String(f?.keret_usd ?? '0.50') });
   const havi = el('input', { type: 'number', min: '1', max: '50', step: '1', value: String(f?.havi_keret_usd ?? '10') });
   const vitaMax = el('input', { type: 'number', min: '1', max: '6', step: '1', value: String(f?.vita_max ?? 3) });
+  const dokumentum = el('select', {}, [['auto', 'Magától (kutatás, életrajz, összefoglaló)'], ['mindig', 'Minden futás után'], ['soha', 'Nem kell']]
+    .map(([v, t]) => el('option', { value: v, selected: v === (f?.dokumentum || 'auto') }, t)));
+  const kaszkad = el('input', { type: 'checkbox', checked: Boolean(f?.kaszkad) });
   // jogosultságok: a fix partnerek és a többi feladat-ügynök (önmagát nem)
   const tobbi = (S.adat?.ugynokok || []).filter((u) => u.feladat_ugynok && u.id !== f?.id).map((u) => ({ id: u.id, nev: u.nev }));
   const pipak = (lehet, van) => {
@@ -859,6 +892,8 @@ function ujUgynokUrlap(f = null) {
     mezo('Modell', modell, 'A tudásbázist csak Claude-modell olvashatja; a SiliconFlow-modellek nem kapják meg.'),
     mezo('Extra prompt (viselkedés, szerep)', extra, 'A szabályok után kerül a promptba: a szabályokat és a jogokat nem írhatja felül.'),
     mezo('Mikor fusson', mikor), oraMezo, napMezo, ekkorMezo, cronMezo, mezo('Szóljon', ertesites),
+    mezo('Word-dokumentum', dokumentum, 'A jelentés Wordben is, szerkesztő-linkkel (a kabinban és a Telegramon).'),
+    el('label', { class: 'pipa' }, kaszkad, ' Kaszkád — csak mérésre: a gyűjtés Haikuval, az írás a választott modellel'),
     el('div', { class: 'urlap-sor' }, mezo('Keret / futás ($)', keret), mezo('Havi keret ($)', havi)),
     el('fieldset', { class: 'urlap-mezo jogok' }, el('legend', {}, 'Megvitathatja velük (futás közben)'), vita.doboz, mezo('Legfeljebb ennyi kérdés futásonként', vitaMax)),
     el('fieldset', { class: 'urlap-mezo jogok' }, el('legend', {}, 'Feladatot adhat nekik'), utasit.doboz,
@@ -892,7 +927,7 @@ function ujUgynokUrlap(f = null) {
       const ut = utemezes();
       const body = { feladat: feladat.value.trim(), modell: modell.value, extra_prompt: extra.value.trim(), ertesites: ertesites.value,
         keret_usd: Number(keret.value), havi_keret_usd: Number(havi.value), vitapartnerek: vita.ertek(), utasithat: utasit.ertek(),
-        vita_max: Number(vitaMax.value) };
+        vita_max: Number(vitaMax.value), dokumentum: dokumentum.value, kaszkad: kaszkad.checked };
       if (ut) { body.utemezes = ut[0]; body.egyszeri = ut[1]; }
       const j = szerk
         ? await api('/api/ui/ugynok/modosit', { method: 'POST', body: { id: f.id, uj_nev: nev.value.trim(), ...body } })

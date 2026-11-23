@@ -502,6 +502,16 @@ def _osztalyoz(r, relay: dict) -> list[tuple[str, dict]]:
                          "hiba": d.get("allapot") != "kesz", "eszkozok": list(dict.fromkeys(d.get("eszkozok") or [])),
                          "futas": {k: d.get(k) for k in ("allapot", "jelzes", "koltes_usd", "keret_usd", "trigger",
                                                          "mp", "hivasok", "kert_modell", "koltes_becsult", "kuldo")}})]
+        if subj == feladat_ugynok.TARGY_DOKUMENTUM:
+            if d.get("hiba"):
+                szoveg = f"⚠ A Word-dokumentum nem készült el: {d['hiba']}"
+            else:
+                szoveg = "\n\n".join([f"📄 [{x.get('name') or 'dokumentum'}]({x['edit_url']})" if x.get("edit_url")
+                                       else f"📄 {x.get('name') or 'dokumentum'}" for x in d.get("dokumentumok") or []]
+                                      + [f"a {str(d.get('futas_ido') or '')[:16]} futás jelentése"]
+                                      + ([f"[{d['megjegyzes']}]"] if d.get("megjegyzes") else []))
+            return [(s, {**alap, "ki": s, "tipus": "uzenet", "szoveg": szoveg, "hiba": bool(d.get("hiba")),
+                         "elonezet": "Word-dokumentum"})]
         return [(s, {**alap, "ki": "rendszer", "tipus": "rendszer", "szoveg": str(d.get("szoveg") or subj)})]
     if s == "kommandant" and rc == "bridge" and subj.startswith(("Telegram:", "Web:")):
         csat = "web" if subj.startswith("Web:") else "telegram"
@@ -977,8 +987,9 @@ async def api_brief(request: Request):
 # ══ 9/A. FELADAT-ÜGYNÖKÖK (feladat_ugynok.py) ═════════════════════════════
 
 UGYNOK_MEZOK = ("nev", "feladat", "utemezes", "egyszeri", "ertesites", "keret_usd", "havi_keret_usd", "modell",
-               "extra_prompt", "vitapartnerek", "utasithat", "vita_max")
-UGYNOK_KABIN_MUVELETEK = ("futtat", "leallit", "ujraindit", "megszuntet")
+               "extra_prompt", "vitapartnerek", "utasithat", "vita_max", "dokumentum", "kaszkad")
+#: 11-23: „dokumentum” = a legutóbbi jelentés Word-dokumentumként (a Kommandant: „kéne ez nekem dokumentumban”)
+UGYNOK_KABIN_MUVELETEK = ("futtat", "leallit", "ujraindit", "megszuntet", "dokumentum")
 
 
 def _ugynok_valasz(out: dict) -> JSONResponse:

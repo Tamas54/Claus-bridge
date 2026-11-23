@@ -12592,9 +12592,19 @@ def _feladat_ugynok_bekot() -> None:
         add_message(TELEGRAM_CHAT_ID or "web", "assistant", szoveg,
                     "feladat-ugynok" + (futar_kliens.CLAUDE_CSAK_JEL if csak_claude else ""))
 
+    def _docx_tarol(cim: str, markdown: str) -> dict:
+        """A Word-TARTALÉK (ha a Studio nem megy): a Bridge saját renderelője (python-docx) a meglévő feltöltés-
+        tárolóba (`uploads` tábla) — a letöltő-link a kabin belépésével nyílik (api_kapu)."""
+        fid = _persist_generated_file(0, "ugynok", "docx", _render_docx_from_markdown(markdown, title=cim), cim)
+        alap = os.environ.get("BRIDGE_PUBLIC_URL", "").strip().rstrip("/") or (
+            f"https://{os.environ['RAILWAY_PUBLIC_DOMAIN'].strip().strip('/')}"
+            if os.environ.get("RAILWAY_PUBLIC_DOMAIN", "").strip() else "")
+        return {"file_id": fid, "name": f"{cim}.docx", "edit_url": f"{alap}/api/uploads/{fid}/download"}
+
     # a modellválasztás (11-23): a SiliconFlow-azonosítók és -paraméterek a Bridge-é; a Faber-kívánság a bot-tokenből
     feladat_ugynok.beallit(get_db=get_db, forras=_forras, telegram=_telegram_push, elozmeny=_elozmeny,
-                           sf_modellek=SILICONFLOW_MODELS, sf_extra=_model_extra, bot_token=lambda: TELEGRAM_BOT_TOKEN)
+                           sf_modellek=SILICONFLOW_MODELS, sf_extra=_model_extra, bot_token=lambda: TELEGRAM_BOT_TOKEN,
+                           docx_tarol=_docx_tarol)
 
 
 _feladat_ugynok_bekot()

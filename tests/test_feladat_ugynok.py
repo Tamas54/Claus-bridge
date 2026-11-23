@@ -474,7 +474,7 @@ def test_futas_kesz_koltes_konyvelve_es_jelzes(db, kulcs):
     # a második futás promptjában ott az első összegzése (ne jelezze újra ugyanazt)
     kapu2 = Kapu([_zaro(jelzes=False)])
     e2, szolt2, _ = _futtat(db, rid, kapu2)
-    assert "Kamatdöntés: az alapkamat 6,50% marad." in kapu2.hivasok[0][1]["messages"][0]["content"]
+    assert "Kamatdöntés: az alapkamat 6,50% marad." in kapu2.hivasok[0][1]["messages"][1]["content"]   # a futás lapján
     assert e2["jelzes"] is False and szolt2 == []                            # „ha_van”: nincs új, nem szól
 
 
@@ -1092,25 +1092,237 @@ def test_kabin_szerkeszt(db):
     assert [p["id"] for p in F.nezet(_sor(db, rid))["vitapartnerek"]] == ["kimi", "feldwebel"]
 
 
-def test_hiany_or_visszakuldi_keresni_ha_maradt_keret(db, kulcs):
+def test_hiany_or_egy_kiegeszito_kor_csak_kiegeszitest_ir(db, kulcs):
     """11-23, a Kommandant a Bankváltás-kutató „Nem talált vagy nem megerősített” szakaszáról: „na itten probléma
-    vagyon. Kapott eszközt a kereséshez?” — kapott, de a keret negyedénél feladta. A hiány-őr visszaküldi keresni."""
+    vagyon. Kapott eszközt a kereséshez?” — a hiány-őr visszaküldi keresni. A 28-as futás után (két utókör, mindkettő a
+    TELJES jelentést írta újra, 0,153 $): legfeljebb EGY utókör, csak a hiányokra, és csak egy rövid kiegészítés, amit
+    a kód fűz az első jelentés alá — az első jelentés változatlan."""
     rid = _letrehoz(db)
-    hianyos = _zaro(osszegzes="Részben kész.", eredmeny="A díj: nem találtam. Az MNB-tájékoztatót nem sikerült megnyitni.")
-    kapu = Kapu([hianyos,
+    elso = "A díj: nem találtam. Az MNB-tájékoztatót nem sikerült megnyitni. A számlavezetés 0 Ft (mnb.hu)."
+    kapu = Kapu([_zaro(osszegzes="Részben kész.", eredmeny=elso),
                  _valasz(hivasok=[("web_scrape", {"url": "https://www.mnb.hu/x"})], usd=0.02),
-                 _zaro(osszegzes="Kész.", eredmeny="A bankváltás díjmentes (263/2016. Korm. r. 10. §); forrás: NJT.")])
+                 _valasz(json.dumps({"kiegeszites": "- A díj → a bankváltás díjmentes (263/2016. Korm. r. 10. §; "
+                                                    "https://njt.hu/x)"}, ensure_ascii=False)),
+                 _zaro(eredmeny="EZ MÁR NEM HÍVÓDHAT")])
     e, szolt, _ = _futtat(db, rid, kapu)
-    assert e["allapot"] == "kesz" and len(kapu.hivasok) == 3                  # vissza ment keresni
-    utolso = kapu.hivasok[1][1]["messages"][-1]["content"]
-    assert "HIÁNY maradt" in utolso and "nem találtam" in utolso
-    assert "díjmentes" in json.dumps(e, ensure_ascii=False) or "díjmentes" in szolt[0]
+    assert e["allapot"] == "kesz" and len(kapu.hivasok) == 3                  # egy utókör (2 hívás), nem kettő
+    uto = kapu.hivasok[1][1]["messages"]
+    assert "KIEGÉSZÍTŐ KÖR" in uto[-1]["content"] and "nem találtam" in uto[-1]["content"]
+    assert not any(m["role"] == "assistant" for m in uto)                      # az első jelentés nem megy vissza
+    assert elso not in uto[-1]["content"]
+    assert e["eredmeny"].startswith(elso)                                      # az első jelentés VÁLTOZATLAN
+    assert "## Kiegészítés" in e["eredmeny"] and "díjmentes" in e["eredmeny"] and e["kiegeszites"] is True
+    assert any("egy kiegészítő kört" in n for n in e["notes"])
     assert F.hiany_sorok("minden megvan, forrással") == []
+
+
+def test_hiany_or_utokor_nem_vonhat_vissza_forras_nelkul_es_nem_irhatja_ujra(db, kulcs):
+    rid = _letrehoz(db)
+    elso = "Születési hely: Kolozsvár (mcssz.hu). A díjat nem találtam."
+    kieg = ("- A díj → igazolt hiány: az NJT-t és a cég hirdetményét néztem.\n"
+            "- Ott visszavontam az MCSSZ-életrajz adatait, mert tévesek.\n"
+            "- Helyesbítés: a születési hely Kolozsvár helyett Torda.\n"
+            "- Helyesbítés: a születési év 1931 (https://archiv.example.hu/50.html)")
+    kapu = Kapu([_zaro(eredmeny=elso), _valasz(json.dumps({"kiegeszites": kieg}, ensure_ascii=False))])
+    e, _, _ = _futtat(db, rid, kapu)
+    assert e["eredmeny"].startswith(elso)
+    assert "igazolt hiány" in e["eredmeny"] and "1931 (https://archiv.example.hu/50.html)" in e["eredmeny"]
+    assert "visszavontam" not in e["eredmeny"] and "Torda" not in e["eredmeny"]      # forrás nélkül kimarad
+    assert any("2 forrás nélküli" in n for n in e["notes"])
+    # ha az utókör a TELJES jelentést írja újra, az nem megy át: az első jelentés marad, kiegészítés nélkül
+    rid2 = _letrehoz(db, nev="Másik")
+    kapu2 = Kapu([_zaro(eredmeny=elso), _zaro(eredmeny="TELJESEN ÚJ JELENTÉS, visszavonva minden.")])
+    e2, _, _ = _futtat(db, rid2, kapu2)
+    assert e2["eredmeny"] == elso and e2["kiegeszites"] is False
+    assert any("nem adott kiegészítést" in n for n in e2["notes"])
+
+
+def test_hiany_or_tartalek_a_keretbol_es_a_hivasi_keretbol(db, kulcs, monkeypatch):
+    """„A hívási keret elfogyott, ezért a többi hiány nyitva maradt” (a 28-as futás összegzése): az első kör eszközönként
+    `MAX - UTOKOR_ESZKOZ` hívást kap, a többi az utókörnek marad; a futás-keret 20%-a is."""
+    import nachtschicht as N
+    rid = _letrehoz(db)
+    plafon = N.MAX_HIVAS_ESZKOZONKENT - F.UTOKOR_ESZKOZ
+    sok = [("web_search", {"query": f"q{i}"}) for i in range(N.MAX_HIVAS_ESZKOZONKENT)]
+    f = Forras()
+    kapu = Kapu([_valasz(hivasok=sok, usd=0.01), _zaro(eredmeny="A díjat nem találtam."),
+                 _valasz(hivasok=[("web_search", {"query": f"u{i}"}) for i in range(F.UTOKOR_ESZKOZ)], usd=0.01),
+                 _valasz(json.dumps({"kiegeszites": "- A díj → 0 Ft (https://mnb.hu/d)"}, ensure_ascii=False))])
+    e, _, _ = _futtat(db, rid, kapu, forras=f)
+    keresesek = [h for h in f.hivasok if h[:2] == ("feldwebel", "web_search")]
+    assert len(keresesek) == N.MAX_HIVAS_ESZKOZONKENT                        # 12 az első körben + 4 az utókörben
+    assert e["elutasitva"].count("web_search") == N.MAX_HIVAS_ESZKOZONKENT - plafon
+    elso_kor = [json.loads(m["content"]) for m in kapu.hivasok[1][1]["messages"] if m.get("role") == "tool"]
+    assert sum("hívási kerete (12)" in str(x.get("error", "")) for x in elso_kor) == F.UTOKOR_ESZKOZ
+    assert "0 Ft" in e["eredmeny"]
+    # a futás-keret: az első kör 80%-nál megáll, és a tartalékból EGY záró hívás írja meg a jelentést
+    rid2 = _letrehoz(db, nev="Drága", keret_usd=0.10)
+    kapu2 = Kapu([_valasz(hivasok=[("web_search", {"query": "x"})], usd=0.079),     # a 2. hívás már a 80% fölé menne
+                  _zaro(eredmeny="Amit találtam: 6,50% (mnb.hu).")])
+    monkeypatch.setattr(F.UgynokSzamla, "becsles", lambda self, payload, ar=None, kimenet_tok=0: 0.002)
+    e2, _, _ = _futtat(db, rid2, kapu2)
+    assert e2["allapot"] == "kesz" and "6,50%" in e2["eredmeny"] and len(kapu2.hivasok) == 2
+    assert kapu2.hivasok[-1][1]["tool_choice"] == "none" and F.ZARO_KERES in kapu2.hivasok[-1][1]["messages"][-1]["content"]
+    assert any("záró hívás" in n for n in e2["notes"])
 
 
 def test_hiany_or_nem_lepi_tul_a_keretet(db, kulcs):
     rid = _letrehoz(db)
-    # az első kör már a keret 70%-a fölött van → nincs újabb keresés, a hiány kimondva marad
-    kapu = Kapu([_zaro(eredmeny="A díjat nem találtam.") | {"koltes_usd": 0.40}])
+    # az első kör a tartalékba is belenyúlt (egy hívás többe került a becslésnél) → nincs utókör, a hiány kimondva marad
+    kapu = Kapu([_zaro(eredmeny="A díjat nem találtam.") | {"koltes_usd": 0.45}])
     e, _, _ = _futtat(db, rid, kapu)
     assert len(kapu.hivasok) == 1 and e["allapot"] == "kesz"
+
+
+# ══ 12. 11-23: A 28-AS FUTÁS TANULSÁGAI — előtag-cache, kaszkád, Word-dokumentum, kész ügynök kikapcsolása ═══════
+
+def test_az_eloltag_futasok_es_ugynokok_kozott_bajtra_azonos(db, kulcs):
+    """A rendszerszöveg (mag) és az eszközlista két KÜLÖNBÖZŐ feladatú ügynöknél is ugyanaz, 1 órás töréspontot kap; a
+    feladat, az idő, a keret, az előzmény, az extra prompt a töréspont MÖGÖTT (a futás lapja, az első user-üzenet)."""
+    a = _letrehoz(db, nev="Életrajz-kutató", feladat="Kutasd fel Pótor József életrajzát, forrásokkal.", utemezes="",
+                  dokumentum="soha")
+    b = _letrehoz(db, nev="Kamatfigyelő2", feladat="Nézd meg az MNB-közleményeket.", extra_prompt="Légy tömör.")
+    ka, kb = Kapu([_zaro()]), Kapu([_zaro()])
+    _futtat(db, a, ka)
+    _run(F.futas(b, trigger="kezi", get_db=db, forras=Forras, chat=kb,
+                 most=datetime(2026, 11, 24, 6, 0, tzinfo=timezone.utc)))           # más nap, más indító
+    pa, pb = ka.hivasok[0][1], kb.hivasok[0][1]
+    assert pa["messages"][0] == pb["messages"][0] and pa["messages"][0]["role"] == "system"
+    assert pa["tools"] == pb["tools"] and pa["cache_rendszer"] == pb["cache_rendszer"] == "1h"
+    mag = pa["messages"][0]["content"]
+    for valtozo in ("Pótor", "Kamatfigyelő2", "Életrajz-kutató", "2026-11-2", "$0.50", "Légy tömör"):
+        assert valtozo not in mag
+    assert "Pótor József" in pa["messages"][1]["content"] and "Légy tömör" in pb["messages"][1]["content"]
+    assert "A futás kerete: $0.50" in pa["messages"][1]["content"]
+    # a hurok minden köre ugyanazt az előtagot küldi (a második kör is cache-ből olvas)
+    assert F.rendszer_reszek(F.nezet(_sor(db, a)), most=MOST, elozo=[], keret=0.1, trigger="cron")[0] == mag
+
+
+def test_kaszkad_ki_a_mai_viselkedes_be_a_gyujtes_haikuval(db, kulcs):
+    rid = _letrehoz(db)
+    kapu = Kapu([_valasz(hivasok=[("web_search", {"query": "mnb"})]), _zaro()])
+    e, _, _ = _futtat(db, rid, kapu)
+    assert [k["modell"] for k in kapu.kw] == ["claude-sonnet-5-5"] * 2 and len(kapu.hivasok) == 2
+    assert not any("KASZKÁD" in n for n in e["notes"]) and F.nezet(_sor(db, rid))["kaszkad"] is False
+    # BE (mérésre): a gyűjtés Haikuval, az írás Sonnettel, eszköz nélkül, a gyűjtött anyagból
+    rid2 = _letrehoz(db, nev="Kaszkád", kaszkad=True)
+    kapu2 = Kapu([_valasz(hivasok=[("web_search", {"query": "mnb"})], modell="claude-haiku-5-5", usd=0.001),
+                  _zaro(eredmeny="Haiku-vázlat", osszegzes="vázlat") | {"model": "claude-haiku-5-5"},
+                  _zaro(eredmeny="A végső jelentés (mnb.hu).")])
+    e2, _, _ = _futtat(db, rid2, kapu2)
+    assert [k["modell"] for k in kapu2.kw] == ["claude-haiku-5-5", "claude-haiku-5-5", "claude-sonnet-5-5"]
+    iro = kapu2.hivasok[2][1]
+    assert iro["tool_choice"] == "none" and F.IRO_KERES in iro["messages"][-1]["content"]   # eszközt nem hívhat,
+    assert iro["tools"] == kapu2.hivasok[0][1]["tools"]                        # de az előtag ugyanaz (cache)
+    assert any(m.get("role") == "tool" for m in iro["messages"])               # a gyűjtött eredményekből ír
+    assert e2["eredmeny"] == "A végső jelentés (mnb.hu)." and any("KASZKÁD" in n for n in e2["notes"])
+    # Haiku-ügynöknél és SF-modellnél nincs kaszkád
+    assert F.kaszkad_modell({"kaszkad": True, "modell": "haiku"}) is None
+    assert F.kaszkad_modell({"kaszkad": True, "modell": "kimi"}) is None
+
+
+class ForrasStudio(Forras):
+    def __init__(self, *, hibas=False, **kw):
+        super().__init__(**kw)
+        self.hibas, self.feltoltve = hibas, []
+
+    async def studio(self, eszkoz, parameterek, modell):
+        self.hivasok.append(("studio", eszkoz, parameterek))
+        if self.hibas:
+            raise RuntimeError("a Studio nem válaszol")
+        if eszkoz == "files":
+            return json.dumps({"url": "https://studio.example/feltolt/egyszer"})
+        return json.dumps({"file_id": "docx1", "name": "Életrajz-kutató — 2026-11-23.docx",
+                           "edit_url": "https://studio.example/edit/docx1", "check": {"status": "ok"}})
+
+    async def feltolt(self, url, tartalom):
+        self.feltoltve.append(tartalom.decode())
+        return {"file_id": "md1"}
+
+
+def test_word_dokumentum_a_kutatas_jellegu_feladatnal_linkkel(db, kulcs):
+    rid = _letrehoz(db, nev="Életrajz-kutató", feladat="Kutasd fel Pótor József életrajzát, forrásokkal.", utemezes="")
+    f = ForrasStudio()
+    e, szolt, _ = _futtat(db, rid, Kapu([_zaro(eredmeny="## Életút\n- 1931, Kolozsvár (mcssz.hu)")]), forras=f)
+    assert e["dokumentumok"] == [{"name": "Életrajz-kutató — 2026-11-23.docx",
+                                  "edit_url": "https://studio.example/edit/docx1", "file_id": "docx1"}]
+    md = f.feltoltve[0]
+    assert md.startswith("# Életrajz-kutató") and "Pótor József életrajzát" in md and "1931, Kolozsvár" in md
+    assert [h[1] for h in f.hivasok if h[0] == "studio"] == ["files", "convert"]       # determinisztikus, AI nélkül
+    assert '📄 <a href="https://studio.example/edit/docx1">' in szolt[0]                  # a Telegramon
+    import ui_kabin as ui
+    assert "📄 [Életrajz-kutató — 2026-11-23.docx](https://studio.example/edit/docx1)" in ui._futas_szoveg(e)   # kabin
+    # nem kutatás jellegű feladat → nincs dokumentum; „soha” → akkor sem
+    f2 = ForrasStudio()
+    _futtat(db, _letrehoz(db), Kapu([_zaro()]), forras=f2)
+    assert not [h for h in f2.hivasok if h[0] == "studio"]
+    assert F.dokumentum_kell({"feladat": "Kutasd fel…", "dokumentum": "soha"}) is False
+    assert F.dokumentum_kell({"feladat": "Nézd az MNB-t", "dokumentum": "mindig"}) is True
+    # a Studio kiesésénél a Bridge-tartalék (feltöltés-tároló) ad linket
+    tarolt = []
+
+    def docx_tarol(cim, md):
+        tarolt.append(cim)
+        return {"file_id": 7, "name": f"{cim}.docx", "edit_url": "https://bridge.example/api/uploads/7/download"}
+    rid3 = _letrehoz(db, nev="Összefoglaló", feladat="Készíts összefoglalót a heti hírekről.", utemezes="")
+    e3, _, _ = _futtat(db, rid3, Kapu([_zaro()]), forras=ForrasStudio(hibas=True), docx_tarol=docx_tarol)
+    assert e3["dokumentumok"][0]["edit_url"].endswith("/api/uploads/7/download") and tarolt
+
+
+def test_dokumentum_utolag_a_legutobbi_jelentesbol(db, kulcs):
+    """„kéne ez nekem ugye dokumentumban” — egy már lefutott ügynök jelentése utólag, gombbal vagy szóban."""
+    rid = _letrehoz(db, nev="Pótor-kutatás", feladat="Nézz utána Pótor Józsefnek.", utemezes="", dokumentum="soha")
+    _futtat(db, rid, Kapu([_zaro(eredmeny="Pótor József (1931–2019), cserkészvezető (mcssz.hu).")]))
+    szolt, f = [], ForrasStudio()
+
+    async def tg(s):
+        szolt.append(s)
+
+    async def most():
+        F.beallit(get_db=db, forras=lambda: f, telegram=tg)
+        out = F.vegrehajt("dokumentum", {"id": "Pótor-kutatás"}, get_db=db)
+        await asyncio.sleep(0)
+        for t in [t for t in asyncio.all_tasks() if t is not asyncio.current_task()]:
+            await t
+        return out
+    out = _run(most())
+    assert out["dokumentum"] == {"indult": True} and "Készítem a Word-dokumentumot" in out["uzenet"]
+    assert "Pótor József (1931–2019)" in f.feltoltve[0]
+    (_, d), = _naplo(db, rid, F.TARGY_DOKUMENTUM)
+    assert d["dokumentumok"][0]["edit_url"] == "https://studio.example/edit/docx1" and not d["hiba"]
+    assert '📄 <a href="https://studio.example/edit/docx1">' in szolt[0]
+    app = _app(db)
+    b = _run(_keres(app, "GET", f"/api/ui/beszelgetes?ablak=ugynok:{rid}")).json()
+    dok = [t for t in b["tetelek"] if "Word" in str(t.get("elonezet"))][0]
+    assert dok["tipus"] == "uzenet" and "(https://studio.example/edit/docx1)" in dok["szoveg"]
+    # a kabin gombja ugyanezt a belépőt hívja; futás nélküli ügynöknél kimondott hiba
+    rid2 = _letrehoz(db, nev="Üres")
+
+    async def most2():
+        F.beallit(get_db=db, forras=lambda: f, telegram=tg)
+        r = await _keres(app, "POST", "/api/ui/ugynok/muvelet", json={"id": f"ugynok:{rid2}", "muvelet": "dokumentum"})
+        for t in [t for t in asyncio.all_tasks() if t is not asyncio.current_task()]:
+            await t
+        return r
+    assert _run(most2()).status_code == 200
+    (_, d2), = _naplo(db, rid2, F.TARGY_DOKUMENTUM)
+    assert "még nincs kész" in d2["hiba"]
+
+
+def test_kesz_ugynok_a_kabinban_leallithato_es_megszuntetheto(db, kulcs):
+    """A Kommandant: „a már nem kellő ügynököt ki is kéne a kabinban kapcsolni tudni.” Egy egyszeri, lefutott (KÉSZ)
+    ügynök: a kabin gombjai (és a bal lista gyors kapcsolója) működnek."""
+    rid = _letrehoz(db, utemezes="")
+    _futtat(db, rid, Kapu([_zaro()]))
+    assert F.nezet(_sor(db, rid))["allapot"] == "kesz"
+    app = _app(db)
+
+    def muvelet(m):
+        return _run(_keres(app, "POST", "/api/ui/ugynok/muvelet", json={"id": f"ugynok:{rid}", "muvelet": m}))
+    r = muvelet("leallit")
+    assert r.status_code == 200 and r.json()["ugynok"]["allapot"] == "leallitva" and _sor(db, rid)["cron_enabled"] == 0
+    assert muvelet("megszuntet").json()["megszuntetve"]["nev"] == "Kamatfigyelő" and _sor(db, rid) is None
+    # a bal lista gyors kapcsolója: aktívnál ⏻ leállít, leállítottnál / késznél ✕ megszüntet (megerősítéssel)
+    js = (GYOKER / "static" / "app" / "app.js").read_text(encoding="utf-8")
+    assert "gyorsKapcs(f, be ? 'leallit' : 'megszuntet', kapcs)" in js and "ugynok-kapcs" in js
+    assert "Végleg megszünteted" in js[js.index("async function gyorsKapcs"):][:400]
