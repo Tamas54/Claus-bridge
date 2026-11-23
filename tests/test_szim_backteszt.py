@@ -691,3 +691,237 @@ def test_skala_potlas_a_felvetelbol(tmp_path):
     assert infl["skala"] == pytest.approx(sb.asof_palya(_mh("cpi"), "cpi", AS_OF, date(2026, 11, 20))["skala_1lepes"])
     assert fx["skala"] == pytest.approx(__import__("statistics").stdev([2.0, -3.0]))
     assert "skala" not in kamat and len(hiany) == 1 and hiany[0].startswith("HU:policy_rate")
+
+
+# ── A NAIV SOROK TAPASZTALATI ALAPVONALA: árfolyam-sáv, lépcsős kamat-eloszlás (11-23) ──────────────────────
+
+def _crps_diszkret_kepletbol(atomok, x):
+    """Független képlet: CRPS = E|X − x| − ½·E|X − X'| (diszkrét X)."""
+    s = sum(w for _, w in atomok)
+    p = [(z, w / s) for z, w in atomok]
+    return (sum(w * abs(z - x) for z, w in p)
+            - 0.5 * sum(wi * wj * abs(zi - zj) for zi, wi in p for zj, wj in p))
+
+
+def test_crps_diszkret_kezzel_szamolt_peldan():
+    # „változatlan” 60%, ±25 bp 20–20%: a tény változatlan → kézzel: [5,25; 5,5) F = 0,2 → 0,04·0,25 = 0,01;
+    # [5,5; 5,75) F = 0,8, 1{y ≥ x} = 1 → 0,04·0,25 = 0,01 → 0,02
+    at = [(5.25, 0.2), (5.5, 0.6), (5.75, 0.2)]
+    assert sb.crps_diszkret(at, 5.5) == pytest.approx(0.02)
+    # a tény +25 bp: 0,04·0,25 + 0,64·0,25 = 0,17
+    assert sb.crps_diszkret(at, 5.75) == pytest.approx(0.17)
+    # a tény az eloszláson kívül (6,0): E|X − x| = 0,5, ½E|X − X'| = 0,08 → 0,42
+    assert sb.crps_diszkret(at, 6.0) == pytest.approx(0.42)
+    # egy atom = pontbecslés: |hiba| (ugyanaz, mint a régi pont-alapvonal)
+    assert sb.crps_diszkret([(5.5, 1.0)], 5.0) == pytest.approx(0.5) == sb.crps_sav(5.5, 5.5, 0.8, 5.0)
+    # a súlyok normálódnak, az ismételt atom összeadódik; a képlettel egyezik tetszőleges atomokon
+    assert sb.crps_diszkret([(5.25, 1), (5.5, 1.5), (5.5, 1.5), (5.75, 1)], 5.5) == pytest.approx(0.02)
+    rnd = __import__("random").Random(7)
+    for _ in range(50):
+        atomok = [(round(rnd.uniform(0, 10) * 4) / 4, rnd.random()) for _ in range(rnd.randint(1, 8))]
+        x = rnd.uniform(-1, 11)
+        assert sb.crps_diszkret(atomok, x) == pytest.approx(_crps_diszkret_kepletbol(atomok, x), abs=1e-12)
+    assert sb.crps_diszkret([], 1.0) is None and sb.crps_diszkret(at, None) is None
+
+
+def test_lepcsos_eloszlas_a_valodi_meggyozodest_jutalmazza():
+    """Proper: ha a kamat 60% eséllyel változatlan, ±25 bp 20–20%, a várható CRPS-ben ez az eloszlás veri a
+    „változatlan” pontot és a túl széles eloszlást is."""
+    igaz = [(5.25, 0.2), (5.5, 0.6), (5.75, 0.2)]
+
+    def varhato(q):
+        return sum(w * sb.crps_diszkret(q, x) for x, w in igaz)
+    assert varhato(igaz) < varhato([(5.5, 1.0)])
+    assert varhato(igaz) < varhato([(4.5, 0.2), (5.5, 0.6), (6.5, 0.2)])
+
+
+def _havi(ertekek: dict, tol="2024-08", ig="2026-12", alap=5.0):
+    """Havi sor `tol`-tól `ig`-ig; `ertekek`: {hónap: érték-től kezdve} lépcsők."""
+    obs, v = [], alap
+    ev, h = int(tol[:4]), int(tol[5:])
+    while f"{ev}-{h:02d}" <= ig:
+        per = f"{ev}-{h:02d}"
+        v = ertekek.get(per, v)
+        obs.append({"period": per, "value": v})
+        ev, h = ev + (h == 12), h % 12 + 1
+    return obs
+
+
+def test_kamat_lepcsos_eloszlas_kezzel():
+    """25 lezárt hónap (2024-08…2026-08), egy +25 bp-es lépcső 2025-08-ban: a 2 hónapos ablakok közül 2/23, a 3
+    hónaposak közül 3/22 tartalmazza. A keverék súlya a horizont tört hónapja; az eloszlás a mai érték körül
+    szimmetrikus (irány nélkül)."""
+    as_of, cel = date(2026, 9, 10), date(2026, 11, 20)
+    obs = _havi({"2025-08": 5.25})
+    a = sb.kamat_lepcsos_eloszlas(obs, as_of, cel, 5.25)
+    hm = (cel - as_of).days / sb.HO_NAP
+    w3 = hm - 2
+    w2 = 1 - w3
+    assert a["h_ho"] == pytest.approx(hm, abs=1e-3) and a["n_valtozas"] == {2: 23, 3: 22} and a["n_honap"] == 25
+    p_valt = w2 * 2 / 23 + w3 * 3 / 22
+    varhato = {5.0: p_valt / 2, 5.25: 1 - p_valt, 5.5: p_valt / 2}
+    assert {z: pytest.approx(w, abs=1e-7) for z, w in varhato.items()} == {z: w for z, w in a["atomok"]}
+    assert a["p_valtozatlan"] == pytest.approx(1 - p_valt, abs=1e-4)
+    # a CRPS a változatlan és a +25 bp-es kimenetelre, kézzel (két szakasz, mint fent)
+    assert sb.crps_diszkret(a["atomok"], 5.25) == pytest.approx(2 * (p_valt / 2) ** 2 * 0.25, abs=1e-9)
+    assert sb.crps_diszkret(a["atomok"], 5.5) == pytest.approx(
+        (p_valt / 2) ** 2 * 0.25 + (1 - p_valt / 2) ** 2 * 0.25, abs=1e-9)
+    # a központi 80%: a változás ritkább, mint 10%, ezért a sáv a mai értékre zsugorodik — de az eloszlás nem pont
+    assert (a["also"], a["felso"]) == (5.25, 5.25) and len(a["atomok"]) == 3
+    # egylépéses (havi) skála: egyetlen +0,25-ös változás 24 havi változás között
+    assert a["skala_1lepes"] == pytest.approx(__import__("statistics").stdev([0.0] * 23 + [0.25]))
+
+
+def test_kamat_eloszlas_csak_az_as_of_elott_lezart_honapokbol():
+    as_of, cel = date(2026, 9, 10), date(2026, 11, 20)
+    tiszta = sb.kamat_lepcsos_eloszlas(_havi({"2025-08": 5.25}, ig="2026-08"), as_of, cel, 5.25)
+    # az as_of hónapjában és utána óriási lépés: nem látszhat (szivárgás-jel)
+    jovo = sb.kamat_lepcsos_eloszlas(_havi({"2025-08": 5.25, "2026-09": 9.0, "2026-11": 2.0}), as_of, cel, 5.25)
+    assert jovo == tiszta and jovo["elotortenet"] == ["2024-08", "2026-08"]
+    # a definíciós forrásváltást (EKB MRO → DFR) átívelő változás kimarad: az nem kamatdöntés
+    splice = [{"at": "2025-08", "kind": "definition"}]
+    a = sb.kamat_lepcsos_eloszlas(_havi({"2025-08": 5.25}), as_of, cel, 5.25, splices=splice)
+    assert a["atomok"] == [[5.25, 1.0]] and a["n_valtozas"] == {2: 21, 3: 19}
+    # kevés előtörténet: nincs eloszlás (kimondva), nem találunk ki
+    assert "hiba" in sb.kamat_lepcsos_eloszlas(_havi({}, tol="2025-06"), as_of, cel, 5.0)
+
+
+def _napi(n=60, kezdo=date(2026, 7, 1), *, novekedes=0.01):
+    return [{"date": (kezdo + timedelta(days=i)).isoformat(), "close": 100.0 * __import__("math").exp(novekedes * i)}
+            for i in range(n)]
+
+
+def test_arfolyam_sav_csak_az_as_of_elotti_zarasokbol():
+    import math
+    as_of = date(2026, 8, 30)                           # az utolsó as_of előtti záróár: 08-29 (i = 59)
+    sorok = _napi()
+    s = sorok[-1]["close"]
+    a = sb.arfolyam_bolyongas_sav(sorok, as_of, date(2026, 9, 3), ertek=s)
+    # H = 5 nap; minden 5 napos log-változás 0,05 → q = 0,05, a sáv a mai érték körül szimmetrikus (log-ban)
+    assert a["h_nap"] == 5 and a["n"] == 55 and a["q_log"] == pytest.approx(0.05)
+    assert a["also"] == pytest.approx(s * math.exp(-0.05), abs=1e-4) and a["felso"] == pytest.approx(s * math.exp(0.05), abs=1e-4)
+    assert a["eloszlas"] == "sav80_bolyongas" and a["p"] == sb.SAV_P
+    # az as_of napján és utána: őrült értékek — nem számíthatnak
+    jovo = sorok + [{"date": "2026-08-30", "close": 1.0}, {"date": "2026-09-02", "close": 500.0}]
+    assert sb.arfolyam_bolyongas_sav(jovo, as_of, date(2026, 9, 3), ertek=s) == a
+    # a középpont a kimondott alapvonal (a v2 naiv pontja), nem a sáv
+    b = sb.arfolyam_bolyongas_sav(sorok, as_of, date(2026, 9, 3), ertek=200.0)
+    assert b["felso"] / 200.0 == pytest.approx(math.exp(0.05), abs=1e-6)
+    # a cél nem lehet az utolsó ismert záróár előtt; kevés pár → nincs sáv
+    assert "hiba" in sb.arfolyam_bolyongas_sav(sorok, as_of, date(2026, 8, 20))
+    assert "hiba" in sb.arfolyam_bolyongas_sav(_napi(20), date(2026, 7, 21), date(2026, 7, 30))
+
+
+def test_a_naiv_sor_savval_a_fo_szamba_kerul_a_pont_nem():
+    fx = {"kulcs": "EURHUF=X", "idoszak": "2026-11-19", "hatarido": "2026-11-19", "ertek": 392.0, "also": None,
+          "felso": None, "naiv": True, "hatas": {"valtozas": -4.0}, "dontessel": 388.0, "dontessel_also": 380.0,
+          "dontessel_felso": 396.0, "skala": 2.0}
+    kamat = {"kulcs": "HU:policy_rate", "idoszak": "2026-11-20", "hatarido": "2026-11-20", "ertek": 5.5, "naiv": True,
+             "hatas": {"valtozas": 0.0}, "dontessel": 5.5, "dontessel_also": 5.25, "dontessel_felso": 5.75}
+    fx_sav = {"tipus": "sav", "eloszlas": "sav80_bolyongas", "p": 0.8, "also": 380.0, "felso": 404.0,
+              "skala_1lepes": 1.5}
+    k_elo = {"tipus": "diszkret", "eloszlas": "kamat_lepcsos", "p": 0.8, "atomok": [[5.25, 0.2], [5.5, 0.6], [5.75, 0.2]],
+             "also": 5.25, "felso": 5.75, "skala_1lepes": 0.25}
+    # régi futás (pótlás nélkül): pont-alapvonal, a fő számon KÍVÜL — ugyanaz, mint eddig
+    regi = [dict(fx, esemeny="e1", **sb.crps_mezok(fx, 390.0)), dict(kamat, esemeny="e1", **sb.crps_mezok(kamat, 5.5))]
+    assert [r["alap_eloszlas"] for r in regi] == ["pont (naiv, sáv nélkül)"] * 2
+    assert regi[0]["crps_alap"] == pytest.approx(2.0) and regi[1]["crps_alap"] == 0.0
+    cs = sb.crps_csoportok(regi)
+    assert cs["crps"]["n"] == 0 and cs["crps_pont_alapvonal"]["n"] == 2
+    # a tapasztalati alapvonallal: sáv a sáv ellen → a fő számba megy, típusonként is látszik
+    uj = [dict(fx, alap_sav=fx_sav), dict(kamat, alap_sav=k_elo)]
+    m = [dict(t, esemeny="e1", **sb.crps_mezok(t, x)) for t, x in zip(uj, (390.0, 5.5))]
+    assert m[0]["alap_eloszlas"] == "sav80_bolyongas" and m[0]["crps_alap"] == pytest.approx(
+        sb.crps_sav(380.0, 404.0, 0.8, 390.0), abs=1e-5)
+    assert m[0]["skala"] == 2.0                                   # a futás saját skálája elsőbbséget kap
+    assert m[1]["alap_eloszlas"] == "kamat_lepcsos" and m[1]["crps_alap"] == pytest.approx(0.02, abs=1e-5)
+    assert m[1]["skala"] == 0.25 and m[1]["crps_kulonbseg_norm"] == pytest.approx(
+        (m[1]["crps_dontessel"] - 0.02) / 0.25, abs=1e-3)
+    cs = sb.crps_csoportok(m)
+    assert cs["crps"]["n"] == 2 and cs["crps"]["n_norm"] == 2 and cs["crps_pont_alapvonal"]["n"] == 0
+    assert set(cs["crps_alapvonal_szerint"]) == {"sav80_bolyongas", "kamat_lepcsos"}
+    # hibás vagy ismeretlen alapvonal-eloszlás: marad a pont (nem találunk ki)
+    assert sb.crps_mezok(dict(fx, alap_sav={"hiba": "x"}), 390.0)["alap_eloszlas"].startswith("pont")
+    assert sb.crps_mezok(dict(fx, alap_sav=dict(fx_sav, eloszlas="más")), 390.0)["alap_eloszlas"].startswith("pont")
+    # a pályás sor (saját sáv) nem cserélődik, akkor sem, ha valami alap_sav-ot is hordoz
+    infl = {"kulcs": "HU:inflation", "ertek": 3.4, "also": 2.8, "felso": 4.0, "naiv": False, "hatas": {"valtozas": 0},
+            "dontessel_also": 2.4, "dontessel_felso": 3.6, "alap_sav": fx_sav}
+    assert sb.crps_mezok(infl, 2.9)["alap_eloszlas"] == "sav80"
+
+
+def test_alap_sav_potlas_a_felvetelbol_halozat_nelkul(tmp_path):
+    """A régi futás naiv sorai utólag kapnak alapvonal-eloszlást: az árfolyam a futás SAJÁT felvételéből (ugyanaz a
+    yfinance-hívás, mint az as_of-proxyé), a kamat a külön felvett előtörténetből; a pályás sor érintetlen."""
+    as_of = date(2026, 8, 30)
+    fut = sb.Felvevo(tmp_path / "futas.json.gz", eles=False)
+    yf_par = {"symbol": "EURHUF=X", "action": "history", "interval": "1d", "end": as_of.isoformat(),
+              "start": (as_of - timedelta(days=370)).isoformat()}
+    fut.tar[sb.Felvevo.kulcs("makronom", "yfinance", yf_par)] = {"valasz": json.dumps({"data": _napi()})}
+    kam = sb.Felvevo(tmp_path / "kamat.json.gz", eles=False)
+    kam.tar[sb.Felvevo.kulcs("makronom", "macro_history", {"country": "HU", "indicator": "policy_rate",
+                                                           "start": "2014"})] = {
+        "valasz": json.dumps({"observations": _havi({"2025-08": 5.25}), "source_series_id": "BIS WS_CBPOL M.HU"})}
+    futas = {"as_of": as_of.isoformat(), "gazdasag": [
+        {"kulcs": "HU:inflation", "naiv": False, "also": 2.8, "felso": 4.0, "idoszak": "2026-09", "ertek": 3.4},
+        {"kulcs": "EURHUF=X", "naiv": True, "idoszak": "2026-09-03", "ertek": 150.0},
+        {"kulcs": "HU:policy_rate", "naiv": True, "idoszak": "2026-11-20", "ertek": 5.25},
+        {"kulcs": "US:policy_rate", "naiv": True, "idoszak": "2026-11-20", "ertek": 4.0}]}
+    hiany = _run(sb.alap_sav_potlas(futas, sb.LancoltFelvevo(fut, kam)))
+    infl, fx, hu, us = futas["gazdasag"]
+    assert "alap_sav" not in infl
+    assert fx["alap_sav"]["eloszlas"] == "sav80_bolyongas" and fx["alap_sav"]["h_nap"] == 5
+    assert fx["alap_sav"]["kozep"] == 150.0 and "yfinance" in fx["alap_sav"]["forras"]
+    assert hu["alap_sav"]["eloszlas"] == "kamat_lepcsos" and hu["alap_sav"]["n_honap"] == 24  # 2024-08…2026-07
+    assert "BIS" in hu["alap_sav"]["forras"]
+    assert "alap_sav" not in us and len(hiany) == 1 and hiany[0].startswith("US:policy_rate")   # nincs felvéve
+    # a már kitöltött sort nem írja felül (a második kör csak a hiányzót próbálja újra)
+    elotte = json.dumps(futas, sort_keys=True)
+    _run(sb.alap_sav_potlas(futas, sb.LancoltFelvevo(fut, kam)))
+    assert json.dumps(futas, sort_keys=True) == elotte
+
+
+def test_regi_ertekeles_alakja_valtozatlan_potlas_nelkul():
+    """Visszafelé kompatibilis: a régi (pótlás nélküli) futás sorainál a fő szám és a pont-csoport ugyanaz, mint a
+    11-23-i kódban (csak `sav80` a fő számban)."""
+    sorok = [{"id": "e1:A", "esemeny": "e1", "kulcs": "A", "crps_dontessel": 0.2, "crps_alap": 0.5, "skala": 0.5,
+              "alap_eloszlas": "sav80"},
+             {"id": "e1:FX", "esemeny": "e1", "kulcs": "EURHUF=X", "crps_dontessel": 3.0, "crps_alap": 8.0,
+              "skala": 2.0, "alap_eloszlas": "pont (naiv, sáv nélkül)"}]
+    cs = sb.crps_csoportok(sorok)
+    assert cs["crps"] == sb.paros_crps_kulonbseg(sorok[:1])
+    assert cs["crps_pont_alapvonal"] == sb.paros_crps_kulonbseg(sorok[1:])
+    assert cs["crps_alapvonal_szerint"] == {"sav80": cs["crps"]}
+
+
+def test_elo_pontozas_naiv_sor_a_futas_napja_elotti_eloszlassal(get_db):
+    """Éles futás: a naiv alapkamat-sor a futás napja ELŐTTI előtörténetből kap lépcsős alapvonalat, és így a fő
+    számba megy; eloszlás nélkül pont marad, a fő számon kívül."""
+    futas = "sz-0badcafe"
+    tabla = [{"kulcs": "HU:policy_rate", "mutato": "jegybanki alapkamat (%)", "orszag": "HU", "egyseg": "%",
+              "idoszak": "2026-11-20", "hatarido": "2026-11-20", "ertek": 5.5, "also": None, "felso": None,
+              "naiv": True, "hatas": {"valtozas": 0.0, "csatorna": "x"}, "dontessel": 5.5, "dontessel_also": 5.25,
+              "dontessel_felso": 5.75, "modszer": "naiv alapvonal", "ellenorzes": "MNB"}]
+    elore = ds.elorejelzesek_tisztit(ds.gazdasagi_elorejelzesek(tabla), "piac", ma=date(2026, 9, 1),
+                                     hatar_napok=120, max_db=8)[0]
+    elore = ds.naploba(get_db, elore, futas=futas, orszag="HU", lepes_hash="h")
+    ds._nyom(get_db, futas, "adat", json.dumps({"futas": futas, "lepes_hash": "h", "elorejelzesek": elore,
+                                                "gazdasag": tabla, "indult": "2026-09-01T08:00:00+00:00"}))
+    hivasok = []
+
+    async def hiv(szerver, eszkoz, par, max_kar=None):
+        hivasok.append((eszkoz, dict(par)))
+        if eszkoz == "macro_history":
+            return json.dumps({"observations": _havi({"2025-08": 5.75, "2026-09": 1.0}, tol="2016-01")})
+        return json.dumps({"value": 5.5})
+    km = _run(sb.elo_gazdasagi_kimenetelek(get_db, hiv, ma=date(2026, 11, 22)))
+    kulcs = elore[0]["naplo"]["entity_key"]
+    a = km[kulcs]["alap_sav"]
+    assert a["eloszlas"] == "kamat_lepcsos" and a["elotortenet"][1] == "2026-08"     # a futás napja (09-01) előtt lezárt hónap
+    assert ("macro_history", {"country": "HU", "indicator": "policy_rate", "start": "2014"}) in hivasok
+    ki = sb.elo_pontozas(get_db, km, ma=date(2026, 11, 22))
+    assert ki["gazdasagi_sorok"][0]["alap_eloszlas"] == "kamat_lepcsos"
+    assert ki["gazdasagi_sorok"][0]["crps_alap"] == pytest.approx(sb.crps_diszkret(a["atomok"], 5.5), abs=1e-5)
+    assert ki["gazdasagi_crps"]["crps"]["n"] == 1 and ki["gazdasagi_crps"]["crps_pont_alapvonal"]["n"] == 0
+    regi = sb.elo_pontozas(get_db, {kulcs: {k: v for k, v in km[kulcs].items() if k != "alap_sav"}},
+                           ma=date(2026, 11, 22))
+    assert regi["gazdasagi_crps"]["crps"]["n"] == 0 and regi["gazdasagi_crps"]["crps_pont_alapvonal"]["n"] == 1

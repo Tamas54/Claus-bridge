@@ -30,3 +30,10 @@ $PY -m szim_backteszt ertekel --bank $D/esemenybank_LOCKED.json --gt $D/gt_LOCKE
 #   $PY -m szim_backteszt ertekel --bank $D/esemenybank_LOCKED.json --gt $D/gt_LOCKED.json --ki-dir $D/futasok \
 #     --felvetel $D/felvetel_gazd_gt_elso_kozles.json.gz --skala-felvetel $D/felvetel_futas.json.gz --ma 2026-11-22 \
 #     --csak-felvetel --ki $D/futasok/ertekeles_elso_kozles.json
+# A NAIV SOROK TAPASZTALATI ALAPVONALA (11-23): az árfolyam véletlen-bolyongás sávja (a futás saját yfinance-
+# felvételéből) és az alapkamat lépcsős eloszlása (macro_history policy_rate, BIS havi: felvetel_alap_sav.json.gz) —
+# mindkettő az as_of előtti adatból; így az EUR/HUF és az alapkamat is a fő számba megy. Hálózat nélkül:
+#   $PY -m szim_backteszt ertekel --bank $D/esemenybank_LOCKED.json --gt $D/gt_LOCKED.json --ki-dir $D/futasok \
+#     --felvetel $D/felvetel_gazd_gt_elso_kozles.json.gz --skala-felvetel $D/felvetel_futas.json.gz \
+#     --alap-sav-felvetel $D/felvetel_alap_sav.json.gz --ma 2026-11-22 --csak-felvetel \
+#     --ki $D/futasok/ertekeles_alap_sav.json
