@@ -138,11 +138,13 @@ def test_napi_terv_a_kovetkezo_24_ora_figyelt_kozlesei():
     assert e["elorejelzes"] == {"pont": 4.6, "also": 4.5, "felso": 4.7, "idoszak": "2026-10",
                                 "mertek": CFG["sorozatok"][1]["elorejelzes"]["mertek"],
                                 "forras": "Makronóm forecast_path", "keszult": "2026-11-23T20:00:00Z"}
-    # 7 nap: a Destatis-közlés is benne van, de olvasó nélkül — kimondva, és nincs alapvonal-hívás rá
+    # 7 nap: a Destatis-közlés is benne van — 11-24 óta olvasható (StatData: Destatis VPI); az előrejelzésünk HICP,
+    # vagyis eltérő mérték: kiírjuk, de nem vetjük össze
     t7 = _terv("2026-11-25T09:00:00+01:00", m, orak=24 * 7)
     de = [e for e in t7["esemenyek"] if e["sorozat"] == "DE_CPI"]
-    assert de and de[0]["allapot"] == "nincs_olvaso" and "Destatis" in de[0]["megjegyzes"]
-    assert de[0]["elorejelzes"]["pont"] == 2.8
+    assert de and de[0]["allapot"] == "tervezett" and de[0]["mertek"] == "nemzeti CPI (Destatis VPI)"
+    assert de[0]["elorejelzes"]["pont"] == 2.8 and de[0]["elorejelzes"]["mertek"] == "HICP"
+    assert ("get_macro_indicator", {"country": "DE", "indicator": "cpi"}) in m.hivasok
 
 
 def test_a_hivatalos_idopont_gyoz_a_statdata_becslese_folott():
@@ -167,6 +169,94 @@ def test_a_mar_megjelent_kozlest_nem_figyeli():
     t = _terv("2026-12-08T07:00:00+01:00", m)
     [e] = [e for e in t["esemenyek"] if e["sorozat"] == "HU_CPI"]
     assert e["allapot"] == "korabban_megjelent"
+
+
+def _ksh(datum, nev, mi, per, becsles=None, url=""):
+    """A StatData KSH-naptárának tétele (élő alak, 11-24)."""
+    return {"date": datum, "time": "08:30 CET", "indicator": nev, "importance": "high", "region": "HU", "source": "KSH",
+            "reference_period": per, "estimate": becsles, "macro_indicator": mi, "url": url,
+            "calendar_url": "https://www.ksh.hu/katalogus/#/gyorstajekoztatok/naptar"}
+
+
+def test_a_ksh_naptar_hivatalos_tetelei_a_tervben():
+    """A KSH-naptár (StatData, 11-24) hivatalos: a konfig ebből bővül (az ipar második becslése 12-15), ugyanaz a közlés
+    nem duplázódik, a nem figyelt KSH- és MNB-tétel kimarad, és a hivatal naptára a „bővíteni kell” jelzést is kiváltja."""
+    ora = Ora(_t("2026-12-14T09:00:00+01:00"))
+    naptar = [_ksh("2026-12-15", "Ipar, 2026. október (második becslés)", "industrial_production", "2026-10",
+                   "második becslés", f"{KSH}/ipa/ipa2610.html"),
+              _ksh("2026-12-18", "Népmozgalom, 2026. november", None, "2026-11"),
+              _ksh("2026-12-08", "Fogyasztói árak, 2026. november", "cpi", "2026-11"),
+              {"date": "2026-12-15", "time": "08:30 CET", "indicator": "Pénzforgalmi táblakészlet", "source": "MNB",
+               "region": "HU", "reference_period": "2026-Q3"}]
+    elso = macro(8.0, "2026-10", url=f"{KSH}/ipe/ipe2610.html", source="KSH flash ipe 2026-10 (első becslés)")
+    m = Makronom(ora, {("HU", "industrial_production"): (elso, None, None)}, naptar=naptar)
+    t = _terv("2026-12-14T09:00:00+01:00", m, orak=48)
+    ipar = [e for e in t["esemenyek"] if e["sorozat"] == "HU_IPAR"]
+    assert len(ipar) == 1
+    [e] = ipar
+    assert (e["idoszak"], e["kiadas"], e["ugyanaz_az_idoszak"]) == ("2026-10", "második becslés", True)
+    assert e["tervezett"] == "2026-12-15T07:30:00+00:00" and e["idopont_forras"] == "hivatalos: KSH-naptár (StatData)"
+    assert e["allapot"] == "tervezett" and e["elozo"]["ertek"] == 8.0                # nem „korábban megjelent”
+    assert not [x for x in t["figyelmeztetesek"] if x.startswith("HU_")], t["figyelmeztetesek"]
+    assert {x["sorozat"] for x in t["esemenyek"]} == {"HU_IPAR", "HU_MNB"}
+    # az első becsléshez képest más az ujjlenyomat (ipe → ipa): a második becslés új közlés
+    masodik = macro(8.2, "2026-10", url=f"{KSH}/ipa/ipa2610.html", source="KSH flash ipa 2026-10 (második becslés)")
+    s = kf.sorozat_cfg(CFG, "HU_IPAR")
+    assert kf.uj_kozles(e, kf.olvasat(s, masodik), e["elozo"]) and not kf.uj_kozles(e, kf.olvasat(s, elso), e["elozo"])
+
+
+def test_a_naptar_es_a_konfig_ugyanaz_vagy_mas_idopont():
+    ora = Ora(_t("2026-12-07T09:00:00+01:00"))
+    cpi = {("HU", "cpi"): (HU_CPI[("HU", "cpi")][0], None, None)}
+    # ugyanaz az időpont: egy esemény, a konfig forrása marad
+    t = _terv("2026-12-07T09:00:00+01:00", Makronom(ora, cpi, naptar=[
+        _ksh("2026-12-08", "Fogyasztói árak, 2026. november", "cpi", "2026-11")]))
+    [e] = [x for x in t["esemenyek"] if x["sorozat"] == "HU_CPI"]
+    assert e["idopont_forras"].startswith("hivatalos: KSH far2610") and e["tervezett"] == "2026-12-08T07:30:00+00:00"
+    # más időpont: a naptár (az élő, újabb forrás) győz, kimondva — és a régi időpontra nincs esemény
+    t = _terv("2026-12-07T09:00:00+01:00", Makronom(ora, cpi, naptar=[
+        _ksh("2026-12-09", "Fogyasztói árak, 2026. november", "cpi", "2026-11")]), orak=72)
+    hu = [x for x in t["esemenyek"] if x["sorozat"] == "HU_CPI"]
+    assert [(x["tervezett"], x["idopont_forras"]) for x in hu] == [("2026-12-09T07:30:00+00:00",
+                                                                    "hivatalos: KSH-naptár (StatData)")]
+    assert any("HU_CPI 2026-11: a hivatalos naptár (StatData) 12-09 08:30-t mond, a konfig 12-08 08:30-t" in x
+               for x in t["figyelmeztetesek"])
+
+
+def test_a_bls_hivatalos_naptara_a_fred_becslese_helyett():
+    """A konfig listáján túl (2027-05): a BLS hivatalos naptára adja az időpontot; a FRED becslése ugyanarra a
+    hónapra nem kerül be."""
+    ora = Ora(_t("2027-05-01T09:00:00+02:00"))
+    naptar = [{"date": "2027-05-07", "time": "08:30 ET", "indicator": "US Employment Situation (BLS)",
+               "importance": "high", "region": "US", "source": "BLS", "official": True,
+               "url": "https://www.bls.gov/schedule/news_release/bls.ics"},
+              {"date": "2027-05-04", "time": "08:30 ET", "indicator": "US Non-Farm Payrolls", "series_id": "PAYEMS",
+               "importance": "high", "region": "US", "source": "FRED"},
+              {"date": "2027-05-07", "time": "10:00 ET", "indicator": "US Real Earnings (BLS)", "source": "BLS",
+               "official": True, "region": "US"}]
+    t = _terv("2027-05-01T09:00:00+02:00", Makronom(ora, {}, naptar=naptar), orak=24 * 14)
+    [nfp] = [e for e in t["esemenyek"] if e["sorozat"] == "US_NFP"]
+    assert nfp["tervezett"] == "2027-05-07T12:30:00+00:00" and nfp["idoszak"] == "2027-04"
+    assert nfp["idopont_forras"] == "hivatalos: BLS-naptár (StatData)"
+    assert not [e for e in t["esemenyek"] if e["sorozat"] == "US_CPI"]           # a Real Earnings nem CPI
+    # az amerikai sorok a BLS-ablakkal figyelnek (a FRED-tartalék miatt hosszú, a BLS-gyorsítótár miatt percenként)
+    a = kf.ablak(CFG, kf.sorozat_cfg(CFG, "US_CPI"))
+    assert (a["elotte_perc"], a["utana_perc"], a["lekerdezes_s"]) == (1, 180, 60)
+    assert kf.sorozat_cfg(CFG, "US_NFP")["olvaso"]["parameterek"] == {"country": "US", "indicator": "nfp"}
+
+
+def test_ea_gdp_hivatalos_idopontjai_az_eurostat_naptarabol():
+    ora = Ora(_t("2027-01-28T12:00:00+01:00"))
+    t = _terv("2027-01-28T12:00:00+01:00", Makronom(ora, {}), orak=24 * 20)
+    gdp = [e for e in t["esemenyek"] if e["sorozat"] == "EA_GDP"]
+    assert [(e["tervezett"], e["idoszak"], e["kiadas"], e["ugyanaz_az_idoszak"]) for e in gdp] == [
+        ("2027-01-29T10:00:00+00:00", "2026-Q4", "előzetes gyorsbecslés", False),
+        ("2027-02-15T10:00:00+00:00", "2026-Q4", "gyorsbecslés", True)]
+    assert all(e["idopont_forras"].startswith("hivatalos: Eurostat release calendar") for e in gdp)
+    assert not [x for x in t["figyelmeztetesek"] if x.startswith(("EA_GDP", "EA_HICP"))], t["figyelmeztetesek"]
+    s = kf.sorozat_cfg(CFG, "EA_GDP")
+    x = kf.x_szovegek(s, {**gdp[0], "ertek": 0.3, "elozo": {"ertek": 0.4, "idoszak": "2026-Q3"}})
+    assert x["en"].startswith("🇪🇺 Euro area flash GDP (q/q), Q4 2026 (preliminary flash): 0.3%")
 
 
 # ── 2. AZ ÉSZLELÉS ────────────────────────────────────────────────────────────
@@ -292,7 +382,7 @@ def test_elso_kozles_naplo_es_a_b_felulet(get_db):
     assert lz["elorejelzes"]["pont"] == 2.62 and lz["elorejelzes"]["mertek"] == "HICP"
     assert lz["mertek"] == "nemzeti CPI (KSH)" and lz["elozo"]["ertek"] == 2.0
     k = _run(kf.kozelgo_kozlesek(orak=24 * 7, most=_t("2026-11-25T09:00:00+01:00"), hiv=Makronom(ora), cfg=CFG))
-    assert [(x["sorozat"], x["olvashato"]) for x in k] == [("HU_MUNKANELKULISEG", True), ("DE_CPI", False),
+    assert [(x["sorozat"], x["olvashato"]) for x in k] == [("HU_MUNKANELKULISEG", True), ("DE_CPI", True),
                                                             ("HU_GDP", True), ("EA_HICP", True)]
     assert k[0]["elorejelzes"]["also"] == 4.5 and k[0]["tervezett"] == "2026-11-26T07:30:00+00:00"
 
@@ -382,9 +472,23 @@ def test_olvasok():
     assert kf.olvasat(hu, {**macro(3.0, "2026-10"), "confidence": "web_unverified"}) is None
     gdp = kf.sorozat_cfg(CFG, "HU_GDP")
     assert kf.olvasat(gdp, macro(1.5, "x", url=f"{KSH}/gdp/gdp2609.html"))["idoszak"] == "2026-Q3"
+    # 11-24: a US CPI / NFP a BLS-ből közvetlenül, a DE CPI a Destatisból (StatData get_macro_indicator, élő alak)
     us = kf.sorozat_cfg(CFG, "US_CPI")
-    o = kf.olvasat(us, {"series": {"id": "CPIAUCNS", "last_updated": "2026-11-10 08:12:46-06"},
-                        "data": [{"date": "2026-10-01", "value": None}, {"date": "2026-09-01", "value": 3.74}]})
+    o = kf.olvasat(us, macro(3.7, "2026-09", url="https://data.bls.gov/timeseries/CUUR0000SA0",
+                             source="BLS CUUR0000SA0 (12-month change)"))
+    assert (o["idoszak"], o["ertek"], o["forras"]) == ("2026-09", 3.7, "BLS CUUR0000SA0 (12-month change)")
+    nfp = kf.sorozat_cfg(CFG, "US_NFP")
+    o = kf.olvasat(nfp, macro(165.0, "2026-10", url="https://data.bls.gov/timeseries/CES0000000001",
+                              source="BLS CES0000000001 (monthly change)", unit_kind="level"))
+    assert (o["idoszak"], o["ertek"]) == ("2026-10", 165.0)
+    de = kf.sorozat_cfg(CFG, "DE_CPI")
+    o = kf.olvasat(de, macro(2.8, "2026-10", source="Destatis VPI (endgültig)",
+                             url="https://www.destatis.de/DE/Presse/Pressemitteilungen/2026/11/PD26_392_611.html"))
+    assert (o["idoszak"], o["ertek"]) == ("2026-10", 2.8)
+    # a FRED-olvasó megmaradt (más sorozatnak): a legújabb nem üres megfigyelés
+    fred = {"kulcs": "X", "gyakorisag": "M", "olvaso": {"kinyero": "fred"}}
+    o = kf.olvasat(fred, {"series": {"id": "CPIAUCNS", "last_updated": "2026-11-10 08:12:46-06"},
+                          "data": [{"date": "2026-10-01", "value": None}, {"date": "2026-09-01", "value": 3.74}]})
     assert o["idoszak"] == "2026-09" and o["ertek"] == 3.74                     # az üres (null) megfigyelés kimarad
     ea = kf.sorozat_cfg(CFG, "EA_GDP")
     o = kf.olvasat(ea, {"items": [{"link": "u", "pub_date": "2026-10-30T10:00:00Z", "description":

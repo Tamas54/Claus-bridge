@@ -31,13 +31,17 @@ KÖZÖS FELÜLET (a B-képességnek — „eltérés a piactól”, `feat/piac-e
 HOGYAN MŰKÖDIK
 --------------
 * NAPI TERV (`tervez`): reggel és délben (`KOZLES_FIGYELO_TERV`, alap „07:00,12:00” Budapest; és induláskor) a
-  következő 24 óra közlései a figyelt körből (`config/kozles_figyelo.json`). Az időpont a konfig HIVATALOS listájából
-  jön (forrással); a StatData-naptár (`get_economic_calendar`) csak ott, ahol a hivatalos lista nem fedi az ablakot —
-  a FRED- és Eurostat-időpontjai BECSLÉSEK (2026-11-23: a US CPI-t 12-14-re tette, a BLS szerint 12-10; az
-  euróövezeti gyors HICP-t 12-17-re, az Eurostat szerint 12-01). A tervben minden közléshez: a referencia-időszak,
+  következő 24 óra közlései a figyelt körből (`config/kozles_figyelo.json`). Az időpont HIVATALOS: a konfig listájából
+  (forrással), és a StatData-naptár hivatalos tételeiből (`naptar_hivatalos`: a KSH gyorstájékoztató-naptára, a BLS
+  hivatalos naptára — 11-24 óta a StatData adja, a konfig ezekből magától bővül; ha a naptár más időpontot mond, mint a
+  konfig, a naptárat követjük, kimondva). A StatData többi naptári tétele (`naptar_minta`: FRED, Eurostat) BECSLÉS
+  (2026-11-23: a US CPI-t 12-14-re tette, a BLS szerint 12-10; az euróövezeti gyors HICP-t 12-17-re, az Eurostat
+  szerint 12-01) — csak ott, ahol a hivatalos lista nem fedi az ablakot, és csak a hivatalosan még nem ismert
+  időszakra. A tervben minden közléshez: a referencia-időszak,
   az előrejelzésünk pillanatképe (a közlés ELŐTT rögzítve), az előző érték (alapvonal), a konszenzus, ha a naptár adja.
-* ABLAK (`figyel`): T−1 perctől T+20 percig 25 másodpercenként egy Makronóm-hívás; a FRED-alapú (amerikai) soroknál
-  T+180 percig, percenként (a FRED a BLS után 40–130 perccel frissít). Új közlés = az olvasott időszak eléri a
+* ABLAK (`figyel`): T−1 perctől T+20 percig 25 másodpercenként egy Makronóm-hívás; az amerikai soroknál T+180 percig,
+  percenként (a StatData a BLS-t közvetlenül olvassa, 2 perces gyorsítótárral és napi kerettel; ha a keret elfogy, a
+  lánc a FRED-re esik, ami a BLS után 40–130 perccel frissít). Új közlés = az olvasott időszak eléri a
   referencia-időszakot és újabb az alapvonalnál (második becslésnél: más az érték/forrás); kamatnál a kamat vagy a
   döntés napja változik.
 * ÉSZLELÉS (`eszlelt`): rögzítés a `kozles_esemeny`-be és az `elso_kozles`-be (`kozles:<ORSZÁG>:<mutató>`,
@@ -621,20 +625,33 @@ def _alap_esemeny(s: dict, tervezett: datetime, tz: str, idoszak: str | None, fo
             "allapot": "tervezett"}
 
 
-def hivatalos_esemenyek(s: dict, tol: datetime, ig: datetime) -> list[dict]:
+def hivatalos_esemenyek(s: dict, tol: datetime | None = None, ig: datetime | None = None) -> list[dict]:
+    """A konfig hivatalos listájának eseményei (`tol`/`ig` nélkül mind)."""
     ki = []
     for i in s.get("idopontok") or []:
         t = helyi_ido(i["datum"], i["ido"], i["tz"])
-        if tol <= t <= ig:
+        if (tol is None or tol <= t) and (ig is None or t <= ig):
             ki.append(_alap_esemeny(s, t, i["tz"], i.get("idoszak"), f"hivatalos: {i.get('forras', '?')}",
                                     kiadas=i.get("kiadas"), ugyanaz_az_idoszak=i.get("ugyanaz_az_idoszak")))
     return ki
 
 
-def hivatalos_fedi(s: dict, ig: datetime) -> bool:
-    """A hivatalos lista a figyelt ablak végéig (vagy azon túl) tart: a StatData-becslés erre a sorozatra nem kell."""
+def hivatalos_fedi(s: dict, ig: datetime, naptarbol: list[dict] | None = None,
+                   horizont: datetime | None = None) -> bool:
+    """A hivatalos lista (a konfigé és a StatData-naptár hivatalos tételei) a figyelt ablak végéig (vagy azon túl) tart,
+    vagy a hivatal saját naptára (`horizont`) ellát az ablak végéig: a StatData-becslés erre a sorozatra nem kell."""
+    if horizont is not None and horizont >= ig:
+        return True
     ido = [helyi_ido(i["datum"], i["ido"], i["tz"]) for i in s.get("idopontok") or []]
+    ido += [_utc(e["tervezett"]) for e in naptarbol or []]
     return bool(ido) and max(ido) >= ig
+
+
+def hivatalos_vege(s: dict, naptarbol: list[dict] | None = None) -> str | None:
+    """Meddig tart a hivatalos lista (konfig + StatData-naptár hivatalos tételei), 'ÉÉÉÉ-HH-NN'."""
+    napok = [i["datum"] for i in s.get("idopontok") or []]
+    napok += [bp(e["tervezett"]).date().isoformat() for e in naptarbol or []]
+    return max(napok) if napok else None
 
 
 def naptar_ido(e: dict) -> datetime | None:
@@ -645,8 +662,16 @@ def naptar_ido(e: dict) -> datetime | None:
     return helyi_ido(str(e["date"])[:10], m[1], NAPTAR_TZ.get(m[2] or "UTC", "UTC"))
 
 
-def naptar_illik(s: dict, ne: dict) -> bool:
-    for minta in s.get("naptar_minta") or []:
+def naptar_zona(ne: dict) -> str:
+    """A StatData-naptár tételének időzónája („08:30 ET” → America/New_York, „08:30 CET” → Europe/Brussels)."""
+    m = re.fullmatch(r"\s*\d{1,2}:\d{2}\s*([A-Z]{2,4})?\s*", str(ne.get("time") or ""))
+    return NAPTAR_TZ.get((m[1] if m else None) or "UTC", "UTC")
+
+
+def naptar_illik(s: dict, ne: dict, kulcs: str = "naptar_minta") -> bool:
+    """Illik-e a StatData-naptár tétele a sorozat mintáihoz (`naptar_minta`: becslés; `naptar_hivatalos`: a hivatal
+    saját naptára — KSH-katalógus, BLS-naptár)."""
+    for minta in s.get(kulcs) or []:
         jo = True
         for k, v in minta.items():
             if k == "indicator_re":
@@ -656,6 +681,59 @@ def naptar_illik(s: dict, ne: dict) -> bool:
         if jo:
             return True
     return False
+
+
+def naptar_horizont(s: dict, naptar: list[dict]) -> datetime | None:
+    """Meddig lát előre a sorozat hivatalos naptára: a `naptar_hivatalos` minták FORRÁSÁNAK (pl. a KSH teljes
+    gyorstájékoztató-naptára, a BLS éves naptára) legkésőbbi tétele, mutatótól függetlenül. A hivatal naptára teljes:
+    ami a horizonton belül nincs benne, azt nem közlik."""
+    forrasok = [{k: v for k, v in m.items() if k in ("source", "official")} for m in s.get("naptar_hivatalos") or []]
+    ido = [t for ne in naptar if any(f and all(str(ne.get(k) or "") == str(v) for k, v in f.items()) for f in forrasok)
+           and (t := naptar_ido(ne)) is not None]
+    return max(ido) if ido else None
+
+
+def _kiadas_ugyanaz(kiadas: str | None) -> bool:
+    """A második (harmadik …) becslés ugyanannak az időszaknak az újabb közlése; az első becslés új időszak."""
+    k = str(kiadas or "").strip().lower()
+    return bool(k) and not k.startswith("első") and "előzetes" not in k
+
+
+def naptar_hivatalos_esemenyek(s: dict, naptar: list[dict]) -> list[dict]:
+    """A StatData-naptár HIVATALOS tételei erre a sorozatra (a konfig `naptar_hivatalos` mintái szerint: a KSH
+    gyorstájékoztató-naptára, a BLS hivatalos naptára) — ablak nélkül, eseményként. A referencia-időszak és a kiadás
+    (első / második becslés) a naptárból jön, ha adja."""
+    ki = []
+    for ne in naptar:
+        t = naptar_ido(ne)
+        if t is None or not naptar_illik(s, ne, "naptar_hivatalos"):
+            continue
+        kiadas = ne.get("estimate") or None
+        e = _alap_esemeny(s, t, naptar_zona(ne), ne.get("reference_period"),
+                          f"hivatalos: {ne.get('source') or '?'}-naptár (StatData)", kiadas=kiadas,
+                          ugyanaz_az_idoszak=_kiadas_ugyanaz(kiadas), konszenzus=_konszenzus(ne))
+        if ne.get("url"):
+            e["kozles_url"] = ne["url"]
+        ki.append(e)
+    return ki
+
+
+def hivatalos_osszefesul(s: dict, naptarbol: list[dict], tol: datetime, ig: datetime) -> tuple[list[dict], list[str]]:
+    """A konfig hivatalos listája + a StatData-naptár hivatalos tételei, az ablakra szűrve. Ugyanaz a közlés (időszak +
+    kiadás) egyszer kerül be; ha a naptár MÁS időpontot mond, mint a konfig, a naptár az újabb (élő) forrás — azt
+    követjük, kimondva. → (események, figyelmeztetések)"""
+    figy: list[str] = []
+    ki = {(e["idoszak"], e.get("kiadas") or ""): e for e in hivatalos_esemenyek(s)}
+    for c in naptarbol:
+        k = (c["idoszak"], c.get("kiadas") or "")
+        regi = ki.get(k)
+        if regi is not None:
+            if abs((_utc(regi["tervezett"]) - _utc(c["tervezett"])).total_seconds()) < 3600:
+                continue                                    # ugyanaz: a konfig forrásmegjelölése marad
+            figy.append(f"{s['kulcs']} {c['idoszak']}: a hivatalos naptár (StatData) {bp(c['tervezett']):%m-%d %H:%M}"
+                        f"-t mond, a konfig {bp(regi['tervezett']):%m-%d %H:%M}-t — a naptárat követjük")
+        ki[k] = c
+    return [e for e in ki.values() if tol <= _utc(e["tervezett"]) <= ig], figy
 
 
 def _konszenzus(ne: dict) -> float | None:
@@ -679,8 +757,14 @@ def elorejelzes_pont(palya: dict | None, idoszak: str | None, mertek: str | None
     return None
 
 
+#: A StatData-naptárból legalább ennyi napot kérünk: a hivatal naptárának horizontja (`naptar_horizont`) egy hétvégén
+#: át is az ablakon túl érjen (24 órás ablakra 2 nap kevés: péntek délben a következő KSH-tétel hétfőn van).
+NAPTAR_NAPOK_MIN = 14
+
+
 async def _naptar(hiv: Hivo, orak: int) -> tuple[list[dict], str | None]:
-    v = await _biztos(hiv, "get_economic_calendar", {"days_ahead": min(90, max(1, math.ceil(orak / 24) + 1)),
+    v = await _biztos(hiv, "get_economic_calendar", {"days_ahead": min(90, max(NAPTAR_NAPOK_MIN,
+                                                                               math.ceil(orak / 24) + 1)),
                                                      "region": "all"})
     if v is None:
         return [], "a StatData-naptár nem érhető el"
@@ -699,15 +783,21 @@ async def tervez(*, most: datetime | None = None, hiv: Hivo | None = None, cfg: 
     figy = [hiba] if hiba else []
     esemenyek: list[dict] = []
     for s in cfg["sorozatok"]:
-        sajat = hivatalos_esemenyek(s, most, ig)
-        if not hivatalos_fedi(s, ig):
+        naptarbol = naptar_hivatalos_esemenyek(s, naptar)
+        sajat, osszefesules = hivatalos_osszefesul(s, naptarbol, most, ig)
+        figy.extend(osszefesules)
+        fedi = hivatalos_fedi(s, ig, naptarbol, naptar_horizont(s, naptar))
+        if not fedi:
             napok = {_utc(e["tervezett"]).date() for e in sajat}
+            idoszakok = {e["idoszak"] for e in sajat}
             for ne in naptar:
                 t = naptar_ido(ne)
                 if t is None or not (most <= t <= ig) or not naptar_illik(s, ne) or t.date() in napok:
                     continue
-                sajat.append(_alap_esemeny(s, t, BP, ne.get("reference_period"),
-                                           f"StatData-naptár ({ne.get('source')}, becslés)", konszenzus=_konszenzus(ne)))
+                b = _alap_esemeny(s, t, BP, ne.get("reference_period"),
+                                  f"StatData-naptár ({ne.get('source')}, becslés)", konszenzus=_konszenzus(ne))
+                if b["idoszak"] not in idoszakok:           # a hivatalosan már ismert időszakra nem kell becslés
+                    sajat.append(b)
         else:
             for ne in naptar:                         # a hivatalos és a StatData eltérése: a StatData javításához
                 t = naptar_ido(ne)
@@ -715,12 +805,12 @@ async def tervez(*, most: datetime | None = None, hiv: Hivo | None = None, cfg: 
                         abs((_utc(e["tervezett"]) - t).total_seconds()) < 3600 for e in sajat):
                     figy.append(f"{s['kulcs']}: a StatData-naptár {bp(t):%m-%d %H:%M}-t mond, a hivatalos lista "
                                 f"nem (a becslés eltér)")
-        if not s.get("idopontok"):
+        if not s.get("idopontok") and not naptarbol:
             figy.append(f"{s['kulcs']}: nincs hivatalos időpont a konfigban" + (
                 " — csak a StatData becslése" if s.get("naptar_minta") else " — a konfigba kell"))
-        elif not hivatalos_fedi(s, ig):
-            figy.append(f"{s['kulcs']}: a hivatalos lista {max(i['datum'] for i in s['idopontok'])}-ig tart — bővíteni "
-                        f"kell" + (" (addig a StatData becslése)" if s.get("naptar_minta") else ""))
+        elif not fedi:
+            figy.append(f"{s['kulcs']}: a hivatalos lista {hivatalos_vege(s, naptarbol)}-ig tart — bővíteni kell"
+                        + (" (addig a StatData becslése)" if s.get("naptar_minta") else ""))
         for e in sajat:
             if not s.get("olvaso"):
                 e["allapot"] = "nincs_olvaso"
@@ -903,7 +993,8 @@ def x_szovegek(s: dict, e: dict) -> dict[str, str]:
             hu += " (változatlan)" if bp_ == 0 else \
                 f" ({bp_:+d} bp, előtte {ertek_hu(s, el['ertek'])})".replace("-", "−")
         return {"en": f"{en}. Source: {forras}", "hu": f"{hu}. Forrás: {forras}"}
-    kiad_en = {"első becslés": " (first estimate)", "második becslés": " (second estimate)"}.get(e.get("kiadas") or "", "")
+    kiad_en = {"első becslés": " (first estimate)", "második becslés": " (second estimate)",
+               "előzetes gyorsbecslés": " (preliminary flash)", "gyorsbecslés": " (flash)"}.get(e.get("kiadas") or "", "")
     kiad_hu = f" ({e['kiadas']})" if e.get("kiadas") else ""
     en = f"{s['zaszlo']} {s['nev_en']}, {idoszak_en(e['idoszak'])}{kiad_en}: {ertek_en(s, x)}"
     hu = f"{s['zaszlo']} {s['nev_hu']}, {idoszak_hu(e['idoszak'], True)}{kiad_hu}: {ertek_hu(s, x)}"
