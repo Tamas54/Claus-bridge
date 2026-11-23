@@ -185,8 +185,11 @@ def test_kor_nelkul_sosem_ir(fw):
 
 
 def test_a_prompt_es_az_eszkoz_leirasa():
-    assert "HATÁRIDŐ → NAPTÁR" in responder.SYSTEM_PROMPT_TEMPLATE
-    assert "Beírjam a naptárba? (igen / mehet)" in responder.SYSTEM_PROMPT_TEMPLATE
+    # 11-23: a naptár-útmutató a `naptar_feladat` kategóriával jön (melléklet esetén előtöltve)
+    from feldwebel import eszkoz_ut
+    u = eszkoz_ut.KATEGORIAK["naptar_feladat"]["utmutato"]
+    assert "HATÁRIDŐ → NAPTÁR" in u and "Beírjam a naptárba? (igen / mehet)" in u
+    assert "naptar_feladat" in eszkoz_ut.szandek("[Melléklet #3: hatarozat.pdf] mit kell tennem?")
     d = next(t["function"] for t in responder.TOOLS if t["function"]["name"] == "calendar_create")
     assert "JAVASLATA" in d["description"] and "reminder_minutes" in d["parameters"]["properties"]
     assert "calendar_create" in responder.CONFIRM_TOOLS and "calendar_create" in responder.KODKAPU_TOOLS

@@ -244,7 +244,7 @@ def test_a_sf_ugynokok_eszkozkeszleteben_nincs_benne():
     assert "eszkoz_definiciok()" not in src.replace("kulso_mcp.eszkoz_definiciok()", "")
     assert "_futar_eszkozok" not in src
     import inspect
-    assert "_futar_eszkozok()" in inspect.getsource(responder._call_deepseek)
+    assert "_futar_eszkozok()" in inspect.getsource(responder._eszkozkeszlet)   # 11-23: az állandó eszközlista
 
 
 def test_a_futar_sorai_nem_kerulnek_sf_kontextusba():
@@ -311,6 +311,12 @@ def feldwebel(tmp_path, monkeypatch):
     return responder, get_db, hivasok, sor
 
 
+def _eszkoz_valaszok(payload) -> list:
+    """A modell eszközhívásainak eredményei (11-23: az előtöltés `eszkoztar`-eredménye nem a modell hívása)."""
+    from feldwebel import eszkoz_ut
+    return [m for m in payload["messages"] if m.get("role") == "tool" and m.get("tool_call_id") != eszkoz_ut.ELOTOLTES_ID]
+
+
 def _elozmeny(get_db):
     c = get_db()
     try:
@@ -345,7 +351,7 @@ def test_sf_tartalekra_esett_kor_nem_futtatja_a_tudasbazist(feldwebel):
     sor["kapu"] = [_eszkozhivas("tudasbazis", {"kerdes": "mikor döntöttünk?"}, "moonshotai/Kimi-K3"),
                    _szoveg("Most nem érem el.", "moonshotai/Kimi-K3")]
     _run(responder.respond("mikor döntöttünk?", "42"))
-    eszkoz_valasz = [m for m in hivasok["kapu"][1]["messages"] if m.get("role") == "tool"][0]["content"]
+    eszkoz_valasz = _eszkoz_valaszok(hivasok["kapu"][1])[0]["content"]
     assert json.loads(eszkoz_valasz)["error"].startswith(fk.CSAK_CLAUDE)
     assert _keresek(get_db) == [] and hivasok["claude"] == []
     assert _elozmeny(get_db)[-1]["agent_id"] == "deepseek"            # nincs mit jelölni
@@ -378,7 +384,7 @@ def test_jelolt_elozmenynel_a_kor_claude_es_nem_hiv_sf_ugynokot(feldwebel):
                      _szoveg("Ezt nem adom tovább Kiminek.", "claude-sonnet-5-5")]
     _run(responder.respond("kérdezd meg erről Kimit", "42"))
     assert hivasok["kapu"] == []                           # a SiliconFlow-tartalékos kapu nem is látta
-    eszkoz_valasz = [m for m in hivasok["claude"][1]["messages"] if m.get("role") == "tool"][0]["content"]
+    eszkoz_valasz = _eszkoz_valaszok(hivasok["claude"][1])[0]["content"]
     assert json.loads(eszkoz_valasz)["error"] == fk.SF_FELE_HIBA
 
 

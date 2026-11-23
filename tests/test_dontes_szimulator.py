@@ -664,9 +664,9 @@ def test_feldwebel_nyugta_aztan_eredmeny(get_db, kapu, kulcsok, monkeypatch):
 def test_feldwebel_payloadjaban_a_vegen_a_tools_lista_utan():
     import inspect
     from feldwebel import responder
-    assert "_szimulator_eszkozok()" in inspect.getsource(responder._call_deepseek)
+    assert "_szimulator_eszkozok()" in inspect.getsource(responder._eszkozkeszlet)   # 11-23: az állandó eszközlista
     assert ds.ESZKOZ_NEV not in {t["function"]["name"] for t in responder.TOOLS}       # a statikus lista érintetlen
-    assert "`dontes_szimulator`" in responder.SYSTEM_PROMPT_TEMPLATE
+    assert "`dontes_szimulator`" in responder.teljes_utmutato()     # 11-23: az eszkoztar leírásában (kategória)
 
 
 def test_tudasbazis_korben_nem_futhat():
