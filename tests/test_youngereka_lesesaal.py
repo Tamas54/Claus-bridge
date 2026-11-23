@@ -245,7 +245,9 @@ ok(any("ment fel" in n for n in r["notes"]),
 szakasz("Egyéb formátumok")
 
 r = docs.process_upload("A;B;C\n1;2;3\n".encode(), "adat.csv")
-ok(r["kind"] == "text" and "A;B;C" in r["text"], "CSV közvetlenül")
+# 935d48a óta a CSV táblázatként jön (statisztika a családi chatben): oszlopok, sorok, típusok
+ok(r["kind"] == "tabla" and r["tabla"]["oszlopok"] == ["A", "B", "C"] and r["tabla"]["sorok"] == [["1", "2", "3"]]
+   and "TÁBLÁZAT" in r["text"], "CSV közvetlenül (táblázatként)")
 
 r = docs.process_upload("mérés\tn=3\n".encode("utf-8"), "m.txt")
 ok(r["kind"] == "text", "TXT közvetlenül")
