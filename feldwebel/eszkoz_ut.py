@@ -385,6 +385,55 @@ def szandek(szoveg: str, elozo: str = "") -> list[str]:
     return [k for k in KATEGORIAK if k in kat]
 
 
+# ══ STRATÉGIAI MÓD (2026-11-24, strategiai.py) ═════════════════════════════════════════════════════════════════
+# A szándékfelismerő része, LLM nélkül. NEM kategória (a betöltő leírása — a stabil előtag — így változatlan): a mód a
+# rendszerszövegre és a modellre hat, nem az eszközökre. A Kommandant: „gondolkodj”, „értékeld”, „mi a véleményed” →
+# MINDIG stratégiai. A minta a helyzetértékelés, a „mi következik”, a „mit tegyünk”, a döntés, a vita és az elemzés.
+
+#: kimondott kérés a saját véleményre — MINDIG stratégiai (melléklettel is)
+_STRAT_MINDIG = re.compile(
+    r"\bgondolkodj|\bgondold\s+(at|vegig|meg)\b|\bgondolkozz|\bertekeld|\bertekelj\b|\bmi\s+a\s+velemenyed|"
+    r"\bmi\s+a\s+meglatasod|\bmit\s+gondolsz|\bhogy(an)?\s+latod|\bmi\s+az\s+allaspontod|\bmondd?\s+a\s+velemenyed")
+#: a helyzet, a következmény, a döntés, a vita és az elemzés jelei
+_STRAT_MINTA = re.compile(
+    r"helyzetertekel|helyzetkep|\bmi\s+kovetkezik|\bmi\s+jon\s+(most|ezutan|utana|ebbol)|"
+    r"\bmi\s+lesz\s+(ebbol|most|ezutan|a\s+vege|a\s+kovetkezmeny)|kovetkezmeny(e|ei)\b|"
+    r"\bmit\s+tegyunk|\bmit\s+lepjunk|\bmi\s+a\s+(kovetkezo\s+)?lepes|\bhogyan\s+tovabb|\bmerre\s+tovabb|"
+    r"\bdontsunk|\bdontenem\s+kell|\bdontenunk\s+kell|\bdontesi\s+helyzet|\bdonts(d\s+el)?\b|\bmielott\s+dont|"
+    r"\bvitatkoz|\bnem\s+ertek\s+egyet|\bnem\s+ertunk\s+egyet|\bcafold|\bellenerv|"
+    r"\belemez(d|z|zuk)\b|\belemzest\s+kerek|\bstrateg|forgatokonyv|"
+    r"\bkinek\s+(mi\s+)?(az\s+)?erdeke|\bkinek\s+jo\b|\bmi\s+a\s+tet\b|\bhova\s+vezet|\bmire\s+szamithatunk|"
+    r"\bmire\s+keszuljunk|\bmi\s+a\s+kockazat")
+#: név szerinti megszólítás — az ő dolga (a „Kimi, mit gondolsz?” a Kiminek szól, nem a vezérkarnak)
+_STRAT_MASNAK = re.compile(r"^\W*(kimi|deep\s?seek|glm|qwen|faber|cli[\s-]?claus|web[\s-]?claus)\b")
+#: rövid nyugtázás egy stratégiai forduló után — nem kér új értékelést (az „igen” / „nem” viszont VÁLASZ a kérdésre)
+_STRAT_NYUGTA = re.compile(r"^\W*(koszi|koszonom|kosz|ok[e]?|rendben|ertem|vettem|szuper|remek)\W*$")
+#: a stratégiai beszélgetés után ezek műveleti kérések (levél, naptár, fájl, közzététel…), nem a vita folytatása
+_STRAT_MUVELET = ("levelezes", "naptar_feladat", "dokumentum", "kommunikacio", "kozzetetel", "receptek",
+                  "web_melyebb", "ai_ugynokok", "feladat_ugynokok")
+
+
+def strategiai_szandek(szoveg: str, elozo_strategiai: bool = False) -> str | None:
+    """Stratégiai-e az üzenet → az indok („mindig: …”, „minta: …”, „folytatás”), vagy None.
+
+    `elozo_strategiai`: az előző asszisztens-forduló stratégiai volt (a reggeli nyitó is) — a Kommandant válasza erre a
+    beszélgetés folytatása, hacsak nem egy műveleti kérés vagy egy rövid nyugtázás."""
+    from melleklet import van_melleklet
+    s = ekezet_nelkul(szoveg)
+    if not s.strip() or _STRAT_MASNAK.match(s):
+        return None
+    m = _STRAT_MINDIG.search(s)
+    if m:
+        return f"mindig: {m.group(0).strip()}"
+    m = _STRAT_MINTA.search(s)
+    if m and not van_melleklet(szoveg) and "dokumentum" not in szandek(szoveg):
+        return f"minta: {m.group(0).strip()}"
+    if elozo_strategiai and not _STRAT_NYUGTA.match(s) and not van_melleklet(szoveg):
+        if not set(szandek(szoveg)) & set(_STRAT_MUVELET):
+            return "folytatás"
+    return None
+
+
 def kategoria(eszkoz: str) -> str | None:
     """Az eszköz kategóriája; a mag és a betöltő/lapozó: None."""
     for k, v in KATEGORIAK.items():

@@ -1571,7 +1571,18 @@ function koltesBlokk(k) {
     el('div', { class: 'sav' }, el('i', { class: arany > 0.9 ? 'forro' : arany > 0.7 ? 'meleg' : '', style: `width:${(arany * 100).toFixed(1)}%` })),
     el('div', { class: 'halk' }, `${k.hivasok} hívás · elsődleges: ${k.elsodleges}${k.keret_kimerult ? ' · ⚠ a havi keret elfogyott' : ''}`),
     el('table', { class: 'szint-tabla' }, el('tbody', {}, sorok)),
+    strategiaiSor(k.strategiai),
     el('div', { class: 'halk', style: 'margin-top:6px' }, k.megjegyzes || '')));
+}
+
+// A stratégiai mód (Opus) napi kerete (2026-11-24, strategiai.py): ma mennyi ment el belőle.
+function strategiaiSor(s) {
+  if (!s) return null;
+  const arany = s.keret_usd ? Math.min(1, s.koltes_usd / s.keret_usd) : 0;
+  return el('div', { class: 'strategiai-keret', style: 'margin-top:8px' },
+    el('div', {}, '🎖 Stratégiai mód ma: ', el('b', {}, `$${Number(s.koltes_usd).toFixed(2)}`),
+      ` / $${Number(s.keret_usd).toFixed(2)} · ${s.hivasok} hívás`, s.kimerult ? ' · ⚠ a napi keret elfogyott' : ''),
+    el('div', { class: 'sav' }, el('i', { class: arany > 0.9 ? 'forro' : arany > 0.7 ? 'meleg' : '', style: `width:${(arany * 100).toFixed(1)}%` })));
 }
 
 // ── FRISSÍTÉS ─────────────────────────────────────────────────

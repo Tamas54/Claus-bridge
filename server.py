@@ -88,6 +88,8 @@ import twitter_poszt
 import hog
 # KÖZLÉS-FIGYELŐ (2026-11-23): a hivatalos közlés pillanatában szám + összevetés + Telegram + X-tervezet (LLM nélkül)
 import kozles_figyelo
+# STRATÉGIAI MÓD (2026-11-24): vezérkari beszélgetőtárs — reggeli nyitó, hash-láncos állítás-napló, havi pontozás
+import strategiai
 
 # Echolot — multi-sphere news context (separate Railway instance, REST)
 try:
@@ -12847,6 +12849,25 @@ async def _nachtschicht_ejszaka():
         logger.error("Nachtschicht hiba: %s", e, exc_info=True)
 
 
+def _strategiai_elozmeny(szoveg: str) -> None:
+    """A reggeli nyitó a Feldwebel-beszélgetésbe, stratégiai jellel: a Kommandant válasza erre stratégiai folytatás."""
+    if FELDWEBEL_ENABLED:
+        from feldwebel.history import add_message
+        add_message(TELEGRAM_CHAT_ID or "web", "assistant", szoveg, "reggeli" + strategiai.STRATEGIAI_JEL)
+
+
+def _strategiai_tarol(szoveg: str, modell: str = "") -> None:
+    """A reggeli nyitó a kabin Feldwebel-ablakába (a messages tábla, ahogy a Feldwebel válaszai)."""
+    conn = get_db()
+    try:
+        conn.execute("INSERT INTO messages (timestamp, sender, recipient, subject, message, priority) "
+                     "VALUES (?, 'feldwebel-reggeli', 'kommandant', ?, ?, 'normal')",
+                     (now(), "Reggeli helyzet" + (f" · modell={modell}" if modell else ""), szoveg))
+        conn.commit()
+    finally:
+        conn.close()
+
+
 def _feladat_ugynok_bekot() -> None:
     """A FELADAT-ÜGYNÖKÖK futtatója (feladat_ugynok.py): a Nachtschicht forrása (+ az `ai_query` út a vitához) és a
     Telegram; a jelentés a Feldwebel-előzménybe megy (csak-Claude jellel, ha az ügynök tudásbázis-érintett)."""
@@ -13119,6 +13140,10 @@ async def _cron_loop():
             # PIAC-ELTÉRÉS (2026-11-23): naponta egyszer 12:00 után (Budapest), ÁRNYÉK-MÓDBAN — csak napló és pontozás,
             # kereskedés nincs (piac_elteres.py; PIAC_ELTERES=0 leállítja; napló nélkül jelzés sincs)
             piac_elteres.cron_lepes(now_local, telegram=_telegram_push)
+            # STRATÉGIAI MÓD (2026-11-24): reggel (07:20, Budapest) a nyitó — 3 helyzet a 12 nyelvű képből, álláspont,
+            # kérdés; minden hónap 1-jén a lejárt állítások pontozása (strategiai.py; STRATEGIAI_MOD / _REGGELI=0 leállítja)
+            strategiai.cron_lepes(now_local, telegram=_telegram_push, chat=sf_chat,
+                                  elozmeny=_strategiai_elozmeny, tarol=_strategiai_tarol)
 
             # Daily cleanup: delete uploads older than 7 days (runs once at ~04:00 UTC)
             today_str = now_dt.strftime("%Y-%m-%d")

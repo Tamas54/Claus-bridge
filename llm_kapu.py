@@ -24,6 +24,7 @@ KÖRNYEZET (Railway-változók, titok soha nem kerül fájlba vagy naplóba)
   ANTHROPIC_API_KEY         üres = a kapu nem elérhető, minden a SiliconFlow-on megy, pontosan mint eddig
   LLM_ELSODLEGES            anthropic | siliconflow — alapból anthropic, ha van kulcs
   ANTHROPIC_HAVI_KERET_USD  alap 190; e fölött a kapu átadja a munkát a SiliconFlow-nak
+  STRATEGIAI_NAPI_KERET_USD alap 2; a stratégiai mód (Opus) napi kerete — fölötte a Feldwebel rendes módban felel
 
 KÖLTÉS
 ------
@@ -215,6 +216,10 @@ SZINT_TABLA = (
     ("nachtschicht", "a Nachtschicht munkája (`nachtschicht/…`): háttéranyag, levéltervezet, beadványvázlat", "kozep"),
     # 11-23, FELADAT-ÜGYNÖK (feladat_ugynok.py): a Kommandant által indított, névvel ellátott munkás egy futása
     ("feladat_ugynok", "a feladat-ügynök futása (`ugynok/<id>/futas`): ütemezett vagy egyszeri munka eszközökkel", "kozep"),
+    # 11-24, STRATÉGIAI MÓD (strategiai.py): a Kommandant vezérkari beszélgetőtársa — helyzetkép, értékelés, változatok,
+    # álláspont, kérdés; a reggeli nyitó és a havi pontozás is. A Kommandant: „A STRATÉGIAI LÁTÁSMÓD” a mi előnyünk.
+    ("strategiai", "a stratégiai mód (`…/strategiai/…`): helyzetértékelés, álláspont, vita a Kommandanttal, a reggeli "
+                   "nyitó és a havi pontozás — saját napi kerettel (`STRATEGIAI_NAPI_KERET_USD`)", "okos"),
     ("cel_okos", "a `purpose` okos munka: synth, brief, elemzés, dispatch, essay, nowcast", "okos"),
     # 11-22, Kommandant: „8 cent nagyon sok egy válaszra” — a Feldwebel alapból olcsó, és csak a mélyebb kérésnél közép
     ("feldwebel_melyebb", "a Feldwebel, és a Kommandant üzenete elemzést/tervet/összevetést kér vagy hosszú", "kozep"),
@@ -362,6 +367,8 @@ def szint_valaszt(payload: dict, purpose: str = "") -> tuple[str, str]:
         szabaly = "nachtschicht_terv" if cel.startswith("nachtschicht/terv") else "nachtschicht"
     elif cel.startswith("ugynok/"):
         szabaly = "feladat_ugynok"
+    elif "strategiai" in cel.split("/"):
+        szabaly = "strategiai"
     elif any(c in cel for c in OKOS_CELOK):
         szabaly = "cel_okos"
     elif "feldwebel" in cel:
@@ -800,8 +807,56 @@ def koltes_usd(usage, modell: str, *, batch: bool = False) -> float:
                int(getattr(usage, "cache_creation_input_tokens", 0) or 0), irt_1h=_irt_1h(usage), szorzo=szorzo)
 
 
+# ══ A STRATÉGIAI MÓD NAPI KERETE (2026-11-24, strategiai.py) ══════════════
+# Ugyanaz a memóriabeli számláló, mint a havi: a kapu könyvelése írja (minden `…/strategiai/…` célú hívás), a nap
+# Budapest szerint fordul. Puha fék: újraindításkor nulláról indul; a kemény plafon az Anthropic Console kerete.
+STRATEGIAI_KERET_ALAP_USD = 2.0
+_STRATEGIAI: dict = {"nap": "", "usd": 0.0, "hivasok": 0}
+
+
+def _bp_nap() -> str:
+    from zoneinfo import ZoneInfo
+    return datetime.now(ZoneInfo("Europe/Budapest")).date().isoformat()
+
+
+def strategiai_cel(purpose: str) -> bool:
+    return "strategiai" in (purpose or "").lower().split("/")
+
+
+def strategiai_napi_keret() -> float:
+    try:
+        v = float(os.environ.get("STRATEGIAI_NAPI_KERET_USD", "") or STRATEGIAI_KERET_ALAP_USD)
+        return v if v >= 0 else STRATEGIAI_KERET_ALAP_USD
+    except ValueError:
+        logger.warning("llm_kapu: a STRATEGIAI_NAPI_KERET_USD nem szám — az alap %.2f USD él", STRATEGIAI_KERET_ALAP_USD)
+        return STRATEGIAI_KERET_ALAP_USD
+
+
+def strategiai_konyvel(usd: float) -> None:
+    with _ZAR:
+        if _STRATEGIAI["nap"] != _bp_nap():
+            _STRATEGIAI.update({"nap": _bp_nap(), "usd": 0.0, "hivasok": 0})
+        _STRATEGIAI["usd"] += usd
+        _STRATEGIAI["hivasok"] += 1
+
+
+def strategiai_allapot() -> dict:
+    with _ZAR:
+        mai = _STRATEGIAI["nap"] == _bp_nap()
+        usd, n = (_STRATEGIAI["usd"], _STRATEGIAI["hivasok"]) if mai else (0.0, 0)
+    keret = strategiai_napi_keret()
+    return {"nap": _bp_nap(), "koltes_usd": round(usd, 4), "keret_usd": keret, "hivasok": n,
+            "kimerult": usd >= keret, "modell": SZINTEK[_TABLA_SZINT["strategiai"]]["modell"]}
+
+
+def strategiai_kimerult() -> bool:
+    return strategiai_allapot()["kimerult"]
+
+
 def _konyvel(usage, modell: str, szint: str, purpose: str, *, batch: bool = False) -> float:
     usd = koltes_usd(usage, modell, batch=batch)
+    if strategiai_cel(purpose):
+        strategiai_konyvel(usd)
     with _ZAR:
         if _KOLTES["honap"] != _honap():
             _KOLTES.update({"honap": _honap(), "usd": 0.0, "hivasok": 0, "szintenkent": {},
@@ -855,6 +910,7 @@ def allapot() -> dict:
         "hivasok": hivasok, "szintenkent": szintek,
         "batch": batch or {"hivasok": 0, "usd": 0.0, "megtakaritas_usd": 0.0},
         "modellek": {k: v["modell"] for k, v in SZINTEK.items()},
+        "strategiai": strategiai_allapot(),
         "siliconflow_megszakito": sf_megszakito.allapot(),
         "kapu_bekotve": kapu_bekotve(),
         "megjegyzes": "memóriabeli számláló, újraindításkor nulláról indul; a kemény plafon az Anthropic Console "

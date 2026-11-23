@@ -490,12 +490,25 @@ async def respond(text: str, chat_id: str, agent_id: str = "deepseek") -> str:
         _store_bridge_reply(ctx, text, _jv, agent_id, eszkozok=["calendar_create"])
         return _jv
 
+    # STRATÉGIAI NAPLÓ, HELYESBÍTÉS (2026-11-24): „#31 igaz” — a Kommandant ítélete egy állításról, LLM nélkül
+    import strategiai as _strat
+    _hb = _strat.helyesbites(text)
+    if _hb is not None:
+        await ctx.telegram_push(f"🎖 <b>STRATÉGIAI NAPLÓ</b>\n\n{html_escape(_hb)}")
+        _store_bridge_reply(ctx, text, _hb, agent_id, eszkozok=["strategiai_naplo"])
+        return _hb
+
     # Store user message in history
     add_message(chat_id, "user", text)
 
     # Build messages
-    system_prompt = _build_system_prompt(ctx, query=text)
     history = get_history(chat_id, limit=8)
+    # STRATÉGIAI MÓD (2026-11-24, strategiai.py): a szándékfelismerő (LLM nélkül) dönt — „gondolkodj”, „értékeld”,
+    # „mi a véleményed” mindig; helyzetértékelés, „mi következik”, „mit tegyünk”, döntés, vita, elemzés; és a stratégiai
+    # forduló (a reggeli nyitó is) folytatása. Ilyenkor a rendszerszöveg a stratégiai prompttal bővül, a modell Opus
+    # (`llm_kapu` „strategiai” sora), a 12 nyelvű kép eszközei előtöltve. Különben MINDEN a régi (karcsú) úton megy.
+    strat = _strat.mod(text, history)
+    system_prompt = _build_system_prompt(ctx, query=text) + (_strat.rendszer_toldat() if strat.aktiv else "")
     messages = [{"role": "system", "content": system_prompt}]
     # TUDÁSBÁZIS = CSAK CLAUDE (a Kommandant, 11-22): a kör, amelyben a Kommandant tudásbázisából van tartalom (most
     # hívott `tudasbazis`, vagy egy korábbi, így jelölt válasz az előzményben), csak Claude-dal megy — SiliconFlow-
@@ -530,7 +543,10 @@ async def respond(text: str, chat_id: str, agent_id: str = "deepseek") -> str:
     eszkozkeszlet = await _eszkozkeszlet()
     elerheto = {t["function"]["name"] for t in eszkozkeszlet}
     elozo = " ".join(str(m["content"])[:600] for m in history[-3:-1]) if len(history) > 1 else ""
-    elotoltes, betoltve = eszkoz_ut.elotoltes(eszkoz_ut.szandek(text, elozo), elerheto)
+    kategoriak = eszkoz_ut.szandek(text, elozo)
+    if strat.aktiv:      # a 12 nyelvű kép (Echolot), a számok (makró) és a Kommandant korábbi gondolatai (tudásbázis)
+        kategoriak = [k for k in eszkoz_ut.KATEGORIAK if k in set(kategoriak) | set(_strat.ELOTOLTES)]
+    elotoltes, betoltve = eszkoz_ut.elotoltes(kategoriak, elerheto)
     messages += elotoltes
     #: a hurok kivonat-tára: a nagy eszközeredmény teljes szövege ebben a körben lapozható (kivonat.py)
     tar = _kivonat.EredmenyTar()
@@ -561,7 +577,8 @@ async def respond(text: str, chat_id: str, agent_id: str = "deepseek") -> str:
         data = await _call_deepseek(
             ctx, model_id, messages,
             use_tools=(round_num < MAX_KOR - 1), tools=eszkozkeszlet,
-            purpose="feldwebel/melyebb/telegram" if melyebb else "feldwebel/telegram",
+            purpose=(_strat.CEL_FELDWEBEL if strat.aktiv
+                     else "feldwebel/melyebb/telegram" if melyebb else "feldwebel/telegram"),
             # mellékletnél és tanácskérésnél NEM kényszerítünk eszközt az első körben: vissza kell tudnia kérdezni
             force_tool=(round_num == 0 and not kotetlen),
             notes=kapu_notes,
@@ -698,7 +715,8 @@ async def respond(text: str, chat_id: str, agent_id: str = "deepseek") -> str:
         }]
         try:
             data = await _call_deepseek(ctx, model_id, synth_messages, use_tools=False, force_tool=False,
-                                        notes=kapu_notes, csak_claude=vedett, tools=eszkozkeszlet)
+                                        notes=kapu_notes, csak_claude=vedett, tools=eszkozkeszlet,
+                                        purpose=_strat.CEL_FELDWEBEL if strat.aktiv else "feldwebel/telegram")
             if data:
                 kiszolgalo = data.get("model") or kiszolgalo
                 if _kimenet is not None:
@@ -743,19 +761,35 @@ async def respond(text: str, chat_id: str, agent_id: str = "deepseek") -> str:
         await ctx.telegram_push(f"<b>FELDWEBEL DEBUG</b>\n<pre>{html_escape(debug_msg[:1500])}</pre>")
         return ""
 
-    # Store in history — a tudásbázis-tartalmú válasz jelölve: a következő körökben csak Claude láthatja
+    # STRATÉGIAI NAPLÓ (2026-11-24): a stratégiai válasz ellenőrizhető állítása (a formai sor, determinisztikusan)
+    # a Postgres-naplóba — a havi kör pontozza. A rögzítés (vagy a hiánya) a válasz alatt látszik.
+    strat_jegyzet = strat.jegyzet
+    if strat.aktiv:
+        _all = _strat.allitas_kivesz(final_content)
+        if _all is not None:
+            _r = await asyncio.to_thread(_strat.rogzit, _all, forras="feldwebel", kerdes=text[:500],
+                                         modell=kiszolgalo, szandek=strat.ok)
+            strat_jegyzet = _strat.rogzites_jegyzet(_all, _r)
+
+    # Store in history — a tudásbázis-tartalmú válasz jelölve: a következő körökben csak Claude láthatja; a stratégiai
+    # forduló is jelölve (a Kommandant válasza erre stratégiai folytatás — strategiai.elozo_strategiai)
     add_message(chat_id, "assistant", final_content,
-                agent_id + (futar_kliens.CLAUDE_CSAK_JEL if tudasbazis_kor else ""))
+                agent_id + (_strat.STRATEGIAI_JEL if strat.aktiv else "")
+                + (futar_kliens.CLAUDE_CSAK_JEL if tudasbazis_kor else ""))
 
     # Push to Telegram
     safe_content = html_escape(final_content[:3800])
+    if strat_jegyzet:
+        safe_content += f"\n\n<i>{html_escape(strat_jegyzet)}</i>"
     if kapu_notes:
         safe_content += "\n\n" + "\n".join(f"<i>[{html_escape(n)}]</i>" for n in dict.fromkeys(kapu_notes))
     from cimzett import fejlec as _fejlec
-    await ctx.telegram_push(f"{_fejlec('feldwebel', kiszolgalo)}\n\n{safe_content}")
+    await ctx.telegram_push(f"{_fejlec('feldwebel', kiszolgalo)}{' · <i>stratégiai mód</i>' if strat.aktiv else ''}"
+                            f"\n\n{safe_content}")
 
-    # Store in Bridge DB
-    _store_bridge_reply(ctx, text, final_content, agent_id, modell=kiszolgalo, eszkozok=eszkoz_nevek)
+    # Store in Bridge DB (a kabin előzménye — a stratégiai jegyzettel együtt, ahogy a Telegramon látszott)
+    _store_bridge_reply(ctx, text, final_content + (f"\n\n_{strat_jegyzet}_" if strat_jegyzet else ""), agent_id,
+                        modell=kiszolgalo, eszkozok=eszkoz_nevek)
 
     # Trim old history
     trim_history(chat_id, max_entries=30)

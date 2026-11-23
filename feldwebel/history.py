@@ -46,18 +46,19 @@ def add_message(chat_id: str, role: str, content: str, agent_id: str = "deepseek
 def get_history(chat_id: str, limit: int = 8) -> list:
     """
     Return last `limit` messages for chat_id, oldest first.
-    Returns list of {"role": "user"|"assistant", "content": "...", "agent_id": "..."}
+    Returns list of {"role": "user"|"assistant", "content": "...", "agent_id": "...", "timestamp": "..."}
+    (a `timestamp` a stratégiai folytatáshoz kell — strategiai.elozo_strategiai)
     """
     from feldwebel import get_ctx
     conn = get_ctx().get_db()
     rows = conn.execute(
-        "SELECT role, content, agent_id FROM telegram_history "
+        "SELECT role, content, agent_id, timestamp FROM telegram_history "
         "WHERE chat_id = ? ORDER BY timestamp DESC LIMIT ?",
         (str(chat_id), limit)
     ).fetchall()
     conn.close()
     # Reverse to get chronological order (oldest first)
-    return [{"role": r["role"], "content": r["content"], "agent_id": r["agent_id"]}
+    return [{"role": r["role"], "content": r["content"], "agent_id": r["agent_id"], "timestamp": r["timestamp"]}
             for r in reversed(rows)]
 
 
