@@ -69,3 +69,4 @@ Brotli>=1.2.0
 # oauthlib), de a hiánya NÉMA bukás lenne (lásd a trafilatura-esetet fent) — ezért kifejezetten is. Az aláíró az X
 # dokumentációjának mintáján ellenőrizve (tests/test_twitter_poszt.py).
 oauthlib>=3.2,<4
+psycopg[binary]>=3.2,<4
