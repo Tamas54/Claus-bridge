@@ -8211,6 +8211,37 @@ def _sf_gondolat_ette(data: dict) -> bool:
         return False
 
 
+#: KIMI K2 (K2.7-Code) A SILICONFLOW-ON — MÉRVE 2026-11-24, néhány centes élő próbával (2000 tokenes keret, ugyanarra a
+#: rövid szintézis-kérésre). A `thinking={"type":"disabled"}`-et FIGYELMEN KÍVÜL hagyja: 728 gondolat-token a 937-ből,
+#: ugyanannyi, mint paraméter nélkül (754); ugyanígy az `enable_thinking=false`-t (1341) és a `reasoning_effort=low`-t
+#: (930). 600-as kerettel a `thinking=disabled` mellett a gondolat a `content`-be ömlött („We need act as coordinator…”)
+#: és csonkolt (finish=length): üres `reasoning_content` mellett a `_sf_gondolat_ette` ezt nem látja gondolatnak, a
+#: „gondolkodás nélkül” újrapróbálás amúgy is ugyanazt küldené — így a létra BŐVÍTETT (a szintézis 16k → 32k-ja). Ami
+#: működik: a `thinking_budget` ÖNMAGÁBAN (128 → pontosan 128 gondolat-token, háromból háromszor, tiszta `content`,
+#: finish=stop; 256 → 256). A `thinking=disabled` MELLETT nem (256 helyett 773, egyszer a gondolat a `content`-be ömlött).
+#: A kikapcsolás tehát = a legkisebb gondolat-keret, a `thinking` mező nélkül.
+KIMI_K2_GONDOLAT_KI = 128
+
+
+def _kimi_k2(model_id: str) -> bool:
+    return "Kimi-K2" in (model_id or "")
+
+
+def _sf_gondolat_igazit(model_id: str, body: dict) -> None:
+    """A gondolkodás-kapcsoló a modell VALÓDI kapcsolójára fordítva (a kérés helyben módosul). Kimi K2: a `thinking` /
+    `enable_thinking` / `reasoning_effort` helyett `thinking_budget` — a kért kikapcsolás (vagy kapcsoló nélkül a
+    korlátlan alapgondolkodás) a legkisebb keret; kifejezett `thinking={"type":"enabled"}` mellett nincs keret.
+    Más modellhez nem nyúl."""
+    if not _kimi_k2(model_id):
+        return
+    volt = body.pop("thinking", None)
+    body.pop("enable_thinking", None)
+    body.pop("reasoning_effort", None)
+    if isinstance(volt, dict) and volt.get("type") == "enabled":
+        return
+    body.setdefault("thinking_budget", KIMI_K2_GONDOLAT_KI)
+
+
 def _sf_gondolkodas_nelkul(model_id: str) -> dict:
     """A gondolkodás kikapcsolása / letompítása modellenként, a csonkolás utáni EGY újrapróbáláshoz.
 
@@ -8219,7 +8250,11 @@ def _sf_gondolkodas_nelkul(model_id: str) -> dict:
         (A `thinking` kikapcsolását 400/20015-tel utasítja el, a `thinking_budget`-et figyelmen kívül hagyja.)
       * DeepSeek V4-Pro-0813: `reasoning_effort=low` mellett is gondolkodik (370/400, csonka);
         `thinking=disabled` → 0 gondolat, 307 token, kész.
-      * Kimi: `thinking=disabled` (a K3.1 Pro így eszközt is hív, gondolat nélkül)."""
+      * Kimi: `thinking=disabled` (a K3.1 Pro így eszközt is hív, gondolat nélkül);
+      * Kimi K2 (K2.7-Code): a `thinking=disabled`-et figyelmen kívül hagyja — a `thinking_budget` a kapcsoló (lásd
+        `KIMI_K2_GONDOLAT_KI`)."""
+    if _kimi_k2(model_id):
+        return {"thinking_budget": KIMI_K2_GONDOLAT_KI}
     if model_id.startswith("zai-org/GLM-5.3"):
         return {"reasoning_effort": "low"}
     if "Kimi" in model_id or "DeepSeek" in model_id:
@@ -8246,11 +8281,15 @@ def _sf_szamlara(data: dict | None, model_id: str) -> None:
 _SF_DROPPABLE_PARAMS = {
     "thinking": ("thinking", "思考", "不支持关闭"),
     "reasoning_effort": ("reasoning_effort", "reasoning effort"),
+    "thinking_budget": ("thinking_budget", "thinking budget"),
     # MÉRVE 11-22 élesben: „Parameter 'temperature'=0.7 is not supported for kimi-k3…” (HTTP 400/20015) — a
     # K3-család a mintavételi paramétereket nem fogadja. Ez nem a modell kiesése: le kell venni és újrapróbálni.
     "temperature": ("'temperature'", "temperature"),
     "top_p": ("'top_p'", "top_p"),
 }
+
+#: A gondolkodást szabályozó mezők (modellváltáskor és a gondolat-csonkolás utáni újrapróbáláskor mind lekerülnek).
+_SF_GONDOLAT_MEZOK = ("thinking", "reasoning_effort", "thinking_budget", "enable_thinking")
 
 #: Paraméterek, amiket egy modellcsalád EGYÁLTALÁN nem fogad — ezek el sem indulnak (nem kell hozzá egy bukott kör).
 _SF_TILTOTT_PARAMS = (("Kimi-K3", ("temperature", "top_p")),)
@@ -8486,7 +8525,7 @@ async def sf_chat(payload: dict, *, purpose: str = "", attempts: int = 3,
                 # thinking=disabled nélkül időtúllépésbe fut, a V4-Pro pedig
                 # reasoning_effort nélkül más viselkedést ad. A modell-váltás
                 # nem csak a névé.
-                for k in ("thinking", "reasoning_effort"):
+                for k in _SF_GONDOLAT_MEZOK:
                     body.pop(k, None)
                 body.update(_model_extra(mid))
                 # A tartalék NE adja ki magát a kért ügynöknek (11-22: a DeepSeek „Kimi-K3.1-Pro”-nak mondta magát,
@@ -8496,6 +8535,7 @@ async def sf_chat(payload: dict, *, purpose: str = "", attempts: int = 3,
                 if _minta in mid:
                     for k in _tiltott:
                         body.pop(k, None)
+            _sf_gondolat_igazit(mid, body)     # Kimi K2: a `thinking=disabled` helyett `thinking_budget` (mérve 11-24)
             # ÖNSZABÁLYOZÁS: induljunk onnan, ami ennél a modellnél utoljára
             # elég volt, de sose a modell plafonja fölött. A megtanult keret
             # legfeljebb a bővítés tetejéig emel (11-23: a GLM-5.3 megtanult
@@ -8526,7 +8566,7 @@ async def sf_chat(payload: dict, *, purpose: str = "", attempts: int = 3,
                         _ujraprobalva = True
                         _nelkule = _sf_gondolkodas_nelkul(mid) if _sf_gondolat_ette(data) else {}
                         if _nelkule and any(body.get(k) != v for k, v in _nelkule.items()):
-                            for k in ("thinking", "reasoning_effort"):
+                            for k in _SF_GONDOLAT_MEZOK:
                                 body.pop(k, None)
                             body.update(_nelkule)
                             notes.append(
@@ -8981,6 +9021,10 @@ AI_TASK_MODELLEK = {
     "glm5": "zai-org/GLM-5.2",
 }
 AI_TASK_SZINTEZIS_SORREND = ("kimi", "deepseek", "glm5")
+#: A koordinátori szintézis kimeneti plafonja (2026-11-24): a csonkolás miatti bővítés sem megy fölé
+#: (`llm_kapu.keret_plafon`). Élesben a szintézis 16k → 32k-ra bővült: a Kimi K2.7 a `thinking=disabled` mellett is
+#: gondolkodott (mérve; a valódi kapcsoló a `sf_chat`-ben: `_sf_gondolat_igazit`). Ha 16k-n is csonkol, KIMONDVA csonka.
+SZINTEZIS_PLAFON = 16_000
 
 
 async def _execute_ai_task(task_id: int, title: str, description: str, context: str, assigned_by: str,
@@ -9427,7 +9471,8 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
             synthesizer_used = None
             for model_id, label in SYNTHESIS_CHAIN:
                 try:
-                    candidate = await _run_agent_with_tools(model_id, list(messages))
+                    with llm_kapu.keret_plafon(SZINTEZIS_PLAFON):
+                        candidate = await _run_agent_with_tools(model_id, list(messages))
                     candidate = _clean_synthesis_output(candidate)
                     cls, reason = _classify_agent_result(candidate)
                     if cls == "ok":
@@ -9970,10 +10015,11 @@ async def ai_task(title: str, description: str, context: str = "", file_id: int 
                     _szint_szamla = llm_kapu.Szamla(_feladat_szamla)
                     for syn_model_id, syn_label in DISPATCH_SYNTHESIS_CHAIN:
                         try:
-                            candidate = loop.run_until_complete(llm_kapu.szamlaval(
-                                _szint_szamla,
-                                _run_agent_with_tools(syn_model_id, list(synthesis_messages), max_rounds=2)
-                            ))
+                            with llm_kapu.keret_plafon(SZINTEZIS_PLAFON):   # a futtatott feladat örökli
+                                candidate = loop.run_until_complete(llm_kapu.szamlaval(
+                                    _szint_szamla,
+                                    _run_agent_with_tools(syn_model_id, list(synthesis_messages), max_rounds=2)
+                                ))
                             candidate = _clean_synthesis_output(candidate)
                             if candidate and candidate.strip():
                                 synthesis = candidate
