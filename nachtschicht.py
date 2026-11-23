@@ -110,14 +110,16 @@ FELDWEBEL_ENGEDETT = frozenset({"gmail_search", "read_gmail_attachment", "tudasb
 #: Külső MCP-k (kulso_mcp): tiszta adatkeresők, saját AI-juk nem kapja meg a szöveget (a Kommandant döntése, 11-22).
 KULSO_ENGEDETT = frozenset({"lexonomics", "medical", "makronom"})
 #: A Nachtschicht saját eszközei: olvasó naptár és levél, Gmail-TERVEZET (nem küld), Studio-dokumentum (AI nélkül).
-SAJAT = frozenset({"naptar", "gmail_level", "gmail_tervezet", "studio_dokumentum"})
+SAJAT = frozenset({"naptar", "gmail_level", "gmail_tervezet", "studio_dokumentum", "studio_diasor"})
 #: A hurok belső eszköze (11-23): a kivonatolt eszközeredmény teljes szövege — csak a saját hurkából olvas (kivonat.py).
 BELSO = frozenset({"eredmeny_lapoz"})
 ENGEDETT = FELDWEBEL_ENGEDETT | KULSO_ENGEDETT | SAJAT | BELSO
 #: A Studio eszközei közül csak a determinisztikus dokumentumkészítés; a `files`-nál csak új fájl és feltöltés.
 #: Minden más (edit_with_instruction, facts, describe_image, ocr_image, generate_image, design, video …) a Studio
 #: SAJÁT AI-ját indítaná a Kommandant anyagán — tilos.
-STUDIO_ENGEDETT = {"files": frozenset({"new", "upload_link"}), "convert": None, "wordcraft": None}
+STUDIO_ENGEDETT = {"files": frozenset({"new", "upload_link"}), "convert": None, "wordcraft": None,
+                   # 11-23: diasor CSAK `spec`-kel (a diákat az ügynök írja); a `from_document` a Studio AI-jával írna
+                   "pptx_build": None}
 #: Kimondottan tiltott (a teszt ezeket egyenként ellenőrzi; az engedélylista miatt amúgy sem futnának).
 TILTOTT = frozenset({
     "send_email", "send_message", "send_file_email", "export_task",            # küldés
@@ -134,6 +136,14 @@ def studio_engedett(eszkoz: str, parameterek: dict | None) -> str | None:
     """None, ha a Studio-hívás determinisztikus dokumentumkészítés; különben az elutasítás oka."""
     if eszkoz not in STUDIO_ENGEDETT:
         return f"a Studio `{eszkoz}` eszköze nincs az engedélylistán (csak: {', '.join(sorted(STUDIO_ENGEDETT))})"
+    if eszkoz == "pptx_build":
+        par = parameterek or {}
+        if par.get("from_document") or par.get("instructions"):
+            return ("a Studio `pptx_build` csak kész diákkal (`spec`) hívható — a `from_document` / `instructions` "
+                    "úton a Studio saját AI-ja írná a diákat")
+        if not isinstance(par.get("spec"), dict):
+            return "a Studio `pptx_build` hívásához kész `spec` kell ({title, slides: [...]})"
+        return None
     muveletek = STUDIO_ENGEDETT[eszkoz]
     if muveletek is not None:
         muv = str((parameterek or {}).get("action") or "")
@@ -185,6 +195,23 @@ SAJAT_DEFS = [
             "cim": {"type": "string", "description": "A dokumentum címe (a fájl neve is ez lesz)"},
             "markdown": {"type": "string", "description": "A teljes tartalom Markdownban, # címmel kezdve"},
         }, "required": ["cim", "markdown"]}}},
+    {"type": "function", "function": {
+        "name": "studio_diasor",
+        "description": ("16:9-es PowerPoint-diasor a Kommandant Studiójában. A diák SZÖVEGÉT TE írod (`spec`), a Studio "
+                        "csak megtervezi és lerendereli; az eredményben a szerkesztő-link (edit_url) és a gépi "
+                        "ellenőrzés (check: ok | needs_check | failed + a hibák diánként). Diatípusok (`layout`): cover "
+                        "{title, subtitle?, kicker?} · section {title, subtitle?} · bullets {title, bullets[≤6], text?} · "
+                        "stats {title, stats:[{value, label}] ≤4} · chart {title, chart_type: column|bar|line|pie, "
+                        "categories, series:[{name, values}]} · table {title, headers, rows} · quote {quote, author?} · "
+                        "image_left|image_right {title, bullets[]|text, image} · closing {title?, subtitle?}. Minden "
+                        "diának lehet `notes` (előadói jegyzet). Kép: {\"stock\": \"angol keresőszavak\"} (ingyenes "
+                        "fotó; a választás a Studio havi AI-keretéből megy, ezért csak ahol a kép tényleg visz). "
+                        "Diánként egy gondolat; számot csak forrással (a notes-ban)."),
+        "parameters": {"type": "object", "properties": {
+            "cim": {"type": "string", "description": "A diasor címe (a fájl neve is ez lesz)"},
+            "spec": {"type": "object", "description": ("{\"title\": …, \"footer\"?: …, \"slides\": [{\"layout\": "
+                                                       "\"cover\", \"title\": …}, …]} — 4–30 dia")},
+        }, "required": ["cim", "spec"]}}},
 ]
 
 
@@ -728,6 +755,43 @@ async def studio_dokumentum(forras, cim: str, markdown: str, modell: str = "") -
             "preview_url": kesz.get("preview_url"), "check": (kesz.get("check") or {}).get("status")}
 
 
+DIASOR_MIN, DIASOR_MAX = 4, 30
+DIASOR_TIPUSOK = frozenset({"cover", "section", "bullets", "image_left", "image_right", "full_image", "quote", "stats",
+                            "chart", "table", "gallery", "diagram", "closing"})
+
+
+async def studio_diasor(forras, cim: str, spec, modell: str = "") -> dict:
+    """Diasor a Studióban, a diák szövegét az ügynök írja (`pptx_build` `spec`-kel). A `from_document` / `instructions`
+    út SOSEM megy ki: ott a Studio saját AI-ja írná a diákat (a Kommandant elve: MCP-n az ügynök gondolkodik)."""
+    cim = re.sub(r"[\\/:*?\"<>|\n\r]+", " ", str(cim or "Diasor")).strip()[:90] or "Diasor"
+    if not isinstance(spec, dict):
+        return {"error": "a `spec` objektum legyen: {title, slides: [...]}"}
+    diak = spec.get("slides")
+    if not isinstance(diak, list) or not (DIASOR_MIN <= len(diak) <= DIASOR_MAX):
+        return {"error": f"a `spec.slides` {DIASOR_MIN}–{DIASOR_MAX} diából álló lista legyen"}
+    rossz = sorted({str((d or {}).get("layout")) for d in diak
+                    if not isinstance(d, dict) or str(d.get("layout")) not in DIASOR_TIPUSOK})
+    if rossz:
+        return {"error": f"ismeretlen diatípus: {', '.join(rossz)} (lehet: {', '.join(sorted(DIASOR_TIPUSOK))})"}
+    spec = {k: v for k, v in spec.items() if k in ("title", "footer", "brand", "theme", "slides")}
+    spec.setdefault("title", cim)
+    parameterek = {"spec": spec, "images": "stock"}
+    ok = studio_engedett("pptx_build", parameterek)
+    if ok:
+        return {"error": ok}
+    try:
+        kesz = json.loads(await forras.studio("pptx_build", parameterek, modell))
+    except Exception as e:  # noqa: BLE001
+        return {"error": f"a diasor nem készült el: {type(e).__name__}: {str(e)[:300]}"}
+    if not kesz.get("file_id"):
+        return {"error": f"a Studio nem adott fájlt: {str(kesz)[:300]}"}
+    check = kesz.get("check") or {}
+    return {"file_id": kesz["file_id"], "name": kesz.get("name") or f"{cim}.pptx", "edit_url": kesz.get("edit_url"),
+            "preview_url": kesz.get("preview_url"), "check": check.get("status"),
+            "hibak": [str(f.get("message") or f)[:160] for f in (check.get("findings") or [])][:12],
+            "diak": len(diak)}
+
+
 def vegrehajto(forras, termes: Termes) -> Callable:
     """A modell eszközhívásainak egyetlen kapuja: engedélylista → a forrás megfelelő ága. Sosem dob."""
     async def _v(nev: str, args: dict, modell: str = "") -> str:
@@ -762,6 +826,11 @@ def vegrehajto(forras, termes: Termes) -> Callable:
                 return json.dumps({k: v for k, v in r.items() if k != "body"}, ensure_ascii=False)
             if nev == "studio_dokumentum":
                 r = await studio_dokumentum(forras, args.get("cim"), args.get("markdown"), modell)
+                if "error" not in r:
+                    termes.dokumentumok.append(r)
+                return json.dumps(r, ensure_ascii=False)
+            if nev == "studio_diasor":
+                r = await studio_diasor(forras, args.get("cim"), args.get("spec"), modell)
                 if "error" not in r:
                     termes.dokumentumok.append(r)
                 return json.dumps(r, ensure_ascii=False)

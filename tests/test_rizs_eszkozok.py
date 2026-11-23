@@ -39,7 +39,8 @@ HAMIS_LISTA = {
     "makronom": [T("get_macro_indicator", ("country", "indicator"))],
     "engine": [T("engine_search"), T("engine_scrape", ("url", "own_account", "profile")), T("engine_monitor"),
                T("engine_run"), T("engine_dataset", ("action", "schedule"))],
-    "studio": [T("files", ("action",)), T("convert", ("file_id",)), T("wordcraft"), T("edit_with_instruction"),
+    "studio": [T("files", ("action",)), T("convert", ("file_id",)), T("wordcraft"), T("pptx_build", ("spec",)),
+               T("edit_with_instruction"),
                T("facts"), T("describe_image")],
     "echolot": [T("search_news"), T("press_pub_new")],
 }
@@ -103,7 +104,7 @@ def test_az_eszkozlista_a_kulso_mcp_ket_is_hozza_szukitve(kulso):
     nevek = _nevek(defs)
     assert set(_nevek(server.SUBAGENT_TOOL_DEFS)) | KULSO_ELVART == set(nevek)
     assert nevek.count("echolot") == 1                       # a saját olvasó-proxy, nem a kulso_mcp teljes Echolotja
-    assert _enum(defs, "studio") == {"files", "convert", "wordcraft", "sugo"}     # a Nachtschicht engedélylistája
+    assert _enum(defs, "studio") == {"files", "convert", "wordcraft", "pptx_build", "sugo"}  # a Nachtschichté
     assert _enum(defs, "studio") - {"sugo"} == set(server.nachtschicht.STUDIO_ENGEDETT)
     assert not _enum(defs, "engine") & {"engine_monitor", "engine_run"}
     assert {"engine_search", "engine_scrape", "engine_dataset"} <= _enum(defs, "engine")

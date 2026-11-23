@@ -204,7 +204,7 @@ def test_a_modell_csak_az_engedett_eszkozoket_kapja():
     nevek = {d["function"]["name"] for d in defs}
     assert nevek <= N.ENGEDETT
     assert {"gmail_search", "read_gmail_attachment", "tudasbazis", "lexonomics", "medical", "makronom", "naptar",
-            "gmail_level", "gmail_tervezet", "studio_dokumentum"} == nevek
+            "gmail_level", "gmail_tervezet", "studio_dokumentum", "studio_diasor"} == nevek
     assert not nevek & {"echolot", "engine", "studio", "send_email", "calendar_create", "ai_query"}
 
 
