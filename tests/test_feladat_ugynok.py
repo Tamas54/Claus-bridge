@@ -777,6 +777,27 @@ def test_sf_modellu_ugynok_nem_kapja_a_tudasbazist(db, sf_kulcs, monkeypatch):
     assert "TITKOS-KB" not in json.dumps(sf.hivasok, ensure_ascii=False)
 
 
+def test_sf_modellu_ugynok_nem_kapja_a_gmailt_es_a_naptarat(db, sf_kulcs, monkeypatch):
+    """11-23: a kínai modellektől a Kommandant Gmailje és naptára sem érhető el — a lista sem adja, a végrehajtó is
+    elutasítja (két öv); Claude-modellnél megmaradnak."""
+    monkeypatch.setattr(futar_kliens, "claude_elerheto", lambda: True)
+    sf_nevek = {t["function"]["name"] for t in _run(F.eszkoz_definiciok(Forras(), sf=True))}
+    claude_nevek = {t["function"]["name"] for t in _run(F.eszkoz_definiciok(Forras(), sf=False))}
+    assert not sf_nevek & F.SF_GMAIL_NAPTAR
+    assert {"gmail_search", "naptar", "gmail_level", "gmail_tervezet", "calendar_create"} <= claude_nevek
+    for nev in F.SF_GMAIL_NAPTAR:
+        assert F.engedett(nev, {}, sf=True) == F.SF_GMAIL_NAPTAR_ESZKOZ
+        assert F.engedett(nev, {}, sf=False) is None
+    rid = _letrehoz(db, modell="kimi")
+    sf = Kapu([_sf_valasz(hivasok=[("gmail_search", {"query": "from:bank"})], modell="moonshotai/Kimi-K3.1-Pro"),
+               _sf_valasz(json.dumps({"jelzes": False, "osszegzes": "-", "eredmeny": "-"}),
+                          modell="moonshotai/Kimi-K3.1-Pro")])
+    e, _, _ = _futtat(db, rid, Kapu([]), forras=Forras(), sf_kapu=sf)
+    assert e["elutasitva"] == ["gmail_search"]
+    eszkoz_valasz = [m for m in sf.hivasok[1][1]["messages"] if m.get("role") == "tool"][0]["content"]
+    assert json.loads(eszkoz_valasz)["error"] == F.SF_GMAIL_NAPTAR_ESZKOZ
+
+
 def test_tudasbazis_korbol_nem_lehet_sf_modellu_ugynok(db):
     from feldwebel import BridgeContext
     ctx = BridgeContext(get_db=db)

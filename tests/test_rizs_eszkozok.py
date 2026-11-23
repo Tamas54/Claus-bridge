@@ -302,7 +302,8 @@ def test_kimi_keress_ra_telegramrol_eszkozt_hiv(kulso, web, get_db, monkeypatch)
     monkeypatch.setattr(server, "_telegram_push", push)
     monkeypatch.setattr(server, "get_db", get_db)
     monkeypatch.setattr(server, "PYRAMID_ENABLED", True)
-    monkeypatch.setattr(server, "build_agent_context", lambda **kw: "Kimi vagy.")
+    kontextus = []
+    monkeypatch.setattr(server, "build_agent_context", lambda **kw: kontextus.append(kw) or "Kimi vagy.")
     monkeypatch.setattr(server, "pyramid_store_result", lambda **kw: None, raising=False)
     sf = _hurok_sf(monkeypatch, [{"content": "", "tool_calls": [_hivas("web_search", {"query": "forint árfolyam"})]}])
 
@@ -315,6 +316,7 @@ def test_kimi_keress_ra_telegramrol_eszkozt_hiv(kulso, web, get_db, monkeypatch)
     assert "AMI NEKED NEM ELÉRHETŐ" in elso["messages"][0]["content"]
     assert any(m.get("role") == "tool" and "391,2" in m["content"] for m in masodik["messages"])
     assert "391,2" in pushok[-1] and "KIMI" in pushok[-1].upper()
+    assert kontextus and not any(k.get("inbox_summary") for k in kontextus)     # a levelek tárgya sem megy Kiminek
     c = get_db()
     assert "391,2" in c.execute("SELECT message FROM messages WHERE sender = 'kimi'").fetchone()[0]
     c.close()
@@ -458,3 +460,15 @@ def test_a_feldwebel_utmutatoja_es_az_ai_query_leirasa_egyezik():
         assert "Lexonomics" in szoveg and "Engine" in szoveg
         assert "Gmail" in szoveg and "naptár" in szoveg              # amit NEM érnek el, az is ki van mondva
     assert "Gmail" not in json.dumps(server.BRAVE_LOGIN_TOOL_DEF["function"]["parameters"])
+
+
+# ══ 8. A KONTEXTUSBAN SEM: A KOMMANDANT INBOXA (LEVÉL + NAPTÁR) NEM MEGY SF-ÜGYNÖKNEK ═══
+
+def test_az_inbox_osszefoglalo_sf_kontextusba_nem_kerul():
+    """Eddig a levelek tárgya és a naptáresemények („KOMMANDANT INBOX”) minden megszólításnál, ai_query-nél és
+    ai_task-nál az SF-ügynök rendszerszövegében volt. Most egyik SF-úton sem."""
+    src = inspect.getsource(server)
+    assert "inbox_summary=_get_inbox_summary()" not in src
+    for fv in (server.ai_query, server._execute_ai_task, server._handle_telegram_message,
+               server._trigger_agent_replies):
+        assert "inbox_summary" not in inspect.getsource(fv), fv.__name__

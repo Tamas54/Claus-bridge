@@ -167,7 +167,11 @@ def get_db():
 
 
 def _get_inbox_summary(max_items: int = 8) -> str:
-    """Legfrissebb capture-daemon üzenetek (email + calendar) a Bridge DB-ből — Pyramid kontextushoz."""
+    """Legfrissebb capture-daemon üzenetek (email + calendar) a Bridge DB-ből.
+
+    ⛔ 2026-11-23: SiliconFlow-ügynök (Kimi, DeepSeek, GLM) kontextusába NEM megy — a Kommandant Gmailje és naptára
+    a kínai modellektől semmilyen úton nem érhető el (eddig a levelek tárgya és a naptáresemények „KOMMANDANT INBOX”
+    szakaszként minden megszólításnál, ai_query-nél és ai_task-nál ott volt). Claude-oldali hívónak marad (ctx)."""
     try:
         conn = get_db()
         # a futár sorai (a Kommandant tudásbázisa is lehet bennük) SiliconFlow-ügynök kontextusába sosem kerülnek
@@ -1857,7 +1861,7 @@ def _trigger_agent_replies(original_msg_id: int, sender: str, message: str, agen
 
     async def _reply(agent_id):
         try:
-            system_prompt = build_agent_context(agent_id=agent_id, inbox_summary=_get_inbox_summary(), relevance_query=message) if PYRAMID_ENABLED else ""
+            system_prompt = build_agent_context(agent_id=agent_id, relevance_query=message) if PYRAMID_ENABLED else ""
             # ESZKÖZÖKKEL (2026-11-23): az @-említésre is a közös, korlátos hurok válaszol (`_rizs_eszkozhurok`)
             system_prompt += SUBAGENT_TOOLS_DIRECTIVE + NO_TEXT_MARKER_DIRECTIVE + RIZS_CSEVEGO_DIRECTIVE
             model_id = SILICONFLOW_MODELS.get(agent_id, agent_id)
@@ -3435,7 +3439,7 @@ async def ai_query(model: str, prompt: str, system_prompt: str = "", temperature
 
     # Pyramid context: if agent is known and no custom system_prompt, use full Pyramid context
     if PYRAMID_ENABLED and model in PYRAMID_AGENTS and not system_prompt:
-        system_prompt = build_agent_context(agent_id=model, inbox_summary=_get_inbox_summary(), relevance_query=prompt)
+        system_prompt = build_agent_context(agent_id=model, relevance_query=prompt)
     elif model == "hy3" and not system_prompt:
         # NULLTARIF H3: a fordító-alias KARCSÚ default promptot kap — a
         # 07-18-i füstpróbán ~10k prompt-token ment el ~300 tokennyi kérésre
@@ -8782,7 +8786,6 @@ async def _execute_ai_task(task_id: int, title: str, description: str, context: 
                     system = build_agent_context(
                         agent_id=agent_name,
                         custom_system_prompt=temporal,
-                        inbox_summary=_get_inbox_summary(),
                         relevance_query=task_prompt,
                     )
                 else:
@@ -11567,8 +11570,7 @@ async def _handle_telegram_message(text: str, chat_id: str, csatorna: str = "tel
                 # ESZKÖZÖKKEL (2026-11-23): a megszólított ügynök a teljes saját készletünkkel dolgozik (web, Echolot,
                 # böngésző, StatData, Lexonomics, Medical, Makronóm, Engine, Studio-dokumentum), korlátos hurokban —
                 # tudásbázis, Gmail, naptár és kifelé ható művelet nélkül (`subagent_tool_defs`, `_rizs_eszkozhurok`).
-                system_prompt = (build_agent_context(agent_id=agent_id, inbox_summary=_get_inbox_summary(),
-                                                     relevance_query=text)
+                system_prompt = (build_agent_context(agent_id=agent_id, relevance_query=text)
                                  + SUBAGENT_TOOLS_DIRECTIVE + NO_TEXT_MARKER_DIRECTIVE + RIZS_CSEVEGO_DIRECTIVE)
                 model_id = SILICONFLOW_MODELS.get(agent_id, agent_id)
                 content, data, _t_err, _t_notes, _hivott = await _rizs_eszkozhurok(model_id, [
@@ -11632,7 +11634,7 @@ async def _handle_telegram_message(text: str, chat_id: str, csatorna: str = "tel
     if PYRAMID_ENABLED and (SILICONFLOW_API_KEY or llm_kapu.elerheto()):
         from html import escape as html_escape
         try:
-            system_prompt = (build_agent_context(agent_id="deepseek", inbox_summary=_get_inbox_summary())
+            system_prompt = (build_agent_context(agent_id="deepseek")
                              + SUBAGENT_TOOLS_DIRECTIVE + NO_TEXT_MARKER_DIRECTIVE + RIZS_CSEVEGO_DIRECTIVE)
             model_id = SILICONFLOW_MODELS.get("deepseek", "deepseek-ai/DeepSeek-V4-Pro")
             # a tartalék is a közös, korlátos eszközhurokban (ugyanaz a készlet, ugyanazok a tiltások)

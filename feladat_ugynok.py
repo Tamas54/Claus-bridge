@@ -849,7 +849,8 @@ ESZKOZ_DEF = {"type": "function", "function": {
             f"{EXTRA_MAX} karakter; módosításkor a TELJES új szöveg (üres = törlés). A szabályokat nem írhatja felül.")},
         "modell": {"type": "string", "enum": list(MODELLEK),
                    "description": "sonnet (alap), haiku (olcsó), opus (okos), kimi, deepseek (V4-Pro), dsflash "
-                                  "(DeepSeek V4.1-Flash), glm5 (GLM-5.3). Tudásbázis csak Claude-modellnél."},
+                                  "(DeepSeek V4.1-Flash), glm5 (GLM-5.3). Tudásbázis, Gmail és naptár csak "
+                                  "Claude-modellnél."},
         "utemezes": {"type": "string", "description": (
             "cron (perc óra nap hónap hétnap), Budapest-idő: '0 7 * * *' minden nap 7:00, '30 17 * * 1-5' hétköznap "
             "17:30, '0 8 * * 1' hétfő 8:00, '0 9 24 11 *' november 24. 9:00. Lépés (*/15) nincs, legsűrűbb 15 perc. "
@@ -934,6 +935,12 @@ TILTOTT = frozenset({
     "gmail_poll", "calendar_poll", "chatgpt", "gemini", "faber", "ugynok"})                   # mellékhatás, jogbővítés
 SF_TUDASBAZIS_ESZKOZ = ("SiliconFlow-modellű ügynök a tudásbázist nem olvashatja — a Kommandant tudásbázisa csak "
                         "Claude-modellnek mehet ki")
+#: 11-23: SiliconFlow-modellű ügynöknek a Gmail és a naptár sem — a kínai modellektől a Kommandant tudásbázisa, Gmailje
+#: és naptára semmilyen úton nem érhető el (a Bridge SF-ügynökeinél ugyanez: server.SUBAGENT_TILTOTT).
+SF_GMAIL_NAPTAR = frozenset({"gmail_search", "read_gmail_attachment", "gmail_level", "gmail_tervezet", "naptar",
+                             "calendar_create"})
+SF_GMAIL_NAPTAR_ESZKOZ = ("SiliconFlow-modellű ügynök a Kommandant Gmailjét és naptárát nem éri el — ehhez "
+                          "Claude-modell kell (sonnet, haiku, opus)")
 
 
 def engedett(nev: str, args: dict | None = None, *, sf: bool = False) -> str | None:
@@ -942,6 +949,8 @@ def engedett(nev: str, args: dict | None = None, *, sf: bool = False) -> str | N
         return f"a(z) `{nev}` eszköz a feladat-ügynöknek nem engedett (kifelé semmi nem megy, a jogait nem bővítheti)"
     if sf and nev == "tudasbazis":
         return SF_TUDASBAZIS_ESZKOZ
+    if sf and nev in SF_GMAIL_NAPTAR:
+        return SF_GMAIL_NAPTAR_ESZKOZ
     if nev in KULSO_ENGEDETT and not str((args or {}).get("eszkoz") or ""):
         return f"a(z) `{nev}` hívásához meg kell adni az `eszkoz` mezőt"
     return None
@@ -978,7 +987,8 @@ def _egyutt_defs(u: dict) -> list:
 
 
 async def eszkoz_definiciok(forras, *, sf: bool = False, ugynok: dict | None = None) -> list:
-    """A modellnek adott eszközök: CSAK az engedélylista elemei; SiliconFlow-modellnél tudásbázis nélkül."""
+    """A modellnek adott eszközök: CSAK az engedélylista elemei; SiliconFlow-modellnél tudásbázis, Gmail és naptár
+    nélkül."""
     from feldwebel.responder import TOOLS
     defs = [t for t in TOOLS if t["function"]["name"] in (FELDWEBEL_ENGEDETT | JAVASLAT)]
     if not sf and forras.tudasbazis_elerheto():

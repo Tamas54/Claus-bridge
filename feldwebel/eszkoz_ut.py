@@ -67,8 +67,8 @@ U_UGYNOK = """FELADAT-ÜGYNÖKÖK (`ugynok` eszköz) — a Kommandant saját, n�
   szöveg: a lista megmutatja a mostanit); „Opusszal fusson” → modell="opus"; „reggel 8-kor” → utemezes; „vitassa meg
   Kimivel” → vitapartnerek (a TELJES új lista); „adhasson kívánságot a Fabernek” → utasithat. Jogot (vitapartnerek,
   utasithat) csak akkor adj, ha a Kommandant ebben az üzenetében kimondja.
-- Modell: sonnet (alap), haiku, opus, vagy kimi / deepseek / dsflash / glm5 (SiliconFlow). Tudásbázis csak Claude-
-  modellnél; ha a hiba ezt mondja, mondd el a Kommandantnak, és ajánlj Claude-modellt.
+- Modell: sonnet (alap), haiku, opus, vagy kimi / deepseek / dsflash / glm5 (SiliconFlow). Tudásbázis, Gmail és
+  naptár csak Claude-modellnél; ha a hiba ezt mondja, mondd el a Kommandantnak, és ajánlj Claude-modellt.
 - Saját költségkeret (alap $0.50 futásonként, $10 havonta); a kabinban saját ablaka van. Kifelé nem lép: levélből
   tervezet, naptárból javaslat lesz, amit a Kommandant hagy jóvá.
 - A válasz `uzenet` mezőjét add tovább szó szerint (benne a következő futás és a keret). Ha a név nem egyértelmű
