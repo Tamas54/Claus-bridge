@@ -3845,9 +3845,43 @@ except OSError as e:
     UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 
+def _docx_szoveg_zipbol(filepath) -> str:
+    """A .docx szövege közvetlenül a zipből (`word/document.xml`), a python-docx nélkül — TARTALÉK (11-23).
+
+    A Word sok hibát elnéz, a python-docx nem: a Kommandant robot-tanulmánya (v7) azért nem volt olvasható, mert egy
+    képe nincs bejegyezve a `[Content_Types].xml`-ben („no content type for partname …/photo_baines.jpg”). A szöveghez
+    a képekre nincs szükség: bekezdésenként a `<w:t>` elemek, a tabulátor és a sortörés megmarad; a táblázatcellák
+    bekezdései sorban jönnek."""
+    import html as _html
+    import re as _re
+    import zipfile as _zip
+    with _zip.ZipFile(str(filepath)) as z:
+        xml = z.read("word/document.xml").decode("utf-8", "replace")
+    sorok = []
+    for bek in _re.findall(r"<w:p[ >].*?</w:p>|<w:p/>", xml, _re.S):
+        bek = _re.sub(r"<w:tab/>", "\t", bek)
+        bek = _re.sub(r"<w:br[^>]*/>", "\n", bek)
+        szoveg = "".join(_re.findall(r"<w:t(?:\s[^>]*)?>(.*?)</w:t>", bek, _re.S))
+        sorok.append(_html.unescape(szoveg))
+    return "\n".join(sorok).strip()
+
+
 def _parse_file_to_text(filepath: pathlib.Path, mime_type: str) -> str:
     """Extract text content from uploaded files."""
     ext = filepath.suffix.lower()
+    if ext == ".docx":
+        try:
+            from docx import Document
+            Document(str(filepath))
+        except Exception as e:  # noqa: BLE001 — sérült/szabálytalan csomag: a szöveg a zipből még kiolvasható
+            try:
+                szoveg = _docx_szoveg_zipbol(filepath)
+                if szoveg:
+                    logger.info("docx: a python-docx nem nyitotta meg (%s) — a szöveg a zipből (%d kar.)",
+                                str(e)[:120], len(szoveg))
+                    return szoveg
+            except Exception as e2:  # noqa: BLE001
+                return f"[Parse error: {e}; zip-tartalék: {e2}]"
     try:
         if ext == ".docx":
             from docx import Document
