@@ -667,44 +667,71 @@ def _honap() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m")
 
 
-def _ar(modell: str, bemenet: int, kimenet: int, olv: int, irt: int) -> float:
+#: Message Batches API (2026-11-23): MINDEN token — bemenet, kimenet, cache-olvasás és -írás — a sima ár fele
+#: (platform.claude.com/docs/en/build-with-claude/batch-processing, „Pricing”: „All usage is charged at 50 percent”).
+BATCH_SZORZO = 0.5
+#: Az 1 órás cache-írás ára az alap bemeneti ár kétszerese (az 5 percesé 1,25× — az `ARAK` negyedik oszlopa).
+CACHE_1H_SZORZO = 2.0
+
+
+def _ar(modell: str, bemenet: int, kimenet: int, olv: int, irt: int, *, irt_1h: int = 0,
+        szorzo: float = 1.0) -> float:
+    """USD. `irt` a teljes cache-írás, ebből `irt_1h` az 1 órás (2× alapár); `szorzo` a batch-kedvezmény (0,5)."""
     ar = ARAK.get(modell, ISMERETLEN_AR)
     if modell == "claude-haiku-5-5" and bemenet + olv + irt > HAIKU_HOSSZU_PROMPT:
         ar = HAIKU_HOSSZU_AR
-    return (bemenet * ar[0] + kimenet * ar[1] + olv * ar[2] + irt * ar[3]) / 1_000_000
+    irt_1h = max(0, min(irt_1h, irt))
+    return szorzo * (bemenet * ar[0] + kimenet * ar[1] + olv * ar[2] + (irt - irt_1h) * ar[3]
+                     + irt_1h * ar[0] * CACHE_1H_SZORZO) / 1_000_000
 
 
-def koltes_usd(usage, modell: str) -> float:
-    """Egy hívás ára. Szerveroldali tartaléknál a `usage.iterations` modellenként bontja a tokeneket."""
+def _irt_1h(u) -> int:
+    """Az 1 órás cache-írás tokenjei (`usage.cache_creation.ephemeral_1h_input_tokens`; régi válaszban nincs → 0)."""
+    cc = getattr(u, "cache_creation", None)
+    return int(getattr(cc, "ephemeral_1h_input_tokens", 0) or 0) if cc is not None else 0
+
+
+def koltes_usd(usage, modell: str, *, batch: bool = False) -> float:
+    """Egy hívás ára. Szerveroldali tartaléknál a `usage.iterations` modellenként bontja a tokeneket. `batch`: a Message
+    Batches API-n ment (minden token a fele áron)."""
+    szorzo = BATCH_SZORZO if batch else 1.0
     tetelek = [it for it in (getattr(usage, "iterations", None) or [])
                if getattr(it, "type", "") in ("message", "fallback_message")]
     if tetelek:
         return sum(_ar(getattr(it, "model", None) or modell, int(it.input_tokens or 0), int(it.output_tokens or 0),
-                       int(it.cache_read_input_tokens or 0), int(it.cache_creation_input_tokens or 0))
+                       int(it.cache_read_input_tokens or 0), int(it.cache_creation_input_tokens or 0),
+                       irt_1h=_irt_1h(it), szorzo=szorzo)
                    for it in tetelek)
     return _ar(modell, int(usage.input_tokens or 0), int(usage.output_tokens or 0),
                int(getattr(usage, "cache_read_input_tokens", 0) or 0),
-               int(getattr(usage, "cache_creation_input_tokens", 0) or 0))
+               int(getattr(usage, "cache_creation_input_tokens", 0) or 0), irt_1h=_irt_1h(usage), szorzo=szorzo)
 
 
-def _konyvel(usage, modell: str, szint: str, purpose: str) -> float:
-    usd = koltes_usd(usage, modell)
+def _konyvel(usage, modell: str, szint: str, purpose: str, *, batch: bool = False) -> float:
+    usd = koltes_usd(usage, modell, batch=batch)
     with _ZAR:
         if _KOLTES["honap"] != _honap():
-            _KOLTES.update({"honap": _honap(), "usd": 0.0, "hivasok": 0, "szintenkent": {}})
+            _KOLTES.update({"honap": _honap(), "usd": 0.0, "hivasok": 0, "szintenkent": {},
+                            "batch": {"hivasok": 0, "usd": 0.0, "megtakaritas_usd": 0.0}})
         _KOLTES["usd"] += usd
         _KOLTES["hivasok"] += 1
         sz = _KOLTES["szintenkent"].setdefault(szint, {"hivasok": 0, "usd": 0.0})
         sz["hivasok"] += 1
         sz["usd"] += usd
+        if batch:
+            b = _KOLTES.setdefault("batch", {"hivasok": 0, "usd": 0.0, "megtakaritas_usd": 0.0})
+            b["hivasok"] += 1
+            b["usd"] += usd
+            b["megtakaritas_usd"] += usd          # a teljes ár a dupla: a megtakarítás épp a kifizetett összeg
         osszes, n = _KOLTES["usd"], _KOLTES["hivasok"]
     # 11-23: a tokenek is a naplóba — a Kommandant: „Valami tényleg nem oké” a költséggel; mérni kell, mi megy ki
     be = int(getattr(usage, "input_tokens", 0) or 0)
     olv = int(getattr(usage, "cache_read_input_tokens", 0) or 0)
     irt = int(getattr(usage, "cache_creation_input_tokens", 0) or 0)
     ki = int(getattr(usage, "output_tokens", 0) or 0)
-    logger.info("llm_kapu[%s] %s: $%.5f — tokenek: be %d, cache-olvas %d, cache-ír %d, ki %d — havi költés $%.4f / "
-                "$%.0f (%d hívás, %s)", purpose or "?", modell, usd, be, olv, irt, ki, osszes, havi_keret(), n,
+    logger.info("llm_kapu[%s] %s%s: $%.5f — tokenek: be %d, cache-olvas %d, cache-ír %d (ebből 1 órás %d), ki %d — "
+                "havi költés $%.4f / $%.0f (%d hívás, %s)", purpose or "?", modell,
+                " BATCH (fél ár)" if batch else "", usd, be, olv, irt, _irt_1h(usage), ki, osszes, havi_keret(), n,
                 _KOLTES["honap"])
     return usd
 
@@ -723,12 +750,17 @@ def allapot() -> dict:
         usd = _KOLTES["usd"] if honap_ok else 0.0
         hivasok = _KOLTES["hivasok"] if honap_ok else 0
         szintek = copy.deepcopy(_KOLTES["szintenkent"]) if honap_ok else {}
+        batch = copy.deepcopy(_KOLTES.get("batch") or {}) if honap_ok else {}
     for v in szintek.values():
         v["usd"] = round(v["usd"], 4)
+    for k in ("usd", "megtakaritas_usd"):
+        if k in batch:
+            batch[k] = round(batch[k], 4)
     return {
         "elerheto": elerheto(), "elsodleges": elsodleges(), "honap": _honap(),
         "koltes_usd": round(usd, 4), "keret_usd": havi_keret(), "keret_kimerult": usd >= havi_keret(),
         "hivasok": hivasok, "szintenkent": szintek,
+        "batch": batch or {"hivasok": 0, "usd": 0.0, "megtakaritas_usd": 0.0},
         "modellek": {k: v["modell"] for k, v in SZINTEK.items()},
         "siliconflow_megszakito": sf_megszakito.allapot(),
         "kapu_bekotve": kapu_bekotve(),
@@ -803,7 +835,262 @@ def rogzitett_cfg(modell: str, szint: str) -> dict:
     return {"modell": modell, "effort": SZINTEK[sajat]["effort"], "fallbacks": False}
 
 
-async def chat(payload: dict, *, purpose: str = "", modell: str | None = None
+# ══ MESSAGE BATCHES (2026-11-23) ════════════════════════════════════════════
+#
+# A Kommandant jóváhagyta (11-23, a „8-as”): ami nem sürgős (a Nachtschicht éjszakai munkája), az a Message Batches API-n
+# menjen — minden token a fele áron, minőségvesztés nélkül (ugyanaz a modell, ugyanaz a kérés). A batch EGYLÖVETŰ: egy
+# eszközhurok minden köre külön batch (a hurok a mi kódunkban marad, a hívások között futnak az eszközök).
+#
+# A dokumentáció (platform.claude.com/docs/en/build-with-claude/batch-processing, a claude-api skill `batches.md`-je):
+#   * hívásminta: `messages.batches.create(requests=[{custom_id, params}])` → `retrieve(id).processing_status == "ended"`
+#     → `results(id)` (sorrend nincs, `custom_id` szerint párosítunk) → `succeeded | errored | canceled | expired`;
+#   * a batch-kérésben TILOS: `stream`, `speed`, `fallbacks` (a szerveroldali refusal-tartalék batch-ben nem él), és a
+#     `max_tokens: 0`. Ezért a `betas`/`fallbacks` lekerül; refusalnál a hívás SIMA úton megy újra, tartalékkal;
+#   * a prompt-cache a batch-ben is működik, a két kedvezmény összeadódik, de a találat „best-effort”; mivel egy batch
+#     5 percnél tovább is tarthat, a doksi az 1 órás cache-t ajánlja → a batch-kérés minden töréspontja 1 órás;
+#   * az `errored`, `canceled` és `expired` kérésért nem fizetünk.
+#
+# HATÁRIDŐ: ha a batch a megadott időpontig (a Nachtschichtnél 06:00, Budapest) nem kész, megszakítjuk, és a hívás sima
+# úton megy — KIMONDVA (`notes`, és a `BatchMenet` statisztikája a reggeli jelentésbe). A lekérdezés RITKA (alapból 3
+# percenként, a hívó adja): nem pörgetjük az API-t.
+
+#: A batch-kérésből lekerülő mezők (a dokumentáció szerint batch-ben validációs hibát adnának).
+BATCH_TILTOTT = ("betas", "fallbacks", "stream", "speed")
+#: Ennyi egymás utáni lekérdezési hiba után a batch-et feladjuk (megszakítjuk), és a hívás sima úton megy.
+BATCH_LEKERDEZES_HIBA_MAX = 5
+#: A határidőn megszakított batch-re ennyit várunk még (a már futó kérés eredménye megjöhet — azt is kifizetnénk).
+BATCH_MEGSZAKITAS_VARAS_S = 90.0
+#: CACHE-ŐR: a batch-ben a cache-találat „best-effort”. Ha egy eszközhurok FOLYTATÓ köre (az előző kör előtagja
+#: cache-ben kellene legyen) nem olvas cache-ből, a teljes előtagot újraírja — egy hosszú Sonnet-hurok így DRÁGÁBB
+#: lenne, mint a sima úton (mérve a becslésben: kb. +50%). Ennyi ilyen kör után (és ha több a hiány, mint a találat)
+#: az éjszaka hátralévő része sima úton megy, kimondva.
+BATCH_CACHE_HIANY_KUSZOB = 2
+#: A tartalék okai a jelentés nyelvén.
+BATCH_OKOK = {"hatarido": "a batch a határidőig nem készült el", "refusal": "a modell a batch-ben elutasította",
+              "cache_hiany": "a batch-ben elmaradt a cache-találat (úgy drágább lett volna, mint sima úton)",
+              "expired": "a batch lejárt", "canceled": "a batch megszakadt", "nem_batchelheto": "batch-ben nem küldhető",
+              "nincs_eredmeny": "a batch nem adott eredményt"}
+
+
+def batch_ok_szoveg(ok: str) -> str:
+    alap = ok.split(":", 1)[0]
+    if alap in BATCH_OKOK:
+        return BATCH_OKOK[alap]
+    return {"errored": "batch-hiba", "bekuldes": "a batch beküldése nem ment", "lekerdezes": "a batch nem volt "
+            "lekérdezhető", "batch_hiba": "batch-hiba"}.get(alap, "batch-hiba") + (f" ({ok.split(':', 1)[1]})"
+                                                                                     if ":" in ok else "")
+
+
+def batch_parameterek(kw: dict) -> dict:
+    """A `fordit_keres` kwargjaiból egy batch-kérés `params`-a: a batch-ben tiltott mezők nélkül, minden
+    cache-töréspont 1 órás. A szerveroldali tartalékon kívül más béta nem mehet át (az a nem-béta végponton nem élne):
+    ilyenkor `ValueError` — a hívás sima úton megy."""
+    idegen = set(kw.get("betas") or []) - {FALLBACK_BETA}
+    if idegen:
+        raise ValueError(f"béta a kérésben: {', '.join(sorted(idegen))}")
+    p = {k: copy.deepcopy(v) for k, v in kw.items() if k not in BATCH_TILTOTT}
+    if isinstance(p.get("cache_control"), dict):
+        p["cache_control"] = _cache_jel("1h")
+    if isinstance(p.get("system"), list):
+        for b in p["system"]:
+            if isinstance(b, dict) and b.get("cache_control"):
+                b["cache_control"] = _cache_jel("1h")
+    return p
+
+
+def _batch_ugyfel():
+    """A batch-hívások kliense (a tesztek ezt cserélik egy hamis SDK-kliensre — hálózat nélkül)."""
+    return _ugyfel()
+
+
+async def batch_megszakit(azonositok) -> int:
+    """Gazdátlan batch-ek megszakítása (pl. egy újraindulás előtti futásé): a még el nem indult kérésükért nem fizetünk.
+    Hibát nem dob; a sikeresen megszakítottak száma."""
+    n = 0
+    if not azonositok or not elerheto():
+        return 0
+    try:
+        async with _batch_ugyfel() as client:
+            for bid in azonositok:
+                try:
+                    await client.messages.batches.cancel(bid)
+                    n += 1
+                except Exception as e:  # noqa: BLE001 — már kész / nem létezik: nincs teendő
+                    logger.info("llm_kapu: a(z) %s batch nem szakítható meg (%s)", bid, _hiba(e)["code"])
+    except Exception as e:  # noqa: BLE001
+        logger.warning("llm_kapu: a gazdátlan batch-ek megszakítása nem ment: %s", e)
+    return n
+
+
+class BatchMenet:
+    """Egy éjszakai munka batch-környezete: határidő, ritka lekérdezés, és a jelentés számai.
+
+    `hatarido`: időzónás időpont — utána minden hívás sima úton megy, a futó batch-et megszakítjuk.
+    `lekerdezes_s`: két állapot-lekérdezés között ennyi alvás (a hívó szabja; a Nachtschichtnél 2–5 perc).
+    `nyilvantart(ids)`: a függő batch-azonosítók listája minden változáskor (a hívó a meglévő tárolóba írja, hogy egy
+    újraindulás után a gazdátlan batch-ek megszakíthatók legyenek). `eletjel()`: minden lekérdezéskor (a futás él).
+    `ora` / `alvas`: a tesztek cserélik."""
+
+    def __init__(self, hatarido: datetime, *, lekerdezes_s: float = 180.0, ora=None, alvas=None, nyilvantart=None,
+                 eletjel=None):
+        import asyncio
+        self.hatarido = hatarido
+        self.lekerdezes_s = lekerdezes_s
+        self._ora = ora or (lambda: datetime.now(timezone.utc))
+        self._alvas = alvas or asyncio.sleep
+        self._nyilvantart = nyilvantart
+        self._eletjel = eletjel
+        self.fuggo: set = set()
+        self.batch_hivasok = 0
+        self.sima_hivasok = 0
+        self.okok: dict = {}
+        self.batch_usd = 0.0
+        self.megtakaritas_usd = 0.0
+        self.cache_talalat = 0
+        self.cache_hiany = 0
+        self.leallitva = ""                  # pl. "cache_hiany": a hátralévő hívások sima úton
+
+    def most(self) -> datetime:
+        return self._ora()
+
+    def aktiv(self) -> bool:
+        return not self.leallitva and self.most() < self.hatarido
+
+    def miert_nem(self) -> str:
+        return self.leallitva or "hatarido"
+
+    def cache_meres(self, kw: dict, usage) -> None:
+        """A cache-őr mérése egy batch-eredményen. Csak a folytató kör számít (van már asszisztens-forduló a kérésben,
+        és a kérés cache-töréspontot tesz): ott az előző kör előtagjának cache-ből kellene jönnie."""
+        if not kw.get("cache_control") or not any(m.get("role") == "assistant" for m in kw.get("messages") or []):
+            return
+        if int(getattr(usage, "cache_read_input_tokens", 0) or 0) > 0:
+            self.cache_talalat += 1
+            return
+        self.cache_hiany += 1
+        if (not self.leallitva and self.cache_hiany >= BATCH_CACHE_HIANY_KUSZOB
+                and self.cache_hiany > self.cache_talalat):
+            self.leallitva = "cache_hiany"
+            logger.warning("llm_kapu: CACHE-ŐR — a batch-ben %d folytató kör nem olvasott cache-ből (%d igen); a "
+                           "hátralévő hívások sima úton mennek", self.cache_hiany, self.cache_talalat)
+
+    def tartalek(self, ok: str) -> None:
+        """Egy hívás a batch helyett sima úton ment (teljes áron)."""
+        self.sima_hivasok += 1
+        self.okok[ok] = self.okok.get(ok, 0) + 1
+
+    def siker(self, *, teljes: float, fizetett: float) -> None:
+        self.batch_hivasok += 1
+        self.batch_usd += fizetett
+        self.megtakaritas_usd += max(0.0, teljes - fizetett)
+
+    def statisztika(self) -> dict:
+        return {"batch_hivasok": self.batch_hivasok, "sima_hivasok": self.sima_hivasok, "okok": dict(self.okok),
+                "batch_usd": round(self.batch_usd, 4), "megtakaritas_usd": round(self.megtakaritas_usd, 4),
+                "hatarido": self.hatarido.isoformat(), "cache_talalat": self.cache_talalat,
+                "cache_hiany": self.cache_hiany, "leallitva": self.leallitva}
+
+    def _jegyez(self) -> None:
+        if self._nyilvantart is not None:
+            try:
+                self._nyilvantart(sorted(self.fuggo))
+            except Exception as e:  # noqa: BLE001 — a nyilvántartás hibája ne vigye el a hívást
+                logger.warning("llm_kapu: a batch-nyilvántartás nem írható: %s", e)
+
+    def _el(self) -> None:
+        if self._eletjel is not None:
+            try:
+                self._eletjel()
+            except Exception as e:  # noqa: BLE001
+                logger.warning("llm_kapu: az életjel nem írható: %s", e)
+
+    async def kuld(self, kw: dict, purpose: str = "") -> tuple:
+        """EGY kérés batch-ben. `(message, "")` siker esetén; `(None, ok)`, ha a hívásnak sima úton kell mennie. Nem dob."""
+        import uuid
+        try:
+            params = batch_parameterek(kw)
+        except ValueError as e:
+            logger.info("llm_kapu[%s]: nem batchelhető (%s) — sima úton", purpose or "?", e)
+            return None, "nem_batchelheto"
+        cid = "ns-" + uuid.uuid4().hex[:24]
+        try:
+            async with _batch_ugyfel() as client:
+                return await self._fut(client, params, cid, purpose)
+        except Exception as e:  # noqa: BLE001 — a batch bármely hibája: sima út, kimondva
+            logger.warning("llm_kapu[%s]: batch-hiba: %s", purpose or "?", str(e)[:300])
+            return None, f"batch_hiba:{_hiba(e)['code']}"
+
+    async def _fut(self, client, params: dict, cid: str, purpose: str) -> tuple:
+        try:
+            b = await client.messages.batches.create(requests=[{"custom_id": cid, "params": params}])
+        except Exception as e:  # noqa: BLE001
+            logger.warning("llm_kapu[%s]: a batch beküldése nem ment: %s", purpose or "?", str(e)[:300])
+            return None, f"bekuldes:{_hiba(e)['code']}"
+        self.fuggo.add(b.id)
+        self._jegyez()
+        logger.info("llm_kapu[%s]: batch beküldve (%s, %s), határidő %s", purpose or "?", b.id, params.get("model"),
+                    self.hatarido.isoformat())
+        try:
+            hibak, hataridon = 0, False
+            while b.processing_status != "ended":
+                hatra = (self.hatarido - self.most()).total_seconds()
+                if hatra <= 0:
+                    hataridon = True
+                    b = await self._megszakit(client, b)
+                    if b.processing_status != "ended":
+                        logger.warning("llm_kapu[%s]: a(z) %s batch a határidőig nem készült el — sima úton",
+                                       purpose or "?", b.id)
+                        return None, "hatarido"
+                    break
+                await self._alvas(min(self.lekerdezes_s, hatra))
+                self._el()
+                try:
+                    b = await client.messages.batches.retrieve(b.id)
+                    hibak = 0
+                except Exception as e:  # noqa: BLE001 — átmeneti hiba: a következő körben újra
+                    hibak += 1
+                    logger.warning("llm_kapu[%s]: a(z) %s batch lekérdezése nem ment (%d.): %s", purpose or "?", b.id,
+                                   hibak, str(e)[:200])
+                    if hibak >= BATCH_LEKERDEZES_HIBA_MAX:
+                        await self._megszakit(client, b, varas=False)
+                        return None, f"lekerdezes:{_hiba(e)['code']}"
+            eredmeny = None
+            async for r in await client.messages.batches.results(b.id):
+                if r.custom_id == cid:
+                    eredmeny = r.result
+            if eredmeny is None:
+                return None, "nincs_eredmeny"
+            if eredmeny.type == "succeeded":
+                return eredmeny.message, ""
+            if eredmeny.type == "errored":
+                hiba = getattr(getattr(eredmeny, "error", None), "error", None)
+                return None, f"errored:{getattr(hiba, 'type', None) or '?'}"
+            if hataridon and eredmeny.type == "canceled":
+                return None, "hatarido"
+            return None, str(eredmeny.type)                         # canceled | expired
+        finally:
+            self.fuggo.discard(b.id)
+            self._jegyez()
+
+    async def _megszakit(self, client, b, *, varas: bool = True):
+        """Megszakítás; utána legfeljebb `BATCH_MEGSZAKITAS_VARAS_S`-ig várunk, hátha a már futó kérés eredménye
+        megjön (azt úgyis kifizetnénk — kár lenne sima úton még egyszer)."""
+        try:
+            b = await client.messages.batches.cancel(b.id)
+        except Exception as e:  # noqa: BLE001 — pl. közben elkészült
+            logger.info("llm_kapu: a(z) %s batch megszakítása: %s", b.id, _hiba(e)["code"])
+        vege = self.most().timestamp() + (BATCH_MEGSZAKITAS_VARAS_S if varas else 0.0)
+        while True:
+            try:
+                b = await client.messages.batches.retrieve(b.id)
+            except Exception:  # noqa: BLE001
+                return b
+            if b.processing_status == "ended" or self.most().timestamp() >= vege:
+                return b
+            await self._alvas(min(30.0, max(1.0, vege - self.most().timestamp())))
+
+
+async def chat(payload: dict, *, purpose: str = "", modell: str | None = None, batch: BatchMenet | None = None
                ) -> tuple[dict | None, dict | None, list[str]]:
     """Anthropic chat OpenAI-szerű payloadra. `(data, error, notes)`, mint a `sf_chat`.
 
@@ -812,6 +1099,10 @@ async def chat(payload: dict, *, purpose: str = "", modell: str | None = None
 
     `modell`: KÖTÖTT Claude-modell (a döntés-szimulátor backteszt-módja) — csak ismert árú modell (`ARAK`), szerveroldali
     tartalék nélkül; a válasz `model` mezője a VALÓBAN kiszolgáló modell.
+
+    `batch`: a hívás a Message Batches API-n megy (fél ár), amíg a `BatchMenet` határideje él. Ha a batch nem sikerül
+    (határidő, lejárat, hiba, refusal), UGYANEZ a hívás sima úton megy le — kimondva a `notes`-ban és a menet
+    statisztikájában. A válasz alakja ugyanaz; a `koltes_usd` a valóban fizetett (batch-ben fél) ár.
     """
     notes: list[str] = []
     if not elerheto():
@@ -834,25 +1125,50 @@ async def chat(payload: dict, *, purpose: str = "", modell: str | None = None
     #: a hívás TELJES ára (a csonkolás miatti újrapróbálással együtt). Két helyen megy vissza: a válasz `koltes_usd`-jében
     #: (a Nachtschicht kerete) és a `usage.koltes_usd`-ben (a döntés-szimulátoré); mindkettő a kapu valós könyveléséből számol
     koltes = 0.0
+    batch_ki = batch is None
     while True:
-        try:
-            msg = await _kuld(kw)
-        except Exception as e:  # noqa: BLE001 — minden hiba tipizálva megy vissza, a tartalék a hívóé
-            err = _hiba(e)
-            if visszajatszott and err["code"] == "bad_request":
-                # ÖNJAVÍTÁS: a visszajátszott gondolat-blokkot az API nem fogadta (megváltozott előtag) —
-                # nélküle újra, a szöveg és az eszközhívások maradnak.
-                notes.append(f"a `{cfg['modell']}` nem fogadta a visszajátszott gondolat-blokkot — nélküle újrapróbálva")
-                logger.warning("llm_kapu[%s]: gondolat-visszajátszás elutasítva (%s), nélküle újra",
-                               purpose or "?", err["message"][:200])
-                kw, visszajatszott = fordit_keres(payload, modell=cfg["modell"], effort=cfg["effort"],
-                                                  fallbacks=cfg["fallbacks"], visszajatszas=False)
+        msg, utvonal = None, "sima"
+        if not batch_ki:
+            msg, ok = await batch.kuld(kw, purpose) if batch.aktiv() else (None, batch.miert_nem())
+            if msg is not None:
+                utvonal = "batch"
+            else:
+                batch_ki = True
+                batch.tartalek(ok)
+                notes.append(f"BATCH-TARTALÉK: a(z) `{cfg['modell']}` hívása sima úton (teljes áron) ment — "
+                             f"{batch_ok_szoveg(ok)}")
+                logger.warning("llm_kapu[%s]: batch helyett sima út (%s)", purpose or "?", ok)
+        if msg is None:
+            try:
+                msg = await _kuld(kw)
+            except Exception as e:  # noqa: BLE001 — minden hiba tipizálva megy vissza, a tartalék a hívóé
+                err = _hiba(e)
+                if visszajatszott and err["code"] == "bad_request":
+                    # ÖNJAVÍTÁS: a visszajátszott gondolat-blokkot az API nem fogadta (megváltozott előtag) —
+                    # nélküle újra, a szöveg és az eszközhívások maradnak.
+                    notes.append(f"a `{cfg['modell']}` nem fogadta a visszajátszott gondolat-blokkot — nélküle "
+                                 f"újrapróbálva")
+                    logger.warning("llm_kapu[%s]: gondolat-visszajátszás elutasítva (%s), nélküle újra",
+                                   purpose or "?", err["message"][:200])
+                    kw, visszajatszott = fordit_keres(payload, modell=cfg["modell"], effort=cfg["effort"],
+                                                      fallbacks=cfg["fallbacks"], visszajatszas=False)
+                    continue
+                logger.warning("llm_kapu[%s] %s: %s", purpose or "?", cfg["modell"], err["message"][:300])
+                if koltes:
+                    err["koltes_usd"] = round(koltes, 6)
+                return None, err, notes
+        usd = _konyvel(msg.usage, cfg["modell"], szint, purpose, batch=utvonal == "batch")
+        koltes += usd
+        if utvonal == "batch":
+            batch.siker(teljes=koltes_usd(msg.usage, cfg["modell"]), fizetett=usd)
+            batch.cache_meres(kw, msg.usage)
+            if msg.stop_reason == "refusal" and cfg["fallbacks"]:
+                # a batch-ben nincs szerveroldali refusal-tartalék — sima úton újra, ott a tartalék él
+                batch_ki = True
+                batch.tartalek("refusal")
+                notes.append(f"BATCH-TARTALÉK: a `{msg.model}` a batch-ben elutasította a kérést — sima úton újra, "
+                             f"szerveroldali tartalékkal")
                 continue
-            logger.warning("llm_kapu[%s] %s: %s", purpose or "?", cfg["modell"], err["message"][:300])
-            if koltes:
-                err["koltes_usd"] = round(koltes, 6)
-            return None, err, notes
-        koltes += _konyvel(msg.usage, cfg["modell"], szint, purpose)
         # A `stop_reason`-t a tartalom ELŐTT nézzük: refusalnál a tartalom üres vagy félbemaradt.
         if msg.stop_reason == "refusal":
             kat = getattr(getattr(msg, "stop_details", None), "category", None)

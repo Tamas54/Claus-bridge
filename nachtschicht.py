@@ -34,6 +34,17 @@ becsül: ha a következő hívás már túllépné, megáll, és a jelentés kim
 naponta egyszer indul, háttérfeladatként. A futás napja a `shared_memory`-ben (újraindulás-álló), csak dátum. A munka
 legfeljebb `IDOKERET_S` (25 perc): utána a maradék tétel kimarad, és a jelentés 7:00 előtt megérkezik.
 Kikapcsolás: `NACHTSCHICHT=0`.
+
+BATCH (2026-11-23, a Kommandant jóváhagyásával, „8-as”): `NACHTSCHICHT_BATCH=1` (alap) — a tervező és a munka
+eszközhurkainak MINDEN köre a Message Batches API-n megy (`llm_kapu.BatchMenet`): ugyanaz a modell és kérés, fél áron.
+A batch egylövetű, ezért a hurok a mi kódunkban marad: körönként egy batch, közöttük az eszközök futnak. Mivel egy
+batch percekig-órákig tarthat, a munka korábban indul (`NACHTSCHICHT_BATCH_INDULAS`, alap 02:00), a tételek
+párhuzamosan mennek, és ami a határidőig (`NACHTSCHICHT_BATCH_HATARIDO`, alap 06:00) nem kész, az sima hívással fut le
+— a reggeli jelentés kimondja, hány hívás ment így. Lekérdezés ritkán (`NACHTSCHICHT_BATCH_LEKERDEZES_S`, alap 180 s).
+A kivonatoló olvasó (Haiku, kivonat.py) sima úton marad: fillérekbe kerül, és a hurok minden körét még egy batch-nyi
+várakozással nyújtaná. Újraindulás: a függő batch-ek azonosítója és egy életjel a `shared_memory`-ben (csak azonosító
+és idő); ha a Bridge éjjel újraindul, a gazdátlan batch-eket megszakítjuk, és az éjszaka egyszer elölről indul.
+`NACHTSCHICHT_BATCH=0`: a régi viselkedés (05:50, sima hívások, tételek egymás után).
 """
 from __future__ import annotations
 
@@ -77,6 +88,16 @@ IDOKERET_S = 25 * 60                   # a munka legfeljebb ennyi; utána a mara
 KULCS_FUTAS = "nachtschicht_utolso_futas"
 KULCS_PANASZ = "nachtschicht_panasz_"
 
+# ── BATCH (2026-11-23) ──
+BATCH_INDULAS = (2, 0)                 # Budapest: batch-módban ennyivel korábban indul (a batch percekig-órákig tart)
+BATCH_HATARIDO = (6, 0)                # ami eddig nincs kész a batch-ben, sima hívással fut le (≤ IDOKERET_S, 7 előtt)
+BATCH_LEKERDEZES_S = 180.0             # két állapot-lekérdezés között (a Kommandant: ne pörgessen, 2–5 perc)
+BATCH_LEKERDEZES_HATAR = (30.0, 600.0)
+KULCS_BATCH = "nachtschicht_batchek"   # a függő batch-ek azonosítói (csak azonosító + idő, tartalom soha)
+KULCS_ELETJEL = "nachtschicht_eletjel"  # a futás életjele: {datum, ido, allapot: fut | kesz}
+ELETJEL_RITKITAS_S = 60.0              # az életjel legfeljebb percenként íródik
+UJRA_CSEND_S = 15 * 60                 # ennyi csend után számít megszakadtnak a futás (újraindulás) → egyszer újra
+
 TERV_CEL, MUNKA_CEL = "nachtschicht/terv", "nachtschicht/munka"
 
 try:
@@ -90,6 +111,42 @@ NAPOK = ["hétfő", "kedd", "szerda", "csütörtök", "péntek", "szombat", "vas
 
 def bekapcsolva() -> bool:
     return os.environ.get("NACHTSCHICHT", "1").strip().lower() not in ("0", "ki", "off", "false", "nem")
+
+
+def batch_bekapcsolva() -> bool:
+    """`NACHTSCHICHT_BATCH` — alapból BE (a Kommandant jóváhagyta, 11-23); 0 = a régi, sima út."""
+    return os.environ.get("NACHTSCHICHT_BATCH", "1").strip().lower() not in ("0", "ki", "off", "false", "nem")
+
+
+def _ora_perc(nev: str, alap: tuple) -> tuple:
+    """`HH:MM` a környezetből; hibás érték → az alap (és figyelmeztetés)."""
+    nyers = os.environ.get(nev, "").strip()
+    if not nyers:
+        return alap
+    m = re.fullmatch(r"(\d{1,2}):(\d{2})", nyers)
+    if not m or int(m.group(1)) > 23 or int(m.group(2)) > 59:
+        logger.warning("nachtschicht: a(z) %s nem HH:MM (%r) — az alap %02d:%02d él", nev, nyers, *alap)
+        return alap
+    return int(m.group(1)), int(m.group(2))
+
+
+def batch_lekerdezes_s() -> float:
+    try:
+        v = float(os.environ.get("NACHTSCHICHT_BATCH_LEKERDEZES_S", "") or BATCH_LEKERDEZES_S)
+    except ValueError:
+        v = BATCH_LEKERDEZES_S
+    return min(max(v, BATCH_LEKERDEZES_HATAR[0]), BATCH_LEKERDEZES_HATAR[1])
+
+
+def indulas() -> tuple:
+    """Az indulás (Budapest, óra, perc): batch-módban korábban, hogy a batch-eknek legyen idejük."""
+    return _ora_perc("NACHTSCHICHT_BATCH_INDULAS", BATCH_INDULAS) if batch_bekapcsolva() else INDULAS
+
+
+def batch_hatarido(most: datetime) -> datetime:
+    """A `most` napján (Budapest) a batch-határidő; ha már elmúlt, a futás sima úton megy."""
+    h, m = _ora_perc("NACHTSCHICHT_BATCH_HATARIDO", BATCH_HATARIDO)
+    return most.astimezone(BP).replace(hour=h, minute=m, second=0, microsecond=0)
 
 
 def keret_usd() -> float:
@@ -262,15 +319,24 @@ class Szamla:
     hivasok: int = 0
     notes: list = field(default_factory=list)
     elfogyott: bool = False
+    #: a folyamatban lévő hívások becslése (11-23, batch: a tételek párhuzamosan futnak, a keret közös)
+    foglalt: float = 0.0
 
     async def hiv(self, chat: Callable, payload: dict, purpose: str) -> dict:
-        """EGY kapuhívás a kereten belül. Keret fölött `KeretElfogyott`, kapuhibánál `KapuHiba`."""
+        """EGY kapuhívás a kereten belül. Keret fölött `KeretElfogyott`, kapuhibánál `KapuHiba`.
+
+        A becslés a SIMA árral számol akkor is, ha a hívás batch-ben megy: ha a batch nem készül el, a hívás teljes
+        áron fut le — a keret ezt is fedezze. A tényleges (batch-ben fél) ár a kapu könyveléséből jön."""
         becsles = becsult_koltes(payload, purpose)
-        if self.usd + becsles > self.keret:
+        if self.usd + self.foglalt + becsles > self.keret:
             self.elfogyott = True
             raise KeretElfogyott(f"a következő hívás (~${becsles:.2f}) túllépné az éjszakai keretet "
                                  f"(${self.usd:.2f} / ${self.keret:.2f})")
-        data, err, notes = await chat(payload, purpose=purpose)
+        self.foglalt += becsles
+        try:
+            data, err, notes = await chat(payload, purpose=purpose)
+        finally:
+            self.foglalt -= becsles
         self.usd += _usd(data) + (_usd(err) if err else 0.0)
         self.hivasok += 1
         self.notes.extend(notes or [])
@@ -1055,9 +1121,24 @@ def _a(url: str, szoveg: str) -> str:
     return f'<a href="{html.escape(str(url), quote=True)}">{html.escape(szoveg)}</a>'
 
 
+def batch_tartalek_szoveg(batch: dict) -> str:
+    """Miért ment egy-egy hívás sima úton — a jelentés nyelvén."""
+    import llm_kapu
+    try:
+        hatar = datetime.fromisoformat(batch.get("hatarido") or "").astimezone(BP).strftime("%H:%M")
+    except ValueError:
+        hatar = "?"
+    reszek = []
+    for ok, n in sorted((batch.get("okok") or {}).items(), key=lambda x: -x[1]):
+        szoveg = f"a batch {hatar}-ig nem készült el" if ok == "hatarido" else llm_kapu.batch_ok_szoveg(ok)
+        reszek.append(f"{szoveg}: {n}")
+    return "; ".join(reszek)
+
+
 def jelentes(*, datum: datetime, eredmenyek: list, panaszok: list, szamla: Szamla, proba: bool,
-             megjegyzes: str = "", kimaradt: str = "", hianyok: list | None = None) -> str:
-    """A reggeli Telegram-üzenet (HTML)."""
+             megjegyzes: str = "", kimaradt: str = "", hianyok: list | None = None, batch: dict | None = None,
+             figyelmeztetesek: list | None = None) -> str:
+    """A reggeli Telegram-üzenet (HTML). `batch`: a `BatchMenet` statisztikája — ha egy hívás sima úton ment, kimondja."""
     fej = f"{FEJLEC} · {datum.astimezone(BP):%m-%d} ({NAPOK[datum.astimezone(BP).weekday()]})"
     if proba:
         fej += " · <b>PRÓBAFUTÁS</b>"
@@ -1097,7 +1178,17 @@ def jelentes(*, datum: datetime, eredmenyek: list, panaszok: list, szamla: Szaml
                          f"({html.escape(p['repo'])}): {html.escape(p['kivansag'][:400])}")
     if hianyok:
         sorok.append("\n<i>Nem láttam: " + html.escape("; ".join(hianyok)[:300]) + "</i>")
+    for f in figyelmeztetesek or []:
+        sorok.append(f"\n<i>↻ {html.escape(f)}</i>")
+    if batch and batch.get("sima_hivasok"):
+        sorok.append(f"\n⚠ <i>{batch['sima_hivasok']} hívás nem a batch-ben, hanem sima úton (teljes áron) futott le — "
+                     f"{html.escape(batch_tartalek_szoveg(batch))}.</i>")
     lab = f"\n<i>Költség: ${szamla.usd:.2f} / ${szamla.keret:.2f} · kifelé semmi nem ment"
+    if batch and batch.get("batch_hivasok"):
+        lab += (f" · batch: {batch['batch_hivasok']} hívás fél áron "
+                f"(megtakarítva ${float(batch.get('megtakaritas_usd') or 0):.2f})")
+        if batch.get("cache_hiany"):
+            lab += f" · batch-cache: {batch.get('cache_talalat', 0)} találat / {batch['cache_hiany']} hiány"
     if szamla.elfogyott:
         lab += " · ⚠ az éjszakai keret elfogyott, ezért megálltam"
     sorok.append(lab + "</i>")
@@ -1106,18 +1197,87 @@ def jelentes(*, datum: datetime, eredmenyek: list, panaszok: list, szamla: Szaml
 
 # ══ AZ ÉJSZAKA ═════════════════════════════════════════════════════════════
 
+async def _tetelek_parhuzamosan(tetelek: list, a: Anyag, forras, *, szamla: Szamla, chat: Callable, tools: list,
+                                vege: float) -> list:
+    """BATCH-módban a tételek egyszerre futnak: a körök batch-várakozása átfedi egymást (egymás után a tételenkénti
+    ~10 kör háromszor annyi várakozás lenne). A keret közös (`Szamla.foglalt`); a hibát tételenként mondjuk ki."""
+    async def _egy(t):
+        maradt = vege - time.monotonic()
+        if maradt < 60:
+            return {**t, "allapot": "kimaradt", "hiba": "elfogyott az időkeret (a jelentésnek 7 előtt meg kell érkeznie)"}
+        try:
+            return await asyncio.wait_for(dolgozik(t, a, forras, szamla=szamla, chat=chat, tools=tools), timeout=maradt)
+        except asyncio.TimeoutError:
+            return {**t, "allapot": "nem_sikerult", "hiba": "időtúllépés"}
+        except KeretElfogyott:
+            return {**t, "allapot": "kimaradt", "hiba": "elfogyott az éjszakai keret"}
+        except KapuHiba as e:
+            return {**t, "allapot": "nem_sikerult", "hiba": f"kapuhiba: {e.err.get('code')}"}
+    return list(await asyncio.gather(*(_egy(t) for t in tetelek)))
+
+
 async def ejszaka(*, forras, get_db, memoria_ir, telegram: Callable | None = None,
                   faber_kerelem: Callable | None = None, elozmeny: Callable | None = None, chat: Callable | None = None,
                   proba: bool = False, max_tetel: int = MAX_TETEL, most: datetime | None = None,
-                  idokeret_s: float = IDOKERET_S) -> dict:
-    """Egy éjszaka. A `chat` alapból `llm_kapu.chat` — a SiliconFlow-tölcsért (`sf_chat`) SOHA nem hívja."""
+                  idokeret_s: float = IDOKERET_S, batch: bool | None = None, menet=None) -> dict:
+    """Egy éjszaka. A `chat` alapból `llm_kapu.chat` — a SiliconFlow-tölcsért (`sf_chat`) SOHA nem hívja.
+
+    `batch`: None = a `NACHTSCHICHT_BATCH` dönt, de csak az alapértelmezett kapunál (saját `chat` mellett sima út).
+    `menet`: kész `llm_kapu.BatchMenet` (a tesztek adják, hamis órával). Batch-módban a hívások a Message Batches
+    API-n mennek a határidőig (`batch_hatarido`), utána sima úton; a jelentés kimondja, mennyi ment így."""
     import llm_kapu
-    chat = chat or llm_kapu.chat
     t0 = time.monotonic()
     most = most or datetime.now(timezone.utc)
+    datum = most.astimezone(BP).date().isoformat()
     szamla = Szamla(keret=keret_usd())
     eredmenyek, panaszok, megjegyzes, kimaradt = [], [], "", ""
+    figyelmeztetesek: list = []
     a = Anyag(most=most)
+    alap_chat = chat or llm_kapu.chat
+    if menet is None and (batch if batch is not None else (chat is None and batch_bekapcsolva())):
+        hatarido = batch_hatarido(most)
+        if most < hatarido:
+            menet = llm_kapu.BatchMenet(hatarido, lekerdezes_s=batch_lekerdezes_s())
+        elif not proba:
+            figyelmeztetesek.append(f"A batch-ablak ({hatarido:%H:%M}) indulásomkor már lejárt, ezért minden hívás "
+                                    f"sima úton (teljes áron) ment.")
+    utolso_jel = [0.0]
+
+    def _eletjel(allapot: str = "fut", kenyszer: bool = False) -> None:
+        """Batch-módban: a futás él (az újraindulás-figyelő ebből látja). Csak dátum, idő, állapot."""
+        if menet is None or proba:
+            return
+        if not kenyszer and time.monotonic() - utolso_jel[0] < ELETJEL_RITKITAS_S:
+            return
+        utolso_jel[0] = time.monotonic()
+        _sm_ir(get_db, memoria_ir, KULCS_ELETJEL, {"datum": datum, "ido": time.time(), "allapot": allapot})
+
+    if menet is not None:
+        if not proba:
+            # a függő batch-ek azonosítója és az életjel a meglévő `shared_memory`-be (csak azonosító és idő): egy
+            # újraindulás után a gazdátlan batch-ek megszakíthatók, és a megszakadt futás felismerhető
+            if menet._nyilvantart is None:
+                menet._nyilvantart = lambda ids: _sm_ir(get_db, memoria_ir, KULCS_BATCH,
+                                                        {"datum": datum, "ids": ids, "ido": time.time()})
+            if menet._eletjel is None:
+                menet._eletjel = _eletjel
+
+        async def chat(payload, *, purpose=""):
+            _eletjel()
+            return await alap_chat(payload, purpose=purpose, batch=menet)
+    else:
+        chat = alap_chat
+    if menet is not None and not proba:
+        _eletjel(kenyszer=True)
+        regi = [i for i in (_sm_olvas(get_db, KULCS_BATCH) or {}).get("ids") or [] if isinstance(i, str)]
+        if regi:
+            n = await llm_kapu.batch_megszakit(regi)
+            logger.warning("nachtschicht: %d gazdátlan batch (egy megszakadt futásé) — %d megszakítva", len(regi), n)
+            _sm_ir(get_db, memoria_ir, KULCS_BATCH, {"datum": datum, "ids": [], "ido": time.time()})
+        futas = _sm_olvas(get_db, KULCS_FUTAS) or {}
+        if futas.get("datum") == datum and futas.get("ujra"):
+            figyelmeztetesek.append("Éjjel a Bridge újraindult, ezért elölről kezdtem"
+                                    + (" (a félbemaradt batch-eket megszakítottam)." if regi else "."))
     if not llm_kapu.elerheto() or llm_kapu.keret_kimerult():
         kimaradt = ("Ma éjjel kimaradtam: az Anthropic-kapu nem elérhető ("
                     + ("nincs kulcs" if not llm_kapu.elerheto() else "a havi keret elfogyott")
@@ -1132,6 +1292,13 @@ async def ejszaka(*, forras, get_db, memoria_ir, telegram: Callable | None = Non
                 panaszok = panaszok_kezel(panasz_terv, a, get_db=get_db, memoria_ir=memoria_ir,
                                           faber_kerelem=faber_kerelem, proba=proba, most=time.time())
                 tools = await eszkoz_definiciok(forras) if tetelek else []
+                if menet is not None and tetelek:
+                    # a határidőig batch, utána a maradék sima úton, legfeljebb `idokeret_s` (a jelentés 7 előtt)
+                    vege = (time.monotonic() + max(0.0, (menet.hatarido - menet.most()).total_seconds())
+                            + idokeret_s)
+                    eredmenyek += await _tetelek_parhuzamosan(tetelek, a, forras, szamla=szamla, chat=chat,
+                                                              tools=tools, vege=vege)
+                    tetelek = []
                 for i, t in enumerate(tetelek):
                     maradt = idokeret_s - (time.monotonic() - t0)
                     if maradt < 60:
@@ -1160,7 +1327,7 @@ async def ejszaka(*, forras, get_db, memoria_ir, telegram: Callable | None = Non
         except Exception as e:  # noqa: BLE001 — az éjszaka hibája is jelentés, nem csend
             logger.error("nachtschicht: váratlan hiba: %s", e, exc_info=True)
             kimaradt = f"Ma éjjel elakadtam ({type(e).__name__}); a részletek a Bridge naplójában."
-    datum = most.astimezone(BP).date().isoformat()
+    bstat = menet.statisztika() if menet is not None else None
     for e in eredmenyek:
         linkek = [d.get("edit_url") for d in e.get("dokumentumok") or [] if d.get("edit_url")] + \
                  [t.get("link") for t in e.get("tervezetek") or [] if t.get("link")]
@@ -1171,9 +1338,10 @@ async def ejszaka(*, forras, get_db, memoria_ir, telegram: Callable | None = Non
             "draft_ids": [t.get("draft_id") for t in e.get("tervezetek") or []],
             "eszkozok": e.get("eszkozok"), "elutasitva": e.get("elutasitva"), "hiba": e.get("hiba")})
     szoveg = jelentes(datum=most, eredmenyek=eredmenyek, panaszok=panaszok, szamla=szamla, proba=proba,
-                      megjegyzes=megjegyzes, kimaradt=kimaradt, hianyok=a.hianyok)
+                      megjegyzes=megjegyzes, kimaradt=kimaradt, hianyok=a.hianyok, batch=bstat,
+                      figyelmeztetesek=figyelmeztetesek)
     naplo(get_db, f"nachtschicht:jelentes · {datum}", {
-        "datum": datum, "proba": proba, "koltes_usd": round(szamla.usd, 4), "keret_usd": szamla.keret,
+        "datum": datum, "proba": proba, "koltes_usd": round(szamla.usd, 4), "keret_usd": szamla.keret, "batch": bstat,
         "hivasok": szamla.hivasok, "keret_elfogyott": szamla.elfogyott, "jelek": len(a.eros()),
         "tetelek": len(eredmenyek), "kesz": sum(1 for e in eredmenyek if e.get("allapot") == "kesz"),
         "panaszok": [{k: p.get(k) for k in ("kulcs", "repo", "allapot")} for p in panaszok],
@@ -1186,12 +1354,14 @@ async def ejszaka(*, forras, get_db, memoria_ir, telegram: Callable | None = Non
                 elozmeny(re.sub(r"<[^>]+>", "", szoveg))
             except Exception as e:  # noqa: BLE001
                 logger.warning("nachtschicht: a jelentés nem került az előzménybe: %s", e)
-    logger.info("nachtschicht %s: %d tétel (%d kész), %d panasz, $%.3f%s", datum, len(eredmenyek),
+    _eletjel("kesz", kenyszer=True)
+    logger.info("nachtschicht %s: %d tétel (%d kész), %d panasz, $%.3f%s%s", datum, len(eredmenyek),
                 sum(1 for e in eredmenyek if e.get("allapot") == "kesz"), len(panaszok), szamla.usd,
-                " — PRÓBAFUTÁS" if proba else "")
+                f" — batch: {bstat['batch_hivasok']} hívás fél áron, {bstat['sima_hivasok']} sima úton"
+                if bstat else "", " — PRÓBAFUTÁS" if proba else "")
     return {"jelentes": szoveg, "eredmenyek": eredmenyek, "panaszok": panaszok, "koltes_usd": szamla.usd,
             "hivasok": szamla.hivasok, "kimaradt": kimaradt, "jelek": [j.__dict__ for j in a.jelek],
-            "megjegyzes": megjegyzes}
+            "megjegyzes": megjegyzes, "batch": bstat}
 
 
 # ══ ÜTEMEZÉS ═══════════════════════════════════════════════════════════════
@@ -1200,26 +1370,45 @@ _FUTO: set = set()
 
 
 def esedekes(most_bp: datetime) -> bool:
-    return INDULAS <= (most_bp.hour, most_bp.minute) < ABLAK_VEGE
+    return indulas() <= (most_bp.hour, most_bp.minute) < ABLAK_VEGE
+
+
+def _megszakadt(get_db, futas: dict, nap: str) -> bool:
+    """BATCH-módban az éjszaka órákig fut: ha közben a Bridge újraindul (deploy, összeomlás), a futás elvész, és reggel
+    nincs jelentés. Megszakadtnak akkor számít, ha ma indult, ebben a folyamatban nem fut, nincs kész, még nem
+    indult újra, és `UJRA_CSEND_S` óta nem adott életjelet (így egy deploy rövid átfedése nem indít második futást)."""
+    if _FUTO or futas.get("ujra") or not batch_bekapcsolva():
+        return False
+    jel = _sm_olvas(get_db, KULCS_ELETJEL) or {}
+    if jel.get("datum") == nap and jel.get("allapot") == "kesz":
+        return False
+    utolso = max(float(futas.get("ido") or 0), float(jel.get("ido") or 0) if jel.get("datum") == nap else 0.0)
+    return time.time() - utolso >= UJRA_CSEND_S
 
 
 def cron_lepes(most_bp: datetime, *, get_db, memoria_ir, futtat: Callable) -> bool:
-    """A cron-szál percenkénti hívása: 05:50–06:30 között (Budapest) naponta EGYSZER elindítja az éjszakát
-    háttérfeladatként (a cron-szál közben fut tovább). A futás napja a shared_memory-ben: újraindulás után sem ismétel."""
+    """A cron-szál percenkénti hívása: az ablakban (Budapest; sima úton 05:50–06:30, batch-módban 02:00–06:30) naponta
+    EGYSZER elindítja az éjszakát háttérfeladatként (a cron-szál közben fut tovább). A futás napja a shared_memory-ben:
+    újraindulás után sem ismétel — kivéve, ha a batch-módú futás megszakadt (`_megszakadt`): akkor egyszer újra."""
     try:
         if not bekapcsolva() or not esedekes(most_bp):
             return False
         nap = most_bp.date().isoformat()
-        if (_sm_olvas(get_db, KULCS_FUTAS) or {}).get("datum") == nap:
-            return False
-        _sm_ir(get_db, memoria_ir, KULCS_FUTAS, {"datum": nap, "ido": time.time()})
+        futas = _sm_olvas(get_db, KULCS_FUTAS) or {}
+        ujra = False
+        if futas.get("datum") == nap:
+            if not _megszakadt(get_db, futas, nap):
+                return False
+            ujra = True
+            logger.warning("nachtschicht: a mai futás megszakadt (a Bridge újraindult?) — egyszer újrakezdem")
+        _sm_ir(get_db, memoria_ir, KULCS_FUTAS, {"datum": nap, "ido": time.time(), **({"ujra": True} if ujra else {})})
         if (_sm_olvas(get_db, KULCS_FUTAS) or {}).get("datum") != nap:
             logger.error("nachtschicht: a futás napja nem írható, ezért ma nem indulok (különben percenként indulnék)")
             return False
         feladat = asyncio.get_running_loop().create_task(futtat())
         _FUTO.add(feladat)
         feladat.add_done_callback(_FUTO.discard)
-        logger.info("nachtschicht: indul (%s)", nap)
+        logger.info("nachtschicht: indul (%s%s)", nap, ", újrakezdés" if ujra else "")
         return True
     except Exception as e:  # noqa: BLE001 — az ütemező hibája ne állítsa meg a cront
         logger.error("nachtschicht: ütemezési hiba: %s", e)

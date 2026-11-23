@@ -300,3 +300,111 @@ class FakeApp:
 @pytest.fixture
 def fake_app():
     return FakeApp()
+
+
+# --- A Message Batches API hamis kliense (2026-11-23, Nachtschicht-batch) -----
+# Hálózat nélkül: az `llm_kapu._batch_ugyfel` helyére. A beküldött batch-ek sorsát a teszt adja meg sorban
+# (`sdk.sorsok`), a hamis óra (`HamisOra`) az alvással lép előre — így a határidő és a ritka lekérdezés is mérhető.
+class HamisOra:
+    """`BatchMenet(ora=…, alvas=…)`: a `most` csak az alvással halad; az alvások hossza feljegyezve."""
+
+    def __init__(self, most):
+        self.most = most
+        self.alvasok = []
+
+    def __call__(self):
+        return self.most
+
+    async def alvas(self, s):
+        from datetime import timedelta
+        self.alvasok.append(s)
+        self.most = self.most + timedelta(seconds=s)
+
+
+class HamisBatchSDK:
+    """A `client.messages.batches` hamisa. Sorsok (sorban, beküldésenként):
+    ("kesz", message, n) — n lekérdezés után kész, sikeres · ("soha",) — sosem végez (megszakításra `canceled`) ·
+    ("hiba", "<típus>") — `errored` · ("lejart",) — `expired` · ("bekuldes_hiba", kivétel) — a create dob."""
+
+    def __init__(self):
+        from types import SimpleNamespace
+        self.sorsok = []
+        self.bekuldve = []
+        self.lekerdezesek = 0
+        self.megszakitva = []
+        self._b = {}
+        self.messages = SimpleNamespace(batches=self)
+
+    def __call__(self):
+        return self
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, *a):
+        return False
+
+    def _allapot(self, bid):
+        from types import SimpleNamespace
+        return SimpleNamespace(id=bid, processing_status=self._b[bid]["status"])
+
+    async def create(self, *, requests):
+        import json as _json
+        sors = self.sorsok.pop(0)
+        if sors[0] == "bekuldes_hiba":
+            raise sors[1]
+        assert len(requests) == 1
+        self.bekuldve.append(_json.loads(_json.dumps(requests[0]["params"], default=str)))
+        bid = f"msgbatch_{len(self.bekuldve)}"
+        self._b[bid] = {"sors": sors, "cid": requests[0]["custom_id"], "status": "in_progress", "n": 0}
+        return self._allapot(bid)
+
+    async def retrieve(self, bid):
+        self.lekerdezesek += 1
+        b = self._b[bid]
+        b["n"] += 1
+        s = b["sors"]
+        if b["status"] == "canceling" or (s[0] == "kesz" and b["n"] >= s[2]) or s[0] in ("hiba", "lejart"):
+            b["status"] = "ended"
+        return self._allapot(bid)
+
+    async def cancel(self, bid):
+        self.megszakitva.append(bid)
+        if bid in self._b and self._b[bid]["status"] != "ended":
+            self._b[bid]["status"] = "canceling"
+            return self._allapot(bid)
+        raise RuntimeError("a batch már nem szakítható meg")
+
+    async def results(self, bid):
+        from types import SimpleNamespace
+        b = self._b[bid]
+        s = b["sors"]
+        if s[0] == "kesz" and b["n"] >= s[2]:
+            r = SimpleNamespace(type="succeeded", message=s[1])
+        elif s[0] == "hiba":
+            r = SimpleNamespace(type="errored", error=SimpleNamespace(error=SimpleNamespace(type=s[1])))
+        elif s[0] == "lejart":
+            r = SimpleNamespace(type="expired")
+        else:
+            r = SimpleNamespace(type="canceled")
+        elemek = [SimpleNamespace(custom_id="masik", result=SimpleNamespace(type="canceled")),
+                  SimpleNamespace(custom_id=b["cid"], result=r)]
+
+        async def _gen():
+            for e in elemek:
+                yield e
+        return _gen()
+
+
+@pytest.fixture
+def hamis_batch_sdk(monkeypatch):
+    import llm_kapu
+    sdk = HamisBatchSDK()
+    monkeypatch.setattr(llm_kapu, "_batch_ugyfel", sdk)
+    return sdk
+
+
+@pytest.fixture
+def hamis_ora():
+    """Gyár: `hamis_ora(datetime)` → `HamisOra`."""
+    return HamisOra

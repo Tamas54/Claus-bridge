@@ -18,6 +18,7 @@ import asyncio
 import inspect
 import json
 import sqlite3
+import time
 from datetime import datetime, timedelta, timezone
 
 import pytest
@@ -149,7 +150,9 @@ class Kapu:
     def __init__(self, valaszok):
         self.valaszok, self.hivasok = list(valaszok), []
 
-    async def __call__(self, payload, *, purpose=""):
+    async def __call__(self, payload, *, purpose="", batch=None):
+        # `batch`: a valódi `llm_kapu.chat` batch-menete (11-23) — a hamis kapu csak feljegyzi
+        self.batch = batch
         self.hivasok.append((purpose, json.loads(json.dumps(payload, default=str))))
         v = self.valaszok.pop(0)
         if isinstance(v, dict) and "code" in v:
@@ -423,6 +426,7 @@ def _bp(h, m, nap=23):
 
 def test_utemezes_naponta_egyszer_az_ablakban(get_db, monkeypatch):
     monkeypatch.delenv("NACHTSCHICHT", raising=False)
+    monkeypatch.setenv("NACHTSCHICHT_BATCH", "0")             # a régi (sima) út: 05:50-kor indul
     indult = []
 
     async def _futtat():
@@ -751,3 +755,215 @@ def test_a_feltolto_link_a_hibauzenetbe_sem_kerul(monkeypatch):
     with pytest.raises(RuntimeError) as e:
         _run(N.BridgeForras(None, None).feltolt("https://studio/upload-link/TITKOS-EGYSZERI", b"# x"))
     assert "TITKOS" not in str(e.value) and e.value.__cause__ is None
+
+
+# ── 8. BATCH (2026-11-23): Message Batches API — fél ár, 02:00-s indulás, 06:00-s határidő, kimondott tartalék ───
+
+from anthropic.types import Message  # noqa: E402
+
+MOST_EJ = datetime(2026, 11, 23, 1, 0, tzinfo=timezone.utc)        # 02:00 Budapest
+HATARIDO_EJ = datetime(2026, 11, 23, 5, 0, tzinfo=timezone.utc)    # 06:00 Budapest
+
+
+def _bmsg(content, stop="end_turn", model="claude-sonnet-5-5"):
+    return Message.model_validate({
+        "id": "msg_b", "type": "message", "role": "assistant", "model": model, "content": content,
+        "stop_reason": stop, "stop_sequence": None,
+        "usage": {"input_tokens": 20_000, "output_tokens": 3000, "cache_read_input_tokens": 0,
+                  "cache_creation_input_tokens": 0}})
+
+
+def _sm(get_db, kulcs):
+    c = get_db()
+    r = c.execute("SELECT value FROM shared_memory WHERE key = ?", (kulcs,)).fetchone()
+    c.close()
+    return json.loads(r[0]) if r else None
+
+
+def test_batch_kapcsolo_alapbol_be_es_ki_a_regi_ut(get_db, kulcs, monkeypatch):
+    """`NACHTSCHICHT_BATCH` alapból BE: a kapu `batch=`-csel hívódik, és 02:00-kor indul; 0-val a régi út: sima hívás,
+    05:50-es indulás."""
+    hivasok = []
+
+    async def _kapu(payload, *, purpose="", batch=None):
+        hivasok.append(batch)
+        return (_valasz(json.dumps(TERV)) if purpose == N.TERV_CEL else _munka()[len(hivasok) % 2]), None, []
+    monkeypatch.setattr(llm_kapu, "chat", _kapu)
+    monkeypatch.delenv("NACHTSCHICHT_BATCH", raising=False)
+    assert N.batch_bekapcsolva() and N.indulas() == (2, 0)
+    assert N.esedekes(_bp(2, 0)) and not N.esedekes(_bp(1, 59)) and N.esedekes(_bp(5, 50))
+    _run(N.ejszaka(forras=Forras(levelek=[HIVATALOS]), get_db=get_db, memoria_ir=memoria_ir, most=MOST_EJ,
+                   proba=True))
+    assert hivasok and all(isinstance(b, llm_kapu.BatchMenet) for b in hivasok)
+    assert hivasok[0].hatarido == HATARIDO_EJ
+
+    hivasok.clear()
+    monkeypatch.setenv("NACHTSCHICHT_BATCH", "0")
+    assert N.indulas() == N.INDULAS and not N.esedekes(_bp(2, 0)) and N.esedekes(_bp(5, 50))
+    _run(N.ejszaka(forras=Forras(levelek=[HIVATALOS]), get_db=get_db, memoria_ir=memoria_ir, most=MOST_EJ,
+                   proba=True))
+    assert hivasok and all(b is None for b in hivasok)
+
+
+def test_teljes_ejszaka_batchben_a_hatarido_utani_sima_ut_a_jelentesben(get_db, kulcs, monkeypatch,
+                                                                       hamis_batch_sdk, hamis_ora):
+    """A valódi kapu, hamis SDK-val: a terv és a munka első köre batch-ben (fél áron), a második kör a batch-ben
+    06:00-ig nem végez → sima úton fut le; a reggeli jelentés mindkettőt kimondja."""
+    terv = _bmsg([{"type": "text", "text": json.dumps(TERV)}], model="claude-opus-5-5")
+    kor1 = _bmsg([{"type": "tool_use", "id": "toolu_d1", "name": "studio_dokumentum",
+                   "input": {"cim": "Háttér", "markdown": "# Háttér\n\nszöveg"}}], stop="tool_use")
+    hamis_batch_sdk.sorsok = [("kesz", terv, 1), ("kesz", kor1, 2), ("soha",)]
+    sima = []
+
+    async def _kuld(kw):
+        sima.append(kw)
+        return _bmsg([{"type": "text", "text": json.dumps({"allapot": "kesz", "osszegzes": "Elkészült."})}])
+    monkeypatch.setattr(llm_kapu, "_kuld", _kuld)
+    ora = hamis_ora(MOST_EJ)
+    menet = llm_kapu.BatchMenet(HATARIDO_EJ, lekerdezes_s=180.0, ora=ora, alvas=ora.alvas)
+    tg = []
+
+    async def _tg(s):
+        tg.append(s)
+    r = _run(N.ejszaka(forras=Forras(levelek=[HIVATALOS]), get_db=get_db, memoria_ir=memoria_ir, telegram=_tg,
+                       most=MOST_EJ, menet=menet))
+    assert [m["model"] for m in hamis_batch_sdk.bekuldve] == ["claude-opus-5-5", "claude-sonnet-5-5",
+                                                              "claude-sonnet-5-5"]
+    assert len(sima) == 1 and sima[0]["fallbacks"] == "default"      # a sima úton a szerveroldali tartalék él
+    assert [e["allapot"] for e in r["eredmenyek"]] == ["kesz"]
+    assert r["batch"]["batch_hivasok"] == 2 and r["batch"]["sima_hivasok"] == 1
+    assert r["batch"]["okok"] == {"hatarido": 1}
+    assert max(ora.alvasok) <= 180.0                                # ritka lekérdezés, nem pörög
+    j = tg[0]
+    assert "batch: 2 hívás fél áron" in j
+    assert "1 hívás nem a batch-ben, hanem sima úton (teljes áron) futott le" in j and "06:00-ig" in j
+    # a könyvelt költség: két batch-hívás fél áron + egy sima teljes áron (Opus 20k/3k, Sonnet 20k/3k ×2)
+    opus = (20_000 * 4.0 + 3000 * 20.0) / 1e6
+    sonnet = (20_000 * 2.0 + 3000 * 10.0) / 1e6
+    assert r["koltes_usd"] == pytest.approx(opus / 2 + sonnet / 2 + sonnet)
+    assert r["batch"]["megtakaritas_usd"] == pytest.approx(round(opus / 2 + sonnet / 2, 4))
+    # a nyilvántartás a végén üres, az életjel „kész” — és a shared_memoryba csak azonosító / idő került
+    assert _sm(get_db, N.KULCS_BATCH)["ids"] == [] and _sm(get_db, N.KULCS_ELETJEL)["allapot"] == "kesz"
+    c = get_db()
+    naplo_sor = json.loads(c.execute("SELECT message FROM messages WHERE subject LIKE 'nachtschicht:jelentes%'")
+                           .fetchone()[0])
+    c.close()
+    assert naplo_sor["batch"]["sima_hivasok"] == 1
+
+
+def test_batch_modban_a_tetelek_parhuzamosan_futnak(monkeypatch):
+    """A tételek körei batch-ben percekig várnak: egymás után háromszoros lenne a várakozás."""
+    async def _m():
+        indult, mind = [], asyncio.Event()
+
+        async def _dolgozik(t, a, forras, *, szamla, chat, tools):
+            indult.append(t["jel_id"])
+            if len(indult) == 2:
+                mind.set()
+            await asyncio.wait_for(mind.wait(), 2)                  # egymás után futva ez sosem teljesülne
+            return {**t, "allapot": "kesz"}
+        monkeypatch.setattr(N, "dolgozik", _dolgozik)
+        import time as _t
+        return await N._tetelek_parhuzamosan([{"jel_id": "L:1"}, {"jel_id": "L:2"}], N.Anyag(most=MOST), None,
+                                             szamla=N.Szamla(keret=1.0), chat=None, tools=[],
+                                             vege=_t.monotonic() + 600)
+    assert [e["allapot"] for e in _run(_m())] == ["kesz", "kesz"]
+
+
+def test_parhuzamos_hivasok_kozos_kerete():
+    """A párhuzamos tételek közös keretből élnek: a folyamatban lévő hívás becslése is foglal."""
+    payload = {"messages": [{"role": "user", "content": "x" * 3000}]}
+    b = N.becsult_koltes(payload, N.MUNKA_CEL)
+    sz = N.Szamla(keret=b * 1.5)
+
+    async def _lassu(p, *, purpose=""):
+        await asyncio.sleep(0.01)
+        return _valasz("ok", usd=0.0), None, []
+
+    async def _m():
+        return await asyncio.gather(sz.hiv(_lassu, payload, N.MUNKA_CEL), sz.hiv(_lassu, payload, N.MUNKA_CEL),
+                                    return_exceptions=True)
+    r = _run(_m())
+    assert isinstance(r[1], N.KeretElfogyott) and not isinstance(r[0], Exception) and sz.foglalt == 0
+
+
+def test_utemezes_batch_modban_es_a_megszakadt_futas_egyszer_ujraindul(get_db, monkeypatch):
+    """Batch-módban 02:00-kor indul. Ha a Bridge éjjel újraindul, és a futás 15 perce nem adott életjelet, EGYSZER
+    elölről kezdi; ha él vagy kész, nem."""
+    monkeypatch.delenv("NACHTSCHICHT", raising=False)
+    monkeypatch.delenv("NACHTSCHICHT_BATCH", raising=False)
+    indult = []
+
+    async def _futtat():
+        indult.append(1)
+
+    def _regi(kulcs, ertek):
+        N._sm_ir(get_db, memoria_ir, kulcs, ertek)
+
+    async def _menet():
+        ki = [N.cron_lepes(_bp(1, 59), get_db=get_db, memoria_ir=memoria_ir, futtat=_futtat),
+              N.cron_lepes(_bp(2, 0), get_db=get_db, memoria_ir=memoria_ir, futtat=_futtat)]
+        await asyncio.sleep(0)
+        N._FUTO.clear()                                              # „újraindulás”
+        _regi(N.KULCS_ELETJEL, {"datum": "2026-11-23", "ido": time.time() - 60, "allapot": "fut"})
+        ki.append(N.cron_lepes(_bp(3, 0), get_db=get_db, memoria_ir=memoria_ir, futtat=_futtat))   # él: nem
+        _regi(N.KULCS_FUTAS, {"datum": "2026-11-23", "ido": time.time() - 20 * 60})
+        _regi(N.KULCS_ELETJEL, {"datum": "2026-11-23", "ido": time.time() - 16 * 60, "allapot": "fut"})
+        ki.append(N.cron_lepes(_bp(3, 30), get_db=get_db, memoria_ir=memoria_ir, futtat=_futtat))  # halott: újra
+        await asyncio.sleep(0)
+        N._FUTO.clear()
+        _regi(N.KULCS_ELETJEL, {"datum": "2026-11-23", "ido": time.time() - 30 * 60, "allapot": "fut"})
+        ki.append(N.cron_lepes(_bp(4, 30), get_db=get_db, memoria_ir=memoria_ir, futtat=_futtat))  # csak egyszer
+        return ki
+    assert _run(_menet()) == [False, True, False, True, False]
+    assert len(indult) == 2 and _sm(get_db, N.KULCS_FUTAS)["ujra"] is True
+
+
+def test_kesz_futas_utan_nincs_ujrainditas(get_db, monkeypatch):
+    monkeypatch.delenv("NACHTSCHICHT_BATCH", raising=False)
+    N._FUTO.clear()
+    N._sm_ir(get_db, memoria_ir, N.KULCS_FUTAS, {"datum": "2026-11-23", "ido": time.time() - 3600})
+    N._sm_ir(get_db, memoria_ir, N.KULCS_ELETJEL, {"datum": "2026-11-23", "ido": time.time() - 3600,
+                                                   "allapot": "kesz"})
+
+    async def _futtat():
+        pass
+
+    async def _m():
+        return N.cron_lepes(_bp(5, 0), get_db=get_db, memoria_ir=memoria_ir, futtat=_futtat)
+    assert _run(_m()) is False
+
+
+def test_ujrakezdeskor_a_gazdatlan_batchek_megszakitva_es_a_jelentes_kimondja(get_db, kulcs, hamis_batch_sdk,
+                                                                              hamis_ora):
+    N._sm_ir(get_db, memoria_ir, N.KULCS_BATCH, {"datum": "2026-11-23", "ids": ["msgbatch_regi"], "ido": 1})
+    N._sm_ir(get_db, memoria_ir, N.KULCS_FUTAS, {"datum": "2026-11-23", "ido": time.time(), "ujra": True})
+    ora = hamis_ora(MOST_EJ)
+    menet = llm_kapu.BatchMenet(HATARIDO_EJ, ora=ora, alvas=ora.alvas)
+    tg = []
+
+    async def _tg(s):
+        tg.append(s)
+    _run(N.ejszaka(forras=Forras(), get_db=get_db, memoria_ir=memoria_ir, telegram=_tg, most=MOST_EJ, menet=menet))
+    assert hamis_batch_sdk.megszakitva == ["msgbatch_regi"] and _sm(get_db, N.KULCS_BATCH)["ids"] == []
+    assert "újraindult" in tg[0] and N.URES_JELENTES in tg[0]
+
+
+def test_lejart_batch_ablak_utan_sima_ut_kimondva(get_db, kulcs, monkeypatch):
+    """Ha az éjszaka a határidő után indul (pl. újraindulás 06:10-kor), batch nincs, és a jelentés kimondja."""
+    monkeypatch.delenv("NACHTSCHICHT_BATCH", raising=False)
+    hivasok = []
+
+    async def _kapu(payload, *, purpose="", batch=None):
+        hivasok.append(batch)
+        return (_valasz(json.dumps(TERV)) if purpose == N.TERV_CEL else _munka()[(len(hivasok) % 2)]), None, []
+    monkeypatch.setattr(llm_kapu, "chat", _kapu)
+    tg = []
+
+    async def _tg(s):
+        tg.append(s)
+    kesobb = datetime(2026, 11, 23, 5, 10, tzinfo=timezone.utc)      # 06:10 Budapest
+    _run(N.ejszaka(forras=Forras(levelek=[HIVATALOS]), get_db=get_db, memoria_ir=memoria_ir, telegram=_tg,
+                   most=kesobb))
+    assert hivasok and all(b is None for b in hivasok)
+    assert "06:00" in tg[0] and "sima úton" in tg[0]

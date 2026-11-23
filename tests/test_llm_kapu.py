@@ -574,3 +574,188 @@ def test_feldwebel_fejlec_a_valaszolo_modellt_mondja():
     assert modell_rovid("claude-opus-5-5") == "Opus 5.5"
     assert modell_rovid("deepseek-ai/DeepSeek-V4-Pro") == "DeepSeek-V4-Pro"
     assert modell_rovid("") == ""
+
+
+# ── BATCH (2026-11-23): Message Batches API a Nachtschichtnek — fél ár, határidő, kimondott sima tartalék ───────
+#
+# A hamis SDK-kliens (`hamis_batch_sdk`) és a hamis óra (`hamis_ora`) a conftest.py-ban: hálózat nélkül, és az alvás
+# a hamis órát lépteti — így mérhető, hogy a lekérdezés ritka (nem pörög), és hogy a határidő után a hívás sima úton
+# megy le.
+from datetime import datetime as _dt, timedelta as _td, timezone as _tz
+
+from anthropic.types import Message
+
+EJ = _dt(2026, 11, 24, 1, 0, tzinfo=_tz.utc)            # 02:00 Budapest
+HATARIDO = _dt(2026, 11, 24, 5, 0, tzinfo=_tz.utc)      # 06:00 Budapest
+ESZKOZ = [{"type": "function", "function": {"name": "tudasbazis", "parameters": {"type": "object", "properties": {}}}}]
+MUNKA = {"messages": [SYSTEM, {"role": "user", "content": "Készítsd el a tételt."}], "tools": ESZKOZ,
+         "max_tokens": 8000}
+
+
+def _bmsg(content, stop="end_turn", model="claude-sonnet-5-5", usage=None):
+    """A batch-eredmény NEM béta `Message` (a `messages.batches.results` ezt adja)."""
+    return Message.model_validate({
+        "id": "msg_batch", "type": "message", "role": "assistant", "model": model, "content": content,
+        "stop_reason": stop, "stop_sequence": None,
+        "usage": usage or {"input_tokens": 1000, "output_tokens": 100, "cache_read_input_tokens": 0,
+                           "cache_creation_input_tokens": 0}})
+
+
+def _menet(hamis_ora, most=EJ, **kw):
+    ora = hamis_ora(most)
+    return k.BatchMenet(HATARIDO, lekerdezes_s=180.0, ora=ora, alvas=ora.alvas, **kw), ora
+
+
+def _sima_tilos(monkeypatch):
+    async def _tilos(kw):
+        raise AssertionError("sima hívás nem mehetett volna")
+    monkeypatch.setattr(k, "_kuld", _tilos)
+
+
+def test_batch_bekuldes_es_eredmeny(kulcs, monkeypatch, hamis_batch_sdk, hamis_ora):
+    """Beküldés → ritka lekérdezés → eredmény a `custom_id` szerint; a válasz alakja ugyanaz, mint a sima úton."""
+    _sima_tilos(monkeypatch)
+    hamis_batch_sdk.sorsok = [("kesz", _bmsg([
+        {"type": "thinking", "thinking": "", "signature": "sig-1"},
+        {"type": "tool_use", "id": "toolu_b1", "name": "tudasbazis", "input": {"kerdes": "x"}}], stop="tool_use"), 3)]
+    ids = []
+    menet, ora = _menet(hamis_ora, nyilvantart=lambda x: ids.append(list(x)))
+    data, err, notes = _run(k.chat(MUNKA, purpose="nachtschicht/munka", batch=menet))
+    assert err is None and notes == []
+    assert data["choices"][0]["message"]["tool_calls"][0]["function"]["name"] == "tudasbazis"
+    p = hamis_batch_sdk.bekuldve[0]
+    # a batch-ben tiltott mezők nélkül, 1 órás cache-töréspont, ugyanaz a modell és effort, mint a sima úton
+    assert p["model"] == "claude-sonnet-5-5" and p["output_config"] == {"effort": "medium"}
+    assert not {"betas", "fallbacks", "stream", "speed"} & set(p)
+    assert p["cache_control"] == {"type": "ephemeral", "ttl": "1h"}
+    # nem pörög: 3 lekérdezés, mindegyik előtt 180 s alvás
+    assert ora.alvasok == [180.0] * 3 and hamis_batch_sdk.lekerdezesek == 3
+    assert ids[0] == ["msgbatch_1"] and ids[-1] == []          # a függő azonosító nyilvántartva, a végén üres
+    assert menet.statisztika()["batch_hivasok"] == 1 and menet.statisztika()["sima_hivasok"] == 0
+    assert "toolu_b1" in k._GONDOLAT_TAR                        # a gondolat a következő körre megmarad
+
+
+def test_batch_ar_a_fele_es_az_1_oras_cache_iras(kulcs, monkeypatch, hamis_batch_sdk, hamis_ora):
+    """A batch-ben MINDEN token fele áron; az 1 órás cache-írás 2× alapár (a batch-ben ennek is a fele)."""
+    _sima_tilos(monkeypatch)
+    usage = {"input_tokens": 1000, "output_tokens": 2000, "cache_read_input_tokens": 10_000,
+             "cache_creation_input_tokens": 4000,
+             "cache_creation": {"ephemeral_1h_input_tokens": 4000, "ephemeral_5m_input_tokens": 0}}
+    msg = _bmsg([{"type": "text", "text": "kész"}], usage=usage)
+    hamis_batch_sdk.sorsok = [("kesz", msg, 1)]
+    menet, _ = _menet(hamis_ora)
+    data, err, _n = _run(k.chat(MUNKA, purpose="nachtschicht/munka", batch=menet))
+    teljes = (1000 * 2.00 + 2000 * 10.00 + 10_000 * 0.10 + 4000 * 2.00 * 2) / 1_000_000   # Sonnet 5.5
+    assert k.koltes_usd(msg.usage, "claude-sonnet-5-5") == pytest.approx(teljes)
+    assert data["koltes_usd"] == pytest.approx(teljes / 2, abs=1e-6)
+    assert k._KOLTES["batch"]["hivasok"] == 1
+    assert k._KOLTES["batch"]["usd"] == pytest.approx(teljes / 2)
+    assert k._KOLTES["usd"] == pytest.approx(teljes / 2)
+    assert menet.megtakaritas_usd == pytest.approx(teljes / 2)
+    assert k.allapot()["batch"]["hivasok"] == 1
+
+
+def test_batch_hatarido_utan_sima_tartalek_kimondva(kulcs, monkeypatch, hamis_batch_sdk, hamis_ora):
+    """A batch a határidőig nem végez → megszakítjuk, és UGYANEZ a hívás sima úton megy, szerveroldali
+    tartalékkal; a következő hívás már be sem küld batch-et."""
+    hamis_batch_sdk.sorsok = [("soha",)]
+    fake = _wire(monkeypatch, [_msg([{"type": "text", "text": "sima válasz"}], model="claude-sonnet-5-5"),
+                               _msg([{"type": "text", "text": "második"}], model="claude-sonnet-5-5")])
+    menet, ora = _menet(hamis_ora, most=HATARIDO - _td(minutes=10))
+    data, err, notes = _run(k.chat(MUNKA, purpose="nachtschicht/munka", batch=menet))
+    assert err is None and data["choices"][0]["message"]["content"] == "sima válasz"
+    assert hamis_batch_sdk.megszakitva == ["msgbatch_1"]
+    assert any(n.startswith("BATCH-TARTALÉK") and "határidő" in n for n in notes)
+    assert fake.calls[0]["fallbacks"] == "default" and k.FALLBACK_BETA in fake.calls[0]["betas"]
+    assert max(ora.alvasok) <= 180.0 and sum(ora.alvasok) >= 600   # ritkán kérdezett, és kivárta a határidőt
+    _run(k.chat(MUNKA, purpose="nachtschicht/munka", batch=menet))
+    assert len(hamis_batch_sdk.bekuldve) == 1
+    st = menet.statisztika()
+    assert st["okok"] == {"hatarido": 2} and st["sima_hivasok"] == 2 and st["batch_hivasok"] == 0
+    # a sima út teljes áron könyvel
+    assert data["koltes_usd"] == pytest.approx(k.koltes_usd(_msg([]).usage, "claude-sonnet-5-5"))
+
+
+def test_a_hataridon_megszakitott_de_kozben_kesz_batch_eredmenye_marad(kulcs, monkeypatch, hamis_batch_sdk,
+                                                                        hamis_ora):
+    """Ha a megszakítás közben a kérés elkészült, azt használjuk — kétszer nem fizetünk érte."""
+    _sima_tilos(monkeypatch)
+    hamis_batch_sdk.sorsok = [("kesz", _bmsg([{"type": "text", "text": "épp elkészült"}]), 5)]
+    menet, _ = _menet(hamis_ora, most=HATARIDO - _td(minutes=10))
+    data, err, notes = _run(k.chat(MUNKA, purpose="nachtschicht/munka", batch=menet))
+    assert err is None and data["choices"][0]["message"]["content"] == "épp elkészült" and notes == []
+    assert hamis_batch_sdk.megszakitva == ["msgbatch_1"] and menet.batch_hivasok == 1
+
+
+@pytest.mark.parametrize("sors,ok", [
+    (("lejart",), "expired"),
+    (("hiba", "api_error"), "errored:api_error"),
+    (("bekuldes_hiba", RuntimeError("hálózat")), "bekuldes:kapu_hiba"),
+])
+def test_lejart_vagy_hibas_batch_utan_sima_ut(kulcs, monkeypatch, hamis_batch_sdk, hamis_ora, sors, ok):
+    hamis_batch_sdk.sorsok = [sors]
+    fake = _wire(monkeypatch, [_msg([{"type": "text", "text": "sima"}], model="claude-sonnet-5-5")])
+    menet, _ = _menet(hamis_ora)
+    data, err, notes = _run(k.chat(MUNKA, purpose="nachtschicht/munka", batch=menet))
+    assert err is None and data["choices"][0]["message"]["content"] == "sima" and len(fake.calls) == 1
+    assert menet.okok == {ok: 1} and any(n.startswith("BATCH-TARTALÉK") for n in notes)
+
+
+def test_refusal_a_batchben_sima_uton_ujra_tartalekkal(kulcs, monkeypatch, hamis_batch_sdk, hamis_ora):
+    """A batch-ben nincs szerveroldali refusal-tartalék: a visszautasított kérés sima úton megy újra, ott él."""
+    hamis_batch_sdk.sorsok = [("kesz", _bmsg([], stop="refusal"), 1)]
+    fake = _wire(monkeypatch, [_msg([{"type": "text", "text": "tartalékkal"}], model="claude-sonnet-5-5")])
+    menet, _ = _menet(hamis_ora)
+    data, err, notes = _run(k.chat(MUNKA, purpose="nachtschicht/munka", batch=menet))
+    assert err is None and data["choices"][0]["message"]["content"] == "tartalékkal"
+    assert fake.calls[0]["fallbacks"] == "default"
+    assert menet.okok == {"refusal": 1} and menet.batch_hivasok == 1
+    assert any("elutasította" in n for n in notes)
+
+
+def test_idegen_beta_nem_megy_batchbe():
+    kw = {"model": "claude-sonnet-5-5", "betas": ["valami-beta-2026-01-01"], "messages": []}
+    with pytest.raises(ValueError):
+        k.batch_parameterek(kw)
+    p = k.batch_parameterek({"model": "x", "betas": [k.FALLBACK_BETA], "fallbacks": "default", "max_tokens": 9,
+                             "system": [{"type": "text", "text": "s", "cache_control": {"type": "ephemeral"}}]})
+    assert p == {"model": "x", "max_tokens": 9,
+                 "system": [{"type": "text", "text": "s", "cache_control": {"type": "ephemeral", "ttl": "1h"}}]}
+
+
+def test_batch_nelkul_a_regi_ut(kulcs, monkeypatch, hamis_batch_sdk):
+    """Batch-menet nélkül (a kapcsoló KI) a hívás a régi, sima úton megy — a batch-API-t meg sem szólítja."""
+    fake = _wire(monkeypatch, [_msg([{"type": "text", "text": "sima"}], model="claude-sonnet-5-5")])
+    data, err, notes = _run(k.chat(MUNKA, purpose="nachtschicht/munka"))
+    assert err is None and len(fake.calls) == 1 and hamis_batch_sdk.bekuldve == [] and notes == []
+    assert "batch" not in k._KOLTES or k._KOLTES["batch"]["hivasok"] == 0
+
+
+FOLYTATAS = {"messages": [SYSTEM, {"role": "user", "content": "Készítsd el a tételt."},
+                          {"role": "assistant", "content": "", "tool_calls": [
+                              {"id": "toolu_f1", "type": "function",
+                               "function": {"name": "tudasbazis", "arguments": "{}"}}]},
+                          {"role": "tool", "tool_call_id": "toolu_f1", "content": "eredmény"}],
+             "tools": ESZKOZ, "max_tokens": 8000}
+
+
+def test_cache_or_ket_hiany_utan_a_tobbi_sima_uton(kulcs, monkeypatch, hamis_batch_sdk, hamis_ora):
+    """A batch-ben a cache-találat „best-effort”: ha a hurok folytató köre kétszer sem olvas cache-ből, a batch
+    drágább lenne a sima útnál — a hátralévő hívások sima úton mennek, kimondva. Az első kör nem számít."""
+    hiany = {"input_tokens": 10, "output_tokens": 100, "cache_read_input_tokens": 0,
+             "cache_creation_input_tokens": 30_000}
+    elso, _ = _menet(hamis_ora)
+    hamis_batch_sdk.sorsok = [("kesz", _bmsg([{"type": "text", "text": "a"}], usage=hiany), 1)]
+    _run(k.chat(MUNKA, purpose="nachtschicht/munka", batch=elso))
+    assert elso.cache_hiany == 0 and elso.aktiv()                      # az első körben nincs mit olvasni
+
+    menet, _ = _menet(hamis_ora)
+    hamis_batch_sdk.sorsok = [("kesz", _bmsg([{"type": "text", "text": "a"}], usage=hiany), 1)] * 2
+    fake = _wire(monkeypatch, [_msg([{"type": "text", "text": "sima"}], model="claude-sonnet-5-5")])
+    for _ in range(2):
+        _run(k.chat(FOLYTATAS, purpose="nachtschicht/munka", batch=menet))
+    assert menet.leallitva == "cache_hiany" and not menet.aktiv()
+    data, err, notes = _run(k.chat(FOLYTATAS, purpose="nachtschicht/munka", batch=menet))
+    assert err is None and len(fake.calls) == 1 and len(hamis_batch_sdk.bekuldve) == 3
+    assert menet.okok == {"cache_hiany": 1} and any("cache" in n for n in notes)
+    assert menet.statisztika()["cache_hiany"] == 2
