@@ -41,6 +41,7 @@ const feladatUgynok = (id) => S.adat?.ugynokok.find((u) => u.id === id)?.feladat
 // egy ügynök jele: a fixeké a UGYNOK-ból, a feladat-ügynököké a nevéből
 function jel(ki) {
   if (UGYNOK[ki]) return UGYNOK[ki];
+  if (VITA_JEL[ki]) return VITA_JEL[ki];
   if (feladatE(ki)) {
     const nev = S.adat?.ugynokok.find((u) => u.id === ki)?.nev || 'Ügynök';
     return { betu: nev.slice(0, 1).toUpperCase(), szin: FELADAT_SZIN, rovid: nev };
@@ -241,7 +242,9 @@ function kabinEpit() {
       el('button', { class: 'ikon-gomb csak-mobil', 'aria-label': 'Bezár', onclick: fiokZar }, '✕')),
     el('div', { class: 'bal-gorgo' },
       el('div', { class: 'szakasz-cim' }, 'Ügynökök'), R.ugynokok,
-      el('div', { class: 'szakasz-cim' }, 'Beszélgetések'), R.beszelgetesek),
+      el('div', { class: 'szakasz-cim' }, el('span', {}, 'Beszélgetések'),
+        el('button', { class: 'gomb gomb-kicsi', title: 'Új Pyramid-vita: Kimi, DeepSeek és GLM megvitatja, te parancsot adsz', onclick: () => ujVitaUrlap() }, '+ Új vita')),
+      R.beszelgetesek),
     el('div', { class: 'bal-lab' },
       el('a', { class: 'gomb gomb-kicsi', href: '/dashboard' }, 'Régi műszerfal'),
       el('button', { class: 'gomb gomb-kicsi', onclick: kilep }, 'Kilépés')));
@@ -342,6 +345,207 @@ function balRajzol() {
   S.ref.beszelgetesek.replaceChildren(...elemek);
 }
 
+// ── PYRAMID-VITA (2026-11-23) ─────────────────────────────────
+// A Kommandant: „AKAROK vitázni, megbeszélni, ÁLLÁSPONTOKAT látni.” — „Van egy pont a vitában, amikor jóváhagyok, és
+// utasítok.” A vita nézetének teteje: állapotsor („2/3. kör · következik: DeepSeek” / „várlak” / „döntésre vár” /
+// „végrehajtás 2/4”), Tovább / Leállítom / „Várj rám a körök között”, az ÁLLÁSPONT-TÉRKÉP (résztvevőnként a jelenlegi
+// álláspont, mi változott, a fő érv; a Kommandant sora; egyetértés, valódi vita, kérdések hozzá). A beviteli mezőn két
+// gomb: Hozzászólok (a következő szóló neki válaszol) és Parancs (jóváhagy és utasít — a szavaiból feladatlista, azonnal
+// fut). A PARANCS-blokk a szálban tételenként mutatja az állapotot (fut / kész + link / hibás + ok).
+const VITA_JEL = {
+  moderator: { betu: 'M', szin: '#64748b', rovid: 'Moderátor' },
+  pyramid: { betu: '▲', szin: '#475569', rovid: 'Pyramid' },
+};
+const VALTOZAS_FAJTA = { tart: 'semleges', 'erősít': 'kesz', enged: 'var', 'vált': 'hiba', 'új': 'fut' };
+const TETEL_ALLAPOT = {
+  fut: ['fut', 'fut'], kesz: ['kész', 'kesz'], hibas: ['hibás', 'hiba'], jovahagyasra_var: ['jóváhagyásra vár', 'var'],
+  kezi: ['kézi', 'semleges'], var: ['vár', 'semleges'],
+};
+const VEGREHAJTO_NEV = { kutatas: 'kutatás', ismetlodo: 'ismétlődő', kodolas: 'kódolás · Faber', kifele: 'kifelé · tervezet' };
+const vitaFajta = (a) => ({ fut: 'fut', var_ra: 'var', parancsra_var: 'var', vegrehajtas: 'fut', kesz: 'kesz', leallitva: 'hiba' }[a] || 'semleges');
+
+async function vitaMuvelet(muvelet, ertek) {
+  const id = S.vita?.id;
+  if (!id) return;
+  try {
+    await api(`/api/ui/vita/${id}/muvelet`, { method: 'POST', body: { muvelet, ertek } });
+    ertesit({ tovabb: 'Megy tovább.', leallit: 'Leállítva — a Tovább onnan folytatja.', pyramid: 'Pyramid-vita indul: álláspontok, aztán az R1.',
+      varj_ram: ertek ? 'Minden kör után megáll, és rád vár.' : 'A körök megállás nélkül mennek.' }[muvelet] || 'Rendben.');
+    await tortenetBetolt({ csendes: true });
+  } catch (e) { if (!(e instanceof Hiba401)) ertesit(e.message, true); }
+}
+
+async function vitaKuld(szoveg, parancs) {
+  const n = S.nezet;
+  if (n.tipus !== 'vita' || !szoveg) return;
+  try {
+    await api(`/api/ui/vita/${n.id}`, { method: 'POST', body: { szoveg, parancs } });
+    ertesit(parancs ? 'Parancs kiadva: a feladatlista a szálban, a végrehajtás indul.' : 'Hozzászóltál — a következő szóló neked válaszol.');
+    await tortenetBetolt();
+  } catch (e) { if (!(e instanceof Hiba401)) ertesit(e.message, true); }
+}
+
+function terkepNode(t) {
+  const resztvevo = (ki) => (S.vita?.pyramid?.resztvevok || []).find((x) => x.id === ki);
+  const sorok = Object.entries(t.sorok || {}).map(([ki, s]) => {
+    const r = resztvevo(ki);
+    return el('div', { class: `terkep-sor${ki === 'kommandant' ? ' en' : ''}` },
+      el('div', { class: 'terkep-ki' }, avatar(ki, { kicsi: true }), el('b', {}, ki === 'kommandant' ? 'Te' : jel(ki)?.rovid || ki),
+        r?.allaspont ? el('span', { class: 'chip', title: 'a kiosztott álláspont' }, r.allaspont) : null,
+        r?.ordogugyved ? el('span', { class: 'chip faber', title: 'ördögügyvéd: a kialakuló egyetértést támadja' }, 'ördögügyvéd') : null,
+        allapotChip(s.valtozas || 'tart', VALTOZAS_FAJTA[s.valtozas] || 'semleges')),
+      el('div', { class: 'terkep-allas' }, s.allaspont || '–'),
+      s.fo_erv ? el('div', { class: 'terkep-erv' }, `Fő érv: ${s.fo_erv}`) : null,
+      s.szavazat ? el('div', { class: 'terkep-erv' }, `Szavazat: ${s.szavazat}`) : null);
+  });
+  return el('div', { class: 'terkep' }, ...sorok,
+    (t.egyetertes || []).length ? el('div', { class: 'terkep-osszeg' }, el('b', {}, 'Egyetértés: '), t.egyetertes.join(' · ')) : null,
+    (t.vita || []).length ? el('div', { class: 'terkep-osszeg vita' }, el('b', {}, 'Valódi vita: '), t.vita.join(' · ')) : null,
+    ...(t.kerdesek || []).map((k) => el('div', { class: 'terkep-kerdes' }, el('b', {}, `Kérdés a Kommandanthoz (${jel(k.ki)?.rovid || k.ki}): `), k.kerdes)));
+}
+
+function vitaPanel() {
+  const v = S.vita;
+  if (!v) return null;
+  const p = v.pyramid;
+  if (!p) {
+    if (!v.pyramid_elerheto) return null;
+    return el('div', { class: 'vita-panel' }, el('div', { class: 'vita-sor' },
+      el('span', { class: 'halk' }, 'Régi, egykörös vita. Ha hozzászólsz, Pyramid-vita lesz belőle.'),
+      el('button', { class: 'gomb gomb-fo gomb-kicsi', title: 'Kimi, DeepSeek és GLM több körben, ütköző álláspontokkal vitatja meg; a végrehajtás csak a parancsodra indul', onclick: () => vitaMuvelet('pyramid') }, 'Pyramid-vitává alakítom')));
+  }
+  const gombok = el('div', { class: 'vita-gombok' });
+  if (p.allapot === 'fut') gombok.append(el('button', { class: 'gomb gomb-kicsi gomb-vesz', title: 'Költségvédelem: a motor megáll (a futó hozzászólás is); a Tovább onnan folytatja', onclick: () => vitaMuvelet('leallit') }, 'Leállítom'));
+  if (['var_ra', 'leallitva'].includes(p.allapot)) gombok.append(el('button', { class: 'gomb gomb-fo gomb-kicsi', onclick: () => vitaMuvelet('tovabb') }, 'Tovább'));
+  if (['parancsra_var', 'kesz'].includes(p.allapot)) gombok.append(el('button', { class: 'gomb gomb-kicsi', title: 'Még egy kör ugyanebben a szálban', onclick: () => vitaMuvelet('tovabb') }, 'Még egy kör'));
+  const varj = el('input', { type: 'checkbox', checked: p.varj_ram });
+  varj.addEventListener('change', () => vitaMuvelet('varj_ram', varj.checked));
+  gombok.append(el('label', { class: 'pipa', title: 'BE: minden kör után megáll, és csak a hozzászólásodra vagy a Tovább-ra megy tovább' }, varj, ' Várj rám a körök között'));
+  const terkep = p.terkep || [];
+  const utolso = terkep[terkep.length - 1];
+  // nyitva, amíg a vita folyik (telefonon csukva); a végrehajtás alatt csukva — ott a PARANCS-kártya a lényeg
+  const alapNyitva = !['vegrehajtas', 'kesz'].includes(p.allapot) && !matchMedia('(max-width: 720px)').matches;
+  const dt = el('details', { class: 'terkep-doboz', open: S.vitaTerkepNyitva ?? alapNyitva },
+    el('summary', {}, utolso ? `Álláspont-térkép — ${utolso.cimke || `R${utolso.kor}`} után` : 'Álláspontok'),
+    (p.allaspontok || []).length
+      ? el('div', { class: 'allaspontok' }, p.allaspontok.map((a) => el('div', {}, el('b', {}, `${a.betu}: ${a.cim}`), ` — ${a.allitas} `,
+        el('span', { class: 'halk' }, `(${p.resztvevok.filter((r) => r.allaspont === a.betu).map((r) => r.nev + (r.ordogugyved ? ', ördögügyvéd' : '')).join('; ') || '–'})`))))
+      : el('div', { class: 'halk' }, 'A moderátor most osztja ki az ütköző álláspontokat…'),
+    utolso ? terkepNode(utolso) : el('div', { class: 'halk' }, 'Az első kör után itt látod: ki mit képvisel, mi változott, hol a valódi vita.'),
+    terkep.length > 1 ? el('details', { class: 'korabbi' }, el('summary', {}, 'Korábbi körök'),
+      ...terkep.slice(0, -1).reverse().map((t) => el('div', {}, el('div', { class: 'szakasz-cim' }, `${t.cimke || `R${t.kor}`} után`), terkepNode(t)))) : null);
+  dt.addEventListener('toggle', () => { S.vitaTerkepNyitva = dt.open; });
+  const dontes = p.allapot === 'parancsra_var' ? el('div', { class: 'vita-sor vita-dontes' },
+    el('span', { class: 'halk' }, p.javaslat?.feladatok?.length ? 'Döntésre vár: írd le a parancsodat lent (Parancs gomb) — vagy:' : 'Döntésre vár: írd le a parancsodat lent, és nyomd meg a Parancs gombot.'),
+    p.javaslat?.feladatok?.length ? el('button', { class: 'gomb gomb-fo gomb-kicsi', onclick: () => vitaKuld('Mehet a javaslat szerint, minden pontja.', true) }, 'Parancs: mehet a javaslat') : null) : null;
+  return el('div', { class: 'vita-panel' },
+    el('div', { class: 'vita-sor' }, allapotChip(p.allapot_nev, vitaFajta(p.allapot)), el('span', { class: 'vita-allapot' }, p.allapot_szoveg),
+      p.kommandant_fuggo ? el('span', { class: 'chip faber' }, 'a hozzászólásodra válaszolnak') : null),
+    gombok, dontes, dt);
+}
+
+function tetelLink(f) {
+  if (f.link) return el('a', { href: f.link, target: '_blank', rel: 'noopener', class: 'melleklet-link' }, 'eredmény ↗');
+  if (f.nezet?.id) return el('button', { class: 'gomb gomb-kicsi', onclick: () => nezetValt(f.nezet) }, 'Az ügynök ablaka →');
+  if (f.allapot === 'jovahagyasra_var') return el('button', { class: 'gomb gomb-kicsi', onclick: () => fiokNyit('jobb') }, 'A munkapadra →');
+  return null;
+}
+
+// egy vita-bejegyzés különleges alakja: PARANCS-kártya élő tételállapottal, összecsukott térkép-bejegyzés
+function vitaTetel(t) {
+  const p = S.vita?.pyramid;
+  if (!p) return null;
+  if (t.meta.tipus === 'parancs') {
+    const pr = (p.parancsok || []).find((x) => x.n === t.meta.n);
+    if (!pr || !(pr.feladatok || []).length) return null;
+    const kesz = pr.feladatok.filter((f) => f.allapot !== 'fut').length;
+    return el('div', { class: 'sor o' }, el('div', { class: 'kartya parancs-kartya' },
+      el('div', { class: 'kartya-fej' }, el('b', {}, `⚡ PARANCS #${pr.n}`),
+        allapotChip(pr.allapot === 'kesz' ? 'lefutott' : `fut ${kesz}/${pr.feladatok.length}`, pr.allapot === 'kesz' ? 'kesz' : 'fut')),
+      el('p', { class: 'halk' }, `„${pr.szoveg}”${pr.forras === 'javaslat' ? ' — a javaslat szerint' : ''}`),
+      el('ol', { class: 'parancs-tetelek' }, pr.feladatok.map((f) => el('li', {},
+        el('div', { class: 'tetel-fej' }, el('span', { class: 'chip' }, `${VEGREHAJTO_NEV[f.vegrehajto] || f.vegrehajto}${f.ki ? ` · ${jel(f.ki)?.rovid || f.ki}` : ''}`),
+          allapotChip(...(TETEL_ALLAPOT[f.allapot] || [f.allapot, 'semleges']))),
+        el('div', {}, f.mit),
+        f.hatarido || f.merce ? el('div', { class: 'halk' }, [f.hatarido && `határidő: ${f.hatarido}`, f.merce && `mérce: ${f.merce}`].filter(Boolean).join(' · ')) : null,
+        f.eredmeny ? el('div', { class: 'tetel-eredmeny' }, f.eredmeny) : null,
+        tetelLink(f)))),
+      el('div', { class: 'meta' }, el('span', {}, oraPerc(t.ido)))));
+  }
+  if (t.meta.tipus === 'terkep') {
+    const tk = (p.terkep || []).find((x) => x.kor === t.meta.kor);
+    return el('div', { class: 'sor o' }, el('details', { class: 'kartya terkep-bej' },
+      el('summary', {}, `🗺 Álláspont-térkép — ${tk?.cimke || `R${t.meta.kor}`} után`),
+      tk ? terkepNode(tk) : el('div', { class: 'buborek', html: md(t.szoveg) })));
+  }
+  return null;
+}
+
+function vitaSzerkesztoEpit() {
+  const ta = el('textarea', { rows: '1', placeholder: 'Hozzászólás vagy parancs…', 'aria-label': 'Hozzászólás vagy parancs' });
+  const dikt = diktalas(ta, { kuldd: () => kuld(false) });
+  const hozza = el('button', { class: 'gomb gomb-kicsi', type: 'submit', disabled: true, title: 'Vitába szólsz: a következő szóló neked válaszol elsőként (vitatkozhat is veled)' }, 'Hozzászólok');
+  const parancsGomb = el('button', { class: 'gomb gomb-fo gomb-kicsi', type: 'button', disabled: true, title: 'Jóváhagysz és utasítasz: a szavaidból feladatlista lesz, és AZONNAL fut (a kifelé menő tétel tervezet marad, a munkapadon hagyod jóvá)' }, 'Parancs');
+  const meret = () => { ta.style.height = 'auto'; ta.style.height = `${Math.min(ta.scrollHeight, innerHeight * 0.4)}px`; };
+  const engedelyez = () => { hozza.disabled = parancsGomb.disabled = !ta.value.trim(); };
+  async function kuld(parancs) {
+    const szoveg = ta.value.trim();
+    if (!szoveg) return;
+    dikt?.cancel();
+    ta.value = ''; meret(); engedelyez();
+    await vitaKuld(szoveg, parancs);
+  }
+  parancsGomb.addEventListener('click', () => kuld(true));
+  ta.addEventListener('input', () => { meret(); engedelyez(); });
+  const durva = matchMedia('(pointer: coarse)').matches;
+  ta.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing && !durva) { e.preventDefault(); kuld(false); } });
+  const urlap = el('form', { class: 'szerkeszto-hej' }, ta,
+    el('div', { class: 'szerkeszto-sor' }, el('span', { class: 'halk' }, durva ? '' : 'Enter: hozzászólás · a Parancs indítja a végrehajtást'),
+      el('div', { class: 'szerkeszto-gombok' }, dikt ? dikt.gomb : null, hozza, parancsGomb)));
+  urlap.addEventListener('submit', (e) => { e.preventDefault(); kuld(false); });
+  S.ref.szerkeszto.replaceChildren(el('div', { class: 'szerkeszto' }, urlap, dikt ? dikt.jegyzet : null));
+  S.ref.input = ta;
+  S.ref.engedelyez = engedelyez;
+  if (!durva) setTimeout(() => ta.focus(), 30);
+}
+
+// „+ Új vita”: téma, kontextus, körök, „várj rám” — a vita indul, és a nézete nyílik
+function ujVitaUrlap() {
+  const mezo = (cimke, input, sugo) => el('label', { class: 'urlap-mezo' }, el('span', {}, cimke), input, sugo ? el('small', { class: 'halk' }, sugo) : null);
+  const tema = el('input', { maxlength: '300', required: true, placeholder: 'pl. Gondolatmag-radar: mit csináljunk vele?' });
+  const kontextus = el('textarea', { rows: '5', maxlength: '20000', placeholder: 'Háttér, adatok, korlátok, a lehetőségek…' });
+  const korok = el('input', { type: 'number', min: '1', max: '6', step: '1', value: '3' });
+  const varj = el('input', { type: 'checkbox', checked: true });
+  const hiba = el('div', { class: 'kartya-hiba', hidden: true });
+  const indit = el('button', { class: 'gomb gomb-fo', type: 'submit' }, 'Indítás');
+  const urlap = el('form', { class: 'urlap' }, mezo('Téma — a kérdés', tema), mezo('Kontextus', kontextus, 'Amit a vitázóknak tudniuk kell. A tudásbázisodból semmi nem megy hozzájuk.'),
+    mezo('Körök', korok, '1: ötletek · 2: ütköztetés · utolsó: összefésülés (top 3, első lépés, szavazás)'),
+    el('label', { class: 'pipa' }, varj, ' Várj rám a körök között (minden kör után megáll)'),
+    el('div', { class: 'halk' }, 'Kimi, DeepSeek és GLM egymás után szól, kiosztott, ütköző álláspontokkal (egyikük ördögügyvéd). A végrehajtás csak a parancsodra indul.'),
+    hiba, el('div', { class: 'kartya-gombok' }, indit, el('button', { class: 'gomb', type: 'button', onclick: () => d.close() }, 'Mégse')));
+  const d = el('dialog', { class: 'modal' },
+    el('div', { class: 'modal-fej' }, el('b', {}, 'Új Pyramid-vita'), el('button', { class: 'ikon-gomb', type: 'button', 'aria-label': 'Bezár', onclick: () => d.close() }, '✕')),
+    el('div', { class: 'modal-test urlap-test' }, urlap));
+  urlap.addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    hiba.hidden = true; indit.disabled = true;
+    try {
+      const j = await api('/api/ui/vita/uj', { method: 'POST', body: { tema: tema.value.trim(), kontextus: kontextus.value.trim(), korok: Number(korok.value), varj_ram: varj.checked } });
+      d.close();
+      ertesit('A vita elindult.');
+      await frissit({});
+      nezetValt({ tipus: 'vita', id: j.vita_id });
+    } catch (e) {
+      if (e instanceof Hiba401) return;
+      hiba.hidden = false; hiba.textContent = e.message;
+    } finally { indit.disabled = false; }
+  });
+  d.addEventListener('close', () => d.remove());
+  document.body.append(d);
+  d.showModal();
+  setTimeout(() => tema.focus(), 30);
+}
+
 // ── FEJLÉC ────────────────────────────────────────────────────
 function fejlecRajzol() {
   const n = S.nezet;
@@ -361,7 +565,8 @@ function fejlecRajzol() {
     if (n.id === 'feldwebel') al += ' · közös a Telegrammal';
   } else if (n.tipus === 'vita') {
     ki = 'vita'; cim = S.vita ? `Vita #${S.vita.id} · ${S.vita.cim}` : `Vita #${n.id}`;
-    al = S.vita ? `${S.vita.allapot === 'open' ? 'nyitott' : 'lezárt'} · indította: ${S.vita.ki}` : '';
+    al = !S.vita ? '' : S.vita.pyramid ? `Pyramid-vita · ${S.vita.pyramid.allapot_szoveg} · indította: ${S.vita.ki}`
+      : `${S.vita.allapot === 'open' ? 'nyitott' : 'lezárt'} · indította: ${S.vita.ki}`;
   } else {
     ki = 'postalada'; cim = 'Postaláda'; al = 'üzenetek neked a Claude-októl és a Bridge-től';
   }
@@ -440,6 +645,10 @@ function tetelCsomopont(t) {
   if (t.tipus === 'esemeny') {
     return el('div', { class: 'rendszer-sor' }, el('b', {}, `Faber · #${t.kerelem}: ${t.allapot}`), t.szoveg ? ` — ${t.szoveg}` : '');
   }
+  if (t.meta && S.nezet.tipus === 'vita') {
+    const k = vitaTetel(t);
+    if (k) return k;
+  }
   if (t.tipus === 'kartya') {
     const c = S.kartyak[t.kerelem];
     if (c && c.kapu_sor === t.id) return el('div', { class: 'sor o' }, faberKartya(c));
@@ -454,6 +663,8 @@ function tetelCsomopont(t) {
     const sz = { kivansag: 'kívánság', jovahagy: 'élesítés', elvet: 'elvetés', vissza: 'visszavonás', allapot: 'állapot', parancs: 'parancs' }[t.faber.szandek] || t.faber.szandek;
     meta.append(el('span', { class: 'chip faber' }, `→ Faber · ${sz}${t.faber.repo ? ` · ${t.faber.repo}` : ''}${t.faber.kerelem ? ` · #${t.faber.kerelem}` : ''}`));
   }
+  if (t.meta?.cimke) meta.append(el('span', { class: 'chip kor-cimke' }, t.meta.cimke));
+  if (t.meta?.csonka) meta.append(allapotChip('csonka', 'hiba'));
   if (!en && t.modell) meta.append(el('span', { class: 'modell', title: 'a választ ténylegesen kiszolgáló modell' }, t.modell));
   if (!en && t.eszkozok?.length) meta.append(el('span', { class: 'chip' }, `eszközök: ${t.eszkozok.join(', ')}`));
   if (t.futas) {
@@ -522,6 +733,7 @@ function atiratRajzol({ gorget = null } = {}) {
     nodes.push(tetelCsomopont(t));
   }
   if (!lista.length && !S.futok[kulcs]) nodes.push(uresAllapot());
+  if (S.nezet.tipus === 'vita') { const p = vitaPanel(); if (p) nodes.unshift(p); }
   S.ref.elo = el('div', { class: 'elo' });
   nodes.push(S.ref.elo);
   S.ref.atirat.replaceChildren(...nodes);
@@ -532,7 +744,7 @@ function atiratRajzol({ gorget = null } = {}) {
 function uresAllapot() {
   const n = S.nezet;
   if (n.tipus === 'postalada') return el('div', { class: 'atirat-ures' }, el('b', {}, 'Üres a postaláda'), 'A Claude-ok ide írnak neked.');
-  if (n.tipus === 'vita') return el('div', { class: 'atirat-ures' }, 'Betöltés…');
+  if (n.tipus === 'vita') return el('div', { class: 'atirat-ures' }, S.vita?.pyramid ? 'A vita indul: a moderátor kiosztja az ütköző álláspontokat…' : 'Betöltés…');
   if (feladatE(n.id)) {
     const f = feladatUgynok(n.id);
     return el('div', { class: 'atirat-ures' }, el('b', {}, 'Még nem futott'),
@@ -571,12 +783,15 @@ async function tortenetBetolt({ csendes = false } = {}) {
     const v = await api(`/api/ui/vita/${n.id}`);
     if (nezetKulcs() !== kulcs) return;
     S.vita = v;
-    S.tetelek = v.bejegyzesek.map((b) => ({ id: b.id, ido: b.ido, ki: b.ki === 'kommandant' ? 'kommandant' : b.ki, szoveg: b.szoveg, tipus: 'uzenet' }));
+    S.tetelek = v.bejegyzesek.map((b) => ({ id: b.id, ido: b.ido, ki: b.ki === 'kommandant' ? 'kommandant' : b.ki, tipus: 'uzenet',
+      meta: b.meta || null, modell: b.meta?.modell || null,
+      // a szóló fejléce („**R1 · ÖTLETEK**”) a címke-chipbe megy, nem a buborékba
+      szoveg: b.meta?.tipus === 'szolo' ? b.szoveg.replace(/^\*\*R\d+ · [^*\n]+\*\*[^\n]*\n+/, '') : b.szoveg }));
     if (v.kontextus) S.tetelek.unshift({ id: 0, ido: v.ido, ki: 'rendszer', tipus: 'rendszer', szoveg: v.kontextus });
     if (v.dontes) S.tetelek.push({ id: 1e9, ido: szerverMost(), ki: 'rendszer', tipus: 'rendszer', szoveg: `Döntés: ${v.dontes}` });
     S.tovabb = false;
     fejlecRajzol();
-    atiratRajzol({ gorget: !csendes });
+    atiratRajzol({ gorget: !csendes ? true : null });
     return;
   }
   const ablak = n.tipus === 'ugynok' ? n.id : 'postalada';
@@ -626,6 +841,7 @@ function nezetValt(n) {
 function szerkesztoEpit() {
   const n = S.nezet;
   if (n.tipus === 'ugynok' && feladatE(n.id)) { ugynokPanelRajzol(); return; }
+  if (n.tipus === 'vita') { vitaSzerkesztoEpit(); return; }
   if (n.tipus === 'postalada') {
     S.ref.szerkeszto.replaceChildren(el('div', { class: 'szerkeszto-zar' }, 'A postaládára nem lehet válaszolni — írj Clausnak, ő továbbadja.'));
     S.ref.input = null;
@@ -1162,6 +1378,7 @@ async function frissit({ tortenet = false } = {}) {
     ugynokPanelRajzol();
   }
   const kulcs = nezetKulcs();
+  if (S.nezet.tipus === 'vita' && ['fut', 'vegrehajtas'].includes(S.vita?.pyramid?.allapot)) await tortenetBetolt({ csendes: true });
   if ((tortenet || valtozott) && !S.futok[kulcs] && S.nezet.tipus !== 'vita') {
     await tortenetBetolt({ csendes: true });
   }

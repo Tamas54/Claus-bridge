@@ -964,7 +964,7 @@ async def _eszkozkeszlet() -> list:
     from feldwebel import eszkoz_ut
     import kivonat as _kivonat
     osszes = (TOOLS + await _kulso_eszkozok() + _futar_eszkozok() + _szimulator_eszkozok() + [FABER_DEF]
-              + _ugynok_eszkozok())
+              + _ugynok_eszkozok() + _vita_eszkozok())
     return eszkoz_ut.keszlet(osszes, extra=[_kivonat.LAPOZ_DEF])
 
 
@@ -995,6 +995,16 @@ def _ugynok_eszkozok() -> list:
         return [feladat_ugynok.ESZKOZ_DEF]
     except Exception as e:  # noqa: BLE001
         logger.warning("Feldwebel: a feladat-ügynök eszköz kimaradt: %s", str(e)[:200])
+        return []
+
+
+def _vita_eszkozok() -> list:
+    """A PYRAMID-VITA (pyramid/vita.py): indít, hozzászól, PARANCS (a Kommandant jóváhagy és utasít), tovább, leállít."""
+    try:
+        from pyramid import vita as pyramid_vita
+        return [pyramid_vita.ESZKOZ_DEF]
+    except Exception as e:  # noqa: BLE001
+        logger.warning("Feldwebel: a vita-eszköz kimaradt: %s", str(e)[:200])
         return []
 
 
@@ -1029,6 +1039,11 @@ async def _execute_tool(name: str, args: dict, ctx, kor: dict | None = None, *, 
         # fut, a naplója SiliconFlow-ügynökhöz nem kerül (feladat_ugynok.py), ezért tudásbázis-tartalmú körben is mehet.
         import feladat_ugynok
         return await feladat_ugynok.feldwebel_hiv(args or {}, ctx, vedett=vedett, kor=kor)
+    if name == "vita":
+        # PYRAMID-VITA (2026-11-23): „vitassák meg…”, „a 18-as vitához: …”, „jó, csináljátok ezt…” (parancs). A
+        # résztvevők SiliconFlow-modellek: tudásbázis-tartalmú körből a szöveg nem mehet (`futar_kliens.SF_FELE_IRASKOR`).
+        from pyramid import vita as pyramid_vita
+        return await pyramid_vita.feldwebel_hiv(args or {}, ctx)
     if futar_kliens.sajat_e(name):
         return await futar_kliens.hiv(name, args, get_db=ctx.get_db, modell=modell)
 
