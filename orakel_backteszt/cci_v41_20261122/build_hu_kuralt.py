@@ -35,8 +35,46 @@ SLICE_SHARE = {"bal": 0.26, "jobb": 0.22, "kozmedia": 0.18, "kozossegi": 0.22, "
 TOPIC_SHARE = {"politika": 0.25, "gazdasag": 0.20, "bulvar": 0.15, "sport": 0.12, "tech": 0.08,
                "kulfold": 0.10, "kozelet": 0.10}
 CAT2TOPIC = {"politics": "politika", "economy": "gazdasag", "entertainment": "bulvar", "lifestyle": "bulvar",
-             "cars": "bulvar", "sport": "sport", "tech": "tech", "foreign": "kulfold", "global": "kulfold",
-             "general": "kozelet"}
+             "cars": "bulvar", "sport": "sport", "tech": "tech", "science": "tech", "foreign": "kulfold",
+             "global": "kulfold", "general": "kozelet", "culture": "kozelet"}
+# MÓDOSÍTÁS 1 (2026-11-23, a júliusi próbaépítés után, MINDEN panel-futás ELŐTT): az Echolot-kategória sok
+# forrásnál csak a forrás alapértéke (category_via=source_default; pl. az Infostart MINDEN cikke „politics”, a
+# lottótól a bőrgyógyászatig), így a téma ott nem a kategóriából jön, hanem ebből a determinisztikus
+# kulcsszó-listából (cím + lead; a legtöbb találat nyer, holtversenyben a TOPIC_ORDER sorrend; nincs találat →
+# közélet). A classifier-kategória (category_via=classifier) érvényes marad.
+TOPIC_KW = {
+    "sport": r"foci|labdarúg|meccs|bajnok|\bnb i\b|fradi|ferencváros|olimpi|válogatott|\bgól|forma-1|\bf1\b|edző|"
+             r"kézilabd|vízilabd|tenisz|sportol|világbajnok|\bvb\b|\beb\b|kupa|futball|kosárlabd|úszó|atlét|"
+             r"szurkol|stadion|átigazol|bajnokok ligája|premier league|\bnba\b|\bnfl\b|góllövő|pályára",
+    "bulvar": r"sztár|celeb|énekes|színész|esküv|válás|szerelm|villant|instagram|horoszkóp|recept|fogyás|divat|"
+              r"királyi|herceg|műsorvezet|influencer|babát vár|terhes|randi|bikini|életmód|nyaral|utazás|"
+              r"kertész|sütemény|főzés|egészség|vitamin|kutyá|macsk|valóságshow|exatlon|sztárban sztár",
+    "tech": r"mesterséges intelligen|\bmi-|\bai\b|chatgpt|okostelefon|iphone|android|alkalmazás|\bapple|google|"
+            r"microsoft|samsung|robot|kutató|tudós|\bűr|nasa|felfedez|technológ|szoftver|hacker|kiberbiztons|"
+            r"videojáték|playstation|xbox|nintendo|csillagász|bolygó|genetik",
+    "gazdasag": r"forint|infláci|kamat|\bmnb\b|jegybank|\badó|\bbér|fizetés|nyugdíj|\bárak|\bára\b|áremel|"
+                r"drágul|rezsi|áramár|gázár|költségvetés|\bgdp\b|tőzsde|\bbank|\beuró\b|üzemanyag|benzin|"
+                r"dízel|munkanélküli|munkahely|vállalat|beruház|export|hitel|gazdaság|befektet|ingatlan|lakásár|"
+                r"kiskereskedel|csőd|energiaár|olajár|milliárd forint|cég",
+    "kulfold": r"ukrajn|ukrán|orosz|putyin|kreml|trump|amerikai|\busa\b|egyesült államok|izrael|gáza|irán|kína|kínai|"
+               r"német|berlin|francia|párizs|london|\bbrit|\bnato\b|háború|szlovák|román|szerb|lengyel|"
+               r"zelenszkij|hormuz|fehér ház|pentagon",
+    "politika": r"kormány|minisz|magyar péter|orbán|fidesz|tisza|parlament|országgyűlés|választás|ellenzék|"
+                r"polgármester|törvény|képviselő|\bpárt|államtitkár|kdnp|mi hazánk|\bdk\b|alkotmány|"
+                r"brüsszel|uniós|közmédia|ügyészség",
+}
+TOPIC_ORDER = ["sport", "bulvar", "tech", "gazdasag", "kulfold", "politika"]
+_TKW = {t: re.compile(r"(?<!\w)(?:" + p + ")", re.I) for t, p in TOPIC_KW.items()}
+TOPIC_CAP = 1.6   # egy téma egy szeleten belül legfeljebb a kvótája 1,6-szorosa (politika <= 40%)
+
+
+def topic_of(r):
+    if r.get("category_via") == "classifier" and r.get("category") in CAT2TOPIC:
+        return CAT2TOPIC[r["category"]]
+    txt = (r.get("title") or "") + " " + (r.get("lead") or "")
+    hits = {t: len(_TKW[t].findall(txt)) for t in TOPIC_ORDER}
+    best = max(TOPIC_ORDER, key=lambda t: (hits[t], -TOPIC_ORDER.index(t)))
+    return best if hits[best] else "kozelet"
 # Lekérdezések naponta (mind language=hu): (címke, get_news-szűrők)
 QUERIES = [
     ("left", {"lean": "left", "limit": 100, "max_per_source": 15}),
@@ -111,16 +149,18 @@ def norm(t):
 
 
 def fill_slice(rows, n, topic_share):
-    """Témakvóta egy szeleten belül: min(kvóta, elérhető), a maradék arányosan a még bővíthető témákra;
-    cellán belül napok szerint körbe járva, mindig a szeletben eddig legkevésbé használt forrásból."""
+    """Témakvóta egy szeleten belül: min(kvóta, elérhető), a maradék arányosan a még bővíthető témákra, de egy
+    téma legfeljebb a kvótája TOPIC_CAP-szorosa; cellán belül napok szerint körbe járva, mindig a szeletben
+    eddig legkevésbé használt forrásból. Ha a plafonok miatt nem telik meg, a hiány a közös réteghez kerül."""
     by_topic = {}
     for r in rows:
         by_topic.setdefault(r["topic"], []).append(r)
     want = {t: n * s for t, s in topic_share.items()}
+    cap = {t: int(TOPIC_CAP * n * s + 0.999) for t, s in topic_share.items()}
     alloc = {t: 0 for t in topic_share}
     remaining = n
     while remaining > 0:
-        open_t = [t for t in topic_share if alloc[t] < len(by_topic.get(t, []))]
+        open_t = [t for t in topic_share if alloc[t] < min(len(by_topic.get(t, [])), cap[t])]
         if not open_t:
             break
         deficit = {t: want[t] - alloc[t] for t in open_t}
@@ -159,9 +199,18 @@ def build(target):
             for a in r.get("articles") or []:
                 raw.append({"title": (a.get("title") or "").strip(), "lead": (a.get("lead") or "").strip()[:220],
                             "source": a.get("source_name"), "lean": a.get("lean") or "unknown",
-                            "category": a.get("category"), "date": (a.get("published_at") or day)[:10],
-                            "q": qname})
+                            "category": a.get("category"), "category_via": a.get("category_via"),
+                            "date": (a.get("published_at") or day)[:10], "q": qname})
         print(f"  {target} {day}: nyers {len(raw)}", flush=True)
+    os.makedirs(os.path.join(HERE, "korpusz_kuralt"), exist_ok=True)
+    json.dump({"days": days, "errors": errors, "raw": raw},
+              open(os.path.join(HERE, "korpusz_kuralt", f"raw_hu_{target}.json"), "w", encoding="utf-8"),
+              ensure_ascii=False)
+    return curate(target, days, raw, errors)
+
+
+def curate(target, days, raw, errors):
+    w0, w1 = window(target)
     seen, pool, leaks, abroad = set(), [], 0, 0
     for r in raw:
         if len(r["title"]) <= 15:
@@ -177,21 +226,30 @@ def build(target):
         if sl is None:
             abroad += 1
             continue
-        r["slice"], r["topic"] = sl, CAT2TOPIC.get(r["category"], "kozelet")
+        r["slice"], r["topic"] = sl, topic_of(r)
         pool.append(r)
-    items, allocs = [], {}
+    items, allocs, shortfall = [], {}, 0
     for sl, share in SLICE_SHARE.items():
+        if sl == "kozos":
+            continue
         rows = [r for r in pool if r["slice"] == sl]
-        if sl == "kozos":  # a közös réteg pártsemleges: politika nélkül, a többi kvóta arányosan
-            ts = {t: s for t, s in TOPIC_SHARE.items() if t != "politika"}
-            tot = sum(ts.values())
-            ts = {t: s / tot for t, s in ts.items()}
-            rows = [r for r in rows if r["topic"] != "politika"]
-        else:
-            ts = TOPIC_SHARE
-        got, alloc = fill_slice(rows, round(TARGET * share), ts)
+        got, alloc = fill_slice(rows, round(TARGET * share), TOPIC_SHARE)
+        shortfall += round(TARGET * share) - len(got)
         allocs[sl] = {"cel": round(TARGET * share), "kapott": len(got), "elerheto": len(rows), "temak": alloc}
         items.extend(got)
+    # a közös réteg pártsemleges (politika nélkül); a mérete 60 + a pártos szeletek hiánya; témacélja a
+    # korpusz-szintű témahiány (a kvóta mínusz az eddig kiválasztott), politika nélkül, arányosítva
+    n_k = round(TARGET * SLICE_SHARE["kozos"]) + shortfall
+    have = {t: sum(1 for x in items if x["topic"] == t) for t in TOPIC_SHARE}
+    need = {t: max(0.0, TARGET * s - have[t]) for t, s in TOPIC_SHARE.items() if t != "politika"}
+    tot = sum(need.values()) or 1.0
+    ts = {t: v / tot for t, v in need.items()} if sum(need.values()) else \
+        {t: s / (1 - TOPIC_SHARE["politika"]) for t, s in TOPIC_SHARE.items() if t != "politika"}
+    rows = [r for r in pool if r["slice"] == "kozos" and r["topic"] != "politika"]
+    got, alloc = fill_slice(rows, n_k, ts)
+    allocs["kozos"] = {"cel": n_k, "kapott": len(got), "elerheto": len(rows), "temak": alloc,
+                       "megjegyzes": f"60 + a pártos szeletek hiánya ({shortfall})"}
+    items.extend(got)
     for it in items:
         it["text"] = it["title"] + (" — " + it["lead"] if it["lead"] else "")
     out = {"country": "HU", "target_month": target, "corpus_window": [w0.isoformat(), w1.isoformat()],
@@ -208,5 +266,10 @@ def build(target):
 
 
 if __name__ == "__main__":
-    for t in sys.argv[1:]:
-        build(t)
+    if sys.argv[1] == "--from-raw":   # újragondozás a mentett nyers merítésből, hálózat nélkül
+        for t in sys.argv[2:]:
+            rw = json.load(open(os.path.join(HERE, "korpusz_kuralt", f"raw_hu_{t}.json"), encoding="utf-8"))
+            curate(t, rw["days"], rw["raw"], rw["errors"])
+    else:
+        for t in sys.argv[1:]:
+            build(t)
