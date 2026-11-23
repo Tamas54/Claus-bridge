@@ -75,6 +75,7 @@ import hang
 import onjavitas
 import hopsz
 import nachtschicht
+import piac_elteres
 # FELADAT-ÜGYNÖKÖK (2026-11-23): névvel ellátott, a Kommandant által indított munkások (receptként, Claude-on)
 import feladat_ugynok
 import cimzett
@@ -12773,6 +12774,9 @@ async def _cron_loop():
 
             # KÖZLÉS-FIGYELŐ (2026-11-23): tervkör 07:00 / 12:00 (és induláskor), a közlési ablakok háttérfeladatként
             kozles_figyelo.cron_lepes(now_local)
+            # PIAC-ELTÉRÉS (2026-11-23): naponta egyszer 12:00 után (Budapest), ÁRNYÉK-MÓDBAN — csak napló és pontozás,
+            # kereskedés nincs (piac_elteres.py; PIAC_ELTERES=0 leállítja; napló nélkül jelzés sincs)
+            piac_elteres.cron_lepes(now_local, telegram=_telegram_push)
 
             # Daily cleanup: delete uploads older than 7 days (runs once at ~04:00 UTC)
             today_str = now_dt.strftime("%Y-%m-%d")
