@@ -3921,6 +3921,7 @@ def _docx_szoveg_zipbol(filepath) -> str:
         xml = z.read("word/document.xml").decode("utf-8", "replace")
     sorok = []
     for bek in _re.findall(r"<w:p[ >].*?</w:p>|<w:p/>", xml, _re.S):
+        bek = _re.sub(r"<w:t(?:\s[^>]*)?/>", "", bek)   # 11-23 este: az üres <w:t …/> a következő futás XML-jét nyelte el
         bek = _re.sub(r"<w:tab/>", "<w:t>\t</w:t>", bek)
         bek = _re.sub(r"<w:br[^>]*/>", "<w:t>\n</w:t>", bek)
         szoveg = "".join(_re.findall(r"<w:t(?:\s[^>]*)?>(.*?)</w:t>", bek, _re.S))

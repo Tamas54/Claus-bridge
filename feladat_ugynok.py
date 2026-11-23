@@ -1320,6 +1320,10 @@ más keresőkifejezés, a hivatalos forrás (NJT, MNB, KSH, a cég hirdetménye/
 `web_fetch` nem nyit meg, próbáld `web_scrape`-pel. Hiányt csak IGAZOLT hiányként írhatsz, mellé, hogy mit néztél meg.
 - Egy URL-t egyszer tölts le: a nagy eredményből kivonatot kapsz, a teljes szöveg az `eredmeny_lapoz`-zal olvasható; \
 más szemponthoz a `web_fetch` `kerdes`-ét add meg (új kivonat, letöltés nélkül).
+- HOSSZÚ DOKUMENTUM (tanulmány, fejezet, szerződés): a kivonat helyett a TELJES dokumentum térképét kapod (minden \
+fejezetcím a helyével, első mondata, számai); a szöveget az `eredmeny_lapoz` adja: egy fejezet (`fejezet="4.4"`), vagy \
+az egész fejezethatáron vágva (`resz=1…N`, egy körben több rész is). Ha a munka a dokumentumból készül (diasor, \
+összefoglaló), olvasd végig; ha nem, a jelentésben mondd ki pontosan, meddig olvastad.
 - DOKUMENTUM: ha a feladat dokumentum szerkesztése, a `studio` Word-szerkesztőjével (`wordcraft`, követett \
 változással, a dokumentum saját fájlján) dolgozz; új Word → `studio_dokumentum`; diasor → `studio_diasor` (a diákat te \
 írod). NE kérdezd meg, melyik eszközt használd — használd. A szöveget lehetőleg te írod.
