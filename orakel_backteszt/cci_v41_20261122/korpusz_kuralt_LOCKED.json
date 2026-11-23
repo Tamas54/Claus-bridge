@@ -1,0 +1,21 @@
+{
+ "op": "kurált HU-korpusz zárolás (a futás ELŐTT)",
+ "fajlok": {
+  "corpus_hu_2026-07.json": {
+   "sha256": "91931116288bb3c55e13d54701d273a08dcc7a7975db35da081266b5c2dd2c9d",
+   "n": 500
+  },
+  "corpus_hu_2026-08.json": {
+   "sha256": "096d5de38b31031e63265ffd30921e4b4b427434dd62d6cf8490e213a6288b4f",
+   "n": 500
+  },
+  "corpus_hu_2026-09.json": {
+   "sha256": "39a65c4cb59ec8b839520f70571dfc38b89390d2e85755277da24560b12e8027",
+   "n": 500
+  },
+  "corpus_hu_2026-10.json": {
+   "sha256": "d3cff2dbfdc88f175390cb2fbde6746128421f4543b556df7d8d759f3e079349",
+   "n": 500
+  }
+ }
+}
