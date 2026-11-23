@@ -1,7 +1,7 @@
 """FUTÁR-KLIENS (2026-11-22): a Bridge keze a Kommandant gépén. Ami CSAK ott van — a teljes saját tudásbázis, a
-ChatGPT-előfizetés (Codex) és a Gemini-fiók —, azt a gépen futó futár (~/faber/futar.py, systemd: futar.service)
-hozza el. A Kommandant jóváhagyta, és kifejezetten engedte, hogy a Bridge a futáron át a Codexet is indítsa (ez
-felülírja a 10-31-i „a Codexet csak a Kommandant indítja” szabályt).
+ChatGPT-előfizetés (Codex), a Gemini-fiók és (11-23) a gépén lévő fájlok —, azt a gépen futó futár (~/faber/futar.py,
+systemd: futar.service) hozza el. A Kommandant jóváhagyta, és kifejezetten engedte, hogy a Bridge a futáron át a
+Codexet is indítsa (ez felülírja a 10-31-i „a Codexet csak a Kommandant indítja” szabályt).
 
 HOGYAN (a Faber mintája, faber_relay.py)
 - A Bridge aláírt kérést tesz a messages táblába: recipient='futar', subject='futar:<művelet>', a törzs
@@ -24,6 +24,18 @@ láthatják”):
 - A Feldwebel köre, amelyben tudásbázis-tartalom van, csak Claude-dal megy (SiliconFlow-tartalék nélkül), és nem hív
   SiliconFlow-ügynököt vagy általuk olvasott tárat (`sf_fele`) — lásd feldwebel/responder.py.
 A ChatGPT és a Gemini nem kap automatikusan tudásbázis-kivonatot: csak azt, amit a hívó a promptba tesz.
+
+A GÉPEN LÉVŐ FÁJL (`helyi_fajl`, 11-23 — a Kommandant: „De a downloadsban ottan vagyon a dolog… fel kéne töltenem?”):
+- Ne kelljen feltöltenie vagy Gmailen átküldenie: ha a gép be van kapcsolva, a futár (`fajl` művelet) olvassa —
+  CSAK ~/Downloads, ~/Desktop, ~/adatexport; a ~/Documents NEM (titkok), rejtett és titkot sejtető név sem; kanonizált
+  úttal (a szabályt a futár érvényesíti, ~/faber/fajl_olvaso.py). Csak olvas (a Downloads az nCore-seed).
+- Szöveg (.docx — sérültnél a zipből —, .pdf az első 60 oldal, .pptx, .md, .txt, .csv, .json), legfeljebb 400 ezer
+  karakter, a vágás kimondva; vagy fájllista (a legújabb 50: név, méret, dátum). A nagy szövegből a hurok kivonatot
+  ad, a teljes szöveg `eredmeny_lapoz`-zal olvasható (kivonat.py).
+- CSAK CLAUDE-NAK, mint a tudásbázis (a Kommandant ALAPELVE, 11-23: „a rólam szóló, egyéni dolgok nem mennek a
+  kínaiaknak” — a gépe fájljai ilyenek): ugyanaz a három öv (`CLAUDE_CSAK_MUVELETEK`), és a fájl szövegével a kör ugyanúgy
+  védett (`tudasbazis_tartalom`). A kínai ügynökök eszközkészletébe nem kerül (server.SUBAGENT_TILTOTT).
+- A fájl szövegét a Bridge nem őrzi meg: a futár válaszsorát kiolvasás után kiüríti (`kiurit`).
 """
 from __future__ import annotations
 
@@ -41,7 +53,11 @@ import faber_relay
 
 logger = logging.getLogger("futar_kliens")
 
-MUVELETEK = ("tudasbazis", "chatgpt", "gemini")
+#: Az eszközök nevei (a Feldwebel ezeken hívja őket); a futár műveletének neve `FUTAR_MUVELET` szerint (alapból ugyanaz).
+MUVELETEK = ("tudasbazis", "chatgpt", "gemini", "helyi_fajl")
+FUTAR_MUVELET = {"helyi_fajl": "fajl"}
+#: A Kommandant személyes anyaga: csak Claude-modell futtathatja, és a találat a kört védetté teszi.
+CLAUDE_CSAK_MUVELETEK = frozenset({"tudasbazis", "helyi_fajl"})
 CIMZETT, VALASZ_CIMZETT, FELADO = "futar", "futar-valasz", "futar"
 #: A futár sorai a messages táblában — és a Nachtschicht naplója (nachtschicht.py, 11-22: a tételei és a reggeli
 #: jelentés tudásbázis-tartalmat hordozhatnak), valamint a feladat-ügynökök naplója (feladat_ugynok.py, 11-23:
@@ -55,12 +71,18 @@ FORRASOK = ("jegyzet", "atirat", "doksi", "commit", "cm_kerdes", "cm_osszegzes",
             "bridge_uzenet", "bridge_vita", "bridge_feladat", "kod", "web_atirat", "web_projekt", "web_memoria",
             "google_sajat", "google_profil", "google_havi")
 ATVETEL_S = 25                  # a futár 3 mp-enként kérdez (régi Bridge-en 10); ennyi alatt a nyugtának meg kell jönnie
-VARAKOZAS_S = {"tudasbazis": 120, "chatgpt": 270, "gemini": 210}    # a futár időkorlátja (90/240/180) + ráhagyás
+VARAKOZAS_S = {"tudasbazis": 120, "chatgpt": 270, "gemini": 210,     # a futár időkorlátja (90/240/180/60) + ráhagyás
+               "helyi_fajl": 90}
 LEPES_S = 1.0
 KERDES_PLAFON, PROMPT_PLAFON, MAX_EREDMENY_KAR = 1_000, 20_000, 12_000
+#: A fájl szövege: a futár plafonja (fajl_olvaso.PLAFON = 400 ezer karakter) + a fejléc.
+FAJL_PLAFON, FAJL_EREDMENY_KAR, UT_PLAFON, MINTA_PLAFON = 400_000, 402_000, 1_000, 200
+#: A kiolvasott fájl-válasz helyén ez marad a messages táblában (a Bridge a gép fájljának szövegét nem őrzi meg).
+KIURITVE = "(a futár válasza: a Kommandant gépéről olvasott fájl — kiolvasva, a Bridge nem őrzi meg)"
 
 NEM_ELERHETO = "a géped most nem elérhető (ki van kapcsolva?)"
 CSAK_CLAUDE = "a tudásbázis csak Claude-nak megy ki"
+CSAK_CLAUDE_FAJL = "a Kommandant gépén lévő fájl csak Claude-nak megy ki"
 #: A Bridge MCP `tudasbazis` eszközének hívója: a Kommandant saját Claude-példánya (claude.ai-csatlakozó, CLI), a zárt
 #: MCP-ajtó (api_kapu) és a példány-ellenőrzés (server.tudasbazis) után.
 MCP_HIVO = "claude-mcp-peldany"
@@ -177,13 +199,14 @@ def claude_modell(modell: str | None) -> bool:
 
 
 def tudasbazis_tartalom(nev: str, eredmeny: str) -> bool:
-    """A `tudasbazis` hívás valódi találatot hozott-e (nem hibát) — ettől a kör tudásbázis-tartalmú."""
-    if nev != "tudasbazis":
+    """A `tudasbazis` vagy a `helyi_fajl` hívás valódi találatot hozott-e (nem hibát) — ettől a kör
+    tudásbázis-tartalmú (védett). A `helyi_fajl` találata sima szöveg (a fájl fejléccel), a hibája JSON."""
+    if nev not in CLAUDE_CSAK_MUVELETEK:
         return False
     try:
         return "error" not in json.loads(eredmeny)
     except (ValueError, TypeError):
-        return False
+        return nev == "helyi_fajl" and isinstance(eredmeny, str) and bool(eredmeny.strip())
 
 
 def vedett_elozmeny(agent_id: str | None) -> bool:
@@ -225,6 +248,25 @@ TUDASBAZIS_DEF = {"type": "function", "function": {
     }, "required": ["kerdes"]}}}
 
 
+HELYI_FAJL_DEF = {"type": "function", "function": {
+    "name": "helyi_fajl",
+    "description": ("A Kommandant gépén lévő fájl (Downloads, Desktop); a gépnek bekapcsolva kell lennie. OLVASÁS: `ut` "
+                    "(pl. „~/Downloads/tanulmany.docx”, vagy csak a fájlnév) → a fájl szövege (.docx, .pdf — az első 60 "
+                    "oldal —, .pptx, .md, .txt, .csv, .json; legfeljebb 400 ezer karakter, a vágást kimondja). "
+                    "FÁJLLISTA: `lista` (pl. „~/Downloads”) és `minta` (pl. „robot” vagy „*.pdf”) → a legújabb 50 név, "
+                    "méret, dátum. Ha a Kommandant azt mondja, hogy a fájl a gépén van (Downloads, asztal), EZT "
+                    "használd — ne kérd, hogy töltse fel vagy küldje el Gmailen; ha a pontos név nem ismert, előbb "
+                    "listázz. Csak ~/Downloads, ~/Desktop és ~/adatexport olvasható (a ~/Documents nem). A szöveg CSAK "
+                    "ebben a válaszban használható: ne add tovább más ügynöknek (Kimi, DeepSeek, GLM), ne tedd "
+                    "feladatba, receptbe, közös memóriába."),
+    "parameters": {"type": "object", "properties": {
+        "ut": {"type": "string", "description": "Olvasáshoz a fájl: „~/Downloads/<név>”, „~/Desktop/<név>” vagy csak a név."},
+        "kerdes": {"type": "string", "description": "Nagy fájlnál: mire figyeljen a kivonat (elhagyható)."},
+        "lista": {"type": "string", "description": "Fájllistához a mappa, pl. „~/Downloads” (olvasáskor hagyd el)."},
+        "minta": {"type": "string", "description": "Fájllistánál a névminta, pl. „robot” vagy „*.pdf” (elhagyható)."},
+    }}}}
+
+
 def _ai_def(nev: str, ki: str) -> dict:
     return {"type": "function", "function": {
         "name": nev,
@@ -242,10 +284,11 @@ GEMINI_DEF = _ai_def("gemini", "a Geminitől (Google)")
 
 
 def eszkoz_definiciok() -> list:
-    """A Feldwebel futár-eszközei: futár-csatorna nélkül egy sem; a `tudasbazis` csak Claude-elsődlegességnél."""
+    """A Feldwebel futár-eszközei: futár-csatorna nélkül egy sem; a `tudasbazis` és a `helyi_fajl` csak
+    Claude-elsődlegességnél."""
     if not bekotve():
         return []
-    return ([TUDASBAZIS_DEF] if claude_elerheto() else []) + [CHATGPT_DEF, GEMINI_DEF]
+    return ([TUDASBAZIS_DEF, HELYI_FAJL_DEF] if claude_elerheto() else []) + [CHATGPT_DEF, GEMINI_DEF]
 
 
 def sajat_e(nev: str) -> bool:
@@ -269,6 +312,8 @@ def _param(muvelet: str, args: dict) -> tuple[dict | None, str | None]:
         if tol and not re.fullmatch(r"\d{4}-\d{2}-\d{2}", tol):
             return None, "a `tol` formája ÉÉÉÉ-HH-NN"
         return {"kerdes": kerdes, "szurok": szurok, "tol": tol}, None
+    if muvelet == "helyi_fajl":
+        return _fajl_param(args)
     prompt = str(args.get("prompt") or args.get("kerdes") or "").strip()
     if not prompt:
         return None, "hiányzik a prompt"
@@ -277,24 +322,63 @@ def _param(muvelet: str, args: dict) -> tuple[dict | None, str | None]:
     return {"prompt": prompt}, None
 
 
+def _fajl_param(args: dict) -> tuple[dict | None, str | None]:
+    """A `helyi_fajl` argumentumai: olvasás (`ut`, `kerdes`) VAGY fájllista (`lista`, `minta`). Csak az alakot nézi — a
+    hely szabályát (engedett gyökér, tiltott név, kanonizálás) a futár érvényesíti a gépen."""
+    def s(k: str, plafon: int) -> str | None:
+        v = args.get(k)
+        if v is True and k == "lista":
+            return "~/Downloads"
+        if v is None or v is False:
+            return None
+        v = str(v).strip()
+        if "\x00" in v or len(v) > plafon:
+            raise ValueError(f"érvénytelen `{k}` (legfeljebb {plafon} karakter)")
+        return v
+    try:
+        ut, kerdes = s("ut", UT_PLAFON), s("kerdes", KERDES_PLAFON)
+        lista, minta = s("lista", UT_PLAFON), s("minta", MINTA_PLAFON)
+    except ValueError as e:
+        return None, str(e)
+    if ut and (lista or minta):
+        return None, "vagy `ut` (olvasás), vagy `lista` (fájllista) — egyszerre nem"
+    if ut:
+        return ({"ut": ut, "kerdes": kerdes} if kerdes else {"ut": ut}), None
+    if lista is not None or minta:
+        return {"lista": lista or "~/Downloads", "minta": minta or None}, None
+    return None, "hiányzik az `ut` (a fájl, pl. „~/Downloads/x.docx”) vagy a `lista` (a mappa, pl. „~/Downloads”)"
+
+
+def kiurit(conn, mid: int) -> None:
+    """A futár válaszsorai (nyugta, válasz) erre a kérésre: a szöveg helyén `KIURITVE` — a gép fájljának szövege nem
+    marad a Bridge adatbázisában (és a messages tábla sem hízik soronként százezrekkel)."""
+    conn.execute("UPDATE messages SET message = ? WHERE recipient = ? AND sender = ? AND reply_to = ?",
+                 (KIURITVE, VALASZ_CIMZETT, FELADO, mid))
+    conn.commit()
+
+
 def _hiba(szoveg: str) -> str:
     return json.dumps({"error": szoveg}, ensure_ascii=False)
 
 
 _FORRAS_NEV = {"tudasbazis": "a Kommandant tudásbázisa (a gépén)", "chatgpt": "ChatGPT (Codex, a Kommandant gépén)",
-               "gemini": "Gemini (a Kommandant gépén)"}
+               "gemini": "Gemini (a Kommandant gépén)", "helyi_fajl": "a Kommandant gépén lévő fájl"}
 
 
 async def hiv(muvelet: str, args: dict, *, get_db, modell: str = "", token: str | None = None,
               atvetel_s: float = ATVETEL_S, varakozas_s: float | None = None, lepes_s: float = LEPES_S) -> str:
     """Egy futár-művelet a gépen; az eredmény JSON-szöveg (`{"forras", "valasz", "mp"}` vagy `{"error"}`). Sosem dob.
 
-    `modell`: az eszközt hívó kör VALÓBAN kiszolgáló modellje (a válasz `model` mezője). A `tudasbazis` csak
-    `claude-*` modellnek fut; a Bridge MCP-eszköz `MCP_HIVO`-t ad (a hívó a Kommandant saját Claude-példánya)."""
+    `modell`: az eszközt hívó kör VALÓBAN kiszolgáló modellje (a válasz `model` mezője). A `tudasbazis` és a
+    `helyi_fajl` csak `claude-*` modellnek fut; a Bridge MCP-eszköz `MCP_HIVO`-t ad (a hívó a Kommandant saját
+    Claude-példánya). A `helyi_fajl` sikeres eredménye SIMA SZÖVEG (a futár fejléce + a fájl szövege, a nagyát a hurok
+    kivonatolja és lapozhatóvá teszi), a hibája JSON, mint a többié."""
     if muvelet not in MUVELETEK:
         return _hiba(f"ismeretlen futár-művelet: {muvelet}")
-    if muvelet == "tudasbazis" and not claude_modell(modell):
-        logger.warning("futar: tudásbázis-hívás elutasítva (a kört nem Claude adta: %s)", modell or "?")
+    if muvelet in CLAUDE_CSAK_MUVELETEK and not claude_modell(modell):
+        logger.warning("futar: %s-hívás elutasítva (a kört nem Claude adta: %s)", muvelet, modell or "?")
+        if muvelet == "helyi_fajl":
+            return _hiba(f"{CSAK_CLAUDE_FAJL} (ezt a kört a(z) {modell or 'ismeretlen modell'} adta)")
         return _hiba(f"{CSAK_CLAUDE} (ezt a kört a(z) {modell or 'ismeretlen modell'} adta)")
     param, hiba = _param(muvelet, args)
     if hiba:
@@ -307,7 +391,7 @@ async def hiv(muvelet: str, args: dict, *, get_db, modell: str = "", token: str 
     t0 = time.monotonic()
     conn = get_db()
     try:
-        mid, kerdes = kuld(conn, token, muvelet, param, hatarido=time.time() + varakozas_s,
+        mid, kerdes = kuld(conn, token, FUTAR_MUVELET.get(muvelet, muvelet), param, hatarido=time.time() + varakozas_s,
                            ts=datetime.now(timezone.utc).isoformat())
     finally:
         conn.close()
@@ -323,8 +407,18 @@ async def hiv(muvelet: str, args: dict, *, get_db, modell: str = "", token: str 
         eltelt = time.monotonic() - t0
         if vege is not None:
             logger.info("futar: #%d %s kész (%s, %.0f mp)", mid, muvelet, "rendben" if vege.get("ok") else "hiba", eltelt)
+            if muvelet == "helyi_fajl":
+                conn = get_db()
+                try:
+                    kiurit(conn, mid)
+                except Exception as e:  # noqa: BLE001 — a kiürítés hibája a választ nem viheti el
+                    logger.warning("futar: #%d a fájl-válasz kiürítése elmaradt: %s", mid, str(e)[:200])
+                finally:
+                    conn.close()
             if not vege.get("ok"):
                 return _hiba(str(vege.get("hiba") or "a futár hibát jelzett"))
+            if muvelet == "helyi_fajl":
+                return str(vege.get("szoveg") or "")[:FAJL_EREDMENY_KAR]
             return json.dumps({"forras": _FORRAS_NEV[muvelet], "valasz": str(vege.get("szoveg") or "")[:MAX_EREDMENY_KAR],
                                "mp": vege.get("mp")}, ensure_ascii=False)
         if not atvett and eltelt >= atvetel_s:

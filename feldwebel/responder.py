@@ -961,7 +961,7 @@ async def _eszkozkeszlet() -> list:
 
 
 def _futar_eszkozok() -> list:
-    """A gépen futó futár eszközei (tudasbazis, chatgpt, gemini — futar_kliens.py); hibánál üres lista."""
+    """A gépen futó futár eszközei (tudasbazis, helyi_fajl, chatgpt, gemini — futar_kliens.py); hibánál üres lista."""
     try:
         import futar_kliens
         return futar_kliens.eszkoz_definiciok()

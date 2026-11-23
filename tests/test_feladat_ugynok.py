@@ -1348,3 +1348,41 @@ def test_kesz_ugynok_a_kabinban_leallithato_es_megszuntetheto(db, kulcs):
     js = (GYOKER / "static" / "app" / "app.js").read_text(encoding="utf-8")
     assert "gyorsKapcs(f, be ? 'leallit' : 'megszuntet', kapcs)" in js and "ugynok-kapcs" in js
     assert "Végleg megszünteted" in js[js.index("async function gyorsKapcs"):][:400]
+
+
+
+# ══ A GÉPEN LÉVŐ FÁJL (helyi_fajl, 11-23) ═══════════════════════════════════════
+
+class ForrasFajl(Forras):
+    async def feldwebel_eszkoz(self, nev, args, modell):
+        self.hivasok.append(("feldwebel", nev, modell))
+        if nev == "helyi_fajl":
+            return "[A Kommandant gépéről: ~/Downloads/x.docx — Word (.docx)]\n\nTITKOS-FAJL-888: a robotadó"
+        return await super().feldwebel_eszkoz(nev, args, modell)
+
+
+def test_helyi_fajl_claude_modellu_ugynoknek_igen_sf_nek_nem(db, sf_kulcs, monkeypatch):
+    monkeypatch.setattr(futar_kliens, "claude_elerheto", lambda: True)
+    assert "helyi_fajl" in {t["function"]["name"] for t in _run(F.eszkoz_definiciok(Forras(), sf=False))}
+    assert "helyi_fajl" not in {t["function"]["name"] for t in _run(F.eszkoz_definiciok(Forras(), sf=True))}
+    assert F.engedett("helyi_fajl", {"ut": "x"}, sf=True) == F.SF_FAJL_ESZKOZ
+    assert F.engedett("helyi_fajl", {"ut": "x"}, sf=False) is None
+    rid = _letrehoz(db, modell="deepseek")
+    f = ForrasFajl()
+    sf = Kapu([_sf_valasz(hivasok=[("helyi_fajl", {"ut": "~/Downloads/x.docx"})], modell="deepseek-ai/DeepSeek-V4-Pro"),
+               _sf_valasz(json.dumps({"jelzes": False, "osszegzes": "-", "eredmeny": "-"}),
+                          modell="deepseek-ai/DeepSeek-V4-Pro")])
+    e, _, _ = _futtat(db, rid, Kapu([]), forras=f, sf_kapu=sf)
+    assert e["elutasitva"] == ["helyi_fajl"] and f.hivasok == [] and e["tudasbazis"] is False
+    assert "TITKOS-FAJL-888" not in json.dumps(sf.hivasok, ensure_ascii=False)
+
+
+def test_helyi_fajlt_olvaso_futas_vedett_es_jelolt(db, kulcs):
+    rid = _letrehoz(db)
+    f = ForrasFajl()
+    kapu = Kapu([_valasz(hivasok=[("helyi_fajl", {"ut": "~/Downloads/x.docx"})]),
+                 _zaro(osszegzes="A tanulmány a robotadót javasolja.")])
+    e, _, elozmeny = _futtat(db, rid, kapu, forras=f)
+    assert ("feldwebel", "helyi_fajl", "claude-sonnet-5-5") in f.hivasok    # a futár a VALÓDI modellt kapja
+    assert e["tudasbazis"] is True and elozmeny and elozmeny[0][1] is True
+    assert json.loads(_sor(db, rid)["description"])["tudasbazis_erintett"] is True

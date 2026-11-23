@@ -3851,7 +3851,8 @@ def _docx_szoveg_zipbol(filepath) -> str:
     A Word sok hibát elnéz, a python-docx nem: a Kommandant robot-tanulmánya (v7) azért nem volt olvasható, mert egy
     képe nincs bejegyezve a `[Content_Types].xml`-ben („no content type for partname …/photo_baines.jpg”). A szöveghez
     a képekre nincs szükség: bekezdésenként a `<w:t>` elemek, a tabulátor és a sortörés megmarad; a táblázatcellák
-    bekezdései sorban jönnek."""
+    bekezdései sorban jönnek. (11-23: a tabulátor és a sortörés `<w:t>`-ként kerül a helyére — eddig a csak `<w:t>`-t
+    gyűjtő lépés elhagyta.)"""
     import html as _html
     import re as _re
     import zipfile as _zip
@@ -3859,8 +3860,8 @@ def _docx_szoveg_zipbol(filepath) -> str:
         xml = z.read("word/document.xml").decode("utf-8", "replace")
     sorok = []
     for bek in _re.findall(r"<w:p[ >].*?</w:p>|<w:p/>", xml, _re.S):
-        bek = _re.sub(r"<w:tab/>", "\t", bek)
-        bek = _re.sub(r"<w:br[^>]*/>", "\n", bek)
+        bek = _re.sub(r"<w:tab/>", "<w:t>\t</w:t>", bek)
+        bek = _re.sub(r"<w:br[^>]*/>", "<w:t>\n</w:t>", bek)
         szoveg = "".join(_re.findall(r"<w:t(?:\s[^>]*)?>(.*?)</w:t>", bek, _re.S))
         sorok.append(_html.unescape(szoveg))
     return "\n".join(sorok).strip()

@@ -14,6 +14,7 @@ DOC = ('<?xml version="1.0" encoding="UTF-8"?><w:document xmlns:w="http://schema
        '<w:p><w:r><w:t>Mire a robot megérkezik</w:t></w:r></w:p>'
        '<w:p><w:r><w:t xml:space="preserve">Első </w:t></w:r><w:r><w:t>bekezdés &amp; szám: 550 $</w:t></w:r></w:p>'
        '<w:tbl><w:tr><w:tc><w:p><w:r><w:t>cella</w:t></w:r></w:p></w:tc></w:tr></w:tbl>'
+       '<w:p><w:r><w:t>név</w:t></w:r><w:r><w:tab/><w:t>érték</w:t></w:r><w:r><w:br/><w:t>új sor</w:t></w:r></w:p>'
        '</w:body></w:document>')
 TIPUSOK = ('<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/'
            'content-types"><Default Extension="xml" ContentType="application/xml"/>'
@@ -44,3 +45,9 @@ def test_a_serult_docx_szovege_a_zipbol_jon(tmp_path):
 def test_a_zip_tartalek_kozvetlenul(tmp_path):
     sorok = server._docx_szoveg_zipbol(_serult_docx(tmp_path / "v.docx")).splitlines()
     assert sorok[0] == "Mire a robot megérkezik"
+
+
+def test_a_tabulator_es_a_sortores_megmarad(tmp_path):
+    """11-23: a `<w:tab/>` és a `<w:br/>` a `<w:t>`-n kívül áll — eddig a szöveggyűjtés elhagyta."""
+    szoveg = server._docx_szoveg_zipbol(_serult_docx(tmp_path / "v.docx"))
+    assert "név\térték\núj sor" in szoveg

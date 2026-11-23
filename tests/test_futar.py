@@ -7,7 +7,9 @@ Hálózat nélkül: a gépen futó futárt egy hamis, aláírt válaszokat író
   - A TUDÁSBÁZIS CSAK CLAUDE-NAK: SiliconFlow-modell nem kapja meg és nem futtathatja; a tudásbázis-tartalmú kör csak
     Claude-dal megy (tartalék nélkül), nem hív SiliconFlow-ügynököt, és a jelölt előzmény SF-nek rejtve marad;
     a SiliconFlow-ügynökök eszközkészletében és kontextusában (build_agent_context, _get_inbox_summary) nincs benne;
-  - a Bridge MCP `tudasbazis` eszköze: saját példány / üres caller igen, idegen példány nem.
+  - a Bridge MCP `tudasbazis` eszköze: saját példány / üres caller igen, idegen példány nem;
+  - A GÉPEN LÉVŐ FÁJL (`helyi_fajl`, 11-23): a futár `fajl` műveletét kéri, csak Claude-nak, a nagy szöveg egészben jön
+    (nem 12 ezernél vágva), a hurok kivonatolja és lapozható, a kör védett lesz, a Bridge a szöveget nem őrzi meg.
 """
 from __future__ import annotations
 
@@ -198,7 +200,7 @@ def test_token_nelkul_nincs_csatorna_es_eszkoz(tmp_path, monkeypatch):
 # ── 2. A tudásbázis csak Claude-nak ─────────────────────────────────────
 
 def test_eszkozok_csak_claude_elsodlegessegnel(monkeypatch):
-    assert [d["function"]["name"] for d in fk.eszkoz_definiciok()] == ["tudasbazis", "chatgpt", "gemini"]
+    assert [d["function"]["name"] for d in fk.eszkoz_definiciok()] == ["tudasbazis", "helyi_fajl", "chatgpt", "gemini"]
     monkeypatch.setenv("LLM_ELSODLEGES", "siliconflow")
     assert [d["function"]["name"] for d in fk.eszkoz_definiciok()] == ["chatgpt", "gemini"]
     monkeypatch.delenv("LLM_ELSODLEGES")
@@ -472,3 +474,136 @@ def test_vedett_korben_csak_a_kinai_ugynokhoz_adas_tiltott():
     for nev in ("echolot", "engine", "studio", "dontes_szimulator", "analyze_upload", "chatgpt", "gemini",
                 "lexonomics", "medical", "makronom", "mnb_rates"):
         assert not fk.sf_fele(nev, {}), nev
+
+# ── 5. A gépen lévő fájl (helyi_fajl, 11-23) ────────────────────────────
+
+FAJL_FEJ = "[A Kommandant gépéről: ~/Downloads/Mire_a_robot_megerkezik_HNA_v7.docx — Word (.docx), 5,8 MB]\n\n"
+
+
+async def _hiv_gep_ellen_szoveg(get_db, args, valasz):
+    gep = asyncio.ensure_future(_hamis_gep(get_db, valasz=valasz))
+    ered = await fk.hiv("helyi_fajl", args, get_db=get_db, token=TOKEN, lepes_s=0.01, modell="claude-opus-5-5")
+    return ered, await gep
+
+
+def test_helyi_fajl_a_futar_fajl_muveletet_keri_es_a_szoveg_egeszben_jon(tmp_path):
+    get_db = _db(tmp_path)
+    nagy = FAJL_FEJ + "TITKOS-FAJL-555 " + "árvíztűrő tükörfúrógép " * 8_000          # ~184 ezer karakter
+
+    async def fut():
+        g = asyncio.ensure_future(_hamis_gep(get_db, valasz={"ok": True, "szoveg": nagy, "hiba": None, "mp": 0.4,
+                                                             "fajl": {"karakter": len(nagy)}}))
+        ered = await fk.hiv("helyi_fajl", {"ut": "~/Downloads/Mire_a_robot_megerkezik_HNA_v7.docx", "kerdes": "robotadó",
+                                           "cmd": "rm -rf ~"}, get_db=get_db, token=TOKEN, lepes_s=0.01,
+                            modell="claude-sonnet-5-5")
+        return ered, await g
+    ered, (t, adat) = _run(fut())
+    assert t["tipus"] == "fajl"                                               # a futár műveletének neve
+    assert adat["param"] == {"ut": "~/Downloads/Mire_a_robot_megerkezik_HNA_v7.docx", "kerdes": "robotadó"}
+    assert ered == nagy and len(ered) > fk.MAX_EREDMENY_KAR                   # sima szöveg, egészben (nem 12 ezer)
+    assert fk.tudasbazis_tartalom("helyi_fajl", ered)                         # a kör ettől védett
+    c = get_db()                                                              # a Bridge nem őrzi meg a szöveget
+    try:
+        sorok = c.execute("SELECT message FROM messages WHERE recipient = 'futar-valasz'").fetchall()
+    finally:
+        c.close()
+    assert len(sorok) == 2 and all(r["message"] == fk.KIURITVE for r in sorok)
+
+
+def test_helyi_fajl_plafon_a_futare(tmp_path):
+    get_db = _db(tmp_path)
+    tul = "x" * (fk.FAJL_EREDMENY_KAR + 500)
+    ered, _ = _run(_hiv_gep_ellen_szoveg(get_db, {"ut": "a.txt"}, {"ok": True, "szoveg": tul, "hiba": None, "mp": 1}))
+    assert len(ered) == fk.FAJL_EREDMENY_KAR
+
+
+def test_helyi_fajl_hibaja_kimondva_es_a_gep_nem_elerheto(tmp_path):
+    get_db = _db(tmp_path)
+    ered, _ = _run(_hiv_gep_ellen_szoveg(get_db, {"ut": "~/Documents/titok.md"},
+                                         {"ok": False, "szoveg": "", "hiba": "nem engedett hely: csak ~/Downloads, "
+                                          "~/Desktop, ~/adatexport olvasható", "mp": 0}))
+    assert json.loads(ered)["error"].startswith("nem engedett hely")
+    assert not fk.tudasbazis_tartalom("helyi_fajl", ered)                     # a hiba nem tesz védetté
+    (tmp_path / "ki").mkdir()
+    get_db = _db(tmp_path / "ki")                                             # a gép ki van kapcsolva: nincs nyugta
+    t0 = time.monotonic()
+    ered = json.loads(_run(fk.hiv("helyi_fajl", {"ut": "a.docx"}, get_db=get_db, token=TOKEN, atvetel_s=0.1,
+                                  lepes_s=0.01, modell="claude-sonnet-5-5")))
+    assert ered == {"error": fk.NEM_ELERHETO} and "nem elérhető" in fk.NEM_ELERHETO and time.monotonic() - t0 < 2
+
+
+@pytest.mark.parametrize("modell", ["deepseek-ai/DeepSeek-V4-Pro", "moonshotai/Kimi-K3.1-Pro", "zai-org/GLM-5.3", "",
+                                    None, "gpt-6"])
+def test_helyi_fajl_csak_claude_modellnek(tmp_path, modell):
+    get_db = _db(tmp_path)
+    ered = json.loads(_run(fk.hiv("helyi_fajl", {"ut": "~/Downloads/x.docx"}, get_db=get_db, token=TOKEN,
+                                  modell=modell)))
+    assert ered["error"].startswith(fk.CSAK_CLAUDE_FAJL)
+    assert _keresek(get_db) == []                                             # a kérés el sem indult
+
+
+def test_helyi_fajl_parameterei():
+    p = fk._param
+    assert p("helyi_fajl", {"ut": " ~/Downloads/x.docx ", "lista": None, "n": 9}) == ({"ut": "~/Downloads/x.docx"}, None)
+    assert p("helyi_fajl", {"lista": "~/Desktop", "minta": "*.pdf"}) == ({"lista": "~/Desktop", "minta": "*.pdf"}, None)
+    assert p("helyi_fajl", {"minta": "robot"}) == ({"lista": "~/Downloads", "minta": "robot"}, None)
+    assert p("helyi_fajl", {"lista": True}) == ({"lista": "~/Downloads", "minta": None}, None)
+    assert p("helyi_fajl", {"lista": ""}) == ({"lista": "~/Downloads", "minta": None}, None)
+    for rossz in ({}, {"ut": "a", "lista": "~/Downloads"}, {"ut": "a\x00b"}, {"ut": "x" * (fk.UT_PLAFON + 1)},
+                  {"lista": "~/Downloads", "minta": "m" * (fk.MINTA_PLAFON + 1)}, {"kerdes": "csak kérdés"}):
+        assert p("helyi_fajl", rossz)[0] is None, rossz
+
+
+def test_helyi_fajl_a_kinai_ugynokoknek_nincs():
+    import server
+    assert "helyi_fajl" in server.SUBAGENT_TILTOTT and "helyi_fajl" in fk.CLAUDE_CSAK_MUVELETEK
+    assert "helyi_fajl" not in {t["function"]["name"] for t in server.SUBAGENT_TOOL_DEFS}
+    d = fk.HELYI_FAJL_DEF["function"]["description"]
+    assert d.startswith("A Kommandant gépén lévő fájl (Downloads, Desktop); a gépnek bekapcsolva kell lennie.")
+
+
+def test_helyi_fajl_nagy_szovege_kivonat_es_lapozhato():
+    """A hurok (kivonat.EredmenyTar) a nagy fájlszövegből kivonatot ad, a teljes szöveg `eredmeny_lapoz`-zal jön."""
+    import kivonat
+    szoveg = FAJL_FEJ + "".join(f"[{i:05d}] árvíztűrő tükörfúrógép\n" for i in range(6_000))   # ~200 ezer karakter
+
+    async def olvaso(payload, purpose=""):
+        assert "helyi_fajl" in payload["messages"][0]["content"] and "robotadó" in payload["messages"][0]["content"]
+        return {"model": "claude-haiku-5-5", "choices": [{"message": {"content": "~/Downloads/…v7.docx — kivonat"}}]}, \
+            None, []
+    tar = kivonat.EredmenyTar(olvaso=olvaso)
+    ki = _run(tar.feldolgoz("helyi_fajl", {"ut": "~/Downloads/x.docx", "kerdes": "robotadó"}, szoveg, feladat="olvasd"))
+    assert ki.startswith("[KIVONAT — a(z) `helyi_fajl` eredménye") and len(ki) < kivonat.KIVONAT_MAX_KAR + 600
+    reszek = -(-len(szoveg) // kivonat.RESZ_KAR)
+    assert f'eredmeny_lapoz(azon="e1", resz=1…{reszek})' in ki
+    egesz = "".join(tar.lapoz({"azon": "e1", "resz": r}).split("\n", 1)[1] for r in range(1, reszek + 1))
+    assert egesz == szoveg                                                    # semmi nem vész el
+    hiba = json.dumps({"error": fk.NEM_ELERHETO}, ensure_ascii=False)
+    assert _run(tar.feldolgoz("helyi_fajl", {"ut": "x"}, hiba)) == hiba        # a hiba szó szerint megy
+
+
+def test_kor_helyi_fajllal_csak_claude_es_jelolt_elozmeny(feldwebel, monkeypatch):
+    responder, get_db, hivasok, sor = feldwebel
+    kapott = {}
+
+    async def hamis_hiv(muvelet, args, *, get_db, modell=""):
+        kapott.update(muvelet=muvelet, args=args, modell=modell)
+        return FAJL_FEJ + "TITKOS-FAJL-777: a robotadó javaslat"
+    monkeypatch.setattr(fk, "hiv", hamis_hiv)
+    sor["kapu"] = [_eszkozhivas("helyi_fajl", {"ut": "~/Downloads/x.docx"}, "claude-sonnet-5-5")]
+    sor["claude"] = [_szoveg("A tanulmány a robotadót javasolja (TITKOS-FAJL-777).", "claude-sonnet-5-5")]
+    assert _run(responder.respond("a downloadsban ottan vagyon a robotos tanulmány, olvasd el", "42")).startswith(
+        "A tanulmány")
+    assert kapott == {"muvelet": "helyi_fajl", "args": {"ut": "~/Downloads/x.docx"}, "modell": "claude-sonnet-5-5"}
+    assert "helyi_fajl" in {t["function"]["name"] for t in hivasok["kapu"][0]["tools"]}
+    assert len(hivasok["claude"]) == 1 and "TITKOS-FAJL-777" in json.dumps(hivasok["claude"][0], ensure_ascii=False)
+    assert all("TITKOS-FAJL-777" not in json.dumps(p, ensure_ascii=False) for p in hivasok["kapu"])
+    assert _elozmeny(get_db)[-1]["agent_id"] == "deepseek" + fk.CLAUDE_CSAK_JEL
+
+
+def test_a_szandek_utvalaszto_betolti():
+    from feldwebel import eszkoz_ut
+    assert eszkoz_ut.kategoria("helyi_fajl") == "dokumentum"
+    for szoveg in ("De a downloadsban ottan vagyon a dolog… fel kéne töltenem?", "nézd meg az asztalon a levelet",
+                   "a gépemen van a tanulmány", "a letöltések közt van a v7", "olvasd el, nálam van a gépen"):
+        assert "dokumentum" in eszkoz_ut.szandek(szoveg), szoveg

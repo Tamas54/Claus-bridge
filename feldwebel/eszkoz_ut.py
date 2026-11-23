@@ -131,6 +131,14 @@ U_DOKUMENTUM = """DOKUMENTUM, FÁJL, KÉP:
   FORMÁZVA készüljön (címsor-stílusok, felsorolás, táblázat — ne nyers bekezdések), tartsd a kért terjedelmet, és
   átadás előtt nézd meg a Studio ellenőrzésével vagy előnézetével (validate_document / files preview); amit ott hibát
   jelez, javítsd.
+A KOMMANDANT GÉPÉN LÉVŐ FÁJL (`helyi_fajl`, a futáron át — a gépnek bekapcsolva kell lennie):
+- „A Downloadsban van a robotos tanulmány, olvasd el” → ha a pontos név nem ismert: helyi_fajl(lista="~/Downloads",
+  minta="robot"), aztán helyi_fajl(ut="~/Downloads/<a talált név>"). Több változatnál (v5, v6, v7) a legújabbat vedd,
+  és mondd meg, melyiket olvastad. NE kérd, hogy töltse fel vagy küldje el Gmailen, és ne keresd a Gmailben.
+- Olvasható: ~/Downloads, ~/Desktop, ~/adatexport (a ~/Documents nem); .docx, .pdf, .pptx, .md, .txt, .csv, .json.
+- Nagy fájlnál kivonatot kapsz; a teljes szöveg az `eredmeny_lapoz`-zal olvasható, részenként. Ha belőle Studio-
+  dokumentum kell (javaslat követett változásként, diasor), a szöveget te adod át a `studio`-nak.
+- „a géped most nem elérhető”: mondd meg, hogy a gép ki van kapcsolva — csak ekkor kérd a feltöltést.
 FOTÓK ÉS FÁJLOK:
 - A Kommandant Telegramon küldhet fotókat — azok upload #ID-val tárolódnak
 - "Elemezd a #2-es képet" → analyze_upload(file_id=2)
@@ -196,6 +204,8 @@ U_MELLEKLET = """MELLÉKLET ÉS TANÁCSADÁS (irat, tanulmány, fotó, egészsé
   jelenik meg, mire kér javaslatot: szerkezet, érvelés, nyelv, források) — kivéve, ha a kérés ezt már megmondja.
 - Ha a válaszhoz egy döntő tény hiányzik, KÉRDEZZ (legfeljebb 3 kérdés, számozva), de amit a meglévőből már mondani
   lehet, azt mondd el előtte. Az ilyen válasz lehet hosszabb 3-5 mondatnál.
+- Ha a Kommandant a GÉPÉN lévő fájlra hivatkozik (Downloads, asztal), azt a `helyi_fajl` olvassa (a `dokumentum`
+  kategóriában) — ne kérd, hogy töltse fel.
 - A Kommandant adatai (űrlaphoz, hivatalos levélhez — ne kérdezd meg újra): {profil}"""
 
 U_JOG = """JOGI IRAT: először 2-3 mondatban: mi ez, ki kinek küldte, mit akar — és HA VAN HATÁRIDŐ, azt elsőként, dátummal és
@@ -285,9 +295,12 @@ KATEGORIAK: dict[str, dict] = {
     },
     "dokumentum": {
         "leiras": "Word, PPT, PDF, kép, videó (Studio), AI-feladat exportja, képelemzés",
-        "eszkozok": ("studio", "export_task", "analyze_upload"),
+        "eszkozok": ("studio", "export_task", "analyze_upload", "helyi_fajl"),
         "minta": r"dokumentum|\bword\b|docx|\bpdf|prezentaci|pptx|\bexcel|xlsx|\bkep(et|en|rol|ek|be)?\b|\bfoto|"
-                 r"video|#\s?\d|mellekle|csatolt|\bfajl|export|studio|tablazat",
+                 r"video|#\s?\d|mellekle|csatolt|\bfajl|export|studio|tablazat|"
+                 # 11-23: a Kommandant gépén lévő fájl (`helyi_fajl`) — „a downloadsban ottan vagyon a dolog”
+                 r"download|letoltes|letoltott|\basztal(on|ra|rol)\b|desktop|adatexport|\bgepem(en|rol|re)?\b|"
+                 r"\ba\s+gepen\b|gepeden|\bnalam\s+van|fel\s*kene\s*toltenem|toltsem\s+fel|feltoltsem",
         "utmutato": U_DOKUMENTUM,
     },
     "tanacs": {

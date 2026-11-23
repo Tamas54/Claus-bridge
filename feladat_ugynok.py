@@ -994,7 +994,8 @@ async def feldwebel_hiv(args: dict, ctx, *, vedett: bool = False, kor: dict | No
 FELDWEBEL_ENGEDETT = frozenset({
     "web_search", "web_fetch", "web_scrape", "echolot_query",
     "mnb_rates", "market_quote", "fred_data", "policy_rates", "econ_calendar",
-    "gmail_search", "read_gmail_attachment", "search_memory", "read_memory", "list_tasks", "tudasbazis"})
+    "gmail_search", "read_gmail_attachment", "search_memory", "read_memory", "list_tasks", "tudasbazis",
+    "helyi_fajl"})          # 11-23: a Kommandant gépén lévő fájl (Downloads, Desktop) — csak Claude-modellű ügynöknek
 #: Külső MCP-k: tiszta adatkeresők (a Kommandant döntése, 11-22 — a Nachtschichtével azonos lista).
 KULSO_ENGEDETT = ns.KULSO_ENGEDETT
 #: A Nachtschicht saját eszközei: olvasó naptár és levél, Gmail-TERVEZET (nem küld), Studio-dokumentum (AI nélkül).
@@ -1025,6 +1026,8 @@ TILTOTT = frozenset({
     "post_tweet", "tweet_posztol"})                                                           # X-re posztolás (11-23)
 SF_TUDASBAZIS_ESZKOZ = ("SiliconFlow-modellű ügynök a tudásbázist nem olvashatja — a Kommandant tudásbázisa csak "
                         "Claude-modellnek mehet ki")
+SF_FAJL_ESZKOZ = ("SiliconFlow-modellű ügynök a Kommandant gépén lévő fájlt nem olvashatja — csak Claude-modellnek "
+                  "mehet ki (sonnet, haiku, opus)")
 #: 11-23: SiliconFlow-modellű ügynöknek a Gmail és a naptár sem — a kínai modellektől a Kommandant tudásbázisa, Gmailje
 #: és naptára semmilyen úton nem érhető el (a Bridge SF-ügynökeinél ugyanez: server.SUBAGENT_TILTOTT).
 SF_GMAIL_NAPTAR = frozenset({"gmail_search", "read_gmail_attachment", "gmail_level", "gmail_tervezet", "naptar",
@@ -1039,6 +1042,8 @@ def engedett(nev: str, args: dict | None = None, *, sf: bool = False) -> str | N
         return f"a(z) `{nev}` eszköz a feladat-ügynöknek nem engedett (kifelé semmi nem megy, a jogait nem bővítheti)"
     if sf and nev == "tudasbazis":
         return SF_TUDASBAZIS_ESZKOZ
+    if sf and nev == "helyi_fajl":
+        return SF_FAJL_ESZKOZ
     if sf and nev in SF_GMAIL_NAPTAR:
         return SF_GMAIL_NAPTAR_ESZKOZ
     if nev in STUDIO | ECHOLOT_ENGINE:
@@ -1094,7 +1099,7 @@ async def eszkoz_definiciok(forras, *, sf: bool = False, ugynok: dict | None = N
     if not sf and forras.tudasbazis_elerheto():
         import futar_kliens
         if futar_kliens.claude_elerheto():
-            defs.append(futar_kliens.TUDASBAZIS_DEF)
+            defs += [futar_kliens.TUDASBAZIS_DEF, futar_kliens.HELYI_FAJL_DEF]
     defs += [t for t in await forras.kulso_definiciok() if t["function"]["name"] in KULSO_ENGEDETT | STUDIO | ECHOLOT_ENGINE]
     defs += ns.SAJAT_DEFS
     defs += _egyutt_defs(ugynok or {})
