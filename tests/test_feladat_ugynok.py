@@ -1069,3 +1069,27 @@ def test_kabin_szerkeszt(db):
     # a megszüntetett ügynök a többiek partnerlistájáról is lekerül
     F.vegrehajt("megszuntet", {"id": f"ugynok:{masik}"}, get_db=db)
     assert [p["id"] for p in F.nezet(_sor(db, rid))["vitapartnerek"]] == ["kimi", "feldwebel"]
+
+
+def test_hiany_or_visszakuldi_keresni_ha_maradt_keret(db, kulcs):
+    """11-23, a Kommandant a Bankváltás-kutató „Nem talált vagy nem megerősített” szakaszáról: „na itten probléma
+    vagyon. Kapott eszközt a kereséshez?” — kapott, de a keret negyedénél feladta. A hiány-őr visszaküldi keresni."""
+    rid = _letrehoz(db)
+    hianyos = _zaro(osszegzes="Részben kész.", eredmeny="A díj: nem találtam. Az MNB-tájékoztatót nem sikerült megnyitni.")
+    kapu = Kapu([hianyos,
+                 _valasz(hivasok=[("web_scrape", {"url": "https://www.mnb.hu/x"})], usd=0.02),
+                 _zaro(osszegzes="Kész.", eredmeny="A bankváltás díjmentes (263/2016. Korm. r. 10. §); forrás: NJT.")])
+    e, szolt, _ = _futtat(db, rid, kapu)
+    assert e["allapot"] == "kesz" and len(kapu.hivasok) == 3                  # vissza ment keresni
+    utolso = kapu.hivasok[1][1]["messages"][-1]["content"]
+    assert "HIÁNY maradt" in utolso and "nem találtam" in utolso
+    assert "díjmentes" in json.dumps(e, ensure_ascii=False) or "díjmentes" in szolt[0]
+    assert F.hiany_sorok("minden megvan, forrással") == []
+
+
+def test_hiany_or_nem_lepi_tul_a_keretet(db, kulcs):
+    rid = _letrehoz(db)
+    # az első kör már a keret 70%-a fölött van → nincs újabb keresés, a hiány kimondva marad
+    kapu = Kapu([_zaro(eredmeny="A díjat nem találtam.") | {"koltes_usd": 0.40}])
+    e, _, _ = _futtat(db, rid, kapu)
+    assert len(kapu.hivasok) == 1 and e["allapot"] == "kesz"
