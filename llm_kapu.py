@@ -637,8 +637,14 @@ def _konyvel(usage, modell: str, szint: str, purpose: str) -> float:
         sz["hivasok"] += 1
         sz["usd"] += usd
         osszes, n = _KOLTES["usd"], _KOLTES["hivasok"]
-    logger.info("llm_kapu[%s] %s: $%.5f — havi költés $%.4f / $%.0f (%d hívás, %s)",
-                purpose or "?", modell, usd, osszes, havi_keret(), n, _KOLTES["honap"])
+    # 11-23: a tokenek is a naplóba — a Kommandant: „Valami tényleg nem oké” a költséggel; mérni kell, mi megy ki
+    be = int(getattr(usage, "input_tokens", 0) or 0)
+    olv = int(getattr(usage, "cache_read_input_tokens", 0) or 0)
+    irt = int(getattr(usage, "cache_creation_input_tokens", 0) or 0)
+    ki = int(getattr(usage, "output_tokens", 0) or 0)
+    logger.info("llm_kapu[%s] %s: $%.5f — tokenek: be %d, cache-olvas %d, cache-ír %d, ki %d — havi költés $%.4f / "
+                "$%.0f (%d hívás, %s)", purpose or "?", modell, usd, be, olv, irt, ki, osszes, havi_keret(), n,
+                _KOLTES["honap"])
     return usd
 
 
