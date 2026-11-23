@@ -71,19 +71,15 @@ REJTETT_ELOZMENY = ("(Korábbi válasz a Kommandant tudásbázisából. Adatvéd
 #: Eszközök, amelyek a kör tartalmát SiliconFlow-ügynökhöz (Kimi, DeepSeek, GLM), általuk olvasott tárba (feladat,
 #: recept, Bridge-üzenet) vagy nyilvánosan vinnék tovább. Tudásbázis-tartalmú körben nem futnak.
 SF_FELE = frozenset({"ai_query", "ai_task", "create_task", "execute_recipe", "create_recipe", "schedule_recipe",
-                     "send_message",
-                     # 11-23: a képfeltöltés-elemzés a modell által írt promptot SF-tartalékon is kiküldheti (rés)
-                     "analyze_upload",
-                     # 11-22: azok a saját MCP-k sem kapnak tudásbázis-tartalmat, amelyek a kapott szöveget a SAJÁT
-                     # AI-jukkal dolgozzák fel (az Echolot és az Engine SiliconFlow-, azaz kínai modellekkel, a Studio a
-                     # saját AI-lépéseivel). A ChatGPT és a Gemini KAPHAT (a Kommandant: „chatgpt és gemini kaphat”); a
-                     # tiszta adatkeresők (Lexonomics, Medical, Makronóm) is mehetnek.
-                     # 11-23: a Studio NEM egészében — csak az AI-lépései (lásd `studio_ai_lepes`); a gépi
-                     # dokumentum-műveletek (Word, diasor kész diákból, feltöltés) a Kommandant saját Studiójában mennek
-                     "echolot", "engine",
-                     # a döntés-szimulátor a lépés szövegét a DELPHOI SiliconFlow-panelnek, az Echolotnak és a
-                     # Studiónak adja: tudásbázis-tartalom nem kerülhet bele
-                     "dontes_szimulator"})
+                     "send_message"})
+# ALAPELV (a Kommandant, 11-23): „az eszközeink … általánosan elérhetők minden agentünknek … Olyan eszközöket nem
+# adunk a kínaiak kezébe, amelyek RÓLAM, kifejezetten egyéni dolgokat használnak (lásd a tudásbázisom) … a főszabály:
+# azért építjük az eszközöket, hogy használjuk.” Ezért tudásbázis-tartalmú körben CSAK az tiltott, ami a tartalmat
+# kínai ÜGYNÖKHÖZ (Kimi, DeepSeek, GLM) vagy általuk olvasott tárba (feladat, recept, Bridge-üzenet) vinné, és a
+# nyilvános komment. Az eszközök (Echolot, Engine, Studio — az AI-lépéseivel együtt —, a döntés-szimulátor, a
+# képelemzés) mennek; a feladathoz kapott információt (dokumentum, szöveg) bármelyik eszköz és ügynök megkaphatja.
+# (Korábban — 11-22 és 11-23 délután — az egész kör „szennyezett” lett, és még a Kommandant saját dokumentuma sem
+# jutott el a saját Studiójába: „MIT tiltasz a saját ügynöködnek?”)
 #: A Studio GÉPI műveletei (AI-lépés nélkül): tudásbázis-tartalmú körben is mehetnek — a tartalom a Kommandant saját
 #: Studio-munkaterületére kerül, és ott semmilyen modell nem dolgozza fel. (Kommandant, 11-23: a robot-tanulmány
 #: diasorát a Bridge nem tudta elkészíteni, mert a kör korábban a tudásbázist olvasta, és a teljes Studio tiltva volt.)
@@ -113,8 +109,7 @@ def studio_ai_lepes(args: dict) -> bool:
 
 
 SF_FELE_IRASKOR = {"agora": lambda a: str(a.get("action") or "").lower() == "comment",
-                   "story_comments": lambda a: bool(a.get("body")),
-                   "studio": studio_ai_lepes}
+                   "story_comments": lambda a: bool(a.get("body"))}
 
 
 # ══ KULCS, ALÁÍRÁS, ÜZENETEK ═════════════════════════════════════════════
@@ -204,9 +199,8 @@ def sf_fele(nev: str, args: dict | None) -> bool:
 
 
 SF_FELE_HIBA = ("ebben a beszélgetésben a Kommandant tudásbázisából van tartalom, ami csak Claude-modellnek mehet ki — "
-                "SiliconFlow-ügynöknek (Kimi, DeepSeek, GLM), saját AI-t használó szolgáltatásnak "
-                "(Echolot, Engine, a Studio AI-lépései), feladatba, receptbe, Bridge-üzenetbe vagy nyilvános kommentbe "
-                "nem adom tovább. A Studio gépi műveletei (Word, diasor kész diákból, feltöltés) mennek.")
+                "SiliconFlow-ügynöknek (Kimi, DeepSeek, GLM), feladatba, receptbe, Bridge-üzenetbe vagy nyilvános "
+                "kommentbe nem adom tovább. Az eszközök (Echolot, Engine, Studio, szimulátor) mennek.")
 
 
 # ══ ESZKÖZÖK ═════════════════════════════════════════════════════════════

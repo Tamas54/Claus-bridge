@@ -669,9 +669,11 @@ def test_feldwebel_payloadjaban_a_vegen_a_tools_lista_utan():
     assert "`dontes_szimulator`" in responder.teljes_utmutato()     # 11-23: az eszkoztar leírásában (kategória)
 
 
-def test_tudasbazis_korben_nem_futhat():
+def test_tudasbazis_korben_is_futhat():
+    """11-23 ALAPELV: az eszközök (a szimulátor is) tudásbázis-tartalmú körben is mennek; csak a kínai ÜGYNÖKHÖZ
+    adás tiltott."""
     import futar_kliens as fk
-    assert fk.sf_fele("dontes_szimulator", {"lepes": "x"})
+    assert not fk.sf_fele("dontes_szimulator", {"lepes": "x"})
 
 
 def test_ervenytelen_bemenet_es_futas_azonosito(get_db, kapu):

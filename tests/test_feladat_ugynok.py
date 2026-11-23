@@ -536,15 +536,23 @@ def test_studio_gepi_igen_ai_lepes_nem():
     for eszkoz, p in (("wordcraft", {"file_id": "f"}), ("convert", {"file_id": "f"}), ("files", {"action": "list"}),
                       ("pptx_build", {"spec": {"slides": []}}), ("validate_document", {"file_id": "f"})):
         assert F.engedett("studio", {"eszkoz": eszkoz, "parameterek": p}) is None, eszkoz
-    for eszkoz, p in (("edit_with_instruction", {}), ("pptx_build", {"from_document": "f"}), ("facts", {}),
-                      ("describe_image", {}), ("validate_document", {"content": True})):
-        assert F.engedett("studio", {"eszkoz": eszkoz, "parameterek": p}), eszkoz
+    # 11-23 ALAPELV („azért építjük az eszközöket, hogy használjuk”): az AI-lépések is mennek
+    for eszkoz, p in (("edit_with_instruction", {}), ("pptx_build", {"from_document": "f"}), ("facts", {})):
+        assert F.engedett("studio", {"eszkoz": eszkoz, "parameterek": p}) is None, eszkoz
+    assert F.engedett("studio", {})                                   # eszköz-megnevezés nélkül nem
+    # az Echolot és az Engine is — csak a kifelé ható lépéseik zártak
+    assert F.engedett("echolot", {"eszkoz": "search_news"}) is None
+    assert F.engedett("engine", {"eszkoz": "engine_scrape"}) is None
+    for nev, eszkoz in (("echolot", "hog_publish"), ("echolot", "post_comment"), ("echolot", "creator_publish"),
+                        ("engine", "engine_monitor"), ("engine", "engine_run")):
+        assert F.engedett(nev, {"eszkoz": eszkoz}), (nev, eszkoz)
+    assert F.engedett("engine", {"eszkoz": "engine_scrape", "parameterek": {"profile": "x"}}, sf=True)
 
 
 def test_a_kifele_hato_utak_mind_tiltottak():
     for nev in ("send_email", "send_message", "send_file_email", "create_calendar_event", "agora", "story_comments",
-                "ai_query", "ai_task", "execute_recipe", "schedule_recipe", "create_task", "export_task", "echolot",
-                "engine", "faber", "ugynok", "chatgpt", "gemini", "gmail_poll", "calendar_poll"):
+                "ai_query", "ai_task", "execute_recipe", "schedule_recipe", "create_task", "export_task",
+                "faber", "ugynok", "chatgpt", "gemini", "gmail_poll", "calendar_poll"):
         assert nev in F.TILTOTT and nev not in F.ENGEDETT
 
 
@@ -552,7 +560,7 @@ def test_a_modell_nem_is_latja_a_kifele_hato_eszkozoket():
     defs = _run(F.eszkoz_definiciok(Forras()))
     nevek = {t["function"]["name"] for t in defs}
     assert nevek <= F.ENGEDETT and "calendar_create" in nevek and "gmail_tervezet" in nevek
-    assert not nevek & {"send_email", "echolot", "engine", "ai_task", "send_message"}
+    assert not nevek & {"send_email", "ai_task", "send_message"}
 
 
 def test_futas_kifele_csak_tervezet_es_javaslat(db, kulcs):

@@ -126,8 +126,8 @@ a megfelelőt. A számhoz az eszköz forrása és dátuma tartozik; az egységet
 U_DOKUMENTUM = """DOKUMENTUM, FÁJL, KÉP:
 - Ha az eredmény dokumentum, táblázat, prezentáció, kép vagy videó: a `studio`-ban készítsd, és add át az edit_url-t.
 - SZERKESZTÉS (a Kommandant, 11-23: „nehogy nekem kelljen megmondani”): meglévő dokumentumot a `studio` Word-
-  szerkesztőjével (`wordcraft`) szerkessz, követett változással — magadtól, kérdés nélkül. A szöveget te írod; a Studio
-  AI-lépéseit (edit_with_instruction, facts, describe_image…) csak tudásbázis-tartalom nélküli körben használd.
+  szerkesztőjével (`wordcraft`) szerkessz, követett változással — magadtól, kérdés nélkül. Az eszközeink azért vannak,
+  hogy használd őket; a Kommandant TUDÁSBÁZIS-találatát viszont ne másold kínai ügynöknek szóló feladatba.
   FORMÁZVA készüljön (címsor-stílusok, felsorolás, táblázat — ne nyers bekezdések), tartsd a kért terjedelmet, és
   átadás előtt nézd meg a Studio ellenőrzésével vagy előnézetével (validate_document / files preview); amit ott hibát
   jelez, javítsd.

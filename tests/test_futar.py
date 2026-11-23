@@ -462,11 +462,13 @@ def test_mcp_tudasbazis_sajat_peldanynak_igen_idegennek_nem(monkeypatch):
 
 
 
-def test_vedett_korben_nem_anthropic_es_sajat_ai_t_hasznalo_szolgaltatas_sem():
-    """11-22: tudásbázis-körben a saját AI-jukkal dolgozó MCP-k (Echolot, Engine, Studio) sem kapnak szöveget; a
-    ChatGPT és a Gemini kaphat („chatgpt és gemini kaphat”), a tiszta adatkeresők is mehetnek."""
+def test_vedett_korben_csak_a_kinai_ugynokhoz_adas_tiltott():
+    """11-23 ALAPELV (a Kommandant): „az eszközeink … általánosan elérhetők minden agentünknek … Olyan eszközöket nem
+    adunk a kínaiak kezébe, amelyek RÓLAM … használnak … azért építjük az eszközöket, hogy használjuk.” Tudásbázis-körben
+    csak a kínai ügynökhöz / általuk olvasott tárba adás tiltott; az eszközök (Echolot, Engine, Studio) mennek."""
     import futar_kliens as fk
-    for nev in ("echolot", "engine", "studio", "ai_query"):
+    for nev in ("ai_query", "ai_task", "create_task", "execute_recipe", "send_message"):
         assert fk.sf_fele(nev, {}), nev
-    for nev in ("chatgpt", "gemini", "lexonomics", "medical", "makronom", "mnb_rates"):
+    for nev in ("echolot", "engine", "studio", "dontes_szimulator", "analyze_upload", "chatgpt", "gemini",
+                "lexonomics", "medical", "makronom", "mnb_rates"):
         assert not fk.sf_fele(nev, {}), nev
