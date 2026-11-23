@@ -21,7 +21,8 @@ Mi van itt (a statikus kliens a `static/app/` alatt, build-lépés nélkül):
      `action_drafts`-ai; a döntés hitelesített POST, a Faber felé `faber_relay.tovabbit(..., "gomb", ...)`.
   5. MUNKAPAD: friss események (feladatok, viták, briefek) és az LLM-költés (`llm_kapu.allapot()`).
   6. FELADAT-ÜGYNÖKÖK (2026-11-23, feladat_ugynok.py): a bal sávban a fix ügynökök alatt, dinamikusan; mindegyiknek
-     saját ablaka (`ugynok:<id>`: a futások naplója a messages táblából, költéssel), „+ Új ügynök”, „Futtasd most”,
+     saját ablaka (`ugynok:<id>`: a futások naplója a messages táblából — a ténylegesen futott modell, költés, viták,
+     utasítások), „+ Új ügynök” és „Szerkeszt” (modell, extra prompt, vitapartnerek, utasíthat), „Futtasd most”,
      „Leállít”, „Újraindít”, „Megszüntet” — hitelesített POST-ok, ugyanazon a belépőn, mint a Feldwebel `ugynok` eszköze.
 
 A link címe SOSEM a kérés Host-fejlécéből jön (azzal bárki a saját domainjére irányíthatná a Kommandantnak küldött
@@ -471,6 +472,17 @@ def _futas_szoveg(d: dict) -> str:
         reszek.append(f"✉️ [{felirat}]({t['link']})" if t.get("link") else f"✉️ {felirat}")
     for j in d.get("javaslatok") or []:
         reszek.append(f"📅 {j.get('javaslat')} — javaslat, a munkapadon hagyhatod jóvá")
+    for v in d.get("vitak") or []:
+        reszek.append(f"💬 **Megvitatta — {v.get('nev')}** ({v.get('modell') or '?'})\n> {' '.join(str(v.get('kerdes') or '').split())[:600]}"
+                      f"\n\n{str(v.get('valasz') or '').strip()[:3000]}")
+    for x in d.get("utasitasok") or []:
+        reszek.append(f"➡ **{x.get('nev')}**: " + ("kívánság a Fabernek (te hagyod jóvá)" if x.get("cel") == "faber"
+                                                    else "elindítva ezzel a bemenettel")
+                      + f"\n> {' '.join(str(x.get('uzenet') or '').split())[:600]}")
+    if d.get("bemenet"):
+        reszek.insert(0, f"> bemenet ({d.get('kuldo') or 'a Kommandant'}): {' '.join(str(d['bemenet']).split())[:600]}")
+    for n in d.get("notes") or []:
+        reszek.append(f"[{n}]")
     return "\n\n".join(reszek)
 
 
@@ -486,7 +498,7 @@ def _osztalyoz(r, relay: dict) -> list[tuple[str, dict]]:
                          "modell": d.get("modell") or None,
                          "hiba": d.get("allapot") != "kesz", "eszkozok": list(dict.fromkeys(d.get("eszkozok") or [])),
                          "futas": {k: d.get(k) for k in ("allapot", "jelzes", "koltes_usd", "keret_usd", "trigger",
-                                                         "mp", "hivasok")}})]
+                                                         "mp", "hivasok", "kert_modell", "koltes_becsult", "kuldo")}})]
         return [(s, {**alap, "ki": "rendszer", "tipus": "rendszer", "szoveg": str(d.get("szoveg") or subj)})]
     if s == "kommandant" and rc == "bridge" and subj.startswith(("Telegram:", "Web:")):
         csat = "web" if subj.startswith("Web:") else "telegram"
@@ -899,6 +911,7 @@ async def api_allapot(request: Request):
                        "draftok": draftok},
         "esemenyek": esemenyek,
         "llm_kapu": _DEPS["llm_allapot"]() if _DEPS.get("llm_allapot") else None,
+        "feladat_ugynok_modellek": feladat_ugynok.MODELL_VALASZTEK,
         "utolso_id": utolso_id,
     })
 
@@ -953,7 +966,8 @@ async def api_brief(request: Request):
 
 # ══ 9/A. FELADAT-ÜGYNÖKÖK (feladat_ugynok.py) ═════════════════════════════
 
-UGYNOK_MEZOK = ("nev", "feladat", "utemezes", "egyszeri", "ertesites", "keret_usd", "havi_keret_usd")
+UGYNOK_MEZOK = ("nev", "feladat", "utemezes", "egyszeri", "ertesites", "keret_usd", "havi_keret_usd", "modell",
+               "extra_prompt", "vitapartnerek", "utasithat", "vita_max")
 UGYNOK_KABIN_MUVELETEK = ("futtat", "leallit", "ujraindit", "megszuntet")
 
 
@@ -973,6 +987,21 @@ async def api_ugynok(request: Request):
         return JSONResponse({"hiba": "rossz kérés"}, status_code=400)
     return _ugynok_valasz(feladat_ugynok.vegrehajt("indit", {k: body.get(k) for k in UGYNOK_MEZOK},
                                                    get_db=_DEPS["get_db"], ki="kabin"))
+
+
+@_vedett
+async def api_ugynok_modosit(request: Request):
+    """POST /api/ui/ugynok/modosit {id: "ugynok:12", …a változó mezők} — a „Szerkeszt” űrlap. Csak a megadott mezők
+    változnak (`feladat_ugynok.MODOSITHATO`); a jogosultságot (vitapartnerek, utasíthat) itt a Kommandant adja."""
+    body = await request.json()
+    if not isinstance(body, dict):
+        return JSONResponse({"hiba": "rossz kérés"}, status_code=400)
+    uid = str(body.get("id") or "")
+    if not ugynok_ablak(uid):
+        return JSONResponse({"hiba": "hiányzó vagy rossz ügynök-azonosító (ugynok:<szám>)"}, status_code=400)
+    args = {k: body[k] for k in feladat_ugynok.MODOSITHATO if k in body}
+    args["id"] = uid
+    return _ugynok_valasz(feladat_ugynok.vegrehajt("modosit", args, get_db=_DEPS["get_db"], ki="kabin"))
 
 
 @_vedett
@@ -1030,6 +1059,7 @@ API_UTAK = [
     ("/api/ui/brief/{brief_id:int}", ["GET"], api_brief),
     ("/api/ui/ugynok", ["POST"], api_ugynok),
     ("/api/ui/ugynok/muvelet", ["POST"], api_ugynok_muvelet),
+    ("/api/ui/ugynok/modosit", ["POST"], api_ugynok_modosit),
 ]
 
 

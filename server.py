@@ -12227,18 +12227,20 @@ async def _nachtschicht_ejszaka():
 
 
 def _feladat_ugynok_bekot() -> None:
-    """A FELADAT-ÜGYNÖKÖK futtatója (feladat_ugynok.py): a Nachtschicht forrása és a Telegram; a jelentés a
-    Feldwebel-előzménybe megy (csak-Claude jellel, ha az ügynök tudásbázist olvasott)."""
+    """A FELADAT-ÜGYNÖKÖK futtatója (feladat_ugynok.py): a Nachtschicht forrása (+ az `ai_query` út a vitához) és a
+    Telegram; a jelentés a Feldwebel-előzménybe megy (csak-Claude jellel, ha az ügynök tudásbázis-érintett)."""
     def _forras():
         from feldwebel import get_ctx
-        return nachtschicht.BridgeForras(get_ctx(), get_db)
+        return feladat_ugynok.UgynokForras(get_ctx(), get_db)
 
     def _elozmeny(szoveg: str, csak_claude: bool) -> None:
         from feldwebel.history import add_message
         add_message(TELEGRAM_CHAT_ID or "web", "assistant", szoveg,
                     "feladat-ugynok" + (futar_kliens.CLAUDE_CSAK_JEL if csak_claude else ""))
 
-    feladat_ugynok.beallit(get_db=get_db, forras=_forras, telegram=_telegram_push, elozmeny=_elozmeny)
+    # a modellválasztás (11-23): a SiliconFlow-azonosítók és -paraméterek a Bridge-é; a Faber-kívánság a bot-tokenből
+    feladat_ugynok.beallit(get_db=get_db, forras=_forras, telegram=_telegram_push, elozmeny=_elozmeny,
+                           sf_modellek=SILICONFLOW_MODELS, sf_extra=_model_extra, bot_token=lambda: TELEGRAM_BOT_TOKEN)
 
 
 _feladat_ugynok_bekot()

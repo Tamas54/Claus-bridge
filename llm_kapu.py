@@ -72,6 +72,32 @@ ARAK = {
     "claude-opus-4-8": (5.00, 25.00, 0.50, 6.25),
     "claude-sonnet-5": (2.00, 10.00, 0.20, 2.50),
 }
+#: SILICONFLOW-ÁRAK (USD / millió token: bemenet, kimenet) — 11-23, a feladat-ügynök SF-modelljének keretéhez. Az IGAZSÁG
+#: az SF-konzol „Usage & Charges” lapja (memória: echolot_llm_koltseg_valosag); itt a mért vagy a Kommandant által
+#: mutatott árak állnak, és ami nincs mérve, az felülről becsült (`SF_ISMERETLEN_AR`): a keret inkább előbb álljon meg.
+SF_ARAK = {
+    # a Kommandant képernyőképe (10-03): napszakos ár, a drágább sáv (14–24 UTC) — 0,30 / 1,20
+    "deepseek-ai/DeepSeek-V4.1-Flash": (0.30, 1.20),
+    "zai-org/GLM-5.3-Flash": (0.15, 0.50),           # mérve 10-11 (OCR-modellmérés)
+    "moonshotai/Kimi-K3": (2.70, 13.50),             # mérve 10-11; a K3.1 Pro árát nem mértük → ugyanez, felső becslés
+    "moonshotai/Kimi-K3.1-Pro": (2.70, 13.50),
+}
+#: Nem mért SF-modell (DeepSeek V4-Pro-0813, GLM-5.3 …): a legdrágább ismert SF-ár — túlbecsül, nem alá.
+SF_ISMERETLEN_AR = (2.70, 13.50)
+
+
+def sf_ar(modell: str) -> tuple[float, float]:
+    return SF_ARAK.get(modell or "", SF_ISMERETLEN_AR)
+
+
+def sf_koltes_usd(data: dict | None) -> float:
+    """Egy SiliconFlow-válasz ára a `usage`-ből (OpenAI-alak: prompt_tokens, completion_tokens — a gondolkodás a
+    kimenetben van). Becslés (`SF_ARAK`); az Anthropic-válaszhoz a kapu maga írja a `koltes_usd`-t."""
+    u = (data or {}).get("usage") or {}
+    be, ki = sf_ar(str((data or {}).get("model") or ""))
+    return (int(u.get("prompt_tokens") or 0) * be + int(u.get("completion_tokens") or 0) * ki) / 1_000_000
+
+
 #: A Haiku 5.5 két árkártyája: 100K tokennél hosszabb promptra az ötszörös.
 HAIKU_HOSSZU_PROMPT = 100_000
 HAIKU_HOSSZU_AR = (0.50, 2.50, 0.05, 0.625)
