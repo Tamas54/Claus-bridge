@@ -565,7 +565,7 @@ def test_a_kabin_mutatja_a_strategiai_keretet():
 def test_a_prompt_a_kommandant_szovege_a_hang_mondattal():
     p = st.prompt()
     assert p.startswith("Te Claus vagy, a Kommandant vezérkari főnöke, nem a titkára.")
-    assert "magyar vezérkari főnök, szász alapossággal és sváb munkabírással" in p
+    assert "A hangod: vezérkari főnök, szász alapossággal — pontos, rendes, kitartó, tárgyszerű" in p
     assert "Oberstleutnant" not in p
     assert "Reggelente te kezdesz" in p and "nem a manipuláció" in p
 
