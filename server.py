@@ -78,6 +78,8 @@ import nachtschicht
 import feladat_ugynok
 import cimzett
 import twitter_poszt
+# OPERATION HOG a Bridge-ből (2026-11-23): X-poszt → Echolot hog_prepare → Sonnet ír → a Kommandant jóváhagyja → oldal + tweet
+import hog
 
 # Echolot — multi-sphere news context (separate Railway instance, REST)
 try:
@@ -439,7 +441,7 @@ def init_db():
         CREATE TABLE IF NOT EXISTS action_drafts (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             source_message_id TEXT DEFAULT '',
-            kind TEXT NOT NULL CHECK(kind IN ('calendar','reminder','tweet')),
+            kind TEXT NOT NULL CHECK(kind IN ('calendar','reminder','tweet','hog')),
             title TEXT NOT NULL,
             due_at TEXT DEFAULT '',
             payload_json TEXT DEFAULT '{}',
@@ -457,6 +459,11 @@ def init_db():
         twitter_poszt.schema_biztosit(conn)
     except Exception as e:  # noqa: BLE001 — a Bridge megy tovább; a tweet-tervezet maga is megpróbálja
         logger.error("action_drafts tweet-séma bővítése bukott: %s", e)
+    # ── OPERATION HOG (2026-11-23, hog.py): ugyanígy a 'hog' kind (egyszeri átépítés, a sorok megmaradnak) ──
+    try:
+        twitter_poszt.schema_biztosit(conn, hog.KIND)
+    except Exception as e:  # noqa: BLE001 — a HOG-tervezet mentése maga is megpróbálja
+        logger.error("action_drafts hog-séma bővítése bukott: %s", e)
 
     # ── S-002 (2. fél): tipizált hibakód az AI-futásokon ────────────────
     # A `CREATE TABLE IF NOT EXISTS` a MEGLÉVŐ (production) táblákat nem
@@ -4997,6 +5004,8 @@ SUBAGENT_TILTOTT = frozenset({
     "ai_query", "ai_task", "faber", "ugynok", "dontes_szimulator",
     # X/Twitter (2026-11-23): se tervezet, se poszt — a tervezet a Feldwebelé és a feladat-ügynöké, posztoló eszköz nincs
     "tweet_tervezet", "post_tweet", "tweet_posztol",
+    # OPERATION HOG (2026-11-23): az indítás a Feldwebelé, a publikálás csak a Kommandant jóváhagyásáé
+    "hog_keszit", "hog_prepare", "hog_publish",
 })
 #: Gmail / naptár a böngészőn át: ezekre a címekre és a `gmail` munkamenetre a böngésző-eszköz sem megy.
 _SF_TILTOTT_CIM = _re_module.compile(
@@ -11527,8 +11536,11 @@ async def _handle_telegram_message(text: str, chat_id: str, csatorna: str = "tel
         # Melléklettel küldött kérés (irat, tanulmány, fotó) és a név szerint megszólított ügynöknek szóló üzenet a
         # címzetté, nem a Faber kívánsága.
         # A kifejezett tweet-jóváhagyás („posztold ki a tervezetet: …”) a Feldwebelé (twitter_poszt.kezel), LLM nélkül.
+        # A HOG-kérés („csináljunk erre HOG-ot”) is a Feldwebelé (hog_keszit), nem a Faber kódkérése — hacsak a
+        # Kommandant nem a Fabert szólította meg.
         _sz = None if (melleklet.van_melleklet(text) or _cim in cimzett.LLM_UGYNOKOK or _cim == "feldwebel"
-                       or twitter_poszt.kifejezett(text) is not None) \
+                       or twitter_poszt.kifejezett(text) is not None
+                       or (hog.szandek(text) and _cim != "faber")) \
             else await faber_relay.szandek(text, feldwebel_kerdezett=_feldwebel_kerdezett(chat_id)
                                            or _feldwebel_naptarra_var(chat_id))
     except Exception as e:  # noqa: BLE001
@@ -12298,6 +12310,8 @@ if FELDWEBEL_ENABLED:
     _capture_state["_telegram_send_file"] = _telegram_send_file
     _capture_state["_generate_xlsx"] = _generate_xlsx
     _capture_state["_generate_pptx"] = _generate_pptx
+    # OPERATION HOG (2026-11-23): a képernyőképet a meglévő képelemzés olvassa ki (szöveg, szerző, @handle)
+    _capture_state["_analyze_image"] = _analyze_image
     init_feldwebel(BridgeContext(
         telegram_push=_telegram_push,
         get_inbox_summary=_get_inbox_summary,
@@ -12412,8 +12426,12 @@ async def _ui_draft_dont(draft_id: int, dontes: str) -> dict:
     """Az `action_draft_decide` eszköz hívása (az hozza létre jóváhagyáskor a naptáreseményt). A TWEET-tervezet
     (2026-11-23) a kabin gombjáról közvetlenül a `twitter_poszt.dont`-hoz megy: az MCP-eszköz tweetet nem hagy jóvá —
     a kabin gombja (és a kifejezett mondat) az egyetlen út."""
-    if _draft_fajta(draft_id) == twitter_poszt.KIND:
+    fajta = _draft_fajta(draft_id)
+    if fajta == twitter_poszt.KIND:
         return await twitter_poszt.dont(get_db, int(draft_id), dontes, ertesit=_tweet_ertesit, ki="kabin")
+    if fajta == hog.KIND:
+        # OPERATION HOG (2026-11-23): a Jóváhagyom → hog_publish (állandó oldal) → tweet; az Elvetem semmit nem tesz ki
+        return await hog.dont(get_db, int(draft_id), dontes, ertesit=_tweet_ertesit, ki="kabin")
     res = await mcp.call_tool("action_draft_decide", {"draft_id": int(draft_id), "decision": dontes,
                                                       "caller": "kommandant"})
     szoveg = "".join(getattr(c, "text", "") or "" for c in (getattr(res, "content", None) or []))

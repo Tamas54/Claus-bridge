@@ -80,6 +80,8 @@ _LIVE_CREDENTIAL_ENV = (
     "TWITTER_ACCESS_TOKEN", "TWITTER_ACCESS_TOKEN_SECRET", "TWITTER_API_KEY",
     "TWITTER_API_SECRET", "TWITTER_BEARER_TOKEN", "TWITTER_CLIENT_ID",
     "TWITTER_CLIENT_SECRET",
+    # 2026-11-23: az Echolot szerkesztői kulcsa (OPERATION HOG, hog.py) — a HOG-teszt hamisat állít be
+    "ECHOLOT_EDITOR_KEY",
 )
 for _name in _LIVE_CREDENTIAL_ENV:
     os.environ.pop(_name, None)

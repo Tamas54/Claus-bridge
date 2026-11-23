@@ -443,12 +443,14 @@ def register_tools(app, deps):
         # --- TWEET (2026-11-23, twitter_poszt.py): nyilvános és visszavonhatatlan, ezért ezen az eszközön NEM hagyható
         # jóvá — csak a Kommandant kabin-gombja vagy a kifejezett „posztold ki a tervezetet: …” mondata posztolhat.
         # Elvetni (függőből) lehet: az a biztonságos irány.
-        if row["kind"] == "tweet":
+        # A HOG (2026-11-23, hog.py) ugyanígy: a jóváhagyása ÁLLANDÓ nyilvános oldalt és tweetet tesz ki.
+        if row["kind"] in ("tweet", "hog"):
             if dec == "approve" or row["status"] != "pending":
                 conn.close()
                 return json.dumps(
-                    {"error": "Tweet-tervezetet ez az eszköz nem hagy jóvá: a Kommandant a kabin munkapadján hagyja "
-                              "jóvá (Jóváhagyom), vagy kimondja: „posztold ki a tervezetet: <első szavak>”.",
+                    {"error": f"{'HOG-ot' if row['kind'] == 'hog' else 'Tweet-tervezetet'} ez az eszköz nem hagy jóvá: "
+                              "a Kommandant a kabin munkapadján hagyja jóvá (Jóváhagyom), vagy kimondja: „posztold ki "
+                              "a tervezetet: <első szavak>”.",
                      "draft_id": draft_id, "status": row["status"]},
                     ensure_ascii=False,
                 )

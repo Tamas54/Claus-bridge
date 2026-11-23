@@ -79,6 +79,19 @@ TOOLS = [
             "szoveg": {"type": "string", "description": "A tweet szövege, ahogy kimenne (link nélkül, ha a `link` mezőt használod)"},
             "link": {"type": "string", "description": "Opcionális link (http/https) — új sorban a szöveg után, 23 karakternek számít", "default": ""},
         }, "required": ["szoveg"]}}},
+    # ── OPERATION HOG (2026-11-23, hog.py) ──
+    {"type": "function", "function": {
+        "name": "hog_keszit", "description": "OPERATION HOG: egy (nagy elérésű) X-posztra — Elon Musk, egy hírfiók, bárki — adatalapú válasz az Echolotból: ÁLLANDÓ nyilvános elemzőoldal (echolotnews.com/{lang}/hog/…, saját kártyával) + az X algoritmusára tervezett komment, a link a saját válasz alá. Akkor hívd, ha a Kommandant egy posztra (link, szöveg vagy képernyőkép — az előző üzenetében is lehet) azt mondja: „csináljunk erre HOG-ot”, „HOG Twitter-bejegyzést kérek”, „kommentáljuk ezt”, „írj rá választ”. A hívás NEM publikál és NEM posztol: a háttérben a Sonnet megírja (~2–3 perc, ~0,1–0,2 $), a kész tervezet a kabin munkapadjára kerül (🐗 HOG), és csak a Kommandant jóváhagyásával megy ki. A kommentet NE te írd meg. Képernyőképnél add át a melléklet számát ([Melléklet #ID]) és amit az átiratból tudsz (szöveg, szerző, @handle). Ha a Kommandant utólag küldi a poszt linkjét egy kész HOG-hoz: hog_id + poszt_url.",
+        "parameters": {"type": "object", "properties": {
+            "poszt_szoveg": {"type": "string", "description": "A poszt szövege szó szerint, az eredeti nyelven (idézett posztnál az is, külön bekezdésben)", "default": ""},
+            "szerzo": {"type": "string", "description": "A poszt szerzője: név és @handle (pl. „Elon Musk @elonmusk”)", "default": ""},
+            "poszt_url": {"type": "string", "description": "A poszt linkje (x.com/<handle>/status/<szám>), ha van", "default": ""},
+            "melleklet_id": {"type": "integer", "description": "A képernyőkép mellékletének száma ([Melléklet #ID])"},
+            "mod": {"type": "string", "enum": ["", "valasz", "idezet", "sajat"], "description": "Üres = válasz, ha megvan az eredeti poszt; „idézd” → idezet; „saját posztban” → sajat", "default": ""},
+            "nyelv": {"type": "string", "description": "A poszt nyelve (hu, en, de…), ha tudod", "default": ""},
+            "utasitas": {"type": "string", "description": "A Kommandant külön kérése a szögre vagy a hangra, a saját szavaival", "default": ""},
+            "hog_id": {"type": "integer", "description": "Csak a link utólagos megadásához: a függő HOG száma"},
+        }, "required": []}}},
     # ── Feladatok ──
     {"type": "function", "function": {
         "name": "create_task", "description": "Új Bridge feladat létrehozása.",
@@ -345,6 +358,7 @@ CÍMJEGYZÉK — így éred el a többieket (ne mondd, hogy „nincs csatornád�
 - A FUTÁR (a Kommandant gépe: teljes tudásbázis, ChatGPT, Gemini) → `tudasbazis`, `chatgpt`, `gemini`.
 - NACHTSCHICHT (az éjszakai műszak, 05:50) → nincs közvetlen címe; reggel jelent a Telegramon.
 - FELADAT-ÜGYNÖKÖK (a Kommandant névvel ellátott munkásai) → `ugynok`; Telegramon szólnak, a kabinban saját ablakuk van.
+- HOG = X-posztra adatalapú válasz + Echolot-oldal → `hog_keszit`.
 
 Szabályok:
 - Magyar nyelv, hacsak nem kérnek mást
@@ -1262,6 +1276,17 @@ async def _execute_tool(name: str, args: dict, ctx, kor: dict | None = None, *, 
                                          source_message_id=f"feldwebel:{chat_id}", chat_id=chat_id)
         except Exception as e:  # noqa: BLE001
             out = {"error": f"a tervezet nem menthető: {type(e).__name__}: {str(e)[:200]}"}
+        return json.dumps(out, ensure_ascii=False)
+
+    if name == "hog_keszit":
+        # OPERATION HOG (2026-11-23, hog.py): csak a HÁTTÉRFUTÁS indul (Sonnet ír) — publikálni és posztolni a Feldwebel
+        # nem tud; a kész tervezetet a Kommandant a kabin gombjával vagy a kifejezett mondattal hagyja jóvá.
+        import hog
+        chat_id = str((kor or {}).get("chat_id") or "")
+        try:
+            out = await hog.inditas(ctx, args, chat_id)
+        except Exception as e:  # noqa: BLE001
+            out = {"error": f"a HOG nem indítható: {type(e).__name__}: {hog._tisztit(e)[:200]}"}
         return json.dumps(out, ensure_ascii=False)
 
     if name == "web_fetch":

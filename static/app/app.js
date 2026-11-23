@@ -1008,8 +1008,70 @@ function tweetKartya(d) {
     el('div', { class: 'tweet-szoveg' }, d.szoveg), sor, hiba);
 }
 
+// 🐗 HOG (2026-11-23, hog.py): az oldal címe + a kártya-főcím, a tweet-szöveg karakterszámmal és a mód; az elemzés és
+// a tényvonalak összecsukva. A Jóváhagyom KÉT nyilvános lépés: előbb az ÁLLANDÓ oldal (hog_publish), aztán a tweet —
+// ezért megerősítést kér. Az Elvetem semmit nem tesz ki. Ha az oldal már él (a tweet bukott), azt is mutatja, és a
+// „Válasz a telefonról” linket (x.com/intent: a Kommandant a saját fiókjából posztol).
+function hogKartya(d) {
+  const h = d.hog || {};
+  const sor = el('div', { class: 'kartya-gombok' });
+  const hiba = el('div', { class: 'kartya-hiba', hidden: !d.hiba }, d.hiba ? `Előző próba: ${d.hiba}` : '');
+  const kint = !!h.oldal_url;
+  const modSzoveg = { valasz: `VÁLASZ erre: ${h.cel_url}`, idezet: `IDÉZET erre: ${h.cel_url}`,
+    sajat: 'SAJÁT POSZT — az eredeti poszt linkje nincs meg (küldd el a Feldwebelnek, és válasz lesz belőle)' }[h.mod] || h.mod;
+  const modNev = h.mod === 'valasz' ? 'válasz' : h.mod === 'idezet' ? 'idézet' : 'saját poszt';
+  const dont = async (dontes) => {
+    const kerdes = kint ? `Újra próbáljam a tweetet?\n\nAz oldal már él: ${h.oldal_url}`
+      : `Kiteszem az ÁLLANDÓ, nyilvános oldalt, és kiposztolom (${modNev})?\n\n«${h.cim}»\n\n${h.komment}`;
+    if (dontes === 'approve' && !window.confirm(kerdes)) return;
+    sor.querySelectorAll('button').forEach((b) => { b.disabled = true; });
+    try {
+      const j = await api('/api/ui/draft/dont', { method: 'POST', body: { id: d.id, dontes } });
+      const r = j.eredmeny || {};
+      let uz = r.error || 'Kész.';
+      if (dontes === 'reject') uz = r.uzenet || 'Elvetve — semmi nem ment ki.';
+      else if (r.tweet_url) uz = `Kiment: ${r.tweet_url} · oldal: ${r.oldal_url}`;
+      else if (r.oldal_url) uz = `Az oldal él: ${r.oldal_url} — a tweet nem ment ki`;
+      ertesit(uz, !!r.error);
+      await frissit({});
+    } catch (e) {
+      if (e instanceof Hiba401) return;
+      hiba.hidden = false; hiba.textContent = e.message;
+      sor.querySelectorAll('button').forEach((b) => { b.disabled = false; });
+    }
+  };
+  sor.append(el('button', { class: 'gomb gomb-fo gomb-kicsi', onclick: () => dont('approve') },
+    kint ? 'Tweet újra' : 'Jóváhagyom — kiposztolom'),
+  el('button', { class: 'gomb gomb-kicsi', onclick: () => dont('reject') }, kint ? 'Lezárom' : 'Elvetem'));
+  const hs = h.hossz || {};
+  const intent = h.intent || {};
+  const telefon = intent[h.mod] || intent.valasz || intent.sajat || intent.idezet;
+  const cs = h.csomag || {};
+  const koltes = Number(h.koltes_usd || 0).toFixed(3);
+  return el('div', { class: 'draft hog' },
+    el('b', {}, '🐗 HOG'),
+    el('small', {}, `${modSzoveg} · Sonnet $${koltes} · ${cs.articles ?? '?'} tudósítás, ${cs.regions ?? '?'} régió`),
+    el('div', { class: 'hog-cim' }, h.cim),
+    h.fejlec ? el('div', { class: 'hog-fejlec' }, h.fejlec) : null,
+    el('small', {}, h.mod === 'valasz'
+      ? `Válasz (${hs.komment}/${hs.max}, link nélkül, a kártyaképpel; a link 2–3 perc múlva a válaszod alá)`
+      : `Tweet (${hs.idezet}/${hs.max}, a linkkel — a link a kártya)`),
+    el('div', { class: 'tweet-szoveg' }, h.mod === 'valasz' ? h.komment : h.idezet),
+    h.komment_hu ? el('small', { class: 'hog-hu' }, `Magyarul: ${h.komment_hu}`) : null,
+    h.megjegyzes ? el('small', { class: 'hog-hu' }, h.megjegyzes) : null,
+    el('details', {}, el('summary', {}, `Elemzés és ${(h.tenyek || []).length} tényvonal (${h.lang})`),
+      el('div', { class: 'tweet-szoveg' }, h.elemzes),
+      el('ol', { class: 'hog-tenyek' }, (h.tenyek || []).map((t) => el('li', {}, t))),
+      h.mod === 'valasz' ? el('div', {}, el('small', {}, `Idézet-változat (ha a válasz nem megy): ${h.idezet}`)) : null),
+    kint ? el('div', {}, el('small', {}, 'Az oldal ÉL: '),
+      el('a', { href: h.oldal_url, target: '_blank', rel: 'noopener' }, h.oldal_url)) : null,
+    telefon ? el('div', {}, el('a', { href: telefon, target: '_blank', rel: 'noopener' }, '📱 Válasz a telefonról')) : null,
+    sor, hiba);
+}
+
 function draftKartya(d) {
   if (d.fajta === 'tweet') return tweetKartya(d);
+  if (d.fajta === 'hog') return hogKartya(d);
   const sor = el('div', { class: 'kartya-gombok' });
   const hiba = el('div', { class: 'kartya-hiba', hidden: true });
   const dont = async (dontes) => {

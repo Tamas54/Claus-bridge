@@ -166,6 +166,21 @@ U_TWEET = """X / TWITTER (a Kommandant fiókja, nyilvános és visszavonhatatlan
 - A válaszodban a TELJES szöveg és a karakterszám, és hogy hol hagyja jóvá. Soha ne írd, hogy kiment: a kiposztolás
   eredményét (link vagy hiba) a rendszer külön üzenetben jelzi."""
 
+U_HOG = """HOG (OPERATION HOG — az Echolot szerkesztői eszköze, a Kommandant „gerilla komment kontentje”):
+- Mi ez: egy nagy elérésű X-posztra (Elon Musk, egy hírfiók) adatalapú válasz. Az Echolot befagyasztja az esemény
+  sajtókorpuszát (hány tudósítás, mely régiók, hogyan keretezik), ebből ÁLLANDÓ nyilvános oldal lesz
+  (echolotnews.com/{lang}/hog/…, saját kártyával), és egy komment, amit az X rangsoroló algoritmusára terveztek (szám ·
+  kontraszt · kártyakép · kérdés az olvasóknak; a link 2–3 perc múlva a saját válasz alá).
+- „Csináljunk erre HOG-ot”, „Erre egy HOG Twitter-bejegyzést kérek”, „kommentáljuk”, „írj rá választ” → AZONNAL
+  `hog_keszit`. A posztot keresd meg az előzményben: link → `poszt_url`; képernyőkép → `melleklet_id` (a [Melléklet #ID]
+  száma) + az átiratból a `poszt_szoveg` és a `szerzo` (név + @handle). Ne kérdezz vissza, ha a poszt ott van.
+- A kommentet és az elemzést NE te írd: a háttérben a Sonnet írja (~2–3 perc), a kész tervezet a kabin munkapadjára
+  kerül (🐗 HOG), és a Telegramon jön az értesítés. A válaszodban: elindult, hol jelenik meg, semmi nem ment ki.
+- Ha a futás azt jelzi, hogy nem találta az eredeti poszt linkjét, egy mondatban kérd el; amikor a Kommandant elküldi:
+  `hog_keszit(hog_id=<a HOG száma>, poszt_url=<link>)` — ettől válasz lesz belőle, újraírás nélkül.
+- A jóváhagyás ÁLLANDÓ nyilvános oldalt ÉS tweetet tesz ki: csak a kabin gombja vagy a „posztold ki a tervezetet:
+  <első 3 szó>” mondat. Egy szavas igen erre sem elég."""
+
 U_MELLEKLET = """MELLÉKLET ÉS TANÁCSADÁS (irat, tanulmány, fotó, egészség):
 - A `[Melléklet #ID: név — … · Studio file_id=… · szerkesztő: …]` blokk egy fájl, amit a Kommandant küldött; alatta a
   szövege (fotónál szó szerinti átirat: [bélyegző: …], [kézírás: …], [?] = bizonytalan olvasat). A fájl a Kommandant
@@ -298,10 +313,11 @@ KATEGORIAK: dict[str, dict] = {
         "utmutato": "",
     },
     "kozzetetel": {
-        "leiras": "X/Twitter-poszt TERVEZETE (a Kommandant a kabinban hagyja jóvá)",
-        "eszkozok": ("tweet_tervezet",),
-        "minta": r"twitter|tweet|\btwit|\bx-?(re|en)\b|x\.com|posztol|kiposzt",
-        "utmutato": U_TWEET,
+        "leiras": "X/Twitter-poszt TERVEZETE és HOG (a Kommandant a kabinban hagyja jóvá)",
+        "eszkozok": ("tweet_tervezet", "hog_keszit"),
+        "minta": r"twitter|tweet|\btwit|\bx-?(re|en)\b|x\.com|posztol|kiposzt|\bhog\b|\bhog-?(ot|ra|hoz|ja|nak)\b|"
+                 r"komment[ae]l|irj\s+ra\s+valaszt|valaszolj\s+ra|valaszt\s+ra|reagalj",
+        "utmutato": U_TWEET + "\n\n" + U_HOG,
     },
     "szimulator": {
         "leiras": "tervezett lépés kipróbálása („mi lenne, ha…”) — `dontes_szimulator` (sajtó, jog: `teljes`=true)",
