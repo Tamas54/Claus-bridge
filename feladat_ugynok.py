@@ -924,7 +924,7 @@ SAJAT_NS = ns.SAJAT
 JAVASLAT = frozenset({"calendar_create"})
 #: Együttműködés: a végrehajtó a Kommandant által adott jogosultság szerint dönt (`vitapartnerek`, `utasithat`).
 EGYUTT = frozenset({"megvitat", "utasit"})
-ENGEDETT = FELDWEBEL_ENGEDETT | KULSO_ENGEDETT | SAJAT_NS | JAVASLAT | EGYUTT
+ENGEDETT = FELDWEBEL_ENGEDETT | KULSO_ENGEDETT | SAJAT_NS | JAVASLAT | EGYUTT | ns.BELSO
 #: Kimondottan tiltott (a teszt egyenként ellenőrzi; az engedélylista miatt amúgy sem futnának).
 TILTOTT = frozenset({
     "send_email", "send_message", "send_file_email", "export_task", "create_calendar_event",   # küldés, naptárírás

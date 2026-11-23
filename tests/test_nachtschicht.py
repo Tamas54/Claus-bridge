@@ -667,7 +667,8 @@ def test_teljes_ejszaka_a_jelentes_formajaval(get_db, kulcs):
     nevek = {t["function"]["name"] for t in kapu.hivasok[1][1]["tools"]}
     assert nevek <= N.ENGEDETT
     # a tervező csak a tudásbázist kapta
-    assert [t["function"]["name"] for t in kapu.hivasok[0][1]["tools"]] == ["tudasbazis"]
+    # (11-23: a hurok belső lapozója a lista végén — a kivonatolt eredmény teljes szövegéhez)
+    assert [t["function"]["name"] for t in kapu.hivasok[0][1]["tools"]] == ["tudasbazis", "eredmeny_lapoz"]
 
 
 def test_probafutas_nem_kuld_telegramot_es_jelolt(get_db, kulcs):

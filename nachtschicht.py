@@ -111,7 +111,9 @@ FELDWEBEL_ENGEDETT = frozenset({"gmail_search", "read_gmail_attachment", "tudasb
 KULSO_ENGEDETT = frozenset({"lexonomics", "medical", "makronom"})
 #: A Nachtschicht saját eszközei: olvasó naptár és levél, Gmail-TERVEZET (nem küld), Studio-dokumentum (AI nélkül).
 SAJAT = frozenset({"naptar", "gmail_level", "gmail_tervezet", "studio_dokumentum"})
-ENGEDETT = FELDWEBEL_ENGEDETT | KULSO_ENGEDETT | SAJAT
+#: A hurok belső eszköze (11-23): a kivonatolt eszközeredmény teljes szövege — csak a saját hurkából olvas (kivonat.py).
+BELSO = frozenset({"eredmeny_lapoz"})
+ENGEDETT = FELDWEBEL_ENGEDETT | KULSO_ENGEDETT | SAJAT | BELSO
 #: A Studio eszközei közül csak a determinisztikus dokumentumkészítés; a `files`-nál csak új fájl és feltöltés.
 #: Minden más (edit_with_instruction, facts, describe_image, ocr_image, generate_image, design, video …) a Studio
 #: SAJÁT AI-ját indítaná a Kommandant anyagán — tilos.
@@ -610,7 +612,29 @@ def json_kivesz(szoveg: str) -> dict | None:
 
 async def _hurok(messages: list, tools: list, *, purpose: str, szamla: Szamla, chat: Callable,
                  vegrehajto: Callable, max_kor: int) -> tuple[str, str]:
-    """Eszközhurok a kapun (CSAK `llm_kapu.chat`, SiliconFlow-tartalék nélkül). → (végső szöveg, kiszolgáló modell)"""
+    """Eszközhurok a kapun (CSAK `llm_kapu.chat`, SiliconFlow-tartalék nélkül). → (végső szöveg, kiszolgáló modell)
+
+    11-23: a 4000 karakternél nagyobb eszközeredményből OLVASÓ-lépés kivonata megy a kontextusba (kivonat.py — Claude a
+    közvetlen kapun, a számla keretéből), a teljes szöveg a hurok végéig lapozható (`eredmeny_lapoz`, a lista végén, így
+    az eszközlista a hurok alatt nem változik). A feladat-ügynök is ezt a hurkot használja."""
+    import kivonat
+    import llm_kapu
+
+    import inspect
+    # a feladat-ügynök számlája a saját modellje árával becsülne előre — az olvasó Haiku (a kapu „kinyer” szintje)
+    olvaso_ar = ({"ar": llm_kapu.ARAK["claude-haiku-5-5"][:2]}
+                 if "ar" in inspect.signature(szamla.hiv).parameters else {})
+
+    async def _olvaso(payload, *, purpose=""):
+        try:
+            return await szamla.hiv(llm_kapu.chat, payload, purpose, **olvaso_ar), None, []
+        except (KeretElfogyott, KapuHiba) as e:          # a keret vagy a kapu: a kivonat determinisztikus lesz
+            return None, {"code": type(e).__name__, "message": str(e)[:200]}, []
+
+    tar = kivonat.EredmenyTar(olvaso=_olvaso)
+    feladat = next((str(m.get("content") or "") for m in messages if m.get("role") == "system"), "")[:2_000]
+    if tools:
+        tools = list(tools) + [kivonat.LAPOZ_DEF]
     modell = ""
     for kor in range(max_kor):
         payload = {"messages": messages, "max_tokens": 8000}
@@ -631,7 +655,11 @@ async def _hurok(messages: list, tools: list, *, purpose: str, szamla: Szamla, c
                 except (TypeError, ValueError):
                     args = {}
                 reszek.append((tc.get("id") or "", fn.get("name") or "", args if isinstance(args, dict) else {}))
-            eredmenyek = await asyncio.gather(*(vegrehajto(n, a, modell) for _, n, a in reszek))
+            async def _egy(n, a):
+                if n == kivonat.LAPOZ_NEV:
+                    return tar.lapoz(a)
+                return await tar.feldolgoz(n, a, await vegrehajto(n, a, modell), feladat=feladat)
+            eredmenyek = await asyncio.gather(*(_egy(n, a) for _, n, a in reszek))
             for (tid, _, _), e in zip(reszek, eredmenyek):
                 messages.append({"role": "tool", "tool_call_id": tid, "content": e})
             continue
