@@ -367,9 +367,15 @@ FELADAT-ÜGYNÖKÖK (`ugynok` eszköz) — a Kommandant saját, névvel ellátot
   utemezes="0 7 * * *"). „Egyszer: gyűjtsd össze…” → utemezes üresen (most fut, egyszer). „Holnap 9-kor egyszer” →
   utemezes="0 9 <nap> <hónap> *", egyszeri=true.
 - „Milyen ügynökeim vannak?” → muvelet="lista". „Állítsd le a kamatfigyelőt” → muvelet="leallit", nev="kamatfigyelő".
-  „Indítsd újra” → ujraindit; „futtasd most” → futtat; „szüntesd meg” → megszuntet (végleg).
-- Az ügynök Claude-on fut, saját költségkerettel (alap $0.50 futásonként, $10 havonta); a kabinban saját ablaka van.
-  Kifelé nem lép: levélből tervezet, naptárból javaslat lesz, amit a Kommandant hagy jóvá.
+  „Indítsd újra” → ujraindit; „futtasd most” → futtat (bemenet: ha mond hozzá valamit); „szüntesd meg” → megszuntet.
+- MÓDOSÍTÁS → muvelet="modosit", csak a változó mezőkkel: „a kamatfigyelő legyen tömörebb” → extra_prompt (a TELJES új
+  szöveg: a lista megmutatja a mostanit); „Opusszal fusson” → modell="opus"; „reggel 8-kor” → utemezes; „vitassa meg
+  Kimivel” → vitapartnerek (a TELJES új lista); „adhasson kívánságot a Fabernek” → utasithat. Jogot (vitapartnerek,
+  utasithat) csak akkor adj, ha a Kommandant ebben az üzenetében kimondja.
+- Modell: sonnet (alap), haiku, opus, vagy kimi / deepseek / dsflash / glm5 (SiliconFlow). Tudásbázis csak Claude-
+  modellnél; ha a hiba ezt mondja, mondd el a Kommandantnak, és ajánlj Claude-modellt.
+- Saját költségkeret (alap $0.50 futásonként, $10 havonta); a kabinban saját ablaka van. Kifelé nem lép: levélből
+  tervezet, naptárból javaslat lesz, amit a Kommandant hagy jóvá.
 - A válasz `uzenet` mezőjét add tovább szó szerint (benne a következő futás és a keret). Ha a név nem egyértelmű
   (`jeloltek`), kérdezz vissza. Ismétlődő figyelésre, ha a Kommandant „ügynököt” kér, ezt használd, ne a
   schedule_recipe-et (az SiliconFlow-ügynökön futtat).
@@ -1011,7 +1017,7 @@ async def _execute_tool(name: str, args: dict, ctx, kor: dict | None = None, *, 
         # FELADAT-ÜGYNÖK (2026-11-23): „indíts egy ügynököt, ami…”, „állítsd le a kamatfigyelőt”. Az ügynök Claude-on
         # fut, a naplója SiliconFlow-ügynökhöz nem kerül (feladat_ugynok.py), ezért tudásbázis-tartalmú körben is mehet.
         import feladat_ugynok
-        return await feladat_ugynok.feldwebel_hiv(args or {}, ctx, vedett=vedett)
+        return await feladat_ugynok.feldwebel_hiv(args or {}, ctx, vedett=vedett, kor=kor)
     if futar_kliens.sajat_e(name):
         return await futar_kliens.hiv(name, args, get_db=ctx.get_db, modell=modell)
 

@@ -305,6 +305,11 @@ dialog.modal::backdrop { background: rgb(0 0 0 / 55%); }
 .urlap-mezo textarea { resize: vertical; min-height: 84px; line-height: 1.45; }
 .urlap-mezo :focus { outline: 2px solid var(--accent); outline-offset: 0; }
 .urlap-sor { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.urlap fieldset.jogok { margin: 0; padding: 8px 10px 10px; border: 1px solid var(--hair); border-radius: var(--radius-sm); }
+.urlap fieldset.jogok legend { padding: 0 4px; color: var(--ink-2); }
+.pipak { display: flex; flex-wrap: wrap; gap: 4px 14px; }
+.pipa { display: inline-flex; align-items: center; gap: 4px; color: var(--ink); font-size: 13px; cursor: pointer; }
+.pipa input { width: auto; padding: 0; }
 
 /* értesítő */
 .ertesito { position: fixed; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 50; max-width: calc(100% - 32px); padding: 9px 14px; border-radius: 12px; background: #222b36; color: var(--ink); box-shadow: var(--shadow); font-size: 13px; }
