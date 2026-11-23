@@ -32,6 +32,8 @@ tilos). Újraindításkor nulláról indul, ezért ez csak puha fék; a KEMÉNY 
 """
 from __future__ import annotations
 
+import contextlib
+import contextvars
 import copy
 import hashlib
 import json
@@ -111,6 +113,28 @@ ISMERETLEN_AR = (5.00, 25.00, 0.50, 6.25)
 KIMENET_ALSO = 8_000
 KIMENET_PLAFON = 128_000
 CSONKOLAS_DUPLAZAS = 2
+
+#: A HÍVÓ kimeneti plafonja (2026-11-23, a Pyramid-vita): a csonkolás miatti duplázó létra eddig a modell saját
+#: plafonjáig ment (mérve: egy dispatch-válaszra 28k → 56k → 112k → 131k). Ahol a hívó ennél kisebb keretet szab
+#: (`with keret_plafon(16000): …`), ott a `sf_chat` és a `chat` sem kezd, sem dupláz e fölé — és ha így is csonkol,
+#: a válasz KIMONDVA csonka marad (a jegyzetben: „… PLAFONJÁN is csonkolt”). Alapból nincs plafon: minden úgy megy, mint
+#: eddig. ContextVar: a hívó feladatán belül él (az `asyncio.gather` gyerekei öröklik), máshová nem szivárog.
+KERET_PLAFON: contextvars.ContextVar[int | None] = contextvars.ContextVar("keret_plafon", default=None)
+
+
+@contextlib.contextmanager
+def keret_plafon(n: int | None):
+    tok = KERET_PLAFON.set(int(n) if n else None)
+    try:
+        yield
+    finally:
+        KERET_PLAFON.reset(tok)
+
+
+def plafon(alap: int) -> int:
+    """A hívó plafonja (ha van) és a modell / út saját plafonja közül a kisebb."""
+    p = KERET_PLAFON.get()
+    return min(int(alap), p) if p else int(alap)
 
 # ══ A SZINTVÁLASZTÁS TÁBLÁJA ════════════════════════════════════════════════
 #
@@ -562,7 +586,7 @@ def fordit_keres(payload: dict, *, modell: str, effort: str, fallbacks: bool,
     kw["messages"] = [{"role": u["role"], "content": u["content"]} for u in out]
 
     asked = int(payload.get("max_tokens") or 0)
-    kw["max_tokens"] = min(max(asked, KIMENET_ALSO), KIMENET_PLAFON)
+    kw["max_tokens"] = min(max(asked, KIMENET_ALSO), plafon(KIMENET_PLAFON))
     stop = payload.get("stop")
     if stop:
         kw["stop_sequences"] = [stop] if isinstance(stop, str) else list(stop)
@@ -1174,8 +1198,8 @@ async def chat(payload: dict, *, purpose: str = "", modell: str | None = None, b
             kat = getattr(getattr(msg, "stop_details", None), "category", None)
             return None, {"code": "refusal", "provider": "anthropic", "koltes_usd": round(koltes, 6),
                           "message": f"Anthropic refusal: a `{msg.model}` elutasította a kérést (kategória: {kat})"}, notes
-        if msg.stop_reason == "max_tokens" and duplazas < CSONKOLAS_DUPLAZAS and kw["max_tokens"] < KIMENET_PLAFON:
-            nxt = min(kw["max_tokens"] * 2, KIMENET_PLAFON)
+        if msg.stop_reason == "max_tokens" and duplazas < CSONKOLAS_DUPLAZAS and kw["max_tokens"] < plafon(KIMENET_PLAFON):
+            nxt = min(kw["max_tokens"] * 2, plafon(KIMENET_PLAFON))
             notes.append(f"a {kw['max_tokens']} tokenes keret KEVÉS volt a(z) `{cfg['modell']}`-nek "
                          f"(csonkolt válasz) — {nxt}-re emelve, újrapróbálva")
             kw["max_tokens"] = nxt

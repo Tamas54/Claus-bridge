@@ -222,13 +222,13 @@ def test_a_pillanatkep_felso_korlatos(kor, monkeypatch):
 
 def _regi_eszkozok() -> set[str]:
     """A 11-23 előtti Feldwebel teljes eszközlistájának forrásai (statikus lista, külső appok, futár, szimulátor,
-    Faber, feladat-ügynök)."""
+    Faber, feladat-ügynök) — és a Pyramid-vita (11-23 este)."""
     import dontes_szimulator
     import futar_kliens
     import kulso_mcp
     from feldwebel import responder
     return ({t["function"]["name"] for t in responder.TOOLS} | set(kulso_mcp.SZERVEREK) | set(futar_kliens.MUVELETEK)
-            | {dontes_szimulator.ESZKOZ_NEV, "faber", "ugynok"})
+            | {dontes_szimulator.ESZKOZ_NEV, "faber", "ugynok", "vita"})
 
 
 def test_minden_korabbi_eszkoz_a_magban_vagy_pontosan_egy_kategoriaban():

@@ -1253,22 +1253,53 @@ async def api_allapot(request: Request):
     })
 
 
+def _pv():
+    """A Pyramid-vita modul (pyramid/vita.py) a kabin tárolójával (élesben ugyanaz a `server.get_db`; tesztben a kabin
+    saját DB-je)."""
+    from pyramid import vita as pv
+    if pv._DEPS.get("get_db") is not _DEPS["get_db"]:
+        pv._DEPS["get_db"] = _DEPS["get_db"]
+    return pv
+
+
 @_vedett
 async def api_vita(request: Request):
-    """GET /api/ui/vita/{id}: a vita bejegyzései; POST {szoveg}: hozzászólás a Kommandant nevében."""
+    """GET /api/ui/vita/{id}: a vita bejegyzései — Pyramid-vitánál az állapottal együtt (kör, következő szóló,
+    álláspont-térkép, határozati javaslat, parancsok tételállapottal), a bejegyzéseken a kör-címkével.
+    POST {szoveg, parancs?}: a Kommandant HOZZÁSZÓLÁSA (a következő szóló neki válaszol; lezárt vitán új kör) vagy
+    PARANCSA (jóváhagy és utasít: a szavaiból feladatlista, azonnali végrehajtás). Régi vitán a hozzászólás
+    Pyramid-vitává alakítja (ha a PYRAMID_VITA be van kapcsolva) — eddig a kabin hozzászólása senkit nem indított el."""
     vid = int(request.path_params["vita_id"])
+    pv = _pv()
+    if request.method == "POST":
+        body = await request.json()
+        szoveg = str(body.get("szoveg") or "").strip()
+        parancs = bool(body.get("parancs"))
+        if not szoveg:
+            return JSONResponse({"hiba": "üres hozzászólás"}, status_code=400)
+        st, d = pv.betolt(vid)
+        if d is None:
+            return JSONResponse({"hiba": "nincs ilyen vita"}, status_code=404)
+        if st is None and pv.bekapcsolva():
+            pv.atalakit(vid, indit=not parancs)
+            st, d = pv.betolt(vid)
+        if st is not None:
+            out = pv.parancs(vid, szoveg[:8000]) if parancs else pv.hozzaszol(vid, szoveg[:8000], "kommandant")
+            if not out.get("ok"):
+                return JSONResponse({"hiba": out.get("hiba") or "nem sikerült"}, status_code=400)
+        elif parancs:
+            return JSONResponse({"hiba": "a Pyramid-vita ki van kapcsolva — parancsból nem indul végrehajtás"},
+                                status_code=400)
+        else:
+            conn = _DEPS["get_db"]()
+            try:
+                conn.execute("INSERT INTO discussion_entries (discussion_id, instance, content, timestamp) "
+                             "VALUES (?, 'kommandant', ?, ?)", (vid, szoveg[:8000], _iso()))
+                conn.commit()
+            finally:
+                conn.close()
     conn = _DEPS["get_db"]()
     try:
-        if request.method == "POST":
-            body = await request.json()
-            szoveg = str(body.get("szoveg") or "").strip()
-            if not szoveg:
-                return JSONResponse({"hiba": "üres hozzászólás"}, status_code=400)
-            if not conn.execute("SELECT 1 FROM discussions WHERE id = ?", (vid,)).fetchone():
-                return JSONResponse({"hiba": "nincs ilyen vita"}, status_code=404)
-            conn.execute("INSERT INTO discussion_entries (discussion_id, instance, content, timestamp) "
-                         "VALUES (?, 'kommandant', ?, ?)", (vid, szoveg[:8000], _iso()))
-            conn.commit()
         d = conn.execute("SELECT * FROM discussions WHERE id = ?", (vid,)).fetchone()
         if not d:
             return JSONResponse({"hiba": "nincs ilyen vita"}, status_code=404)
@@ -1276,10 +1307,57 @@ async def api_vita(request: Request):
                            "ORDER BY timestamp ASC", (vid,)).fetchall()
     finally:
         conn.close()
+    st = pv.allapot_ertelmez(d["resolution"])
+    if st is not None:
+        pv.ujraeleszt(vid, st)        # a Bridge újraindulása után a „fut” vita és a végrehajtás-figyelők folytatódnak
+    meta = (st or {}).get("bej") or {}
     return JSONResponse({"id": d["id"], "cim": d["topic"], "kontextus": d["context"], "allapot": d["status"],
-                         "dontes": d["resolution"], "ki": d["created_by"], "ido": d["created_at"],
+                         "dontes": None if st is not None else d["resolution"], "ki": d["created_by"],
+                         "ido": d["created_at"], "pyramid": pv.nezet(st, vid) if st is not None else None,
+                         "pyramid_elerheto": pv.bekapcsolva(),
                          "bejegyzesek": [{"id": b["id"], "ki": b["instance"], "szoveg": b["content"],
-                                          "ido": b["timestamp"]} for b in bej]})
+                                          "ido": b["timestamp"], "meta": meta.get(str(b["id"]))} for b in bej]})
+
+
+@_vedett
+async def api_vita_muvelet(request: Request):
+    """POST /api/ui/vita/{id}/muvelet {muvelet, ertek?}: tovabb (a körök között várakozó / leállított vita megy
+    tovább; lezárt vitán új kör), leallit (költségvédelem: a motor megáll), varj_ram (ertek: true/false — megálljon-e
+    minden kör után), pyramid (régi vita → Pyramid-vita, az R1 indul)."""
+    vid = int(request.path_params["vita_id"])
+    pv = _pv()
+    body = await request.json()
+    m = str(body.get("muvelet") or "")
+    st, d = pv.betolt(vid)
+    if d is None:
+        return JSONResponse({"hiba": "nincs ilyen vita"}, status_code=404)
+    if m == "pyramid":
+        out = pv.atalakit(vid)
+    elif st is None:
+        return JSONResponse({"hiba": "ez nem Pyramid-vita"}, status_code=400)
+    elif m == "tovabb":
+        out = pv.tovabb(vid)
+    elif m == "leallit":
+        out = pv.leallit(vid)
+    elif m == "varj_ram":
+        out = pv.varj_ram(vid, bool(body.get("ertek")))
+    else:
+        return JSONResponse({"hiba": f"ismeretlen művelet: {m!r}"}, status_code=400)
+    if not out.get("ok"):
+        return JSONResponse({"hiba": out.get("hiba") or "nem sikerült"}, status_code=400)
+    return JSONResponse(out)
+
+
+@_vedett
+async def api_vita_uj(request: Request):
+    """POST /api/ui/vita/uj {tema, kontextus, korok?, varj_ram?}: új Pyramid-vita a kabinból (a Kommandant indítja)."""
+    pv = _pv()
+    body = await request.json()
+    out = pv.letrehoz(str(body.get("tema") or ""), str(body.get("kontextus") or ""), ki="kommandant",
+                      korok=body.get("korok"), varj_ram=body.get("varj_ram", True) is not False)
+    if not out.get("ok"):
+        return JSONResponse({"hiba": out.get("hiba") or "nem sikerült"}, status_code=400)
+    return JSONResponse(out)
 
 
 @_vedett
@@ -1417,6 +1495,8 @@ API_UTAK = [
     ("/api/ui/faber/dont", ["POST"], api_faber_dont),
     ("/api/ui/draft/dont", ["POST"], api_draft_dont),
     ("/api/ui/vita/{vita_id:int}", ["GET", "POST"], api_vita),
+    ("/api/ui/vita/{vita_id:int}/muvelet", ["POST"], api_vita_muvelet),
+    ("/api/ui/vita/uj", ["POST"], api_vita_uj),
     ("/api/ui/brief/{brief_id:int}", ["GET"], api_brief),
     ("/api/ui/feladat/{feladat_id:int}", ["GET"], api_feladat),
     ("/api/ui/feladat/{feladat_id:int}/hozzaszolas", ["POST"], api_feladat_hozzaszolas),

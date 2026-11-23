@@ -75,6 +75,15 @@ U_UGYNOK = """FELADAT-ÜGYNÖKÖK (`ugynok` eszköz) — a Kommandant saját, n�
   (`jeloltek`), kérdezz vissza. Ismétlődő figyelésre, ha a Kommandant „ügynököt” kér, ezt használd, ne a
   schedule_recipe-et (az SiliconFlow-ügynökön futtat)."""
 
+#: PYRAMID-VITA (11-23): a rizsrakéták több körös vitája — a `feladat_ugynokok` kategóriában (külön kategória a betöltő
+#: leírását, így minden kör stabil előtagját növelné — a karcsúsítás plafonja nem engedi; az `ai_ugynokok` előtöltése
+#: pedig minden „Kimi, …” üzenetet drágítana).
+U_VITA = """
+PYRAMID-VITA (`vita`): „vitassák meg…” → indit (tema, kontextus; meglévő vita: vita_id). A Kommandant hozzászólása egy \
+vitához → hozzaszol, a szavai szó szerint. Ha jóváhagy ÉS utasít („jó, csináljátok…”, „mehet a javaslat”, „a GLM írja \
+meg…”) → parancs, szó szerint: abból lesz a feladatlista, és AZONNAL fut. Kétség esetén hozzaszol. „Folytassátok” → \
+tovabb; „állítsd le” → leallit."""
+
 U_RECEPT = """RECIPE-K (workflow template-ek) — FONTOS:
 - A Bridge-en vannak előre definiált workflow-k ("recipe-k"). Egy recipe = egy előre megírt prompt, amit EGY agent hajt végre.
 - MINDIG az execute_recipe tool-t használd recipe futtatásra! SOHA NE használj ai_task-ot recipe-hez!
@@ -252,10 +261,12 @@ KATEGORIAK: dict[str, dict] = {
         "utmutato": U_AI,
     },
     "feladat_ugynokok": {
-        "leiras": "a Kommandant névvel ellátott, ütemezhető feladat-ügynökei",
-        "eszkozok": ("ugynok",),
-        "minta": r"ugynok|figyelo\b|figyeld|szolj,?\s+ha",
-        "utmutato": U_UGYNOK,
+        # a leírás hossza VÁLTOZATLAN (a betöltő leírása minden kör stabil előtagjában ott van — a karcsúsítás plafonja)
+        "leiras": "feladat-ügynökök (ütemezett munkások) és a Pyramid-vita",
+        "eszkozok": ("ugynok", "vita"),
+        "minta": r"ugynok|figyelo\b|figyeld|szolj,?\s+ha|"
+                 r"vitas|megvitat|vitaz|\bvita(?!min)|\bparancs|folytassatok|allaspont|ordogugyved|pyramid",
+        "utmutato": U_UGYNOK + U_VITA,
     },
     "receptek": {
         "leiras": "recipe: lista, futtatás, létrehozás, ütemezés (brief, hírszemle)",

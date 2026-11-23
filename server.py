@@ -45,6 +45,10 @@ except ImportError:
         from datetime import datetime, timezone
         return f"\nA mai dátum: {datetime.now(timezone.utc).strftime('%Y-%m-%d')}.\n"
 
+# PYRAMID-VITA (2026-11-23): vita → parancs → végrehajtás (pyramid/vita.py); a függőségeit lent köti be a
+# `_pyramid_vita_bekot`. Független a fenti PYRAMID_ENABLED-től (ugyanaz a csomag, de saját, könnyű modul).
+from pyramid import vita as pyramid_vita
+
 # Permission layer — multi-instance access control (YoungeReka etc.)
 from permissions import (
     check_permission, filter_messages, filter_memory_results,
@@ -1031,7 +1035,7 @@ async def list_tasks(assigned_to: str = None, status: str = None, caller: str = 
 
 @mcp.tool()
 async def start_discussion(topic: str, initial_position: str, context: str = "",
-                           instance: str = "unknown") -> str:
+                           instance: str = "unknown", mod: str = "", discussion_id: int = 0) -> str:
     """Start a collaborative discussion on a topic. Both instances can add their thoughts.
 
     Args:
@@ -1039,10 +1043,25 @@ async def start_discussion(topic: str, initial_position: str, context: str = "",
         initial_position: Your opening position/argument
         context: Background context for the discussion
         instance: Who starts it
+        mod: "pyramid" = PYRAMID-VITA: Kimi, DeepSeek, GLM több körben, egymás után, egymásra reagálva, kiosztott
+            ütköző álláspontokkal (ördögügyvéddel), körönként álláspont-térképpel; a végén határozati javaslat, és a
+            végrehajtás CSAK a Kommandant parancsára indul (a kabinban vagy Telegramon). Üres = a régi egykörös vita.
+        discussion_id: mod="pyramid" mellett egy MEGLÉVŐ vita újraindítása pyramid-módban (a szála megmarad;
+            ilyenkor a topic / initial_position elhagyható).
     """
     denied = _enforce(instance, "start_discussion")
     if denied:
         return denied
+    if str(mod or "").strip().lower() == "pyramid" and pyramid_vita.bekapcsolva():
+        if discussion_id:
+            out = pyramid_vita.atalakit(int(discussion_id))
+            if out.get("ok") and out.get("mar_pyramid"):
+                out = pyramid_vita.tovabb(int(discussion_id))
+        else:
+            out = pyramid_vita.letrehoz(topic, context, initial_position, instance)
+        if out.get("ok"):
+            return json.dumps({"status": "discussion_started", "mode": "pyramid", "discussion_id": out["vita_id"]})
+        return json.dumps({"error": out.get("hiba")}, ensure_ascii=False)
     conn = get_db()
     ts = now()
     cur = conn.execute(
@@ -1076,6 +1095,13 @@ async def add_to_discussion(discussion_id: int, content: str, instance: str = "u
     denied = _enforce(instance, "add_to_discussion")
     if denied:
         return denied
+    # PYRAMID-VITA: a hozzászólás a szálba kerül; a Kommandanté a következő szólóknak szól (és lezárt vitán új kört
+    # indít) — a régi egykörös `_ai_auto_discuss` itt nem fut
+    _pv, _ = pyramid_vita.betolt(discussion_id)
+    if _pv is not None:
+        out = pyramid_vita.hozzaszol(discussion_id, content, instance)
+        return json.dumps({"status": "added" if out.get("ok") else "error", "discussion_id": discussion_id,
+                           "mode": "pyramid", **out}, ensure_ascii=False)
     conn = get_db()
     ts = now()
     conn.execute(
@@ -1124,14 +1150,22 @@ async def resolve_discussion(discussion_id: int, resolution: str, instance: str 
     conn = get_db()
     ts = now()
 
-    disc = conn.execute("SELECT topic, context FROM discussions WHERE id = ?", (discussion_id,)).fetchone()
+    disc = conn.execute("SELECT topic, context, resolution FROM discussions WHERE id = ?", (discussion_id,)).fetchone()
     if not disc:
         conn.close()
         return json.dumps({"error": f"Discussion {discussion_id} not found"})
 
+    # PYRAMID-VITA: a `resolution` mező az állapotát hordozza — a kézi lezárás szövege abba kerül, nem írja felül
+    _pv = pyramid_vita.allapot_ertelmez(disc["resolution"]) if "resolution" in disc.keys() else None
+    if _pv is not None:
+        _pv["lezaras"] = {"szoveg": resolution, "ki": instance, "ido": ts}
+        if _pv.get("allapot") in ("fut", "var_ra", "parancsra_var"):
+            _pv["allapot"] = "kesz"
+            _pv["leallit"] = True
+        pyramid_vita.megallit(discussion_id)
     conn.execute(
         "UPDATE discussions SET status='resolved', resolution=?, resolved_at=? WHERE id=?",
-        (resolution, ts, discussion_id)
+        (json.dumps(_pv, ensure_ascii=False) if _pv is not None else resolution, ts, discussion_id)
     )
 
     # Auto-save decision to shared memory
@@ -1170,12 +1204,16 @@ async def read_discussion(discussion_id: int, caller: str = "") -> str:
     ).fetchall()
     conn.close()
 
+    # PYRAMID-VITA: a `resolution` a gépi állapot (JSON) — helyette az olvasható összefoglaló (kör, térkép, javaslat,
+    # parancsok tételállapottal)
+    _pv = pyramid_vita.allapot_ertelmez(disc["resolution"])
     return json.dumps({
         "discussion_id": discussion_id,
         "topic": disc["topic"],
         "context": disc["context"],
         "status": disc["status"],
-        "resolution": disc["resolution"],
+        "resolution": disc["resolution"] if _pv is None else (_pv.get("lezaras") or {}).get("szoveg"),
+        **({"pyramid": pyramid_vita.rovid_allapot(discussion_id)} if _pv is not None else {}),
         "entry_count": len(entries),
         "entries": [dict(e) for e in entries],
     }, ensure_ascii=False)
@@ -2864,7 +2902,8 @@ AI_DISCUSSION_ENABLED = os.environ.get("AI_DISCUSSION_ENABLED", "true").lower() 
 
 
 async def _ai_auto_discuss(discussion_id: int, topic: str, thread_so_far: str):
-    """Automatically query Kimi and DeepSeek to contribute to a discussion."""
+    """A RÉGI, egykörös vita (a nem-pyramid vitákra): a fő ügynökök párhuzamosan, egyszer szólnak. A több körös,
+    egymásra épülő vita a `pyramid/vita.py` (start_discussion mod="pyramid")."""
     if not AI_DISCUSSION_ENABLED or not (SILICONFLOW_API_KEY or llm_kapu.elerheto()):
         return
 
@@ -2923,8 +2962,12 @@ async def _ai_auto_discuss(discussion_id: int, topic: str, thread_so_far: str):
         except Exception as e:
             logger.error("AI auto-discuss failed for %s: %s", agent_name, e)
 
+    # 2026-11-23 (a 18-as vita: nyolc egyforma, párhuzamos vélemény): a régi egykörös vitában is csak a fő
+    # rizsrakéták szólnak (Kimi, DeepSeek, GLM — `PYRAMID_VITA_RESZTVEVOK`), nem a SILICONFLOW_MODELS mind a nyolc
+    # bejegyzése (a flash- és fordítómodellek, valamint a kimi3/glm53 ugyanannak a modellnek a másodpéldányai).
     await asyncio.gather(
-        *[_discuss_agent(name, mid) for name, mid in SILICONFLOW_MODELS.items()],
+        *[_discuss_agent(name, SILICONFLOW_MODELS[name]) for name in pyramid_vita.resztvevok_alap()
+          if name in SILICONFLOW_MODELS],
         return_exceptions=True,
     )
     # SILICONFLOW-KIESÉS: egyik ügynök sem szólt, és a hiba a szolgáltatóé (402, 5xx, kapcsolat, megszakító) —
@@ -8379,7 +8422,7 @@ async def sf_chat(payload: dict, *, purpose: str = "", attempts: int = 3,
                         body.pop(k, None)
             # ÖNSZABÁLYOZÁS: induljunk onnan, ami ennél a modellnél utoljára
             # elég volt, de sose a modell plafonja fölött.
-            _ceiling = _sf_ceiling(mid)
+            _ceiling = llm_kapu.plafon(_sf_ceiling(mid))   # a hívó plafonja (pl. a Pyramid-vita 16k-ja) felülről vág
             _asked = int(body.get("max_tokens") or 8000)
             body["max_tokens"] = min(max(_asked, _SF_LEARNED_BUDGET.get(mid, 0)), _ceiling)
             _keys = _sf_keys() or [""]
@@ -12704,6 +12747,152 @@ def _feladat_ugynok_bekot() -> None:
 
 
 _feladat_ugynok_bekot()
+
+
+# ══ PYRAMID-VITA (2026-11-23, pyramid/vita.py): a szóló, a moderátor és a végrehajtók — mind a MEGLÉVŐ úton ════════
+#: A moderátor = a koordinátori szintézis lánca (`ai_task`: Kimi → DeepSeek → GLM, a `feedback_synthesis_fallback_order`
+#: döntés), aliasokkal, hogy a mai modellek fussanak (az `ai_task` belső lánca még a K2.7/V4-Pro/GLM-5.2 azonosítókat
+#: hordozza).
+PYRAMID_MODERATOR_LANC = ("kimi", "deepseek", "glm5")
+
+
+async def _pyramid_szolo(ki: str, system: str, user: str) -> dict:
+    """Egy vita-szóló a meglévő korlátos eszközhurokkal (`_rizs_eszkozhurok`: a közös SUBAGENT-eszközlista, a
+    tiltólista és a kínai-őr érintetlen), legfeljebb `pyramid_vita.ESZKOZ_MAX` hívással, a vita kimeneti plafonjával.
+    Tudásbázis, memória, Gmail, naptár NINCS benne: a prompt csak a vita szálát hordozza."""
+    model_id = SILICONFLOW_MODELS.get(ki, ki)
+    system = (system + _temporal_directive(ki) + SUBAGENT_TOOLS_DIRECTIVE + NO_TEXT_MARKER_DIRECTIVE)
+    with llm_kapu.keret_plafon(pyramid_vita.PLAFON):
+        content, data, err, notes, hivott = await _rizs_eszkozhurok(
+            model_id, [{"role": "system", "content": system}, {"role": "user", "content": user}],
+            purpose=f"vita/{ki}", max_tokens=pyramid_vita.MAX_TOKENS, temperature=0.7,
+            max_kor=3, max_hivas=pyramid_vita.ESZKOZ_MAX, ido_s=300.0)
+    return {"szoveg": content, "hiba": err, "jegyzetek": list(notes or []), "eszkozok": list(hivott or []),
+            "csonka": bool(data and _sf_is_truncated(data)), "modell": (data or {}).get("model") or model_id}
+
+
+async def _pyramid_moderator(system: str, user: str, max_tokens: int = 4000) -> tuple[str, str | None]:
+    """A moderátor (álláspontok, kör-összegzés, határozati javaslat, a parancs feladatlistája): a szintézis-lánc, az
+    első használható válasz nyer. Eszköz nélkül (max_rounds=1), a vita plafonjával."""
+    for alias in PYRAMID_MODERATOR_LANC:
+        try:
+            with llm_kapu.keret_plafon(pyramid_vita.PLAFON):
+                c = await _run_agent_with_tools(alias, [{"role": "system", "content": system},
+                                                        {"role": "user", "content": user}],
+                                                max_rounds=1, max_tokens=max_tokens)
+        except Exception as e:  # noqa: BLE001 — a lánc következő tagja jön
+            logger.warning("pyramid-vita moderátor %s: %s", alias, e)
+            continue
+        c = _clean_synthesis_output(c or "")
+        if c.strip() and not c.startswith("ERROR:") and c != "(üres szintézis)":
+            return c, alias
+    return "", None
+
+
+def _pyramid_link(ut: str) -> str:
+    """Abszolút link a Bridge saját útjára (a szálban kattintható; a kabin belépésével nyílik) — a `_docx_tarol`
+    mintájára: `BRIDGE_PUBLIC_URL`, különben a Railway-domain; helyben relatív marad."""
+    alap = os.environ.get("BRIDGE_PUBLIC_URL", "").strip().rstrip("/") or (
+        f"https://{os.environ['RAILWAY_PUBLIC_DOMAIN'].strip().strip('/')}"
+        if os.environ.get("RAILWAY_PUBLIC_DOMAIN", "").strip() else "")
+    return f"{alap}{ut}"
+
+
+async def _pyramid_vegrehajt(f: dict, kontextus: str) -> dict:
+    """A PARANCS egy tétele a MEGLÉVŐ végrehajtóra (új végrehajtó nincs):
+      kutatas   → `ai_task` dispatch a kijelölt ügynöknek (a figyelő a végén visszaírja az eredményt);
+      ismetlodo → `feladat_ugynok` (ütemezett feladat-ügynök);
+      kodolas   → Faber-KÍVÁNSÁG az aláírt relayen (a Faber kipróbálja; a merge a Kommandanté);
+      kifele    → tweet-TERVEZET az `action_drafts`-ba (a munkapad jóváhagyó gombjával; magától SOHA nem posztol).
+                  Levélnek az `action_drafts`-ban nincs fajtája (calendar/reminder/tweet/hog) — az KÉZI tétel marad."""
+    vid, n, i = f.get("vita_id"), f.get("parancs"), f.get("tetel")
+    v = f.get("vegrehajto")
+    leiras = f["mit"] + (f"\n\nHatáridő: {f['hatarido']}" if f.get("hatarido") else "") + \
+        (f"\nMérce (miből látszik, hogy kész): {f['merce']}" if f.get("merce") else "")
+    if v == "kutatas":
+        ki = f.get("ki") if f.get("ki") in SILICONFLOW_MODELS else "kimi"
+        out = json.loads(await ai_task(title=f"Vita #{vid} · P{n}/{i}: {f['mit'][:70]}", description=leiras,
+                                       context=kontextus[:6000], assigned_by=f"pyramid-vita#{vid}",
+                                       agent_tasks=json.dumps({ki: {"prompt": leiras}}, ensure_ascii=False)))
+        if out.get("task_id"):
+            return {"allapot": "fut", "ref": {"ai_task": int(out["task_id"])}, "bejegyez": True,
+                    "szoveg": f"ai_task #{out['task_id']} ({pyramid_vita.nev(ki)}) — dolgozik, az eredmény ide jön",
+                    "link": _pyramid_link(f"/api/ai_tasks/{out['task_id']}/export"),
+                    "link_szoveg": f"ai_task #{out['task_id']}"}
+        return {"allapot": "hibas", "szoveg": str(out.get("error") or "az ai_task nem indult")}
+    if v == "ismetlodo":
+        modell = f.get("ki") if feladat_ugynok.modell_kulcs(f.get("ki") or "") else ""
+        out = feladat_ugynok.vegrehajt("indit", {
+            "nev": f.get("nev") or f["mit"][:40], "utemezes": f.get("utemezes") or "",
+            "feladat": f"{leiras}\n\n(A #{vid} Pyramid-vita PARANCS #{n}-ából, a Kommandant utasítására.)",
+            "modell": modell}, get_db=get_db, ki="kommandant")
+        if out.get("ok"):
+            u = out.get("ugynok") or {}
+            return {"allapot": "kesz", "nezet": {"tipus": "ugynok", "id": u.get("id")},
+                    "szoveg": f"feladat-ügynök „{u.get('nev')}” ({u.get('id')}) — {u.get('utemezes_szoveg') or ''}"}
+        return {"allapot": "hibas", "szoveg": str(out.get("error") or "a feladat-ügynök nem indult")}
+    if v == "kodolas":
+        import faber_relay
+        conn = get_db()
+        try:
+            mid = faber_relay.tovabbit(conn, TELEGRAM_BOT_TOKEN, "szandek", faber_relay.szandek_adat({
+                "szandek": "kivansag", "repo": "bridge",
+                "szoveg": (f"KÍVÁNSÁG A #{vid} PYRAMID-VITA PARANCS #{n}-ÁBÓL (a Kommandant parancsa): {leiras}\n\n"
+                           f"Háttér: {kontextus[:1500]}")}), now())
+            conn.commit()
+        finally:
+            conn.close()
+        if mid:
+            return {"allapot": "kesz", "szoveg": f"kívánság a Fabernek (relay #{mid}) — kipróbálja, és jóváhagyásra "
+                                                 f"hozza; a merge a tiéd"}
+        return {"allapot": "hibas", "szoveg": "a Faber-relay nem elérhető (nincs Telegram-token a Bridge-en)"}
+    if v == "kifele":
+        szoveg = (f.get("tervezet") or "").strip()
+        if any(k in (f["mit"] + szoveg).lower() for k in ("levél", "level", "e-mail", "email", "hírlevél")):
+            return {"allapot": "kezi", "szoveg": "levél-tervezetnek az action_drafts-ban nincs jóváhagyási útja "
+                                                 "(csak tweet, naptár, HOG) — a szöveget Claus megírja, ha kéred"
+                                                 + (f": „{szoveg[:600]}”" if szoveg else "")}
+        if not szoveg:
+            return {"allapot": "hibas", "szoveg": "nincs kész poszt-szöveg a tételben — mondd meg, mi legyen benne"}
+        import twitter_poszt
+        r = twitter_poszt.tervezet(get_db, szoveg, forras=f"Pyramid-vita #{vid}, PARANCS #{n}",
+                                   source_message_id=f"vita:{vid}")
+        if r.get("draft_id"):
+            return {"allapot": "jovahagyasra_var", "szoveg": f"tweet-tervezet #{r['draft_id']} ({r.get('karakter', '?')} "
+                                                             f"karakter) — a munkapadon hagyod jóvá"}
+        return {"allapot": "hibas", "szoveg": str(r.get("error") or "a tervezet nem jött létre")}
+    return {"allapot": "hibas", "szoveg": f"ismeretlen végrehajtó: {v}"}
+
+
+async def _pyramid_ai_task_allapot(task_id: int) -> dict:
+    """Az ai_task állapota a figyelőnek: fut / kész (a szintézis vagy az ügynök eredményének eleje + link) / hibás."""
+    conn = get_db()
+    try:
+        t = conn.execute("SELECT status FROM ai_tasks WHERE id = ?", (int(task_id),)).fetchone()
+        if not t:
+            return {"allapot": "hibas", "szoveg": f"nincs ai_task #{task_id}"}
+        if t["status"] not in ("completed", "failed"):
+            return {"allapot": "fut"}
+        rows = conn.execute("SELECT agent, content, error_code FROM ai_task_results WHERE task_id = ? ORDER BY id",
+                            (int(task_id),)).fetchall()
+    finally:
+        conn.close()
+    link = {"link": _pyramid_link(f"/api/ai_tasks/{task_id}/export"), "link_szoveg": f"ai_task #{task_id}"}
+    jo = [r for r in rows if not (r["error_code"] or "") and str(r["content"] or "").strip()]
+    if t["status"] == "failed" or not jo:
+        ok = next((r["error_code"] for r in rows if r["error_code"]), None) or t["status"]
+        return {"allapot": "hibas", "szoveg": f"ai_task #{task_id}: {ok}", **link}
+    fo = next((r for r in jo if r["agent"] == "szintézis"), jo[-1])
+    return {"allapot": "kesz", "szoveg": f"ai_task #{task_id}: " + " ".join(str(fo["content"]).split())[:700], **link}
+
+
+def _pyramid_vita_bekot() -> None:
+    pyramid_vita.beallit(get_db=get_db, szolo=_pyramid_szolo, moderator=_pyramid_moderator,
+                         vegrehajt=_pyramid_vegrehajt, ai_task_allapot=_pyramid_ai_task_allapot,
+                         ertesit=_telegram_push)
+
+
+_pyramid_vita_bekot()
 
 # HOPSZ-RIASZTÓ (11-23, hopsz.py): a Feldwebel és a feladat-ügynök képesség-hiányából automatikus Faber-kérelem (az
 # állapot a shared_memory egy kulcsában, a közös írási úton; a kérelem az aláírt Faber-relayen). HOPSZ_AUTO=0: semmi.

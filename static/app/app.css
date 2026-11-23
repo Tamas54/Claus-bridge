@@ -296,6 +296,40 @@ a { color: var(--accent); }
 .jelenlet-sor { display: flex; justify-content: space-between; gap: 8px; font-size: 12.5px; padding: 4px 2px; color: var(--ink-2); }
 .jelenlet-sor span:last-child { color: var(--ink-3); font-size: 11.5px; }
 
+/* PYRAMID-VITA (2026-11-23): állapotsor + álláspont-térkép a vita tetején (ragad), PARANCS-kártya a szálban */
+.vita-panel { position: sticky; top: -24px; z-index: 2; margin: -12px 0 16px; padding: 12px 0 10px; background: var(--bg); border-bottom: 1px solid var(--hair); max-height: 52dvh; overflow-y: auto; overscroll-behavior: contain; }
+.vita-sor { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+.vita-allapot { color: var(--ink); font-size: 13px; font-weight: 600; }
+.vita-gombok { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+.vita-gombok .pipa { font-size: 12.5px; color: var(--ink-2); }
+.vita-dontes { margin: 8px 0 0; padding: 8px 10px; background: var(--needs-soft); border-radius: var(--radius-sm); }
+.terkep-doboz > summary { cursor: pointer; color: var(--ink-2); font-size: 12.5px; font-weight: 600; margin-bottom: 6px; }
+.allaspontok { display: grid; gap: 4px; margin: 4px 0 10px; font-size: 12.5px; color: var(--ink-2); }
+.allaspontok b { color: var(--ink); }
+.terkep { display: grid; gap: 8px; }
+.terkep-sor { padding: 8px 10px; background: var(--card); border: 1px solid var(--hair); border-radius: var(--radius-sm); }
+.terkep-sor.en { background: var(--bubble-en); }
+.terkep-ki { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin-bottom: 4px; font-size: 12.5px; }
+.terkep-ki .allapot { margin-left: auto; }
+.terkep-allas { font-size: 13px; line-height: 1.45; overflow-wrap: anywhere; }
+.terkep-erv { margin-top: 3px; font-size: 12px; color: var(--ink-2); overflow-wrap: anywhere; }
+.terkep-osszeg { font-size: 12.5px; color: var(--ink-2); padding: 6px 10px; border-left: 3px solid var(--done); }
+.terkep-osszeg.vita { border-left-color: var(--problem); }
+.terkep-osszeg b, .terkep-kerdes b { color: var(--ink); }
+.terkep-kerdes { font-size: 12.5px; padding: 6px 10px; background: var(--needs-soft); border-radius: var(--radius-sm); color: var(--needs); }
+.terkep-doboz details.korabbi { margin-top: 10px; }
+.terkep-doboz details.korabbi > summary { cursor: pointer; color: var(--ink-3); font-size: 12px; }
+.chip.kor-cimke { background: var(--working-soft); color: var(--working); font: 600 10.5px/16px var(--mono); letter-spacing: 0.04em; }
+.kartya.terkep-bej > summary { cursor: pointer; color: var(--ink-2); font-size: 12.5px; }
+.kartya.terkep-bej[open] > summary { margin-bottom: 8px; }
+.parancs-kartya { border-color: var(--accent-line); }
+.parancs-tetelek { margin: 0; padding-left: 20px; display: grid; gap: 10px; font-size: 13px; }
+.parancs-tetelek li { overflow-wrap: anywhere; }
+.tetel-fej { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin-bottom: 3px; }
+.tetel-eredmeny { margin: 4px 0; padding: 6px 8px; background: var(--bg); border-radius: 8px; font-size: 12px; color: var(--ink-2); white-space: pre-wrap; max-height: 160px; overflow: auto; }
+.parancs-kartya .gomb, .parancs-kartya .melleklet-link { margin-top: 4px; }
+@media (max-width: 720px) { .vita-panel { max-height: 44dvh; } }
+
 /* modal */
 dialog.modal { width: min(640px, calc(100% - 24px)); max-height: 82dvh; padding: 0; border: 1px solid var(--hair); border-radius: 16px; background: var(--card); color: var(--ink); box-shadow: 0 30px 80px -20px rgb(0 0 0 / 80%); }
 dialog.modal::backdrop { background: rgb(0 0 0 / 55%); }

@@ -131,7 +131,9 @@ def studio_ai_lepes(args: dict) -> bool:
 
 
 SF_FELE_IRASKOR = {"agora": lambda a: str(a.get("action") or "").lower() == "comment",
-                   "story_comments": lambda a: bool(a.get("body"))}
+                   "story_comments": lambda a: bool(a.get("body")),
+                   # a Pyramid-vita résztvevői (Kimi, DeepSeek, GLM) látják a témát, a kontextust és a hozzászólást
+                   "vita": lambda a: str(a.get("muvelet") or "") in ("indit", "hozzaszol", "parancs")}
 
 
 # ══ KULCS, ALÁÍRÁS, ÜZENETEK ═════════════════════════════════════════════
