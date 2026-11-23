@@ -78,12 +78,43 @@ SF_FELE = frozenset({"ai_query", "ai_task", "create_task", "execute_recipe", "cr
                      # AI-jukkal dolgozzák fel (az Echolot és az Engine SiliconFlow-, azaz kínai modellekkel, a Studio a
                      # saját AI-lépéseivel). A ChatGPT és a Gemini KAPHAT (a Kommandant: „chatgpt és gemini kaphat”); a
                      # tiszta adatkeresők (Lexonomics, Medical, Makronóm) is mehetnek.
-                     "echolot", "engine", "studio",
+                     # 11-23: a Studio NEM egészében — csak az AI-lépései (lásd `studio_ai_lepes`); a gépi
+                     # dokumentum-műveletek (Word, diasor kész diákból, feltöltés) a Kommandant saját Studiójában mennek
+                     "echolot", "engine",
                      # a döntés-szimulátor a lépés szövegét a DELPHOI SiliconFlow-panelnek, az Echolotnak és a
                      # Studiónak adja: tudásbázis-tartalom nem kerülhet bele
                      "dontes_szimulator"})
+#: A Studio GÉPI műveletei (AI-lépés nélkül): tudásbázis-tartalmú körben is mehetnek — a tartalom a Kommandant saját
+#: Studio-munkaterületére kerül, és ott semmilyen modell nem dolgozza fel. (Kommandant, 11-23: a robot-tanulmány
+#: diasorát a Bridge nem tudta elkészíteni, mert a kör korábban a tudásbázist olvasta, és a teljes Studio tiltva volt.)
+STUDIO_GEPI = frozenset({"files", "convert", "wordcraft", "office", "pptx_build", "validate_document", "extract",
+                         "merge", "find_replace", "insert_after", "replace_heading", "delete_pages", "delete_section",
+                         "insert_image", "upload_file", "upload_chunk", "upload_from_url", "history", "transfer", "units"})
+
+
+def studio_ai_lepes(args: dict) -> bool:
+    """A Studio-hívás a Studio SAJÁT AI-ját használná-e (akkor tudásbázis-tartalmú körben nem mehet)."""
+    eszkoz = str((args or {}).get("eszkoz") or "")
+    p = (args or {}).get("parameterek") or {}
+    p = p if isinstance(p, dict) else {}
+    if eszkoz == "sugo":
+        return False                                   # az eszközlista lekérése: nem visz tartalmat
+    if not eszkoz:
+        return True                                    # ami nem egyértelmű, az tiltott marad
+    if eszkoz not in STUDIO_GEPI:
+        return True                                    # describe_image, ocr, facts, edit_with_instruction, video, …
+    if eszkoz == "pptx_build" and (p.get("from_document") or p.get("instructions")):
+        return True                                    # ott a Studio AI-ja írná a diákat
+    if eszkoz == "validate_document" and p.get("content"):
+        return True                                    # tartalmi (AI) olvasás
+    if eszkoz == "extract" and str(p.get("mode") or "text") not in ("text", "markdown", "structure"):
+        return True
+    return False
+
+
 SF_FELE_IRASKOR = {"agora": lambda a: str(a.get("action") or "").lower() == "comment",
-                   "story_comments": lambda a: bool(a.get("body"))}
+                   "story_comments": lambda a: bool(a.get("body")),
+                   "studio": studio_ai_lepes}
 
 
 # ══ KULCS, ALÁÍRÁS, ÜZENETEK ═════════════════════════════════════════════
@@ -174,7 +205,8 @@ def sf_fele(nev: str, args: dict | None) -> bool:
 
 SF_FELE_HIBA = ("ebben a beszélgetésben a Kommandant tudásbázisából van tartalom, ami csak Claude-modellnek mehet ki — "
                 "SiliconFlow-ügynöknek (Kimi, DeepSeek, GLM), saját AI-t használó szolgáltatásnak "
-                "(Echolot, Engine, Studio), feladatba, receptbe, Bridge-üzenetbe vagy nyilvános kommentbe nem adom tovább")
+                "(Echolot, Engine, a Studio AI-lépései), feladatba, receptbe, Bridge-üzenetbe vagy nyilvános kommentbe "
+                "nem adom tovább. A Studio gépi műveletei (Word, diasor kész diákból, feltöltés) mennek.")
 
 
 # ══ ESZKÖZÖK ═════════════════════════════════════════════════════════════

@@ -524,13 +524,27 @@ def test_tiltott_eszkoz_elutasitva(nev):
 
 @pytest.mark.parametrize("nev", sorted(F.ENGEDETT))
 def test_engedett_eszkoz(nev):
-    assert F.engedett(nev, {"eszkoz": "x"}) is None
+    # a Studio gépi eszközzel (pl. wordcraft) engedett; egy ismeretlen Studio-eszköz AI-lépésnek számít
+    args = {"eszkoz": "wordcraft"} if nev == "studio" else {"eszkoz": "x"}
+    assert F.engedett(nev, args) is None
+
+
+def test_studio_gepi_igen_ai_lepes_nem():
+    """11-23, a Kommandant: „HASZNÁLHATÓ LEGYEN AZ ESZKÖZ” — „AKKOR HASZNÁLJA A Claude az eszközt!” A szöveget az
+    ügynök (Claude) írja; a Studio Word-szerkesztője, átalakítója, diasor-építője, ellenőrzője mindig mehet, az
+    AI-lépései (DeepSeek a SiliconFlow-n) nem."""
+    for eszkoz, p in (("wordcraft", {"file_id": "f"}), ("convert", {"file_id": "f"}), ("files", {"action": "list"}),
+                      ("pptx_build", {"spec": {"slides": []}}), ("validate_document", {"file_id": "f"})):
+        assert F.engedett("studio", {"eszkoz": eszkoz, "parameterek": p}) is None, eszkoz
+    for eszkoz, p in (("edit_with_instruction", {}), ("pptx_build", {"from_document": "f"}), ("facts", {}),
+                      ("describe_image", {}), ("validate_document", {"content": True})):
+        assert F.engedett("studio", {"eszkoz": eszkoz, "parameterek": p}), eszkoz
 
 
 def test_a_kifele_hato_utak_mind_tiltottak():
     for nev in ("send_email", "send_message", "send_file_email", "create_calendar_event", "agora", "story_comments",
                 "ai_query", "ai_task", "execute_recipe", "schedule_recipe", "create_task", "export_task", "echolot",
-                "engine", "studio", "faber", "ugynok", "chatgpt", "gemini", "gmail_poll", "calendar_poll"):
+                "engine", "faber", "ugynok", "chatgpt", "gemini", "gmail_poll", "calendar_poll"):
         assert nev in F.TILTOTT and nev not in F.ENGEDETT
 
 
@@ -538,7 +552,7 @@ def test_a_modell_nem_is_latja_a_kifele_hato_eszkozoket():
     defs = _run(F.eszkoz_definiciok(Forras()))
     nevek = {t["function"]["name"] for t in defs}
     assert nevek <= F.ENGEDETT and "calendar_create" in nevek and "gmail_tervezet" in nevek
-    assert not nevek & {"send_email", "echolot", "engine", "studio", "ai_task", "send_message"}
+    assert not nevek & {"send_email", "echolot", "engine", "ai_task", "send_message"}
 
 
 def test_futas_kifele_csak_tervezet_es_javaslat(db, kulcs):
