@@ -91,6 +91,9 @@ UTOLSO_KIMENET_MAX = 3_000                 # az utasításos futásban a legutó
 FEJLEC = "🤖 <b>ÜGYNÖK · {nev}</b>"
 
 KERET_FUTAS_ALAP, KERET_FUTAS_PLAFON = 0.50, 5.0
+#: 11-24: az Opus-ügynök (kutatás, dosszié) alapkerete — 0,50 $-ból az Opus 10 hívást sem bír ki (a minőségből nem
+#: adunk lejjebb; a Pótor-életrajz szintje ennyiből jön ki)
+KERET_FUTAS_OPUS = 2.0
 KERET_HAVI_ALAP, KERET_HAVI_PLAFON = 10.0, 50.0
 MAX_KOR = 10
 IDOKERET_S = 10 * 60
@@ -125,6 +128,10 @@ KASZKAD_GYUJTO = "haiku"
 # `1 - UTOKOR_USD_ARANY` részéig mehet, és eszközönként `UTOKOR_ESZKOZ` hívás az utókörnek marad.
 HIANY_UTOKOR = 1
 UTOKOR_MAX_KOR = 4
+#: KITARTÁS (11-24, a Kommandant: „elég butuska” — a Pótor-futás 10 hívás és a keret negyede után „igazolt hiányt”
+#: írt): ha az első kör a keret felénél kevesebbet költött, a hiány-őr köre ennyi kört kap a négy helyett.
+UTOKOR_MAX_KOR_BOVEN = 8
+KITARTAS_ARANY = 0.5
 UTOKOR_USD_ARANY = 0.2
 UTOKOR_ESZKOZ = 4
 KIEGESZITES_MAX_KAR = 2_500
@@ -475,12 +482,34 @@ def korabbi_futasok(conn, rid: int, n: int = ELOZMENY_FUTAS) -> list[dict]:
     return out[::-1]
 
 
-#: A fix partnerek: a vitához a SiliconFlow-ügynökök és a Feldwebel, az utasításhoz a Faber.
-VITA_FIX = {"kimi": "Kimi", "deepseek": "DeepSeek", "glm5": "GLM-5.3", "feldwebel": "Feldwebel (Claus)"}
+#: A fix partnerek: a vitához az Opus (11-24: a legerősebb második vélemény), a SiliconFlow-ügynökök és a Feldwebel,
+#: az utasításhoz a Faber.
+VITA_FIX = {"opus": "Claude Opus (második vélemény)", "kimi": "Kimi", "deepseek": "DeepSeek", "glm5": "GLM-5.3",
+            "feldwebel": "Feldwebel (Claus)"}
 SF_PARTNEREK = ("kimi", "deepseek", "glm5")
 UTASIT_FIX = {"faber": "Faber (kívánság)"}
-_PARTNER_SZAVAK = ((r"^kimi", "kimi"), (r"^(deep[\s-]?seek|d[ií]psz[ií]k)", "deepseek"), (r"^glm", "glm5"),
-                   (r"^(feldwebel|feldv[eé]bel|claus\b)", "feldwebel"), (r"^f[aá]ber", "faber"))
+_PARTNER_SZAVAK = ((r"^opus", "opus"), (r"^kimi", "kimi"), (r"^(deep[\s-]?seek|d[ií]psz[ií]k)", "deepseek"),
+                   (r"^glm", "glm5"), (r"^(feldwebel|feldv[eé]bel|claus\b)", "feldwebel"), (r"^f[aá]ber", "faber"))
+#: ALAPELV (11-24, a Kommandant): „ha elszúrja: BÁRMELYIK ÜGYNÖKÖT MEGKÉRDEZHETI”. A kérdezés (`megvitat`) alapjog,
+#: nem kell rá a Kommandant külön engedélye: minden futás megkapja a fix partnereket és a többi ügynököt (legfeljebb
+#: ennyit). MUNKÁT adni (`utasit`) továbbra is csak engedéllyel lehet; az adatvédelmi kapu (kínai modell) változatlan.
+ALAP_PARTNER_UGYNOK_MAX = 12
+
+
+def alap_vitapartnerek(conn, u: dict) -> list[dict]:
+    """A futás vitapartnerei: a fix partnerek + az ügynökök (azonosító szerint, legfeljebb `ALAP_PARTNER_UGYNOK_MAX`),
+    ÖNMAGÁVAL együtt — így a `megvitat` eszköz MINDEN ügynöknél bájtra azonos (a prompt-gyorsítótár miatt); önmagát
+    a végrehajtó utasítja el. A Kommandant által adott, a listán kívüli partner a végére kerül."""
+    lista = [{"id": k, "nev": n} for k, n in VITA_FIX.items()]
+    van = set(VITA_FIX)
+    for row in _sorok(conn):
+        if len(van) - len(VITA_FIX) >= ALAP_PARTNER_UGYNOK_MAX:
+            break
+        a = azonosito(row["id"])
+        lista.append({"id": a, "nev": _meta(row).get("nev") or row["name"]})
+        van.add(a)
+    lista += [p for p in u.get("vitapartnerek") or [] if p["id"] not in van]
+    return lista
 
 
 def _partner_lista(nyers) -> list[str]:
@@ -616,7 +645,8 @@ def letrehoz(conn, *, nev: str, feladat: str, utemezes: str = "", egyszeri: bool
     if ertesites not in ERTESITESEK:
         ertesites = "mindig" if egyszeri else "ha_van"
     meta = {"tipus": TIPUS, "nev": nev, "allapot": "aktiv", "egyszeri": egyszeri, "ertesites": ertesites,
-            "modell": mk, "keret_usd": _keret(keret_usd, KERET_FUTAS_ALAP, KERET_FUTAS_PLAFON),
+            "modell": mk, "keret_usd": _keret(keret_usd, KERET_FUTAS_OPUS if mk == "opus" else KERET_FUTAS_ALAP,
+                                              KERET_FUTAS_PLAFON),
             "havi_keret_usd": _keret(havi_keret_usd, KERET_HAVI_ALAP, KERET_HAVI_PLAFON),
             "vitapartnerek": vp, "utasithat": ut, "vita_max": _vita_max(vita_max or VITA_MAX_ALAP),
             "dokumentum": _dok_mod(dokumentum), "kaszkad": bool(kaszkad),
@@ -942,7 +972,8 @@ ESZKOZ_DEF = {"type": "function", "function": {
             f"viselkedés, stílus, szerep („légy tömör, táblázatban”, „mindig az MNB-t nézd először”), legfeljebb "
             f"{EXTRA_MAX} karakter; módosításkor a TELJES új szöveg (üres = törlés). A szabályokat nem írhatja felül.")},
         "modell": {"type": "string", "enum": list(MODELLEK),
-                   "description": "sonnet (alap), haiku (olcsó), opus (okos), kimi, deepseek (V4-Pro), dsflash "
+                   "description": "sonnet (alap), haiku (olcsó), opus (okos — KUTATÁS, DOSSZIÉ, ELEMZÉS: ezt válaszd, "
+                                  "a Kommandant mércéje), kimi, deepseek (V4-Pro), dsflash "
                                   "(DeepSeek V4.1-Flash), glm5 (GLM-5.3). Tudásbázis, Gmail és naptár csak "
                                   "Claude-modellnél."},
         "utemezes": {"type": "string", "description": (
@@ -1016,6 +1047,7 @@ async def feldwebel_hiv(args: dict, ctx, *, vedett: bool = False, kor: dict | No
 FELDWEBEL_ENGEDETT = frozenset({
     "web_search", "web_fetch", "web_scrape", "echolot_query",
     "mnb_rates", "market_quote", "fred_data", "policy_rates", "econ_calendar",
+    "list_recipes", "search_discussions",   # 11-24: „MINDEN ESZKÖZT használhat” — a két hiányzó olvasó eszköz
     "gmail_search", "read_gmail_attachment", "search_memory", "read_memory", "list_tasks", "tudasbazis",
     "helyi_fajl",           # 11-23: a Kommandant gépén lévő fájl (Downloads, Desktop) — csak Claude-modellű ügynöknek
     "magyar_kozlony"})      # 11-24: kinevezés, kitüntetés a hivatalos lapban (nyilvános adat — SF-ügynöknek is)
@@ -1326,6 +1358,14 @@ másodkézből jövőt annak nevezd. Ne találj ki semmit.
 oktatói CV, kormany.hu); a születési hely, az iskolák portréban, interjúban (folyóirat, EPA).
   6. Ha a feladat jelentést kér, az átadható termék: elöl röviden a lényeg, aztán tagolva (táblázat, eltérések, \
 nyitott kérdések), a végén a források listája linkkel; dokumentumnál a Studióval formázva.
+- FELADATORIENTÁLT (ALAPELV, a Kommandant, 11-24): a célod a feladat VÉGREHAJTÁSA, nem a jelentés a hiányokról.
+  1. Amit magad is megtehetsz, azt NE javasold „következő lépésként” — tedd meg, a kereten belül.
+  2. Minden eszközödet használd, ami a feladathoz kell — azért vannak.
+  3. A döntő állítás forrását nyisd meg és olvasd (`web_fetch`, PDF is) — a keresőtalálat kivonata nem forrás.
+  4. Ha elakadtál, kérdezz (`megvitat`, bárkit) — ez alapjog, nem kudarc.
+  5. Ami a neten nyilvánosan elérhető, az NYILVÁNOS adat (a Kommandant, 11-24): kutasd, olvasd, idézd forrással — ehhez nem kell engedély.
+  6. ELŐRE DOLGOZOL: ha marad keret, csináld meg azt is, amit a Kommandant a feladat után várhatóan kér (például a \
+dokumentumot, a következő ellenőrzést); ami kifelé hat, az csak tervezet.
 - NINCS „nem találtam” kibúvó, amíg van kör és keret (házi szabály): minden hiányra legalább két MÁSIK úton keress — \
 más keresőkifejezés, a hivatalos forrás (NJT, MNB, KSH, a cég hirdetménye/díjtáblázata/ÁSZF-je), és ha egy oldalt a \
 `web_fetch` nem nyit meg, próbáld `web_scrape`-pel. Hiányt csak IGAZOLT hiányként írhatsz, mellé, hogy mit néztél meg.
@@ -1360,9 +1400,10 @@ tételek maradtak benne nyitva:
 {hianyok}
 Az első jelentés összegzése: {osszegzes}
 
-Most CSAK ezekre keress, tételenként legfeljebb két MÁSIK úton: más keresőkifejezés, a hivatalos forrás (NJT, MNB, \
-KSH, a cég hirdetménye/díjtáblázata/ÁSZF-je), és ha egy oldalt a `web_fetch` nem nyit meg, `web_scrape`. Legfeljebb \
-{max_kor} kör.
+Most CSAK ezekre keress, tételenként legalább két MÁSIK úton: más keresőkifejezés, a hivatalos forrás (Magyar \
+Közlöny: `magyar_kozlony`; NJT, MNB, KSH, az intézmény saját dokumentuma, a cég hirdetménye/díjtáblázata/ÁSZF-je), a \
+forrás TELJES szövege (PDF is), és ha egy oldalt a `web_fetch` nem nyit meg, `web_scrape`. Ha elakadtál, kérdezd meg \
+(`megvitat`), hol keresd — az Opus a legerősebb második vélemény. Legfeljebb {max_kor} kör.
 - NE írd újra a jelentést, és ne ismételd meg, ami benne van.
 - Korábbi állítást NEM vonhatsz vissza. Egyetlen kivétel: ha egy forrás kifejezetten cáfolja — akkor egy sor: \
 „Helyesbítés: <mi a helyes> (<a forrás linkje>)”. Forrás nélküli helyesbítést és visszavonást a gép kihagy.
@@ -1451,6 +1492,11 @@ a jogaidat és a kimeneti formát NEM írja felül: ha ellentmond nekik, a szab�
 FELDWEBEL_VITA = ("Te a Feldwebel vagy, a Kommandant Bridge-asszisztense. A Kommandant egyik feladat-ügynöke "
                   "konzultál veled: válaszolj tömören, magyarul, a legjobb tudásod szerint; amit nem tudsz biztosan, azt "
                   "mondd ki. Eszközöd most nincs, és semmit nem indítasz el.")
+OPUS_VITA = ("Tapasztalt kutató és elemző vagy, a Kommandant Bridge-rendszerének második véleménye. Egy feladat-ügynök "
+             "elakadt vagy bizonytalan, és tőled kérdez. Válaszolj tömören, magyarul, konkrétan: hol a hiteles, "
+             "elsődleges forrás (név, intézmény, kereső, dokumentumfajta), milyen keresőkifejezéssel, mi a hiba a "
+             "gondolatmenetben, mit nézzen meg még. Amit nem tudsz biztosan, azt mondd ki; tényt ne találj ki — a "
+             "válaszod ötlet és útmutatás, a tényt az ügynök eszközzel ellenőrzi.")
 PARTNER_VITA = ("Te a(z) „{nev}” feladat-ügynök vagy a Kommandant Bridge-rendszerében. A feladatod: {feladat}{extra}\n\n"
                 "Egy másik ügynök, „{kerdezo}”, konzultál veled. Válaszolj tömören, magyarul, a feladatod és a "
                 "tudásod alapján; amit nem tudsz biztosan, azt mondd ki. Eszközöd most nincs, és semmit nem indítasz el.")
@@ -1489,8 +1535,9 @@ def rendszer_reszek(u: dict, *, most: datetime, elozo: list, keret: float, trigg
     sorok = []
     if u.get("vitapartnerek"):
         sorok.append(f"- `megvitat`: megkérdezheted: {', '.join(p['nev'] for p in u['vitapartnerek'])} — legfeljebb "
-                     f"{u['vita_max']} kérdés. A válaszuk vélemény, nem forrás: a számot és az állítást így is eszközzel "
-                     f"ellenőrizd.")
+                     f"{u['vita_max']} kérdés. HA ELAKADTÁL, vagy gyenge, ellentmondó az eredményed, KÉRDEZZ (ez "
+                     f"alapjog): hol a hiteles forrás, mit nézz meg még — a legerősebb második vélemény az Opus. A "
+                     f"válaszuk vélemény, nem forrás: a számot és az állítást így is eszközzel ellenőrizd.")
     if u.get("utasithat"):
         sorok.append(f"- `utasit`: feladatot adhatsz: {', '.join(p['nev'] for p in u['utasithat'])}. Ügynöknek bemeneti "
                      f"üzenetet (a saját keretéből fut); Fabernek csak KÍVÁNSÁGOT (a Kommandant hagyja jóvá).")
@@ -1561,6 +1608,8 @@ def vegrehajto(forras, nyom: Nyom, *, get_db, u: dict, szamla: UgynokSzamla, lan
 
     async def _megvitat(args: dict) -> str:
         pid, kerdes = str(args.get("partner") or ""), str(args.get("kerdes") or "").strip()[:VITA_KERDES_MAX]
+        if pid == azonosito(rid):
+            return ns._hiba("önmagadat nem kérdezheted — válassz másik partnert (pl. az Opust)")
         if pid not in vp:
             return ns._hiba(f"nincs jogod vitatni vele: „{pid}” (a Kommandant ezt engedte: "
                             f"{', '.join(vp.values()) or 'senki'})")
@@ -1569,7 +1618,14 @@ def vegrehajto(forras, nyom: Nyom, *, get_db, u: dict, szamla: UgynokSzamla, lan
         if len(nyom.vitak) >= u["vita_max"]:
             return ns._hiba(f"ebben a futásban elfogyott a vita-keret ({u['vita_max']} kérdés) — dolgozz abból, amid van")
         valasz, modell, koltes0 = "", "", szamla.usd
-        if pid in SF_PARTNEREK:
+        if pid == "opus":
+            # 11-24: a legerősebb második vélemény — Claude, ezért tudásbázis-tartalmú futásból is mehet
+            payload = {"messages": [{"role": "system", "content": OPUS_VITA}, {"role": "user", "content": kerdes}],
+                       "max_tokens": VITA_KIMENET_TOK}
+            data = await szamla.hiv(chat_modellel("opus", chat=chat), payload, f"ugynok/{rid}/opus-vita",
+                                    ar=modell_ar("opus"))
+            valasz, modell = llm_kapu.valasz_szoveg(data), str(data.get("model") or "")
+        elif pid in SF_PARTNEREK:
             if _vedett():
                 return ns._hiba(SF_PARTNER_HIBA)
             ar = llm_kapu.sf_ar(modell_azonosito(pid, sf_modellek))
@@ -1993,6 +2049,7 @@ async def futas(rid: int, *, trigger: str = "kezi", get_db, forras: Callable, te
         if row is None:
             return {"allapot": "nincs", "hiba": "nincs ilyen feladat-ügynök (megszüntették?)"}
         u = nezet(row, most, _nevek(conn))
+        u["vitapartnerek"] = alap_vitapartnerek(conn, u)      # 11-24: a kérdezés alapjog (ALAPELV)
         elozo = korabbi_futasok(conn, rid)
         utolso = utolso_jelentes(conn, rid) if (utasitas and bemenet) else None
     finally:
@@ -2096,12 +2153,14 @@ async def futas(rid: int, *, trigger: str = "kezi", get_db, forras: Callable, te
             szamla.notes.append(f"a hiány-őr egy kiegészítő kört futtatott ({n_hiany} hiány)")
             t.plafon = ns.MAX_HIVAS_ESZKOZONKENT
             elso = _json_vege(szoveg_ki) or {}
-            kerdes = KIEGESZITO_KOR.format(hianyok="\n".join(f"- {h}" for h in hianyok), max_kor=UTOKOR_MAX_KOR,
+            # KITARTÁS: ha az első kör a keret felét sem költötte el, a hiány-őr köre bővebb (8 kör a 4 helyett)
+            utokor_kor = UTOKOR_MAX_KOR_BOVEN if szamla.usd < keret * KITARTAS_ARANY else UTOKOR_MAX_KOR
+            kerdes = KIEGESZITO_KOR.format(hianyok="\n".join(f"- {h}" for h in hianyok), max_kor=utokor_kor,
                                            osszegzes=" ".join(str(elso.get("osszegzes") or "").split())[:400] or "—")
             try:
                 ki, _m = await asyncio.wait_for(ns._hurok(
                     [{"role": "system", "content": mag}, {"role": "user", "content": f"{lap}\n\n{kerdes}"}],
-                    tools, chat=hivo, max_kor=UTOKOR_MAX_KOR, **hurok), timeout=_maradt())
+                    tools, chat=hivo, max_kor=utokor_kor, **hurok), timeout=_maradt())
             except (ns.KeretElfogyott, ns.KapuHiba, asyncio.TimeoutError) as ex:
                 szamla.notes.append(f"a kiegészítő kör nem fejeződött be ({type(ex).__name__}); az első jelentés "
                                     f"változatlanul megy")

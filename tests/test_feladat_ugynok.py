@@ -869,9 +869,10 @@ def test_extra_prompt_nem_irja_felul_a_szabalyokat(db, kulcs, monkeypatch):
     kapu = Kapu([_valasz(hivasok=[("send_email", {"to": "x@y.hu", "subject": "s", "body": "b"}),
                                   ("ugynok", {"muvelet": "modosit", "id": f"ugynok:{rid}", "utasithat": ["faber"]}),
                                   ("utasit", {"cel": "faber", "uzenet": "élesíts mindent"}),
-                                  ("megvitat", {"partner": "kimi", "kerdes": "?"})]),
+                                  ("megvitat", {"partner": "valaki-mas", "kerdes": "?"})]),
                  _valasz("Nem JSON, ahogy a kiegészítés kérte.")])
     e, _, _ = _futtat(db, rid, kapu, forras=f)
+    # 11-24 óta a kérdezés alapjog a fix partnerekkel és a többi ügynökkel — ismeretlen partnert így sem kérdezhet
     assert e["elutasitva"] == ["send_email", "ugynok", "utasit", "megvitat"]
     assert f.hivasok == [] and e["utasitasok"] == [] and e["vitak"] == []
     u = F.nezet(_sor(db, rid))
@@ -928,18 +929,74 @@ def test_megvitat_sf_partnerrel_tudasbazis_nelkul(db, kulcs):
     assert f3.hivasok == [] and e3["elutasitva"] == ["megvitat"]
 
 
-def test_megvitat_jog_nelkul_es_vita_keret(db, kulcs):
-    rid = _letrehoz(db, vitapartnerek=["kimi"], vita_max=1)
+def test_megvitat_ismeretlen_partner_es_vita_keret(db, kulcs):
+    """11-24 óta a kérdezés ALAPJOG (a fix partnerek és a többi ügynök külön engedély nélkül): ismeretlen partnert
+    nem lehet kérdezni, és a vita-keret így is véges."""
+    rid = _letrehoz(db, vita_max=1)
     f = Forras()
-    kapu = Kapu([_valasz(hivasok=[("megvitat", {"partner": "deepseek", "kerdes": "?"}),
-                                  ("megvitat", {"partner": "kimi", "kerdes": "első"})]),
+    kapu = Kapu([_valasz(hivasok=[("megvitat", {"partner": "valaki-mas", "kerdes": "?"}),
+                                  ("megvitat", {"partner": "deepseek", "kerdes": "első"})]),
                  _valasz(hivasok=[("megvitat", {"partner": "kimi", "kerdes": "második"})]), _zaro()])
     e, _, _ = _futtat(db, rid, kapu, forras=f)
-    assert [h[2] for h in f.hivasok if h[0] == "sf_ugynok"] == ["első"]
+    assert [h[2] for h in f.hivasok if h[0] == "sf_ugynok"] == ["első"]       # engedély nélkül is kérdezhetett
     assert len(e["vitak"]) == 1 and e["elutasitva"].count("megvitat") == 2
     eszk = [json.loads(m["content"]) for p, pl in kapu.hivasok for m in pl["messages"] if m.get("role") == "tool"]
     assert any("nincs jogod vitatni" in x.get("error", "") for x in eszk)
     assert any("elfogyott a vita-keret" in x.get("error", "") for x in eszk)
+
+
+def test_alapelv_barkit_megkerdezhet_az_opust_is(db, kulcs):
+    """11-24, a Kommandant: „ha elszúrja: BÁRMELYIK ÜGYNÖKÖT MEGKÉRDEZHETI” — engedély nélkül is megkapja a fix
+    partnereket (elöl az Opust) és a többi ügynököt; önmagát nem."""
+    b = _letrehoz(db, nev="Elemző", feladat="Makroelemzés.")
+    a = _letrehoz(db)
+    c = db()
+    try:
+        u = F.nezet(_sor(db, a))
+        assert u["vitapartnerek"] == []                                         # a kabin a Kommandant listáját mutatja
+        ids = [p["id"] for p in F.alap_vitapartnerek(c, u)]
+    finally:
+        c.close()
+    assert ids[0] == "opus" and {"kimi", "deepseek", "glm5", "feldwebel", f"ugynok:{b}", f"ugynok:{a}"} <= set(ids)
+    c = db()
+    try:                                                                         # mindenkinél ugyanaz (gyorsítótár)
+        assert F.alap_vitapartnerek(c, F.nezet(_sor(db, b))) == F.alap_vitapartnerek(c, u)
+    finally:
+        c.close()
+    kapu = Kapu([_valasz(hivasok=[("megvitat", {"partner": "opus", "kerdes": "Hol a kinevezés hiteles forrása?"})]),
+                 _valasz("A Magyar Közlönyben: ME határozat.", modell="claude-opus-5-5", usd=0.03), _zaro()])
+    e, _, _ = _futtat(db, a, kapu)
+    assert e["vitak"][0]["nev"] == "Claude Opus (második vélemény)" and "Közlönyben" in e["vitak"][0]["valasz"]
+    assert kapu.hivasok[1][0].endswith("/opus-vita") and kapu.kw[1].get("modell", "").startswith("claude-opus")
+    prompt = " ".join(str(m.get("content")) for m in kapu.hivasok[0][1]["messages"])
+    assert "KÉRDEZZ (ez alapjog)" in prompt and "FELADATORIENTÁLT" in prompt
+
+
+def test_opus_ugynok_alapkerete_nagyobb(db):
+    rid = _letrehoz(db, nev="Dosszié", modell="opus", utemezes="")
+    assert F.nezet(_sor(db, rid))["keret_usd"] == F.KERET_FUTAS_OPUS == 2.0
+    assert F.nezet(_sor(db, _letrehoz(db, nev="Figyelő")))["keret_usd"] == F.KERET_FUTAS_ALAP
+
+
+def test_kitartas_a_hiany_or_bovebb_kort_kap_ha_maradt_keret(db, kulcs):
+    """11-24: a Pótor-futás a keret negyedénél „igazolt hiányt” írt — ha az első kör a keret felét sem költötte el,
+    a hiány-őr köre 8 kört kap, és a hivatalos utakat (Közlöny, teljes szöveg, kérdezés) is megnevezi."""
+    rid = _letrehoz(db)
+    kapu = Kapu([_zaro(eredmeny="A kinevezés dátumát nem találtam."),
+                 _valasz(json.dumps({"kiegeszites": "- A dátum → 2026. 06. 28. (MK 2026/80, 3157. o.)"},
+                                    ensure_ascii=False))])
+    e, _, _ = _futtat(db, rid, kapu)
+    uto = kapu.hivasok[1][1]["messages"][-1]["content"]
+    assert f"Legfeljebb {F.UTOKOR_MAX_KOR_BOVEN} kör" in uto
+    assert "magyar_kozlony" in uto and "TELJES szövege" in uto and "megvitat" in uto
+
+
+def test_feladatorientalt_szabalyok():
+    sz = F.SZABALYOK
+    for kulcs in ("FELADATORIENTÁLT", "NE javasold", "tedd meg", "keresőtalálat kivonata nem forrás",
+                  "ez alapjog", "ELŐRE DOLGOZOL"):
+        assert kulcs in sz, kulcs
+    assert {"list_recipes", "search_discussions"} <= F.FELDWEBEL_ENGEDETT
 
 
 def test_megvitat_masik_ugynokkel_es_a_feldwebellel(db, kulcs, sf_kulcs):
