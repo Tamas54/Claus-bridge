@@ -1476,3 +1476,14 @@ def test_utasitasnal_sf_modellnek_tudasbazisos_kimenet_nem_megy(db, sf_kulcs):
     _futtat(db, rid, Kapu([]), sf_kapu=sf, bemenet=UTASITAS, kuldo="a Kommandant", utasitas=True)
     kuldott = json.dumps(sf.hivasok, ensure_ascii=False)
     assert "A KOMMANDANT ÚJ UTASÍTÁSA" in kuldott and "TITKOS-KB" not in kuldott
+
+
+def test_merce_a_szabalyokban():
+    """11-24, a Kommandant a Pótor-életrajzról: „az ügynökeinknek általános jelleggel: ilyen jellegű munkát várunk
+    el” — a MÉRCE minden futás szabályai között: hivatalos forrás előbb, minősítés, eltérések, azonos nevűek, termék."""
+    import feladat_ugynok as F
+    sz = F.SZABALYOK
+    assert "MÉRCE" in sz
+    for kulcs in ("ELSŐDLEGES, HIVATALOS", "magyar_kozlony", "minősítése", "eltérnek", "ne vonj össze",
+                  "források listája", "IGAZOLT hiány"):
+        assert kulcs in sz, kulcs
