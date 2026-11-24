@@ -12935,10 +12935,23 @@ def _feladat_ugynok_bekot() -> None:
             if os.environ.get("RAILWAY_PUBLIC_DOMAIN", "").strip() else "")
         return {"file_id": fid, "name": f"{cim}.docx", "edit_url": f"{alap}/api/uploads/{fid}/download"}
 
+    def _fajl_tarol(nev: str, data: bytes) -> dict:
+        """11-24 („a kimenet helyén legyen letölthető”): a Studio-fájl (Word, diasor) másolata a feltöltés-tárolóba —
+        tartós letöltő-link a kabin belépésével (a Studio aláírt linkje egy nap után lejár)."""
+        import io as _io
+        tiszta = str(nev or "dokumentum.docx")
+        ext = (tiszta.rsplit(".", 1)[-1] if "." in tiszta else "docx").lower()[:5] or "docx"
+        cim = tiszta.rsplit(".", 1)[0] if "." in tiszta else tiszta
+        fid = _persist_generated_file(0, "ugynok", ext, _io.BytesIO(data), cim)
+        alap = os.environ.get("BRIDGE_PUBLIC_URL", "").strip().rstrip("/") or (
+            f"https://{os.environ['RAILWAY_PUBLIC_DOMAIN'].strip().strip('/')}"
+            if os.environ.get("RAILWAY_PUBLIC_DOMAIN", "").strip() else "")
+        return {"file_id": fid, "letoltes_url": f"{alap}/api/uploads/{fid}/download"}
+
     # a modellválasztás (11-23): a SiliconFlow-azonosítók és -paraméterek a Bridge-é; a Faber-kívánság a bot-tokenből
     feladat_ugynok.beallit(get_db=get_db, forras=_forras, telegram=_telegram_push, elozmeny=_elozmeny,
                            sf_modellek=SILICONFLOW_MODELS, sf_extra=_model_extra, bot_token=lambda: TELEGRAM_BOT_TOKEN,
-                           docx_tarol=_docx_tarol)
+                           docx_tarol=_docx_tarol, letolt_tarol=_fajl_tarol)
 
 
 _feladat_ugynok_bekot()

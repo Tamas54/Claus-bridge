@@ -1326,14 +1326,15 @@ def test_word_dokumentum_a_kutatas_jellegu_feladatnal_linkkel(db, kulcs):
     rid = _letrehoz(db, nev="Életrajz-kutató", feladat="Kutasd fel Pótor József életrajzát, forrásokkal.", utemezes="")
     f = ForrasStudio()
     e, szolt, _ = _futtat(db, rid, Kapu([_zaro(eredmeny="## Életút\n- 1931, Kolozsvár (mcssz.hu)")]), forras=f)
-    assert e["dokumentumok"] == [{"name": "Életrajz-kutató — 2026-11-23.docx",
+    assert e["dokumentumok"] == [{"name": "Életrajz-kutató — 2026-11-23.docx", "hol": "studio",
                                   "edit_url": "https://studio.example/edit/docx1", "file_id": "docx1"}]
     md = f.feltoltve[0]
     assert md.startswith("# Életrajz-kutató") and "Pótor József életrajzát" in md and "1931, Kolozsvár" in md
     assert [h[1] for h in f.hivasok if h[0] == "studio"] == ["files", "convert"]       # determinisztikus, AI nélkül
-    assert '📄 <a href="https://studio.example/edit/docx1">' in szolt[0]                  # a Telegramon
+    assert '<a href="https://studio.example/edit/docx1">szerkesztés a Studióban</a>' in szolt[0]   # a Telegramon
     import ui_kabin as ui
-    assert "📄 [Életrajz-kutató — 2026-11-23.docx](https://studio.example/edit/docx1)" in ui._futas_szoveg(e)   # kabin
+    assert "📄 **Életrajz-kutató — 2026-11-23.docx** — [szerkesztés a Studióban](https://studio.example/edit/docx1)" \
+        in ui._futas_szoveg(e)                                                                          # kabin
     # nem kutatás jellegű feladat → nincs dokumentum; „soha” → akkor sem
     f2 = ForrasStudio()
     _futtat(db, _letrehoz(db), Kapu([_zaro()]), forras=f2)
@@ -1372,7 +1373,7 @@ def test_dokumentum_utolag_a_legutobbi_jelentesbol(db, kulcs):
     assert "Pótor József (1931–2019)" in f.feltoltve[0]
     (_, d), = _naplo(db, rid, F.TARGY_DOKUMENTUM)
     assert d["dokumentumok"][0]["edit_url"] == "https://studio.example/edit/docx1" and not d["hiba"]
-    assert '📄 <a href="https://studio.example/edit/docx1">' in szolt[0]
+    assert '<a href="https://studio.example/edit/docx1">szerkesztés a Studióban</a>' in szolt[0]
     app = _app(db)
     b = _run(_keres(app, "GET", f"/api/ui/beszelgetes?ablak=ugynok:{rid}")).json()
     dok = [t for t in b["tetelek"] if "Word" in str(t.get("elonezet"))][0]
@@ -1544,3 +1545,40 @@ def test_merce_a_szabalyokban():
     for kulcs in ("ELSŐDLEGES, HIVATALOS", "magyar_kozlony", "minősítése", "eltérnek", "ne vonj össze",
                   "források listája", "IGAZOLT hiány"):
         assert kulcs in sz, kulcs
+
+
+def test_kimenet_letoltheto_a_bridge_tarolojabol():
+    """11-24, a Kommandant: „jó lenne ha a »kimenet« helyén lenne letölthető” — a Studio-fájl a Bridge tárolójába is
+    bekerül, és a kabinban / Telegramon a tartós letöltő-link áll elöl, mellette a Studio-szerkesztő."""
+    import ui_kabin as ui
+    tarolt = []
+
+    async def letolt(url):
+        assert url == "https://studio.example/files/d1.docx?t=1.sig"
+        return b"PK-docx-bajtok"
+
+    def tarol(nev, data):
+        tarolt.append((nev, data))
+        return {"file_id": 77, "letoltes_url": "https://bridge.example/api/uploads/77/download"}
+    d = {"name": "Pótor-kutatás.docx", "edit_url": "https://studio.example/edit/d1", "hol": "studio",
+         "url": "https://studio.example/files/d1.docx?t=1.sig"}
+    _run(F.letolthetove(d, tarol, letolt=letolt))
+    assert tarolt == [("Pótor-kutatás.docx", b"PK-docx-bajtok")]
+    assert d["letoltes_url"] == "https://bridge.example/api/uploads/77/download"
+    md = ui._dok_md({k: d.get(k) for k in F.DOK_KULCSOK})
+    assert md == ("📄 **Pótor-kutatás.docx** — [⬇ Letöltés](https://bridge.example/api/uploads/77/download) · "
+                  "[szerkesztés a Studióban](https://studio.example/edit/d1)")
+    assert "⬇ letöltés</a>" in F.dok_html(d) and "szerkesztés a Studióban</a>" in F.dok_html(d)
+    assert "url" not in F.DOK_KULCSOK                       # a lejáró aláírt link nem kerül a naplóba
+    # ha a letöltés nem megy: nincs letöltő-link, a futás nem bukik el
+    rossz = {"name": "x.docx", "edit_url": "https://studio.example/edit/x", "hol": "studio", "url": "https://x"}
+
+    async def hibas(url):
+        raise ConnectionError("nincs net")
+    _run(F.letolthetove(rossz, tarol, letolt=hibas))
+    assert "letoltes_url" not in rossz
+    # a Bridge saját Word-tartaléka eleve letölthető
+    br = {"name": "y.docx", "edit_url": "https://bridge.example/api/uploads/5/download", "hol": "bridge"}
+    _run(F.letolthetove(br, None))
+    assert br["letoltes_url"] == br["edit_url"]
+    assert ui._dok_md(br) == "📄 **y.docx** — [⬇ Letöltés](https://bridge.example/api/uploads/5/download)"

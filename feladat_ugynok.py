@@ -1850,20 +1850,69 @@ def jelentes_markdown(u: dict, osszegzes: str, eredmeny: str, modell: str, most:
             + (f"> {' '.join(osszegzes.split())}\n\n" if osszegzes else "") + f"{eredmeny.strip()}\n")
 
 
-async def dokumentum_keszit(forras, *, cim: str, markdown: str, docx_tarol: Callable | None = None) -> dict:
+#: A kimenet LETÖLTHETŐ (11-24, a Kommandant: „jó lenne ha a »kimenet« helyén lenne letölthető”): a Studio-fájl
+#: (Word, diasor) másolata a Bridge feltöltés-tárolójába — tartós letöltő-link a kabin belépésével; a Studio aláírt
+#: linkje egy nap után lejár, a szerkesztő-link Studio-belépést kér.
+DOK_KULCSOK = ("name", "edit_url", "letoltes_url", "file_id", "hol")
+DOK_MAX_BAJT = 40 * 1024 * 1024
+
+
+async def _studio_fajl(url: str) -> bytes:
+    import httpx
+    async with httpx.AsyncClient(timeout=60.0, follow_redirects=True) as c:
+        r = await c.get(url)
+        r.raise_for_status()
+        if len(r.content) > DOK_MAX_BAJT:
+            raise ValueError(f"a fájl túl nagy ({len(r.content)} bájt)")
+        return r.content
+
+
+async def letolthetove(d: dict, letolt_tarol: Callable | None, *, letolt: Callable | None = None) -> dict:
+    """A dokumentum-rekordba a tartós `letoltes_url` (ha már van, vagy a Bridge maga készítette, nincs teendő).
+    Hiba esetén a rekord letöltő-link nélkül marad (a szerkesztő-link megvan), a futás nem bukik el."""
+    if d.get("letoltes_url"):
+        return d
+    if d.get("hol") == "bridge":
+        d["letoltes_url"] = d.get("edit_url")
+        return d
+    if not d.get("url") or letolt_tarol is None:
+        return d
+    try:
+        data = await (letolt or _studio_fajl)(d["url"])
+        t = await asyncio.to_thread(letolt_tarol, str(d.get("name") or "dokumentum.docx"), data)
+        if (t or {}).get("letoltes_url"):
+            d["letoltes_url"] = t["letoltes_url"]
+    except Exception as e:  # noqa: BLE001
+        logger.warning("feladat-ügynök: a letöltő-link nem készült el (%s): %s", d.get("name"), e)
+    return d
+
+
+def dok_html(d: dict) -> str:
+    """Egy dokumentum a Telegram-üzenetben: név, letöltés, szerkesztés a Studióban."""
+    nev = html.escape(d.get("name") or "dokumentum")
+    linkek = []
+    if d.get("letoltes_url"):
+        linkek.append(_a(d["letoltes_url"], "⬇ letöltés"))
+    if d.get("edit_url") and d.get("hol") != "bridge":
+        linkek.append(_a(d["edit_url"], "szerkesztés a Studióban"))
+    return f"📄 <b>{nev}</b>" + (": " + " · ".join(linkek) if linkek else "")
+
+
+async def dokumentum_keszit(forras, *, cim: str, markdown: str, docx_tarol: Callable | None = None,
+                            letolt_tarol: Callable | None = None) -> dict:
     """Word-dokumentum: a Studióban (Markdown → docx, AI-lépés nélkül, szerkesztő-linkkel — a Nachtschicht útja); ha
     az nem megy, a Bridge saját Word-renderelője a meglévő feltöltés-tárolóba (letöltő-link). → {name, edit_url,
     file_id, hol} vagy {error}."""
     r = await ns.studio_dokumentum(forras, cim, markdown) if forras is not None else {"error": "nincs Studio-forrás"}
     if not r.get("error"):
-        return {**r, "hol": "studio"}
+        return await letolthetove({**r, "hol": "studio"}, letolt_tarol)
     if docx_tarol is None:
         return r
     try:
         t = await asyncio.to_thread(docx_tarol, cim, markdown)
     except Exception as e:  # noqa: BLE001
         return {"error": f"{r['error']}; a Bridge-tartalék sem ment ({type(e).__name__}: {str(e)[:150]})"}
-    return {**t, "hol": "bridge", "megjegyzes": f"a Studio most nem ment ({str(r['error'])[:120]}), a Word a "
+    return {**t, "hol": "bridge", "letoltes_url": t.get("edit_url"), "megjegyzes": f"a Studio most nem ment ({str(r['error'])[:120]}), a Word a "
                                                 f"Bridge-ben készült (letöltő-link, a kabin belépésével)"}
 
 
@@ -1881,7 +1930,7 @@ def utolso_jelentes(conn, rid: int) -> dict | None:
 
 
 async def dokumentum_utolag(rid: int, *, get_db, forras: Callable, telegram: Callable | None = None,
-                            docx_tarol: Callable | None = None, **_) -> dict:
+                            docx_tarol: Callable | None = None, letolt_tarol: Callable | None = None, **_) -> dict:
     """A legutóbbi jelentés Word-dokumentumként (a „dokumentum” művelet): napló (`TARGY_DOKUMENTUM`) + Telegram."""
     conn = get_db()
     try:
@@ -1902,9 +1951,10 @@ async def dokumentum_utolag(rid: int, *, get_db, forras: Callable, telegram: Cal
         d = await dokumentum_keszit(forras(), cim=f"{u['nev']} — {ns._bp(ido)[:10]}",
                                     markdown=jelentes_markdown(u, str(j.get("osszegzes") or ""),
                                                                str(j.get("eredmeny") or ""), str(j.get("modell") or ""),
-                                                               ido), docx_tarol=docx_tarol)
+                                                               ido), docx_tarol=docx_tarol,
+                                    letolt_tarol=letolt_tarol)
     adat = {"esemeny": "dokumentum", "futas_ido": (j or {}).get("ido"), "hiba": d.get("error") or "",
-            "dokumentumok": [] if d.get("error") else [{k: d.get(k) for k in ("name", "edit_url", "file_id", "hol")}],
+            "dokumentumok": [] if d.get("error") else [{k: d[k] for k in DOK_KULCSOK if d.get(k) is not None}],
             "megjegyzes": d.get("megjegyzes") or ""}
     conn = get_db()
     try:
@@ -1917,9 +1967,7 @@ async def dokumentum_utolag(rid: int, *, get_db, forras: Callable, telegram: Cal
         if d.get("error"):
             szoveg = f"{fej}\n\n⚠ A Word-dokumentum nem készült el: {html.escape(str(d['error'])[:300])}"
         else:
-            szoveg = (f"{fej}\n\n📄 " + (_a(d["edit_url"], d.get("name") or "dokumentum") if d.get("edit_url")
-                                           else html.escape(d.get("name") or "dokumentum"))
-                      + f"\n<i>a {str(j.get('ido'))[:16]} futás jelentése</i>")
+            szoveg = f"{fej}\n\n{dok_html(d)}\n<i>a {str(j.get('ido'))[:16]} futás jelentése</i>"
         try:
             await telegram(szoveg)
         except Exception as ex:  # noqa: BLE001
@@ -1962,8 +2010,7 @@ def jelentes(nev: str, e: dict, u: dict | None) -> str:
         if e.get("osszegzes"):
             s.append(html.escape(ns.rovid_osszegzes(e["osszegzes"], 400)))
     for d in e.get("dokumentumok") or []:
-        s.append("📄 " + (_a(d["edit_url"], d.get("name") or "dokumentum") if d.get("edit_url")
-                         else html.escape(d.get("name") or "dokumentum")))
+        s.append(dok_html(d))
     for t in e.get("tervezetek") or []:
         felirat = f"levéltervezet: {t.get('subject') or ''} → {t.get('to') or ''}"
         s.append("✉️ " + (_a(t["link"], felirat) if t.get("link") else html.escape(felirat))
@@ -2039,7 +2086,8 @@ async def futas(rid: int, *, trigger: str = "kezi", get_db, forras: Callable, te
                 sf_modellek: dict | None = None, sf_extra: Callable | None = None, bot_token: Callable | None = None,
                 bemenet: str = "", lanc: tuple = (), bemenet_vedett: bool = False, kuldo: str = "",
                 idokeret_s: float = IDOKERET_S, most: datetime | None = None,
-                docx_tarol: Callable | None = None, utasitas: bool = False) -> dict:
+                docx_tarol: Callable | None = None, utasitas: bool = False,
+                letolt_tarol: Callable | None = None) -> dict:
     """EGY futás a választott modellen (`chat_modellel`): Claude a közvetlen Anthropic-kapun, SiliconFlow a közös kapun.
     A `chat` (Claude) és az `sf_kapu` (SF) a tesztek hamis kapuja; alapból `llm_kapu.chat` / `llm_kapu.kapun`."""
     most = most or _most()
@@ -2199,11 +2247,13 @@ async def futas(rid: int, *, trigger: str = "kezi", get_db, forras: Callable, te
     if allapot == "kesz" and eredmeny and dokumentum_kell(u) and not t.dokumentumok and f is not None:
         d = await dokumentum_keszit(f, cim=f"{nev} — {ns._bp(most)[:10]}",
                                     markdown=jelentes_markdown(u, osszegzes, eredmeny, modell or kert, most),
-                                    docx_tarol=docx_tarol)
+                                    docx_tarol=docx_tarol, letolt_tarol=letolt_tarol)
         if d.get("error"):
             szamla.notes.append(f"a Word-dokumentum nem készült el: {str(d['error'])[:200]}")
         else:
             t.dokumentumok.append(d)
+    for d in t.dokumentumok:            # az ügynök saját Word-je és diasora is letölthető legyen
+        await letolthetove(d, letolt_tarol)
     notes = list(dict.fromkeys(szamla.notes))
     if modell and modell != kert:
         notes.insert(0, f"MODELLVÁLTÁS: a kért `{kert}` helyett `{modell}` válaszolt (a kapu tartaléka)")
@@ -2214,7 +2264,7 @@ async def futas(rid: int, *, trigger: str = "kezi", get_db, forras: Callable, te
          "eszkozok": t.eszkozok, "elutasitva": t.elutasitva, "tudasbazis": nyom.tudasbazis,
          "mp": round(time.monotonic() - t0, 1), "bemenet": bemenet[:BEMENET_MAX], "kuldo": kuldo, "lanc": list(lanc),
          "utasitas": bool(utasitas and bemenet),
-         "dokumentumok": [{k: d.get(k) for k in ("name", "edit_url", "file_id")} for d in t.dokumentumok],
+         "dokumentumok": [{k: d[k] for k in DOK_KULCSOK if d.get(k) is not None} for d in t.dokumentumok],
          "tervezetek": [{k: x.get(k) for k in ("subject", "to", "link", "draft_id")} for x in t.tervezetek],
          "javaslatok": nyom.javaslatok, "vitak": nyom.vitak, "utasitasok": nyom.utasitasok,
          "notes": notes[:8],

@@ -818,7 +818,8 @@ async def studio_dokumentum(forras, cim: str, markdown: str, modell: str = "") -
     if not kesz.get("file_id"):
         return {"error": f"a Studio nem adott fájlt: {str(kesz)[:300]}"}
     return {"file_id": kesz["file_id"], "name": kesz.get("name") or f"{cim}.docx", "edit_url": kesz.get("edit_url"),
-            "preview_url": kesz.get("preview_url"), "check": (kesz.get("check") or {}).get("status")}
+            "preview_url": kesz.get("preview_url"), "check": (kesz.get("check") or {}).get("status"),
+            "url": kesz.get("url")}   # 11-24: a Studio aláírt letöltő-linkje (egy napig él) — a Bridge lemásolja
 
 
 DIASOR_MIN, DIASOR_MAX = 4, 30
@@ -853,7 +854,7 @@ async def studio_diasor(forras, cim: str, spec, modell: str = "") -> dict:
         return {"error": f"a Studio nem adott fájlt: {str(kesz)[:300]}"}
     check = kesz.get("check") or {}
     return {"file_id": kesz["file_id"], "name": kesz.get("name") or f"{cim}.pptx", "edit_url": kesz.get("edit_url"),
-            "preview_url": kesz.get("preview_url"), "check": check.get("status"),
+            "preview_url": kesz.get("preview_url"), "check": check.get("status"), "url": kesz.get("url"),
             "hibak": [str(f.get("message") or f)[:160] for f in (check.get("findings") or [])][:12],
             "diak": len(diak)}
 
@@ -894,12 +895,12 @@ def vegrehajto(forras, termes: Termes) -> Callable:
                 r = await studio_dokumentum(forras, args.get("cim"), args.get("markdown"), modell)
                 if "error" not in r:
                     termes.dokumentumok.append(r)
-                return json.dumps(r, ensure_ascii=False)
+                return json.dumps({k: v for k, v in r.items() if k != "url"}, ensure_ascii=False)
             if nev == "studio_diasor":
                 r = await studio_diasor(forras, args.get("cim"), args.get("spec"), modell)
                 if "error" not in r:
                     termes.dokumentumok.append(r)
-                return json.dumps(r, ensure_ascii=False)
+                return json.dumps({k: v for k, v in r.items() if k != "url"}, ensure_ascii=False)
             return await forras.feldwebel_eszkoz(nev, args, modell)
         except Exception as e:  # noqa: BLE001 — egy eszköz hibája ne vigye el a tételt
             return _hiba(f"{type(e).__name__}: {str(e)[:300]}")

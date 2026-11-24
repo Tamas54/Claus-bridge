@@ -466,6 +466,16 @@ def ugynok_ablak(ablak: str) -> bool:
     return bool(re.fullmatch(r"ugynok:\d{1,9}", ablak or ""))
 
 
+def _dok_md(x: dict) -> str:
+    """Egy dokumentum a kabin átiratában (11-24, a Kommandant: „a kimenet helyén legyen letölthető”): a tartós
+    letöltő-link (a Bridge tárolója, a kabin belépésével) és a Studio-szerkesztő."""
+    nev = x.get("name") or "dokumentum"
+    le = x.get("letoltes_url") or (x.get("edit_url") if x.get("hol") == "bridge" else None)
+    linkek = ([f"[⬇ Letöltés]({le})"] if le else []) + (
+        [f"[szerkesztés a Studióban]({x['edit_url']})"] if x.get("edit_url") and x.get("hol") != "bridge" else [])
+    return f"📄 **{nev}**" + (" — " + " · ".join(linkek) if linkek else "")
+
+
 def _futas_szoveg(d: dict) -> str:
     """Egy feladat-ügynök futása az átiratba: összegzés, eredmény, és a gép gyűjtötte linkek (dokumentum, tervezet)."""
     osszeg, ered = str(d.get("osszegzes") or "").strip(), str(d.get("eredmeny") or "").strip()
@@ -477,8 +487,7 @@ def _futas_szoveg(d: dict) -> str:
     if ered:
         reszek.append(ered)
     for x in d.get("dokumentumok") or []:
-        reszek.append(f"📄 [{x.get('name') or 'dokumentum'}]({x['edit_url']})" if x.get("edit_url")
-                      else f"📄 {x.get('name') or 'dokumentum'}")
+        reszek.append(_dok_md(x))
     for t in d.get("tervezetek") or []:
         felirat = f"levéltervezet: {t.get('subject') or ''} → {t.get('to') or ''} (a Piszkozatokban, nem ment el)"
         reszek.append(f"✉️ [{felirat}]({t['link']})" if t.get("link") else f"✉️ {felirat}")
@@ -519,8 +528,7 @@ def _osztalyoz(r, relay: dict) -> list[tuple[str, dict]]:
             if d.get("hiba"):
                 szoveg = f"⚠ A Word-dokumentum nem készült el: {d['hiba']}"
             else:
-                szoveg = "\n\n".join([f"📄 [{x.get('name') or 'dokumentum'}]({x['edit_url']})" if x.get("edit_url")
-                                       else f"📄 {x.get('name') or 'dokumentum'}" for x in d.get("dokumentumok") or []]
+                szoveg = "\n\n".join([_dok_md(x) for x in d.get("dokumentumok") or []]
                                       + [f"a {str(d.get('futas_ido') or '')[:16]} futás jelentése"]
                                       + ([f"[{d['megjegyzes']}]"] if d.get("megjegyzes") else []))
             return [(s, {**alap, "ki": s, "tipus": "uzenet", "szoveg": szoveg, "hiba": bool(d.get("hiba")),
