@@ -224,7 +224,9 @@ U_JOG = """JOGI IRAT: először 2-3 mondatban: mi ez, ki kinek küldte, mit akar
   illetékesség, jogorvoslat, bírság, kedvezmény), nézd meg a `lexonomics`-ban (search / provision a hivatkozott
   jogszabályhelyre), és a válaszban add meg a forrást (jogszabályhely, döntés száma, link) — ne ajánld fel, hogy
   majd megnézed, nézd meg most. Szó szerinti idézet előtt `verify_citation`. Egyszerű kérdésre előbb egyszerű
-  válasz, ne paragrafus-felsorolás."""
+  válasz, ne paragrafus-felsorolás.
+KINEVEZÉS, FELMENTÉS, KITÜNTETÉS, KÖZLEMÉNY („mikor nevezték ki X-et?”, „ki lett az új helyettes államtitkár?”):
+  `magyar_kozlony` a név vagy kifejezés alapján — a válaszban a jogforrás, a lapszám és az oldal, a PDF linkjével."""
 
 U_EGESZSEG = """EGÉSZSÉG („fáj a fejem, mit vegyek?”): nem diagnózis, de használható válasz. Röviden: a szokásos vény nélküli
   lehetőség hatóanyaggal, a betegtájékoztató szerinti adaggal és napi maximummal (a `medical` eszköz OGYÉI-adatával),
@@ -293,10 +295,13 @@ KATEGORIAK: dict[str, dict] = {
         "utmutato": U_MAKRO,
     },
     "jog": {
-        "leiras": "jogszabály, bírósági/hatósági döntés, idézet-ellenőrzés (Lexonomics)",
-        "eszkozok": ("lexonomics",),
+        # 11-24: a leírás a kategóriamenüvel MINDEN üzenetbe megy (karcsúsági plafon) — a Közlöny ezért rövid szó
+        "leiras": "jogszabály, döntés, idézet-ellenőrzés (Lexonomics), Magyar Közlöny",
+        "eszkozok": ("lexonomics", "magyar_kozlony"),
         "minta": r"\bjog|torveny|rendelet|paragrafus|§|birosag|kuria|alkotmany|hatarozat|vegzes|fellebb|szerzodes|"
-                 r"kereset|beadvany|\bnaih|\bgvh|hatosag|birsag|illetek|felmond|\bptk\b|\bbtk\b",
+                 r"kereset|beadvany|\bnaih|\bgvh|hatosag|birsag|illetek|felmond|\bptk\b|\bbtk\b|"
+                 # 11-24: a hivatalos lap (`magyar_kozlony`) — kinevezés, felmentés, kitüntetés, közlemény
+                 r"kozlony|kinevez|felment|allamtitkar|foigazgato|kituntet|ertesito",
         "utmutato": U_JOG,
     },
     "egeszseg": {

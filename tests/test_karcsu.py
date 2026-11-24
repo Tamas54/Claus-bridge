@@ -335,7 +335,7 @@ def test_elotoltes_a_kor_elejen_es_a_modell_maga_is_betolthet(kor, monkeypatch):
     monkeypatch.setattr(fw._ctx, "llm_chat", kapu)
     _run(responder.respond("szia", "42"))
     m = [x for x in hivasok[1]["messages"] if x.get("tool_call_id") == "t9"][0]
-    assert m["tool_reference"] == ["lexonomics"] and "JOGI IRAT" in m["content"]
+    assert m["tool_reference"] == ["lexonomics", "magyar_kozlony"] and "JOGI IRAT" in m["content"]   # 11-24: Közlöny
 
 
 def test_a_sf_tartalek_minden_eszkozt_lat_kiegeszites_nelkul(kor):

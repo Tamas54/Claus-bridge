@@ -1017,7 +1017,8 @@ FELDWEBEL_ENGEDETT = frozenset({
     "web_search", "web_fetch", "web_scrape", "echolot_query",
     "mnb_rates", "market_quote", "fred_data", "policy_rates", "econ_calendar",
     "gmail_search", "read_gmail_attachment", "search_memory", "read_memory", "list_tasks", "tudasbazis",
-    "helyi_fajl"})          # 11-23: a Kommandant gépén lévő fájl (Downloads, Desktop) — csak Claude-modellű ügynöknek
+    "helyi_fajl",           # 11-23: a Kommandant gépén lévő fájl (Downloads, Desktop) — csak Claude-modellű ügynöknek
+    "magyar_kozlony"})      # 11-24: kinevezés, kitüntetés a hivatalos lapban (nyilvános adat — SF-ügynöknek is)
 #: Külső MCP-k: tiszta adatkeresők (a Kommandant döntése, 11-22 — a Nachtschichtével azonos lista).
 KULSO_ENGEDETT = ns.KULSO_ENGEDETT
 #: A Nachtschicht saját eszközei: olvasó naptár és levél, Gmail-TERVEZET (nem küld), Studio-dokumentum (AI nélkül).
@@ -1318,6 +1319,10 @@ Számhoz a Makronóm (`makronom`), jogi kérdéshez a Lexonomics (`lexonomics`) 
 - NINCS „nem találtam” kibúvó, amíg van kör és keret (házi szabály): minden hiányra legalább két MÁSIK úton keress — \
 más keresőkifejezés, a hivatalos forrás (NJT, MNB, KSH, a cég hirdetménye/díjtáblázata/ÁSZF-je), és ha egy oldalt a \
 `web_fetch` nem nyit meg, próbáld `web_scrape`-pel. Hiányt csak IGAZOLT hiányként írhatsz, mellé, hogy mit néztél meg.
+- SZEMÉLY (magyar közszereplő, tisztségviselő): a kinevezés, felmentés, kitüntetés hiteles forrása a Magyar Közlöny \
+→ `magyar_kozlony` (jogforrás, lapszám, oldal); a munkahelyekhez az intézmény saját önéletrajza (egyetemi oktatói CV \
+PDF-ben, kormany.hu-életrajz); a születési hely gyakran portréban, interjúban van (folyóirat, EPA). Azonos nevűeket ne \
+vonj össze: ami nem igazoltan ő, azt külön írd.
 - Egy URL-t egyszer tölts le: a nagy eredményből kivonatot kapsz, a teljes szöveg az `eredmeny_lapoz`-zal olvasható; \
 más szemponthoz a `web_fetch` `kerdes`-ét add meg (új kivonat, letöltés nélkül).
 - HOSSZÚ DOKUMENTUM (tanulmány, fejezet, szerződés): a kivonat helyett a TELJES dokumentum térképét kapod (minden \

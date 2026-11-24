@@ -128,6 +128,12 @@ TOOLS = [
             "engine": {"type": "string", "enum": ["auto", "searxng", "brave-mcp", "ddg", "brave-api"], "description": "Melyik keresőt használja. 'auto' = a lánc dönt. CSAK akkor állítsd be, ha a Kommandant kifejezetten motort nevezett meg — az ő kérése felülírja a lánc-sorrendet.", "default": "auto"},
         }, "required": ["query"]}}},
     {"type": "function", "function": {
+        "name": "magyar_kozlony", "description": "Magyar Közlöny és Hivatalos Értesítő: kinevezés, felmentés, kitüntetés, közlemény a hivatalos lapban — a lap SAJÁT keresőjével (a webes keresők a friss közlönyt alig látják). Személynévre (pl. 'Pótor József') a lapszám PDF-jéből a pontos jogforrást ('A miniszterelnök 63/2026. (VI. 26.) ME határozata'), oldalszámot és szövegrészt adja; az azonos vezetéknevű más személyeket külön listázza.",
+        "parameters": {"type": "object", "properties": {
+            "kifejezes": {"type": "string", "description": "Személynév (teljes név, címek nélkül is jó) vagy kifejezés"},
+            "max_lapszam": {"type": "integer", "description": "Hány találati lapszám PDF-jét olvassa el (a legújabb elöl; 1–6, alap 3)", "default": 3},
+        }, "required": ["kifejezes"]}}},
+    {"type": "function", "function": {
         "name": "web_scrape", "description": "JS-rendered weboldal teljes markdown-tartalma (headless Brave-böngészőn, Puppeteer-rel). ERŐSEBB mint web_fetch — kezeli a JavaScript-rendelt SPA-kat (Eurostat newsroom, MNB-honlap, ECB press release-ek). Tipikus minta: web_search → talált URL → web_scrape.",
         "parameters": {"type": "object", "properties": {
             "url": {"type": "string", "description": "Teljes URL (http/https)"},
@@ -1352,6 +1358,13 @@ async def _execute_tool(name: str, args: dict, ctx, kor: dict | None = None, *, 
         # A HTML 6000 karakterig megy (a Feldwebel ablaka); a nagy PDF-et és leiratot a hurok kivonatolója sűríti.
         import lekeres
         return json.dumps(await lekeres.oldal(str(args.get("url") or "")), ensure_ascii=False)
+
+    if name == "magyar_kozlony":
+        # 11-24: a hivatalos lap saját keresője + a lapszám PDF-je (kozlony.py) — a Pótor-kutatás kinevezése a webes
+        # keresőkkel nem jött elő, a Közlöny keresőjével egy hívás.
+        import kozlony
+        return json.dumps(await kozlony.kereses(str(args.get("kifejezes") or ""), args.get("max_lapszam")),
+                          ensure_ascii=False)
 
     if name == "web_search":
         # Bridge-szintű _web_search-t hívjuk (brave-mcp primary + DDG fallback,
