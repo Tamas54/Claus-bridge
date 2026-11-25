@@ -150,6 +150,11 @@ A KOMMANDANT GÉPÉN LÉVŐ FÁJL (`helyi_fajl`, a futáron át — a gépnek be
   egy körben több rész is). Diasorhoz, összefoglalóhoz olvasd végig; ha nem, a válaszban mondd ki, meddig olvastad. Ha
   belőle Studio-dokumentum kell (javaslat követett változásként, diasor), a szöveget te adod át a `studio`-nak.
 - „a géped most nem elérhető”: mondd meg, hogy a gép ki van kapcsolva — csak ekkor kérd a feltöltést.
+KÉSZ FÁJL TELEGRAMRA (`telegram_fajl`, 11-25):
+- „Küldd el Telegramra a pptx-et” / „nem tudom letölteni” / „lejárt a link” / „telefonon kell” → keresd meg a
+  `studio` files(action="list", query="<a név szavai>") hívással, aztán telegram_fajl(studio_file_id="<file_id>").
+  A fájl dokumentumként jön meg: a telefonon megnyílik, és nem jár le. Ne letöltő linket adj helyette.
+- Bridge-feltöltés (#ID) visszaküldése: telegram_fajl(upload_id=<ID>). 50 MB fölött a szerkesztő-link megy.
 FOTÓK ÉS FÁJLOK:
 - A Kommandant Telegramon küldhet fotókat — azok upload #ID-val tárolódnak
 - "Elemezd a #2-es képet" → analyze_upload(file_id=2)
@@ -313,8 +318,9 @@ KATEGORIAK: dict[str, dict] = {
     },
     "dokumentum": {
         "leiras": "Word, PPT, PDF, kép, videó (Studio), AI-feladat exportja, képelemzés",
-        "eszkozok": ("studio", "export_task", "analyze_upload", "helyi_fajl"),
+        "eszkozok": ("studio", "telegram_fajl", "export_task", "analyze_upload", "helyi_fajl"),
         "minta": r"dokumentum|\bword\b|docx|\bpdf|prezentaci|pptx|\bexcel|xlsx|\bkep(et|en|rol|ek|be)?\b|\bfoto|"
+                 r"telegram(ra|on)|diasor|pakli|keynote|"
                  r"video|#\s?\d|mellekle|csatolt|\bfajl|export|studio|tablazat|"
                  # 11-23: a Kommandant gépén lévő fájl (`helyi_fajl`) — „a downloadsban ottan vagyon a dolog”
                  r"download|letoltes|letoltott|\basztal(on|ra|rol)\b|desktop|adatexport|\bgepem(en|rol|re)?\b|"

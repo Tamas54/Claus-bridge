@@ -220,6 +220,18 @@ TOOLS = [
             "format": {"type": "string", "description": "Formátum: docx / xlsx / pptx", "enum": ["docx", "xlsx", "pptx"]},
             "email_to": {"type": "string", "description": "Ha emailben is kell küldeni, ide írd a címet", "default": ""},
         }, "required": ["task_id", "format"]}}},
+    # ── Kész fájl Telegramra (11-25: „a telegramra a rendszer nem tudja kiküldeni a pptx-et”) ──
+    {"type": "function", "function": {
+        "name": "telegram_fajl", "description": (
+            "Kész fájl (pptx, docx, pdf, xlsx, kép, videó; legfeljebb 50 MB) elküldése a Kommandant Telegramjára "
+            "DOKUMENTUMKÉNT: a telefonon egy koppintással megnyílik (Keynote, Word), és nem jár le, mint a letöltő "
+            "link. Forrás: Studio file_id (a `studio` files(action=\"list\", query=…) adja; a szerkesztő-link is jó) "
+            "vagy a Bridge-feltöltés #ID-ja."),
+        "parameters": {"type": "object", "properties": {
+            "studio_file_id": {"type": "string", "description": "Studio file_id, pl. '68126a532da746cab77c04b5cb5597a4.pptx'"},
+            "upload_id": {"type": "integer", "description": "Bridge-feltöltés #ID (ha nem Studio-fájl)"},
+            "caption": {"type": "string", "description": "Rövid kísérőszöveg (opcionális)", "default": ""},
+        }}}},
     # ── Fájl továbbítás ──
     {"type": "function", "function": {
         "name": "send_file_email", "description": "Feltöltött fájl (fotó, dokumentum) továbbküldése emailben. Upload #ID szükséges.",
@@ -1746,6 +1758,19 @@ async def _execute_tool(name: str, args: dict, ctx, kor: dict | None = None, *, 
                               ensure_ascii=False)
         except Exception as e:
             return json.dumps({"error": str(e)})
+
+    # ── Kész fájl Telegramra, dokumentumként (telegram_fajl.py) ──
+    if name == "telegram_fajl":
+        import telegram_fajl
+
+        async def _studio(eszkoz, parameterek):
+            return await kulso_mcp.hiv("studio", eszkoz, parameterek, max_kar=200_000)
+        try:
+            r = await telegram_fajl.kuld(args or {}, send_file=ctx.capture_state.get("_telegram_send_file"),
+                                         studio_hiv=_studio, get_db=ctx.get_db)
+        except Exception as e:  # noqa: BLE001
+            r = {"error": f"{type(e).__name__}: {str(e)[:300]}"}
+        return json.dumps(r, ensure_ascii=False)
 
     # ── File export + Telegram send ──
     if name == "export_task":

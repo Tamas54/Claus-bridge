@@ -5099,6 +5099,7 @@ SUBAGENT_TILTOTT = frozenset({
     "naptar", "calendar_poll", "calendar_create", "create_calendar_event",
     # kifelé ható művelet és jogbővítés
     "send_email", "send_message", "send_file_email", "capture_send_email", "export_task", "upload_file",
+    "telegram_fajl",
     "agora", "story_comments", "post_comment", "create_task", "create_recipe", "execute_recipe", "schedule_recipe",
     "ai_query", "ai_task", "faber", "ugynok", "dontes_szimulator",
     # X/Twitter (2026-11-23): se tervezet, se poszt — a tervezet a Feldwebelé és a feladat-ügynöké, posztoló eszköz nincs
@@ -10925,12 +10926,12 @@ async def _telegram_push_document(message_id: str, attachment: dict, caption: st
 
 
 async def _telegram_send_file(file_bytes: bytes, filename: str, mime_type: str, caption: str = ""):
-    """Send any file to Telegram as a document."""
+    """Send any file to Telegram as a document (≤50 MB; a nagy pakli feltöltése 30 s-nál tovább is tarthat)."""
     if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
         return False
     try:
         import httpx
-        async with httpx.AsyncClient(timeout=30) as client:
+        async with httpx.AsyncClient(timeout=180) as client:
             resp = await client.post(
                 f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendDocument",
                 data={
