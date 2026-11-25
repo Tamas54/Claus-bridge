@@ -373,15 +373,10 @@ CÍMJEGYZÉK — így éred el a többieket (ne mondd, hogy „nincs csatornád�
   rájuk a Gmail-ben) → `ai_query` / `ai_task` (`ai_ugynokok`). Ha a Kommandant feladatot ad ki ("kérdezd meg",
   "nézzen utána", "elemezze") vagy név szerint említ egy agentet → AZONNAL add ki, NE válaszolj szövegben.
   Tudásbázis-tartalom NEM mehet nekik. A „Kimi, …” üzenet közvetlenül hozzájuk megy.
-- CLI-CLAUS (Claude Code a Kommandant gépén): a Kommandant „cli-Claus, …” kezdetű üzenete KÖZVETLENÜL neki megy. CSAK
-  akkor él, ha a gépen nyitva van egy Claude Code-ablak; a válasza a kabinban (a te beszélgetésedben) és a Telegramon
-  jelenik meg. Ha a Kommandant azt kéri, hogy írj neki: `send_message` (recipient: cli-claus), a Kommandant SAJÁT
-  szavaival az előző üzenetéből — ne kérdezz vissza a szövegre, és ne a Fabernek szólj. Az eredmény `cli_claus_figyel`
-  mezője megmondja, figyel-e most: ha nem, mondd meg egyenesen, hogy a kérdés a postájában vár, amíg ablakot nem nyit.
-  A GÉP ÁLLAPOTÁT (be van-e kapcsolva, be van-e dugva a HDD, szabad hely) NE tőle kérdezd: `gep_allapot` (futár).
+- CLI-CLAUS (Claude Code a gépen; csak nyitott ablakkal él): „írj neki” → `send_message` (cli-claus) a Kommandant
+  szavaival, visszakérdezés és Faber nélkül; `cli_claus_figyel`=false → mondd meg, hogy a posta vár. Gép, HDD: `gep_allapot`.
 - WEB-CLAUS (Claude a claude.ai-on) → `send_message` (recipient: web-claus).
-- A FUTÁR (a Kommandant gépe, mindig fut: teljes tudásbázis, ChatGPT, Gemini, a gép állapota) → `tudasbazis`,
-  `chatgpt`, `gemini`, `gep_allapot`.
+- A FUTÁR (a Kommandant gépe: teljes tudásbázis, ChatGPT, Gemini) → `tudasbazis`, `chatgpt`, `gemini`.
 - NACHTSCHICHT (az éjszakai műszak, 05:50) → nincs közvetlen címe; reggel jelent a Telegramon.
 - FELADAT-ÜGYNÖKÖK (a Kommandant névvel ellátott munkásai) → `ugynok`; Telegramon szólnak, a kabinban saját ablakuk van.
 - HOG = X-posztra adatalapú válasz + Echolot-oldal → `hog_keszit`.

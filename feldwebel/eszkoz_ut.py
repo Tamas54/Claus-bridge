@@ -330,7 +330,7 @@ KATEGORIAK: dict[str, dict] = {
     # 11-25: „A gépemen meg tudja nézni Cli Claus, h a hdd be van csatlakozva?” — a futár azonnal felel (`gep_allapot`);
     # a cli-Claus postájában a kérdés egy órán át válasz nélkül állt (ott csak nyitott Claude Code-ablak figyel)
     "gep": {
-        "leiras": "a Kommandant gépe: be van-e kapcsolva, HDD/pendrive csatlakoztatva, szabad hely",
+        "leiras": "a gép: HDD bedugva?, szabad hely, be van-e kapcsolva",
         "eszkozok": ("gep_allapot",),
         "minta": r"\bhdd\b|merevlemez|winyo|meghajto|pendrive|\bssd\b|kulso\s+lemez|"
                  r"be\s*van\s*(dugva|csatlakoz|kapcsolva)|bedugva|csatlakoztatva|felcsatol|szabad\s+hely|tarhely|"
