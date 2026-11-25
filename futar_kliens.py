@@ -39,6 +39,14 @@ A GÉPEN LÉVŐ FÁJL (`helyi_fajl`, 11-23 — a Kommandant: „De a downloadsba
   kínaiaknak” — a gépe fájljai ilyenek): ugyanaz a három öv (`CLAUDE_CSAK_MUVELETEK`), és a fájl szövegével a kör ugyanúgy
   védett (`tudasbazis_tartalom`). A kínai ügynökök eszközkészletébe nem kerül (server.SUBAGENT_TILTOTT).
 - A fájl szövegét a Bridge nem őrzi meg: a futár válaszsorát kiolvasás után kiüríti (`kiurit`).
+
+A GÉP ÁLLAPOTA (`gep_allapot`, 11-25 — a Kommandant a kabinban: „A gépemen meg tudja nézni Cli Claus, h a hdd be van
+csatlakozva?”; a Feldwebel a cli-Claus postájába tette, ahol senki nem figyelt, a válasz egy órán át nem jött):
+- A futár `gep` művelete: be van-e kapcsolva a gép (üzemidő), milyen KÜLSŐ meghajtó van rajta (felcsatolva, szabad
+  hellyel — vagy csatlakoztatva, de nem felcsatolva), a rendszer- és a belső lemez. Paramétere nincs; a gépen egy
+  rögzített `lsblk` + `os.statvfs` (~/faber/gep_allapot.py), csak olvas.
+- Nem személyes anyag (nem a tudásbázis, nem fájlszöveg): nem csak Claude-nak megy, és a kört nem teszi védetté.
+- Ha a futár nem nyugtáz: „a géped most nem elérhető (ki van kapcsolva?)” — ez maga is válasz a kérdésre.
 """
 from __future__ import annotations
 
@@ -57,8 +65,8 @@ import faber_relay
 logger = logging.getLogger("futar_kliens")
 
 #: Az eszközök nevei (a Feldwebel ezeken hívja őket); a futár műveletének neve `FUTAR_MUVELET` szerint (alapból ugyanaz).
-MUVELETEK = ("tudasbazis", "chatgpt", "gemini", "helyi_fajl")
-FUTAR_MUVELET = {"helyi_fajl": "fajl"}
+MUVELETEK = ("tudasbazis", "chatgpt", "gemini", "helyi_fajl", "gep_allapot")
+FUTAR_MUVELET = {"helyi_fajl": "fajl", "gep_allapot": "gep"}
 #: A Kommandant személyes anyaga: csak Claude-modell futtathatja, és a találat a kört védetté teszi.
 CLAUDE_CSAK_MUVELETEK = frozenset({"tudasbazis", "helyi_fajl"})
 CIMZETT, VALASZ_CIMZETT, FELADO = "futar", "futar-valasz", "futar"
@@ -75,7 +83,7 @@ FORRASOK = ("jegyzet", "atirat", "doksi", "commit", "cm_kerdes", "cm_osszegzes",
             "google_sajat", "google_profil", "google_havi")
 ATVETEL_S = 25                  # a futár 3 mp-enként kérdez (régi Bridge-en 10); ennyi alatt a nyugtának meg kell jönnie
 VARAKOZAS_S = {"tudasbazis": 120, "chatgpt": 270, "gemini": 210,     # a futár időkorlátja (90/240/180/60) + ráhagyás
-               "helyi_fajl": 90}
+               "helyi_fajl": 90, "gep_allapot": 40}
 LEPES_S = 1.0
 KERDES_PLAFON, PROMPT_PLAFON, MAX_EREDMENY_KAR = 1_000, 20_000, 12_000
 #: A fájl szövege: a futár plafonja (fajl_olvaso.PLAFON = 400 ezer karakter) + a fejléc.
@@ -274,6 +282,17 @@ HELYI_FAJL_DEF = {"type": "function", "function": {
     }}}}
 
 
+GEP_ALLAPOT_DEF = {"type": "function", "function": {
+    "name": "gep_allapot",
+    "description": ("A Kommandant GÉPÉNEK állapota, azonnal (a gépen mindig futó futár olvassa, pár másodperc): be van-e "
+                    "kapcsolva, milyen KÜLSŐ MEGHAJTÓ (HDD, pendrive) van csatlakoztatva — felcsatolva, szabad "
+                    "hellyel, vagy csatlakoztatva, de nem felcsatolva —, és mennyi a szabad hely. „Be van dugva a "
+                    "HDD?”, „be van kapcsolva a gép?”, „mennyi hely van?” → EZT hívd, akkor is, ha a Kommandant a "
+                    "cli-Claust nevezi meg: ő csak nyitott Claude Code-ablakkal él, a futár mindig. Ha a válasz az, "
+                    "hogy a gép nem elérhető, mondd meg: valószínűleg ki van kapcsolva."),
+    "parameters": {"type": "object", "properties": {}}}}
+
+
 def _ai_def(nev: str, ki: str) -> dict:
     return {"type": "function", "function": {
         "name": nev,
@@ -292,10 +311,10 @@ GEMINI_DEF = _ai_def("gemini", "a Geminitől (Google)")
 
 def eszkoz_definiciok() -> list:
     """A Feldwebel futár-eszközei: futár-csatorna nélkül egy sem; a `tudasbazis` és a `helyi_fajl` csak
-    Claude-elsődlegességnél."""
+    Claude-elsődlegességnél; a `gep_allapot` (nem személyes anyag) mindig."""
     if not bekotve():
         return []
-    return ([TUDASBAZIS_DEF, HELYI_FAJL_DEF] if claude_elerheto() else []) + [CHATGPT_DEF, GEMINI_DEF]
+    return ([TUDASBAZIS_DEF, HELYI_FAJL_DEF] if claude_elerheto() else []) + [GEP_ALLAPOT_DEF, CHATGPT_DEF, GEMINI_DEF]
 
 
 def sajat_e(nev: str) -> bool:
@@ -321,6 +340,8 @@ def _param(muvelet: str, args: dict) -> tuple[dict | None, str | None]:
         return {"kerdes": kerdes, "szurok": szurok, "tol": tol}, None
     if muvelet == "helyi_fajl":
         return _fajl_param(args)
+    if muvelet == "gep_allapot":
+        return {}, None                                # paramétere nincs: a futár egy rögzített lekérdezést futtat
     prompt = str(args.get("prompt") or args.get("kerdes") or "").strip()
     if not prompt:
         return None, "hiányzik a prompt"
@@ -369,7 +390,8 @@ def _hiba(szoveg: str) -> str:
 
 
 _FORRAS_NEV = {"tudasbazis": "a Kommandant tudásbázisa (a gépén)", "chatgpt": "ChatGPT (Codex, a Kommandant gépén)",
-               "gemini": "Gemini (a Kommandant gépén)", "helyi_fajl": "a Kommandant gépén lévő fájl"}
+               "gemini": "Gemini (a Kommandant gépén)", "helyi_fajl": "a Kommandant gépén lévő fájl",
+               "gep_allapot": "a Kommandant gépe (a futár olvasta, élőben)"}
 
 
 async def hiv(muvelet: str, args: dict, *, get_db, modell: str = "", token: str | None = None,

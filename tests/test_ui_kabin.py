@@ -369,14 +369,16 @@ def test_tortenet_ablakok_es_modell_a_targybol(db):
                   (s, r, subj, m))
     c.commit()
     fw = ui.tortenet(c, "feldwebel", None)["tetelek"]
-    assert [(x["ki"], x["szoveg"]) for x in fw] == [("kommandant", "szia"), ("feldwebel", "helló")]
+    # 11-25: a gépi Claus (cli-claus) válasza a Claus-beszélgetésben is ott van, ahol a kérdés elhangzott
+    assert [(x["ki"], x["szoveg"]) for x in fw] == [("kommandant", "szia"), ("feldwebel", "helló"),
+                                                     ("cli-claus", "kész a PR")]
     assert fw[0]["csatorna"] == "telegram"
     assert fw[1]["modell"] == "claude-sonnet-5-5" and fw[1]["eszkozok"] == ["web_search", "echolot_query"]
     km = ui.tortenet(c, "kimi", None)["tetelek"]
     assert [(x["ki"], x["szoveg"]) for x in km] == [("kommandant", "mit gondolsz?"), ("kimi", "szerintem jó")]
     assert km[0]["csatorna"] == "web" and km[1]["modell"] == "claude-haiku-5-5"
     pl = ui.tortenet(c, "postalada", None)["tetelek"]
-    assert [(x["ki"], x["szoveg"]) for x in pl] == [("cli-claus", "kész a PR")]
+    assert [(x["ki"], x["szoveg"]) for x in pl] == [("cli-claus", "kész a PR")] and pl[0]["targy"] == "Jelentés"
     c.close()
 
 

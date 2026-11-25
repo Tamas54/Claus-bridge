@@ -327,6 +327,18 @@ KATEGORIAK: dict[str, dict] = {
                  r"\ba\s+gepen\b|gepeden|\bnalam\s+van|fel\s*kene\s*toltenem|toltsem\s+fel|feltoltsem",
         "utmutato": U_DOKUMENTUM,
     },
+    # 11-25: „A gépemen meg tudja nézni Cli Claus, h a hdd be van csatlakozva?” — a futár azonnal felel (`gep_allapot`);
+    # a cli-Claus postájában a kérdés egy órán át válasz nélkül állt (ott csak nyitott Claude Code-ablak figyel)
+    "gep": {
+        "leiras": "a Kommandant gépe: be van-e kapcsolva, HDD/pendrive csatlakoztatva, szabad hely",
+        "eszkozok": ("gep_allapot",),
+        "minta": r"\bhdd\b|merevlemez|winyo|meghajto|pendrive|\bssd\b|kulso\s+lemez|"
+                 r"be\s*van\s*(dugva|csatlakoz|kapcsolva)|bedugva|csatlakoztatva|felcsatol|szabad\s+hely|tarhely|"
+                 r"\bgep(em)?\s+(be|ki)\s+van",
+        "utmutato": ("A GÉP ÁLLAPOTA: `gep_allapot` — azonnal, a gépen mindig futó futártól. Akkor is ezt hívd, ha a "
+                     "Kommandant a cli-Claust nevezi meg; ne postázd a kérdést. A válasz első sora a lényeg (be van-e "
+                     "dugva, felcsatolva-e, mennyi a hely)."),
+    },
     "tanacs": {
         "leiras": "melléklet, irat, tanulmány, tanácsadás (csak útmutató)",
         "eszkozok": (),

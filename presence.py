@@ -65,6 +65,20 @@ _last_write: dict[str, float] = {}
 # 1. AZONOSÍTÓ KINYERÉSE
 # ============================================================
 
+def friss(conn, instance: str, max_s: int = 120) -> bool:
+    """Az `instance` `max_s` másodpercen belül jelentkezett-e (a `heartbeats.last_seen`). A cli-Claus figyelője
+    (~/faber/claus_csatorna.py figyel) 15 mp-enként kérdez, ez az életjele. Sosem dob."""
+    try:
+        row = conn.execute("SELECT last_seen FROM heartbeats WHERE instance = ?", (instance,)).fetchone()
+        if not row or not row["last_seen"]:
+            return False
+        t = datetime.fromisoformat(str(row["last_seen"]))
+        t = t if t.tzinfo else t.replace(tzinfo=timezone.utc)
+        return (datetime.now(timezone.utc) - t).total_seconds() <= max_s
+    except Exception:  # noqa: BLE001
+        return False
+
+
 def caller_from_arguments(arguments: Optional[dict]) -> str:
     """Az instance-azonosító kinyerése egy tool-hívás argumentumaiból.
 

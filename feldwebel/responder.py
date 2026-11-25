@@ -226,11 +226,13 @@ TOOLS = [
             "Kész fájl (pptx, docx, pdf, xlsx, kép, videó; legfeljebb 50 MB) elküldése a Kommandant Telegramjára "
             "DOKUMENTUMKÉNT: a telefonon egy koppintással megnyílik (Keynote, Word), és nem jár le, mint a letöltő "
             "link. Forrás: Studio file_id (a `studio` files(action=\"list\", query=…) adja; a szerkesztő-link is jó) "
-            "vagy a Bridge-feltöltés #ID-ja."),
+            "vagy a Bridge-feltöltés #ID-ja. SZÖVEG IS: ha a Kommandant a kabinban azt kéri, hogy a választ (vagy "
+            "bármit) küldd át a Telegramra is, `szoveg`-gel, fájl nélkül — a kabin válasza alapból a kabinban marad."),
         "parameters": {"type": "object", "properties": {
             "studio_file_id": {"type": "string", "description": "Studio file_id, pl. '68126a532da746cab77c04b5cb5597a4.pptx'"},
             "upload_id": {"type": "integer", "description": "Bridge-feltöltés #ID (ha nem Studio-fájl)"},
             "caption": {"type": "string", "description": "Rövid kísérőszöveg (opcionális)", "default": ""},
+            "szoveg": {"type": "string", "description": "Fájl helyett szöveg a Telegramra (a Kommandant kérésére)"},
             "pontosan_ezt": {"type": "boolean", "description": "Alapból a fájl LEGÚJABB verziója megy; true = "
                              "pontosan ez a (régebbi) verzió", "default": False},
         }}}},
@@ -371,11 +373,15 @@ CÍMJEGYZÉK — így éred el a többieket (ne mondd, hogy „nincs csatornád�
   rájuk a Gmail-ben) → `ai_query` / `ai_task` (`ai_ugynokok`). Ha a Kommandant feladatot ad ki ("kérdezd meg",
   "nézzen utána", "elemezze") vagy név szerint említ egy agentet → AZONNAL add ki, NE válaszolj szövegben.
   Tudásbázis-tartalom NEM mehet nekik. A „Kimi, …” üzenet közvetlenül hozzájuk megy.
-- CLI-CLAUS (Claude Code a Kommandant gépén): a Kommandant „cli-Claus, …” kezdetű üzenete KÖZVETLENÜL neki megy, és ha
-  a gépen fut, a Telegramon ő maga válaszol. Ha a Kommandant azt kéri, hogy írj neki: `send_message` (recipient:
-  cli-claus), a Kommandant SAJÁT szavaival az előző üzenetéből — ne kérdezz vissza a szövegre, és ne a Fabernek szólj.
+- CLI-CLAUS (Claude Code a Kommandant gépén): a Kommandant „cli-Claus, …” kezdetű üzenete KÖZVETLENÜL neki megy. CSAK
+  akkor él, ha a gépen nyitva van egy Claude Code-ablak; a válasza a kabinban (a te beszélgetésedben) és a Telegramon
+  jelenik meg. Ha a Kommandant azt kéri, hogy írj neki: `send_message` (recipient: cli-claus), a Kommandant SAJÁT
+  szavaival az előző üzenetéből — ne kérdezz vissza a szövegre, és ne a Fabernek szólj. Az eredmény `cli_claus_figyel`
+  mezője megmondja, figyel-e most: ha nem, mondd meg egyenesen, hogy a kérdés a postájában vár, amíg ablakot nem nyit.
+  A GÉP ÁLLAPOTÁT (be van-e kapcsolva, be van-e dugva a HDD, szabad hely) NE tőle kérdezd: `gep_allapot` (futár).
 - WEB-CLAUS (Claude a claude.ai-on) → `send_message` (recipient: web-claus).
-- A FUTÁR (a Kommandant gépe: teljes tudásbázis, ChatGPT, Gemini) → `tudasbazis`, `chatgpt`, `gemini`.
+- A FUTÁR (a Kommandant gépe, mindig fut: teljes tudásbázis, ChatGPT, Gemini, a gép állapota) → `tudasbazis`,
+  `chatgpt`, `gemini`, `gep_allapot`.
 - NACHTSCHICHT (az éjszakai műszak, 05:50) → nincs közvetlen címe; reggel jelent a Telegramon.
 - FELADAT-ÜGYNÖKÖK (a Kommandant névvel ellátott munkásai) → `ugynok`; Telegramon szólnak, a kabinban saját ablakuk van.
 - HOG = X-posztra adatalapú válasz + Echolot-oldal → `hog_keszit`.
@@ -1022,6 +1028,30 @@ async def _eszkozkeszlet() -> list:
     return eszkoz_ut.keszlet(osszes, extra=[_kivonat.LAPOZ_DEF])
 
 
+def _cli_claus_nyugta(result: str, get_db) -> str:
+    """A cli-Claus-nak küldött üzenet eredménye + figyel-e most a gépen (11-25: a Feldwebel azt mondta, „a választ ő
+    maga küldi”, miközben a gépen nem futott figyelő, és a kérdés egy órán át a postában állt)."""
+    import presence
+    try:
+        conn = get_db()
+        try:
+            figyel = presence.friss(conn, "cli-claus")
+        finally:
+            conn.close()
+    except Exception:  # noqa: BLE001 — a nyugta kiegészítése nem viheti el a küldés eredményét
+        return result
+    try:
+        d = json.loads(result)
+        d = d if isinstance(d, dict) else {"eredmeny": d}
+    except (ValueError, TypeError):
+        d = {"eredmeny": result}
+    d["cli_claus_figyel"] = figyel
+    d["megjegyzes"] = ("a gépen most figyel egy Claude Code-ablak: a válasz a kabinban és a Telegramon jön" if figyel else
+                       "a gépen most NEM figyel Claude Code-ablak: az üzenet a cli-Claus postájában vár, amíg a "
+                       "Kommandant ablakot nem nyit — mondd meg neki; a gép állapotához ott a `gep_allapot`")
+    return json.dumps(d, ensure_ascii=False)
+
+
 def _futar_eszkozok() -> list:
     """A gépen futó futár eszközei (tudasbazis, helyi_fajl, chatgpt, gemini — futar_kliens.py); hibánál üres lista."""
     try:
@@ -1466,6 +1496,8 @@ async def _execute_tool(name: str, args: dict, ctx, kor: dict | None = None, *, 
             # `caller="feldwebel"` minden hívást TypeError-ral buktatott („unexpected keyword argument 'caller'”,
             # Faber #6). Az őr: tests/test_feldwebel_send_message.py.
             result = await send_msg_func(sender="feldwebel", recipient=recipient, subject=subject or "Feldwebel üzenet", message=message)
+            if recipient == "cli-claus":
+                result = _cli_claus_nyugta(result, ctx.get_db)
             return result
         except Exception as e:
             return json.dumps({"error": str(e)})
@@ -1769,7 +1801,8 @@ async def _execute_tool(name: str, args: dict, ctx, kor: dict | None = None, *, 
             return await kulso_mcp.hiv("studio", eszkoz, parameterek, max_kar=200_000)
         try:
             r = await telegram_fajl.kuld(args or {}, send_file=ctx.capture_state.get("_telegram_send_file"),
-                                         studio_hiv=_studio, get_db=ctx.get_db)
+                                         studio_hiv=_studio, get_db=ctx.get_db,
+                                         send_text=ctx.capture_state.get("_telegram_szoveg"))
         except Exception as e:  # noqa: BLE001
             r = {"error": f"{type(e).__name__}: {str(e)[:300]}"}
         return json.dumps(r, ensure_ascii=False)

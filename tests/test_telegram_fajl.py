@@ -126,3 +126,27 @@ def test_a_regi_azonositora_is_a_legujabb_verzio_megy():
     asyncio.run(T.kuld({"studio_file_id": SID, "pontosan_ezt": True}, send_file=send, studio_hiv=hiv, get_db=None,
                        letolt=_letolt))
     assert hivasok[0][1]["file_ids"] == [SID]
+
+
+def test_szoveg_is_mehet_telegramra_fajl_nelkul():
+    """11-25 este, a Kommandant: „de kérésre mehet a telegramra is!” — a kabin válasza a kabinban marad, kérésre a
+    szöveg a Telegramra is kimegy (a kabin elfogása nélkül)."""
+    elkuldott = []
+
+    async def send_text(t):
+        elkuldott.append(t)
+
+    r = asyncio.run(T.kuld({"szoveg": "A HDD most nincs csatlakoztatva."}, send_file=None, studio_hiv=None,
+                           get_db=None, send_text=send_text))
+    assert r["status"] == "sent" and r["karakter"] == 32 and elkuldott == ["A HDD most nincs csatlakoztatva."]
+
+    async def rossz(t):
+        raise RuntimeError("Telegram HTTP 400")
+
+    r = asyncio.run(T.kuld({"szoveg": "x"}, send_file=None, studio_hiv=None, get_db=None, send_text=rossz))
+    assert "nem fogadta el" in r["error"]
+    r = asyncio.run(T.kuld({"szoveg": "x"}, send_file=None, studio_hiv=None, get_db=None))
+    assert "nem elérhető" in r["error"]
+    r = asyncio.run(T.kuld({"szoveg": "x" * (T.SZOVEG_PLAFON + 1)}, send_file=None, studio_hiv=None, get_db=None,
+                           send_text=send_text))
+    assert "túl hosszú" in r["error"] and len(elkuldott) == 1

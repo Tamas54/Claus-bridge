@@ -13,6 +13,10 @@ Forrás:
   letöltő linket ad, a fájl ezen jön le;
 - a Bridge saját feltöltése (#ID, az `uploads` tábla).
 
+SZÖVEG IS (11-25 este, a Kommandant: „de kérésre mehet a telegramra is!”): a kabinban kérdezett válasz a kabinban
+marad (a webes kör a Telegram-kimenetet elfogja, `kimenet.elkap`). Ha a Kommandant kéri, hogy menjen át a Telegramra is,
+a `szoveg` paraméter fájl nélkül, a kabin elfogása nélkül küldi ki (`send_text`, darabolva).
+
 A Telegram bot-API dokumentumkorlátja 50 MB. Ennél nagyobb fájlt nem töltünk le, hanem kimondjuk, és a
 szerkesztő-link megy helyette.
 """
@@ -134,12 +138,28 @@ def feltoltes(upload_id: int, get_db) -> dict:
     return {"bajtok": bajtok, "nev": row["filename"] or f"feltoltes_{upload_id}"}
 
 
-async def kuld(args: dict, *, send_file, studio_hiv, get_db, letolt=_letolt) -> dict:
-    """A Feldwebel `telegram_fajl` eszköze. Siker: {"status": "sent", "nev", "meret_mb"}; különben {"error"}."""
-    if not send_file:
-        return {"error": "a Telegram-küldés most nem elérhető (nincs bot-token vagy chat-azonosító)"}
+SZOVEG_PLAFON = 20_000
+
+
+async def kuld(args: dict, *, send_file, studio_hiv, get_db, letolt=_letolt, send_text=None) -> dict:
+    """A Feldwebel `telegram_fajl` eszköze. Siker: {"status": "sent", "nev", "meret_mb"}; különben {"error"}.
+    Fájl nélkül, csak `szoveg`-gel: a szöveg megy ki (`send_text`), {"status": "sent", "karakter"}."""
     sid = studio_id(args.get("studio_file_id"))
     uid = args.get("upload_id")
+    szoveg = str(args.get("szoveg") or "").strip()
+    if szoveg and not sid and uid in (None, "", 0):
+        if not send_text:
+            return {"error": "a Telegram-küldés most nem elérhető (nincs bot-token vagy chat-azonosító)"}
+        if len(szoveg) > SZOVEG_PLAFON:
+            return {"error": f"túl hosszú szöveg (legfeljebb {SZOVEG_PLAFON} karakter) — tedd Word-be, és azt küldd"}
+        try:
+            await send_text(szoveg)
+        except Exception as e:  # noqa: BLE001 — a hiba kimondva megy vissza
+            return {"error": f"a Telegram nem fogadta el a szöveget: {str(e)[:200]}"}
+        logger.info("telegram_fajl: szöveg (%d karakter) elküldve", len(szoveg))
+        return {"status": "sent", "karakter": len(szoveg), "message": "Elküldve a Telegramra (szövegként)"}
+    if not send_file:
+        return {"error": "a Telegram-küldés most nem elérhető (nincs bot-token vagy chat-azonosító)"}
     kert = sid
     if sid and not args.get("pontosan_ezt"):
         sid = await legujabb_verzio(sid, studio_hiv=studio_hiv)
@@ -151,8 +171,8 @@ async def kuld(args: dict, *, send_file, studio_hiv, get_db, letolt=_letolt) -> 
         except ValueError:
             f = {"hiba": f"érvénytelen feltöltés-azonosító: {uid!r}"}
     else:
-        return {"error": "add meg a Studio file_id-t (studio_file_id, pl. „68126a53….pptx”) vagy a feltöltés "
-                         "#ID-ját (upload_id)"}
+        return {"error": "add meg a Studio file_id-t (studio_file_id, pl. „68126a53….pptx”), a feltöltés "
+                         "#ID-ját (upload_id), vagy szöveghez a `szoveg`-et"}
     if f.get("hiba"):
         return {"error": f["hiba"], **({"edit_url": f["edit_url"]} if f.get("edit_url") else {})}
     nev = f["nev"]

@@ -21,6 +21,8 @@ const UGYNOK = {
   glm5: { betu: 'G', szin: '#34d399', rovid: 'GLM' },
   faber: { betu: 'F', szin: '#fbbf24', rovid: 'Faber' },
 };
+// nem ablak, csak beszélő: a gépi Claus (Claude Code a Kommandant gépén) válasza a Claus-beszélgetésben (11-25)
+const BESZELO_JEL = { 'cli-claus': { betu: '🖥', szin: '#64748b', rovid: 'Claus · a gépen' } };
 const HELYKITOLTO = {
   feldwebel: 'Írj Clausnak, vagy mondd el a mikrofonnal…',
   kimi: 'Kérdezd Kimit…',
@@ -46,6 +48,7 @@ const feladatUgynok = (id) => S.adat?.ugynokok.find((u) => u.id === id)?.feladat
 function jel(ki) {
   if (UGYNOK[ki]) return UGYNOK[ki];
   if (VITA_JEL[ki]) return VITA_JEL[ki];
+  if (BESZELO_JEL[ki]) return BESZELO_JEL[ki];
   if (feladatE(ki)) {
     const nev = S.adat?.ugynokok.find((u) => u.id === ki)?.nev || 'Ügynök';
     return { betu: nev.slice(0, 1).toUpperCase(), szin: FELADAT_SZIN, rovid: nev };

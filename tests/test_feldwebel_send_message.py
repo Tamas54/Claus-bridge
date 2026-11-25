@@ -62,6 +62,41 @@ def test_ures_targy_alapertelmezest_kap_es_hianyzo_cimzett_kimondott_hiba(get_db
 
 # ── őr: a Feldwebel → Bridge-függvény hívások paraméterei egyezzenek a valódi szignatúrával ──
 
+def test_a_cli_claus_nyugta_megmondja_figyel_e_a_gep(get_db, monkeypatch):
+    """11-25: a Feldwebel azt mondta, „a választ ő maga küldi”, miközben a gépen nem futott figyelő — a kérdés egy
+    órán át a postában állt. Az eredmény most megmondja, figyel-e a cli-Claus (heartbeats, 120 mp)."""
+    from datetime import datetime, timedelta, timezone
+    import server
+    from feldwebel import responder
+    monkeypatch.setattr(server, "get_db", get_db)
+
+    class Ctx:
+        capture_state = {"_send_message_func": server.send_message}
+    Ctx.get_db = staticmethod(get_db)
+
+    def jelentkezett(mp_elotte):
+        conn = get_db()
+        conn.execute("CREATE TABLE IF NOT EXISTS heartbeats (instance TEXT PRIMARY KEY, last_seen TEXT, session_info TEXT)")
+        conn.execute("INSERT OR REPLACE INTO heartbeats (instance, last_seen) VALUES ('cli-claus', ?)",
+                     ((datetime.now(timezone.utc) - timedelta(seconds=mp_elotte)).isoformat(),))
+        conn.commit()
+        conn.close()
+
+    def kuld():
+        return json.loads(asyncio.run(responder._execute_tool(
+            "send_message", {"recipient": "cli-claus", "message": "be van dugva a HDD?"}, Ctx())))
+
+    jelentkezett(3600)
+    v = kuld()
+    assert v["status"] == "sent" and v["cli_claus_figyel"] is False and "NEM figyel" in v["megjegyzes"]
+    jelentkezett(10)
+    v = kuld()
+    assert v["cli_claus_figyel"] is True and "kabinban" in v["megjegyzes"]
+    v = json.loads(asyncio.run(responder._execute_tool(                     # más címzettnél nincs kiegészítés
+        "send_message", {"recipient": "web-claus", "message": "szia"}, Ctx())))
+    assert v["status"] == "sent" and "cli_claus_figyel" not in v
+
+
 def _kotesek() -> dict[str, str]:
     """A server.py `_capture_state["_x_func"] = fuggveny` sorai: kulcs → a függvény neve."""
     fa = ast.parse((GYOKER / "server.py").read_text(encoding="utf-8"))

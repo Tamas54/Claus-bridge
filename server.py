@@ -1868,15 +1868,7 @@ async def api_kozles(request):
 def cli_claus_figyel(conn, max_s: int = 120) -> bool:
     """Figyel-e most a gépen a cli-Claus: a figyelője `max_s` másodpercen belül kérdezett-e (GET /api/messages?
     recipient=cli-claus)."""
-    try:
-        row = conn.execute("SELECT last_seen FROM heartbeats WHERE instance = 'cli-claus'").fetchone()
-        if not row or not row["last_seen"]:
-            return False
-        t = datetime.fromisoformat(str(row["last_seen"]))
-        t = t if t.tzinfo else t.replace(tzinfo=timezone.utc)
-        return (datetime.now(timezone.utc) - t).total_seconds() <= max_s
-    except Exception:  # noqa: BLE001
-        return False
+    return presence.friss(conn, "cli-claus", max_s)
 
 
 @mcp.custom_route("/api/messages", methods=["GET", "POST"])
@@ -10871,6 +10863,21 @@ async def _telegram_push(text: str):
         logger.error("Telegram push failed: %s", e)
 
 
+async def _telegram_szoveg(text: str):
+    """Kifejezett kérésre a Telegramra (a Feldwebel `telegram_fajl` `szoveg`-e, 11-25): a webes kör elfogását
+    (`kimenet.elkap`) megkerüli, sima szövegként (parse_mode nélkül), darabolva. Bukásnál dob — a hiba kimondva megy
+    vissza az eszköznek, nem csendes siker."""
+    if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
+        raise RuntimeError("TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID nincs beállítva")
+    import httpx
+    async with httpx.AsyncClient(timeout=15) as client:
+        for darab in telegram_darabol(text):
+            r = await client.post(f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage",
+                                  json={"chat_id": TELEGRAM_CHAT_ID, "text": darab, "disable_web_page_preview": True})
+            if r.status_code != 200:
+                raise RuntimeError(f"Telegram HTTP {r.status_code}: {r.text[:200]}")
+
+
 TELEGRAM_DARAB = 3900
 
 
@@ -12584,6 +12591,7 @@ if FELDWEBEL_ENABLED:
     _capture_state["_send_message_func"] = send_message
     _capture_state["_search_discussions_func"] = search_discussions
     _capture_state["_telegram_send_file"] = _telegram_send_file
+    _capture_state["_telegram_szoveg"] = _telegram_szoveg
     _capture_state["_generate_xlsx"] = _generate_xlsx
     _capture_state["_generate_pptx"] = _generate_pptx
     # OPERATION HOG (2026-11-23): a képernyőképet a meglévő képelemzés olvassa ki (szöveg, szerző, @handle)

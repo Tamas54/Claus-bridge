@@ -200,12 +200,13 @@ def test_token_nelkul_nincs_csatorna_es_eszkoz(tmp_path, monkeypatch):
 # ── 2. A tudásbázis csak Claude-nak ─────────────────────────────────────
 
 def test_eszkozok_csak_claude_elsodlegessegnel(monkeypatch):
-    assert [d["function"]["name"] for d in fk.eszkoz_definiciok()] == ["tudasbazis", "helyi_fajl", "chatgpt", "gemini"]
+    assert [d["function"]["name"] for d in fk.eszkoz_definiciok()] == ["tudasbazis", "helyi_fajl", "gep_allapot",
+                                                                         "chatgpt", "gemini"]
     monkeypatch.setenv("LLM_ELSODLEGES", "siliconflow")
-    assert [d["function"]["name"] for d in fk.eszkoz_definiciok()] == ["chatgpt", "gemini"]
+    assert [d["function"]["name"] for d in fk.eszkoz_definiciok()] == ["gep_allapot", "chatgpt", "gemini"]
     monkeypatch.delenv("LLM_ELSODLEGES")
     monkeypatch.delenv("ANTHROPIC_API_KEY")
-    assert [d["function"]["name"] for d in fk.eszkoz_definiciok()] == ["chatgpt", "gemini"]
+    assert [d["function"]["name"] for d in fk.eszkoz_definiciok()] == ["gep_allapot", "chatgpt", "gemini"]
 
 
 @pytest.mark.parametrize("modell", ["deepseek-ai/DeepSeek-V4-Pro", "moonshotai/Kimi-K3", "zai-org/GLM-5.3-Flash",
@@ -607,3 +608,39 @@ def test_a_szandek_utvalaszto_betolti():
     for szoveg in ("De a downloadsban ottan vagyon a dolog… fel kéne töltenem?", "nézd meg az asztalon a levelet",
                    "a gépemen van a tanulmány", "a letöltések közt van a v7", "olvasd el, nálam van a gépen"):
         assert "dokumentum" in eszkoz_ut.szandek(szoveg), szoveg
+
+
+# ── A gép állapota (11-25) ──────────────────────────────────────────────
+# A Kommandant a kabinban: „A gépemen meg tudja nézni Cli Claus, h a hdd be van csatlakozva?” — a Feldwebel a cli-Claus
+# postájába tette (ott senki nem figyelt). Most a mindig futó futár felel, ott helyben.
+
+GEP_SZOVEG = ("A gép be van kapcsolva (üzemidő: 7 óra 13 perc).\n"
+              "KÜLSŐ MEGHAJTÓ (HDD, pendrive): NINCS csatlakoztatva — a gép egyet sem lát.")
+
+
+@pytest.mark.parametrize("modell", ["claude-haiku-5-5", "deepseek-ai/DeepSeek-V4-Pro", ""])
+def test_gep_allapot_a_futar_gep_muveletet_keri_parameter_nelkul(tmp_path, modell):
+    get_db = _db(tmp_path)
+    ered, (t, adat) = _run(_hiv_gep_ellen(get_db, "gep_allapot", {"cmd": "rm -rf ~", "ut": "/"},
+                                          {"valasz": {"ok": True, "szoveg": GEP_SZOVEG, "hiba": None, "mp": 0.1}},
+                                          modell=modell))
+    assert t["tipus"] == "gep" and adat["param"] == {}                      # semmi nem megy át a gépre paraméterként
+    assert ered == {"forras": "a Kommandant gépe (a futár olvasta, élőben)", "valasz": GEP_SZOVEG, "mp": 0.1}
+    assert not fk.tudasbazis_tartalom("gep_allapot", json.dumps(ered))      # nem személyes anyag: a kör nem védett
+
+
+def test_gep_allapot_kikapcsolt_gep_kimondva(tmp_path):
+    get_db = _db(tmp_path)
+    ered = json.loads(_run(fk.hiv("gep_allapot", {}, get_db=get_db, token=TOKEN, atvetel_s=0.1, lepes_s=0.01)))
+    assert ered == {"error": "a géped most nem elérhető (ki van kapcsolva?)"}
+
+
+def test_a_hdd_kerdes_a_gep_kategoriat_tolti_be():
+    from feldwebel import eszkoz_ut
+    assert eszkoz_ut.kategoria("gep_allapot") == "gep"
+    for szoveg in ("A gépemen meg tudja nézni Cli Claus, h a hdd be van csatlakozva?", "be van dugva a winyó?",
+                   "mennyi szabad hely van a gépen?", "be van kapcsolva a gépem?", "látszik a pendrive?",
+                   "a külső meghajtó fel van csatolva?"):
+        assert "gep" in eszkoz_ut.szandek(szoveg), szoveg
+    for szoveg in ("mi a helyzet a forinttal?", "írj Attilának", "új lemezt adott ki a Metallica"):
+        assert "gep" not in eszkoz_ut.szandek(szoveg), szoveg

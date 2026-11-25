@@ -579,6 +579,11 @@ def _osztalyoz(r, relay: dict) -> list[tuple[str, dict]]:
                                    "szoveg": f"{'Mehet' if m.group(1) == 'mehet' else 'Mégse'} — a #{m.group(2)} "
                                              f"kérelemre (továbbítva a Fabernek)"})]
         return []
+    if rc == "kommandant" and s == "cli-claus":
+        # 11-25: a gépi Claus válasza a beszélgetésben jelenjen meg, ahol a kérdés elhangzott (a Claus-ablakban), ne
+        # csak a postaládában — a Kommandant: „a kabinra nem jött a válasz, hanem a telegramra jött”
+        tetel = {**alap, "ki": "cli-claus", "tipus": "uzenet", "szoveg": msg}
+        return [("feldwebel", tetel), ("postalada", {**tetel, "targy": subj})]
     if rc == "kommandant" and s not in ("capture-daemon",):
         return [("postalada", {**alap, "ki": s, "tipus": "uzenet", "targy": subj, "szoveg": msg})]
     return []
