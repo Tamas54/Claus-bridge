@@ -8,10 +8,12 @@ import telegram_fajl as T
 SID = "68126a532da746cab77c04b5cb5597a4.pptx"
 
 
-def _studio(valasz):
+def _studio(valasz, lineage=None):
     hivasok = []
 
     async def hiv(eszkoz, parameterek):
+        if eszkoz == "history":
+            return json.dumps(lineage or {"descendants": []})
         hivasok.append((eszkoz, parameterek))
         return valasz if isinstance(valasz, str) else json.dumps(valasz)
     return hiv, hivasok
@@ -103,3 +105,24 @@ def test_a_feldwebel_latja_a_dokumentum_kategoriaban_a_rizsraketak_nem():
     import server
     assert "telegram_fajl" in server.SUBAGENT_TILTOTT
     assert "telegram_fajl" not in server.SUBAGENT_TOOL_NAMES
+
+
+UJ = "1e5289cf176243b7bc9face02aa83704.pptx"
+
+
+def test_a_regi_azonositora_is_a_legujabb_verzio_megy():
+    """11-25: a Feldwebel a régi (javítás előtti) azonosítót adta → „fájlformátum érvénytelen” az iPhone-on."""
+    lineage = {"descendants": [
+        {"file_id": UJ, "created_at": "2026-11-25T07:18:09+00:00", "deleted_at": None},
+        {"file_id": "aaaa530a639b4891ac747ac8620c0e49.pdf", "created_at": "2026-11-25T09:00:00+00:00"},
+        {"file_id": "bbbb530a639b4891ac747ac8620c0e49.pptx", "created_at": "2026-11-25T10:00:00+00:00",
+         "deleted_at": "2026-11-25T10:05:00+00:00"}]}
+    hiv, hivasok = _studio({"files": [{"filename": "mozgó, iPhone-Keynote.pptx",
+                                       "url": f"https://studio/files/{UJ}?t=1"}]}, lineage)
+    send, kuldott = _kuldo()
+    r = asyncio.run(T.kuld({"studio_file_id": SID}, send_file=send, studio_hiv=hiv, get_db=None, letolt=_letolt))
+    assert hivasok[0][1]["file_ids"] == [UJ] and UJ in r["verzio"] and kuldott
+    hiv, hivasok = _studio({"files": [{"filename": "régi.pptx", "url": f"https://studio/files/{SID}?t=1"}]}, lineage)
+    asyncio.run(T.kuld({"studio_file_id": SID, "pontosan_ezt": True}, send_file=send, studio_hiv=hiv, get_db=None,
+                       letolt=_letolt))
+    assert hivasok[0][1]["file_ids"] == [SID]

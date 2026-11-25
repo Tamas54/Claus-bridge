@@ -231,6 +231,8 @@ TOOLS = [
             "studio_file_id": {"type": "string", "description": "Studio file_id, pl. '68126a532da746cab77c04b5cb5597a4.pptx'"},
             "upload_id": {"type": "integer", "description": "Bridge-feltöltés #ID (ha nem Studio-fájl)"},
             "caption": {"type": "string", "description": "Rövid kísérőszöveg (opcionális)", "default": ""},
+            "pontosan_ezt": {"type": "boolean", "description": "Alapból a fájl LEGÚJABB verziója megy; true = "
+                             "pontosan ez a (régebbi) verzió", "default": False},
         }}}},
     # ── Fájl továbbítás ──
     {"type": "function", "function": {

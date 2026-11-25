@@ -80,6 +80,22 @@ async def _letolt(url: str, max_bajt: int = TG_MAX_BAJT) -> bytes:
     return b"".join(darabok)
 
 
+async def legujabb_verzio(file_id: str, *, studio_hiv) -> str:
+    """A fájl legújabb verziója a Studio verziófájából (history lineage → descendants, azonos kiterjesztés, nem
+    törölt, a legkésőbbi). 11-25: a Feldwebel a beszélgetésből a RÉGI azonosítót vette elő, és a javítás előtti
+    paklit küldte el („fájlformátum érvénytelen”), pedig az iPhone-ra javított már új verzióként fent volt."""
+    try:
+        d = json.loads(await studio_hiv("history", {"action": "lineage", "file_id": file_id}))
+    except Exception:  # noqa: BLE001 — a verziófa csak segít; nélküle a kért fájl megy
+        return file_id
+    kit = file_id.rsplit(".", 1)[-1].lower()
+    utodok = [u for u in (d.get("descendants") or []) if isinstance(u, dict) and not u.get("deleted_at")
+              and str(u.get("file_id") or "").lower().endswith("." + kit) and studio_id(u.get("file_id"))]
+    if not utodok:
+        return file_id
+    return max(utodok, key=lambda u: str(u.get("created_at") or ""))["file_id"]
+
+
 async def studio_fajl(file_id: str, *, studio_hiv, letolt=_letolt) -> dict:
     """{bajtok, nev, edit_url} vagy {"hiba", "edit_url"?}. `studio_hiv(eszkoz, parameterek)` → a Studio válasza
     szövegként (élesben `kulso_mcp.hiv("studio", …)`)."""
@@ -124,6 +140,9 @@ async def kuld(args: dict, *, send_file, studio_hiv, get_db, letolt=_letolt) -> 
         return {"error": "a Telegram-küldés most nem elérhető (nincs bot-token vagy chat-azonosító)"}
     sid = studio_id(args.get("studio_file_id"))
     uid = args.get("upload_id")
+    kert = sid
+    if sid and not args.get("pontosan_ezt"):
+        sid = await legujabb_verzio(sid, studio_hiv=studio_hiv)
     if sid:
         f = await studio_fajl(sid, studio_hiv=studio_hiv, letolt=letolt)
     elif uid not in (None, "", 0):
@@ -143,5 +162,8 @@ async def kuld(args: dict, *, send_file, studio_hiv, get_db, letolt=_letolt) -> 
         return {"error": "a Telegram nem fogadta el a fájlt (a Bridge naplójában az ok)",
                 **({"edit_url": f["edit_url"]} if f.get("edit_url") else {})}
     logger.info("telegram_fajl: %s (%.1f MB) elküldve", nev, len(f["bajtok"]) / 1048576)
-    return {"status": "sent", "nev": nev, "meret_mb": round(len(f["bajtok"]) / 1048576, 1),
-            "message": f"Elküldve Telegramra dokumentumként: {nev}"}
+    r = {"status": "sent", "nev": nev, "meret_mb": round(len(f["bajtok"]) / 1048576, 1),
+         "message": f"Elküldve Telegramra dokumentumként: {nev}"}
+    if kert and sid != kert:
+        r["verzio"] = f"a kért {kert} helyett a legújabb verzió ment: {sid}"
+    return r
