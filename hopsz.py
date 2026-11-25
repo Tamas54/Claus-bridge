@@ -491,8 +491,20 @@ def kivansag(lelet: Lelet, *, feladat: str, probalt: str) -> str:
                    f"Amit az ügynök próbált: {probalt}. Javítsd meg úgy, hogy legközelebb menjen; teszt a hibára.")
 
 
+#: 11-25, a Kommandant: „a Bridge rendszerünk gyakorlatilag egy összetett rendszer — az echo, a lexo, statdata stb mind
+#: benne van — tulképpen mindenhez hozzá kéne tudnia férni, ha probléma van”. A külső szolgáltatás eszközének (kulso_mcp)
+#: hibája annak a repójába megy (a Faber ott javít), minden más a Bridge-be. A Lexonomics akkor kerül ide, ha a Faber-
+#: profilja megvan (a tesztadatbázisa hiányzik).
+ESZKOZ_REPO = {"echolot": "echolot", "engine": "echolot", "makronom": "statdata", "studio": "studio"}
+
+
+def repo_eszkozhoz(eszkoz: str | None) -> str:
+    return ESZKOZ_REPO.get(str(eszkoz or ""), "bridge")
+
+
 def jelez(lelet: Lelet, *, feladat: str, probalt: str, most: float | None = None) -> int | None:
-    """A kapu (kapcsoló, 7 napos duplikáció, napi plafon), aztán EGY aláírt kérelem a Fabernek (repo: bridge)."""
+    """A kapu (kapcsoló, 7 napos duplikáció, napi plafon), aztán EGY aláírt kérelem a Fabernek (repo: a hibás
+    eszköz szolgáltatásáé — `repo_eszkozhoz` —, különben bridge)."""
     if not aktiv() or lelet.tipus != "hiany":
         return None
     get_db, memoria_ir, token_f = _DEPS.get("get_db"), _DEPS.get("memoria_ir"), _DEPS.get("bot_token")
@@ -519,7 +531,11 @@ def jelez(lelet: Lelet, *, feladat: str, probalt: str, most: float | None = None
                            lelet.hibatipus)
             return None
         szoveg = kivansag(lelet, feladat=feladat, probalt=probalt)
-        adat = faber_relay.szandek_adat({"szandek": "kivansag", "szoveg": szoveg, "repo": "bridge", "kerelem": None,
+        repo = repo_eszkozhoz(lelet.eszkoz)
+        if repo != "bridge":
+            szoveg += (f" (A hiba a(z) {lelet.eszkoz} szolgáltatás válaszából jött, ezért a(z) {repo} repóban "
+                       "keresd; ha mégis a Bridge oldalán van — kulso_mcp —, mondd ki a jelentésben.)")
+        adat = faber_relay.szandek_adat({"szandek": "kivansag", "szoveg": szoveg, "repo": repo, "kerelem": None,
                                          "forras": "hopsz", "eszkoz": lelet.eszkoz, "alairas": sig})
         conn = get_db()
         try:

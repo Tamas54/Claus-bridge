@@ -77,19 +77,19 @@ def tovabbit(conn, token: str, tipus: str, adat: str, ts: str) -> int | None:
 # ══ SZÁNDÉKFELISMERÉS (perjel nélkül) ═══════════════════════════════════
 
 SZANDEKOK = ("kivansag", "jovahagy", "elvet", "vissza", "allapot", "egyeb")
-REPOK = ("memoria-rag", "echolot", "lexonomics", "studio", "bridge")
+REPOK = ("memoria-rag", "echolot", "lexonomics", "studio", "bridge", "statdata")
 
 
 class SzandekValasz(BaseModel):
     szandek: Literal["kivansag", "jovahagy", "elvet", "vissza", "allapot", "egyeb"]
-    repo: Optional[Literal["memoria-rag", "echolot", "lexonomics", "studio", "bridge"]] = None
+    repo: Optional[Literal["memoria-rag", "echolot", "lexonomics", "studio", "bridge", "statdata"]] = None
     kerelem: Optional[int] = None
 
 
 #: Rövid prompt: egy szándékfelismerés pár száz bemeneti token, pár tucat kimeneti.
 SZANDEK_PROMPT = (
     "A Kommandant egy Telegram-üzenetét osztályozod. A Faber a gépén futó ügynök: a saját alkalmazásainkat "
-    "(memoria-rag, echolot, lexonomics, studio, bridge) tanítja — új képességet épít vagy hibát javít, kipróbálja, "
+    "(memoria-rag, echolot, lexonomics, studio, bridge, statdata) tanítja — új képességet épít vagy hibát javít, kipróbálja, "
     "és jóváhagyásra vár. Szándékok:\n"
     "- kivansag: új képességet vagy javítást kér valamelyik alkalmazásba (nem egyszeri kérdés, adat vagy feladat)\n"
     "- jovahagy: Faber-kérelmet élesít („élesítsd”, „mehet”, „igen, csináld”)\n"
@@ -108,6 +108,7 @@ _REPO_SZAVAK = (
     ("lexonomics", ("lexonomics", "lexo")),
     ("studio", ("studio", "stúdió")),
     ("bridge", ("bridge",)),
+    ("statdata", ("statdata", "makronóm", "makronom")),
 )
 _JOVAHAGY = ("élesítsd", "élesítheted", "élesíts", "mehet", "igen, csináld", "igen csináld", "jóváhagyom",
              "csináld meg")

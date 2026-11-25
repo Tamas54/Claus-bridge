@@ -987,7 +987,8 @@ FABER_DEF = {"type": "function", "function": {
     "parameters": {"type": "object", "properties": {
         "tipus": {"type": "string", "enum": ["kivansag", "allapot", "jovahagy", "elvet"]},
         "szoveg": {"type": "string", "description": "a kívánság vagy a megjegyzés, magyarul, önállóan érthetően"},
-        "repo": {"type": "string", "enum": ["bridge", "memoria-rag"], "description": "kívánságnál: melyik műhely"},
+        "repo": {"type": "string", "enum": ["bridge", "memoria-rag", "echolot", "statdata", "studio"],
+                 "description": "kívánságnál: melyik műhely"},
         "kerelem": {"type": "integer", "description": "jóváhagyásnál/elvetésnél a kérelem száma, ha ismert"},
     }, "required": ["tipus"]}}}
 

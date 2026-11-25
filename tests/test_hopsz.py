@@ -411,3 +411,14 @@ def test_a_kabin_a_hopsz_kerelmet_rendszer_tetelkent_mutatja(bridge):
         c.close()
     [(ablak, tetel)] = ui_kabin._osztalyoz(r, relay)
     assert ablak == "faber" and tetel["ki"] == "rendszer" and tetel["szoveg"].startswith("🔧 HOPSZ → Faber: HOPSZ")
+
+
+def test_kulso_szolgaltatas_hibaja_a_sajat_repojaba_megy():
+    """11-25, a Kommandant: a Bridge összetett rendszer — a Faber mindenhez férjen hozzá, ha probléma van."""
+    import hopsz
+    assert hopsz.repo_eszkozhoz("echolot") == "echolot" and hopsz.repo_eszkozhoz("engine") == "echolot"
+    assert hopsz.repo_eszkozhoz("makronom") == "statdata" and hopsz.repo_eszkozhoz("studio") == "studio"
+    for e in ("lexonomics", "foldgomb", "tudasbazis", "", None):        # profil nélkül → a Bridge
+        assert hopsz.repo_eszkozhoz(e) == "bridge"
+    import faber_relay
+    assert set(hopsz.ESZKOZ_REPO.values()) <= set(faber_relay.REPOK)
