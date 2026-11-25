@@ -39,6 +39,7 @@ def tiszta(monkeypatch):
     monkeypatch.delenv("LEXONOMICS_MCP_KEY", raising=False)
     monkeypatch.delenv("STUDIO_MCP_KEY", raising=False)
     monkeypatch.delenv("ECHOLOT_ENGINE_KEY", raising=False)
+    monkeypatch.delenv("TELEGRAM_BOT_TOKEN", raising=False)
     yield
     k._LISTAK.clear()
     k._HIBAK.clear()
@@ -52,6 +53,30 @@ def test_kulcs_nelkul_csak_a_nyilvanos_szerver_jelenik_meg(monkeypatch):
     monkeypatch.setenv("ECHOLOT_ENGINE_KEY", "engine_teszt")
     nevek = [d["function"]["name"] for d in _run(k.eszkoz_definiciok())]
     assert nevek == ["lexonomics", "medical", "echolot", "makronom", "engine", "studio"]   # állandó sorrend (cache)
+    monkeypatch.setenv("TELEGRAM_BOT_TOKEN", "123:TOKEN")                  # a földgömb kulcsa a bot-tokenből jön
+    nevek = [d["function"]["name"] for d in _run(k.eszkoz_definiciok())]
+    assert nevek == ["lexonomics", "medical", "echolot", "makronom", "engine", "foldgomb", "studio"]
+
+
+def test_foldgomb_kulcsa_sajat_tartomany_a_bot_tokenbol(monkeypatch):
+    """11-25: a God's Eye View /mcp-kapuja (kapu.mjs) sha256("foldgomb:" + bot-token)-t vár — új titok nélkül."""
+    import hashlib
+    assert k._kulcs("foldgomb") == "" and not k.bekotott("foldgomb")
+    monkeypatch.setenv("TELEGRAM_BOT_TOKEN", "123:TOKEN")
+    assert k._kulcs("foldgomb") == hashlib.sha256(b"foldgomb:123:TOKEN").hexdigest() and k.bekotott("foldgomb")
+    assert k._kulcs("foldgomb") != hashlib.sha256(b"futar:123:TOKEN").hexdigest()      # más tartomány, mint a futáré
+    assert "panel_request" in k.SZERVEREK["foldgomb"]["tiltott"]
+
+
+def test_a_helyzetkep_kerdes_a_foldgomb_kategoriat_tolti_be():
+    from feldwebel import eszkoz_ut
+    assert eszkoz_ut.kategoria("foldgomb") == "foldgomb"
+    for szoveg in ("mi a helyzet a Bab el-Mandeb-szorosban, látszanak tankerek?", "milyen katonai repülők vannak a "
+                   "Balti-tenger felett?", "keresd meg ezt a hajót: Ever Given", "van erdőtűz Görögországban?",
+                   "God’s eye view-ban mutasd Tajvant", "Gods eye: Tajvan"):
+        assert "foldgomb" in eszkoz_ut.szandek(szoveg), szoveg
+    for szoveg in ("mi a helyzet a forinttal?", "írj Attilának", "be van dugva a HDD?"):
+        assert "foldgomb" not in eszkoz_ut.szandek(szoveg), szoveg
 
 
 def test_definicio_a_neveket_es_parametereket_sorolja():

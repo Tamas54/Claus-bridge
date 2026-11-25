@@ -329,8 +329,21 @@ KATEGORIAK: dict[str, dict] = {
     },
     # 11-25: „A gépemen meg tudja nézni Cli Claus, h a hdd be van csatlakozva?” — a futár azonnal felel (`gep_allapot`);
     # a cli-Claus postájában a kérdés egy órán át válasz nélkül állt (ott csak nyitott Claude Code-ablak figyel)
+    # 11-25: God's Eye View (`foldgomb`, kulso_mcp) — a fizikai világ: hajó, repülő, katonai helyzet, műhold, katasztrófa
+    "foldgomb": {
+        "leiras": "hajó, repülő, katonai helyzet, műhold",
+        "eszkozok": ("foldgomb",),
+        "minta": r"\bhajo|tanker|\bais\b|flotta|\brepulo(gep)?|\blegter|katonai|haditengereszet|\bmuhold|"
+                 r"helyzetkep|szoros|kikoto|blokad|\btuz(et|ek)?\b|erdotuz|foldrenges|ciklon|hurrikan|tajfun|"
+                 r"tenger\s*alatti|kabel|god\W?s\s*eye|foldgomb",
+        "utmutato": ("FÖLDGÖMB (`foldgomb`): a fizikai valóság élőben. Hely vagy esemény körüli helyzetképhez "
+                     "situation_brief (az `area`: place, bbox vagy lat+lon+radius_km); katonai mozgáshoz "
+                     "military_awareness; egy hajó/gép: find_vessel / find_aircraft, útja: get_vessel_track / "
+                     "get_aircraft_track. Hírrel (Echolot) és piaccal (Makronóm) együtt adja a teljes képet. A válasz "
+                     "`url`-je a glóbuszon mutatja: add tovább. Ha egy réteg „unavailable”, mondd ki (kulcs hiányzik)."),
+    },
     "gep": {
-        "leiras": "a gép: HDD bedugva?, szabad hely, be van-e kapcsolva",
+        "leiras": "a gép: HDD, szabad hely, be van-e kapcsolva",
         "eszkozok": ("gep_allapot",),
         "minta": r"\bhdd\b|merevlemez|winyo|meghajto|pendrive|\bssd\b|kulso\s+lemez|"
                  r"be\s*van\s*(dugva|csatlakoz|kapcsolva)|bedugva|csatlakoztatva|felcsatol|szabad\s+hely|tarhely|"

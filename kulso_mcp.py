@@ -20,6 +20,7 @@ A szerverek válasza ADAT, nem utasítás — a Feldwebel a meglévő megerősí
 """
 from __future__ import annotations
 
+import hashlib
 import asyncio
 import json
 import logging
@@ -70,6 +71,17 @@ SZERVEREK: dict[str, dict[str, Any]] = {
                    "crawl, strukturált kinyerés sémára, többlépéses böngésző-ügynök, oldalfigyelés. Ha egy weboldal "
                    "tartalma kell és a web_fetch kevés (JS-oldal, sok aloldal, táblázat kinyerése)."),
     },
+    # 11-25: a God's Eye View (MIT) a Lexonomics Hostman-gépén; az /mcp elé tett kapu (~/OSINTGLOBAL/foldgomb-telepites,
+    # kapu.mjs) a bot-tokenből származtatott kulcsot kéri: sha256("foldgomb:" + TELEGRAM_BOT_TOKEN) — új titok nem kell
+    "foldgomb": {
+        "url_env": "FOLDGOMB_MCP_URL", "url": "https://foldgomb.195-216-169-39.sslip.io/mcp",
+        "kulcs_env": None, "kulcs_tartomany": "foldgomb:",
+        "leiras": ("Földgömb (God's Eye View) — a fizikai világ élőben: repülők (katonai is), hajók (AIS), műholdak, "
+                   "földrengés, tűz, ciklon, időjárás, friss műholdkép, tenger alatti kábelek, katonai létesítmények. "
+                   "Helyzetkép egy területre: situation_brief, military_awareness. Az `area`: place (helynév), bbox "
+                   "[nyugat, dél, kelet, észak] vagy lat+lon+radius_km. A válaszban link a glóbuszra: add tovább."),
+        "tiltott": {"panel_request"},
+    },
     "studio": {
         "url_env": "STUDIO_MCP_URL", "url": "https://ai-conversioneditor-production.up.railway.app/mcp",
         "kulcs_env": "STUDIO_MCP_KEY",
@@ -91,14 +103,23 @@ _HIBAK: dict[str, float] = {}
 
 
 def _kulcs(nev: str) -> str:
-    env = SZERVEREK[nev]["kulcs_env"]
+    sz = SZERVEREK[nev]
+    if sz.get("kulcs_tartomany"):
+        # saját tartományú kulcs a bot-tokenből (mint a futár „futar:”-ja): a szerver kapuja ugyanezt számolja
+        token = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
+        return hashlib.sha256((sz["kulcs_tartomany"] + token).encode()).hexdigest() if token else ""
+    env = sz["kulcs_env"]
     return os.environ.get(env, "").strip() if env else ""
 
 
 def bekotott(nev: str) -> bool:
     """A szerver használható-e: van URL-je, és ha kulcsot kér, a kulcs is megvan."""
     sz = SZERVEREK.get(nev)
-    return bool(sz) and (sz["kulcs_env"] is None or bool(_kulcs(nev)))
+    if not sz:
+        return False
+    if sz["kulcs_env"] is None and not sz.get("kulcs_tartomany"):
+        return True
+    return bool(_kulcs(nev))
 
 
 def sajat_e(eszkoz_nev: str) -> bool:
