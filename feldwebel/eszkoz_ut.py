@@ -447,6 +447,7 @@ _STRAT_NYUGTA = re.compile(r"^\W*(koszi|koszonom|kosz|ok[e]?|rendben|ertem|vette
 #: a stratégiai beszélgetés után ezek műveleti kérések (levél, naptár, fájl, közzététel…), nem a vita folytatása
 _STRAT_MUVELET = ("levelezes", "naptar_feladat", "dokumentum", "kommunikacio", "kozzetetel", "receptek",
                   "web_melyebb", "ai_ugynokok", "feladat_ugynokok")
+_STRAT_LINK = re.compile(r"https?://\S", re.IGNORECASE)
 
 
 def strategiai_szandek(szoveg: str, elozo_strategiai: bool = False) -> str | None:
@@ -465,7 +466,12 @@ def strategiai_szandek(szoveg: str, elozo_strategiai: bool = False) -> str | Non
     if m and not van_melleklet(szoveg) and "dokumentum" not in szandek(szoveg):
         return f"minta: {m.group(0).strip()}"
     if elozo_strategiai and not _STRAT_NYUGTA.match(s) and not van_melleklet(szoveg):
-        if not set(szandek(szoveg)) & set(_STRAT_MUVELET):
+        muvelet = set(szandek(szoveg)) & set(_STRAT_MUVELET)
+        if _STRAT_LINK.search(szoveg):
+            # 11-26: a reggeli nyitóra küldött index-cikk a link miatt „web_melyebb” lett → művelet → Haiku. A beküldött
+            # link a vita anyaga; a lap olvasása a stratégiai körben is megy.
+            muvelet.discard("web_melyebb")
+        if not muvelet:
             return "folytatás"
     return None
 

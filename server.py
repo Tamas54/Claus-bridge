@@ -6908,9 +6908,39 @@ async def _brave_mcp_scrape(url: str, wait_time: int = 3000) -> dict | None:
     """
     if not BRAVE_MCP_ENABLED:
         return None
-    return await _brave_mcp_call("brave_scrape",
-                                 {"url": url, "waitTime": wait_time},
-                                 timeout=90.0)
+    r = await _brave_mcp_call("brave_scrape",
+                              {"url": url, "waitTime": wait_time, "includeHtml": True},
+                              timeout=90.0)
+    return await _brave_cikktorzs(r, url)
+
+
+#: Ennél hosszabb lapnál a `markdown` helyén a cikktörzs megy (a hívók 6000–8000 karakternél vágnak).
+BRAVE_CIKK_KUSZOB = 6_000
+
+
+async def _brave_cikktorzs(r: dict | None, url: str) -> dict | None:
+    """A renderelt lapból a CIKKTÖRZS (2026-11-26).
+
+    Az index.hu GKI-cikkén a brave-markdown 52 ezer karakter volt, a cikk szövege a 9192. karakternél kezdődött; a
+    Feldwebel az első 6000-et adta tovább (menü, megosztógombok), és a modell azt mondta: „a cikk törzse nem jött be”.
+    Ha a lap nem fér ki, a renderelt HTML-ből a közös kivonatoló (trafilatura → readability) adja a cikket; ha az nem
+    talál cikket, vagy a lap kifér, a markdown marad. A HTML nem megy tovább.
+    """
+    if not isinstance(r, dict):
+        return r
+    html = r.pop("html", None)
+    md = str(r.get("markdown") or r.get("text") or "")
+    if html and len(md) > BRAVE_CIKK_KUSZOB:
+        try:
+            szoveg, ext = await asyncio.to_thread(extract_article_text, html, str(r.get("url") or url))
+        except Exception as e:  # noqa: BLE001 — a kivonatoló bukása a markdownt hagyja
+            logger.debug("brave cikktörzs %s: %s", url[:60], e)
+            szoveg, ext = "", "none"
+        if ext in ("trafilatura", "readability") and szoveg:
+            r["oldal_hossz"] = len(md)
+            r["markdown"] = szoveg
+            r["extractor"] = ext
+    return r
 
 
 async def _web_search(query: str, engine: str = "auto") -> str:
@@ -11772,6 +11802,29 @@ def _feldwebel_naptarra_var(chat_id: str) -> bool:
         return False
 
 
+#: A Telegram-válasz idézetéből ennyi megy a szöveg mögé.
+IDEZET_MAX_KAR = 500
+
+
+def _valasz_idezettel(msg: dict, text: str) -> str:
+    """A Telegram „Válasz” gombjával küldött üzenet + amire válaszol (2026-11-26).
+
+    Az „Ez érdekel” egy korábbi üzenetre válaszolt, de a Bridge csak a két szót kapta: a `reply_to_message` (és a
+    kijelölt rész, `quote`) eddig elveszett, és a modell a tudásbázis-kivonatot vette „beillesztett anyagnak”. A
+    perjeles parancs (/faber …) változatlan marad."""
+    if not text or text.lstrip().startswith("/"):
+        return text
+    idezet = str((msg.get("quote") or {}).get("text") or "").strip()
+    elozo = msg.get("reply_to_message") or {}
+    if not idezet:
+        idezet = str(elozo.get("text") or elozo.get("caption") or "").strip()
+    if not idezet:
+        return text
+    if len(idezet) > IDEZET_MAX_KAR:
+        idezet = idezet[:IDEZET_MAX_KAR].rstrip() + "…"
+    return f"{text}\n\n↩ (válasz erre az üzenetre: «{idezet}»)"
+
+
 async def _handle_telegram_message(text: str, chat_id: str, csatorna: str = "telegram"):
     """Process an incoming Telegram message from Kommandant.
 
@@ -12064,7 +12117,7 @@ async def _telegram_poll_loop():
                         continue
 
                     if text:
-                        await _handle_telegram_message(text, chat_id)
+                        await _handle_telegram_message(_valasz_idezettel(msg, text), chat_id)
 
         except Exception as e:
             logger.error("Telegram poll error: %s", e)
