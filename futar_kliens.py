@@ -22,7 +22,8 @@ láthatják”):
   eszköz csak a Kommandant saját példányainak (Claude) szól.
 - A futár sorai (kérés, nyugta, válasz) a SiliconFlow-ügynökök kontextusába nem kerülnek (`SF_KIZARAS_SQL`).
 - A Feldwebel köre, amelyben tudásbázis-tartalom van, csak Claude-dal megy (SiliconFlow-tartalék nélkül), és nem hív
-  SiliconFlow-ügynököt vagy általuk olvasott tárat (`sf_fele`) — lásd feldwebel/responder.py.
+  SiliconFlow-ügynököt vagy általuk olvasott tárat (`sf_fele`) — lásd feldwebel/responder.py. A Kommandant saját
+  Claude-példányainak (cli-Claus, web-Claus — `CLAUDE_POSTAK`) szóló Bridge-üzenet ilyen körből is megy (Faber #10).
 A ChatGPT és a Gemini nem kap automatikusan tudásbázis-kivonatot: csak azt, amit a hívó a promptba tesz.
 
 A GÉPEN LÉVŐ FÁJL (`helyi_fajl`, 11-23 — a Kommandant: „De a downloadsban ottan vagyon a dolog… fel kéne töltenem?”):
@@ -70,12 +71,18 @@ FUTAR_MUVELET = {"helyi_fajl": "fajl", "gep_allapot": "gep"}
 #: A Kommandant személyes anyaga: csak Claude-modell futtathatja, és a találat a kört védetté teszi.
 CLAUDE_CSAK_MUVELETEK = frozenset({"tudasbazis", "helyi_fajl"})
 CIMZETT, VALASZ_CIMZETT, FELADO = "futar", "futar-valasz", "futar"
+#: A Kommandant saját Claude-példányainak postája (Faber #10, 11-27): a cli-Claus (Claude Code a gépen) és a web-Claus
+#: (Claude a claude.ai-on). Mindkettő Claude-modell, és a teljes tudásbázist maga is eléri (a gépen a tudas.py, a Bridge
+#: MCP-n a `tudasbazis` eszköz — server.tudasbazis). A nekik szóló Bridge-üzenet ezért tudásbázis-tartalmú körből is
+#: mehet; a postájuk sorai a SiliconFlow-ügynökök kontextusába nem kerülnek (`SF_KIZARAS_SQL`).
+CLAUDE_POSTAK = frozenset({"cli-claus", "web-claus"})
 #: A futár sorai a messages táblában — és a Nachtschicht naplója (nachtschicht.py, 11-22: a tételei és a reggeli
 #: jelentés tudásbázis-tartalmat hordozhatnak), valamint a feladat-ügynökök naplója (feladat_ugynok.py, 11-23:
-#: sender = recipient = 'ugynok:<id>'; az ügynök olvashat tudásbázist). A SiliconFlow-ügynökök kontextusépítője ezeket
-#: SOHA nem veszi fel.
-SF_KIZARAS_SQL = ("(sender NOT IN ('futar', 'nachtschicht', 'faber') "
-                  "AND recipient NOT IN ('futar', 'futar-valasz', 'nachtschicht', 'faber') "
+#: sender = recipient = 'ugynok:<id>'; az ügynök olvashat tudásbázist), és (11-27) a Claude-példányok postája
+#: (`CLAUDE_POSTAK`: oda tudásbázis-tartalmú körből is megy üzenet, és a válaszuk is hordozhat ilyet). A
+#: SiliconFlow-ügynökök kontextusépítője és a DeepSeek-formázású reggeli összefoglaló ezeket SOHA nem veszi fel.
+SF_KIZARAS_SQL = ("(sender NOT IN ('futar', 'nachtschicht', 'faber', 'cli-claus', 'web-claus') "
+                  "AND recipient NOT IN ('futar', 'futar-valasz', 'nachtschicht', 'faber', 'cli-claus', 'web-claus') "
                   "AND sender NOT LIKE 'ugynok:%' AND recipient NOT LIKE 'ugynok:%')")
 #: A tudas.py -f választéka (a gépen a kozos.FORRASOK; a futár az ottani lista szerint ellenőriz).
 FORRASOK = ("jegyzet", "atirat", "doksi", "commit", "cm_kerdes", "cm_osszegzes", "cm_megfigyeles", "bridge_memoria",
@@ -102,9 +109,9 @@ CLAUDE_CSAK_JEL = ":claude-csak"
 REJTETT_ELOZMENY = ("(Korábbi válasz a Kommandant tudásbázisából. Adatvédelmi okból csak Claude-modell láthatja, "
                     "ezért itt nem szerepel.)")
 #: Eszközök, amelyek a kör tartalmát SiliconFlow-ügynökhöz (Kimi, DeepSeek, GLM), általuk olvasott tárba (feladat,
-#: recept, Bridge-üzenet) vagy nyilvánosan vinnék tovább. Tudásbázis-tartalmú körben nem futnak.
-SF_FELE = frozenset({"ai_query", "ai_task", "create_task", "execute_recipe", "create_recipe", "schedule_recipe",
-                     "send_message"})
+#: recept) vagy nyilvánosan vinnék tovább. Tudásbázis-tartalmú körben nem futnak. A Bridge-üzenet (`send_message`) a
+#: címzettől függ: lásd `SF_FELE_IRASKOR`.
+SF_FELE = frozenset({"ai_query", "ai_task", "create_task", "execute_recipe", "create_recipe", "schedule_recipe"})
 # ALAPELV (a Kommandant, 11-23): „az eszközeink … általánosan elérhetők minden agentünknek … Olyan eszközöket nem
 # adunk a kínaiak kezébe, amelyek RÓLAM, kifejezetten egyéni dolgokat használnak (lásd a tudásbázisom) … a főszabály:
 # azért építjük az eszközöket, hogy használjuk.” Ezért tudásbázis-tartalmú körben CSAK az tiltott, ami a tartalmat
@@ -141,8 +148,17 @@ def studio_ai_lepes(args: dict) -> bool:
     return False
 
 
+def claude_posta(cimzett) -> bool:
+    """A Bridge-üzenet címzettje a Kommandant saját Claude-példánya-e (cli-Claus, web-Claus)."""
+    return str(cimzett or "").strip().lower() in CLAUDE_POSTAK
+
+
 SF_FELE_IRASKOR = {"agora": lambda a: str(a.get("action") or "").lower() == "comment",
                    "story_comments": lambda a: bool(a.get("body")),
+                   # Faber #10 (11-27): a Kommandant kétszer kérte, hogy a cli-Claus nézze meg a gemini-api-cli-t; a
+                   # beszélgetésben korábbi tudásbázis-válasz volt, és a kapu MINDEN Bridge-üzenetet tiltott. A
+                   # Claude-példány (cli-Claus, web-Claus) címzett mehet; minden más címzett tiltott marad.
+                   "send_message": lambda a: not claude_posta(a.get("recipient")),
                    # a Pyramid-vita résztvevői (Kimi, DeepSeek, GLM) látják a témát, a kontextust és a hozzászólást
                    "vita": lambda a: str(a.get("muvelet") or "") in ("indit", "hozzaszol", "parancs")}
 
@@ -236,7 +252,8 @@ def sf_fele(nev: str, args: dict | None) -> bool:
 
 SF_FELE_HIBA = ("ebben a beszélgetésben a Kommandant tudásbázisából van tartalom, ami csak Claude-modellnek mehet ki — "
                 "SiliconFlow-ügynöknek (Kimi, DeepSeek, GLM), feladatba, receptbe, Bridge-üzenetbe vagy nyilvános "
-                "kommentbe nem adom tovább. Az eszközök (Echolot, Engine, Studio, szimulátor) mennek.")
+                "kommentbe nem adom tovább. Az eszközök (Echolot, Engine, Studio, szimulátor) mennek, és a Claude-"
+                "példányoknak (cli-claus, web-claus) szóló Bridge-üzenet is.")
 
 
 # ══ ESZKÖZÖK ═════════════════════════════════════════════════════════════
