@@ -1479,7 +1479,10 @@ async def _execute_tool(name: str, args: dict, ctx, kor: dict | None = None, *, 
             return json.dumps({"error": str(e)})
 
     if name == "send_message":
-        recipient = args.get("recipient", "")
+        recipient = str(args.get("recipient") or "").strip()
+        if futar_kliens.claude_posta(recipient):
+            # egy alakban („CLI-Claus” → cli-claus): a gépi figyelő és a SiliconFlow-kizárás (SF_KIZARAS_SQL) erre néz
+            recipient = recipient.lower()
         subject = args.get("subject", "")
         message = args.get("message", "")
         if not recipient or not message:

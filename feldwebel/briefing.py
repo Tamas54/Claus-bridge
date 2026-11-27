@@ -144,12 +144,19 @@ def _get_task_section(ctx) -> str:
 
 
 def _get_message_section(ctx) -> str:
-    """Unread Bridge messages (not capture-daemon)."""
+    """Unread Bridge messages (not capture-daemon).
+
+    A szakasz a DeepSeek-formázásba megy (`_deepseek_format`): a futár, a Nachtschicht, a Faber, a feladat-ügynökök
+    és a Claude-példányok (cli-Claus, web-Claus) postája kimarad (`futar_kliens.SF_KIZARAS_SQL`) — ezek tudásbázis-
+    tartalmat hordozhatnak (Faber #10, 11-27: a cli-Claus postáját a gépi figyelő nem jelöli olvasottnak, így a
+    Feldwebel tudásbázis-körből küldött üzenetének tárgya minden reggel a DeepSeekhez ment volna)."""
+    import futar_kliens
     try:
         conn = ctx.get_db()
         rows = conn.execute(
             "SELECT sender, subject, timestamp FROM messages "
             "WHERE status = 'unread' AND sender NOT IN ('capture-daemon', 'kommandant', 'feldwebel-deepseek') "
+            f"AND {futar_kliens.SF_KIZARAS_SQL} "
             "ORDER BY timestamp DESC LIMIT 5"
         ).fetchall()
         conn.close()
